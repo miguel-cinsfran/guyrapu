@@ -1,4 +1,4 @@
-# Paleta de colores: Bellbird
+# Paleta de colores: Guyrapu
 
 Referencia de los colores que usa la aplicación y para qué sirve cada uno. Hay
 tres superficies distintas, cada una con su paleta: la **ventana** (wxPython,
@@ -21,7 +21,7 @@ tocando. La paleta se llama **pájaro campana**.
   `SPI_GETHIGHCONTRAST`). Todo color se aplica a través de `_pintar` o
   `_tc`, que son los que respetan ese interruptor; no llamar a
   `SetBackgroundColour`/`SetForegroundColour` con colores de paleta por fuera.
-  `_T`, `_pintar`, `_tc` y `ALTO_CONTRASTE` viven en `bellbird/ui/tema.py`, no
+  `_T`, `_pintar`, `_tc` y `ALTO_CONTRASTE` viven en `guyrapu/ui/tema.py`, no
   en `gui`.
 - **Pocos colores con papel fijo.** Cada tono significa siempre lo mismo. Nada
   decorativo.
@@ -40,7 +40,7 @@ nombre a la app. El macho es blanco con la piel de la cara y la garganta
 turquesa verdosa: de ahí el blanco frío y el acento turquesa. Los neutros van
 teñidos hacia ese mismo tono, por eso son fríos.
 
-## Ventana (wxPython): `_T` en `bellbird/ui/tema.py`
+## Ventana (wxPython): `_T` en `guyrapu/ui/tema.py`
 
 Modo claro únicamente: wx pinta con el tema nativo de Windows y no hay tema
 oscuro propio (con contraste alto se apaga la paleta entera, ver arriba).
@@ -151,7 +151,7 @@ Contraste medido de cada par real de la documentación:
 
 ## Cómo cambiar un color sin romper nada
 
-1. Cambiarlo en el sitio que manda: `_T` en `bellbird/ui/tema.py` para la
+1. Cambiarlo en el sitio que manda: `_T` en `guyrapu/ui/tema.py` para la
    ventana, `:root` de `web/chat.html` más `overlay_datos.py` para el panel,
    `scripts/generar_docs.py` para la documentación.
 2. Recalcular el contraste del par afectado (fórmula WCAG; cualquier

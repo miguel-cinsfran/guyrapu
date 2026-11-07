@@ -5095,6 +5095,13 @@ msgstr "There are no profiles yet. Create them on the Profiles tab."
 msgid "{nombre}, {orientacion}"
 msgstr "{nombre}, {orientacion}"
 
+#. Traductores: nombre de la categoría de Preferencias con la sesión de
+#. YouTube.
+#: guyrapu/restream/resumen_cuenta.py guyrapu/ui/gui_preferencias.py
+#: guyrapu/ui/restream_perfil.py
+msgid "YouTube"
+msgstr "YouTube"
+
 #: guyrapu/restream/resumen_cuenta.py
 msgid ", sin destinos"
 msgstr ", no destinations"
@@ -8778,12 +8785,6 @@ msgstr "The microphone is muted in OBS."
 #: guyrapu/ui/gui_microfono.py
 msgid "El micrófono recibe sonido."
 msgstr "The microphone is receiving sound."
-
-#. Traductores: nombre de la categoría de Preferencias con la sesión de
-#. YouTube.
-#: guyrapu/ui/gui_preferencias.py guyrapu/ui/restream_perfil.py
-msgid "YouTube"
-msgstr "YouTube"
 
 #: guyrapu/ui/gui_preferencias.py
 msgid "Preferencias"

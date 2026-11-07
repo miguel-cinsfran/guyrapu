@@ -216,121 +216,82 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md ad678a8f0c2ffbf1afabb9dd71c5de7f5baf64e0 -->
+<!-- original: es/MANUAL.md 56823255c80cbc793caef50499375addffd119d6 -->
 
-<h1 id="bellbird-user-manual">Bellbird, user manual</h1>
+<h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
 intelligence. If you find an error, report it at <a
-href="https://github.com/miguel-cinsfran/bellbird/issues">https://github.com/miguel-cinsfran/bellbird/issues</a>.
+href="https://github.com/miguel-cinsfran/guyrapu/issues">https://github.com/miguel-cinsfran/guyrapu/issues</a>.
 See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
-<p>Bellbird reads the chat of YouTube and TikTok live streams aloud for
-people who are blind or have low vision and stream. The whole
-application is handled with the keyboard and tested with NVDA.</p>
-<p>Version 3.0.0 beta 1 · Windows 10 and 11 · <a
-href="CHANGELOG.html">what's new in each version</a></p>
-<h2 id="contents">Contents</h2>
-<ul>
-<li><a href="#what-it-does">What it does</a></li>
-<li><a href="#installation">Installation</a></li>
-<li><a href="#getting-started">Getting started</a></li>
-<li><a href="#the-chat">The chat</a></li>
-<li><a href="#player">Player</a></li>
-<li><a href="#music">Music</a></li>
-<li><a href="#going-live">Going live</a></li>
-<li><a href="#camera-framing">Camera framing</a></li>
-<li><a href="#scene">Scene</a></li>
-<li><a href="#recording">Recording</a></li>
-<li><a href="#chat-panel-for-streaming">Chat panel for
-streaming</a></li>
-<li><a href="#scheduled-messages">Scheduled messages</a></li>
-<li><a href="#downloads-and-history">Downloads and history</a></li>
-<li><a href="#spoken-status">Spoken status</a></li>
-<li><a href="#asking-the-ai">Asking the AI</a></li>
-<li><a href="#google-session">Google session</a></li>
-<li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
-<li><a href="#accessibility">Accessibility</a></li>
-<li><a href="#updating">Updating</a></li>
-<li><a href="#where-preferences-are-saved">Where preferences are
-saved</a></li>
-<li><a href="#common-problems">Common problems</a></li>
-</ul>
-<h2 id="what-it-does">What it does</h2>
-<ul>
-<li>Reads the chat of a YouTube or TikTok live stream with the Windows
-or ElevenLabs voices, with a different sound for each type of
-message.</li>
-<li>Reads and posts comments on YouTube videos.</li>
-<li>Plays the live stream video inside the application.</li>
-<li>Plays music from your folder, your playlists or YouTube while you
-stream.</li>
-<li>Starts and ends your live stream with OBS Studio and describes by
-voice how the scene looks.</li>
-<li>Shows the chat to your viewers in a panel for OBS.</li>
-<li>Moderates, writes in the chat and sends scheduled messages with your
-Google session.</li>
-<li>Downloads video and audio.</li>
-</ul>
-<p>On TikTok it only reads, because TikTok has no official way to
-comment or moderate.</p>
+<p>Guyrapu reads the chat of YouTube and TikTok live streams aloud, and
+controls OBS Studio and Restream from the keyboard. It is designed for
+people who are blind or have low vision and stream, and it is tested
+with NVDA.</p>
+<p>Version 3.0.0 beta 2 · Windows 10 and 11 · <a
+href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
-<p>Extract the ZIP to any folder and open <code>Bellbird.exe</code>; you
-do not need to install anything or have administrator permissions,
-because the ZIP brings everything you need.</p>
+<p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
+do not need to install anything or have administrator permissions.</p>
 <p>You need Windows 10 or 11, an internet connection and at least one
-Windows voice, which you choose in <em>Settings, Time &amp; language,
-Speech</em>; ElevenLabs is optional and requires your own account.</p>
-<h2 id="getting-started">Getting started</h2>
-<p>When the application opens, the focus is in the <em>Link or ID</em>
-field: paste the link of the live stream or the video and press
-<code>Enter</code>. If you have already watched other live streams, the
-window offers the <em>Recent items</em> list (<code>Alt+N</code>).
-<code>Enter</code> opens one, <code>Delete</code> removes it from the
-history, and the context menu offers to open it, remove it or open the
-full history.</p>
-<p>The window has three regions, <em>Connection</em>, <em>Content</em>
-and <em>Player</em>, and <code>F6</code> and <code>Shift+F6</code> move
-from one to another, while <code>Ctrl+Tab</code> switches between the
-chat, comments and information tabs. Each change of region or tab is
-announced. The Applications key opens the context menu of the chat or
-comment list.</p>
+Windows voice, which is added in <em>Settings, Time &amp; language,
+Speech</em>. ElevenLabs is optional and requires your own account.</p>
+<h2 id="the-main-window">The main window</h2>
+<p>When you open Guyrapu, the focus is in the <em>Link or ID</em> field.
+Paste the link of a live stream or a video and press <em>Connect</em>.
+The <em>Recent items</em> list offers the live streams you have already
+opened.</p>
+<p>The window has three regions: <em>Connection</em>, <em>Content</em>
+and <em>Player</em>. In <em>Content</em> are the <em>Live chat</em>,
+<em>Comments</em> and <em>Information</em> tabs. Every change of region
+or tab is announced.</p>
+<table>
+<thead>
+<tr>
+<th>Key in the Recent items list</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enter</code></td>
+<td>Open the live stream</td>
+</tr>
+<tr>
+<td><code>Delete</code></td>
+<td>Remove it from the history</td>
+</tr>
+</tbody>
+</table>
 <h2 id="the-chat">The chat</h2>
-<p>Each message is read with the chosen voice and sounds different
-depending on who writes: channel owner, moderator, verified account or
-member. It also changes depending on what it is: Super Chat, membership
-or TikTok gift.</p>
-<p>On TikTok, stickers and live questions are also read. In
-<em>Preferences</em>, on the <em>Reading</em> category, the <em>Live
-events</em> group has one list per event: <em>Super Chats and
-gifts</em>, <em>Memberships</em>, <em>Live joins</em>, <em>Likes</em>,
-<em>New followers</em>, <em>Shared live streams</em> and <em>Treasure
-chests</em>. Each list chooses between <em>Main voice</em>,
-<em>Secondary voice</em>, <em>Sound only</em>, <em>List only</em> and
-<em>Off</em>. <em>Main voice</em> and <em>Secondary voice</em> show it
-in the list, play its sound and read it; <em>Sound only</em> shows it
-and plays its sound without reading it; <em>List only</em> shows it in
-the list without reading it and without sound; <em>Off</em> does not
-show it. By default, joins and likes are set to <em>Sound only</em>, and
-the rest to <em>Main voice</em>. Below <em>Live joins</em> there is a
-checkbox, <em>Group joins</em>, and a counter, <em>Group joins for, in
-seconds</em>, that decide how many seconds joins are grouped before they
-are announced as a single row. Below <em>Likes</em> there is a checkbox,
-<em>Group likes</em>, and a counter, <em>Group likes for, in
-seconds</em>, that do the same with the likes of the same person before
-the total is announced. Both checkboxes come checked by default; when
-unchecked, every join and every like is announced as it arrives. The
-secondary voice and its settings are chosen in <em>Preferences</em>, on
-the <em>Voices</em> category. If the streamer pauses the live stream,
-you hear “The TikTok live stream is paused.”, and when it resumes, “The
-TikTok live stream continues.”, each one with its sound.</p>
-<p>In the list, the arrows move from message to message and typing a few
-letters jumps to the first author that starts that way. The context menu
-copies the message, mutes the author for the session, sets an alias and,
-with a Google session, puts the author in timeout or hides the author on
-the YouTube channel.</p>
+<p>Each message is read with the chosen voice and has a sound according
+to who writes (channel owner, moderator, verified account or member) and
+according to what it is (Super Chat, membership or TikTok gift).</p>
+<p>In the chat list, the arrows move from one message to another, and
+when you type a few letters the focus jumps to the first author that
+starts that way. The context menu copies the message, mutes the author
+for the session and assigns an alias. With the Google session started,
+it also puts the author in timeout or hides them from the channel.</p>
+<p>On TikTok, Guyrapu only reads: TikTok does not offer an official way
+to comment or moderate.</p>
+<h3 id="live-events">Live events</h3>
+<p>Joins, likes, followers, gifts, polls, goals and TikTok battles are
+configured in <em>Preferences</em>, on the <em>Live events</em>
+category. Each event has a list with five modes:</p>
+<ul>
+<li><em>Main voice</em> and <em>Secondary voice</em>: it appears in the
+list, plays a sound and is read with that voice.</li>
+<li><em>Sound only</em>: it appears and plays a sound, without being
+read.</li>
+<li><em>List only</em>: it appears without sound and without being
+read.</li>
+<li><em>Off</em>: it does not appear.</li>
+</ul>
+<p><em>Group joins</em> and <em>Group likes</em> bring together in one
+row what arrives in a few seconds, such as “Ana, Beto and Caro
+joined”.</p>
 <h3 id="reading-format">Reading format</h3>
-<p>The reading format is chosen in <em>Preferences</em>, on the
-<em>Reading</em> category, and decides which part of each message is
-read.</p>
+<p>The format decides which part of the message is read. It is chosen in
+<em>Preferences</em>, on the <em>Reading</em> category.</p>
 <table>
 <thead>
 <tr>
@@ -357,610 +318,475 @@ read.</p>
 </tr>
 </tbody>
 </table>
-<p>The words and users that are not read are configured in
-<em>Preferences</em>, on the <em>Filters</em> category.</p>
-<h3 id="voices">Voices</h3>
-<p>Bellbird can read the chat with three voice engines: SAPI 5 and
-OneCore, which come with Windows, and ElevenLabs, which needs an
-account. To choose the engine, the main voice, the speed, the volume and
-the pitch, open <em>Preferences</em> and go to the <em>Voices</em>
-category. The <em>Test voice</em> button plays a sample before saving.
-The <em>Secondary voice</em> group chooses the voice for the events set
-to that mode in <em>Preferences</em>, on the <em>Reading</em> category:
-<em>Voice</em>, <em>Speed (0 to 100)</em>, <em>Volume (0 to 100)</em>
-and <em>Test secondary voice</em>. With <em>Same as the main voice</em>,
-the secondary voice plays with the main voice and its own settings. With
-ElevenLabs, <em>Backup Windows voice</em> chooses the voice that plays
-if the network fails or the balance runs out, and <em>Same as the main
-voice backup</em> follows the main voice backup. You can also set a
-character limit per session or use ElevenLabs only for important
-messages. If the network fails or the balance runs out, the application
-reads with the Windows voice and warns you once. The key is saved in
-<code>credenciales.json</code>.</p>
+<p>The words and users that are not read are written in the
+<em>Filters</em> category.</p>
 <h3 id="alias">Alias</h3>
-<p>The alias is for names that are a combination of letters and numbers.
-Open the context menu of a message, choose <em>Assign alias to
-<author>…</em> and type how you want to hear it. The alias also applies
-to messages that were already there, and moderation still acts on the
-real account. If the author already has an alias, the menu says
-<em>Change alias of <author>…</em>. To remove it, leave the field
-empty.</p>
+<p>An alias changes how an author's name is read, for example one made
+of letters and numbers. In the context menu of a message, choose
+<em>Assign alias to <author>…</em>. The alias also applies to previous
+messages, and moderation still acts on the real account. To remove it,
+leave the field empty.</p>
 <h3 id="writing-in-the-chat">Writing in the chat</h3>
-<p>The writing box comes after the list in the Tab order, and
-<code>Alt+Enter</code> moves the focus to it from anywhere.
-<code>Enter</code> sends the message and <code>Shift+Enter</code>
-inserts a line break. If something is missing to be able to write, such
-as the Google session or a YouTube live stream with chat, the
-<em>Send</em> button is still reachable with Tab and its name says what
-is missing. The limit is 200 characters.</p>
-<h3 id="sounds">Sounds</h3>
-<p>There is a sound for each thing: messages, Super Chats, members,
-TikTok gifts by size, followers, joins, the connection, errors and the
-edge when you reach the start or the end of a list. <code>F7</code>
-mutes them all. To silence only one, clear its check box in
-<em>Preferences</em>, on the <em>Sounds</em> category, where <em>Play
-the selected sound</em> plays each one. The sound theme is chosen in the
-same category, before the list of check boxes: <em>Default</em>, with
-recorded sounds, or <em>Soft</em>, shorter and softer. To make your own,
-copy <code>sounds/themes/default</code> with another name and change the
-<code>.wav</code> files, and <code>sounds/CREDITOS.md</code> says where
-each sound comes from.</p>
-<h3 id="video-comments">Video comments</h3>
-<p>With a published video, the comments tab shows the comments and reads
-them. With a Google session you can comment and reply.</p>
+<p>The <em>Message</em> box comes after the chat list. To write you need
+the Google session and a YouTube live stream with the chat open. If
+something is missing, the <em>Send</em> button says so in its name. Each
+message accepts up to 200 characters.</p>
+<table>
+<thead>
+<tr>
+<th>Key in the Message box</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enter</code></td>
+<td>Send the message</td>
+</tr>
+<tr>
+<td><code>Shift+Enter</code></td>
+<td>Insert a line break</td>
+</tr>
+</tbody>
+</table>
+<p>On a published video, the <em>Comments</em> tab reads the comments,
+and with the Google session it lets you comment and reply.</p>
+<h2 id="voices-and-sounds">Voices and sounds</h2>
+<p>Guyrapu reads with three voice engines: SAPI 5 and OneCore, which
+come with Windows, and ElevenLabs, which requires an account. The
+engine, the voice, the speed, the volume and the pitch are chosen in
+<em>Preferences</em>, on the <em>Voices</em> category, where <em>Test
+voice</em> plays a sample. If ElevenLabs fails because of the network or
+a lack of balance, Guyrapu reads with the <em>Backup Windows voice</em>
+and warns you once.</p>
+<p>Each type of message, event and notice has its sound. In the
+<em>Sounds</em> category you choose the theme, <em>Default</em> or
+<em>Soft</em>, and turn off each sound separately. To create your own
+theme, copy the <code>sounds/themes/default</code> folder with another
+name and replace the <code>.wav</code> files.</p>
 <h2 id="player">Player</h2>
-<p>The live stream video plays inside the application, with libVLC.
-Quality is chosen in the <em>Player</em> menu, and the on-screen buttons
-are hidden from that menu or from <em>Preferences</em>, on the
-<em>Player</em> category.</p>
-<p>In a live stream, one-minute jumps add up and say where you land, for
-example “40 seconds behind the live stream”. With YouTube's separate
-tracks you can go back up to an hour, and <code>Ctrl+End</code> returns
-to the live stream. In a video, the position slider arrows move ten
-seconds.</p>
-<p>If a YouTube live stream with separate tracks loses its connection
-and starts cutting out, the application reconnects it at the same point
-and says “Reconnecting the live stream”, with its sound. It does this up
-to three times in ten minutes. If it keeps cutting out, it warns once
-“The live stream keeps cutting out. Reload it if it doesn't improve.”,
-with another sound, and does not warn again until you load another
-video.</p>
-<p>The <em>Play sound only, without the picture</em> check box, in
-<em>Preferences</em>, on the <em>Player</em> category, is checked. With
-it, a recorded video opens a single link and jumps in less than a
-second, and the quality is not used. If the audio track is larger than
-10 MB, that link has somewhat lower sound quality. Cleared, you see the
-picture and each jump takes a few seconds. In a live stream the way of
-connecting does not change: only the picture stops showing.</p>
-<p>A TikTok live stream cannot be paused: when you press play or pause,
-the application says so and names the Mute audio shortcut,
-<code>Ctrl+M</code>, which silences it without interrupting it.</p>
-<p>The audio of each YouTube video is saved in
-<code>data/cache-audio</code>, so that pausing and jumping respond
-instantly, and the last three are kept.</p>
+<p>The live stream video plays inside Guyrapu, with the commands in the
+<em>Player</em> menu. In a live stream, each jump says the distance to
+the live stream, for example “40 seconds behind the live stream”, and on
+YouTube you can go back up to an hour. If the connection fails, Guyrapu
+reconnects at the same point.</p>
+<p><em>Play sound only, without the picture</em>, in
+<em>Preferences</em>, on the <em>Player</em> category, is checked:
+without the picture, jumps are almost immediate.</p>
 <h2 id="music">Music</h2>
-<p>To play music while you stream, without opening another application,
-use the Music folder next to the application, or the one you choose in
-<em>Preferences</em>, on the <em>Music</em> category. Music is handled
-from the <em>Music</em> menu or with the <code>Ctrl+Alt</code> shortcuts
-(see the <a href="#music-ctrlalt">table</a>).</p>
-<p>The <em>Music</em> window (<code>Ctrl+Shift+M</code>):</p>
+<p>Guyrapu plays music while you stream. It uses the Music folder next
+to the application, or the one you choose in <em>Preferences</em>, on
+the <em>Music</em> category. The commands are in the <em>Music</em>
+menu, and <em>Choose music…</em> opens the <em>Music</em> window:</p>
 <ul>
-<li><em>Collections</em>: <em>Library</em> is your folder and, next,
-your playlists, each one with how many songs it has (“Library:
-195”).</li>
-<li><em>Find</em>: filters while you type, even if you do not type
-accents.</li>
-<li><em>Songs</em>: <code>Enter</code> plays. The context menu plays
-now, next after the current song and without interrupting it, or plays
-from there to the end. It also adds the song to the queue or to a
-playlist, or creates a new playlist.</li>
-<li><em>Show the queue</em>: what is going to play, in order.</li>
-<li><em>Open link…</em>: a video or a whole YouTube playlist, which is
-added to the queue.</li>
-<li><em>Refresh folder</em>: scans it again and says how many new and
-deleted songs it found.</li>
+<li><em>Collections</em> shows the <em>Library</em>, which is your
+folder, and your playlists.</li>
+<li><em>Find</em> filters while you type, also without accents.</li>
+<li><em>Songs</em> has a context menu to play now, next or to the end,
+and to add to the queue or to a playlist.</li>
+<li><em>Show the queue</em> shows what is going to play.</li>
+<li><em>Open link…</em> adds a YouTube video or playlist to the
+queue.</li>
 </ul>
-<p>New songs appear on their own in the list, without choosing the
-folder again: the application watches the folder and updates it without
-warning.</p>
-<p>Playlists are saved as <code>.m3u8</code> files, which other players
-can open. When you reopen the application, Play follows the last queue
-from where it was and says how many songs it has, which may not be the
-whole folder if it was a search. To always start with the whole folder,
-turn off <em>Remember the last playlist on open</em> in
-<em>Preferences</em>, on the <em>Music</em> category.</p>
-<p>In <em>Preferences</em>, on the <em>Music</em> category, you also
-choose shuffle, repeat (nothing, whole queue or current song), music
-volume and audio output. To choose what is said when a song changes, you
-have nothing, the title, the title and the artist, or only the artist.
-If you choose nothing, changing songs with the shortcut still says the
-title. Another check box decides whether pause, resume and return to the
-beginning are announced.</p>
-<p>The <em>Match song volume</em> check box, on by default, makes all
-songs sound similar, as in Spotify. Each file is measured once with
-ffmpeg and its volume is corrected when each song starts. The files are
-not modified: only the result is saved in a cache. The application never
-measures on its own, not when reading the folder, not when saving
-preferences, not when playing with a shortcut.</p>
-<p>When you open the <em>Music</em> window, if there are songs not yet
-measured, the application asks how many there are and how much space
-they take, with <em>Yes</em> and <em>No</em>. The <em>Do not ask
-again</em> check box saves that it should not ask again, and the
-question is turned on or off in <em>Preferences</em>, on the
-<em>Music</em> category. The window has the <em>Match the volume</em>
-button, which starts measuring; while it measures, the button changes to
-<em>Stop matching</em>. Progress is shown in the window or with
-<code>F2</code>, and YouTube links play at their own volume.</p>
-<p>When one song changes to the next, the end of one fades into the
-beginning of the other, without the silence that many files have at the
-start and end. The fade length is chosen in <em>Preferences</em>, on the
-<em>Music</em> category, in <em>Crossfade between songs, in
-seconds</em>: from 0 to 12, with 6 by default, and 0 turns it off.
-Changing songs with the shortcut makes a short fade, of half a second.
-The song change sound is off by default and is turned on in the same
-category.</p>
-<p>The <em>Use music shortcuts in any application</em> check box makes
-the shortcuts work even when you are in OBS or in a game. It is off
-because, while it is on, those keys do not reach the other applications.
-If another application already uses one of them, the application tells
-you which one.</p>
-<p>NVDA uses <code>Ctrl+Alt+arrows</code> to move through tables. Where
-it thinks there is a table, such as the desktop or File Explorer, NVDA
-keeps those keys and the music does not receive them. In that case,
-press <code>NVDA+F2</code> and then the shortcut, and NVDA lets the next
-key through. In a window without tables, such as Notepad, the shortcuts
-work without that.</p>
+<p><em>Match song volume</em> makes them all sound at a similar volume.
+Each file is measured once, with the <em>Match the volume</em> button in
+the <em>Music</em> window, and it is not modified. Between one song and
+the next there is a crossfade, which is adjusted in <em>Crossfade
+between songs, in seconds</em>.</p>
+<p>With <em>Use music shortcuts in any application</em>, the music
+shortcuts also work in OBS or in a game, and those keys stop reaching
+the other applications.</p>
+<p>Where NVDA detects a table, as in File Explorer, it keeps Ctrl+Alt
+and the arrows. In that case, press NVDA+F2 before the shortcut.</p>
 <h2 id="going-live">Going live</h2>
-<p>With OBS Studio, the live stream is started and ended from the
-application: to YouTube with your Google account, and to TikTok through
-Restream.</p>
+<p>Guyrapu starts and ends the live stream with OBS Studio, to YouTube
+or to several platforms at once with Restream.</p>
 <h3 id="before-going-live-for-the-first-time">Before going live for the
 first time</h3>
-<p>Before going live for the first time, turn on the OBS WebSocket
-server in <em>Preferences</em>, on the <em>OBS</em> category. If OBS is
-closed, the application opens it in the notification area without moving
-the focus away from the screen reader.</p>
-<p>For TikTok you need an OBS profile called <code>TikTok</code> with
-Restream, and for YouTube, the Google session started and live streams
-enabled on your channel; the <code>YouTube</code> OBS profile is created
-by the application.</p>
-<p>In the <em>OBS panel</em>, on the <em>Add</em> tab, choose which
-window is captured, for example a game. The live stream shows that
-window, but its capture does not carry sound: the sound comes from the
-desktop audio and the OBS microphone.</p>
-<h3 id="to-go-live">To go live</h3>
-<p>To go live, press <em>Broadcast live</em>, next to
-<em>Connect</em>.</p>
+<ul>
+<li>Turn on the OBS WebSocket server in <em>Preferences</em>, on the
+<em>OBS</em> category.</li>
+<li>For YouTube, start the Google session and enable live streams on
+your channel.</li>
+<li>For Restream, connect the account and create a profile. See <a
+href="#restream">Restream</a>.</li>
+</ul>
+<p>If OBS is closed, Guyrapu opens it in the notification area.</p>
+<h3 id="starting-the-live-stream">Starting the live stream</h3>
 <ol type="1">
-<li>Choose the destination. The one from last time is already chosen, so
-you only need to press <code>Enter</code>.</li>
-<li>The application prepares OBS and checks the scene: destination,
-format, sources, audio and whether something is wrong, such as an empty
-scene, a black image or a muted microphone. If it finds problems, the
-button chosen by default is <em>Cancel</em>.</li>
-<li>For YouTube, in the same window you type the title, the description,
-the privacy and, if you want, the latency, the category, the tags, the
-thumbnail and the playlist. The application remembers everything.
-<em>Unlisted</em> is for testing.</li>
-<li>When the live stream starts, the application connects the chat on
-its own and announces it: “Your YouTube live stream is now in
-progress”.</li>
-<li>During the live stream, the application warns if the connection
-fails. If the internet connection is lost, YouTube waits for it to come
-back without ending the live stream.</li>
+<li>Press <em>Broadcast live</em>, next to <em>Connect</em>. The
+<em>Broadcast to</em> dialog opens, with the destination from last time
+already chosen.</li>
+<li>Choose <em>YouTube</em> or a Restream profile and press
+<em>Continue</em>.</li>
+<li>Guyrapu prepares OBS and checks the scene: whether it is empty,
+whether an image comes out black or whether the microphone is muted. If
+it finds a problem, the button chosen by default is
+<em>Cancel</em>.</li>
+<li>For YouTube, or a profile with YouTube, type the title, the
+description and the privacy. The rest of the data is optional, and
+Guyrapu remembers the last thing you typed. To do tests, use
+<em>Unlisted</em>.</li>
+<li>When the live stream starts, Guyrapu connects the chat and announces
+it.</li>
 </ol>
-<p>The button changes to <em>End live stream</em>, which asks for
-confirmation with <em>Keep broadcasting</em> chosen by default. Closing
-the application does not interrupt the live stream: when you come back,
-the application recognizes it, and <code>Alt+Shift+E</code> copies the
-live stream link.</p>
-<p><code>Alt+Shift+M</code> mutes or turns on the OBS microphone. When
-you turn it on, the application says which device it uses, for example
-“Microphone on: Windows default, WO Mic Device”. If OBS uses the default
-device, the microphone is the one Windows has chosen at that moment and
-may not be the one you expect. To keep it from changing, choose the
-device in the properties of the microphone source in OBS. After you turn
-it on, the application listens for three seconds. If no sound comes in,
-it plays its own warning and says “The microphone is not receiving
-sound. Check which one is chosen in Windows or in OBS.”.</p>
-<p><code>Alt+Shift+O</code>, or <em>Show OBS</em> in the <em>OBS</em>
-menu, brings the OBS window to the front, also when it is in the
-notification area. If OBS is waiting for an answer, such as the safe
-mode question, the focus goes to that dialog box.</p>
-<h3 id="recording-the-live-stream">Recording the live stream</h3>
-<p>With <em>Record while broadcasting</em> checked, in the
-<em>Broadcast</em> menu, OBS starts recording when the broadcast starts
-well and stops recording when the broadcast stops. The file is saved in
-the OBS recordings folder. If you were already recording, that recording
-continues as it was, and closing the application does not interrupt
-either one. If the recording cannot start, the broadcast continues and
-it plays its own warning with “The broadcast started, but the recording
-could not start.”. If the OBS profile records with its own encoder, the
-check before broadcasting warns at the end, because recording that way
-loads the computer twice. In that case, to load it less, choose in OBS
-that the recording uses the same quality as the broadcast, and the check
-box is cleared by default.</p>
-<p>Starting, pausing, resuming and stopping the recording have their own
-sounds. With <em>Show streaming or recording in the title of the
-window</em>, in <em>Preferences</em>, on the <em>OBS</em> category, the
-title starts with that state, and the check box is cleared by
+<p>If the internet connection is lost, YouTube waits for it to come back
+without ending the live stream. Closing Guyrapu does not interrupt the
+live stream, and when you open it again it recognizes it.</p>
+<p>During the live stream, the button is called <em>End live stream</em>
+and asks for confirmation, with <em>Keep broadcasting</em> chosen by
 default.</p>
-<p>You can also record without opening the <em>Broadcast</em> tab. The
-<em>Recording</em> tab of the <em>OBS panel</em> has the same buttons,
-and the <em>OBS</em> menu keeps <em>Start or stop recording</em> with
-<code>Alt+Shift+G</code> and <em>Pause or resume recording</em> with
-<code>Alt+Shift+P</code>, which announce and sound the same as the
-window buttons. If no recording is in progress, pausing says so and
-changes nothing in OBS. If OBS does not pause the recording, the
-application says so: some profiles may not allow it.</p>
-<p>When you stop the recording, from the application or because the
-broadcast ended, you hear “Recording saved” with the file name. The
-<em>Recordings and clips</em> list, in the <em>Recording</em> tab, has
-what was recorded that way and the saved clips, from newest to oldest,
-and it is read again when you return to the tab. Each clip starts with
-“Clip”. From there you can open the file with <code>Enter</code>, open
-its folder, copy the path or remove it from the list with
-<code>Delete</code>. Removing it from the list does not delete the file,
-and what is stopped from the OBS window does not appear in the list.</p>
-<h3 id="saving-a-clip">Saving a clip</h3>
-<p>In <em>Preferences</em>, on the <em>OBS</em> category, the
-<em>Clips</em> list chooses how much is saved: <em>Off</em>, <em>30
-seconds</em> or <em>60 seconds</em>, with <em>30 seconds</em> by
-default. With clips on, when the live stream starts from the application
-OBS prepares its replay buffer before broadcasting; if the profile has
-to be changed, the application says “Preparing the clips.”.</p>
-<p><code>Alt+Shift+R</code>, or <em>Save clip</em> in the <em>OBS</em>
-menu, saves the last seconds to a file and announces the file name. If
-the buffer was not running and OBS is not streaming or recording, the
-application prepares it and turns it on. If it is already streaming or
-recording and the profile has the buffer with that duration, it only
-turns it on. If the profile does not have it, it asks you to stop the
-live stream and the recording before preparing it. With <em>Off</em>,
-Save clip says that clips are turned off. If the profile records
-lossless or with FFmpeg output, OBS does not offer clips: Save clip says
-so and the live stream goes on.</p>
-<p>Below <em>Clips</em> are the <em>Allow !clip in chat</em> checkbox
-and <em>Wait between chat clips (minutes)</em>. With the checkbox on,
-which is the default, anyone in the chat saves a clip by typing
-<code>!clip</code>; the message appears and is read like any other. When
-it is saved, the same sound as Save clip plays and the application
-announces “Clip saved by” with the author and the file. The wait goes
-from 1 to 60 minutes, 1 by default, and counts from the last clip
-requested from chat: during that time, other <code>!clip</code> messages
-do nothing. The command does not reply in chat and does not prepare the
-buffer: if clips are off, the checkbox is off or the buffer is not
-running, it does nothing.</p>
-<h3 id="the-broadcast-tab">The Broadcast tab</h3>
-<p>The <em>OBS panel</em> (<code>Ctrl+Shift+O</code>) brings together in
-tabs what is done with OBS. The first one, <em>Broadcast</em>, starts
-and stops the live stream, chooses where it is broadcast and shows the
-chat on video. <em>Restream…</em> opens the Restream window. With
-<code>Ctrl+Tab</code> you move to <em>Scene</em> or <em>Audio</em>
-without closing anything, also with a live stream running.</p>
-<p>The <em>Status</em> field says whether everything is ready or what to
-check, the current scene, the microphone and whether it is recording.
-From the tab the live stream is started and ended the same way as with
-the button in the main window. Only what is useful at that moment
-appears: <em>TikTok user</em> with TikTok and <em>Show chat on
-video</em> with YouTube, and <code>Enter</code> never starts or ends a
-live stream.</p>
-<p>Everything can still be done by hand in OBS, and the application does
-not interrupt the OBS plugin for NVDA.</p>
-<h3 id="the-restream-window">The Restream window</h3>
-<p><em>Restream…</em> opens the Restream window, with four tabs. With
-<code>Ctrl+Tab</code> you move from one to another.</p>
-<p><em>Restream profiles</em> saves the broadcast profiles, which choose
-the destinations and the orientation. <code>Enter</code> edits the
-selected profile, <code>Delete</code> deletes it, and the buttons below
-create a new one, edit it, duplicate it or delete it. You can type to
-search the list.</p>
-<p><em>Destinations</em> lists the channels of the account, with the
-platform and the name. Those Restream has disabled say "disabled" at the
-end. <em>Add destination…</em> opens the Restream page in the browser:
-add the destination there and return to Bellbird, which reads the list
-again and announces the new ones. <em>Delete destination</em> removes it
-from the account after confirming, and <em>Refresh</em> reads the list
-again.</p>
-<p><em>Events</em> lists upcoming events, live events and history.
-<em>Show</em> chooses which of the three. Each row has the title and its
-moment: when it is scheduled, since what time it is live, or when it was
-and how long it lasted. When you select one, <em>Event detail</em> shows
-its status, its moments, its destinations and the description. <em>Copy
-links</em> copies one link per line from the destinations that have one,
-and <em>Statistics</em> adds the average and peak viewers, the views and
-the time watched to the detail. <em>Update</em> reads the list again.
-Everything is read-only: events are not created or edited here.</p>
-<p><em>Account</em> says which account is connected, with its email or
-its user name, and the destinations it has. If the account streams to
-YouTube and a YouTube session is started in Bellbird, it also says
-whether that channel is the one of the session or a different one. From
-there you connect the account, reauthorize it or disconnect it.</p>
-<h2 id="camera-framing">Camera framing</h2>
-<p>If there is a camera in the live OBS scene, the application says how
-you look in it. It reports how many faces there are, whether you are
-centered, far away, outside the top or bottom edge, sideways or with
-your head tilted, whether there is light in front or backlight, and
-whether the image froze. Any camera that OBS shows works: webcam,
-capture card or the phone used as a camera. The image is analyzed on the
-computer and is not sent anywhere.</p>
-<p>Left and right are said as the movement you have to make, for example
-“Move to your left.”, not as the side of the image.</p>
-<h3 id="announcing-the-framing-on-request">Announcing the framing on
-request</h3>
-<p>To know the framing at a given moment, press <code>Ctrl+F3</code> or
-choose <em>Announce camera framing</em> in the <em>Broadcast</em>
-menu.</p>
-<h3 id="automatic-warnings">Automatic warnings</h3>
-<p>The <em>Warn when the face leaves the frame</em> check box, in the
-<em>Broadcast</em> menu, or <code>Ctrl+Shift+F3</code>, turns on the
-warnings. With the warnings on, the application warns with its own sound
-when the face leaves the frame and with another when it comes back, and
-says nothing while it stays well. If there is no camera in OBS or OBS is
-closed, it waits without doing anything. The check box is remembered
-when you open the application again, and with the warnings on,
-<code>F2</code> also says the camera status.</p>
-<h3 id="beep-guide">Beep guide</h3>
-<p>Press <code>Ctrl+F3</code> twice in a row. The application pauses
-chat reading and plays beeps that sound from the side you have to move
-to, further to that side the farther you are from the center. The note
-rises or falls continuously with the height of your eyes: higher if you
-have to go up and lower if you have to go down. The beeps repeat faster
-the closer you are, between 0.08 and 0.6 seconds. When your face is in
-the center, a steady tone sounds; when it leaves, the beeps return.
-After 1.5 seconds in the center, a confirmation sounds, the framing is
-said and reading continues. <code>Ctrl+F3</code> stops the guide, which
-also ends on its own after a minute.</p>
-<p>The timbre of the beeps is chosen in <em>Preferences</em>, on the
-<em>Camera</em> category, with the <em>Guide sound</em> list:
-<em>Normal</em>, <em>Warm</em> or <em>8-bit</em>. When you choose one, a
-sample with that timbre sounds.</p>
-<p>If there is more than one camera in the scene, the one in front is
-used. The camera is chosen in <em>Preferences</em>, on the
-<em>Camera</em> category, with <em>Find cameras in OBS</em>, without
-writing anything in <code>config.ini</code>. If the left and right
-indications come out reversed, check <em>Invert left and right</em>. The
-guide sound is chosen in the <em>Guide sound</em> list. The warnings are
-turned on from the same category.</p>
-<p><code>Alt+F3</code> hides or shows the camera in the program scene
-again without turning the device off. The <em>OBS</em> menu has the same
-command, <em>Show or hide the camera</em>. The <em>Use camera shortcuts
-in any application</em> checkbox, in <em>Preferences</em>, on the
-<em>Camera</em> category, also makes <code>Ctrl+F3</code>,
-<code>Ctrl+Shift+F3</code> and <code>Alt+F3</code> work with another
-program in the foreground. It is unchecked by default.</p>
-<p>If OBS has no camera, you can add one in <em>Preferences</em>, on the
-<em>Camera</em> category, with <em>Add camera to OBS…</em>: it uses a
-Windows camera and leaves it at the bottom right of the video, in front
-of the other sources. To move it, use the <em>Sources</em> tab of the
-<em>OBS panel</em>.</p>
-<h2 id="scene">Scene</h2>
-<p>The <em>OBS panel</em> (<code>Ctrl+Shift+O</code>) brings together in
-tabs what is seen and heard in OBS. The <em>Scene</em> tab, which you
-reach with <code>Ctrl+Tab</code>, chooses which scene is edited and says
-what it has. Browsing the list does not change what is broadcast.
-<em>Change scene</em> changes the scene that is broadcast and <em>Save
-image…</em> saves an image of it.</p>
-<p><em>Sources</em> chooses a source of the scene and moves it to one of
-the nine positions, changes its size, hides it or locks it.
-<em>Order</em> opens a menu with <em>Move to Top</em>, <em>Move Up</em>,
-<em>Move Down</em> and <em>Move to Bottom</em>, which decide which
-source covers which, and the Applications key in the list opens the same
-menu. <em>Size…</em> opens a dialog with common sizes, from one fifth to
-the whole width of the video, or a percentage by hand with
-<em>Custom</em>. The aspect ratio is kept unless you clear <em>Keep
-aspect ratio</em>, which also lets you choose the height. <em>Move with
-arrows</em> moves it in small steps: <code>Ctrl</code> gives large
-steps, <code>Shift</code> one-pixel steps, <code>Enter</code> confirms
-and <code>Esc</code> undoes. The <em>Source details</em> field, next to
-the list, says where it is, how big it is and what covers it. <em>Undo
-changes</em> returns everything to how it was when the window was
-opened.</p>
-<p><em>Apply layout…</em> distributes the whole scene at once. It brings
-six factory layouts: the main source with the camera in a corner, the
-same with the chat in a strip on the right, the main source or the
-camera full screen, and the main source with the camera on the right, in
-halves or with the main source at two thirds. The main source is the
-game, screen or window capture, if the scene has one. In the dialog you
-change which source goes in each place, the corner and size of the
-camera, the split and where the chat goes. <em>Fit</em> decides what
-happens when the source's aspect ratio does not match its place:
-<em>Fit</em> shows it whole with bands, <em>Fill</em> covers the place
-and crops the edges, and <em>Automatic</em> fills with the camera and
-fits the rest. <em>Save as…</em> saves the layout with a name to use it
-again, and <em>Delete</em> removes a saved one. On accepting, the
-application says how each source ended up and which ones it did not
-move. <em>Undo changes</em> also undoes a layout.</p>
-<p><em>Add</em> captures a window from the computer or adds a Windows
-camera to the current scene. <em>Audio</em> mutes the OBS microphone and
-chooses which one is used. <em>Test microphone</em> listens while you
-speak and every five seconds says whether the level is correct, low,
-high or clipping, with what to do and a different sound for each case.
-It stops with the same button, which changes its name to <em>Stop
-test</em>, or on its own after two minutes. If the microphone is a
-Bluetooth headset in hands-free mode, it warns at the start, because in
-that mode it sounds low quality. When it finishes, the source lists and
-the description update by themselves.</p>
-<p><em>Microphone filters…</em> opens a dialog with three OBS filters
-for the microphone source. <em>Noise Suppression</em> removes background
-noise, such as a fan. <em>Noise Gate</em> cuts the sound when you are
-not speaking. <em>Gain</em> raises or lowers the voice volume by a few
-decibels. The dialog shows how they are set in OBS right now and, on
-accepting, the application says what is active. If you already set up
-one of those filters in OBS, that one is used: the application does not
-create another one or delete any. While you test the microphone, the
-announced level already includes the filters.</p>
-<p><em>Listen to microphone</em> enables OBS audio monitoring for the
-microphone, so you hear yourself while you speak, with the filters
-already applied. It plays through the monitoring device set in OBS. Use
-headphones: with speakers the microphone picks up its own sound and
-there is feedback. What goes out in the stream does not change. When you
-clear it, or close the <em>OBS panel</em>, monitoring goes back to how
-it was.</p>
-<p>If OBS is closed, the panel opens it. If it does not respond, it says
-so in the description and does not freeze. The panel help explains each
-tab.</p>
-<h2 id="recording">Recording</h2>
-<p>The <em>Recording</em> tab, in the <em>OBS panel</em>, records in OBS
-without going through the <em>Broadcast</em> tab. <em>Status</em> says
-whether it is recording, paused or not recording, how long it has been
-going, the live scene, the microphone and whether it is also
-broadcasting.</p>
-<p><em>Start recording</em> and <em>Stop recording</em> do the same as
-the panel buttons, with their sounds and announcements. <em>Pause
-recording</em> appears while recording and becomes <em>Resume
-recording</em> when the recording is paused. The <em>Recordings and
-clips</em> list has what the application stopped and the saved clips.
-<em>Record while broadcasting</em> is the same preference as in the
-<em>Broadcast</em> menu: changing one changes the other. <em>Update
-status</em> reads it again.</p>
-<p>If OBS is closed, the panel opens it. If it does not respond, it says
-so in <em>Status</em> and does not freeze.</p>
-<h2 id="chat-panel-for-streaming">Chat panel for streaming</h2>
-<p>It shows the chat large, with a transparent background, for your
-viewers. It is added in OBS (or Streamlabs, or Prism Live Studio) as a
-browser source with this link:</p>
+<h3 id="microphone">Microphone</h3>
+<p><em>Mute OBS microphone</em>, in the <em>OBS</em> menu, mutes or
+turns on the microphone. When you turn it on, Guyrapu says which device
+it uses and warns if no sound comes in. To set the device, use
+<em>Choose a device…</em> on the <em>Audio</em> tab of the <em>OBS
+panel</em>.</p>
+<h3 id="recording-and-saving-clips">Recording and saving clips</h3>
+<p>With <em>Record while broadcasting</em> checked, in the
+<em>Broadcast</em> menu, OBS records for as long as the live stream
+lasts. If the recording cannot start, the live stream continues and a
+warning plays. To record without broadcasting, use the <em>OBS</em> menu
+or the <em>Recording</em> tab of the <em>OBS panel</em>.</p>
+<p><em>Save clip</em> saves the last 30 or 60 seconds, according to the
+<em>Clips</em> list in <em>Preferences</em>, on the <em>OBS</em>
+category. With <em>Allow !clip in chat</em>, anyone in the chat saves a
+clip by typing <code>!clip</code>, with a wait between clips that is
+chosen in the same category.</p>
+<p>When you stop a recording or save a clip, Guyrapu says the file
+name.</p>
+<h3 id="chat-on-video">Chat on video</h3>
+<p>The chat on video shows the messages and gifts over the live stream
+image, for the viewers, with a color for each person. It is added with
+<em>Add source…</em>, <em>Chat on video…</em>, on the <em>Scene</em> tab
+of the <em>OBS panel</em>. In another streaming application, such as
+Streamlabs, it is added as a browser source with this link:</p>
 <pre><code>http://127.0.0.1:8730/chat</code></pre>
-<p>It is turned on with <em>Show chat on video</em>, in the
-<em>Broadcast</em> tab of the <em>OBS panel</em>, and if the current
-scene does not have the source, it adds it. Each message appears on a
-card with the initial and a color for each person, and donations in gold
-with the amount. It is only used with YouTube: TikTok already shows the
-comments over the video.</p>
-<p>What does not fit in the video is not broadcast, and a source that is
-partly outside is cropped without warning. OBS calls that rectangle the
-canvas, and that is why the <em>Scene</em> tab says how much is cropped.
-If another source covers the panel, the application puts it in front
-when the scene is current and tells you which one was covering it.
-<code>F2</code> says whether the panel is active and whether OBS is
-showing it, and the server only listens on your computer.</p>
+<h2 id="obs-panel">OBS panel</h2>
+<p>The <em>OBS panel</em> brings together in tabs what is done with OBS,
+and it is opened from the <em>OBS</em> menu. If OBS is closed, the panel
+opens it. Everything can still be done in OBS, and the OBS plugin for
+NVDA still works.</p>
+<h3 id="general">General</h3>
+<p><em>Status</em> summarizes the broadcast, the recording, the current
+scene, the microphone and the computer usage. <em>Show OBS</em> brings
+the OBS window to the front, also from the notification area.</p>
+<h3 id="scene">Scene</h3>
+<p>The <em>Scenes</em> list shows each scene, whether it is the current
+one and how many sources it has. Browsing it does not change what is
+broadcast: <em>Change scene</em> puts the chosen scene on air, and
+<em>Add scene…</em> creates a new one.</p>
+<p>The <em>Sources</em> list shows the sources of the chosen scene, and
+each row says where the source is, what part of the video it occupies
+and whether it is visible. The context menu of each row brings together
+its actions. <em>Size and position…</em> places it in one of nine
+positions, with a size from one fifth to the full width of the video,
+and <em>Move with arrows</em> moves it in steps.</p>
+<p><em>Add source…</em> adds to the scene a camera, a window, game or
+screen capture, an image, a media file, a text, the chat on video or a
+source from another scene.</p>
+<p><em>Apply layout…</em> distributes the whole scene at once. It comes
+with three factory layouts, <em>Full screen</em>,
+<em>Picture-in-picture</em> and <em>Split in two</em>, and the dialog
+lets you choose which source goes in each place, the corner, the split
+and the chat. <em>Fit</em> decides what happens if the aspect ratio does
+not match: <em>Fit</em> shows the whole source, <em>Fill</em> crops the
+edges and <em>Automatic</em> fills with the camera and fits the rest.
+<em>Save as…</em> saves your own layout.</p>
+<p><em>Undo all changes</em> returns the scene to how it was when the
+panel was opened.</p>
+<table>
+<thead>
+<tr>
+<th>Key in the Scenes list</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enter</code></td>
+<td>Change to that scene</td>
+</tr>
+<tr>
+<td><code>F2</code></td>
+<td>Rename</td>
+</tr>
+<tr>
+<td><code>Ctrl+D</code></td>
+<td>Duplicate</td>
+</tr>
+<tr>
+<td><code>Delete</code></td>
+<td>Delete</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Key in the Sources list</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Space</code></td>
+<td>Show or hide the source</td>
+</tr>
+<tr>
+<td><code>Alt+Enter</code></td>
+<td>Properties</td>
+</tr>
+<tr>
+<td><code>F2</code></td>
+<td>Rename</td>
+</tr>
+<tr>
+<td><code>Ctrl+D</code></td>
+<td>Duplicate</td>
+</tr>
+<tr>
+<td><code>Delete</code></td>
+<td>Delete</td>
+</tr>
+<tr>
+<td><code>Ctrl+Home</code> / <code>Ctrl+End</code></td>
+<td>Bring to front or send to the back</td>
+</tr>
+<tr>
+<td><code>Ctrl+Up Arrow</code> / <code>Down Arrow</code></td>
+<td>Bring forward or send backward</td>
+</tr>
+<tr>
+<td><code>Ctrl+Z</code></td>
+<td>Undo</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Key in Move with arrows</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arrows</td>
+<td>Move 10 pixels</td>
+</tr>
+<tr>
+<td><code>Ctrl</code> and arrows</td>
+<td>Move 50 pixels</td>
+</tr>
+<tr>
+<td><code>Shift</code> and arrows</td>
+<td>Move 1 pixel</td>
+</tr>
+<tr>
+<td><code>Enter</code></td>
+<td>Confirm</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Undo the move</td>
+</tr>
+</tbody>
+</table>
+<h3 id="broadcast">Broadcast</h3>
+<p><em>Broadcast live</em> opens the <em>Broadcast to</em> dialog, the
+same as the button in the main window, and <em>Restream…</em> opens the
+Restream window.</p>
+<h3 id="audio">Audio</h3>
+<p>The <em>Audio sources</em> list shows each source with its status and
+its filters. The buttons act on the chosen source:</p>
+<ul>
+<li><em>Mute</em> mutes or turns it on.</li>
+<li><em>Test level</em> says every five seconds whether the level is
+right, low or high, or whether it is clipping, until you press <em>Stop
+test</em>.</li>
+<li><em>Filters…</em> turns on noise suppression, the noise gate and
+gain. If OBS already had one of those filters, that one is used.</li>
+<li><em>Listen</em> lets you hear the source with its filters through
+the OBS monitoring device. Use headphones to avoid feedback.</li>
+<li><em>Choose a device…</em> sets the microphone device.</li>
+</ul>
+<h3 id="recording">Recording</h3>
+<p><em>Start recording</em> and <em>Stop recording</em> record without
+broadcasting, and <em>Pause recording</em> pauses the recording in
+progress. The <em>Recordings and clips</em> list brings together the
+recordings and the clips, from newest to oldest. Its context menu opens
+the file or its folder, copies the path or removes it from the list
+without deleting the file.</p>
+<h2 id="restream">Restream</h2>
+<p>Restream sends a single broadcast to several platforms at once. The
+Restream window opens with <em>Restream…</em>, in the <em>Broadcast</em>
+menu, and it has four tabs.</p>
+<h3 id="account">Account</h3>
+<p>It shows the connected account and its destinations, and it lets you
+connect it, authorize it again or disconnect it.</p>
+<h3 id="destinations">Destinations</h3>
+<p>It lists the channels of the account with their platform, and the
+disabled ones say so at the end. <em>Add destination…</em> opens the
+Restream page in the browser or adds a manual destination with server
+and key. The context menu of each destination turns it on or off, copies
+its link, opens it in the browser, changes its title or name, and
+deletes it.</p>
+<h3 id="profiles">Profiles</h3>
+<p>A profile saves which destinations are broadcast to and with what
+orientation, and it appears with its name in the <em>Broadcast to</em>
+dialog. <em>New profile…</em> creates one. In the profile:</p>
+<ul>
+<li><em>YouTube, the channel of your Google session</em> adds that
+channel, with the live stream that Guyrapu creates from the data you
+type when you broadcast.</li>
+<li><em>Chat that Guyrapu reads</em> chooses which chat is read if the
+profile has YouTube and TikTok.</li>
+</ul>
+<h3 id="events">Events</h3>
+<p><em>Show</em> chooses between upcoming events, those that are live
+and the history. <em>Event detail</em> shows its status, its times, its
+destinations and the description. The context menu copies the event
+links or information, opens the live stream and adds the statistics to
+the detail.</p>
+<h3 id="warnings-during-the-live-stream">Warnings during the live
+stream</h3>
+<p>With a Restream profile, Guyrapu warns with its own sound when
+Restream stops receiving the OBS signal and when it recovers it, when
+the signal is weak and when a destination disconnects or comes back.</p>
+<h2 id="camera-framing">Camera framing</h2>
+<p>If the current scene has a camera, Guyrapu says how it sees you: how
+many faces there are, whether you are centered, far away, sideways or
+outside the edge, whether light is missing or there is backlight, and
+whether the image froze. Left and right are said as the movement you
+have to make: “Move to your left.”. The image is analyzed on the
+computer and is not sent anywhere.</p>
+<p>The commands are in the <em>OBS</em> menu:</p>
+<ul>
+<li><em>Announce camera framing</em> says the framing. Twice in a row,
+it starts the guide with beeps, which sound from the side you have to
+move to, higher for up and lower for down. In the center a confirmation
+sounds.</li>
+<li><em>Warn when the face leaves the frame</em> warns with a sound when
+the face leaves and with another when it comes back.</li>
+<li><em>Show or hide the camera</em> hides the camera from the scene
+without turning off the device.</li>
+</ul>
+<p>In <em>Preferences</em>, on the <em>Camera</em> category, you choose
+the OBS camera, the guide sound and whether left and right are
+inverted.</p>
 <h2 id="scheduled-messages">Scheduled messages</h2>
-<p>They send messages to the chat every so often, for example your
-social networks every ten minutes. They are configured in
-<em>Preferences</em>, on the <em>Scheduled messages</em> category: each
-one with its text, its interval (fixed or variable within a range, from
-five minutes) and a check box to leave it ready without sending it.</p>
-<p>They only work on your own YouTube live stream and with a Google
-session. The first one goes out after the interval, not when connecting,
-and sending is not announced, because the message is already read in the
-chat. <code>F2</code> says how long is left for the next one, and
-YouTube usually blocks links, so the user name is better than the link.
-If YouTube returns an error, the messages stop and a warning is given
-once, without retrying.</p>
+<p>Scheduled messages are sent to the chat every so often, for example
+your social networks every ten minutes. They are configured in
+<em>Preferences</em>, on the <em>Scheduled messages</em> category, and
+they work on your own YouTube live stream with the Google session
+started. YouTube usually blocks links: type the user name instead. If
+YouTube returns an error, the messages stop and Guyrapu warns you
+once.</p>
 <h2 id="downloads-and-history">Downloads and history</h2>
-<h3 id="download-manager">Download manager</h3>
-<p>The <em>Download manager</em> (<code>Ctrl+Shift+D</code>) downloads
-videos, audio or whole playlists, in MP4, WebM, MP3 or M4A, with audio
-at 192, 256 or 320 kbps. It downloads two at a time, queues the rest and
-saves the history of what was downloaded. The Downloads folder is next
-to the application, and yt-dlp is updated from <em>Tools</em>,
-<em>Update yt-dlp</em>. The update channel is chosen in
-<em>Preferences</em>, on the <em>Downloads</em> category:
-<em>Stable</em>, the default, or <em>Nightly</em>, with fixes earlier
-and more risk of errors.</p>
-<p><code>Enter</code> on a finished download opens the file. With
-<em>Ask whether to open the folder when the queue finishes</em>, in
-<em>Preferences</em>, on the <em>Downloads</em> category, the
-application asks one question when the whole queue finishes, if
-something downloaded correctly. It is cleared by default, because the
-question takes the focus.</p>
-<p>With <em>Announce download progress</em>, in the same category, the
-application says how far each download has got every 10 percent, with
-its own sound. If a download is still at zero, it says “Download in
-progress” every 15 seconds, with another sound. With more than one
-download at a time, the notice starts with the video name. It is
-unchecked by default.</p>
-<p>In the search box, Space plays the result in the music without
-downloading it: it interrupts only the current song and leaves it in the
-queue as one more, and Space again pauses it.</p>
-<h3 id="live-stream-history">Live stream history</h3>
-<p>The <em>Live stream history</em> (<code>Ctrl+Shift+H</code>) shows
-what you watched, with a tab for YouTube and another for TikTok, and
-finished live streams appear marked.</p>
+<p>The <em>Download manager</em> downloads videos, audio or YouTube
+playlists in MP4, WebM, MP3 or M4A, two at a time. What is downloaded
+goes to the Downloads folder, next to the application. On the <em>Search
+on YouTube</em> tab, Space plays a result in the music without
+downloading it. If downloads fail, use <em>Update yt-dlp</em>, in the
+<em>Tools</em> menu.</p>
+<p>The <em>Live stream history</em> shows what you watched, with a tab
+for YouTube and another for TikTok.</p>
 <h2 id="spoken-status">Spoken status</h2>
-<p><code>F2</code> summarizes the situation: connection, title, channel,
-viewers, how long it has been in progress, messages read, donations, the
-chat panel and scheduled messages. What goes into the summary is chosen
-in <em>Preferences</em>, on the <em>Status (F2)</em> category, including
-the OBS data and the song that is playing. While you stream from the
-application, <code>F2</code> starts with how the live stream is going.
-If you check <em>YouTube quota used today</em>, which comes unchecked,
-and the YouTube session is started, it also says how many units of the
-daily quota were used today from this computer. The number is
-approximate and resets at midnight, Pacific time, when Google restores
-the quota. Because the quota is shared among those who use the
-application, it helps to know whether a quota error comes from your use
-or from others.</p>
-<p>If you press <code>F2</code> twice in a row, in under half a second,
-the <em>Session status</em> window opens with a list: one line for each
-part of the status, including those that are not in the spoken summary.
-Browse it with the arrow keys and close it with <code>Esc</code> or
-<em>Close</em>.</p>
-<p><code>F3</code> says who sent the last message read, and
-<code>Ctrl+F2</code> describes the OBS scene.</p>
+<p><em>Announce status</em>, in the <em>View</em> menu, summarizes the
+connection, the live stream, the viewers, the messages read and the
+donations. What is included is chosen in <em>Preferences</em>, on the
+<em>Status (F2)</em> category. Twice in a row, it opens the <em>Session
+status</em> window, with each piece of data on one line.</p>
 <h2 id="asking-the-ai">Asking the AI</h2>
-<p>An artificial intelligence looks at a screenshot of OBS and tells you
-what it sees: whether the camera is on, whether a source is black or
-what text is on screen. It needs OBS open and a provider key.</p>
-<h3 id="setting-up-artificial-intelligence">Setting up artificial
-intelligence</h3>
+<p>An artificial intelligence looks at an OBS screenshot and says what
+it sees, for example whether a source comes out black. It requires OBS
+open and a provider key.</p>
 <p>In <em>Preferences</em>, on the <em>Artificial intelligence</em>
-category, you choose the provider (Google Gemini, OpenAI, Anthropic,
-OpenRouter, OpenCode Go, Command Code or another compatible with
-OpenAI), save its key and choose the model. The key is kept in the
-Windows Credential Manager, not in <code>config.ini</code>, and the
-category never shows it: it only says that it is saved and its last four
-characters. The <em>Check key</em> button sends a short request and says
-whether it works.</p>
-<p>The <em>Refresh model list</em> button brings the models that accept
-images. With OpenRouter and OpenCode Go, the <em>Free only</em> check
-box leaves those that do not charge. With Gemini, what is free depends
-on the key, so the list tests each model with yours and marks the ones
-that work. It takes about 30 seconds and a warning sounds in the
-meantime.</p>
-<p>In the same category you change the instruction that goes with each
-screenshot, the length of the response, the waiting time and whether
-“Analyzing…” is said while it waits.</p>
-<h3 id="the-ask-the-ai-window">The Ask the AI window</h3>
-<p><code>Ctrl+Shift+I</code> opens the window, where the <em>Add
-screenshot</em> button lets you choose the current scene or a single
-source. In the <em>Message</em> field you type the question and
-<code>Enter</code> sends it. Right after adding a screenshot you can
-leave it empty, and the instruction is used. The response is read when
-it arrives and stays in <em>Conversation</em>, where <code>Enter</code>
-opens each full message. You can keep asking about the same screenshot
-or add another. <code>Esc</code> cancels the request in progress and, if
-there is none, closes the window.</p>
-<h3 id="quick-query">Quick query</h3>
-<p><code>Ctrl+Shift+F2</code> captures the current scene, sends it with
-the instruction and reads the response without opening anything. The
-next <code>Ctrl+Shift+I</code> opens the window with that conversation,
-to keep asking.</p>
-<h3 id="privacy">Privacy</h3>
-<p>The screenshot and what you type leave your computer and go to the
-provider. The first send warns you and asks for confirmation once. Some
-models use what they receive for training, and the list says so next to
-the name.</p>
-<p>If the screenshot is black, it is not sent. This happens with the
-NVDA screen curtain or on a computer with no monitor connected. In OBS,
-change the capture method of that source to Windows 10.</p>
+category, you choose the provider, such as Google Gemini, OpenAI,
+Anthropic or OpenRouter, save the key and choose the model. The key is
+kept in the Windows Credential Manager.</p>
+<p><em>Ask the AI about the picture…</em>, in the <em>View</em> menu,
+opens a window where <em>Add screenshot</em> chooses the scene or a
+source, and the question is typed in <em>Message</em>. <em>Quick
+query</em> sends the current scene and reads the response without
+opening any window.</p>
+<p>The screenshot and what you type are sent to the provider, and the
+first send asks for confirmation. A black screenshot, such as the one
+left by the NVDA screen curtain, is not sent. In that case, change the
+capture method of that source to Windows 10 in OBS.</p>
 <h2 id="google-session">Google session</h2>
-<p>The Google session is needed to moderate, write in the chat, comment
-on videos and create the YouTube live stream. In <em>Preferences</em>,
-on the <em>API and session</em> category, press <em>Sign in</em> and
-authorize in the browser, without creating anything in Google Cloud.
-While Google has not finished verifying the application, it shows an
-unverified application notice: open the advanced option and choose to
-continue.</p>
-<p>The daily YouTube quota is shared among those who use the
-application. To have your own, follow <a
-href="../CONFIGURACION_API.html">the API setup guide</a>, written to be
-read with a screen reader. Without a session, everything else works the
-same.</p>
+<p>The Google session lets you moderate, write in the chat, comment on
+videos and create the YouTube live stream. Without it, everything else
+works.</p>
+<p>To start it, open <em>Preferences</em>, on the <em>YouTube</em>
+category, press <em>Sign in</em> and authorize in the browser. YouTube's
+daily quota is shared among those who use Guyrapu. To have your own, see
+the <a href="../CONFIGURACION_API.html">API setup guide</a>.</p>
+<h2 id="preferences">Preferences</h2>
+<p><em>Preferences…</em>, in the <em>Tools</em> menu, brings together
+the configuration by categories, and the changes are applied when you
+press <em>Save</em>. In <em>General</em> you choose the language and the
+update channel, and you export, import or reset the preferences.
+<em>Show important notices also in a message box</em> also shows the
+result of what you do in a box.</p>
+<p>Preferences are saved in <code>config.ini</code> and
+<code>sounds.ini</code>, in the <code>data</code> folder next to the
+application.</p>
+<h3 id="changing-a-shortcut">Changing a shortcut</h3>
+<p>In the <em>Shortcuts</em> category, each action has a button with its
+shortcut. Press the button and then the new combination. If the
+combination is already in use or does not belong to that family, Guyrapu
+says why and keeps waiting. <em>Reset shortcuts to factory defaults</em>
+returns to the original shortcuts.</p>
+<table>
+<thead>
+<tr>
+<th>Key when changing a shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enter</code></td>
+<td>Leave the action without a shortcut</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Cancel</td>
+</tr>
+</tbody>
+</table>
 <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
-<p>Each family of keys is an area, and that is respected also when
-customizing the shortcuts. They all also appear in the menu bar, next to
-their action.</p>
+<p>Each family of shortcuts uses its own modifier keys. They all also
+appear in the menu bar, next to their command.</p>
+<h3 id="fixed">Fixed</h3>
+<table>
+<thead>
+<tr>
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>F1</code></td>
+<td>Open the manual</td>
+</tr>
+<tr>
+<td><code>F6</code> / <code>Shift+F6</code></td>
+<td>Next or previous region</td>
+</tr>
+<tr>
+<td><code>Ctrl+Tab</code></td>
+<td>Change tab</td>
+</tr>
+<tr>
+<td><code>Alt+F4</code></td>
+<td>Exit</td>
+</tr>
+</tbody>
+</table>
 <h3 id="player-ctrl">Player (Ctrl)</h3>
 <table>
 <thead>
@@ -976,23 +802,23 @@ their action.</p>
 </tr>
 <tr>
 <td><code>Ctrl+Left Arrow</code> / <code>Right Arrow</code></td>
-<td>Back or forward 1 minute</td>
+<td>Go back or forward 1 minute</td>
 </tr>
 <tr>
 <td><code>Ctrl+Up Arrow</code> / <code>Down Arrow</code></td>
-<td>Raise or lower player volume</td>
+<td>Raise or lower the player volume</td>
 </tr>
 <tr>
 <td><code>Ctrl+End</code></td>
-<td>Go to live</td>
+<td>Go to the live stream</td>
 </tr>
 <tr>
 <td><code>Ctrl+D</code></td>
-<td>Stop video</td>
+<td>Stop playback</td>
 </tr>
 <tr>
 <td><code>Ctrl+M</code></td>
-<td>Mute or unmute audio</td>
+<td>Mute or unmute the audio</td>
 </tr>
 <tr>
 <td><code>Ctrl+F</code></td>
@@ -1026,31 +852,31 @@ their action.</p>
 <tbody>
 <tr>
 <td><code>Ctrl+Shift+P</code></td>
-<td>Open Preferences</td>
+<td>Preferences</td>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+H</code></td>
-<td>Open the live stream history</td>
+<td>Live stream history</td>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+R</code></td>
-<td>Open Restream</td>
+<td>Restream</td>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+D</code></td>
-<td>Open Download manager</td>
+<td>Download manager</td>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+M</code></td>
-<td>Open the music window</td>
+<td>Music</td>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+I</code></td>
-<td>Ask the AI about the image</td>
+<td>Ask the AI about the picture</td>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+O</code></td>
-<td>Open the OBS panel</td>
+<td>OBS panel</td>
 </tr>
 </tbody>
 </table>
@@ -1101,12 +927,12 @@ their action.</p>
 <td>Save a clip</td>
 </tr>
 <tr>
-<td><code>Alt+Shift+O</code></td>
-<td>Show OBS</td>
+<td><code>Alt+Shift+A</code></td>
+<td>Warn if OBS is overloaded</td>
 </tr>
 <tr>
-<td><code>Alt+Shift+A</code></td>
-<td>Turn overload warnings on or off</td>
+<td><code>Alt+Shift+O</code></td>
+<td>Show OBS</td>
 </tr>
 </tbody>
 </table>
@@ -1120,36 +946,36 @@ their action.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>F5</code></td>
-<td>Pause or resume reading</td>
+<td><code>F2</code></td>
+<td>Announce the status. Twice, open the list</td>
 </tr>
 <tr>
-<td><code>F8</code></td>
-<td>Stop current voice</td>
-</tr>
-<tr>
-<td><code>F9</code> / <code>F10</code></td>
-<td>Lower or raise voice speed</td>
-</tr>
-<tr>
-<td><code>F11</code> / <code>F12</code></td>
-<td>Lower or raise voice volume</td>
+<td><code>F3</code></td>
+<td>Announce the author of the last message</td>
 </tr>
 <tr>
 <td><code>F4</code></td>
 <td>Mute reading</td>
 </tr>
 <tr>
+<td><code>F5</code></td>
+<td>Pause or resume reading</td>
+</tr>
+<tr>
 <td><code>F7</code></td>
 <td>Mute sounds</td>
 </tr>
 <tr>
-<td><code>F2</code></td>
-<td>Announce the status. Twice in a row, open the list</td>
+<td><code>F8</code></td>
+<td>Stop the current voice</td>
 </tr>
 <tr>
-<td><code>F3</code></td>
-<td>Announce the author of the last message</td>
+<td><code>F9</code> / <code>F10</code></td>
+<td>Lower or raise the voice speed</td>
+</tr>
+<tr>
+<td><code>F11</code> / <code>F12</code></td>
+<td>Lower or raise the voice volume</td>
 </tr>
 <tr>
 <td><code>Ctrl+F2</code></td>
@@ -1157,11 +983,11 @@ their action.</p>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+F2</code></td>
-<td>Ask the AI about the scene</td>
+<td>Quick query</td>
 </tr>
 <tr>
 <td><code>Ctrl+F3</code></td>
-<td>Announce camera framing</td>
+<td>Announce camera framing. Twice, guide with beeps</td>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+F3</code></td>
@@ -1173,9 +999,6 @@ their action.</p>
 </tr>
 </tbody>
 </table>
-<p>When you repeat a speed or volume adjustment, the first time it says
-the name and the value (“Voice volume: 40%”) and after that only the
-value.</p>
 <h3 id="music-ctrlalt">Music (Ctrl+Alt)</h3>
 <table>
 <thead>
@@ -1187,44 +1010,45 @@ value.</p>
 <tbody>
 <tr>
 <td><code>Ctrl+Alt+Space</code></td>
-<td>Play or pause the music</td>
+<td>Play or pause</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+Right Arrow</code> / <code>Left Arrow</code></td>
-<td>Next song or previous song</td>
+<td>Next or previous song</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+Up Arrow</code> / <code>Down Arrow</code></td>
-<td>Raise or lower the music volume</td>
+<td>Raise or lower the volume</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+Shift+Right Arrow</code> /
 <code>Left Arrow</code></td>
-<td>Fast-forward or rewind the music 10 seconds</td>
+<td>Go forward or back 10 seconds</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+T</code></td>
-<td>Announce current song</td>
+<td>Announce the current song</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+M</code></td>
-<td>Mute or turn on the music audio</td>
+<td>Mute or turn on</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+D</code></td>
-<td>Stop music</td>
+<td>Stop</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+A</code></td>
-<td>Shuffle the music</td>
+<td>Shuffle</td>
 </tr>
 <tr>
 <td><code>Ctrl+Alt+R</code></td>
-<td>Change the music repeat mode</td>
+<td>Change the repeat mode</td>
 </tr>
 </tbody>
 </table>
-<h3 id="fixed">Fixed</h3>
+<h3 id="recent-chat-messages-ctrlshift-and-a-number">Recent chat
+messages (Ctrl+Shift and a number)</h3>
 <table>
 <thead>
 <tr>
@@ -1234,108 +1058,57 @@ value.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>F6</code> / <code>Shift+F6</code></td>
-<td>Next or previous region</td>
+<td><code>Ctrl+Shift+1</code></td>
+<td>Read the last message</td>
 </tr>
 <tr>
-<td><code>Ctrl+Tab</code></td>
-<td>Change tab</td>
+<td><code>Ctrl+Shift+2</code> to <code>Ctrl+Shift+9</code></td>
+<td>Read from the second to the ninth from the end</td>
 </tr>
 <tr>
-<td><code>Alt+F4</code></td>
-<td>Exit the application</td>
+<td><code>Ctrl+Shift+0</code></td>
+<td>Read the tenth from the end</td>
 </tr>
 </tbody>
 </table>
-<h3 id="recent-chat-messages-ctrlshift-and-a-number">Recent chat
-messages (Ctrl+Shift and a number)</h3>
-<p><code>Ctrl+Shift+1</code> reads the last chat message,
-<code>Ctrl+Shift+2</code> the one before and so on up to
-<code>Ctrl+Shift+0</code>, which reads the tenth from the end. By
-default, these shortcuts only work with the application in front; the
-<em>Read recent messages in any application</em> check box in
-<em>Preferences</em>, on the <em>Reading</em> category makes them work
-in any application, like the music shortcuts.</p>
-<p>In the same category, <em>Read recent messages with</em> chooses who
-reads them: the screen reader, as it comes by default, or the
-application voice. With the voice, the requested message plays as soon
-as what is being read finishes, and then the messages that were waiting
-follow, in their order.</p>
-<p>If another application already uses one of these combinations, or the
-music ones, a busy tone sounds and the application says which ones.</p>
-<h3 id="changing-a-shortcut">Changing a shortcut</h3>
-<p>In <em>Preferences</em>, on the <em>Shortcuts</em> category, each
-action has a button whose name includes its shortcut. Activate it and
-press the new combination: <code>Enter</code> only leaves the action
-without a shortcut and <code>Esc</code> cancels. If the combination does
-not work for that area or is already used, it says why and the button
-keeps waiting. When you capture a <code>Ctrl+Alt</code> with a letter,
-the application checks whether on your keyboard <code>AltGr</code> with
-that key types something, such as the at sign, and in that case it asks
-for another one. The <em>Reset shortcuts to factory defaults</em> button
-returns everything to factory defaults, and nothing is saved until you
-press <em>Save</em>.</p>
-<h2 id="accessibility">Accessibility</h2>
-<p>Accessibility is the main criterion of the project.</p>
-<ul>
-<li>Each control has an accessible name and is reached with Tab or with
-arrows.</li>
-<li>The menu bar is the native Windows one.</li>
-<li>What the application announces on its own goes by voice, by braille
-and with its own sound.</li>
-<li>It is tested with NVDA on Windows 10 and 11.</li>
-</ul>
-<p>The chat panel for streaming is the only part that does not receive
-focus, because it is for the viewers, and the accessible chat is the
-list in the main window.</p>
+<p>With <em>Read recent messages in any application</em>, in
+<em>Preferences</em>, on the <em>Reading</em> category, these shortcuts
+also work with another application in the foreground. If another
+application already uses one of these combinations, a tone sounds and
+Guyrapu says which one.</p>
 <h2 id="updating">Updating</h2>
-<p>The <em>Help</em>, <em>Check for updates</em> command says whether
-there is a new version, shows what is new and installs it. The download
-is checked with its signature, and the application closes and opens
-again on its own in about a minute. The <code>data</code> folder,
-downloads and your sounds are kept, and if the new version does not
-open, it goes back to the previous one on its own. When it starts, a new
-version is announced once. If there are other versions between the
-installed one and the new one, the window shows what is new in all of
-them, from newest to oldest, each one with its heading.</p>
-<p>In <em>Preferences</em>, on the <em>General</em> category, <em>Update
-channel</em> chooses which versions are offered. <em>Stable</em>, the
-factory option, offers only stable versions, and <em>Beta</em> also
-offers test versions, which may bring defects.</p>
-<h2 id="where-preferences-are-saved">Where preferences are saved</h2>
-<p>Almost everything is in <em>Preferences</em>, in the <em>Tools</em>
-menu, and it is saved when you press <em>Save</em>, while
-<em>Cancel</em> discards it. Preferences live in
-<code>data/config.ini</code> and <code>data/sounds.ini</code>, which can
-be edited with Notepad and are regenerated if they are deleted.</p>
+<p><em>Check for updates…</em>, in the <em>Help</em> menu, says whether
+there is a new version, shows what is new and installs it. Guyrapu
+closes and opens again in about a minute, and keeps the
+<code>data</code> folder, the downloads and your own sounds. If the new
+version does not open, it goes back to the previous one on its own.
+<em>Update channel</em>, in <em>Preferences</em>, on the
+<em>General</em> category, chooses whether only stable versions are
+offered or beta versions too.</p>
 <h2 id="common-problems">Common problems</h2>
 <h3 id="no-voices">No voices</h3>
-<p>Add a voice in <em>Settings, Time &amp; language, Speech</em>, or try
-the OneCore engine in <em>Preferences</em>, on the <em>Voices</em>
-category. Windows 11 neural voices do not appear in SAPI 5:
-<em>TTSVoicePatcher</em> exposes them.</p>
+<p>Add a voice in <em>Settings, Time &amp; language, Speech</em>, or
+choose the OneCore engine in <em>Preferences</em>, on the
+<em>Voices</em> category. Windows 11 neural voices do not appear in SAPI
+5.</p>
 <h3 id="windows-protected-your-pc">“Windows protected your PC”</h3>
-<p>This notice is SmartScreen, because the executable is not signed.
-Choose <em>More information</em>, <em>Run anyway</em>.</p>
+<p>The notice appears because the executable is not signed. Choose
+<em>More information</em> and then <em>Run anyway</em>.</p>
 <h3 id="the-antivirus-warns">The antivirus warns</h3>
-<p>It is a common false positive with applications distributed this way,
-without an installer, so add the folder to the exclusions.</p>
-<h3 id="the-chat-panel-is-not-visible">The chat panel is not
-visible</h3>
-<p><code>F2</code> says whether the panel is active and whether OBS
-shows it. If nobody shows it, check the browser source in OBS.</p>
-<h3 id="if-something-does-not-work">If something does not work</h3>
-<p>The <em>Help</em>, <em>Open logs folder</em> command opens the
-<code>data</code> folder, where the logs are. Errors are saved in
-<code>data/bellbird.log</code>, and if the application closes on its
-own, also in <code>data/bellbird-fallos.log</code>. The detailed log,
-<code>data/bellbird-debug.log</code>, is on by default; it is turned off
-in <em>Preferences</em>, on the <em>General</em> category, with the
-<em>Save a detailed log for diagnosing errors</em> check box. To report
-an error, reproduce the problem and send the three files.</p>
+<p>It is a common false positive in applications distributed without an
+installer. Add the Guyrapu folder to the antivirus exclusions.</p>
+<h3 id="the-chat-is-not-visible-on-video">The chat is not visible on
+video</h3>
+<p><em>Announce status</em> says whether the chat on video is active and
+whether OBS shows it. If OBS does not show it, check the source on the
+<em>Scene</em> tab of the <em>OBS panel</em>.</p>
+<h3 id="reporting-an-error">Reporting an error</h3>
+<p><em>Open logs folder</em>, in the <em>Help</em> menu, opens the
+<code>data</code> folder. Reproduce the problem and send the files
+<code>guyrapu.log</code>, <code>guyrapu-debug.log</code> and, if Guyrapu
+closed on its own, <code>guyrapu-fallos.log</code>.</p>
 <h2 id="license">License</h2>
-<p>Bellbird uses the GPL-3.0 license from version 2.5.1, and you can
-read <a href="../../LICENSE">LICENSE</a>. Versions up to 2.5.0 were
-published with the MIT license.</p>
+<p>Guyrapu is distributed with the GPL-3.0 license. See the <a
+href="../../LICENSE">LICENSE</a> file.</p>
 </body>
 </html>

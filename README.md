@@ -1,4 +1,4 @@
-# Bellbird
+# Guyrapu
 
 Aplicación de escritorio para Windows que lee en voz alta el chat de los
 directos de YouTube y TikTok. Está pensada para personas ciegas o con baja
@@ -7,7 +7,7 @@ lector de pantalla NVDA.
 
 Hasta la versión 2.5 se llamaba `YTChat TTS`.
 
-[Descargar la última versión](https://github.com/miguel-cinsfran/bellbird/releases/latest)
+[Descargar la última versión](https://github.com/miguel-cinsfran/guyrapu/releases/latest)
 · [Manual de uso](docs/es/MANUAL.md) · [Novedades](docs/es/CHANGELOG.md)
 
 ## Qué hace
@@ -76,15 +76,15 @@ anuncia. Su uso está en [qa/README.md](qa/README.md).
 ## Estructura
 
     main.py           punto de entrada
-    bellbird/ui         ventanas y diálogos
-    bellbird/capture    lectura del chat de YouTube y TikTok
-    bellbird/youtube    API de YouTube y sesión de Google
-    bellbird/voice      voces y sonidos
-    bellbird/player     reproductor de vídeo
-    bellbird/music      biblioteca, listas y reproducción de música
-    bellbird/obs        transmisión con OBS
-    bellbird/downloads  descargas con yt-dlp
-    bellbird/core       configuración, rutas y utilidades
+    guyrapu/ui         ventanas y diálogos
+    guyrapu/capture    lectura del chat de YouTube y TikTok
+    guyrapu/youtube    API de YouTube y sesión de Google
+    guyrapu/voice      voces y sonidos
+    guyrapu/player     reproductor de vídeo
+    guyrapu/music      biblioteca, listas y reproducción de música
+    guyrapu/obs        transmisión con OBS
+    guyrapu/downloads  descargas con yt-dlp
+    guyrapu/core       configuración, rutas y utilidades
     tests/            pruebas
     qa/               banco de pruebas de punta a punta
 

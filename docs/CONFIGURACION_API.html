@@ -216,9 +216,9 @@
   </style>
 </head>
 <body>
-<h1 id="configurar-la-api-de-youtube-en-bellbird">Configurar la API de
-YouTube en Bellbird</h1>
-<p>Esta guía explica cómo activar las funciones online de Bellbird:</p>
+<h1 id="configurar-la-api-de-youtube-en-guyrapu">Configurar la API de
+YouTube en Guyrapu</h1>
+<p>Esta guía explica cómo activar las funciones online de Guyrapu:</p>
 <ul>
 <li><strong>Leer comentarios</strong> de cualquier vídeo (no solo
 directos).</li>
@@ -260,8 +260,8 @@ barra de direcciones lleva directo, sin recorrer ningún menú.</p>
 <p><strong>Añadir el proyecto a la dirección para saltarse el
 selector.</strong> Una vez creado el proyecto, su identificador se puede
 pegar al final de cualquier dirección de la consola. Si el identificador
-es <code>ytchat-tts</code>, entonces
-<code>https://console.cloud.google.com/apis/credentials?project=ytchat-tts</code>
+es <code>guyrapu</code>, entonces
+<code>https://console.cloud.google.com/apis/credentials?project=guyrapu</code>
 abre las credenciales de ese proyecto sin tocar el selector. Los enlaces
 de esta guía llevan un hueco <code>TU-PROYECTO</code> para
 reemplazar.</p>
@@ -288,7 +288,7 @@ vez.</li>
 href="https://console.cloud.google.com/projectcreate">https://console.cloud.google.com/projectcreate</a></p>
 <ol type="1">
 <li>En <strong>Nombre del proyecto</strong>, escribir por ejemplo
-<code>Bellbird</code>.</li>
+<code>Guyrapu</code>.</li>
 <li>Debajo del campo, la consola muestra una línea que dice <strong>ID
 del proyecto</strong> seguida del identificador que ha generado.
 <strong>Conviene anotarlo ahora</strong>: es lo que se pega en las
@@ -332,7 +332,7 @@ tabla</strong> en horizontal para alcanzarlo. Pulsar el <em>nombre</em>
 de la clave abre su ficha de edición, que permite restringirla y
 renombrarla pero <strong>no muestra su valor</strong>.</p>
 </blockquote>
-<p>Con esto ya se pueden <strong>leer comentarios</strong>. En Bellbird:
+<p>Con esto ya se pueden <strong>leer comentarios</strong>. En Guyrapu:
 menú Herramientas, <strong>Preferencias…</strong>, categoría
 <strong>YouTube</strong>, pegar la clave en el campo <strong>Clave de
 API</strong>, pulsar <strong>Guardar claves</strong> y cerrar. Quien
@@ -355,7 +355,7 @@ página en vez de un formulario largo.</p>
 configuró Google Auth Platform". Pulsar <strong>Comenzar</strong>.</li>
 <li><strong>Paso 1, Información de la app.</strong> Escribir el
 <strong>Nombre de la aplicación</strong>, por ejemplo
-<code>Bellbird</code>. En <strong>Correo electrónico de asistencia al
+<code>Guyrapu</code>. En <strong>Correo electrónico de asistencia al
 usuario</strong> hay una lista desplegable: elegir la propia dirección.
 Pulsar <strong>Siguiente</strong>.</li>
 <li><strong>Paso 2, Público.</strong> Elegir <strong>Usuarios
@@ -397,7 +397,7 @@ en la página <strong>Información de marca</strong>, una página
 principal, un enlace a una política de privacidad y el dominio de esos
 enlaces en <strong>Dominios autorizados</strong>. Sirven la dirección
 del repositorio en GitHub como página principal,
-<code>https://github.com/miguel-cinsfran/ytchat-tts/blob/main/docs/PRIVACIDAD.md</code>
+<code>https://github.com/miguel-cinsfran/guyrapu/blob/main/docs/PRIVACIDAD.md</code>
 como política y <code>github.com</code> como dominio.</p>
 </blockquote>
 <h2 id="paso-5--crear-el-cliente-oauth">Paso 5 — Crear el cliente
@@ -411,7 +411,7 @@ escritorio</strong>. La lista trae otras opciones (Aplicación web,
 Android, Extensión de Chrome, iOS, TVs); ninguna de ellas sirve para
 esta aplicación.</li>
 <li>En <strong>Nombre</strong>, escribir por ejemplo
-<code>Bellbird escritorio</code>, y pulsar <strong>Crear</strong>.</li>
+<code>Guyrapu escritorio</code>, y pulsar <strong>Crear</strong>.</li>
 <li>Se abre un cuadro titulado "Se creó el cliente de OAuth" con el
 <strong>ID de cliente</strong> y el <strong>Secreto del
 cliente</strong>, cada uno con su botón de copiar.</li>
@@ -427,7 +427,7 @@ visible después, en la lista de clientes.</p>
 <h2 id="paso-6--meter-los-datos-en-la-aplicación">Paso 6 — Meter los
 datos en la aplicación</h2>
 <ol type="1">
-<li>Abrir Bellbird, menú Herramientas, <strong>Preferencias…</strong>,
+<li>Abrir Guyrapu, menú Herramientas, <strong>Preferencias…</strong>,
 categoría <strong>YouTube</strong>.</li>
 <li>Pegar la <strong>clave de API</strong> del paso 3, y el <strong>ID
 de cliente</strong> y el <strong>Secreto de cliente</strong> del paso 5,
@@ -442,7 +442,7 @@ cada uno en su campo.</li>
 <strong>Continuar</strong>. Este aviso es normal y aparece porque la app
 está en estado "Prueba"; el enlace grande que dice "Volver a un sitio
 seguro" es el que <strong>no</strong> hay que pulsar.</li>
-<li><strong>"Bellbird requiere acceso a tu Cuenta de Google"</strong>:
+<li><strong>"Guyrapu requiere acceso a tu Cuenta de Google"</strong>:
 pulsar <strong>Continuar</strong>. El permiso que se concede es solo de
 YouTube.</li>
 </ol>

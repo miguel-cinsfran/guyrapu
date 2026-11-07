@@ -245,8 +245,10 @@ vídeo, y *Mover con flechas* la mueve en pasos.
 juego o de pantalla, una imagen, un archivo multimedia, un texto, el chat en
 el vídeo o una fuente de otra escena.
 
-*Aplicar diseño…* reparte toda la escena de una vez, con siete diseños de
-fábrica, como la cámara en una esquina o dos fuentes lado a lado. *Ajuste*
+*Aplicar diseño…* reparte toda la escena de una vez. Trae tres diseños de
+fábrica, *Pantalla completa*, *Imagen en imagen* y *Dividida en dos*, y en el
+cuadro se elige qué fuente va en cada lugar, la esquina, el reparto y el
+chat. *Ajuste*
 decide qué pasa si la proporción no coincide: *Ajustar* muestra la fuente
 entera, *Llenar* recorta los bordes y *Automático* llena con la cámara y
 ajusta lo demás. *Guardar como…* guarda un diseño propio.

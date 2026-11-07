@@ -1,279 +1,115 @@
-<!-- original: es/CHANGELOG.md bed496b0582556812b5a314613f9fb33c0f432de -->
-# What's new in Bellbird
+<!-- original: es/CHANGELOG.md 6cd28294d632071b1cd9afe3e3af14c0ce6630c0 -->
+# What's new in Guyrapu
 
-This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/bellbird/issues. See the [original in Spanish](../es/CHANGELOG.md).
+This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
 
-What changes in each version, told in plain language and written for the person
-who uses the app. The technical detail of each change is in the git history.
-
-## 3.0.0 beta 1, November 2026
-
-The app is now called Bellbird, after the bellbird, which is the national bird
-of Paraguay. It also brings a broadcast panel, recordings, camera framing and a
-new Download manager.
+## 3.0.0 beta 2, November 2026
 
 ### The new name
 
-- Version 2.5.1 does not offer this beta by itself, so you install it by
-  hand. Download the ZIP, unzip it into a new folder and copy the `data`
-  folder from the previous version into it, which keeps the preferences, the
-  YouTube session and the history. If you downloaded to the app's `Descargas`
-  folder, copy it too. When it works, you can delete the previous folder.
-  From this beta on, the app offers the following versions and installs them.
-- The app is now `Bellbird.exe`. The ZIP and its folder carry the name
-  Bellbird with the version number.
-- A shortcut to `YTChatTTS.exe` stops working after updating. If you opened
-  the app from a shortcut, delete it and create a new one from
-  `Bellbird.exe`, inside the app folder.
-- The OBS chat source renames itself to “Chat on video” and keeps its place
-  and size. The scenes you already have keep working.
+YTChat TTS is now called Guyrapu. Version 2.5.1 does not offer this beta:
+download the ZIP, unzip it into a new folder and copy the `data` folder from
+the previous version into it. The app is `Guyrapu.exe`.
 
-### What's new
+- Desktop, Start menu and taskbar shortcuts move to `Guyrapu.exe` by
+  themselves and keep their shortcut key. The OBS chat source renames itself
+  to *Chat on video*.
 
-- The *Broadcast panel* was reorganized. *Status* says how everything is. *Broadcast live* prepares OBS and checks the scene with a
-  single button, the same as the button in the main window, and asks for
-  confirmation when ending. Only the controls that are useful at that moment
-  are shown.
-- *Arrange scene* is a new window that opens from the panel. It gathers what
-  organizes a scene: which window is captured and where each source goes.
-  Choosing another scene there does not change what viewers see.
-- *Start or stop recording* (`Alt+Shift+G`) and *Pause or resume recording*
-  (`Alt+Shift+P`) are in the *Broadcast* menu. If OBS does not pause the
-  recording, the app says so.
-- When you stop the recording, the app says “Recording saved” with the file
-  name. *Saved recordings…*, in the *Broadcast* menu and in the panel, lets
-  you open what was recorded, open its folder, copy the path and remove it
-  from the list.
-- Matching the volume takes less time, because it measures several songs at
-  once.
-- *Update channel*, in *Preferences*, has two options. *Stable*, the default,
-  offers only stable versions. *Beta* also offers test versions.
-- The menus, *Preferences* and notices use Windows words for the character
-  limit and for turning on an option. They also say announce current song,
-  stop muting, and lower and raise voice speed in the *Voice* menu. If a key is
-  already assigned to another action, the notice when opening the app says
-  which one and which shortcut was turned off.
-- Camera framing. `Ctrl+F3` says how you look in the camera of the OBS
-  live scene: whether you are centered, far away, outside the edge or with
-  little light, and where to move. `Ctrl+Shift+F3` turns on warnings with
-  their own sound when the face leaves the frame and when it returns.
-  Pressing `Ctrl+F3` twice starts a sound guide: each beep sounds from the
-  side you have to move to and repeats more often as you get closer, and a
-  continuous tone plays at the center. The image is analyzed on the computer,
-  without sending it anywhere. The camera, the warnings, the left-right
-  inversion and the *Guide sound* (Normal, Warm or 8-bit) are chosen in the
-  new *Camera* category of Preferences.
-- `Ctrl+Shift+O`, or *Show OBS* in the *Broadcast* menu, brings the OBS
-  window to the front, also when it is in the notification area. If OBS is
-  waiting for an answer, such as the safe mode question, focus goes to that
-  box.
-- If OBS is open but not responding, the app no longer asks you to check
-  that it is open: it says it may be waiting for an answer and that you
-  choose *Show OBS*.
-- *Record while broadcasting*, in the *Broadcast* menu. With the check box
-  checked, OBS starts recording when the broadcast starts well, and stops
-  recording when the broadcast stops. If you were already recording, that
-  recording continues as it was. It is unchecked.
-- If recording cannot start, the broadcast continues and the app warns
-  with its own sound.
-- Starting, pausing, resuming and stopping a recording have their own
-  sounds.
-- *Show streaming or recording in the title of the window*, in
-  *Preferences, Broadcast*, puts that status at the start of the title. It
-  is unchecked.
-- With that check box checked, the check before broadcasting warns if the
-  OBS profile records with its own encoder. In that case, broadcasting and
-  recording at the same time puts twice the load on the computer.
-- *Choose microphone…*, in the *Broadcast* menu, opens a box with the OBS
-  microphone source and the device it uses. When you press *Apply*, OBS
-  changes the device and the app says whether sound is coming in. The
-  shortcut to mute the microphone uses that source from then on.
-- On TikTok, likes are written in the chat list, one row per person and with
-  each one's amount. Before, they only played a sound. *Group likes for
-  (seconds)*, in the *Reading* category, decides how many seconds each
-  person's taps are gathered before the notice: from 1 to 120, and 10 by
-  default.
-- Each live stream event has its mode in *Preferences*, *Reading* category:
-  Super Chats and gifts, memberships, joins, likes, followers, shares and
-  treasure chests. Each one can be *Main voice*, *Secondary voice*, *Sound
-  only* or *Off*. By default joins and likes sound without being read, and
-  the rest are read with the main voice. If you already had join or like
-  reading checked, it is respected.
-- The *Voices* category calls the usual voice *Main voice* and adds the
-  *Secondary voice* group, with its voice, speed, volume and test button.
-  The events you choose are read with it, and the next message returns to
-  the main one. Changes apply when saving, without restarting.
-- The chat list has the *Alerts* filter, which shows only those TikTok
-  notices.
-- The app is also in English. The language is chosen in *Preferences*,
-  *General* category, and applies on restart. When saving, a box offers
-  *Restart now* or *Later*. By default it uses the Windows language.
-- Without a connection, the main window shows the *Recent items* list
-  (`Alt+N`) with the last ten live streams and videos, from YouTube and
-  TikTok. Enter opens one, `Delete` removes it from the history, and its
-  context menu offers to open it, remove it or open the full history.
-- With sound only, a long video jumps in under a second. When the audio
-  track is larger than 10 MB, another source is used, with somewhat lower
-  sound quality.
-- *Play sound only, without the picture* is checked by default. With it, a
-  recorded video jumps in less than a second. With the check box
-  cleared you see the picture, and each jump takes a few seconds. If you
-  had already changed it, your choice is kept. A live stream behaves as
-  before.
-- The option *Ask whether to open the folder when the queue finishes*, in
-  *Preferences, Downloads*, asks one question when the whole queue finishes,
-  if something downloaded correctly. It is unchecked.
-- The history and recent streams show the short date, such as 10/27/2026,
-  instead of 2026-10-27.
-- The app texts use Windows terms, such as *Delete* and *Enter*, and
-  shorter phrases. Some names change: *Download manager*, *Read aloud*,
-  *API key*, and *voice* instead of the previous name for reading. Each section of
-  *Preferences* is called a category, as in NVDA.
-- The moderation actions in the chat context menu are named as on YouTube:
-  *Put in timeout* for 5 minutes and *Hide on the YouTube channel*, which
-  can be undone from YouTube Studio.
-- In the music window, the button that reads the folder again is called
-  *Refresh folder*, with the letter Z. Notices say link instead of address,
-  application instead of program and *Esc* instead of Escape.
-- With the YouTube session started, `F2` says how many units of the daily
-  quota were used today from this computer. The number is approximate, and
-  because the quota is shared among those who use the application, it helps
-  to know whether a quota error comes from your use or from others'. It can
-  be removed from the summary in *Preferences, Status (F2)*.
-- If you press `F2` twice in a row, the status opens in a box with one
-  line for each part, to move through it with the arrow keys.
-- When the voice reaches the top speed or volume, the notice says
-  “maximum” or “minimum”.
-- When you assign a shortcut that another action already uses, the notice
-  says which keys they are and which action has them.
-- If there are other versions between the installed one and the new one,
-  the update window shows the what's new of all of them, from the newest to
-  the oldest, each with its heading and version number.
+### OBS panel
 
-### The Download manager, renewed
+- In the *OBS panel*, *General* gathers the status of the broadcast, the
+  recording, the scene and the microphone, and `F1` opens the manual. The
+  *Scene* tab gathers the *Sources* list: each row says where it is, which
+  part of the video it takes up and whether it is visible, and *Add source…*
+  captures a window or adds a camera, an image or the chat on video.
+- The *Audio* tab lists the sources and their filters, and *Mute*, *Test
+  level*, *Filters…* and *Listen* act on the selected one. *Apply layout…*
+  arranges the scene at once, and `Ctrl+F3` says the camera framing,
+  `Ctrl+Shift+F3` turns the warnings about the face on or off, and `Alt+F3`
+  hides or shows the camera. If you press `Ctrl+F3` twice, a beep guide tells
+  you which way to move.
 
-- The window has two tabs. *Search on YouTube* opens first, with the focus
-  in the field. *Downloads* has the queue and the history.
-- In the *Search or paste link* field, words search YouTube and a link goes
-  to the queue, whether from YouTube or another supported site. *View
-  supported sites* opens the list of sites. The field remembers recent
-  searches.
-- Results show title, channel, duration, views and date, and the *Details*
-  box has the full data of the selected one. *Amount* chooses how many
-  results arrive, and *Show more* brings another batch.
-- The *Show filters* check box adds type (videos, playlists, channels or
-  live), duration, date and order.
-- Enter on a video downloads it without asking and says “Downloading” or
-  “Queued” with the title. Enter on a playlist or a channel shows its
-  videos. Backspace returns to the results, and *Add entire playlist*
-  downloads it completely.
-- Spacebar plays the result in the music player, without downloading it. It
-  cuts only the current song and stays in the queue like any other. Spacebar
-  again pauses it.
-- *Open in Bellbird* leaves the sound free for the player. If the result is
-  the song that is playing, the music stops and the song leaves the queue. If
-  another song is playing, it pauses.
-- The context menu of a result lets you add it to the queue, listen to it,
-  download it as audio or as video without changing the chosen format,
-  open it in Bellbird, add it to the music, view its contents, copy the
-  link and open it in the browser.
-- Before adding something, the app warns if it is already in the history.
-  An ongoing live stream is not downloaded, and the app says so.
-- The *Downloads* tab has a single list, and *Show* chooses what is shown:
-  all, in progress, waiting, completed or with errors, each with its
-  amount. With the Applications key or `Shift+F10` the menu opens to open
-  the file or its folder, retry, download again, copy the link, cancel and
-  delete. Delete removes the selected download from the list.
-- While downloading, the *Status* column says the speed and the time left.
-  In a playlist it also says which video it is on, such as “video 3 of 10”.
-  The *Progress* column shows a bar next to the percentage.
-- *Choose format…*, in the context menu of a video, shows the resolutions
-  that video has with its size, such as “1080p 60 fps, MP4, 255 MB”, and an
-  audio-only option. The chosen one downloads without changing *Format* or
-  *Quality*. Checking the formats takes a few seconds, and the app warns
-  with a sound.
-- *Format* has nine options: original video, MP4 or WebM, and original
-  audio, MP3, M4A, Opus, FLAC or WAV. *Quality* changes with the format:
-  resolution for video and kbps for audio. The file keeps the title and the
-  video data, and the thumbnail when the format allows it.
-- Audio is also downloaded on sites that do not separate it from video,
-  such as Dailymotion or Twitch.
-- *Preferences* has the new *Downloads* category: folder, numbering the
-  files of a playlist, simultaneous downloads, speed limit, own folder for
-  each playlist and file names.
-- When you exit the app with unfinished downloads, the question says how
-  many will be canceled. It appears even if you have turned off the
-  confirmation on exit.
-- Search, adding to the queue, processing, the end of the queue and a
-  download that ended halfway have their own sounds, in both themes.
-- The package brings the program YouTube now asks for to read its videos,
-  so downloads and the player get all formats. Opening a video or starting
-  a download takes about a second and a half longer.
-- In *Preferences*, *Downloads* category, *yt-dlp update channel* chooses
-  between *Stable* and *Nightly*. *Nightly* brings fixes for YouTube a few
-  days earlier, and may bring new failures.
-- *Announce download progress*, in *Preferences*, *Downloads* category, says
-  how far each download has got every 10 percent, with its own sound. If a
-  download is still at zero, it says “Download in progress” every 15 seconds,
-  with another sound. With more than one download at a time, the notice starts
-  with the video name. It works even when the Download manager is closed. It
-  is unchecked.
+### Broadcasting live
 
-### Application appearance
+- *Broadcast to* shows *TikTok*, *YouTube* and each Restream profile. With a
+  profile, Guyrapu enables only its channels, sets their title and writes the
+  key into the OBS profile, and when it ends the channels return to how they
+  were.
+- A profile with *YouTube, the channel of your Google session* creates the
+  live stream with the data you type, and Restream forwards it. *Chat that
+  Guyrapu reads* chooses which chat is read if the profile has YouTube and
+  TikTok.
 
-- The window, the streaming chat panel and the documentation change
-  colors, with a palette inspired by the bellbird: cool white and
-  turquoise. All text still meets the minimum contrast.
-- All windows use the same colors. Fields and lists are white, the main
-  button of each window is turquoise with white text, and group titles are
-  also turquoise.
-- In Broadcast, Preferences and YouTube live stream, each button is next
-  to the field it acts on, and the buttons of the same section are in one
-  row. The Live stream history is larger and shows full titles.
-- All Preferences labels end with a colon. In Scheduled messages the list
-  has its label, and the intervals are called “Minimum interval” and
-  “Maximum interval”. In Music, showing the filters is a check box, as in
-  Downloads.
-- The status bar says “Speed”, “Volume” and “Super Chats” instead of
-  abbreviations. In Broadcast, the TikTok user can only be typed when the
-  destination is TikTok.
+### Restream
+
+- The Restream window (`Ctrl+Shift+R`) has four tabs. *Account* connects or
+  disconnects the account, *Destinations* turns a channel on or off and
+  changes its title, and *Profiles* saves which destinations are broadcast to
+  and with which orientation.
+- *Events* lists upcoming ones, those that are live and the history. During
+  the live stream, it warns with its own sound if Restream stops receiving the
+  OBS signal or receives it again, if it is weak or if a destination
+  disconnects.
+
+### Recordings and clips
+
+- The *Recording* tab of the *OBS panel* records without broadcasting, and
+  *Recordings and clips* gathers what was recorded and the clips. Its context
+  menu opens the file or its folder, copies the path or removes it from the
+  list.
+- *Record while broadcasting*, in the *Broadcast* menu, records for as long as
+  the live stream lasts. *Save clip* (`Alt+Shift+R`), in the *OBS* menu, saves
+  the last 30 or 60 seconds, and with *Allow !clip in chat* anyone in the chat
+  saves a clip by typing `!clip`.
+
+### Chat and live stream events
+
+- On TikTok, joins are grouped in one row, such as “Ana, Beto and Caro
+  joined”, and each person's likes in another with the amount. *Group joins*
+  and *Group likes* are checked in *Preferences*, *Live events* category.
+- Polls are announced when they open and when they close, goals when they are
+  met and battles when they start and end. `F2` says how they are going.
+- Each event has its mode in *Live events*: *Main voice*, *Secondary voice*,
+  *Sound only*, *List only* or *Off*. The chat on video leaves out notices and
+  shows only messages and gifts.
+
+### Music and downloads
+
+- The *Music* window gathers *Collections*, *Find*, *Songs* and the queue, and
+  *Match song volume* leaves them all at a similar volume.
+- The *Download manager* has two tabs: *Search on YouTube* searches or pastes
+  a link, and *Downloads* gathers the queue and the history. `Enter` downloads
+  a video and `Space` plays it in the music player.
+- The results show title, channel, duration, views and date, and *Choose
+  format…* shows the resolutions of that video. In *Preferences*, *Downloads*,
+  you choose the folder, the file name and the yt-dlp update channel.
+
+### Other changes
+
+- It is also in English. The language is chosen in *Preferences*, *General*,
+  and applies on restart.
+- Without a connection, the main window shows *Recent items* (`Alt+N`) with
+  the last ten live streams and videos.
+- *Update channel*, in *General*, chooses between *Stable* and *Beta*, and the
+  update window shows the release notes of the versions in between.
+- *Also show important notices in a message box* shows the result of what
+  you do in a box. `F2` says the daily YouTube quota used and, twice in a row,
+  opens the *Session status* window.
 
 ### Fixes
 
-- Some YouTube videos did not open on the first try, or said the video had
-  ended before it started. The app now waits the few seconds YouTube takes to
-  make the video available, and if opening fails, it says so.
-- When TikTok slows down repeated requests, the app no longer takes it for
-  a live stream that does not appear. When broadcasting it warns that
-  TikTok is rate-limiting requests, with its own sound. When connecting to
-  the chat it says so, instead of a technical error, and waits half a
-  minute before retrying.
-- F2 says the singular when there is only one: “1 gift”, “1 Super Chat”
-  and “1 read”.
-- Two TikTok errors are understood better: “TikTok is not responding for
-  now” and “TikTok returned an error”, instead of naming internal parts.
-- Canceling a download that already finished says “The download already
-  finished”, instead of announcing that it was canceled.
-- When closing Preferences without saving after testing a voice, the test
-  voice no longer stays open.
-- When the TikTok chat reconnects, the list is no longer emptied and the
-  video does not start again on its own.
-- In *Downloads*, the status of a waiting download is read “queued”,
-  without the underscore.
-- In *Downloads*, the link of a video opened from a playlist downloads only
-  that video, and not the whole playlist.
-- In *Downloads*, each download waiting for its turn uses the format and
-  folder that existed when it was added, even if you later change the
-  options.
-- No access letter repeats in the *Preferences* categories or in the
-  broadcast, comments, history and downloads boxes. *Cancel download*
-  moves to the letter A and Clear history to H.
-- The access letters of each *Preferences* category no longer repeat
-  those of *Save* and *Cancel*, nor do those of the main window repeat the
-  one of *Link or ID*. *Send* changes in the live stream chat (Alt+N),
-  *Read recent messages with* (Alt+R), and in *API and session* and
-  *Scheduled messages* the save buttons (Alt+A), *API key* (Alt+V),
-  *OAuth client ID* (Alt+O) and *Add* (Alt+R).
+- Some YouTube videos did not open on the first try or said “End of the
+  video”. The app waits until YouTube makes the video available and, if it
+  fails, says so.
+- When TikTok slows down repeated requests, the app no longer takes it for a
+  live stream that does not appear: it warns that TikTok is rate-limiting
+  requests and waits half a minute. When the TikTok chat reconnects, the list
+  is no longer emptied.
+- In *Downloads*, a download that is waiting reads “queued” and uses the
+  format and folder that were set when it was added. A live stream that is
+  interrupted reconnects without interrupting the player, up to three times in
+  ten minutes.
+- `F2` says the singular: “1 gift” and “1 Super Chat”.
 
 ## 2.5.1, October 2026
 
