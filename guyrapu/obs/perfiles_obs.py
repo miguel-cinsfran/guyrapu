@@ -51,7 +51,7 @@ def _buffer_activo(cliente, parada):
         return False
 
 
-def _comprobar_salidas(cliente, parada):
+def comprobar_salidas(cliente, parada):
     """Con una salida en marcha no se toca ningún perfil."""
     for tipo in ("GetStreamStatus", "GetRecordStatus"):
         if _activo(cliente, tipo, parada):
@@ -104,7 +104,7 @@ def _esperar(cliente, cumple, parada):
         time.sleep(_INTERVALO_CAMBIO)
 
 
-def _cambiar(cliente, nombre, parada):
+def cambiar(cliente, nombre, parada):
     perfiles, actual = _lista(cliente, parada)
     if actual == nombre:
         return
@@ -120,14 +120,14 @@ def _crear(cliente, nombre, parada):
     _esperar(cliente,
              lambda perfiles, actual: (nombre in perfiles
                                        or actual == nombre), parada)
-    _cambiar(cliente, nombre, parada)
+    cambiar(cliente, nombre, parada)
 
 
 def _intentar_volver(cliente, original, parada):
     if not original:
         return
     try:
-        _cambiar(cliente, original, parada)
+        cambiar(cliente, original, parada)
     except obs_cliente.ObsError as error:
         logger.debug("no se pudo volver al perfil de OBS %s: %s",
                      original, error)
@@ -148,13 +148,13 @@ def _recargar(cliente, actual, perfiles, parada):
     """Pasa a otro perfil y vuelve para que OBS lea codificador y bitrates."""
     otro = next((nombre for nombre in perfiles if nombre != actual), "")
     if otro:
-        _cambiar(cliente, otro, parada)
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, otro, parada)
+        cambiar(cliente, actual, parada)
         return
     temporal = "Guyrapu " + uuid.uuid4().hex[:8]
     _crear(cliente, temporal, parada)
     try:
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
     finally:
         try:
             cliente.pedir("RemoveProfile", {"profileName": temporal}, parada)
@@ -203,7 +203,7 @@ def _escribir_actual(cliente, ajustes, parada, escribir_servicio=True):
 
 def _leer_de(cliente, objetivo, actual, parada):
     if actual != objetivo:
-        _cambiar(cliente, objetivo, parada)
+        cambiar(cliente, objetivo, parada)
     try:
         ajustes = _leer_actual(cliente, parada)
     except Exception:
@@ -211,13 +211,13 @@ def _leer_de(cliente, objetivo, actual, parada):
             _intentar_volver(cliente, actual, parada)
         raise
     if actual != objetivo:
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
     return ajustes
 
 
 def leer_ajustes(cliente, perfil=None, parada=None):
     """Lee los ajustes de un perfil y deja OBS en el que estaba."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     objetivo = perfil or actual
     if objetivo not in perfiles:
@@ -228,14 +228,14 @@ def leer_ajustes(cliente, perfil=None, parada=None):
 
 def leer_para_editar(cliente, perfil=None, parada=None):
     """Ajustes, modo Avanzado y servicio personalizado, en un solo viaje."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     objetivo = perfil or actual
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
     if actual != objetivo:
-        _cambiar(cliente, objetivo, parada)
+        cambiar(cliente, objetivo, parada)
     try:
         ajustes = _leer_actual(cliente, parada)
         avanzado = _modo(cliente, parada) == "advanced"
@@ -248,20 +248,20 @@ def leer_para_editar(cliente, perfil=None, parada=None):
             _intentar_volver(cliente, actual, parada)
         raise
     if actual != objetivo:
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
     return ajustes, avanzado, personalizado
 
 
 def guardar_ajustes(cliente, ajustes, perfil=None, parada=None):
     """Guarda los ajustes en un perfil y deja OBS en el que estaba."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     objetivo = perfil or actual
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
     if actual != objetivo:
-        _cambiar(cliente, objetivo, parada)
+        cambiar(cliente, objetivo, parada)
     try:
         _escribir_actual(cliente, ajustes, parada)
         if objetivo == actual:
@@ -270,13 +270,13 @@ def guardar_ajustes(cliente, ajustes, perfil=None, parada=None):
         _intentar_volver(cliente, actual, parada)
         raise
     if objetivo != actual:
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
 
 
 def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
                  parada=None):
     """Crea un perfil horizontal o vertical y lo deja como actual."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     if nombre in perfiles:
         raise obs_cliente.ObsError(_(MENSAJE_EXISTE))
@@ -287,7 +287,7 @@ def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
     try:
         _crear(cliente, nombre, parada)
         _escribir_actual(cliente, ajustes, parada, escribir_servicio=False)
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
         _borrar_si_existe(cliente, nombre, parada)
@@ -297,7 +297,7 @@ def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
 
 def duplicar_perfil(cliente, origen, nuevo, parada=None):
     """Duplica un perfil con otro nombre y deja OBS en el que estaba."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     if origen not in perfiles:
         raise obs_cliente.ObsError(
@@ -308,7 +308,7 @@ def duplicar_perfil(cliente, origen, nuevo, parada=None):
         ajustes = _leer_de(cliente, origen, actual, parada)
         _crear(cliente, nuevo, parada)
         _escribir_actual(cliente, ajustes, parada)
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
         _borrar_si_existe(cliente, nuevo, parada)
@@ -318,7 +318,7 @@ def duplicar_perfil(cliente, origen, nuevo, parada=None):
 
 def eliminar_perfil(cliente, nombre, parada=None):
     """Elimina un perfil que no sea el actual ni el único."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     if nombre not in perfiles:
         raise obs_cliente.ObsError(
@@ -335,8 +335,8 @@ def eliminar_perfil(cliente, nombre, parada=None):
 
 def cambiar_perfil(cliente, nombre, parada=None):
     """Deja activo el perfil elegido."""
-    _comprobar_salidas(cliente, parada)
-    _cambiar(cliente, nombre, parada)
+    comprobar_salidas(cliente, parada)
+    cambiar(cliente, nombre, parada)
 
 
 def _modo(cliente, parada):
@@ -345,14 +345,14 @@ def _modo(cliente, parada):
 
 def esta_en_avanzado(cliente, perfil=None, parada=None):
     """Dice si el perfil está en modo Avanzado y deja OBS como estaba."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     objetivo = perfil or actual
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
     if actual != objetivo:
-        _cambiar(cliente, objetivo, parada)
+        cambiar(cliente, objetivo, parada)
     try:
         modo = _modo(cliente, parada)
     except Exception:
@@ -360,7 +360,7 @@ def esta_en_avanzado(cliente, perfil=None, parada=None):
             _intentar_volver(cliente, actual, parada)
         raise
     if actual != objetivo:
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
     return modo == "advanced"
 
 
@@ -381,19 +381,19 @@ def _convertir(cliente, objetivo, actual, perfiles, parada):
 
 def pasar_a_sencillo(cliente, perfil=None, parada=None):
     """Pasa el perfil a modo Sencillo copiando codificador y bitrate."""
-    _comprobar_salidas(cliente, parada)
+    comprobar_salidas(cliente, parada)
     perfiles, actual = _lista(cliente, parada)
     objetivo = perfil or actual
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
     if actual != objetivo:
-        _cambiar(cliente, objetivo, parada)
+        cambiar(cliente, objetivo, parada)
     try:
         convertido = _convertir(cliente, objetivo, actual, perfiles, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
         raise
     if actual != objetivo:
-        _cambiar(cliente, actual, parada)
+        cambiar(cliente, actual, parada)
     return convertido
