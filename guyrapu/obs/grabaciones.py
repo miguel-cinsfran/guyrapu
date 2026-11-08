@@ -67,18 +67,37 @@ def anotar(archivo, ruta=None, ahora=None, tipo=None) -> None:
             logger.debug("no se pudo anotar la grabación: %s", error)
 
 
+def archivo_final(ruta) -> str:
+    """La ruta con barras de Windows y, si OBS convirtió, el .mp4 hermano."""
+    if not ruta:
+        return ""
+    normalizada = os.path.normpath(str(ruta))
+    base, extension = os.path.splitext(normalizada)
+    if extension.lower() not in (".mp4", ".mov"):
+        hermano = base + ".mp4"
+        if os.path.isfile(hermano):
+            return hermano
+    return normalizada
+
+
+def _con_tamano(entrada):
+    """La entrada con el archivo final y su tamaño, o None si ya no está."""
+    anotada = entrada.get("ruta") or ""
+    final = archivo_final(anotada)
+    try:
+        tamano = os.path.getsize(final)
+    except OSError:
+        return None
+    return {**entrada, "ruta": final, "anotada": anotada,
+            "tamano": tamano}
+
+
 def existentes(ruta=None) -> list:
-    """Las entradas cuyo archivo sigue en el disco, con su tamaño."""
-    resultado = []
+    """Las entradas cuyo archivo final sigue en el disco, con su tamaño."""
     with _CANDADO:
-        for entrada in _leer_sin_candado(ruta):
-            archivo = entrada.get("ruta") or ""
-            try:
-                tamano = os.path.getsize(archivo)
-            except OSError:
-                continue
-            resultado.append({**entrada, "tamano": tamano})
-    return resultado
+        entradas = _leer_sin_candado(ruta)
+    return [entrada for entrada in map(_con_tamano, entradas)
+            if entrada is not None]
 
 
 def quitar(archivo, ruta=None) -> None:

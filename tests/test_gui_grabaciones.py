@@ -148,6 +148,26 @@ class TestPanelGrabaciones(unittest.TestCase):
             panel._abrir_carpeta()
         abrir.assert_called_once_with(["explorer", "/select,", str(archivo)])
 
+    def test_abrir_carpeta_usa_el_mp4_convertido_con_barras_invertidas(self):
+        mp4 = self._archivo("clip.mp4")
+        anotada = str(self.carpeta / "clip.mkv").replace("\\", "/")
+        grabaciones.anotar(anotada, ruta=self.ruta, ahora=1000)
+        panel = self._panel()
+        with mock.patch.object(gui_grabaciones.subprocess, "Popen") as abrir:
+            panel._abrir_carpeta()
+        abrir.assert_called_once_with(["explorer", "/select,", str(mp4)])
+        self.assertIn("\\", abrir.call_args.args[0][2])
+
+    def test_eliminar_saca_la_entrada_anotada_aunque_la_fila_muestre_el_mp4(self):
+        self._archivo("clip.mp4")
+        anotada = str(self.carpeta / "clip.mkv").replace("\\", "/")
+        grabaciones.anotar(anotada, ruta=self.ruta, ahora=1000)
+        panel = self._panel()
+        self.assertIn("clip.mp4", panel._lista.GetString(0))
+        panel._lista.SetSelection(0)
+        panel._eliminar()
+        self.assertEqual(grabaciones.leer(self.ruta), [])
+
     def test_abrir_archivo_o_carpeta_que_ya_no_estan_avisa(self):
         panel = self._panel()
         ruta = str(self.carpeta / "no-existe" / "clip.mp4")

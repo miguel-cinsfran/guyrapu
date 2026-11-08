@@ -154,7 +154,7 @@ class PanelGrabaciones(wx.Panel):
             self._sin_grabaciones()
             return
         indice = self._lista.GetSelection()
-        grabaciones.quitar(entrada.get("ruta") or "")
+        grabaciones.quitar(entrada.get("anotada") or entrada.get("ruta") or "")
         anunciar(_("Eliminada de la lista"))
         self.poblar(indice)
         self._lista.SetFocus()

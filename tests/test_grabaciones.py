@@ -1,5 +1,6 @@
 """Pruebas del registro de grabaciones, sin ventanas y con archivos reales."""
 
+import os
 import tempfile
 import unittest
 from datetime import datetime
@@ -96,6 +97,61 @@ class TestExistentes(unittest.TestCase):
         grabaciones.anotar(nuevo, ruta=self.ruta, ahora=2000)
         self.assertEqual([e["ruta"] for e in grabaciones.existentes(self.ruta)],
                          [str(nuevo), str(viejo)])
+
+
+class TestArchivoFinal(unittest.TestCase):
+
+    def test_una_ruta_vacia_devuelve_vacio(self):
+        self.assertEqual(grabaciones.archivo_final(""), "")
+
+
+class TestExistentesConConversion(unittest.TestCase):
+
+    def setUp(self):
+        self.temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporal.cleanup)
+        self.carpeta = Path(self.temporal.name)
+        self.ruta = self.carpeta / "grabaciones.json"
+
+    def _archivo(self, nombre):
+        ruta = self.carpeta / nombre
+        ruta.write_bytes(b"x" * 5)
+        return ruta
+
+    def _anotada(self, nombre):
+        return str(self.carpeta / nombre).replace("\\", "/")
+
+    def test_con_mp4_hermano_la_entrada_usa_el_mp4_y_conserva_la_anotada(self):
+        mp4 = self._archivo("a.mp4")
+        anotada = self._anotada("a.mkv")
+        grabaciones.anotar(anotada, ruta=self.ruta, ahora=1000)
+
+        entradas = grabaciones.existentes(self.ruta)
+        self.assertEqual(len(entradas), 1)
+        self.assertEqual(entradas[0]["ruta"], os.path.normpath(str(mp4)))
+        self.assertIn("\\", entradas[0]["ruta"])
+        self.assertEqual(entradas[0]["anotada"], anotada)
+        self.assertEqual(entradas[0]["tamano"], 5)
+
+    def test_sin_mp4_hermano_usa_la_ruta_anotada_normalizada(self):
+        mkv = self._archivo("a.mkv")
+        anotada = self._anotada("a.mkv")
+        grabaciones.anotar(anotada, ruta=self.ruta, ahora=1000)
+
+        entradas = grabaciones.existentes(self.ruta)
+        self.assertEqual(len(entradas), 1)
+        self.assertEqual(entradas[0]["ruta"], os.path.normpath(str(mkv)))
+        self.assertIn("\\", entradas[0]["ruta"])
+
+    def test_un_mp4_anotado_no_busca_otro(self):
+        mp4 = self._archivo("b.mp4")
+        self._archivo("b.mkv")
+        anotada = self._anotada("b.mp4")
+        grabaciones.anotar(anotada, ruta=self.ruta, ahora=1000)
+
+        entradas = grabaciones.existentes(self.ruta)
+        self.assertEqual(len(entradas), 1)
+        self.assertEqual(entradas[0]["ruta"], os.path.normpath(str(mp4)))
 
 
 class TestQuitar(unittest.TestCase):
