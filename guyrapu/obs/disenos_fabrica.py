@@ -24,6 +24,10 @@ _FALTAS = {
     "izquierda": N_("Falta la fuente de la izquierda."),
     "derecha": N_("Falta la fuente de la derecha."),
 }
+_FALTAS_VERTICAL = {
+    "izquierda": N_("Falta la fuente superior."),
+    "derecha": N_("Falta la fuente inferior."),
+}
 
 
 @dataclass(frozen=True)
@@ -51,7 +55,7 @@ FABRICA = (
     DisenoFabrica(
         clave="dividida",
         nombre=N_("Dividida en dos"),
-        diseno=Diseno(clase="dividida", proporcion="mitades"),
+        diseno=Diseno(clase="dividida", proporcion="a_la_medida"),
         papeles={"izquierda": PAPEL_PRINCIPAL, "derecha": PAPEL_CAMARA}),
 )
 
@@ -94,14 +98,17 @@ def completar(diseno, papeles, fuentes):
     return replace(diseno, **valores)
 
 
-def motivo_para_no_aplicar(diseno, fuentes):
+def motivo_para_no_aplicar(diseno, fuentes, vertical=False):
     """El primer problema que impide aplicar el diseño, o None."""
+    faltas = dict(_FALTAS)
+    if vertical:
+        faltas.update(_FALTAS_VERTICAL)
     nombres = {fuente.nombre for fuente in fuentes}
     vistos = set()
     for lugar in lugares(diseno.clase):
         nombre = getattr(diseno, lugar, "")
         if not nombre or nombre not in nombres:
-            return (lugar, _(_FALTAS[lugar]))
+            return (lugar, _(faltas[lugar]))
         if nombre in vistos:
             return (lugar, _("{fuente} está en dos lugares. Elige otra.").format(
                 fuente=nombre))

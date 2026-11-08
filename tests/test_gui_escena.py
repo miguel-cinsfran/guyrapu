@@ -890,6 +890,19 @@ class TestVentanaObs(unittest.TestCase):
                          ["otra", "otra", "chat"])
         self.assertEqual(args[2], [])
 
+    def test_el_boton_de_diseno_pasa_si_el_lienzo_es_vertical(self):
+        pagina = self.dialogo._pagina_fuentes
+        self.gestor.snap = obs_disposicion.SnapshotPanel(
+            conectado=True, escena="Principal", lienzo_ancho=1080,
+            lienzo_alto=1920)
+        with mock.patch.object(escena_disenos, "pedir_diseno",
+                               return_value=None) as pedir, \
+                mock.patch.object(disenos_guardados, "cargar",
+                                  return_value=[]), \
+                mock.patch.object(pagina.btn_diseno, "SetFocus"):
+            self._pulsar(pagina.btn_diseno)
+        self.assertTrue(pedir.call_args.args[3])
+
     def test_cancelar_el_diseno_no_aplica_nada(self):
         pagina = self.dialogo._pagina_fuentes
         with mock.patch.object(escena_disenos, "pedir_diseno",

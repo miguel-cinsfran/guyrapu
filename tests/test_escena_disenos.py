@@ -59,9 +59,10 @@ class DisenoEscenaDialogTest(unittest.TestCase):
         aviso.start()
         self.addCleanup(aviso.stop)
 
-    def _dialogo(self, guardados=None, fuentes=None):
+    def _dialogo(self, guardados=None, fuentes=None, vertical=False):
         dialogo = escena_disenos.DisenoEscenaDialog(
-            None, _fuentes() if fuentes is None else fuentes, guardados or [])
+            None, _fuentes() if fuentes is None else fuentes, guardados or [],
+            vertical)
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -305,6 +306,31 @@ class DisenoEscenaDialogTest(unittest.TestCase):
         self.assertEqual(dialogo.btn_guardar.GetName(), "Guardar como…")
         self.assertEqual(dialogo.btn_eliminar.GetName(), "Eliminar")
         self.assertEqual(dialogo.btn_cancelar.GetName(), "Cancelar")
+
+    def test_en_vertical_los_rotulos_dicen_superior_e_inferior(self):
+        dialogo = self._dialogo(vertical=True)
+        self.assertEqual(dialogo.cho_izquierda.GetName(), "Fuente superior")
+        self.assertEqual(dialogo.cho_derecha.GetName(), "Fuente inferior")
+        self.assertEqual(dialogo.cho_ajuste_izquierda.GetName(),
+                         "Ajuste de la fuente superior")
+        self.assertEqual(dialogo.cho_ajuste_derecha.GetName(),
+                         "Ajuste de la fuente inferior")
+        self.assertIn("En una franja inferior", dialogo.cho_chat.GetStrings())
+
+    def test_en_vertical_avisa_que_falta_la_fuente_inferior(self):
+        dialogo = self._dialogo(vertical=True)
+        self._elegir(dialogo, _indice("dividida"))
+        self.anuncios.clear()
+        dialogo.EndModal = mock.Mock()
+        vertical = disenos_escena.Diseno(
+            clase="dividida", izquierda="Juego", derecha="")
+        with mock.patch.object(
+                dialogo, "_diseno_actual", return_value=vertical), \
+                mock.patch.object(dialogo.cho_derecha, "SetFocus") as foco:
+            dialogo._al_aplicar(None)
+        dialogo.EndModal.assert_not_called()
+        foco.assert_called_once_with()
+        self.assertEqual(self.anuncios, ["Falta la fuente inferior."])
 
 
 if __name__ == "__main__":

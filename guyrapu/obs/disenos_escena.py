@@ -19,7 +19,7 @@ CLASES = ("pantalla_completa", "imagen_en_imagen", "dividida")
 ESQUINAS = ("superior-izquierda", "superior-derecha",
             "inferior-izquierda", "inferior-derecha")
 TAMANOS = {"chica": 1 / 5, "mediana": 1 / 4, "grande": 1 / 3}
-PROPORCIONES = ("mitades", "dos_tercios")
+PROPORCIONES = ("mitades", "dos_tercios", "a_la_medida")
 CHATS = ("ninguno", "superpuesto", "franja")
 MODOS = ("", "ajustar", "llenar")
 
@@ -67,20 +67,19 @@ def calcular(lienzo_ancho, lienzo_alto, fuentes, diseno):
     if lienzo_ancho <= 0 or lienzo_alto <= 0:
         raise ValueError("El lienzo debe tener ancho y alto positivos")
     _validar_diseno(diseno)
+    vertical = lienzo_alto > lienzo_ancho
     por_nombre = {fuente.nombre: fuente for fuente in fuentes}
-    area_ancho, area_alto = _area(lienzo_ancho, lienzo_alto, diseno)
-    lugares, orden = _lugares(area_ancho, area_alto, diseno)
-    _validar_lugares(lugares, por_nombre)
+    area_ancho, area_alto = _area(lienzo_ancho, lienzo_alto, diseno, vertical)
+    lugares, orden = _lugares(area_ancho, area_alto, diseno, por_nombre,
+                              vertical)
     chat_fuente = _fuente_chat(diseno, por_nombre)
-    nombres = [nombre for _lugar, nombre, _rect in lugares]
-    if chat_fuente is not None and chat_fuente.nombre in nombres:
-        raise ValueError("La misma fuente está en dos lugares")
+    _validar_lugares(lugares, por_nombre, chat_fuente)
     por_lugar = {
         lugar: _resultado(por_nombre[nombre], rect, _modo(diseno, por_nombre[nombre]))
         for lugar, nombre, rect in lugares
     }
-    chat = _resultado_chat(lienzo_ancho, lienzo_alto, area_ancho, diseno,
-                           chat_fuente)
+    chat = _resultado_chat(lienzo_ancho, lienzo_alto, area_ancho, area_alto,
+                           diseno, chat_fuente, vertical)
     return ([chat] if chat is not None else []) + [por_lugar[lugar]
                                                    for lugar in orden]
 
@@ -103,14 +102,17 @@ def _validar_diseno(diseno):
         raise ValueError("Modo de ajuste desconocido")
 
 
-def _area(lienzo_ancho, lienzo_alto, diseno):
+def _area(lienzo_ancho, lienzo_alto, diseno, vertical):
     if diseno.chat != "franja":
         return lienzo_ancho, lienzo_alto
+    if vertical:
+        franja = int(round(lienzo_alto / 4))
+        return lienzo_ancho, lienzo_alto - franja
     franja = int(round(lienzo_ancho / 4))
     return lienzo_ancho - franja, lienzo_alto
 
 
-def _lugares(area_ancho, area_alto, diseno):
+def _lugares(area_ancho, area_alto, diseno, por_nombre, vertical):
     if diseno.clase == "pantalla_completa":
         return ([("principal", diseno.principal,
                   (0, 0, area_ancho, area_alto))], ["principal"])
@@ -121,8 +123,8 @@ def _lugares(area_ancho, area_alto, diseno):
                   (0, 0, area_ancho, area_alto)),
                  ("secundaria", diseno.secundaria, secundaria)],
                 ["secundaria", "principal"])
-    izquierda, derecha = _lugares_dividida(area_ancho, area_alto,
-                                           diseno.proporcion)
+    izquierda, derecha = _lugares_dividida(area_ancho, area_alto, diseno,
+                                           por_nombre, vertical)
     return ([("izquierda", diseno.izquierda, izquierda),
              ("derecha", diseno.derecha, derecha)],
             ["izquierda", "derecha"])
@@ -137,20 +139,40 @@ def _lugar_secundaria(area_ancho, area_alto, esquina, tamano):
     return int(round(izquierda)), int(round(arriba)), ancho, alto
 
 
-def _lugares_dividida(area_ancho, area_alto, proporcion):
+def _lugares_dividida(area_ancho, area_alto, diseno, por_nombre, vertical):
+    fuente = por_nombre.get(diseno.izquierda)
+    if vertical:
+        alto = _eje_del_primero(area_alto, area_ancho, diseno.proporcion,
+                                fuente, vertical=True)
+        return ((0, 0, area_ancho, alto),
+                (0, alto, area_ancho, area_alto - alto))
+    ancho = _eje_del_primero(area_ancho, area_alto, diseno.proporcion,
+                             fuente, vertical=False)
+    return ((0, 0, ancho, area_alto),
+            (ancho, 0, area_ancho - ancho, area_alto))
+
+
+def _eje_del_primero(eje, otro_eje, proporcion, fuente, vertical):
     if proporcion == "dos_tercios":
-        ancho_izquierda = int(round(area_ancho * 2 / 3))
+        return int(round(eje * 2 / 3))
+    if proporcion != "a_la_medida":
+        return eje // 2
+    if fuente is None or fuente.ancho <= 0 or fuente.alto <= 0:
+        return eje // 2
+    if vertical:
+        deseado = otro_eje * fuente.alto / fuente.ancho
     else:
-        ancho_izquierda = area_ancho // 2
-    return ((0, 0, ancho_izquierda, area_alto),
-            (ancho_izquierda, 0, area_ancho - ancho_izquierda, area_alto))
+        deseado = otro_eje * fuente.ancho / fuente.alto
+    return int(round(min(max(deseado, eje / 4), eje * 3 / 4)))
 
 
-def _validar_lugares(lugares, por_nombre):
+def _validar_lugares(lugares, por_nombre, chat_fuente=None):
     nombres = [nombre for _lugar, nombre, _rect in lugares]
     if any(not nombre or nombre not in por_nombre for nombre in nombres):
         raise ValueError("Hay un lugar sin fuente")
     if len(set(nombres)) != len(nombres):
+        raise ValueError("La misma fuente está en dos lugares")
+    if chat_fuente is not None and chat_fuente.nombre in nombres:
         raise ValueError("La misma fuente está en dos lugares")
 
 
@@ -167,7 +189,7 @@ def _modo(diseno, fuente):
     modo = diseno.modos.get(fuente.nombre, "")
     if modo:
         return modo
-    return "ajustar"
+    return "llenar" if fuente.tipo == "camara" else "ajustar"
 
 
 def _resultado(fuente, rect, modo):
@@ -219,10 +241,15 @@ def _repartir(total):
     return primero, total - primero
 
 
-def _resultado_chat(lienzo_ancho, lienzo_alto, area_ancho, diseno, fuente):
+def _resultado_chat(lienzo_ancho, lienzo_alto, area_ancho, area_alto, diseno,
+                    fuente, vertical):
     if fuente is None:
         return None
     if diseno.chat == "franja":
+        if vertical:
+            return {"nombre": fuente.nombre, "positionX": 0,
+                    "positionY": area_alto, "alignment": 5,
+                    "ancho": lienzo_ancho, "alto": lienzo_alto - area_alto}
         return {"nombre": fuente.nombre, "positionX": area_ancho,
                 "positionY": 0, "alignment": 5,
                 "ancho": lienzo_ancho - area_ancho, "alto": lienzo_alto}

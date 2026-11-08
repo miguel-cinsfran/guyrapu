@@ -29,7 +29,8 @@ class DisenosEscenaTest(unittest.TestCase):
         juego = disenos.Fuente("Juego", "otra", 1920, 1080)
         diseno = disenos.Diseno(
             clase="imagen_en_imagen", principal="Juego", secundaria="Cámara",
-            esquina="inferior-derecha", tamano="mediana")
+            esquina="inferior-derecha", tamano="mediana",
+            modos={"Cámara": "ajustar", "Juego": "ajustar"})
         resultados = disenos.calcular(1920, 1080, [juego, camara], diseno)
         self.assertEqual([resultado["nombre"] for resultado in resultados],
                          ["Cámara", "Juego"])
@@ -49,7 +50,9 @@ class DisenosEscenaTest(unittest.TestCase):
         camara = disenos.Fuente("Cámara", "camara", 1920, 1080)
         captura = disenos.Fuente("Captura", "otra", 1280, 720)
         diseno = disenos.Diseno(clase="dividida", izquierda="Cámara",
-                                derecha="Captura", proporcion="mitades")
+                                derecha="Captura", proporcion="mitades",
+                                modos={"Cámara": "ajustar",
+                                       "Captura": "ajustar"})
         resultados = disenos.calcular(1920, 1080, [camara, captura], diseno)
         self.assertEqual([resultado["nombre"] for resultado in resultados],
                          ["Cámara", "Captura"])
@@ -107,6 +110,119 @@ class DisenosEscenaTest(unittest.TestCase):
         self.assertEqual(chat_res["alignment"], 5)
         self.assertEqual(juego_res["boundsWidth"], 1440)
         self.assertEqual(juego_res["boundsHeight"], 1080)
+
+    def test_chat_en_franja_vertical_va_abajo(self):
+        chat = disenos.Fuente("Chat", "chat", 460, 620)
+        juego = disenos.Fuente("Juego", "otra", 1920, 1080)
+        diseno = disenos.Diseno(clase="pantalla_completa", principal="Juego",
+                                chat="franja")
+        chat_res, juego_res = disenos.calcular(1080, 1920, [juego, chat],
+                                               diseno)
+        self.assertEqual((chat_res["positionX"], chat_res["positionY"]),
+                         (0, 1440))
+        self.assertEqual((chat_res["ancho"], chat_res["alto"]), (1080, 480))
+        self.assertEqual((juego_res["boundsWidth"], juego_res["boundsHeight"]),
+                         (1080, 1440))
+
+    def test_dividida_vertical_apila_arriba_y_abajo(self):
+        camara = disenos.Fuente("Cámara", "camara", 640, 480)
+        captura = disenos.Fuente("Captura", "otra", 1280, 720)
+        diseno = disenos.Diseno(clase="dividida", izquierda="Captura",
+                                derecha="Cámara", proporcion="mitades")
+        arriba, abajo = disenos.calcular(1080, 1920, [captura, camara], diseno)
+        self.assertEqual(
+            (arriba["positionX"], arriba["positionY"],
+             arriba["boundsWidth"], arriba["boundsHeight"]),
+            (0, 0, 1080, 960))
+        self.assertEqual(
+            (abajo["positionX"], abajo["positionY"],
+             abajo["boundsWidth"], abajo["boundsHeight"]),
+            (0, 960, 1080, 960))
+
+    def test_a_la_medida_con_los_numeros_del_ejemplo(self):
+        camara = disenos.Fuente("Cámara", "camara", 640, 480)
+        captura = disenos.Fuente("Captura", "otra", 1600, 900)
+        diseno = disenos.Diseno(clase="dividida", izquierda="Captura",
+                                derecha="Cámara", proporcion="a_la_medida")
+        arriba, abajo = disenos.calcular(1080, 1920, [captura, camara], diseno)
+        self.assertEqual(
+            (arriba["positionX"], arriba["positionY"],
+             arriba["boundsWidth"], arriba["boundsHeight"]),
+            (0, 0, 1080, 608))
+        self.assertEqual(
+            (abajo["positionX"], abajo["positionY"],
+             abajo["boundsWidth"], abajo["boundsHeight"]),
+            (0, 608, 1080, 1312))
+        izquierda, derecha = disenos.calcular(1920, 1080, [captura, camara],
+                                              diseno)
+        self.assertEqual(
+            (izquierda["positionX"], izquierda["boundsWidth"],
+             izquierda["boundsHeight"]), (0, 1440, 1080))
+        self.assertEqual(
+            (derecha["positionX"], derecha["boundsWidth"]),
+            (1440, 480))
+
+    def test_a_la_medida_sin_tamano_de_fuente_usa_mitad(self):
+        rara = disenos.Fuente("Rara", "camara", 0, 0)
+        otra = disenos.Fuente("Otra", "otra", 640, 480)
+        diseno = disenos.Diseno(clase="dividida", izquierda="Rara",
+                                derecha="Otra", proporcion="a_la_medida")
+        arriba, abajo = disenos.calcular(1080, 1920, [rara, otra], diseno)
+        self.assertEqual(arriba["boundsHeight"], 960)
+        self.assertEqual(abajo["boundsHeight"], 960)
+
+    def test_automatico_llena_la_camara_y_ajusta_las_demas(self):
+        camara = disenos.Fuente("Cámara", "camara", 640, 480)
+        captura = disenos.Fuente("Captura", "otra", 1600, 900)
+        for lienzo in ((1080, 1920), (1920, 1080)):
+            with self.subTest(lienzo=lienzo):
+                diseno = disenos.Diseno(clase="dividida",
+                                        izquierda="Captura",
+                                        derecha="Cámara")
+                izquierda, derecha = disenos.calcular(
+                    lienzo[0], lienzo[1], [captura, camara], diseno)
+                self.assertEqual(izquierda["estado"], disenos.ESTADO_AJUSTA)
+                self.assertEqual(derecha["estado"], disenos.ESTADO_LLENA)
+                self.assertTrue(
+                    derecha["cropLeft"] or derecha["cropTop"])
+
+    def test_dividida_reparte_el_area_sin_huecos(self):
+        fuente = disenos.Fuente("Cámara", "camara", 1600, 900)
+        otra = disenos.Fuente("Otra", "otra", 640, 480)
+        for lienzo in ((1920, 1080), (1280, 720), (1080, 1920), (720, 1280)):
+            for proporcion in disenos.PROPORCIONES:
+                with self.subTest(lienzo=lienzo, proporcion=proporcion):
+                    diseno = disenos.Diseno(
+                        clase="dividida", izquierda="Cámara",
+                        derecha="Otra", proporcion=proporcion)
+                    primero, segundo = disenos.calcular(
+                        lienzo[0], lienzo[1], [fuente, otra], diseno)
+                    self._comprobar_teselado(lienzo, primero, segundo)
+
+    def _comprobar_teselado(self, lienzo, primero, segundo):
+        ancho, alto = lienzo
+        if alto > ancho:
+            self.assertEqual(
+                (primero["positionX"], primero["boundsWidth"],
+                 segundo["positionX"], segundo["boundsWidth"]),
+                (0, ancho, 0, ancho))
+            self.assertEqual(primero["positionY"], 0)
+            self.assertEqual(
+                primero["positionY"] + primero["boundsHeight"],
+                segundo["positionY"])
+            self.assertEqual(
+                segundo["positionY"] + segundo["boundsHeight"], alto)
+        else:
+            self.assertEqual(
+                (primero["positionY"], primero["boundsHeight"],
+                 segundo["positionY"], segundo["boundsHeight"]),
+                (0, alto, 0, alto))
+            self.assertEqual(primero["positionX"], 0)
+            self.assertEqual(
+                primero["positionX"] + primero["boundsWidth"],
+                segundo["positionX"])
+            self.assertEqual(
+                segundo["positionX"] + segundo["boundsWidth"], ancho)
 
     def test_chat_superpuesto_conserva_tamano(self):
         chat = disenos.Fuente("Chat", "chat", 460, 620)
@@ -240,9 +356,14 @@ class DisenosEscenaTest(unittest.TestCase):
                           for resultado in resultados}
             izquierda = por_nombre["Izquierda"]
             derecha = por_nombre["Derecha"]
-            self.assertLessEqual(
-                izquierda["positionX"] + izquierda["boundsWidth"],
-                derecha["positionX"])
+            if lienzo_alto > lienzo_ancho:
+                self.assertLessEqual(
+                    izquierda["positionY"] + izquierda["boundsHeight"],
+                    derecha["positionY"])
+            else:
+                self.assertLessEqual(
+                    izquierda["positionX"] + izquierda["boundsWidth"],
+                    derecha["positionX"])
 
 
 if __name__ == "__main__":

@@ -11722,3 +11722,35 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/obs/disenos_fabrica.py
+msgid "Falta la fuente superior."
+msgstr "The top source is missing."
+
+#: guyrapu/obs/disenos_fabrica.py
+msgid "Falta la fuente inferior."
+msgstr "The bottom source is missing."
+
+#: guyrapu/ui/escena_disenos.py
+msgid "A la medida de la primera fuente"
+msgstr "Sized to the first source"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "En una franja inferior"
+msgstr "In a bottom strip"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Fuente &superior:"
+msgstr "&Top source:"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Ajuste de la fuente superior"
+msgstr "Fit for the top source"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Fuente &inferior:"
+msgstr "&Bottom source:"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Ajuste de la fuente inferior"
+msgstr "Fit for the bottom source"
+

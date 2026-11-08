@@ -82,13 +82,29 @@ class FabricaTest(unittest.TestCase):
         completa = _completar("dividida", _captura_y_camara())
         self.assertEqual((completa.izquierda, completa.derecha),
                          ("Pantalla", "Cámara"))
-        self.assertEqual(completa.proporcion, "mitades")
+        self.assertEqual(completa.proporcion, "a_la_medida")
         completa = _completar("dividida", _solo_captura())
         self.assertEqual((completa.izquierda, completa.derecha),
                          ("Pantalla", ""))
         completa = _completar("dividida", _solo_camara())
         self.assertEqual((completa.izquierda, completa.derecha),
                          ("Cámara", ""))
+
+    def test_dividida_de_fabrica_se_ajusta_a_la_primera_fuente(self):
+        fuentes = [
+            disenos_escena.Fuente("Pantalla", "captura", 1600, 900),
+            disenos_escena.Fuente("Cámara", "camara", 640, 480),
+        ]
+        diseno = _completar("dividida", fuentes)
+        arriba, abajo = disenos_escena.calcular(1080, 1920, fuentes, diseno)
+        self.assertEqual(
+            (arriba["positionY"], arriba["boundsHeight"]), (0, 608))
+        self.assertEqual(
+            (abajo["positionY"], abajo["boundsHeight"]), (608, 1312))
+        izquierda, derecha = disenos_escena.calcular(1920, 1080, fuentes,
+                                                     diseno)
+        self.assertEqual(izquierda["boundsWidth"], 1440)
+        self.assertEqual(derecha["boundsWidth"], 480)
 
     def test_papel_principal_acepta_captura_y_otra(self):
         self.assertIn("captura", disenos_fabrica.PAPEL_PRINCIPAL)
@@ -214,6 +230,18 @@ class MotivoTest(unittest.TestCase):
             clase="pantalla_completa", principal="Juego", chat="franja")
         self.assertIsNone(
             disenos_fabrica.motivo_para_no_aplicar(diseno, fuentes))
+
+    def test_en_vertical_los_avisos_dicen_superior_e_inferior(self):
+        self.assertEqual(
+            disenos_fabrica.motivo_para_no_aplicar(
+                disenos_escena.Diseno(clase="dividida", derecha="Cámara"),
+                _fuentes(), vertical=True),
+            ("izquierda", "Falta la fuente superior."))
+        self.assertEqual(
+            disenos_fabrica.motivo_para_no_aplicar(
+                disenos_escena.Diseno(clase="dividida", izquierda="Juego"),
+                _fuentes(), vertical=True),
+            ("derecha", "Falta la fuente inferior."))
 
 
 class ResumenTest(unittest.TestCase):

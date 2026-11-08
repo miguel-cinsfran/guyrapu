@@ -423,6 +423,17 @@ class TestLetrasAccesoDisenos(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         self.assertEqual(letras_repetidas(dialogo), {})
 
+    def test_cuadro_vertical_sin_letras_repetidas(self):
+        fuentes = [
+            disenos_escena.Fuente("Juego", "otra", 1600, 900),
+            disenos_escena.Fuente("Cámara", "camara", 1280, 720),
+            disenos_escena.Fuente("Chat en el vídeo", "chat", 460, 620),
+        ]
+        dialogo = escena_disenos.DisenoEscenaDialog(
+            None, fuentes, [], vertical=True)
+        self.addCleanup(destruir, dialogo)
+        self.assertEqual(letras_repetidas(dialogo), {})
+
 
 class TestLetrasAccesoFiltros(unittest.TestCase):
     def setUp(self):

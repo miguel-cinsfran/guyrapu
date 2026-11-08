@@ -26,6 +26,19 @@ def fuentes_de_escena(gestor, escena):
     return fuentes
 
 
+def fuentes_y_lienzo(gestor, escena):
+    """Las fuentes de la escena y si el lienzo es vertical, en el mismo hilo.
+
+    Así la ventana conoce la orientación sin pedirle nada a OBS desde el
+    hilo de la interfaz.
+    """
+    fuentes = fuentes_de_escena(gestor, escena)
+    if not fuentes:
+        return fuentes, False
+    lienzo = gestor.instantanea(escena, fuente=fuentes[0].nombre)
+    return fuentes, lienzo.lienzo_alto > lienzo.lienzo_ancho
+
+
 def _leer(gestor, escena):
     elementos = [
         elemento for elemento in gestor.elementos(escena)

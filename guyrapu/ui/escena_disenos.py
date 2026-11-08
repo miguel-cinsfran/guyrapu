@@ -30,21 +30,43 @@ _OPCIONES_TAMANO = (
     ("mediana", N_("Mediano, un cuarto del ancho")),
     ("grande", N_("Grande, un tercio del ancho")))
 _OPCIONES_REPARTO = (("mitades", N_("Mitad y mitad")),
-                     ("dos_tercios", N_("Dos tercios y un tercio")))
+                     ("dos_tercios", N_("Dos tercios y un tercio")),
+                     ("a_la_medida", N_("A la medida de la primera fuente")))
 _OPCIONES_CHAT = (
     ("ninguno", N_("Sin chat")),
     ("superpuesto", N_("Encima de la imagen")),
     ("franja", N_("En una franja a la derecha")))
+_OPCIONES_CHAT_VERTICAL = _OPCIONES_CHAT[:2] + (
+    ("franja", N_("En una franja inferior")),)
+_ETIQUETAS_LUGAR = {
+    "principal": (N_("&Fuente principal:"),
+                  N_("Ajuste de la fuente principal")),
+    "secundaria": (N_("Fuente en la &esquina:"),
+                   N_("Ajuste de la fuente en la esquina")),
+    "izquierda": (N_("Fuente a la &izquierda:"),
+                  N_("Ajuste de la fuente a la izquierda")),
+    "derecha": (N_("Fuente a la de&recha:"),
+                N_("Ajuste de la fuente a la derecha")),
+}
+_ETIQUETAS_LUGAR_VERTICAL = {
+    "izquierda": (N_("Fuente &superior:"),
+                  N_("Ajuste de la fuente superior")),
+    "derecha": (N_("Fuente &inferior:"),
+                N_("Ajuste de la fuente inferior")),
+}
 
 
 class DisenoEscenaDialog(wx.Dialog):
     """Elige un diseño, ajusta cada lugar y devuelve el diseño armado."""
 
-    def __init__(self, padre, fuentes, guardados):
+    def __init__(self, padre, fuentes, guardados, vertical=False):
         super().__init__(padre, title=_("Aplicar diseño"),
                          name="DialogoDisenoEscena")
         self._fuentes = list(fuentes)
         self._guardados = list(guardados)
+        self._vertical = vertical
+        self._opciones_chat = (
+            _OPCIONES_CHAT_VERTICAL if vertical else _OPCIONES_CHAT)
         self._fabrica = disenos_fabrica.FABRICA
         self._elegido = None
         self._clase = "pantalla_completa"
@@ -67,14 +89,8 @@ class DisenoEscenaDialog(wx.Dialog):
         self.cho_diseno = lista_con_nombre(self, _("&Diseño:"))
         fila_campo(
             caja, wx.StaticText(self, label=_("&Diseño:")), self.cho_diseno)
-        self._crear_lugar(caja, "principal", _("&Fuente principal:"),
-                          _("Ajuste de la fuente principal"))
-        self._crear_lugar(caja, "secundaria", _("Fuente en la &esquina:"),
-                          _("Ajuste de la fuente en la esquina"))
-        self._crear_lugar(caja, "izquierda", _("Fuente a la &izquierda:"),
-                          _("Ajuste de la fuente a la izquierda"))
-        self._crear_lugar(caja, "derecha", _("Fuente a la de&recha:"),
-                          _("Ajuste de la fuente a la derecha"))
+        for lugar in ("principal", "secundaria", "izquierda", "derecha"):
+            self._crear_lugar(caja, lugar, *self._etiquetas_lugar(lugar))
         self._crear_opciones(caja)
         self._crear_botones(caja)
         self.SetSizerAndFit(caja)
@@ -86,7 +102,13 @@ class DisenoEscenaDialog(wx.Dialog):
         self.btn_cancelar.Bind(wx.EVT_BUTTON, self._al_cancelar)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
 
+    def _etiquetas_lugar(self, lugar):
+        tabla = _ETIQUETAS_LUGAR_VERTICAL if self._vertical else _ETIQUETAS_LUGAR
+        return tabla.get(lugar, _ETIQUETAS_LUGAR[lugar])
+
     def _crear_lugar(self, caja, lugar, etiqueta, nombre_ajuste):
+        etiqueta = _(etiqueta)
+        nombre_ajuste = _(nombre_ajuste)
         rotulo = wx.StaticText(self, label=etiqueta)
         control = lista_con_nombre(self, etiqueta, self._nombres_fuente)
         fila = fila_campo(caja, rotulo, control)
@@ -109,7 +131,7 @@ class DisenoEscenaDialog(wx.Dialog):
         self.cho_reparto = self._opcion(
             caja, "reparto", _("Re&parto:"), _OPCIONES_REPARTO)
         self.cho_chat = self._opcion(
-            caja, "chat", _("&Chat:"), _OPCIONES_CHAT)
+            caja, "chat", _("&Chat:"), self._opciones_chat)
         self.cho_esquina_chat = self._opcion(
             caja, "esquina_chat", _("Esquina del c&hat:"), _OPCIONES_ESQUINA)
 
@@ -277,7 +299,8 @@ class DisenoEscenaDialog(wx.Dialog):
             anunciar(aviso)
             return
         diseno = self._diseno_actual()
-        problema = disenos_fabrica.motivo_para_no_aplicar(diseno, self._fuentes)
+        problema = disenos_fabrica.motivo_para_no_aplicar(
+            diseno, self._fuentes, self._vertical)
         if problema is not None:
             lugar, texto = problema
             anunciar(texto)
@@ -368,9 +391,9 @@ def _valor(control, opciones):
     return opciones[0][0]
 
 
-def pedir_diseno(padre, fuentes, guardados):
+def pedir_diseno(padre, fuentes, guardados, vertical=False):
     """Abre el cuadro y devuelve (nombre, Diseno), o None si se cancela."""
-    dialogo = DisenoEscenaDialog(padre, fuentes, guardados)
+    dialogo = DisenoEscenaDialog(padre, fuentes, guardados, vertical)
     try:
         if dialogo.ShowModal() == wx.ID_OK:
             return dialogo.diseno_elegido()

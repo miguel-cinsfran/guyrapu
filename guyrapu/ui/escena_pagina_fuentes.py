@@ -147,15 +147,16 @@ class PaginaFuentes(wx.Panel):
         if self._operaciones.en_vuelo:
             return
         self._operaciones.en_hilo(
-            lambda: aplicar_diseno.fuentes_de_escena(self._gestor, escena),
-            lambda fuentes: self._abrir_disenos(escena, fuentes))
+            lambda: aplicar_diseno.fuentes_y_lienzo(self._gestor, escena),
+            lambda datos: self._abrir_disenos(escena, *datos))
 
-    def _abrir_disenos(self, escena, fuentes):
+    def _abrir_disenos(self, escena, fuentes, vertical):
         if not any(fuente.tipo != "chat" for fuente in fuentes):
             anunciar(_("La escena no tiene fuentes para un diseño."))
             return
         guardados = disenos_guardados.cargar()
-        elegido = escena_disenos.pedir_diseno(self, fuentes, guardados)
+        elegido = escena_disenos.pedir_diseno(
+            self, fuentes, guardados, vertical)
         self.btn_diseno.SetFocus()
         if elegido is None:
             return

@@ -71,6 +71,16 @@ def _fabrica(clave):
                 if fabrica.clave == clave)
 
 
+class DobleObsVertical(DobleObs):
+
+    def pedir(self, tipo, datos=None, parada=None):
+        resultado = super().pedir(tipo, datos, parada)
+        if tipo == "GetVideoSettings":
+            resultado["responseData"]["baseWidth"] = 1080
+            resultado["responseData"]["baseHeight"] = 1920
+        return resultado
+
+
 def _principal(elementos):
     gestor = obs_panel.GestorPanelObs(DobleObs(elementos))
     fuentes = aplicar_diseno.fuentes_de_escena(gestor, "Escena")
@@ -201,7 +211,7 @@ class AplicarDisenoTest(unittest.TestCase):
                          ["Juego", "Cámara", NOMBRE_FUENTE])
         self.assertEqual(resultado, [
             (NOMBRE_FUENTE, ""),
-            ("Cámara", disenos_escena.ESTADO_AJUSTA),
+            ("Cámara", disenos_escena.ESTADO_LLENA),
             ("Juego", disenos_escena.ESTADO_AJUSTA)])
 
     def test_aplicar_diseno_lee_el_lienzo_y_aplica_lo_calculado(self):
@@ -221,6 +231,31 @@ class AplicarDisenoTest(unittest.TestCase):
             and llamada[1]["sceneItemId"] == 1)
         self.assertEqual(
             (escritura["boundsWidth"], escritura["boundsHeight"]), (1600, 900))
+
+    def test_aplicar_diseno_en_lienzo_vertical_apila_la_dividida(self):
+        eventos = []
+        doble = DobleObsVertical(_escena())
+        gestor = GestorQueAnota(doble, eventos)
+        fuentes = aplicar_diseno.fuentes_de_escena(gestor, "Escena")
+        fabrica = _fabrica("dividida")
+        diseno = disenos_fabrica.completar(
+            fabrica.diseno, fabrica.papeles, fuentes)
+        aplicar_diseno.aplicar_diseno(
+            gestor, RegistroFalso(eventos), "Escena", diseno, 8730)
+        escrituras = {
+            llamada[1]["sceneItemId"]: llamada[1]["sceneItemTransform"]
+            for llamada in doble.llamadas
+            if llamada[0] == "SetSceneItemTransform"}
+        arriba = escrituras[1]
+        abajo = escrituras[2]
+        self.assertEqual(
+            (arriba["positionX"], arriba["positionY"],
+             arriba["boundsWidth"], arriba["boundsHeight"]),
+            (0, 0, 1080, 608))
+        self.assertEqual(
+            (abajo["positionX"], abajo["positionY"],
+             abajo["boundsWidth"], abajo["boundsHeight"]),
+            (0, 608, 1080, 1312))
 
     def test_aplicar_diseno_agrega_el_chat_que_falta_antes_de_colocarlo(self):
         sin_chat = [elemento_ for elemento_ in _escena()
