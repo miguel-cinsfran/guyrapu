@@ -15,6 +15,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_lanzador
+from guyrapu.obs import perfil_previo
 from guyrapu.obs import transmision_directa
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.restream import ganchos, transmitir
@@ -154,6 +155,7 @@ class BotonDirecto:
             marco._actualizar_boton_directo()
             return
         if not confirmar_transmision(marco, preparacion.revision):
+            perfil_previo.volver_sin_directo()
             anunciar(_("No se transmitió."))
             return
         marco._supervisar_transmision("iniciar", destino, usuario)

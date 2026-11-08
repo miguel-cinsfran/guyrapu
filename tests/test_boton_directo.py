@@ -274,9 +274,12 @@ class TestRevisionListaSinVentana(unittest.TestCase):
                                       revision=mock.sentinel.revision)
         with mock.patch(
                 "guyrapu.ui.boton_directo.confirmar_transmision",
-                return_value=True) as confirmar:
+                return_value=True) as confirmar, \
+                mock.patch(
+                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
             boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
         confirmar.assert_called_once_with(marco, preparacion.revision)
+        volver.assert_not_called()
         marco._supervisar_transmision.assert_called_once_with(
             "iniciar", "TikTok", "usuario")
 
@@ -288,9 +291,12 @@ class TestRevisionListaSinVentana(unittest.TestCase):
         with mock.patch(
                 "guyrapu.ui.boton_directo.confirmar_transmision",
                 return_value=False), \
-                mock.patch.object(boton_directo, "anunciar") as anunciar:
+                mock.patch.object(boton_directo, "anunciar") as anunciar, \
+                mock.patch(
+                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
             boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
         anunciar.assert_called_once_with("No se transmitió.")
+        volver.assert_called_once_with()
         marco._supervisar_transmision.assert_not_called()
 
 

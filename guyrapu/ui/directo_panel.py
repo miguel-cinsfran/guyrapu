@@ -12,6 +12,7 @@ import wx
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_estado
+from guyrapu.obs import perfil_previo
 from guyrapu.obs import transmision_directa
 from guyrapu.restream import ganchos, transmitir
 from guyrapu.ui.accesibilidad import anunciar
@@ -198,6 +199,7 @@ class DirectoPanel:
             self._mostrar_transmision(True)
             return
         if not confirmar_transmision(self._ventana, preparacion.revision):
+            perfil_previo.volver_sin_directo()
             anunciar(_("No se transmitió."))
             return
         self._guardar_usuario_tiktok(usuario)

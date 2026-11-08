@@ -78,10 +78,13 @@ class TestDirectoPanel(unittest.TestCase):
         with mock.patch.object(transmision_directa, "preparar",
                                return_value=_preparacion()), \
                 mock.patch.object(directo_panel, "confirmar_transmision",
-                                  return_value=True) as confirmar:
+                                  return_value=True) as confirmar, \
+                mock.patch(
+                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
             self._pulsar()
         confirmar.assert_called_once_with(
             self.ventana, mock.sentinel.revision)
+        volver.assert_not_called()
         self.supervisar.assert_any_call("iniciar", "TikTok", "usuario")
 
     def test_tiktok_cancelar_no_inicia(self):
@@ -90,11 +93,14 @@ class TestDirectoPanel(unittest.TestCase):
                                return_value=_preparacion()), \
                 mock.patch.object(directo_panel, "confirmar_transmision",
                                   return_value=False), \
-                mock.patch.object(directo_panel, "anunciar") as anunciar:
+                mock.patch.object(directo_panel, "anunciar") as anunciar, \
+                mock.patch(
+                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
             self._pulsar()
         self.assertNotIn(mock.call("iniciar", mock.ANY, mock.ANY),
                          self.supervisar.call_args_list)
         self.assertEqual(anunciar.call_args.args[0], "No se transmitió.")
+        volver.assert_called_once_with()
 
     def test_sin_datos_no_prepara_anuncia_y_devuelve_el_foco(self):
         self.datos = None

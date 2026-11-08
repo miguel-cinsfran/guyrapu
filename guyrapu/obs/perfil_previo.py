@@ -108,6 +108,12 @@ def _volver_en_hilo():
                 logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
 
 
+def volver_sin_directo():
+    """Lanza la vuelta al perfil pendiente, si todavía hay uno."""
+    if _hay_pendiente():
+        diagnostico.crear_hilo(_volver_en_hilo, "VolverPerfilObs").start()
+
+
 def tras_supervision(original):
     """Envuelve el aviso de fin para volver al perfil cuando OBS se apague."""
     def al_terminar():
@@ -115,7 +121,5 @@ def tras_supervision(original):
             if original is not None:
                 original()
         finally:
-            if _hay_pendiente():
-                diagnostico.crear_hilo(
-                    _volver_en_hilo, "VolverPerfilObs").start()
+            volver_sin_directo()
     return al_terminar
