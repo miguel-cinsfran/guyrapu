@@ -21,6 +21,11 @@ class TestDpapi(unittest.TestCase):
         with self.assertRaises(dpapi.DpapiError):
             dpapi.descifrar(b"basura")
 
+    def test_el_fallo_informa_el_codigo_de_windows(self):
+        with self.assertRaises(dpapi.DpapiError) as contexto:
+            dpapi.descifrar(b"basura")
+        self.assertNotEqual(contexto.exception.errno, 0)
+
     def test_dpapi_error_es_oserror(self):
         self.assertTrue(issubclass(dpapi.DpapiError, OSError))
 

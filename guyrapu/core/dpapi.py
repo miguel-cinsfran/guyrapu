@@ -24,18 +24,22 @@ class DATA_BLOB(ctypes.Structure):
                 ("pbData", ctypes.POINTER(ctypes.c_byte))]
 
 
-def _configurar() -> None:
-    """Declara los tipos de crypt32 y kernel32, para no cortar punteros."""
-    crypt32 = ctypes.windll.crypt32
+def _crypt32():
+    """Carga crypt32 con el último error por hilo, como `instancia._crear_mutex`."""
+    crypt32 = ctypes.WinDLL("crypt32", use_last_error=True)
     for funcion in (crypt32.CryptProtectData, crypt32.CryptUnprotectData):
         funcion.argtypes = [
             ctypes.POINTER(DATA_BLOB), ctypes.c_void_p,
             ctypes.POINTER(DATA_BLOB), ctypes.c_void_p, ctypes.c_void_p,
             wintypes.DWORD, ctypes.POINTER(DATA_BLOB)]
         funcion.restype = wintypes.BOOL
+    return crypt32
+
+
+def _configurar() -> None:
+    """Declara los tipos de kernel32, para no cortar punteros."""
     ctypes.windll.kernel32.LocalFree.argtypes = [ctypes.c_void_p]
     ctypes.windll.kernel32.LocalFree.restype = ctypes.c_void_p
-    ctypes.windll.kernel32.GetLastError.restype = wintypes.DWORD
 
 
 def _entrada(datos: bytes) -> tuple[DATA_BLOB, ctypes.Array]:
@@ -51,7 +55,7 @@ def _llamar(datos: bytes, funcion, nombre: str) -> bytes:
     salida = DATA_BLOB()
     if not funcion(ctypes.byref(entrada), None, None, None, None,
                    CRYPTPROTECT_UI_FORBIDDEN, ctypes.byref(salida)):
-        codigo = ctypes.windll.kernel32.GetLastError()
+        codigo = ctypes.get_last_error()
         raise DpapiError(codigo, f"{nombre} falló")
     try:
         return ctypes.string_at(salida.pbData, salida.cbData)
@@ -61,11 +65,9 @@ def _llamar(datos: bytes, funcion, nombre: str) -> bytes:
 
 def cifrar(datos: bytes) -> bytes:
     """Cifra `datos` para esta cuenta de Windows."""
-    return _llamar(datos, ctypes.windll.crypt32.CryptProtectData,
-                   "CryptProtectData")
+    return _llamar(datos, _crypt32().CryptProtectData, "CryptProtectData")
 
 
 def descifrar(datos: bytes) -> bytes:
     """Descifra `datos` cifrados por esta cuenta de Windows."""
-    return _llamar(datos, ctypes.windll.crypt32.CryptUnprotectData,
-                   "CryptUnprotectData")
+    return _llamar(datos, _crypt32().CryptUnprotectData, "CryptUnprotectData")
