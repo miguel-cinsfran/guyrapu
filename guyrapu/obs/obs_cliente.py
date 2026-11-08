@@ -6,7 +6,6 @@ import base64
 import hashlib
 import json
 import logging
-import os
 import threading
 import time
 import uuid
@@ -15,20 +14,14 @@ from dataclasses import dataclass
 from websockets.exceptions import ConnectionClosed
 from websockets.sync.client import connect
 
+from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_activacion
-
 
 logger = logging.getLogger(f"guyrapu.{__name__}")
 
 
-RUTA_CONFIG_OBS = os.path.join(
-    os.environ.get("APPDATA", ""),
-    "obs-studio",
-    "plugin_config",
-    "obs-websocket",
-    "config.json",
-)
+RUTA_CONFIG_OBS = str(paths.carpeta_obs("config"))
 
 
 @dataclass(frozen=True)

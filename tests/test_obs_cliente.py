@@ -11,9 +11,10 @@ import time
 import unittest
 from unittest import mock
 
-from tests.pseudo_prueba import con_pseudo
+from guyrapu.core import paths
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_cliente
+from tests.pseudo_prueba import con_pseudo
 
 
 class AjustesObsTest(unittest.TestCase):
@@ -52,6 +53,12 @@ class AjustesObsTest(unittest.TestCase):
             self.assertEqual(obs_cliente.leer_ajustes(ruta), obs_cliente.AjustesObs())
         finally:
             os.unlink(ruta)
+
+
+class RutaConfigTest(unittest.TestCase):
+    def test_la_ruta_del_config_sale_de_paths(self):
+        self.assertEqual(obs_cliente.RUTA_CONFIG_OBS,
+                         str(paths.carpeta_obs("config")))
 
 
 class AutenticacionTest(unittest.TestCase):

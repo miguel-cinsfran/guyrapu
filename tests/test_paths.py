@@ -200,28 +200,37 @@ class TestCarpetasObs(unittest.TestCase):
     """Las carpetas de OBS, fuera de las dos raíces de la aplicación."""
 
     def test_cuelgan_de_appdata(self):
-        with tempfile.TemporaryDirectory() as tmp,                 mock.patch.dict(os.environ, {"APPDATA": tmp}):
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.dict(os.environ, {"APPDATA": tmp}):
+            base = Path(tmp) / "obs-studio"
+            self.assertEqual(paths.carpeta_obs("perfiles"),
+                             base / "basic" / "profiles")
+            self.assertEqual(paths.carpeta_obs("registros"),
+                             base / "logs")
             self.assertEqual(
-                paths.carpeta_obs("perfiles"),
-                Path(tmp) / "obs-studio" / "basic" / "profiles")
-            self.assertEqual(
-                paths.carpeta_obs("registros"),
-                Path(tmp) / "obs-studio" / "logs")
+                paths.carpeta_obs("config"),
+                base / "plugin_config" / "obs-websocket" / "config.json")
 
     def test_sin_appdata_usan_roaming_del_usuario(self):
-        with tempfile.TemporaryDirectory() as tmp,                 mock.patch.dict(os.environ, {}, clear=True),                 mock.patch.object(Path, "home", return_value=Path(tmp)):
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.dict(os.environ, {}, clear=True), \
+                mock.patch.object(Path, "home", return_value=Path(tmp)):
             roaming = Path(tmp) / "AppData" / "Roaming"
+            self.assertEqual(paths.carpeta_obs("perfiles"),
+                             roaming / "obs-studio" / "basic" / "profiles")
+            self.assertEqual(paths.carpeta_obs("registros"),
+                             roaming / "obs-studio" / "logs")
             self.assertEqual(
-                paths.carpeta_obs("perfiles"),
-                roaming / "obs-studio" / "basic" / "profiles")
-            self.assertEqual(
-                paths.carpeta_obs("registros"),
-                roaming / "obs-studio" / "logs")
+                paths.carpeta_obs("config"),
+                roaming / "obs-studio" / "plugin_config" / "obs-websocket"
+                / "config.json")
 
     def test_no_crea_la_carpeta(self):
-        with tempfile.TemporaryDirectory() as tmp,                 mock.patch.dict(os.environ, {"APPDATA": tmp}):
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.dict(os.environ, {"APPDATA": tmp}):
             paths.carpeta_obs("perfiles")
             paths.carpeta_obs("registros")
+            paths.carpeta_obs("config")
             self.assertFalse((Path(tmp) / "obs-studio").exists())
 
 
