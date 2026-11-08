@@ -12,6 +12,7 @@ import wx
 from guyrapu.core import idioma
 from guyrapu.obs import disenos_escena, disenos_fabrica, disenos_guardados
 from guyrapu.obs.fuente_chat import NOMBRE_FUENTE
+from guyrapu.ui import disenos_nombres
 from guyrapu.ui import escena_disenos
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -29,6 +30,15 @@ def _indice(clave):
     return next(indice for indice, fabrica
                 in enumerate(disenos_fabrica.FABRICA)
                 if fabrica.clave == clave)
+
+
+class NombresDeDisenosTest(unittest.TestCase):
+
+    def test_busca_el_guardado_sin_importar_mayusculas(self):
+        guardados = [("Uno", None), ("Dos", None)]
+        self.assertEqual(disenos_nombres.buscar_guardado(guardados, "dos"), 1)
+        self.assertIsNone(
+            disenos_nombres.buscar_guardado(guardados, "tres"))
 
 
 class DisenoEscenaDialogTest(unittest.TestCase):

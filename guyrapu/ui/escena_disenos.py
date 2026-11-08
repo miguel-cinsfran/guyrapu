@@ -15,6 +15,8 @@ from guyrapu.obs import disenos_fabrica, disenos_guardados, obs_disposicion
 from guyrapu.obs.disenos_escena import ESQUINAS, Diseno
 from guyrapu.ui import paleta
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.disenos_nombres import buscar_guardado as _buscar_guardado
+from guyrapu.ui.disenos_nombres import pedir_nombre as _pedir_nombre
 from guyrapu.ui.preferencias_comun import (
     boton, fila_campo, lista_con_nombre, nombre_de_etiqueta)
 
@@ -345,17 +347,6 @@ class DisenoEscenaDialog(wx.Dialog):
         return False
 
 
-def _pedir_nombre(padre, inicial):
-    dialogo = wx.TextEntryDialog(
-        padre, _("Nombre del diseño:"), _("Guardar diseño"), value=inicial)
-    try:
-        if dialogo.ShowModal() == wx.ID_OK:
-            return dialogo.GetValue()
-        return None
-    finally:
-        dialogo.Destroy()
-
-
 def _seleccionar_fuente(control, nombre):
     if not control.SetStringSelection(nombre):
         control.SetSelection(wx.NOT_FOUND)
@@ -375,14 +366,6 @@ def _valor(control, opciones):
     if 0 <= indice < len(opciones):
         return opciones[indice][0]
     return opciones[0][0]
-
-
-def _buscar_guardado(guardados, nombre):
-    buscado = nombre.casefold()
-    for indice, (guardado, _diseno) in enumerate(guardados):
-        if guardado.casefold() == buscado:
-            return indice
-    return None
 
 
 def pedir_diseno(padre, fuentes, guardados):
