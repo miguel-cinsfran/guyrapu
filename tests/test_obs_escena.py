@@ -276,6 +276,24 @@ class FilasDeEscenaTest(unittest.TestCase):
         self.assertEqual(filas[0].tamano, "un cuarto del vídeo")
         self.assertEqual(filas[0].tipo, "navegador")
 
+    def test_el_recorte_cambia_el_tamano_y_la_posicion(self):
+        transformacion = {
+            "positionX": 1260, "positionY": 640,
+            "width": 320, "height": 240,
+            "sourceWidth": 640, "sourceHeight": 480,
+            "scaleX": 0.5, "scaleY": 0.5, "rotation": 0, "alignment": 5,
+            "boundsType": "OBS_BOUNDS_NONE", "boundsAlignment": 0,
+            "boundsWidth": 0, "boundsHeight": 0,
+            "cropLeft": 40, "cropRight": 40, "cropTop": 0, "cropBottom": 0,
+        }
+        filas = obs_escena.filas_de_escena(
+            [{"sourceName": "Juego", "sceneItemIndex": 0,
+              "sceneItemEnabled": True,
+              "sceneItemTransform": transformacion}],
+            *LIENZO, {"Juego": "captura de juego"})
+        self.assertEqual(filas[0].tamano, "18 por ciento del ancho")
+        self.assertIn("abajo a la derecha", filas[0].posicion)
+
     def test_fuera_de_las_fracciones_dice_el_porcentaje_del_ancho(self):
         filas = obs_escena.filas_de_escena(
             [elemento(1, "Panel", 0, 0, 0, 460, 620, 5)],
