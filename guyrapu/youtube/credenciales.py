@@ -32,6 +32,12 @@ _CAMPO_CIFRADO = "dpapi"
 # pisarían el campo del otro. RLock porque guardar_campo llama a guardar.
 _lock = threading.RLock()
 
+# cargar se llama seguido (efectivas, hay_lectura, cada guardar_campo): el
+# aviso de un archivo cifrado ilegible sale una sola vez por proceso. Un
+# guardado bueno la limpia, para que un archivo que vuelve a quedar ilegible
+# avise otra vez.
+_aviso_ilegible = False
+
 # Estructura por defecto. `token` guarda el JSON de las credenciales OAuth
 # (lo serializa google-auth con Credentials.to_json()); None = sin sesión.
 _DEFECTO = {
@@ -75,6 +81,21 @@ def leer_archivo(ruta) -> dict:
         return {}
 
 
+def _avisar_ilegible() -> None:
+    global _aviso_ilegible
+    if _aviso_ilegible:
+        return
+    logger.warning(
+        "Las credenciales guardadas no se pudieron leer en esta cuenta "
+        "de Windows: se tratan como sesión cerrada.")
+    _aviso_ilegible = True
+
+
+def _limpiar_aviso() -> None:
+    global _aviso_ilegible
+    _aviso_ilegible = False
+
+
 def cargar() -> dict:
     """Devuelve siempre un dict completo, aunque el archivo falte o esté roto."""
     with _lock:
@@ -82,9 +103,7 @@ def cargar() -> dict:
         if estado == "texto":
             guardar(bruto)
         elif estado == "ilegible":
-            logger.warning(
-                "Las credenciales guardadas no se pudieron leer en esta cuenta "
-                "de Windows: se tratan como sesión cerrada.")
+            _avisar_ilegible()
     datos = dict(_DEFECTO)
     if isinstance(bruto, dict):
         for k in _DEFECTO:
@@ -106,6 +125,7 @@ def guardar(datos: dict) -> bool:
     try:
         with _lock:
             archivos.escribir_json_atomico(ruta(), sobre)
+            _limpiar_aviso()
         return True
     except Exception as exc:
         logger.error("No se pudo guardar %s: %s", NOMBRE_ARCHIVO, exc)

@@ -236,6 +236,7 @@ class TestCifrado(unittest.TestCase):
         self._rutas = redirigir_rutas(self._tmp.name)
         self._rutas.__enter__()
         self.addCleanup(self._rutas.__exit__, None, None, None)
+        credenciales._aviso_ilegible = False
 
     def _ruta(self):
         return Path(self._tmp.name) / "credenciales.json"
@@ -265,6 +266,22 @@ class TestCifrado(unittest.TestCase):
         self.assertIsNone(datos["token"])
         self.assertEqual(self._ruta().read_bytes(), antes)
         aviso.assert_called_once()
+
+    def test_cifrado_ilegible_avisa_una_sola_vez_por_proceso(self):
+        self._ruta().write_text('{"dpapi": "AAAA"}', encoding="utf-8")
+        with mock.patch.object(credenciales.logger, "warning") as aviso:
+            credenciales.cargar()
+            credenciales.cargar()
+        aviso.assert_called_once()
+
+    def test_guardar_bien_limpia_la_marca_del_aviso(self):
+        self._ruta().write_text('{"dpapi": "AAAA"}', encoding="utf-8")
+        with mock.patch.object(credenciales.logger, "warning") as aviso:
+            credenciales.cargar()
+            credenciales.guardar({"api_key": "AIzaNUEVA"})
+            self._ruta().write_text('{"dpapi": "AAAA"}', encoding="utf-8")
+            credenciales.cargar()
+        self.assertEqual(aviso.call_count, 2)
 
     def test_si_cifrar_falla_guardar_devuelve_false_y_no_escribe(self):
         self._ruta().write_text('{"api_key": "seteada"}', encoding="utf-8")
