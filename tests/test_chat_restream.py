@@ -129,6 +129,21 @@ class TestConectarChat(unittest.TestCase):
 
         frame.conectar_chat_adicional.assert_not_called()
 
+    def test_p6_si_la_transmision_termina_durante_la_espera_no_avisa(self):
+        frame = FrameFalso()
+
+        def esperar(_usuario, _parada, cada, limite):
+            chat_restream.parar_espera()
+            return _resultado(False, cuenta_sin_directos=True)
+
+        anuncios = self._conectar(frame, esperar_en_vivo=esperar,
+                                  tiktok="amigo", pedido=True)
+
+        self.assertEqual(
+            [("Esperando a que TikTok muestre el directo para leer su chat.",
+              None, False)], anuncios)
+        frame.conectar_chat_adicional.assert_not_called()
+
     def test_p7_sin_usuario_avisa_y_no_espera(self):
         frame = FrameFalso()
         esperar = mock.Mock()
