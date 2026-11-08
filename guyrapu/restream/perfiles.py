@@ -17,7 +17,7 @@ from guyrapu.restream.youtube_por_restream import NOMBRE_MANUAL
 from guyrapu.youtube.emision import LATENCIAS, PRIVACIDADES
 
 ORIENTACIONES = ("horizontal", "vertical")
-CHATS = ("", "youtube", "tiktok")
+CHATS = ("", "youtube", "tiktok", "ambos")
 
 
 @dataclass(frozen=True, slots=True)

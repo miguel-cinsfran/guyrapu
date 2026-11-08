@@ -11805,10 +11805,6 @@ msgid "&Chat que lee Guyrapu:"
 msgstr "&Chat that Guyrapu reads:"
 
 #: guyrapu/ui/restream_perfil.py
-msgid "TikTok"
-msgstr "TikTok"
-
-#: guyrapu/ui/restream_perfil.py
 msgid "Chat que lee Guyrapu"
 msgstr "Chat that Guyrapu reads"
 
@@ -12234,4 +12230,28 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
+
+#: guyrapu/restream/chat_restream.py
+msgid ""
+"No se encontró el usuario de TikTok del perfil: conecta el chat de TikTok a"
+" mano."
+msgstr ""
+"The TikTok user for the profile was not found: connect the TikTok chat "
+"manually."
+
+#: guyrapu/restream/chat_restream.py
+msgid "Esperando a que TikTok muestre el directo para leer su chat."
+msgstr "Waiting for TikTok to show the live stream to read its chat."
+
+#: guyrapu/ui/restream_perfil.py
+msgid "YouTube y TikTok"
+msgstr "YouTube and TikTok"
+
+#: guyrapu/ui/restream_perfil.py
+msgid "Solo YouTube"
+msgstr "YouTube only"
+
+#: guyrapu/ui/restream_perfil.py
+msgid "Solo TikTok"
+msgstr "TikTok only"
 

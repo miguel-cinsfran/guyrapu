@@ -136,6 +136,69 @@ class TestChat(unittest.TestCase):
         self.assertEqual(transmitir.chat_del_perfil(perfil, canales),
                          "tiktok")
 
+    def test_ambos_con_youtube_el_chat_principal_es_youtube(self):
+        perfil = _perfil(canales=(1,), youtube=True, chat="ambos")
+        canales = [_canal(1, "TikTok")]
+        self.assertEqual(transmitir.chat_del_perfil(perfil, canales),
+                         "youtube")
+
+    def test_ambos_sin_youtube_sigue_el_automatico(self):
+        perfil = _perfil(canales=(1,), youtube=False, chat="ambos")
+        canales = [_canal(1, "TikTok")]
+        self.assertEqual(transmitir.chat_del_perfil(perfil, canales),
+                         "tiktok")
+
+    def test_chat_youtube_y_tiktok_con_y_sin_youtube(self):
+        canales = [_canal(1, "TikTok")]
+        for youtube in (True, False):
+            with self.subTest(youtube=youtube):
+                con_youtube = _perfil(canales=(1,), youtube=youtube,
+                                      chat="youtube")
+                con_tiktok = _perfil(canales=(1,), youtube=youtube,
+                                     chat="tiktok")
+                self.assertEqual(
+                    transmitir.chat_del_perfil(con_youtube, canales),
+                    "youtube")
+                self.assertEqual(
+                    transmitir.chat_del_perfil(con_tiktok, canales), "tiktok")
+
+    def test_vacio_sigue_el_automatico_con_y_sin_youtube(self):
+        canales = [_canal(1, "TikTok")]
+        con_youtube = _perfil(canales=(1,), youtube=True)
+        sin_youtube = _perfil(canales=(1,), youtube=False)
+        self.assertEqual(
+            transmitir.chat_del_perfil(con_youtube, canales), "youtube")
+        self.assertEqual(
+            transmitir.chat_del_perfil(sin_youtube, canales), "tiktok")
+
+
+class TestTiktokAdicional(unittest.TestCase):
+
+    def _canales(self):
+        return [_canal(1, "TikTok", url="https://www.tiktok.com/@amigo")]
+
+    def test_con_ambos_youtube_y_usuario_devuelve_el_usuario(self):
+        perfil = _perfil(canales=(1,), youtube=True, chat="ambos")
+        self.assertEqual(
+            transmitir.tiktok_adicional(perfil, self._canales()), "amigo")
+
+    def test_con_ambos_youtube_y_sin_usuario_devuelve_vacio(self):
+        perfil = _perfil(canales=(1,), youtube=True, chat="ambos")
+        canales = [_canal(1, "TikTok", url="", nombre="")]
+        self.assertEqual(transmitir.tiktok_adicional(perfil, canales), "")
+
+    def test_con_ambos_sin_youtube_devuelve_vacio(self):
+        perfil = _perfil(canales=(1,), youtube=False, chat="ambos")
+        self.assertEqual(transmitir.tiktok_adicional(perfil,
+                                                     self._canales()), "")
+
+    def test_con_otro_chat_devuelve_vacio(self):
+        for chat in ("", "youtube", "tiktok"):
+            with self.subTest(chat=chat):
+                perfil = _perfil(canales=(1,), youtube=True, chat=chat)
+                self.assertEqual(
+                    transmitir.tiktok_adicional(perfil, self._canales()), "")
+
 
 class TestUsuarioTikTok(unittest.TestCase):
 

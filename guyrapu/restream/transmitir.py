@@ -109,6 +109,8 @@ def chat_del_perfil(perfil, canales) -> str:
     El chat elegido manda. Vacío es automático: YouTube si el perfil lo
     tiene, si no TikTok cuando hay un destino de TikTok, y si no ninguno.
     """
+    if perfil.chat == "ambos" and perfil.youtube:
+        return "youtube"
     if perfil.chat in ("youtube", "tiktok"):
         return perfil.chat
     if perfil.youtube:
@@ -133,3 +135,14 @@ def usuario_tiktok(perfil, canales) -> str:
         if usuario:
             return usuario
     return ""
+
+
+def tiktok_adicional(perfil, canales) -> str:
+    """El usuario del chat adicional de TikTok, o vacío.
+
+    Solo con «YouTube y TikTok», el perfil con YouTube y un usuario de TikTok
+    legible en sus destinos. Vacío en cualquier otro caso.
+    """
+    if perfil.chat != "ambos" or not perfil.youtube:
+        return ""
+    return usuario_tiktok(perfil, canales)

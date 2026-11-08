@@ -157,11 +157,12 @@ class DialogoPerfilRestream(wx.Dialog):
             zona, label=_("&Chat que lee Guyrapu:"))
         contenido.Add(self._rotulo_chat, 0, wx.LEFT | wx.RIGHT, 10)
         self.cho_chat = wx.Choice(
-            zona, choices=[_("YouTube"), _("TikTok")],
+            zona, choices=[_("YouTube y TikTok"), _("Solo YouTube"),
+                           _("Solo TikTok")],
             name=_("Chat que lee Guyrapu"))
         nombre_accesible(self.cho_chat, _("Chat que lee Guyrapu"))
-        chat = (perfil.chat if perfil is not None else "") or "youtube"
-        self.cho_chat.SetSelection(1 if chat == "tiktok" else 0)
+        chat = perfil.chat if perfil is not None else "ambos"
+        self.cho_chat.SetSelection({"ambos": 0, "tiktok": 2}.get(chat, 1))
         contenido.Add(self.cho_chat, 0, wx.EXPAND | wx.ALL, 10)
         self._actualizar_chat()
 
@@ -184,7 +185,8 @@ class DialogoPerfilRestream(wx.Dialog):
         youtube = self.chk_youtube.GetValue()
         chat = ""
         if youtube and self.cho_chat.IsShown():
-            chat = "tiktok" if self.cho_chat.GetSelection() == 1 else "youtube"
+            chat = ("ambos", "youtube", "tiktok")[
+                self.cho_chat.GetSelection()]
         directo = dict(self._perfil.directo) if self._perfil is not None else {}
         return Perfil(
             nombre=self.txt_nombre.GetValue().strip(),

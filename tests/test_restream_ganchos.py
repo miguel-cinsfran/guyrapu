@@ -556,6 +556,19 @@ class TestSupervisarRestream(unittest.TestCase):
         self.assertIn("esperar_emision", creados[0].kwargs)
         self.assertIn("finalizar_emision", creados[0].kwargs)
 
+    def test_p3_p4_ambos_crea_youtube_y_pasa_el_usuario_adicional(self):
+        perfil = _perfil("Uno", "vertical", (1,), youtube=True, chat="ambos")
+        canales = [_canal(1, "TikTok", url="https://www.tiktok.com/@amigo")]
+        preparados = _preparados(ClienteYouTubeFalso())
+        with mock.patch.object(ganchos, "_conectar_chat") as conectar:
+            _frame, _cuenta, creados, _anuncios = self._supervisar(
+                perfil, canales, armado=(perfil, preparados))
+
+        self.assertEqual(creados[0].destino, "YouTube")
+        kwargs = conectar.call_args.kwargs
+        self.assertEqual(kwargs["tiktok"], "amigo")
+        self.assertTrue(kwargs["pedido"])
+
     def test_p10_con_youtube_y_chat_tiktok_finaliza_igual(self):
         perfil = _perfil("Uno", "vertical", (1,), youtube=True, chat="tiktok")
         canales = [_canal(1, "TikTok", url="https://www.tiktok.com/@amigo")]

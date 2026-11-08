@@ -67,6 +67,22 @@ class TestArchivo(unittest.TestCase):
             guardar(ruta, perfiles)
             self.assertEqual(cargar(ruta), perfiles)
 
+    def test_ambos_se_guarda_y_se_lee(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            ruta = Path(temporal) / "perfiles_restream.json"
+            perfiles = [_perfil(nombre="Los dos", youtube=True, chat="ambos")]
+            guardar(ruta, perfiles)
+            self.assertEqual(cargar(ruta), perfiles)
+
+    def test_un_chat_desconocido_queda_vacio(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            ruta = Path(temporal) / "perfiles_restream.json"
+            datos = _perfil(nombre="Raro", chat="los-dos").a_dict()
+            ruta.write_text(json.dumps([datos], ensure_ascii=False),
+                            encoding="utf-8")
+            [perfil] = cargar(ruta)
+            self.assertEqual(perfil.chat, "")
+
     def test_p11_un_perfil_viejo_pasa_sus_datos_a_lo_ultimo_usado(self):
         with tempfile.TemporaryDirectory() as temporal:
             ruta = Path(temporal) / "perfiles_restream.json"

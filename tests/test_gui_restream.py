@@ -1634,7 +1634,7 @@ class PruebaDialogoPerfil(unittest.TestCase):
         dialogo._casillas[0][1].SetValue(True)
         dialogo.chk_youtube.SetValue(True)
         dialogo._actualizar_chat()
-        dialogo.cho_chat.SetSelection(1)
+        dialogo.cho_chat.SetSelection(2)
         with mock.patch.object(dialogo, "EndModal") as fin:
             dialogo._guardar(None)
 
@@ -1643,6 +1643,45 @@ class PruebaDialogoPerfil(unittest.TestCase):
             Perfil(nombre="Nuevo", canales=(1,), orientacion="vertical",
                    youtube=True, chat="tiktok", directo={}),
             dialogo.perfil())
+
+    def test_p1_las_tres_opciones_de_chat_en_orden(self):
+        dialogo = self._dialogo()
+        dialogo._casillas[0][1].SetValue(True)
+        dialogo.chk_youtube.SetValue(True)
+        dialogo._actualizar_chat()
+
+        self.assertEqual(
+            ["YouTube y TikTok", "Solo YouTube", "Solo TikTok"],
+            list(dialogo.cho_chat.GetStrings()))
+
+    def test_p2_un_perfil_nuevo_trae_youtube_y_tiktok_elegido(self):
+        dialogo = self._dialogo()
+        dialogo.txt_nombre.SetValue("Nuevo")
+        dialogo._casillas[0][1].SetValue(True)
+        dialogo.chk_youtube.SetValue(True)
+        dialogo._actualizar_chat()
+
+        self.assertEqual(0, dialogo.cho_chat.GetSelection())
+        with mock.patch.object(dialogo, "EndModal") as fin:
+            dialogo._guardar(None)
+        fin.assert_called_once_with(wx.ID_OK)
+        self.assertEqual("ambos", dialogo.perfil().chat)
+
+    def test_p2_un_perfil_guardado_con_youtube_se_ve_como_solo_youtube(self):
+        dialogo = self._dialogo(
+            perfil=_perfil(youtube=True, chat="youtube"))
+        dialogo._actualizar_chat()
+
+        self.assertEqual(1, dialogo.cho_chat.GetSelection())
+        self.assertEqual("Solo YouTube", dialogo.cho_chat.GetString(1))
+
+    def test_p2_un_perfil_guardado_con_tiktok_se_ve_como_solo_tiktok(self):
+        dialogo = self._dialogo(
+            perfil=_perfil(youtube=True, chat="tiktok"))
+        dialogo._actualizar_chat()
+
+        self.assertEqual(2, dialogo.cho_chat.GetSelection())
+        self.assertEqual("Solo TikTok", dialogo.cho_chat.GetString(2))
 
     def test_p5_guardar_conserva_lo_ultimo_usado(self):
         directo = {"titulo": "Título", "descripcion": "Descripción"}

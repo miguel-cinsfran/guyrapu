@@ -18,7 +18,8 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_destinos, perfil_previo
 from guyrapu.restream import transmitir, youtube_por_restream
-from guyrapu.restream.chat_restream import conectar_chat as _conectar_chat
+from guyrapu.restream.chat_restream import (
+    conectar_chat as _conectar_chat, parar_espera)
 from guyrapu.youtube import emision
 from guyrapu.youtube.emision import EmisionError
 
@@ -262,6 +263,7 @@ def _crear_vigia(modulo_cuenta, canales, al_anunciar, supervisor_actual):
 
 def _al_terminar(frame, restaurar):
     def al_terminar():
+        parar_espera()
         vigia_senal = getattr(frame, "_vigia_restream", None)
         if vigia_senal is not None:
             vigia_senal.detener()
@@ -298,13 +300,16 @@ def _destino_supervisor(perfil, canales):
 
 
 def _instanciar_supervisor(frame, destino, usuario, perfil, envoltura,
-                           restaurar, preparar, extras):
+                           restaurar, preparar, extras, tiktok="",
+                           pedido=False):
     from guyrapu.core import paths
     from guyrapu.obs.obs_supervisor import SupervisorTransmision
     return SupervisorTransmision(
         destino, usuario, al_anunciar=envoltura,
         al_conectar_chat=_conectar_chat(
-            frame, youtube=destino == "YouTube", guardados=perfil.directo),
+            frame, youtube=destino == "YouTube", guardados=perfil.directo,
+            tiktok=tiktok, pedido=pedido,
+            al_anunciar=_anunciar_de_frame(frame)),
         al_terminar=perfil_previo.tras_supervision(
             _al_terminar(frame, restaurar)),
         ruta_fin_pendiente=paths.fin_pendiente(),
@@ -321,9 +326,11 @@ def _crear_supervisor(frame, modulo_cuenta, opcion, perfil, destino, usuario,
     preparar, restaurar, extras = armar(
         opcion, envoltura, canales, cuenta_mod=modulo_cuenta,
         perfiles=[perfil], perfil=perfil, preparados=preparados)
+    tiktok = transmitir.tiktok_adicional(perfil, canales)
     supervisor = _instanciar_supervisor(
         frame, destino, usuario, perfil, envoltura, restaurar, preparar,
-        extras)
+        extras, tiktok=tiktok,
+        pedido=perfil.chat == "ambos" and perfil.youtube)
     frame._supervisor = supervisor
     supervisor.iniciar()
     _arrancar_vigia(modulo_cuenta, canales, envoltura, frame)
