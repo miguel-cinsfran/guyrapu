@@ -326,7 +326,7 @@ class TestCrear(unittest.TestCase):
         ajustes = perfiles_obs.crear_perfil(
             cliente, "Nuevo", vertical=False,
             codificadores=("x264", "amd", "qsv"))
-        self.assertEqual(cliente.actual, "Nuevo")
+        self.assertEqual(cliente.actual, "Viejo")
         self.assertIn("Nuevo", cliente.estado)
         self.assertEqual((ajustes.ancho_lienzo, ajustes.alto_lienzo),
                          (1920, 1080))
@@ -401,6 +401,13 @@ class TestCrear(unittest.TestCase):
         self.assertEqual(cliente.actual, "A")
         self.assertNotIn("Nuevo", cliente.estado)
 
+    def test_p4_deja_el_perfil_que_estaba(self):
+        cliente = ClienteFalso(("A", "B"), actual="B")
+        perfiles_obs.crear_perfil(cliente, "Nuevo",
+                                  codificadores=("x264",))
+        self.assertEqual(cliente.actual, "B")
+        self.assertIn("Nuevo", cliente.estado)
+
 
 class TestDuplicar(unittest.TestCase):
 
@@ -459,6 +466,12 @@ class TestDuplicar(unittest.TestCase):
         self.assertEqual(set(cliente.estado), {"A", "Origen"})
         self.assertEqual(cliente.actual, "A")
         self.assertNotIn("Copia", cliente.estado)
+
+    def test_p5_deja_el_perfil_que_estaba(self):
+        cliente = ClienteFalso(("A", "Origen"), actual="A")
+        perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
+        self.assertEqual(cliente.actual, "A")
+        self.assertIn("Copia", cliente.estado)
 
 
 class TestEliminar(unittest.TestCase):

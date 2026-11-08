@@ -256,8 +256,7 @@ def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
     try:
         _crear(cliente, nombre, parada)
         _escribir_actual(cliente, ajustes, parada, escribir_servicio=False)
-        perfiles, _actual = _lista(cliente, parada)
-        _recargar(cliente, nombre, perfiles, parada)
+        _cambiar(cliente, actual, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
         _borrar_si_existe(cliente, nombre, parada)
