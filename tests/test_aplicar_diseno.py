@@ -199,7 +199,7 @@ class AplicarDisenoTest(unittest.TestCase):
                          ["Juego", "Cámara", NOMBRE_FUENTE])
         self.assertEqual(resultado, [
             (NOMBRE_FUENTE, ""),
-            ("Cámara", disenos_escena.ESTADO_LLENA),
+            ("Cámara", disenos_escena.ESTADO_AJUSTA),
             ("Juego", disenos_escena.ESTADO_AJUSTA)])
 
     def test_aplicar_diseno_lee_el_lienzo_y_aplica_lo_calculado(self):

@@ -165,7 +165,7 @@ def _modo(diseno, fuente):
     modo = diseno.modos.get(fuente.nombre, "")
     if modo:
         return modo
-    return "llenar" if fuente.tipo == "camara" else "ajustar"
+    return "ajustar"
 
 
 def _resultado(fuente, rect, modo):

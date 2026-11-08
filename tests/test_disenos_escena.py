@@ -38,7 +38,7 @@ class DisenosEscenaTest(unittest.TestCase):
             1920 - (camara_res["positionX"] + camara_res["boundsWidth"]), 38)
         self.assertEqual(
             1080 - (camara_res["positionY"] + camara_res["boundsHeight"]), 22)
-        self.assertEqual(camara_res["estado"], disenos.ESTADO_LLENA)
+        self.assertEqual(camara_res["estado"], disenos.ESTADO_AJUSTA)
         self.assertEqual(juego_res["positionX"], 0)
         self.assertEqual(juego_res["boundsWidth"], 1920)
         self.assertEqual(juego_res["estado"], disenos.ESTADO_AJUSTA)
@@ -59,8 +59,8 @@ class DisenosEscenaTest(unittest.TestCase):
         self.assertEqual(
             (izquierda["cropLeft"], izquierda["cropRight"],
              izquierda["cropTop"], izquierda["cropBottom"]),
-            (480, 480, 0, 0))
-        self.assertEqual(izquierda["estado"], disenos.ESTADO_LLENA)
+            (0, 0, 0, 0))
+        self.assertEqual(izquierda["estado"], disenos.ESTADO_AJUSTA)
         self.assertEqual((derecha["positionX"], derecha["boundsWidth"]),
                          (960, 960))
         self.assertEqual(
@@ -123,7 +123,8 @@ class DisenosEscenaTest(unittest.TestCase):
 
     def test_llenar_sin_origen_ajusta_y_marca(self):
         camara = disenos.Fuente("Cámara", "camara", 0, 0)
-        diseno = disenos.Diseno(clase="pantalla_completa", principal="Cámara")
+        diseno = disenos.Diseno(clase="pantalla_completa", principal="Cámara",
+                                modos={"Cámara": "llenar"})
         [resultado] = disenos.calcular(1920, 1080, [camara], diseno)
         self.assertEqual(resultado["estado"],
                          disenos.ESTADO_AJUSTA_SIN_ORIGEN)
