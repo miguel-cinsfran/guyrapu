@@ -25,7 +25,8 @@ class DoblePrevuelo:
 
     def __init__(self, perfil="TikTok", coleccion="TikTok", ancho=720,
                  alto=1280, escena="Escena", elementos=None, entradas=None,
-                 ajustes=None, silencios=None, escenas=(), imagen=None,
+                 ajustes=None, silencios=None, escenas=("Escena vertical",),
+                 imagen=None,
                  falla_imagen=False, modo="Simple", calidad="Stream",
                  codificador="none"):
         self.perfil = perfil
@@ -152,6 +153,29 @@ class RevisarTest(unittest.TestCase):
         revision = revisar(doble, "TikTok")
         self.assertEqual(revision.perfil, "YouTube")
         self.assertEqual(revision.problemas, ())
+
+    def test_lienzo_vertical_sin_version_vertical_avisa(self):
+        doble = DoblePrevuelo(
+            escenas=(), imagen=imagen_dato(png_plano(2, 2, (200, 0, 0, 255))))
+        revision = revisar(doble, "TikTok")
+        self.assertEqual(revision.problemas, ())
+        self.assertEqual(revision.avisos, (
+            "La escena Escena no tiene versión vertical: créala con Crear la "
+            "versión vertical, en el menú de la escena del Panel de OBS.",))
+        self.assertIn("Crear la versión vertical",
+                      frase_revision(revision))
+
+    def test_con_version_vertical_no_avisa(self):
+        doble = DoblePrevuelo(
+            escenas=("Escena vertical",),
+            imagen=imagen_dato(png_plano(2, 2, (200, 0, 0, 255))))
+        self.assertEqual(revisar(doble, "TikTok").avisos, ())
+
+    def test_lienzo_horizontal_no_avisa(self):
+        doble = DoblePrevuelo(
+            ancho=1920, alto=1080, escenas=(),
+            imagen=imagen_dato(png_plano(2, 2, (200, 0, 0, 255))))
+        self.assertEqual(revisar(doble, "TikTok").avisos, ())
 
     def test_microfono_silenciado(self):
         doble = DoblePrevuelo(

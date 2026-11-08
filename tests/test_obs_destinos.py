@@ -25,7 +25,8 @@ class DobleObsDestinos:
 
     def __init__(self, perfiles=(), actual="", transmision=False,
                   demora_creacion=2, demora_cambio=2, fallo_escritura=False,
-                  colecciones=(), coleccion_actual="", demora_coleccion=2):
+                  colecciones=(), coleccion_actual="", demora_coleccion=2,
+                  escenas=(), escena_actual=""):
         self.visibles = list(perfiles)
         self.actual = actual
         self.transmision = transmision
@@ -36,6 +37,8 @@ class DobleObsDestinos:
         self.pendientes_cambio = []
         self.colecciones = list(colecciones)
         self.coleccion_actual = coleccion_actual
+        self.escenas = list(escenas)
+        self.escena_actual = escena_actual
         self.demora_coleccion = demora_coleccion
         self.pendientes_coleccion = []
         self.servicio = {"server": "", "key": ""}
@@ -80,6 +83,15 @@ class DobleObsDestinos:
             return {"responseData": {}}
         if tipo == "GetVideoSettings":
             return {"responseData": dict(self.video)}
+        if tipo == "GetSceneList":
+            return {"responseData": {"scenes": [
+                {"sceneName": nombre} for nombre in self.escenas]}}
+        if tipo == "GetCurrentProgramScene":
+            return {"responseData": {
+                "currentProgramSceneName": self.escena_actual}}
+        if tipo == "SetCurrentProgramScene":
+            self.escena_actual = datos["sceneName"]
+            return {"responseData": {}}
         if tipo == "GetSceneCollectionList":
             self._avanzar()
             return {"responseData": {
@@ -488,6 +500,46 @@ class PrepararParaTransmitirTest(unittest.TestCase):
             frase_destino_listo(resultado),
             "OBS preparado para transmitir a YouTube. "
             "Formato horizontal, 1920 por 1080.")
+
+    def test_lienzo_vertical_pone_la_version_vertical_al_aire(self):
+        doble = self.doble_medicion(actual="YouTube",
+                                    coleccion_actual="Sin Título",
+                                    escenas=["Escena", "Escena vertical"],
+                                    escena_actual="Escena")
+        doble.video = {"baseWidth": 720, "baseHeight": 1280,
+                       "outputWidth": 720, "outputHeight": 1280}
+        with mock.patch.object(perfil_por_uso, "perfil_elegido",
+                               return_value="TikTok"):
+            resultado, _ = self.preparar(doble, "TikTok")
+        self.assertEqual(doble.escena_actual, "Escena vertical")
+        self.assertEqual(resultado["escena_vertical"], "Escena")
+        self.assertIn("Escena al aire: Escena vertical.",
+                      frase_destino_listo(resultado))
+
+    def test_lienzo_horizontal_devuelve_la_escena_original_al_aire(self):
+        doble = self.doble_medicion(actual="YouTube",
+                                    coleccion_actual="Sin Título",
+                                    escenas=["Escena", "Escena vertical"],
+                                    escena_actual="Escena vertical")
+        with mock.patch.object(perfil_por_uso, "perfil_elegido",
+                               return_value="YouTube"):
+            resultado, _ = self.preparar(doble, "YouTube")
+        self.assertEqual(doble.escena_actual, "Escena")
+        self.assertNotIn("escena_vertical", resultado)
+
+    def test_preparar_destino_tambien_pone_la_version_vertical(self):
+        doble = DobleObsDestinos(perfiles=["Actual", "TikTok"],
+                                 actual="Actual", escenas=["Escena",
+                                                           "Escena vertical"],
+                                 escena_actual="Escena")
+        doble.video = {"baseWidth": 720, "baseHeight": 1280,
+                       "outputWidth": 720, "outputHeight": 1280}
+        reloj = RelojFalso()
+        with mock.patch.object(perfil_por_uso, "perfil_elegido",
+                               return_value="TikTok"):
+            preparar_destino(doble, Destino("TikTok"),
+                             dormir=reloj.dormir, reloj=reloj.reloj)
+        self.assertEqual(doble.escena_actual, "Escena vertical")
 
     def test_preparar_recuerda_el_perfil_que_estaba_antes(self):
         with perfil_previo._CERROJO:

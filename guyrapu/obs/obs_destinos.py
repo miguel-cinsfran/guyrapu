@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from guyrapu.core import plataformas
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import obs_cliente, perfil_por_uso, perfil_previo
+from guyrapu.obs import escena_gemela, obs_cliente, perfil_por_uso, perfil_previo
 
 
 # Traductores: {perfil} es el nombre de un perfil de OBS.
@@ -148,9 +148,15 @@ def preparar_para_transmitir(cliente, destino, parada=None, espera=60.0,
         "currentSceneCollectionName", "") or "")
     lienzo = (cliente.pedir("GetVideoSettings", parada=parada).get(
         "responseData", {}) or {})
-    return {"destino": destino, "perfil": perfil, "coleccion": coleccion,
-            "ancho": lienzo.get("baseWidth"), "alto": lienzo.get("baseHeight"),
-            "perfil_creado": perfil_creado}
+    cambiada = _poner_segun_lienzo(cliente, parada)
+    resultado = {"destino": destino, "perfil": perfil, "coleccion": coleccion,
+                 "ancho": lienzo.get("baseWidth"),
+                 "alto": lienzo.get("baseHeight"),
+                 "perfil_creado": perfil_creado}
+    if cambiada and (lienzo.get("baseHeight") or 0) > (
+            lienzo.get("baseWidth") or 0):
+        resultado["escena_vertical"] = cambiada
+    return resultado
 
 
 def frase_destino_listo(resultado):
@@ -174,6 +180,10 @@ def frase_destino_listo(resultado):
         perfil = resultado.get("perfil") or resultado["destino"]
         frase = (_("Se creó en OBS el perfil {destino}.").format(
             destino=perfil) + " " + frase)
+    if resultado.get("escena_vertical"):
+        # Traductores: {escena} es el nombre de la escena original.
+        frase = frase + " " + _("Escena al aire: {escena} vertical.").format(
+            escena=resultado["escena_vertical"])
     return frase
 
 
@@ -227,6 +237,17 @@ def _comprobar_servicio(cliente, destino, parada):
         raise obs_cliente.ObsError(_(MENSAJE_SIN_APLICAR))
 
 
+def _poner_segun_lienzo(cliente, parada):
+    """Pone la escena que corresponde al lienzo y recuerda la que había."""
+    anterior = escena_gemela.poner_segun_lienzo(cliente, parada)
+    if anterior:
+        datos = cliente.pedir("GetCurrentProgramScene", parada=parada).get(
+            "responseData", {}) or {}
+        perfil_previo.recordar_escena(
+            anterior, datos.get("currentProgramSceneName", "") or "")
+    return anterior
+
+
 def preparar_perfil(cliente, destino, perfil, parada=None, espera=60.0,
                     intervalo=0.05, dormir=time.sleep, reloj=time.monotonic):
     """Deja OBS en un perfil ya resuelto y aplica el resto del destino.
@@ -257,6 +278,8 @@ def preparar_destino(cliente, destino, parada=None, espera=60.0,
     """
     elegido = perfil_por_uso.perfil_elegido(destino.perfil)
     perfil = destino.perfil if elegido is None else elegido
-    return preparar_perfil(cliente, destino, perfil, parada=parada,
-                           espera=espera, intervalo=intervalo, dormir=dormir,
-                           reloj=reloj)
+    resultado = preparar_perfil(cliente, destino, perfil, parada=parada,
+                                espera=espera, intervalo=intervalo,
+                                dormir=dormir, reloj=reloj)
+    _poner_segun_lienzo(cliente, parada)
+    return resultado

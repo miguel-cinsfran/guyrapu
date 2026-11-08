@@ -11,7 +11,7 @@ from guyrapu.obs import consultas_transmision
 from guyrapu.obs import escenas_obs
 from guyrapu.obs import nombres_escena
 from guyrapu.obs import obs_estado
-from guyrapu.ui import confirmar, escena_menu_escena
+from guyrapu.ui import confirmar, escena_menu_escena, escena_version_vertical
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.escena_pagina_fuentes import PaginaFuentes
 from guyrapu.ui.preferencias_comun import (
@@ -173,7 +173,8 @@ class PaginaEscena(wx.Panel):
             return
         menu = escena_menu_escena.menu_de_escena(
             self._cambiar_al_aire, self._cambiar_nombre, self._duplicar,
-            self._eliminar, self._guardar_imagen)
+            self._eliminar, self._guardar_imagen,
+            self._crear_version_vertical)
         ancla.PopupMenu(menu)
         menu.Destroy()
 
@@ -232,6 +233,9 @@ class PaginaEscena(wx.Panel):
         self._mostrar_leidas(datos)
         anunciar(_("Escena {antes} cambiada a {nombre}.").format(
             antes=antes, nombre=nombre))
+
+    def _crear_version_vertical(self, _event=None):
+        escena_version_vertical.crear(self)
 
     def _duplicar(self, _event=None):
         origen = self.escena()

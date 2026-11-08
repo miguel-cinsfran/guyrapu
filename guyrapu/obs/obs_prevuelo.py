@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs.obs_png import imagen_vacia_png
-from guyrapu.obs import obs_grabacion, revision_escena
+from guyrapu.obs import escena_gemela, obs_grabacion, revision_escena
 
 
 # Tipo legible por inputKind. Lo que no está acá se muestra tal cual.
@@ -243,6 +243,14 @@ def revisar(cliente, destino, parada=None, grabar=False) -> Revision:
         elementos, lienzo.get("baseWidth"), lienzo.get("baseHeight"))
     problemas.extend(hallazgos.problemas)
     avisos = []
+    ancho, alto = lienzo.get("baseWidth"), lienzo.get("baseHeight")
+    if (escena and isinstance(ancho, int) and isinstance(alto, int)
+            and alto > ancho
+            and escena_gemela.original_de(escena, escenas) is None
+            and escena_gemela.nombre_gemela(escena) not in escenas):
+        avisos.append(_("La escena {escena} no tiene versión vertical: créala "
+                        "con Crear la versión vertical, en el menú de la "
+                        "escena del Panel de OBS.").format(escena=escena))
     if grabar and obs_grabacion.codificador_propio_en_obs(
             cliente, parada) is True:
         avisos.append(_(obs_grabacion.AVISO_CODIFICADOR))

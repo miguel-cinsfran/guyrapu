@@ -178,7 +178,8 @@ class TestMenuDeEscena(unittest.TestCase):
             lambda: llamadas.append("renombrar"),
             lambda: llamadas.append("duplicar"),
             lambda: llamadas.append("eliminar"),
-            lambda: llamadas.append("guardar"))
+            lambda: llamadas.append("guardar"),
+            lambda: llamadas.append("vertical"))
 
     def _items(self, menu):
         return [item for item in menu.GetMenuItems()
@@ -190,8 +191,8 @@ class TestMenuDeEscena(unittest.TestCase):
         self.addCleanup(menu.Destroy)
         self.assertEqual(
             [item.GetItemLabelText() for item in self._items(menu)],
-            ["Cambiar escena", "Cambiar nombre…", "Duplicar", "Eliminar",
-             "Guardar imagen…"])
+            ["Cambiar escena", "Cambiar nombre…", "Duplicar",
+             "Crear la versión vertical", "Eliminar", "Guardar imagen…"])
 
     def test_cada_elemento_muestra_su_tecla_tras_un_tabulador(self):
         llamadas = []
@@ -199,9 +200,11 @@ class TestMenuDeEscena(unittest.TestCase):
         self.addCleanup(menu.Destroy)
         items = self._items(menu)
         self.assertEqual(
-            [item.GetItemLabel().split("\t")[-1] for item in items[:4]],
-            ["Enter", "F2", "Ctrl+D", "Del"])
-        self.assertEqual(items[4].GetItemLabel(), "&Guardar imagen…")
+            [item.GetItemLabel().split("\t")[-1] for item in items[:3]],
+            ["Enter", "F2", "Ctrl+D"])
+        self.assertEqual(items[3].GetItemLabel(), "Crear la versión &vertical")
+        self.assertEqual(items[4].GetItemLabel().split("\t")[-1], "Del")
+        self.assertEqual(items[5].GetItemLabel(), "&Guardar imagen…")
 
     def test_las_letras_de_acceso_no_se_repiten(self):
         llamadas = []
@@ -216,7 +219,8 @@ class TestMenuDeEscena(unittest.TestCase):
 
     def test_cada_entrada_llama_a_su_accion(self):
         for indice, accion in enumerate(
-                ("cambiar", "renombrar", "duplicar", "eliminar", "guardar")):
+                ("cambiar", "renombrar", "duplicar", "vertical", "eliminar",
+                 "guardar")):
             llamadas = []
             menu = self._menu(llamadas)
             self.addCleanup(menu.Destroy)

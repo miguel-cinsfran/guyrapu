@@ -558,12 +558,14 @@ class TestVentanaObs(unittest.TestCase):
         etiquetas, textos = self._menu_de_escena(pagina)
         self.assertEqual(
             etiquetas,
-            ["Cambiar escena", "Cambiar nombre…", "Duplicar", "Eliminar",
-             "Guardar imagen…"])
+            ["Cambiar escena", "Cambiar nombre…", "Duplicar",
+             "Crear la versión vertical", "Eliminar", "Guardar imagen…"])
         self.assertEqual(
-            [texto.split("\t")[-1] for texto in textos[:4]],
-            ["Enter", "F2", "Ctrl+D", "Del"])
-        self.assertEqual(textos[4], "&Guardar imagen…")
+            [texto.split("\t")[-1] for texto in textos[:3]],
+            ["Enter", "F2", "Ctrl+D"])
+        self.assertEqual(textos[3], "Crear la versión &vertical")
+        self.assertEqual(textos[4].split("\t")[-1], "Del")
+        self.assertEqual(textos[5], "&Guardar imagen…")
 
     def test_cada_entrada_del_menu_de_la_escena_llama_a_su_accion(self):
         pagina = self.dialogo._pagina_escena
@@ -572,6 +574,7 @@ class TestVentanaObs(unittest.TestCase):
                 ("Cambiar escena", "_cambiar_al_aire"),
                 ("Cambiar nombre…", "_cambiar_nombre"),
                 ("Duplicar", "_duplicar"),
+                ("Crear la versión vertical", "_crear_version_vertical"),
                 ("Eliminar", "_eliminar"),
                 ("Guardar imagen…", "_guardar_imagen")):
             with mock.patch.object(pagina, accion) as llamada:

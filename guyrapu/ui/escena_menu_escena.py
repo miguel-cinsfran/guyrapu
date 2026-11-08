@@ -17,16 +17,23 @@ ACCIONES = {
 }
 
 
-def menu_de_escena(cambiar, renombrar, duplicar, eliminar, guardar):
+def menu_de_escena(cambiar, renombrar, duplicar, eliminar, guardar,
+                   version_vertical=None):
     """Arma el menú de la escena elegida, con la tecla a la vista."""
     menu = wx.Menu()
-    _accion(menu, _("&Cambiar escena") + "\tEnter", cambiar)
-    _accion(menu, _("Cambiar &nombre…") + "\tF2", renombrar)
-    _accion(menu, _("&Duplicar") + "\tCtrl+D", duplicar)
-    _accion(menu, _("E&liminar") + "\tDel", eliminar)
+    _acciones(menu, cambiar, renombrar, duplicar, eliminar, version_vertical)
     menu.AppendSeparator()
     _accion(menu, _("&Guardar imagen…"), guardar)
     return menu
+
+
+def _acciones(menu, cambiar, renombrar, duplicar, eliminar, version_vertical):
+    _accion(menu, _("&Cambiar escena") + "\tEnter", cambiar)
+    _accion(menu, _("Cambiar &nombre…") + "\tF2", renombrar)
+    _accion(menu, _("&Duplicar") + "\tCtrl+D", duplicar)
+    if version_vertical is not None:
+        _accion(menu, _("Crear la versión &vertical"), version_vertical)
+    _accion(menu, _("E&liminar") + "\tDel", eliminar)
 
 
 def accion_de_tecla(evento):

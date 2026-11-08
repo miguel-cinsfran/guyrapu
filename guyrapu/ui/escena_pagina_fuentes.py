@@ -12,7 +12,7 @@ from guyrapu.obs import (
     disenos_guardados, obs_disposicion)
 from guyrapu.ui import (
     escena_acciones_fuente, escena_agregar_fuente, escena_disenos,
-    escena_menu_fuente)
+    escena_menu_fuente, escena_version_vertical)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, fila_campo, nombre_de_etiqueta
 
@@ -145,6 +145,10 @@ class PaginaFuentes(wx.Panel):
             anunciar(_("Sin selección"))
             return
         if self._operaciones.en_vuelo:
+            return
+        if (escena_version_vertical.es_gemela_con_original(self, escena)
+                and escena_version_vertical.perfil_vertical(self)):
+            escena_version_vertical.aplicar_a_gemela(self, escena)
             return
         self._operaciones.en_hilo(
             lambda: aplicar_diseno.fuentes_y_lienzo(self._gestor, escena),

@@ -77,6 +77,7 @@ SUPERFICIES = {
     "escena_propiedades.py": "escena",
     "escena_menu_fuente.py": "escena",
     "escena_menu_escena.py": "escena",
+    "escena_version_vertical.py": "escena",
     "escena_edicion_fuente.py": "escena",
     "escena_captura_ventana.py": "escena",
     "escena_pagina_audio.py": "escena",

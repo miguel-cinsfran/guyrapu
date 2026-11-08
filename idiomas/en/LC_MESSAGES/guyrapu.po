@@ -12255,3 +12255,50 @@ msgstr "YouTube only"
 msgid "Solo TikTok"
 msgstr "TikTok only"
 
+#. Traductores: {escena} es el nombre de la escena original.
+#: guyrapu/obs/obs_destinos.py
+#, python-brace-format
+msgid "Escena al aire: {escena} vertical."
+msgstr "Live scene: {escena} vertical."
+
+#: guyrapu/obs/obs_prevuelo.py
+#, python-brace-format
+msgid ""
+"La escena {escena} no tiene versión vertical: créala con Crear la versión "
+"vertical, en el menú de la escena del Panel de OBS."
+msgstr ""
+"The scene {escena} has no vertical version: create it with Create vertical "
+"version, in the scene menu of the OBS panel."
+
+#: guyrapu/ui/escena_menu_escena.py
+msgid "Crear la versión &vertical"
+msgstr "Create &vertical version"
+
+#: guyrapu/ui/escena_version_vertical.py
+msgid ""
+"Elige primero el perfil para transmitir en vertical, en Preferencias, "
+"Transmisión."
+msgstr "Choose the profile to broadcast vertically first, in Preferences, Broadcast."
+
+#: guyrapu/ui/escena_version_vertical.py
+#, python-brace-format
+msgid ""
+"Ya existe la escena {escena} vertical. Para acomodarla, usa Aplicar diseño "
+"sobre ella."
+msgstr ""
+"The scene {escena} vertical already exists. To arrange it, use Apply layout"
+" on it."
+
+#: guyrapu/ui/escena_version_vertical.py
+msgid "Creando la versión vertical…"
+msgstr "Creating the vertical version…"
+
+#: guyrapu/ui/escena_version_vertical.py
+msgid "Versión vertical cancelada."
+msgstr "Vertical version canceled."
+
+#: guyrapu/ui/escena_version_vertical.py
+#, python-brace-format
+msgid "Versión vertical creada: {escena} vertical. Diseño: {diseño}."
+msgstr "Vertical version created: {escena} vertical. Layout: {diseño}."
+

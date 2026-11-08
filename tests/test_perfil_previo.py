@@ -17,13 +17,15 @@ class ObsFalso:
 
     def __init__(self, perfiles=("YouTube", "TikTok"), actual="TikTok",
                  transmitiendo=False, grabando=False, buffer=False,
-                 fallo=""):
+                 fallo="", escena="Escena", escenas=("Escena",)):
         self.perfiles = list(perfiles)
         self.actual = actual
         self.transmitiendo = transmitiendo
         self.grabando = grabando
         self.buffer = buffer
         self.fallo = fallo
+        self.escena = escena
+        self.escenas = list(escenas)
         self.llamadas = []
 
     def pedir(self, tipo, datos=None, parada=None):
@@ -41,6 +43,14 @@ class ObsFalso:
                                      "currentProfileName": self.actual}}
         if tipo == "SetCurrentProfile":
             self.actual = datos["profileName"]
+            return {"responseData": {}}
+        if tipo == "GetCurrentProgramScene":
+            return {"responseData": {"currentProgramSceneName": self.escena}}
+        if tipo == "GetSceneList":
+            return {"responseData": {"scenes": [
+                {"sceneName": nombre} for nombre in self.escenas]}}
+        if tipo == "SetCurrentProgramScene":
+            self.escena = datos["sceneName"]
             return {"responseData": {}}
         return {"responseData": {}}
 
@@ -81,6 +91,7 @@ class PerfilPrevioTest(unittest.TestCase):
     def setUp(self):
         with perfil_previo._CERROJO:
             perfil_previo._PENDIENTE = ""
+            perfil_previo._ESCENA_PENDIENTE = ()
 
     def test_recordar_y_volver_una_sola_vez(self):
         perfil_previo.recordar("YouTube", "TikTok")
@@ -136,6 +147,43 @@ class PerfilPrevioTest(unittest.TestCase):
     def test_recordar_sin_perfil_actual_no_guarda_nada(self):
         perfil_previo.recordar("", "TikTok")
         self.assertEqual(perfil_previo.volver(ObsFalso()), "")
+
+    def test_volver_restaura_la_escena_despues_del_perfil(self):
+        perfil_previo.recordar("YouTube", "TikTok")
+        perfil_previo.recordar_escena("Escena", "Escena vertical")
+        cliente = ObsFalso(escena="Escena vertical",
+                           escenas=("Escena", "Escena vertical"))
+        self.assertEqual(perfil_previo.volver(cliente), "YouTube")
+        self.assertEqual(cliente.actual, "YouTube")
+        self.assertEqual(cliente.escena, "Escena")
+        tipos = cliente.tipos()
+        self.assertLess(tipos.index("SetCurrentProfile"),
+                        tipos.index("SetCurrentProgramScene"))
+
+    def test_no_restaura_la_escena_si_la_del_aire_cambio(self):
+        perfil_previo.recordar_escena("Escena", "Escena vertical")
+        cliente = ObsFalso(escena="Otra",
+                           escenas=("Escena", "Escena vertical", "Otra"))
+        self.assertEqual(perfil_previo.volver(cliente), "")
+        self.assertEqual(cliente.escena, "Otra")
+        self.assertNotIn("SetCurrentProgramScene", cliente.tipos())
+
+    def test_vuelve_a_la_escena_aunque_no_haya_perfil_pendiente(self):
+        perfil_previo.recordar_escena("Escena", "Escena vertical")
+        cliente = ObsFalso(escena="Escena vertical",
+                           escenas=("Escena", "Escena vertical"))
+        self.assertEqual(perfil_previo.volver(cliente), "")
+        self.assertEqual(cliente.escena, "Escena")
+        self.assertNotIn("SetCurrentProfile", cliente.tipos())
+        self.assertEqual(perfil_previo._ESCENA_PENDIENTE, ())
+
+    def test_una_escena_que_ya_no_existe_se_olvida(self):
+        perfil_previo.recordar_escena("Escena", "Escena vertical")
+        cliente = ObsFalso(escena="Escena vertical",
+                           escenas=("Escena vertical",))
+        self.assertEqual(perfil_previo.volver(cliente), "")
+        self.assertEqual(cliente.escena, "Escena vertical")
+        self.assertEqual(perfil_previo._ESCENA_PENDIENTE, ())
 
     def test_tras_supervision_llama_al_original_y_vuelve(self):
         original = mock.Mock()
