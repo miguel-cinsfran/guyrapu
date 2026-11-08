@@ -16,8 +16,8 @@ from guyrapu.core.idioma import _
 from guyrapu.obs import grabaciones, obs_grabacion
 from guyrapu.obs.obs_grabacion import (
     AVISO_CODIFICADOR, FALLO_GRABACION, GrabacionAlTransmitir,
-    alternar_pausa, codificador_propio, codificador_propio_en_obs,
-    grabar_al_transmitir)
+    alternar_con_ruta, alternar_pausa, codificador_propio,
+    codificador_propio_en_obs, grabar_al_transmitir)
 from guyrapu.obs.obs_supervisor import SupervisorTransmision
 
 
@@ -90,6 +90,76 @@ class AlternarPausaTest(unittest.TestCase):
                     self.assertEqual(
                         obs_grabacion.alternar_pausa(pedir),
                         (nuevo, inicial))
+
+
+class RelojGrabacion:
+    def __init__(self):
+        self.ahora = 0.0
+
+    def reloj(self):
+        return self.ahora
+
+    def dormir(self, segundos):
+        self.ahora += segundos
+
+
+class AlternarConRutaTest(unittest.TestCase):
+    """Iniciar y detener esperan a que OBS confirme el estado nuevo."""
+
+    def _parchear(self, reloj):
+        return (
+            mock.patch.object(obs_grabacion.time, "monotonic", reloj.reloj),
+            mock.patch.object(obs_grabacion.time, "sleep", reloj.dormir),
+        )
+
+    def test_iniciar_espera_a_que_obs_confirme(self):
+        consultas = []
+
+        def pedir(tipo, datos=None, parada=None):
+            if tipo == "GetRecordStatus":
+                consultas.append(1)
+                return {"outputActive": len(consultas) > 3}
+            if tipo == "StartRecord":
+                return {}
+            raise AssertionError(tipo)
+
+        reloj = RelojGrabacion()
+        parches = self._parchear(reloj)
+        with parches[0], parches[1]:
+            self.assertEqual(alternar_con_ruta(pedir), (True, ""))
+        self.assertEqual(len(consultas), 4)
+
+    def test_detener_espera_a_que_obs_confirme_y_devuelve_la_ruta(self):
+        consultas = []
+
+        def pedir(tipo, datos=None, parada=None):
+            if tipo == "GetRecordStatus":
+                consultas.append(1)
+                return {"outputActive": len(consultas) <= 3}
+            if tipo == "StopRecord":
+                return {"outputPath": "C:/Videos/clip.mkv"}
+            raise AssertionError(tipo)
+
+        reloj = RelojGrabacion()
+        parches = self._parchear(reloj)
+        with parches[0], parches[1]:
+            self.assertEqual(alternar_con_ruta(pedir),
+                             (False, "C:/Videos/clip.mkv"))
+        self.assertEqual(len(consultas), 4)
+
+    def test_si_no_confirma_en_tres_segundos_devuelve_lo_de_siempre(self):
+        def pedir(tipo, datos=None, parada=None):
+            if tipo == "GetRecordStatus":
+                return {"outputActive": False}
+            if tipo == "StartRecord":
+                return {}
+            raise AssertionError(tipo)
+
+        reloj = RelojGrabacion()
+        parches = self._parchear(reloj)
+        with parches[0], parches[1]:
+            self.assertEqual(alternar_con_ruta(pedir), (True, ""))
+        self.assertGreaterEqual(reloj.ahora, 3.0)
 
 
 class CodificadorPropioTest(unittest.TestCase):

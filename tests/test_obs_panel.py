@@ -402,14 +402,14 @@ class GestorPanelObsTest(unittest.TestCase):
         self.assertEqual(self.gestor(doble).alternar_grabacion_con_ruta(),
                          (False, "C:/Videos/clip.mp4"))
         self.assertEqual([llamada[0] for llamada in doble.llamadas],
-                         ["GetRecordStatus", "StopRecord"])
+                         ["GetRecordStatus", "StopRecord", "GetRecordStatus"])
 
     def test_alternar_grabacion_con_ruta_inicia_sin_ruta(self):
         doble = DobleObs()
         self.assertEqual(self.gestor(doble).alternar_grabacion_con_ruta(),
                          (True, ""))
         self.assertEqual([llamada[0] for llamada in doble.llamadas],
-                         ["GetRecordStatus", "StartRecord"])
+                         ["GetRecordStatus", "StartRecord", "GetRecordStatus"])
 
     def test_alternar_pausa_ignora_la_respuesta_si_el_estado_no_cambia(self):
         doble = DobleObs(pausa_no_cambia=True)

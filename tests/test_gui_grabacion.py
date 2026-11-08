@@ -8,6 +8,7 @@ from unittest import mock
 import wx
 
 from guyrapu.obs import consultas_transmision
+from guyrapu.obs import obs_grabacion
 from guyrapu.ui import control_grabacion
 from guyrapu.ui import gui_grabaciones
 from guyrapu.ui import gui_transmitir
@@ -71,6 +72,36 @@ def _asegurar_sin_conectar(probar_conexion, al_anunciar=None, parada=None):
 
 class Evento:
     def Skip(self): pass
+
+
+class GestorGrabacionLenta(GestorFalso):
+    """Simula un OBS que confirma la grabación recién en la tercera consulta."""
+
+    def __init__(self):
+        super().__init__()
+        self._consultas = 0
+        self._objetivo = False
+
+    def _pedir(self, tipo, datos=None, parada=None):
+        if tipo == "GetRecordStatus":
+            self._consultas += 1
+            if self._consultas > 2:
+                self.grabando = self._objetivo
+            return {"outputActive": self.grabando,
+                    "outputPaused": self.grabacion_en_pausa,
+                    "outputTimecode": ""}
+        if tipo == "StartRecord":
+            self._objetivo = True
+            self._consultas = 0
+            return {}
+        if tipo == "StopRecord":
+            self._objetivo = False
+            self._consultas = 0
+            return {"outputPath": "C:/Videos/grabacion.mkv"}
+        return {}
+
+    def alternar_grabacion_con_ruta(self, parada=None):
+        return obs_grabacion.alternar_con_ruta(self._pedir, parada)
 
 
 class TestPanelObsEnGrabacion(unittest.TestCase):
@@ -193,6 +224,19 @@ class TestPanelObsEnGrabacion(unittest.TestCase):
         self.assertEqual(leer.call_count, 2)
         self.assertIn("Grabación: en curso, 00:01:02",
                       self.dialogo._pagina_general.texto())
+
+    def test_los_botones_siguen_el_estado_confirmado_tras_alternar(self):
+        dialogo = self._crear(gestor=GestorGrabacionLenta())
+        boton = dialogo._pagina_grabacion._grabacion.boton
+        pausar = dialogo._pagina_grabacion._grabacion.pausar
+        with mock.patch.object(obs_grabacion.time, "sleep"):
+            self._pulsar(boton)
+        self.assertEqual(boton.GetName(), "Detener grabación")
+        self.assertTrue(pausar.IsShown())
+        with mock.patch.object(obs_grabacion.time, "sleep"):
+            self._pulsar(boton)
+        self.assertEqual(boton.GetName(), "Iniciar grabación")
+        self.assertFalse(pausar.IsShown())
 
     def test_los_botones_suenan_y_anuncian_como_el_panel(self):
         self._pulsar(self.dialogo._pagina_grabacion._grabacion.boton)

@@ -86,6 +86,20 @@ def _datos_respuesta(respuesta):
     return (respuesta or {}).get("responseData", respuesta or {})
 
 
+_ESPERA_CONFIRMACION = 0.1
+_TIEMPO_CONFIRMACION = 3.0
+
+
+def _confirmar_grabacion(pedir, esperado, parada=None):
+    """Consulta GetRecordStatus cada décima hasta ver el estado pedido."""
+    inicio = time.monotonic()
+    while time.monotonic() - inicio < _TIEMPO_CONFIRMACION:
+        time.sleep(_ESPERA_CONFIRMACION)
+        estado = _datos_respuesta(pedir("GetRecordStatus", parada=parada))
+        if bool(estado.get("outputActive")) == esperado:
+            return
+
+
 def alternar_con_ruta(pedir, parada=None):
     """Inicia o detiene la grabación y devuelve su estado y la ruta.
 
@@ -94,11 +108,11 @@ def alternar_con_ruta(pedir, parada=None):
     StopRecord y confirma antes con GetRecordStatus.
     """
     estado = _datos_respuesta(pedir("GetRecordStatus", parada=parada))
-    if estado.get("outputActive"):
-        datos = _datos_respuesta(pedir("StopRecord", parada=parada))
-        return False, str(datos.get("outputPath") or "")
-    pedir("StartRecord", parada=parada)
-    return True, ""
+    detener = bool(estado.get("outputActive"))
+    datos = _datos_respuesta(
+        pedir("StopRecord" if detener else "StartRecord", parada=parada))
+    _confirmar_grabacion(pedir, not detener, parada)
+    return (not detener), (str(datos.get("outputPath") or "") if detener else "")
 
 
 def _leer_pausa(pedir, parada=None):
