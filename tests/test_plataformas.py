@@ -18,6 +18,12 @@ class TestRegistroDePlataformas(unittest.TestCase):
         self.assertEqual((tiktok.nombre, tiktok.sonido, tiktok.moderable),
                          ("TikTok", "mensaje_tiktok", False))
 
+    def test_cada_plataforma_declara_su_orientacion(self):
+        self.assertEqual(plataformas.obtener("youtube").orientacion,
+                         "horizontal")
+        self.assertEqual(plataformas.obtener("tiktok").orientacion,
+                         "vertical")
+
     def test_lo_desconocido_no_inventa_nombre_y_suena_como_siempre(self):
         self.assertIsNone(plataformas.obtener("twitch"))
         self.assertEqual(plataformas.nombre("twitch"), "")
@@ -26,7 +32,8 @@ class TestRegistroDePlataformas(unittest.TestCase):
         self.assertFalse(plataformas.moderable("twitch"))
 
     def test_agregar_una_plataforma_alcanza_para_que_aparezca(self):
-        nueva = plataformas.Plataforma("twitch", "Twitch", "mensaje_nuevo", False)
+        nueva = plataformas.Plataforma(
+            "twitch", "Twitch", "mensaje_nuevo", False, "horizontal")
         with mock.patch.dict(plataformas.PLATAFORMAS, {"twitch": nueva}):
             self.assertEqual(plataformas.nombre("twitch"), "Twitch")
             self.assertEqual(plataformas.sufijo("twitch"), " - Twitch")

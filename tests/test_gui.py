@@ -1583,7 +1583,8 @@ class TestVariosChatsEnLaLista(unittest.TestCase):
 
     def test_una_plataforma_falsa_usa_el_nombre_del_registro(self):
         from guyrapu.core import plataformas
-        nueva = plataformas.Plataforma("twitch", "Twitch", "mensaje_nuevo", False)
+        nueva = plataformas.Plataforma(
+            "twitch", "Twitch", "mensaje_nuevo", False, "horizontal")
         chat, filas = self._chat()
         with mock.patch.dict(plataformas.PLATAFORMAS, {"twitch": nueva}):
             chat._procesar(self._registro("twitch"))
@@ -1998,6 +1999,8 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("transmision", "avisar_sobrecarga"),
             ("transmision", "titulo_estado_obs"),
             ("transmision", "clips"),
+            ("transmision", "perfil_horizontal"),
+            ("transmision", "perfil_vertical"),
             ("transmision", "perfil_grabar"),
             ("transmision", "clips_chat"),
             ("transmision", "clips_chat_espera"),

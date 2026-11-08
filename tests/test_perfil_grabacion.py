@@ -121,6 +121,18 @@ class TestPerfilGrabacion(unittest.TestCase):
         self.assertEqual(aviso, "")
         self.assertEqual(cliente.pedidos_de("SetCurrentProfile"), [])
 
+    def test_un_perfil_de_grabar_llamado_youtube_no_se_traduce(self):
+        cliente = ClienteFalso(perfiles=("Directo", "YouTube"))
+        with mock.patch("guyrapu.obs.perfil_por_uso.perfil_elegido",
+                        return_value="Mi horizontal"):
+            activa, _ruta, aviso = perfil_grabacion.alternar(
+                cliente, "YouTube")
+
+        self.assertTrue(activa)
+        self.assertEqual(aviso, "")
+        self.assertEqual(cliente.pedidos_de("SetCurrentProfile"),
+                         [{"profileName": "YouTube"}])
+
     def test_si_el_buffer_falla_se_toma_como_apagado(self):
         cliente = ClienteFalso()
 

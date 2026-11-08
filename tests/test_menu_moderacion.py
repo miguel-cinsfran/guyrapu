@@ -94,7 +94,8 @@ class TestItemsDeModeracion(unittest.TestCase):
         self.assertEqual(menu.handlers, {})
 
     def test_una_plataforma_falsa_no_moderable_usa_su_nombre(self):
-        nueva = plataformas.Plataforma("twitch", "Twitch", "mensaje_nuevo", False)
+        nueva = plataformas.Plataforma(
+            "twitch", "Twitch", "mensaje_nuevo", False, "horizontal")
         menu = MenuFalso()
         with mock.patch.dict(plataformas.PLATAFORMAS, {"twitch": nueva}):
             menu_moderacion.agregar(menu, FrameFalso(), _registro("twitch"), "Ana")

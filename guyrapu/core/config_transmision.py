@@ -51,6 +51,8 @@ def opciones_transmision(p) -> dict:
         "avisar_sobrecarga": leer_booleano(p, "transmision", "avisar_sobrecarga"),
         "titulo_estado_obs": leer_booleano(p, "transmision", "titulo_estado_obs"),
         "grabar_al_transmitir": leer_booleano(p, "transmision", "grabar_al_transmitir"),
+        "perfil_horizontal": leer_texto(p, "transmision", "perfil_horizontal"),
+        "perfil_vertical": leer_texto(p, "transmision", "perfil_vertical"),
         "perfil_grabar": leer_texto(p, "transmision", "perfil_grabar"),
         "clips": _clips(p),
         "clips_chat": clips_chat.activo,

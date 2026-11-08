@@ -196,6 +196,18 @@ class PrepararTest(unittest.TestCase):
         _resultado, _registro, anuncios = self._preparar(gestor, "YouTube")
         self.assertIn("Se creó en OBS el perfil YouTube.", anuncios)
 
+    def test_anuncia_el_perfil_real_que_va_a_usar(self):
+        gestor = GestorFalso(transmitiendo=False, perfil="Otro",
+                             resultado_preparar={"perfil_creado": True,
+                                                 "perfil": "Mi horizontal"})
+        with mock.patch("guyrapu.obs.perfil_por_uso.perfil_elegido",
+                        return_value="Mi horizontal"):
+            _resultado, _registro, anuncios = self._preparar(
+                gestor, "YouTube")
+        self.assertEqual(anuncios, [
+            "Preparando OBS para Mi horizontal.",
+            "Se creó en OBS el perfil Mi horizontal."])
+
     def test_sin_perfil_creado_no_hay_anuncio_extra(self):
         with self.subTest(caso="None"):
             gestor = GestorFalso(transmitiendo=False, perfil="YouTube",
@@ -251,6 +263,33 @@ class FinalizarTest(unittest.TestCase):
                   finalizar_youtube=lambda: llamadas.append("youtube"))
         self.assertEqual(llamadas, [])
         self.assertIn("detener", gestor.llamadas)
+
+    def test_cierra_youtube_con_el_horizontal_elegido(self):
+        gestor = GestorFalso(transmitiendo=True, perfil="Mi horizontal")
+        llamadas = []
+        with mock.patch("guyrapu.obs.perfil_por_uso.perfil_elegido",
+                        return_value="Mi horizontal"):
+            finalizar(gestor,
+                      finalizar_youtube=lambda: llamadas.append("youtube"))
+        self.assertEqual(llamadas, ["youtube"])
+
+    def test_con_otro_perfil_y_horizontal_elegido_no_cierra(self):
+        gestor = GestorFalso(transmitiendo=True, perfil="Otro")
+        llamadas = []
+        with mock.patch("guyrapu.obs.perfil_por_uso.perfil_elegido",
+                        return_value="Mi horizontal"):
+            finalizar(gestor,
+                      finalizar_youtube=lambda: llamadas.append("youtube"))
+        self.assertEqual(llamadas, [])
+
+    def test_con_el_horizontal_vacio_cierra_siempre(self):
+        gestor = GestorFalso(transmitiendo=True, perfil="Otro")
+        llamadas = []
+        with mock.patch("guyrapu.obs.perfil_por_uso.perfil_elegido",
+                        return_value=""):
+            finalizar(gestor,
+                      finalizar_youtube=lambda: llamadas.append("youtube"))
+        self.assertEqual(llamadas, ["youtube"])
 
     def test_sin_callable_no_lee_el_perfil(self):
         gestor = GestorFalso(transmitiendo=True, perfil="YouTube")

@@ -3,8 +3,8 @@
 """Plataformas de chat que reconoce Guyrapu y cómo se presentan.
 
 Puro y sin wx. Única razón para cambiar: qué plataformas de chat conoce
-Guyrapu, cómo se llaman, con qué sonido suena su mensaje común y si se
-pueden moderar desde la app.
+Guyrapu, cómo se llaman, con qué sonido suena su mensaje común, si se
+pueden moderar desde la app y qué orientación tiene su transmisión.
 """
 
 from __future__ import annotations
@@ -20,14 +20,17 @@ class Plataforma:
     nombre: str
     sonido: str
     moderable: bool
+    orientacion: str
 
 
 YOUTUBE = "youtube"
 TIKTOK = "tiktok"
 
 PLATAFORMAS: dict[str, Plataforma] = {
-    YOUTUBE: Plataforma(YOUTUBE, "YouTube", "mensaje_nuevo", True),
-    TIKTOK: Plataforma(TIKTOK, "TikTok", "mensaje_tiktok", False),
+    YOUTUBE: Plataforma(
+        YOUTUBE, "YouTube", "mensaje_nuevo", True, "horizontal"),
+    TIKTOK: Plataforma(
+        TIKTOK, "TikTok", "mensaje_tiktok", False, "vertical"),
 }
 
 

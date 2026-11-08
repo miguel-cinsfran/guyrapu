@@ -260,6 +260,81 @@ class TestPaginaObsClips(unittest.TestCase):
         pagina.guardar(lambda *_args: None, memoria)
         self.assertEqual(memoria["perfil_grabar"], "")
 
+    def test_las_listas_de_transmision_tienen_nombre_y_valor_de_fabrica(self):
+        pagina = self._dialogo().pagina_transmision
+        self.assertEqual(pagina.cho_perfil_horizontal.GetName(),
+                         "Perfil para transmitir en horizontal")
+        self.assertEqual(pagina.cho_perfil_vertical.GetName(),
+                         "Perfil para transmitir en vertical")
+        for lista in (pagina.cho_perfil_horizontal,
+                      pagina.cho_perfil_vertical):
+            self.assertEqual(
+                [lista.GetString(i) for i in range(lista.GetCount())],
+                ["El perfil que tenga OBS"])
+            self.assertEqual(lista.GetSelection(), 0)
+
+    def test_las_listas_nuevas_van_antes_de_la_de_grabar(self):
+        pagina = self._dialogo().pagina_transmision
+        hijos = list(pagina.cho_perfil_horizontal.GetParent().GetChildren())
+        self.assertLess(hijos.index(pagina.cho_perfil_horizontal),
+                        hijos.index(pagina.cho_perfil_vertical))
+        self.assertLess(hijos.index(pagina.cho_perfil_vertical),
+                        hijos.index(pagina.cho_perfil_grabar))
+
+    def test_los_perfiles_de_transmision_guardados_se_cargan_elegidos(self):
+        pagina = self._dialogo(
+            {"perfil_horizontal": "Mi horizontal",
+             "perfil_vertical": "Mi vertical"}).pagina_transmision
+        self.assertEqual(
+            pagina.cho_perfil_horizontal.GetStringSelection(), "Mi horizontal")
+        self.assertEqual(
+            pagina.cho_perfil_vertical.GetStringSelection(), "Mi vertical")
+
+    def test_los_perfiles_de_obs_completan_las_tres_listas(self):
+        gestor = GestorPerfilesFalso()
+        with mock.patch.object(
+                preferencias_transmision, "_crear_hilo",
+                HiloInmediato), \
+                mock.patch("guyrapu.obs.obs_panel.GestorPanelObs",
+                           return_value=gestor), \
+                mock.patch.object(preferencias_transmision.wx, "CallAfter",
+                                  lambda funcion, *args: funcion(*args)):
+            pagina = self._dialogo().pagina_transmision
+        for lista in (pagina.cho_perfil_horizontal,
+                      pagina.cho_perfil_vertical,
+                      pagina.cho_perfil_grabar):
+            self.assertEqual(
+                [lista.GetString(i) for i in range(lista.GetCount())],
+                ["El perfil que tenga OBS", "Directo", "Grabar"])
+            self.assertEqual(lista.GetSelection(), 0)
+
+    def test_guardar_los_perfiles_de_transmision_escribe_lo_elegido(self):
+        gestor = GestorPerfilesFalso()
+        with mock.patch.object(
+                preferencias_transmision, "_crear_hilo",
+                HiloInmediato), \
+                mock.patch("guyrapu.obs.obs_panel.GestorPanelObs",
+                           return_value=gestor), \
+                mock.patch.object(preferencias_transmision.wx, "CallAfter",
+                                  lambda funcion, *args: funcion(*args)):
+            pagina = self._dialogo().pagina_transmision
+        pagina.cho_perfil_horizontal.SetStringSelection("Grabar")
+        pagina.cho_perfil_vertical.SetStringSelection("Directo")
+        guardados = {}
+        memoria = {}
+        pagina.guardar(
+            lambda seccion, clave, valor: guardados.__setitem__(
+                (seccion, clave), valor), memoria)
+        self.assertEqual(
+            guardados[("transmision", "perfil_horizontal")], "Grabar")
+        self.assertEqual(
+            guardados[("transmision", "perfil_vertical")], "Directo")
+        self.assertEqual(memoria["perfil_horizontal"], "Grabar")
+        self.assertEqual(memoria["perfil_vertical"], "Directo")
+        pagina.cho_perfil_horizontal.SetSelection(0)
+        pagina.guardar(lambda *_args: None, memoria)
+        self.assertEqual(memoria["perfil_horizontal"], "")
+
 
 class TestPaginaDescargas(unittest.TestCase):
     def setUp(self):

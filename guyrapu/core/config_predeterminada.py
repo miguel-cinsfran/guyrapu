@@ -124,6 +124,8 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("avisar_sobrecarga", "true"),
         ("titulo_estado_obs", "false"),
         ("grabar_al_transmitir", "false"),
+        ("perfil_horizontal", "YouTube"),
+        ("perfil_vertical", "TikTok"),
         ("perfil_grabar", ""),
         ("clips", "30"),
         ("clips_chat", "true"),
@@ -266,6 +268,8 @@ _COMENTARIOS: dict[str, str] = {
         "# clips: 0 desactivados, 30 o 60 segundos de búfer.\n"
         "# clips_chat: permitir !clip en el chat; clips_chat_espera: minutos\n"
         "# entre clips pedidos desde el chat.\n"
+        "# perfil_horizontal y perfil_vertical: perfiles de OBS con los que\n"
+        "# se transmite según la orientación; vacío no cambia el que tenga OBS.\n"
         "# perfil_grabar: perfil de OBS con el que se graba; vacío usa el actual.\n"
     ),
     "estado": (

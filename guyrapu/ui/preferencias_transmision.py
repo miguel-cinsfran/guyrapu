@@ -50,18 +50,29 @@ class PaginaTransmision:
         vs.Add(titulo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         return avisar, titulo
 
-    def _agregar_perfil_grabar(self, p, vs):
-        """Lista el perfil de OBS con el que se graba, si se elige uno."""
-        vs.Add(fila_label(p, _("Perfil para gra&bar:")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        guardado = str(self._config.get("perfil_grabar", "") or "")
+    def _agregar_lista_perfil(self, p, vs, rotulo, nombre, clave):
+        """Agrega una lista de perfiles de OBS con su valor guardado."""
+        vs.Add(fila_label(p, rotulo), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        guardado = str(self._config.get(clave, "") or "")
         opciones = [_(PERFIL_ACTUAL)]
         if guardado:
             opciones.append(guardado)
-        self.cho_perfil_grabar = wx.Choice(
-            p, choices=opciones, name=_("Perfil para grabar"))
-        self.cho_perfil_grabar.SetSelection(1 if guardado else 0)
-        vs.Add(self.cho_perfil_grabar, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        lista = wx.Choice(p, choices=opciones, name=nombre)
+        lista.SetSelection(1 if guardado else 0)
+        vs.Add(lista, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        return lista
+
+    def _agregar_perfiles(self, p, vs):
+        """Lista los perfiles de OBS para transmitir y para grabar."""
+        self.cho_perfil_horizontal = self._agregar_lista_perfil(
+            p, vs, _("Perfil para transmitir en horiz&ontal:"),
+            _("Perfil para transmitir en horizontal"), "perfil_horizontal")
+        self.cho_perfil_vertical = self._agregar_lista_perfil(
+            p, vs, _("Perfil para transmitir en v&ertical:"),
+            _("Perfil para transmitir en vertical"), "perfil_vertical")
+        self.cho_perfil_grabar = self._agregar_lista_perfil(
+            p, vs, _("Perfil para gra&bar:"), _("Perfil para grabar"),
+            "perfil_grabar")
         _crear_hilo(
             self._leer_perfiles_obs, "PerfilesGrabarObs").start()
 
@@ -89,16 +100,21 @@ class PaginaTransmision:
 
     def _sumar_perfiles(self, perfiles):
         """Agrega los perfiles que falten sin mover el foco ni la selección."""
+        for lista in (self.cho_perfil_horizontal, self.cho_perfil_vertical,
+                      self.cho_perfil_grabar):
+            self._sumar_en_lista(lista, perfiles)
+
+    def _sumar_en_lista(self, lista, perfiles):
         try:
-            seleccion = self.cho_perfil_grabar.GetSelection()
-            opciones = [self.cho_perfil_grabar.GetString(i)
-                        for i in range(self.cho_perfil_grabar.GetCount())]
+            seleccion = lista.GetSelection()
+            opciones = [lista.GetString(i)
+                        for i in range(lista.GetCount())]
             for nombre in perfiles:
                 if nombre and nombre not in opciones:
-                    self.cho_perfil_grabar.Append(nombre)
+                    lista.Append(nombre)
                     opciones.append(nombre)
             if seleccion != wx.NOT_FOUND:
-                self.cho_perfil_grabar.SetSelection(seleccion)
+                lista.SetSelection(seleccion)
         except Exception as exc:
             logger.debug("no se pudieron agregar los perfiles de OBS: %s", exc)
 
@@ -152,7 +168,7 @@ class PaginaTransmision:
 
         self.chk_avisar_sobrecarga, self.chk_titulo_estado_obs = self._casillas_de_aviso(p, vs)
 
-        self._agregar_perfil_grabar(p, vs)
+        self._agregar_perfiles(p, vs)
 
         self._agregar_clips(p, vs)
 
@@ -188,9 +204,16 @@ class PaginaTransmision:
         segundos = OPCIONES_CLIPS[max(0, self.cho_clips.GetSelection())][0]
         fijar("transmision", "clips", str(segundos))
         en_memoria["clips"] = segundos
+        indice = self.cho_perfil_horizontal.GetSelection()
+        perfil = "" if indice <= 0 else self.cho_perfil_horizontal.GetStringSelection()
+        fijar("transmision", "perfil_horizontal", perfil)
+        en_memoria["perfil_horizontal"] = perfil
+        indice = self.cho_perfil_vertical.GetSelection()
+        perfil = "" if indice <= 0 else self.cho_perfil_vertical.GetStringSelection()
+        fijar("transmision", "perfil_vertical", perfil)
+        en_memoria["perfil_vertical"] = perfil
         indice = self.cho_perfil_grabar.GetSelection()
-        perfil = ("" if indice <= 0
-                  else self.cho_perfil_grabar.GetStringSelection())
+        perfil = "" if indice <= 0 else self.cho_perfil_grabar.GetStringSelection()
         fijar("transmision", "perfil_grabar", perfil)
         en_memoria["perfil_grabar"] = perfil
         clips_chat = self.chk_clips_chat.GetValue()

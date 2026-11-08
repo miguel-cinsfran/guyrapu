@@ -60,8 +60,8 @@ def _preparar(cliente, perfil, parada):
     if perfil not in perfiles:
         return _(AVISO_SIN_PERFIL).format(elegido=perfil, perfil=actual)
     perfil_previo.recordar(actual, perfil)
-    obs_destinos.preparar_destino(
-        cliente, obs_destinos.Destino(perfil), parada)
+    obs_destinos.preparar_perfil(
+        cliente, obs_destinos.Destino(perfil), perfil, parada)
     return ""
 
 

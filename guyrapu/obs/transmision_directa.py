@@ -14,7 +14,7 @@ from typing import Any, Callable
 
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
-from guyrapu.obs import perfil_previo
+from guyrapu.obs import perfil_por_uso, perfil_previo
 from guyrapu.restream import transmitir
 
 logger = diagnostico.obtener_logger(__name__)
@@ -162,6 +162,23 @@ def etiqueta(transmitiendo, deteniendo=False):
     return (_("Transm&itir en directo"), _("Transmitir en directo"))
 
 
+def _perfil_para(destino, actual):
+    """Perfil real de OBS al que hay que ir; vacío no cambia el actual."""
+    elegido = perfil_por_uso.perfil_elegido(destino)
+    return actual if elegido == "" else (elegido or destino)
+
+
+def _anunciar_preparacion(al_anunciar, actual, perfil, resultado):
+    """Anuncia el cambio y, si OBS lo creó, el perfil real que se creó."""
+    if actual != perfil:
+        al_anunciar(_("Preparando OBS para {destino}.").format(
+            destino=perfil))
+    if (resultado or {}).get("perfil_creado"):
+        creado = (resultado or {}).get("perfil") or perfil
+        al_anunciar(_("Se creó en OBS el perfil {destino}.").format(
+            destino=creado))
+
+
 def preparar(gestor, destino: str, asegurar: Callable, al_anunciar: Callable,
              parada=None, cerrar=True) -> Preparacion:
     """Asegura OBS, conecta y deja el destino listo para confirmar.
@@ -178,13 +195,10 @@ def preparar(gestor, destino: str, asegurar: Callable, al_anunciar: Callable,
         gestor.conectar()
         if bool(gestor.estado_transmision().get("outputActive", False)):
             return Preparacion(ya_transmitiendo=True)
-        if gestor.perfil_actual() != destino:
-            al_anunciar(_("Preparando OBS para {destino}.").format(
-                destino=destino))
+        actual = gestor.perfil_actual()
+        perfil = _perfil_para(destino, actual)
         resultado = gestor.preparar_destino(destino)
-        if (resultado or {}).get("perfil_creado"):
-            al_anunciar(_("Se creó en OBS el perfil {destino}.").format(
-                destino=destino))
+        _anunciar_preparacion(al_anunciar, actual, perfil, resultado)
         revision = gestor.revisar(destino)
         return Preparacion(ya_transmitiendo=False, revision=revision)
     finally:
@@ -199,6 +213,16 @@ class FalloCierreYoutube(Exception):
     """OBS se detuvo pero YouTube no confirmó el fin del directo."""
 
 
+def _leer_perfil_actual(gestor, finalizar_youtube):
+    """El perfil de OBS antes de detener, solo si hay cierre de YouTube."""
+    if finalizar_youtube is None:
+        return None
+    try:
+        return gestor.perfil_actual()
+    except Exception:
+        return None
+
+
 def finalizar(gestor, finalizar_youtube=None) -> None:
     """Detiene el directo si OBS transmite, para finalizar sin supervisor.
 
@@ -209,23 +233,22 @@ def finalizar(gestor, finalizar_youtube=None) -> None:
     """
     try:
         gestor.conectar()
-        perfil = None
-        if finalizar_youtube is not None:
-            try:
-                perfil = gestor.perfil_actual()
-            except Exception:
-                perfil = None
+        perfil = _leer_perfil_actual(gestor, finalizar_youtube)
         if bool(gestor.estado_transmision().get("outputActive", False)):
             gestor.detener_transmision()
-        if finalizar_youtube is not None and perfil == "YouTube":
-            try:
-                finalizar_youtube()
-            except FalloCierreYoutube:
-                raise
-            except Exception as exc:
-                raise FalloCierreYoutube(
-                    _("YouTube no confirmó el fin del directo. "
-                      "Finalízalo en YouTube Studio.")) from exc
+        if finalizar_youtube is not None:
+            horizontal = perfil_por_uso.perfil_elegido("YouTube")
+            if horizontal is None:
+                horizontal = "YouTube"
+            if horizontal == "" or perfil == horizontal:
+                try:
+                    finalizar_youtube()
+                except FalloCierreYoutube:
+                    raise
+                except Exception as exc:
+                    raise FalloCierreYoutube(
+                        _("YouTube no confirmó el fin del directo. "
+                          "Finalízalo en YouTube Studio.")) from exc
     finally:
         try:
             gestor.cerrar()

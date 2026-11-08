@@ -3536,12 +3536,6 @@ msgstr "Clips ready: from now on the last {segundos} seconds are saved."
 msgid "OBS no devolvió el archivo del clip."
 msgstr "OBS did not return the clip file."
 
-#. Traductores: {destino} es TikTok o YouTube.
-#: guyrapu/obs/obs_destinos.py
-#, python-brace-format
-msgid "OBS no tiene un perfil llamado {destino}."
-msgstr "OBS has no profile named {destino}."
-
 #: guyrapu/obs/obs_destinos.py
 msgid "No se puede cambiar de destino mientras se transmite."
 msgstr "Cannot switch destinations while broadcasting."
@@ -11753,4 +11747,30 @@ msgstr "&Bottom source:"
 #: guyrapu/ui/escena_disenos.py
 msgid "Ajuste de la fuente inferior"
 msgstr "Fit for the bottom source"
+
+#. Traductores: {perfil} es el nombre de un perfil de OBS.
+#: guyrapu/obs/obs_destinos.py
+#, python-brace-format
+msgid ""
+"OBS no tiene un perfil llamado {perfil}. Elige el perfil en Preferencias, "
+"Transmisión."
+msgstr ""
+"OBS has no profile named {perfil}. Choose the profile in Preferences, "
+"Broadcast."
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en horiz&ontal:"
+msgstr "Profile to broadcast hori&zontally:"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en horizontal"
+msgstr "Profile to broadcast horizontally"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en v&ertical:"
+msgstr "Profile to broadcast &vertically:"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en vertical"
+msgstr "Profile to broadcast vertically"
 

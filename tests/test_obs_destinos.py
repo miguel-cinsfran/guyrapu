@@ -4,10 +4,12 @@
 
 import threading
 import unittest
+from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_destinos
+from guyrapu.obs import perfil_por_uso
 from guyrapu.obs import perfil_previo
 from guyrapu.obs.obs_destinos import (
     Destino, cambiar_coleccion, coleccion_para, frase_destino_listo,
@@ -254,6 +256,99 @@ class PrepararDestinoTest(unittest.TestCase):
             preparar_destino(doble, Destino(perfil="Nuevo"), parada=parada,
                              espera=10.0, intervalo=0.05, dormir=dormir,
                              reloj=reloj.reloj)
+
+
+class TraduccionDePlataformaTest(unittest.TestCase):
+    """La plataforma del destino se traduce al perfil elegido en cada uso."""
+
+    def _preparar(self, doble, destino, perfil):
+        reloj = RelojFalso()
+        with mock.patch.object(perfil_por_uso, "perfil_elegido",
+                               return_value=perfil):
+            preparar_destino(doble, destino, dormir=reloj.dormir,
+                             reloj=reloj.reloj)
+
+    def test_youtube_usa_el_perfil_horizontal_y_escribe_ahi(self):
+        doble = DobleObsDestinos(perfiles=["Actual", "Mi horizontal"],
+                                 actual="Actual")
+        self._preparar(doble,
+                       Destino("YouTube", servidor="rtmp://s", clave="k"),
+                       "Mi horizontal")
+        self.assertEqual(doble.actual, "Mi horizontal")
+        self.assertEqual(doble.servicio, {"server": "rtmp://s", "key": "k"})
+
+    def test_tiktok_usa_el_perfil_vertical(self):
+        doble = DobleObsDestinos(perfiles=["Actual", "Mi vertical"],
+                                 actual="Actual")
+        self._preparar(doble, Destino("TikTok"), "Mi vertical")
+        self.assertEqual(doble.actual, "Mi vertical")
+
+    def test_vacio_no_cambia_de_perfil_y_escribe_en_el_actual(self):
+        doble = DobleObsDestinos(perfiles=["Actual"], actual="Actual")
+        self._preparar(doble,
+                       Destino("YouTube", servidor="rtmp://s", clave="k"),
+                       "")
+        self.assertNotIn("SetCurrentProfile", doble.tipos())
+        self.assertNotIn("CreateProfile", doble.tipos())
+        self.assertEqual(doble.actual, "Actual")
+        self.assertEqual(doble.servicio, {"server": "rtmp://s", "key": "k"})
+
+
+class ReglaDeCreacionTest(unittest.TestCase):
+    """Para transmitir, el horizontal se crea si falta y el vertical no."""
+
+    def _preparar(self, doble, destino, perfil):
+        reloj = RelojFalso()
+        with mock.patch.object(perfil_por_uso, "perfil_elegido",
+                               return_value=perfil):
+            return preparar_para_transmitir(doble, destino,
+                                            dormir=reloj.dormir,
+                                            reloj=reloj.reloj)
+
+    def test_horizontal_que_falta_se_crea_y_el_anuncio_usa_su_nombre(self):
+        doble = DobleObsDestinos(
+            perfiles=["Actual"], actual="Actual",
+            colecciones=["Escena"], coleccion_actual="Escena")
+        resultado = self._preparar(doble, "YouTube", "Mi horizontal")
+        creaciones = [datos for tipo, datos in doble.llamadas
+                      if tipo == "CreateProfile"]
+        self.assertEqual(creaciones, [{"profileName": "Mi horizontal"}])
+        self.assertEqual(resultado["perfil"], "Mi horizontal")
+        self.assertTrue(resultado["perfil_creado"])
+        self.assertTrue(frase_destino_listo(resultado).startswith(
+            "Se creó en OBS el perfil Mi horizontal."))
+
+    def test_vertical_que_falta_da_error_con_el_perfil_y_donde_se_elige(self):
+        doble = DobleObsDestinos(perfiles=["Actual"], actual="Actual")
+        with self.assertRaises(obs_cliente.ObsError) as contexto:
+            self._preparar(doble, "TikTok", "Mi vertical")
+        self.assertIn("Mi vertical", str(contexto.exception))
+        self.assertIn("Preferencias, Transmisión", str(contexto.exception))
+        self.assertNotIn("CreateProfile", doble.tipos())
+
+
+class RutaDeEmisionTest(unittest.TestCase):
+    """El directo de YouTube con sesión también traduce la plataforma."""
+
+    def test_preparar_en_youtube_usa_el_perfil_horizontal(self):
+        from guyrapu.youtube import emision
+
+        class ClienteYt:
+            def flujo_reutilizable(self):
+                return ("flujo", "rtmp://s", "k")
+
+            def crear_emision(self, cuerpo):
+                return "video"
+
+            def vincular_emision(self, id_video, id_flujo):
+                pass
+
+        doble = DobleObsDestinos(perfiles=["Actual", "Mi horizontal"],
+                                 actual="Actual")
+        with mock.patch.object(perfil_por_uso, "perfil_elegido",
+                               return_value="Mi horizontal"):
+            emision.preparar_en_youtube(ClienteYt(), doble, {})
+        self.assertEqual(doble.actual, "Mi horizontal")
 
 
 class PrepararParaTransmitirTest(unittest.TestCase):

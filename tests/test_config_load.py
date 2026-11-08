@@ -831,6 +831,20 @@ class TestCargarConfiguracion(unittest.TestCase):
         cfg = self._cargar_en("[transmision]\nperfil_grabar = Grabar\n")
         self.assertEqual(cfg["perfil_grabar"], "Grabar")
 
+    def test_perfiles_de_transmision_de_fabrica_y_se_conservan(self):
+        cfg = self._cargar_en(config._CONFIG_FALLBACK)
+        self.assertEqual(cfg["perfil_horizontal"], "YouTube")
+        self.assertEqual(cfg["perfil_vertical"], "TikTok")
+        texto = (Path(self._tmp.name) / "config.ini").read_text(
+            encoding="utf-8")
+        self.assertIn("perfil_horizontal = YouTube", texto)
+        self.assertIn("perfil_vertical = TikTok", texto)
+        cfg = self._cargar_en(
+            "[transmision]\nperfil_horizontal =\n"
+            "perfil_vertical = Mi vertical\n")
+        self.assertEqual(cfg["perfil_horizontal"], "")
+        self.assertEqual(cfg["perfil_vertical"], "Mi vertical")
+
     def test_clip_del_chat_activo_y_un_minuto_de_fabrica(self):
         cfg = self._cargar_en("[voz]\nvoz = 0\n")
         self.assertTrue(cfg["clips_chat"])

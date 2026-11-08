@@ -11,12 +11,15 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 
+from guyrapu.core import plataformas
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import obs_cliente, perfil_previo
+from guyrapu.obs import obs_cliente, perfil_por_uso, perfil_previo
 
 
-# Traductores: {destino} es TikTok o YouTube.
-MENSAJE_SIN_PERFIL = N_("OBS no tiene un perfil llamado {destino}.")
+# Traductores: {perfil} es el nombre de un perfil de OBS.
+MENSAJE_SIN_PERFIL = N_(
+    "OBS no tiene un perfil llamado {perfil}. "
+    "Elige el perfil en Preferencias, Transmisión.")
 MENSAJE_EN_TRANSMISION = N_(
     "No se puede cambiar de destino mientras se transmite.")
 MENSAJE_SIN_APLICAR = N_("OBS no aplicó el destino. Vuelve a intentarlo.")
@@ -29,11 +32,7 @@ def usa_usuario_tiktok(destino) -> bool:
     """Si el destino pide el usuario de TikTok: solo TikTok."""
     return destino == "TikTok"
 
-# Perfiles que esta ruta sí deja crear al que falta: el supervisor carga
-# servidor y clave de la cuenta en el perfil YouTube antes de arrancar OBS,
-# así que uno nuevo no emite al vacío. TikTok sigue pidiendo su clave de
-# Restream a mano y por eso no está acá.
-PERFILES_QUE_SE_CREAN = ("YouTube",)
+
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,16 +122,22 @@ def preparar_para_transmitir(cliente, destino, parada=None, espera=60.0,
     datos = _lista_perfiles(cliente, parada)
     perfiles = datos.get("profiles", ()) or ()
     actual = datos.get("currentProfileName", "") or ""
-    if destino not in perfiles and destino not in PERFILES_QUE_SE_CREAN:
-        # Solo los perfiles de PERFILES_QUE_SE_CREAN dejan que
+    elegido = perfil_por_uso.perfil_elegido(destino)
+    perfil = actual if elegido == "" else (elegido or destino)
+    plataforma = plataformas.obtener(destino)
+    if perfil not in perfiles and not (
+            plataforma is not None
+            and plataforma.orientacion == "horizontal"):
+        # Solo el perfil horizontal de una plataforma horizontal deja que
         # preparar_destino cree el que falta; cualquier otro perfil vacío
         # emitiría a ningún lado.
         raise obs_cliente.ObsError(
-            _(MENSAJE_SIN_PERFIL).format(destino=destino))
-    perfil_creado = destino not in perfiles
-    perfil_previo.recordar(actual, destino)
-    preparar_destino(cliente, Destino(destino), parada=parada, espera=espera,
-                     intervalo=intervalo, dormir=dormir, reloj=reloj)
+            _(MENSAJE_SIN_PERFIL).format(perfil=perfil))
+    perfil_creado = perfil not in perfiles
+    perfil_previo.recordar(actual, perfil)
+    preparar_perfil(cliente, Destino(destino), perfil, parada=parada,
+                    espera=espera, intervalo=intervalo, dormir=dormir,
+                    reloj=reloj)
     colecciones = (_lista_colecciones(cliente, parada).get(
         "sceneCollections", ()) or ())
     nombre = coleccion_para(destino, colecciones)
@@ -143,7 +148,7 @@ def preparar_para_transmitir(cliente, destino, parada=None, espera=60.0,
         "currentSceneCollectionName", "") or "")
     lienzo = (cliente.pedir("GetVideoSettings", parada=parada).get(
         "responseData", {}) or {})
-    return {"destino": destino, "perfil": destino, "coleccion": coleccion,
+    return {"destino": destino, "perfil": perfil, "coleccion": coleccion,
             "ancho": lienzo.get("baseWidth"), "alto": lienzo.get("baseHeight"),
             "perfil_creado": perfil_creado}
 
@@ -166,40 +171,38 @@ def frase_destino_listo(resultado):
                                              formato=formato, ancho=ancho,
                                              alto=alto))
     if resultado.get("perfil_creado"):
+        perfil = resultado.get("perfil") or resultado["destino"]
         frase = (_("Se creó en OBS el perfil {destino}.").format(
-            destino=resultado["destino"]) + " " + frase)
+            destino=perfil) + " " + frase)
     return frase
 
 
-def preparar_destino(cliente, destino, parada=None, espera=60.0,
-                     intervalo=0.05, dormir=time.sleep, reloj=time.monotonic):
-    """Deja el perfil de OBS listo para emitir al destino indicado."""
-    estado = cliente.pedir("GetStreamStatus", parada=parada)
-    if (estado.get("responseData", {}) or {}).get("outputActive"):
-        raise obs_cliente.ObsError(_(MENSAJE_EN_TRANSMISION))
-
+def _asegurar_perfil(cliente, perfil, parada, espera, intervalo, dormir,
+                     reloj):
+    """Crea el perfil si falta y lo deja como el activo de OBS."""
     datos = _lista_perfiles(cliente, parada)
     perfiles = datos.get("profiles", ()) or ()
     actual = datos.get("currentProfileName", "") or ""
-    if destino.perfil not in perfiles:
-        cliente.pedir("CreateProfile", {"profileName": destino.perfil},
+    if perfil not in perfiles:
+        cliente.pedir("CreateProfile", {"profileName": perfil},
                       parada=parada)
         datos = _esperar_en_lista(
             cliente,
-            lambda vistos: destino.perfil in (vistos.get("profiles", ()) or ())
-            or (vistos.get("currentProfileName", "") or "") == destino.perfil,
+            lambda vistos: perfil in (vistos.get("profiles", ()) or ())
+            or (vistos.get("currentProfileName", "") or "") == perfil,
             parada, espera, intervalo, dormir, reloj)
-        perfiles = datos.get("profiles", ()) or ()
         actual = datos.get("currentProfileName", "") or ""
-    if actual != destino.perfil:
-        cliente.pedir("SetCurrentProfile", {"profileName": destino.perfil},
+    if actual != perfil:
+        cliente.pedir("SetCurrentProfile", {"profileName": perfil},
                       parada=parada)
         _esperar_en_lista(
             cliente,
             lambda vistos: (vistos.get("currentProfileName", "")
-                            or "") == destino.perfil,
+                            or "") == perfil,
             parada, espera, intervalo, dormir, reloj)
 
+
+def _aplicar_destino(cliente, destino, parada):
     if destino.servidor is not None and destino.clave is not None:
         cliente.pedir("SetStreamServiceSettings", {
             "streamServiceType": "rtmp_custom",
@@ -212,13 +215,48 @@ def preparar_destino(cliente, destino, parada=None, espera=60.0,
             "outputWidth": destino.ancho, "outputHeight": destino.alto,
         }, parada)
 
-    datos = _lista_perfiles(cliente, parada)
-    if (datos.get("currentProfileName", "") or "") != destino.perfil:
+
+def _comprobar_servicio(cliente, destino, parada):
+    if destino.servidor is None or destino.clave is None:
+        return
+    respuesta = cliente.pedir("GetStreamServiceSettings", parada=parada)
+    ajustes = (respuesta.get("responseData", {}) or {}).get(
+        "streamServiceSettings", {}) or {}
+    if (ajustes.get("server") != destino.servidor
+            or ajustes.get("key") != destino.clave):
         raise obs_cliente.ObsError(_(MENSAJE_SIN_APLICAR))
-    if destino.servidor is not None and destino.clave is not None:
-        respuesta = cliente.pedir("GetStreamServiceSettings", parada=parada)
-        ajustes = (respuesta.get("responseData", {}) or {}).get(
-            "streamServiceSettings", {}) or {}
-        if (ajustes.get("server") != destino.servidor
-                or ajustes.get("key") != destino.clave):
+
+
+def preparar_perfil(cliente, destino, perfil, parada=None, espera=60.0,
+                    intervalo=0.05, dormir=time.sleep, reloj=time.monotonic):
+    """Deja OBS en un perfil ya resuelto y aplica el resto del destino.
+
+    Vacío significa no cambiar el perfil que tenga OBS.
+    """
+    estado = cliente.pedir("GetStreamStatus", parada=parada)
+    if (estado.get("responseData", {}) or {}).get("outputActive"):
+        raise obs_cliente.ObsError(_(MENSAJE_EN_TRANSMISION))
+    if perfil:
+        _asegurar_perfil(cliente, perfil, parada, espera, intervalo,
+                         dormir, reloj)
+    _aplicar_destino(cliente, destino, parada)
+    if perfil:
+        datos = _lista_perfiles(cliente, parada)
+        if (datos.get("currentProfileName", "") or "") != perfil:
             raise obs_cliente.ObsError(_(MENSAJE_SIN_APLICAR))
+    _comprobar_servicio(cliente, destino, parada)
+
+
+def preparar_destino(cliente, destino, parada=None, espera=60.0,
+                     intervalo=0.05, dormir=time.sleep, reloj=time.monotonic):
+    """Deja el perfil de OBS listo para emitir al destino indicado.
+
+    Si el perfil del destino es una plataforma del registro, se usa el
+    perfil elegido para su orientación; vacío significa no cambiar el
+    perfil actual.
+    """
+    elegido = perfil_por_uso.perfil_elegido(destino.perfil)
+    perfil = destino.perfil if elegido is None else elegido
+    return preparar_perfil(cliente, destino, perfil, parada=parada,
+                           espera=espera, intervalo=intervalo, dormir=dormir,
+                           reloj=reloj)
