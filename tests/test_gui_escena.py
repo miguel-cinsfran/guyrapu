@@ -590,6 +590,15 @@ class TestVentanaObs(unittest.TestCase):
                 pagina.lst_escenas.ProcessEvent(evento)
             llamada.assert_called_once_with()
 
+    def test_intro_por_char_hook_cambia_la_escena(self):
+        pagina = self.dialogo._pagina_escena
+        llamada = mock.Mock()
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = wx.WXK_RETURN
+        with mock.patch.dict(pagina._acciones, {"cambiar": llamada}):
+            pagina.lst_escenas.GetEventHandler().ProcessEvent(evento)
+        llamada.assert_called_once_with()
+
     def test_la_tecla_aplicaciones_abre_el_menu_de_la_escena(self):
         pagina = self.dialogo._pagina_escena
         evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)

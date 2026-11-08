@@ -151,6 +151,17 @@ class PruebasHistorialDialog(unittest.TestCase):
         dialogo._on_conectar.assert_not_called()
         anunciar.assert_called_once_with("Sin selección")
 
+    def test_intro_por_char_hook_conecta(self):
+        dialogo = self._dialogo([
+            entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
+        lista = dialogo._listas["youtube"]
+        lista.SetSelection(0)
+        evento = gui_historial.wx.KeyEvent(gui_historial.wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = gui_historial.wx.WXK_RETURN
+        with mock.patch.object(dialogo, "_conectar") as conectar:
+            lista.GetEventHandler().ProcessEvent(evento)
+        conectar.assert_called_once_with()
+
     def test_quitar_elimina_guarda_y_anuncia(self):
         youtube = entrada("youtube", "yt", "https://youtube.com/watch?v=yt")
         tiktok = entrada("tiktok", "tk", "https://tiktok.com/@tk/live")

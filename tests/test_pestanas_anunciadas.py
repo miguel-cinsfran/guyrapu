@@ -4,6 +4,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import wx
+
 from guyrapu.ui import accesibilidad
 
 RAIZ_UI = Path(accesibilidad.__file__).resolve().parent
@@ -34,6 +36,56 @@ class _EventoFalso:
 
     def Skip(self):
         self.skip = True
+
+
+class _ListaFalsa:
+    def __init__(self):
+        self.manejador = None
+
+    def Bind(self, evento, manejador):
+        self.manejador = manejador
+
+
+class _EventoTecla:
+    def __init__(self, tecla, modificadores=wx.MOD_NONE):
+        self._tecla = tecla
+        self._modificadores = modificadores
+        self.skip = False
+
+    def GetKeyCode(self):
+        return self._tecla
+
+    def GetModifiers(self):
+        return self._modificadores
+
+    def Skip(self):
+        self.skip = True
+
+
+class EntregarIntroTest(unittest.TestCase):
+    def _enlazada(self, manejador):
+        lista = _ListaFalsa()
+        accesibilidad.entregar_intro(lista, manejador)
+        return lista
+
+    def test_intro_llama_al_manejador_y_no_se_omite(self):
+        manejador = mock.Mock()
+        lista = self._enlazada(manejador)
+        evento = _EventoTecla(wx.WXK_RETURN)
+        lista.manejador(evento)
+        manejador.assert_called_once_with(evento)
+        self.assertFalse(evento.skip)
+
+    def test_f5_y_alt_intro_no_llaman_al_manejador_y_se_omiten(self):
+        manejador = mock.Mock()
+        lista = self._enlazada(manejador)
+        for tecla, modificadores in ((wx.WXK_F5, wx.MOD_NONE),
+                                     (wx.WXK_RETURN, wx.MOD_ALT)):
+            with self.subTest(tecla=tecla, modificadores=modificadores):
+                evento = _EventoTecla(tecla, modificadores)
+                lista.manejador(evento)
+                manejador.assert_not_called()
+                self.assertTrue(evento.skip)
 
 
 class AnuncioDePestanaTest(unittest.TestCase):

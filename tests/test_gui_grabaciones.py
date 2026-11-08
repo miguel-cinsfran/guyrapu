@@ -119,6 +119,14 @@ class TestPanelGrabaciones(unittest.TestCase):
         gui_grabaciones.copiar_al_portapapeles.assert_called_once_with(
             str(archivo))
 
+    def test_intro_por_char_hook_abre(self):
+        panel = self._panel()
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = wx.WXK_RETURN
+        with mock.patch.object(panel, "_abrir") as abrir:
+            panel._lista.GetEventHandler().ProcessEvent(evento)
+        abrir.assert_called_once_with()
+
     def test_la_tecla_aplicaciones_abre_el_menu_con_las_cuatro_acciones(self):
         panel = self._panel()
         etiquetas = []

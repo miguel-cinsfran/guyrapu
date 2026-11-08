@@ -17,7 +17,7 @@ from guyrapu.core.idioma import _
 from guyrapu.restream import eventos as eventos_restream
 from guyrapu.restream.api import ErrorApi
 from guyrapu.ui import restream_menus
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.gui import copiar_al_portapapeles
 from guyrapu.ui.preferencias_comun import CampoEstado, fila_horizontal
@@ -79,6 +79,7 @@ class PaginaEventos(wx.Panel):
                      in range(self.lista.GetCount())])
         self.lista.Bind(wx.EVT_LISTBOX, self._al_elegir)
         self.lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
+        entregar_intro(self.lista, self._al_tecla)
         self.lista.Bind(wx.EVT_CONTEXT_MENU, self._menu_contextual)
         vs.Add(self.lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
 

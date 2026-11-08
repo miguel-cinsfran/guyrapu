@@ -17,7 +17,7 @@ from guyrapu.core.idioma import _
 from guyrapu.obs import nombres_escena
 from guyrapu.restream import perfiles, resumen_cuenta
 from guyrapu.ui import confirmar, restream_menus
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.preferencias_comun import fila_horizontal
 from guyrapu.ui.restream_perfil import (
@@ -51,6 +51,7 @@ class PaginaPerfiles(wx.Panel):
             lambda: [self.lista_perfiles.GetString(i) for i
                      in range(self.lista_perfiles.GetCount())])
         self.lista_perfiles.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
+        entregar_intro(self.lista_perfiles, self._al_tecla)
         self.lista_perfiles.Bind(wx.EVT_CONTEXT_MENU, self._menu_contextual)
         self.lista_perfiles.Bind(wx.EVT_SET_FOCUS, self._al_foco)
         vs.Add(self.lista_perfiles, 1, wx.EXPAND | wx.ALL, 8)

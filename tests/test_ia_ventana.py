@@ -150,6 +150,14 @@ class TestVentanaIAVentana(unittest.TestCase):
         # El detalle se mostró y se destruyó sin romper la ventana.
         self.assertEqual(dialogo.lst_conversacion.GetCount(), 1)
 
+    def test_intro_por_char_hook_muestra_el_mensaje(self):
+        dialogo = self._ventana()
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = wx.WXK_RETURN
+        with mock.patch.object(dialogo, "_mostrar_mensaje") as mostrar:
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
+        mostrar.assert_called_once_with()
+
     def test_dialogo_mensaje_accesible_y_escape_cierra(self):
         dialogo = self._ventana()
         detalle = ventana.DialogoMensaje(dialogo, "texto largo")

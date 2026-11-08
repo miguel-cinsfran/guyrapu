@@ -15,7 +15,7 @@ import wx
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import grabaciones
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.gui import copiar_al_portapapeles
 from guyrapu.voice import sound_player
 
@@ -43,6 +43,7 @@ class PanelGrabaciones(wx.Panel):
                                  name=_("Grabaciones y clips"))
         nombre_accesible(self._lista, _("Grabaciones y clips"))
         self._lista.Bind(wx.EVT_KEY_DOWN, self._on_key)
+        entregar_intro(self._lista, self._on_key)
         self._lista.Bind(wx.EVT_CONTEXT_MENU, self._on_context_menu)
         vertical.Add(self._lista, 1, wx.EXPAND | wx.ALL, 6)
         self.SetSizer(vertical)

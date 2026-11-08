@@ -13,7 +13,7 @@ import wx
 from guyrapu.core import historial
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.tema import _T, _pintar, _tc, _titulo
 
@@ -80,8 +80,7 @@ class RecientesInicio:
         _titulo(self.rotulo)
         vs.Add(self.rotulo, 0, wx.LEFT | wx.RIGHT | wx.TOP, 8)
         self.lista = wx.ListBox(
-            self.caja, style=wx.LB_SINGLE | wx.LB_HSCROLL,
-            name=_("Recientes, Intro para abrir"))
+            self.caja, style=wx.LB_SINGLE | wx.LB_HSCROLL)
         _tc(self.lista)
         nombre_accesible(self.lista, _("Recientes, Intro para abrir"))
         instalar_busqueda_tipo(
@@ -89,6 +88,7 @@ class RecientesInicio:
             lambda: [self.lista.GetString(i) for i in range(self.lista.GetCount())])
         self.lista.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self._conectar())
         self.lista.Bind(wx.EVT_KEY_DOWN, self.al_tecla)
+        entregar_intro(self.lista, self.al_tecla)
         self.lista.Bind(wx.EVT_CONTEXT_MENU, self._on_context_menu)
         vs.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
         self.caja.SetSizer(vs)

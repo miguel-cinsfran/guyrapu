@@ -10,7 +10,7 @@ from guyrapu.obs import escenas_obs
 from guyrapu.obs import nombres_escena
 from guyrapu.obs import obs_estado
 from guyrapu.ui import confirmar, escena_menu_escena
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.escena_pagina_fuentes import PaginaFuentes
 from guyrapu.ui.preferencias_comun import (
     boton, fila_campo, nombre_de_etiqueta)
@@ -67,6 +67,7 @@ class PaginaEscena(wx.Panel):
     def _enlazar_eventos(self):
         self.lst_escenas.Bind(wx.EVT_LISTBOX, self._elegir_escena)
         self.lst_escenas.Bind(wx.EVT_KEY_DOWN, self._tecla_escena)
+        entregar_intro(self.lst_escenas, self._tecla_escena)
         self.lst_escenas.Bind(wx.EVT_CONTEXT_MENU, self._menu_contextual)
         self.btn_cambiar.Bind(wx.EVT_BUTTON, self._cambiar_al_aire)
         self.btn_agregar.Bind(wx.EVT_BUTTON, self._agregar)

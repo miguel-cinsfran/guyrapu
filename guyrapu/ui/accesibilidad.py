@@ -73,6 +73,18 @@ def enlazar_anuncio_de_pestana(notebook) -> None:
     notebook.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, _al_cambiar)
 
 
+def entregar_intro(lista, manejador) -> None:
+    """Entrega Intro a `manejador` desde `EVT_CHAR_HOOK`, porque una
+    `wx.ListBox` no lo manda por `EVT_KEY_DOWN` (medido el 07/11/2026)."""
+    def _al_entregar(evento):
+        if (evento.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER)
+                and evento.GetModifiers() == wx.MOD_NONE):
+            manejador(evento)
+        else:
+            evento.Skip()
+    lista.Bind(wx.EVT_CHAR_HOOK, _al_entregar)
+
+
 class _NombreAccesible(wx.Accessible):
     """Expone el nombre del control por MSAA. Solo nombra el control en sí
     (childId 0); las filas/hijos (p. ej. cada línea de una lista) las deja al

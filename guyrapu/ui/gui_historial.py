@@ -17,7 +17,7 @@ from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.voice import sound_player as _snd
 from guyrapu.ui.accesibilidad import (
-    anunciar, enlazar_anuncio_de_pestana, nombre_accesible)
+    anunciar, enlazar_anuncio_de_pestana, entregar_intro, nombre_accesible)
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui import paleta
 from guyrapu.ui.tema import _T, _pintar
@@ -88,6 +88,7 @@ class HistorialDialog(wx.Dialog):
             lambda lb=lb: [lb.GetString(i) for i in range(lb.GetCount())])
         lb.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self._conectar())
         lb.Bind(wx.EVT_KEY_DOWN, self._on_key)
+        entregar_intro(lb, self._on_key)
         pvs.Add(lb, 1, wx.EXPAND | wx.ALL, 8)
         pag.SetSizer(pvs)
         self.nb.AddPage(pag, titulo)

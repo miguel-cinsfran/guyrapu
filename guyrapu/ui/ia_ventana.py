@@ -24,7 +24,7 @@ from guyrapu.core import paths
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.ui import ia_privacidad
 from guyrapu.ui import paleta
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.ia_agregar_captura import pedir_captura
 from guyrapu.voice.sound_player import reproducir
@@ -121,6 +121,7 @@ class VentanaIA(wx.Dialog):
         self._temporizador = wx.Timer(self)
         self.lst_conversacion.Bind(wx.EVT_LISTBOX_DCLICK, self._al_doble_clic)
         self.lst_conversacion.Bind(wx.EVT_KEY_DOWN, self._al_tecla_lista)
+        entregar_intro(self.lst_conversacion, self._al_tecla_lista)
         self.txt_mensaje.Bind(wx.EVT_TEXT_ENTER, self._al_enviar)
         self.btn_enviar.Bind(wx.EVT_BUTTON, self._al_enviar)
         self.btn_captura.Bind(wx.EVT_BUTTON, self._al_captura)

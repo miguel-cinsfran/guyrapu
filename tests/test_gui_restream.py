@@ -480,6 +480,17 @@ class PruebaVentanaRestream(unittest.TestCase):
             pagina._al_tecla(evento)
         duplicar.assert_called_once_with()
 
+    def test_intro_por_char_hook_edita_el_perfil(self):
+        dialogo = self._ventana(guardados=[_perfil()])
+        pagina = dialogo._pagina_perfiles
+        lista = pagina.lista_perfiles
+        lista.SetSelection(0)
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = wx.WXK_RETURN
+        with mock.patch.object(pagina, "editar") as editar:
+            lista.GetEventHandler().ProcessEvent(evento)
+        editar.assert_called_once_with()
+
     def test_p7_la_tecla_de_menu_abre_el_menu_contextual(self):
         dialogo = self._ventana(guardados=[_perfil()])
         pagina = dialogo._pagina_perfiles
@@ -1213,6 +1224,14 @@ class PruebaPaginaEventos(unittest.TestCase):
         with mock.patch.object(pagina, "_menu_contextual") as menu:
             pagina._al_tecla(evento)
         menu.assert_called_once_with(evento)
+
+    def test_intro_por_char_hook_pide_las_estadisticas(self):
+        pagina = self._pagina()
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = wx.WXK_RETURN
+        with mock.patch.object(pagina, "estadisticas") as estadisticas:
+            pagina.lista.GetEventHandler().ProcessEvent(evento)
+        estadisticas.assert_called_once_with()
 
     def test_p12_el_menu_de_evento_en_orden_y_con_teclas(self):
         from guyrapu.ui import restream_menus

@@ -155,6 +155,15 @@ class TestRecientesVentana(unittest.TestCase):
         al_conectar.assert_called_once_with(esperada)
         evento.Skip.assert_not_called()
 
+    def test_intro_por_char_hook_conecta(self):
+        _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(3))
+        recientes.lista.SetSelection(1)
+        evento = self.wx.KeyEvent(self.wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = self.wx.WXK_RETURN
+        with mock.patch.object(recientes, "_conectar") as conectar:
+            recientes.lista.GetEventHandler().ProcessEvent(evento)
+        conectar.assert_called_once_with()
+
     def test_otra_tecla_se_deja_pasar(self):
         _m, _p, _s, _z, recientes, al_conectar = self._marco(self._entradas(3))
         evento = mock.Mock()
