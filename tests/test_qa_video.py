@@ -1,11 +1,15 @@
 """Pruebas de qa/video_montaje.py y del cierre y reapertura real."""
 
+import base64
 import importlib.util
 import json
+import sys
 import tempfile
 import unittest
 from unittest import mock
 from pathlib import Path
+
+from guyrapu.core import dpapi
 
 _RAIZ = Path(__file__).resolve().parent.parent
 _RUTA = _RAIZ / "qa" / "video_montaje.py"
@@ -19,6 +23,8 @@ _paquete_demo = importlib.util.spec_from_file_location(
     "video_demo_qa", _RUTA_DEMO)
 video_demo = importlib.util.module_from_spec(_paquete_demo)
 _paquete_demo.loader.exec_module(video_demo)
+
+video_recorrido = sys.modules["video_recorrido"]
 
 
 class TestArmarSrt(unittest.TestCase):
@@ -201,6 +207,40 @@ class TestRevocarToken(unittest.TestCase):
             with mock.patch("urllib.request.urlopen") as abrir:
                 video_demo.video_consentimiento.revocar_token(str(programa))
             self.assertIn(b"token=A", abrir.call_args.args[0].data)
+
+
+class TestCredencialesDeLaCopia(unittest.TestCase):
+    """El banco lee la copia cifrada o en texto plano."""
+
+    def _copia(self, tmp, cifrado=True):
+        datos = {"token": '{"refresh_token": "x"}'}
+        if cifrado:
+            blob = dpapi.cifrar(json.dumps(datos).encode("utf-8"))
+            sobre = {"dpapi": base64.b64encode(blob).decode("ascii")}
+        else:
+            sobre = datos
+        copia = Path(tmp)
+        (copia / "data").mkdir()
+        (copia / "data" / "credenciales.json").write_text(
+            json.dumps(sobre), encoding="utf-8")
+        (copia / "cliente_app.json").write_text(json.dumps({
+            "oauth_client_id": "ID", "oauth_client_secret": "SEC",
+            "api_key": "KEY"}), encoding="utf-8")
+        return copia
+
+    def test_sesion_guardada_ve_el_token(self):
+        for cifrado in (True, False):
+            with tempfile.TemporaryDirectory() as tmp:
+                copia = self._copia(tmp, cifrado)
+                self.assertTrue(
+                    video_recorrido.sesion_guardada(copia / "data"))
+
+    def test_cliente_de_la_copia_ve_el_token(self):
+        for cifrado in (True, False):
+            with tempfile.TemporaryDirectory() as tmp:
+                copia = self._copia(tmp, cifrado)
+                cliente = video_recorrido.cliente_de_la_copia(copia)
+                self.assertTrue(cliente.puede_escribir())
 
 
 if __name__ == "__main__":

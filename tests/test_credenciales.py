@@ -227,6 +227,70 @@ class TestEfectivas(unittest.TestCase):
         self.assertFalse(credenciales.hay_oauth_configurado())
 
 
+class TestCifrado(unittest.TestCase):
+    """El archivo guardado va cifrado con DPAPI."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self._rutas = redirigir_rutas(self._tmp.name)
+        self._rutas.__enter__()
+        self.addCleanup(self._rutas.__exit__, None, None, None)
+
+    def _ruta(self):
+        return Path(self._tmp.name) / "credenciales.json"
+
+    def test_guardar_no_deja_el_token_en_texto_plano(self):
+        self.assertTrue(credenciales.guardar({"token": "ya29.prueba"}))
+        crudo = json.loads(self._ruta().read_text(encoding="utf-8"))
+        self.assertEqual(list(crudo), ["dpapi"])
+        self.assertNotIn("ya29.prueba",
+                         self._ruta().read_text(encoding="utf-8"))
+        self.assertEqual(credenciales.cargar()["token"], "ya29.prueba")
+
+    def test_texto_plano_se_lee_y_queda_cifrado(self):
+        self._ruta().write_text(
+            json.dumps({"api_key": "AIzaPLANA", "token": "ya29.plano"}),
+            encoding="utf-8")
+        self.assertEqual(credenciales.cargar()["token"], "ya29.plano")
+        crudo = json.loads(self._ruta().read_text(encoding="utf-8"))
+        self.assertEqual(list(crudo), ["dpapi"])
+
+    def test_cifrado_ilegible_da_defaults_y_no_escribe(self):
+        self._ruta().write_text('{"dpapi": "AAAA"}', encoding="utf-8")
+        antes = self._ruta().read_bytes()
+        with mock.patch.object(credenciales.logger, "warning") as aviso:
+            datos = credenciales.cargar()
+        self.assertEqual(datos["api_key"], "")
+        self.assertIsNone(datos["token"])
+        self.assertEqual(self._ruta().read_bytes(), antes)
+        aviso.assert_called_once()
+
+    def test_si_cifrar_falla_guardar_devuelve_false_y_no_escribe(self):
+        self._ruta().write_text('{"api_key": "seteada"}', encoding="utf-8")
+        antes = self._ruta().read_bytes()
+        with mock.patch.object(credenciales.dpapi, "cifrar",
+                               side_effect=credenciales.dpapi.DpapiError(5)):
+            self.assertFalse(credenciales.guardar({"token": "ya29.x"}))
+        self.assertEqual(self._ruta().read_bytes(), antes)
+
+    def test_leer_archivo_lee_texto_plano_y_cifrado(self):
+        otra = Path(self._tmp.name) / "otra.json"
+        otra.write_text(json.dumps({"token": "ya29.texto"}), encoding="utf-8")
+        self.assertEqual(credenciales.leer_archivo(otra)["token"],
+                         "ya29.texto")
+        credenciales.guardar({"token": "ya29.cifrado"})
+        self.assertEqual(credenciales.leer_archivo(self._ruta())["token"],
+                         "ya29.cifrado")
+
+    def test_leer_archivo_vacio_si_falta_o_esta_roto(self):
+        self.assertEqual(
+            credenciales.leer_archivo(Path(self._tmp.name) / "falta.json"), {})
+        roto = Path(self._tmp.name) / "roto.json"
+        roto.write_text("{roto", encoding="utf-8")
+        self.assertEqual(credenciales.leer_archivo(roto), {})
+
+
 def _importar_gui():
     """Importa los módulos de GUI sin crear ventanas. None si no se puede."""
     try:

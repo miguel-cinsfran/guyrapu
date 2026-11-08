@@ -283,11 +283,12 @@ def revocar_token(programa) -> None:
     """Revoca el token de la copia para que el próximo consentimiento sea nuevo."""
     if not programa:
         return
+    from guyrapu.youtube import credenciales
     ruta = Path(programa) / "data" / "credenciales.json"
     if not ruta.exists():
         return
     try:
-        datos = json.loads(ruta.read_text(encoding="utf-8"))
+        datos = credenciales.leer_archivo(ruta)
         info = json.loads(datos.get("token") or "{}")
     except Exception as exc:
         print(f"No se pudo leer el token para revocar: "

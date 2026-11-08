@@ -2,7 +2,8 @@
 
 A diferencia de config.ini, esto NO se edita a mano normalmente: la sección
 de Configuración de la aplicación escribe aquí la API key, el cliente OAuth y
-el token de sesión. Es un JSON sencillo guardado junto al ejecutable.
+el token de sesión. El archivo va cifrado con DPAPI, atado a la cuenta de
+Windows, y guardado junto al ejecutable.
 
 El archivo `credenciales.json` está en .gitignore: contiene secretos del
 usuario y nunca debe subirse al repositorio.
@@ -10,17 +11,21 @@ usuario y nunca debe subirse al repositorio.
 
 from __future__ import annotations
 
+import base64
+import json
 import logging
 import threading
 from pathlib import Path
 
 from guyrapu.core import archivos
 from guyrapu.core import diagnostico
+from guyrapu.core import dpapi
 from guyrapu.core import paths
 
 logger = diagnostico.obtener_logger(__name__)
 
 NOMBRE_ARCHIVO = paths.NOMBRE_CREDENCIALES
+_CAMPO_CIFRADO = "dpapi"
 
 # guardar_campo es leer-modificar-escribir y lo llaman hilos de trabajo (el
 # refresco del token OAuth, la GUI): sin candado, dos guardados cruzados
@@ -45,11 +50,42 @@ def ruta() -> Path:
     return paths.credenciales()
 
 
+def _leer_archivo(ruta: Path) -> tuple[dict, str]:
+    """Lee el archivo y devuelve el dict con su estado de lectura."""
+    bruto = archivos.leer_json(ruta, None)
+    if not isinstance(bruto, dict):
+        return {}, "roto" if Path(ruta).exists() else "falta"
+    if _CAMPO_CIFRADO not in bruto:
+        return bruto, "texto"
+    try:
+        claro = dpapi.descifrar(base64.b64decode(bruto[_CAMPO_CIFRADO]))
+        datos = json.loads(claro.decode("utf-8"))
+    except Exception:
+        return {}, "ilegible"
+    if not isinstance(datos, dict):
+        return {}, "ilegible"
+    return datos, "cifrado"
+
+
+def leer_archivo(ruta) -> dict:
+    """Lee y descifra si hace falta. {} si falta, está roto o no se descifra."""
+    try:
+        return _leer_archivo(Path(ruta))[0]
+    except Exception:
+        return {}
+
+
 def cargar() -> dict:
     """Devuelve siempre un dict completo, aunque el archivo falte o esté roto."""
-    datos = dict(_DEFECTO)
     with _lock:
-        bruto = archivos.leer_json(ruta(), None)
+        bruto, estado = _leer_archivo(ruta())
+        if estado == "texto":
+            guardar(bruto)
+        elif estado == "ilegible":
+            logger.warning(
+                "Las credenciales guardadas no se pudieron leer en esta cuenta "
+                "de Windows: se tratan como sesión cerrada.")
+    datos = dict(_DEFECTO)
     if isinstance(bruto, dict):
         for k in _DEFECTO:
             if k in bruto:
@@ -58,11 +94,18 @@ def cargar() -> dict:
 
 
 def guardar(datos: dict) -> bool:
-    """Escribe el dict completo. Devuelve True si se guardó."""
+    """Cifra el dict completo y lo escribe. Devuelve True si se guardó."""
     limpio = {k: datos.get(k, _DEFECTO[k]) for k in _DEFECTO}
     try:
+        contenido = json.dumps(limpio, ensure_ascii=False, indent=2)
+        blob = dpapi.cifrar(contenido.encode("utf-8"))
+        sobre = {_CAMPO_CIFRADO: base64.b64encode(blob).decode("ascii")}
+    except Exception as exc:
+        logger.error("No se pudo cifrar %s: %s", NOMBRE_ARCHIVO, exc)
+        return False
+    try:
         with _lock:
-            archivos.escribir_json_atomico(ruta(), limpio, indent=2)
+            archivos.escribir_json_atomico(ruta(), sobre)
         return True
     except Exception as exc:
         logger.error("No se pudo guardar %s: %s", NOMBRE_ARCHIVO, exc)

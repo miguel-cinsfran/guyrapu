@@ -69,11 +69,12 @@ def paso_de(rec, numero):
 
 
 def sesion_guardada(ruta_datos, segundos: int = 0) -> bool:
+    from guyrapu.youtube import credenciales
     fin = time.time() + segundos
     while True:
         try:
-            datos = json.loads((Path(ruta_datos) / "credenciales.json")
-                               .read_text(encoding="utf-8"))
+            datos = credenciales.leer_archivo(
+                Path(ruta_datos) / "credenciales.json")
             if datos.get("token"):
                 return True
         except Exception:
@@ -226,9 +227,9 @@ def _menu_timeout(principal) -> None:
 
 
 def cliente_de_la_copia(copia):
-    from guyrapu.youtube import youtube_api
-    datos = json.loads((Path(copia) / "data" / "credenciales.json")
-                       .read_text(encoding="utf-8"))
+    from guyrapu.youtube import credenciales, youtube_api
+    datos = credenciales.leer_archivo(
+        Path(copia) / "data" / "credenciales.json")
     app = json.loads((Path(copia) / "cliente_app.json")
                      .read_text(encoding="utf-8"))
     return youtube_api.ClienteYouTube({
