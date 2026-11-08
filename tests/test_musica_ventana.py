@@ -1206,6 +1206,22 @@ class TestVentanaMusica(unittest.TestCase):
         self.assertEqual([t.titulo for t in pedir.call_args[0][2]],
                          ["Rock", "Jazz"])
 
+    def test_editar_lista_pasa_reproducir_al_editor(self):
+        tema = Tema("C:/Musica/rock.mp3", "Rock")
+        temas_lista = (tema,)
+        self._crear_lista("Mía", temas_lista)
+        control = ControlFalso(
+            carpeta_listas=self.carpeta_listas,
+            temas_listas={"Mía": temas_lista})
+        self._abrir(control, abrir_listas=True)
+        with mock.patch.object(
+                musica_editor_lista, "pedir_lista",
+                return_value=("Mía", temas_lista)) as pedir:
+            self.ventana._editar_lista()
+        reproducir = pedir.call_args.kwargs["reproducir"]
+        reproducir(tema)
+        self.assertIn(("reproducir_ahora", (tema,)), control.llamadas)
+
     # ── Cola: refresco y «Ir al que suena» ─────────────────────────────────
 
     def test_refrescar_cola_conserva_la_seleccion(self):
@@ -1684,8 +1700,9 @@ class TestDialogoEditorLista(unittest.TestCase):
         hijos = self._panel().GetChildren()
         for etiqueta, control in (
                 ("&Nombre:", self.dialogo.txt_nombre),
+                ("&Canciones de la lista:", self.dialogo.lb_lista),
                 ("&Buscar:", self.dialogo.txt_buscar),
-                ("C&anciones:", self.dialogo.lb_temas)):
+                ("&Todas las canciones:", self.dialogo.lb_todas)):
             with self.subTest(etiqueta=etiqueta):
                 posicion = hijos.index(control)
                 self.assertGreater(posicion, 0)

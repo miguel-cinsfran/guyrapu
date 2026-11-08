@@ -298,7 +298,8 @@ class ColeccionesVentanaMusica:
 
     def _abrir_editor_lista(self, viejo, temas_lista, temas_carpeta):
         datos = musica_editor_lista.pedir_lista(
-            self, viejo or "", tuple(temas_carpeta or ()), temas_lista)
+            self, viejo or "", tuple(temas_carpeta or ()), temas_lista,
+            reproducir=lambda tema: self._control.reproducir_ahora([tema]))
         if datos is None:
             return
         nombre, temas = datos

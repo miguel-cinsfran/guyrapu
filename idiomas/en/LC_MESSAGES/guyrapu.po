@@ -11545,3 +11545,27 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/musica_editor_lista.py
+msgid "&Canciones de la lista:"
+msgstr "&Playlist songs:"
+
+#: guyrapu/ui/musica_editor_lista.py
+msgid "&Todas las canciones:"
+msgstr "&All songs:"
+
+#. Traductores: {nombre} es la canción y {n} cuántas hay en total.
+#: guyrapu/ui/musica_editor_lista.py
+#, python-brace-format
+msgid "Agregada a la lista: {nombre}. {n} canción en total"
+msgid_plural "Agregada a la lista: {nombre}. {n} canciones en total"
+msgstr[0] "Added to the list: {nombre}. {n} song in total"
+msgstr[1] "Added to the list: {nombre}. {n} songs in total"
+
+#. Traductores: {nombre} es la canción y {n} cuántas quedan.
+#: guyrapu/ui/musica_editor_lista.py
+#, python-brace-format
+msgid "Eliminada de la lista: {nombre}. Queda {n} canción"
+msgid_plural "Eliminada de la lista: {nombre}. Quedan {n} canciones"
+msgstr[0] "Removed from the list: {nombre}. {n} song left"
+msgstr[1] "Removed from the list: {nombre}. {n} songs left"
+

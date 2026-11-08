@@ -1,7 +1,7 @@
 """Pruebas puras del editor de listas, el submenú y `guardar_lista`.
 
-No abren ventanas: comprueban las funciones de filas y orden, la validación
-del nombre, la forma del submenú y el guardado en un directorio temporal.
+No abren ventanas: comprueban la validación del nombre, qué hace cada tecla,
+la forma del submenú y el guardado en un directorio temporal.
 """
 
 import tempfile
@@ -26,51 +26,6 @@ except Exception:
     wx = None
     musica_editor_lista = None
     _HAY_WX = False
-
-
-@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
-class TestFilas(unittest.TestCase):
-
-    def test_los_de_la_lista_fuera_de_la_carpeta_van_primero(self):
-        externo = Tema("C:/otro/x.mp3", "Externo")
-        en_carpeta = Tema("C:/Musica/rock.mp3", "Rock")
-        filas = musica_editor_lista.filas_editor((en_carpeta,), (externo,))
-        self.assertEqual([(t.titulo, m) for t, m in filas],
-                         [("Externo", True), ("Rock", False)])
-
-    def test_la_carpeta_marca_lo_que_ya_estaba(self):
-        tema = Tema("C:/Musica/rock.mp3", "Rock")
-        filas = musica_editor_lista.filas_editor((tema,), (tema,))
-        self.assertEqual([(t.titulo, m) for t, m in filas], [("Rock", True)])
-
-    def test_sin_carpeta_queda_la_lista_marcada(self):
-        externo = Tema("C:/otro/x.mp3", "Externo")
-        filas = musica_editor_lista.filas_editor((), (externo,))
-        self.assertEqual([(t.titulo, m) for t, m in filas],
-                         [("Externo", True)])
-
-    def test_la_primera_aparicion_no_se_duplica(self):
-        tema = Tema("C:/Musica/rock.mp3", "Rock")
-        filas = musica_editor_lista.filas_editor((tema, tema), (tema,))
-        self.assertEqual(len(filas), 1)
-
-
-@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
-class TestTemasAGuardar(unittest.TestCase):
-
-    def test_primero_la_lista_y_despues_los_nuevos(self):
-        a = Tema("C:/a.mp3", "A")
-        b = Tema("C:/b.mp3", "B")
-        salida = musica_editor_lista.temas_a_guardar(
-            (a,), (b, a), {a.origen, b.origen})
-        self.assertEqual([t.titulo for t in salida], ["A", "B"])
-
-    def test_lo_desmarcado_no_se_guarda(self):
-        a = Tema("C:/a.mp3", "A")
-        b = Tema("C:/b.mp3", "B")
-        salida = musica_editor_lista.temas_a_guardar(
-            (a,), (a, b), {b.origen})
-        self.assertEqual([t.titulo for t in salida], ["B"])
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
@@ -101,31 +56,71 @@ class TestValidarNombre(unittest.TestCase):
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
 class TestAccionTecla(unittest.TestCase):
 
-    def test_enter_en_la_lista_alterna(self):
-        for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            with self.subTest(codigo=codigo):
-                self.assertEqual(
-                    musica_editor_lista.accion_tecla(codigo, True),
-                    musica_editor_lista.ACCION_ALTERNAR)
+    def test_enter_en_cualquiera_de_las_dos_listas_reproduce(self):
+        for en_lista in ("lista", "todas"):
+            for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+                with self.subTest(en_lista=en_lista, codigo=codigo):
+                    self.assertEqual(
+                        musica_editor_lista.accion_tecla(codigo, 0, en_lista),
+                        musica_menus.ACCION_REPRODUCIR)
 
-    def test_enter_fuera_de_la_lista_sigue_su_camino(self):
+    def test_enter_fuera_de_las_listas_sigue_su_camino(self):
         for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
             with self.subTest(codigo=codigo):
                 self.assertIsNone(
-                    musica_editor_lista.accion_tecla(codigo, False))
+                    musica_editor_lista.accion_tecla(codigo, 0, None))
 
-    def test_espacio_en_la_lista_no_alterna(self):
+    def test_espacio_en_todas_lo_maneja_el_control(self):
         self.assertIsNone(
-            musica_editor_lista.accion_tecla(wx.WXK_SPACE, True))
+            musica_editor_lista.accion_tecla(wx.WXK_SPACE, 0, "todas"))
 
-    def test_escape_cancela_aunque_no_este_en_la_lista(self):
+    def test_supr_quita_solo_en_la_lista(self):
+        for codigo in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
+            with self.subTest(codigo=codigo):
+                self.assertEqual(
+                    musica_editor_lista.accion_tecla(codigo, 0, "lista"),
+                    musica_menus.ACCION_QUITAR)
+        self.assertIsNone(
+            musica_editor_lista.accion_tecla(wx.WXK_DELETE, 0, "todas"))
+        self.assertIsNone(
+            musica_editor_lista.accion_tecla(wx.WXK_DELETE, 0, None))
+
+    def test_alt_flechas_mueven_solo_en_la_lista(self):
         self.assertEqual(
-            musica_editor_lista.accion_tecla(wx.WXK_ESCAPE, False),
+            musica_editor_lista.accion_tecla(
+                wx.WXK_UP, wx.MOD_ALT, "lista"),
+            musica_menus.ACCION_SUBIR)
+        self.assertEqual(
+            musica_editor_lista.accion_tecla(
+                wx.WXK_DOWN, wx.MOD_ALT, "lista"),
+            musica_menus.ACCION_BAJAR)
+        self.assertIsNone(
+            musica_editor_lista.accion_tecla(
+                wx.WXK_UP, wx.MOD_ALT, "todas"))
+        self.assertIsNone(
+            musica_editor_lista.accion_tecla(wx.WXK_DOWN, 0, "lista"))
+
+    def test_aplicaciones_y_mayus_f10_abren_el_menu_solo_en_la_lista(self):
+        self.assertEqual(
+            musica_editor_lista.accion_tecla(
+                wx.WXK_WINDOWS_MENU, 0, "lista"),
+            musica_editor_lista.ACCION_MENU)
+        self.assertEqual(
+            musica_editor_lista.accion_tecla(
+                wx.WXK_F10, wx.MOD_SHIFT, "lista"),
+            musica_editor_lista.ACCION_MENU)
+        self.assertIsNone(
+            musica_editor_lista.accion_tecla(
+                wx.WXK_WINDOWS_MENU, 0, "todas"))
+
+    def test_escape_cancela_aunque_no_este_en_una_lista(self):
+        self.assertEqual(
+            musica_editor_lista.accion_tecla(wx.WXK_ESCAPE, 0, None),
             musica_editor_lista.ACCION_CANCELAR)
 
     def test_otra_tecla_sigue_su_camino(self):
         self.assertIsNone(
-            musica_editor_lista.accion_tecla(wx.WXK_DOWN, True))
+            musica_editor_lista.accion_tecla(wx.WXK_DOWN, 0, "lista"))
 
 
 class TestSubmenu(unittest.TestCase):

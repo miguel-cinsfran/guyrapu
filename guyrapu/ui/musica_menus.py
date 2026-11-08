@@ -90,6 +90,16 @@ def entradas_cola() -> list:
     ]
 
 
+def entradas_lista_editada() -> list:
+    """Las entradas del menú de las canciones de la lista que se edita."""
+    return [
+        ("&Reproducir", ACCION_REPRODUCIR),
+        ("&Eliminar", ACCION_QUITAR),
+        ("&Subir", ACCION_SUBIR),
+        ("&Bajar", ACCION_BAJAR),
+    ]
+
+
 def _agregar_entradas(menu, entradas, al_elegir) -> None:
     """Engancha cada entrada en el menú que la contiene."""
     for etiqueta, accion in entradas:
