@@ -14,9 +14,8 @@ import wx
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_estado
-from guyrapu.obs import perfil_previo
 from guyrapu.obs import transmision_directa
-from guyrapu.restream import ganchos, transmitir
+from guyrapu.restream import transmitir
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.confirmar_transmision import (
@@ -90,12 +89,10 @@ class DirectoPanel:
         return tiktok_vivo.usuario_tiktok(usuario or "")
 
     def _usuario_para(self, opcion, usuario):
+        if not transmision_directa.cuenta_restream_conectada(opcion, avisar):
+            return None
         if not transmitir.es_restream(opcion):
             return self._normalizar_usuario(opcion, usuario)
-        if not ganchos.cuenta_conectada():
-            avisar(_(ganchos.MENSAJE_SIN_CUENTA), "transmision_problema",
-                    error=True)
-            return None
         return ""
 
     def _preguntar_supervisor(self, accion):
@@ -183,31 +180,26 @@ class DirectoPanel:
             logger.warning("no se pudo guardar el destino de transmisión: %s", error)
 
     def _revision_lista(self, preparacion, opcion, destino, usuario) -> None:
-        if preparacion.ya_transmitiendo:
+        def _recordar():
             self._recordar_destino(opcion)
+
+        def _guardar_usuario():
+            self._guardar_usuario_tiktok(usuario)
+
+        def _ya_transmitiendo():
+            _recordar()
             self._mostrar_transmision(True)
-            anunciar(_("OBS ya está transmitiendo. Con este mismo botón "
-                       "puedes finalizar el directo."))
-            return
-        if transmitir.es_restream(opcion):
-            self._recordar_destino(opcion)
-            self._supervisar("iniciar", opcion, "")
-            self._mostrar_transmision(True)
-            return
-        if destino == "YouTube":
-            self._recordar_destino(opcion)
-            self._supervisar("iniciar", opcion, usuario,
-                             revision=preparacion.revision)
-            self._mostrar_transmision(True)
-            return
-        if not confirmar_transmision(self._ventana, preparacion.revision):
-            perfil_previo.volver_sin_directo()
-            anunciar(_("No se transmitió."))
-            return
-        self._guardar_usuario_tiktok(usuario)
-        self._recordar_destino(opcion)
-        self._supervisar("iniciar", opcion, usuario)
-        self._mostrar_transmision(True)
+
+        transmision_directa.resolver_revision(
+            preparacion, opcion, destino, usuario,
+            confirmar=lambda revision: confirmar_transmision(
+                self._ventana, revision),
+            supervisar=self._supervisar,
+            anunciar=anunciar,
+            ya_transmitiendo=_ya_transmitiendo,
+            iniciar=lambda: self._mostrar_transmision(True),
+            recordar_destino=_recordar,
+            guardar_usuario=_guardar_usuario)
 
     def _mostrar_transmision(self, activa) -> None:
         self._transmitiendo = bool(activa)

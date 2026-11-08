@@ -837,8 +837,8 @@ class TestPanelTransmision(unittest.TestCase):
         pagina = self.dialogo
         with self._con_perfiles(_perfil_restream()), \
                 self._pedir(("restream:Uno", "")), \
-                mock.patch.object(directo_panel.ganchos, "cuenta_conectada",
-                                  return_value=False), \
+                mock.patch("guyrapu.restream.ganchos.cuenta_conectada",
+                           return_value=False), \
                 mock.patch.object(directo_panel, "avisar") as avisar:
             self._pulsar(pagina.btn_directo)
         self.assertEqual(
@@ -855,8 +855,8 @@ class TestPanelTransmision(unittest.TestCase):
                                       revision=mock.sentinel.revision)
         with self._con_perfiles(_perfil_restream("Vertical", "vertical")), \
                 self._pedir(("restream:Vertical", "")), \
-                mock.patch.object(directo_panel.ganchos, "cuenta_conectada",
-                                  return_value=True), \
+                mock.patch("guyrapu.restream.ganchos.cuenta_conectada",
+                           return_value=True), \
                 mock.patch.object(directo_panel.transmision_directa,
                                   "preparar",
                                   return_value=preparacion) as preparar:

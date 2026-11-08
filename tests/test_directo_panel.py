@@ -116,8 +116,9 @@ class TestDirectoPanel(unittest.TestCase):
 
     def test_restream_no_confirma_ni_guarda_usuario(self):
         self.datos = ("restream:Uno", "TikTok", "")
-        with mock.patch.object(directo_panel.ganchos, "cuenta_conectada",
-                               return_value=True), \
+        with mock.patch(
+                "guyrapu.restream.ganchos.cuenta_conectada",
+                return_value=True), \
                 mock.patch.object(transmision_directa, "preparar",
                                   return_value=_preparacion()), \
                 mock.patch.object(directo_panel,

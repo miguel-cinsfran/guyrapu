@@ -14,6 +14,8 @@ from typing import Any, Callable
 
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
+from guyrapu.obs import perfil_previo
+from guyrapu.restream import transmitir
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -47,6 +49,62 @@ def decidir_transmision(*, hay_supervisor, deteniendo, con_supervisor,
     if destino == "TikTok" and not usuario_tiktok():
         return FALTA_USUARIO
     return REVISAR
+
+
+def cuenta_restream_conectada(opcion, avisar) -> bool:
+    """¿Se puede seguir o falta conectar la cuenta de Restream?
+
+    Solo un perfil de Restream la necesita. Si falta, avisa con `avisar`
+    (texto, sonido y error) y devuelve False.
+    """
+    from guyrapu.restream import ganchos
+    if not transmitir.es_restream(opcion):
+        return True
+    if ganchos.cuenta_conectada():
+        return True
+    avisar(_(ganchos.MENSAJE_SIN_CUENTA), "transmision_problema", error=True)
+    return False
+
+
+def _avisar_ya_transmitiendo(anunciar, tras_anunciar):
+    anunciar(_("OBS ya está transmitiendo. Con este mismo botón "
+               "puedes finalizar el directo."))
+    if tras_anunciar is not None:
+        tras_anunciar()
+
+
+def resolver_revision(preparacion, opcion, destino_obs, usuario, *,
+                      confirmar, supervisar, anunciar, ya_transmitiendo,
+                      iniciar, recordar_destino, guardar_usuario,
+                      tras_anunciar=None) -> None:
+    """Decide qué se hace con el resultado de revisar OBS.
+
+    `ya_transmitiendo` e `iniciar` son los efectos de cada botón al marcar
+    su estado o mostrar la transmisión. `recordar_destino` y
+    `guardar_usuario` guardan lo propio de cada uno, o no hacen nada. La
+    vuelta al perfil anterior y el aviso de que no se transmitió viven aquí
+    una sola vez.
+    """
+    if preparacion.ya_transmitiendo:
+        ya_transmitiendo()
+        _avisar_ya_transmitiendo(anunciar, tras_anunciar)
+        return
+    if transmitir.es_restream(opcion):
+        recordar_destino()
+        supervisar("iniciar", opcion, "")
+    elif destino_obs == "YouTube":
+        recordar_destino()
+        supervisar("iniciar", opcion, usuario,
+                   revision=preparacion.revision)
+    elif not confirmar(preparacion.revision):
+        perfil_previo.volver_sin_directo()
+        anunciar(_("No se transmitió."))
+        return
+    else:
+        guardar_usuario()
+        recordar_destino()
+        supervisar("iniciar", opcion, usuario)
+    iniciar()
 
 
 @dataclass(frozen=True, slots=True)

@@ -2,14 +2,17 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de las decisiones del botón directo, sin ventana ni OBS."""
 
+from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
 from guyrapu.obs import transmision_directa
 from guyrapu.obs.transmision_directa import (
     ALTERNAR, DETENER_SUPERVISADA, ESPERAR_DETENCION, FALTA_DESTINO,
     FALTA_USUARIO, REVISAR, FalloCierreYoutube, Preparacion, boton_visible,
-    decidir_transmision, es_directo_propio, etiqueta, finalizar, preparar)
+    cuenta_restream_conectada, decidir_transmision, es_directo_propio,
+    etiqueta, finalizar, preparar, resolver_revision)
 
 
 class EsDirectoPropioTest(unittest.TestCase):
@@ -339,6 +342,154 @@ class DecidirTransmisionTest(unittest.TestCase):
             usuario_tiktok=lambda: llamadas.append("usuario") or "usuario")
         self.assertEqual(decision, REVISAR)
         self.assertEqual(llamadas, [])
+
+
+class ResolverRevisionTest(unittest.TestCase):
+    def _resolver(self, preparacion, opcion="TikTok", destino_obs="TikTok",
+                  usuario="usuario", confirmacion=True):
+        llamadas = []
+        anuncios = []
+
+        def confirmar(revision):
+            llamadas.append(("confirmar", revision))
+            return confirmacion
+
+        def supervisar(accion, destino, usuario_sup, **kwargs):
+            llamadas.append(
+                ("supervisar", accion, destino, usuario_sup, kwargs))
+
+        resolver_revision(
+            preparacion, opcion, destino_obs, usuario,
+            confirmar=confirmar, supervisar=supervisar,
+            anunciar=anuncios.append,
+            ya_transmitiendo=lambda: llamadas.append("ya"),
+            iniciar=lambda: llamadas.append("iniciar"),
+            recordar_destino=lambda: llamadas.append("recordar"),
+            guardar_usuario=lambda: llamadas.append("guardar"))
+        return llamadas, anuncios
+
+    def test_ya_transmitiendo_avisa_y_no_inicia(self):
+        preparacion = SimpleNamespace(ya_transmitiendo=True, revision=None)
+        llamadas, anuncios = self._resolver(
+            preparacion, opcion="YouTube", destino_obs="YouTube")
+        self.assertEqual(llamadas, ["ya"])
+        self.assertEqual(
+            anuncios,
+            ["OBS ya está transmitiendo. Con este mismo botón puedes "
+             "finalizar el directo."])
+
+    def test_ya_transmitiendo_marca_avisa_y_despues_actualiza(self):
+        preparacion = SimpleNamespace(ya_transmitiendo=True, revision=None)
+        orden = []
+        resolver_revision(
+            preparacion, "YouTube", "YouTube", "",
+            confirmar=lambda revision: True,
+            supervisar=lambda *args, **kwargs: None,
+            anunciar=lambda texto: orden.append("anunciar"),
+            ya_transmitiendo=lambda: orden.append("ya"),
+            iniciar=lambda: orden.append("iniciar"),
+            recordar_destino=lambda: None,
+            guardar_usuario=lambda: None,
+            tras_anunciar=lambda: orden.append("tras_anunciar"))
+        self.assertEqual(orden, ["ya", "anunciar", "tras_anunciar"])
+
+    def test_restream_inicia_sin_confirmar_ni_usuario(self):
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision)
+        llamadas, anuncios = self._resolver(
+            preparacion, opcion="restream:Uno", destino_obs="TikTok",
+            usuario="ignorado")
+        self.assertEqual(
+            llamadas,
+            ["recordar",
+             ("supervisar", "iniciar", "restream:Uno", "", {}),
+             "iniciar"])
+        self.assertEqual(anuncios, [])
+
+    def test_youtube_inicia_con_la_revision(self):
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision)
+        llamadas, anuncios = self._resolver(
+            preparacion, opcion="YouTube", destino_obs="YouTube",
+            usuario="")
+        self.assertEqual(
+            llamadas,
+            ["recordar",
+             ("supervisar", "iniciar", "YouTube", "",
+              {"revision": mock.sentinel.revision}),
+             "iniciar"])
+        self.assertEqual(anuncios, [])
+
+    def test_tiktok_confirmado_guarda_usuario_y_destino(self):
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision)
+        llamadas, anuncios = self._resolver(preparacion)
+        self.assertEqual(
+            llamadas,
+            [("confirmar", mock.sentinel.revision), "guardar", "recordar",
+             ("supervisar", "iniciar", "TikTok", "usuario", {}),
+             "iniciar"])
+        self.assertEqual(anuncios, [])
+
+    def test_tiktok_cancelado_vuelve_al_perfil_y_avisa(self):
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision)
+        with mock.patch(
+                "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
+            llamadas, anuncios = self._resolver(
+                preparacion, confirmacion=False)
+        volver.assert_called_once_with()
+        self.assertEqual(llamadas, [("confirmar", mock.sentinel.revision)])
+        self.assertEqual(anuncios, ["No se transmitió."])
+
+    def test_tiktok_cancelado_no_supervisa_ni_marca(self):
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision)
+        with mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo"):
+            llamadas, _anuncios = self._resolver(
+                preparacion, confirmacion=False)
+        self.assertNotIn("iniciar", llamadas)
+        self.assertNotIn("recordar", llamadas)
+        self.assertNotIn("guardar", llamadas)
+
+
+class CuentaRestreamConectadaTest(unittest.TestCase):
+    def _avisar_en(self, avisos):
+        def avisar(texto, sonido=None, *, error=False):
+            avisos.append((texto, sonido, error))
+        return avisar
+
+    def test_sin_cuenta_avisa_y_con_cuenta_deja_seguir(self):
+        avisos = []
+        avisar = self._avisar_en(avisos)
+        with mock.patch(
+                "guyrapu.restream.ganchos.cuenta_conectada",
+                return_value=True) as cuenta:
+            self.assertTrue(
+                cuenta_restream_conectada("restream:Uno", avisar))
+        cuenta.assert_called_once_with()
+        self.assertEqual(avisos, [])
+
+        with mock.patch(
+                "guyrapu.restream.ganchos.cuenta_conectada",
+                return_value=False) as cuenta:
+            self.assertFalse(
+                cuenta_restream_conectada("restream:Uno", avisar))
+        cuenta.assert_called_once_with()
+        self.assertEqual(
+            avisos,
+            [("Para transmitir con un perfil de Restream hace falta conectar "
+              "la cuenta, en el cuadro Restream, pestaña Cuenta.",
+              "transmision_problema", True)])
+
+    def test_sin_restream_no_consulta_la_cuenta(self):
+        avisos = []
+        with mock.patch(
+                "guyrapu.restream.ganchos.cuenta_conectada") as cuenta:
+            self.assertTrue(
+                cuenta_restream_conectada("YouTube", self._avisar_en(avisos)))
+        cuenta.assert_not_called()
+        self.assertEqual(avisos, [])
 
 
 class TestPseudoTransmisionDirecta(unittest.TestCase):

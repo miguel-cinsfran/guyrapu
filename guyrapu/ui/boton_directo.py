@@ -17,7 +17,6 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_lanzador
-from guyrapu.obs import perfil_previo
 from guyrapu.obs import transmision_directa
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.restream import ganchos, transmitir
@@ -105,11 +104,8 @@ class BotonDirecto:
                 usuario = marco._guardar_usuario_tiktok(usuario)
             except Exception as error:
                 logger.warning("no se pudo guardar el usuario de TikTok: %s", error)
-        if transmitir.es_restream(destino):
-            if not ganchos.cuenta_conectada():
-                avisar(_(ganchos.MENSAJE_SIN_CUENTA), "transmision_problema",
-                       error=True)
-                return
+        if not transmision_directa.cuenta_restream_conectada(destino, avisar):
+            return
         _snd.reproducir("conectando")
         anunciar(_("Revisando OBS antes de transmitir."))
         self.boton.Disable()
@@ -140,28 +136,20 @@ class BotonDirecto:
         if not marco._alive:
             return
         self.boton.Enable()
-        if preparacion.ya_transmitiendo:
+
+        def _ya_transmitiendo():
             marco._obs_transmitiendo = True
-            anunciar(_("OBS ya está transmitiendo. Con este mismo botón "
-                      "puedes finalizar el directo."))
-            marco._actualizar_boton_directo()
-            return
-        if transmitir.es_restream(destino):
-            marco._supervisar_transmision("iniciar", destino, "")
-            marco._actualizar_boton_directo()
-            return
-        if destino_obs == "YouTube":
-            marco._supervisar_transmision(
-                "iniciar", destino, usuario,
-                revision=preparacion.revision)
-            marco._actualizar_boton_directo()
-            return
-        if not confirmar_transmision(marco, preparacion.revision):
-            perfil_previo.volver_sin_directo()
-            anunciar(_("No se transmitió."))
-            return
-        marco._supervisar_transmision("iniciar", destino, usuario)
-        marco._actualizar_boton_directo()
+
+        transmision_directa.resolver_revision(
+            preparacion, destino, destino_obs, usuario,
+            confirmar=lambda revision: confirmar_transmision(marco, revision),
+            supervisar=marco._supervisar_transmision,
+            anunciar=anunciar,
+            ya_transmitiendo=_ya_transmitiendo,
+            iniciar=marco._actualizar_boton_directo,
+            recordar_destino=lambda: None,
+            guardar_usuario=lambda: None,
+            tras_anunciar=marco._actualizar_boton_directo)
 
     def _finalizar(self):
         marco = self._marco
