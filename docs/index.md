@@ -11,7 +11,13 @@ visión que transmiten.
 - [Política de privacidad](PRIVACIDAD.html)
 - [Código fuente](https://github.com/miguel-cinsfran/guyrapu)
 
+Guyrapu se publica solo en las releases de su repositorio de GitHub. Un
+paquete bajado de otro lugar no es oficial.
+
 ## English
 
 - [User manual](en/MANUAL.html)
 - [What's new](en/CHANGELOG.html)
+
+Guyrapu is only published on the releases page of its GitHub repository.
+A package downloaded from anywhere else is not official.

@@ -90,5 +90,15 @@ anuncia. Su uso está en [qa/README.md](qa/README.md).
 
 ## Licencia
 
-GPL-3.0 desde la 2.5.1. Ver [LICENSE](LICENSE). Las versiones hasta la
-2.5.0 se publicaron con licencia MIT.
+GPL-3.0 desde la 2.5.1, con las condiciones adicionales de
+[NOTICE](NOTICE). Ver [LICENSE](LICENSE). Las versiones hasta la 2.5.0 se
+publicaron con licencia MIT.
+
+Las condiciones adicionales piden que toda copia conserve los avisos de
+autoría y que una versión modificada no se distribuya con el nombre
+Guyrapu.
+
+La única fuente oficial son las
+[releases de este repositorio](https://github.com/miguel-cinsfran/guyrapu/releases).
+Una copia publicada en otro lugar con el nombre Guyrapu o con otro autor
+no es oficial.
