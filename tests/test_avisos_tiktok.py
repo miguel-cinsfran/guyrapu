@@ -31,6 +31,15 @@ class TestModoDe(unittest.TestCase):
                         _config(evento_entrada=modo), cfg.TIPO_ENTRADA),
                     "leer")
 
+    def test_los_cuatro_modos_con_voz_dan_leer(self):
+        for modo in ("principal", "secundaria",
+                     "principal_sin_sonido", "secundaria_sin_sonido"):
+            with self.subTest(modo=modo):
+                self.assertEqual(
+                    avisos_tiktok.modo_de(
+                        _config(evento_entrada=modo), cfg.TIPO_ENTRADA),
+                    "leer")
+
     def test_mostrar_y_ocultar_se_conservan(self):
         for modo in ("mostrar", "ocultar"):
             with self.subTest(modo=modo):
@@ -113,10 +122,13 @@ class TestEventos(unittest.TestCase):
 
     def test_modos_y_rotulos(self):
         self.assertEqual([modo for modo, _rotulo in avisos_tiktok.MODOS_EVENTO],
-                         ["principal", "secundaria", "mostrar", "lista",
+                         ["principal", "secundaria", "principal_sin_sonido",
+                          "secundaria_sin_sonido", "mostrar", "lista",
                           "ocultar"])
         self.assertEqual([rotulo for _modo, rotulo in avisos_tiktok.MODOS_EVENTO],
-                         ["Voz principal", "Voz secundaria", "Solo sonido",
+                         ["Voz principal y sonido", "Voz secundaria y sonido",
+                          "Voz principal sin sonido",
+                          "Voz secundaria sin sonido", "Solo sonido",
                           "Solo en la lista", "Desactivado"])
 
     def test_modo_guardado(self):
@@ -156,6 +168,40 @@ class TestEventos(unittest.TestCase):
         self.assertEqual(opciones["evento_entrada"], "lista")
         self.assertEqual(
             avisos_tiktok.modo_de(opciones, cfg.TIPO_ENTRADA), "lista")
+
+
+class TestFuncionesDeModo(unittest.TestCase):
+    TABLA = {
+        "principal": (True, False, True),
+        "secundaria": (True, True, True),
+        "principal_sin_sonido": (True, False, False),
+        "secundaria_sin_sonido": (True, True, False),
+        "mostrar": (False, False, True),
+        "lista": (False, False, False),
+        "ocultar": (False, False, False),
+        None: (True, False, True),
+    }
+
+    def test_los_siete_modos_y_none(self):
+        for modo, (voz, secundaria, sonido) in self.TABLA.items():
+            with self.subTest(modo=modo):
+                self.assertIs(avisos_tiktok.con_voz(modo), voz)
+                self.assertIs(avisos_tiktok.con_secundaria(modo), secundaria)
+                self.assertIs(avisos_tiktok.con_sonido(modo), sonido)
+
+    def test_los_modos_sin_sonido_se_conservan_al_leer(self):
+        parser = configparser.ConfigParser(interpolation=None)
+        parser.read_string("[eventos]\nentrada = principal_sin_sonido\n"
+                           "me_gusta = secundaria_sin_sonido\n")
+        opciones = avisos_tiktok.opciones_eventos(parser)
+        self.assertEqual(opciones["evento_entrada"], "principal_sin_sonido")
+        self.assertEqual(opciones["evento_me_gusta"], "secundaria_sin_sonido")
+        self.assertEqual(
+            avisos_tiktok.modo_evento(opciones, cfg.TIPO_ENTRADA),
+            "principal_sin_sonido")
+        self.assertEqual(
+            avisos_tiktok.modo_evento(opciones, cfg.TIPO_ME_GUSTA),
+            "secundaria_sin_sonido")
 
 
 class TestPasaFiltro(unittest.TestCase):

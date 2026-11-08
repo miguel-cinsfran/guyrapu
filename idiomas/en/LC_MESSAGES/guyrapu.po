@@ -1855,13 +1855,21 @@ msgstr "Ta&rgets:"
 msgid "Batal&las:"
 msgstr "Battl&es:"
 
-#: guyrapu/core/avisos_tiktok.py guyrapu/ui/preferencias_voz.py
-msgid "Voz principal"
-msgstr "Main voice"
+#: guyrapu/core/avisos_tiktok.py
+msgid "Voz principal y sonido"
+msgstr "Main voice and sound"
 
-#: guyrapu/core/avisos_tiktok.py guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Voz secundaria"
-msgstr "Secondary voice"
+#: guyrapu/core/avisos_tiktok.py
+msgid "Voz secundaria y sonido"
+msgstr "Secondary voice and sound"
+
+#: guyrapu/core/avisos_tiktok.py
+msgid "Voz principal sin sonido"
+msgstr "Main voice without sound"
+
+#: guyrapu/core/avisos_tiktok.py
+msgid "Voz secundaria sin sonido"
+msgstr "Secondary voice without sound"
 
 #: guyrapu/core/avisos_tiktok.py
 msgid "Solo sonido"
@@ -10692,6 +10700,10 @@ msgid "&Voz principal:"
 msgstr "&Main voice:"
 
 #: guyrapu/ui/preferencias_voz.py
+msgid "Voz principal"
+msgstr "Main voice"
+
+#: guyrapu/ui/preferencias_voz.py
 msgid "Ve&locidad (0 a 100):"
 msgstr "Spee&d (0 to 100):"
 
@@ -10766,6 +10778,10 @@ msgstr "Same as the main voice"
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Igual que el respaldo de la voz principal"
 msgstr "Same as the main voice backup"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Voz secundaria"
+msgstr "Secondary voice"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Vo&z:"

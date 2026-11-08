@@ -22,11 +22,19 @@ AVISOS = (("entrada", "aviso_entradas", N_("&Entradas al directo:"),
           ("meta", "aviso_metas", N_("&Metas:"), "principal"),
           ("batalla", "aviso_batallas", N_("Batal&las:"), "principal"))
 
-MODOS_EVENTO = (("principal", N_("Voz principal")),
-                ("secundaria", N_("Voz secundaria")),
+MODOS_EVENTO = (("principal", N_("Voz principal y sonido")),
+                ("secundaria", N_("Voz secundaria y sonido")),
+                ("principal_sin_sonido", N_("Voz principal sin sonido")),
+                ("secundaria_sin_sonido", N_("Voz secundaria sin sonido")),
                 ("mostrar", N_("Solo sonido")),
                 ("lista", N_("Solo en la lista")),
                 ("ocultar", N_("Desactivado")))
+
+_MODOS_CON_VOZ = frozenset(
+    ("principal", "secundaria", "principal_sin_sonido",
+     "secundaria_sin_sonido"))
+_MODOS_CON_SECUNDARIA = frozenset(("secundaria", "secundaria_sin_sonido"))
+_MODOS_CON_SONIDO = frozenset(("principal", "secundaria", "mostrar"))
 
 EVENTOS = (("superchat", "principal"),
            ("miembro", "principal"),
@@ -56,16 +64,31 @@ _FABRICA_EVENTO = dict(EVENTOS)
 _VALIDOS_EVENTO = frozenset(modo for modo, _rotulo in MODOS_EVENTO)
 
 
+def con_voz(modo) -> bool:
+    """Si el modo lee el evento. `None` es un mensaje común: va con la principal."""
+    return modo is None or modo in _MODOS_CON_VOZ
+
+
+def con_secundaria(modo) -> bool:
+    """Si el modo lee el evento con la voz secundaria."""
+    return modo in _MODOS_CON_SECUNDARIA
+
+
+def con_sonido(modo) -> bool:
+    """Si el modo hace sonar su sonido. `None` suena como un mensaje común."""
+    return modo is None or modo in _MODOS_CON_SONIDO
+
+
 def modo_de(config, tipo) -> str | None:
     """Modo de lectura del aviso según el evento.
 
-    Los dos modos con voz leen. Los demás conservan su nombre. `None`
+    Los cuatro modos con voz leen. Los demás conservan su nombre. `None`
     para un tipo que no es un aviso de la captura.
     """
     modo = modo_evento(config, tipo)
     if modo is None:
         return None
-    return "leer" if modo in ("principal", "secundaria") else modo
+    return "leer" if con_voz(modo) else modo
 
 
 def evento_de(tipo) -> str | None:

@@ -14,7 +14,7 @@ from guyrapu.capture.tiktok_captura import debe_pasar_me_gusta
 from guyrapu.core import comando_clip
 from guyrapu.core import diagnostico
 from guyrapu.core import sonidos_eventos
-from guyrapu.core.avisos_tiktok import modo_evento, pasa_filtro
+from guyrapu.core.avisos_tiktok import con_sonido, modo_evento, pasa_filtro
 from guyrapu.core.config import (
     TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT,
 )
@@ -105,11 +105,11 @@ class ControladorChat:
         for _sin_uso in range(borrar):
             self.lista.Delete(0)
 
-        en_lista = (self._config is not None
-                    and modo_evento(self._config, registro.tipo) == "lista")
+        sonar = (self._config is None
+                 or con_sonido(modo_evento(self._config, registro.tipo)))
         if registro.tipo in (TIPO_SUPERCHAT, TIPO_STICKER):
             self._al_superchat(registro.monto)
-        if not en_lista:
+        if sonar:
             self._reproducir(registro)
 
         if visible:

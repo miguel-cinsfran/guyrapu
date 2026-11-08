@@ -392,7 +392,7 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
     hora = datetime.now().strftime('%H:%M:%S')
     if on_message: on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=rol)
 
-    if modo in ("mostrar", "lista"):
+    if not avisos_tiktok.con_voz(modo):
         return  # en la lista, sin leer
 
     if debe_leer_tts(autor, config) and (sesion_activa is None or sesion_activa()):
@@ -404,7 +404,7 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
             item["importante"] = True
         # Los eventos con voz secundaria llevan la marca; el worker conoce la
         # voz, la velocidad y el volumen.
-        if modo == "secundaria":
+        if avisos_tiktok.con_secundaria(modo):
             item["secundaria"] = True
         encolar(cola, item, config, stats)
         stats.inc("leidos")

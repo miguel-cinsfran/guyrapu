@@ -196,6 +196,34 @@ class TestControladorChat(unittest.TestCase):
             control._procesar(_registro(tipo=TIPO_ENTRADA))
         reproducir.assert_called_once_with("entrada")
 
+    def test_evento_en_principal_sin_sonido_entra_a_la_lista_sin_sonar(self):
+        control = _controlador(config={"evento_entrada": "principal_sin_sonido"})
+        with mock.patch.object(chat_vivo._snd, "reproducir") as reproducir:
+            visible = control._procesar(_registro(tipo=TIPO_ENTRADA))
+        self.assertTrue(visible)
+        reproducir.assert_not_called()
+        control.lista.Append.assert_called_once()
+
+    def test_evento_en_secundaria_sin_sonido_entra_a_la_lista_sin_sonar(self):
+        for modo in ("secundaria_sin_sonido", "secundaria"):
+            with self.subTest(modo=modo):
+                control = _controlador(config={"evento_entrada": modo})
+                with mock.patch.object(chat_vivo._snd,
+                                       "reproducir") as reproducir:
+                    visible = control._procesar(_registro(tipo=TIPO_ENTRADA))
+                self.assertTrue(visible)
+                control.lista.Append.assert_called_once()
+                if modo == "secundaria":
+                    self.assertEqual(reproducir.call_count, 1)
+                else:
+                    reproducir.assert_not_called()
+
+    def test_evento_en_principal_sigue_sonando(self):
+        control = _controlador(config={"evento_entrada": "principal"})
+        with mock.patch.object(chat_vivo._snd, "reproducir") as reproducir:
+            control._procesar(_registro(tipo=TIPO_ENTRADA))
+        reproducir.assert_called_once_with("entrada")
+
     def test_regalo_en_lista_suma_al_total_sin_sonar(self):
         control = _controlador(config={"evento_superchat": "lista"})
         with mock.patch.object(chat_vivo._snd, "reproducir") as reproducir:

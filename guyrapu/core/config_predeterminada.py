@@ -245,7 +245,7 @@ _COMENTARIOS: dict[str, str] = {
     ),
     "sesion": "# Silenciar lectura al arrancar.\n",
     "tiktok": "# Usuario de TikTok. Los avisos de cada evento van en [eventos].\n",
-    "eventos": "# Modo de cada evento; se cambia en Preferencias > Lectura.\n",
+    "eventos": "# Modo de cada evento; se cambia en Preferencias > Eventos del directo.\n",
     "diagnostico": "# Registro detallado para diagnosticar errores (requiere reiniciar).\n",
     "overlay": "# Chat en el vídeo para transmitir por navegador (overlay web).\n",
     "obs": "# Integración con OBS: nombre de la fuente de micrófono.\n",

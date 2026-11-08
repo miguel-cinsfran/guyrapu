@@ -520,6 +520,23 @@ class TestTextosEntranteNuevos(unittest.TestCase):
         self.assertNotIn("secundaria", item)
         self.assertNotIn("voz", item)
 
+    def test_evento_en_principal_sin_sonido_lee_sin_marca(self):
+        cola = queue.Queue()
+        main.procesar_entrante(
+            "Ana", "", TIPO_ENTRADA, "", "canal", cola,
+            _config_minima(evento_entrada="principal_sin_sonido"), main.Stats(),
+            on_message=lambda *a, **k: None)
+        item = cola.get_nowait()
+        self.assertNotIn("secundaria", item)
+
+    def test_evento_en_secundaria_sin_sonido_lee_con_marca(self):
+        cola = queue.Queue()
+        main.procesar_entrante(
+            "Ana", "", TIPO_ENTRADA, "", "canal", cola,
+            _config_minima(evento_entrada="secundaria_sin_sonido"), main.Stats(),
+            on_message=lambda *a, **k: None)
+        self.assertIs(cola.get_nowait().get("secundaria"), True)
+
     def test_evento_en_mostrar_avisa_pero_no_lee(self):
         cola = queue.Queue()
         avisos = []
