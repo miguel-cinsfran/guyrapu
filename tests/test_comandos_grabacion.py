@@ -72,14 +72,22 @@ class GestorGrabacionFalso:
 
 class TestComandosGrabacion(unittest.TestCase):
 
-    def _correr(self, funcion, gestor=None):
+    def _correr(self, funcion, gestor=None, config=None):
         gestor = gestor or GestorGrabacionFalso()
+        gestor._cliente = object()
+
+        def alternar(cliente, perfil, parada=None):
+            activa, ruta = gestor.alternar_grabacion_con_ruta()
+            return activa, ruta, ""
+
         with mock.patch.object(comandos_grabacion, "GestorPanelObs",
                                return_value=gestor), \
                 mock.patch.object(comandos_grabacion.diagnostico,
                                   "crear_hilo", HiloInmediato), \
+                mock.patch.object(comandos_grabacion.perfil_grabacion,
+                                  "alternar", side_effect=alternar), \
                 mock.patch.object(comandos_grabacion, "avisar") as avisar:
-            funcion(SimpleNamespace())
+            funcion(SimpleNamespace(_config=config or {}))
         return gestor, avisar
 
     def test_alternar_grabacion_inicia_y_avisa_como_el_panel(self):
@@ -89,6 +97,40 @@ class TestComandosGrabacion(unittest.TestCase):
         self.assertTrue(gestor.grabando)
         avisar.assert_called_once_with("Grabación iniciada", "grabacion_iniciada")
         self.assertTrue(gestor.cerrado)
+
+    def test_alternar_grabacion_pasa_el_perfil_de_la_configuracion(self):
+        gestor = GestorGrabacionFalso(grabando=False)
+        gestor._cliente = object()
+        with mock.patch.object(comandos_grabacion, "GestorPanelObs",
+                               return_value=gestor), \
+                mock.patch.object(comandos_grabacion.diagnostico,
+                                  "crear_hilo", HiloInmediato), \
+                mock.patch.object(comandos_grabacion.perfil_grabacion,
+                                  "alternar",
+                                  return_value=(True, "", "")) as alternar, \
+                mock.patch.object(comandos_grabacion, "avisar"):
+            comandos_grabacion.alternar_grabacion(
+                SimpleNamespace(_config={"perfil_grabar": "Grabar"}))
+        alternar.assert_called_once_with(gestor._cliente, "Grabar")
+
+    def test_alternar_grabacion_antepone_el_aviso_al_anuncio(self):
+        gestor = GestorGrabacionFalso(grabando=False)
+        gestor._cliente = object()
+        with mock.patch.object(comandos_grabacion, "GestorPanelObs",
+                               return_value=gestor), \
+                mock.patch.object(comandos_grabacion.diagnostico,
+                                  "crear_hilo", HiloInmediato), \
+                mock.patch.object(
+                    comandos_grabacion.perfil_grabacion, "alternar",
+                    return_value=(True, "",
+                                  "Con el directo en marcha, se graba "
+                                  "con el perfil Directo.")), \
+                mock.patch.object(comandos_grabacion, "avisar") as avisar:
+            comandos_grabacion.alternar_grabacion(
+                SimpleNamespace(_config={"perfil_grabar": "Grabar"}))
+        avisar.assert_called_once_with(
+            "Con el directo en marcha, se graba con el perfil Directo. "
+            "Grabación iniciada", "grabacion_iniciada")
 
     def test_alternar_grabacion_detiene_y_avisa_como_el_panel(self):
         gestor, avisar = self._correr(
@@ -193,7 +235,8 @@ class TestComandosGrabacion(unittest.TestCase):
                                return_value=gestor), \
                 mock.patch.object(comandos_grabacion.diagnostico,
                                   "crear_hilo", HiloSinArrancar):
-            comandos_grabacion.alternar_grabacion(SimpleNamespace())
+            comandos_grabacion.alternar_grabacion(
+                SimpleNamespace(_config={"perfil_grabar": ""}))
         self.assertEqual([hilo.nombre for hilo in hilos], ["GrabacionObs"])
         self.assertEqual(gestor.llamadas, [])
 

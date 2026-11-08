@@ -25,8 +25,7 @@ class PaginaGrabacion(wx.Panel):
 
     def _crear_controles(self, gestor, operaciones):
         caja = wx.BoxSizer(wx.VERTICAL)
-        self._grabacion = ControlGrabacion(
-            self, operaciones, gestor, self._grabacion_cambiada, self)
+        self._grabacion = self._nueva_grabacion(gestor, operaciones)
         caja.Add(fila_horizontal((self._grabacion.boton,
                                   self._grabacion.pausar)), 0, wx.ALL, 6)
         self.chk_grabar = wx.CheckBox(
@@ -38,6 +37,14 @@ class PaginaGrabacion(wx.Panel):
         self.lista = PanelGrabaciones(self)
         caja.Add(self.lista, 1, wx.EXPAND | wx.ALL, 6)
         self.SetSizer(caja)
+
+    def _nueva_grabacion(self, gestor, operaciones):
+        return ControlGrabacion(
+            self, operaciones, gestor, self._grabacion_cambiada, self,
+            self._perfil_para_grabar)
+
+    def _perfil_para_grabar(self):
+        return self._principal._config.get("perfil_grabar", "")
 
     def _enlazar_eventos(self):
         self.chk_grabar.Bind(wx.EVT_CHECKBOX, self._alternar_casilla)

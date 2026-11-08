@@ -4298,6 +4298,25 @@ msgstr "OBS is not open."
 msgid "No se pudo mostrar la ventana de OBS."
 msgstr "Could not show the OBS window."
 
+#. Traductores: {perfil} es el perfil de OBS que está activo.
+#: guyrapu/obs/perfil_grabacion.py
+#, python-brace-format
+msgid "Con el directo en marcha, se graba con el perfil {perfil}."
+msgstr "With the live stream running, recording uses the {perfil} profile."
+
+#. Traductores: {perfil} es el perfil de OBS que está activo.
+#: guyrapu/obs/perfil_grabacion.py
+#, python-brace-format
+msgid "Con los clips en marcha, se graba con el perfil {perfil}."
+msgstr "With clips running, recording uses the {perfil} profile."
+
+#. Traductores: {elegido} es el perfil para grabar que ya no está en OBS y
+#. {perfil} el que está activo.
+#: guyrapu/obs/perfil_grabacion.py
+#, python-brace-format
+msgid "OBS no tiene el perfil {elegido}: se graba con el perfil {perfil}."
+msgstr "OBS has no {elegido} profile: recording uses the {perfil} profile."
+
 #: guyrapu/obs/prueba_microfono.py
 msgid "Prueba del micrófono iniciada. Habla como en un directo."
 msgstr "Microphone test started. Talk as you would on a live stream."
@@ -10617,12 +10636,24 @@ msgid "60 segundos"
 msgstr "60 seconds"
 
 #: guyrapu/ui/preferencias_transmision.py
+msgid "El perfil que tenga OBS"
+msgstr "The profile OBS is using"
+
+#: guyrapu/ui/preferencias_transmision.py
 msgid "A&visar si OBS se sobrecarga"
 msgstr "W&arn if OBS is overloaded"
 
 #: guyrapu/ui/preferencias_transmision.py
 msgid "Mostrar en el &título de la ventana si se transmite o se graba"
 msgstr "Show streaming or recording in the &title of the window"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para gra&bar:"
+msgstr "&Record profile:"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para grabar"
+msgstr "Profile to record"
 
 #: guyrapu/ui/preferencias_transmision.py
 msgid "C&lips:"

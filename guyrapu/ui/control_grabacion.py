@@ -9,7 +9,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import grabaciones, obs_estado, obs_grabacion
+from guyrapu.obs import grabaciones, obs_estado, obs_grabacion, perfil_grabacion
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.preferencias_comun import mostrar_control, nombre_de_etiqueta
 
@@ -31,11 +31,12 @@ def _crear_botones(padre):
 class ControlGrabacion:
     """Botones de grabación del panel: iniciar o detener, y pausar o reanudar."""
 
-    def __init__(self, padre, operaciones, gestor, al_cambiar, foco):
+    def __init__(self, padre, operaciones, gestor, al_cambiar, foco, perfil):
         self._operaciones = operaciones
         self._gestor = gestor
         self._al_cambiar = al_cambiar
         self._foco = foco
+        self._perfil = perfil
         self.grabando = False
         self.en_pausa = False
         self.boton, self.pausar = _crear_botones(padre)
@@ -55,17 +56,27 @@ class ControlGrabacion:
         mostrar_control(self.pausar, self.grabando, self._foco)
 
     def _alternar(self, event):
-        self._operaciones.en_hilo(
-            self._gestor.alternar_grabacion_con_ruta, self._alternada)
+        self._operaciones.en_hilo(self._alternar_grabacion, self._alternada)
+
+    def _alternar_grabacion(self):
+        return perfil_grabacion.alternar(
+            self._gestor._cliente, self._perfil())
 
     def _alternada(self, resultado):
-        activa, ruta = resultado
+        activa, ruta, aviso = resultado
         self.fijar(activa, False)
         if activa:
-            self._resultado("grabacion_iniciada")
+            self._anunciar_iniciada(aviso)
             return
         avisar(grabaciones.anotar_y_decir(ruta),
                 obs_estado.sonido_resultado("grabacion_detenida"))
+        self._al_cambiar()
+
+    def _anunciar_iniciada(self, aviso):
+        frase = obs_estado.frase_resultado("grabacion_iniciada")
+        if aviso:
+            frase = f"{aviso} {frase}"
+        avisar(frase, obs_estado.sonido_resultado("grabacion_iniciada"))
         self._al_cambiar()
 
     def _alternar_pausa(self, event):

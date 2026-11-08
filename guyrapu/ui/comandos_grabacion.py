@@ -3,6 +3,7 @@
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import grabaciones, obs_cliente, obs_estado, obs_grabacion
+from guyrapu.obs import perfil_grabacion
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.ui.aviso_importante import avisar
 
@@ -38,10 +39,13 @@ def _ejecutar_en_obs(operacion):
 def alternar_grabacion(frame):
     """Inicia o detiene la grabación de OBS, como el botón del panel."""
     def _operacion(gestor):
-        activa, ruta = gestor.alternar_grabacion_con_ruta()
+        activa, ruta, aviso = perfil_grabacion.alternar(
+            gestor._cliente, frame._config.get("perfil_grabar", ""))
         accion = "grabacion_iniciada" if activa else "grabacion_detenida"
         frase = (obs_estado.frase_resultado(accion) if activa
                  else grabaciones.anotar_y_decir(ruta))
+        if activa and aviso:
+            frase = f"{aviso} {frase}"
         return frase, obs_estado.sonido_resultado(accion)
     _ejecutar_en_obs(_operacion)
 

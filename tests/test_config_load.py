@@ -802,6 +802,14 @@ class TestCargarConfiguracion(unittest.TestCase):
         self.assertTrue(vacio.activo)
         self.assertEqual(vacio.minutos, 1)
 
+    def test_perfil_para_grabar_vacio_de_fabrica_y_se_conserva(self):
+        cfg = self._cargar_en(config._CONFIG_FALLBACK)
+        self.assertEqual(cfg["perfil_grabar"], "")
+        texto = (Path(self._tmp.name) / "config.ini").read_text(encoding="utf-8")
+        self.assertIn("perfil_grabar =", texto)
+        cfg = self._cargar_en("[transmision]\nperfil_grabar = Grabar\n")
+        self.assertEqual(cfg["perfil_grabar"], "Grabar")
+
     def test_clip_del_chat_activo_y_un_minuto_de_fabrica(self):
         cfg = self._cargar_en("[voz]\nvoz = 0\n")
         self.assertTrue(cfg["clips_chat"])

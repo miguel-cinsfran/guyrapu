@@ -376,6 +376,10 @@ class TestReconexionYSonidos(unittest.TestCase):
         self.assertEqual(
             pred.obtener("transmision", "grabar_al_transmitir"), "false")
 
+    def test_fabrica_trae_perfil_para_grabar_vacio(self):
+        self.assertEqual(pred.obtener("transmision", "perfil_grabar"), "")
+        self.assertIn("perfil_grabar =\n", pred.generar_texto())
+
     def test_fabrica_trae_clip_del_chat_permitido_y_un_minuto(self):
         self.assertEqual(pred.obtener("transmision", "clips_chat"), "true")
         self.assertEqual(pred.obtener("transmision", "clips_chat_espera"), "1")

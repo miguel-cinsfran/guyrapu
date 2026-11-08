@@ -11,6 +11,7 @@ import wx
 
 from guyrapu.core import diagnostico
 from guyrapu.core.comando_clip import COMANDO as COMANDO_CLIP
+from guyrapu.core.diagnostico import crear_hilo as _crear_hilo
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_cliente
@@ -25,6 +26,8 @@ OPCIONES_CLIPS = (
     (30, N_("30 segundos")),
     (60, N_("60 segundos")),
 )
+
+PERFIL_ACTUAL = N_("El perfil que tenga OBS")
 
 
 class PaginaTransmision:
@@ -44,6 +47,58 @@ class PaginaTransmision:
             name="TituloEstadoObs")
         vs.Add(titulo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         return avisar, titulo
+
+    def _agregar_perfil_grabar(self, p, vs):
+        """Lista el perfil de OBS con el que se graba, si se elige uno."""
+        vs.Add(fila_label(p, _("Perfil para gra&bar:")),
+               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        guardado = str(self._config.get("perfil_grabar", "") or "")
+        opciones = [_(PERFIL_ACTUAL)]
+        if guardado:
+            opciones.append(guardado)
+        self.cho_perfil_grabar = wx.Choice(
+            p, choices=opciones, name=_("Perfil para grabar"))
+        self.cho_perfil_grabar.SetSelection(1 if guardado else 0)
+        vs.Add(self.cho_perfil_grabar, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        _crear_hilo(
+            self._leer_perfiles_obs, "PerfilesGrabarObs").start()
+
+    def _leer_perfiles_obs(self):
+        """Lee los perfiles de OBS sin abrirlo; si no responde, no hace nada."""
+        gestor = None
+        try:
+            # Import local: obs_panel importa módulos que usan wx.
+            from guyrapu.obs.obs_panel import GestorPanelObs
+            gestor = GestorPanelObs()
+            gestor.conectar()
+            respuesta = gestor._cliente.pedir("GetProfileList")
+            datos = (respuesta or {}).get("responseData", respuesta or {})
+            perfiles = [str(nombre) for nombre in (datos.get("profiles") or [])]
+        except Exception as exc:
+            logger.debug("no se pudieron leer los perfiles de OBS: %s", exc)
+            return
+        finally:
+            if gestor is not None:
+                try:
+                    gestor.cerrar()
+                except Exception as exc:
+                    logger.debug("no se pudo cerrar el gestor de OBS: %s", exc)
+        wx.CallAfter(self._sumar_perfiles, perfiles)
+
+    def _sumar_perfiles(self, perfiles):
+        """Agrega los perfiles que falten sin mover el foco ni la selección."""
+        try:
+            seleccion = self.cho_perfil_grabar.GetSelection()
+            opciones = [self.cho_perfil_grabar.GetString(i)
+                        for i in range(self.cho_perfil_grabar.GetCount())]
+            for nombre in perfiles:
+                if nombre and nombre not in opciones:
+                    self.cho_perfil_grabar.Append(nombre)
+                    opciones.append(nombre)
+            if seleccion != wx.NOT_FOUND:
+                self.cho_perfil_grabar.SetSelection(seleccion)
+        except Exception as exc:
+            logger.debug("no se pudieron agregar los perfiles de OBS: %s", exc)
 
     def _agregar_clips(self, p, vs):
         """Lista la duración del búfer que OBS prepara al iniciar el directo."""
@@ -95,6 +150,8 @@ class PaginaTransmision:
 
         self.chk_avisar_sobrecarga, self.chk_titulo_estado_obs = self._casillas_de_aviso(p, vs)
 
+        self._agregar_perfil_grabar(p, vs)
+
         self._agregar_clips(p, vs)
 
         self._agregar_puerto(p, vs)
@@ -129,6 +186,11 @@ class PaginaTransmision:
         segundos = OPCIONES_CLIPS[max(0, self.cho_clips.GetSelection())][0]
         fijar("transmision", "clips", str(segundos))
         en_memoria["clips"] = segundos
+        indice = self.cho_perfil_grabar.GetSelection()
+        perfil = ("" if indice <= 0
+                  else self.cho_perfil_grabar.GetStringSelection())
+        fijar("transmision", "perfil_grabar", perfil)
+        en_memoria["perfil_grabar"] = perfil
         clips_chat = self.chk_clips_chat.GetValue()
         fijar("transmision", "clips_chat", "true" if clips_chat else "false")
         en_memoria["clips_chat"] = clips_chat

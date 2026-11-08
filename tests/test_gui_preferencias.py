@@ -87,6 +87,39 @@ class TestDialogoSinTextosSinEnvolver(unittest.TestCase):
                          sorted(map(_normalizar, esperados)))
 
 
+class HiloInmediato:
+    """Doble de `diagnostico.crear_hilo` que ejecuta el objetivo al arrancar."""
+
+    def __init__(self, target, nombre, **kwargs):
+        self.target = target
+
+    def start(self):
+        self.target()
+
+
+class ClientePerfilesFalso:
+
+    def __init__(self, perfiles=("Directo", "Grabar")):
+        self.perfiles = list(perfiles)
+
+    def pedir(self, tipo, datos=None, parada=None):
+        return {"responseData": {"profiles": list(self.perfiles),
+                                 "currentProfileName": "Directo"}}
+
+
+class GestorPerfilesFalso:
+
+    def __init__(self):
+        self._cliente = ClientePerfilesFalso()
+        self.cerrado = False
+
+    def conectar(self):
+        pass
+
+    def cerrar(self):
+        self.cerrado = True
+
+
 class TestPaginaObsClips(unittest.TestCase):
     def setUp(self):
         self.app = app_de_prueba()
@@ -109,9 +142,10 @@ class TestPaginaObsClips(unittest.TestCase):
         catalogo_vacio.start()
         self.addCleanup(catalogo_vacio.stop)
 
-    def _dialogo(self):
+    def _dialogo(self, configuracion=None):
         with mock.patch.object(motores, "listar_voces", return_value=[]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = gui_preferencias.PreferenciasDialog(
+                None, configuracion or {})
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -165,6 +199,64 @@ class TestPaginaObsClips(unittest.TestCase):
         self.assertEqual(guardados[("transmision", "clips_chat")], "false")
         self.assertEqual(
             guardados[("transmision", "clips_chat_espera")], "15")
+
+    def test_perfil_para_grabar_tiene_su_nombre_y_arranca_en_el_actual(self):
+        pagina = self._dialogo().pagina_transmision
+        self.assertEqual(pagina.cho_perfil_grabar.GetName(),
+                         "Perfil para grabar")
+        self.assertEqual(pagina.cho_perfil_grabar.GetCount(), 1)
+        self.assertEqual(pagina.cho_perfil_grabar.GetString(0),
+                         "El perfil que tenga OBS")
+        self.assertEqual(pagina.cho_perfil_grabar.GetSelection(), 0)
+
+    def test_el_perfil_guardado_se_carga_seleccionado_al_abrir(self):
+        pagina = self._dialogo(
+            {"perfil_grabar": "Grabar"}).pagina_transmision
+        self.assertEqual(
+            [pagina.cho_perfil_grabar.GetString(i)
+             for i in range(pagina.cho_perfil_grabar.GetCount())],
+            ["El perfil que tenga OBS", "Grabar"])
+        self.assertEqual(pagina.cho_perfil_grabar.GetStringSelection(),
+                         "Grabar")
+
+    def test_los_perfiles_de_obs_se_agregan_sin_cambiar_la_seleccion(self):
+        gestor = GestorPerfilesFalso()
+        with mock.patch.object(
+                preferencias_transmision, "_crear_hilo",
+                HiloInmediato), \
+                mock.patch("guyrapu.obs.obs_panel.GestorPanelObs",
+                           return_value=gestor), \
+                mock.patch.object(preferencias_transmision.wx, "CallAfter",
+                                  lambda funcion, *args: funcion(*args)):
+            pagina = self._dialogo().pagina_transmision
+        self.assertEqual(
+            [pagina.cho_perfil_grabar.GetString(i)
+             for i in range(pagina.cho_perfil_grabar.GetCount())],
+            ["El perfil que tenga OBS", "Directo", "Grabar"])
+        self.assertEqual(pagina.cho_perfil_grabar.GetSelection(), 0)
+        self.assertTrue(gestor.cerrado)
+
+    def test_guardar_perfil_para_grabar_escribe_lo_elegido_y_lo_copia(self):
+        gestor = GestorPerfilesFalso()
+        with mock.patch.object(
+                preferencias_transmision, "_crear_hilo",
+                HiloInmediato), \
+                mock.patch("guyrapu.obs.obs_panel.GestorPanelObs",
+                           return_value=gestor), \
+                mock.patch.object(preferencias_transmision.wx, "CallAfter",
+                                  lambda funcion, *args: funcion(*args)):
+            pagina = self._dialogo().pagina_transmision
+        pagina.cho_perfil_grabar.SetStringSelection("Grabar")
+        guardados = {}
+        memoria = {}
+        pagina.guardar(
+            lambda seccion, clave, valor: guardados.__setitem__(
+                (seccion, clave), valor), memoria)
+        self.assertEqual(guardados[("transmision", "perfil_grabar")], "Grabar")
+        self.assertEqual(memoria["perfil_grabar"], "Grabar")
+        pagina.cho_perfil_grabar.SetSelection(0)
+        pagina.guardar(lambda *_args: None, memoria)
+        self.assertEqual(memoria["perfil_grabar"], "")
 
 
 class TestPaginaDescargas(unittest.TestCase):

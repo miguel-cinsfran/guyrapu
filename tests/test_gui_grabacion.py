@@ -19,13 +19,38 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 
 class PrincipalFalsa:
 
-    def __init__(self, grabar=False, preferido="Mic/Aux"):
+    def __init__(self, grabar=False, preferido="Mic/Aux", perfil=""):
         self._config = {"grabar_al_transmitir": grabar,
-                        "obs_microfono": preferido}
+                        "obs_microfono": preferido,
+                        "perfil_grabar": perfil}
         self._atajos = {
             "abrir_escena": SimpleNamespace(texto="ctrl+shift+e"),
             "abrir_grabacion": SimpleNamespace(texto="ctrl+shift+g"),
         }
+
+
+class ClienteGrabacionFalso:
+    """Cliente de OBS mínimo que graba sobre el estado del gestor falso."""
+
+    def __init__(self, gestor):
+        self.gestor = gestor
+
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "GetRecordStatus":
+            return {"responseData": {
+                "outputActive": self.gestor.grabando,
+                "outputPaused": self.gestor.grabacion_en_pausa}}
+        if tipo == "StartRecord":
+            self.gestor.grabando = True
+            return {"responseData": {}}
+        if tipo == "StopRecord":
+            self.gestor.grabando = False
+            return {"responseData": {"outputPath": self.gestor.ruta_grabacion}}
+        if tipo == "GetStreamStatus":
+            return {"responseData": {"outputActive": False}}
+        if tipo == "GetReplayBufferStatus":
+            return {"responseData": {"outputActive": False}}
+        return {"responseData": {}}
 
 
 class GestorConexion(GestorFalso):
@@ -131,6 +156,7 @@ class TestPanelObsEnGrabacion(unittest.TestCase):
         self.addCleanup(self._frenar)
         self.principal = PrincipalFalsa()
         self.gestor = GestorFalso()
+        self.gestor._cliente = ClienteGrabacionFalso(self.gestor)
         self.dialogo = self._crear()
         self.anuncios.clear()
 
@@ -140,6 +166,8 @@ class TestPanelObsEnGrabacion(unittest.TestCase):
 
     def _crear(self, gestor=None, principal=None,
                pestana=obs_ventana.PESTANA_GRABACION):
+        if gestor is not None and not hasattr(gestor, "_cliente"):
+            gestor._cliente = ClienteGrabacionFalso(gestor)
         dialogo = obs_ventana.VentanaObs(
             None, principal or self.principal,
             gestor=self.gestor if gestor is None else gestor,
@@ -213,17 +241,43 @@ class TestPanelObsEnGrabacion(unittest.TestCase):
                       dialogo._pagina_grabacion._grabacion.boton)
 
     def test_iniciar_llama_a_alternar_grabacion_con_ruta_y_refresca(self):
-        with mock.patch.object(
-                self.gestor, "alternar_grabacion_con_ruta",
-                wraps=self.gestor.alternar_grabacion_con_ruta) as alternar, \
+        def alternar(cliente, perfil, parada=None):
+            self.gestor.grabando = True
+            return True, "", ""
+
+        with mock.patch.object(control_grabacion.perfil_grabacion, "alternar",
+                               side_effect=alternar) as alternar_mock, \
                 mock.patch.object(
                     consultas_transmision, "leer_estado",
                     wraps=consultas_transmision.leer_estado) as leer:
             self._pulsar(self.dialogo._pagina_grabacion._grabacion.boton)
-        alternar.assert_called_once_with()
+        alternar_mock.assert_called_once_with(self.gestor._cliente, "")
         self.assertEqual(leer.call_count, 2)
         self.assertIn("Grabación: en curso, 00:01:02",
                       self.dialogo._pagina_general.texto())
+
+    def test_el_aviso_va_delante_del_anuncio_de_grabacion_iniciada(self):
+        dialogo = self._crear(principal=PrincipalFalsa(perfil="Grabar"))
+        self.anuncios.clear()
+        with mock.patch.object(
+                control_grabacion.perfil_grabacion, "alternar",
+                return_value=(True, "",
+                              "Con el directo en marcha, se graba "
+                              "con el perfil Directo.")):
+            self._pulsar(dialogo._pagina_grabacion._grabacion.boton)
+        self.assertEqual(
+            self.anuncios[0],
+            "Con el directo en marcha, se graba con el perfil Directo. "
+            "Grabación iniciada")
+        self.sonar.assert_called_with("grabacion_iniciada")
+
+    def test_pasa_el_perfil_elegido_de_la_configuracion(self):
+        dialogo = self._crear(principal=PrincipalFalsa(perfil="Grabar"))
+        with mock.patch.object(
+                control_grabacion.perfil_grabacion, "alternar",
+                return_value=(True, "", "")) as alternar:
+            self._pulsar(dialogo._pagina_grabacion._grabacion.boton)
+        alternar.assert_called_once_with(self.gestor._cliente, "Grabar")
 
     def test_los_botones_siguen_el_estado_confirmado_tras_alternar(self):
         dialogo = self._crear(gestor=GestorGrabacionLenta())

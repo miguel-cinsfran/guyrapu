@@ -1924,6 +1924,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("transmision", "avisar_sobrecarga"),
             ("transmision", "titulo_estado_obs"),
             ("transmision", "clips"),
+            ("transmision", "perfil_grabar"),
             ("transmision", "clips_chat"),
             ("transmision", "clips_chat_espera"),
             ("transmision", "avisar_encuadre"),
