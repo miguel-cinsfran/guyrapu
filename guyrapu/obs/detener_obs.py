@@ -21,7 +21,8 @@ INTERVALO_ESPERA_OBS = 1.0
 AVISO_ESPERA_OBS = 3.0
 
 
-def detener(crear_gestor, anunciar, reloj, dormir, obs_activo=None) -> None:
+def detener(crear_gestor, anunciar, reloj, dormir, resumen=None,
+            obs_activo=None) -> None:
     """Pide parar a OBS y espera a que confirme, sin congelar la ventana.
 
     Corre en el hilo DetenerSupervisor, así que puede dormir con `dormir`
@@ -34,7 +35,7 @@ def detener(crear_gestor, anunciar, reloj, dormir, obs_activo=None) -> None:
         gestor.conectar()
     except Exception as error:
         _cerrar_gestor(gestor)
-        _anunciar_sin_respuesta(anunciar, error, obs_activo)
+        _anunciar_sin_respuesta(anunciar, error, resumen, obs_activo)
         return
     try:
         try:
@@ -47,18 +48,20 @@ def detener(crear_gestor, anunciar, reloj, dormir, obs_activo=None) -> None:
             # sigue sin responder.
             activa = True
         if not activa:
-            anunciar(_("Transmisión detenida."), "transmision_detenida", True)
+            _anunciar_detenida(anunciar, resumen)
             return
         try:
             gestor.detener_transmision()
         except Exception as error:
             logger.debug("no se pudo detener la transmisión en OBS: %s", error)
-        _esperar_a_obs(gestor, anunciar, reloj, dormir, obs_activo)
+        _esperar_a_obs(gestor, anunciar, reloj, dormir, resumen,
+                       obs_activo)
     finally:
         _cerrar_gestor(gestor)
 
 
-def _esperar_a_obs(gestor, anunciar, reloj, dormir, obs_activo) -> None:
+def _esperar_a_obs(gestor, anunciar, reloj, dormir, resumen,
+                   obs_activo) -> None:
     """Consulta a OBS hasta que la salida se apague, con un límite."""
     inicio = reloj()
     avisado = False
@@ -67,10 +70,10 @@ def _esperar_a_obs(gestor, anunciar, reloj, dormir, obs_activo) -> None:
             activa = bool(
                 gestor.estado_transmision().get("outputActive"))
         except Exception as error:
-            _anunciar_sin_respuesta(anunciar, error, obs_activo)
+            _anunciar_sin_respuesta(anunciar, error, resumen, obs_activo)
             return
         if not activa:
-            anunciar(_("Transmisión detenida."), "transmision_detenida", True)
+            _anunciar_detenida(anunciar, resumen)
             return
         transcurrido = reloj() - inicio
         if not avisado and transcurrido >= AVISO_ESPERA_OBS:
@@ -85,7 +88,7 @@ def _esperar_a_obs(gestor, anunciar, reloj, dormir, obs_activo) -> None:
         dormir(INTERVALO_ESPERA_OBS)
 
 
-def _anunciar_sin_respuesta(anunciar, error, obs_activo) -> None:
+def _anunciar_sin_respuesta(anunciar, error, resumen, obs_activo) -> None:
     # Sin poder hablar con OBS, la señal depende de si OBS sigue abierto:
     # si no corre, la transmisión ya no sale y está detenida.
     try:
@@ -97,7 +100,15 @@ def _anunciar_sin_respuesta(anunciar, error, obs_activo) -> None:
             _("No se pudo conectar con OBS para detener la transmisión."),
             "transmision_problema", True)
     else:
-        anunciar(_("Transmisión detenida."), "transmision_detenida", True)
+        _anunciar_detenida(anunciar, resumen)
+
+
+def _anunciar_detenida(anunciar, resumen) -> None:
+    frase = _("Transmisión detenida.")
+    texto = resumen() if resumen is not None else ""
+    if texto:
+        frase = "{} {}".format(frase, texto)
+    anunciar(frase, "transmision_detenida", True)
 
 
 def _cerrar_gestor(gestor) -> None:

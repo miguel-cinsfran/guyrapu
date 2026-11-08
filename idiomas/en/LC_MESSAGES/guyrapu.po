@@ -12070,3 +12070,85 @@ msgstr "Better quality"
 msgid "La mejor calidad"
 msgstr "Best quality"
 
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento de los fotogramas por la red"
+msgstr "the {n} percent of the frames due to the network"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento al codificar"
+msgstr "the {n} percent while encoding"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento de los fotogramas al codificar"
+msgstr "the {n} percent of the frames while encoding"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento al dibujar la escena"
+msgstr "the {n} percent while drawing the scene"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento de los fotogramas al dibujar la escena"
+msgstr "the {n} percent of the frames while drawing the scene"
+
+#: guyrapu/obs/resumen_directo.py
+msgid "Se perdió menos del 1 por ciento de los fotogramas."
+msgstr "Less than 1 percent of the frames was lost."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "Se perdió {partes}."
+msgstr "Lost {partes}."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "Se perdió {uno} y {dos}."
+msgstr "Lost {uno} and {dos}."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "Se perdió {uno}, {dos} y {tres}."
+msgstr "Lost {uno}, {dos} and {tres}."
+
+#: guyrapu/obs/resumen_directo.py
+msgid "de OBS"
+msgstr "OBS"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, baja la velocidad de bits de vídeo del perfil "
+"{perfil} o usa una conexión por cable."
+msgstr ""
+"For the next live stream, lower the video bit rate of the {perfil} profile "
+"or use a wired connection."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, usa el codificador de la gráfica en el perfil "
+"{perfil}."
+msgstr "For the next live stream, use the graphics encoder in the {perfil} profile."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, baja la resolución o los fotogramas por segundo "
+"del perfil {perfil}."
+msgstr ""
+"For the next live stream, lower the resolution or frame rate of the "
+"{perfil} profile."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, baja los fotogramas por segundo del perfil "
+"{perfil} o cierra programas que usen la gráfica."
+msgstr ""
+"For the next live stream, lower the frame rate of the {perfil} profile or "
+"close programs that use the graphics."
+

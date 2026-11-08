@@ -17,6 +17,7 @@ import time
 from guyrapu.capture import tiktok_vivo
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
+from guyrapu.obs import codificadores_obs
 from guyrapu.obs import detener_obs
 from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_cliente
@@ -24,6 +25,7 @@ from guyrapu.obs import obs_clips
 from guyrapu.obs import obs_estado
 from guyrapu.obs import obs_lanzador
 from guyrapu.obs import obs_salida
+from guyrapu.obs import resumen_directo
 from guyrapu.obs.duraciones import duracion_legible
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.youtube import emision
@@ -92,6 +94,11 @@ class SupervisorTransmision:
         self._ultimo_estado = None
         self._ultima_frase = ""
         self._destino_confirmado = None
+        # Muestras del directo para el resumen del final: la primera con la
+        # salida activa, la última activa, y el perfil con su codificador.
+        self._resumen_primero = None
+        self._resumen_ultimo = None
+        self._resumen_perfil = None
 
     @property
     def activo(self) -> bool:
@@ -138,6 +145,9 @@ class SupervisorTransmision:
         self._corte.clear()
         self._id_video = None
         self._cierre.reiniciar()
+        self._resumen_primero = None
+        self._resumen_ultimo = None
+        self._resumen_perfil = None
         self._hilo = diagnostico.crear_hilo(
             self._supervisar, "SupervisorTransmision")
         self._hilo.start()
@@ -171,7 +181,18 @@ class SupervisorTransmision:
         """Pide parar a OBS y espera a que confirme, sin congelar la ventana."""
         detener_obs.detener(
             self._crear_gestor, self._anunciar, self._reloj, self._dormir,
-            obs_activacion.obs_esta_en_ejecucion)
+            self._resumen, obs_activacion.obs_esta_en_ejecucion)
+
+    def _resumen(self) -> str:
+        if self._resumen_primero is None or self._resumen_ultimo is None:
+            return ""
+        estado_inicial, estadisticas_iniciales = self._resumen_primero
+        estado_final, estadisticas_finales = self._resumen_ultimo
+        perfil, codificador = self._resumen_perfil or ("", "")
+        return resumen_directo.resumir(
+            estado_inicial, estado_final, estadisticas_iniciales,
+            estadisticas_finales, perfil, codificador,
+            codificadores_obs.codificadores_disponibles())
 
     def abandonar(self) -> None:
         # Deja de vigilar sin detener OBS y sin anunciar: cerrar la app no
@@ -348,6 +369,10 @@ class SupervisorTransmision:
         if not anterior.get("outputActive"):
             return
         estadisticas_anterior = self._estadisticas(gestor)
+        self._resumen_primero = (self._ultimo_estado, estadisticas_anterior)
+        self._resumen_ultimo = self._resumen_primero
+        self._resumen_perfil = resumen_directo.datos_del_perfil(
+            getattr(gestor, "_cliente", gestor), self._parada)
         ultimos_avisos = {}
         while not self._parada.is_set():
             self._esperar(self._intervalo_salud)
@@ -365,8 +390,12 @@ class SupervisorTransmision:
                     segundos = int(float(actual.get("outputDuration", 0)))
                 except (TypeError, ValueError):
                     segundos = 0
-                self._anunciar(_("La transmisión terminó. Duró {duracion}.").format(
-                    duracion=duracion_legible(segundos)), "transmision_detenida")
+                frase = _("La transmisión terminó. Duró {duracion}.").format(
+                    duracion=duracion_legible(segundos))
+                resumen = self._resumen()
+                if resumen:
+                    frase = "{} {}".format(frase, resumen)
+                self._anunciar(frase, "transmision_detenida")
                 self._finalizar_youtube_si_toca()
                 return
             estadisticas = self._estadisticas(gestor)
@@ -395,6 +424,8 @@ class SupervisorTransmision:
             anterior = actual
             if estadisticas is not None:
                 estadisticas_anterior = estadisticas
+            self._resumen_ultimo = (self._ultimo_estado,
+                                    estadisticas_anterior)
 
     def _estadisticas(self, gestor):
         # Los dobles que no traen estadísticas quedan sin avisos de equipo en

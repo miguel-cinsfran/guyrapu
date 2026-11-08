@@ -1866,5 +1866,83 @@ class TestPseudoAnunciosSupervisor(BaseSupervisor):
         self.assertTrue(fines[0][0].startswith("[¡"), fines[0][0])
 
 
+class GestorConPerfil(GestorFalso):
+    """Doble que además responde el perfil y el codificador como OBS."""
+
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "GetProfileList":
+            return {"responseData": {"currentProfileName": "Casa"}}
+        if tipo == "GetProfileParameter":
+            if (datos or {}).get("parameterName") == "Mode":
+                return {"responseData": {"parameterValue": "Simple"}}
+            return {"responseData": {"parameterValue": "obs_x264"}}
+        return {"responseData": {}}
+
+
+class ResumenAlTerminarTest(BaseSupervisor):
+    """El fin del directo suma el resumen de fotogramas, por los dos caminos."""
+
+    def _supervisor(self, estados, estados_detener=None):
+        reloj = RelojFalso()
+        anuncios = []
+        gestores = []
+
+        def crear_gestor():
+            if estados_detener is not None and gestores:
+                gestor = GestorConPerfil(estados_detener)
+            else:
+                gestor = GestorConPerfil(estados)
+            gestores.append(gestor)
+            return gestor
+
+        supervisor = SupervisorTransmision(
+            "YouTube", "",
+            al_anunciar=lambda frase, sonido, importante=False: anuncios.append(
+                (frase, sonido)),
+            al_conectar_chat=lambda url: None,
+            crear_gestor=crear_gestor,
+            esperar_salida=lambda cliente, parada=None: "enviando",
+            esperar_en_vivo=lambda u, parada=None, limite=None: (
+                ResultadoEspera(False, False)),
+            dormir=reloj.dormir, reloj=reloj.reloj,
+            intervalo_salud=5.0,
+            asegurar=lambda probar, al_anunciar=None, parada=None: False)
+        return supervisor, anuncios, gestores
+
+    RESUMEN = (
+        "Se perdió el 10 por ciento de los fotogramas por la red. "
+        "Para el próximo directo, baja la velocidad de bits de vídeo del perfil Casa "
+        "o usa una conexión por cable.")
+
+    def test_fin_solo_suma_el_resumen_de_fotogramas(self):
+        estados = [muestra(True, duracion=10, perdidos=0, totales=0),
+                   muestra(True, duracion=20, perdidos=100, totales=1000),
+                   muestra(False, duracion=30)]
+        supervisor, anuncios, _gestores = self._supervisor(estados)
+        self.iniciar_y_esperar_fin(supervisor, plazo=3.0)
+        self.assertIn((
+            "La transmisión terminó. Duró 30 segundos. " + self.RESUMEN,
+            "transmision_detenida"), anuncios)
+
+    def test_detener_desde_guyrapu_suma_el_resumen(self):
+        estados = [muestra(True, duracion=10, perdidos=0, totales=0),
+                   muestra(True, duracion=20, perdidos=100, totales=1000)]
+        estados += [muestra(True, duracion=20, perdidos=100,
+                            totales=1000)] * 500
+        detener_estados = [muestra(True, duracion=20),
+                           muestra(False, duracion=30)]
+        supervisor, anuncios, gestores = self._supervisor(
+            estados, detener_estados)
+        supervisor.iniciar()
+        self.assertTrue(esperar_condicion(
+            lambda: gestores and gestores[0].llamadas.count("estado") >= 2))
+        self.assertTrue(esperar_condicion(
+            lambda: supervisor._resumen_ultimo is not None
+            and supervisor._resumen_ultimo[0].get("outputTotalFrames") == 1000))
+        supervisor.detener()
+        self.assertIn(("Transmisión detenida. " + self.RESUMEN,
+                       "transmision_detenida"), anuncios)
+
+
 if __name__ == "__main__":
     unittest.main()
