@@ -3,6 +3,7 @@
 import base64
 import hashlib
 import json
+import logging
 import os
 import tempfile
 import threading
@@ -551,6 +552,48 @@ class RegistroDeFalloTest(unittest.TestCase):
         with self.assertLogs(obs_cliente.logger, level="DEBUG") as registros:
             obs_cliente.mensaje_de_fallo_obs(motivo, obs_abierto=lambda: False)
         self.assertEqual(1, len(registros.records))
+
+
+class TransporteConError(TransporteDoble):
+    """Responde siempre con el código de error pedido."""
+
+    def __init__(self, code, comment=""):
+        super().__init__([])
+        self.code = code
+        self.comment = comment
+
+    def send(self, mensaje):
+        datos = json.loads(mensaje)
+        self.enviados.append(datos)
+        if datos.get("op") != 6:
+            return
+        self.mensajes.append(json.dumps({
+            "op": 7,
+            "d": {
+                "requestId": datos["d"]["requestId"],
+                "requestStatus": {"result": False, "code": self.code,
+                                  "comment": self.comment},
+            },
+        }))
+
+
+class RespuestaConErrorTest(unittest.TestCase):
+
+    def test_el_codigo_de_error_va_a_debug_y_no_a_warning(self):
+        transporte = TransporteConError(604, "No source")
+        cliente = obs_cliente.ClienteObs(
+            obs_cliente.AjustesObs(True, 4455, ""), lambda uri: transporte)
+        cliente._transporte = transporte
+        with self.assertLogs(obs_cliente.logger, level="DEBUG") as registros:
+            with self.assertRaises(obs_cliente.ObsError) as contexto:
+                cliente.pedir("GetReplayBufferStatus")
+        self.assertEqual(
+            str(contexto.exception),
+            "OBS no pudo completar la operación. Vuelve a intentarlo.")
+        self.assertEqual([registro.levelno for registro in registros.records],
+                         [logging.DEBUG])
+        self.assertIn("GetReplayBufferStatus", registros.output[0])
+        self.assertIn("604", registros.output[0])
 
 
 class TestPseudoMensajesCliente(unittest.TestCase):

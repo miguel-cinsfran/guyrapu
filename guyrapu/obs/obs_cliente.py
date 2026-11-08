@@ -75,10 +75,8 @@ TEXTO_ABIERTO_SIN_RESPUESTA = N_(
     "que su servidor WebSocket esté activado.")
 
 
-def mensaje_de_fallo_obs(motivo, obs_abierto=None):
-    """Traduce un motivo técnico a un mensaje breve para el usuario."""
-    if isinstance(motivo, ObsError):
-        return str(motivo)
+def _registrar_fallo(motivo):
+    """Anota el fallo de OBS en el nivel que le corresponde."""
     if isinstance(motivo, ConnectionRefusedError):
         logger.debug("Fallo de OBS: %s: %s", type(motivo).__name__, str(motivo))
     elif isinstance(motivo, BaseException):
@@ -87,6 +85,14 @@ def mensaje_de_fallo_obs(motivo, obs_abierto=None):
     else:
         logger.warning("Fallo de OBS: %s: %s", type(motivo).__name__,
                        str(motivo))
+
+
+def mensaje_de_fallo_obs(motivo, obs_abierto=None, registrar=True):
+    """Traduce un motivo técnico a un mensaje breve para el usuario."""
+    if isinstance(motivo, ObsError):
+        return str(motivo)
+    if registrar:
+        _registrar_fallo(motivo)
     texto = str(motivo or "").lower()
     if any(clave in texto for clave in
            ("refused", "no connection", "10061", "unreachable", "timed out")):
@@ -210,8 +216,10 @@ class ClienteObs:
             if estado.get("result", False):
                 return datos_respuesta
             if estado.get("code") != 207 or time.monotonic() >= limite:
-                motivo = f"{estado.get('code', '')} {estado.get('comment', '')}"
-                raise ObsError(mensaje_de_fallo_obs(motivo))
+                codigo = estado.get("code", "")
+                logger.debug("OBS respondió con error %s a %s", codigo, tipo)
+                motivo = f"{codigo} {estado.get('comment', '')}"
+                raise ObsError(mensaje_de_fallo_obs(motivo, registrar=False))
             self._esperar_no_listo(parada)
 
     def _respuesta(self, transporte, identificador, parada):
