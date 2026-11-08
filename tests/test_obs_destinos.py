@@ -326,6 +326,13 @@ class ReglaDeCreacionTest(unittest.TestCase):
         self.assertIn("Preferencias, Transmisión", str(contexto.exception))
         self.assertNotIn("CreateProfile", doble.tipos())
 
+    def test_vertical_vacio_no_cambia_el_perfil_que_tiene_obs(self):
+        doble = DobleObsDestinos(perfiles=["Mío"], actual="Mío")
+        resultado = self._preparar(doble, "TikTok", "")
+        self.assertNotIn("SetCurrentProfile", doble.tipos())
+        self.assertNotIn("CreateProfile", doble.tipos())
+        self.assertEqual(resultado["perfil"], "Mío")
+
 
 class RutaDeEmisionTest(unittest.TestCase):
     """El directo de YouTube con sesión también traduce la plataforma."""
