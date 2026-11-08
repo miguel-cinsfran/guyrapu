@@ -128,6 +128,17 @@ def _intentar_volver(cliente, original, parada):
                      original, error)
 
 
+def _borrar_si_existe(cliente, nombre, parada):
+    """Borra el perfil nuevo que quedó a medias, sin tapar el error original."""
+    try:
+        perfiles, _actual = _lista(cliente, parada)
+        if nombre in perfiles:
+            cliente.pedir("RemoveProfile", {"profileName": nombre}, parada)
+    except obs_cliente.ObsError as error:
+        logger.debug("no se pudo borrar el perfil de OBS %s: %s",
+                     nombre, error)
+
+
 def _recargar(cliente, actual, perfiles, parada):
     """Pasa a otro perfil y vuelve para que OBS lea codificador y bitrates."""
     otro = next((nombre for nombre in perfiles if nombre != actual), "")
@@ -166,6 +177,8 @@ def _escribir_video(cliente, ajustes, parada):
 
 
 def _escribir_servicio(cliente, ajustes, parada):
+    if not ajustes.servidor or not ajustes.clave:
+        return
     actual = _datos(cliente.pedir("GetStreamServiceSettings", parada=parada))
     cliente.pedir("SetStreamServiceSettings",
                   ajustes_perfil.datos_servicio(actual, ajustes), parada)
@@ -178,8 +191,9 @@ def _escribir_actual(cliente, ajustes, parada, escribir_servicio=True):
         _escribir_servicio(cliente, ajustes, parada)
     for categoria, nombre, valor in ajustes_perfil.parametros_obs(ajustes):
         _fijar_parametro(cliente, categoria, nombre, valor, parada)
-    cliente.pedir("SetRecordDirectory", {
-        "recordDirectory": ajustes.carpeta_grabacion}, parada)
+    if ajustes.carpeta_grabacion:
+        cliente.pedir("SetRecordDirectory", {
+            "recordDirectory": ajustes.carpeta_grabacion}, parada)
 
 
 def _leer_de(cliente, objetivo, actual, parada):
@@ -246,6 +260,7 @@ def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
         _recargar(cliente, nombre, perfiles, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
+        _borrar_si_existe(cliente, nombre, parada)
         raise
     return ajustes
 
@@ -266,6 +281,7 @@ def duplicar_perfil(cliente, origen, nuevo, parada=None):
         _cambiar(cliente, actual, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
+        _borrar_si_existe(cliente, nuevo, parada)
         raise
     return ajustes
 

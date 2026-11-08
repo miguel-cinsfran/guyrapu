@@ -307,6 +307,17 @@ class TestGuardar(unittest.TestCase):
                                       "extra": "se conserva"},
         })
 
+    def test_p3_con_carpeta_vacia_no_pide_carpeta_de_grabacion(self):
+        cliente = ClienteFalso(("A",), actual="A")
+        perfiles_obs.guardar_ajustes(cliente, ajustes_de_prueba(), "A")
+        self.assertNotIn("SetRecordDirectory", cliente.tipos())
+
+    def test_p3_con_servidor_y_clave_vacios_no_cambia_el_servicio(self):
+        cliente = ClienteFalso(("A",), actual="A")
+        ajustes = ajustes_de_prueba(servidor="", clave="")
+        perfiles_obs.guardar_ajustes(cliente, ajustes, "A")
+        self.assertNotIn("SetStreamServiceSettings", cliente.tipos())
+
 
 class TestCrear(unittest.TestCase):
 
@@ -373,6 +384,23 @@ class TestCrear(unittest.TestCase):
         self.assertNotIn("CreateProfile", cliente.tipos())
         self.assertEqual(cliente.actual, "A")
 
+    def test_p4_con_carpeta_vacia_no_pide_carpeta_de_grabacion(self):
+        cliente = ClienteFalso(("A",), actual="A")
+        ajustes = perfiles_obs.crear_perfil(
+            cliente, "Nuevo", codificadores=("x264",))
+        self.assertEqual(ajustes.carpeta_grabacion, "")
+        self.assertNotIn("SetRecordDirectory", cliente.tipos())
+
+    def test_p4_si_falla_a_medias_borra_el_perfil_nuevo(self):
+        cliente = ClienteFalso(("A", "B"), actual="A")
+        cliente.fallar_en = ("SetProfileParameter", 2)
+        with self.assertRaises(obs_cliente.ObsError):
+            perfiles_obs.crear_perfil(cliente, "Nuevo",
+                                      codificadores=("x264",))
+        self.assertEqual(set(cliente.estado), {"A", "B"})
+        self.assertEqual(cliente.actual, "A")
+        self.assertNotIn("Nuevo", cliente.estado)
+
 
 class TestDuplicar(unittest.TestCase):
 
@@ -422,6 +450,15 @@ class TestDuplicar(unittest.TestCase):
             perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
         self.assertEqual(cliente.actual, "A")
         self.assertNotIn("CreateProfile", cliente.tipos())
+
+    def test_p5_si_falla_a_medias_borra_el_perfil_nuevo(self):
+        cliente = ClienteFalso(("A", "Origen"), actual="A")
+        cliente.fallar_en = ("SetProfileParameter", 2)
+        with self.assertRaises(obs_cliente.ObsError):
+            perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
+        self.assertEqual(set(cliente.estado), {"A", "Origen"})
+        self.assertEqual(cliente.actual, "A")
+        self.assertNotIn("Copia", cliente.estado)
 
 
 class TestEliminar(unittest.TestCase):
