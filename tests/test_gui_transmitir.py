@@ -5,10 +5,14 @@ los atributos que usa cada función) y `wx.CallAfter` se reemplaza por
 un doble que llama en el acto, igual que en `test_boton_directo.py`.
 """
 
+import tempfile
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
+from guyrapu.core import archivos
+from guyrapu.core import config
 from guyrapu.ui import gui, gui_transmitir
 from guyrapu.ui.sesion_conectada import SesionConectada
 from tests.pseudo_prueba import con_pseudo
@@ -165,7 +169,7 @@ class TestGuardarDatosDirectoYoutube(unittest.TestCase):
 
     def test_guarda_y_normaliza(self):
         frame = SimpleNamespace(_config={})
-        with mock.patch.object(gui, "guardar_opcion") as guardar:
+        with mock.patch.object(gui_transmitir, "guardar_opciones") as guardar:
             resultado = gui_transmitir.guardar_datos_directo_youtube(
                 frame, "  Hola  ", "una descripción", "invalida",
                 latencia="rara", ninos=True, dvr=False, categoria="99",
@@ -184,11 +188,12 @@ class TestGuardarDatosDirectoYoutube(unittest.TestCase):
             "juegos, directo")
         self.assertEqual(
             frame._config["transmision_youtube_miniatura"], "foto.png")
-        self.assertEqual(guardar.call_count, 11)
+        guardar.assert_called_once()
+        self.assertEqual(len(guardar.call_args.args[1]), 11)
 
     def test_lista_con_titulo_se_conserva(self):
         frame = SimpleNamespace(_config={})
-        with mock.patch.object(gui, "guardar_opcion"):
+        with mock.patch.object(gui_transmitir, "guardar_opciones"):
             resultado = gui_transmitir.guardar_datos_directo_youtube(
                 frame, "Título", "", "public", lista="  PL123  ",
                 lista_titulo="  Mi lista  ")
@@ -196,6 +201,37 @@ class TestGuardarDatosDirectoYoutube(unittest.TestCase):
         self.assertEqual(resultado["lista_titulo"], "Mi lista")
         self.assertEqual(
             frame._config["transmision_youtube_lista_titulo"], "Mi lista")
+
+    def test_escribe_el_ini_una_sola_vez_con_las_once_claves(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        ruta = Path(tmp.name) / "config.ini"
+        ruta.write_text("[transmision]\n", encoding="utf-8")
+        frame = SimpleNamespace(_config={})
+        with mock.patch.object(gui, "RUTA_CONFIG", ruta), \
+                mock.patch("guyrapu.core.archivos.escribir_texto_atomico",
+                           wraps=archivos.escribir_texto_atomico) as escribir:
+            gui_transmitir.guardar_datos_directo_youtube(
+                frame, "  Hola  ", "una descripción", "public",
+                latencia="normal", ninos=True, dvr=False, categoria="99",
+                etiquetas=["juegos", "directo"], miniatura="  foto.png ",
+                lista="  PL123  ", lista_titulo="  Mi lista  ")
+        self.assertEqual(escribir.call_count, 1)
+        leido = config._mk_parser()
+        leido.read(ruta, encoding="utf-8")
+        self.assertEqual(dict(leido.items("transmision")), {
+            "youtube_titulo": "Hola",
+            "youtube_descripcion": "una descripción",
+            "youtube_privacidad": "public",
+            "youtube_latencia": "normal",
+            "youtube_ninos": "true",
+            "youtube_dvr": "false",
+            "youtube_categoria": "",
+            "youtube_etiquetas": "juegos, directo",
+            "youtube_miniatura": "foto.png",
+            "youtube_lista": "PL123",
+            "youtube_lista_titulo": "Mi lista",
+        })
 
 
 class TestActualizarBotonDirecto(unittest.TestCase):

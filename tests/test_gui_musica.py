@@ -15,12 +15,15 @@ from types import SimpleNamespace
 from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
+from guyrapu.core import archivos
+from guyrapu.core import config
 from guyrapu.music import anuncios
 from guyrapu.music import listas
 from guyrapu.music import memoria
 from guyrapu.music.modelo import (AVANZO, FIN_LISTA, REINICIADO, TEMA_FALLIDO,
                                  EstadoMusica, Resultado, Tema)
 from guyrapu.ui import atajos_globales
+from guyrapu.ui import gui
 from guyrapu.ui import gui_descargas
 from guyrapu.ui import gui_musica
 from guyrapu.ui import musica_enlaces
@@ -421,6 +424,27 @@ class TestAleatorio(unittest.TestCase):
             ControlMusica(frame).alternar_aleatorio()
         self.assertFalse(frame._config["musica_aleatorio"])
         env.anunciar.assert_called_once_with("Orden aleatorio desactivado")
+
+
+class TestFiltrosRecordados(unittest.TestCase):
+
+    def test_recordar_filtros_escribe_el_ini_una_sola_vez(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ruta = Path(tmp) / "config.ini"
+            ruta.write_text("[musica]\n", encoding="utf-8")
+            with _entorno(), \
+                    mock.patch.object(gui, "RUTA_CONFIG", ruta), \
+                    mock.patch("guyrapu.core.archivos.escribir_texto_atomico",
+                               wraps=archivos.escribir_texto_atomico) as escribir:
+                control = ControlMusica(_frame())
+                control.recordar_filtros(True, "luis", "alfabetico")
+            self.assertEqual(escribir.call_count, 1)
+            leido = config._mk_parser()
+            leido.read(ruta, encoding="utf-8")
+            valores = dict(leido.items("musica"))
+        self.assertEqual(valores["mostrar_filtros"], "true")
+        self.assertEqual(valores["artista"], "luis")
+        self.assertEqual(valores["orden"], "alfabetico")
 
 
 class TestAvisoAutomatico(unittest.TestCase):

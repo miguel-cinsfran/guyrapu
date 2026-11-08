@@ -206,14 +206,12 @@ def _plantilla_guardada(op: dict) -> str:
     return plantilla
 
 
-def _guardar_canal_ytdlp(op: dict, ruta) -> None:
-    """Valida el canal y lo guarda: sin clave o raro vale estable."""
-    from guyrapu.core.config import guardar_opcion
-
+def _canal_ytdlp(op: dict) -> str:
+    """Valida el canal: sin clave o raro vale estable."""
     canal = str(op.get("canal_ytdlp", "estable")).strip().lower()
     if canal not in _CANALES_YTDLP_VALIDOS:
         canal = "estable"
-    guardar_opcion(ruta, "descargas", "canal_ytdlp", canal)
+    return canal
 
 
 def _booleano_para_guardar(op: dict, clave: str) -> str:
@@ -251,7 +249,7 @@ def _valores_para_guardar(op: dict) -> dict:
 def guardar_opciones_descarga(op: dict) -> None:
     """Persiste todas las opciones de descarga de una vez. Valida y normaliza
     los valores antes de escribir."""
-    from guyrapu.core.config import _CONFIG_FALLBACK, guardar_opcion
+    from guyrapu.core.config import _CONFIG_FALLBACK, guardar_opciones
 
     ruta = paths.config_ini()
     if not ruta.exists():
@@ -260,6 +258,7 @@ def guardar_opciones_descarga(op: dict) -> None:
         except Exception as exc:
             logger.debug("guardar_opciones_descarga: no se pudo crear config.ini: %s", exc)
             return
-    for clave, valor in _valores_para_guardar(op).items():
-        guardar_opcion(ruta, "descargas", clave, valor)
-    _guardar_canal_ytdlp(op, ruta)
+    cambios = [("descargas", clave, valor)
+               for clave, valor in _valores_para_guardar(op).items()]
+    cambios.append(("descargas", "canal_ytdlp", _canal_ytdlp(op)))
+    guardar_opciones(ruta, cambios)

@@ -16,6 +16,7 @@ por el módulo en el momento de la llamada, nunca con un `from` directo.
 
 from __future__ import annotations
 
+from guyrapu.core.config import guardar_opciones
 from guyrapu.core.idioma import _
 from guyrapu.obs import perfil_previo
 from guyrapu.restream import transmitir
@@ -141,28 +142,23 @@ def guardar_datos_directo_youtube(frame, titulo, descripcion, privacidad,
     frame._config["transmision_youtube_miniatura"] = miniatura
     frame._config["transmision_youtube_lista"] = lista
     frame._config["transmision_youtube_lista_titulo"] = lista_titulo
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_titulo",
-                        codificar_texto_ini(titulo))
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_descripcion",
-                        codificar_texto_ini(descripcion))
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_privacidad",
-                        privacidad)
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_latencia",
-                        latencia)
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_ninos",
-                        nimios_texto)
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_dvr",
-                        dvr_texto)
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_categoria",
-                        categoria)
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_etiquetas",
-                        codificar_texto_ini(etiquetas_texto))
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_miniatura",
-                        codificar_texto_ini(miniatura))
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_lista",
-                        lista)
-    _gui.guardar_opcion(_gui.RUTA_CONFIG, "transmision", "youtube_lista_titulo",
-                        codificar_texto_ini(lista_titulo))
+    guardar_opciones(_gui.RUTA_CONFIG, [
+        ("transmision", "youtube_titulo", codificar_texto_ini(titulo)),
+        ("transmision", "youtube_descripcion",
+         codificar_texto_ini(descripcion)),
+        ("transmision", "youtube_privacidad", privacidad),
+        ("transmision", "youtube_latencia", latencia),
+        ("transmision", "youtube_ninos", nimios_texto),
+        ("transmision", "youtube_dvr", dvr_texto),
+        ("transmision", "youtube_categoria", categoria),
+        ("transmision", "youtube_etiquetas",
+         codificar_texto_ini(etiquetas_texto)),
+        ("transmision", "youtube_miniatura",
+         codificar_texto_ini(miniatura)),
+        ("transmision", "youtube_lista", lista),
+        ("transmision", "youtube_lista_titulo",
+         codificar_texto_ini(lista_titulo)),
+    ])
     return {"titulo": titulo, "descripcion": descripcion,
             "privacidad": privacidad, "latencia": latencia,
             "ninos": bool(ninos), "dvr": bool(dvr),

@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from guyrapu.core import diagnostico
 from guyrapu.core import paths
 from guyrapu.music import anuncios
 from guyrapu.music import memoria
+
+
+logger = diagnostico.obtener_logger(__name__)
 
 
 class MemoriaMusica:
@@ -29,12 +33,25 @@ class MemoriaMusica:
 
     def recordar_filtros(self, visibles, artista, orden) -> None:
         """Recuerda la visibilidad de los filtros, el artista y el orden."""
-        self._guardar("mostrar_filtros", "true" if visibles else "false")
-        self._guardar("artista", str(artista or ""))
-        self._guardar("orden", str(orden or "coleccion"))
+        self._guardar_varios([
+            ("mostrar_filtros", "true" if visibles else "false"),
+            ("artista", str(artista or "")),
+            ("orden", str(orden or "coleccion")),
+        ])
         self._config["musica_mostrar_filtros"] = bool(visibles)
         self._config["musica_artista"] = str(artista or "")
         self._config["musica_orden"] = str(orden or "coleccion")
+
+    def _guardar_varios(self, pares) -> None:
+        """Escribe varios pares de la sección música con una sola escritura."""
+        try:
+            from guyrapu.core.config import guardar_opciones
+            from guyrapu.ui import gui as _gui
+            guardar_opciones(
+                _gui.RUTA_CONFIG,
+                [("musica", clave, valor) for clave, valor in pares])
+        except Exception:
+            logger.exception("No se pudo guardar la preferencia de música")
 
     def _primera_vez(self) -> bool:
         """En el primer Reproducir de la sesión, retoma si hay memoria.

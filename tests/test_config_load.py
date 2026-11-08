@@ -1067,6 +1067,25 @@ class TestCargarConfiguracion(unittest.TestCase):
         self.assertEqual(op["bitrate"], 192)
         self.assertTrue(op["enumerar"])
 
+    def test_guardar_opciones_descarga_escribe_una_sola_vez(self):
+        from guyrapu.core import config
+        ruta = Path(self._tmp.name) / "config.ini"
+        with redirigir_rutas(self._tmp.name):
+            ruta.write_text(config._CONFIG_FALLBACK, encoding="utf-8")
+            with mock.patch("guyrapu.core.archivos.escribir_texto_atomico",
+                            wraps=archivos.escribir_texto_atomico) as escribir:
+                config.guardar_opciones_descarga(
+                    {"formato": "mp3", "bitrate": 320, "carpeta": "/x/y",
+                     "enumerar": True, "canal_ytdlp": "diario"})
+            self.assertEqual(escribir.call_count, 1)
+            leido = config._mk_parser()
+            leido.read(ruta, encoding="utf-8")
+            valores = dict(leido.items("descargas"))
+        self.assertEqual(valores["formato"], "mp3")
+        self.assertEqual(valores["bitrate"], "320")
+        self.assertEqual(valores["carpeta"], "/x/y")
+        self.assertEqual(valores["enumerar"], "true")
+        self.assertEqual(valores["canal_ytdlp"], "diario")
     def test_opciones_descarga_resolucion_ida_y_vuelta(self):
         from guyrapu.core import config
         with redirigir_rutas(self._tmp.name):
