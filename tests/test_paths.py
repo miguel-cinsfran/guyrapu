@@ -196,6 +196,35 @@ class TestFinPendiente(unittest.TestCase):
         self.assertNotIn(paths.listas_musica(), paths.datos_a_migrar())
 
 
+class TestCarpetasObs(unittest.TestCase):
+    """Las carpetas de OBS, fuera de las dos raíces de la aplicación."""
+
+    def test_cuelgan_de_appdata(self):
+        with tempfile.TemporaryDirectory() as tmp,                 mock.patch.dict(os.environ, {"APPDATA": tmp}):
+            self.assertEqual(
+                paths.carpeta_obs("perfiles"),
+                Path(tmp) / "obs-studio" / "basic" / "profiles")
+            self.assertEqual(
+                paths.carpeta_obs("registros"),
+                Path(tmp) / "obs-studio" / "logs")
+
+    def test_sin_appdata_usan_roaming_del_usuario(self):
+        with tempfile.TemporaryDirectory() as tmp,                 mock.patch.dict(os.environ, {}, clear=True),                 mock.patch.object(Path, "home", return_value=Path(tmp)):
+            roaming = Path(tmp) / "AppData" / "Roaming"
+            self.assertEqual(
+                paths.carpeta_obs("perfiles"),
+                roaming / "obs-studio" / "basic" / "profiles")
+            self.assertEqual(
+                paths.carpeta_obs("registros"),
+                roaming / "obs-studio" / "logs")
+
+    def test_no_crea_la_carpeta(self):
+        with tempfile.TemporaryDirectory() as tmp,                 mock.patch.dict(os.environ, {"APPDATA": tmp}):
+            paths.carpeta_obs("perfiles")
+            paths.carpeta_obs("registros")
+            self.assertFalse((Path(tmp) / "obs-studio").exists())
+
+
 class TestDocumento(unittest.TestCase):
     """El HTML del idioma en uso, con el español como respaldo."""
 

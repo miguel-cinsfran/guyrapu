@@ -11620,3 +11620,29 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#. Traductores: {perfil} es el nombre de un perfil de OBS.
+#: guyrapu/obs/perfiles_obs.py
+#, python-brace-format
+msgid "OBS no tiene un perfil llamado {perfil}."
+msgstr "OBS has no profile named {perfil}."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid ""
+"No se puede cambiar el perfil de OBS con una salida en marcha. Detén la "
+"transmisión, la grabación y el búfer de clips y vuelve a intentarlo."
+msgstr ""
+"The OBS profile cannot be changed while an output is running. Stop the "
+"stream, the recording, and the replay buffer and try again."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid "No se puede eliminar el perfil de OBS que está en uso."
+msgstr "The OBS profile in use cannot be deleted."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid "No se puede eliminar el único perfil de OBS."
+msgstr "The only OBS profile cannot be deleted."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid "Ya existe un perfil de OBS con ese nombre."
+msgstr "An OBS profile with that name already exists."
+

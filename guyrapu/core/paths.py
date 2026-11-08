@@ -8,9 +8,8 @@ biblioteca estándar, para no provocar imports circulares.
 
 Dos raíces: `carpeta_instalacion` (lo que viene con el programa) y
 `carpeta_datos` (lo que escribe el usuario, en la subcarpeta `data`).
-Ninguna función de este módulo crea nada en disco, solo devuelve rutas, salvo
-`audio_temporal`, que sí crea su carpeta porque el motor de ElevenLabs necesita
-un lugar concreto donde dejar el WAV de cada frase.
+Ninguna función de este módulo crea nada en disco, salvo `audio_temporal`,
+que sí crea su carpeta para el WAV de ElevenLabs.
 """
 
 from __future__ import annotations
@@ -21,12 +20,10 @@ from pathlib import Path
 
 from guyrapu.core.carpetas_windows import carpeta_musica_windows
 
-
 # Depende de la ubicación de este archivo: vive en `guyrapu/core/`, así que
 # la raíz en desarrollo está tres niveles arriba.
 _RAIZ_DESARROLLO = Path(__file__).resolve().parent.parent.parent
 
-# Nombres de archivo que usan varios módulos: se definen una sola vez acá.
 NOMBRE_CREDENCIALES = "credenciales.json"
 NOMBRE_CLIENTE_APP = "cliente_app.json"
 NOMBRE_FFMPEG = "ffmpeg.exe" if os.name == "nt" else "ffmpeg"
@@ -194,12 +191,7 @@ def cache_video() -> Path:
 
 
 def audio_temporal() -> Path:
-    """Carpeta donde ElevenLabs deja el WAV de cada frase, creada si falta.
-
-    Única excepción del módulo: el motor necesita escribir ahí y comprobar que
-    quedó vacía, así que la ruta se arma y se crea en un solo lugar en vez de
-    que cada llamador la prepare por su cuenta.
-    """
+    """Carpeta donde ElevenLabs deja el WAV de cada frase, creada si falta."""
     carpeta = carpeta_datos() / "audio_temporal"
     carpeta.mkdir(parents=True, exist_ok=True)
     return carpeta
@@ -244,6 +236,11 @@ def datos_a_migrar() -> list[Path]:
         cache_audio(),
         cache_video(),
     ]
+
+
+def carpeta_obs(tipo) -> Path:
+    sub = {"perfiles": "basic/profiles", "registros": "logs"}[tipo]
+    return Path(os.environ.get("APPDATA") or Path.home() / "AppData" / "Roaming") / "obs-studio" / sub
 
 
 # ── Instalación (viene con el programa) ──────────────────────────────────────
