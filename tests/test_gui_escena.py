@@ -21,6 +21,7 @@ from guyrapu.ui import escena_captura_ventana
 from guyrapu.ui import escena_pagina_audio
 from guyrapu.ui import escena_pagina_escena
 from guyrapu.ui import escena_pagina_fuentes
+from guyrapu.ui import escena_version_vertical
 from guyrapu.ui import escena_propiedades
 from guyrapu.ui import escena_tamano
 from guyrapu.ui import gui_grabaciones
@@ -906,6 +907,66 @@ class TestVentanaObs(unittest.TestCase):
                 mock.patch.object(pagina.btn_diseno, "SetFocus"):
             self._pulsar(pagina.btn_diseno)
         self.assertTrue(pedir.call_args.args[3])
+
+    def test_aplicar_diseno_en_una_gemela_usa_el_perfil_vertical(self):
+        self.gestor.escenas_por_nombre["Escena"] = ["Juego"]
+        self.gestor.escenas_por_nombre["Escena vertical"] = ["Juego"]
+        self.gestor.escena_resultante = "Escena vertical"
+        self.gestor._cliente = object()
+        self.principal._config["perfil_vertical"] = "Vertical"
+        dialogo = self._crear()
+        self._elegir_escena(dialogo._pagina_escena, "Escena vertical")
+        self.assertEqual(dialogo._pagina_escena.escena(), "Escena vertical")
+        self.assertTrue(escena_version_vertical.es_gemela_con_original(
+            dialogo._pagina_fuentes, "Escena vertical"))
+        self.assertEqual(
+            escena_version_vertical.perfil_vertical(dialogo._pagina_fuentes),
+            "Vertical")
+        diseno = disenos_escena.Diseno(
+            clase="pantalla_completa", principal="Juego")
+        cambios = []
+        actual = ["Horizontal"]
+
+        def listar(_cliente, parada=None):
+            return ["Horizontal", "Vertical"], actual[0]
+
+        def cambiar(_cliente, nombre, parada=None):
+            cambios.append(nombre)
+            actual[0] = nombre
+
+        fuentes = [disenos_escena.Fuente("Juego", "otra", 1600, 900)]
+        with mock.patch.object(
+                escena_version_vertical.perfiles_obs, "listar_perfiles",
+                side_effect=listar), \
+                mock.patch.object(
+                    escena_version_vertical.perfiles_obs, "cambiar",
+                    side_effect=cambiar), \
+                mock.patch.object(
+                    escena_version_vertical.aplicar_diseno,
+                    "fuentes_y_lienzo", return_value=(fuentes, True)), \
+                mock.patch.object(
+                    escena_version_vertical.aplicar_diseno, "aplicar_diseno",
+                    return_value=([], [])) as aplicar, \
+                mock.patch.object(
+                    escena_version_vertical.escena_disenos, "pedir_diseno",
+                    return_value=("Diseño", diseno)) as pedir, \
+                mock.patch.object(
+                    escena_version_vertical.disenos_guardados, "cargar",
+                    return_value=[]), \
+                mock.patch.object(
+                    escena_version_vertical.consultas_transmision,
+                    "leer_filas", return_value=()), \
+                mock.patch.object(
+                    escena_version_vertical, "_puerto", return_value=9000), \
+                mock.patch.object(
+                    escena_version_vertical, "anunciar",
+                    self.anuncios.append):
+            self._pulsar(dialogo._pagina_fuentes.btn_diseno)
+        self.assertEqual(cambios, ["Vertical", "Horizontal"])
+        self.assertTrue(pedir.call_args.args[3])
+        aplicar.assert_called_once()
+        self.assertEqual(aplicar.call_args.args[2], "Escena vertical")
+        self.assertEqual(actual[0], "Horizontal")
 
     def test_cancelar_el_diseno_no_aplica_nada(self):
         pagina = self.dialogo._pagina_fuentes
