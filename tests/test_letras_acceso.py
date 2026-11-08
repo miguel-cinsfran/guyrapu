@@ -25,8 +25,9 @@ from tests.test_gui_transmision import (
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.ai import catalogo
 from guyrapu.core import config
+from guyrapu.core.idioma import _
 from guyrapu.downloads import descargas, formatos_reales
-from guyrapu.obs import ajustes_perfil, disenos_escena
+from guyrapu.obs import ajustes_perfil, disenos_escena, prueba_equipo
 from guyrapu.obs.filtros_microfono import Estado
 from guyrapu.ui import descargas_listas, operaciones_obs, elegir_formato, gui, gui_comentarios, gui_descargas, gui_directo_youtube, gui_grabaciones, gui_historial, gui_microfono, gui_transmision, gui_preferencias, control_grabacion, mover_con_flechas
 from guyrapu.ui import escena_disenos
@@ -39,6 +40,7 @@ from guyrapu.ui import escena_propiedades
 from guyrapu.ui import escena_tamano
 from guyrapu.ui import dialogo_ajustes_perfil
 from guyrapu.ui import dialogo_usos_perfil
+from guyrapu.ui import dialogo_prueba_equipo
 from guyrapu.ui import obs_pagina_perfiles
 from guyrapu.ui import obs_ventana
 from guyrapu.ui import preferencias_ia
@@ -333,6 +335,11 @@ class TestLetrasAccesoPanelObs(unittest.TestCase):
             with self.subTest(pagina=pagina):
                 self.assertEqual(repetidas, {})
 
+    def test_general_tiene_el_boton_de_probar_el_equipo(self):
+        boton_equipo = self.dialogo._pagina_general.btn_probar_equipo
+        self.assertEqual(boton_equipo.GetLabel(), _("Probar el e&quipo…"))
+        self.assertEqual(boton_equipo.GetName(), _("Probar el equipo…"))
+
     def test_etiquetas_alternativas_de_grabacion(self):
         grabacion = self.dialogo._pagina_grabacion._grabacion
         for grabando, pausa in ((True, False), (True, True)):
@@ -392,6 +399,38 @@ class TestLetrasAccesoPerfilesObs(unittest.TestCase):
                     None, con_orientacion=con_orientacion, accion=accion)
                 self.addCleanup(destruir, dialogo)
                 self.assertEqual(letras_repetidas(dialogo), {})
+
+
+class TestLetrasAccesoPruebaEquipo(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def _resultado(self, aguantaron):
+        original = ajustes_perfil.valores_iniciales(False, "x264")
+        paso = prueba_equipo.PasoEquipo(original, 1, 100, 1, 100)
+        return prueba_equipo.ResultadoEquipo(
+            "Casa", original, aguantaron, (paso,))
+
+    def test_los_cuadros_sin_letras_repetidas(self):
+        original = ajustes_perfil.valores_iniciales(False, "x264")
+        with mock.patch.object(dialogo_prueba_equipo,
+                               "anunciar"):
+            casos = (
+                dialogo_prueba_equipo.DialogoPruebaEquipo(
+                    None, "Casa", original, 48),
+                dialogo_prueba_equipo.DialogoProgresoPrueba(
+                    None, threading.Event()),
+                dialogo_prueba_equipo.DialogoResultadoPrueba(
+                    None, self._resultado(None)),
+                dialogo_prueba_equipo.DialogoResultadoPrueba(
+                    None, self._resultado(original)),
+                dialogo_prueba_equipo.DialogoResultadoPrueba(
+                    None, self._resultado(ajustes_perfil.AjustesPerfil(
+                        codificador="x264", preset="veryfast", fps=30))),
+            )
+            for cuadro in casos:
+                self.addCleanup(destruir, cuadro)
+                self.assertEqual(letras_repetidas(cuadro), {})
 
 
 class TestLetrasAccesoTamano(unittest.TestCase):
@@ -747,6 +786,20 @@ class TestLetrasAccesoFiltrosEnIngles(TestLetrasAccesoFiltros):
 
 
 class TestLetrasAccesoRestreamEnIngles(TestLetrasAccesoRestream):
+    # Gemela en inglés: repite la prueba sin copiarla.
+
+    @classmethod
+    def setUpClass(cls):
+        cls._ingles = ingles()
+        cls._ingles.__enter__()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._ingles.__exit__(None, None, None)
+        del cls._ingles
+
+
+class TestLetrasAccesoPruebaEquipoEnIngles(TestLetrasAccesoPruebaEquipo):
     # Gemela en inglés: repite la prueba sin copiarla.
 
     @classmethod

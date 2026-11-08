@@ -11,12 +11,13 @@ from guyrapu.core.idioma import _
 from guyrapu.obs import consultas_transmision
 from guyrapu.obs import escenas_obs
 from guyrapu.obs import estado_panel
+from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_general
 from guyrapu.obs import obs_lanzador
 from guyrapu.obs.obs_destinos import DESTINOS
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.obs.restablecimiento import RegistroRestablecimiento
-from guyrapu.ui import gui_microfono, paleta
+from guyrapu.ui import dialogo_prueba_equipo, gui_microfono, paleta
 from guyrapu.ui.accesibilidad import anunciar, enlazar_anuncio_de_pestana
 from guyrapu.ui.escena_pagina_audio import PaginaAudio
 from guyrapu.ui.escena_pagina_escena import PaginaEscena
@@ -86,7 +87,8 @@ class VentanaObs(wx.Dialog):
         self._pagina_perfiles = PaginaPerfiles(
             self.nb, self._principal, self._gestor, self._operaciones)
         self._pagina_general = PaginaGeneral(
-            self.nb, self._actualizar_general, self._mostrar_obs)
+            self.nb, self._actualizar_general, self._mostrar_obs,
+            self._probar_equipo)
         self.nb.AddPage(self._pagina_general, _("General"))
         self.nb.AddPage(self._pagina_escena, _("Escena"))
         self.nb.AddPage(self._pagina_transmision, _("Transmisión"))
@@ -238,6 +240,23 @@ class VentanaObs(wx.Dialog):
         texto = ventana_obs.mostrar()
         if texto:
             anunciar(texto)
+
+    def _cliente_obs(self):
+        cliente = getattr(self._gestor, "_cliente", None)
+        if cliente is None:
+            raise obs_cliente.ObsError(_("OBS no está disponible."))
+        return cliente
+
+    def _probar_equipo(self):
+        if self._operaciones.en_vuelo or self._operaciones.cerrando:
+            return
+        dialogo_prueba_equipo.PruebaEquipoPanel(
+            self, self._en_hilo, self._cliente_obs(), self._refrescar_general,
+            self._anunciar_equipo).empezar()
+
+    def _anunciar_equipo(self, texto):
+        self._pagina_general.mostrar([texto])
+        anunciar(texto)
 
     def _activar(self, activo):
         paginas = (self._pagina_transmision, self._pagina_escena,

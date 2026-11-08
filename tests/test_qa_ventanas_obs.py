@@ -194,11 +194,12 @@ class TestEsperadosDePestana(unittest.TestCase):
             with self.subTest(nombre=nombre):
                 self.assertIn(nombre, esperados)
 
-    def test_general_pide_estado_actualizar_y_mostrar(self):
+    def test_general_pide_estado_actualizar_mostrar_y_probar_el_equipo(self):
         esperados = ventanas_obs.esperados_de_pestana("General")
         self.assertIn("Estado", esperados)
         self.assertIn("Actualizar estado", esperados)
         self.assertIn("Mostrar OBS", esperados)
+        self.assertIn("Probar el equipo…", esperados)
 
 
 class TestEsperarHabilitado(unittest.TestCase):

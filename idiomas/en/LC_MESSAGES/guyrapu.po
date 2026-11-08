@@ -12302,3 +12302,181 @@ msgstr "Vertical version canceled."
 msgid "Versión vertical creada: {escena} vertical. Diseño: {diseño}."
 msgstr "Vertical version created: {escena} vertical. Layout: {diseño}."
 
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid ""
+"codificador {codificador}, preset {preset}, {fps} fotogramas por segundo y "
+"salida de {ancho} por {alto}"
+msgstr ""
+"encoder {codificador}, preset {preset}, {fps} frames per second and output "
+"{ancho} by {alto}"
+
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid "Codificador: {antes} a {despues}."
+msgstr "Encoder: {antes} to {despues}."
+
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid "Fotogramas por segundo: {antes} a {despues}."
+msgstr "Frames per second: {antes} to {despues}."
+
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid "Salida: {ancho} por {alto} a {nuevo_ancho} por {nuevo_alto}."
+msgstr "Output: {ancho} by {alto} to {nuevo_ancho} by {nuevo_alto}."
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Guyrapu prueba del equipo"
+msgstr "Guyrapu computer test"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Guyrapu prueba del equipo (movimiento)"
+msgstr "Guyrapu computer test (motion)"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid ""
+"No se puede probar el equipo con un perfil de OBS en modo Avanzado. Pásalo "
+"a modo Sencillo y vuelve a intentarlo."
+msgstr ""
+"The computer cannot be tested with an OBS profile in Advanced mode. Switch "
+"it to Simple mode and try again."
+
+#: guyrapu/obs/prueba_equipo.py
+#, python-brace-format
+msgid "La prueba dio un error: {error} No se pudo restablecer: {errores}."
+msgstr "The test gave an error: {error} Could not reset: {errores}."
+
+#: guyrapu/obs/prueba_equipo.py
+#, python-brace-format
+msgid "La prueba terminó, pero no se pudo restablecer: {errores}."
+msgstr "The test finished, but could not reset: {errores}."
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Detener la grabación de la prueba"
+msgstr "Stop the test recording"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Volver a la escena anterior"
+msgstr "Return to the previous scene"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Eliminar la escena de la prueba"
+msgstr "Delete the test scene"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Eliminar la fuente de la prueba"
+msgstr "Delete the test source"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Restablecer los ajustes del perfil"
+msgstr "Reset the profile settings"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Ningún escalón llegó a medirse."
+msgstr "No step could be measured."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format, python-format
+msgid ""
+"Ningún ajuste aguantó. En el último escalón se perdió el {dibujar} % de los"
+" fotogramas al dibujar y el {codificar} % al codificar."
+msgstr ""
+"No settings held up. In the last step, {dibujar} % of frames were lost "
+"while drawing and {codificar} % while encoding."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format, python-format
+msgid ""
+"Se perdió el {dibujar} % de los fotogramas al dibujar y el {codificar} % al"
+" codificar."
+msgstr ""
+"{dibujar} % of frames were lost while drawing and {codificar} % while "
+"encoding."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "El perfil «{perfil}» aguantó tal como está. {porcentajes}"
+msgstr "Profile “{perfil}” held up as it is. {porcentajes}"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "El perfil «{perfil}» aguantó con estos cambios: {cambios} {porcentajes}"
+msgstr "Profile “{perfil}” held up with these changes: {cambios} {porcentajes}"
+
+#. Traductores: {rutas} son las rutas de los archivos que quedaron.
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "No se pudo eliminar la grabación de la prueba: {rutas}."
+msgstr "Could not delete the test recording: {rutas}."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Probar el equipo"
+msgstr "Test computer"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Detalle de la prueba"
+msgstr "Test details"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid ""
+"Se va a probar el perfil «{perfil}» con {ajustes}. La prueba tarda como "
+"mucho {segundos} segundos."
+msgstr ""
+"Profile “{perfil}” will be tested with {ajustes}. The test takes at most "
+"{segundos} seconds."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "&Empezar"
+msgstr "&Start"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Probando el equipo"
+msgstr "Testing the computer"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Estado de la prueba"
+msgstr "Test status"
+
+#. Traductores: {ajustes} son el codificador, los fotogramas por
+#. segundo y la salida que se están probando.
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "Probando {ajustes}…"
+msgstr "Testing {ajustes}…"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Resultado de la prueba"
+msgstr "Test result"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "&Guardar en el perfil"
+msgstr "&Save to profile"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "&Dejar como estaba"
+msgstr "&Leave as it was"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Prueba cancelada. OBS quedó como estaba."
+msgstr "Test canceled. OBS was left as it was."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "Ajustes guardados en el perfil {perfil}."
+msgstr "Settings saved in profile {perfil}."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "La prueba dio un error: {error} OBS quedó como estaba."
+msgstr "The test gave an error: {error} OBS was left as it was."
+
+#: guyrapu/ui/obs_pagina_general.py
+msgid "Probar el e&quipo…"
+msgstr "Test the co&mputer…"
+
+#: guyrapu/ui/obs_pagina_general.py
+msgid "Probar el equipo…"
+msgstr "Test computer…"
+
