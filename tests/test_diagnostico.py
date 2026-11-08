@@ -63,6 +63,22 @@ class DiagnosticoTest(unittest.TestCase):
             finally:
                 manejador.close()
 
+    def test_manejador_detallado_tacha_los_secretos(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ruta = Path(tmp) / "x.log"
+            manejador = diagnostico.crear_manejador_detallado(ruta)
+            logger = logging.getLogger("guyrapu.prueba_tachado")
+            logger.addHandler(manejador)
+            logger.setLevel(logging.DEBUG)
+            try:
+                logger.warning("guardado access_token=ya29.secreto")
+            finally:
+                logger.removeHandler(manejador)
+                manejador.close()
+            contenido = ruta.read_text(encoding="utf-8")
+        self.assertIn("[tachado]", contenido)
+        self.assertNotIn("ya29.secreto", contenido)
+
     def test_manejador_detallado_acepta_registro_propio(self):
         with patch.object(diagnostico, "RotatingFileHandler", return_value=logging.Handler()):
             manejador = diagnostico.crear_manejador_detallado("x.log")

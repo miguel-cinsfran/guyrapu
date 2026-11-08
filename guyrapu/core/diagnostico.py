@@ -15,6 +15,7 @@ from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
+from guyrapu.core.secretos import FormatoTachado
 from guyrapu.downloads import ytdlp_bin
 
 
@@ -71,7 +72,7 @@ def crear_manejador_detallado(ruta: str | Path) -> RotatingFileHandler:
     if ruta.exists() and ruta.stat().st_size:
         manejador.doRollover()
     manejador.setLevel(logging.DEBUG)
-    manejador.setFormatter(logging.Formatter(FORMATO_DETALLADO, FECHA_DETALLADA))
+    manejador.setFormatter(FormatoTachado(FORMATO_DETALLADO, FECHA_DETALLADA))
     # Solo entra lo propio, sin mantener una lista de librerias de terceros.
     manejador.addFilter(logging.Filter(RAIZ_LOGGER))
     return manejador

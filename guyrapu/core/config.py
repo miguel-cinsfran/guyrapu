@@ -75,7 +75,7 @@ def configurar_logging(nivel_consola: int = logging.INFO) -> None:
 
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(nivel_consola)
-    ch.setFormatter(logging.Formatter("%(asctime)s  %(message)s", datefmt="%H:%M:%S"))
+    ch.setFormatter(diagnostico.FormatoTachado("%(asctime)s  %(message)s", datefmt="%H:%M:%S"))
     ch._manejador_propio = True
     root.addHandler(ch)
 
@@ -83,7 +83,7 @@ def configurar_logging(nivel_consola: int = logging.INFO) -> None:
     try:
         fh = RotatingFileHandler(log_path, maxBytes=1_048_576, backupCount=1, encoding="utf-8")
         fh.setLevel(logging.WARNING)
-        fh.setFormatter(logging.Formatter(
+        fh.setFormatter(diagnostico.FormatoTachado(
             "%(asctime)s  %(levelname)-8s  %(name)s — %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S"))
         root.addHandler(fh)

@@ -65,6 +65,25 @@ class TestCargarConfiguracion(unittest.TestCase):
         self.addCleanup(manejador.close)
         self.assertEqual(manejador.level, logging.WARNING)
 
+    def test_registro_principal_tacha_los_secretos(self):
+        with redirigir_rutas(self._tmp.name), \
+             mock.patch.object(config.diagnostico, "crear_manejador_detallado",
+                               return_value=logging.NullHandler()):
+            config.configurar_logging()
+            manejador = next(
+                m for m in self._root.handlers
+                if getattr(m, "baseFilename", "").endswith("guyrapu.log"))
+            try:
+                logging.getLogger("guyrapu.prueba_tachado").warning(
+                    "guardado access_token=ya29.secreto")
+                manejador.flush()
+            finally:
+                manejador.close()
+        contenido = (Path(self._tmp.name) / "guyrapu.log").read_text(
+            encoding="utf-8")
+        self.assertIn("[tachado]", contenido)
+        self.assertNotIn("ya29.secreto", contenido)
+
     def test_configurar_logging_es_idempotente(self):
         with redirigir_rutas(self._tmp.name), \
              mock.patch.object(config, "RotatingFileHandler"), \
