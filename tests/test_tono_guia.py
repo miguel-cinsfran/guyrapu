@@ -4,6 +4,7 @@ Sin wx ni winmm: cada función devuelve un WAV completo que se abre con
 `wave` de la biblioteca estándar.
 """
 
+import hashlib
 import io
 import unittest
 import wave
@@ -90,6 +91,36 @@ class TestMuestra(unittest.TestCase):
                     _, _, _, muestras = _muestras(datos)
                     self.assertLessEqual(int(np.abs(muestras).max()),
                                          pico_hoy)
+
+
+class TestWavsDeHoy(unittest.TestCase):
+    """Los WAV suenan igual que antes de diferir la importación de numpy."""
+
+    RESUMENES = {
+        ("pitido", "normal"): "deb0639968ab3b8db3d7a4040c6467f271279a339134a5ee85c5dd48ff042071",
+        ("tono_centro", "normal"): "3933268bb32ecad546d4e53da1e20c9d9c486c2c13996830febad9b354d6fc5a",
+        ("muestra", "normal"): "8b9f99d5b086409e55be96d6baab933a10f707fa6bec0c0a65319968f69ae1b3",
+        ("pitido", "calido"): "d5452db641964eff404dc11442bb7655b0c4eb271e6763da70a96c3ffb93b5ed",
+        ("tono_centro", "calido"): "636f37ef187798bfdd829b7ccdee0a4cd57550678cae8d355035ccd870a5a8f6",
+        ("muestra", "calido"): "67ed93da5fb6ca0867dcdcf4f02c04ba6e36cff4faa137556b94e34a8a1c4722",
+        ("pitido", "8bits"): "b685fa6f4aaee354791a84156a62685006a026df33b23b9dda94bc5bc67207c7",
+        ("tono_centro", "8bits"): "ccb9f17731af04602f5b65b81b279fbbd5bc2c1aa4cf195dc57c144939bf2963",
+        ("muestra", "8bits"): "9bb5e1d2437be2ca1f2787cc53b2903c508efa40322c8e24a272e2aa86cf7e81",
+    }
+
+    def test_los_nueve_wav_coinciden_byte_a_byte(self):
+        for timbre in tono_guia.TIMBRES:
+            for nombre in ("pitido", "tono_centro", "muestra"):
+                with self.subTest(timbre=timbre, nombre=nombre):
+                    if nombre == "pitido":
+                        datos = tono_guia.pitido(0.0, 440.0, timbre)
+                    elif nombre == "tono_centro":
+                        datos = tono_guia.tono_centro(timbre)
+                    else:
+                        datos = tono_guia.muestra(timbre)
+                    self.assertEqual(
+                        hashlib.sha256(datos).hexdigest(),
+                        self.RESUMENES[(nombre, timbre)])
 
 
 if __name__ == "__main__":

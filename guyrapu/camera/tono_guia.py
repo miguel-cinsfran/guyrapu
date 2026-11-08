@@ -12,8 +12,6 @@ import io
 import math
 import wave
 
-import numpy as np
-
 FRECUENCIA_MUESTREO = 44100
 BITS = 16
 CANALES = 2
@@ -36,7 +34,7 @@ def normalizar_timbre(timbre) -> str:
     return timbre if timbre in TIMBRES else "normal"
 
 
-def _envolvente(muestras: int, timbre: str):
+def _envolvente(muestras: int, timbre: str, np):
     """Ataque lineal y caída exponencial, como los pitidos de hoy."""
     ataque = max(1, int(FRECUENCIA_MUESTREO * _ATAQUE[timbre]))
     indices = np.arange(muestras)
@@ -45,14 +43,14 @@ def _envolvente(muestras: int, timbre: str):
     return subida * caida
 
 
-def _normalizar(onda, objetivo: float):
+def _normalizar(onda, objetivo: float, np):
     pico = float(np.abs(onda).max()) if len(onda) else 0.0
     if pico < 1e-9:
         return onda
     return onda * (objetivo / pico)
 
 
-def _onda(frecuencia: float, muestras: int, timbre: str, con_envolvente: bool):
+def _onda(frecuencia: float, muestras: int, timbre: str, con_envolvente: bool, np):
     """La forma de onda del timbre, escalada al pico que le toca."""
     timbre = normalizar_timbre(timbre)
     fase = 2 * math.pi * frecuencia * np.arange(muestras) / FRECUENCIA_MUESTREO
@@ -63,27 +61,28 @@ def _onda(frecuencia: float, muestras: int, timbre: str, con_envolvente: bool):
     else:
         onda = np.sin(fase)
     if con_envolvente:
-        onda = onda * _envolvente(muestras, timbre)
+        onda = onda * _envolvente(muestras, timbre, np)
     objetivo = PICO if timbre != "8bits" else PICO_8BITS
-    return _normalizar(onda, objetivo)
+    return _normalizar(onda, objetivo, np)
 
 
-def _muestras_pitido(frecuencia: float, timbre: str):
+def _muestras_pitido(frecuencia: float, timbre: str, np):
     return _onda(frecuencia, int(FRECUENCIA_MUESTREO * DURACION_PITIDO),
-                 timbre, con_envolvente=True)
+                 timbre, con_envolvente=True, np=np)
 
 
-def _muestras_centro(timbre: str):
+def _muestras_centro(timbre: str, np):
     """Medio segundo de la nota de partida, con ciclos enteros.
 
     El largo es un número entero de ciclos de 440 Hz, sin repetir el punto
     de inicio al final, así que el bucle sigue la onda sin un salto propio.
     """
     muestras = int(round(DURACION_CENTRO * FRECUENCIA_MUESTREO))
-    return _onda(FRECUENCIA_CENTRO, muestras, timbre, con_envolvente=False)
+    return _onda(FRECUENCIA_CENTRO, muestras, timbre,
+                 con_envolvente=False, np=np)
 
 
-def _estereo(mono, paneo: float):
+def _estereo(mono, paneo: float, np):
     """Paneo de potencia constante: izquierda cos, derecha sin."""
     paneo = max(-1.0, min(1.0, float(paneo)))
     angulo = (paneo + 1) * math.pi / 4
@@ -92,7 +91,7 @@ def _estereo(mono, paneo: float):
     return np.stack([izquierda, derecha], axis=1)
 
 
-def _wav(estereo) -> bytes:
+def _wav(estereo, np) -> bytes:
     """Un WAV completo en memoria, con cabecera RIFF."""
     enteros = np.round(np.clip(estereo, -1.0, 1.0) * 32767).astype("<i2")
     salida = io.BytesIO()
@@ -106,23 +105,29 @@ def _wav(estereo) -> bytes:
 
 def pitido(paneo: float, frecuencia: float, timbre: str) -> bytes:
     """Un pitido de 60 ms hacia el lado y con la nota pedidos."""
-    return _wav(_estereo(_muestras_pitido(frecuencia, timbre), paneo))
+    import numpy as np
+
+    return _wav(_estereo(_muestras_pitido(frecuencia, timbre, np), paneo, np), np)
 
 
 def tono_centro(timbre: str) -> bytes:
     """Medio segundo del tono del centro, para repetir en bucle sin corte."""
-    return _wav(_estereo(_muestras_centro(timbre), 0.0))
+    import numpy as np
+
+    return _wav(_estereo(_muestras_centro(timbre, np), 0.0, np), np)
 
 
 def muestra(timbre: str) -> bytes:
     """La muestra de Preferencias: izquierda, derecha y el tono del centro."""
+    import numpy as np
+
     timbre = normalizar_timbre(timbre)
     silencio = np.zeros((int(FRECUENCIA_MUESTREO * _SILENCIO_MUESTRA), 2))
     bloques = [
-        _estereo(_muestras_pitido(FRECUENCIA_CENTRO, timbre), -1.0),
+        _estereo(_muestras_pitido(FRECUENCIA_CENTRO, timbre, np), -1.0, np),
         silencio,
-        _estereo(_muestras_pitido(FRECUENCIA_CENTRO, timbre), 1.0),
+        _estereo(_muestras_pitido(FRECUENCIA_CENTRO, timbre, np), 1.0, np),
         silencio,
-        _estereo(_muestras_centro(timbre), 0.0),
+        _estereo(_muestras_centro(timbre, np), 0.0, np),
     ]
-    return _wav(np.concatenate(bloques, axis=0))
+    return _wav(np.concatenate(bloques, axis=0), np)
