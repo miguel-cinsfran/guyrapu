@@ -83,6 +83,7 @@ SUPERFICIES = {
     "escena_tamano.py": "escena",
     "escena_filtros.py": "escena",
     "escena_disenos.py": "escena",
+    "disenos_nombres.py": "escena",
     "control_grabacion.py": "transmision",
     "directo_panel.py": "transmision",
     "mover_con_flechas.py": "escena",
