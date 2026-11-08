@@ -227,6 +227,13 @@ def _anunciar_de_frame(frame):
     return al_anunciar
 
 
+def _abandonar(frame, frase=None, importante=False):
+    """Avisa, si hay frase, y devuelve el perfil de OBS antes del directo."""
+    if frase is not None:
+        _anunciar_de_frame(frame)(frase, "transmision_problema", importante)
+    perfil_previo.volver_sin_directo()
+
+
 def _conectar_chat(frame, youtube=False, guardados=None):
     def al_conectar_chat(url):
         from guyrapu.ui import gui as _gui
@@ -332,7 +339,7 @@ def _instanciar_supervisor(frame, destino, usuario, perfil, envoltura,
 def _crear_supervisor(frame, modulo_cuenta, opcion, perfil, destino, usuario,
                       canales, preparados=None):
     if not getattr(frame, "_alive", True):
-        return
+        return _abandonar(frame)
     contexto = Contexto(destino, usuario, youtube=perfil.youtube)
     envoltura = envolver_anunciar(_anunciar_de_frame(frame), contexto)
     preparar, restaurar, extras = armar(
@@ -355,7 +362,7 @@ def _preparar_ui(frame, modulo_cuenta, opcion, lista, perfil, canales,
     armado = inicio_youtube.pedir_y_guardar_perfil(frame, revision, perfil,
                                                   lista)
     if armado is None:
-        return
+        return _abandonar(frame)
     perfil, preparados = armado
     destino, usuario = _destino_supervisor(perfil, canales)
     _crear_supervisor(frame, modulo_cuenta, opcion, perfil, destino, usuario,
@@ -366,8 +373,7 @@ def _leer_canales(frame, modulo_cuenta, opcion, lista, perfil, revision):
     try:
         canales = modulo_cuenta.canales()
     except Exception as error:
-        _anunciar_de_frame(frame)(str(error), "transmision_problema")
-        return
+        return _abandonar(frame, str(error))
     _en_interfaz(frame, _preparar_ui, frame, modulo_cuenta, opcion, lista,
                  perfil, canales, revision)
 
@@ -376,16 +382,13 @@ def supervisar_restream(frame, opcion, revision=None, cuenta_mod=None) -> None:
     """Lee los canales y crea el supervisor con el destino ya elegido."""
     modulo_cuenta = cuenta_mod or _cuenta()
     if not cuenta_conectada(modulo_cuenta):
-        _anunciar_de_frame(frame)(_(MENSAJE_SIN_CUENTA),
-                                  "transmision_problema", True)
-        return
+        return _abandonar(frame, _(MENSAJE_SIN_CUENTA), True)
     lista = cargar_perfiles()
     perfil = transmitir.perfil_de_opcion(opcion, lista)
     if perfil is None:
-        _anunciar_de_frame(frame)(
-            _("Elige primero a dónde transmitir, en Transmitir a."),
-            "transmision_problema", True)
-        return
+        return _abandonar(
+            frame, _("Elige primero a dónde transmitir, en Transmitir a."),
+            True)
     diagnostico.crear_hilo(
         lambda: _leer_canales(frame, modulo_cuenta, opcion, lista, perfil,
                               revision),

@@ -280,7 +280,7 @@ def supervisar_transmision(frame, accion, destino="", usuario="",
             from guyrapu.ui import inicio_youtube
             armado = inicio_youtube.pedir_y_armar(frame, revision)
             if armado is None:
-                return
+                return perfil_previo.volver_sin_directo()
             guardados, ganchos = armado
         from guyrapu.obs.obs_supervisor import SupervisorTransmision
         from guyrapu.core import paths

@@ -753,5 +753,73 @@ class TestPerfilViejoAlTransmitir(unittest.TestCase):
         self.assertIn(("crear", {"snippet": {}}), cliente.llamadas)
 
 
+class TestVolverAlPerfilAlAbandonar(unittest.TestCase):
+
+    def _frame(self, vivo=True):
+        return SimpleNamespace(
+            _alive=vivo, _supervisor=None, _config={},
+            _actualizar_boton_directo=mock.Mock(),
+            _al_terminar_supervisor=mock.Mock())
+
+    def test_sin_cuenta_devuelve_el_perfil(self):
+        frame = self._frame()
+        cuenta = CuentaFalsa([], sesion_conectada=False)
+        with mock.patch.object(ganchos, "_anunciar_de_frame",
+                               return_value=mock.Mock()), \
+                mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo") \
+                as volver:
+            ganchos.supervisar_restream(frame, "restream:Uno",
+                                        cuenta_mod=cuenta)
+        volver.assert_called_once_with()
+
+    def test_sin_perfil_elegido_devuelve_el_perfil(self):
+        frame = self._frame()
+        cuenta = CuentaFalsa([])
+        with mock.patch.object(ganchos, "cargar_perfiles", return_value=[]), \
+                mock.patch.object(ganchos, "_anunciar_de_frame",
+                                  return_value=mock.Mock()), \
+                mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo") \
+                as volver:
+            ganchos.supervisar_restream(frame, "restream:Uno",
+                                        cuenta_mod=cuenta)
+        volver.assert_called_once_with()
+
+    def test_fallo_al_leer_los_canales_devuelve_el_perfil(self):
+        frame = self._frame()
+        fallo = api.ErrorApi("sin destinos")
+        cuenta = CuentaFalsa([], fallo_canales=fallo)
+        with mock.patch.object(ganchos, "_anunciar_de_frame",
+                               return_value=mock.Mock()), \
+                mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo") \
+                as volver:
+            ganchos._leer_canales(frame, cuenta, "restream:Uno", [],
+                                  _perfil(), None)
+        volver.assert_called_once_with()
+
+    def test_sin_perfil_de_youtube_devuelve_el_perfil(self):
+        frame = self._frame()
+        perfil = _perfil(canales=(1,))
+        canales = [_canal(1, "YouTube")]
+        with mock.patch(
+                "guyrapu.ui.inicio_youtube.pedir_y_guardar_perfil",
+                return_value=None), \
+                mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo") \
+                as volver:
+            ganchos._preparar_ui(frame, CuentaFalsa(canales), "restream:Uno",
+                                 [perfil], perfil, canales, None)
+        volver.assert_called_once_with()
+
+    def test_ventana_cerrada_no_crea_el_supervisor_y_devuelve_el_perfil(self):
+        frame = self._frame(vivo=False)
+        perfil = _perfil(canales=(1,))
+        with mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo") \
+                as volver:
+            ganchos._crear_supervisor(
+                frame, CuentaFalsa([_canal(1, "YouTube")]), "restream:Uno",
+                perfil, "Restream", "", [_canal(1, "YouTube")])
+        volver.assert_called_once_with()
+        self.assertIsNone(frame._supervisor)
+
+
 if __name__ == "__main__":
     unittest.main()

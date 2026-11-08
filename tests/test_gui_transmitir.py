@@ -410,6 +410,28 @@ class TestSupervisarTransmision(unittest.TestCase):
                                            revision="rev")
         self.assertIsNone(frame._supervisor)
 
+    def test_iniciar_youtube_cancelado_devuelve_el_perfil(self):
+        frame = SimpleNamespace(_supervisor=None)
+        with mock.patch("guyrapu.ui.inicio_youtube.pedir_y_armar",
+                        return_value=None), \
+                mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo") \
+                as volver:
+            gui_transmitir.supervisar_transmision(
+                frame, "iniciar", "YouTube", "")
+        volver.assert_called_once_with()
+        self.assertIsNone(frame._supervisor)
+
+    def test_iniciar_rechazado_no_devuelve_el_perfil(self):
+        supervisor = SimpleNamespace(activo=True)
+        frame = SimpleNamespace(_supervisor=supervisor)
+        with mock.patch.object(gui, "anunciar"), \
+                mock.patch("guyrapu.obs.perfil_previo.volver_sin_directo") \
+                as volver:
+            gui_transmitir.supervisar_transmision(
+                frame, "iniciar", "YouTube", "")
+        volver.assert_not_called()
+        self.assertIs(frame._supervisor, supervisor)
+
     def test_iniciar_youtube_pasa_la_ruta_de_fin_pendiente(self):
         frame = SimpleNamespace(
             _supervisor=None, _config={}, _alive=True,
