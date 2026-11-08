@@ -30,6 +30,8 @@ TEXTO_CLAVE_CORTA = N_("La clave es demasiado corta. Copia la "
                        "clave entera desde la página del proveedor.")
 TEXTO_CLAVE_CARACTERES = N_("La clave tiene espacios o caracteres "
                             "que una clave no lleva. Cópiala de nuevo.")
+# Traductores: une dos comienzos; {uno} y {otro} son los comienzos.
+TEXTO_PREFIJOS_UNIDOS = N_("{uno} o {otro}")
 # Traductores: aviso de clave ajena; {proveedor} es su nombre y {prefijo} su inicio.
 TEXTO_CLAVE_PREFIJO = N_("Las claves de {proveedor} empiezan con "
                          "{prefijo}. Comprueba que sea la clave de "
@@ -95,10 +97,15 @@ def problema_de_clave(proveedor, clave):
         return _(TEXTO_CLAVE_CORTA)
     if any(caracter not in _CARACTERES_DE_CLAVE for caracter in limpia):
         return _(TEXTO_CLAVE_CARACTERES)
-    prefijo = proveedor.prefijo_clave
-    if prefijo and not limpia.startswith(prefijo):
+    prefijos = proveedor.prefijo_clave
+    if prefijos and not limpia.startswith(prefijos):
+        if isinstance(prefijos, str):
+            prefijos = (prefijos,)
+        detalle = (prefijos[0] if len(prefijos) == 1
+                   else _(TEXTO_PREFIJOS_UNIDOS).format(
+                       uno=prefijos[0], otro=prefijos[1]))
         return _(TEXTO_CLAVE_PREFIJO).format(
-            proveedor=proveedor.nombre, prefijo=prefijo)
+            proveedor=proveedor.nombre, prefijo=detalle)
     return ""
 
 

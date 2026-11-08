@@ -362,8 +362,13 @@ class TestProblemaDeClave(unittest.TestCase):
             ("gemini", "     ", opciones_ia.TEXTO_FALTA_CLAVE),
             ("gemini", "asdf", opciones_ia.TEXTO_CLAVE_CORTA),
             ("gemini", "a" * 19, opciones_ia.TEXTO_CLAVE_CORTA),
-            ("gemini", "a" * 20, opciones_ia.TEXTO_CLAVE_PREFIJO.format(
-                proveedor="Google Gemini", prefijo="AIza")),
+            ("gemini", "a" * 20,
+             "Las claves de Google Gemini empiezan con AQ. o AIza. "
+             "Comprueba que sea la clave de este proveedor."),
+            ("gemini", "AQ." + "a" * 36, ""),
+            ("gemini", "xx" + "a" * 30,
+             "Las claves de Google Gemini empiezan con AQ. o AIza. "
+             "Comprueba que sea la clave de este proveedor."),
             ("gemini", "AIza" + "a" * 16, ""),
             ("gemini", "AIza" + "a" * 8 + " " + "a" * 7,
              opciones_ia.TEXTO_CLAVE_CARACTERES),

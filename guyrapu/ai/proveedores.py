@@ -23,13 +23,13 @@ class Proveedor:
     base_por_defecto: str | None
     pide_direccion: bool
     gratis_por_clave: bool = False
-    prefijo_clave: str | None = None
+    prefijo_clave: str | tuple[str, ...] | None = None
 
 
 PROVEEDORES = (
     Proveedor("gemini", N_("Google Gemini"), "google", protocolos.GEMINI,
               "https://generativelanguage.googleapis.com/v1beta", False,
-              gratis_por_clave=True, prefijo_clave="AIza"),
+              gratis_por_clave=True, prefijo_clave=("AQ.", "AIza")),
     # Traductores: nombre comercial del proveedor; no se traduce.
     Proveedor("openai", N_("OpenAI"), "openai", protocolos.RESPONSES,
               "https://api.openai.com/v1", False, prefijo_clave="sk-"),

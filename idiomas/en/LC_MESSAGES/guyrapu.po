@@ -374,6 +374,12 @@ msgid ""
 "nuevo."
 msgstr "The key has spaces or characters that a key never has. Copy it again."
 
+#. Traductores: une dos comienzos; {uno} y {otro} son los comienzos.
+#: guyrapu/ai/opciones_ia.py
+#, python-brace-format
+msgid "{uno} o {otro}"
+msgstr "{uno} or {otro}"
+
 #. Traductores: aviso de clave ajena; {proveedor} es su nombre y {prefijo} su
 #. inicio.
 #: guyrapu/ai/opciones_ia.py
