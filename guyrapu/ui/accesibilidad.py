@@ -3,12 +3,10 @@ Si Prism no está instalado o no hay un lector de pantalla activo, los
 `anunciar()` son no-ops silenciosos; la app funciona igual.
 
 Nombre accesible reforzado (MSAA)
-Patrón tomado de eleven-tts-studio: en Windows, `SetName` por sí solo no
-siempre lo anuncian NVDA/JAWS de forma fiable (sobre todo en deslizadores y en
-ventanas genéricas como la superficie de vídeo). Reforzamos con un
-`wx.Accessible` explícito que expone el nombre por MSAA. Solo se usa en los
-controles donde el nombre flojea; los estándar (botones, casillas) ya se leen
-bien con `name=` y no hace falta.
+En Windows, `SetName` por sí solo no siempre lo anuncian NVDA/JAWS de forma
+fiable (sobre todo en deslizadores y en ventanas genéricas como la superficie
+de vídeo). Se refuerza con la anotación dinámica de Windows, que cambia solo
+el nombre y deja intactos el rol y el estado que informa el control.
 """
 
 from __future__ import annotations
@@ -17,7 +15,7 @@ import logging
 
 import wx
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, nombre_msaa
 
 
 logger = diagnostico.obtener_logger(__name__)
@@ -85,34 +83,11 @@ def entregar_intro(lista, manejador) -> None:
     lista.Bind(wx.EVT_CHAR_HOOK, _al_entregar)
 
 
-class _NombreAccesible(wx.Accessible):
-    """Expone el nombre del control por MSAA. Solo nombra el control en sí
-    (childId 0); las filas/hijos (p. ej. cada línea de una lista) las deja al
-    proveedor por defecto, o todas se anunciarían con el nombre de la lista."""
-
-    def __init__(self, nombre: str):
-        super().__init__()
-        self._nombre = nombre
-
-    def GetName(self, childId):
-        if childId == 0:
-            return (wx.ACC_OK, self._nombre)
-        return (wx.ACC_NOT_IMPLEMENTED, "")
-
-
 def nombre_accesible(ctrl, nombre: str, msaa: bool = True) -> None:
-    """Refuerza el nombre accesible de un control. Mantiene los tooltips ricos
-    que ya tengamos (solo pone uno si falta) y no altera el rol ni el valor: el
-    `wx.Accessible` solo sobrescribe el nombre y delega el resto.
-
-    `msaa=False` se salta el `wx.Accessible` (deja SetName/tooltip/HelpText
-    igual). Úsalo en listas de CONTENIDO DINÁMICO (chat, comentarios): al
-    instalar un `wx.Accessible` en Python, TODAS las consultas MSAA de NVDA
-    sobre ese control (también las de cada fila al navegar con flechas) pasan
-    por el proxy de wx y el hilo de GUI. Con la lista recibiendo Append/Delete
-    constantes por los mensajes que llegan, esas consultas se quedan esperando
-    y la navegación se traba a trompicones. Las listas estáticas (voces,
-    historial…) no sufren esto y siguen con el refuerzo."""
+    """Pone el nombre accesible de un control. Mantiene su tooltip rico y su
+    texto de ayuda; el nombre va por la anotación dinámica de Windows, que no
+    cambia el rol ni el estado. `msaa=False` se salta la anotación y se usa en
+    listas de contenido dinámico (chat, comentarios), que no la necesitan."""
     ctrl.SetName(nombre)
     if not ctrl.GetToolTip():
         ctrl.SetToolTip(nombre)
@@ -122,12 +97,19 @@ def nombre_accesible(ctrl, nombre: str, msaa: bool = True) -> None:
         logger.debug("El control no admite texto de ayuda: %s", exc)
     if not msaa:
         return
-    try:
-        acc = _NombreAccesible(nombre)
-        ctrl.SetAccessible(acc)
-        ctrl._nombre_accesible = acc   # evita que el GC se lo lleve
-    except Exception as exc:  # fuera de Windows o sin MSAA: el name/tooltip siguen aplicando
-        logger.debug("Sin MSAA para el nombre accesible: %s", exc)
+    hwnd = ctrl.GetHandle()
+    if not nombre_msaa.poner(hwnd, nombre):
+        return
+    if getattr(ctrl, "_nombre_msaa_atado", False):
+        return
+    ctrl._nombre_msaa_atado = True
+
+    def _al_destruir(evento):
+        if evento.GetEventObject() is ctrl:
+            nombre_msaa.quitar(hwnd)
+        evento.Skip()
+
+    ctrl.Bind(wx.EVT_WINDOW_DESTROY, _al_destruir)
 
 
 class ContadorAccesible(wx.SpinCtrl):

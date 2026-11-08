@@ -623,12 +623,16 @@ class TestNombreAccesibleRegistra(unittest.TestCase):
     def test_fallos_de_ayuda_y_msaa_quedan_en_debug(self):
         control = mock.Mock()
         control.SetHelpText.side_effect = RuntimeError("sin ayuda")
-        control.SetAccessible.side_effect = RuntimeError("sin MSAA")
-        with self.assertLogs(accesibilidad.logger, "DEBUG") as registros:
-            accesibilidad.nombre_accesible(control, "Nombre")
+        nombre = accesibilidad.nombre_msaa
+        with mock.patch.object(nombre, "_servicios", None), \
+                mock.patch.object(
+                    nombre, "_co_create_instance",
+                    side_effect=RuntimeError("sin MSAA")):
+            with self.assertLogs(level="DEBUG") as registros:
+                accesibilidad.nombre_accesible(control, "Nombre")
         salida = "\n".join(registros.output)
         self.assertIn("El control no admite texto de ayuda: sin ayuda", salida)
-        self.assertIn("Sin MSAA para el nombre accesible: sin MSAA", salida)
+        self.assertIn("No se pudo anotar el nombre accesible: sin MSAA", salida)
         control.SetName.assert_called_once_with("Nombre")
 
 
