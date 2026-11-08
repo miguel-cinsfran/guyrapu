@@ -11,6 +11,9 @@ import time
 import unittest
 from unittest import mock
 
+from websockets.exceptions import ConnectionClosed
+from websockets.sync.server import serve
+
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_cliente
@@ -641,3 +644,351 @@ class TestPseudoMensajesCliente(unittest.TestCase):
             with self.assertRaises(obs_cliente.ObsError) as contexto:
                 obs_cliente.ClienteObs._recibir(None, parada, 0.0)
         self.assertTrue(str(contexto.exception).startswith("[¡"), contexto.exception)
+
+
+class CoordinadorObs:
+    """Estado que comparten los transportes falsos de una prueba."""
+
+    def __init__(self):
+        self.demoras = {}
+        self.pedidos = []
+        self.cerrojo = threading.Lock()
+        self.perfil_nuevo_visible = threading.Event()
+        self.creado_sin_cambiar = False
+
+    def registrar(self, tipo):
+        with self.cerrojo:
+            self.pedidos.append(tipo)
+
+    def espero(self, tipo):
+        with self.cerrojo:
+            return tipo in self.pedidos
+
+    def respuesta(self, tipo):
+        if tipo == "GetProfileList":
+            if self.creado_sin_cambiar:
+                return {"profiles": ["anterior", "nuevo"],
+                        "currentProfileName": "anterior"}
+            if self.perfil_nuevo_visible.is_set():
+                return {"profiles": ["anterior", "nuevo"],
+                        "currentProfileName": "nuevo"}
+            return {"profiles": ["anterior"],
+                    "currentProfileName": "anterior"}
+        return {}
+
+
+class TransporteCoordinado:
+    """Responde al instante salvo los pedidos que la prueba demora."""
+
+    def __init__(self, coordinador):
+        self.coordinador = coordinador
+        self.pendiente = None
+        self.enviados = []
+        self.cerrado = False
+
+    def send(self, mensaje):
+        datos = json.loads(mensaje)
+        if datos.get("op") != 6:
+            return
+        self.enviados.append(datos)
+        self.coordinador.registrar(datos["d"]["requestType"])
+        self.pendiente = datos
+
+    def recv(self, timeout=None):
+        datos = self.pendiente
+        tipo = datos["d"]["requestType"]
+        demora = self.coordinador.demoras.get(tipo)
+        if demora is not None and not demora.is_set():
+            raise TimeoutError()
+        self.pendiente = None
+        return json.dumps({
+            "op": 7,
+            "d": {
+                "requestId": datos["d"]["requestId"],
+                "requestStatus": {"result": True},
+                "responseData": self.coordinador.respuesta(tipo),
+            },
+        })
+
+    def close(self):
+        self.cerrado = True
+
+
+def esperar_a(condicion, limite=2.0):
+    fin = time.monotonic() + limite
+    while time.monotonic() < fin:
+        if condicion():
+            return True
+        time.sleep(0.01)
+    return False
+
+
+class CandadoDeConsultasTest(unittest.TestCase):
+    def crear(self, coordinador):
+        transporte = TransporteCoordinado(coordinador)
+        cliente = obs_cliente.ClienteObs(
+            obs_cliente.AjustesObs(True, 4455, ""), lambda uri: transporte)
+        cliente._transporte = transporte
+        return cliente, transporte
+
+    def correr_en_hilo(self, cliente, tipo, datos=None, parada=None):
+        resultado = {}
+
+        def ejecutar():
+            try:
+                resultado["valor"] = cliente.pedir(tipo, datos, parada)
+            except obs_cliente.ObsError as error:
+                resultado["error"] = str(error)
+
+        hilo = threading.Thread(target=ejecutar)
+        hilo.start()
+        return hilo, resultado
+
+    def tipos_enviados(self, transporte):
+        return [pedido["d"]["requestType"] for pedido in transporte.enviados]
+
+    def test_get_stream_status_espera_al_cambio_de_perfil(self):
+        coordinador = CoordinadorObs()
+        coordinador.demoras["GetProfileList"] = coordinador.perfil_nuevo_visible
+        cambio, _transporte_cambio = self.crear(coordinador)
+        consulta, transporte_consulta = self.crear(coordinador)
+        hilo_cambio, _ = self.correr_en_hilo(
+            cambio, "SetCurrentProfile", {"profileName": "nuevo"})
+        self.assertTrue(esperar_a(
+            lambda: coordinador.espero("GetProfileList")))
+        hilo_consulta, resultado = self.correr_en_hilo(
+            consulta, "GetStreamStatus")
+        time.sleep(0.2)
+        self.assertEqual(transporte_consulta.enviados, [])
+        self.assertTrue(hilo_consulta.is_alive())
+        coordinador.perfil_nuevo_visible.set()
+        hilo_cambio.join(2)
+        hilo_consulta.join(2)
+        self.assertFalse(hilo_cambio.is_alive())
+        self.assertFalse(hilo_consulta.is_alive())
+        self.assertEqual(self.tipos_enviados(transporte_consulta),
+                         ["GetStreamStatus"])
+        self.assertIn("valor", resultado)
+
+    def test_get_stats_espera_a_la_creacion_de_perfil(self):
+        coordinador = CoordinadorObs()
+        coordinador.demoras["GetProfileList"] = coordinador.perfil_nuevo_visible
+        cambio, _ = self.crear(coordinador)
+        consulta, transporte_consulta = self.crear(coordinador)
+        hilo_cambio, _ = self.correr_en_hilo(
+            cambio, "CreateProfile", {"profileName": "nuevo"})
+        self.assertTrue(esperar_a(
+            lambda: coordinador.espero("GetProfileList")))
+        hilo_consulta, resultado = self.correr_en_hilo(consulta, "GetStats")
+        time.sleep(0.2)
+        self.assertEqual(transporte_consulta.enviados, [])
+        coordinador.perfil_nuevo_visible.set()
+        hilo_cambio.join(2)
+        hilo_consulta.join(2)
+        self.assertFalse(hilo_cambio.is_alive())
+        self.assertEqual(self.tipos_enviados(transporte_consulta),
+                         ["GetStats"])
+        self.assertIn("valor", resultado)
+
+    def test_crear_en_otra_version_no_espera_a_que_sea_actual(self):
+        coordinador = CoordinadorObs()
+        coordinador.creado_sin_cambiar = True
+        cambio, _ = self.crear(coordinador)
+        consulta, transporte_consulta = self.crear(coordinador)
+        comienzo = time.monotonic()
+        hilo_cambio, _ = self.correr_en_hilo(
+            cambio, "CreateProfile", {"profileName": "nuevo"})
+        hilo_cambio.join(1)
+        self.assertFalse(hilo_cambio.is_alive())
+        self.assertLess(time.monotonic() - comienzo, 1.0)
+        self.assertIn("GetProfileList", coordinador.pedidos)
+        hilo_consulta, resultado = self.correr_en_hilo(consulta, "GetStats")
+        hilo_consulta.join(2)
+        self.assertIn("valor", resultado)
+        self.assertEqual(self.tipos_enviados(transporte_consulta),
+                         ["GetStats"])
+
+
+    def test_get_stats_espera_al_cambio_de_video(self):
+        coordinador = CoordinadorObs()
+        permitir = threading.Event()
+        coordinador.demoras["SetVideoSettings"] = permitir
+        cambio, _ = self.crear(coordinador)
+        consulta, transporte_consulta = self.crear(coordinador)
+        hilo_cambio, _ = self.correr_en_hilo(
+            cambio, "SetVideoSettings", {"baseWidth": 1280, "baseHeight": 720})
+        self.assertTrue(esperar_a(
+            lambda: coordinador.espero("SetVideoSettings")))
+        hilo_consulta, resultado = self.correr_en_hilo(consulta, "GetStats")
+        time.sleep(0.2)
+        self.assertEqual(transporte_consulta.enviados, [])
+        permitir.set()
+        hilo_cambio.join(2)
+        hilo_consulta.join(2)
+        self.assertFalse(hilo_cambio.is_alive())
+        self.assertFalse(hilo_consulta.is_alive())
+        self.assertEqual(self.tipos_enviados(transporte_consulta),
+                         ["GetStats"])
+        self.assertIn("valor", resultado)
+
+    def test_una_consulta_que_no_se_vigila_no_espera(self):
+        coordinador = CoordinadorObs()
+        permitir = threading.Event()
+        coordinador.demoras["SetVideoSettings"] = permitir
+        cambio, _ = self.crear(coordinador)
+        consulta, _transporte_consulta = self.crear(coordinador)
+        hilo_cambio, _ = self.correr_en_hilo(
+            cambio, "SetVideoSettings", {"baseWidth": 1280, "baseHeight": 720})
+        self.assertTrue(esperar_a(
+            lambda: coordinador.espero("SetVideoSettings")))
+        hilo_consulta, resultado = self.correr_en_hilo(
+            consulta, "GetSceneItemList", {"sceneName": "Escena"})
+        hilo_consulta.join(2)
+        self.assertFalse(hilo_consulta.is_alive())
+        self.assertIn("valor", resultado)
+        self.assertTrue(hilo_cambio.is_alive())
+        permitir.set()
+        hilo_cambio.join(2)
+
+    def test_la_parada_corta_la_espera_del_candado(self):
+        coordinador = CoordinadorObs()
+        permitir = threading.Event()
+        coordinador.demoras["SetVideoSettings"] = permitir
+        cambio, _ = self.crear(coordinador)
+        consulta, transporte_consulta = self.crear(coordinador)
+        hilo_cambio, _ = self.correr_en_hilo(
+            cambio, "SetVideoSettings", {"baseWidth": 1280, "baseHeight": 720})
+        self.assertTrue(esperar_a(
+            lambda: coordinador.espero("SetVideoSettings")))
+        parada = threading.Event()
+        hilo_consulta, resultado = self.correr_en_hilo(
+            consulta, "GetStats", parada=parada)
+        time.sleep(0.15)
+        parada.set()
+        hilo_consulta.join(2)
+        self.assertFalse(hilo_consulta.is_alive())
+        self.assertEqual(resultado.get("error"), "Operación cancelada.")
+        self.assertEqual(transporte_consulta.enviados, [])
+        permitir.set()
+        hilo_cambio.join(2)
+
+    def test_el_limite_del_cambio_no_traba_la_consulta(self):
+        coordinador = CoordinadorObs()
+        cambio, _ = self.crear(coordinador)
+        consulta, transporte_consulta = self.crear(coordinador)
+        cambio._TIEMPO_LIMITE = 0.3
+        hilo_cambio, _ = self.correr_en_hilo(
+            cambio, "SetCurrentProfile", {"profileName": "nuevo"})
+        self.assertTrue(esperar_a(
+            lambda: coordinador.espero("GetProfileList")))
+        hilo_consulta, resultado = self.correr_en_hilo(consulta, "GetStats")
+        time.sleep(0.1)
+        self.assertEqual(transporte_consulta.enviados, [])
+        hilo_cambio.join(2)
+        hilo_consulta.join(2)
+        self.assertFalse(hilo_cambio.is_alive())
+        self.assertFalse(hilo_consulta.is_alive())
+        self.assertEqual(self.tipos_enviados(transporte_consulta),
+                         ["GetStats"])
+        self.assertIn("valor", resultado)
+
+
+class ServidorObs:
+    """OBS mínimo que solo cambia de perfil cuando la prueba lo permite."""
+
+    def __init__(self):
+        self.pedidos = []
+        self.cerrojo = threading.Lock()
+        self.actual = "anterior"
+        self.pendiente = None
+        self.permitir = threading.Event()
+
+    def atender(self, conexion):
+        conexion.send(json.dumps({"op": 0, "d": {"rpcVersion": 1}}))
+        conexion.recv()
+        conexion.send(json.dumps({"op": 2, "d": {}}))
+        while True:
+            try:
+                mensaje = conexion.recv()
+            except ConnectionClosed:
+                return
+            datos = json.loads(mensaje)
+            if datos.get("op") != 6:
+                continue
+            tipo = datos["d"]["requestType"]
+            with self.cerrojo:
+                self.pedidos.append(tipo)
+            cuerpo = self.responder(tipo, datos["d"].get("requestData", {}))
+            conexion.send(json.dumps({
+                "op": 7,
+                "d": {"requestId": datos["d"]["requestId"],
+                      "requestStatus": {"result": True},
+                      "responseData": cuerpo},
+            }))
+
+    def responder(self, tipo, datos):
+        with self.cerrojo:
+            if tipo == "SetCurrentProfile":
+                self.pendiente = datos.get("profileName")
+            elif (tipo == "GetProfileList" and self.pendiente
+                    and self.permitir.is_set()):
+                self.actual = self.pendiente
+                self.pendiente = None
+            actual = self.actual
+        if tipo == "GetProfileList":
+            return {"profiles": ["anterior", "nuevo"],
+                    "currentProfileName": actual}
+        return {}
+
+    def espero(self, tipo):
+        with self.cerrojo:
+            return tipo in self.pedidos
+
+
+class CandadoPuntaAPuntaTest(unittest.TestCase):
+    def test_dos_clientes_reales_esperan_el_cambio_por_websocket(self):
+        servidor = ServidorObs()
+        with serve(servidor.atender, "127.0.0.1", 0) as escucha:
+            puerto = escucha.socket.getsockname()[1]
+            hilo_servidor = threading.Thread(target=escucha.serve_forever)
+            hilo_servidor.start()
+            ajustes = obs_cliente.AjustesObs(True, puerto, "")
+            cambio = obs_cliente.ClienteObs(ajustes)
+            consulta = obs_cliente.ClienteObs(ajustes)
+            try:
+                cambio.conectar()
+                consulta.conectar()
+                hilo_cambio, _ = self.correr(cambio, "SetCurrentProfile",
+                                             {"profileName": "nuevo"})
+                self.assertTrue(esperar_a(
+                    lambda: servidor.espero("GetProfileList")))
+                hilo_consulta, resultado = self.correr(
+                    consulta, "GetStreamStatus")
+                time.sleep(0.3)
+                self.assertTrue(hilo_consulta.is_alive())
+                self.assertFalse(servidor.espero("GetStreamStatus"))
+                servidor.permitir.set()
+                hilo_cambio.join(2)
+                hilo_consulta.join(2)
+                self.assertFalse(hilo_cambio.is_alive())
+                self.assertFalse(hilo_consulta.is_alive())
+                self.assertIn("valor", resultado)
+                self.assertTrue(servidor.espero("GetStreamStatus"))
+            finally:
+                cambio.cerrar()
+                consulta.cerrar()
+                escucha.shutdown()
+                hilo_servidor.join(2)
+
+    def correr(self, cliente, tipo, datos=None):
+        resultado = {}
+
+        def ejecutar():
+            try:
+                resultado["valor"] = cliente.pedir(tipo, datos)
+            except obs_cliente.ObsError as error:
+                resultado["error"] = str(error)
+
+        hilo = threading.Thread(target=ejecutar)
+        hilo.start()
+        return hilo, resultado

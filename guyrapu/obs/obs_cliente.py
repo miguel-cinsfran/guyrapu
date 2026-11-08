@@ -16,7 +16,7 @@ from websockets.sync.client import connect
 
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import obs_activacion
+from guyrapu.obs import candado_obs, obs_activacion
 
 logger = logging.getLogger(f"guyrapu.{__name__}")
 
@@ -121,6 +121,7 @@ class ClienteObs:
     _TIEMPO_LECTURA = 0.5
     _ESPERA_NO_LISTO = 0.5
     _TIEMPO_NO_LISTO = 30.0
+    _INTERVALO_PERFIL = 0.1
 
     def __init__(self, ajustes=None, conectar_fn=None, suscripciones=0):
         self.ajustes = ajustes or AjustesObs()
@@ -174,21 +175,66 @@ class ClienteObs:
             raise ObsError(mensaje_de_fallo_obs(error)) from error
 
     def pedir(self, tipo, datos=None, parada=None):
-        with self._cerrojo:
-            transporte = self._transporte
-            if transporte is None:
-                raise ObsError(mensaje_de_fallo_obs("not connected"))
+        cambia = tipo in candado_obs.PEDIDOS_QUE_CAMBIAN
+        vigila = cambia or tipo in candado_obs.PEDIDOS_QUE_LEEN
+        if vigila:
             try:
-                return self._intercambiar(transporte, tipo, datos or {}, parada)
-            except ObsError:
-                raise
-            except ConnectionClosed as error:
-                # OBS colgó: si el transporte se quedara, conectado seguiría en
-                # True y cada petición fallaría con «Vuelve a intentarlo».
-                self.cerrar()
-                raise ObsError(_(MENSAJE_CONEXION_PERDIDA)) from error
-            except Exception as error:
-                raise ObsError(mensaje_de_fallo_obs(error)) from error
+                candado_obs.CANDADO.adquirir(parada, cambia)
+            except candado_obs.EsperaCancelada:
+                raise ObsError(_("Operación cancelada.")) from None
+        try:
+            with self._cerrojo:
+                transporte = self._transporte
+                if transporte is None:
+                    raise ObsError(mensaje_de_fallo_obs("not connected"))
+                try:
+                    respuesta = self._intercambiar(
+                        transporte, tipo, datos or {}, parada)
+                    if cambia and tipo in ("SetCurrentProfile",
+                                           "CreateProfile"):
+                        self._esperar_perfil(transporte, tipo, datos or {},
+                                             parada)
+                    return respuesta
+                except ObsError:
+                    raise
+                except ConnectionClosed as error:
+                    # OBS colgó: si el transporte se quedara, conectado seguiría
+                    # en True y cada petición fallaría con «Vuelve a intentarlo».
+                    self.cerrar()
+                    raise ObsError(_(MENSAJE_CONEXION_PERDIDA)) from error
+                except Exception as error:
+                    raise ObsError(mensaje_de_fallo_obs(error)) from error
+        finally:
+            if vigila:
+                candado_obs.CANDADO.liberar(cambia)
+
+    def _esperar_perfil(self, transporte, tipo, datos, parada):
+        """Espera a que OBS informe como actual el perfil cambiado o creado."""
+        nombre = datos.get("profileName")
+        if not nombre:
+            return
+        limite = time.monotonic() + self._TIEMPO_LIMITE
+        while True:
+            respuesta = self._intercambiar(transporte, "GetProfileList", {},
+                                           parada)
+            lista = respuesta.get("responseData", {}) or {}
+            if str(lista.get("currentProfileName") or "") == nombre:
+                return
+            if (tipo == "CreateProfile"
+                    and nombre in (lista.get("profiles") or ())):
+                # OBS de otra versión crea el perfil sin dejarlo como actual:
+                # no hay cambio en curso que esperar.
+                return
+            if time.monotonic() >= limite:
+                return
+            self._esperar_intervalo(parada)
+
+    @classmethod
+    def _esperar_intervalo(cls, parada):
+        if parada is not None:
+            parada.wait(cls._INTERVALO_PERFIL)
+        else:
+            time.sleep(cls._INTERVALO_PERFIL)
 
     def _intercambiar(self, transporte, tipo, datos, parada):
         """Manda la petición y devuelve su respuesta, esperando el 207."""
