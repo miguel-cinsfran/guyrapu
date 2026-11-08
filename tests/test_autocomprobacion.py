@@ -163,6 +163,21 @@ class TestPiezaDetectorRostros(unittest.TestCase):
         self.assertIsNotNone(error)
 
 
+class TestPiezaApiGoogle(unittest.TestCase):
+
+    def test_google_disponible_falso_hace_fallar_la_pieza(self):
+        piezas = dict(autocomprobacion.PIEZAS)
+        self.assertIn("API de Google", piezas)
+        with mock.patch("guyrapu.youtube.youtube_api.google_disponible",
+                        return_value=False):
+            resultados = autocomprobacion.comprobar(
+                [("API de Google", piezas["API de Google"])])
+        self.assertEqual(len(resultados), 1)
+        nombre, error = resultados[0]
+        self.assertEqual(nombre, "API de Google")
+        self.assertIsNotNone(error)
+
+
 class TestPiezas(unittest.TestCase):
 
     def test_los_nueve_nombres_en_orden(self):

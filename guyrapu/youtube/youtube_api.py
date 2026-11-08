@@ -16,6 +16,7 @@ Los parsers (`parsear_pagina_comentarios`, `normalizar_comentario`,
 
 from __future__ import annotations
 
+import importlib.util
 from dataclasses import dataclass
 
 from guyrapu.core import diagnostico
@@ -36,10 +37,9 @@ MAX_PAGINAS_LISTAS = 4
 def google_disponible() -> bool:
     """True si están instaladas las dependencias de la API oficial."""
     try:
-        import googleapiclient.discovery  # noqa: F401
-        import google_auth_oauthlib.flow  # noqa: F401
-        import google.oauth2.credentials   # noqa: F401
-        return True
+        return all(importlib.util.find_spec(paquete) is not None
+                   for paquete in ("googleapiclient", "google_auth_oauthlib",
+                                   "google.oauth2"))
     except Exception:
         return False
 

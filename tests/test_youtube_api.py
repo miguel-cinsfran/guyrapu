@@ -7,9 +7,10 @@ from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
 from guyrapu.youtube.youtube_api import (
-    ClienteYouTube, FRASE_MINiatura_SIN_VERIFICAR, normalizar_comentario,
-    parsear_pagina_comentarios, comentarios_desactivados, es_error_403,
-    mensaje_error_api, mensaje_error_miniatura,
+    ClienteYouTube, FRASE_MINiatura_SIN_VERIFICAR, google_disponible,
+    normalizar_comentario, parsear_pagina_comentarios,
+    comentarios_desactivados, es_error_403, mensaje_error_api,
+    mensaje_error_miniatura,
 )
 
 
@@ -861,6 +862,21 @@ class TestCableadoChatDirecto(unittest.TestCase):
                                                 falla_datos=True)
         self.assertEqual(len(llamadas), 1)
         self.assertFalse(llamadas[0][3])
+
+
+class TestGoogleDisponible(unittest.TestCase):
+
+    def test_si_falta_cualquiera_de_las_tres_da_falso(self):
+        for faltante in ("googleapiclient", "google_auth_oauthlib",
+                         "google.oauth2"):
+            with self.subTest(faltante=faltante):
+                def find_spec(nombre, *args, **kwargs):
+                    return None if nombre == faltante else object()
+
+                with mock.patch(
+                        "guyrapu.youtube.youtube_api.importlib.util.find_spec",
+                        side_effect=find_spec):
+                    self.assertFalse(google_disponible())
 
 
 if __name__ == "__main__":

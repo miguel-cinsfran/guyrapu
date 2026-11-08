@@ -42,6 +42,9 @@ def _api_google():
     from googleapiclient.discovery import build
     build("youtube", "v3", developerKey="autocomprobacion",
           cache_discovery=False)
+    from guyrapu.youtube import youtube_api
+    if not youtube_api.google_disponible():
+        raise RuntimeError("google_disponible() devolvió falso")
 
 
 def _yt_dlp():
