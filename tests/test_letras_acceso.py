@@ -38,6 +38,7 @@ from guyrapu.ui import escena_pagina_fuentes
 from guyrapu.ui import escena_propiedades
 from guyrapu.ui import escena_tamano
 from guyrapu.ui import dialogo_ajustes_perfil
+from guyrapu.ui import dialogo_usos_perfil
 from guyrapu.ui import obs_pagina_perfiles
 from guyrapu.ui import obs_ventana
 from guyrapu.ui import preferencias_ia
@@ -352,13 +353,21 @@ class TestLetrasAccesoPerfilesObs(unittest.TestCase):
         gestor = SimpleNamespace(_cliente=None)
         marco = wx.Frame(None)
         self.addCleanup(destruir, marco)
+        principal = SimpleNamespace(_config={})
         pagina = obs_pagina_perfiles.PaginaPerfiles(
-            marco, gestor, operaciones)
+            marco, principal, gestor, operaciones)
         self.addCleanup(destruir, pagina)
         return pagina
 
     def test_pestana_sin_letras_repetidas(self):
         self.assertEqual(letras_repetidas(self._pagina()), {})
+
+    def test_cuadro_de_usos_sin_letras_repetidas(self):
+        config = {"perfil_horizontal": "Uno", "perfil_vertical": "Otro"}
+        dialogo = dialogo_usos_perfil.DialogoUsosPerfil(
+            None, "Uno", config)
+        self.addCleanup(destruir, dialogo)
+        self.assertEqual(letras_repetidas(dialogo), {})
 
     def _ajustes(self):
         return ajustes_perfil.valores_iniciales(False, "x264")

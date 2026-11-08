@@ -14,9 +14,11 @@ import wx
 from guyrapu.core.idioma import _
 from guyrapu.obs import codificadores_obs, obs_cliente, perfiles_obs
 from guyrapu.obs import salidas_audio
+from guyrapu.obs import usos_perfil
 from guyrapu.ui import confirmar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.dialogo_ajustes_perfil import DialogoAjustesPerfil
+from guyrapu.ui.dialogo_usos_perfil import DialogoUsosPerfil
 from guyrapu.ui.preferencias_comun import (
     fila_horizontal,
     nombre_de_etiqueta,
@@ -95,8 +97,10 @@ class DialogoNombrePerfil(wx.Dialog):
 
 class PaginaPerfiles(wx.Panel):
 
-    def __init__(self, parent, gestor, operaciones):
+    def __init__(self, parent, principal, gestor, operaciones):
         super().__init__(parent, name="PaginaPerfilesObs")
+        self._principal = principal
+        self._config = principal._config
         self._gestor = gestor
         self._operaciones = operaciones
         self._perfiles = []
@@ -104,8 +108,9 @@ class PaginaPerfiles(wx.Panel):
         self._foco_pendiente = None
         self._crear_controles()
         self._enlazar_eventos()
-        self.acciones = (self.lista, self.btn_usar, self.btn_nuevo,
-                         self.btn_duplicar, self.btn_eliminar, self.btn_editar)
+        self.acciones = (self.lista, self.btn_usar, self.btn_usar_para,
+                         self.btn_nuevo, self.btn_duplicar, self.btn_eliminar,
+                         self.btn_editar)
 
     def _crear_controles(self):
         caja = wx.BoxSizer(wx.VERTICAL)
@@ -116,6 +121,8 @@ class PaginaPerfiles(wx.Panel):
         caja.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
         self.btn_usar = self._boton(_("&Usar este perfil"),
                                     _("&Usar este perfil"), self.usar)
+        self.btn_usar_para = self._boton(_("Usar p&ara…"), _("Usar para…"),
+                                         self.usar_para)
         self.btn_nuevo = self._boton(_("&Nuevo…"), _("&Nuevo…"), self.nuevo)
         self.btn_duplicar = self._boton(_("&Duplicar…"), _("&Duplicar…"),
                                         self.duplicar)
@@ -123,9 +130,10 @@ class PaginaPerfiles(wx.Panel):
                                         self.eliminar)
         self.btn_editar = self._boton(_("Editar a&justes…"),
                                       _("Editar a&justes…"), self.editar)
-        caja.Add(fila_horizontal((self.btn_usar, self.btn_nuevo,
-                                  self.btn_duplicar, self.btn_eliminar,
-                                  self.btn_editar)), 0, wx.ALL, 6)
+        caja.Add(fila_horizontal((self.btn_usar, self.btn_usar_para,
+                                  self.btn_nuevo, self.btn_duplicar,
+                                  self.btn_eliminar, self.btn_editar)),
+                 0, wx.ALL, 6)
         self.SetSizer(caja)
 
     def _boton(self, etiqueta, nombre, manejador):
@@ -146,9 +154,8 @@ class PaginaPerfiles(wx.Panel):
         return cliente
 
     def _etiqueta(self, nombre):
-        if nombre == self._actual:
-            return _("{nombre} (en uso)").format(nombre=nombre)
-        return nombre
+        usos = usos_perfil.usos_de(nombre, self._config)
+        return usos_perfil.etiqueta_fila(nombre, nombre == self._actual, usos)
 
     def fijar(self, perfiles, actual, foco=None):
         """Pone la lista que se leyó de OBS y elige el perfil afectado."""
@@ -208,6 +215,45 @@ class PaginaPerfiles(wx.Panel):
             lambda _resultado: self._hecho(
                 _("Perfil en uso: {nombre}.").format(nombre=nombre), nombre))
 
+    def usar_para(self):
+        nombre = self._elegido()
+        if not nombre:
+            return self._sin_seleccion()
+        cambios = self._pedir_usos(nombre)
+        if cambios is None:
+            return
+        if not cambios:
+            anunciar(_("Sin cambios."))
+            return
+        self._guardar_cambios(cambios)
+        self._hecho(self._resultado_usos(nombre), nombre)
+
+    def _pedir_usos(self, nombre):
+        dialogo = DialogoUsosPerfil(self, nombre, self._config)
+        try:
+            if dialogo.ShowModal() != wx.ID_OK:
+                return None
+            return usos_perfil.cambios(
+                nombre, dialogo.marcados(), self._config)
+        finally:
+            dialogo.Destroy()
+
+    def _guardar_cambios(self, cambios):
+        from guyrapu.ui import gui
+
+        for clave, valor in cambios:
+            self._config[clave] = valor
+            gui.guardar_opcion(gui.RUTA_CONFIG, usos_perfil.SECCION,
+                               clave, valor)
+
+    def _resultado_usos(self, nombre):
+        usos = usos_perfil.usos_de(nombre, self._config)
+        if not usos:
+            return _("{nombre} ya no tiene usos asignados.").format(
+                nombre=nombre)
+        return _("{nombre}: {usos}.").format(
+            nombre=nombre, usos=usos_perfil.texto_para(usos))
+
     def nuevo(self):
         datos = self._pedir_nombre(
             _("Nuevo perfil"), _("C&rear"), con_orientacion=True)
@@ -257,17 +303,26 @@ class PaginaPerfiles(wx.Panel):
             anunciar(_(perfiles_obs.MENSAJE_UNICO))
             return
         indice = self._indice(nombre)
+        mensaje = _("¿Eliminar el perfil {nombre}?").format(nombre=nombre)
+        aviso = usos_perfil.texto_al_eliminar(nombre, self._config)
+        if aviso:
+            mensaje = "{} {}".format(mensaje, aviso)
         if not confirmar.preguntar(
-                self, _("¿Eliminar el perfil {nombre}?").format(nombre=nombre),
+                self, mensaje,
                 _("Eliminar perfil"), _("&Eliminar"), _("&Cancelar"),
                 predeterminado_si=False):
             return
         siguiente = self._siguiente(indice)
+        cambios = usos_perfil.cambios_al_eliminar(nombre, self._config)
         self._operaciones.en_hilo(
             lambda: perfiles_obs.eliminar_perfil(self._cliente(), nombre),
-            lambda _resultado: self._hecho(
-                _("Perfil eliminado: {nombre}.").format(nombre=nombre),
-                siguiente))
+            lambda _resultado: self._eliminado(nombre, siguiente, cambios))
+
+    def _eliminado(self, nombre, siguiente, cambios):
+        self._guardar_cambios(cambios)
+        self._hecho(
+            _("Perfil eliminado: {nombre}.").format(nombre=nombre),
+            siguiente)
 
     def _siguiente(self, indice):
         if indice is None:

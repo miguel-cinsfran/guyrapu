@@ -2,8 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la pestaña Perfiles del Panel de OBS, con OBS falso."""
 
+import configparser
 import dataclasses
+import tempfile
 import unittest
+from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 import wx
@@ -12,6 +16,7 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, codificadores_obs, obs_cliente
 from guyrapu.obs import perfiles_obs, salidas_audio
+from guyrapu.ui import gui
 from guyrapu.ui import obs_pagina_perfiles as pagina_mod
 from guyrapu.ui.obs_pagina_perfiles import PaginaPerfiles
 
@@ -68,6 +73,24 @@ class _DialogoNombreFalso:
         return type(self).devuelve[1]
 
 
+class _DialogoUsosFalso:
+    marcados_ = {}
+    visto = {}
+    resultado = wx.ID_OK
+
+    def __init__(self, padre, nombre, config):
+        type(self).visto = {"nombre": nombre, "config": dict(config)}
+
+    def ShowModal(self):
+        return type(self).resultado
+
+    def Destroy(self):
+        pass
+
+    def marcados(self):
+        return dict(type(self).marcados_)
+
+
 class _DialogoAjustesFalso:
     visto = {}
     devuelve = None
@@ -112,7 +135,8 @@ class BasePagina(unittest.TestCase):
             lambda texto: self.anuncios.append(texto))
         self.marco = wx.Frame(None)
         self.addCleanup(destruir, self.marco)
-        self.pagina = PaginaPerfiles(self.marco, GestorFalso(),
+        self.principal = SimpleNamespace(_config={})
+        self.pagina = PaginaPerfiles(self.marco, self.principal, GestorFalso(),
                                      self.operaciones)
         self.addCleanup(destruir, self.pagina)
         self.lista = mock.patch.object(
@@ -136,17 +160,29 @@ class TestPestana(BasePagina):
             self.pagina.lista.GetStrings(),
             ["Uno (en uso)", "Dos"])
 
+    def test_la_lista_dice_los_usos_asignados(self):
+        self.principal._config.update(
+            {"perfil_horizontal": "Uno", "perfil_grabar": "Uno"})
+        self._fijar()
+        self.assertEqual(
+            self.pagina.lista.GetStrings(),
+            ["Uno (en uso, para transmitir en horizontal, para grabar)",
+             "Dos"])
+
     def test_la_lista_tiene_su_nombre_accesible(self):
         self.assertEqual(self.pagina.lista.GetName(), "Perfiles de OBS")
 
-    def test_estan_los_cinco_botones_de_la_pestana(self):
+    def test_estan_los_seis_botones_de_la_pestana(self):
         etiquetas = [boton.GetLabel() for boton in (
-            self.pagina.btn_usar, self.pagina.btn_nuevo,
-            self.pagina.btn_duplicar, self.pagina.btn_eliminar,
-            self.pagina.btn_editar)]
+            self.pagina.btn_usar, self.pagina.btn_usar_para,
+            self.pagina.btn_nuevo, self.pagina.btn_duplicar,
+            self.pagina.btn_eliminar, self.pagina.btn_editar)]
         self.assertEqual(etiquetas, [
-            "&Usar este perfil", "&Nuevo…", "&Duplicar…", "&Eliminar perfil",
-            "Editar a&justes…"])
+            "&Usar este perfil", "Usar p&ara…", "&Nuevo…", "&Duplicar…",
+            "&Eliminar perfil", "Editar a&justes…"])
+
+    def test_el_boton_usar_para_tiene_su_nombre_accesible(self):
+        self.assertEqual(self.pagina.btn_usar_para.GetName(), "Usar para…")
 
 
 class TestUsar(BasePagina):
@@ -158,6 +194,63 @@ class TestUsar(BasePagina):
             self.pagina.usar()
         cambiar.assert_called_once_with(self.pagina._cliente(), "Dos")
         self.assertIn("Perfil en uso: Dos.", self.anuncios)
+
+
+class TestUsarPara(BasePagina):
+
+    def _archivo(self, texto):
+        base = tempfile.TemporaryDirectory()
+        self.addCleanup(base.cleanup)
+        ruta = Path(base.name) / "config.ini"
+        ruta.write_text(texto, encoding="utf-8")
+        return ruta
+
+    def _leer(self, ruta, clave):
+        parser = configparser.ConfigParser(interpolation=None)
+        parser.read(ruta, encoding="utf-8")
+        return parser.get("transmision", clave)
+
+    def test_aceptar_guarda_en_el_archivo_y_en_la_memoria(self):
+        ruta = self._archivo("[transmision]\nperfil_grabar =\n")
+        self._fijar()
+        self._elegir("Dos")
+        _DialogoUsosFalso.marcados_ = {"perfil_grabar": True}
+        _DialogoUsosFalso.resultado = wx.ID_OK
+        with mock.patch.object(pagina_mod, "DialogoUsosPerfil",
+                               _DialogoUsosFalso), \
+                mock.patch.object(gui, "RUTA_CONFIG", ruta):
+            self.pagina.usar_para()
+        self.assertEqual(self._leer(ruta, "perfil_grabar"), "Dos")
+        self.assertEqual(self.principal._config["perfil_grabar"], "Dos")
+        self.assertIn("Dos: para grabar.", self.anuncios)
+
+    def test_cancelar_no_cambia_nada(self):
+        ruta = self._archivo("[transmision]\nperfil_grabar = Grabar\n")
+        self._fijar()
+        self._elegir("Dos")
+        _DialogoUsosFalso.marcados_ = {"perfil_grabar": True}
+        _DialogoUsosFalso.resultado = wx.ID_CANCEL
+        with mock.patch.object(pagina_mod, "DialogoUsosPerfil",
+                               _DialogoUsosFalso), \
+                mock.patch.object(gui, "RUTA_CONFIG", ruta):
+            self.pagina.usar_para()
+        self.assertEqual(self._leer(ruta, "perfil_grabar"), "Grabar")
+        self.assertNotIn("perfil_grabar", self.principal._config)
+
+    def test_sin_cambios_no_guarda_y_lo_anuncia(self):
+        ruta = self._archivo("[transmision]\nperfil_grabar = Dos\n")
+        self.principal._config["perfil_grabar"] = "Dos"
+        self._fijar()
+        self._elegir("Dos")
+        _DialogoUsosFalso.marcados_ = {"perfil_grabar": True}
+        _DialogoUsosFalso.resultado = wx.ID_OK
+        with mock.patch.object(pagina_mod, "DialogoUsosPerfil",
+                               _DialogoUsosFalso), \
+                mock.patch.object(gui, "RUTA_CONFIG", ruta), \
+                mock.patch.object(gui, "guardar_opcion") as guardar:
+            self.pagina.usar_para()
+        guardar.assert_not_called()
+        self.assertIn("Sin cambios.", self.anuncios)
 
 
 class TestNuevo(BasePagina):
@@ -215,6 +308,27 @@ class TestEliminar(BasePagina):
         preguntar.assert_called_once()
         eliminar.assert_called_once_with(self.pagina._cliente(), "Dos")
         self.assertIn("Perfil eliminado: Dos.", self.anuncios)
+
+    def test_un_perfil_asignado_avisa_antes_y_deja_el_uso_vacio(self):
+        base = tempfile.TemporaryDirectory()
+        self.addCleanup(base.cleanup)
+        ruta = Path(base.name) / "config.ini"
+        ruta.write_text("[transmision]\nperfil_horizontal = Dos\n",
+                        encoding="utf-8")
+        self.principal._config["perfil_horizontal"] = "Dos"
+        self._fijar(("Uno", "Dos", "Tres"))
+        self._elegir("Dos")
+        with mock.patch.object(pagina_mod.confirmar, "preguntar",
+                               return_value=True) as preguntar, \
+                mock.patch.object(perfiles_obs, "eliminar_perfil"), \
+                mock.patch.object(gui, "RUTA_CONFIG", ruta):
+            self.pagina.eliminar()
+        self.assertIn("Se usa para transmitir en horizontal",
+                      preguntar.call_args[0][1])
+        parser = configparser.ConfigParser(interpolation=None)
+        parser.read(ruta, encoding="utf-8")
+        self.assertEqual(parser.get("transmision", "perfil_horizontal"), "")
+        self.assertEqual(self.principal._config["perfil_horizontal"], "")
 
 
 class TestEditar(BasePagina):

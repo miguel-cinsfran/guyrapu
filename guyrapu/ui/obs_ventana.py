@@ -84,7 +84,7 @@ class VentanaObs(wx.Dialog):
             self.nb, self._principal, self._gestor, self._operaciones,
             self._refrescar_grabacion)
         self._pagina_perfiles = PaginaPerfiles(
-            self.nb, self._gestor, self._operaciones)
+            self.nb, self._principal, self._gestor, self._operaciones)
         self._pagina_general = PaginaGeneral(
             self.nb, self._actualizar_general, self._mostrar_obs)
         self.nb.AddPage(self._pagina_general, _("General"))

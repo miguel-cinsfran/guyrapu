@@ -978,6 +978,7 @@ msgstr "TikTok live stream"
 #. Traductores: parte del estado F2 (tipo de conexión).
 #. Traductores: superficie donde se ve el vídeo.
 #: guyrapu/capture/estado_sesion.py guyrapu/player/reproductor.py
+#: guyrapu/ui/dialogo_ajustes_perfil.py
 msgid "Vídeo"
 msgstr "Video"
 
@@ -2941,6 +2942,28 @@ msgstr ""
 "Arrows move, Ctrl for big steps, Shift for one-pixel steps. Enter confirms,"
 " Esc undoes, Tab exits."
 
+#: guyrapu/obs/ajustes_perfil.py guyrapu/obs/salidas_audio.py
+msgid "Por defecto"
+msgstr "Default"
+
+#: guyrapu/obs/detener_obs.py guyrapu/ui/boton_directo.py
+#: guyrapu/ui/directo_panel.py guyrapu/ui/gui_transmitir.py
+msgid "Deteniendo la transmisión. Esperando a que OBS confirme."
+msgstr "Stopping the broadcast. Waiting for OBS to confirm."
+
+#: guyrapu/obs/detener_obs.py
+msgid "OBS sigue transmitiendo. Detén la transmisión en OBS."
+msgstr "OBS is still broadcasting. Stop the broadcast in OBS."
+
+#: guyrapu/obs/detener_obs.py
+msgid "No se pudo conectar con OBS para detener la transmisión."
+msgstr "Could not connect to OBS to stop the broadcast."
+
+#: guyrapu/obs/detener_obs.py guyrapu/ui/boton_directo.py
+#: guyrapu/ui/directo_panel.py
+msgid "Transmisión detenida."
+msgstr "Broadcast stopped."
+
 #: guyrapu/obs/disenos_fabrica.py
 msgid "Falta la fuente principal."
 msgstr "The main source is missing."
@@ -2956,6 +2979,14 @@ msgstr "The source on the left is missing."
 #: guyrapu/obs/disenos_fabrica.py
 msgid "Falta la fuente de la derecha."
 msgstr "The source on the right is missing."
+
+#: guyrapu/obs/disenos_fabrica.py
+msgid "Falta la fuente superior."
+msgstr "The top source is missing."
+
+#: guyrapu/obs/disenos_fabrica.py
+msgid "Falta la fuente inferior."
+msgstr "The bottom source is missing."
 
 #: guyrapu/obs/disenos_fabrica.py guyrapu/player/reproductor.py
 #: guyrapu/ui/atajos_captura.py
@@ -3536,6 +3567,16 @@ msgstr "Clips ready: from now on the last {segundos} seconds are saved."
 msgid "OBS no devolvió el archivo del clip."
 msgstr "OBS did not return the clip file."
 
+#. Traductores: {perfil} es el nombre de un perfil de OBS.
+#: guyrapu/obs/obs_destinos.py
+#, python-brace-format
+msgid ""
+"OBS no tiene un perfil llamado {perfil}. Elige el perfil en Preferencias, "
+"Transmisión."
+msgstr ""
+"OBS has no profile named {perfil}. Choose the profile in Preferences, "
+"Broadcast."
+
 #: guyrapu/obs/obs_destinos.py
 msgid "No se puede cambiar de destino mientras se transmite."
 msgstr "Cannot switch destinations while broadcasting."
@@ -3695,6 +3736,7 @@ msgstr "bottom"
 #. Traductores: conjunción entre partes de una frase, con sus espacios.
 #. Traductores: conjunción entre los lados por los que se sale del vídeo.
 #: guyrapu/obs/obs_disposicion.py guyrapu/obs/revision_escena.py
+#: guyrapu/obs/usos_perfil.py
 msgid " y "
 msgstr " and "
 
@@ -4257,24 +4299,6 @@ msgstr "{frase}, unconfirmed on {destino}"
 msgid "Directo a {destino}: {frase}"
 msgstr "Live to {destino}: {frase}"
 
-#: guyrapu/obs/obs_supervisor.py guyrapu/ui/boton_directo.py
-#: guyrapu/ui/directo_panel.py
-msgid "Transmisión detenida."
-msgstr "Broadcast stopped."
-
-#: guyrapu/obs/obs_supervisor.py guyrapu/ui/boton_directo.py
-#: guyrapu/ui/directo_panel.py guyrapu/ui/gui_transmitir.py
-msgid "Deteniendo la transmisión. Esperando a que OBS confirme."
-msgstr "Stopping the broadcast. Waiting for OBS to confirm."
-
-#: guyrapu/obs/obs_supervisor.py
-msgid "OBS sigue transmitiendo. Detén la transmisión en OBS."
-msgstr "OBS is still broadcasting. Stop the broadcast in OBS."
-
-#: guyrapu/obs/obs_supervisor.py
-msgid "No se pudo conectar con OBS para detener la transmisión."
-msgstr "Could not connect to OBS to stop the broadcast."
-
 #: guyrapu/obs/obs_supervisor.py
 #, python-brace-format
 msgid "El chat en el vídeo estaba detrás de «{nombre}». Ahora está delante."
@@ -4388,6 +4412,88 @@ msgid ""
 msgstr ""
 "{nombre} is a headset in hands-free mode and sounds low quality. For "
 "streaming, use another microphone."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento de los fotogramas por la red"
+msgstr "the {n} percent of the frames due to the network"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento al codificar"
+msgstr "the {n} percent while encoding"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento de los fotogramas al codificar"
+msgstr "the {n} percent of the frames while encoding"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento al dibujar la escena"
+msgstr "the {n} percent while drawing the scene"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "el {n} por ciento de los fotogramas al dibujar la escena"
+msgstr "the {n} percent of the frames while drawing the scene"
+
+#: guyrapu/obs/resumen_directo.py
+msgid "Se perdió menos del 1 por ciento de los fotogramas."
+msgstr "Less than 1 percent of the frames was lost."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "Se perdió {partes}."
+msgstr "Lost {partes}."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "Se perdió {uno} y {dos}."
+msgstr "Lost {uno} and {dos}."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid "Se perdió {uno}, {dos} y {tres}."
+msgstr "Lost {uno}, {dos} and {tres}."
+
+#: guyrapu/obs/resumen_directo.py
+msgid "de OBS"
+msgstr "OBS"
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, baja la velocidad de bits de vídeo del perfil "
+"{perfil} o usa una conexión por cable."
+msgstr ""
+"For the next live stream, lower the video bit rate of the {perfil} profile "
+"or use a wired connection."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, usa el codificador de la gráfica en el perfil "
+"{perfil}."
+msgstr "For the next live stream, use the graphics encoder in the {perfil} profile."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, baja la resolución o los fotogramas por segundo "
+"del perfil {perfil}."
+msgstr ""
+"For the next live stream, lower the resolution or frame rate of the "
+"{perfil} profile."
+
+#: guyrapu/obs/resumen_directo.py
+#, python-brace-format
+msgid ""
+"Para el próximo directo, baja los fotogramas por segundo del perfil "
+"{perfil} o cierra programas que usen la gráfica."
+msgstr ""
+"For the next live stream, lower the frame rate of the {perfil} profile or "
+"close programs that use the graphics."
 
 #: guyrapu/obs/revision_escena.py
 msgid "la ventana capturada no está abierta o está minimizada"
@@ -4604,6 +4710,42 @@ msgid "YouTube no confirmó el fin del directo. Finalízalo en YouTube Studio."
 msgstr ""
 "YouTube did not confirm the end of the live stream. End it in YouTube "
 "Studio."
+
+#: guyrapu/obs/usos_perfil.py
+msgid "transmitir en horizontal"
+msgstr "broadcasting horizontally"
+
+#: guyrapu/obs/usos_perfil.py
+msgid "transmitir en vertical"
+msgstr "broadcasting vertically"
+
+#: guyrapu/obs/usos_perfil.py
+msgid "grabar"
+msgstr "recording"
+
+#: guyrapu/obs/usos_perfil.py
+#, python-brace-format
+msgid "para {uso}"
+msgstr "for {uso}"
+
+#: guyrapu/obs/usos_perfil.py
+msgid "en uso"
+msgstr "in use"
+
+#: guyrapu/obs/usos_perfil.py
+#, python-brace-format
+msgid "{nombre} ({partes})"
+msgstr "{nombre} ({partes})"
+
+#: guyrapu/obs/usos_perfil.py
+#, python-brace-format
+msgid "Se usa {usos}: ese uso quedará con el perfil que tenga OBS."
+msgstr "Used {usos}: that use will fall back to whatever profile OBS has."
+
+#: guyrapu/obs/usos_perfil.py
+#, python-brace-format
+msgid "Se usa {usos}: esos usos quedarán con el perfil que tenga OBS."
+msgstr "Used {usos}: those uses will fall back to whatever profile OBS has."
 
 #: guyrapu/player/busqueda_video.py
 msgid "En el directo"
@@ -6135,12 +6277,13 @@ msgstr "Before broadcasting"
 
 #. Traductores: botón para cerrar sin publicar.
 #: guyrapu/ui/confirmar_transmision.py guyrapu/ui/descargas_acciones.py
-#: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_captura_ventana.py
-#: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
-#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_propiedades.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py guyrapu/ui/gui_envio_chat.py
-#: guyrapu/ui/gui_preferencias.py guyrapu/ui/gui_redactar.py
-#: guyrapu/ui/ia_privacidad.py guyrapu/ui/musica_ventana_acciones.py
+#: guyrapu/ui/dialogo_usos_perfil.py guyrapu/ui/escena_agregar_fuente.py
+#: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_edicion_fuente.py
+#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_pagina_escena.py
+#: guyrapu/ui/escena_propiedades.py guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py
+#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
+#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
+#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
 #: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
 #: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
 #: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_perfil.py
@@ -6459,6 +6602,141 @@ msgstr "Cancel &all"
 msgid "Eliminar c&ompletadas"
 msgstr "Remove co&mpleted"
 
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid ""
+"Este perfil está en modo Avanzado. El codificador, la tasa de bits de vídeo"
+" y el preset se cambian pasándolo a modo Sencillo."
+msgstr ""
+"This profile is in Advanced mode. The encoder, the video bitrate and the "
+"preset are changed by switching it to Simple mode."
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+#, python-brace-format
+msgid "Ajustes del perfil {nombre}"
+msgstr "Settings for profile {nombre}"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
+msgid "Orientación"
+msgstr "Orientation"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_perfil.py
+msgid "Horizontal"
+msgstr "Horizontal"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_perfil.py
+msgid "Vertical"
+msgstr "Vertical"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Lienzo:"
+msgstr "&Canvas:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Salida:"
+msgstr "&Output:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Fotogramas por segundo:"
+msgstr "&Frames per second:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Codificador:"
+msgstr "&Encoder:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Tasa de bits de vídeo (&kbps):"
+msgstr "Video bitrate (&kbps):"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Pr&eset:"
+msgstr "&Preset:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Cambiar a modo Sencillo"
+msgstr "S&witch to Simple mode"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_ventana.py
+msgid "Transmisión"
+msgstr "Broadcast"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Se&rvidor:"
+msgstr "Se&rver:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Cl&ave:"
+msgstr "&Stream key:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Tasa de bits &dinámica"
+msgstr "&Dynamic bitrate"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Rec&onectar"
+msgstr "Reconnec&t"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Espera de recone&xión:"
+msgstr "Reconnect dela&y:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Re&intentos:"
+msgstr "Retr&ies:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_ventana.py
+msgid "Grabación"
+msgstr "Recording"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Car&peta:"
+msgstr "Recordin&g folder:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "For&mato:"
+msgstr "For&mat:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Calidad de &grabación:"
+msgstr "Recording &quality:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "B&úfer de clips"
+msgstr "Clips &buffer"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Tiempo del búfer:"
+msgstr "Buffer duratio&n:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_ventana.py
+msgid "Audio"
+msgstr "Audio"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Tasa de &bits de audio:"
+msgstr "&Audio bitrate:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Muestreo (H&z):"
+msgstr "Sample rate (H&z):"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Ca&nales:"
+msgstr "Channe&ls:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Dispositivo de escuc&ha del monitoreo:"
+msgstr "Monitoring de&vice:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Guardar &y cerrar"
+msgstr "Save and e&xit"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Cancelar y &volver"
+msgstr "Cancel and &undo"
+
 #: guyrapu/ui/dialogo_estado.py
 msgid "Estado de la sesión"
 msgstr "Session status"
@@ -6481,9 +6759,46 @@ msgstr "Close"
 msgid "&Cerrar"
 msgstr "&Close"
 
+#: guyrapu/ui/dialogo_usos_perfil.py
+msgid "&Transmitir en horizontal"
+msgstr "&Broadcast horizontally"
+
+#: guyrapu/ui/dialogo_usos_perfil.py
+msgid "Transmitir en &vertical"
+msgstr "Broadcast &vertically"
+
+#: guyrapu/ui/dialogo_usos_perfil.py
+msgid "&Grabar"
+msgstr "&Record"
+
+#: guyrapu/ui/dialogo_usos_perfil.py
+#, python-brace-format
+msgid "Usar {nombre} para"
+msgstr "Use {nombre} for"
+
+#: guyrapu/ui/dialogo_usos_perfil.py
+#, python-brace-format
+msgid "(ahora: {nombre})"
+msgstr "(now: {nombre})"
+
+#: guyrapu/ui/dialogo_usos_perfil.py guyrapu/ui/escena_captura_ventana.py
+#: guyrapu/ui/escena_disenos.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_propiedades.py guyrapu/ui/escena_tamano.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/restream_dialogos_destino.py
+msgid "&Aceptar"
+msgstr "&Accept"
+
 #: guyrapu/ui/directo_panel.py
 msgid "Escribe tu usuario de TikTok en Usuario de TikTok."
 msgstr "Type your TikTok user in TikTok user."
+
+#: guyrapu/ui/disenos_nombres.py
+msgid "Nombre del diseño:"
+msgstr "Layout name:"
+
+#: guyrapu/ui/disenos_nombres.py
+msgid "Guardar diseño"
+msgstr "Save layout"
 
 #: guyrapu/ui/elegir_formato.py
 msgid "Elegir formato"
@@ -6626,8 +6941,9 @@ msgstr "Undone: {accion} of {fuente}."
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_audio.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_pagina_fuentes.py
 #: guyrapu/ui/gui_historial.py guyrapu/ui/mover_con_flechas.py
-#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_eventos.py
-#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_ventana.py
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_destinos.py
+#: guyrapu/ui/restream_pagina_eventos.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/restream_ventana.py
 msgid "Sin selección"
 msgstr "Nothing selected"
 
@@ -6695,13 +7011,6 @@ msgstr "&Window:"
 msgid "No hay ventanas para capturar."
 msgstr "There are no windows to capture."
 
-#: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_disenos.py
-#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_propiedades.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/preferencias_general.py
-#: guyrapu/ui/restream_dialogos_destino.py
-msgid "&Aceptar"
-msgstr "&Accept"
-
 #: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_propiedades.py
 msgid "Elige primero una ventana en Ventana."
 msgstr "First choose a window in Window."
@@ -6739,6 +7048,10 @@ msgid "Dos tercios y un tercio"
 msgstr "Two thirds and one third"
 
 #: guyrapu/ui/escena_disenos.py
+msgid "A la medida de la primera fuente"
+msgstr "Sized to the first source"
+
+#: guyrapu/ui/escena_disenos.py
 msgid "Sin chat"
 msgstr "No chat"
 
@@ -6751,12 +7064,8 @@ msgid "En una franja a la derecha"
 msgstr "In a strip on the right"
 
 #: guyrapu/ui/escena_disenos.py
-msgid "Aplicar diseño"
-msgstr "Apply layout"
-
-#: guyrapu/ui/escena_disenos.py
-msgid "&Diseño:"
-msgstr "&Layout:"
+msgid "En una franja inferior"
+msgstr "In a bottom strip"
 
 #: guyrapu/ui/escena_disenos.py
 msgid "&Fuente principal:"
@@ -6789,6 +7098,30 @@ msgstr "Source on the ri&ght:"
 #: guyrapu/ui/escena_disenos.py
 msgid "Ajuste de la fuente a la derecha"
 msgstr "Fit for the source on the right"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Fuente &superior:"
+msgstr "&Top source:"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Ajuste de la fuente superior"
+msgstr "Fit for the top source"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Fuente &inferior:"
+msgstr "&Bottom source:"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Ajuste de la fuente inferior"
+msgstr "Fit for the bottom source"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "Aplicar diseño"
+msgstr "Apply layout"
+
+#: guyrapu/ui/escena_disenos.py
+msgid "&Diseño:"
+msgstr "&Layout:"
 
 #: guyrapu/ui/escena_disenos.py
 msgid "Ajuste:"
@@ -6867,14 +7200,6 @@ msgstr "Factory layouts cannot be deleted."
 msgid "Diseño eliminado: {nombre}"
 msgstr "Layout deleted: {nombre}"
 
-#: guyrapu/ui/escena_disenos.py
-msgid "Nombre del diseño:"
-msgstr "Layout name:"
-
-#: guyrapu/ui/escena_disenos.py
-msgid "Guardar diseño"
-msgstr "Save layout"
-
 #: guyrapu/ui/escena_edicion_fuente.py
 msgid "Chat en el vídeo no se puede cambiar de nombre: Guyrapu lo reconoce por él."
 msgstr "Chat en el vídeo can't be renamed: Guyrapu recognizes it by its name."
@@ -6910,8 +7235,9 @@ msgid "Eliminar fuente"
 msgstr "Delete source"
 
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_escena.py
-#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/restream_menus.py
-#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_menus.py guyrapu/ui/restream_pagina_destinos.py
+#: guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Eliminar"
 msgstr "&Delete"
 
@@ -6957,7 +7283,7 @@ msgid "Cambiar &nombre…"
 msgstr "Change &name…"
 
 #: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
-#: guyrapu/ui/restream_menus.py
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_menus.py
 msgid "&Duplicar"
 msgstr "&Duplicate"
 
@@ -8168,7 +8494,7 @@ msgstr "Format"
 msgid "Cali&dad:"
 msgstr "&Quality:"
 
-#: guyrapu/ui/gui_descargas.py
+#: guyrapu/ui/gui_descargas.py guyrapu/ui/textos_perfil.py
 msgid "Calidad"
 msgstr "Quality"
 
@@ -9677,8 +10003,8 @@ msgstr "Edit playlist"
 msgid "El nombre no puede tener más de 60 caracteres"
 msgstr "The name cannot be more than 60 characters"
 
-#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
-#: guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
 msgid "&Nombre:"
 msgstr "&Name:"
 
@@ -9874,6 +10200,115 @@ msgstr "Record whi&le broadcasting"
 msgid "Grabar también al transmitir"
 msgstr "Record while broadcasting"
 
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Nombre del perfil"
+msgstr "Profile name"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "C&rear"
+msgstr "C&reate"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Escribe un nombre para el perfil."
+msgstr "Type a name for the profile."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Perfiles de OBS"
+msgstr "OBS profiles"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Usar este perfil"
+msgstr "&Use this profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Usar p&ara…"
+msgstr "Use f&or…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Usar para…"
+msgstr "Use for…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Nuevo…"
+msgstr "&New…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Duplicar…"
+msgstr "&Duplicate…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Eliminar perfil"
+msgstr "De&lete profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Editar a&justes…"
+msgstr "Edit &settings…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "OBS no está disponible."
+msgstr "OBS is not available."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil en uso: {nombre}."
+msgstr "Profile in use: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Sin cambios."
+msgstr "No changes."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "{nombre} ya no tiene usos asignados."
+msgstr "{nombre} no longer has any assigned uses."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "{nombre}: {usos}."
+msgstr "{nombre}: {usos}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_perfiles.py
+msgid "Nuevo perfil"
+msgstr "New profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil creado: {nombre}."
+msgstr "Profile created: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Duplicar perfil"
+msgstr "Duplicate profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil duplicado: {nombre}."
+msgstr "Profile duplicated: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_perfiles.py
+#, python-brace-format
+msgid "¿Eliminar el perfil {nombre}?"
+msgstr "Delete the profile {nombre}?"
+
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_perfiles.py
+msgid "Eliminar perfil"
+msgstr "Delete profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil eliminado: {nombre}."
+msgstr "Profile deleted: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil {nombre} en modo Sencillo."
+msgstr "Profile {nombre} in Simple mode."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Ajustes guardados en el perfil {nombre}."
+msgstr "Settings saved in profile {nombre}."
+
 #: guyrapu/ui/obs_ventana.py
 msgid "Panel de OBS"
 msgstr "OBS panel"
@@ -9882,17 +10317,10 @@ msgstr "OBS panel"
 msgid "Escena"
 msgstr "Scene"
 
-#: guyrapu/ui/obs_ventana.py
-msgid "Transmisión"
-msgstr "Broadcast"
-
-#: guyrapu/ui/obs_ventana.py
-msgid "Audio"
-msgstr "Audio"
-
-#: guyrapu/ui/obs_ventana.py
-msgid "Grabación"
-msgstr "Recording"
+#: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/restream_ventana.py
+msgid "Perfiles"
+msgstr "Profiles"
 
 #. Traductores: primera opción del combinado de salida de música; la que elige
 #. el sistema.
@@ -10830,6 +11258,22 @@ msgid "Mostrar en el &título de la ventana si se transmite o se graba"
 msgstr "Show streaming or recording in the &title of the window"
 
 #: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en horiz&ontal:"
+msgstr "Profile to broadcast hori&zontally:"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en horizontal"
+msgstr "Profile to broadcast horizontally"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en v&ertical:"
+msgstr "Profile to broadcast &vertically:"
+
+#: guyrapu/ui/preferencias_transmision.py
+msgid "Perfil para transmitir en vertical"
+msgstr "Profile to broadcast vertically"
+
+#: guyrapu/ui/preferencias_transmision.py
 msgid "Perfil para gra&bar:"
 msgstr "&Record profile:"
 
@@ -11289,17 +11733,9 @@ msgstr "Could not read the Restream events. Try again."
 msgid "No se pudieron leer las estadísticas del evento. Vuelve a intentarlo."
 msgstr "Could not read the event statistics. Try again."
 
-#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_ventana.py
-msgid "Perfiles"
-msgstr "Profiles"
-
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Nuevo perfil…"
 msgstr "&New profile…"
-
-#: guyrapu/ui/restream_pagina_perfiles.py
-msgid "Nuevo perfil"
-msgstr "New profile"
 
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid ""
@@ -11325,15 +11761,6 @@ msgstr "Restream profile duplicated."
 msgid "Perfil de Restream eliminado."
 msgstr "Restream profile deleted."
 
-#: guyrapu/ui/restream_pagina_perfiles.py
-#, python-brace-format
-msgid "¿Eliminar el perfil {nombre}?"
-msgstr "Delete the profile {nombre}?"
-
-#: guyrapu/ui/restream_pagina_perfiles.py
-msgid "Eliminar perfil"
-msgstr "Delete profile"
-
 #: guyrapu/ui/restream_perfil.py
 msgid "Nuevo perfil de Restream"
 msgstr "New Restream profile"
@@ -11345,14 +11772,6 @@ msgstr "Edit Restream profile"
 #: guyrapu/ui/restream_perfil.py
 msgid "&Orientación:"
 msgstr "&Orientation:"
-
-#: guyrapu/ui/restream_perfil.py
-msgid "Horizontal"
-msgstr "Horizontal"
-
-#: guyrapu/ui/restream_perfil.py
-msgid "Vertical"
-msgstr "Vertical"
 
 #: guyrapu/ui/restream_perfil.py
 msgid "No hay destinos. Agrégalos en la pestaña Destinos."
@@ -11438,6 +11857,106 @@ msgstr "Could not delete the destination. Try again."
 #: guyrapu/ui/restream_ventana.py
 msgid "Destino eliminado."
 msgstr "Destination deleted."
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Gráfica NVIDIA (NVENC)"
+msgstr "NVIDIA graphics card (NVENC)"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Gráfica Intel (QuickSync)"
+msgstr "Intel graphics card (QuickSync)"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Gráfica AMD"
+msgstr "AMD graphics card"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Procesador (x264)"
+msgstr "Processor (x264)"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Igual que la transmisión"
+msgstr "Same as the broadcast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Alta calidad, archivo mediano"
+msgstr "High quality, medium file"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Calidad indistinguible, archivo grande"
+msgstr "Indistinguishable quality, large file"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Sin pérdida, archivo muy grande"
+msgstr "Lossless, very large file"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Híbrido MP4"
+msgstr "Hybrid MP4"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Mono"
+msgstr "Mono"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Estéreo"
+msgstr "Stereo"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Ultrarrápido"
+msgstr "Ultrafast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Superrápido"
+msgstr "Superfast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Muy rápido"
+msgstr "Very fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Más rápido"
+msgstr "Faster"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Rápido"
+msgstr "Fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Medio"
+msgstr "Medium"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Velocidad"
+msgstr "Speed"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Equilibrado"
+msgstr "Balanced"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "La más rápida"
+msgstr "Fastest"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Muy rápida"
+msgstr "Very fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Rápida"
+msgstr "Fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Buena calidad"
+msgstr "Good quality"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Mejor calidad"
+msgstr "Better quality"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "La mejor calidad"
+msgstr "Best quality"
 
 #: guyrapu/ui/titulo_ventana.py
 msgid "(Transmitiendo y grabando)"
@@ -11715,440 +12234,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/obs/disenos_fabrica.py
-msgid "Falta la fuente superior."
-msgstr "The top source is missing."
-
-#: guyrapu/obs/disenos_fabrica.py
-msgid "Falta la fuente inferior."
-msgstr "The bottom source is missing."
-
-#: guyrapu/ui/escena_disenos.py
-msgid "A la medida de la primera fuente"
-msgstr "Sized to the first source"
-
-#: guyrapu/ui/escena_disenos.py
-msgid "En una franja inferior"
-msgstr "In a bottom strip"
-
-#: guyrapu/ui/escena_disenos.py
-msgid "Fuente &superior:"
-msgstr "&Top source:"
-
-#: guyrapu/ui/escena_disenos.py
-msgid "Ajuste de la fuente superior"
-msgstr "Fit for the top source"
-
-#: guyrapu/ui/escena_disenos.py
-msgid "Fuente &inferior:"
-msgstr "&Bottom source:"
-
-#: guyrapu/ui/escena_disenos.py
-msgid "Ajuste de la fuente inferior"
-msgstr "Fit for the bottom source"
-
-#. Traductores: {perfil} es el nombre de un perfil de OBS.
-#: guyrapu/obs/obs_destinos.py
-#, python-brace-format
-msgid ""
-"OBS no tiene un perfil llamado {perfil}. Elige el perfil en Preferencias, "
-"Transmisión."
-msgstr ""
-"OBS has no profile named {perfil}. Choose the profile in Preferences, "
-"Broadcast."
-
-#: guyrapu/ui/preferencias_transmision.py
-msgid "Perfil para transmitir en horiz&ontal:"
-msgstr "Profile to broadcast hori&zontally:"
-
-#: guyrapu/ui/preferencias_transmision.py
-msgid "Perfil para transmitir en horizontal"
-msgstr "Profile to broadcast horizontally"
-
-#: guyrapu/ui/preferencias_transmision.py
-msgid "Perfil para transmitir en v&ertical:"
-msgstr "Profile to broadcast &vertically:"
-
-#: guyrapu/ui/preferencias_transmision.py
-msgid "Perfil para transmitir en vertical"
-msgstr "Profile to broadcast vertically"
-
-#: guyrapu/obs/ajustes_perfil.py guyrapu/obs/salidas_audio.py
-msgid "Por defecto"
-msgstr "Default"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid ""
-"Este perfil está en modo Avanzado. El codificador, la tasa de bits de vídeo"
-" y el preset se cambian pasándolo a modo Sencillo."
-msgstr ""
-"This profile is in Advanced mode. The encoder, the video bitrate and the "
-"preset are changed by switching it to Simple mode."
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-#, python-brace-format
-msgid "Ajustes del perfil {nombre}"
-msgstr "Settings for profile {nombre}"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
-msgid "Orientación"
-msgstr "Orientation"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "&Lienzo:"
-msgstr "&Canvas:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "&Salida:"
-msgstr "&Output:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "&Fotogramas por segundo:"
-msgstr "&Frames per second:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "&Codificador:"
-msgstr "&Encoder:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Tasa de bits de vídeo (&kbps):"
-msgstr "Video bitrate (&kbps):"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Pr&eset:"
-msgstr "&Preset:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "&Cambiar a modo Sencillo"
-msgstr "S&witch to Simple mode"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Se&rvidor:"
-msgstr "Se&rver:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Cl&ave:"
-msgstr "&Stream key:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Tasa de bits &dinámica"
-msgstr "&Dynamic bitrate"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Rec&onectar"
-msgstr "Reconnec&t"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Espera de recone&xión:"
-msgstr "Reconnect dela&y:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Re&intentos:"
-msgstr "Retr&ies:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Car&peta:"
-msgstr "Recordin&g folder:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "For&mato:"
-msgstr "For&mat:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Calidad de &grabación:"
-msgstr "Recording &quality:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "B&úfer de clips"
-msgstr "Clips &buffer"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "&Tiempo del búfer:"
-msgstr "Buffer duratio&n:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Tasa de &bits de audio:"
-msgstr "&Audio bitrate:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Muestreo (H&z):"
-msgstr "Sample rate (H&z):"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Ca&nales:"
-msgstr "Channe&ls:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Dispositivo de escuc&ha del monitoreo:"
-msgstr "Monitoring de&vice:"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Guardar &y cerrar"
-msgstr "Save and e&xit"
-
-#: guyrapu/ui/dialogo_ajustes_perfil.py
-msgid "Cancelar y &volver"
-msgstr "Cancel and &undo"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Nombre del perfil"
-msgstr "Profile name"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "C&rear"
-msgstr "C&reate"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Escribe un nombre para el perfil."
-msgstr "Type a name for the profile."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Perfiles de OBS"
-msgstr "OBS profiles"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "&Usar este perfil"
-msgstr "&Use this profile"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "&Nuevo…"
-msgstr "&New…"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "&Duplicar…"
-msgstr "&Duplicate…"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "&Eliminar perfil"
-msgstr "De&lete profile"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Editar a&justes…"
-msgstr "Edit &settings…"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "OBS no está disponible."
-msgstr "OBS is not available."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-#, python-brace-format
-msgid "{nombre} (en uso)"
-msgstr "{nombre} (in use)"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-#, python-brace-format
-msgid "Perfil en uso: {nombre}."
-msgstr "Profile in use: {nombre}."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-#, python-brace-format
-msgid "Perfil creado: {nombre}."
-msgstr "Profile created: {nombre}."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Duplicar perfil"
-msgstr "Duplicate profile"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-#, python-brace-format
-msgid "Perfil duplicado: {nombre}."
-msgstr "Profile duplicated: {nombre}."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-#, python-brace-format
-msgid "Perfil eliminado: {nombre}."
-msgstr "Profile deleted: {nombre}."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-#, python-brace-format
-msgid "Perfil {nombre} en modo Sencillo."
-msgstr "Profile {nombre} in Simple mode."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-#, python-brace-format
-msgid "Ajustes guardados en el perfil {nombre}."
-msgstr "Settings saved in profile {nombre}."
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Gráfica NVIDIA (NVENC)"
-msgstr "NVIDIA graphics card (NVENC)"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Gráfica Intel (QuickSync)"
-msgstr "Intel graphics card (QuickSync)"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Gráfica AMD"
-msgstr "AMD graphics card"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Procesador (x264)"
-msgstr "Processor (x264)"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Igual que la transmisión"
-msgstr "Same as the broadcast"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Alta calidad, archivo mediano"
-msgstr "High quality, medium file"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Calidad indistinguible, archivo grande"
-msgstr "Indistinguishable quality, large file"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Sin pérdida, archivo muy grande"
-msgstr "Lossless, very large file"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Híbrido MP4"
-msgstr "Hybrid MP4"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Mono"
-msgstr "Mono"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Estéreo"
-msgstr "Stereo"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Ultrarrápido"
-msgstr "Ultrafast"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Superrápido"
-msgstr "Superfast"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Muy rápido"
-msgstr "Very fast"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Más rápido"
-msgstr "Faster"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Rápido"
-msgstr "Fast"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Medio"
-msgstr "Medium"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Velocidad"
-msgstr "Speed"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Equilibrado"
-msgstr "Balanced"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "La más rápida"
-msgstr "Fastest"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Muy rápida"
-msgstr "Very fast"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Rápida"
-msgstr "Fast"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Buena calidad"
-msgstr "Good quality"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "Mejor calidad"
-msgstr "Better quality"
-
-#: guyrapu/ui/textos_perfil.py
-msgid "La mejor calidad"
-msgstr "Best quality"
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "el {n} por ciento de los fotogramas por la red"
-msgstr "the {n} percent of the frames due to the network"
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "el {n} por ciento al codificar"
-msgstr "the {n} percent while encoding"
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "el {n} por ciento de los fotogramas al codificar"
-msgstr "the {n} percent of the frames while encoding"
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "el {n} por ciento al dibujar la escena"
-msgstr "the {n} percent while drawing the scene"
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "el {n} por ciento de los fotogramas al dibujar la escena"
-msgstr "the {n} percent of the frames while drawing the scene"
-
-#: guyrapu/obs/resumen_directo.py
-msgid "Se perdió menos del 1 por ciento de los fotogramas."
-msgstr "Less than 1 percent of the frames was lost."
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "Se perdió {partes}."
-msgstr "Lost {partes}."
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "Se perdió {uno} y {dos}."
-msgstr "Lost {uno} and {dos}."
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid "Se perdió {uno}, {dos} y {tres}."
-msgstr "Lost {uno}, {dos} and {tres}."
-
-#: guyrapu/obs/resumen_directo.py
-msgid "de OBS"
-msgstr "OBS"
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid ""
-"Para el próximo directo, baja la velocidad de bits de vídeo del perfil "
-"{perfil} o usa una conexión por cable."
-msgstr ""
-"For the next live stream, lower the video bit rate of the {perfil} profile "
-"or use a wired connection."
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid ""
-"Para el próximo directo, usa el codificador de la gráfica en el perfil "
-"{perfil}."
-msgstr "For the next live stream, use the graphics encoder in the {perfil} profile."
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid ""
-"Para el próximo directo, baja la resolución o los fotogramas por segundo "
-"del perfil {perfil}."
-msgstr ""
-"For the next live stream, lower the resolution or frame rate of the "
-"{perfil} profile."
-
-#: guyrapu/obs/resumen_directo.py
-#, python-brace-format
-msgid ""
-"Para el próximo directo, baja los fotogramas por segundo del perfil "
-"{perfil} o cierra programas que usen la gráfica."
-msgstr ""
-"For the next live stream, lower the frame rate of the {perfil} profile or "
-"close programs that use the graphics."
 
