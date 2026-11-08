@@ -90,6 +90,10 @@ class HiloInmediato:
         self._target(*self._args, **self._kwargs)
 
 
+def _crear_hilo_inmediato(target, nombre, *, args=(), daemon=True):
+    return HiloInmediato(target, args)
+
+
 class BaseAudio(unittest.TestCase):
     FUENTES = ("Mic/Aux",)
     SILENCIOS = None
@@ -316,8 +320,8 @@ class TestPaginaAudioEscucha(BaseAudio):
             mock.patch.object(
                 escena_pagina_audio.escena_escucha, "anunciar"),
             mock.patch.object(
-                escena_pagina_audio.escena_escucha.threading, "Thread",
-                HiloInmediato),
+                escena_pagina_audio.escena_escucha.diagnostico, "crear_hilo",
+                _crear_hilo_inmediato),
         ]
         for parche in self.parches:
             parche.start()

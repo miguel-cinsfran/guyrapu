@@ -1872,10 +1872,12 @@ class TestCategoriasDePreferencias(unittest.TestCase):
                 mock.patch.object(dialogo, "EndModal"):
             dialogo._on_guardar(None)
 
-        # La página Descargas guarda cada clave con guardar_opcion: el
-        # guardado general del diálogo sigue siendo uno solo.
+        # La página Descargas guarda sus claves con una sola guardar_opciones
+        # de varias claves, así que el guardado general se reconoce por sus
+        # claves, que incluyen las de ia: sigue siendo uno solo.
         generales = [llamada for llamada in guardar.call_args_list
-                     if len(llamada.args[1]) > 1]
+                     if any(seccion == "ia"
+                            for seccion, _clave, _valor in llamada.args[1])]
         self.assertEqual(len(generales), 1)
         llamada = generales[0].args[1]
         claves = [(seccion, clave)
@@ -3562,7 +3564,8 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
                 mock.patch.object(dialogo, "EndModal"):
             dialogo._on_guardar(None)
         generales = [llamada for llamada in guardar.call_args_list
-                     if len(llamada.args[1]) > 1]
+                     if any(seccion == "ia"
+                            for seccion, _clave, _valor in llamada.args[1])]
         self.assertEqual(len(generales), 1)
         secciones = {seccion for seccion, _clave, _valor
                      in generales[0].args[1]}
@@ -5557,7 +5560,7 @@ class TestSupervisarDirectoYoutube(unittest.TestCase):
                 mock.patch("guyrapu.ui.gui_directo_youtube.pedir_datos_directo",
                            return_value=pedido) as pedir, \
                 mock.patch.object(gui.youtube_api, "ClienteYouTube") as cliente, \
-                mock.patch.object(gui, "guardar_opcion") as guardar, \
+                mock.patch("guyrapu.ui.gui_transmitir.guardar_opciones") as guardar, \
                 mock.patch("guyrapu.obs.obs_supervisor.SupervisorTransmision",
                            self._doble_supervisor(creados)), \
                 mock.patch.object(gui, "anunciar"):
@@ -5571,23 +5574,19 @@ class TestSupervisarDirectoYoutube(unittest.TestCase):
         self.assertEqual(frame._config["transmision_youtube_latencia"], "normal")
         self.assertFalse(frame._config["transmision_youtube_ninos"])
         self.assertTrue(frame._config["transmision_youtube_dvr"])
-        self.assertEqual(guardar.call_count, 11)
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_titulo", "Hola")
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_descripcion", "algo")
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_privacidad", "public")
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_latencia", "normal")
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_ninos", "false")
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_dvr", "true")
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_lista", "")
-        guardar.assert_any_call(
-            gui.RUTA_CONFIG, "transmision", "youtube_lista_titulo", "")
+        guardar.assert_called_once_with(
+            gui.RUTA_CONFIG,
+            [("transmision", "youtube_titulo", "Hola"),
+             ("transmision", "youtube_descripcion", "algo"),
+             ("transmision", "youtube_privacidad", "public"),
+             ("transmision", "youtube_latencia", "normal"),
+             ("transmision", "youtube_ninos", "false"),
+             ("transmision", "youtube_dvr", "true"),
+             ("transmision", "youtube_categoria", ""),
+             ("transmision", "youtube_etiquetas", ""),
+             ("transmision", "youtube_miniatura", ""),
+             ("transmision", "youtube_lista", ""),
+             ("transmision", "youtube_lista_titulo", "")])
         cliente.assert_called_once_with({"token": "t",
                                            "api_key": "k-prueba"})
         efectivas.assert_called_once_with({"token": "t"})

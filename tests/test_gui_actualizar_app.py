@@ -184,9 +184,9 @@ class TestVentana(unittest.TestCase):
 
     def test_la_version_nueva_se_lee_sin_v_ni_guion(self):
         _, ventana, _ = self._abrir(
-            consultar=_paquete("v3.0.0-beta.2"), frozen=True, admite=True)
+            consultar=_paquete("v3.1.0-beta.1"), frozen=True, admite=True)
         self.assertEqual(
-            "Hay una versión nueva, la 3.0.0 beta 2. "
+            "Hay una versión nueva, la 3.1.0 beta 1. "
             f"La instalada es la {version_legible(APP_VERSION)}.",
             ventana.anuncios[-1])
         self.assertNotIn("v3", ventana.anuncios[-1])
