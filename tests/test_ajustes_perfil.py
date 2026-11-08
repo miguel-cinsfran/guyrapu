@@ -15,6 +15,8 @@ from guyrapu.obs.ajustes_perfil import (
     PRESETS,
     AjustesPerfil,
     clave_preset,
+    claves_de_lectura,
+    desde_obs,
     mejor_codificador,
     par,
     parametros_obs,
@@ -38,7 +40,8 @@ class TestTipo(unittest.TestCase):
             "bitrate_audio", "preset", "bitrate_dinamico", "reconectar",
             "espera_reconexion", "reintentos", "carpeta_grabacion",
             "formato_grabacion", "calidad_grabacion", "buffer_clips",
-            "segundos_buffer", "muestreo", "canales"})
+            "segundos_buffer", "muestreo", "canales", "monitoreo_id",
+            "monitoreo_nombre"})
 
 
 class TestValoresPermitidos(unittest.TestCase):
@@ -117,6 +120,45 @@ class TestValoresIniciales(unittest.TestCase):
         for codificador in ("x264", "qsv", "nvenc", "amd"):
             with self.subTest(codificador=codificador):
                 validar(valores_iniciales(False, codificador))
+
+
+class TestMonitoreo(unittest.TestCase):
+
+    def test_de_fabrica_usa_el_predeterminado(self):
+        ajustes = AjustesPerfil()
+        self.assertEqual(ajustes.monitoreo_id, "default")
+        self.assertEqual(ajustes.monitoreo_nombre, "Por defecto")
+
+    def test_las_claves_de_lectura_piden_el_monitoreo(self):
+        claves = claves_de_lectura("x264")
+        self.assertIn(("Audio", "MonitoringDeviceId"), claves)
+        self.assertIn(("Audio", "MonitoringDeviceName"), claves)
+
+    def test_parametros_escriben_el_monitoreo(self):
+        ajustes = de_prueba(monitoreo_id="{0.0.0.1}",
+                            monitoreo_nombre="Altavoces")
+        parametros = {(categoria, nombre): valor
+                      for categoria, nombre, valor
+                      in parametros_obs(ajustes)}
+        self.assertEqual(parametros[("Audio", "MonitoringDeviceId")],
+                         "{0.0.0.1}")
+        self.assertEqual(parametros[("Audio", "MonitoringDeviceName")],
+                         "Altavoces")
+
+    def test_desde_obs_lee_el_monitoreo(self):
+        parametros = {
+            ("SimpleOutput", "StreamEncoder"): "x264",
+            ("Audio", "MonitoringDeviceId"): "{0.0.0.2}",
+            ("Audio", "MonitoringDeviceName"): "Auriculares",
+        }
+        ajustes = desde_obs({}, {}, "", parametros)
+        self.assertEqual(ajustes.monitoreo_id, "{0.0.0.2}")
+        self.assertEqual(ajustes.monitoreo_nombre, "Auriculares")
+
+    def test_desde_obs_sin_monitoreo_usa_el_predeterminado(self):
+        ajustes = desde_obs({}, {}, "", {})
+        self.assertEqual(ajustes.monitoreo_id, "default")
+        self.assertEqual(ajustes.monitoreo_nombre, "Por defecto")
 
 
 class TestPar(unittest.TestCase):

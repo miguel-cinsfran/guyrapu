@@ -66,6 +66,11 @@ def _lista(cliente, parada):
     return perfiles, str(datos.get("currentProfileName") or "")
 
 
+def listar_perfiles(cliente, parada=None):
+    """Los perfiles de OBS y el que está en uso."""
+    return _lista(cliente, parada)
+
+
 def _parametro(cliente, categoria, nombre, parada):
     respuesta = cliente.pedir(
         "GetProfileParameter",
@@ -221,6 +226,32 @@ def leer_ajustes(cliente, perfil=None, parada=None):
     return _leer_de(cliente, objetivo, actual, parada)
 
 
+def leer_para_editar(cliente, perfil=None, parada=None):
+    """Ajustes, modo Avanzado y servicio personalizado, en un solo viaje."""
+    _comprobar_salidas(cliente, parada)
+    perfiles, actual = _lista(cliente, parada)
+    objetivo = perfil or actual
+    if objetivo not in perfiles:
+        raise obs_cliente.ObsError(
+            _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
+    if actual != objetivo:
+        _cambiar(cliente, objetivo, parada)
+    try:
+        ajustes = _leer_actual(cliente, parada)
+        avanzado = _modo(cliente, parada) == "advanced"
+        servicio = _datos(
+            cliente.pedir("GetStreamServiceSettings", parada=parada))
+        personalizado = (str(servicio.get("streamServiceType") or "")
+                         == "rtmp_custom")
+    except Exception:
+        if actual != objetivo:
+            _intentar_volver(cliente, actual, parada)
+        raise
+    if actual != objetivo:
+        _cambiar(cliente, actual, parada)
+    return ajustes, avanzado, personalizado
+
+
 def guardar_ajustes(cliente, ajustes, perfil=None, parada=None):
     """Guarda los ajustes en un perfil y deja OBS en el que estaba."""
     _comprobar_salidas(cliente, parada)
@@ -297,6 +328,9 @@ def eliminar_perfil(cliente, nombre, parada=None):
     if nombre == actual:
         raise obs_cliente.ObsError(_(MENSAJE_EN_USO))
     cliente.pedir("RemoveProfile", {"profileName": nombre}, parada)
+    # OBS responde antes de sacarlo de la lista; sin esta espera la pestaña
+    # releía y volvía a mostrar el perfil que acababa de anunciar eliminado.
+    _esperar(cliente, lambda perfiles, actual: nombre not in perfiles, parada)
 
 
 def cambiar_perfil(cliente, nombre, parada=None):

@@ -165,9 +165,112 @@ class ClienteFalso:
                 if tipo == "SetCurrentProfile"]
 
 
+class ClienteQueTardaEnQuitar(ClienteFalso):
+    """Sigue listando el perfil eliminado durante una consulta, como OBS."""
+
+    def __init__(self, *args, consultas=1, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._retraso = consultas
+        self._consultas_retraso = 0
+        self._recien_eliminado = ""
+        self.listados_despues = []
+
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "RemoveProfile":
+            respuesta = super().pedir(tipo, datos, parada)
+            self._recien_eliminado = (datos or {}).get("profileName", "")
+            self._consultas_retraso = self._retraso
+            return respuesta
+        if tipo == "GetProfileList":
+            respuesta = super().pedir(tipo, datos, parada)
+            if self._recien_eliminado:
+                if self._consultas_retraso > 0:
+                    self._consultas_retraso -= 1
+                    respuesta["responseData"]["profiles"].append(
+                        self._recien_eliminado)
+                self.listados_despues.append(
+                    list(respuesta["responseData"]["profiles"]))
+            return respuesta
+        return super().pedir(tipo, datos, parada)
+
+
 def ajustes_de_prueba(**cambios):
     return dataclasses.replace(ajustes_perfil.valores_iniciales(False, "x264"),
                                **cambios)
+
+
+class TestListar(unittest.TestCase):
+
+    def test_listar_devuelve_los_perfiles_y_el_actual(self):
+        cliente = ClienteFalso(("A", "B"), actual="B")
+        self.assertEqual(perfiles_obs.listar_perfiles(cliente),
+                         (["A", "B"], "B"))
+
+
+class TestLeerParaEditar(unittest.TestCase):
+
+    def test_devuelve_ajustes_avanzado_y_servicio_personalizado(self):
+        cliente = ClienteFalso(("A", "B"), actual="A")
+        cliente.configurar("B", parametros={
+            ("Output", "Mode"): "Advanced",
+            ("SimpleOutput", "VBitrate"): "4000",
+        })
+        ajustes, avanzado, personalizado = perfiles_obs.leer_para_editar(
+            cliente, "B")
+        self.assertTrue(avanzado)
+        self.assertTrue(personalizado)
+        self.assertEqual(ajustes.bitrate_video, 4000)
+        self.assertEqual(cliente.actual, "A")
+        self.assertEqual(cliente.cambios_de_perfil(), ["B", "A"])
+
+    def test_un_servicio_conocido_no_es_personalizado(self):
+        cliente = ClienteFalso(("A", "B"), actual="A")
+        cliente.configurar("B", servicio={
+            "streamServiceType": "YouTube",
+            "streamServiceSettings": {"server": "rtmp://yt", "key": "k"}})
+        _ajustes, avanzado, personalizado = perfiles_obs.leer_para_editar(
+            cliente, "B")
+        self.assertFalse(avanzado)
+        self.assertFalse(personalizado)
+        self.assertEqual(cliente.actual, "A")
+
+
+class TestMonitoreo(unittest.TestCase):
+
+    def test_leer_trae_el_dispositivo_del_perfil(self):
+        cliente = ClienteFalso(("A", "B"), actual="A")
+        cliente.configurar("B", parametros={
+            ("Audio", "MonitoringDeviceId"): "{0.0.0.3}",
+            ("Audio", "MonitoringDeviceName"): "Auriculares",
+        })
+        ajustes = perfiles_obs.leer_ajustes(cliente, "B")
+        self.assertEqual(ajustes.monitoreo_id, "{0.0.0.3}")
+        self.assertEqual(ajustes.monitoreo_nombre, "Auriculares")
+        self.assertEqual(cliente.actual, "A")
+
+    def test_guardar_escribe_el_dispositivo_del_perfil(self):
+        cliente = ClienteFalso(("A",), actual="A")
+        ajustes = ajustes_de_prueba(monitoreo_id="{0.0.0.4}",
+                                   monitoreo_nombre="Altavoces")
+        perfiles_obs.guardar_ajustes(cliente, ajustes, "A")
+        guardado = cliente.estado["A"]["parametros"]
+        self.assertEqual(guardado[("Audio", "MonitoringDeviceId")],
+                         "{0.0.0.4}")
+        self.assertEqual(guardado[("Audio", "MonitoringDeviceName")],
+                         "Altavoces")
+
+    def test_duplicar_copia_el_dispositivo(self):
+        cliente = ClienteFalso(("A", "Origen"), actual="A")
+        cliente.configurar("Origen", parametros={
+            ("Audio", "MonitoringDeviceId"): "{0.0.0.5}",
+            ("Audio", "MonitoringDeviceName"): "Auriculares",
+        })
+        perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
+        copia = cliente.estado["Copia"]["parametros"]
+        self.assertEqual(copia[("Audio", "MonitoringDeviceId")],
+                         "{0.0.0.5}")
+        self.assertEqual(copia[("Audio", "MonitoringDeviceName")],
+                         "Auriculares")
 
 
 class TestLeer(unittest.TestCase):
@@ -482,6 +585,14 @@ class TestEliminar(unittest.TestCase):
         self.assertNotIn("B", cliente.estado)
         self.assertEqual(cliente.actual, "A")
         self.assertIn("RemoveProfile", cliente.tipos())
+
+    def test_p6_espera_a_que_obs_saque_el_perfil_de_la_lista(self):
+        cliente = ClienteQueTardaEnQuitar(("A", "B"), actual="A")
+        perfiles_obs.eliminar_perfil(cliente, "B")
+        self.assertNotIn("B", cliente.estado)
+        self.assertGreaterEqual(len(cliente.listados_despues), 2)
+        self.assertIn("B", cliente.listados_despues[0])
+        self.assertNotIn("B", cliente.listados_despues[-1])
 
     def test_p6_no_elimina_el_actual(self):
         cliente = ClienteFalso(("A", "B"), actual="A")

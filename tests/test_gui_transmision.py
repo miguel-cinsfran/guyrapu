@@ -432,7 +432,8 @@ class TestPanelTransmision(unittest.TestCase):
         self.assertEqual(
             [ventana.nb.GetPageText(i)
              for i in range(ventana.nb.GetPageCount())],
-            ["General", "Escena", "Transmisión", "Audio", "Grabación"])
+            ["General", "Escena", "Transmisión", "Audio", "Grabación",
+             "Perfiles"])
 
     def test_pasar_a_general_vuelve_a_leer_el_estado(self):
         self.gestor.grabando = True

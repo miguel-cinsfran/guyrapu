@@ -1,0 +1,287 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
+"""Pruebas de la pestaña Perfiles del Panel de OBS, con OBS falso."""
+
+import dataclasses
+import unittest
+from unittest import mock
+
+import wx
+
+from tests.ventanas_prueba import app_de_prueba, destruir
+from guyrapu.core.idioma import _
+from guyrapu.obs import ajustes_perfil, codificadores_obs, obs_cliente
+from guyrapu.obs import perfiles_obs, salidas_audio
+from guyrapu.ui import obs_pagina_perfiles as pagina_mod
+from guyrapu.ui.obs_pagina_perfiles import PaginaPerfiles
+
+
+class ClienteFalso:
+    def pedir(self, tipo, datos=None, parada=None):
+        return {"responseData": {}}
+
+
+class GestorFalso:
+    def __init__(self):
+        self._cliente = ClienteFalso()
+
+
+class OperacionesFalsas:
+    """Corre en el acto y anuncia los fallos como `OperacionesObs`."""
+
+    def __init__(self, anunciar):
+        self._anunciar = anunciar
+        self.fallos = []
+        self.cerrando = False
+        self.en_vuelo = False
+
+    def en_hilo(self, funcion, al_terminar=None):
+        try:
+            resultado = funcion()
+        except obs_cliente.ObsError as error:
+            self.fallos.append(str(error))
+            self._anunciar(str(error))
+            return
+        if al_terminar is not None:
+            al_terminar(resultado)
+
+
+class _DialogoNombreFalso:
+    devuelve = ("Copia", False)
+    visto = {}
+
+    def __init__(self, padre, existentes=(), con_orientacion=False,
+                 titulo="", accion=""):
+        type(self).visto = {"existentes": existentes,
+                            "con_orientacion": con_orientacion}
+
+    def ShowModal(self):
+        return wx.ID_OK
+
+    def Destroy(self):
+        pass
+
+    def nombre(self):
+        return type(self).devuelve[0]
+
+    def vertical(self):
+        return type(self).devuelve[1]
+
+
+class _DialogoAjustesFalso:
+    visto = {}
+    devuelve = None
+    pasar = False
+
+    def __init__(self, padre, ajustes, nombre, avanzado=False,
+                 personalizado=True, salidas=(), codificadores=None):
+        type(self).visto = {
+            "ajustes": ajustes, "nombre": nombre, "avanzado": avanzado,
+            "personalizado": personalizado, "salidas": salidas,
+            "codificadores": codificadores}
+
+    def ShowModal(self):
+        return wx.ID_OK
+
+    def Destroy(self):
+        pass
+
+    def pasar_a_sencillo_pedido(self):
+        return type(self).pasar
+
+    def ajustes(self):
+        return type(self).devuelve
+
+
+def de_prueba(**cambios):
+    return dataclasses.replace(ajustes_perfil.valores_iniciales(False, "x264"),
+                               **cambios)
+
+
+class BasePagina(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.anuncios = []
+        self._parche = mock.patch.object(
+            pagina_mod, "anunciar", lambda texto, *a, **k:
+            self.anuncios.append(texto))
+        self._parche.start()
+        self.addCleanup(self._parche.stop)
+        self.operaciones = OperacionesFalsas(
+            lambda texto: self.anuncios.append(texto))
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.pagina = PaginaPerfiles(self.marco, GestorFalso(),
+                                     self.operaciones)
+        self.addCleanup(destruir, self.pagina)
+        self.lista = mock.patch.object(
+            perfiles_obs, "listar_perfiles",
+            return_value=(["Uno", "Dos"], "Uno"))
+        self.lista.start()
+        self.addCleanup(self.lista.stop)
+
+    def _fijar(self, perfiles=("Uno", "Dos"), actual="Uno"):
+        self.pagina.fijar(list(perfiles), actual)
+
+    def _elegir(self, nombre):
+        self.pagina.lista.SetSelection(self.pagina._perfiles.index(nombre))
+
+
+class TestPestana(BasePagina):
+
+    def test_la_lista_dice_el_nombre_y_cual_esta_en_uso(self):
+        self.pagina.releer()
+        self.assertEqual(
+            self.pagina.lista.GetStrings(),
+            ["Uno (en uso)", "Dos"])
+
+    def test_la_lista_tiene_su_nombre_accesible(self):
+        self.assertEqual(self.pagina.lista.GetName(), "Perfiles de OBS")
+
+    def test_estan_los_cinco_botones_de_la_pestana(self):
+        etiquetas = [boton.GetLabel() for boton in (
+            self.pagina.btn_usar, self.pagina.btn_nuevo,
+            self.pagina.btn_duplicar, self.pagina.btn_eliminar,
+            self.pagina.btn_editar)]
+        self.assertEqual(etiquetas, [
+            "&Usar este perfil", "&Nuevo…", "&Duplicar…", "&Eliminar perfil",
+            "Editar a&justes…"])
+
+
+class TestUsar(BasePagina):
+
+    def test_pasa_al_perfil_elegido_y_lo_anuncia(self):
+        self._fijar()
+        self._elegir("Dos")
+        with mock.patch.object(perfiles_obs, "cambiar_perfil") as cambiar:
+            self.pagina.usar()
+        cambiar.assert_called_once_with(self.pagina._cliente(), "Dos")
+        self.assertIn("Perfil en uso: Dos.", self.anuncios)
+
+
+class TestNuevo(BasePagina):
+
+    def test_pide_orientacion_y_crea_con_ella(self):
+        _DialogoNombreFalso.devuelve = ("Nuevo", True)
+        with mock.patch.object(pagina_mod, "DialogoNombrePerfil",
+                               _DialogoNombreFalso), \
+                mock.patch.object(perfiles_obs, "crear_perfil") as crear:
+            self.pagina.nuevo()
+        self.assertTrue(_DialogoNombreFalso.visto["con_orientacion"])
+        crear.assert_called_once_with(self.pagina._cliente(), "Nuevo",
+                                      vertical=True)
+        self.assertIn("Perfil creado: Nuevo.", self.anuncios)
+
+
+class TestDuplicar(BasePagina):
+
+    def test_duplica_el_elegido_con_el_nombre_pedido(self):
+        _DialogoNombreFalso.devuelve = ("Copia", False)
+        self._fijar()
+        self._elegir("Dos")
+        with mock.patch.object(pagina_mod, "DialogoNombrePerfil",
+                               _DialogoNombreFalso), \
+                mock.patch.object(perfiles_obs, "duplicar_perfil") as duplicar:
+            self.pagina.duplicar()
+        duplicar.assert_called_once_with(self.pagina._cliente(), "Dos",
+                                         "Copia")
+        self.assertIn("Perfil duplicado: Copia.", self.anuncios)
+
+
+class TestEliminar(BasePagina):
+
+    def test_no_elimina_el_que_esta_en_uso_y_dice_por_que(self):
+        self._fijar()
+        self._elegir("Uno")
+        with mock.patch.object(pagina_mod.confirmar, "preguntar") as preguntar:
+            self.pagina.eliminar()
+        preguntar.assert_not_called()
+        self.assertIn(_(perfiles_obs.MENSAJE_EN_USO), self.anuncios)
+
+    def test_no_elimina_el_unico_y_dice_por_que(self):
+        self._fijar(("Uno",), "Dos")
+        self._elegir("Uno")
+        self.pagina.eliminar()
+        self.assertIn(_(perfiles_obs.MENSAJE_UNICO), self.anuncios)
+
+    def test_pide_confirmacion_y_elimina(self):
+        self._fijar(("Uno", "Dos", "Tres"))
+        self._elegir("Dos")
+        with mock.patch.object(pagina_mod.confirmar, "preguntar",
+                               return_value=True) as preguntar, \
+                mock.patch.object(perfiles_obs, "eliminar_perfil") as eliminar:
+            self.pagina.eliminar()
+        preguntar.assert_called_once()
+        eliminar.assert_called_once_with(self.pagina._cliente(), "Dos")
+        self.assertIn("Perfil eliminado: Dos.", self.anuncios)
+
+
+class TestEditar(BasePagina):
+
+    def _parches(self, avanzado=False, personalizado=True):
+        return (
+            mock.patch.object(perfiles_obs, "leer_para_editar",
+                              return_value=(de_prueba(), avanzado,
+                                            personalizado)),
+            mock.patch.object(salidas_audio, "salidas",
+                              return_value=(("default", "Por defecto"),)),
+            mock.patch.object(codificadores_obs, "codificadores_disponibles",
+                              return_value=("x264",)),
+        )
+
+    def test_lee_los_ajustes_y_guarda_los_del_cuadro(self):
+        self._fijar()
+        self._elegir("Dos")
+        nuevos = de_prueba(bitrate_video=9999)
+        _DialogoAjustesFalso.devuelve = nuevos
+        _DialogoAjustesFalso.pasar = False
+        parches = self._parches(avanzado=True, personalizado=False)
+        for parche in parches:
+            parche.start()
+            self.addCleanup(parche.stop)
+        with mock.patch.object(pagina_mod, "DialogoAjustesPerfil",
+                               _DialogoAjustesFalso), \
+                mock.patch.object(perfiles_obs, "guardar_ajustes") as guardar:
+            self.pagina.editar()
+        self.assertTrue(_DialogoAjustesFalso.visto["avanzado"])
+        self.assertFalse(_DialogoAjustesFalso.visto["personalizado"])
+        guardar.assert_called_once_with(self.pagina._cliente(), nuevos, "Dos")
+        self.assertIn("Ajustes guardados en el perfil Dos.", self.anuncios)
+
+    def test_pasar_a_sencillo_se_pide_desde_el_cuadro(self):
+        self._fijar()
+        self._elegir("Dos")
+        _DialogoAjustesFalso.devuelve = de_prueba()
+        _DialogoAjustesFalso.pasar = True
+        parches = self._parches(avanzado=True)
+        for parche in parches:
+            parche.start()
+            self.addCleanup(parche.stop)
+        with mock.patch.object(pagina_mod, "DialogoAjustesPerfil",
+                               _DialogoAjustesFalso), \
+                mock.patch.object(perfiles_obs, "pasar_a_sencillo") as pasar:
+            self.pagina.editar()
+        pasar.assert_called_once_with(self.pagina._cliente(), "Dos")
+        self.assertIn("Perfil Dos en modo Sencillo.", self.anuncios)
+
+
+class TestError(BasePagina):
+
+    def test_un_error_se_anuncia_y_no_se_anuncia_el_resultado(self):
+        self._fijar()
+        self._elegir("Dos")
+        with mock.patch.object(
+                perfiles_obs, "cambiar_perfil",
+                side_effect=obs_cliente.ObsError(
+                    _(perfiles_obs.MENSAJE_SALIDA_ACTIVA))) as cambiar:
+            self.pagina.usar()
+        cambiar.assert_called_once()
+        self.assertEqual(self.operaciones.fallos,
+                         [_(perfiles_obs.MENSAJE_SALIDA_ACTIVA)])
+        self.assertEqual(self.anuncios,
+                         [_(perfiles_obs.MENSAJE_SALIDA_ACTIVA)])
+
+
+if __name__ == "__main__":
+    unittest.main()

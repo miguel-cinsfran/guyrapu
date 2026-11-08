@@ -11774,3 +11774,299 @@ msgstr "Profile to broadcast &vertically:"
 msgid "Perfil para transmitir en vertical"
 msgstr "Profile to broadcast vertically"
 
+#: guyrapu/obs/ajustes_perfil.py guyrapu/obs/salidas_audio.py
+msgid "Por defecto"
+msgstr "Default"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid ""
+"Este perfil está en modo Avanzado. El codificador, la tasa de bits de vídeo"
+" y el preset se cambian pasándolo a modo Sencillo."
+msgstr ""
+"This profile is in Advanced mode. The encoder, the video bitrate and the "
+"preset are changed by switching it to Simple mode."
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+#, python-brace-format
+msgid "Ajustes del perfil {nombre}"
+msgstr "Settings for profile {nombre}"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
+msgid "Orientación"
+msgstr "Orientation"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Lienzo:"
+msgstr "&Canvas:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Salida:"
+msgstr "&Output:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Fotogramas por segundo:"
+msgstr "&Frames per second:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Codificador:"
+msgstr "&Encoder:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Tasa de bits de vídeo (&kbps):"
+msgstr "Video bitrate (&kbps):"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Pr&eset:"
+msgstr "&Preset:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Cambiar a modo Sencillo"
+msgstr "S&witch to Simple mode"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Se&rvidor:"
+msgstr "Se&rver:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Cl&ave:"
+msgstr "&Stream key:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Tasa de bits &dinámica"
+msgstr "&Dynamic bitrate"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Rec&onectar"
+msgstr "Reconnec&t"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Espera de recone&xión:"
+msgstr "Reconnect dela&y:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Re&intentos:"
+msgstr "Retr&ies:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Car&peta:"
+msgstr "Recordin&g folder:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "For&mato:"
+msgstr "For&mat:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Calidad de &grabación:"
+msgstr "Recording &quality:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "B&úfer de clips"
+msgstr "Clips &buffer"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "&Tiempo del búfer:"
+msgstr "Buffer duratio&n:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Tasa de &bits de audio:"
+msgstr "&Audio bitrate:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Muestreo (H&z):"
+msgstr "Sample rate (H&z):"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Ca&nales:"
+msgstr "Channe&ls:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Dispositivo de escuc&ha del monitoreo:"
+msgstr "Monitoring de&vice:"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Guardar &y cerrar"
+msgstr "Save and e&xit"
+
+#: guyrapu/ui/dialogo_ajustes_perfil.py
+msgid "Cancelar y &volver"
+msgstr "Cancel and &undo"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Nombre del perfil"
+msgstr "Profile name"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "C&rear"
+msgstr "C&reate"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Escribe un nombre para el perfil."
+msgstr "Type a name for the profile."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Perfiles de OBS"
+msgstr "OBS profiles"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Usar este perfil"
+msgstr "&Use this profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Nuevo…"
+msgstr "&New…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Duplicar…"
+msgstr "&Duplicate…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Eliminar perfil"
+msgstr "De&lete profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Editar a&justes…"
+msgstr "Edit &settings…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "OBS no está disponible."
+msgstr "OBS is not available."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "{nombre} (en uso)"
+msgstr "{nombre} (in use)"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil en uso: {nombre}."
+msgstr "Profile in use: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil creado: {nombre}."
+msgstr "Profile created: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Duplicar perfil"
+msgstr "Duplicate profile"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil duplicado: {nombre}."
+msgstr "Profile duplicated: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil eliminado: {nombre}."
+msgstr "Profile deleted: {nombre}."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Perfil {nombre} en modo Sencillo."
+msgstr "Profile {nombre} in Simple mode."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+#, python-brace-format
+msgid "Ajustes guardados en el perfil {nombre}."
+msgstr "Settings saved in profile {nombre}."
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Gráfica NVIDIA (NVENC)"
+msgstr "NVIDIA graphics card (NVENC)"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Gráfica Intel (QuickSync)"
+msgstr "Intel graphics card (QuickSync)"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Gráfica AMD"
+msgstr "AMD graphics card"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Procesador (x264)"
+msgstr "Processor (x264)"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Igual que la transmisión"
+msgstr "Same as the broadcast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Alta calidad, archivo mediano"
+msgstr "High quality, medium file"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Calidad indistinguible, archivo grande"
+msgstr "Indistinguishable quality, large file"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Sin pérdida, archivo muy grande"
+msgstr "Lossless, very large file"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Híbrido MP4"
+msgstr "Hybrid MP4"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Mono"
+msgstr "Mono"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Estéreo"
+msgstr "Stereo"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Ultrarrápido"
+msgstr "Ultrafast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Superrápido"
+msgstr "Superfast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Muy rápido"
+msgstr "Very fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Más rápido"
+msgstr "Faster"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Rápido"
+msgstr "Fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Medio"
+msgstr "Medium"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Velocidad"
+msgstr "Speed"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Equilibrado"
+msgstr "Balanced"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "La más rápida"
+msgstr "Fastest"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Muy rápida"
+msgstr "Very fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Rápida"
+msgstr "Fast"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Buena calidad"
+msgstr "Good quality"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "Mejor calidad"
+msgstr "Better quality"
+
+#: guyrapu/ui/textos_perfil.py
+msgid "La mejor calidad"
+msgstr "Best quality"
+

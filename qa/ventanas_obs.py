@@ -18,12 +18,14 @@ SEGUNDOS_CARGA_OBS = 90.0
 
 TITULO_VENTANA = "Panel de OBS"
 
-PESTANAS_OBS = ("General", "Escena", "Transmisión", "Audio", "Grabación")
+PESTANAS_OBS = ("General", "Escena", "Transmisión", "Audio", "Grabación",
+                "Perfiles")
 
 PESTANA_GENERAL = 0
 PESTANA_ESCENA = 1
 PESTANA_TRANSMISION = 2
 PESTANA_GRABACION = 4
+PESTANA_PERFILES = 5
 
 ESPERADOS_EN_TODAS = ("Cerrar",)
 
@@ -39,6 +41,8 @@ ESPERADOS_POR_PESTANA = {
               "Probar nivel", "Filtros", "Escuchar"),
     "Grabación": ("Iniciar grabación", "Grabar también al transmitir",
                   "Grabaciones y clips"),
+    "Perfiles": ("Perfiles de OBS", "Usar este perfil", "Nuevo…",
+                 "Duplicar…", "Eliminar", "Editar ajustes…"),
 }
 
 
@@ -274,6 +278,10 @@ def _auditar_pestanas(app, res, recorrer_tab, revisar_nombres,
     for i, nombre in enumerate(paginas):
         app.pedir("pestanas", ventana=TITULO_VENTANA, indice=i)
         time.sleep(0.8)
+        if nombre == "Perfiles" and not esperar_habilitado(
+                app, faltan_habilitados, "Usar este perfil",
+                SEGUNDOS_CARGA_OBS, res):
+            continue
         visibles = [c for c in app.arbol(TITULO_VENTANA)
                     if c.get("en_pantalla")]
         revisar_nombres(visibles, res, f"Panel de OBS/{nombre}")

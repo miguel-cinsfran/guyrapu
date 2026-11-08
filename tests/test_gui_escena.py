@@ -357,7 +357,8 @@ class TestVentanaObs(unittest.TestCase):
         self.assertEqual(
             [self.dialogo.nb.GetPageText(i)
              for i in range(self.dialogo.nb.GetPageCount())],
-            ["General", "Escena", "Transmisión", "Audio", "Grabación"])
+            ["General", "Escena", "Transmisión", "Audio", "Grabación",
+             "Perfiles"])
 
     def test_al_abrir_la_escena_al_aire_la_lista_de_fuentes(self):
         self.anuncios.clear()

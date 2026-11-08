@@ -26,7 +26,7 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.ai import catalogo
 from guyrapu.core import config
 from guyrapu.downloads import descargas, formatos_reales
-from guyrapu.obs import disenos_escena
+from guyrapu.obs import ajustes_perfil, disenos_escena
 from guyrapu.obs.filtros_microfono import Estado
 from guyrapu.ui import descargas_listas, operaciones_obs, elegir_formato, gui, gui_comentarios, gui_descargas, gui_directo_youtube, gui_grabaciones, gui_historial, gui_microfono, gui_transmision, gui_preferencias, control_grabacion, mover_con_flechas
 from guyrapu.ui import escena_disenos
@@ -37,6 +37,8 @@ from guyrapu.ui import escena_pagina_escena
 from guyrapu.ui import escena_pagina_fuentes
 from guyrapu.ui import escena_propiedades
 from guyrapu.ui import escena_tamano
+from guyrapu.ui import dialogo_ajustes_perfil
+from guyrapu.ui import obs_pagina_perfiles
 from guyrapu.ui import obs_ventana
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
@@ -340,6 +342,49 @@ class TestLetrasAccesoPanelObs(unittest.TestCase):
                     self.assertEqual(repetidas, {})
 
 
+class TestLetrasAccesoPerfilesObs(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def _pagina(self):
+        operaciones = SimpleNamespace(
+            en_hilo=lambda funcion, al_terminar=None: None)
+        gestor = SimpleNamespace(_cliente=None)
+        marco = wx.Frame(None)
+        self.addCleanup(destruir, marco)
+        pagina = obs_pagina_perfiles.PaginaPerfiles(
+            marco, gestor, operaciones)
+        self.addCleanup(destruir, pagina)
+        return pagina
+
+    def test_pestana_sin_letras_repetidas(self):
+        self.assertEqual(letras_repetidas(self._pagina()), {})
+
+    def _ajustes(self):
+        return ajustes_perfil.valores_iniciales(False, "x264")
+
+    def test_cuadro_de_ajustes_sin_letras_repetidas(self):
+        dialogo = dialogo_ajustes_perfil.DialogoAjustesPerfil(
+            None, self._ajustes(), "Prueba")
+        self.addCleanup(destruir, dialogo)
+        self.assertEqual(letras_repetidas(dialogo), {})
+
+    def test_cuadro_en_avanzado_sin_letras_repetidas(self):
+        dialogo = dialogo_ajustes_perfil.DialogoAjustesPerfil(
+            None, self._ajustes(), "Prueba", avanzado=True)
+        self.addCleanup(destruir, dialogo)
+        self.assertEqual(letras_repetidas(dialogo), {})
+
+    def test_cuadro_de_nombre_sin_letras_repetidas(self):
+        for con_orientacion, accion in ((True, "C&rear"),
+                                        (False, "&Duplicar")):
+            with self.subTest(accion=accion):
+                dialogo = obs_pagina_perfiles.DialogoNombrePerfil(
+                    None, con_orientacion=con_orientacion, accion=accion)
+                self.addCleanup(destruir, dialogo)
+                self.assertEqual(letras_repetidas(dialogo), {})
+
+
 class TestLetrasAccesoTamano(unittest.TestCase):
     def setUp(self):
         self.app = app_de_prueba()
@@ -623,6 +668,20 @@ class TestLetrasAccesoTransmisionEnIngles(TestLetrasAccesoTransmision):
 
 
 class TestLetrasAccesoPanelObsEnIngles(TestLetrasAccesoPanelObs):
+    # Gemela en inglés: repite las pruebas sin copiarlas.
+
+    @classmethod
+    def setUpClass(cls):
+        cls._ingles = ingles()
+        cls._ingles.__enter__()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._ingles.__exit__(None, None, None)
+        del cls._ingles
+
+
+class TestLetrasAccesoPerfilesObsEnIngles(TestLetrasAccesoPerfilesObs):
     # Gemela en inglés: repite las pruebas sin copiarlas.
 
     @classmethod

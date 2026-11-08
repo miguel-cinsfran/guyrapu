@@ -72,14 +72,15 @@ class TestAbrirPanel(unittest.TestCase):
 
 class TestDescuadreDePestanas(unittest.TestCase):
 
-    def test_las_cinco_en_orden_no_descuidran(self):
+    def test_las_seis_en_orden_no_descuidran(self):
         self.assertIsNone(ventanas_obs.descuadre_de_pestanas(
-            ["General", "Escena", "Transmisión", "Audio", "Grabación"]))
+            ["General", "Escena", "Transmisión", "Audio", "Grabación",
+             "Perfiles"]))
 
     def test_una_pestana_de_mas_es_fallo_y_la_nombra(self):
         texto = ventanas_obs.descuadre_de_pestanas(
             ["General", "Escena", "Transmisión", "Audio", "Grabación",
-             "Filtros"])
+             "Perfiles", "Filtros"])
         self.assertIsNotNone(texto)
         self.assertIn("Filtros", texto)
 
@@ -90,13 +91,15 @@ class TestDescuadreDePestanas(unittest.TestCase):
 
     def test_el_orden_cambiado_es_fallo_y_lo_muestra(self):
         texto = ventanas_obs.descuadre_de_pestanas(
-            ["Escena", "General", "Transmisión", "Audio", "Grabación"])
+            ["Escena", "General", "Transmisión", "Audio", "Grabación",
+             "Perfiles"])
         self.assertIsNotNone(texto)
         self.assertIn("Escena", texto)
 
     def test_ignora_mayusculas_y_espacios(self):
         self.assertIsNone(ventanas_obs.descuadre_de_pestanas(
-            [" general ", "Escena", "transmisión", "AUDIO", "Grabación"]))
+            [" general ", "Escena", "transmisión", "AUDIO", "Grabación",
+             "Perfiles"]))
 
 
 class TestFaltanEnTab(unittest.TestCase):
@@ -183,6 +186,13 @@ class TestEsperadosDePestana(unittest.TestCase):
         self.assertNotIn("Actualizar estado", esperados)
         self.assertNotIn("Escena…", esperados)
         self.assertNotIn("Grabaciones…", esperados)
+
+    def test_perfiles_pide_su_lista_y_sus_acciones(self):
+        esperados = ventanas_obs.esperados_de_pestana("Perfiles")
+        for nombre in ("Perfiles de OBS", "Usar este perfil", "Nuevo…",
+                       "Duplicar…", "Eliminar", "Editar ajustes…", "Cerrar"):
+            with self.subTest(nombre=nombre):
+                self.assertIn(nombre, esperados)
 
     def test_general_pide_estado_actualizar_y_mostrar(self):
         esperados = ventanas_obs.esperados_de_pestana("General")

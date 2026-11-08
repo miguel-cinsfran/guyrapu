@@ -11,6 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from guyrapu.core.idioma import N_
+
 CODIFICADORES = ("x264", "qsv", "nvenc", "amd")
 PRIORIDAD_CODIFICADORES = ("nvenc", "qsv", "amd", "x264")
 FPS_VALIDOS = (20, 24, 25, 30, 48, 50, 60)
@@ -19,6 +21,8 @@ FORMATOS_GRABACION = ("mkv", "mp4", "hybrid_mp4", "mov", "flv")
 CALIDADES_GRABACION = ("Stream", "Small", "HQ", "Lossless")
 MUESTREOS = (44100, 48000)
 CANALES = ("Mono", "Stereo")
+MONITOREO_ID_POR_DEFECTO = "default"
+MONITOREO_NOMBRE_POR_DEFECTO = N_("Por defecto")
 
 PRESETS = {
     "x264": ("ultrafast", "superfast", "veryfast", "faster", "fast",
@@ -67,6 +71,8 @@ class AjustesPerfil:
     segundos_buffer: int = 30
     muestreo: int = 48000
     canales: str = "Stereo"
+    monitoreo_id: str = MONITOREO_ID_POR_DEFECTO
+    monitoreo_nombre: str = MONITOREO_NOMBRE_POR_DEFECTO
 
 
 def par(valor) -> int:
@@ -163,6 +169,8 @@ CLAVES_PERFIL = (
     ("SimpleOutput", "RecRBTime"),
     ("Audio", "SampleRate"),
     ("Audio", "ChannelSetup"),
+    ("Audio", "MonitoringDeviceId"),
+    ("Audio", "MonitoringDeviceName"),
 )
 
 
@@ -231,6 +239,10 @@ def desde_obs(video, servicio, carpeta, parametros) -> AjustesPerfil:
             _texto(parametros, "SimpleOutput", "RecRBTime"), 30),
         muestreo=_entero(_texto(parametros, "Audio", "SampleRate"), 48000),
         canales=(_texto(parametros, "Audio", "ChannelSetup") or "Stereo"),
+        monitoreo_id=(_texto(parametros, "Audio", "MonitoringDeviceId")
+                      or MONITOREO_ID_POR_DEFECTO),
+        monitoreo_nombre=(_texto(parametros, "Audio", "MonitoringDeviceName")
+                          or MONITOREO_NOMBRE_POR_DEFECTO),
     )
 
 
@@ -278,4 +290,6 @@ def parametros_obs(ajustes) -> tuple:
         ("SimpleOutput", "RecRBTime", str(int(ajustes.segundos_buffer))),
         ("Audio", "SampleRate", str(int(ajustes.muestreo))),
         ("Audio", "ChannelSetup", ajustes.canales),
+        ("Audio", "MonitoringDeviceId", ajustes.monitoreo_id),
+        ("Audio", "MonitoringDeviceName", ajustes.monitoreo_nombre),
     )

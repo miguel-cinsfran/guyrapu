@@ -23,6 +23,7 @@ from guyrapu.ui.escena_pagina_escena import PaginaEscena
 from guyrapu.ui.gui_transmision import PaginaTransmision
 from guyrapu.ui.obs_pagina_grabacion import PaginaGrabacion
 from guyrapu.ui.obs_pagina_general import PaginaGeneral
+from guyrapu.ui.obs_pagina_perfiles import PaginaPerfiles
 from guyrapu.ui.operaciones_obs import OperacionesObs
 from guyrapu.ui.preferencias_comun import boton
 
@@ -33,6 +34,7 @@ PESTANA_ESCENA = 1
 PESTANA_TRANSMISION = 2
 PESTANA_AUDIO = 3
 PESTANA_GRABACION = 4
+PESTANA_PERFILES = 5
 
 
 class VentanaObs(wx.Dialog):
@@ -50,7 +52,7 @@ class VentanaObs(wx.Dialog):
             self, self._activar, self._escribir_fallo, self._enfocar_tras_fallo,
             self._tras_operacion)
         self._pestana_inicial = (
-            pestana if 0 <= pestana < 5 else PESTANA_ESCENA)
+            pestana if 0 <= pestana < 6 else PESTANA_ESCENA)
         self._crear_controles()
         self._en_hilo(self._cargar_inicial, self._inicial_cargada)
 
@@ -58,6 +60,17 @@ class VentanaObs(wx.Dialog):
         panel = wx.Panel(self, name="PanelObs")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.nb = wx.Notebook(panel, name="PestanasObs")
+        self._crear_paginas()
+        self.nb.SetSelection(self._pestana_inicial)
+        caja.Add(self.nb, 1, wx.EXPAND | wx.ALL, 10)
+        self._crear_pie(panel, caja)
+        panel.SetSizer(caja)
+        self._enlazar_eventos()
+        self.SetMinSize((620, -1))
+        self.Centre()
+        paleta.pintar_ventana(self)
+
+    def _crear_paginas(self):
         self._pagina_transmision = PaginaTransmision(
             self.nb, self._principal, self._gestor, self._operaciones,
             self._refrescar_general)
@@ -70,6 +83,8 @@ class VentanaObs(wx.Dialog):
         self._pagina_grabacion = PaginaGrabacion(
             self.nb, self._principal, self._gestor, self._operaciones,
             self._refrescar_grabacion)
+        self._pagina_perfiles = PaginaPerfiles(
+            self.nb, self._gestor, self._operaciones)
         self._pagina_general = PaginaGeneral(
             self.nb, self._actualizar_general, self._mostrar_obs)
         self.nb.AddPage(self._pagina_general, _("General"))
@@ -77,14 +92,7 @@ class VentanaObs(wx.Dialog):
         self.nb.AddPage(self._pagina_transmision, _("Transmisión"))
         self.nb.AddPage(self._pagina_audio, _("Audio"))
         self.nb.AddPage(self._pagina_grabacion, _("Grabación"))
-        self.nb.SetSelection(self._pestana_inicial)
-        caja.Add(self.nb, 1, wx.EXPAND | wx.ALL, 10)
-        self._crear_pie(panel, caja)
-        panel.SetSizer(caja)
-        self._enlazar_eventos()
-        self.SetMinSize((620, -1))
-        self.Centre()
-        paleta.pintar_ventana(self)
+        self.nb.AddPage(self._pagina_perfiles, _("Perfiles"))
 
     def _crear_pie(self, panel, caja):
         self.btn_cerrar = boton(panel, _("Cerrar"), _("Cerrar"), wx.ID_CANCEL)
@@ -104,6 +112,8 @@ class VentanaObs(wx.Dialog):
         seleccion = evento.GetSelection()
         if self.nb.GetPage(seleccion) is self._pagina_grabacion:
             self._pagina_grabacion.releer_lista()
+        if self.nb.GetPage(seleccion) is self._pagina_perfiles:
+            self._pagina_perfiles.releer()
         if seleccion == PESTANA_GENERAL:
             self._refrescar_general()
             self._pagina_general.txt_estado.SetFocus()
@@ -155,6 +165,8 @@ class VentanaObs(wx.Dialog):
             self._pagina_transmision.enfocar_inicial()
         elif self._pestana_inicial == PESTANA_GRABACION:
             self._pagina_grabacion._grabacion.boton.SetFocus()
+        elif self._pestana_inicial == PESTANA_PERFILES:
+            self._pagina_perfiles.releer()
         elif self._pestana_inicial == PESTANA_ESCENA:
             if leida.descripcion:
                 anunciar(leida.descripcion)
@@ -230,7 +242,8 @@ class VentanaObs(wx.Dialog):
     def _activar(self, activo):
         paginas = (self._pagina_transmision, self._pagina_escena,
                    self._pagina_audio, self._pagina_grabacion,
-                   self._pagina_fuentes, self._pagina_general)
+                   self._pagina_perfiles, self._pagina_fuentes,
+                   self._pagina_general)
         for pagina in paginas:
             for control in pagina.acciones:
                 control.Enable(activo)
