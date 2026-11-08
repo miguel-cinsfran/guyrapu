@@ -17,6 +17,7 @@ import time
 from guyrapu.capture import tiktok_vivo
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
+from guyrapu.obs import detener_obs
 from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_clips
@@ -46,13 +47,6 @@ SONIDOS_AVISO = {
     "sobrecarga": "transmision_problema",
     "vuelta": "transmision_recuperada",
 }
-
-# Al detener: cuánto se espera a que OBS apague la salida, cada cuánto se
-# consulta, y desde cuándo se avisa de que la espera sigue.
-LIMITE_ESPERA_OBS = 90.0
-INTERVALO_ESPERA_OBS = 1.0
-AVISO_ESPERA_OBS = 3.0
-
 
 class SupervisorTransmision:
     """Arranca OBS y vigila el directo desde un hilo propio."""
@@ -174,88 +168,10 @@ class SupervisorTransmision:
                 logger.debug("no se pudo avisar el fin de la supervisión: %s", error)
 
     def _detener_obs(self) -> None:
-        """Pide parar a OBS y espera a que confirme, sin congelar la ventana.
-
-        Corre en el hilo DetenerSupervisor, así que puede dormir con
-        `self._dormir` directamente: `self._esperar` volvería enseguida
-        porque la parada ya está puesta.
-        """
-        gestor = None
-        try:
-            gestor = self._crear_gestor()
-            gestor.conectar()
-        except Exception as error:
-            self._cerrar_gestor(gestor)
-            self._anunciar_obs_sin_respuesta(error)
-            return
-        try:
-            try:
-                activa = bool(
-                    gestor.estado_transmision().get("outputActive"))
-            except Exception:
-                # Sin respuesta al preguntar el estado, se asume activa:
-                # mejor mandar StopStream de más que dejar la salida
-                # corriendo. `_esperar_a_obs` dirá lo que toque si OBS
-                # sigue sin responder.
-                activa = True
-            if not activa:
-                self._anunciar(_("Transmisión detenida."), "transmision_detenida", True)
-                return
-            try:
-                gestor.detener_transmision()
-            except Exception as error:
-                logger.debug("no se pudo detener la transmisión en OBS: %s", error)
-            self._esperar_a_obs(gestor)
-        finally:
-            self._cerrar_gestor(gestor)
-
-    def _esperar_a_obs(self, gestor) -> None:
-        """Consulta a OBS hasta que la salida se apague, con un límite."""
-        inicio = self._reloj()
-        avisado = False
-        while True:
-            try:
-                activa = bool(
-                    gestor.estado_transmision().get("outputActive"))
-            except Exception as error:
-                self._anunciar_obs_sin_respuesta(error)
-                return
-            if not activa:
-                self._anunciar(_("Transmisión detenida."), "transmision_detenida", True)
-                return
-            transcurrido = self._reloj() - inicio
-            if not avisado and transcurrido >= AVISO_ESPERA_OBS:
-                self._anunciar(_("Deteniendo la transmisión. Esperando a que OBS confirme."),
-                               None)
-                avisado = True
-            if transcurrido >= LIMITE_ESPERA_OBS:
-                self._anunciar(
-                    _("OBS sigue transmitiendo. Detén la transmisión en OBS."),
-                    "transmision_problema", True)
-                return
-            self._dormir(INTERVALO_ESPERA_OBS)
-
-    def _anunciar_obs_sin_respuesta(self, error=None) -> None:
-        # Sin poder hablar con OBS, la señal depende de si OBS sigue abierto:
-        # si no corre, la transmisión ya no sale y está detenida.
-        try:
-            corre = obs_activacion.obs_esta_en_ejecucion()
-        except Exception:
-            corre = False
-        if corre:
-            self._anunciar(
-                _("No se pudo conectar con OBS para detener la transmisión."),
-                "transmision_problema", True)
-        else:
-            self._anunciar(_("Transmisión detenida."), "transmision_detenida", True)
-
-    def _cerrar_gestor(self, gestor) -> None:
-        if gestor is None:
-            return
-        try:
-            gestor.cerrar()
-        except Exception as error:
-            logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
+        """Pide parar a OBS y espera a que confirme, sin congelar la ventana."""
+        detener_obs.detener(
+            self._crear_gestor, self._anunciar, self._reloj, self._dormir,
+            obs_activacion.obs_esta_en_ejecucion)
 
     def abandonar(self) -> None:
         # Deja de vigilar sin detener OBS y sin anunciar: cerrar la app no
