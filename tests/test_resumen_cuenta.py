@@ -90,6 +90,16 @@ class TestFilaPerfil(unittest.TestCase):
             "Canal, horizontal, sin destinos",
             resumen_cuenta.fila_perfil(_perfil(canales=())))
 
+    def test_un_perfil_con_destinos_y_youtube_nombra_youtube_al_final(self):
+        self.assertEqual(
+            "Canal, horizontal: TikTok: uno, YouTube",
+            resumen_cuenta.fila_perfil(
+                _perfil(canales=(1,), youtube=True), {1: "TikTok: uno"}, True))
+        self.assertEqual(
+            "Canal, horizontal: YouTube, falta un destino",
+            resumen_cuenta.fila_perfil(
+                _perfil(canales=(2,), youtube=True), {}, True))
+
     def test_nombra_los_destinos_en_orden(self):
         perfil = _perfil(canales=(1, 2))
         self.assertEqual(

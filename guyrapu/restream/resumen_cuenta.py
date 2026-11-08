@@ -69,15 +69,15 @@ def fila_perfil(perfil, nombres=None, leidos=False):
     partes = [_("{nombre}, {orientacion}").format(
         nombre=perfil.nombre, orientacion=_(perfil.orientacion))]
     canales = tuple(perfil.canales)
-    if not canales:
-        partes.append(": " + _("YouTube") if perfil.youtube
-                      else _(", sin destinos"))
-        return "".join(partes)
     conocidos = [nombres[canal] for canal in canales if canal in nombres]
+    if perfil.youtube:
+        conocidos.append(_("YouTube"))
     if conocidos:
         partes.append(": " + ", ".join(conocidos))
     faltan = sum(1 for canal in canales if canal not in nombres)
-    if leidos and faltan == 1:
+    if not canales and not perfil.youtube:
+        partes.append(_(", sin destinos"))
+    elif leidos and faltan == 1:
         partes.append(_(", falta un destino"))
     elif leidos and faltan > 1:
         partes.append(_(", faltan {n} destinos").format(n=faltan))
