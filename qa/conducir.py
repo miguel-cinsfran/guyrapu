@@ -149,6 +149,7 @@ SUPERFICIES = {
     "gui_menu.py": "menus",
     "menu_obs.py": "menus",
     "menu_transmision.py": "menus",
+    "menu_moderacion.py": "menu_chat",
     "gui_microfono.py": "microfono",
     "guia_encuadre.py": "encuadre",
     "gui_musica.py": "musica",
@@ -225,8 +226,6 @@ SIN_ESCENARIO: dict[str, str] = {
     "aviso_importante.py": "Envuelve los cuadros de aviso de Windows; no abre una ventana propia.",
 }
 
-EXTRAS_DE_INTERFAZ = ("reproductor.py", "iconos.py")
-
 # Un modulo de `guyrapu/ui/` o de `guyrapu/player/` dibuja interfaz si crea o
 # hereda de un control de wx. Los que solo calculan, tocan la red o piden
 # `wx.CallAfter` no se exigen en el barrido: no tienen pantalla que auditar.
@@ -271,7 +270,7 @@ def superficies_sin_escenario() -> list[str]:
                for p in carpeta.glob("*.py")
                if dibuja_interfaz(p)}
     modulos.update(p.name for p in ui.glob("gui*.py"))
-    modulos.update(n for n in EXTRAS_DE_INTERFAZ
+    modulos.update(n for n in ("reproductor.py", "iconos.py")
                    if (ui / n).exists() or (reproductor / n).exists())
     if not modulos:
         raise RuntimeError(

@@ -59,6 +59,7 @@ from guyrapu.ui.barra_estado import anchos_barra_estado
 from guyrapu.ui.confirmar_salida import (
     descargas_sin_terminar, mensaje_confirmar_salida, mensaje_con_descargas)
 from guyrapu.ui.gui_redactar import PanelRedactar
+from guyrapu.ui import menu_moderacion
 from guyrapu.ui import paleta
 from guyrapu.ui import titulo_ventana
 from guyrapu.ui.sesion_conectada import SesionConectada
@@ -1054,8 +1055,8 @@ class VentanaPrincipal(wx.Frame):
 
         registro_sel = self._get_selected_data()
         autor = registro_sel.autor if registro_sel else ""
+        autor_mostrado = alias.visible(autor) if autor else ""
         if autor:
-            autor_mostrado = alias.visible(autor)
             if self._autor_esta_silenciado(autor):
                 menu.Append(id_rehab, _("Dejar de silenciar a {autor}").format(autor=autor_mostrado))
             else:
@@ -1066,19 +1067,7 @@ class VentanaPrincipal(wx.Frame):
             else:
                 menu.Append(id_alias, _("Cambiar &alias de {autor}…").format(autor=autor_mostrado))
 
-        id_ban     = wx.NewIdRef()
-        id_timeout = wx.NewIdRef()
-        plataforma_sel = registro_sel.plataforma if registro_sel else ""
-        identificador_sel = registro_sel.identificador if registro_sel else ""
-        moderable = bool(autor and plataforma_sel == "youtube" and identificador_sel
-                         and self.sesion.live_chat_id
-                         and youtube_api.google_disponible() and credenciales.hay_sesion())
-        if moderable:
-            menu.AppendSeparator()
-            menu.Append(id_timeout, _("Suspender temporalmente a {autor} (5 minutos)").format(autor=autor_mostrado))
-            menu.Append(id_ban,     _("Ocultar a {autor} en el canal de YouTube").format(autor=autor_mostrado))
-            menu.Bind(wx.EVT_MENU, lambda e: self._moderar(autor, identificador_sel, 300), id=id_timeout)
-            menu.Bind(wx.EVT_MENU, lambda e: self._moderar(autor, identificador_sel, None), id=id_ban)
+        menu_moderacion.agregar(menu, self, registro_sel, autor_mostrado)
 
         # Los handlers van sobre el propio menú (no sobre la ventana): así mueren
         # con él y no se acumulan bindings en cada apertura del menú contextual.

@@ -34,10 +34,10 @@ from guyrapu.core import avisos_tiktok
 from guyrapu.core import paths
 from guyrapu.core import migracion_datos
 from guyrapu.core import migracion_nombre
-from guyrapu.core.lectura_eventos import texto_evento
+from guyrapu.core.lectura_eventos import sanitizar, texto_para_leer
 from guyrapu.core.instancia import verificar_instancia_unica as _verificar_instancia_unica
 
-from guyrapu.voice.tts_worker import TTSWorker, sanitizar, construir_tts
+from guyrapu.voice.tts_worker import TTSWorker
 from guyrapu.voice.cola_tts import ColaTTS
 from guyrapu.voice import sound_player as _snd
 from guyrapu.capture import deteccion
@@ -375,19 +375,9 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
         stats.inc("filtrados"); return
 
     umbral = config.get("umbral_solo_nombre", 0)
-    if tipo == TIPO_SUPERCHAT and monto:
-        # Traductores: {etiqueta} es «Super Chat» o «Regalo».
-        tts_text = (_("{etiqueta} de {autor}: {monto}. {mensaje}") if ml
-                    else _("{etiqueta} de {autor}: {monto}")).format(
-            etiqueta=_(etiqueta_monto), autor=autor_visible, monto=monto, mensaje=ml)
-    else:
-        texto_del_evento = texto_evento(tipo, autor_visible, monto, mensaje)
-        if texto_del_evento is not None:
-            tts_text = texto_del_evento
-        elif umbral > 0 and cola.qsize() >= umbral:
-            tts_text = sanitizar(autor_visible, config["limpiar_emojis"], False, 50) or _("Usuario")
-        else:
-            tts_text = construir_tts(autor_visible, ml or mensaje, config)
+    tts_text = texto_para_leer(
+        autor_visible, ml, mensaje, tipo, monto, umbral, cola,
+        config, etiqueta_monto)
 
     hora = datetime.now().strftime('%H:%M:%S')
     if on_message: on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=rol)
