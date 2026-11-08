@@ -346,8 +346,11 @@ class TestSupervisarTransmision(unittest.TestCase):
             _actualizar_boton_directo=mock.Mock(),
             _al_terminar_supervisor=mock.Mock())
         supervisor = mock.Mock()
-        with mock.patch("guyrapu.obs.obs_supervisor.SupervisorTransmision",
-                        return_value=supervisor) as fabrica:
+        envuelto = mock.Mock()
+        with mock.patch("guyrapu.obs.perfil_previo.tras_supervision",
+                        return_value=envuelto) as tras, \
+                mock.patch("guyrapu.obs.obs_supervisor.SupervisorTransmision",
+                           return_value=supervisor) as fabrica:
             gui_transmitir.supervisar_transmision(
                 frame, "iniciar", "TikTok", "alguien")
         self.assertIs(frame._supervisor, supervisor)
@@ -356,8 +359,8 @@ class TestSupervisarTransmision(unittest.TestCase):
         args, kwargs = fabrica.call_args
         self.assertEqual(args[0], "TikTok")
         self.assertEqual(args[1], "alguien")
-        self.assertEqual(kwargs["al_terminar"],
-                         frame._al_terminar_supervisor)
+        tras.assert_called_once_with(frame._al_terminar_supervisor)
+        self.assertIs(kwargs["al_terminar"], envuelto)
 
     def test_iniciar_restream_delega_en_los_ganchos(self):
         frame = SimpleNamespace(_supervisor=None)

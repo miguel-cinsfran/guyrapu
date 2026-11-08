@@ -17,6 +17,7 @@ por el módulo en el momento de la llamada, nunca con un `from` directo.
 from __future__ import annotations
 
 from guyrapu.core.idioma import _
+from guyrapu.obs import perfil_previo
 from guyrapu.restream import transmitir
 from guyrapu.ui.aviso_importante import avisar
 
@@ -311,7 +312,7 @@ def supervisar_transmision(frame, accion, destino="", usuario="",
         frame._supervisor = SupervisorTransmision(
             destino, usuario, al_anunciar=al_anunciar,
             al_conectar_chat=al_conectar_chat,
-            al_terminar=frame._al_terminar_supervisor,
+            al_terminar=perfil_previo.tras_supervision(frame._al_terminar_supervisor),
             ruta_fin_pendiente=paths.fin_pendiente(),
             **_parametros_supervisor(frame, al_anunciar),
             **ganchos)

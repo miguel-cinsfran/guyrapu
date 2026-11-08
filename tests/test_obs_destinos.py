@@ -6,6 +6,7 @@ import unittest
 from tests.pseudo_prueba import con_pseudo
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_destinos
+from guyrapu.obs import perfil_previo
 from guyrapu.obs.obs_destinos import (
     Destino, cambiar_coleccion, coleccion_para, frase_destino_listo,
     preparar_destino, preparar_para_transmitir, usa_usuario_tiktok)
@@ -383,6 +384,14 @@ class PrepararParaTransmitirTest(unittest.TestCase):
             frase_destino_listo(resultado),
             "OBS preparado para transmitir a YouTube. "
             "Formato horizontal, 1920 por 1080.")
+
+    def test_preparar_recuerda_el_perfil_que_estaba_antes(self):
+        with perfil_previo._CERROJO:
+            perfil_previo._PENDIENTE = ""
+        doble = self.doble_medicion(actual="YouTube",
+                                    coleccion_actual="Sin Título")
+        self.preparar(doble, "TikTok")
+        self.assertEqual(perfil_previo.volver(doble), "YouTube")
 
     def test_coleccion_para(self):
         with self.subTest(caso="mismo nombre"):

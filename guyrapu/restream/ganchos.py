@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import obs_destinos
+from guyrapu.obs import obs_destinos, perfil_previo
 from guyrapu.restream import transmitir, youtube_por_restream
 from guyrapu.youtube import emision
 from guyrapu.youtube.emision import EmisionError
@@ -320,7 +320,8 @@ def _instanciar_supervisor(frame, destino, usuario, perfil, envoltura,
         destino, usuario, al_anunciar=envoltura,
         al_conectar_chat=_conectar_chat(
             frame, youtube=destino == "YouTube", guardados=perfil.directo),
-        al_terminar=_al_terminar(frame, restaurar),
+        al_terminar=perfil_previo.tras_supervision(
+            _al_terminar(frame, restaurar)),
         ruta_fin_pendiente=paths.fin_pendiente(),
         **_parametros_supervisor(frame, envoltura),
         preparar_emision=preparar, **extras)

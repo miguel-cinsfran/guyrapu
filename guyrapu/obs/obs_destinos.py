@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import obs_cliente
+from guyrapu.obs import obs_cliente, perfil_previo
 
 
 # Traductores: {destino} es TikTok o YouTube.
@@ -118,7 +118,9 @@ def preparar_para_transmitir(cliente, destino, parada=None, espera=60.0,
                              intervalo=0.05, dormir=time.sleep,
                              reloj=time.monotonic):
     """Deja OBS listo para transmitir al destino: perfil y colección."""
-    perfiles = (_lista_perfiles(cliente, parada).get("profiles", ()) or ())
+    datos = _lista_perfiles(cliente, parada)
+    perfiles = datos.get("profiles", ()) or ()
+    actual = datos.get("currentProfileName", "") or ""
     if destino not in perfiles and destino not in PERFILES_QUE_SE_CREAN:
         # Solo los perfiles de PERFILES_QUE_SE_CREAN dejan que
         # preparar_destino cree el que falta; cualquier otro perfil vacío
@@ -126,6 +128,7 @@ def preparar_para_transmitir(cliente, destino, parada=None, espera=60.0,
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(destino=destino))
     perfil_creado = destino not in perfiles
+    perfil_previo.recordar(actual, destino)
     preparar_destino(cliente, Destino(destino), parada=parada, espera=espera,
                      intervalo=intervalo, dormir=dormir, reloj=reloj)
     colecciones = (_lista_colecciones(cliente, parada).get(

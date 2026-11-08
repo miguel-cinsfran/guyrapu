@@ -603,6 +603,17 @@ class TestSupervisarRestream(unittest.TestCase):
 
         self.assertTrue(frame._vigilas_prueba[0].detenida)
 
+    def test_el_al_terminar_se_envuelve_para_volver_al_perfil(self):
+        perfil = _perfil("Uno", "horizontal", (1,))
+        canales = [_canal(1, "YouTube")]
+        envuelto = mock.Mock()
+        with mock.patch("guyrapu.obs.perfil_previo.tras_supervision",
+                        return_value=envuelto) as tras:
+            _frame, _cuenta, creados, _anuncios = self._supervisar(
+                perfil, canales)
+        self.assertTrue(callable(tras.call_args.args[0]))
+        self.assertIs(creados[0].kwargs["al_terminar"], envuelto)
+
     def test_con_el_supervisor_deteniendo_no_anuncia_la_caida(self):
         perfil = _perfil("Uno", "horizontal", (1,))
         canales = [_canal(1, "YouTube")]
