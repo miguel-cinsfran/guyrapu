@@ -3,7 +3,9 @@ from unittest import mock
 
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_vigilante
-from guyrapu.obs.obs_vigilante import EstadoObs, PLAZO_FRESCURA, VigilanteObs, dato_fresco
+from guyrapu.obs.obs_vigilante import (
+    EstadoObs, INTERVALO_SIN_OBS, INTERVALO_SONDEO, PLAZO_FRESCURA,
+    VigilanteObs, dato_fresco)
 
 
 class TestFrescura(unittest.TestCase):
@@ -54,7 +56,8 @@ class TestParada(unittest.TestCase):
         logger = mock.Mock()
         with mock.patch.object(obs_vigilante.diagnostico, "obtener_logger",
                                return_value=logger), \
-                mock.patch.object(obs_vigilante, "INTERVALO_SONDEO", 0):
+                mock.patch.object(obs_vigilante, "INTERVALO_SONDEO", 0), \
+                mock.patch.object(obs_vigilante, "INTERVALO_SIN_OBS", 0):
             vigilante._vigilar()
         return logger, gestor
 
@@ -68,3 +71,51 @@ class TestParada(unittest.TestCase):
     def test_fallo_real_sigue_avisando(self):
         logger, _ = self._vigilar_con(fallo_en_vuelo=False)
         logger.warning.assert_called_once_with("OBS no responde; se reintentará")
+
+
+class _ParadaFalsa:
+    """Parada que anota el plazo pedido y corta el ciclo tras la espera."""
+
+    def __init__(self):
+        self.esperas = []
+        self._puesta = False
+
+    def is_set(self):
+        return self._puesta
+
+    def set(self):
+        self._puesta = True
+
+    def clear(self):
+        self._puesta = False
+
+    def wait(self, plazo):
+        self.esperas.append(plazo)
+        self._puesta = True
+
+
+class TestIntervalo(unittest.TestCase):
+
+    def _ciclo_con(self, gestor):
+        vigilante = VigilanteObs(crear_gestor=lambda: gestor)
+        vigilante._parada = _ParadaFalsa()
+        with mock.patch.object(obs_vigilante.diagnostico, "obtener_logger",
+                               return_value=mock.Mock()):
+            vigilante._vigilar()
+        return vigilante._parada.esperas
+
+    def test_con_obs_sin_responder_espera_quince_segundos(self):
+        gestor = mock.Mock(conectado=True)
+        gestor.estado_transmision.side_effect = RuntimeError("OBS no contesta")
+
+        self.assertEqual(self._ciclo_con(gestor), [INTERVALO_SIN_OBS])
+        self.assertEqual(INTERVALO_SIN_OBS, 15.0)
+
+    def test_con_obs_respondiendo_vuelve_a_cinco_segundos(self):
+        gestor = mock.Mock(conectado=True)
+        gestor.estado_transmision.return_value = {}
+        gestor.estado_grabacion.return_value = {}
+        gestor.escena_al_aire.return_value = ""
+
+        self.assertEqual(self._ciclo_con(gestor), [INTERVALO_SONDEO])
+        self.assertEqual(INTERVALO_SONDEO, 5.0)

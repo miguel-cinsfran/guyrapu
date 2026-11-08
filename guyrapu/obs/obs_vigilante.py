@@ -12,6 +12,7 @@ from guyrapu.obs.obs_panel import GestorPanelObs
 
 PLAZO_FRESCURA = 12.0
 INTERVALO_SONDEO = 5.0
+INTERVALO_SIN_OBS = 15.0
 
 
 @dataclass(frozen=True)
@@ -86,7 +87,7 @@ class VigilanteObs:
                         gestor.cerrar()
                     except Exception as error:
                         logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
-                self._parada.wait(INTERVALO_SONDEO)
+                self._parada.wait(INTERVALO_SIN_OBS if fallo else INTERVALO_SONDEO)
         finally:
             try:
                 gestor.cerrar()

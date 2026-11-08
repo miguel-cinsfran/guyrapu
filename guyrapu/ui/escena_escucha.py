@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import threading
-
 import wx
 
 from guyrapu.core import diagnostico
@@ -86,10 +84,9 @@ class ControlEscucha:
         """Devuelve la monitorización al cerrar, sin anunciar y sin demorar."""
         if not self.activa:
             return
-        hilo = threading.Thread(
-            target=self._restaurar_al_cerrar,
-            args=(self._fuente, self._anterior))
-        hilo.start()
+        diagnostico.crear_hilo(
+            self._restaurar_al_cerrar, "RestaurarEscucha",
+            args=(self._fuente, self._anterior)).start()
 
     def _restaurar_al_cerrar(self, fuente, anterior):
         try:
