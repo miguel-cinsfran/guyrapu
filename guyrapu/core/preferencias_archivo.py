@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Exportar, importar y restablecer el archivo de preferencias.
 
 Lógica pura, sin wx: recibe rutas o usa las de `paths` por defecto. Solo toca

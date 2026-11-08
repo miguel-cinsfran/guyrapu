@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Menús contextuales de la ventana de Restream.
 
 Arma el menú de una fila de Destinos, Perfiles o Eventos y el de «Agregar

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Envoltorio de Prism para hablar con los motores de voz de Windows.
 
 Prism unifica SAPI 5 y OneCore bajo una misma API. Este módulo aísla a la

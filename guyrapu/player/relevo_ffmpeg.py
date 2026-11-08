@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Relevo de ffmpeg para directos con vídeo y audio en pistas separadas.
 
 Cuando un directo no trae un formato combinado, VLC recibe el vídeo y el

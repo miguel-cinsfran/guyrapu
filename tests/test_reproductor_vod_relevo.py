@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """VOD dividido por el relevo de ffmpeg en modo grabado.
 
 Cada salto reabre el relevo desde el destino y la posición que ve el

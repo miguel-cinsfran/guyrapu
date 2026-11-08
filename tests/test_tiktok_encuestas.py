@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lectura de encuestas de TikTokLive con objetos reales.
 
 Construye `PollEvent` con sus clases, no con dobles: la etapa se reconoce

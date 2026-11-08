@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Transformaciones puras de una fuente: centrar, ajustar, voltear y girar.
 
 Todo lo de acá trabaja sobre el diccionario `sceneItemTransform` que entrega

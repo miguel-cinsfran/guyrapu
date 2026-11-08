@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tonos de la guía de encuadre, armados en memoria.
 
 Su única razón para cambiar es cómo suenan los pitidos, el tono del centro

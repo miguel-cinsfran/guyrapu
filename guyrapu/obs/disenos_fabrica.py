@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Diseños de escena de fábrica y su llenado con las fuentes de una escena.
 
 Su razón para cambiar: qué diseños trae la app y cómo se completan con las

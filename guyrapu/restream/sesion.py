@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Sesión de Restream: guarda los tokens y decide cuándo renovarlos.
 
 Puro salvo lo inyectado: la carga, el guardado, la renovación y el reloj

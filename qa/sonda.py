@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Sonda de QA: se mete dentro de la aplicación para grabarla y manejarla.
 
 No es parte de la aplicación y la aplicación no la conoce. Se instala desde

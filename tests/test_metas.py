@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Frases y registro de las metas de un directo de TikTok.
 
 Puro y sin wx: las frases de meta cumplida y de avance, el registro con

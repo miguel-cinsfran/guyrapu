@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Etapas a a j del recorrido de música real (la cola y la reproducción)."""
 
 from __future__ import annotations

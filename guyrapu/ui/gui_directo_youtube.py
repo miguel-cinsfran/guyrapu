@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ventana para pedir los datos del directo de YouTube antes de transmitir.
 
 Modal pequeña como `DialogoRedactar`: título, descripción, privacidad y las

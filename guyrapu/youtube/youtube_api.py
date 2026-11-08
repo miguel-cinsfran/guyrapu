@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Capa de la YouTube Data API v3 (oficial, con OAuth2).
 
 Aislada del resto de la app: si `google-api-python-client` y compañía no están

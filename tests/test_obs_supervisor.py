@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del supervisor de la transmisión con dobles.
 
 Sin ventanas, sin red y sin dormir de verdad: el gestor es falso, las

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Terminar un proceso de yt-dlp con sus hijos, sin dejar restos.
 
 Razón del módulo: matar el árbol yt-dlp más ffmpeg en Windows y vigilar

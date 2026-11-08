@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lista de directos recientes en la pantalla sin conexión.
 
 Ocupa el hueco que deja la zona de contenido cuando no hay conexión: los

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Dice si una captura BMP de OBS está negra o casi negra.
 
 Puro, solo biblioteca estándar: el BMP chico lo da OBS en 2 ms y se lee

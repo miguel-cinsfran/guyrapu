@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lo que se hace con un resultado elegido de la búsqueda.
 
 Razón del módulo: ejecutar la acción pedida en el menú contextual sobre el

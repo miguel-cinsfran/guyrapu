@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lectura de `LinkMicBattleEvent` y `LinkMicArmiesEvent` de TikTokLive.
 
 Construye los eventos con sus clases reales: el comienzo y el fin se

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pestaña Eventos: los próximos, los que están en directo y el historial.
 
 Lee la lista con lo que la ventana le inyecta, muestra el detalle del evento

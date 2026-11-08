@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Diálogo de Preferencias por categorías (accesible).
 
 Reúne en un solo sitio lo que antes solo se editaba a mano en config.ini y

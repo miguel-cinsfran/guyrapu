@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Listas de música propias, en archivos `.m3u8`, sin interfaz.
 
 Cada función recibe la carpeta donde viven las listas: el módulo nunca arma

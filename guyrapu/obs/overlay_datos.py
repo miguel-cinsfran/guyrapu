@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Datos y transformaciones puras del panel de chat."""
 
 from guyrapu.core.tipos_mensaje import (

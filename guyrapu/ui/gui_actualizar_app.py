@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Interfaz del actualizador de la app: ventana y avisos de arranque.
 
 La ventana es el `DialogoActualizacion` genérico, el mismo de yt-dlp: este

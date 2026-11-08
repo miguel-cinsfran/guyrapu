@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Elegir el formato exacto de un vídeo del buscador.
 
 Razón del módulo: pedir los formatos reales de un resultado, mostrarlos en

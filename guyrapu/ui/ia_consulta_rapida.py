@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Preguntar a la IA sobre la escena actual, sin abrir ventanas.
 
 Ctrl+Mayús+F2 captura la escena actual de OBS, la envía con la

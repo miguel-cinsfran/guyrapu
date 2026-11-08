@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Reparto de mediciones de sonoridad entre trabajos simultáneos.
 
 Módulo puro: no sabe de la caché, de la música ni de la interfaz. Solo

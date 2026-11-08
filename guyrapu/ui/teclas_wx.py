@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Traducción de los atajos de texto («ctrl+p») a combos de teclas de wx."""
 
 from __future__ import annotations

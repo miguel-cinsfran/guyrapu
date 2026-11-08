@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de las opciones de salida de audio de la página Música.
 
 Puras, sin wx ni libVLC: cubren las cuatro reglas de `opciones_salida` y la

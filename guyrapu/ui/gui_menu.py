@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Barra de menú de la ventana principal.
 
 El cuerpo de `construir_menu` es el antiguo `VentanaPrincipal._build_menubar`,

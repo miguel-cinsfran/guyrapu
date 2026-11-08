@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Vigía de la carpeta de música: avisa cuando cambia, sin recorrerla.
 
 Un Observer de watchdog junta los eventos y, cuando pasan `espera_s` sin

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Etiquetas de campo sin los dos puntos finales.
 
 `etiquetas_sin_dos_puntos` recorre los hijos de la ventana en orden de

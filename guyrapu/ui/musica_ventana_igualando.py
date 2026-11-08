@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Progreso visible de la igualación de volumen en la ventana Música.
 
 Mezcla de `VentanaMusica`: un campo de solo lectura con el avance («Igualando

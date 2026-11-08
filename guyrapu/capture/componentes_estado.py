@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Catálogo de componentes del estado de sesión (F2).
 
 Una sola razón para cambiar: qué partes tiene F2 y cómo se llaman en

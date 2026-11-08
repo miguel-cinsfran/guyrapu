@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Atajos de música que funcionan en cualquier programa.
 
 Mientras están activos, las combinaciones dejan de llegar a los demás

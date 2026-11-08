@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Qué se le pide a la API REST de Restream y cómo se interpreta.
 
 La lista pública de plataformas se guarda en memoria: no cambia mientras la

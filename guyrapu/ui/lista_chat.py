@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Modelo de la lista de mensajes del chat (lógica pura, sin wx).
 
 Mantiene sincronizados el historial completo (`todos`) y las filas visibles

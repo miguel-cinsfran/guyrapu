@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cableado del autor del último mensaje (F3): el item de voz lleva el
 nombre visible y las relecturas desde la lista también."""
 

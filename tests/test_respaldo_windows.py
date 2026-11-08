@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """La voz de Windows de respaldo: su motor, su voz y sus ajustes.
 
 Cubre `guyrapu/voice/respaldo_windows.py` con motores dobles. Sin ventanas ni

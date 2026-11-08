@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Textos del resumen de Cuenta y de la fila de un perfil de Restream.
 
 Puro: no habla con la red ni con wx. Recibe la cuenta, los destinos y los

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Grabación que arranca y termina junto con la transmisión.
 
 La app no guarda el estado entre sesiones: el supervisor recibe la casilla

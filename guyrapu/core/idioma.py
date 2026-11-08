@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Punto único de traducción de la aplicación, con gettext.
 
 Resuelve el idioma una sola vez, en la primera llamada, y guarda la

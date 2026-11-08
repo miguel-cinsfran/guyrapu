@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Política de reconexión de TikTok: qué hace el bucle tras cada sesión.
 
 Es puro: no importa wx, asyncio ni TikTokLive. Solo decide si el bucle

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la ventanita para elegir el destino al transmitir.
 
 TestDestinoInicial y TestValidarEleccion son lógica pura y se corren

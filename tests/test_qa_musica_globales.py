@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del tramo de atajos globales, sin ventanas ni teclas.
 
 Solo cubren lo puro (`se_dijo_desde`, `leer_registro`,

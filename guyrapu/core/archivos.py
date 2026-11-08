@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lectura y escritura segura de los JSON que la app guarda junto al exe.
 
 Escribir directamente sobre el archivo (write_text / open "w") lo trunca

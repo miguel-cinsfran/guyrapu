@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """El encuadre de la cámara en la ventana principal.
 
 Ctrl+F3 anuncia cómo está el encuadre de la cámara de la escena al aire

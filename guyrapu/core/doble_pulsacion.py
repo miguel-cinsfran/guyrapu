@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuándo dos pulsaciones del mismo atajo cuentan como seguidas.
 
 Clase pura y sin wx: recibe el nombre del atajo y el instante de la

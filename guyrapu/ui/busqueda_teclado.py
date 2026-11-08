@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Búsqueda por prefijo (type-ahead) en listas de texto
 Estando en el chat o en comentarios, escribir letras seguidas salta al
 primer mensaje cuyo texto MOSTRADO («autor: mensaje…») empiece por eso, con

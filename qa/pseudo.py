@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Barrido de la aplicación con la pseudotraducción puesta.
 
 Arranca la app con `GUYRAPU_IDIOMA=pseudo`, recorre la ventana principal,

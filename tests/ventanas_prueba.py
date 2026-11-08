@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Libera las ventanas de primer nivel creadas en las pruebas.
 
 En wx, el Destroy() de una ventana de primer nivel queda pendiente

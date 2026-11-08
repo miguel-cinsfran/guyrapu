@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Muda los datos de usuario de la raíz a la subcarpeta de datos.
 
 Módulo puro, sin wx: recibe todas las rutas por parámetro y nunca arma

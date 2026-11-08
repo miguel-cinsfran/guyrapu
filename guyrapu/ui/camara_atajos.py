@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Qué hacen los atajos de cámara y dónde valen.
 
 Alt+F3 oculta o muestra la cámara elegida en la escena al aire de OBS. Los

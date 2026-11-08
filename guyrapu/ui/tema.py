@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Paleta «pájaro campana» (ver docs/PALETA-COLORES.md)
 Blanco frío de fondo, campos y listas en blanco puro para que se distingan
 del fondo, y el turquesa de la garganta del ave como color de marca en la

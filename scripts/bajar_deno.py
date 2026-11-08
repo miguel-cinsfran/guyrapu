@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Baja deno empaquetado para yt-dlp y lo deja en una carpeta.
 
 Uso:

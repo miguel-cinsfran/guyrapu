@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Parseo del importe de los Super Chats.
 
 El `amountString` que entrega YouTube depende de la locale del espectador

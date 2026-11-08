@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Diálogo «Administrador de descargas» (yt-dlp), accesible y nativo.
 
 Diálogo modal con dos pestañas: buscar en YouTube y ver la cola con

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo se deja Chrome listo para la grabación y cómo se lo cierra.
 
 Lee el perfil para que no pida restaurar, cierra las ventanas con WM_CLOSE,

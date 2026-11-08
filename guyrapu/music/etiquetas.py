@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Caché en disco de las etiquetas de la música local, sin interfaz.
 
 La música local se indexa solo por nombre de archivo, que es instantáneo, y

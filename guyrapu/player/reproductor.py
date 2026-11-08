@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Reproductor de vídeo/audio del directo o vídeo, accesible y con imagen.
 
 Backend: yt-dlp obtiene las URLs de los flujos y libVLC (python-vlc) reproduce,

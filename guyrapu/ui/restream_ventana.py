@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ventana de Restream: la cuenta, los destinos, los perfiles y los eventos.
 
 Cuatro pestañas en el orden en que se arma todo: Cuenta, Destinos, Perfiles

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Envío real de pedidos de IA por httpx, sin reintentos.
 
 Lo llama un hilo, no el de la interfaz. Sin HTTP/2: hay un defecto

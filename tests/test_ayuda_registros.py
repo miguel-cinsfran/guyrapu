@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cableado de «Abrir carpeta de registros» del menú Ayuda.
 
 Sin ventanas: se llama a `abrir_carpeta_registros` con un frame de mentira

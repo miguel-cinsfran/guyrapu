@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la ventana de Restream y del diálogo de perfil.
 
 Crean ventanas de wx: se corren en la PC donde no molestan al lector, no en

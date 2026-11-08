@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Las frases de la pestaña General del panel de OBS, sin wx.
 
 Su única razón para cambiar es cómo se cuenta el perfil y el rendimiento del

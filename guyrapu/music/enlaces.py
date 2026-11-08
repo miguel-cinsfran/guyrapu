@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Enlaces de YouTube para la cola de música.
 
 Reconoce direcciones de vídeo o de lista, las expande a temas con yt-dlp en

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Motor compartido de libVLC.
 
 Una sola instancia de libVLC para todo el proceso. Cargar la DLL e instanciar

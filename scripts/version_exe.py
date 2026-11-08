@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Genera el archivo de metadatos de versión de Windows para PyInstaller.
 
 Todos los datos salen de `config.py`, que es la fuente única. El archivo se

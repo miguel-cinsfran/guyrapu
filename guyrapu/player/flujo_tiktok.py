@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Diagnóstico del flujo de un directo de TikTok.
 
 Sin wx y sin estado: resume un enlace sin copiar su firma y pide al

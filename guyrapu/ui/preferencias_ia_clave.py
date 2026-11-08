@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Sección de la clave de IA de la página Inteligencia artificial.
 
 Dueña de su estado y de sus controles: la página solo la crea, le avisa

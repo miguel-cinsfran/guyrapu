@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Actualización de la lista de modelos de la página Inteligencia artificial.
 
 Dueña del botón, del hilo que descarga el catálogo, del sondeo de la clave,

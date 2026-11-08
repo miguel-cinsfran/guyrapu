@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Índice de la lista de QA en «Colecciones» para `musica_real`.
 
 Módulo puro: sin wx, sin ventanas, sin red ni disco. Lo usa

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Seguimiento y frases de las batallas de un directo de TikTok.
 
 Puro y sin wx ni TikTokLive. Única razón para cambiar: cómo se sigue y se

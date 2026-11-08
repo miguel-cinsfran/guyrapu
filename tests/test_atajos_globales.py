@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de los atajos globales de música, puras y con dobles.
 
 Todo usa una ventana falsa que anota las llamadas y falla a pedido, salvo

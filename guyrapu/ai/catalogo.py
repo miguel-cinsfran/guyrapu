@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Catálogo de modelos de IA con visión, reducido desde models.dev.
 
 La página de Preferencias ofrece por proveedor solo los modelos que aceptan

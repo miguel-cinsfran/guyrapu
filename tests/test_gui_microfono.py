@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del cuadro «Micrófono de OBS».
 
 Las de `abrir_microfono_obs` no tocan OBS de verdad: el cliente y los

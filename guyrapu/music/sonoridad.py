@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Igualación de volumen de la música local, sin interfaz.
 
 Muchas canciones vienen de YouTube y unas suenan más fuerte que otras. Cada

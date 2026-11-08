@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo se conecta la cuenta de Restream de esta instalación.
 
 La sesión es una sola para toda la app: guarda sus tokens en

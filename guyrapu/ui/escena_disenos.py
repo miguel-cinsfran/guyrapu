@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadro Diseño de escena: elegir, ajustar, guardar y eliminar diseños.
 
 No habla con OBS: devuelve el diseño elegido y la pestaña Fuentes lo aplica.

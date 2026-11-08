@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Supervisión de la transmisión en directo.
 
 Los cuerpos de estas funciones son los antiguos métodos de `VentanaPrincipal`

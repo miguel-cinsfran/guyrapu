@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ventana Preguntar a la IA: conversación sobre capturas de OBS.
 
 Modal con la lista de mensajes, el campo para escribir y sus botones.

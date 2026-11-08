@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de `sonido_memoria`, la frontera nativa con `PlaySoundW`.
 
 Suenan WAV en silencio de verdad: si `PlaySoundW` con `SND_MEMORY` y

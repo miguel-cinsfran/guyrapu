@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Prueba del catálogo inglés: compila, carga y revisa el .po del repositorio."""
 
 import contextlib

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ventana de color liso para la prueba del directo real.
 
 La abre `qa/directo_real.py` por duplicado (verde «Cámara de prueba» y

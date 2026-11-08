@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Imágenes vivas para el escenario de encuadre del banco de QA.
 
 La fuente de imagen de OBS entrega el mismo cuadro mientras no cambie su

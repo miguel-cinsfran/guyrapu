@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Captura del chat de TikTok LIVE (fase 1: solo lectura, sin login).
 
 Usa la librería no oficial TikTokLive (el «pytchat de TikTok»): se conecta a

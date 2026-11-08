@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Escala de velocidad propia de la app y resolución de voces por nombre.
 
 Módulo puro: no importa Prism ni wx. Traduce entre el porcentaje entero que

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Salida de anuncios al lector de pantalla por Prism.
 
 Responde a la forma que ya usan `anunciar()`, el grabador de las pruebas y el

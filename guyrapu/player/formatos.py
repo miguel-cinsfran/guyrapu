@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Selección de formatos de yt-dlp, compartida por el vídeo y la música.
 
 Módulo puro: opera sobre la información que ya devolvió yt-dlp, sin red, sin

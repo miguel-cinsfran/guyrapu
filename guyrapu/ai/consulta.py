@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Consulta a la IA: valida, arma el pedido, lo manda y confirma.
 
 `preparar` junta todo sin tocar la conversación para que la ventana

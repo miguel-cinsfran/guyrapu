@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Textos para mostrar un resultado de la búsqueda, sin interfaz.
 
 Razón del módulo: dar forma legible a los datos de un resultado para la

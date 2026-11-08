@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pila de cambios de una fuente de OBS para deshacer de a uno.
 
 Guarda la misma instantánea que el restablecimiento general y la reaplica

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de los tonos de la guía, armados en memoria.
 
 Sin wx ni winmm: cada función devuelve un WAV completo que se abre con

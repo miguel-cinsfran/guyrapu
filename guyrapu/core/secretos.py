@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tachado de secretos en los textos que la app escribe en sus registros.
 
 Su única razón para cambiar es qué se considera un secreto en un texto que

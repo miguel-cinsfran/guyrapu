@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Canal de actualización de yt-dlp: configuración y repositorio por canal.
 
 Sin ventanas: la red es el único doble (`urlopen`). Todo lo demás es el

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Qué opciones de descarga existen: formatos, calidades, plantillas y topes.
 
 Una sola responsabilidad: qué formatos existen, qué calidad admite cada

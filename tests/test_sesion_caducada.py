@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Sesión de YouTube caducada: aviso con voz y cierre del token muerto.
 
 Sin ventanas: no se crea wx.App ni diálogos reales. Los marcos se arman con

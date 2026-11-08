@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pegamento wx de los avisos de progreso de descargas.
 
 Un temporizador de nivel de módulo lee la lista del gestor y anuncia lo que

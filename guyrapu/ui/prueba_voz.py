@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Prueba de voz de la página Voces.
 
 Hace sonar una voz de prueba y cierra su motor. No conoce la página ni el

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Resumen del estado de OBS para el panel de transmisión, sin wx.
 
 Su única razón para cambiar es cómo se resume el estado de OBS en el panel.

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo se escribe una versión para que la lea una persona.
 
 Una versión SemVer se muestra sin la «v» inicial y sin los guiones y puntos

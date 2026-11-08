@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del arranque liviano: nada pesado se importa antes de usarse.
 
 Cada comprobación corre en un proceso nuevo de Python, sin ventanas, sobre

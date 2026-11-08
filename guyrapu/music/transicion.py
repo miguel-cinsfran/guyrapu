@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Movimiento de volúmenes y vigilancia del final durante un cambio de tema.
 
 Un hilo daemon da un paso cada 50 ms: mueve las ganancias de un fundido

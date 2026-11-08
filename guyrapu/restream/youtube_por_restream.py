@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo se manda YouTube a través de Restream.
 
 Puro salvo lo inyectado: la cuenta de Restream y el restaurador entran por

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Texto que dice la voz ante un evento del directo.
 
 Puro y sin wx. Única razón para cambiar: qué dice la voz ante un evento.

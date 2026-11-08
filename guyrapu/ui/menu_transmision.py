@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Menú Transmisión de la barra principal.
 
 Qué comandos del directo tiene el menú Transmisión y cómo se mantiene al día

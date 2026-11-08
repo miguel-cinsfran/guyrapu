@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Control de la música desde la interfaz: acciones, motor y avisos.
 
 Al crearse NO toca libVLC ni el disco: el motor nace con la primera acción

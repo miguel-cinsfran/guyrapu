@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Reglas puras para redactar mensajes y comentarios."""
 
 from guyrapu.core.idioma import N_, _

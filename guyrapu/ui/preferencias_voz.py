@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Página Voces del diálogo de Preferencias.
 
 Dueña de sus controles, de la prueba de voz, de ElevenLabs y de su guardado

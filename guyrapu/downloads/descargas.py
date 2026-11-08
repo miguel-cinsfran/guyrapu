@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Gestor de descargas con yt-dlp (módulo puro, sin wx).
 
 Frontera pura/plataforma: este módulo no importa `wx` ni el módulo de yt-dlp.

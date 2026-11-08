@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Subventana para elegir qué capturar de OBS y preguntarle a la IA.
 
 Modal y chica como `gui_elegir_destino`: lista «Capturar de» con lo que

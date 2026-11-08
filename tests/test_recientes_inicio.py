@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lista de directos recientes de la pantalla sin conexión.
 
 Cubre el historial temporal real, la reconexión con la URL al pulsar

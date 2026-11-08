@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Con qué perfil de OBS se graba desde la app.
 
 Si hay un perfil para grabar elegido, distinto del actual y sin ninguna

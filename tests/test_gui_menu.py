@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Prueba de equivalencia de la barra de menú.
 
 Construye el menú con el mismo doble de frame que usan las pruebas de

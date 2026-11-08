@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadro Filtros del micrófono: abre con el estado y devuelve lo elegido.
 
 Abre ventanas: se corre en la PC de pruebas, no en la del dueño.

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Agrupador de entradas al directo de TikTok (lógica pura, sin wx).
 
 Las entradas llegan de a una: se juntan las personas distintas que entran

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Modos por evento: voz principal, voz secundaria, sonido, solo en la lista o nada.
 
 Cada evento de la app guarda su modo en `[eventos]`. La app los consulta

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ancho del diálogo de directo con barra de desplazamiento (sin ventanas)."""
 
 import unittest

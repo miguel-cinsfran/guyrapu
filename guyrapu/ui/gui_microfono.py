@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadro para elegir el micrófono de OBS sin abrir OBS.
 
 Lo abre el menú OBS con `abrir_microfono_obs`: consulta las

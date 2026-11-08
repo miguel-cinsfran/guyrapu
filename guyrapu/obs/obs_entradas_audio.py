@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Consultar y alternar las entradas de audio de OBS.
 
 Las funciones reciben un cliente con `pedir(tipo, datos=None,

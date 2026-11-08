@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Si el YouTube de Restream es el canal de la sesión de la app.
 
 Puro: no habla con la red ni con wx. Decide entre tres resultados y arma la

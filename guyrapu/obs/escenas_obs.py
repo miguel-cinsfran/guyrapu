@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Peticiones de escenas a OBS, sin interfaz.
 
 `pedir(tipo, datos, parada)` devuelve el `responseData` de la petición, como

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Recarga de la fuente del panel en OBS cuando el panel vuelve a encenderse.
 
 OBS carga la página del chat una sola vez. Si el panel estaba apagado, la

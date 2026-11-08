@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tests de carga de config.ini (config.cargar_configuracion).
 
 Se redirigen las rutas a un directorio temporal para no tocar el config.ini

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de los enlaces de YouTube para la música (`enlaces.py`).
 
 Todo lo que toca yt-dlp va con el programa o el módulo parcheados: sin red.

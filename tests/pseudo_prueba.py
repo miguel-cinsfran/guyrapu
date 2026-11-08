@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ayudante para comprobar que una ventana no deja textos sin traducir.
 
 `con_pseudo` instala la pseudotraducción, que marca cada texto que pasa por

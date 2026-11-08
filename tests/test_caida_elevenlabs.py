@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuándo un mensaje de ElevenLabs cae a Windows y cuándo se avisa.
 
 Cubre `guyrapu/voice/caida_elevenlabs.py` sin motor. La clase solo recibe

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lleva al nombre nuevo lo que quedó guardado con el nombre viejo.
 
 Dos piezas: las claves de IA del Administrador de credenciales y los accesos

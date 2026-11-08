@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Distinción de los sonidos: un WAV por evento, sin duplicados.
 
 Dentro de cada tema no hay dos WAV con el mismo contenido (md5), y todo

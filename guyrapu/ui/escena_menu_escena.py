@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Menú contextual y teclas de la lista de escenas del Panel de OBS."""
 
 from __future__ import annotations

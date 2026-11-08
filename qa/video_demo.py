@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Video de verificación de youtube.force-ssl: copia, graba, conduce y limpia."""
 
 from __future__ import annotations

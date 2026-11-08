@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo el banco de QA audita el panel de OBS.
 
 La app abre OBS si hace falta al abrir el panel, así que el banco no lo lanza

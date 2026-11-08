@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Causa en llano de un fallo de yt-dlp, sin interfaz.
 
 Mira la última línea que empezó con «ERROR:» y dice por qué no se pudo

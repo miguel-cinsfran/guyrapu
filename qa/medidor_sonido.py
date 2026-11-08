@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Medidor del sonido real que sale por los altavoces, sin hacer sonar nada.
 
 Lee el medidor de pico de Windows (`IAudioMeterInformation`) para las

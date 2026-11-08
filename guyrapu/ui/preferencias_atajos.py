@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Página Atajos del diálogo de Preferencias.
 
 Dueña de sus botones, de la captura de combinaciones y de su guardado

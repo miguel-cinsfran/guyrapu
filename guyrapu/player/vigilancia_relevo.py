@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuándo un relevo de directo está roto y hay que reiniciarlo.
 
 La decisión es pura: recibe la hora, el estado del panel y los callbacks, y

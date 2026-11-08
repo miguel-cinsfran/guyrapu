@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tandas de resultados pedidas en un hilo, para la búsqueda y su vista.
 
 Razón del módulo: pedir tandas con una función traer y entregar lo que

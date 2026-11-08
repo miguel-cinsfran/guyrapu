@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Prueba real de la IA de punta a punta, para correr a mano.
 
 Arma la escena conocida en OBS, pregunta con Ctrl+Mayús+F2 y en la

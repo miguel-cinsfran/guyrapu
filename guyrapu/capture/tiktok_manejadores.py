@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Traducción de eventos de TikTok a eventos de la aplicación.
 
 Cambia solo cuando cambia qué eventos escucha la aplicación o cómo los

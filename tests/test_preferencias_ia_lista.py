@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Prueba del aviso sonoro de la actualización de modelos, sin wx de verdad."""
 
 import unittest

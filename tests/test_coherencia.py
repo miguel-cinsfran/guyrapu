@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Coherencia entre la fábrica, el código, Preferencias, los sonidos y el manual.
 
 Cuatro reglas con una clase de pruebas por regla. Sin wx y sin ventanas:

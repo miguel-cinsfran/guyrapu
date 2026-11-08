@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Eventos nuevos de TikTok (seguir, compartir, cofre, me gusta) e historial.
 
 Cubre la lógica pura (`tramo_regalo` vive en test_sonidos_eventos), el

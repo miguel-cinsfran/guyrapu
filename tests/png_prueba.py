@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Armadores de PNG reales para las pruebas de la revisión de OBS.
 
 Los usan tanto las pruebas del decodificador como las de la revisión:

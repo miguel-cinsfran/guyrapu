@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pestaña Destinos: los canales de la cuenta de Restream.
 
 Muestra los destinos con su plataforma y si están activos. Las acciones de

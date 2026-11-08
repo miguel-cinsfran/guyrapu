@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuota de la API de YouTube que gasta la app por día del Pacífico.
 
 Su única razón para cambiar es cuánto consume la app de las 10.000 unidades

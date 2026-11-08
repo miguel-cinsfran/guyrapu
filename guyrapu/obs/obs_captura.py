@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Elegir qué ventana captura una escena de OBS.
 
 Recibe un cliente con `pedir(tipo, datos=None, parada=None)` como

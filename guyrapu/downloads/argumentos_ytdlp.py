@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Argumentos de yt-dlp para descargar: formato, plantilla y línea de comandos.
 
 Una sola responsabilidad: armar lo que se le pasa al programa independiente.

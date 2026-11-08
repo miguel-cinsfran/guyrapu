@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuándo y cómo existe el chat en el vídeo en OBS.
 
 Su razón para cambiar: la fuente que dibuja el chat dentro de la escena y el

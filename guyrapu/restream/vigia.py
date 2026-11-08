@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Conexión con el WebSocket de estado de Restream y su reconexión.
 
 Un hilo conecta con la dirección indicada, entrega cada texto a la función

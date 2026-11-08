@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Frases y sonidos de la música, sin interfaz.
 
 Traduce lo que pasa con la música (los códigos del coordinador y las

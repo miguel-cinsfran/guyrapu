@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Banco de QA: maneja la aplicación desde dentro y comprueba lo que dice.
 
 Segunda versión. La primera manejaba la aplicación desde fuera con teclas

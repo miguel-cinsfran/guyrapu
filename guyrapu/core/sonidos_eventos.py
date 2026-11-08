@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Roles de autor del chat de YouTube y sonido de cada mensaje.
 
 Puro y sin wx: decide qué sonido suena para un mensaje común según el rol

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Volumen de música con la ganancia de sonoridad aplicada por tema.
 
 Envuelve al adaptador real (libVLC) y corrige el volumen de cada canción

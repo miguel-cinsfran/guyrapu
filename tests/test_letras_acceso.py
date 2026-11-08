@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Letras de acceso sin repetir dentro de cada página o cuadro.
 
 Abren ventanas. El ayudante vive en `tests/letras_acceso.py`. Si alguna página o

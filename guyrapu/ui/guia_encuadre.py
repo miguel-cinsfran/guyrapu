@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """La guía de encuadre con pitidos, en marcha.
 
 Su única razón para cambiar: la guía en marcha, con su hilo, sus

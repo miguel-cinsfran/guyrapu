@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Resume los formatos de un vídeo en opciones legibles con su tamaño real.
 
 Una sola responsabilidad: cómo se resumen los formatos que yt-dlp devuelve

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Anotación dinámica del nombre accesible de una ventana de Windows.
 
 COM con ctypes puro: comtypes no forma parte del paquete. Cambia solo el

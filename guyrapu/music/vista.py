@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Textos que muestra la ventana de música, sin wx.
 
 Funciones puras: arman las filas de las dos listas y el resumen de la

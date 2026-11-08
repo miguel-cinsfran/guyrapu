@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Formateo del panel de información del vídeo (lógica pura, sin wx).
 
 Toma el dict de metadatos que arma `main._metadatos_desde_ytdlp` (lo que trae

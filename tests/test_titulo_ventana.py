@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Título de la ventana principal con el estado de OBS.
 
 Las funciones puras no abren ventanas. Las del cableado usan un marco real y

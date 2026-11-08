@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Prueba del micrófono de OBS por tramos, mientras alguien habla.
 
 La prueba abre un solo cliente con la suscripción de medidores y escucha

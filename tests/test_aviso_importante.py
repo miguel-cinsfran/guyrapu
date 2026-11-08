@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Avisos importantes: decisión, sonido, cuadro y cableado de cada acción.
 
 Las pruebas que abren ventanas se saltan fuera de Windows. La del cuadro real

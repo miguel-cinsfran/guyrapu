@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Hilo TTS con Prism (SAPI 5 u OneCore) y sanitización de texto.
 
 Prism unifica los motores de voz de Windows bajo una API. El motor se crea,

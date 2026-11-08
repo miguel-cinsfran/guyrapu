@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Bloque de la voz secundaria de la página Voces.
 
 Dueño de sus controles, de cómo se cargan las voces y de cómo se guardan. La

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Página Mensajes automáticos del diálogo de Preferencias.
 
 Dueña de su estado: la lista de mensajes y su edición. El diálogo la

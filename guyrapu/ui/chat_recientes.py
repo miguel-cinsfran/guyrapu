@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Mensajes recientes del chat con atajos que valen en cualquier programa.
 
 `Ctrl+Mayús+1` a `Ctrl+Mayús+0` leen con el lector los diez últimos mensajes

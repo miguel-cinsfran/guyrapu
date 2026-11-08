@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Piezas puras de la reconexión del chat de YouTube.
 
 No importa wx ni pytchat: la espera creciente y el filtro de mensajes se

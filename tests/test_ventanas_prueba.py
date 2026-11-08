@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Guardiana: ninguna prueba deja ventanas de primer nivel pendientes.
 
 Crea y destruye con `destruir` 10 `PreferenciasDialog` y exige que la

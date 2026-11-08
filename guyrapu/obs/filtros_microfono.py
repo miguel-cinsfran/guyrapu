@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Filtros del micrófono de OBS: qué ofrece la app y cómo se llevan a OBS.
 
 Lee la lista de filtros de la fuente, arma las peticiones que la dejan como

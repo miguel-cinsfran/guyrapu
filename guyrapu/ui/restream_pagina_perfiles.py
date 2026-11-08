@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pestaña Perfiles de Restream: los perfiles guardados de esta instalación.
 
 Lista, crea, edita, cambia el nombre, duplica y elimina los perfiles. Las

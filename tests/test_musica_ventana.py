@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la ventana única de música y del cuadro de enlace.
 
 Abren ventanas: quedan escritas para correrlas después. Toda ventana de primer nivel se libera con

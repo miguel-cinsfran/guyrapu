@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Supervisor de la transmisión sin interfaz.
 
 Vive aparte de la ventana Transmisión: si la persona cierra esa ventana para

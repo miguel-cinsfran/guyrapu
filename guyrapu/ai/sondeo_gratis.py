@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Sondeo de qué modelos responde la clave gratuita de un proveedor.
 
 Lo gratis depende de la clave y no del modelo, así que la lista se arma

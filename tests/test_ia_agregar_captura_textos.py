@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas puras de los textos de la subventana de captura.
 
 Sin wx.App ni ventanas: solo importa las constantes y `texto_negra`

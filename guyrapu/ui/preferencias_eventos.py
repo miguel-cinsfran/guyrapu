@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Página Eventos del directo del diálogo de Preferencias.
 
 Por composición, igual que `PaginaLectura`: recibe en el constructor lo que

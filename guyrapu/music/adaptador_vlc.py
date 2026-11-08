@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Adaptador de música sobre la instancia compartida de libVLC.
 
 Cumple el contrato ``Adaptador`` del coordinador usando el libVLC que la app

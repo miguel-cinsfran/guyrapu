@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """La ley de volumen de libVLC, medida con el libVLC real.
 
 VLC eleva el volumen al cubo: a 50 la amplitud es la octava parte de la de

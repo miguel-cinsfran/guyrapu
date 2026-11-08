@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lector de pantalla (Prism, opcional)
 Si Prism no está instalado o no hay un lector de pantalla activo, los
 `anunciar()` son no-ops silenciosos; la app funciona igual.

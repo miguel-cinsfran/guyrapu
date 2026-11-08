@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Bordes de sonido de la música local, sin interfaz.
 
 Muchas canciones traen segundos de silencio al principio o al final. Para

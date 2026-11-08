@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas puras de los textos de la ventana Preguntar a la IA.
 
 Sin wx.App ni ventanas: solo importa `ventana_ia`, que no crea

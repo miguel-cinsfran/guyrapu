@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Convenciones de los comandos de la barra de menús.
 
 La parte pura se prueba con entradas armadas a mano, sin wx. La prueba de

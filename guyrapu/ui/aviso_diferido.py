@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Avisos que esperan a que el usuario quede libre, en vez de hablar encima.
 
 Lo que la aplicación avisa por su cuenta (versión nueva, resultado de una

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Búsqueda por prefijo (type-ahead) para listas de texto, sin wx.
 
 Lo usan las listas de contenido dinámico (chat, comentarios): al escribir

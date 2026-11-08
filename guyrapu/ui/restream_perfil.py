@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Diálogo para crear o editar un perfil de Restream (accesible).
 
 Pide el nombre, la orientación, los destinos como casillas, la casilla de

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Avisos de avance y de descarga quieta, sin wx.
 
 La lógica pura recibe la lista de descargas y el instante en cada vuelta.

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Genera las versiones HTML de la documentación con pandoc.
 
 Los .md son cómodos para editar y se leen bien en GitHub, pero el amigo que usa

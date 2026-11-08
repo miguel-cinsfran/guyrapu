@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cálculo puro de diseños de escena para OBS.
 
 Reparte el lienzo entre las fuentes de un diseño y devuelve la

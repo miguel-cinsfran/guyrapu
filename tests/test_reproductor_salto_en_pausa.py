@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Salto en pausa con el VOD por relevo de ffmpeg.
 
 En pausa no se reabre el relevo ni se toca VLC: el destino se guarda y la

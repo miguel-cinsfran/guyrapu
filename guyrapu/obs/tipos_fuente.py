@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Qué fuentes puede agregar Guyrapu y cómo se traducen a OBS.
 
 Es lógica pura: el catálogo, el nombre libre, el tipo de texto que OBS

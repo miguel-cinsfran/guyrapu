@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Edición textual de la sección [sonidos] de sounds.ini, sin wx.
 
 `silenciados` lee qué eventos están callados (clave presente con valor

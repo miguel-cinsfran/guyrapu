@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Acciones de las listas de la ventana de música y sus diálogos.
 
 La mezcla no guarda estado propio: usa la fuente y los controles que arma

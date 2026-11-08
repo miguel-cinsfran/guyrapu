@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Avisos importantes: sonido, anuncio y, si se pidió, cuadro de Windows.
 
 Una sola entrada para los resultados de lo que el usuario acaba de iniciar.

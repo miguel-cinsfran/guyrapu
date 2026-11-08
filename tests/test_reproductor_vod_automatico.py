@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """VOD en calidad automática por el relevo con pistas que no son HLS.
 
 Altura efectiva, cableado de la rama automática,

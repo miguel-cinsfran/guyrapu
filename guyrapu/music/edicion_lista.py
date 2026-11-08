@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Las canciones de la lista que se edita, sin interfaz ni wx.
 
 Única razón para cambiar: qué canciones tiene la lista y en qué orden. Dos

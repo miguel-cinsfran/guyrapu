@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas sin ventana de `guyrapu/ui/gui_transmitir.py`.
 
 Sin ventanas reales: el frame es un doble (`types.SimpleNamespace` con

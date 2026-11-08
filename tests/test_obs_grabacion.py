@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la grabación que arranca junto con la transmisión.
 
 Sin ventanas y sin OBS real: el cliente, el gestor y la salida son dobles.

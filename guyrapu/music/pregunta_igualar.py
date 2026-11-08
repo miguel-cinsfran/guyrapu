@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Texto de la pregunta por igualar el volumen y tamaño de lo pendiente.
 
 Sin interfaz: arma lo que la ventana de música muestra en el diálogo de

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Panel de OBS: reúne en pestañas lo que se ve, se oye y se graba en OBS."""
 
 from __future__ import annotations

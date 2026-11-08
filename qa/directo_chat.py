@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pasos de escritura y corte del banco del directo real.
 
 Lo puro (juicios sobre textos ya leídos) vive acá con pruebas en

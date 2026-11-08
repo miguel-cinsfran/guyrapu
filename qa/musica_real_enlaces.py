@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Etapas k a n del recorrido de música real (listas guardadas y enlaces)."""
 
 from __future__ import annotations

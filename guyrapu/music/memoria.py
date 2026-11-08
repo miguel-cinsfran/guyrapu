@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Memoria de la música: la cola y el tema donde quedó, para retomar.
 
 Módulo puro, sin wx ni VLC. Guarda un JSON con la cola y la posición, y lo

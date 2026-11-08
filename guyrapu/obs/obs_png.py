@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Dice si el PNG de la escena está vacío, sin hablar con OBS.
 
 Recibe los bytes del PNG y devuelve si trae solo negro o transparencia.

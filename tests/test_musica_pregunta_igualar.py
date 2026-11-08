@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del texto de la pregunta por igualar el volumen.
 
 El módulo es puro: no abre ventanas ni toca el disco. Las pruebas cubren

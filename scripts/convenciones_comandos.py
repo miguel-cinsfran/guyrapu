@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Vuelca la barra de menús real y comprueba sus convenciones.
 
 La parte pura no importa wx: una Entrada por elemento del menú y una

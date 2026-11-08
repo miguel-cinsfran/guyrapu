@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Escenarios de OBS: transmisión, escena, grabación, encuadre y Restream."""
 
 from __future__ import annotations

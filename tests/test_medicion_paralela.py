@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del reparto de mediciones entre trabajos simultáneos.
 
 Módulo puro, sin ffmpeg ni ventanas: las mediciones son funciones falsas

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Autocomprobación del paquete armado.
 
 Carga cada pieza crítica del `.exe` y anota el resultado, para que el armado

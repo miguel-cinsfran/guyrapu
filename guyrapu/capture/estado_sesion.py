@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Formateo del estado de sesión que anuncia F2 (lógica pura, sin wx).
 
 Una función pura toma un snapshot inmutable de la sesión y un conjunto de

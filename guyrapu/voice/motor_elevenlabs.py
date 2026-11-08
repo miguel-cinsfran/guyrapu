@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Motor de voz que sintetiza y reproduce con ElevenLabs.
 
 Misma interfaz que `MotorPrism` para que el worker no note la diferencia. La

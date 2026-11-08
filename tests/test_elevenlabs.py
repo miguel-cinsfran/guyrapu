@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tests del cliente HTTP de ElevenLabs (con `abrir` falso y una prueba real)."""
 
 import io

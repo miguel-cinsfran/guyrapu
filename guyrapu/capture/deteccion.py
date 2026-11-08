@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Clasificación del tipo de vídeo de YouTube (directo, próximo, VOD).
 
 Funciones PURAS, sin red: reciben el HTML del watch o la respuesta de la API y

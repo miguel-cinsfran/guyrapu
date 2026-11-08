@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Vigilancia de la salida de OBS: confirmar que manda datos.
 
 Puro salvo `esperar_salida`, que muestrea `GetStreamStatus` con un cliente

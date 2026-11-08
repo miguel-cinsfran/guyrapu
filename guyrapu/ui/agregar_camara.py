@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Agregar una cámara de Windows a OBS desde la interfaz.
 
 Dueño de todo el flujo: leer las cámaras del sistema, preguntar cuál si hay

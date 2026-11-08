@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Emisión de YouTube: cuerpo del directo y paso que lo deja listo.
 
 Puro salvo lo inyectado: el cliente de YouTube y el de OBS entran por

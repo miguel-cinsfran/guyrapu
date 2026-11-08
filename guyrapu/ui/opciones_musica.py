@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Opciones de salida de audio para la página Música de Preferencias.
 
 Lógica pura, sin wx: arma la lista del combinado de salida a partir del

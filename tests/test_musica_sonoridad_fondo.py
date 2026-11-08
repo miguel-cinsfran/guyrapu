@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la mezcla de sonoridad, sin ventanas ni motor.
 
 La mezcla se prueba sobre un anfitrión mínimo (sin wx): el hilo corre en

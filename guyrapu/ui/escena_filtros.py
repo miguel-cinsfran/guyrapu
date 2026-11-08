@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadro Filtros del micrófono: ruido, puerta y ganancia de la fuente de OBS.
 
 No habla con OBS: recibe el estado ya leído y devuelve el que se eligió para

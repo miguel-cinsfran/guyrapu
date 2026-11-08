@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la consulta rápida a la IA (Ctrl+Mayús+F2).
 
 Sin red ni OBS real: lo externo va con dobles y los hilos corren en el

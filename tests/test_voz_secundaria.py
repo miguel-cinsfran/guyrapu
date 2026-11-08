@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Voz secundaria por evento: voz, velocidad y volumen de cada mensaje.
 
 Cubre la elección de voz por mensaje en `guyrapu/voice/tts_worker.py` con

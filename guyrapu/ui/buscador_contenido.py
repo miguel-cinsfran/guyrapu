@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Vista de contenido de una lista o un canal de la búsqueda.
 
 Razón del módulo: entrar a ver los vídeos de una lista o un canal con

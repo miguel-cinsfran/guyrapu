@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadro para abrir un enlace de YouTube en la música.
 
 Pide la dirección y con qué modo aplicarla. La validación y los anuncios

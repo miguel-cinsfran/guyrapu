@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Igualación de volumen enchufada al control de música, sin interfaz.
 
 Mezcla de `ControlMusica`: da la ganancia de cada tema desde la caché de

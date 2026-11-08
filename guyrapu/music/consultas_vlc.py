@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Consultas a libVLC fuera de la reproducción: salidas y etiquetas.
 
 Responde cómo se le pregunta a libVLC por los dispositivos de salida y por

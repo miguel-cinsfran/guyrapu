@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Monitorización de audio del micrófono de OBS, para oírse por los auriculares.
 
 Activa y devuelve el tipo de monitorización de la fuente del micrófono. La

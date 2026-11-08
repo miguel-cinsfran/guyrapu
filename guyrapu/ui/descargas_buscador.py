@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pestaña de búsqueda en YouTube: un campo que busca o encola.
 
 La búsqueda corre en un hilo y una nueva descarta la anterior.

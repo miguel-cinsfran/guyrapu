@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Búfer de repetición de OBS: prepararlo, ponerlo en marcha y guardar clips.
 
 Habla con OBS a través de un cliente con `pedir`, como `obs_grabacion`, y

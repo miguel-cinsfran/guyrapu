@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del sondeo de modelos gratis con la clave del proveedor.
 
 Sin wx y sin red: el envío se inyecta. Leer, guardar y olvidar se prueban

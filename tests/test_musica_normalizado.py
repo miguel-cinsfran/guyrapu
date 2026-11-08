@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del envoltorio de igualación de volumen, sin motor ni ventanas.
 
 Un adaptador falso anota el volumen corregido que recibe `cargar` y las

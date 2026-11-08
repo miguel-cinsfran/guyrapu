@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Emite los avisos de avance de las descargas aunque el diálogo esté cerrado.
 
 Un único temporizador de nivel de módulo, sin dueño de ventana, lee la lista

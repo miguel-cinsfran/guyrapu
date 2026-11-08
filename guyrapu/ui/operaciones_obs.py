@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Operaciones de OBS en un hilo para un cuadro de diálogo."""
 
 from __future__ import annotations

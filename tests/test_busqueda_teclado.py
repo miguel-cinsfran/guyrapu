@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del enganche de búsqueda al teclear, sin ventanas.
 
 El listbox y el evento son mocks: no se crea ningún control ni wx.App.

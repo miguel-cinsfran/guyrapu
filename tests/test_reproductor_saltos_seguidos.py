@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Saltos seguidos en directo y confirmación única en grabado.
 
 Directo por relevo: pulsar las flechas dos o tres veces seguidas acumula

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Detector de rostros de la cámara con YuNet, el modelo que trae OpenCV.
 
 Recibe la imagen como bytes, la decodifica y devuelve los rostros como

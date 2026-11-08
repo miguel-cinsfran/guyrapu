@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lectura de `GoalUpdateEvent` de TikTokLive hacia el registro de metas.
 
 Único módulo que conoce el evento de metas de TikTokLive. Única razón para

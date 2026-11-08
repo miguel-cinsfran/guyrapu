@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de las capturas del banco de QA, casi todas puras.
 
 Las clases `TestNombres`, `TestDedup`, `TestIndice`, `TestColores` y

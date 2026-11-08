@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Localiza el ejecutable de ffmpeg: un único resolvedor para toda la app.
 
 Lo usan el gestor de descargas (mux de yt-dlp), el relevo de directos y la

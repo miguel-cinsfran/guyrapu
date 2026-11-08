@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo se arma el video de la verificación de Google, sin correr nada.
 
 Arma el SRT de los subtítulos y las listas de argumentos de ffmpeg para

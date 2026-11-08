@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadro con el estado de la sesión en una lista, para recorrer con flechas.
 
 Su única razón para cambiar es cómo se muestra el estado en lista. Recibe

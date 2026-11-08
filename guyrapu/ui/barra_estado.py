@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Anchos de los campos de la barra de estado (lógica pura, sin wx).
 
 Orden de los 7 campos: 0 estado, 1 velocidad de la voz, 2 voz, 3 cola,

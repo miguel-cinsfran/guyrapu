@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lectura de `PollEvent` de TikTokLive hacia el registro de encuestas.
 
 Único módulo que conoce el evento de encuestas de TikTokLive. Única razón

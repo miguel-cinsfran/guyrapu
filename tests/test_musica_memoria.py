@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la memoria de la música (memoria.py), sin wx ni VLC.
 
 Todo pasa por archivos temporales reales: la ida y vuelta y las correcciones

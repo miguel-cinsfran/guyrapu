@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del vigía de la carpeta de música (vigia_carpeta.py).
 
 Usan watchdog de verdad sobre una carpeta temporal, sin dobles y sin wx:

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ventana sin bordes a pantalla completa para el vídeo del reproductor."""
 
 from __future__ import annotations

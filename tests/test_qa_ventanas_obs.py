@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la lógica pura de la auditoría de las ventanas de OBS.
 
 Solo cubren lo que no necesita la sonda: la comparación de pestañas, los

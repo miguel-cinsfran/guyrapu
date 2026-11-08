@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Interfaz wxPython accesible: barra de menú nativa + paneles en notebook.
 
 Rediseño: una sola ventana con barra de menú (que NVDA lee de forma nativa y

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Acciones de la pestaña Destinos: activar, cambiar el título y agregar.
 
 Cada llamada a Restream corre en su hilo y vuelve al hilo de la interfaz con

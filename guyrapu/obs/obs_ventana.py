@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Encuentra la ventana principal de OBS y la trae al frente.
 
 Una sola responsabilidad: localizar entre las ventanas de nivel superior la

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Descripción hablada de la escena al aire de OBS.
 
 Arma, solo con los datos que ya entrega OBS, la frase que dice cómo está

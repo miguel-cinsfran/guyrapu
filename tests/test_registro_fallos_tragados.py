@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Avisos en el registro cuando falla algo que el usuario eligió o guardó.
 
 Cada prueba fuerza el fallo por el cableado real y comprueba que el aviso

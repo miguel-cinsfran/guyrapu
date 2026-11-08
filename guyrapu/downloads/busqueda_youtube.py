@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Motor de búsqueda de YouTube con yt-dlp, sin interfaz.
 
 Razón: buscar en YouTube con yt-dlp y entregar los resultados. Lo usa la

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Descarga el catálogo público de modelos de IA y guarda la copia del paquete.
 
 Uso:

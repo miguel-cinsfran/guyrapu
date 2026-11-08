@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadros de la pestaña Destinos: cambiar el título y agregar uno manual.
 
 El primero pide el título y la descripción con que el destino sale en su

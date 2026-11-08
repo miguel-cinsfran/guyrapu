@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo se dibuja el avance de una fila de la lista de descargas.
 
 La barra es una imagen de la lista de imágenes chica del `ListCtrl`, que

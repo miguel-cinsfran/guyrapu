@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Bloque de la voz secundaria de Preferencias.
 
 Abren ventanas. Cubren cómo se cargan las voces, los nombres accesibles, el

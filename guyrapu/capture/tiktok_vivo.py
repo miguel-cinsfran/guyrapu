@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Espera a que el directo de TikTok de un usuario sea visible.
 
 Solo lectura, sin conectarse al chat: pregunta si el usuario está en vivo

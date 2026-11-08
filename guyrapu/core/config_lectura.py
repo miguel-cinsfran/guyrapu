@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Leer las opciones de lectura y de interfaz de config.ini.
 
 Una sola responsabilidad: las opciones de cada sección validadas contra un

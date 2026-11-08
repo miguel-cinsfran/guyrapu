@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ganchos para transmitir con un perfil de Restream.
 
 Lee los canales de la cuenta, prepara los canales y el perfil de OBS antes

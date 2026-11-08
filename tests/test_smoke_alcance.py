@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del alcance que la fase 3 del smoke declara, sin abrir ventanas.
 
 La fase 3 solo audita la pantalla desconectada. Este texto existe para que un

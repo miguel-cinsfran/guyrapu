@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Prepara OBS para un destino de emisión cambiando de perfil.
 
 Recibe un objeto cliente con `pedir(tipo, datos=None, parada=None)` y no crea

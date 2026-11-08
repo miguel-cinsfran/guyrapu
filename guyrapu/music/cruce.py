@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuentas del fundido cruzado entre canciones, sin interfaz.
 
 La curva es de igual potencia: la que sale baja con un coseno y la que entra

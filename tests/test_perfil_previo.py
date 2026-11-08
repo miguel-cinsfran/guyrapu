@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la vuelta al perfil de OBS anterior a un directo.
 
 Sin ventanas y sin OBS real: un cliente falso responde como el websocket

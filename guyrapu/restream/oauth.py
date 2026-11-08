@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Inicio de sesión en Restream por OAuth y llamadas al servicio de tokens.
 
 El secreto de la aplicación no vive en la app: el canje y la renovación

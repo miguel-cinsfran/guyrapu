@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lista de grabaciones y clips de la app, como panel de la pestaña Grabación.
 
 Su única razón para cambiar: la lista de grabaciones y clips. Las teclas, el

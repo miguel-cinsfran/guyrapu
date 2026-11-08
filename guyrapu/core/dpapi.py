@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cifrado y descifrado con DPAPI, atados a la cuenta de Windows.
 
 Su única razón para cambiar es cómo se llama a DPAPI de Windows. No usa wx.

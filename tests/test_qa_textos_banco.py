@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Los textos que el banco de QA espera tienen que existir en la aplicación.
 
 Lee los módulos del banco con el árbol sintáctico, sin importarlos, y busca

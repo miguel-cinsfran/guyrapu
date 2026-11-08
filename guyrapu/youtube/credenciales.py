@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Almacén de credenciales de la YouTube Data API (gestionable desde la app).
 
 A diferencia de config.ini, esto NO se edita a mano normalmente: la sección

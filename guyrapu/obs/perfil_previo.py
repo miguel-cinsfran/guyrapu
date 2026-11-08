@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Vuelta al perfil de OBS que estaba activo antes de preparar un directo.
 
 La app guarda en memoria un solo nombre pendiente, con un cerrojo, y solo

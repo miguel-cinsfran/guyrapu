@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cuadro Posición y tamaño de la fuente del Panel de OBS.
 
 No habla con OBS: devuelve los porcentajes y el lugar elegidos, y la

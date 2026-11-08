@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de las teclas sueltas de la pantalla completa, sin ventana.
 
 `accion_de_tecla` es pura: se prueba sin `wx.App` ni controles, solo con

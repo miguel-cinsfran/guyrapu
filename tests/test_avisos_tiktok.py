@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Modos por aviso de TikTok: lo que se lee, se muestra o se oculta.
 
 Cubre `guyrapu/core/avisos_tiktok.py` sin ventanas: los modos guardados, los

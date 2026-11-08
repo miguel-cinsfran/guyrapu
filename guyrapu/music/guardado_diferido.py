@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Guardado diferido de lo último pedido, sin wx ni hilos (lógica pura).
 
 Los atajos pueden llegar en ráfaga y no conviene escribir a disco en cada

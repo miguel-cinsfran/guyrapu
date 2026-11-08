@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Evita que vuelvan avisos de wx por hijos de un ``wx.StaticBox``.
 
 Los doce avisos de ``statusbar.cpp`` salen de ``CreateStatusBar`` dentro de

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Lista de colecciones de la ventana de música.
 
 La mezcla guarda la fuente elegida (la carpeta o una lista propia) y carga

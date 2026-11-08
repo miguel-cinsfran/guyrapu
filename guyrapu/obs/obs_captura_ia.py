@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Qué se puede capturar de OBS para preguntarle a la IA, y capturarlo.
 
 Recibe un cliente con `pedir(tipo, datos=None, parada=None)` como

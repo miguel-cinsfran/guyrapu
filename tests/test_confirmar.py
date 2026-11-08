@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """El ayudante de confirmaciones y los textos de cada cuadro que lo usa.
 
 Los dos últimos cuadros son reales y solo corren en Windows: abren el

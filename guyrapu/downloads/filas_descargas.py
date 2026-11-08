@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Filas de la lista única de descargas, lógica pura sin wx.
 
 Razón del módulo: qué filas muestra la lista y qué se puede hacer con cada

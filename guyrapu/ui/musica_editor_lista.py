@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Editor de listas de música: el nombre, la lista y la carpeta.
 
 Editar y crear comparten un solo cuadro. La lista que se edita va en

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Piezas del banco de QA que lanzan y manejan la aplicación desde fuera.
 
 Aquí vive todo lo que no es de un escenario concreto: la aplicación con su

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la decisión de preguntar antes de salir.
 
 Sin ventanas: solo cubre las funciones puras `mensaje_confirmar_salida`,

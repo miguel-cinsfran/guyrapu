@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Suena un WAV que ya está en memoria, sin pasar por el disco.
 
 Su única razón para cambiar es cómo se suena un WAV en memoria. Usa

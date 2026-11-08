@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Ventana única de música: Colecciones, Cola y acciones con foco.
 
 Las Colecciones eligen lo que muestra la lista de temas: «Biblioteca» es

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tests del modelo de la lista de chat (recorte, filtro y selección).
 
 Incluye la regresión del bug de v0.8.2: al superar el máximo de mensajes, la

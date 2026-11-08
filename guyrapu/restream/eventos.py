@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Eventos de Restream, de la respuesta de la API a texto para leer.
 
 Puro: no habla con la red ni con wx. Interpreta las listas de próximos, en

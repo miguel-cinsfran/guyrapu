@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tramo de atajos globales de música para la escena `musica_real`.
 
 Con la aplicación ya sonando, activa la casilla de atajos globales desde

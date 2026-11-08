@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Qué opciones ofrece «Transmitir a» y cómo se traducen a un perfil de OBS.
 
 Puro: sin red ni wx. La opción es lo que se elige y se guarda; el destino de

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cómo se conduce la app por los pasos del video de force-ssl.
 
 Los pasos 1 y 3 a 10, con sus esperas, el registro de segundos y el id del

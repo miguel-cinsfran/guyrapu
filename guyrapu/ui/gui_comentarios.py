@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Panel de comentarios de un vídeo, integrado en la ventana principal.
 
 Es una pestaña del notebook: trabaja sobre el vídeo que ya está

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Redirige las raíces de `paths` a una carpeta temporal, en un solo punto.
 
 Toda prueba que necesite aislar archivos de datos o de instalación usa este

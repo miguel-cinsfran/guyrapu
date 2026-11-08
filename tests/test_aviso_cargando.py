@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Aviso «Cargando vídeo» mientras el reproductor está cargando.
 
 Mientras un vídeo todavía se está cargando, una flecha o un salto decía

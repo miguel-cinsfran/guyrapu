@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del canal de actualizaciones, sin interfaz.
 
 La lista de publicaciones se arma a mano y la descarga se prueba contra un

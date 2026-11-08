@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Frases y registro de encuestas del directo de TikTok.
 
 Puro y sin wx: fija el texto de apertura, cierre y F2, y que cada encuesta

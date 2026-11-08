@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Revisión al arranque de directos que quedaron al aire sin imagen.
 
 Los directos se crean sin autoStop: si la persona cierra la app y después

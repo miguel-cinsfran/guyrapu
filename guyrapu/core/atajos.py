@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Definiciones de los atajos de teclado: defaults, validación y parseo."""
 
 from __future__ import annotations

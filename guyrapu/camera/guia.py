@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Guía de encuadre con pitidos, lógica pura.
 
 Traduce la posición del rostro en un pitido: hacia qué lado moverse,

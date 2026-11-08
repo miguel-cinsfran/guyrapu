@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Qué publicación ve cada canal de actualizaciones, sin interfaz.
 
 El canal Estable consulta la última release con `releases/latest`, que

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """El nombre se anota en la ventana sin cambiar el rol ni el estado de MSAA.
 
 Medido el 07/11/2026 con wx 4.3.1 sobre controles reales: el proxy de wx

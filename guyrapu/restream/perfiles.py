@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Perfiles de transmisión por Restream: qué son y cómo se guardan.
 
 La validación es de quien edita; `guardar` no valida. Lo que YouTube acepta

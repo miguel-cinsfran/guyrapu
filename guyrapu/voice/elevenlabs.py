@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Cliente HTTP de ElevenLabs para el motor de voz del lector.
 
 Solo biblioteca estándar: la síntesis es un POST, y las voces y el saldo son

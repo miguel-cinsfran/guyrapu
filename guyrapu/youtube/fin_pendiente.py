@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Fines de directo pedidos a YouTube y todavía sin confirmar.
 
 Cuando OBS deja de transmitir, la app pide a YouTube que finalice el directo.

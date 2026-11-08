@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Tests de la captura de atajos (conversión tecla→texto y visualización).
 
 Necesita wxPython (usa constantes wx.WXK_*/wx.MOD_*), así que se salta donde no

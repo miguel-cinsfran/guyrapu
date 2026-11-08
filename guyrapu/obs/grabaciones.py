@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Registro de las grabaciones que la app detuvo.
 
 Su única razón para cambiar: qué grabaciones recuerda la app y cómo se

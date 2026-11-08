@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Consulta qué escribe AltGr con una tecla según el teclado en uso."""
 
 from __future__ import annotations

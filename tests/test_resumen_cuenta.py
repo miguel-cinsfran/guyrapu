@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del resumen de Cuenta y de la fila de un perfil de Restream.
 
 Es lógica pura: no abre ventanas ni sale a la red.

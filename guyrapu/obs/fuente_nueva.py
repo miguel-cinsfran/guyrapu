@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Crear fuentes en OBS y leer o aplicar sus propiedades.
 
 Recibe un `pedir(tipo, datos=None, parada=None)` como `escenas_obs` y no

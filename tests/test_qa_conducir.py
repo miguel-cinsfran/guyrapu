@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la lógica pura del banco de QA, sin abrir ventanas ni la app.
 
 Se importa `qa/conducir.py` como `tests/test_qa_directo_real.py` importa el
