@@ -18,6 +18,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_destinos, perfil_previo
 from guyrapu.restream import transmitir, youtube_por_restream
+from guyrapu.restream.chat_restream import conectar_chat as _conectar_chat
 from guyrapu.youtube import emision
 from guyrapu.youtube.emision import EmisionError
 
@@ -232,31 +233,6 @@ def _abandonar(frame, frase=None, importante=False):
     if frase is not None:
         _anunciar_de_frame(frame)(frase, "transmision_problema", importante)
     perfil_previo.volver_sin_directo()
-
-
-def _conectar_chat(frame, youtube=False, guardados=None):
-    def al_conectar_chat(url):
-        from guyrapu.ui import gui as _gui
-
-        def _conectar():
-            if not getattr(frame, "_alive", True):
-                return
-            if youtube:
-                from guyrapu.ui import inicio_youtube
-                if inicio_youtube.sin_chat(frame, guardados or {}, url):
-                    return
-            if frame._conectado or frame._conectando:
-                _gui.anunciar(
-                    _("El chat ya estaba conectado y no se cambió."))
-                return
-            try:
-                frame.txt_url.SetValue(url)
-            except Exception as error:
-                logger.debug("no se pudo mostrar la dirección: %s", error)
-            frame.sesion.conexion_propia = True
-            frame._on_conectar(None)
-        _gui.wx.CallAfter(_conectar)
-    return al_conectar_chat
 
 
 def _crear_vigia(modulo_cuenta, canales, al_anunciar, supervisor_actual):
