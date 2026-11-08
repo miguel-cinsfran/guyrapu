@@ -200,6 +200,46 @@ class DescribirEscenaTest(unittest.TestCase):
             self.assertTrue(linea.endswith("."))
 
 
+class SinImagenTest(unittest.TestCase):
+    def test_una_fuente_visible_sin_imagen_no_da_posicion(self):
+        transformacion = {
+            "positionX": 0, "positionY": 0, "width": 0, "height": 0,
+            "sourceWidth": 0, "sourceHeight": 0,
+            "scaleX": 1, "scaleY": 1, "rotation": 0, "alignment": 5,
+            "boundsType": "OBS_BOUNDS_SCALE_INNER", "boundsAlignment": 0,
+            "boundsWidth": 1600, "boundsHeight": 900,
+            "cropLeft": 0, "cropRight": 0, "cropTop": 0, "cropBottom": 0,
+        }
+        frase = obs_escena.describir_escena(
+            "Principal",
+            [{"sourceName": "Captura de ventana", "sceneItemIndex": 0,
+              "sceneItemEnabled": True,
+              "sceneItemTransform": transformacion}],
+            *LIENZO, {"Captura de ventana": "captura de ventana"})
+        self.assertEqual(
+            frase,
+            "Escena actual: Principal. 1 fuente, de adelante hacia atrás.\n"
+            "1: Captura de ventana, captura de ventana, no muestra imagen.")
+
+    def test_el_tamano_sale_del_rectangulo_que_dibuja_obs(self):
+        transformacion = {
+            "positionX": 0, "positionY": 0, "width": 800, "height": 600,
+            "sourceWidth": 800, "sourceHeight": 600,
+            "scaleX": 1, "scaleY": 1, "rotation": 0, "alignment": 5,
+            "boundsType": "OBS_BOUNDS_SCALE_INNER", "boundsAlignment": 0,
+            "boundsWidth": 1600, "boundsHeight": 900,
+            "cropLeft": 0, "cropRight": 0, "cropTop": 0, "cropBottom": 0,
+        }
+        frase = obs_escena.describir_escena(
+            "Principal",
+            [{"sourceName": "Juego", "sceneItemIndex": 0,
+              "sceneItemEnabled": True,
+              "sceneItemTransform": transformacion}],
+            *LIENZO, {"Juego": "captura de juego"})
+        self.assertNotIn("ocupa todo el vídeo", frase)
+        self.assertIn("75 por ciento del ancho", frase)
+
+
 class FilasDeEscenaTest(unittest.TestCase):
     def test_el_ejemplo_de_e3_sin_numero_ni_punto(self):
         elementos = [

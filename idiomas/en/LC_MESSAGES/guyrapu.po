@@ -3497,6 +3497,7 @@ msgid "OBS no pudo completar la operación. Vuelve a intentarlo."
 msgstr "OBS could not complete the operation. Try again."
 
 #: guyrapu/obs/obs_cliente.py guyrapu/obs/obs_destinos.py
+#: guyrapu/obs/perfiles_obs.py
 msgid "Operación cancelada."
 msgstr "Operation canceled."
 
@@ -3549,7 +3550,7 @@ msgstr "Cannot switch destinations while broadcasting."
 msgid "OBS no aplicó el destino. Vuelve a intentarlo."
 msgstr "OBS did not apply the destination. Try again."
 
-#: guyrapu/obs/obs_destinos.py
+#: guyrapu/obs/obs_destinos.py guyrapu/obs/perfiles_obs.py
 msgid "OBS no terminó de cambiar de perfil."
 msgstr "OBS did not finish switching profiles."
 
@@ -3658,12 +3659,12 @@ msgid "abajo a la derecha"
 msgstr "bottom right"
 
 #. Traductores: dice por qué lado se sale del lienzo.
-#: guyrapu/obs/obs_disposicion.py
+#: guyrapu/obs/obs_disposicion.py guyrapu/obs/revision_escena.py
 msgid "por la izquierda"
 msgstr "on the left"
 
 #. Traductores: dice por qué lado se sale del lienzo.
-#: guyrapu/obs/obs_disposicion.py
+#: guyrapu/obs/obs_disposicion.py guyrapu/obs/revision_escena.py
 msgid "por la derecha"
 msgstr "on the right"
 
@@ -3678,12 +3679,12 @@ msgid "derecho"
 msgstr "right"
 
 #. Traductores: dice por qué lado se sale del lienzo.
-#: guyrapu/obs/obs_disposicion.py
+#: guyrapu/obs/obs_disposicion.py guyrapu/obs/revision_escena.py
 msgid "por arriba"
 msgstr "on the top"
 
 #. Traductores: dice por qué lado se sale del lienzo.
-#: guyrapu/obs/obs_disposicion.py
+#: guyrapu/obs/obs_disposicion.py guyrapu/obs/revision_escena.py
 msgid "por abajo"
 msgstr "on the bottom"
 
@@ -3698,7 +3699,8 @@ msgid "inferior"
 msgstr "bottom"
 
 #. Traductores: conjunción entre partes de una frase, con sus espacios.
-#: guyrapu/obs/obs_disposicion.py
+#. Traductores: conjunción entre los lados por los que se sale del vídeo.
+#: guyrapu/obs/obs_disposicion.py guyrapu/obs/revision_escena.py
 msgid " y "
 msgstr " and "
 
@@ -3856,6 +3858,14 @@ msgid "cerca de la posición {texto}"
 msgstr "near the {texto} position"
 
 #: guyrapu/obs/obs_escena.py
+msgid "no muestra imagen"
+msgstr "shows no image"
+
+#: guyrapu/obs/obs_escena.py
+msgid "oculta en OBS"
+msgstr "hidden in OBS"
+
+#: guyrapu/obs/obs_escena.py guyrapu/obs/revision_escena.py
 msgid "sin nombre"
 msgstr "unnamed"
 
@@ -3870,10 +3880,6 @@ msgstr "fills the whole video"
 #: guyrapu/obs/obs_escena.py
 msgid "en una posición libre"
 msgstr "in a free position"
-
-#: guyrapu/obs/obs_escena.py
-msgid "oculta en OBS"
-msgstr "hidden in OBS"
 
 #: guyrapu/obs/obs_escena.py
 #, python-brace-format
@@ -4349,6 +4355,32 @@ msgstr "With clips running, recording uses the {perfil} profile."
 msgid "OBS no tiene el perfil {elegido}: se graba con el perfil {perfil}."
 msgstr "OBS has no {elegido} profile: recording uses the {perfil} profile."
 
+#. Traductores: {perfil} es el nombre de un perfil de OBS.
+#: guyrapu/obs/perfiles_obs.py
+#, python-brace-format
+msgid "OBS no tiene un perfil llamado {perfil}."
+msgstr "OBS has no profile named {perfil}."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid ""
+"No se puede cambiar el perfil de OBS con una salida en marcha. Detén la "
+"transmisión, la grabación y el búfer de clips y vuelve a intentarlo."
+msgstr ""
+"The OBS profile cannot be changed while an output is running. Stop the "
+"stream, the recording, and the replay buffer and try again."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid "No se puede eliminar el perfil de OBS que está en uso."
+msgstr "The OBS profile in use cannot be deleted."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid "No se puede eliminar el único perfil de OBS."
+msgstr "The only OBS profile cannot be deleted."
+
+#: guyrapu/obs/perfiles_obs.py
+msgid "Ya existe un perfil de OBS con ese nombre."
+msgstr "An OBS profile with that name already exists."
+
 #: guyrapu/obs/prueba_microfono.py
 msgid "Prueba del micrófono iniciada. Habla como en un directo."
 msgstr "Microphone test started. Talk as you would on a live stream."
@@ -4362,6 +4394,76 @@ msgid ""
 msgstr ""
 "{nombre} is a headset in hands-free mode and sounds low quality. For "
 "streaming, use another microphone."
+
+#: guyrapu/obs/revision_escena.py
+msgid "la ventana capturada no está abierta o está minimizada"
+msgstr "the captured window is not open or is minimized"
+
+#: guyrapu/obs/revision_escena.py
+msgid "el juego no está abierto o OBS todavía no lo captura"
+msgstr "the game is not open or OBS has not captured it yet"
+
+#: guyrapu/obs/revision_escena.py
+msgid "OBS no puede capturar esa pantalla"
+msgstr "OBS cannot capture that display"
+
+#: guyrapu/obs/revision_escena.py
+msgid "la cámara no está conectada o la está usando otra aplicación"
+msgstr "the camera is not connected or another application is using it"
+
+#: guyrapu/obs/revision_escena.py
+#, python-brace-format
+msgid ""
+"La fuente {nombre} queda entera fuera del vídeo el {porcentaje} por ciento,"
+" {lados}."
+msgstr ""
+"Source {nombre} is entirely outside the video, {porcentaje} percent, "
+"{lados}."
+
+#: guyrapu/obs/revision_escena.py
+#, python-brace-format
+msgid ""
+"La fuente {nombre} queda fuera del vídeo el {porcentaje} por ciento, "
+"{lados}."
+msgstr "Source {nombre} is outside the video, {porcentaje} percent, {lados}."
+
+#: guyrapu/obs/revision_escena.py
+#, python-brace-format
+msgid "La fuente {nombre} está estirada a lo ancho el {porcentaje} por ciento."
+msgstr "Source {nombre} is stretched horizontally, {porcentaje} percent."
+
+#: guyrapu/obs/revision_escena.py
+#, python-brace-format
+msgid "La fuente {nombre} está estirada a lo alto el {porcentaje} por ciento."
+msgstr "Source {nombre} is stretched vertically, {porcentaje} percent."
+
+#. Traductores: {nombre} es la fuente y {motivo} el porqué.
+#: guyrapu/obs/revision_escena.py
+#, python-brace-format
+msgid "La fuente {nombre} no muestra imagen: {motivo}."
+msgstr "Source {nombre} shows no image: {motivo}."
+
+#. Traductores: {porcentaje} es un número y {tapa} una fuente.
+#: guyrapu/obs/revision_escena.py
+#, python-brace-format
+msgid "La fuente {nombre} está tapada el {porcentaje} por ciento por {tapa}."
+msgstr "Source {nombre} is covered {porcentaje} percent by {tapa}."
+
+#. Traductores: {porcentaje} es un número.
+#: guyrapu/obs/revision_escena.py
+#, python-brace-format
+msgid ""
+"Queda vacío el {porcentaje} por ciento del vídeo, sin ninguna fuente "
+"visible con imagen."
+msgstr ""
+"{porcentaje} percent of the video is empty, with no visible source showing "
+"an image."
+
+#: guyrapu/obs/revision_escena.py
+msgid ""
+"Para acomodar la escena, usa Aplicar diseño, en la pestaña Escena del Panel"
+" de OBS."
+msgstr "To arrange the scene, use Apply layout, on the Scene tab of the OBS panel."
 
 #: guyrapu/obs/tamano_relativo.py
 msgid "Un quinto del vídeo"
@@ -11619,30 +11721,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: {perfil} es el nombre de un perfil de OBS.
-#: guyrapu/obs/perfiles_obs.py
-#, python-brace-format
-msgid "OBS no tiene un perfil llamado {perfil}."
-msgstr "OBS has no profile named {perfil}."
-
-#: guyrapu/obs/perfiles_obs.py
-msgid ""
-"No se puede cambiar el perfil de OBS con una salida en marcha. Detén la "
-"transmisión, la grabación y el búfer de clips y vuelve a intentarlo."
-msgstr ""
-"The OBS profile cannot be changed while an output is running. Stop the "
-"stream, the recording, and the replay buffer and try again."
-
-#: guyrapu/obs/perfiles_obs.py
-msgid "No se puede eliminar el perfil de OBS que está en uso."
-msgstr "The OBS profile in use cannot be deleted."
-
-#: guyrapu/obs/perfiles_obs.py
-msgid "No se puede eliminar el único perfil de OBS."
-msgstr "The only OBS profile cannot be deleted."
-
-#: guyrapu/obs/perfiles_obs.py
-msgid "Ya existe un perfil de OBS con ese nombre."
-msgstr "An OBS profile with that name already exists."
 

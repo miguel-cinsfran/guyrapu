@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from guyrapu.core.idioma import _, ngettext
-from guyrapu.obs import obs_disposicion, transformar_fuente
+from guyrapu.obs import geometria_fuente, obs_disposicion, transformar_fuente
 
 
 # Cubre este porcentaje del lienzo o más y se considera imagen completa.
@@ -25,31 +25,21 @@ _UMBRAL_TAPA_ENTERA = 95.0
 _UMBRAL_AVISO = 10.0
 
 
+def _medida_de(elemento):
+    """Lo que dibuja OBS de la fuente, o None si la transformación no sirve."""
+    return geometria_fuente.medir(elemento.get("sceneItemTransform"))
+
+
 def _rectangulo_de(elemento):
     """Rectángulo visible (izquierda, arriba, ancho, alto) o None.
 
-    None cuando la transformación no sirve: falta, no es un dict o no
-    trae posición y tamaño positivos. Con bounds activos el tamaño
-    visible sale de boundsWidth y boundsHeight.
+    None cuando la transformación no sirve o la fuente no muestra imagen.
+    Sale de la cuenta de OBS: recorte, escala, marco, alineación y giro.
     """
-    try:
-        transformacion = elemento.get("sceneItemTransform") or {}
-        x = float(transformacion["positionX"])
-        y = float(transformacion["positionY"])
-        ancho = float(transformacion.get("width", 0))
-        alto = float(transformacion.get("height", 0))
-        tipo_bounds = str(transformacion.get("boundsType") or "").upper()
-        if tipo_bounds not in ("", "NONE", "OBS_BOUNDS_NONE"):
-            ancho_bounds = float(transformacion.get("boundsWidth") or 0)
-            alto_bounds = float(transformacion.get("boundsHeight") or 0)
-            if ancho_bounds > 0 and alto_bounds > 0:
-                ancho, alto = ancho_bounds, alto_bounds
-        if ancho <= 0 or alto <= 0:
-            return None
-        alineacion = int(transformacion.get("alignment", 0))
-        return obs_disposicion.rectangulo(x, y, ancho, alto, alineacion)
-    except (KeyError, TypeError, ValueError):
+    medida = _medida_de(elemento)
+    if medida is None or not medida.tiene_imagen:
         return None
+    return medida.rectangulo
 
 
 def _visible(elemento) -> bool:
@@ -160,6 +150,16 @@ class FilaFuente:
     tamano: str = ""
 
 
+def _texto_sin_imagen(nombre, tipo, visible) -> tuple:
+    """La fuente no muestra imagen: no se le inventa posición ni tamaño."""
+    estado = _("no muestra imagen") if visible else _("oculta en OBS")
+    partes = [nombre]
+    if tipo:
+        partes.append(str(tipo))
+    partes.append(estado)
+    return ", ".join(partes), "", ""
+
+
 def _texto_fuente(elemento, rect, delanteros, lienzo_ancho,
                   lienzo_alto, tipos) -> tuple:
     nombre = str(elemento.get("sourceName") or _("sin nombre"))
@@ -203,15 +203,20 @@ def _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos) -> list:
     ordenados = sorted(elementos or (),
                        key=lambda elemento: elemento.get("sceneItemIndex", 0),
                        reverse=True)
+    medidas = [_medida_de(elemento) for elemento in ordenados]
     rects = [_rectangulo_de(elemento) for elemento in ordenados]
     filas = []
     delanteros = []
-    for elemento, rect in zip(ordenados, rects):
+    for elemento, rect, medida in zip(ordenados, rects, medidas):
         nombre = str(elemento.get("sourceName") or _("sin nombre"))
         tipo = (tipos or {}).get(nombre, "")
-        texto, posicion, tamano = _texto_fuente(
-            elemento, rect, delanteros, lienzo_ancho, lienzo_alto, tipos)
         visible = _visible(elemento)
+        if medida is not None and not medida.tiene_imagen:
+            texto, posicion, tamano = _texto_sin_imagen(
+                nombre, tipo, visible)
+        else:
+            texto, posicion, tamano = _texto_fuente(
+                elemento, rect, delanteros, lienzo_ancho, lienzo_alto, tipos)
         bloqueada = bool(elemento.get("sceneItemLocked", False))
         filas.append((nombre, texto, visible, bloqueada, tipo,
                       posicion, tamano))

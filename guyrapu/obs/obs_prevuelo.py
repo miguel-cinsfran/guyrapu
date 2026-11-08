@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs.obs_png import imagen_vacia_png
-from guyrapu.obs import obs_grabacion
+from guyrapu.obs import obs_grabacion, revision_escena
 
 
 # Tipo legible por inputKind. Lo que no está acá se muestra tal cual.
@@ -239,10 +239,14 @@ def revisar(cliente, destino, parada=None, grabar=False) -> Revision:
     audio = _audio_obs(cliente, entradas, parada)
     imagen = _leer_imagen_vacia(cliente, escena, parada)
     problemas = _problemas_revision(audio, fuentes, imagen)
-    avisos = ()
+    hallazgos = revision_escena.revisar(
+        elementos, lienzo.get("baseWidth"), lienzo.get("baseHeight"))
+    problemas.extend(hallazgos.problemas)
+    avisos = []
     if grabar and obs_grabacion.codificador_propio_en_obs(
             cliente, parada) is True:
-        avisos = (_(obs_grabacion.AVISO_CODIFICADOR),)
+        avisos.append(_(obs_grabacion.AVISO_CODIFICADOR))
+    avisos.extend(hallazgos.avisos)
     return Revision(destino, perfil, coleccion, lienzo.get("baseWidth"),
                     lienzo.get("baseHeight"), escena, tuple(fuentes),
                     tuple(audio), imagen, tuple(problemas), tuple(avisos))

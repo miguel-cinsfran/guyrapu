@@ -459,6 +459,55 @@ class AvisosGrabacionTest(unittest.TestCase):
         self.assertEqual(revision.avisos, ())
 
 
+class EncuadreRealTest(unittest.TestCase):
+    """La escena vertical medida el 08/11/2026: todo crece por el alto."""
+
+    def _elemento(self, nombre, indice, transformacion):
+        datos = {
+            "positionX": 0, "positionY": 0,
+            "width": 0, "height": 0,
+            "scaleX": 1, "scaleY": 1,
+            "rotation": 0, "alignment": 5,
+            "boundsType": "OBS_BOUNDS_NONE", "boundsAlignment": 0,
+            "boundsWidth": 0, "boundsHeight": 0,
+            "cropLeft": 0, "cropRight": 0,
+            "cropTop": 0, "cropBottom": 0,
+            "cropToBounds": False,
+        }
+        datos.update(transformacion)
+        return {"sourceName": nombre, "sceneItemIndex": indice,
+                "sceneItemEnabled": True, "inputKind": "window_capture",
+                "sceneItemTransform": datos}
+
+    def test_los_dos_problemas_y_la_frase_de_acomodar(self):
+        elementos = [
+            self._elemento("Juego", 0, {
+                "sourceWidth": 1600, "sourceHeight": 900,
+                "width": 3413.5, "height": 1920,
+                "positionX": -1166.5, "positionY": 0,
+                "boundsType": "OBS_BOUNDS_SCALE_INNER",
+                "boundsWidth": 3413.5, "boundsHeight": 1920}),
+            self._elemento("Cámara", 1, {
+                "sourceWidth": 640, "sourceHeight": 480,
+                "width": 597.3, "height": 512,
+                "positionX": 1521.5, "positionY": 1365.5,
+                "scaleX": 1.06667, "scaleY": 1.06667,
+                "cropLeft": 40, "cropRight": 40}),
+        ]
+        doble = DoblePrevuelo(
+            ancho=1080, alto=1920, elementos=elementos,
+            entradas=[], ajustes={}, silencios={},
+            imagen=imagen_dato(png_plano(2, 2, (200, 0, 0, 255))))
+        revision = revisar(doble, "TikTok")
+        self.assertEqual(list(revision.problemas), [
+            "La fuente Cámara queda entera fuera del vídeo el 100 por "
+            "ciento, por la derecha.",
+            "La fuente Juego queda fuera del vídeo el 68 por ciento, "
+            "por la izquierda y por la derecha.",
+            "Para acomodar la escena, usa Aplicar diseño, en la pestaña "
+            "Escena del Panel de OBS."])
+
+
 class TestTiposDeEntradas(unittest.TestCase):
 
     def test_traduce_las_clases_conocidas_y_descarta_las_sin_nombre(self):
