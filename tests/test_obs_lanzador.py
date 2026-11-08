@@ -207,7 +207,7 @@ class AsegurarObsTest(unittest.TestCase):
         self.assertFalse(resultado)
         buscar.assert_not_called()
         abrir.assert_not_called()
-        probar.assert_not_called()
+        probar.assert_called_once_with()
         anuncia.assert_not_called()
 
     def test_no_instalado_levanta_sin_anunciar_abriendo(self):
@@ -354,6 +354,45 @@ class AsegurarObsTest(unittest.TestCase):
                                  hubo_cierre_incorrecto=consultar)
         self.assertFalse(resultado)
         consultar.assert_not_called()
+
+    def test_abierto_espera_a_que_el_websocket_acepte(self):
+        reloj = RelojFalso()
+        anuncia = mock.Mock()
+        buscar = mock.Mock()
+        abrir = mock.Mock()
+        intentos = []
+
+        def probar():
+            intentos.append(1)
+            if len(intentos) < 3:
+                raise obs_cliente.ObsError("todavía no")
+
+        resultado = asegurar_obs(probar, al_anunciar=anuncia,
+                                 en_ejecucion=lambda: True,
+                                 buscar=buscar, abrir=abrir,
+                                 dormir=reloj.dormir, reloj=reloj.reloj,
+                                 hubo_cierre_incorrecto=lambda: self.fail())
+        self.assertFalse(resultado)
+        self.assertEqual(len(intentos), 3)
+        buscar.assert_not_called()
+        abrir.assert_not_called()
+        anuncia.assert_called_once_with(
+            obs_lanzador.TEXTO_TERMINANDO_DE_ABRIR)
+
+    def test_abierto_sin_respuesta_vence_a_los_60_segundos(self):
+        reloj = RelojFalso()
+        anuncia = mock.Mock()
+        with self.assertRaises(obs_cliente.ObsError) as contexto:
+            asegurar_obs(mock.Mock(side_effect=obs_cliente.ObsError("no")),
+                         al_anunciar=anuncia,
+                         en_ejecucion=lambda: True,
+                         buscar=mock.Mock(), abrir=mock.Mock(),
+                         dormir=reloj.dormir, reloj=reloj.reloj,
+                         hubo_cierre_incorrecto=lambda: self.fail())
+        self.assertEqual(str(contexto.exception),
+                         obs_cliente.TEXTO_ABIERTO_SIN_RESPUESTA)
+        self.assertGreaterEqual(reloj.ahora, 60.0)
+        self.assertEqual(anuncia.call_count, 1)
 
 
 @unittest.skipUnless(_HAY_GUI, "wxPython no está instalado")

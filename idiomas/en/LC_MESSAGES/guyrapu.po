@@ -4030,6 +4030,12 @@ msgstr ""
 "OBS is not responding. It may be waiting for you to answer whether to start"
 " in safe mode: choose Show OBS in the OBS menu."
 
+#. Traductores: aviso mientras OBS ya está abierto y su servidor termina de
+#. iniciar.
+#: guyrapu/obs/obs_lanzador.py
+msgid "Esperando a que OBS termine de abrirse."
+msgstr "Waiting for OBS to finish starting."
+
 #: guyrapu/obs/obs_lanzador.py
 msgid "No se pudo abrir OBS."
 msgstr "Could not open OBS."

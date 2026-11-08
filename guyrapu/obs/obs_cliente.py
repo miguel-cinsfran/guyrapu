@@ -118,6 +118,8 @@ class ClienteObs:
 
     _TIEMPO_LIMITE = 10.0
     _TIEMPO_LECTURA = 0.5
+    _ESPERA_NO_LISTO = 0.5
+    _TIEMPO_NO_LISTO = 30.0
 
     def __init__(self, ajustes=None, conectar_fn=None, suscripciones=0):
         self.ajustes = ajustes or AjustesObs()
@@ -175,30 +177,8 @@ class ClienteObs:
             transporte = self._transporte
             if transporte is None:
                 raise ObsError(mensaje_de_fallo_obs("not connected"))
-            identificador = str(uuid.uuid4())
-            peticion = {
-                "op": 6,
-                "d": {
-                    "requestType": tipo,
-                    "requestId": identificador,
-                    "requestData": datos or {},
-                },
-            }
-            limite = time.monotonic() + self._TIEMPO_LIMITE
             try:
-                transporte.send(json.dumps(peticion))
-                while True:
-                    mensaje = self._recibir(transporte, parada, limite)
-                    if mensaje.get("op") != 7:
-                        continue
-                    datos_respuesta = mensaje.get("d", {})
-                    if datos_respuesta.get("requestId") != identificador:
-                        continue
-                    estado = datos_respuesta.get("requestStatus", {})
-                    if not estado.get("result", False):
-                        motivo = f"{estado.get('code', '')} {estado.get('comment', '')}"
-                        raise ObsError(mensaje_de_fallo_obs(motivo))
-                    return datos_respuesta
+                return self._intercambiar(transporte, tipo, datos or {}, parada)
             except ObsError:
                 raise
             except ConnectionClosed as error:
@@ -208,6 +188,48 @@ class ClienteObs:
                 raise ObsError(_(MENSAJE_CONEXION_PERDIDA)) from error
             except Exception as error:
                 raise ObsError(mensaje_de_fallo_obs(error)) from error
+
+    def _intercambiar(self, transporte, tipo, datos, parada):
+        """Manda la petición y devuelve su respuesta, esperando el 207."""
+        identificador = str(uuid.uuid4())
+        peticion = {
+            "op": 6,
+            "d": {
+                "requestType": tipo,
+                "requestId": identificador,
+                "requestData": datos,
+            },
+        }
+        limite = time.monotonic() + self._TIEMPO_NO_LISTO
+        while True:
+            transporte.send(json.dumps(peticion))
+            datos_respuesta = self._respuesta(transporte, identificador, parada)
+            estado = datos_respuesta.get("requestStatus", {})
+            if estado.get("result", False):
+                return datos_respuesta
+            if estado.get("code") != 207 or time.monotonic() >= limite:
+                motivo = f"{estado.get('code', '')} {estado.get('comment', '')}"
+                raise ObsError(mensaje_de_fallo_obs(motivo))
+            self._esperar_no_listo(parada)
+
+    def _respuesta(self, transporte, identificador, parada):
+        """La respuesta del pedido, salteando eventos y respuestas ajenas."""
+        limite = time.monotonic() + self._TIEMPO_LIMITE
+        while True:
+            mensaje = self._recibir(transporte, parada, limite)
+            if mensaje.get("op") != 7:
+                continue
+            datos = mensaje.get("d", {})
+            if datos.get("requestId") != identificador:
+                continue
+            return datos
+
+    @classmethod
+    def _esperar_no_listo(cls, parada):
+        if parada is not None:
+            parada.wait(cls._ESPERA_NO_LISTO)
+        else:
+            time.sleep(cls._ESPERA_NO_LISTO)
 
     @classmethod
     def _mensaje_seguido(cls, transporte, restante):

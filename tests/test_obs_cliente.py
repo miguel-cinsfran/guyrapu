@@ -181,6 +181,101 @@ class TransporteSinRespuesta(TransporteDoble):
         self.enviados.append(json.loads(mensaje))
 
 
+class TransporteNoListo(TransporteDoble):
+    """Responde con el código 207 las primeras veces y después acepta."""
+
+    def __init__(self, veces=2):
+        super().__init__([])
+        self.veces = veces
+        self.peticiones = 0
+
+    def send(self, mensaje):
+        datos = json.loads(mensaje)
+        self.enviados.append(datos)
+        if datos.get("op") != 6:
+            return
+        self.peticiones += 1
+        if self.peticiones <= self.veces:
+            estado = {"result": False, "code": 207, "comment": "not ready"}
+        else:
+            estado = {"result": True}
+        self.mensajes.append(json.dumps({
+            "op": 7,
+            "d": {
+                "requestId": datos["d"]["requestId"],
+                "requestStatus": estado,
+                "responseData": {"ok": True},
+            },
+        }))
+
+
+class RelojFalso:
+    def __init__(self):
+        self.ahora = 0.0
+
+    def reloj(self):
+        return self.ahora
+
+    def dormir(self, segundos):
+        self.ahora += segundos
+
+
+class ReintentoNoListoTest(unittest.TestCase):
+    def cliente(self, transporte):
+        cliente = obs_cliente.ClienteObs(
+            obs_cliente.AjustesObs(True, 4455, ""), lambda uri: transporte)
+        cliente._transporte = transporte
+        return cliente
+
+    def parchear_reloj(self, reloj):
+        return (
+            mock.patch.object(obs_cliente.time, "monotonic", reloj.reloj),
+            mock.patch.object(obs_cliente.time, "sleep", reloj.dormir),
+        )
+
+    def test_pedir_reintenta_hasta_que_obs_esta_listo(self):
+        transporte = TransporteNoListo(veces=2)
+        cliente = self.cliente(transporte)
+        reloj = RelojFalso()
+        parches = self.parchear_reloj(reloj)
+        with parches[0], parches[1]:
+            resultado = cliente.pedir("GetVersion")
+        self.assertEqual(resultado["responseData"], {"ok": True})
+        self.assertEqual(transporte.peticiones, 3)
+
+    def test_pedir_falla_al_pasar_el_plazo_si_sigue_sin_estar_listo(self):
+        transporte = TransporteNoListo(veces=10 ** 6)
+        cliente = self.cliente(transporte)
+        reloj = RelojFalso()
+        parches = self.parchear_reloj(reloj)
+        with parches[0], parches[1], \
+                self.assertRaises(obs_cliente.ObsError) as contexto:
+            cliente.pedir("GetVersion")
+        self.assertIn("no pudo completar", str(contexto.exception))
+        self.assertGreaterEqual(reloj.ahora, 30.0)
+
+    def test_la_parada_corta_la_espera(self):
+        class ParadaFalsa:
+            def __init__(self):
+                self.puesta = False
+
+            def is_set(self):
+                return self.puesta
+
+            def wait(self, segundos):
+                self.puesta = True
+                return True
+
+        transporte = TransporteNoListo(veces=10 ** 6)
+        cliente = self.cliente(transporte)
+        reloj = RelojFalso()
+        with mock.patch.object(obs_cliente.time, "monotonic", reloj.reloj), \
+                self.assertRaises(obs_cliente.ObsError) as contexto:
+            cliente.pedir("GetVersion", parada=ParadaFalsa())
+        self.assertEqual(str(contexto.exception), "Operación cancelada.")
+        self.assertLess(reloj.ahora, 30.0)
+
+
 class ClienteObsTest(unittest.TestCase):
     def cliente(self, transporte, password=""):
         return obs_cliente.ClienteObs(

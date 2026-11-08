@@ -21,6 +21,8 @@ TEXTO_SIN_RESPUESTA = N_("OBS se abrió pero no responde. Comprueba que su "
 TEXTO_SIN_RESPUESTA_MODO_SEGURO = N_(
     "OBS no responde. Puede estar esperando que contestes si iniciar "
     "en modo seguro: elige Mostrar OBS en el menú OBS.")
+# Traductores: aviso mientras OBS ya está abierto y su servidor termina de iniciar.
+TEXTO_TERMINANDO_DE_ABRIR = N_("Esperando a que OBS termine de abrirse.")
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -98,6 +100,35 @@ def abrir_obs(ruta, popen=subprocess.Popen):
         raise obs_cliente.ObsError(_("No se pudo abrir OBS.")) from error
 
 
+def _esperar_obs_abierto(probar_conexion, al_anunciar, parada, dormir, reloj,
+                         limite=60.0, intervalo=2.0):
+    """Espera a que un OBS ya abierto acepte el WebSocket, sin abrirlo."""
+    try:
+        probar_conexion()
+        return False
+    except Exception as error:
+        logger.debug("OBS abierto todavía no responde, se reintenta: %s", error)
+    if al_anunciar is not None:
+        al_anunciar(_(TEXTO_TERMINANDO_DE_ABRIR))
+    inicio = reloj()
+    while True:
+        if parada is not None and parada.is_set():
+            return False
+        if reloj() - inicio >= limite:
+            raise obs_cliente.ObsError(
+                _(obs_cliente.TEXTO_ABIERTO_SIN_RESPUESTA))
+        if parada is not None and dormir is time.sleep:
+            parada.wait(intervalo)
+        else:
+            dormir(intervalo)
+        try:
+            probar_conexion()
+            return False
+        except Exception as error:
+            logger.debug("OBS abierto todavía no responde, se reintenta: %s",
+                         error)
+
+
 def asegurar_obs(probar_conexion, al_anunciar=None, parada=None,
                  en_ejecucion=obs_activacion.obs_esta_en_ejecucion,
                  buscar=ruta_obs, abrir=abrir_obs,
@@ -108,7 +139,7 @@ def asegurar_obs(probar_conexion, al_anunciar=None, parada=None,
     if parada is not None and parada.is_set():
         return True
     if en_ejecucion():
-        return False
+        return _esperar_obs_abierto(probar_conexion, al_anunciar, parada, dormir, reloj)
     ruta = buscar()
     if not ruta:
         raise ObsNoInstalado(_("OBS no está instalado en este equipo. "
