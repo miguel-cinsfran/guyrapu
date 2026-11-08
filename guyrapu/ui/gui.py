@@ -28,7 +28,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.core import acerca_de, paths
 from guyrapu.core import anuncio_ajuste
 from guyrapu.core import sonidos_eventos
-from guyrapu.capture import deteccion
+from guyrapu.capture import chat_adicional, deteccion
 from guyrapu.capture import metadatos
 from guyrapu.capture import estado_sesion
 from guyrapu.core import historial
@@ -155,7 +155,7 @@ class _LogWx(wx.Log):
 
 # ── Frame principal ──────────────────────────────────────────────────────────
 
-class VentanaPrincipal(wx.Frame):
+class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
 
     def __init__(self, parent, config, cola, stats, worker, parada):
         super().__init__(
@@ -417,7 +417,7 @@ class VentanaPrincipal(wx.Frame):
             autor_oculto=self._autor_esta_oculto,
             formatear=self._format_display,
             al_superchat=self._sumar_superchat,
-            config=self._config)
+            config=self._config, varios_chats=chat_adicional.activo)
         vs.Add(self.lb_chat, 1, wx.EXPAND | wx.ALL, 8)
 
         self._panel_redactar = PanelRedactar(
@@ -1067,7 +1067,7 @@ class VentanaPrincipal(wx.Frame):
             else:
                 menu.Append(id_alias, _("Cambiar &alias de {autor}…").format(autor=autor_mostrado))
 
-        menu_moderacion.agregar(menu, self, registro_sel, autor_mostrado)
+        menu_moderacion.agregar(menu, self, registro_sel, autor_mostrado, chat_adicional.activo())
 
         # Los handlers van sobre el propio menú (no sobre la ventana): así mueren
         # con él y no se acumulan bindings en cada apertura del menú contextual.

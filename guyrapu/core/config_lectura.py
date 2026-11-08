@@ -14,19 +14,36 @@ from __future__ import annotations
 from guyrapu.core.ini_tipado import leer_entero, leer_texto, leer_booleano
 
 
-def opciones_lectura(p) -> dict:
-    """La sección [lectura] como claves en memoria, en el mismo orden."""
+def _formato(p) -> str:
     formato = leer_texto(p, "lectura", "formato_prefijo").lower()
     if formato not in (
             "nombre_mensaje", "mensaje_nombre", "solo_mensaje", "solo_nombre"):
         formato = "nombre_mensaje"
+    return formato
+
+
+def _recientes(p) -> str:
     recientes = leer_texto(p, "lectura", "recientes").lower()
     if recientes not in ("lector", "voz"):
         recientes = "lector"
+    return recientes
+
+
+def _sonido_plataformas(p) -> str:
+    sonido = leer_texto(p, "lectura", "sonido_plataformas").lower()
+    if sonido not in ("varios", "siempre", "nunca"):
+        sonido = "varios"
+    return sonido
+
+
+def opciones_lectura(p) -> dict:
+    """La sección [lectura] como claves en memoria, en el mismo orden."""
     return {
-        "formato_prefijo": formato,
-        "lectura_recientes": recientes,
+        "formato_prefijo": _formato(p),
+        "lectura_recientes": _recientes(p),
         "lectura_atajos_globales": leer_booleano(p, "lectura", "atajos_globales"),
+        "sonido_plataformas": _sonido_plataformas(p),
+        "decir_plataforma": leer_booleano(p, "lectura", "decir_plataforma"),
     }
 
 

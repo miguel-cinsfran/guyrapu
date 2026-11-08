@@ -30,7 +30,7 @@ from guyrapu.core.config import (
     TIPO_SEGUIR, TIPO_COMPARTIR, TIPO_COFRE, TIPO_ME_GUSTA,  # noqa: F401
     configurar_logging, cargar_configuracion, cargar_sonidos,
 )
-from guyrapu.core import avisos_tiktok
+from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core import paths
 from guyrapu.core import migracion_datos
 from guyrapu.core import migracion_nombre
@@ -45,7 +45,7 @@ from guyrapu.capture.reconexion import FiltroNuevos, espera_reconexion
 from guyrapu.core import diagnostico
 from guyrapu.core import avisos_red
 from guyrapu.downloads import ytdlp_bin
-from guyrapu.capture import conexion
+from guyrapu.capture import chat_adicional, conexion
 from guyrapu.capture.filtro_autores import permitido
 from guyrapu.ui.vista_captura import VistaGui
 from guyrapu.capture import alias
@@ -349,7 +349,7 @@ def debe_leer_tts(autor: str, config: dict) -> bool:
 
 def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
                       on_message=None, sesion_activa=None,
-                      etiqueta_monto=N_("Super Chat"), rol=""):
+                      etiqueta_monto=N_("Super Chat"), rol="", plataforma=""):
     """Pipeline común de cada mensaje entrante (YouTube y TikTok): contadores,
     filtros, texto TTS, aviso a la GUI y encolado de lectura.
 
@@ -375,9 +375,9 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
         stats.inc("filtrados"); return
 
     umbral = config.get("umbral_solo_nombre", 0)
-    tts_text = texto_para_leer(
-        autor_visible, ml, mensaje, tipo, monto, umbral, cola,
-        config, etiqueta_monto)
+    tts_text = plataformas.texto_con_nombre(texto_para_leer(
+        autor_visible, ml, mensaje, tipo, monto, umbral, cola, config,
+        etiqueta_monto), plataforma, config, chat_adicional.activo())
 
     hora = datetime.now().strftime('%H:%M:%S')
     if on_message: on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=rol)
@@ -593,7 +593,7 @@ def _captura_en_loop(video_id, cola, config, parada, stats, on_message, on_estad
                         monto = _str(getattr(c, "amountString", None), "")
                     logger.debug("YOUTUBE_EVENTO tipo=%s monto=%s", tipo, monto)
                     procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
-                                      on_message=on_message,
+                                      on_message=on_message, plataforma="youtube",
                                       sesion_activa=sesion_activa, rol=rol)
 
                 err_con = 0

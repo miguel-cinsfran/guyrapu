@@ -55,6 +55,8 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("formato_prefijo", "nombre_mensaje"),
         ("recientes", "lector"),
         ("atajos_globales", "false"),
+        ("sonido_plataformas", "varios"),
+        ("decir_plataforma", "false"),
     ]),
     ("filtros", [
         ("palabras_silenciadas", ""),

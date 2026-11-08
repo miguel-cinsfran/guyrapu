@@ -21,9 +21,7 @@ BITS     = 16
 CANALES  = 2         # Estéreo real: permite un leve paneo por evento para que
                      # el oído los ubique sin pensar (útil sin lectura visual).
 AMP      = 0.55      # Margen sobre 1.0 para evitar clipping al sumar ondas.
-# Raíz del repositorio: la carpeta padre de scripts/.
 RAIZ = Path(__file__).resolve().parent.parent
-# Carpeta base de temas. Cada tema es una subcarpeta con un <evento>.wav.
 THEMES_DIR = RAIZ / "sounds" / "themes"
 
 C4, D4, E4, F4, G4, A4, B4 = 261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88
@@ -1328,7 +1326,6 @@ def s_regalo_mediano():
                              0.006, 0.28), 0.75)
 
 
-# Catálogo de temas: nombre → {archivo (= evento) .wav : generador}.
 TEMAS = {
     "default": {
         "app_inicio.wav":    gen_app_inicio,
@@ -1336,6 +1333,7 @@ TEMAS = {
         "conectado.wav":     gen_conectado,
         "desconectado.wav":  gen_desconectado,
         "mensaje_nuevo.wav": gen_mensaje,
+        "mensaje_tiktok.wav": lambda: _normalizar(_concat(gen_comentario(), _silencio(0.02)), 0.5),
         # Sonidos provisorios de roles hasta que el dueño elija los definitivos.
         "mensaje_propietario.wav": gen_superchat,
         "mensaje_moderador.wav": gen_moderacion,
@@ -1442,6 +1440,7 @@ TEMAS = {
         "conectado.wav":     s_conectado,
         "desconectado.wav":  s_desconectado,
         "mensaje_nuevo.wav": s_mensaje,
+        "mensaje_tiktok.wav": lambda: _normalizar(_concat(s_comentario(), _silencio(0.02)), 0.5),
         # Sonidos provisorios de roles hasta que el dueño elija los definitivos.
         "mensaje_propietario.wav": s_mensaje_propietario,
         "mensaje_moderador.wav": s_moderacion,

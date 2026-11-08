@@ -14,6 +14,7 @@ suena con el evento del mismo nombre.
 import re
 
 from guyrapu.core import diagnostico
+from guyrapu.core import plataformas
 from guyrapu.core.config import (
     TIPO_SUPERCHAT, TIPO_STICKER, TIPO_MIEMBRO, TIPO_ENTRADA,
     TIPO_SEGUIR, TIPO_COMPARTIR, TIPO_COFRE, TIPO_ME_GUSTA,
@@ -102,12 +103,13 @@ def rol_de_autor(autor) -> str:
 
 
 def sonido_de_mensaje(tipo: str, rol: str = "", monto: str = "",
-                      plataforma: str = "") -> str:
+                      plataforma: str = "", propio: bool = False) -> str:
     """Nombre del evento de sonido para un mensaje ya clasificado.
 
     `monto` y `plataforma` solo importan para el regalo de TikTok: llega
     como superchat con «N diamantes» y suena según su tramo; el Super Chat
-    y el sticker de YouTube siguen siendo «superchat».
+    y el sticker de YouTube siguen siendo «superchat». `propio` elige el
+    sonido de la plataforma para un texto común sin rol.
     """
     if tipo == TIPO_SUPERCHAT or tipo == TIPO_STICKER:
         if (plataforma or "").lower() == "tiktok" and tipo == TIPO_SUPERCHAT:
@@ -116,7 +118,23 @@ def sonido_de_mensaje(tipo: str, rol: str = "", monto: str = "",
     sonido = _SONIDO_POR_TIPO.get(tipo)
     if sonido is not None:
         return sonido
+    if not rol and propio:
+        return plataformas.sonido(plataforma)
     return _SONIDO_POR_ROL.get(rol or "", "mensaje_nuevo")
+
+
+def usar_sonido_plataforma(config: dict, varios_chats: bool) -> bool:
+    """Si un mensaje común suena con el sonido propio de su plataforma.
+
+    «siempre» lo usa con uno o varios chats, «nunca» no lo usa nunca y
+    «varios» (de fábrica) solo cuando hay más de un chat.
+    """
+    modo = (config or {}).get("sonido_plataformas", "varios")
+    if modo == "siempre":
+        return True
+    if modo == "nunca":
+        return False
+    return bool(varios_chats)
 
 
 def tramo_regalo(diamantes: int) -> str:

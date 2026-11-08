@@ -4,8 +4,8 @@
 
 EVENTOS = [
     "app_inicio", "conectando", "conectado", "desconectado",
-    "mensaje_nuevo", "mensaje_propietario", "mensaje_moderador",
-    "mensaje_verificado", "mensaje_miembro",
+    "mensaje_nuevo", "mensaje_tiktok", "mensaje_propietario",
+    "mensaje_moderador", "mensaje_verificado", "mensaje_miembro",
     "superchat", "nuevo_miembro", "error",
     "pausa", "reanudar", "copiar", "voz_cambiada",
     # v0.6 online y acciones que antes reutilizaban otros sonidos:
@@ -82,6 +82,7 @@ NOMBRES = {
     "conectado": "Conexión establecida",
     "desconectado": "Desconexión del chat",
     "mensaje_nuevo": "Mensaje nuevo del chat",
+    "mensaje_tiktok": "Mensaje de TikTok",
     "mensaje_propietario": "Mensaje del propietario del canal",
     "mensaje_moderador": "Mensaje del moderador",
     "mensaje_verificado": "Mensaje de una cuenta verificada",

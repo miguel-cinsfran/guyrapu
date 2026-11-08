@@ -217,6 +217,57 @@ class TestSonidoRegaloTikTok(unittest.TestCase):
                 TIPO_STICKER, "", "250 diamantes", "tiktok"), "superchat")
 
 
+class TestSonidoPropioDePlataforma(unittest.TestCase):
+    def test_solo_con_varios_chats(self):
+        self.assertTrue(sonidos_eventos.usar_sonido_plataforma(
+            {"sonido_plataformas": "varios"}, True))
+        self.assertFalse(sonidos_eventos.usar_sonido_plataforma(
+            {"sonido_plataformas": "varios"}, False))
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_TEXTO, "", plataforma="tiktok", propio=True),
+            "mensaje_tiktok")
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_TEXTO, "", plataforma="tiktok", propio=False),
+            "mensaje_nuevo")
+
+    def test_siempre(self):
+        self.assertTrue(sonidos_eventos.usar_sonido_plataforma(
+            {"sonido_plataformas": "siempre"}, False))
+        self.assertTrue(sonidos_eventos.usar_sonido_plataforma(
+            {"sonido_plataformas": "siempre"}, True))
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_TEXTO, "", plataforma="tiktok", propio=True),
+            "mensaje_tiktok")
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_TEXTO, "", plataforma="youtube", propio=True),
+            "mensaje_nuevo")
+
+    def test_nunca(self):
+        self.assertFalse(sonidos_eventos.usar_sonido_plataforma(
+            {"sonido_plataformas": "nunca"}, True))
+        self.assertFalse(sonidos_eventos.usar_sonido_plataforma(
+            {"sonido_plataformas": "nunca"}, False))
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_TEXTO, "", plataforma="tiktok", propio=False),
+            "mensaje_nuevo")
+
+    def test_el_rol_manda_sobre_el_sonido_propio(self):
+        for rol in (sonidos_eventos.ROL_PROPIETARIO,
+                    sonidos_eventos.ROL_MODERADOR,
+                    sonidos_eventos.ROL_VERIFICADO,
+                    sonidos_eventos.ROL_MIEMBRO):
+            with self.subTest(rol=rol):
+                self.assertNotEqual(
+                    sonidos_eventos.sonido_de_mensaje(
+                        TIPO_TEXTO, rol, plataforma="tiktok", propio=True),
+                    "mensaje_tiktok")
+
+
 def _config_minima(**extras):
     base = {
         "usuarios_silenciados": [], "palabras_silenciadas": [],
@@ -252,6 +303,33 @@ class TestProcesarEntranteConRol(unittest.TestCase):
                                queue.Queue(), _config_minima(), main.Stats(),
                                on_message=on_message)
         self.assertEqual(recibidos, [""])
+
+
+class TestTextoDeVozConPlataforma(unittest.TestCase):
+    def _texto(self, plataforma="tiktok", varios=True, decir=True):
+        cola = queue.Queue()
+        config = _config_minima(decir_plataforma=decir)
+        with mock.patch.object(main.chat_adicional, "activo",
+                               return_value=varios):
+            main.procesar_entrante(
+                "Ana", "hola", TIPO_TEXTO, "", "canal", cola, config,
+                main.Stats(), plataforma=plataforma)
+        return cola.get_nowait()["texto_tts"]
+
+    def test_con_varios_chats_y_la_casilla_agrega_el_nombre(self):
+        self.assertTrue(self._texto().endswith(" - TikTok"))
+
+    def test_con_un_chat_no_agrega_el_nombre(self):
+        self.assertFalse(self._texto(varios=False).endswith(" - TikTok"))
+
+    def test_sin_la_casilla_no_agrega_el_nombre(self):
+        self.assertFalse(self._texto(decir=False).endswith(" - TikTok"))
+
+    def test_una_plataforma_falsa_usa_el_nombre_del_registro(self):
+        from guyrapu.core import plataformas
+        nueva = plataformas.Plataforma("twitch", "Twitch", "mensaje_nuevo", False)
+        with mock.patch.dict(plataformas.PLATAFORMAS, {"twitch": nueva}):
+            self.assertTrue(self._texto(plataforma="twitch").endswith(" - Twitch"))
 
 
 class TestCableadoCapturaYouTube(unittest.TestCase):

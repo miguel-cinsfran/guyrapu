@@ -15,6 +15,7 @@ import wx
 from guyrapu.capture.tiktok_captura import debe_pasar_me_gusta
 from guyrapu.core import comando_clip
 from guyrapu.core import diagnostico
+from guyrapu.core import plataformas
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.avisos_tiktok import con_sonido, modo_evento, pasa_filtro
 from guyrapu.core.config import (
@@ -38,10 +39,11 @@ class ControladorChat:
     """Estado y volcado del chat en vivo, separado de la ventana principal."""
 
     def __init__(self, lista, maximo, *, activo, autor_oculto,
-                 formatear, al_superchat, config=None, ajustes_clip=None,
-                 guardar_clip=None, reloj=time.monotonic):
+                 formatear, al_superchat, config=None, varios_chats=None,
+                 ajustes_clip=None, guardar_clip=None, reloj=time.monotonic):
         self.lista = lista
         self._config = config
+        self._varios_chats = varios_chats or (lambda: False)
         self.modelo = ListaChat(maximo)
         self.filtro = None
         self._pendientes: list[MensajeChat] = []
@@ -115,9 +117,16 @@ class ControladorChat:
             self._reproducir(registro)
 
         if visible:
-            self.lista.Append(self._formatear(
-                registro.autor, registro.texto, registro.hora, registro.tipo, registro.monto))
+            self.lista.Append(self._texto_fila(registro))
         return visible
+
+    def _texto_fila(self, registro: MensajeChat) -> str:
+        texto = self._formatear(
+            registro.autor, registro.texto, registro.hora, registro.tipo,
+            registro.monto)
+        if self._varios_chats():
+            texto += plataformas.sufijo(registro.plataforma)
+        return texto
 
     def _reproducir(self, registro: MensajeChat) -> None:
         """Suena el registro según su tipo, con el mismo aviso de siempre."""
@@ -136,8 +145,14 @@ class ControladorChat:
                     registro.tipo, registro.rol, registro.monto,
                     registro.plataforma))
         else:
-            _snd.reproducir(sonidos_eventos.sonido_de_mensaje(registro.tipo,
-                                                              registro.rol))
+            _snd.reproducir(sonidos_eventos.sonido_de_mensaje(
+                registro.tipo, registro.rol, plataforma=registro.plataforma,
+                propio=self._propio_plataforma()))
+
+    def _propio_plataforma(self) -> bool:
+        """Si este mensaje común suena con el sonido propio de su plataforma."""
+        return bool(self._config) and sonidos_eventos.usar_sonido_plataforma(
+            self._config, self._varios_chats())
 
     def volcar(self) -> None:
         """Procesa TODOS los mensajes en espera de una vez: modelo y vista se

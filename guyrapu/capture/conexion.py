@@ -41,10 +41,15 @@ class Conexiones:
         self._crear_hilo = crear_hilo or diagnostico.crear_hilo
         self._registro = registro or RegistroSesiones()
         self._vista = vista if vista is not None else _VistaNula()
+        self._activo = False
 
     @property
     def registro(self):
         return self._registro
+
+    @property
+    def activo(self):
+        return self._activo
 
     def conectar(self, url_raw):
         import main
@@ -61,6 +66,7 @@ class Conexiones:
             self._vista.url_invalida()
             return
         sesion = self._registro.abrir()
+        self._activo = True
         ps, gen = sesion.parada, sesion.gen
 
         def _on_msg(autor, mensaje, hora, tipo=main.TIPO_TEXTO, monto="", canal_id="", rol=""):
@@ -70,22 +76,6 @@ class Conexiones:
             self._vista.agregar_mensaje(
                 autor, mensaje, hora, tipo, monto, canal_id,
                 plataforma="youtube", rol=rol)
-
-        def _on_estado(tipo_estado, texto):
-            if not self._registro.vigente(gen):
-                return  # estado de una sesión anterior: descartar
-            if not self._vista.activa:
-                return
-            if tipo_estado == "conectado":
-                # set_conectado ya anuncia un mensaje claro según el tipo; no
-                # repetimos el texto genérico aquí.
-                self._vista.set_conectado(True)
-                return
-            if tipo_estado in ("error_permanente", "error", "desconectado"):
-                self._vista.set_conectado(False)
-                self._vista.set_titulo("")
-            # El resto de estados (conectando, reintentando, errores) se anuncian.
-            self._vista.anunciar(texto)
 
         def _refrescar_directo():
             try:
@@ -149,7 +139,7 @@ class Conexiones:
                                      daemon=True).start()
                 main.captura_con_reconexion(
                     vid, self._cola, self._config, ps, self._stats,
-                    on_message=_on_msg, on_estado=_on_estado,
+                    on_message=_on_msg, on_estado=lambda t, x: self._estado_youtube(gen, t, x),
                     sesion_activa=lambda: self._registro.vigente(gen))
                 # Solo refrescar la UI a «desconectado» si seguimos siendo la
                 # sesión activa: un hilo viejo que termina tarde no debe apagar
@@ -169,6 +159,23 @@ class Conexiones:
 
         self._crear_hilo(_run, "Chat").start()
 
+    def _estado_youtube(self, gen, tipo_estado, texto):
+        if not self._registro.vigente(gen):
+            return  # estado de una sesión anterior: descartar
+        if not self._vista.activa:
+            return
+        if tipo_estado == "conectado":
+            # set_conectado ya anuncia un mensaje claro según el tipo; no
+            # repetimos el texto genérico aquí.
+            self._vista.set_conectado(True)
+            return
+        if tipo_estado in ("error_permanente", "error", "desconectado"):
+            self._terminar()
+            self._vista.set_conectado(False)
+            self._vista.set_titulo("")
+        # El resto de estados (conectando, reintentando, errores) se anuncian.
+        self._vista.anunciar(texto)
+
     def _difundir(self, autor, mensaje, plataforma, tipo, monto):
         if va_al_chat_en_el_video(tipo):
             overlay_servidor.difundir(
@@ -180,6 +187,7 @@ class Conexiones:
         import main
         offline_pasajero = self._vista.conexion_propia is True
         sesion = self._registro.abrir()
+        self._activo = True
         ps, gen = sesion.parada, sesion.gen
 
         def _on_msg(autor, mensaje, hora, tipo=main.TIPO_TEXTO, monto="", canal_id="", rol=""):
@@ -198,7 +206,7 @@ class Conexiones:
                 autor, mensaje, tipo, monto, canal_id,
                 self._cola, self._config, self._stats, on_message=_on_msg,
                 sesion_activa=lambda: self._registro.vigente(gen),
-                etiqueta_monto="Regalo")
+                etiqueta_monto="Regalo", plataforma="tiktok")
 
         def _on_estado(tipo_estado, texto):
             if not self._registro.vigente(gen):
@@ -217,6 +225,7 @@ class Conexiones:
                 return  # set_conectado ya anuncia el mensaje adecuado
             elif tipo_estado in ("error_permanente", "error"):
                 _snd.reproducir("error")
+                self._terminar()
                 self._vista.set_conectado(False)
                 self._vista.set_titulo("")
             elif tipo_estado in ("desconectado", "fin_directo"):
@@ -224,6 +233,7 @@ class Conexiones:
                 # el sonido que reproduce set_conectado al desconectar.
                 sonido = ("fin_directo" if tipo_estado == "fin_directo"
                           else "desconectado")
+                self._terminar()
                 self._vista.set_conectado(False, sonido)
                 self._vista.set_titulo("")
             elif tipo_estado in ("directo_pausado", "directo_reanudado"):
@@ -269,4 +279,21 @@ class Conexiones:
         self._crear_hilo(_run, "TikTok").start()
 
     def desconectar(self):
+        self._terminar()
         self._registro.cerrar()
+
+    def _terminar(self):
+        self._activo = False
+        from guyrapu.capture import chat_adicional
+        chat_adicional.detener()
+
+    def conectar_adicional(self, url):
+        from guyrapu.capture import chat_adicional
+        return chat_adicional.conectar(
+            url, principal_activo=lambda: self._activo, cola=self._cola,
+            config=self._config, stats=self._stats, parada=self._parada_app,
+            crear_hilo=self._crear_hilo)
+
+    def detener_adicional(self):
+        from guyrapu.capture import chat_adicional
+        chat_adicional.detener()

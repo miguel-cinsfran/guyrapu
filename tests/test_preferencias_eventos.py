@@ -55,6 +55,8 @@ CONTROLES_EN_ORDEN = (
     "cho_evento_encuesta",
     "cho_evento_meta",
     "cho_evento_batalla",
+    "cho_sonido_plataformas",
+    "chk_decir_plataforma",
 )
 
 
@@ -165,6 +167,7 @@ class TestControlesEventos(BaseEventos):
                     "Agrupar entradas durante (segund&os):")
             if atributo == "cho_evento_me_gusta":
                 esperadas.append("&Agrupar me gusta durante (segundos):")
+        esperadas.append("Sonido propio de cada plataforma")
         self.assertEqual(etiquetas, esperadas)
 
     def test_el_contador_de_me_gusta_va_despues_de_su_lista(self):
@@ -235,6 +238,38 @@ class TestControlesEventos(BaseEventos):
         for _atributo, _en_memoria, _etiqueta, _nombre in EVENTOS_ESPERADOS:
             with self.subTest(atributo=_atributo):
                 self.assertIs(getattr(dialogo, _atributo).GetParent(), pagina)
+
+    def test_los_controles_de_sonido_y_nombre_de_plataforma(self):
+        dialogo = self._dialogo()
+        sonido = dialogo.cho_sonido_plataformas
+        self.assertEqual(sonido.GetName(), "Sonido propio de cada plataforma")
+        self.assertEqual(
+            [sonido.GetString(i) for i in range(sonido.GetCount())],
+            ["Solo con varios chats", "Siempre", "Nunca"])
+        self.assertEqual(sonido.GetValue(), "varios")
+        casilla = dialogo.chk_decir_plataforma
+        self.assertEqual(
+            casilla.GetName(),
+            "Anunciar qué plataforma tiene cada mensaje cuando hay varios chats")
+        self.assertFalse(casilla.GetValue())
+        pagina = self._pagina(dialogo, "PagEventos")
+        controles = [h for h in pagina.GetChildren()
+                     if isinstance(h, (gui.wx.Choice, gui.wx.CheckBox))]
+        indice = controles.index(sonido)
+        self.assertIs(controles[indice + 1], casilla)
+
+    def test_guardar_sonido_y_nombre_de_plataforma_en_lectura(self):
+        dialogo = self._dialogo()
+        dialogo.cho_sonido_plataformas.SetValue("siempre")
+        dialogo.chk_decir_plataforma.SetValue(True)
+        with mock.patch.object(gui_preferencias._snd, "reproducir"),                 mock.patch.object(preferencias_transmision, "anunciar"),                 mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        self.assertEqual(dialogo._config.get("sonido_plataformas"), "siempre")
+        self.assertTrue(dialogo._config.get("decir_plataforma"))
+        parser = config._mk_parser()
+        parser.read(self.ruta / "config.ini", encoding="utf-8")
+        self.assertEqual(parser.get("lectura", "sonido_plataformas"), "siempre")
+        self.assertEqual(parser.get("lectura", "decir_plataforma"), "true")
 
     def test_los_mnemonicos_de_eventos_no_se_repiten(self):
         dialogo = self._dialogo()

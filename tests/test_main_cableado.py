@@ -430,7 +430,8 @@ class PruebasFiltroReconexion(unittest.TestCase):
         parada = _Parada()
 
         def procesar(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
-                     on_message=None, sesion_activa=None, rol=""):
+                     on_message=None, sesion_activa=None, rol="",
+                     plataforma=""):
             if mensaje == "X" and not corte:
                 corte.append(datetime.now(timezone.utc))
             procesados.append(mensaje)
@@ -461,7 +462,8 @@ class PruebasFiltroReconexion(unittest.TestCase):
         parada = _Parada()
 
         def procesar(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
-                     on_message=None, sesion_activa=None, rol=""):
+                     on_message=None, sesion_activa=None, rol="",
+                     plataforma=""):
             parada.set()
 
         config = {"reconectar": True, "max_intentos": 0,

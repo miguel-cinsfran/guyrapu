@@ -667,6 +667,25 @@ class TestCargarConfiguracion(unittest.TestCase):
         cfg = self._cargar_en("[voz]\nvolumen = 1.0\n")
         self.assertEqual(cfg["lectura_recientes"], "lector")
 
+    def test_sonido_de_plataforma_se_conserva(self):
+        for modo in ("varios", "siempre", "nunca"):
+            with self.subTest(modo=modo):
+                cfg = self._cargar_en(
+                    "[lectura]\nsonido_plataformas = " + modo + "\n")
+                self.assertEqual(cfg["sonido_plataformas"], modo)
+
+    def test_sonido_de_plataforma_invalido_o_ausente_es_varios(self):
+        cfg = self._cargar_en("[lectura]\nsonido_plataformas = raro\n")
+        self.assertEqual(cfg["sonido_plataformas"], "varios")
+        cfg = self._cargar_en("[voz]\nvolumen = 1.0\n")
+        self.assertEqual(cfg["sonido_plataformas"], "varios")
+
+    def test_decir_plataforma_se_lee_y_por_defecto_es_falso(self):
+        cfg = self._cargar_en("[lectura]\ndecir_plataforma = true\n")
+        self.assertTrue(cfg["decir_plataforma"])
+        cfg = self._cargar_en("[voz]\nvolumen = 1.0\n")
+        self.assertFalse(cfg["decir_plataforma"])
+
     def test_destino_de_transmision_ausente_queda_vacio(self):
         cfg = self._cargar_en("[voz]\nvoz = 0\n")
         self.assertEqual(cfg["transmision_destino"], "")
@@ -935,7 +954,7 @@ class TestCargarConfiguracion(unittest.TestCase):
             "Al 100% en Champions",
             "Jugando #3 ; ranked",
             "línea uno\nlínea dos",
-            "C:\\carpeta\\nueva",
+            "C:\\carpeta\nueva",
             "50%% y %(x)s",
             "mezcla \\ % # ;\n fin",
         ]

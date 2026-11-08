@@ -63,6 +63,10 @@ OPCIONES_EVENTOS = (
      str, "principal"),
     ("cho_evento_batalla", "eventos", "batalla", "evento_batalla",
      str, "principal"),
+    ("cho_sonido_plataformas", "lectura", "sonido_plataformas",
+     "sonido_plataformas", str, "varios"),
+    ("chk_decir_plataforma", "lectura", "decir_plataforma",
+     "decir_plataforma", bool, False),
 )
 
 
@@ -89,23 +93,45 @@ class PaginaEventos:
             _tc(lista)
             setattr(self, "cho_evento_" + clave, lista)
             grilla.Add(lista, 0, wx.EXPAND)
-            if clave == "entrada":
-                self._agregar_agrupacion(
-                    grilla, p, "agrupar_entradas",
-                    _("Agrupar ent&radas"), _("Agrupar entradas"),
-                    _("Agrupar entradas durante (segund&os):"),
-                    _("Agrupar entradas durante, en segundos"),
-                    "sp_segundos_entradas")
-            if clave == "me_gusta":
-                self._agregar_agrupacion(
-                    grilla, p, "agrupar_me_gusta",
-                    _("Agru&par me gusta"), _("Agrupar me gusta"),
-                    _("&Agrupar me gusta durante (segundos):"),
-                    _("Agrupar me gusta durante, en segundos"),
-                    "sp_segundos_me_gusta")
+            self._agregar_agrupaciones(grilla, p, clave)
+        self._agregar_plataformas(grilla, p)
         vs.Add(grilla, 1, wx.EXPAND | wx.ALL, 10)
         p.SetSizer(vs)
         return p
+
+    def _agregar_agrupaciones(self, grilla, p, clave):
+        if clave == "entrada":
+            self._agregar_agrupacion(
+                grilla, p, "agrupar_entradas",
+                _("Agrupar ent&radas"), _("Agrupar entradas"),
+                _("Agrupar entradas durante (segund&os):"),
+                _("Agrupar entradas durante, en segundos"),
+                "sp_segundos_entradas")
+        if clave == "me_gusta":
+            self._agregar_agrupacion(
+                grilla, p, "agrupar_me_gusta",
+                _("Agru&par me gusta"), _("Agrupar me gusta"),
+                _("&Agrupar me gusta durante (segundos):"),
+                _("Agrupar me gusta durante, en segundos"),
+                "sp_segundos_me_gusta")
+
+    def _agregar_plataformas(self, grilla, p):
+        texto_sonido = _("Sonido propio de cada plataforma")
+        grilla.Add(self._fila_label(p, texto_sonido), 0,
+                   wx.ALIGN_CENTER_VERTICAL)
+        self.cho_sonido_plataformas = EleccionTexto(
+            p, (("varios", _("Solo con varios chats")),
+                ("siempre", _("Siempre")),
+                ("nunca", _("Nunca"))),
+            name=texto_sonido)
+        _tc(self.cho_sonido_plataformas)
+        grilla.Add(self.cho_sonido_plataformas, 0, wx.EXPAND)
+        self.chk_decir_plataforma = wx.CheckBox(
+            p, label=_("Anunciar &qué plataforma tiene cada mensaje cuando hay varios chats"),
+            name=_("Anunciar qué plataforma tiene cada mensaje cuando hay varios chats"))
+        self.chk_decir_plataforma.SetForegroundColour(_T.text)
+        grilla.Add((0, 0), 0)
+        grilla.Add(self.chk_decir_plataforma, 0, wx.EXPAND)
 
     def _agregar_agrupacion(self, grilla, padre, clave, etiqueta, nombre,
                             etiqueta_contador, nombre_contador, atributo):

@@ -23,23 +23,6 @@ msgstr ""
 msgid "Super Chat"
 msgstr "Super Chat"
 
-#. Traductores: {etiqueta} es «Super Chat» o «Regalo».
-#: main.py
-#, python-brace-format
-msgid "{etiqueta} de {autor}: {monto}. {mensaje}"
-msgstr "{etiqueta} from {autor}: {monto}. {mensaje}"
-
-#: main.py
-#, python-brace-format
-msgid "{etiqueta} de {autor}: {monto}"
-msgstr "{etiqueta} from {autor}: {monto}"
-
-#. Traductores: autor cuando el chat no da el nombre; una sola palabra.
-#. Traductores: autor cuando YouTube no da el nombre; una sola palabra.
-#: guyrapu/voice/tts_worker.py guyrapu/youtube/youtube_api.py main.py
-msgid "Usuario"
-msgstr "User"
-
 #: main.py
 msgid "Chat reconectado."
 msgstr "Chat reconnected."
@@ -96,6 +79,12 @@ msgstr "Connecting to the live stream…"
 #: main.py
 msgid "Conectado. Esperando mensajes…"
 msgstr "Connected. Waiting for messages…"
+
+#. Traductores: autor cuando el chat no da el nombre; una sola palabra.
+#. Traductores: autor cuando YouTube no da el nombre; una sola palabra.
+#: guyrapu/core/lectura_eventos.py guyrapu/youtube/youtube_api.py main.py
+msgid "Usuario"
+msgstr "User"
 
 #: main.py
 msgid "Chat en lectura."
@@ -728,6 +717,27 @@ msgstr "{nombre} {puntos}"
 #, python-brace-format
 msgid "Batalla en curso: {lista}"
 msgstr "Battle in progress: {lista}"
+
+#: guyrapu/capture/chat_adicional.py
+msgid "TikTok: "
+msgstr "TikTok: "
+
+#: guyrapu/capture/chat_adicional.py guyrapu/ui/gui.py
+msgid "Conectado al directo. Leyendo el chat."
+msgstr "Connected to the live stream. Reading the chat."
+
+#: guyrapu/capture/chat_adicional.py
+msgid "Conecta primero un directo de YouTube para leer un chat adicional de TikTok."
+msgstr "Connect a YouTube live stream first to read an additional TikTok chat."
+
+#: guyrapu/capture/chat_adicional.py
+msgid "El enlace no es de un directo de TikTok."
+msgstr "The link is not a TikTok live stream."
+
+#: guyrapu/capture/chat_adicional.py
+#, python-brace-format
+msgid "Ya estás leyendo el chat de TikTok de @{usuario}."
+msgstr "You are already reading the TikTok chat of @{usuario}."
 
 #. Traductores: rótulo en Preferencias del componente de F2.
 #: guyrapu/capture/componentes_estado.py
@@ -1968,6 +1978,28 @@ msgstr "{autor} sent {n} likes"
 #, python-brace-format
 msgid "{autor} dio me gusta"
 msgstr "{autor} liked"
+
+#. Traductores: {m} es el mensaje y {a} su autor; se lee en voz alta.
+#: guyrapu/core/lectura_eventos.py
+#, python-brace-format
+msgid "{m}, de {a}"
+msgstr "{m}, by {a}"
+
+#: guyrapu/core/lectura_eventos.py
+#, python-brace-format
+msgid "{autor}: {mensaje}"
+msgstr "{autor}: {mensaje}"
+
+#. Traductores: {etiqueta} es «Super Chat» o «Regalo».
+#: guyrapu/core/lectura_eventos.py
+#, python-brace-format
+msgid "{etiqueta} de {autor}: {monto}. {mensaje}"
+msgstr "{etiqueta} from {autor}: {monto}. {mensaje}"
+
+#: guyrapu/core/lectura_eventos.py
+#, python-brace-format
+msgid "{etiqueta} de {autor}: {monto}"
+msgstr "{etiqueta} from {autor}: {monto}"
 
 #. Traductores: encabezado de las novedades de una versión.
 #: guyrapu/core/novedades.py
@@ -4433,6 +4465,15 @@ msgid "{fuente} - copia {n}"
 msgstr "{fuente} - copy {n}"
 
 #: guyrapu/obs/transmision_directa.py
+msgid "OBS ya está transmitiendo. Con este mismo botón puedes finalizar el directo."
+msgstr "OBS is already broadcasting. This same button can end the live stream."
+
+#: guyrapu/obs/transmision_directa.py guyrapu/ui/boton_directo.py
+#: guyrapu/ui/directo_panel.py guyrapu/ui/inicio_youtube.py
+msgid "No se transmitió."
+msgstr "Did not broadcast."
+
+#: guyrapu/obs/transmision_directa.py
 msgid "Finalizando el directo"
 msgstr "Ending the live stream"
 
@@ -5679,17 +5720,8 @@ msgid "Aceptar"
 msgstr "OK"
 
 #: guyrapu/ui/boton_directo.py guyrapu/ui/directo_panel.py
-#: guyrapu/ui/inicio_youtube.py
-msgid "No se transmitió."
-msgstr "Did not broadcast."
-
-#: guyrapu/ui/boton_directo.py guyrapu/ui/directo_panel.py
 msgid "Revisando OBS antes de transmitir."
 msgstr "Checking OBS before broadcasting."
-
-#: guyrapu/ui/boton_directo.py guyrapu/ui/directo_panel.py
-msgid "OBS ya está transmitiendo. Con este mismo botón puedes finalizar el directo."
-msgstr "OBS is already broadcasting. This same button can end the live stream."
 
 #: guyrapu/ui/boton_directo.py guyrapu/ui/directo_panel.py
 msgid "Sigues transmitiendo."
@@ -7482,16 +7514,6 @@ msgstr "Change &alias of {autor}…"
 
 #: guyrapu/ui/gui.py
 #, python-brace-format
-msgid "Suspender temporalmente a {autor} (5 minutos)"
-msgstr "Put {autor} in timeout (5 minutes)"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Ocultar a {autor} en el canal de YouTube"
-msgstr "Hide {autor} on the YouTube channel"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
 msgid "Alias para {autor}. Déjalo vacío para eliminarlo."
 msgstr "Alias for {autor}. Leave it empty to remove it."
 
@@ -7564,10 +7586,6 @@ msgstr "&Exit"
 #: guyrapu/ui/gui.py
 msgid "Cerrando"
 msgstr "Closing"
-
-#: guyrapu/ui/gui.py
-msgid "Conectado al directo. Leyendo el chat."
-msgstr "Connected to the live stream. Reading the chat."
 
 #: guyrapu/ui/gui.py
 msgid "Directo programado. Aún no hay chat; puedes ver los comentarios."
@@ -9416,6 +9434,26 @@ msgid_plural "El chat tiene {n} mensajes."
 msgstr[0] "The chat has {n} message."
 msgstr[1] "The chat has {n} messages."
 
+#: guyrapu/ui/menu_moderacion.py
+#, python-brace-format
+msgid "Suspender temporalmente a {autor} en {plataforma} (5 minutos)"
+msgstr "Put {autor} in timeout on {plataforma} (5 minutes)"
+
+#: guyrapu/ui/menu_moderacion.py
+#, python-brace-format
+msgid "Suspender temporalmente a {autor} (5 minutos)"
+msgstr "Put {autor} in timeout (5 minutes)"
+
+#: guyrapu/ui/menu_moderacion.py
+#, python-brace-format
+msgid "Ocultar a {autor} en el canal de {plataforma}"
+msgstr "Hide {autor} on the {plataforma} channel"
+
+#: guyrapu/ui/menu_moderacion.py
+#, python-brace-format
+msgid "{plataforma} no permite moderar desde Guyrapu"
+msgstr "{plataforma} does not allow moderation from Guyrapu"
+
 #: guyrapu/ui/menu_obs.py
 msgid "Anunciar en&cuadre de cámara"
 msgstr "Announce camera &framing"
@@ -9552,6 +9590,14 @@ msgstr "&Name:"
 msgid "Nombre de la lista"
 msgstr "Playlist name"
 
+#: guyrapu/ui/musica_editor_lista.py
+msgid "&Canciones de la lista:"
+msgstr "&Playlist songs:"
+
+#: guyrapu/ui/musica_editor_lista.py
+msgid "Canciones de la lista"
+msgstr "Playlist songs"
+
 #: guyrapu/ui/musica_editor_lista.py guyrapu/ui/musica_ventana.py
 msgid "&Buscar:"
 msgstr "F&ind:"
@@ -9560,13 +9606,13 @@ msgstr "F&ind:"
 msgid "Buscar canciones"
 msgstr "Find songs"
 
-#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/musica_ventana.py
-msgid "C&anciones:"
-msgstr "Son&gs:"
-
 #: guyrapu/ui/musica_editor_lista.py
-msgid "Canciones de la lista"
-msgstr "Playlist songs"
+msgid "&Todas las canciones:"
+msgstr "&All songs:"
+
+#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/musica_filtros.py
+msgid "Todas las canciones"
+msgstr "All songs"
 
 #: guyrapu/ui/musica_editor_lista.py
 msgid "Canción"
@@ -9576,9 +9622,21 @@ msgstr "Song"
 msgid "Guardar"
 msgstr "Save"
 
-#: guyrapu/ui/musica_filtros.py
-msgid "Todas las canciones"
-msgstr "All songs"
+#. Traductores: {nombre} es la canción y {n} cuántas hay en total.
+#: guyrapu/ui/musica_editor_lista.py
+#, python-brace-format
+msgid "Agregada a la lista: {nombre}. {n} canción en total"
+msgid_plural "Agregada a la lista: {nombre}. {n} canciones en total"
+msgstr[0] "Added to the list: {nombre}. {n} song in total"
+msgstr[1] "Added to the list: {nombre}. {n} songs in total"
+
+#. Traductores: {nombre} es la canción y {n} cuántas quedan.
+#: guyrapu/ui/musica_editor_lista.py
+#, python-brace-format
+msgid "Eliminada de la lista: {nombre}. Queda {n} canción"
+msgid_plural "Eliminada de la lista: {nombre}. Quedan {n} canciones"
+msgstr[0] "Removed from the list: {nombre}. {n} song left"
+msgstr[1] "Removed from the list: {nombre}. {n} songs left"
 
 #: guyrapu/ui/musica_filtros.py
 msgid "Or&denar por:"
@@ -9625,6 +9683,10 @@ msgstr "Playback queue"
 #: guyrapu/ui/musica_ventana.py
 msgid "Co&lecciones:"
 msgstr "Co&llections:"
+
+#: guyrapu/ui/musica_ventana.py
+msgid "C&anciones:"
+msgstr "Son&gs:"
 
 #. Traductores: abre el diálogo del enlace; segunda, su nombre accesible.
 #: guyrapu/ui/musica_ventana.py
@@ -10048,6 +10110,30 @@ msgstr "Group likes &for (seconds):"
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Agrupar me gusta durante, en segundos"
 msgstr "Group likes for, in seconds"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Sonido propio de cada plataforma"
+msgstr "Each platform's own sound"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Solo con varios chats"
+msgstr "Only with multiple chats"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Siempre"
+msgstr "Always"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Nunca"
+msgstr "Never"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Anunciar &qué plataforma tiene cada mensaje cuando hay varios chats"
+msgstr "Announce &which platform each message has when there are multiple chats"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Anunciar qué plataforma tiene cada mensaje cuando hay varios chats"
+msgstr "Announce which platform each message has when there are multiple chats"
 
 #: guyrapu/ui/preferencias_general.py
 msgid "El idioma nuevo se aplica al reiniciar la aplicación."
@@ -11345,17 +11431,6 @@ msgstr "Could not import Prism for the {nombre} engine: {detalle}"
 msgid "No se pudo iniciar el motor {nombre}: {detalle}"
 msgstr "Could not start the {nombre} engine: {detalle}"
 
-#. Traductores: {m} es el mensaje y {a} su autor; se lee en voz alta.
-#: guyrapu/voice/tts_worker.py
-#, python-brace-format
-msgid "{m}, de {a}"
-msgstr "{m}, by {a}"
-
-#: guyrapu/voice/tts_worker.py
-#, python-brace-format
-msgid "{autor}: {mensaje}"
-msgstr "{autor}: {mensaje}"
-
 #. Traductores: privacidad del directo; una sola palabra.
 #: guyrapu/youtube/emision.py
 msgid "Público"
@@ -11544,28 +11619,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/musica_editor_lista.py
-msgid "&Canciones de la lista:"
-msgstr "&Playlist songs:"
-
-#: guyrapu/ui/musica_editor_lista.py
-msgid "&Todas las canciones:"
-msgstr "&All songs:"
-
-#. Traductores: {nombre} es la canción y {n} cuántas hay en total.
-#: guyrapu/ui/musica_editor_lista.py
-#, python-brace-format
-msgid "Agregada a la lista: {nombre}. {n} canción en total"
-msgid_plural "Agregada a la lista: {nombre}. {n} canciones en total"
-msgstr[0] "Added to the list: {nombre}. {n} song in total"
-msgstr[1] "Added to the list: {nombre}. {n} songs in total"
-
-#. Traductores: {nombre} es la canción y {n} cuántas quedan.
-#: guyrapu/ui/musica_editor_lista.py
-#, python-brace-format
-msgid "Eliminada de la lista: {nombre}. Queda {n} canción"
-msgid_plural "Eliminada de la lista: {nombre}. Quedan {n} canciones"
-msgstr[0] "Removed from the list: {nombre}. {n} song left"
-msgstr[1] "Removed from the list: {nombre}. {n} songs left"
 

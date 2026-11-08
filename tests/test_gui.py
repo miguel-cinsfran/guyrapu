@@ -1180,6 +1180,7 @@ class MenuChatFalso:
     def __init__(self):
         self.etiquetas = {}
         self.handlers = {}
+        self.deshabilitados = set()
 
     def Append(self, identificador, etiqueta):
         self.etiquetas[identificador] = etiqueta
@@ -1189,6 +1190,10 @@ class MenuChatFalso:
 
     def Bind(self, _evento, handler, id):
         self.handlers[id] = handler
+
+    def Enable(self, identificador, habilitado):
+        if not habilitado:
+            self.deshabilitados.add(identificador)
 
     def Destroy(self):
         pass
@@ -1520,6 +1525,69 @@ class TestMeGustaEnLaLista(unittest.TestCase):
         self.assertEqual(frame._filas[1], "Ana dio 3 me gusta, 12:00")
         sonidos = [llamada.args[0] for llamada in reproducir.call_args_list]
         self.assertEqual(sonidos.count("me_gusta"), 1)
+
+
+class TestVariosChatsEnLaLista(unittest.TestCase):
+    """La fila y el sonido de un mensaje salen del registro de plataformas."""
+
+    def setUp(self):
+        from guyrapu.capture import chat_adicional
+        self.chat_adicional = chat_adicional
+        self.instancia = mock.Mock()
+        self.instancia.activo.return_value = True
+        parche = mock.patch.object(chat_adicional, "_INSTANCIA", self.instancia)
+        parche.start()
+        self.addCleanup(parche.stop)
+
+    def _chat(self):
+        from guyrapu.ui.chat_vivo import ControladorChat
+        lista = mock.Mock()
+        filas = []
+        lista.Append.side_effect = filas.append
+        chat = ControladorChat(
+            lista, 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=lambda autor, texto, hora, tipo, monto: texto,
+            al_superchat=mock.Mock(),
+            config={"limpiar_emojis": True,
+                    "sonido_plataformas": "varios"},
+            varios_chats=self.chat_adicional.activo)
+        return chat, filas
+
+    def _registro(self, plataforma="tiktok"):
+        return MensajeChat(plataforma=plataforma, autor="Ana",
+                           identificador="C", texto="hola", hora="12:00",
+                           tipo="text", monto="", rol="")
+
+    def test_con_varios_chats_la_fila_y_el_sonido_llevan_la_plataforma(self):
+        chat, filas = self._chat()
+        with mock.patch.object(gui._snd, "reproducir") as reproducir:
+            self.assertTrue(chat._procesar(self._registro()))
+        self.assertEqual(filas, ["hola - TikTok"])
+        self.assertEqual(reproducir.call_args.args[0], "mensaje_tiktok")
+
+    def test_youtube_con_varios_chats_tambien_se_distingue(self):
+        chat, filas = self._chat()
+        with mock.patch.object(gui._snd, "reproducir") as reproducir:
+            self.assertTrue(chat._procesar(self._registro("youtube")))
+        self.assertEqual(filas, ["hola - YouTube"])
+        self.assertEqual(reproducir.call_args.args[0], "mensaje_nuevo")
+
+    def test_con_un_chat_todo_queda_como_hoy(self):
+        self.instancia.activo.return_value = False
+        chat, filas = self._chat()
+        with mock.patch.object(gui._snd, "reproducir") as reproducir:
+            self.assertTrue(chat._procesar(self._registro()))
+        self.assertEqual(filas, ["hola"])
+        self.assertEqual(reproducir.call_args.args[0], "mensaje_nuevo")
+
+    def test_una_plataforma_falsa_usa_el_nombre_del_registro(self):
+        from guyrapu.core import plataformas
+        nueva = plataformas.Plataforma("twitch", "Twitch", "mensaje_nuevo", False)
+        chat, filas = self._chat()
+        with mock.patch.dict(plataformas.PLATAFORMAS, {"twitch": nueva}):
+            chat._procesar(self._registro("twitch"))
+        self.assertEqual(filas, ["hola - Twitch"])
 
 
 class TestProgramadosEnPreferencias(unittest.TestCase):
@@ -1901,6 +1969,8 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("voz", "elevenlabs_solo_importantes"),
             ("lectura", "formato_prefijo"), ("lectura", "recientes"),
             ("lectura", "atajos_globales"),
+            ("lectura", "sonido_plataformas"),
+            ("lectura", "decir_plataforma"),
             ("texto", "limpiar_emojis"), ("texto", "eliminar_urls"),
             ("eventos", "superchat"), ("eventos", "miembro"),
             ("eventos", "entrada"), ("eventos", "me_gusta"),

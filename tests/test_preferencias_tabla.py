@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la tabla de opciones simples de Preferencias.
 
-La lista de 52 va literal en este módulo, no se lee de la tabla nueva:
+La lista de 54 va literal en este módulo, no se lee de la tabla nueva:
 así protege la tabla en vez de repetirla.
 """
 
@@ -74,6 +74,8 @@ OPCIONES_ESPERADAS = [
     ("chk_musica_normalizar", "musica", "normalizar", "musica_normalizar", bool),
     ("chk_musica_preguntar_igualar", "musica", "preguntar_igualar", "musica_preguntar_igualar", bool),
     ("chk_musica_atajos_globales", "musica", "atajos_globales", "musica_atajos_globales", bool),
+    ("cho_sonido_plataformas", "lectura", "sonido_plataformas", "sonido_plataformas", str),
+    ("chk_decir_plataforma", "lectura", "decir_plataforma", "decir_plataforma", bool),
 ]
 
 VALORES_SPIN = {
@@ -127,17 +129,18 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                                       "evento_cofre": "secundaria",
                                       "evento_encuesta": "secundaria",
                                       "evento_meta": "secundaria",
-                                      "evento_batalla": "secundaria"}.get(
+                                      "evento_batalla": "secundaria",
+                                      "sonido_plataformas": "siempre"}.get(
                                           en_memoria, "tema")
             else:
                 config[en_memoria] = por_defecto + 1
         return config
 
-    def test_tabla_tiene_51_filas_sin_repetir_y_cada_atributo_existe(self):
+    def test_tabla_tiene_54_filas_sin_repetir_y_cada_atributo_existe(self):
         tabla = gui_preferencias._OPCIONES_SIMPLES
-        self.assertEqual(len(tabla), 52)
+        self.assertEqual(len(tabla), 54)
         atributos = [fila[0] for fila in tabla]
-        self.assertEqual(len(set(atributos)), 52)
+        self.assertEqual(len(set(atributos)), 54)
         dialogo = self._dialogo()
         for atributo in atributos:
             with self.subTest(atributo=atributo):
@@ -324,6 +327,8 @@ class TestPorDefectoContraFabrica(unittest.TestCase):
                 return (texto if texto in ("lector", "voz") else "lector")
             if clave == "idioma":
                 return texto
+            if clave == "sonido_plataformas":
+                return texto if texto in ("varios", "siempre", "nunca") else "varios"
             if clave in ("superchat", "miembro", "entrada", "me_gusta",
                          "seguir", "compartir", "cofre", "encuesta",
                          "meta", "batalla"):
