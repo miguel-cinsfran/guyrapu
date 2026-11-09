@@ -16,8 +16,11 @@ from typing import Callable
 
 import wx
 
+from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro
+from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.voice import sound_player as _snd
 
 _TECLAS = {
     wx.WXK_RETURN: "intro",
@@ -27,10 +30,16 @@ _TECLAS = {
     wx.WXK_NUMPAD_DELETE: "suprimir",
 }
 
+_TECLAS_CON_CONTROL = {
+    ord("D"): "ctrl+d",
+    ord("d"): "ctrl+d",
+}
+
 _SUFIJOS = {
     "intro": "\tEnter",
     "f2": "\tF2",
     "suprimir": "\tDel",
+    "ctrl+d": "\tCtrl+D",
 }
 
 # La tecla y el menú contextual pueden llegar los dos en la misma pulsación.
@@ -48,12 +57,22 @@ class Accion:
     necesita_elemento: bool = True
 
 
+def _tecla_nombrada(codigo, modificadores) -> str | None:
+    """El nombre de la tecla, o None si esa pulsación no es una acción."""
+    if codigo in _TECLAS_CON_CONTROL:
+        if (modificadores & wx.MOD_CONTROL
+                and not modificadores & (wx.MOD_ALT | wx.MOD_SHIFT)):
+            return _TECLAS_CON_CONTROL[codigo]
+        return None
+    return _TECLAS.get(codigo)
+
+
 def clave_de_tecla(codigo: int, modificadores: int, acciones) -> str | None:
     """La clave de la acción para esa tecla, "menu", o None si no le toca."""
     if (codigo == wx.WXK_WINDOWS_MENU
             or (codigo == wx.WXK_F10 and modificadores & wx.MOD_SHIFT)):
         return "menu"
-    tecla = _TECLAS.get(codigo)
+    tecla = _tecla_nombrada(codigo, modificadores)
     if tecla is None:
         return None
     for accion in acciones:
@@ -79,22 +98,40 @@ class ListaConVacio:
     def __init__(self, lista, texto_vacio):
         self._lista = lista
         self._texto_vacio = texto_vacio
+        self._texto_vacio_inicial = texto_vacio
         self._textos = []
+        self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
+        instalar_busqueda_tipo(self._lista, lambda: list(self._textos))
 
-    def fijar(self, textos, elegido=None):
+    def _al_tecla(self, evento):
+        try:
+            seleccion = self._lista.GetSelection()
+            total = self._lista.GetCount()
+        except Exception:
+            seleccion, total = -1, 0
+        if sonidos_eventos.es_orilla(evento.GetKeyCode(), seleccion, total):
+            _snd.reproducir("orilla")
+        evento.Skip()
+
+    def fijar(self, textos, elegido=None, vacio=None):
         """Reemplaza a Clear y Append y deja el caso vacío elegido."""
+        self._texto_vacio = (
+            self._texto_vacio_inicial if vacio is None else vacio)
         self._textos = list(textos)
         self._lista.Clear()
         if not self._textos:
             self._lista.Append(self._texto_vacio)
             self._lista.SetSelection(0)
         else:
-            for texto in self._textos:
-                self._lista.Append(texto)
-            indice = 0 if elegido is None else elegido
-            if not 0 <= indice < len(self._textos):
-                indice = 0
-            self._lista.SetSelection(indice)
+            self._cargar(elegido)
+
+    def _cargar(self, elegido):
+        for texto in self._textos:
+            self._lista.Append(texto)
+        indice = 0 if elegido is None else elegido
+        if not 0 <= indice < len(self._textos):
+            indice = 0
+        self._lista.SetSelection(indice)
 
     def indice(self):
         """El índice elegido de verdad, o None también con la línea vacía."""
@@ -127,9 +164,9 @@ class ListaConAcciones:
         self._lista.Bind(wx.EVT_LISTBOX_DCLICK, self._al_doble_clic)
         entregar_intro(self._lista, self._al_intro)
 
-    def fijar(self, textos, elegido=None):
+    def fijar(self, textos, elegido=None, vacio=None):
         """Reemplaza a Clear y Append y deja el caso vacío elegido."""
-        self._vacio.fijar(textos, elegido)
+        self._vacio.fijar(textos, elegido, vacio)
 
     def indice(self):
         """El índice elegido de verdad, o None también con la línea vacía."""

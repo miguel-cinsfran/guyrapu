@@ -70,6 +70,20 @@ class PruebaPartePura(unittest.TestCase):
         con_elemento = lista_acciones.acciones_encendidas(ACCIONES, True)
         self.assertTrue(all(con_elemento.values()))
 
+    def test_ctrl_d_da_su_accion_y_el_menu_dice_la_tecla(self):
+        acciones = (_accion("duplicar", "ctrl+d"),)
+        self.assertEqual(
+            lista_acciones.clave_de_tecla(
+                ord("D"), wx.MOD_CONTROL, acciones),
+            "duplicar")
+        self.assertIsNone(lista_acciones.clave_de_tecla(
+            ord("D"), wx.MOD_CONTROL | wx.MOD_ALT, acciones))
+        self.assertIsNone(lista_acciones.clave_de_tecla(
+            ord("D"), wx.MOD_CONTROL | wx.MOD_SHIFT, acciones))
+        self.assertEqual(
+            lista_acciones.etiqueta_de_menu(acciones[0]),
+            "&Duplicar\tCtrl+D")
+
 
 class PruebaListaConVacio(unittest.TestCase):
 
@@ -80,6 +94,11 @@ class PruebaListaConVacio(unittest.TestCase):
         self.lista = wx.ListBox(self.marco)
         self.vacio = lista_acciones.ListaConVacio(
             self.lista, "Sin elementos.")
+
+    def _tecla(self, tipo, codigo):
+        evento = wx.KeyEvent(tipo)
+        evento.KeyCode = codigo
+        self.lista.GetEventHandler().ProcessEvent(evento)
 
     def test_vacia_deja_la_linea_elegida_y_sin_indice(self):
         self.vacio.fijar([])
@@ -102,6 +121,35 @@ class PruebaListaConVacio(unittest.TestCase):
         with mock.patch.object(lista_acciones, "anunciar") as anunciar:
             self.vacio.sin_elemento()
         anunciar.assert_called_once_with("Sin selección")
+
+    def test_flecha_arriba_en_el_primero_reproduce_orilla(self):
+        with mock.patch.object(lista_acciones._snd, "reproducir") as sonar:
+            self.vacio.fijar(["a", "b"])
+            self.lista.SetSelection(0)
+            self._tecla(wx.wxEVT_KEY_DOWN, wx.WXK_UP)
+            sonar.assert_called_once_with("orilla")
+
+    def test_flecha_en_la_lista_vacia_tambien_reproduce_orilla(self):
+        with mock.patch.object(lista_acciones._snd, "reproducir") as sonar:
+            self.vacio.fijar([])
+            self._tecla(wx.wxEVT_KEY_DOWN, wx.WXK_DOWN)
+            sonar.assert_called_once_with("orilla")
+
+    def test_escribir_una_letra_elige_el_primero_que_empieza(self):
+        self.vacio.fijar(["Ana", "Beto", "Bruno"])
+        self.lista.SetSelection(0)
+        with mock.patch.object(wx, "CallLater"), \
+                mock.patch("guyrapu.ui.busqueda_teclado.anunciar"):
+            evento = wx.KeyEvent(wx.wxEVT_CHAR)
+            evento.SetUnicodeKey(ord("B"))
+            self.lista.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(self.lista.GetSelection(), 1)
+
+    def test_fijar_con_vacio_cambia_el_texto_de_esa_carga(self):
+        self.vacio.fijar([], vacio="x")
+        self.assertEqual(self.lista.GetString(0), "x")
+        self.vacio.fijar([])
+        self.assertEqual(self.lista.GetString(0), "Sin elementos.")
 
 
 class PruebaConLista(unittest.TestCase):
@@ -182,6 +230,20 @@ class PruebaConLista(unittest.TestCase):
                 self.pieza.fijar(["a"])
                 self._tecla(tipo, codigo)
                 self.assertEqual(self.llamadas, [esperado])
+
+    def test_ctrl_d_ejecuta_la_accion_de_tecla_ctrl_d(self):
+        llamadas = []
+        acciones = (lista_acciones.Accion(
+            "duplicar", "&Duplicar", lambda: llamadas.append("duplicar"),
+            tecla="ctrl+d"),)
+        pieza = lista_acciones.ListaConAcciones(
+            self.lista, acciones, "Sin elementos.")
+        pieza.fijar(["a"])
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = ord("D")
+        evento.GetModifiers.return_value = wx.MOD_CONTROL
+        pieza._al_tecla(evento)
+        self.assertEqual(llamadas, ["duplicar"])
 
     def test_el_clic_derecho_abre_el_menu(self):
         self.pieza.fijar(["a"])

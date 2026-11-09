@@ -236,8 +236,18 @@ class TestPestana(BasePagina):
             self.pagina.lista.GetEventHandler().ProcessEvent(evento)
         self.assertEqual(vistos, [
             "&Usar este perfil", "Usar p&ara…", "&Nuevo…",
-            "&Duplicar…", "&Eliminar perfil\tDel",
+            "&Duplicar…\tCtrl+D", "&Eliminar perfil\tDel",
             "Editar a&justes…\tEnter", "&Preparar perfiles…"])
+
+    def test_ctrl_d_duplica_el_perfil_elegido(self):
+        self._fijar()
+        self._elegir("Dos")
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = ord("D")
+        evento.GetModifiers.return_value = wx.MOD_CONTROL
+        with mock.patch.object(self.pagina, "duplicar") as duplicar:
+            self.pagina._lista_acciones._al_tecla(evento)
+        duplicar.assert_called_once_with()
 
 
 class TestPrepararPerfiles(BasePagina):
