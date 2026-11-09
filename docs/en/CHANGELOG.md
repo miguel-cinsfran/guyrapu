@@ -1,4 +1,4 @@
-<!-- original: es/CHANGELOG.md 125940369d8c514fae50eb695c8f379b94366a1b -->
+<!-- original: es/CHANGELOG.md 76f3e5447f9dd4169060217ceba3c91e04bed6fb -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
@@ -85,7 +85,7 @@ This is a translation of the Spanish original, made with artificial intelligence
 
 - The YouTube and Restream sessions and the keys saved in the application are
   saved encrypted with your Windows account. If you copy the application
-  folder to another PC, you will have to sign in again.
+  folder to another computer, you will have to sign in again.
 - The main window appears sooner when opening the application.
 - Gemini accepts the new keys that start with “AQ.”.
 

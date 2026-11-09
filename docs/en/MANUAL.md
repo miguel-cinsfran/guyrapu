@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 2f9ba5396a82539fdf12be2b96328630fb085f13 -->
+<!-- original: es/MANUAL.md dc2e37633717a6c2e4a089cbfa07461dc279e459 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -312,7 +312,7 @@ The screenshot and what you type are sent to the provider, and the first send as
 
 The Google session lets you moderate, write in the chat, comment on videos and create the YouTube live stream. Without it, everything else works.
 
-To start it, open *Preferences*, on the *YouTube* category, press *Sign in* and authorize in the browser. The YouTube and Restream sessions are saved encrypted with your Windows account: if you copy the application folder to another PC, you will have to start them again. YouTube's daily quota is shared among those who use Guyrapu. To have your own, see the [API setup guide](../CONFIGURACION_API.md).
+To start it, open *Preferences*, on the *YouTube* category, press *Sign in* and authorize in the browser. The YouTube and Restream sessions are saved encrypted with your Windows account: if you copy the application folder to another computer, you will have to start them again. YouTube's daily quota is shared among those who use Guyrapu. To have your own, see the [API setup guide](../CONFIGURACION_API.md).
 
 ## Preferences
 
