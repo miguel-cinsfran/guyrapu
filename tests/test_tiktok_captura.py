@@ -291,6 +291,76 @@ class TestReconexion(unittest.TestCase):
 
 
 
+class TestSalaNoListaEnElBucle(unittest.TestCase):
+    """TikTok tarda en dar los datos de la sala al empezar un directo."""
+
+    def _exc(self):
+        return type("AgeRestrictedError", (Exception,), {})(
+            "Age restricted stream. Cannot fetch room info.")
+
+    def _correr(self, sesion, reloj, max_intentos=5):
+        estados = []
+        with mock.patch.object(tiktok_captura, "disponible", return_value=True), \
+                mock.patch.object(tiktok_captura, "_sesion", side_effect=sesion):
+            tiktok_captura.capturar_con_reconexion(
+                "pepe", {"max_intentos": max_intentos,
+                         "espera_entre_intentos": 0},
+                threading.Event(), on_evento=lambda *a: None,
+                on_estado=lambda tipo, texto: estados.append((tipo, texto)),
+                reloj=reloj)
+        return estados
+
+    def test_siete_fallos_de_sala_y_despues_conecta(self):
+        fallos = [0]
+        tiempos = [0.0]
+
+        def reloj():
+            return tiempos[0]
+
+        def sesion(usuario, parada, on_evento, on_estado, on_info,
+                   on_espectadores, anunciar_entradas=False):
+            fallos[0] += 1
+            if fallos[0] <= 7:
+                tiempos[0] += 12
+                return self._exc()
+            on_estado("conectado", "Conectado al directo de TikTok.")
+            parada.set()
+            return None
+
+        estados = self._correr(sesion, reloj=reloj, max_intentos=5)
+        self.assertEqual(fallos[0], 8)
+        self.assertEqual(
+            [texto for tipo, texto in estados if tipo == "reintentando"],
+            ["TikTok todavía no deja leer el chat de este directo. "
+             "Se sigue intentando."])
+        self.assertEqual(
+            [tipo for tipo, _texto in estados].count("conectando"), 1)
+
+    def test_fallos_de_sala_mas_de_180_terminan_con_el_error(self):
+        tiempos = [0.0]
+
+        def reloj():
+            return tiempos[0]
+
+        def sesion(usuario, parada, on_evento, on_estado, on_info,
+                   on_espectadores, anunciar_entradas=False):
+            tiempos[0] += 100
+            return self._exc()
+
+        estados = self._correr(sesion, reloj=reloj, max_intentos=5)
+        self.assertEqual(estados[-1], (
+            "error", "TikTok no deja leer el chat de este directo. "
+                     "Puede estar restringido por edad."))
+
+    def test_cinco_fallos_de_otro_tipo_agotan_como_hoy(self):
+        def sesion(*args, **kwargs):
+            return RuntimeError("no conecta")
+
+        estados = self._correr(sesion, reloj=lambda: 0.0, max_intentos=5)
+        self.assertEqual(estados[-1][0], "error")
+        self.assertIn("agotaron los 5", estados[-1][1])
+
+
 class TestMejorFlujo(unittest.TestCase):
     """Se prefiere el FLV: el HLS de TikTok suele dar timeout en el reproductor."""
 

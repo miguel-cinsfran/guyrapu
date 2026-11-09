@@ -95,6 +95,47 @@ class TestTextos(unittest.TestCase):
             "Reintentando en 10 segundos (intento 2)…")
 
 
+class TestSalaNoLista(unittest.TestCase):
+    """Un directo recién empezado todavía no da los datos de la sala."""
+
+    def _sala(self):
+        return _exc("AgeRestrictedError", "Age restricted stream")
+
+    def test_es_sala_no_lista_reconoce_por_nombre(self):
+        self.assertTrue(errores.es_sala_no_lista(self._sala()))
+        self.assertFalse(errores.es_sala_no_lista(RuntimeError("corte")))
+
+    def test_el_primero_anuncia_y_espera(self):
+        tipo, texto = rec.sala_no_lista(
+            self._sala(), conecto_alguna=False, primer_fallo=None, ahora=10.0)
+        self.assertEqual(tipo, "reintentando")
+        self.assertEqual(texto, "TikTok todavía no deja leer el chat de este "
+                                "directo. Se sigue intentando.")
+
+    def test_los_siguientes_esperan_sin_anunciar(self):
+        tipo, texto = rec.sala_no_lista(
+            self._sala(), conecto_alguna=False, primer_fallo=10.0, ahora=20.0)
+        self.assertEqual(tipo, "reintentando")
+        self.assertIsNone(texto)
+
+    def test_a_los_180_termina_con_el_error(self):
+        tipo, texto = rec.sala_no_lista(
+            self._sala(), conecto_alguna=False, primer_fallo=10.0,
+            ahora=10.0 + rec.LIMITE_SALA_NO_LISTA)
+        self.assertEqual(tipo, "error")
+        self.assertEqual(texto, "TikTok no deja leer el chat de este directo. "
+                                "Puede estar restringido por edad.")
+
+    def test_si_ya_conecto_decide_como_hoy(self):
+        self.assertIsNone(rec.sala_no_lista(
+            self._sala(), conecto_alguna=True, primer_fallo=10.0, ahora=20.0))
+
+    def test_otro_error_decide_como_hoy(self):
+        self.assertIsNone(rec.sala_no_lista(
+            RuntimeError("corte"), conecto_alguna=False, primer_fallo=10.0,
+            ahora=20.0))
+
+
 class TestEsperaTras(unittest.TestCase):
 
     def test_sin_limite_devuelve_la_espera(self):

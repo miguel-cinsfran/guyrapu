@@ -30,12 +30,9 @@ import re
 import sys
 import time
 
-from guyrapu.capture.tiktok_reconexion import (desenlace, espera_tras,
-    texto_agotado, texto_reintento)
+from guyrapu.capture.tiktok_reconexion import paso_tras_sesion
 from guyrapu.core import diagnostico
 from guyrapu.core import paths
-from guyrapu.core.config import (TIPO_TEXTO, TIPO_SUPERCHAT, TIPO_MIEMBRO,
-    TIPO_SEGUIR, TIPO_COMPARTIR, TIPO_COFRE, TIPO_ME_GUSTA)
 from guyrapu.core.idioma import _
 
 logger = diagnostico.obtener_logger(__name__)
@@ -384,11 +381,12 @@ def _sesion_protegida(usuario, parada, on_evento, on_estado, on_info,
 
 def capturar_con_reconexion(usuario, config, parada, on_evento,
                             on_estado=None, on_info=None,
-                            on_espectadores=None, offline_pasajero=False) -> None:
+                            on_espectadores=None, offline_pasajero=False,
+                            reloj=time.monotonic) -> None:
     """Bucle de captura con reintentos, mismo contrato de estados que YouTube.
     Bloquea: llamar desde un hilo aparte. offline_pasajero reintenta el «no
     está en directo» antes de la primera conexión. on_espectadores(n, total)
-    recibe los de ahora y los que pasaron."""
+    recibe los de ahora y los que pasaron. `reloj` se inyecta en las pruebas."""
     if not disponible():
         if on_estado:
             # Traductores: error permanente que se anuncia y se muestra en la barra de estado.
@@ -399,38 +397,37 @@ def capturar_con_reconexion(usuario, config, parada, on_evento,
 
     intentos = 0
     conecto = [False, False]
+    primer_fallo = [None]
+    esperando_sala = [False]
 
     def _estado(tipo, texto):
         # Se intercepta «conectado» para contar solo los fallos SEGUIDOS: un
         # directo largo con microcortes sueltos no debe agotar max_intentos.
         if tipo == "conectado":
             conecto[0] = conecto[1] = True
+            esperando_sala[0] = False
         if on_estado:
             on_estado(tipo, texto)
 
     while not parada.is_set():
-        # Traductores: estado que se anuncia y se muestra en la barra de estado al conectar. {usuario} es el usuario de TikTok.
-        _estado("conectando", _("Conectando al directo de TikTok de @{usuario}…").format(usuario=usuario))
+        if not esperando_sala[0]:
+            # Traductores: estado que se anuncia y se muestra en la barra de estado al conectar. {usuario} es el usuario de TikTok.
+            _estado("conectando", _("Conectando al directo de TikTok de @{usuario}…").format(usuario=usuario))
         conecto[0] = False
         err = _sesion_protegida(usuario, parada, on_evento, _estado, on_info,
                                 on_espectadores, config)
         if conecto[0]:
             intentos = 0
-        fin = desenlace(err, parado=parada.is_set(),
-                        conecto_alguna=conecto[1],
-                        offline_pasajero=offline_pasajero,
-                        reconectar=config.get("reconectar", True))
-        if fin is not None:
-            if fin[0] is not None:
-                _estado(*fin)
+        accion, estado, espera, intentos, primer_fallo[0] = paso_tras_sesion(
+            err, parado=parada.is_set(), conecto_alguna=conecto[1],
+            offline_pasajero=offline_pasajero,
+            reconectar=config.get("reconectar", True), intentos=intentos,
+            maximo=config.get("max_intentos", 0), primer_fallo=primer_fallo[0],
+            ahora=reloj(), espera=config.get("espera_entre_intentos", 10))
+        esperando_sala[0] = accion == "esperar"
+        if estado is not None:
+            _estado(*estado)
+        if accion == "parar":
             parada.set()
             break
-        intentos += 1
-        mi = config.get("max_intentos", 0)
-        if mi > 0 and intentos >= mi:
-            _estado("error", texto_agotado(mi))
-            parada.set()
-            break
-        espera = espera_tras(err, config.get("espera_entre_intentos", 10))
-        _estado("reintentando", texto_reintento(espera, intentos, mi))
         parada.wait(timeout=espera)

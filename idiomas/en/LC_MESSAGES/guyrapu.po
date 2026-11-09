@@ -1619,6 +1619,22 @@ msgstr "The TikTok live stream is paused."
 msgid "El directo de TikTok continúa."
 msgstr "The TikTok live stream continues."
 
+#. Traductores: estado que se anuncia y se muestra en la barra de estado.
+#: guyrapu/capture/tiktok_reconexion.py
+msgid "TikTok todavía no deja leer el chat de este directo. Se sigue intentando."
+msgstr ""
+"TikTok does not allow reading the chat of this live stream yet. Still "
+"trying."
+
+#. Traductores: error que se anuncia y se muestra en la barra de estado.
+#: guyrapu/capture/tiktok_reconexion.py
+msgid ""
+"TikTok no deja leer el chat de este directo. Puede estar restringido por "
+"edad."
+msgstr ""
+"TikTok does not allow reading the chat of this live stream. It may be age-"
+"restricted."
+
 #. Traductores: error permanente que se anuncia y se muestra en la barra de
 #. estado.
 #: guyrapu/capture/tiktok_reconexion.py
@@ -4515,8 +4531,8 @@ msgstr "OBS is broadcasting, but YouTube still shows no live stream."
 msgid "La transmisión terminó. Duró {duracion}."
 msgstr "The broadcast ended. It lasted {duracion}."
 
-#: guyrapu/obs/obs_ventana.py guyrapu/ui/gui_estado.py
-#: guyrapu/ui/ia_agregar_captura.py
+#: guyrapu/obs/obs_ventana.py guyrapu/ui/comando_cerrar_obs.py
+#: guyrapu/ui/gui_estado.py guyrapu/ui/ia_agregar_captura.py
 msgid "OBS no está abierto."
 msgstr "OBS is not open."
 
@@ -5494,6 +5510,15 @@ msgstr ""
 #: guyrapu/restream/chat_restream.py
 msgid "Esperando a que TikTok muestre el directo para leer su chat."
 msgstr "Waiting for TikTok to show the live stream to read its chat."
+
+#: guyrapu/restream/destinos_de_mas.py
+#, python-brace-format
+msgid ""
+"Restream también va a transmitir este directo a: {destinos}. Para elegir a "
+"dónde sale, usa un perfil de Restream en Transmitir a. ¿Transmitir igual?"
+msgstr ""
+"Restream will also broadcast this live stream to: {destinos}. To choose "
+"where it goes, use a Restream profile in Broadcast to. Broadcast anyway?"
 
 #: guyrapu/restream/eventos.py
 #, python-brace-format
@@ -6569,6 +6594,22 @@ msgid_plural ""
 "mes."
 msgstr[0] "Valid key. {voces} voice. {usados} of {limite} characters used this month."
 msgstr[1] "Valid key. {voces} voices. {usados} of {limite} characters used this month."
+
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "OBS está transmitiendo o grabando. Detenlo antes de cerrar OBS."
+msgstr "OBS is streaming or recording. Stop it before closing OBS."
+
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "Cerrando OBS…"
+msgstr "Closing OBS…"
+
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "OBS cerrado."
+msgstr "OBS closed."
+
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "OBS no se cerró. Ciérralo desde su ventana."
+msgstr "OBS did not close. Close it from its window."
 
 #: guyrapu/ui/comandos_grabacion.py
 msgid "No hay ninguna grabación en curso."
@@ -9933,6 +9974,11 @@ msgstr "Preference categories"
 msgid "Categorías"
 msgstr "Categories"
 
+#: guyrapu/ui/gui_preferencias.py guyrapu/ui/musica_editor_lista.py
+#: guyrapu/ui/restream_perfil.py
+msgid "&Guardar"
+msgstr "&Save"
+
 #: guyrapu/ui/gui_preferencias.py guyrapu/ui/obs_ventana.py
 msgid "General"
 msgstr "General"
@@ -9988,11 +10034,6 @@ msgstr "Artificial intelligence"
 #: guyrapu/ui/gui_preferencias.py
 msgid "OBS"
 msgstr "OBS"
-
-#: guyrapu/ui/gui_preferencias.py guyrapu/ui/musica_editor_lista.py
-#: guyrapu/ui/restream_perfil.py
-msgid "&Guardar"
-msgstr "&Save"
 
 #: guyrapu/ui/gui_preferencias.py
 msgid "Tamaño de &letra del chat (8 a 24):"
@@ -10568,6 +10609,10 @@ msgid "Mos&trar OBS"
 msgstr "S&how OBS"
 
 #: guyrapu/ui/menu_obs.py
+msgid "C&errar OBS"
+msgstr "Clos&e OBS"
+
+#: guyrapu/ui/menu_obs.py
 msgid "&Avisar si OBS se sobrecarga"
 msgstr "&Warn if OBS is overloaded"
 
@@ -10841,6 +10886,10 @@ msgstr "Re&fresh status"
 #: guyrapu/ui/obs_pagina_general.py
 msgid "Mostrar &OBS"
 msgstr "Show &OBS"
+
+#: guyrapu/ui/obs_pagina_general.py
+msgid "&Cerrar OBS"
+msgstr "&Close OBS"
 
 #: guyrapu/ui/obs_pagina_general.py
 msgid "Probar el e&quipo…"
@@ -12932,37 +12981,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/restream/destinos_de_mas.py
-#, python-brace-format
-msgid ""
-"Restream también va a transmitir este directo a: {destinos}. Para elegir a "
-"dónde sale, usa un perfil de Restream en Transmitir a. ¿Transmitir igual?"
-msgstr ""
-"Restream will also broadcast this live stream to: {destinos}. To choose "
-"where it goes, use a Restream profile in Broadcast to. Broadcast anyway?"
-
-#: guyrapu/ui/comando_cerrar_obs.py
-msgid "OBS está transmitiendo o grabando. Detenlo antes de cerrar OBS."
-msgstr "OBS is streaming or recording. Stop it before closing OBS."
-
-#: guyrapu/ui/comando_cerrar_obs.py
-msgid "Cerrando OBS…"
-msgstr "Closing OBS…"
-
-#: guyrapu/ui/comando_cerrar_obs.py
-msgid "OBS cerrado."
-msgstr "OBS closed."
-
-#: guyrapu/ui/comando_cerrar_obs.py
-msgid "OBS no se cerró. Ciérralo desde su ventana."
-msgstr "OBS did not close. Close it from its window."
-
-#: guyrapu/ui/menu_obs.py
-msgid "C&errar OBS"
-msgstr "Clos&e OBS"
-
-#: guyrapu/ui/obs_pagina_general.py
-msgid "&Cerrar OBS"
-msgstr "&Close OBS"
 

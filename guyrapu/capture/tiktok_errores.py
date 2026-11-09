@@ -15,6 +15,9 @@ from guyrapu.core.idioma import N_, _
 # httpx.HTTPStatusError transitorio, no un usuario inexistente.
 CLASES_OFFLINE = ("UserOfflineError",)
 CLASES_NO_EXISTE = ("UserNotFoundError",)
+# Al empezar un directo, TikTokLive todavía no puede leer la sala y lanza
+# esto aunque el directo sea público. Se espera: el dato suele llegar.
+CLASES_SALA_NO_LISTA = ("AgeRestrictedError",)
 
 # Cuánto dura el bloqueo de TikTok ante consultas seguidas, en segundos.
 # Medido el 30/10/2026: el bloqueo se levanta entre 30 y 35 s.
@@ -32,6 +35,10 @@ def nombre(exc) -> str:
 def es_error_http(exc) -> bool:
     n = nombre(exc).lower()
     return "http" in n or n.endswith("statuserror")
+
+
+def es_sala_no_lista(exc) -> bool:
+    return nombre(exc) in CLASES_SALA_NO_LISTA
 
 
 def _es_nodo_limite(exc) -> bool:
