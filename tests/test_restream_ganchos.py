@@ -11,7 +11,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from guyrapu.core import diagnostico
-from guyrapu.obs import obs_cliente
+from guyrapu.obs import gestor_vertical, obs_cliente
 from guyrapu.restream import api, ganchos
 from guyrapu.ui import gui as _gui_prueba
 from guyrapu.restream.api import Canal
@@ -579,6 +579,19 @@ class TestSupervisarRestream(unittest.TestCase):
         self.assertEqual(creados[0].destino, "TikTok")
         self.assertIn("finalizar_emision", creados[0].kwargs)
 
+    def test_ambas_con_youtube_y_tiktok_lee_los_dos(self):
+        perfil = _perfil("Uno", "ambas", (1,), youtube=True, chat="ambos")
+        canales = [_canal(1, "TikTok", url="https://www.tiktok.com/@amigo")]
+        preparados = _preparados(ClienteYouTubeFalso())
+        with mock.patch.object(ganchos, "_conectar_chat") as conectar:
+            _frame, _cuenta, creados, _anuncios = self._supervisar(
+                perfil, canales, armado=(perfil, preparados))
+
+        self.assertEqual(creados[0].destino, "YouTube")
+        kwargs = conectar.call_args.kwargs
+        self.assertEqual(kwargs["tiktok"], "amigo")
+        self.assertTrue(kwargs["pedido"])
+
     def test_fallo_al_leer_canales_avisa_y_no_crea_el_supervisor(self):
         perfil = _perfil("Uno", "vertical", (1,))
         fallo = api.ErrorApi(
@@ -832,6 +845,56 @@ class TestVolverAlPerfilAlAbandonar(unittest.TestCase):
                 perfil, "Restream", "", [_canal(1, "YouTube")])
         volver.assert_called_once_with()
         self.assertIsNone(frame._supervisor)
+
+
+class TestPerfilAmbas(unittest.TestCase):
+
+    def _armar(self, perfil):
+        canales = [_canal(1, "TikTok")]
+        cuenta = CuentaFalsa(canales)
+        preparados = _preparados(ClienteYouTubeFalso())
+        return ganchos.armar(
+            "restream:" + perfil.nombre, lambda *args: None, canales,
+            cuenta_mod=cuenta, perfiles=[perfil], perfil=perfil,
+            preparados=preparados)
+
+    def test_el_supervisor_recibe_un_crear_gestor_envuelto(self):
+        perfil = _perfil("Doble", "ambas", (1,), youtube=True)
+        preparar, restaurar, extras = self._armar(perfil)
+        frame = SimpleNamespace(
+            _alive=True, _supervisor=None, _config={},
+            _actualizar_boton_directo=mock.Mock(),
+            _al_terminar_supervisor=mock.Mock())
+        creados = []
+
+        class SupervisorFalso:
+            def __init__(self, *args, **kwargs):
+                self.kwargs = kwargs
+                creados.append(self)
+
+        base_crear = mock.Mock(return_value=mock.Mock())
+        with mock.patch.object(
+                ganchos, "_parametros_supervisor",
+                return_value={"crear_gestor": base_crear}), \
+                mock.patch("guyrapu.obs.obs_supervisor.SupervisorTransmision",
+                           SupervisorFalso):
+            ganchos._instanciar_supervisor(
+                frame, "YouTube", "", perfil, lambda *args: None, restaurar,
+                preparar, extras)
+
+        kwargs = creados[0].kwargs
+        self.assertIn("asegurar", kwargs)
+        self.assertNotIn("envolver_crear_gestor", kwargs)
+        gestor = kwargs["crear_gestor"]()
+        self.assertIsInstance(gestor, gestor_vertical.GestorVertical)
+        base_crear.assert_called_once_with()
+
+    def test_otro_perfil_no_suma_los_extras_de_ambas(self):
+        perfil = _perfil("Uno", "horizontal", (1,), youtube=True)
+        _preparar, _restaurar, extras = self._armar(perfil)
+        self.assertNotIn("asegurar", extras)
+        self.assertNotIn("envolver_crear_gestor", extras)
+        self.assertIn("esperar_emision", extras)
 
 
 if __name__ == "__main__":

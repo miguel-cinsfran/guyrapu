@@ -12799,3 +12799,78 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/obs/gestor_vertical.py
+msgid "El vertical también está transmitiendo."
+msgstr "The vertical stream is also broadcasting."
+
+#: guyrapu/obs/gestor_vertical.py
+msgid ""
+"El vertical se interrumpió. El horizontal sigue y Guyrapu lo vuelve a "
+"intentar cada 30 segundos."
+msgstr ""
+"The vertical stream was interrupted. The horizontal stream continues and "
+"Guyrapu will retry it every 30 seconds."
+
+#: guyrapu/obs/gestor_vertical.py
+msgid "El vertical volvió."
+msgstr "The vertical stream is back."
+
+#: guyrapu/obs/gestor_vertical.py
+#, python-brace-format
+msgid ""
+"La escena {escena} no tiene versión vertical: el vertical sigue en "
+"{vertical}. Créala con Crear la versión vertical."
+msgstr ""
+"Scene {escena} has no vertical version: the vertical stream stays on "
+"{vertical}. Create it with Create vertical version."
+
+#: guyrapu/obs/gestor_vertical.py
+msgid "También se detuvo el vertical."
+msgstr "The vertical stream was stopped too."
+
+#: guyrapu/restream/preparar_doble.py
+msgid ""
+"Para transmitir en horizontal y vertical a la vez hace falta el plugin "
+"Vertical Canvas de Aitum en OBS. Descárgalo de github.com/Aitum/obs-"
+"vertical-canvas/releases, instálalo con OBS cerrado y vuelve a transmitir."
+msgstr ""
+"To broadcast horizontally and vertically at the same time, the Aitum "
+"Vertical Canvas plugin is required in OBS. Download it from "
+"github.com/Aitum/obs-vertical-canvas/releases, install it with OBS closed "
+"and broadcast again."
+
+#: guyrapu/restream/preparar_doble.py
+msgid ""
+"OBS está grabando o transmitiendo. Detenlo y vuelve a transmitir: Guyrapu "
+"tiene que cerrar OBS un momento para preparar la salida vertical."
+msgstr ""
+"OBS is recording or broadcasting. Stop it and broadcast again: Guyrapu has "
+"to close OBS for a moment to prepare the vertical output."
+
+#: guyrapu/restream/preparar_doble.py
+msgid ""
+"OBS no se cerró. Ciérralo y vuelve a transmitir para preparar la salida "
+"vertical."
+msgstr ""
+"OBS did not close. Close it and broadcast again to prepare the vertical "
+"output."
+
+#: guyrapu/restream/preparar_doble.py
+msgid ""
+"Guyrapu prepara la salida vertical del plugin: OBS se cierra y se vuelve a "
+"abrir."
+msgstr "Guyrapu prepares the plugin's vertical output: OBS closes and opens again."
+
+#: guyrapu/restream/preparar_doble.py
+#, python-brace-format
+msgid "No se copiaron al vertical: {fuentes}."
+msgstr "These were not copied to the vertical: {fuentes}."
+
+#: guyrapu/restream/preparar_doble.py
+msgid ""
+"Para transmitir en horizontal y vertical a la vez, inicia la sesión de "
+"Google: YouTube recibe el horizontal."
+msgstr ""
+"To broadcast horizontally and vertically at the same time, sign in to "
+"Google: YouTube receives the horizontal stream."
+

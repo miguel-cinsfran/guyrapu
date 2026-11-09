@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_destinos, perfil_previo
-from guyrapu.restream import transmitir, youtube_por_restream
+from guyrapu.restream import preparar_doble, transmitir, youtube_por_restream
 from guyrapu.restream.chat_restream import (
     conectar_chat as _conectar_chat, parar_espera)
 from guyrapu.youtube import emision
@@ -124,37 +124,46 @@ def _cambiar_titulo(perfil, canales, cuenta_mod) -> None:
                                 datos.get("descripcion", ""))
 
 
-def _preparar_youtube(perfil, cliente_obs, parada, cuenta_mod, restaurador,
-                      preparados, al_anunciar):
+def _preparar_youtube(cliente_obs, parada, cuenta_mod, restaurador,
+                      preparados, al_anunciar, preparar_destino=None):
+    preparar_destino = preparar_destino or (
+        youtube_por_restream.preparar_destino(cuenta_mod, restaurador))
+
     def avisar(frase):
         al_anunciar(frase, None)
 
     return emision.preparar_en_youtube(
         preparados["cliente"], cliente_obs, preparados["cuerpo"],
-        parada=parada,
-        preparar_destino=youtube_por_restream.preparar_destino(
-            cuenta_mod, restaurador),
+        parada=parada, preparar_destino=preparar_destino,
         guardar_token=preparados.get("guardar_token"),
         extras=preparados.get("extras"), avisar=avisar)
 
 
-def _borrar_emision(preparados, id_video) -> None:
-    try:
-        emision.finalizar_en_youtube(preparados["cliente"], id_video)
-    except Exception as error:
-        logger.warning("no se pudo borrar la emisión %s: %s", id_video, error)
-
-
 def _revertir(preparados, id_video, restaurador) -> None:
     if id_video is not None:
-        _borrar_emision(preparados, id_video)
+        try:
+            emision.finalizar_en_youtube(preparados["cliente"], id_video)
+        except Exception as error:
+            logger.warning("no se pudo borrar la emisión %s: %s",
+                           id_video, error)
     restaurador.restaurar()
 
 
+def _escribir_clave(escribir, cliente, perfil, cuenta_mod, parada):
+    clave = cuenta_mod.clave_cuenta()
+    escribir(cliente, obs_destinos.Destino(
+        transmitir.destino_obs(transmitir.PREFIJO + perfil.nombre, (perfil,)),
+        clave.servidor, clave.clave), parada=parada)
+
+
 def _preparar_emision(perfil, canales, al_anunciar, cuenta_mod, restaurador,
-                      escribir, preparados=None):
+                      escribir, preparados=None, preparar_destino=None):
+    preparar_destino = preparar_destino or (
+        youtube_por_restream.preparar_destino(cuenta_mod, restaurador))
+
     def preparar(cliente, parada=None):
-        al_anunciar(_(MENSAJE_PREPARANDO).format(nombre=perfil.nombre), "conectando")
+        al_anunciar(_(MENSAJE_PREPARANDO).format(nombre=perfil.nombre),
+                    "conectando")
         id_video = None
         try:
             vivos = youtube_por_restream.borrar_sobrantes(cuenta_mod, canales)
@@ -162,18 +171,21 @@ def _preparar_emision(perfil, canales, al_anunciar, cuenta_mod, restaurador,
             _cambiar_titulo(perfil, vivos, cuenta_mod)
             if perfil.youtube and preparados is not None:
                 id_video = _preparar_youtube(
-                    perfil, cliente, parada, cuenta_mod, restaurador,
-                    preparados, al_anunciar)
-            clave = cuenta_mod.clave_cuenta()
-            escribir(cliente, obs_destinos.Destino(
-                transmitir.destino_obs(
-                    transmitir.PREFIJO + perfil.nombre, (perfil,)),
-                clave.servidor, clave.clave), parada=parada)
+                    cliente, parada, cuenta_mod, restaurador, preparados,
+                    al_anunciar, preparar_destino)
+            _escribir_clave(escribir, cliente, perfil, cuenta_mod, parada)
         except Exception as error:
             _revertir(preparados, id_video, restaurador)
             raise EmisionError(str(error)) from error
         return id_video
     return preparar
+
+
+def _ganchos_youtube(perfil, preparados):
+    if perfil.youtube and preparados is not None:
+        return {"esperar_emision": preparados.get("esperar"),
+                "finalizar_emision": preparados.get("finalizar")}
+    return {}
 
 
 def armar(opcion, al_anunciar, canales, cuenta_mod=None, perfiles=None,
@@ -188,13 +200,14 @@ def armar(opcion, al_anunciar, canales, cuenta_mod=None, perfiles=None,
     if perfil is None:
         perfil = transmitir.perfil_de_opcion(opcion, lista)
     restaurador = Restaurador(modulo_cuenta)
+    if perfil.orientacion == "ambas":
+        return preparar_doble.armar(
+            perfil, canales, al_anunciar, modulo_cuenta, restaurador,
+            preparados, _preparar_emision)
     preparar = _preparar_emision(
         perfil, canales, al_anunciar, modulo_cuenta, restaurador,
         escribir or obs_destinos.preparar_destino, preparados=preparados)
-    ganchos = {}
-    if perfil.youtube and preparados is not None:
-        ganchos = {"esperar_emision": preparados.get("esperar"),
-                   "finalizar_emision": preparados.get("finalizar")}
+    ganchos = _ganchos_youtube(perfil, preparados)
     return preparar, restaurador.restaurar, ganchos
 
 
@@ -304,6 +317,8 @@ def _instanciar_supervisor(frame, destino, usuario, perfil, envoltura,
                            pedido=False):
     from guyrapu.core import paths
     from guyrapu.obs.obs_supervisor import SupervisorTransmision
+    parametros, extras = preparar_doble.aplicar_envoltura(
+        _parametros_supervisor(frame, envoltura), extras)
     return SupervisorTransmision(
         destino, usuario, al_anunciar=envoltura,
         al_conectar_chat=_conectar_chat(
@@ -313,7 +328,7 @@ def _instanciar_supervisor(frame, destino, usuario, perfil, envoltura,
         al_terminar=perfil_previo.tras_supervision(
             _al_terminar(frame, restaurar)),
         ruta_fin_pendiente=paths.fin_pendiente(),
-        **_parametros_supervisor(frame, envoltura),
+        **parametros,
         preparar_emision=preparar, **extras)
 
 
