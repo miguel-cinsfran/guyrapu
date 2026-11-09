@@ -3341,6 +3341,10 @@ msgstr "{mes}/{dia}/{anio} {hora}:{minuto}"
 msgid "Grabación guardada: {nombre}"
 msgstr "Recording saved: {nombre}"
 
+#: guyrapu/obs/lienzo_vertical.py guyrapu/obs/obs_cliente.py
+msgid "OBS no pudo completar la operación. Vuelve a intentarlo."
+msgstr "OBS could not complete the operation. Try again."
+
 #: guyrapu/obs/nivel_microfono.py
 msgid "Nivel correcto."
 msgstr "Good level."
@@ -3620,10 +3624,6 @@ msgstr "A source with that name already exists in OBS."
 #: guyrapu/obs/obs_cliente.py
 msgid "OBS no encuentra la escena o la fuente indicada."
 msgstr "OBS cannot find the given scene or source."
-
-#: guyrapu/obs/obs_cliente.py
-msgid "OBS no pudo completar la operación. Vuelve a intentarlo."
-msgstr "OBS could not complete the operation. Try again."
 
 #: guyrapu/obs/obs_cliente.py guyrapu/obs/obs_destinos.py
 #: guyrapu/obs/perfiles_obs.py
@@ -7168,6 +7168,31 @@ msgid "La prueba de conexión dio un error: {error}"
 msgstr "The connection test gave an error: {error}"
 
 #: guyrapu/ui/dialogo_prueba_equipo.py
+msgid ""
+"Incluir el lienzo &vertical, para transmitir en horizontal y vertical a la "
+"vez"
+msgstr ""
+"Include the &vertical canvas, to broadcast horizontally and vertically at "
+"once"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid ""
+"Si incluyes el lienzo vertical, se graban los dos y se borran las dos "
+"grabaciones."
+msgstr ""
+"If you include the vertical canvas, both are recorded and both recordings "
+"are deleted."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid ""
+"Se va a probar el perfil «{perfil}» con {ajustes}. La prueba tarda como "
+"mucho {segundos} segundos."
+msgstr ""
+"Profile “{perfil}” will be tested with {ajustes}. The test takes at most "
+"{segundos} seconds."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
 msgid "Ningún escalón llegó a medirse."
 msgstr "No step could be measured."
 
@@ -7208,15 +7233,6 @@ msgstr "Could not delete the test recording: {rutas}."
 #: guyrapu/ui/dialogo_prueba_equipo.py
 msgid "Probar el equipo"
 msgstr "Test computer"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid ""
-"Se va a probar el perfil «{perfil}» con {ajustes}. La prueba tarda como "
-"mucho {segundos} segundos."
-msgstr ""
-"Profile “{perfil}” will be tested with {ajustes}. The test takes at most "
-"{segundos} seconds."
 
 #: guyrapu/ui/dialogo_prueba_equipo.py
 msgid "Probando el equipo"
@@ -12782,20 +12798,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid ""
-"Incluir el lienzo &vertical, para transmitir en horizontal y vertical a la "
-"vez"
-msgstr ""
-"Include the &vertical canvas, to broadcast horizontally and vertically at "
-"once"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid ""
-"Si incluyes el lienzo vertical, se graban los dos y se borran las dos "
-"grabaciones."
-msgstr ""
-"If you include the vertical canvas, both are recorded and both recordings "
-"are deleted."
 
