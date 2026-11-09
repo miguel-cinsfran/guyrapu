@@ -69,6 +69,11 @@
   Guyrapu* ofrece *YouTube y TikTok*, elegida de entrada en los perfiles
   nuevos. Los dos chats se leen en la misma lista, y cada fila dice de qué
   plataforma es.
+- Con un perfil de Restream que lee YouTube y TikTok, el chat de TikTok ya
+  no se pierde si TikTok empieza antes que YouTube o si tarda en dar los
+  datos de un directo recién empezado. Guyrapu espera hasta 3 minutos, avisa
+  una vez que TikTok todavía no deja leer el chat y, si se agota el tiempo,
+  dice la causa.
 - En *Eventos del directo*, *Sonido propio de cada plataforma* elige si los
   mensajes de TikTok tienen su sonido siempre, solo con varios chats o
   nunca, y *Anunciar qué plataforma tiene cada mensaje cuando hay varios
@@ -135,6 +140,10 @@
   de YouTube caducó, lo dice en lenguaje llano y explica cómo volver a
   iniciarla.
 - Guyrapu ya no dice que OBS no responde cuando OBS está cerrado.
+- Al terminar la transmisión, Guyrapu dice bien cuánto duró aunque OBS
+  informe cero.
+- Si OBS se cerró mal la última vez, Guyrapu lo abre sin que pregunte por el
+  modo seguro.
 
 ## 3.0.0 beta 2, noviembre de 2026
 

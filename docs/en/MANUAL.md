@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 479002f7d1e7df0d8afc910f357868aa2b14874a -->
+<!-- original: es/MANUAL.md ff492d65626ebde9effaad4a54147ada6e25d2f5 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -32,7 +32,7 @@ In the chat list, the arrows move from one message to another, and when you type
 
 On TikTok, Guyrapu only reads: TikTok does not offer an official way to comment or moderate.
 
-With a Restream profile that reads the YouTube chat and the TikTok chat, both arrive in the same list and each row says which platform it is from. In *Preferences*, on the *Live events* category, *Each platform's own sound* chooses whether TikTok messages always have their sound, only with several chats or never, and *Announce which platform each message has when there are multiple chats* makes the voice say it too.
+With a Restream profile that reads the YouTube chat and the TikTok chat, both arrive in the same list and each row says which platform it is from. When the live stream starts, the TikTok chat may take a while to connect: Guyrapu waits up to 3 minutes and warns once that TikTok does not let the chat be read yet. In *Preferences*, on the *Live events* category, *Each platform's own sound* chooses whether TikTok messages always have their sound, only with several chats or never, and *Announce which platform each message has when there are multiple chats* makes the voice say it too.
 
 ### Live events
 

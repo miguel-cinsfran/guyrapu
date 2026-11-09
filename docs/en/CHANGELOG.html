@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/CHANGELOG.md 928a44f5db9bd184b42959b06187b6cfcd1471b7 -->
+<!-- original: es/CHANGELOG.md 5a50710a64adb3251c13afd30ed9f3b1a4082e3b -->
 
 <h1 id="whats-new-in-guyrapu">What's new in Guyrapu</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -299,6 +299,11 @@ source, and in <em>Automatic</em> the camera fills its place.</li>
 Guyrapu reads</em> offers <em>YouTube and TikTok</em>, chosen by default
 in new profiles. Both chats are read in the same list, and each row says
 which platform it is from.</li>
+<li>With a Restream profile that reads YouTube and TikTok, the TikTok
+chat is no longer lost if TikTok starts before YouTube or if it takes a
+while to give the data of a newly started live stream. Guyrapu waits up
+to 3 minutes, warns once that TikTok does not let the chat be read yet
+and, if the time runs out, says the cause.</li>
 <li>In <em>Live events</em>, <em>Each platform's own sound</em> chooses
 whether TikTok messages always have their sound, only with several chats
 or never, and <em>Announce which platform each message has when there
@@ -371,6 +376,10 @@ the YouTube session expired, it says so in plain language and explains
 how to start it again.</li>
 <li>Guyrapu no longer says that OBS is not responding when OBS is
 closed.</li>
+<li>When the broadcast ends, Guyrapu says correctly how long it lasted
+even if OBS reports zero.</li>
+<li>If OBS closed badly the last time, Guyrapu opens it without asking
+about safe mode.</li>
 </ul>
 <h2 id="300-beta-2-november-2026">3.0.0 beta 2, November 2026</h2>
 <h3 id="the-new-name">The new name</h3>

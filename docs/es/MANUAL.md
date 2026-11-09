@@ -46,7 +46,9 @@ En TikTok, Guyrapu solo lee: TikTok no ofrece una forma oficial de comentar
 ni de moderar.
 
 Con un perfil de Restream que lee el chat de YouTube y el de TikTok, los dos
-llegan a la misma lista y cada fila dice de qué plataforma es. En
+llegan a la misma lista y cada fila dice de qué plataforma es. Al empezar el
+directo, el chat de TikTok puede tardar en conectarse: Guyrapu espera hasta
+3 minutos y avisa una vez que TikTok todavía no deja leer el chat. En
 *Preferencias*, categoría *Eventos del directo*, *Sonido propio de cada
 plataforma* elige si los mensajes de TikTok tienen su sonido siempre, solo
 con varios chats o nunca, y *Anunciar qué plataforma tiene cada mensaje
