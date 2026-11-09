@@ -196,6 +196,23 @@ class VigilanciaTest(BaseGestorVertical):
         self.assertIn((_("El vertical volvió."), "transmision_recuperada"),
                       self.anuncios)
 
+    def test_un_reintento_que_falla_no_repite_el_aviso_de_corte(self):
+        gestor = self.armar()
+        self.iniciar(gestor)
+        self.lienzo.activo = False
+        gestor.estado_transmision(None)
+        self.lienzo.fallo_arrancar = obs_cliente.ObsError("sin salida")
+
+        self.reloj.ahora = 30.0
+        gestor.estado_transmision(None)
+        self.reloj.ahora = 60.0
+        gestor.estado_transmision(None)
+
+        cortes = [aviso for aviso in self.anuncios
+                  if aviso[0] == _(gestor_vertical.MENSAJE_CORTE)]
+        self.assertEqual(len(cortes), 1)
+        self.assertEqual(cortes[0][1], "transmision_problema")
+
     def test_un_fallo_del_lienzo_no_corta_la_vigilancia(self):
         gestor = self.armar()
         self.iniciar(gestor)
