@@ -19,9 +19,9 @@ directo_restream = importlib.util.module_from_spec(_paquete)
 _paquete.loader.exec_module(directo_restream)
 
 from directo_comun import (  # noqa: E402
-    chats_conectados, comparar_destinos_en_vivo, destinos_a_restaurar,
-    esperar_restauracion_app, leer_log_anuncios, manuales_nuevos,
-    paso_borrar_manual, paso_restaurar_destinos,
+    cerrar_obs_y_limpiar, chats_conectados, comparar_destinos_en_vivo,
+    destinos_a_restaurar, esperar_restauracion_app, leer_log_anuncios,
+    manuales_nuevos, paso_borrar_manual, paso_restaurar_destinos,
 )
 
 
@@ -116,6 +116,13 @@ class TestCompararDestinosEnVivo(unittest.TestCase):
             {"17448019", "111"}, self.TIKTOK, self.YOUTUBE, self.OTROS)
         self.assertFalse(bien)
         self.assertIn("otros destinos", detalle)
+
+    def test_las_dos_formas_del_tiktok_sin_manual_da_mal(self):
+        bien, detalle = comparar_destinos_en_vivo(
+            {"17448019", "szeiryuGaming"}, self.TIKTOK, self.YOUTUBE,
+            self.OTROS)
+        self.assertFalse(bien)
+        self.assertIn("YouTube manual", detalle)
 
 
 class TestDestinosARestaurar(unittest.TestCase):
@@ -413,6 +420,86 @@ class TestEsperaRestauracionApp(unittest.TestCase):
             estado, cuenta, 30, 2, reloj, reloj.dormir)
         self.assertTrue(bien)
         self.assertEqual(cuenta.llamadas, 0)
+
+
+
+class TestCerrarObsYLimpiar(unittest.TestCase):
+
+    def _pasos(self):
+        pasos = []
+
+        def anotar(nombre, bien, detalle=""):
+            pasos.append((nombre, bien, detalle))
+
+        return pasos, anotar
+
+    def _en_ejecucion(self, *valores):
+        pendientes = iter(valores)
+        return lambda: next(pendientes)
+
+    def test_cierre_limpio_no_fuerza_y_limpia(self):
+        llamadas = []
+
+        def cerrar():
+            llamadas.append("limpio")
+            return True
+
+        def forzar():
+            llamadas.append("forzar")
+
+        def limpiar():
+            llamadas.append("limpiar")
+            return 3
+
+        pasos, anotar = self._pasos()
+        cerrar_obs_y_limpiar(
+            {"estaba_obs": False}, anotar, cerrar_limpio=cerrar,
+            forzar=forzar, limpiar=limpiar, en_ejecucion=self._en_ejecucion(
+                True, False))
+        self.assertEqual(llamadas, ["limpio", "limpiar"])
+        self.assertTrue(pasos[0][1])
+        self.assertIn("3", pasos[0][2])
+
+    def test_si_el_limpio_falla_fuerza_y_despues_limpia(self):
+        llamadas = []
+
+        def cerrar():
+            llamadas.append("limpio")
+            return False
+
+        def forzar():
+            llamadas.append("forzar")
+
+        def limpiar():
+            llamadas.append("limpiar")
+            return 0
+
+        pasos, anotar = self._pasos()
+        cerrar_obs_y_limpiar(
+            {"estaba_obs": False}, anotar, cerrar_limpio=cerrar,
+            forzar=forzar, limpiar=limpiar, en_ejecucion=self._en_ejecucion(
+                True, False))
+        self.assertEqual(llamadas, ["limpio", "forzar", "limpiar"])
+        self.assertFalse(pasos[0][1])
+        self.assertIn("0", pasos[0][2])
+
+    def test_con_obs_ya_abierto_no_cierra_ni_limpia(self):
+        llamadas = []
+
+        def forzar():
+            llamadas.append("forzar")
+
+        def limpiar():
+            llamadas.append("limpiar")
+            return 1
+
+        pasos, anotar = self._pasos()
+        cerrar_obs_y_limpiar(
+            {"estaba_obs": True}, anotar, cerrar_limpio=lambda: False,
+            forzar=forzar, limpiar=limpiar, en_ejecucion=lambda: True)
+        self.assertEqual(llamadas, [])
+        self.assertTrue(pasos[0][1])
+        self.assertIn("0", pasos[0][2])
 
 
 if __name__ == "__main__":

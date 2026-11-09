@@ -35,7 +35,7 @@ from directo_comun import (  # noqa: E402
 from directo_real import (  # noqa: E402
     OK_FIN, _LANZADOR, _buscar_video_por_titulo,
     _cliente_youtube, _control, _dialogo_hijo, _esperar_estado,
-    _guardar_token_si_renovo, _leer_anuncios, _leer_valor,
+    _guardar_token_si_renovo, _leer_anuncios, _leer_valor, _limpiar_sentinel,
     _obs_en_ejecucion, _ventana, armar_titulo, extraer_id_video,
 )
 
@@ -116,6 +116,11 @@ def _respaldar_todo(estado, anotar) -> bool:
         estado["respaldos"][clave] = respaldo
     anotar("respaldos", True, "config.ini, sounds.ini y perfiles_restream.json")
     estado["estaba_obs"] = _obs_en_ejecucion()
+    if not estado["estaba_obs"]:
+        _limpiar_sentinel()
+    anotar("OBS sin modo seguro", True,
+           "sentinel limpio" if not estado["estaba_obs"]
+           else "ya estaba abierto, no se toca el sentinel")
     return True
 
 
@@ -391,11 +396,5 @@ def _correr(args, *, paso_cero=None, preparar=None, cuenta_mod=None):
     return (pasos, codigo)
 
 
-def main(argv: list[str] | None = None) -> int:
-    args = _ayuda().parse_args(argv)
-    _, codigo = _correr(args)
-    return codigo
-
-
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_correr(_ayuda().parse_args())[1])

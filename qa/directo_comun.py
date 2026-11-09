@@ -10,14 +10,16 @@ import shutil
 import time
 from pathlib import Path
 
+from guyrapu.obs import obs_lanzador
 from guyrapu.restream import perfiles
 
 from directo_real import (
     COMENTARIOS_PRUEBA, _borrar_video, _buscar_video_por_titulo,
     _cerrar_obs, _cliente_youtube, _comentario_faltante, _control,
     _detalle_lista_chat, _detener_y_finalizar, _dialogo_hijo, _gestor_obs,
-    _guardar_token_si_renovo, _leer_anuncios, _live_chat_id,
-    _obs_en_ejecucion, contestar_salir_si_aparece, es_borrable,
+    _guardar_token_si_renovo, _leer_anuncios, _limpiar_sentinel,
+    _live_chat_id, _obs_en_ejecucion, contestar_salir_si_aparece,
+    es_borrable,
 )
 
 NOMBRE_PERFIL = "Prueba de Guyrapu"
@@ -287,22 +289,19 @@ def esperar_restauracion_app(estado, cuenta_mod, segundos=30, intervalo=2,
 def paso_finalizar_app(estado, anotar) -> None:
     if estado.get("salio_al_aire") or not estado.get("pulso_transmitir"):
         return
-    principal = estado.get("principal")
-    with contextlib.suppress(RuntimeError):
-        if principal is not None:
-            _control(principal, "Finalizar directo", "Button", 5).invoke()
-            _control(_dialogo_hijo(principal, "Finalizar directo", 10),
-                     "Finalizar directo", "Button", 5).invoke()
+    with contextlib.suppress(RuntimeError, AttributeError):
+        _control(estado.get("principal"), "Finalizar directo", "Button", 5).invoke()
+        _control(_dialogo_hijo(estado.get("principal"), "Finalizar directo", 10),
+                 "Finalizar directo", "Button", 5).invoke()
 
 
 def paso_borrar_video(estado, anotar) -> None:
     buscar_por_titulo(estado)
     id_video = estado.get("id_video") or ""
     if not id_video:
-        if estado.get("enlace_manual"):
-            anotar("vídeo de YouTube", False, f"sin borrar: {estado['enlace_manual']}")
-        else:
-            anotar("vídeo de YouTube", True, "no se creó ninguno")
+        enlace = estado.get("enlace_manual")
+        anotar("vídeo de YouTube", not enlace,
+               f"sin borrar: {enlace}" if enlace else "no se creó ninguno")
         return
     try:
         cliente, creds = _cliente_youtube()
@@ -325,29 +324,35 @@ def paso_borrar_video(estado, anotar) -> None:
         anotar("borrar el vídeo", False, f"{motivo}; a mano: {a_mano}")
         return
     anotar("borrar el vídeo", True, f"id {id_video}")
-    estado["borrado_id"] = id_video
-    estado["id_video"] = ""
-    estado["enlace_manual"] = ""
+
+
+def cerrar_obs_y_limpiar(estado, anotar,
+                         cerrar_limpio=obs_lanzador.cerrar_obs,
+                         forzar=_cerrar_obs, limpiar=_limpiar_sentinel,
+                         en_ejecucion=_obs_en_ejecucion) -> None:
+    cerrado = True
+    if estado.get("estaba_obs") is False and en_ejecucion():
+        cerrado = cerrar_limpio()
+        if not cerrado:
+            forzar()
+    marcas = 0 if en_ejecucion() else limpiar()
+    anotar("cerrar OBS", cerrado, f"marcas borradas: {marcas}")
 
 
 def paso_cerrar_app(estado, anotar) -> None:
-    try:
-        if estado.get("principal") is not None:
-            with contextlib.suppress(Exception):
-                estado["principal"].close()
-                contestar_salir_si_aparece(segundos=8.0)
-                time.sleep(8)
-        if estado.get("app") is not None and estado["app"].poll() is None:
-            with contextlib.suppress(Exception):
-                estado["app"].kill()
-        if estado.get("gestor_obs") is not None:
-            with contextlib.suppress(Exception):
-                estado["gestor_obs"].cerrar()
-        if estado.get("estaba_obs") is False and _obs_en_ejecucion():
-            _cerrar_obs()
-        anotar("cerrar la app y OBS", True, "app cerrada")
-    except Exception as exc:
-        anotar("cerrar la app y OBS", False, str(exc))
+    if estado.get("principal") is not None:
+        with contextlib.suppress(Exception):
+            estado["principal"].close()
+            contestar_salir_si_aparece(segundos=8.0)
+            time.sleep(8)
+    if estado.get("app") is not None and estado["app"].poll() is None:
+        with contextlib.suppress(Exception):
+            estado["app"].kill()
+    if estado.get("gestor_obs") is not None:
+        with contextlib.suppress(Exception):
+            estado["gestor_obs"].cerrar()
+    cerrar_obs_y_limpiar(estado, anotar)
+    anotar("cerrar la app y OBS", True, "app cerrada")
 
 
 def restaurar_archivos(estado, anotar) -> None:
@@ -362,12 +367,11 @@ def restaurar_archivos(estado, anotar) -> None:
                 Path(ruta).unlink(missing_ok=True)
         except OSError as exc:
             problemas.append(f"{clave}: {exc}")
-        if respaldo:
-            with contextlib.suppress(OSError):
+        with contextlib.suppress(OSError):
+            if respaldo:
                 os.remove(respaldo)
     anotar("restaurar archivos", not problemas,
-           "; ".join(problemas) or "config.ini, sounds.ini y "
-           "perfiles_restream.json como estaban")
+           "; ".join(problemas) or "config.ini, sounds.ini y perfiles como estaban")
 
 
 def limpiar(estado, anotar, cuenta_mod) -> None:
