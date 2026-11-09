@@ -11,6 +11,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from guyrapu.core.idioma import _, ngettext
+from guyrapu.restream.perfiles import texto_orientacion
 
 
 def como_destino(entrada):
@@ -69,7 +70,7 @@ def fila_perfil(perfil, nombres=None, leidos=False):
     """La fila de la lista de perfiles con sus destinos por nombre."""
     nombres = nombres or {}
     partes = [_("{nombre}, {orientacion}").format(
-        nombre=perfil.nombre, orientacion=_(perfil.orientacion))]
+        nombre=perfil.nombre, orientacion=texto_orientacion(perfil.orientacion))]
     canales = tuple(perfil.canales)
     conocidos = [nombres[canal] for canal in canales if canal in nombres]
     if perfil.youtube:

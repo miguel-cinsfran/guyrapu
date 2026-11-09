@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from guyrapu.capture import tiktok_vivo
 from guyrapu.core.idioma import _
 from guyrapu.obs.obs_destinos import DESTINOS
+from guyrapu.restream.canal_youtube import PLATAFORMA_YOUTUBE
 
 PREFIJO = "restream:"
 
@@ -69,7 +70,7 @@ def perfil_de_opcion(opcion, perfiles):
 
 
 def destino_obs(opcion, perfiles) -> str:
-    """El perfil de OBS de una opción: vertical da TikTok y horizontal YouTube."""
+    """El perfil de OBS de una opción: vertical da TikTok, el resto YouTube."""
     if opcion in DESTINOS:
         return opcion
     perfil = perfil_de_opcion(opcion, perfiles)
@@ -86,11 +87,14 @@ def canales_del_perfil(perfil, canales) -> tuple:
 
 
 def plan_canales(perfil, canales) -> tuple:
-    """Los canales que hay que cambiar para dejar activos solo los del perfil."""
+    """Los canales a cambiar; con «ambas», el YouTube de Restream se apaga."""
     del_perfil = set(perfil.canales)
+    ambas = perfil.orientacion == "ambas"
     cambios = []
     for canal in canales or ():
-        activo = canal.id in del_perfil
+        activo = (canal.id in del_perfil
+                  and not (ambas and getattr(canal, "plataforma_id", None)
+                           == PLATAFORMA_YOUTUBE))
         if bool(canal.activo) != activo:
             cambios.append(CambioCanal(
                 canal_id=canal.id, activo=activo, antes=bool(canal.activo)))

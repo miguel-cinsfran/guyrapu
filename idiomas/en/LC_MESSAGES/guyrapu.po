@@ -2946,6 +2946,68 @@ msgstr ""
 msgid "Por defecto"
 msgstr "Default"
 
+#: guyrapu/obs/asistente_perfiles.py
+msgid "Ningún ajuste aguantó: se guardó el último escalón probado."
+msgstr "No setting held up: the last step tested was saved."
+
+#: guyrapu/obs/asistente_perfiles.py guyrapu/obs/escalones_equipo.py
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Sin cambios."
+msgstr "No changes."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Se eliminaron los perfiles creados: {nombres}."
+msgstr "The created profiles were deleted: {nombres}."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "No se pudo eliminar: {nombres}."
+msgstr "Could not delete: {nombres}."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "grabación en formato {formato}, calidad alta para archivo mediano"
+msgstr "recording in {formato} format, high quality for medium file"
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Perfil «{nombre}» {uso}: {ajustes}."
+msgstr "Profile “{nombre}” {uso}: {ajustes}."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Prueba del equipo: {cambios}"
+msgstr "Computer test: {cambios}"
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Antes ese uso lo tenía «{anterior}»."
+msgstr "That use previously belonged to “{anterior}”."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid ""
+"Para TikTok sin Restream, escribe el servidor y la clave en «Editar "
+"ajustes» del perfil «{nombre}»."
+msgstr ""
+"To stream to TikTok without Restream, type the server and the key in “Edit "
+"settings” of the “{nombre}” profile."
+
+#: guyrapu/obs/asistente_perfiles.py
+msgid "Crea la versión vertical de las escenas con «Crear la versión vertical»."
+msgstr "Create the vertical version of the scenes with “Create vertical version”."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Probando el equipo con {nombre}: {ajustes}…"
+msgstr "Testing the computer with {nombre}: {ajustes}…"
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Creando el perfil {nombre}…"
+msgstr "Creating the profile {nombre}…"
+
 #: guyrapu/obs/detener_obs.py guyrapu/ui/boton_directo.py
 #: guyrapu/ui/directo_panel.py guyrapu/ui/gui_transmitir.py
 msgid "Deteniendo la transmisión. Esperando a que OBS confirme."
@@ -3082,10 +3144,6 @@ msgstr "Frames per second: {antes} to {despues}."
 #, python-brace-format
 msgid "Salida: {ancho} por {alto} a {nuevo_ancho} por {nuevo_alto}."
 msgstr "Output: {ancho} by {alto} to {nuevo_ancho} by {nuevo_alto}."
-
-#: guyrapu/obs/escalones_equipo.py guyrapu/ui/obs_pagina_perfiles.py
-msgid "Sin cambios."
-msgstr "No changes."
 
 #: guyrapu/obs/escucha_microfono.py
 msgid "La monitorización ya estaba activada en OBS."
@@ -3316,6 +3374,18 @@ msgid ""
 msgstr ""
 "OBS is getting nothing from this microphone. Check that it is connected or "
 "choose another one in Choose a device."
+
+#: guyrapu/obs/nombres_asistente.py
+msgid "Guyrapu horizontal"
+msgstr "Guyrapu horizontal"
+
+#: guyrapu/obs/nombres_asistente.py
+msgid "Guyrapu vertical"
+msgstr "Guyrapu vertical"
+
+#: guyrapu/obs/nombres_asistente.py
+msgid "Guyrapu grabación"
+msgstr "Guyrapu recording"
 
 #: guyrapu/obs/nombres_escena.py
 msgid "escena actual"
@@ -3623,11 +3693,13 @@ msgstr "OBS did not finish switching scenes."
 
 #. Traductores: formato del lienzo dentro de «OBS preparado para transmitir».
 #: guyrapu/obs/obs_destinos.py guyrapu/obs/obs_prevuelo.py
+#: guyrapu/restream/perfiles.py
 msgid "vertical"
 msgstr "vertical"
 
 #. Traductores: formato del lienzo dentro de «OBS preparado para transmitir».
 #: guyrapu/obs/obs_destinos.py guyrapu/obs/obs_prevuelo.py
+#: guyrapu/restream/perfiles.py
 msgid "horizontal"
 msgstr "horizontal"
 
@@ -5494,6 +5566,27 @@ msgstr ""
 "again from {app}."
 
 #: guyrapu/restream/perfiles.py
+msgid "horizontal y vertical a la vez"
+msgstr "horizontal and vertical at the same time"
+
+#: guyrapu/restream/perfiles.py
+msgid ""
+"Para transmitir en horizontal y vertical a la vez, marca YouTube: YouTube "
+"recibe el horizontal y los destinos de Restream, el vertical."
+msgstr ""
+"To broadcast horizontally and vertically at the same time, select YouTube: "
+"YouTube receives the horizontal stream and the Restream destinations "
+"receive the vertical one."
+
+#: guyrapu/restream/perfiles.py
+msgid ""
+"La orientación del perfil de Restream debe ser horizontal, vertical o "
+"horizontal y vertical a la vez."
+msgstr ""
+"The Restream profile orientation must be horizontal, vertical or horizontal"
+" and vertical at the same time."
+
+#: guyrapu/restream/perfiles.py
 msgid "Escribe un nombre para el perfil de Restream."
 msgstr "Type a name for the Restream profile."
 
@@ -5508,10 +5601,6 @@ msgstr "A Restream profile with that name already exists."
 #: guyrapu/restream/perfiles.py
 msgid "Agrega al menos un destino al perfil de Restream."
 msgstr "Add at least one destination to the Restream profile."
-
-#: guyrapu/restream/perfiles.py
-msgid "La orientación del perfil de Restream debe ser horizontal o vertical."
-msgstr "The Restream profile orientation must be horizontal or vertical."
 
 #: guyrapu/restream/resumen_cuenta.py
 msgid ""
@@ -6432,17 +6521,18 @@ msgstr "Before broadcasting"
 
 #. Traductores: botón para cerrar sin publicar.
 #: guyrapu/ui/confirmar_transmision.py guyrapu/ui/descargas_acciones.py
-#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
-#: guyrapu/ui/dialogo_usos_perfil.py guyrapu/ui/escena_agregar_fuente.py
-#: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_edicion_fuente.py
-#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_pagina_escena.py
-#: guyrapu/ui/escena_propiedades.py guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py
-#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
-#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
-#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
-#: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
-#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_prueba_conexion.py
+#: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/dialogo_usos_perfil.py
+#: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_captura_ventana.py
+#: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_propiedades.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py guyrapu/ui/gui_envio_chat.py
+#: guyrapu/ui/gui_preferencias.py guyrapu/ui/gui_redactar.py
+#: guyrapu/ui/ia_privacidad.py guyrapu/ui/musica_ventana_acciones.py
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/preferencias_ia_clave.py guyrapu/ui/restream_pagina_cuenta.py
+#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/restream_perfil.py
 msgid "&Cancelar"
 msgstr "&Cancel"
 
@@ -6893,6 +6983,73 @@ msgstr "Save and e&xit"
 msgid "Cancelar y &volver"
 msgstr "Cancel and &undo"
 
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid ""
+"Guyrapu crea perfiles nuevos con el mejor codificador de este equipo, los "
+"prueba y los deja asignados. Tus perfiles no se tocan. Puede tardar unos "
+"minutos."
+msgstr ""
+"Guyrapu creates new profiles with the best encoder on this computer, tests "
+"them and leaves them assigned. Your profiles are not touched. It may take a"
+" few minutes."
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "&Transmitir en horizontal (YouTube)"
+msgstr "&Broadcast horizontally (YouTube)"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Transmitir en &vertical (TikTok)"
+msgstr "Broadcast &vertically (TikTok)"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_usos_perfil.py
+msgid "&Grabar"
+msgstr "&Record"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Marca al menos una de las tres primeras casillas."
+msgstr "Select at least one of the first three check boxes."
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparación cancelada. No se creó ningún perfil."
+msgstr "Preparation canceled. No profile was created."
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparar perfiles de OBS"
+msgstr "Prepare OBS profiles"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Cómo funciona"
+msgstr "How it works"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Probar cada perfil con el e&quipo"
+msgstr "Test each profile with the co&mputer"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "&Preparar"
+msgstr "&Prepare"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparando perfiles de OBS"
+msgstr "Preparing OBS profiles"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Estado de la preparación"
+msgstr "Preparation status"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Resumen de la preparación"
+msgstr "Preparation summary"
+
+#. Traductores: botón para cerrar la ventana.
+#. Traductores: cierra la ventana; segunda, su nombre accesible.
+#: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_estado.py
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+#: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
+#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
+msgid "&Cerrar"
+msgstr "&Close"
+
 #: guyrapu/ui/dialogo_estado.py
 msgid "Estado de la sesión"
 msgstr "Session status"
@@ -6906,15 +7063,6 @@ msgstr "No status information."
 #: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
 msgid "Cerrar"
 msgstr "Close"
-
-#. Traductores: botón para cerrar la ventana.
-#. Traductores: cierra la ventana; segunda, su nombre accesible.
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/dialogo_prueba_conexion.py
-#: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/gui_actualizacion.py
-#: guyrapu/ui/gui_descargas.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/musica_ventana.py
-msgid "&Cerrar"
-msgstr "&Close"
 
 #: guyrapu/ui/dialogo_prueba_conexion.py
 msgid "La prueba no llegó a medir ninguna tasa de bits."
@@ -7102,10 +7250,6 @@ msgstr "&Broadcast horizontally"
 #: guyrapu/ui/dialogo_usos_perfil.py
 msgid "Transmitir en &vertical"
 msgstr "Broadcast &vertically"
-
-#: guyrapu/ui/dialogo_usos_perfil.py
-msgid "&Grabar"
-msgstr "&Record"
 
 #: guyrapu/ui/dialogo_usos_perfil.py
 #, python-brace-format
@@ -10628,6 +10772,14 @@ msgstr "De&lete profile"
 msgid "Editar a&justes…"
 msgstr "Edit &settings…"
 
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Preparar perfiles…"
+msgstr "&Prepare profiles…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Preparar perfiles…"
+msgstr "Prepare profiles…"
+
 #: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/obs_ventana.py
 msgid "OBS no está disponible."
 msgstr "OBS is not available."
@@ -11018,6 +11170,10 @@ msgstr "Group likes for, in seconds"
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Sonido propio de cada plataforma"
 msgstr "Each platform's own sound"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "So&nido propio de cada plataforma:"
+msgstr "Eac&h platform's own sound:"
 
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Solo con varios chats"
@@ -12154,6 +12310,10 @@ msgid "&Orientación:"
 msgstr "&Orientation:"
 
 #: guyrapu/ui/restream_perfil.py
+msgid "Horizontal y vertical a la vez"
+msgstr "Horizontal and vertical at the same time"
+
+#: guyrapu/ui/restream_perfil.py
 msgid "No hay destinos. Agrégalos en la pestaña Destinos."
 msgstr "There are no destinations. Add them on the Destinations tab."
 
@@ -12622,139 +12782,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/obs/asistente_perfiles.py
-msgid "Ningún ajuste aguantó: se guardó el último escalón probado."
-msgstr "No setting held up: the last step tested was saved."
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "Se eliminaron los perfiles creados: {nombres}."
-msgstr "The created profiles were deleted: {nombres}."
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "No se pudo eliminar: {nombres}."
-msgstr "Could not delete: {nombres}."
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "grabación en formato {formato}, calidad alta para archivo mediano"
-msgstr "recording in {formato} format, high quality for medium file"
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "Perfil «{nombre}» {uso}: {ajustes}."
-msgstr "Profile “{nombre}” {uso}: {ajustes}."
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "Prueba del equipo: {cambios}"
-msgstr "Computer test: {cambios}"
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "Antes ese uso lo tenía «{anterior}»."
-msgstr "That use previously belonged to “{anterior}”."
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid ""
-"Para TikTok sin Restream, escribe el servidor y la clave en «Editar "
-"ajustes» del perfil «{nombre}»."
-msgstr ""
-"To stream to TikTok without Restream, type the server and the key in “Edit "
-"settings” of the “{nombre}” profile."
-
-#: guyrapu/obs/asistente_perfiles.py
-msgid "Crea la versión vertical de las escenas con «Crear la versión vertical»."
-msgstr "Create the vertical version of the scenes with “Create vertical version”."
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "Probando el equipo con {nombre}: {ajustes}…"
-msgstr "Testing the computer with {nombre}: {ajustes}…"
-
-#: guyrapu/obs/asistente_perfiles.py
-#, python-brace-format
-msgid "Creando el perfil {nombre}…"
-msgstr "Creating the profile {nombre}…"
-
-#: guyrapu/obs/nombres_asistente.py
-msgid "Guyrapu horizontal"
-msgstr "Guyrapu horizontal"
-
-#: guyrapu/obs/nombres_asistente.py
-msgid "Guyrapu vertical"
-msgstr "Guyrapu vertical"
-
-#: guyrapu/obs/nombres_asistente.py
-msgid "Guyrapu grabación"
-msgstr "Guyrapu recording"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid ""
-"Guyrapu crea perfiles nuevos con el mejor codificador de este equipo, los "
-"prueba y los deja asignados. Tus perfiles no se tocan. Puede tardar unos "
-"minutos."
-msgstr ""
-"Guyrapu creates new profiles with the best encoder on this computer, tests "
-"them and leaves them assigned. Your profiles are not touched. It may take a"
-" few minutes."
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "&Transmitir en horizontal (YouTube)"
-msgstr "&Broadcast horizontally (YouTube)"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Transmitir en &vertical (TikTok)"
-msgstr "Broadcast &vertically (TikTok)"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Marca al menos una de las tres primeras casillas."
-msgstr "Select at least one of the first three check boxes."
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Preparación cancelada. No se creó ningún perfil."
-msgstr "Preparation canceled. No profile was created."
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Preparar perfiles de OBS"
-msgstr "Prepare OBS profiles"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Cómo funciona"
-msgstr "How it works"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Probar cada perfil con el e&quipo"
-msgstr "Test each profile with the co&mputer"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "&Preparar"
-msgstr "&Prepare"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Preparando perfiles de OBS"
-msgstr "Preparing OBS profiles"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Estado de la preparación"
-msgstr "Preparation status"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Resumen de la preparación"
-msgstr "Preparation summary"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "&Preparar perfiles…"
-msgstr "&Prepare profiles…"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Preparar perfiles…"
-msgstr "Prepare profiles…"
-
-#: guyrapu/ui/preferencias_eventos.py
-msgid "So&nido propio de cada plataforma:"
-msgstr "Eac&h platform's own sound:"
 

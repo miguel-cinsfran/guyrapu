@@ -1560,6 +1560,28 @@ class PruebaDialogoPerfil(unittest.TestCase):
         self.assertEqual("Editar perfil de Restream",
                          self._dialogo(_perfil()).GetTitle())
 
+    def test_p2_la_orientacion_ofrece_las_tres_opciones(self):
+        dialogo = self._dialogo()
+        self.assertEqual(
+            ["Horizontal", "Vertical", "Horizontal y vertical a la vez"],
+            list(dialogo.cho_orientacion.GetStrings()))
+
+    def test_p3_ambas_sin_youtube_anuncia_y_enfoca_la_casilla(self):
+        dialogo = self._dialogo()
+        dialogo.txt_nombre.SetValue("Las dos")
+        dialogo._casillas[0][1].SetValue(True)
+        dialogo.cho_orientacion.SetSelection(2)
+        with mock.patch.object(restream_perfil, "anunciar") as anunciar, \
+                mock.patch.object(dialogo.chk_youtube, "SetFocus") as foco, \
+                mock.patch.object(dialogo, "EndModal") as fin:
+            dialogo._guardar(None)
+
+        self.assertIn(
+            "Para transmitir en horizontal y vertical a la vez, marca "
+            "YouTube", anunciar.call_args.args[0])
+        foco.assert_called_once_with()
+        fin.assert_not_called()
+
     def test_p1_la_casilla_y_la_lista_tienen_su_letra_sin_choque(self):
         dialogo = self._dialogo()
         self.assertEqual("&YouTube, el canal de tu sesión de Google",

@@ -74,6 +74,14 @@ class TestArchivo(unittest.TestCase):
             guardar(ruta, perfiles)
             self.assertEqual(cargar(ruta), perfiles)
 
+    def test_p1_ambas_se_guarda_y_se_lee(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            ruta = Path(temporal) / "perfiles_restream.json"
+            perfiles = [_perfil(nombre="Las dos", orientacion="ambas",
+                                youtube=True)]
+            guardar(ruta, perfiles)
+            self.assertEqual(cargar(ruta), perfiles)
+
     def test_un_chat_desconocido_queda_vacio(self):
         with tempfile.TemporaryDirectory() as temporal:
             ruta = Path(temporal) / "perfiles_restream.json"
@@ -139,6 +147,15 @@ class TestValidacion(unittest.TestCase):
     def test_p3_vale_con_solo_un_destino(self):
         self.assertEqual(validar(_perfil(canales=(1,), youtube=False), []), [])
 
+    def test_p3_ambas_exige_youtube_y_lo_dice(self):
+        mensaje = ("Para transmitir en horizontal y vertical a la vez, marca "
+                   "YouTube: YouTube recibe el horizontal y los destinos de "
+                   "Restream, el vertical.")
+        self.assertIn(mensaje, validar(
+            _perfil(orientacion="ambas", youtube=False), []))
+        self.assertEqual(validar(
+            _perfil(orientacion="ambas", youtube=True), []), [])
+
     def test_p2_los_mensajes_dicen_perfil_de_restream_y_destino(self):
         casos = [
             (_perfil(nombre="   "), [],
@@ -148,8 +165,8 @@ class TestValidacion(unittest.TestCase):
             (_perfil(canales=(), youtube=False), [],
              "Agrega al menos un destino al perfil de Restream."),
             (_perfil(orientacion="diagonal"), [],
-             "La orientación del perfil de Restream debe ser horizontal o "
-             "vertical."),
+             "La orientación del perfil de Restream debe ser horizontal, "
+             "vertical o horizontal y vertical a la vez."),
         ]
         for perfil, existentes, esperado in casos:
             with self.subTest(mensaje=esperado):

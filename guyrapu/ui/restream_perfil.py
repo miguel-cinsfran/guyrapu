@@ -95,7 +95,9 @@ class DialogoPerfilRestream(wx.Dialog):
     def _agregar_orientacion(self, zona, contenido):
         _rotulo_orientacion, self.cho_orientacion = _rotulo(
             zona, contenido, _("&Orientación:"),
-            lambda: wx.Choice(zona, choices=[_("Horizontal"), _("Vertical")]))
+            lambda: wx.Choice(zona, choices=[
+                _("Horizontal"), _("Vertical"),
+                _("Horizontal y vertical a la vez")]))
         orientacion = (self._perfil.orientacion if self._perfil is not None
                        else ORIENTACIONES[0])
         self.cho_orientacion.SetSelection(ORIENTACIONES.index(orientacion))
@@ -214,6 +216,8 @@ class DialogoPerfilRestream(wx.Dialog):
         if not nombre or nombre == "youtube" or repetido:
             self.txt_nombre.SetFocus()
         elif not perfil.canales and not perfil.youtube:
+            self.chk_youtube.SetFocus()
+        elif perfil.orientacion == "ambas" and not perfil.youtube:
             self.chk_youtube.SetFocus()
         elif self._casillas:
             self._casillas[0][1].SetFocus()

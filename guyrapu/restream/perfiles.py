@@ -16,8 +16,17 @@ from guyrapu.restream.canal_youtube import PLATAFORMA_YOUTUBE
 from guyrapu.restream.youtube_por_restream import NOMBRE_MANUAL
 from guyrapu.youtube.emision import LATENCIAS, PRIVACIDADES
 
-ORIENTACIONES = ("horizontal", "vertical")
+ORIENTACIONES = ("horizontal", "vertical", "ambas")
 CHATS = ("", "youtube", "tiktok", "ambos")
+
+
+def texto_orientacion(orientacion) -> str:
+    """El texto visible de una orientación de perfil de Restream."""
+    return {
+        "horizontal": _("horizontal"),
+        "vertical": _("vertical"),
+        "ambas": _("horizontal y vertical a la vez"),
+    }.get(orientacion, orientacion or "")
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,6 +134,19 @@ def guardar(ruta, perfiles) -> None:
     archivos.escribir_json_atomico(ruta, [perfil.a_dict() for perfil in perfiles])
 
 
+def _problemas_de_orientacion(perfil) -> list[str]:
+    """Los mensajes de validación que dependen de la orientación."""
+    if perfil.orientacion == "ambas" and not perfil.youtube:
+        return [_(
+            "Para transmitir en horizontal y vertical a la vez, marca "
+            "YouTube: YouTube recibe el horizontal y los destinos de "
+            "Restream, el vertical.")]
+    if perfil.orientacion not in ORIENTACIONES:
+        return [_("La orientación del perfil de Restream debe ser horizontal, "
+                  "vertical o horizontal y vertical a la vez.")]
+    return []
+
+
 def validar(perfil, existentes) -> list[str]:
     """Devuelve los mensajes que impiden guardar el perfil; vacío si vale."""
     mensajes = []
@@ -141,10 +163,7 @@ def validar(perfil, existentes) -> list[str]:
 
     if not perfil.canales and not perfil.youtube:
         mensajes.append(_("Agrega al menos un destino al perfil de Restream."))
-    if perfil.orientacion not in ORIENTACIONES:
-        mensajes.append(
-            _("La orientación del perfil de Restream debe ser horizontal o "
-              "vertical."))
+    mensajes.extend(_problemas_de_orientacion(perfil))
     return mensajes
 
 

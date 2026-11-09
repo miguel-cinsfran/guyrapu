@@ -102,6 +102,13 @@ class TestFilaPerfil(unittest.TestCase):
             resumen_cuenta.fila_perfil(
                 _perfil(canales=(2,), youtube=True), {}, True))
 
+    def test_p4_ambas_dice_horizontal_y_vertical_a_la_vez(self):
+        self.assertEqual(
+            "Canal, horizontal y vertical a la vez: TikTok: uno, YouTube",
+            resumen_cuenta.fila_perfil(
+                _perfil(canales=(1,), orientacion="ambas", youtube=True),
+                {1: "TikTok: uno"}, True))
+
     def test_nombra_los_destinos_en_orden(self):
         perfil = _perfil(canales=(1, 2))
         self.assertEqual(

@@ -5,6 +5,7 @@
 import unittest
 
 from guyrapu.restream import transmitir
+from guyrapu.restream.canal_youtube import PLATAFORMA_YOUTUBE
 from guyrapu.restream.perfiles import Perfil
 from guyrapu.restream.api import Canal
 
@@ -15,10 +16,11 @@ def _perfil(nombre="Uno", orientacion="vertical", canales=(1,), youtube=False,
                   youtube=youtube, chat=chat)
 
 
-def _canal(identificador, plataforma, activo=True, url="", nombre=""):
-    return Canal(id=identificador, plataforma_id=0, plataforma=plataforma,
-                 nombre=nombre or f"canal {identificador}", url=url,
-                 activo=activo)
+def _canal(identificador, plataforma, activo=True, url="", nombre="",
+           plataforma_id=0):
+    return Canal(id=identificador, plataforma_id=plataforma_id,
+                 plataforma=plataforma, nombre=nombre or f"canal {identificador}",
+                 url=url, activo=activo)
 
 
 class TestOpciones(unittest.TestCase):
@@ -74,6 +76,11 @@ class TestDestinoObs(unittest.TestCase):
                                    [vertical, horizontal]),
             "YouTube")
 
+    def test_p5_ambas_da_youtube(self):
+        ambas = _perfil("Ambas", "ambas", canales=(1,), youtube=True)
+        self.assertEqual(
+            transmitir.destino_obs("restream:Ambas", [ambas]), "YouTube")
+
     def test_perfil_de_una_opcion(self):
         uno = _perfil("Uno")
         dos = _perfil("Dos")
@@ -99,6 +106,18 @@ class TestPlanDeCanales(unittest.TestCase):
         self.assertEqual(
             [(cambio.canal_id, cambio.activo, cambio.antes) for cambio in cambios],
             [(1, True, False), (2, False, True), (3, True, False)])
+
+    def test_p6_ambas_apaga_el_youtube_de_restream_y_enciende_los_demas(self):
+        perfil = _perfil("Ambas", "ambas", canales=(1, 2), youtube=True)
+        canales = [
+            _canal(1, "YouTube", True, plataforma_id=PLATAFORMA_YOUTUBE),
+            _canal(2, "TikTok", False),
+        ]
+        cambios = transmitir.plan_canales(perfil, canales)
+        self.assertEqual(
+            [(cambio.canal_id, cambio.activo, cambio.antes)
+             for cambio in cambios],
+            [(1, False, True), (2, True, False)])
 
     def test_aplicar_el_plan_deja_activos_solo_los_del_perfil(self):
         perfil = _perfil(canales=(1, 3, 9))
