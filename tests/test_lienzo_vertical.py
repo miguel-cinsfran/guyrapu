@@ -109,6 +109,21 @@ class AccionesTest(unittest.TestCase):
             [pedido for _vendor, pedido, _datos in cliente.vendor_llamadas],
             ["start_streaming", "stop_streaming"])
 
+    def test_arranca_y_detiene_la_grabacion(self):
+        cliente = ClienteFalso()
+        lienzo_vertical.arrancar_grabacion(cliente)
+        lienzo_vertical.detener_grabacion(cliente)
+        self.assertEqual(
+            [pedido for _vendor, pedido, _datos in cliente.vendor_llamadas],
+            ["start_recording", "stop_recording"])
+
+    def test_apaga_el_bufer(self):
+        cliente = ClienteFalso()
+        lienzo_vertical.apagar_bufer(cliente)
+        self.assertEqual(
+            cliente.vendor_llamadas,
+            [("aitum-vertical-canvas", "stop_backtrack", {})])
+
     def test_cambia_servidor_y_clave_por_posicion(self):
         cliente = ClienteFalso()
         lienzo_vertical.cambiar_servidor(cliente, 2, "rtmp://servidor")
@@ -136,6 +151,9 @@ class AccionesTest(unittest.TestCase):
             lambda cliente: lienzo_vertical.estado(cliente),
             lambda cliente: lienzo_vertical.arrancar(cliente),
             lambda cliente: lienzo_vertical.detener(cliente),
+            lambda cliente: lienzo_vertical.arrancar_grabacion(cliente),
+            lambda cliente: lienzo_vertical.detener_grabacion(cliente),
+            lambda cliente: lienzo_vertical.apagar_bufer(cliente),
             lambda cliente: lienzo_vertical.cambiar_servidor(
                 cliente, 0, "rtmp://servidor"),
             lambda cliente: lienzo_vertical.cambiar_clave(cliente, 0, "clave"),
@@ -147,6 +165,9 @@ class AccionesTest(unittest.TestCase):
                 "status": {"success": False},
                 "start_streaming": {"success": False},
                 "stop_streaming": {"success": False},
+                "start_recording": {"success": False},
+                "stop_recording": {"success": False},
+                "stop_backtrack": {"success": False},
                 "update_stream_server": {"success": False},
                 "update_stream_key": {"success": False},
                 "current_scene": {"success": False},

@@ -61,6 +61,32 @@ class TestDialogoPruebaEquipo(BaseCuadro):
                         cuadro.btn_empezar.GetPosition().y)
 
 
+class TestCasillaVertical(BaseCuadro):
+
+    def test_con_el_plugin_la_casilla_esta_sin_marcar_antes_de_empezar(self):
+        cuadro = self._mostrar(dialogo_prueba_equipo.DialogoPruebaEquipo(
+            None, "Casa", _ajustes(), 48, vertical=True))
+        self.assertIsNotNone(cuadro.chk_vertical)
+        self.assertFalse(cuadro.chk_vertical.IsChecked())
+        self.assertEqual(
+            cuadro.chk_vertical.GetName(),
+            "Incluir el lienzo vertical, para transmitir en horizontal y "
+            "vertical a la vez")
+        self.assertLess(cuadro.txt_detalle.GetPosition().y,
+                        cuadro.chk_vertical.GetPosition().y)
+        self.assertLess(cuadro.chk_vertical.GetPosition().y,
+                        cuadro.btn_empezar.GetPosition().y)
+        self.assertTrue(cuadro.btn_empezar.HasFocus())
+        self.assertIn("se graban los dos y se borran las dos grabaciones",
+                      cuadro.texto())
+
+    def test_sin_el_plugin_no_hay_casilla_ni_frase(self):
+        cuadro = self._mostrar(dialogo_prueba_equipo.DialogoPruebaEquipo(
+            None, "Casa", _ajustes(), 48))
+        self.assertIsNone(cuadro.chk_vertical)
+        self.assertNotIn("se graban los dos", cuadro.texto())
+
+
 class TestDialogoProgresoPrueba(BaseCuadro):
 
     def test_cancelar_corta_la_prueba_y_el_foco_queda_en_cancelar(self):
@@ -160,6 +186,55 @@ class TestCoordinador(unittest.TestCase):
             panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
         self.assertIn("sin OBS", avisos[0])
         self.assertIn("OBS quedó como estaba", avisos[0])
+
+    def test_preparar_avisa_si_esta_el_plugin_vertical(self):
+        panel = self._panel()
+        preparacion = mock.Mock()
+        with mock.patch.object(
+                dialogo_prueba_equipo.prueba_equipo, "preparar",
+                return_value=preparacion), \
+                mock.patch.object(
+                    dialogo_prueba_equipo.lienzo_vertical, "detectar",
+                    return_value={"canvasUuid": "x"}):
+            self.assertEqual(panel._preparar(), (preparacion, True))
+        with mock.patch.object(
+                dialogo_prueba_equipo.prueba_equipo, "preparar",
+                return_value=preparacion), \
+                mock.patch.object(
+                    dialogo_prueba_equipo.lienzo_vertical, "detectar",
+                    return_value=None):
+            self.assertEqual(panel._preparar(), (preparacion, False))
+
+    def _correr_capturando(self, incluir_vertical):
+        panel = self._panel()
+        capturado = {}
+
+        def en_hilo(funcion, al_terminar=None):
+            capturado["funcion"] = funcion
+
+        panel._en_hilo = en_hilo
+        with mock.patch.object(
+                dialogo_prueba_equipo, "DialogoProgresoPrueba"), \
+                mock.patch.object(
+                    dialogo_prueba_equipo.prueba_equipo,
+                    "ejecutar") as ejecutar, \
+                mock.patch.object(
+                    dialogo_prueba_equipo, "prueba_vertical") as vertical:
+            vertical.ClienteVertical.return_value = "envuelto"
+            panel._correr(mock.Mock(disponibles=()),
+                          incluir_vertical=incluir_vertical)
+            capturado["funcion"]()
+        return ejecutar, vertical
+
+    def test_con_la_casilla_marcada_corre_con_el_cliente_envuelto(self):
+        ejecutar, vertical = self._correr_capturando(True)
+        vertical.ClienteVertical.assert_called_once_with("cliente")
+        self.assertEqual(ejecutar.call_args.args[0], "envuelto")
+
+    def test_con_la_casilla_sin_marcar_corre_con_el_cliente_de_siempre(self):
+        ejecutar, vertical = self._correr_capturando(False)
+        vertical.ClienteVertical.assert_not_called()
+        self.assertEqual(ejecutar.call_args.args[0], "cliente")
 
     def test_al_guardar_avisa_y_refresca(self):
         resultado = prueba_equipo.ResultadoEquipo(

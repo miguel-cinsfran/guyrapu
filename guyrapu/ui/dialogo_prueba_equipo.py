@@ -12,18 +12,34 @@ import threading
 
 import wx
 
-from guyrapu.core.idioma import _
-from guyrapu.obs import escalones_equipo, perfiles_obs, prueba_equipo
+from guyrapu.core.idioma import N_, _
+from guyrapu.obs import (escalones_equipo, lienzo_vertical, perfiles_obs,
+                         prueba_equipo, prueba_vertical)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 
 _PROPIEDADES_TEXTO = wx.TE_MULTILINE | wx.TE_READONLY
+
+ROTULO_VERTICAL = N_(
+    "Incluir el lienzo &vertical, para transmitir en horizontal y vertical "
+    "a la vez")
+DETALLE_VERTICAL = N_(
+    "Si incluyes el lienzo vertical, se graban los dos y se borran las dos "
+    "grabaciones.")
 
 
 def _boton(dialogo, etiqueta, manejador):
     control = boton(dialogo, etiqueta, nombre_de_etiqueta(etiqueta))
     control.Bind(wx.EVT_BUTTON, manejador)
     return control
+
+
+def _texto_detalle(perfil, ajustes, segundos) -> str:
+    return _(
+        "Se va a probar el perfil «{perfil}» con {ajustes}. La prueba "
+        "tarda como mucho {segundos} segundos.").format(
+            perfil=perfil, ajustes=escalones_equipo.describir(ajustes),
+            segundos=segundos)
 
 
 def texto_resultado(resultado) -> str:
@@ -66,7 +82,8 @@ def texto_resultado(resultado) -> str:
 class DialogoPruebaEquipo(wx.Dialog):
     """El cuadro previo: qué perfil y qué ajustes se van a probar."""
 
-    def __init__(self, padre, perfil, ajustes, segundos_maximos):
+    def __init__(self, padre, perfil, ajustes, segundos_maximos,
+                 vertical=False):
         super().__init__(padre, title=_("Probar el equipo"),
                          name="DialogoPruebaEquipo")
         caja = wx.BoxSizer(wx.VERTICAL)
@@ -74,12 +91,18 @@ class DialogoPruebaEquipo(wx.Dialog):
             self, style=_PROPIEDADES_TEXTO, name=_("Detalle de la prueba"))
         nombre_accesible(self.txt_detalle, _("Detalle de la prueba"))
         self.txt_detalle.SetMinSize((-1, 120))
-        self.txt_detalle.SetValue(_(
-            "Se va a probar el perfil «{perfil}» con {ajustes}. La prueba "
-            "tarda como mucho {segundos} segundos.").format(
-                perfil=perfil, ajustes=escalones_equipo.describir(ajustes),
-                segundos=segundos_maximos))
+        detalle = _texto_detalle(perfil, ajustes, segundos_maximos)
+        self.chk_vertical = None
+        if vertical:
+            self.chk_vertical = wx.CheckBox(
+                self, label=_(ROTULO_VERTICAL),
+                name=nombre_de_etiqueta(_(ROTULO_VERTICAL)))
+            nombre_accesible(self.chk_vertical, self.chk_vertical.GetName())
+            detalle += " " + _(DETALLE_VERTICAL)
+        self.txt_detalle.SetValue(detalle)
         caja.Add(self.txt_detalle, 1, wx.EXPAND | wx.ALL, 10)
+        if self.chk_vertical is not None:
+            caja.Add(self.chk_vertical, 0, wx.LEFT | wx.RIGHT, 10)
         fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_empezar = _boton(self, _("&Empezar"), self._empezar)
         self.btn_cancelar = wx.Button(
@@ -96,6 +119,10 @@ class DialogoPruebaEquipo(wx.Dialog):
 
     def _empezar(self, _evento):
         self.EndModal(wx.ID_OK)
+
+    def incluir_vertical(self) -> bool:
+        return bool(self.chk_vertical is not None
+                    and self.chk_vertical.IsChecked())
 
     def texto(self) -> str:
         return self.txt_detalle.GetValue()
@@ -199,7 +226,9 @@ class PruebaEquipoPanel:
 
     def _preparar(self):
         try:
-            return prueba_equipo.preparar(self._cliente)
+            preparacion = prueba_equipo.preparar(self._cliente)
+            hay_vertical = lienzo_vertical.detectar(self._cliente) is not None
+            return preparacion, hay_vertical
         except Exception as error:
             return error
 
@@ -207,19 +236,24 @@ class PruebaEquipoPanel:
         if isinstance(preparacion, Exception):
             self._anunciar_texto(self._texto_fallo(preparacion))
             return
+        preparacion, hay_vertical = preparacion
         cuadro = DialogoPruebaEquipo(
             self._ventana, preparacion.perfil, preparacion.ajustes,
-            preparacion.segundos_maximos)
+            preparacion.segundos_maximos, vertical=hay_vertical)
+        incluir_vertical = False
         try:
             if cuadro.ShowModal() != wx.ID_OK:
                 return
+            incluir_vertical = cuadro.incluir_vertical()
         finally:
             cuadro.Destroy()
-        self._correr(preparacion)
+        self._correr(preparacion, incluir_vertical)
 
-    def _correr(self, preparacion):
+    def _correr(self, preparacion, incluir_vertical=False):
         parada = threading.Event()
         progreso = DialogoProgresoPrueba(self._ventana, parada)
+        cliente = (prueba_vertical.ClienteVertical(self._cliente)
+                   if incluir_vertical else self._cliente)
 
         def al_escalon(ajustes):
             wx.CallAfter(progreso.mostrar_paso, ajustes)
@@ -227,7 +261,7 @@ class PruebaEquipoPanel:
         def trabajo():
             try:
                 return prueba_equipo.ejecutar(
-                    self._cliente, parada=parada,
+                    cliente, parada=parada,
                     disponibles=preparacion.disponibles,
                     al_escalon=al_escalon)
             except Exception as error:

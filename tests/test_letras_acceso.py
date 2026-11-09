@@ -432,6 +432,8 @@ class TestLetrasAccesoPruebaEquipo(unittest.TestCase):
             casos = (
                 dialogo_prueba_equipo.DialogoPruebaEquipo(
                     None, "Casa", original, 48),
+                dialogo_prueba_equipo.DialogoPruebaEquipo(
+                    None, "Casa", original, 48, vertical=True),
                 dialogo_prueba_equipo.DialogoProgresoPrueba(
                     None, threading.Event()),
                 dialogo_prueba_equipo.DialogoResultadoPrueba(

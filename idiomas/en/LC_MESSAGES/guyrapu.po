@@ -12783,3 +12783,19 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid ""
+"Incluir el lienzo &vertical, para transmitir en horizontal y vertical a la "
+"vez"
+msgstr ""
+"Include the &vertical canvas, to broadcast horizontally and vertically at "
+"once"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid ""
+"Si incluyes el lienzo vertical, se graban los dos y se borran las dos "
+"grabaciones."
+msgstr ""
+"If you include the vertical canvas, both are recorded and both recordings "
+"are deleted."
+

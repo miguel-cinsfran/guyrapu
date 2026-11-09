@@ -75,6 +75,21 @@ def detener(cliente, parada=None):
     return _pedir_vendor(cliente, "stop_streaming", {}, parada)
 
 
+def arrancar_grabacion(cliente, parada=None):
+    """Inicia la grabación del lienzo vertical."""
+    return _pedir_vendor(cliente, "start_recording", {}, parada)
+
+
+def detener_grabacion(cliente, parada=None):
+    """Detiene la grabación del lienzo vertical."""
+    return _pedir_vendor(cliente, "stop_recording", {}, parada)
+
+
+def apagar_bufer(cliente, parada=None):
+    """Apaga el búfer de clips del lienzo vertical."""
+    return _pedir_vendor(cliente, "stop_backtrack", {}, parada)
+
+
 def cambiar_servidor(cliente, indice, servidor, parada=None):
     """Cambia el servidor de la salida que está en esa posición."""
     return _pedir_vendor(cliente, "update_stream_server", {
