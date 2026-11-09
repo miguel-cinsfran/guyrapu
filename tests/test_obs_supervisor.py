@@ -541,6 +541,22 @@ class FinTransmisionTest(BaseSupervisor):
         self.assertEqual(duracion_legible(3661),
                          "1 hora, 1 minuto y 1 segundo")
 
+    def test_fin_usa_la_duracion_del_ultimo_activo_si_el_final_viene_en_cero(self):
+        estados = [muestra(True, duracion=200), muestra(False, duracion=0)]
+        armado = self.armar(destino="YouTube", estados=estados,
+                            intervalo=0.01)
+        supervisor, anuncios, _, _, _, _, _ = armado
+        supervisor._dormir = time.sleep
+        self.iniciar_y_esperar_fin(supervisor)
+        self.assertIn(
+            ("La transmisión terminó. Duró {}.".format(duracion_legible(200)),
+             "transmision_detenida"), anuncios)
+
+    def test_segundos_de_cierre_sin_activo_previo_queda_en_cero(self):
+        self.assertEqual(
+            obs_supervisor.segundos_de_cierre(
+                {"outputDuration": 0}, None), 0)
+
 
 class DetenerTest(BaseSupervisor):
     def test_detener_para_obs_y_no_duplica(self):

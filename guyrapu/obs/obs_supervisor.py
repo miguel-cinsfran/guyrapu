@@ -50,6 +50,16 @@ SONIDOS_AVISO = {
     "vuelta": "transmision_recuperada",
 }
 
+
+def segundos_de_cierre(actual, ultimo_activo):
+    """Los segundos del fin: el estado final, o el último activo si viene en cero."""
+    def segundos(estado):
+        try:
+            return int(float((estado or {}).get("outputDuration", 0)))
+        except (TypeError, ValueError):
+            return 0
+    return segundos(actual) or segundos(ultimo_activo)
+
 class SupervisorTransmision:
     """Arranca OBS y vigila el directo desde un hilo propio."""
 
@@ -360,10 +370,7 @@ class SupervisorTransmision:
 
     def _vigilar(self, gestor) -> None:
         anterior = gestor.estado_transmision(self._parada)
-        try:
-            self._ultimo_estado = dict(anterior)
-        except Exception:
-            self._ultimo_estado = anterior
+        self._ultimo_estado = anterior
         if self._parada.is_set() or self._corte.is_set():
             return
         if not anterior.get("outputActive"):
@@ -379,17 +386,11 @@ class SupervisorTransmision:
             if self._parada.is_set() or self._corte.is_set():
                 return
             actual = gestor.estado_transmision(self._parada)
-            try:
-                self._ultimo_estado = dict(actual)
-            except Exception:
-                self._ultimo_estado = actual
+            self._ultimo_estado = actual
             if not actual.get("outputActive"):
                 if self._corte.is_set() or self._parada.is_set():
                     return
-                try:
-                    segundos = int(float(actual.get("outputDuration", 0)))
-                except (TypeError, ValueError):
-                    segundos = 0
+                segundos = segundos_de_cierre(actual, self._resumen_ultimo and self._resumen_ultimo[0])
                 frase = _("La transmisión terminó. Duró {duracion}.").format(
                     duracion=duracion_legible(segundos))
                 resumen = self._resumen()
@@ -414,13 +415,11 @@ class SupervisorTransmision:
                 self._anunciar(frase, SONIDOS_AVISO[tipo])
             nombre = self._panel_tapado(gestor)
             if nombre:
-                frase_panel = (_("El chat en el vídeo estaba detrás de «{nombre}». Ahora "
-                                 "está delante.").format(nombre=nombre))
                 ahora = self._reloj()
-                ultimo = ultimos_avisos.get(frase_panel)
+                ultimo = ultimos_avisos.get(nombre)
                 if ultimo is None or ahora - ultimo >= PLAZO_REPETICION:
-                    self._anunciar(frase_panel, "aviso")
-                    ultimos_avisos[frase_panel] = ahora
+                    self._anunciar_panel_tapado(nombre)
+                    ultimos_avisos[nombre] = ahora
             anterior = actual
             if estadisticas is not None:
                 estadisticas_anterior = estadisticas
