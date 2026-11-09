@@ -1,5 +1,106 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 3, noviembre de 2026
+
+### Transmitir en horizontal y vertical a la vez
+
+- Un perfil de Restream puede tener la orientación *Horizontal y vertical a
+  la vez*. Con el plugin Vertical Canvas de Aitum instalado en OBS, el
+  horizontal va directo a YouTube y el vertical a los demás destinos del
+  perfil, como TikTok. Por eso el perfil tiene que incluir YouTube.
+- La primera vez, Guyrapu prepara la salida del plugin, y si OBS está
+  abierto lo cierra y lo vuelve a abrir. Antes de cada directo copia al
+  lienzo vertical las versiones verticales de tus escenas, y cuando cambias
+  de escena, el vertical pasa a la suya.
+- Si el vertical se corta, suena un aviso y el horizontal sigue. Guyrapu lo
+  vuelve a intentar cada 30 segundos y avisa cuando vuelve.
+
+### Perfiles de OBS
+
+- La pestaña *Perfiles* del *Panel de OBS* lista los perfiles de OBS y dice
+  para qué se usa cada uno. Desde ahí se cambia de perfil, se crean, se
+  duplican y se eliminan, y *Editar ajustes…* cambia el vídeo, la
+  transmisión, la grabación y el audio, incluido el dispositivo de
+  monitoreo.
+- *Usar para…* elige si un perfil se usa para transmitir en horizontal, en
+  vertical o para grabar. Lo mismo se elige en *Preferencias*, categoría
+  *OBS*. Guyrapu pasa a ese perfil al transmitir o grabar, y vuelve al
+  anterior al terminar o si cancelas el directo.
+- *Preparar perfiles…* crea los tres perfiles, comprueba qué ajustes
+  funcionan bien en tu PC y los deja asignados, sin tocar los perfiles que
+  ya tenías.
+
+### Probar el equipo y la conexión
+
+- *Probar el equipo…*, en la pestaña *General*, graba unos segundos con el
+  perfil en uso para ver si la PC pierde fotogramas. Si los pierde, busca
+  ajustes más livianos que funcionen y ofrece guardarlos en el perfil. Con
+  el plugin Vertical Canvas, la prueba puede grabar también el lienzo
+  vertical. Las grabaciones de la prueba se borran al terminar.
+- *Probar la conexión…* hace un directo privado de prueba en YouTube, que
+  nadie ve y que se borra solo, para saber qué tasa de bits admite tu
+  conexión. Después ofrece guardarla en el perfil.
+- Al terminar un directo, Guyrapu dice cuántos fotogramas se perdieron, si
+  fue por la red, por el codificador o por el dibujo de la escena, y qué
+  cambiar en el perfil para el próximo.
+
+### Escenas verticales
+
+- *Crear la versión vertical*, en el menú contextual de una escena, arma una
+  copia de la escena con las mismas fuentes y un diseño vertical. Al
+  transmitir en vertical, esa copia sale al aire, y al terminar vuelve la
+  escena que había.
+- *Aplicar diseño…* se adapta a un lienzo vertical: *Dividida en dos* apila
+  las fuentes arriba y abajo, y el chat en franja va abajo. Hay un reparto
+  nuevo, a la medida de la primera fuente, y en *Automático* la cámara llena
+  su lugar.
+
+### Chat
+
+- Con un perfil de Restream que tiene YouTube y TikTok, *Chat que lee
+  Guyrapu* ofrece *YouTube y TikTok*, elegida de entrada en los perfiles
+  nuevos. Los dos chats se leen en la misma lista, y cada fila dice de qué
+  plataforma es.
+- En *Eventos del directo*, *Sonido propio de cada plataforma* elige si los
+  mensajes de TikTok tienen su sonido siempre, solo con varios chats o
+  nunca, y *Anunciar qué plataforma tiene cada mensaje cuando hay varios
+  chats* hace que la voz también lo diga.
+- Cada evento del directo puede leerse con *Voz principal sin sonido* o *Voz
+  secundaria sin sonido*.
+
+### Música y grabaciones
+
+- El editor de listas de música tiene dos listas. En *Canciones de la
+  lista*, las canciones se reproducen, se quitan y se ordenan con el
+  teclado, y *Todas las canciones* marca con una casilla las que ya están en
+  la lista. Una canción ya no puede repetirse en una lista.
+- En *Grabaciones y clips*, *Abrir carpeta* abre la carpeta de la
+  grabación. Si OBS convierte la grabación a MP4 al terminar, la lista
+  muestra y abre el MP4.
+
+### Otros cambios
+
+- Las sesiones de YouTube y de Restream y las claves guardadas en la
+  aplicación se guardan cifradas con tu cuenta de Windows. Si copias la
+  carpeta de la aplicación a otra PC, tendrás que volver a iniciar sesión.
+- La ventana principal aparece antes al abrir la aplicación.
+- Gemini acepta las claves nuevas que empiezan con «AQ.».
+
+### Arreglos
+
+- `Intro` vuelve a funcionar en *Recientes*, *Grabaciones y clips*, el
+  historial, la conversación con la IA, los perfiles y los eventos de
+  Restream, y la lista de escenas del *Panel de OBS*.
+- Las casillas con nombre propio, como *Creado para niños* o los destinos de
+  un perfil de Restream, vuelven a leerse como casillas, con su estado.
+- La lista de perfiles de Restream nombra YouTube también cuando el perfil
+  tiene otros destinos.
+- El *Panel de OBS* abierto mientras OBS se inicia se carga cuando OBS
+  termina de abrirse, y los botones de grabación dicen el estado correcto.
+  Si una acción del panel falla, los botones vuelven a quedar activos.
+- Guyrapu ya no puede hacer que OBS se cierre al cambiar de perfil.
+- Probar una voz en *Preferencias* ya no congela la ventana.
+
 ## 3.0.0 beta 2, noviembre de 2026
 
 ### El nombre nuevo

@@ -45,14 +45,23 @@ oculta del canal.
 En TikTok, Guyrapu solo lee: TikTok no ofrece una forma oficial de comentar
 ni de moderar.
 
+Con un perfil de Restream que lee el chat de YouTube y el de TikTok, los dos
+llegan a la misma lista y cada fila dice de qué plataforma es. En
+*Preferencias*, categoría *Eventos del directo*, *Sonido propio de cada
+plataforma* elige si los mensajes de TikTok tienen su sonido siempre, solo
+con varios chats o nunca, y *Anunciar qué plataforma tiene cada mensaje
+cuando hay varios chats* hace que la voz también lo diga.
+
 ### Eventos del directo
 
 Las entradas, los me gusta, los seguidores, los regalos, las encuestas, las
 metas y las batallas de TikTok se configuran en *Preferencias*, categoría
-*Eventos del directo*. Cada evento tiene una lista con cinco modos:
+*Eventos del directo*. Cada evento tiene una lista con estos modos:
 
-- *Voz principal* y *Voz secundaria*: aparece en la lista, suena y se lee
-  con esa voz.
+- *Voz principal y sonido* y *Voz secundaria y sonido*: aparece en la
+  lista, suena y se lee con esa voz.
+- *Voz principal sin sonido* y *Voz secundaria sin sonido*: aparece y se
+  lee con esa voz, sin su sonido.
 - *Solo sonido*: aparece y suena, sin leerse.
 - *Solo en la lista*: aparece sin sonido y sin leerse.
 - *Desactivado*: no aparece.
@@ -137,6 +146,13 @@ la ventana *Música*:
 - *Mostrar cola* muestra lo que va a sonar.
 - *Abrir enlace…* agrega a la cola un vídeo o una lista de YouTube.
 
+Al crear o editar una lista se abre un cuadro con dos listas. En
+*Canciones de la lista*, `Supr` quita la canción y `Alt+Flecha arriba` y
+`Alt+Flecha abajo` la mueven. *Todas las canciones* muestra la carpeta con
+una casilla por canción, marcada en las que ya están en la lista: al
+marcarla o desmarcarla, la canción se agrega o se quita. En las dos,
+`Intro` reproduce la canción.
+
 *Igualar volumen de las canciones* hace que todas suenen con un volumen
 parecido. Cada archivo se mide una vez, con el botón *Igualar volumen* de
 la ventana *Música*, y no se modifica. Entre una canción y la siguiente hay
@@ -161,6 +177,9 @@ varias plataformas a la vez con Restream.
   canal.
 - Para Restream, conecta la cuenta y crea un perfil. Consulta
   [Restream](#restream).
+- Para que OBS use un perfil distinto al transmitir en horizontal, en
+  vertical o al grabar, asígnalos en la pestaña *Perfiles* del *Panel de
+  OBS*. Consulta [Perfiles de OBS](#perfiles-de-obs).
 
 Si OBS está cerrado, Guyrapu lo abre en el área de notificación.
 
@@ -183,7 +202,11 @@ terminar el directo. Cerrar Guyrapu no interrumpe el directo, y al volver a
 abrirlo lo reconoce.
 
 Durante el directo, el botón se llama *Finalizar directo* y pide
-confirmación, con *Seguir transmitiendo* elegido de entrada.
+confirmación, con *Seguir transmitiendo* elegido de entrada. Al terminar,
+Guyrapu dice cuántos fotogramas se perdieron, si fue por la red, por el
+codificador o por el dibujo de la escena, y qué cambiar en el perfil para
+el próximo. OBS vuelve al perfil que tenía antes del directo, también si lo
+cancelas antes de empezar.
 
 ### Micrófono
 
@@ -229,11 +252,27 @@ haciendo en OBS, y el complemento de OBS para NVDA sigue funcionando.
 micrófono y el uso del equipo. *Mostrar OBS* trae al frente la ventana de
 OBS, también desde el área de notificación.
 
+*Probar el equipo…* graba unos segundos con el perfil en uso para ver si la
+PC pierde fotogramas. Si los pierde, prueba ajustes más livianos hasta dar
+con unos que funcionan y ofrece guardarlos en el perfil. Con el plugin
+Vertical Canvas de Aitum en OBS, el cuadro ofrece incluir el lienzo
+vertical, para saber si la PC puede transmitir en las dos orientaciones a
+la vez. Las grabaciones de la prueba se borran al terminar.
+
+*Probar la conexión…* hace un directo privado de prueba en YouTube, que
+nadie ve y que se borra solo, para saber qué tasa de bits admite tu
+conexión, y ofrece guardarla en el perfil. Necesita la sesión de Google.
+
 ### Escena
 
 La lista *Escenas* muestra cada escena, si es la actual y cuántas fuentes
 tiene. Recorrerla no cambia lo que se emite: *Cambiar escena* pone al aire
 la escena elegida, y *Agregar escena…* crea una nueva.
+
+*Crear la versión vertical*, en el menú contextual de una escena, crea una
+copia con el mismo nombre seguido de «vertical», con las mismas fuentes y
+un diseño vertical. Al transmitir en vertical, esa copia sale al aire, y al
+terminar vuelve la escena que había.
 
 La lista *Fuentes* muestra las fuentes de la escena elegida, y cada fila
 dice dónde está la fuente, qué parte del vídeo ocupa y si se ve. El menú
@@ -251,7 +290,9 @@ cuadro se elige qué fuente va en cada lugar, la esquina, el reparto y el
 chat. *Ajuste*
 decide qué pasa si la proporción no coincide: *Ajustar* muestra la fuente
 entera, *Llenar* recorta los bordes y *Automático* llena con la cámara y
-ajusta lo demás. *Guardar como…* guarda un diseño propio.
+ajusta lo demás. *Guardar como…* guarda un diseño propio. En un lienzo
+vertical, *Dividida en dos* apila las fuentes arriba y abajo, y el chat en
+franja va abajo.
 
 *Deshacer todos los cambios* devuelve la escena a como estaba al abrir el
 panel.
@@ -282,6 +323,27 @@ panel.
 | `Intro` | Confirmar |
 | `Esc` | Deshacer el movimiento |
 
+### Perfiles de OBS
+
+La lista *Perfiles de OBS* muestra cada perfil de OBS, su orientación y
+para qué se usa: transmitir en horizontal, transmitir en vertical o grabar.
+
+- *Usar este perfil* pasa OBS a ese perfil.
+- *Usar para…* elige para qué se usa. Lo mismo se elige en *Preferencias*,
+  categoría *OBS*, donde *El perfil que tenga OBS* deja OBS como está.
+- *Nuevo…*, *Duplicar…* y *Eliminar perfil* crean, copian y eliminan
+  perfiles.
+- *Editar ajustes…* cambia el lienzo, la salida, los fotogramas por
+  segundo, el codificador, la transmisión, la grabación, el búfer de clips
+  y el audio, incluido el dispositivo de escucha del monitoreo.
+- *Preparar perfiles…* crea un perfil para transmitir en horizontal, otro
+  en vertical y otro para grabar, comprueba qué ajustes funcionan bien en
+  tu PC, los deja asignados y dice qué hizo. Los perfiles que ya tenías no
+  cambian.
+
+Al transmitir o grabar sin directo, Guyrapu pasa OBS al perfil asignado, y
+al terminar vuelve al que tenía.
+
 ### Transmisión
 
 *Transmitir en directo* abre el cuadro *Transmitir a*, igual que el botón de
@@ -307,7 +369,8 @@ filtros. Los botones actúan sobre la fuente elegida:
 grabación* pausa la grabación en curso. La lista *Grabaciones y clips*
 reúne lo grabado y los clips, del más nuevo al más antiguo. Su menú
 contextual abre el archivo o su carpeta, copia la ruta o lo elimina de la
-lista sin borrar el archivo.
+lista sin borrar el archivo. Si OBS convierte la grabación a MP4 al
+terminar, la lista muestra el MP4.
 
 ## Restream
 
@@ -334,11 +397,35 @@ Un perfil guarda a qué destinos se transmite y con qué orientación, y
 aparece con su nombre en el cuadro *Transmitir a*. *Nuevo perfil…* crea
 uno. En el perfil:
 
+- *Orientación* es *Horizontal*, *Vertical* u *Horizontal y vertical a la
+  vez*.
 - *YouTube, el canal de tu sesión de Google* suma ese canal, con el
   directo que Guyrapu crea a partir de los datos que escribes al
   transmitir.
 - *Chat que lee Guyrapu* elige qué chat se lee si el perfil tiene YouTube
-  y TikTok.
+  y TikTok. Con *YouTube y TikTok*, que viene elegida en los perfiles
+  nuevos, se leen los dos.
+
+### Horizontal y vertical a la vez
+
+Con la orientación *Horizontal y vertical a la vez*, el horizontal va
+directo a YouTube y el vertical a los demás destinos del perfil, como
+TikTok. El perfil tiene que incluir YouTube, y los canales de YouTube de
+la cuenta de Restream se desactivan durante el directo, para que YouTube
+no reciba también el vertical.
+
+Hace falta el plugin Vertical Canvas de Aitum en OBS. Se descarga de
+github.com/Aitum/obs-vertical-canvas/releases y se instala con OBS
+cerrado. La primera vez, Guyrapu agrega al plugin la salida «Guyrapu»: si
+OBS está abierto, lo dice, lo cierra y lo vuelve a abrir.
+
+Antes de salir al aire, Guyrapu copia al lienzo vertical las versiones
+verticales de tus escenas, las que crea *Crear la versión vertical*.
+Durante el directo, cuando cambias de escena, el vertical pasa a la
+versión vertical de esa escena, y si no la tiene, lo dice una vez. Si el
+vertical se corta, suena un aviso y el horizontal sigue: Guyrapu lo vuelve
+a intentar cada 30 segundos y avisa cuando vuelve. *Finalizar directo*
+detiene los dos.
 
 ### Eventos
 
@@ -429,7 +516,9 @@ La sesión de Google permite moderar, escribir en el chat, comentar vídeos y
 crear el directo de YouTube. Sin ella, todo lo demás funciona.
 
 Para iniciarla, abre *Preferencias*, categoría *YouTube*, pulsa *Iniciar
-sesión* y autoriza en el navegador. La cuota diaria de YouTube se comparte
+sesión* y autoriza en el navegador. Las sesiones de YouTube y de Restream
+se guardan cifradas con tu cuenta de Windows: si copias la carpeta de la
+aplicación a otra PC, tendrás que volver a iniciarlas. La cuota diaria de YouTube se comparte
 entre quienes usan Guyrapu. Para tener una propia, consulta la [guía de
 configuración de la API](../CONFIGURACION_API.md).
 
