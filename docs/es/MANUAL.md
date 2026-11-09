@@ -423,7 +423,7 @@ Antes de salir al aire, Guyrapu copia al lienzo vertical las versiones
 verticales de tus escenas, las que crea *Crear la versión vertical*.
 Durante el directo, cuando cambias de escena, el vertical pasa a la
 versión vertical de esa escena, y si no la tiene, lo dice una vez. Si el
-vertical se corta, suena un aviso y el horizontal sigue: Guyrapu lo vuelve
+vertical se interrumpe, suena un aviso y el horizontal sigue: Guyrapu lo vuelve
 a intentar cada 30 segundos y avisa cuando vuelve. *Finalizar directo*
 detiene los dos.
 

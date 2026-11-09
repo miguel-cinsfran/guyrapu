@@ -12,7 +12,7 @@
   abierto lo cierra y lo vuelve a abrir. Antes de cada directo copia al
   lienzo vertical las versiones verticales de tus escenas, y cuando cambias
   de escena, el vertical pasa a la suya.
-- Si el vertical se corta, suena un aviso y el horizontal sigue. Guyrapu lo
+- Si el vertical se interrumpe, suena un aviso y el horizontal sigue. Guyrapu lo
   vuelve a intentar cada 30 segundos y avisa cuando vuelve.
 
 ### Perfiles de OBS
