@@ -234,7 +234,7 @@ class PruebaEquipoPanel:
 
     def _preparado(self, preparacion):
         if isinstance(preparacion, Exception):
-            self._anunciar_texto(self._texto_fallo(preparacion))
+            self._anunciar_texto(self._texto_fallo(preparacion), error=True)
             return
         preparacion, hay_vertical = preparacion
         cuadro = DialogoPruebaEquipo(
@@ -281,7 +281,7 @@ class PruebaEquipoPanel:
             pass
         self._refrescar()
         if isinstance(resultado, Exception):
-            self._anunciar_texto(self._texto_fallo(resultado))
+            self._anunciar_texto(self._texto_fallo(resultado), error=True)
             return
         if resultado.cancelada:
             anunciar(_("Prueba cancelada. OBS quedó como estaba."))

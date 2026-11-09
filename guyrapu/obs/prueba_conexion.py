@@ -36,7 +36,7 @@ MENSAJE_AVANZADO = N_(
 MENSAJE_SIN_FLUJO = N_(
     "YouTube no devolvió el flujo de transmisión de la prueba.")
 MENSAJE_ERROR_RESTABLECER = N_(
-    "La prueba dio un error: {error} Además quedó pendiente: {errores}.")
+    "La prueba dio un error: {error} Además quedó pendiente: {errores}")
 
 
 @dataclass(frozen=True)

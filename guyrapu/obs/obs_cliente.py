@@ -58,6 +58,10 @@ def respuesta_auth(password, salt, challenge):
 class ObsError(RuntimeError):
     """Fallo entendible producido al comunicarse con OBS."""
 
+    def __init__(self, mensaje, codigo=None):
+        super().__init__(mensaje)
+        self.codigo = codigo
+
 
 MENSAJE_CONEXION_PERDIDA = N_(
     "Se perdió la conexión con OBS. Vuelve a conectar.")
@@ -112,6 +116,29 @@ def mensaje_de_fallo_obs(motivo, obs_abierto=None, registrar=True):
         return _("OBS no encuentra la escena o la fuente indicada.")
     # Se comparte la forma de avisos_red, pero OBS necesita una taxonomía propia.
     return _("OBS no pudo completar la operación. Vuelve a intentarlo.")
+
+
+CODIGO_VIDEO_TOMADO = 500
+ESPERA_REINTENTO = 10.0
+_PASO_REINTENTO = 0.5
+
+
+def pedir_reintentando(cliente, tipo, datos=None, parada=None):
+    """Pide a OBS y reintenta mientras su salida todavía tenga el vídeo."""
+    limite = time.monotonic() + ESPERA_REINTENTO
+    while True:
+        try:
+            return cliente.pedir(tipo, datos, parada)
+        except ObsError as error:
+            if error.codigo != CODIGO_VIDEO_TOMADO:
+                raise
+            if time.monotonic() >= limite:
+                raise
+        if parada is not None:
+            if parada.wait(_PASO_REINTENTO):
+                raise ObsError(_("Operación cancelada.")) from None
+        else:
+            time.sleep(_PASO_REINTENTO)
 
 
 class ClienteObs:
@@ -258,7 +285,8 @@ class ClienteObs:
                 codigo = estado.get("code", "")
                 logger.debug("OBS respondió con error %s a %s", codigo, tipo)
                 motivo = f"{codigo} {estado.get('comment', '')}"
-                raise ObsError(mensaje_de_fallo_obs(motivo, registrar=False))
+                raise ObsError(mensaje_de_fallo_obs(motivo, registrar=False),
+                               codigo or None)
             self._esperar_no_listo(parada)
 
     def _respuesta(self, transporte, identificador, parada):

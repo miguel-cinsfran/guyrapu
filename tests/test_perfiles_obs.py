@@ -194,6 +194,21 @@ class ClienteQueTardaEnQuitar(ClienteFalso):
         return super().pedir(tipo, datos, parada)
 
 
+class ClienteConVideoTomado(ClienteFalso):
+    """Rechaza SetVideoSettings con el 500 las primeras veces, como OBS."""
+
+    def __init__(self, *args, veces=2, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.veces_500 = veces
+
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "SetVideoSettings" and self.veces_500 > 0:
+            self.veces_500 -= 1
+            self.llamadas.append((tipo, dict(datos or {})))
+            raise obs_cliente.ObsError("500 OutputRunning", codigo=500)
+        return super().pedir(tipo, datos, parada)
+
+
 def ajustes_de_prueba(**cambios):
     return dataclasses.replace(ajustes_perfil.valores_iniciales(False, "x264"),
                                **cambios)
@@ -420,6 +435,15 @@ class TestGuardar(unittest.TestCase):
         ajustes = ajustes_de_prueba(servidor="", clave="")
         perfiles_obs.guardar_ajustes(cliente, ajustes, "A")
         self.assertNotIn("SetStreamServiceSettings", cliente.tipos())
+
+    def test_p3_reintenta_si_obs_todavia_tiene_tomado_el_video(self):
+        cliente = ClienteConVideoTomado(("A",), actual="A")
+        ajustes = ajustes_de_prueba(bitrate_video=3200)
+        with mock.patch.object(obs_cliente.time, "sleep", lambda _segundos: None):
+            perfiles_obs.guardar_ajustes(cliente, ajustes, "A")
+        self.assertEqual(cliente.estado["A"]["parametros"][
+            ("SimpleOutput", "VBitrate")], "3200")
+        self.assertEqual(cliente.tipos().count("SetVideoSettings"), 3)
 
 
 class TestCrear(unittest.TestCase):

@@ -9,6 +9,7 @@ from unittest import mock
 
 import wx
 
+from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, obs_cliente, prueba_conexion
 from guyrapu.ui import dialogo_prueba_conexion
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -144,7 +145,7 @@ class TestCoordinador(unittest.TestCase):
             None, en_hilo or (lambda _funcion, _terminar: None),
             cliente or "cliente-obs", "cliente-yt", True,
             lambda: self.refrescos.append(True),
-            anunciar_texto or (lambda _texto: None))
+            anunciar_texto or (lambda _texto, error=False: None))
 
     def test_al_cancelar_anuncia_que_obs_y_youtube_quedaron_limpios(self):
         resultado = _resultado(None, pasos=())
@@ -158,7 +159,8 @@ class TestCoordinador(unittest.TestCase):
 
     def test_un_fallo_se_anuncia_con_su_texto(self):
         avisos = []
-        panel = self._panel(anunciar_texto=avisos.append)
+        panel = self._panel(
+            anunciar_texto=lambda texto, error=False: avisos.append(texto))
         panel._terminada(
             mock.Mock(), prueba_conexion.ErrorPruebaConexion("sin sesión"))
         self.assertEqual(avisos, ["sin sesión"])
@@ -186,10 +188,73 @@ class TestCoordinador(unittest.TestCase):
 
     def test_un_error_de_obs_generico_dice_que_fue_de_la_prueba(self):
         avisos = []
-        panel = self._panel(anunciar_texto=avisos.append)
+        panel = self._panel(
+            anunciar_texto=lambda texto, error=False: avisos.append(texto))
         panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
         self.assertIn("sin OBS", avisos[0])
         self.assertIn("prueba de conexión", avisos[0])
+
+
+class TestFalloDelPanel(unittest.TestCase):
+
+    def _panel(self, anunciar_texto):
+        return dialogo_prueba_conexion.PruebaConexionPanel(
+            None, lambda _funcion, _terminar: None, "cliente-obs",
+            "cliente-yt", True, lambda: None, anunciar_texto)
+
+    def test_p3_una_sesion_vencida_dice_que_hay_que_volver_a_entrar(self):
+        error = RuntimeError(
+            "('invalid_grant: Token has been expired or revoked.', {})")
+        texto = self._panel(lambda _texto, error=False: None)._texto_fallo(
+            error)
+        self.assertEqual(
+            texto,
+            "Tu sesión de YouTube caducó. Vuelve a iniciar sesión en "
+            "Preferencias, categoría YouTube.")
+
+    def test_p4_el_texto_con_algo_pendiente_no_termina_con_dos_puntos(self):
+        error = prueba_conexion.ErrorPruebaConexion(
+            _(prueba_conexion.MENSAJE_ERROR_RESTABLECER).format(
+                error="OBS no pudo completar la operación. Vuelve a intentarlo.",
+                errores="Restablecer los ajustes del perfil: OBS no pudo "
+                        "completar la operación. Vuelve a intentarlo."))
+        texto = self._panel(lambda _texto, error=False: None)._texto_fallo(
+            error)
+        self.assertFalse(texto.endswith(".."), texto)
+
+    def test_p5_el_fallo_llega_al_aviso_con_error(self):
+        recibidos = []
+        panel = self._panel(
+            lambda texto, error=False: recibidos.append((texto, error)))
+        panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
+        self.assertEqual(recibidos[0][1], True)
+
+    def test_p5_el_texto_de_error_va_por_avisar_con_el_sonido_de_error(self):
+        from guyrapu.ui import obs_ventana
+        general = mock.Mock()
+        falso = mock.Mock()
+        falso._pagina_general = general
+        with mock.patch.object(
+                obs_ventana.aviso_importante, "avisar") as avisar, \
+                mock.patch.object(obs_ventana, "anunciar") as anunciar:
+            obs_ventana.VentanaObs._anunciar_equipo(
+                falso, "sin OBS", error=True)
+        general.mostrar.assert_called_once_with(["sin OBS"])
+        avisar.assert_called_once_with("sin OBS", "error", error=True)
+        anunciar.assert_not_called()
+
+    def test_p5_un_texto_sin_error_se_sigue_anunciando(self):
+        from guyrapu.ui import obs_ventana
+        general = mock.Mock()
+        falso = mock.Mock()
+        falso._pagina_general = general
+        with mock.patch.object(
+                obs_ventana.aviso_importante, "avisar") as avisar, \
+                mock.patch.object(obs_ventana, "anunciar") as anunciar:
+            obs_ventana.VentanaObs._anunciar_equipo(falso, "listo")
+        general.mostrar.assert_called_once_with(["listo"])
+        anunciar.assert_called_once_with("listo")
+        avisar.assert_not_called()
 
 
 if __name__ == "__main__":

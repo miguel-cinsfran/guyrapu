@@ -4589,8 +4589,8 @@ msgstr "YouTube did not return the test stream."
 
 #: guyrapu/obs/prueba_conexion.py
 #, python-brace-format
-msgid "La prueba dio un error: {error} Además quedó pendiente: {errores}."
-msgstr "The test gave an error: {error} Also left pending: {errores}."
+msgid "La prueba dio un error: {error} Además quedó pendiente: {errores}"
+msgstr "The test gave an error: {error} Also left pending: {errores}"
 
 #: guyrapu/obs/prueba_conexion.py
 msgid "Detener la transmisión de la prueba"
@@ -4640,13 +4640,13 @@ msgstr ""
 
 #: guyrapu/obs/prueba_equipo.py
 #, python-brace-format
-msgid "La prueba dio un error: {error} No se pudo restablecer: {errores}."
-msgstr "The test gave an error: {error} Could not reset: {errores}."
+msgid "La prueba dio un error: {error} No se pudo restablecer: {errores}"
+msgstr "The test gave an error: {error} Could not reset: {errores}"
 
 #: guyrapu/obs/prueba_equipo.py
 #, python-brace-format
-msgid "La prueba terminó, pero no se pudo restablecer: {errores}."
-msgstr "The test finished, but could not reset: {errores}."
+msgid "La prueba terminó, pero no se pudo restablecer: {errores}"
+msgstr "The test finished, but could not reset: {errores}"
 
 #: guyrapu/obs/prueba_equipo.py
 msgid "Detener la grabación de la prueba"

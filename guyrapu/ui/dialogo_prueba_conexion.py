@@ -17,6 +17,7 @@ from guyrapu.core.idioma import _
 from guyrapu.obs import perfiles_obs, prueba_conexion
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
+from guyrapu.youtube import youtube_api
 
 _PROPIEDADES_TEXTO = wx.TE_MULTILINE | wx.TE_READONLY
 
@@ -205,7 +206,7 @@ class PruebaConexionPanel:
 
     def _preparado(self, preparacion):
         if isinstance(preparacion, Exception):
-            self._anunciar_texto(self._texto_fallo(preparacion))
+            self._anunciar_texto(self._texto_fallo(preparacion), error=True)
             return
         cuadro = DialogoPruebaConexion(
             self._ventana, preparacion.perfil, preparacion.bitrate,
@@ -246,7 +247,7 @@ class PruebaConexionPanel:
             pass
         self._refrescar()
         if isinstance(resultado, Exception):
-            self._anunciar_texto(self._texto_fallo(resultado))
+            self._anunciar_texto(self._texto_fallo(resultado), error=True)
             return
         if resultado.cancelada:
             frase = _("Prueba cancelada. OBS quedó como estaba y la prueba "
@@ -279,6 +280,8 @@ class PruebaConexionPanel:
         self._refrescar()
 
     def _texto_fallo(self, error):
+        if youtube_api.sesion_caducada(error):
+            return youtube_api.mensaje_error_api(error)
         if isinstance(error, prueba_conexion.ErrorPruebaConexion):
             return str(error)
         return _("La prueba de conexión dio un error: {error}").format(

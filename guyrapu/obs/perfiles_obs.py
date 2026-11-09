@@ -177,8 +177,8 @@ def _leer_actual(cliente, parada):
 
 
 def _escribir_video(cliente, ajustes, parada):
-    cliente.pedir("SetVideoSettings", ajustes_perfil.datos_video(ajustes),
-                  parada)
+    obs_cliente.pedir_reintentando(cliente, "SetVideoSettings",
+                                   ajustes_perfil.datos_video(ajustes), parada)
 
 
 def _escribir_servicio(cliente, ajustes, parada):

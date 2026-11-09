@@ -17,7 +17,8 @@ from guyrapu.obs import obs_lanzador
 from guyrapu.obs.obs_destinos import DESTINOS
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.obs.restablecimiento import RegistroRestablecimiento
-from guyrapu.ui import dialogo_prueba_equipo, gui_microfono, paleta
+from guyrapu.ui import (aviso_importante, dialogo_prueba_equipo,
+                        gui_microfono, paleta)
 from guyrapu.ui.accesibilidad import anunciar, enlazar_anuncio_de_pestana
 from guyrapu.ui.escena_pagina_audio import PaginaAudio
 from guyrapu.ui.escena_pagina_escena import PaginaEscena
@@ -254,9 +255,12 @@ class VentanaObs(wx.Dialog):
             self, self._en_hilo, self._cliente_obs(), self._refrescar_general,
             self._anunciar_equipo).empezar()
 
-    def _anunciar_equipo(self, texto):
+    def _anunciar_equipo(self, texto, error=False):
         self._pagina_general.mostrar([texto])
-        anunciar(texto)
+        if error:
+            aviso_importante.avisar(texto, "error", error=True)
+        else:
+            anunciar(texto)
 
     def _probar_conexion(self):
         if self._operaciones.en_vuelo or self._operaciones.cerrando:

@@ -289,6 +289,62 @@ class ReintentoNoListoTest(unittest.TestCase):
         self.assertLess(reloj.ahora, 30.0)
 
 
+class ClienteConCodigos:
+    """Falla con los códigos pedidos y después acepta el pedido."""
+
+    def __init__(self, codigos):
+        self.codigos = list(codigos)
+        self.pedidos = 0
+
+    def pedir(self, tipo, datos=None, parada=None):
+        self.pedidos += 1
+        if self.pedidos <= len(self.codigos):
+            codigo = self.codigos[self.pedidos - 1]
+            raise obs_cliente.ObsError("fallo de OBS", codigo=codigo)
+        return {"responseData": {"ok": True}}
+
+
+class ReintentoDeVideoTest(unittest.TestCase):
+    def parchear_reloj(self, reloj):
+        return (
+            mock.patch.object(obs_cliente.time, "monotonic", reloj.reloj),
+            mock.patch.object(obs_cliente.time, "sleep", reloj.dormir),
+        )
+
+    def test_reintenta_cada_medio_segundo_hasta_que_obs_acepta(self):
+        cliente = ClienteConCodigos([500, 500])
+        reloj = RelojFalso()
+        parches = self.parchear_reloj(reloj)
+        with parches[0], parches[1]:
+            resultado = obs_cliente.pedir_reintentando(
+                cliente, "SetVideoSettings")
+        self.assertEqual(resultado["responseData"], {"ok": True})
+        self.assertEqual(cliente.pedidos, 3)
+        self.assertEqual(reloj.ahora, 1.0)
+
+    def test_otro_codigo_falla_al_primer_intento(self):
+        cliente = ClienteConCodigos([601])
+        reloj = RelojFalso()
+        parches = self.parchear_reloj(reloj)
+        with parches[0], parches[1], \
+                self.assertRaises(obs_cliente.ObsError) as contexto:
+            obs_cliente.pedir_reintentando(cliente, "SetVideoSettings")
+        self.assertEqual(cliente.pedidos, 1)
+        self.assertEqual(reloj.ahora, 0.0)
+        self.assertEqual(contexto.exception.codigo, 601)
+
+    def test_con_500_siempre_falla_al_pasar_el_limite(self):
+        cliente = ClienteConCodigos([500] * 1000)
+        reloj = RelojFalso()
+        parches = self.parchear_reloj(reloj)
+        with parches[0], parches[1], \
+                self.assertRaises(obs_cliente.ObsError) as contexto:
+            obs_cliente.pedir_reintentando(cliente, "SetVideoSettings")
+        self.assertEqual(contexto.exception.codigo, 500)
+        self.assertGreaterEqual(reloj.ahora, 10.0)
+        self.assertEqual(cliente.pedidos, 21)
+
+
 class ClienteObsTest(unittest.TestCase):
     def cliente(self, transporte, password=""):
         return obs_cliente.ClienteObs(

@@ -9,6 +9,7 @@ from dataclasses import replace
 from pathlib import Path
 from unittest import mock
 
+from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, obs_cliente, prueba_equipo
 
 
@@ -385,6 +386,24 @@ class TestPreparacion(BasePrueba):
         self.assertNotIn("SetVideoSettings", doble.llamadas)
         self.assertNotIn("SetProfileParameter", doble.llamadas)
         self.assertNotIn("CreateScene", doble.llamadas)
+
+
+class TestMensajeConAlgoPendiente(unittest.TestCase):
+
+    def test_no_termina_con_dos_puntos_seguidos(self):
+        errores = ("Restablecer los ajustes del perfil: OBS no pudo completar "
+                   "la operación. Vuelve a intentarlo.")
+        casos = (
+            _(prueba_equipo.MENSAJE_ERROR_RESTABLECER).format(
+                error="OBS no pudo completar la operación. Vuelve a "
+                      "intentarlo.",
+                errores=errores),
+            _(prueba_equipo.MENSAJE_RESTABLECER).format(errores=errores),
+        )
+        for texto in casos:
+            with self.subTest(texto=texto):
+                self.assertFalse(texto.endswith(".."), texto)
+                self.assertTrue(texto.endswith("intentarlo."), texto)
 
 
 if __name__ == "__main__":

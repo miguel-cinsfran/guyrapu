@@ -181,7 +181,8 @@ class TestCoordinador(unittest.TestCase):
         avisos = []
         panel = dialogo_prueba_equipo.PruebaEquipoPanel(
             None, lambda _funcion, _terminar: None, "cliente",
-            lambda: None, avisos.append)
+            lambda: None,
+            lambda texto, error=False: avisos.append(texto))
         with mock.patch.object(dialogo_prueba_equipo, "anunciar"):
             panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
         self.assertIn("sin OBS", avisos[0])
@@ -257,6 +258,18 @@ class TestCoordinador(unittest.TestCase):
         anunciar.assert_called_once_with(
             "Ajustes guardados en el perfil Casa.")
         self.assertTrue(self.refrescos)
+
+
+class TestFalloDelPanel(unittest.TestCase):
+
+    def test_p5_el_fallo_llega_al_aviso_con_error(self):
+        recibidos = []
+        panel = dialogo_prueba_equipo.PruebaEquipoPanel(
+            None, lambda _funcion, _terminar: None, "cliente",
+            lambda: None,
+            lambda texto, error=False: recibidos.append((texto, error)))
+        panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
+        self.assertEqual(recibidos[0][1], True)
 
 
 if __name__ == "__main__":

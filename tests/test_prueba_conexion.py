@@ -7,6 +7,7 @@ import threading
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from unittest import mock
 
 from guyrapu.obs import ajustes_perfil, obs_cliente, prueba_conexion
 
@@ -49,6 +50,8 @@ class DobleObs:
         self.pedidos = []
         self.fallar_en = None
         self.veces = {}
+        self.video_500 = set()
+        self.llamadas_video = 0
 
     def _falla(self, tipo):
         veces = self.veces.get(tipo, 0) + 1
@@ -74,6 +77,10 @@ class DobleObs:
         if self._falla(tipo):
             raise obs_cliente.ObsError("Fallo simulado en " + tipo)
         datos = datos or {}
+        if tipo == "SetVideoSettings":
+            self.llamadas_video += 1
+            if self.llamadas_video in self.video_500:
+                raise obs_cliente.ObsError("500 OutputRunning", codigo=500)
         if tipo == "GetStreamStatus":
             if self.transmitiendo:
                 self.consultas += 1
@@ -296,6 +303,21 @@ class TestRecorrido(BasePrueba):
         self.assertEqual(resultado.ultimo.bitrate, 1300)
         self.assertEqual(resultado.ultimo.porcentaje, 3)
         self.assertFalse(resultado.puede_guardar)
+
+    def test_tras_detener_una_transmision_reintenta_y_sigue_con_la_siguiente(self):
+        doble = self._doblar(tasas={2500: (0, 100), 3800: (2, 100)})
+        doble.video_500 = {2}
+        youtube = DobleYouTube()
+        with mock.patch.object(obs_cliente.time, "sleep", lambda _segundos: None):
+            resultado = self._ejecutar(doble, youtube)
+
+        self.assertEqual([paso.bitrate for paso in resultado.pasos],
+                         [2500, 3800])
+        self.assertEqual(resultado.errores, ())
+        self.assertEqual(doble.video_500, {2})
+        self._comprobar_restaurado(doble)
+        self.assertEqual(youtube.emisiones_borradas, ["video-1"])
+        self.assertEqual(youtube.flujos_borrados, ["flujo-1"])
 
 
 class TestErroresYParada(BasePrueba):

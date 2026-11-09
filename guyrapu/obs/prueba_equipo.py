@@ -35,9 +35,9 @@ MENSAJE_AVANZADO = N_(
     "No se puede probar el equipo con un perfil de OBS en modo Avanzado. "
     "Pásalo a modo Sencillo y vuelve a intentarlo.")
 MENSAJE_ERROR_RESTABLECER = N_(
-    "La prueba dio un error: {error} No se pudo restablecer: {errores}.")
+    "La prueba dio un error: {error} No se pudo restablecer: {errores}")
 MENSAJE_RESTABLECER = N_(
-    "La prueba terminó, pero no se pudo restablecer: {errores}.")
+    "La prueba terminó, pero no se pudo restablecer: {errores}")
 
 
 @dataclass(frozen=True)
