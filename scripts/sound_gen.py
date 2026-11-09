@@ -12,8 +12,15 @@ Uso:  python scripts/sound_gen.py  [--forzar]  [--destino CARPETA]
 
 import math
 import struct
+import sys
 import wave
 from pathlib import Path
+
+RAIZ = Path(__file__).resolve().parent.parent
+if str(RAIZ) not in sys.path:
+    sys.path.insert(0, str(RAIZ))
+from scripts.sound_gen_guia import (  # noqa: E402
+    GUIA, GUIA_DIR, generar_guia)
 
 
 SR       = 44100
@@ -21,7 +28,6 @@ BITS     = 16
 CANALES  = 2         # Estéreo real: permite un leve paneo por evento para que
                      # el oído los ubique sin pensar (útil sin lectura visual).
 AMP      = 0.55      # Margen sobre 1.0 para evitar clipping al sumar ondas.
-RAIZ = Path(__file__).resolve().parent.parent
 THEMES_DIR = RAIZ / "sounds" / "themes"
 
 C4, D4, E4, F4, G4, A4, B4 = 261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88
@@ -1553,45 +1559,6 @@ PANEO = {
 }
 
 
-# ── Guía de encuadre: confirmación y aviso sin rostro ────────────────────────
-# Carpeta fija `sounds/guia/`, igual para los dos temas: no son eventos y
-# por eso no entran en TEMAS. Los pitidos y el tono del centro se generan
-# en memoria con `guyrapu/camera/tono_guia.py`; acá quedan solo `listo`
-# (confirmación que sube) y `sin_rostro` (zumbido grave y corto).
-GUIA_DIR = RAIZ / "sounds" / "guia"
-
-
-def gen_guia_listo():
-    # Confirmación de que quedó centrada: dos notas que suben, E5→A5.
-    n1 = _perc(_seno(E5, 0.09, 0.32), 0.004, 0.07)
-    n2 = _perc(_seno(A5, 0.16, 0.34), 0.004, 0.12)
-    return _normalizar(_concat(n1, n2), 0.7)
-
-
-def gen_guia_sin_rostro():
-    # Zumbido grave y corto: no hay rostro a la vista.
-    return _normalizar(_perc(_seno(D3, 0.20, 0.40), 0.005, 0.15), 0.65)
-
-
-GUIA = {"listo.wav": gen_guia_listo, "sin_rostro.wav": gen_guia_sin_rostro}
-
-
-def generar_guia(destino: Path | None = None,
-                 sobreescribir: bool = False) -> int:
-    destino = destino or GUIA_DIR
-    destino.mkdir(parents=True, exist_ok=True)
-    n = 0
-    for nombre, generador in GUIA.items():
-        ruta = destino / nombre
-        if ruta.exists() and not sobreescribir:
-            print(f"  [saltar]  {nombre}  (ya existe)")
-            continue
-        _escribir_wav(ruta, generador(), pan=0.0)
-        print(f"  [crear ]  {nombre:20s}  {ruta.stat().st_size:6d} bytes")
-        n += 1
-    return n
-
-
 # ── Entrada ───────────────────────────────────────────────────────────────────
 
 def generar_tema(tema: str, destino: Path | None = None,
@@ -1611,6 +1578,18 @@ def generar_tema(tema: str, destino: Path | None = None,
     return n
 
 
+def _generar_guia_pedida(tema, destino, forzar):
+    # La guía sale a la carpeta elegida solo cuando se pide sola; en «all»
+    # conserva su carpeta fija.
+    carpeta = Path(destino) if destino and tema == "guia" else GUIA_DIR
+    print(f"\n  Guía -> {carpeta}")
+    print("-" * 60)
+    n = generar_guia(carpeta, sobreescribir=forzar)
+    print("-" * 60)
+    print(f"  {n} creado(s). {len(GUIA) - n} saltado(s).")
+    return n
+
+
 def main():
     import argparse
     ap = argparse.ArgumentParser(description="Genera los WAV de retroalimentación.")
@@ -1626,12 +1605,7 @@ def main():
 
     total = 0
     if args.tema in ("all", "guia"):
-        print(f"\n  Guía -> {GUIA_DIR}")
-        print("-" * 60)
-        n = generar_guia(sobreescribir=args.forzar)
-        total += n
-        print("-" * 60)
-        print(f"  {n} creado(s). {len(GUIA) - n} saltado(s).")
+        total += _generar_guia_pedida(args.tema, args.destino, args.forzar)
     temas = list(TEMAS) if args.tema == "all" else \
         [args.tema] if args.tema in TEMAS else []
     for t in temas:

@@ -83,6 +83,28 @@ class PruebasSoundGen(unittest.TestCase):
             generados = list(destino.glob("*.wav"))
             self.assertEqual(len(generados), len(sound_gen.TEMAS["default"]))
 
+    def test_la_guia_se_genera_igual_desde_su_modulo(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as directorio:
+            destino = Path(directorio)
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(sound_gen.generar_guia(destino), 2)
+                self.assertEqual(sound_gen.generar_guia(destino), 0)
+            for nombre in ("listo.wav", "sin_rostro.wav"):
+                self.assertEqual((destino / nombre).read_bytes(),
+                                 (sound_gen.GUIA_DIR / nombre).read_bytes())
+
+    def test_el_guion_genera_la_guia_en_la_carpeta_indicada(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as directorio:
+            destino = Path(directorio) / "guia"
+            guion = Path(sound_gen.__file__)
+            proc = subprocess.run(
+                [sys.executable, str(guion), "-t", "guia", "-d", str(destino)],
+                capture_output=True, text=True, timeout=60)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            for nombre in ("listo.wav", "sin_rostro.wav"):
+                self.assertEqual((destino / nombre).read_bytes(),
+                                 (sound_gen.GUIA_DIR / nombre).read_bytes())
+
     def test_generar_tema_omite_archivos_ya_existentes(self):
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as directorio:
             destino = Path(directorio)
