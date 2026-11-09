@@ -294,6 +294,11 @@ def registrar_texto_fallos(texto: str) -> None:
         logger.warning("No se pudo registrar texto en fallos: %s", exc)
 
 
+def archivo_fallos():
+    """Devuelve el archivo de fallos abierto, o None si no se abrió."""
+    return _ARCHIVO_FALLOS
+
+
 def registrar_entorno(version: str) -> None:
     """Escribe una sola vez el entorno disponible durante el arranque."""
     gpu, motivo_gpu = _placa_video()
