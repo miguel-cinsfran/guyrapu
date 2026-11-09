@@ -1028,6 +1028,68 @@ class TestConfirmarFinalizarSinVentana(unittest.TestCase):
         creados[0][1].Destroy.assert_called_once_with()
 
 
+class TestConfirmarTransmisionSinVentana(unittest.TestCase):
+
+    def _confirmar(self, revision, destinos=(), resultado=wx.ID_OK):
+        creados = []
+
+        def fabrica(*args, **kwargs):
+            dialogo = mock.Mock()
+            dialogo.ShowModal.return_value = resultado
+            creados.append((args, dialogo))
+            return dialogo
+
+        with mock.patch.object(modulo_confirmar.wx, "MessageDialog",
+                               fabrica), \
+                mock.patch.object(modulo_confirmar.sound_player,
+                                  "reproducir") as sonar:
+            acepta = modulo_confirmar.confirmar_transmision(
+                mock.sentinel.padre, revision, destinos)
+        return acepta, creados, sonar
+
+    def test_sin_destinos_queda_como_hoy(self):
+        revision = _revision()
+        acepta, creados, sonar = self._confirmar(revision)
+        self.assertTrue(acepta)
+        args, dialogo = creados[0]
+        self.assertEqual(args[0], mock.sentinel.padre)
+        self.assertEqual(args[1], obs_prevuelo.frase_revision(revision))
+        self.assertEqual(args[2], "Antes de transmitir")
+        self.assertTrue(args[3] & wx.OK)
+        self.assertTrue(args[3] & wx.CANCEL)
+        self.assertFalse(args[3] & wx.CANCEL_DEFAULT)
+        dialogo.SetOKCancelLabels.assert_called_once_with(
+            "&Transmitir", "&Cancelar")
+        sonar.assert_not_called()
+
+    def test_con_destinos_suena_y_el_mensaje_nombra_los_destinos(self):
+        canales = [
+            SimpleNamespace(plataforma="YouTube", nombre="Canal"),
+            SimpleNamespace(plataforma="Facebook", nombre="Página"),
+        ]
+        revision = _revision()
+        acepta, creados, sonar = self._confirmar(revision, canales)
+        self.assertTrue(acepta)
+        args, dialogo = creados[0]
+        esperado = (
+            "Restream también va a transmitir este directo a: "
+            "YouTube (Canal), Facebook (Página). Para elegir a dónde sale, "
+            "usa un perfil de Restream en Transmitir a. ¿Transmitir igual?"
+            "\n\n" + obs_prevuelo.frase_revision(revision))
+        self.assertEqual(args[1], esperado)
+        self.assertEqual(args[2], "Antes de transmitir")
+        self.assertTrue(args[3] & wx.CANCEL_DEFAULT)
+        dialogo.SetOKCancelLabels.assert_called_once_with(
+            "&Transmitir", "&Cancelar")
+        sonar.assert_called_once_with("destinos_de_mas")
+
+    def test_con_destinos_y_cancelar_devuelve_falso(self):
+        canales = [SimpleNamespace(plataforma="YouTube", nombre="Canal")]
+        acepta, _creados, _sonar = self._confirmar(
+            _revision(), canales, resultado=wx.ID_CANCEL)
+        self.assertFalse(acepta)
+
+
 class TestPseudoConfirmarTransmision(unittest.TestCase):
 
     def test_titulo_mensaje_y_botones_pasan_por_gettext(self):

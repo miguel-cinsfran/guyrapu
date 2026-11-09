@@ -116,7 +116,8 @@ class BotonDirecto:
             try:
                 preparacion = transmision_directa.preparar(
                     GestorPanelObs(), destino_obs, obs_lanzador.asegurar_obs,
-                    lambda frase: wx.CallAfter(anunciar, frase))
+                    lambda frase: wx.CallAfter(anunciar, frase),
+                    opcion=destino)
             except Exception as error:
                 wx.CallAfter(self._revision_fallida, error)
             else:
@@ -140,9 +141,13 @@ class BotonDirecto:
         def _ya_transmitiendo():
             marco._obs_transmitiendo = True
 
+        def _confirmar(revision):
+            return confirmar_transmision(
+                marco, revision, getattr(preparacion, "destinos_de_mas", ()))
+
         transmision_directa.resolver_revision(
             preparacion, destino, destino_obs, usuario,
-            confirmar=lambda revision: confirmar_transmision(marco, revision),
+            confirmar=_confirmar,
             supervisar=marco._supervisar_transmision,
             anunciar=anunciar,
             ya_transmitiendo=_ya_transmitiendo,

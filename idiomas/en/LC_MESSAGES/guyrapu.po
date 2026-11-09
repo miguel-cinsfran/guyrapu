@@ -12933,3 +12933,12 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/restream/destinos_de_mas.py
+#, python-brace-format
+msgid ""
+"Restream también va a transmitir este directo a: {destinos}. Para elegir a "
+"dónde sale, usa un perfil de Restream en Transmitir a. ¿Transmitir igual?"
+msgstr ""
+"Restream will also broadcast this live stream to: {destinos}. To choose "
+"where it goes, use a Restream profile in Broadcast to. Broadcast anyway?"
+

@@ -29,8 +29,9 @@ class OperacionesInmediatas:
             al_terminar(resultado)
 
 
-def _preparacion(revision=mock.sentinel.revision):
-    return SimpleNamespace(ya_transmitiendo=False, revision=revision)
+def _preparacion(revision=mock.sentinel.revision, destinos=()):
+    return SimpleNamespace(ya_transmitiendo=False, revision=revision,
+                           destinos_de_mas=destinos)
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
@@ -85,7 +86,7 @@ class TestDirectoPanel(unittest.TestCase):
                     "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
             self._pulsar()
         confirmar.assert_called_once_with(
-            self.ventana, mock.sentinel.revision)
+            self.ventana, mock.sentinel.revision, ())
         volver.assert_not_called()
         self.supervisar.assert_any_call("iniciar", "TikTok", "usuario")
 
@@ -120,13 +121,58 @@ class TestDirectoPanel(unittest.TestCase):
                 "guyrapu.restream.ganchos.cuenta_conectada",
                 return_value=True), \
                 mock.patch.object(transmision_directa, "preparar",
-                                  return_value=_preparacion()), \
+                                  return_value=_preparacion()) as preparar, \
                 mock.patch.object(directo_panel,
                                   "confirmar_transmision") as confirmar:
             self._pulsar()
         confirmar.assert_not_called()
         self.guardar_usuario.assert_not_called()
+        self.assertEqual(preparar.call_args.kwargs.get("opcion"),
+                         "restream:Uno")
         self.supervisar.assert_any_call("iniciar", "restream:Uno", "")
+
+    def _destinos_de_mas(self):
+        return (SimpleNamespace(plataforma="YouTube", nombre="Canal",
+                                activo=True),)
+
+    def test_con_destinos_de_mas_los_pasa_a_confirmar(self):
+        self.datos = ("TikTok", "TikTok", "usuario")
+        destinos = self._destinos_de_mas()
+        with mock.patch.object(transmision_directa, "preparar",
+                               return_value=_preparacion(destinos=destinos)), \
+                mock.patch.object(directo_panel, "confirmar_transmision",
+                                  return_value=True) as confirmar:
+            self._pulsar()
+        confirmar.assert_called_once_with(
+            self.ventana, mock.sentinel.revision, destinos)
+        self.supervisar.assert_any_call("iniciar", "TikTok", "usuario")
+
+    def test_con_destinos_y_cancelar_no_inicia(self):
+        self.datos = ("TikTok", "TikTok", "usuario")
+        destinos = self._destinos_de_mas()
+        with mock.patch.object(transmision_directa, "preparar",
+                               return_value=_preparacion(destinos=destinos)), \
+                mock.patch.object(directo_panel, "confirmar_transmision",
+                                  return_value=False), \
+                mock.patch.object(directo_panel, "anunciar") as anunciar, \
+                mock.patch(
+                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
+            self._pulsar()
+        self.assertNotIn(mock.call("iniciar", mock.ANY, mock.ANY),
+                         self.supervisar.call_args_list)
+        anunciar.assert_any_call("No se transmitió.")
+        volver.assert_called_once_with()
+
+    def test_sin_destinos_de_mas_confirma_vacio(self):
+        self.datos = ("TikTok", "TikTok", "usuario")
+        with mock.patch.object(transmision_directa, "preparar",
+                               return_value=_preparacion()), \
+                mock.patch.object(directo_panel, "confirmar_transmision",
+                                  return_value=True) as confirmar:
+            self._pulsar()
+        confirmar.assert_called_once_with(
+            self.ventana, mock.sentinel.revision, ())
+        self.supervisar.assert_any_call("iniciar", "TikTok", "usuario")
 
     def test_si_obs_ya_transmite_pasa_a_finalizar(self):
         with mock.patch.object(

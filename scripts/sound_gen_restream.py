@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Sonidos del estado de Restream.
+"""Sonidos del estado de Restream y del aviso de otros destinos.
 
 Se generan en memoria con las primitivas de `scripts/sound_gen.py`, que se
 carga al generar y no al importar este módulo.
@@ -64,6 +64,17 @@ def gen_restream_senal_debil():
         base._concat(nota, base._silencio(0.07), nota), 0.68)
 
 
+def gen_destinos_de_mas():
+    # Pregunta antes de seguir: A4→C5→A4, sube y vuelve. Distinta de la
+    # alarma grave de transmision_problema (A3 repetido), del tic de copiar
+    # (C6) y del descenso de error (A3→F3).
+    base = _base()
+    n1 = base._perc(base._seno(base.A4, 0.09, 0.32), 0.004, 0.07)
+    n2 = base._perc(base._seno(base.C5, 0.09, 0.34), 0.004, 0.07)
+    n3 = base._perc(base._seno(base.A4, 0.16, 0.32), 0.004, 0.13)
+    return base._normalizar(base._concat(n1, n2, n3), 0.7)
+
+
 def s_restream_destino_caido():
     # Descenso E4→C4 en madera cálida: un destino dejó de recibir.
     base = _base()
@@ -101,3 +112,10 @@ def s_restream_senal_debil():
     return base._normalizar(
         base._concat(nota, base._silencio(0.07), nota), 0.68)
 
+
+def s_destinos_de_mas():
+    # La misma pregunta en madera cálida: A4→C5→A4.
+    base = _base()
+    return base._seq(base._madera(base.A4, 0.09, 0.32, 0.07),
+                     base._madera(base.C5, 0.09, 0.34, 0.07),
+                     base._madera(base.A4, 0.16, 0.32, 0.13))

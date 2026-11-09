@@ -197,8 +197,9 @@ class TestTransmitirSinVentana(unittest.TestCase):
                 mock.patch.object(boton_directo.wx, "CallAfter",
                                   side_effect=lambda f, *a: f(*a)):
             boton._transmitir()
-        args, _ = preparar.call_args
+        args, kwargs = preparar.call_args
         self.assertEqual(args[1], "TikTok")
+        self.assertEqual(kwargs.get("opcion"), "restream:Vertical")
         marco._guardar_destino_transmision.assert_called_once_with(
             "restream:Vertical")
         marco._guardar_usuario_tiktok.assert_not_called()
@@ -257,7 +258,6 @@ class TestRevisionListaSinVentana(unittest.TestCase):
         return boton, marco
 
     def test_youtube_no_confirma_y_pasa_la_revision(self):
-        from guyrapu.ui import boton_directo
         boton, marco = self._boton()
         revision = mock.sentinel.revision
         preparacion = SimpleNamespace(ya_transmitiendo=False,
@@ -270,7 +270,6 @@ class TestRevisionListaSinVentana(unittest.TestCase):
             "iniciar", "YouTube", "", revision=revision)
 
     def test_tiktok_confirma_como_hoy(self):
-        from guyrapu.ui import boton_directo
         boton, marco = self._boton()
         preparacion = SimpleNamespace(ya_transmitiendo=False,
                                       revision=mock.sentinel.revision)
@@ -280,7 +279,7 @@ class TestRevisionListaSinVentana(unittest.TestCase):
                 mock.patch(
                     "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
             boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
-        confirmar.assert_called_once_with(marco, preparacion.revision)
+        confirmar.assert_called_once_with(marco, preparacion.revision, ())
         volver.assert_not_called()
         marco._supervisar_transmision.assert_called_once_with(
             "iniciar", "TikTok", "usuario")
@@ -300,6 +299,56 @@ class TestRevisionListaSinVentana(unittest.TestCase):
         anunciar.assert_called_once_with("No se transmitió.")
         volver.assert_called_once_with()
         marco._supervisar_transmision.assert_not_called()
+
+    def _con_destinos(self):
+        destino = SimpleNamespace(plataforma="YouTube", nombre="Canal",
+                                  activo=True)
+        return (destino,)
+
+    def test_con_destinos_de_mas_los_pasa_a_confirmar(self):
+        boton, marco = self._boton()
+        destinos = self._con_destinos()
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision,
+                                      destinos_de_mas=destinos)
+        with mock.patch(
+                "guyrapu.ui.boton_directo.confirmar_transmision",
+                return_value=True) as confirmar:
+            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
+        confirmar.assert_called_once_with(
+            marco, preparacion.revision, destinos)
+        marco._supervisar_transmision.assert_called_once_with(
+            "iniciar", "TikTok", "usuario")
+
+    def test_con_destinos_y_cancelar_no_inicia(self):
+        from guyrapu.ui import boton_directo
+        boton, marco = self._boton()
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision,
+                                      destinos_de_mas=self._con_destinos())
+        with mock.patch(
+                "guyrapu.ui.boton_directo.confirmar_transmision",
+                return_value=False), \
+                mock.patch.object(boton_directo, "anunciar") as anunciar, \
+                mock.patch(
+                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
+            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
+        marco._supervisar_transmision.assert_not_called()
+        anunciar.assert_called_once_with("No se transmitió.")
+        volver.assert_called_once_with()
+
+    def test_sin_destinos_de_mas_confirma_vacio(self):
+        boton, marco = self._boton()
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=mock.sentinel.revision)
+        with mock.patch(
+                "guyrapu.ui.boton_directo.confirmar_transmision",
+                return_value=True) as confirmar:
+            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
+        confirmar.assert_called_once_with(
+            marco, preparacion.revision, ())
+        marco._supervisar_transmision.assert_called_once_with(
+            "iniciar", "TikTok", "usuario")
 
 
 class TestActualizarDeteniendoSinVentana(unittest.TestCase):

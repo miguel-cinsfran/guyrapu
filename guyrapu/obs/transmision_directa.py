@@ -66,6 +66,25 @@ def cuenta_restream_conectada(opcion, avisar) -> bool:
     return False
 
 
+def leer_destinos_de_mas(opcion):
+    """Los destinos de Restream que sobran para un directo de TikTok.
+
+    Solo con la opción «TikTok» y la cuenta de Restream conectada, y se
+    llama desde el hilo que revisa OBS, nunca desde el principal. Si la
+    lectura falla, deja la advertencia en el registro y no hay destinos.
+    """
+    from guyrapu.restream import cuenta, destinos_de_mas, ganchos
+    if opcion != "TikTok" or not ganchos.cuenta_conectada():
+        return ()
+    try:
+        canales = cuenta.canales()
+    except Exception as error:
+        logger.warning(
+            "no se pudieron leer los destinos de Restream: %s", error)
+        return ()
+    return destinos_de_mas.de_mas(canales)
+
+
 def _avisar_ya_transmitiendo(anunciar, tras_anunciar):
     anunciar(_("OBS ya está transmitiendo. Con este mismo botón "
                "puedes finalizar el directo."))
@@ -113,6 +132,7 @@ class Preparacion:
 
     ya_transmitiendo: bool
     revision: Any = None
+    destinos_de_mas: tuple = ()
 
 
 def es_directo_propio(es_tiktok, usuario_sesion, usuario_guardado,
@@ -180,7 +200,7 @@ def _anunciar_preparacion(al_anunciar, actual, perfil, resultado):
 
 
 def preparar(gestor, destino: str, asegurar: Callable, al_anunciar: Callable,
-             parada=None, cerrar=True) -> Preparacion:
+             parada=None, cerrar=True, opcion=None) -> Preparacion:
     """Asegura OBS, conecta y deja el destino listo para confirmar.
 
     Devuelve `Preparacion(ya_transmitiendo=True)` si OBS ya emite (sin
@@ -200,7 +220,8 @@ def preparar(gestor, destino: str, asegurar: Callable, al_anunciar: Callable,
         resultado = gestor.preparar_destino(destino)
         _anunciar_preparacion(al_anunciar, actual, perfil, resultado)
         revision = gestor.revisar(destino)
-        return Preparacion(ya_transmitiendo=False, revision=revision)
+        return Preparacion(ya_transmitiendo=False, revision=revision,
+                           destinos_de_mas=leer_destinos_de_mas(opcion))
     finally:
         if cerrar:
             try:

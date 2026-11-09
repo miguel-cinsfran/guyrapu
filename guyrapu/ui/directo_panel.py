@@ -123,7 +123,7 @@ class DirectoPanel:
         sound_player.reproducir("conectando")
         anunciar(_("Revisando OBS antes de transmitir."))
         self._operaciones.en_hilo(
-            lambda: self._preparar(destino),
+            lambda: self._preparar(destino, opcion),
             lambda preparacion: self._revision_lista(
                 preparacion, opcion, destino, usuario))
 
@@ -154,10 +154,11 @@ class DirectoPanel:
             return True
         return False
 
-    def _preparar(self, destino):
+    def _preparar(self, destino, opcion):
         return transmision_directa.preparar(
             self._gestor, destino, self._asegurar,
-            lambda frase: wx.CallAfter(anunciar, frase), cerrar=False)
+            lambda frase: wx.CallAfter(anunciar, frase), cerrar=False,
+            opcion=opcion)
 
     def _guardar_usuario_tiktok(self, usuario) -> None:
         if usuario == self._usuario_guardado or self._guardar_usuario is None:
@@ -190,10 +191,14 @@ class DirectoPanel:
             _recordar()
             self._mostrar_transmision(True)
 
+        def _confirmar(revision):
+            return confirmar_transmision(
+                self._ventana, revision,
+                getattr(preparacion, "destinos_de_mas", ()))
+
         transmision_directa.resolver_revision(
             preparacion, opcion, destino, usuario,
-            confirmar=lambda revision: confirmar_transmision(
-                self._ventana, revision),
+            confirmar=_confirmar,
             supervisar=self._supervisar,
             anunciar=anunciar,
             ya_transmitiendo=_ya_transmitiendo,

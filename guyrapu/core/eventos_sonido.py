@@ -29,6 +29,9 @@ EVENTOS = [
     "transmision_recuperada",
     # Confirmación de cierre, distinta del descenso de transmision_detenida:
     "directo_finalizado",
+    # Pregunta antes de transmitir a TikTok cuando Restream manda a otros
+    # destinos encendidos.
+    "destinos_de_mas",
     # Ventanas que se abren solas al arrancar o al terminar bien:
     "actualizacion_disponible", "actualizacion_lista",
     # Música: cambio, fin, fallo e igualación al medir muchas canciones:
@@ -123,6 +126,7 @@ NOMBRES = {
     "aviso": "Aviso general",
     "transmision_recuperada": "Transmisión recuperada",
     "directo_finalizado": "Cierre confirmado del directo",
+    "destinos_de_mas": "Otros destinos de Restream",
     "actualizacion_disponible": "Actualización disponible",
     "actualizacion_lista": "Actualización lista para instalar",
     "musica_tema": "Canción cambiada",

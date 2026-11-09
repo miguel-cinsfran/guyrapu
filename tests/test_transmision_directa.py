@@ -221,6 +221,63 @@ class PrepararTest(unittest.TestCase):
             self.assertNotIn("Se creó en OBS el perfil YouTube.", anuncios)
 
 
+class DestinosDeMasTest(unittest.TestCase):
+    def _preparar(self, opcion, canales=None, conectada=True, fallo=None):
+        gestor = GestorFalso(transmitiendo=False, perfil="TikTok")
+        with mock.patch(
+                "guyrapu.restream.ganchos.cuenta_conectada",
+                return_value=conectada) as cuenta, \
+                mock.patch(
+                    "guyrapu.restream.cuenta.canales",
+                    return_value=canales,
+                    side_effect=fallo) as leer:
+            resultado = preparar(
+                gestor, "TikTok", lambda *a, **k: None, lambda frase: None,
+                opcion=opcion)
+        return resultado, cuenta, leer
+
+    def test_tiktok_con_cuenta_y_youtube_encendido_trae_ese_destino(self):
+        canales = [
+            SimpleNamespace(plataforma="YouTube", nombre="Canal", activo=True),
+            SimpleNamespace(plataforma="TikTok", nombre="Cuenta", activo=True),
+        ]
+        resultado, cuenta, leer = self._preparar("TikTok", canales=canales)
+        self.assertEqual(
+            [canal.nombre for canal in resultado.destinos_de_mas], ["Canal"])
+        cuenta.assert_called_once_with()
+        leer.assert_called_once_with()
+
+    def test_sin_destinos_de_mas_la_revision_trae_vacio(self):
+        canales = [
+            SimpleNamespace(plataforma="TikTok", nombre="Cuenta", activo=True),
+        ]
+        resultado, _cuenta, leer = self._preparar("TikTok", canales=canales)
+        self.assertEqual(resultado.destinos_de_mas, ())
+        leer.assert_called_once_with()
+
+    def test_sin_tiktok_o_sin_cuenta_no_lee_canales(self):
+        for opcion, conectada in (("YouTube", True),
+                                  ("restream:Uno", True),
+                                  ("TikTok", False)):
+            with self.subTest(opcion=opcion, conectada=conectada):
+                resultado, cuenta, leer = self._preparar(
+                    opcion, canales=[], conectada=conectada)
+                self.assertEqual(resultado.destinos_de_mas, ())
+                leer.assert_not_called()
+                if opcion != "TikTok":
+                    cuenta.assert_not_called()
+
+    def test_si_la_lectura_falla_no_hay_destinos_y_deja_advertencia(self):
+        with self.assertLogs(
+                "guyrapu.transmision_directa",
+                level="WARNING") as registro:
+            resultado, _cuenta, _leer = self._preparar(
+                "TikTok", fallo=RuntimeError("sin red"))
+        self.assertEqual(resultado.destinos_de_mas, ())
+        self.assertTrue(any("destinos" in mensaje.lower()
+                            for mensaje in registro.output), registro.output)
+
+
 class FinalizarTest(unittest.TestCase):
     def test_transmitiendo_detiene_y_cierra(self):
         gestor = GestorFalso(transmitiendo=True)

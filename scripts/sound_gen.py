@@ -1286,10 +1286,10 @@ def s_regalo_mediano():
 
 
 from scripts.sound_gen_restream import (  # noqa: E402
-    gen_restream_destino_caido,
+    gen_destinos_de_mas, gen_restream_destino_caido,
     gen_restream_destino_vuelve, gen_restream_senal_debil,
     gen_restream_senal_vuelve, gen_restream_sin_senal,
-    s_restream_destino_caido,
+    s_destinos_de_mas, s_restream_destino_caido,
     s_restream_destino_vuelve, s_restream_senal_debil,
     s_restream_senal_vuelve, s_restream_sin_senal)
 
@@ -1356,6 +1356,7 @@ TEMAS = {
         "restream_senal_debil.wav":    gen_restream_senal_debil,
         "transmision_recuperada.wav":  gen_transmision_recuperada,
         "directo_finalizado.wav":      gen_directo_finalizado,
+        "destinos_de_mas.wav":         gen_destinos_de_mas,
         "aviso.wav":                   gen_aviso,
         "actualizacion_disponible.wav": gen_actualizacion_disponible,
         "actualizacion_lista.wav":      gen_actualizacion_lista,
@@ -1464,6 +1465,7 @@ TEMAS = {
         "restream_senal_debil.wav":    s_restream_senal_debil,
         "transmision_recuperada.wav":  s_transmision_recuperada,
         "directo_finalizado.wav":      s_directo_finalizado,
+        "destinos_de_mas.wav":         s_destinos_de_mas,
         "aviso.wav":                   s_aviso,
         "actualizacion_disponible.wav": s_actualizacion_disponible,
         "actualizacion_lista.wav":      s_actualizacion_lista,
