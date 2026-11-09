@@ -186,6 +186,39 @@ class CierreIncorrectoPrevioTest(unittest.TestCase):
             self.assertFalse(obs_lanzador.cierre_incorrecto_previo(carpeta))
 
 
+class BorrarMarcaCierreTest(unittest.TestCase):
+    def test_borra_solo_los_run_de_una_carpeta_real(self):
+        with tempfile.TemporaryDirectory() as carpeta:
+            for nombre in ("run_111", "run_222", "config.json"):
+                abierto = open(os.path.join(carpeta, nombre), "w")
+                abierto.close()
+            self.assertTrue(obs_lanzador.borrar_marca_cierre(carpeta))
+            self.assertEqual(sorted(os.listdir(carpeta)), ["config.json"])
+
+    def test_carpeta_inexistente_da_true_sin_error(self):
+        with tempfile.TemporaryDirectory() as carpeta:
+            inexistente = os.path.join(carpeta, "no-existe")
+            self.assertTrue(obs_lanzador.borrar_marca_cierre(inexistente))
+
+    def test_sin_run_da_true(self):
+        self.assertTrue(obs_lanzador.borrar_marca_cierre(
+            "alguna", listar=lambda carpeta: ["config.json"]))
+
+    def test_fallo_al_listar_da_false(self):
+        def listar(carpeta):
+            raise PermissionError("sin permiso")
+        with self.assertLogs(obs_lanzador.logger, level="WARNING"):
+            self.assertFalse(obs_lanzador.borrar_marca_cierre(
+                "alguna", listar=listar))
+
+    def test_fallo_al_borrar_da_false(self):
+        def borrar(ruta):
+            raise PermissionError("sin permiso")
+        with self.assertLogs(obs_lanzador.logger, level="WARNING"):
+            self.assertFalse(obs_lanzador.borrar_marca_cierre(
+                "alguna", listar=lambda carpeta: ["run_1"], borrar=borrar))
+
+
 class RelojFalso:
     def __init__(self):
         self.ahora = 0.0
@@ -377,7 +410,8 @@ class AsegurarObsTest(unittest.TestCase):
                                  buscar=lambda: RUTA_PRINCIPAL,
                                  abrir=abrir_orden, dormir=reloj.dormir,
                                  reloj=reloj.reloj,
-                                 hubo_cierre_incorrecto=consultar)
+                                 hubo_cierre_incorrecto=consultar,
+                                 borrar_cierre=lambda: False)
         self.assertTrue(resultado)
         self.assertEqual(
             orden,
@@ -385,6 +419,73 @@ class AsegurarObsTest(unittest.TestCase):
              obs_lanzador.TEXTO_ABRIENDO,
              obs_lanzador.TEXTO_MODO_SEGURO,
              "abrir"])
+
+    def test_con_cierre_borrado_limpia_antes_de_abrir_y_no_avisa(self):
+        reloj = RelojFalso()
+        anuncia = mock.Mock()
+        orden = []
+        anuncia.side_effect = lambda frase: orden.append(("anuncio", frase))
+
+        def borrar():
+            orden.append(("borrar", None))
+            return True
+
+        def abrir_orden(ruta):
+            orden.append(("abrir", ruta))
+
+        resultado = asegurar_obs(mock.Mock(),
+                                 al_anunciar=anuncia,
+                                 en_ejecucion=lambda: False,
+                                 buscar=lambda: RUTA_PRINCIPAL,
+                                 abrir=abrir_orden, dormir=reloj.dormir,
+                                 reloj=reloj.reloj,
+                                 hubo_cierre_incorrecto=lambda: True,
+                                 borrar_cierre=borrar)
+        self.assertTrue(resultado)
+        self.assertEqual([paso for paso, _ in orden],
+                         ["borrar", "anuncio", "abrir"])
+        self.assertEqual(orden[1][1], obs_lanzador.TEXTO_ABRIENDO)
+
+    def test_con_cierre_borrado_vence_con_texto_de_siempre(self):
+        reloj = RelojFalso()
+        with self.assertRaises(obs_cliente.ObsError) as contexto:
+            asegurar_obs(mock.Mock(side_effect=obs_cliente.ObsError("no")),
+                         en_ejecucion=lambda: False,
+                         buscar=lambda: RUTA_PRINCIPAL,
+                         abrir=mock.Mock(), dormir=reloj.dormir,
+                         reloj=reloj.reloj, limite=10.0, intervalo=2.0,
+                         hubo_cierre_incorrecto=lambda: True,
+                         borrar_cierre=lambda: True)
+        self.assertEqual(str(contexto.exception),
+                         obs_lanzador.TEXTO_SIN_RESPUESTA)
+
+    def test_con_cierre_y_borrado_fallido_avisa_y_abre_igual(self):
+        reloj = RelojFalso()
+        anuncia = mock.Mock()
+        abrir = mock.Mock()
+        resultado = asegurar_obs(mock.Mock(),
+                                 al_anunciar=anuncia,
+                                 en_ejecucion=lambda: False,
+                                 buscar=lambda: RUTA_PRINCIPAL,
+                                 abrir=abrir, dormir=reloj.dormir,
+                                 reloj=reloj.reloj,
+                                 hubo_cierre_incorrecto=lambda: True,
+                                 borrar_cierre=lambda: False)
+        self.assertTrue(resultado)
+        abrir.assert_called_once_with(RUTA_PRINCIPAL)
+        self.assertEqual(
+            [llamada.args[0] for llamada in anuncia.call_args_list],
+            [obs_lanzador.TEXTO_ABRIENDO, obs_lanzador.TEXTO_MODO_SEGURO])
+
+    def test_con_obs_en_ejecucion_no_toca_la_marca(self):
+        borrar = mock.Mock()
+        resultado = asegurar_obs(mock.Mock(), al_anunciar=mock.Mock(),
+                                 en_ejecucion=lambda: True,
+                                 buscar=mock.Mock(), abrir=mock.Mock(),
+                                 hubo_cierre_incorrecto=lambda: True,
+                                 borrar_cierre=borrar)
+        self.assertFalse(resultado)
+        borrar.assert_not_called()
 
     def test_sin_cierre_incorrecto_solo_anuncia_abriendo(self):
         reloj = RelojFalso()
@@ -407,7 +508,8 @@ class AsegurarObsTest(unittest.TestCase):
                          buscar=lambda: RUTA_PRINCIPAL,
                          abrir=mock.Mock(), dormir=reloj.dormir,
                          reloj=reloj.reloj, limite=10.0, intervalo=2.0,
-                         hubo_cierre_incorrecto=lambda: True)
+                         hubo_cierre_incorrecto=lambda: True,
+                         borrar_cierre=lambda: False)
         self.assertEqual(str(contexto.exception),
                          obs_lanzador.TEXTO_SIN_RESPUESTA_MODO_SEGURO)
 
@@ -582,7 +684,8 @@ class TestPseudoLanzador(unittest.TestCase):
                          en_ejecucion=lambda: False,
                          buscar=lambda: RUTA_PRINCIPAL, abrir=mock.Mock(),
                          dormir=reloj.dormir, reloj=reloj.reloj,
-                         hubo_cierre_incorrecto=lambda: True)
+                         hubo_cierre_incorrecto=lambda: True,
+                         borrar_cierre=lambda: False)
         self.assertEqual(len(anuncios), 2)
         for frase in anuncios:
             self.assertTrue(frase.startswith("[¡"), frase)

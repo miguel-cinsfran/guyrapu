@@ -213,6 +213,8 @@ class TestCarpetasObs(unittest.TestCase):
             self.assertEqual(
                 paths.carpeta_obs("lienzo_vertical"),
                 base / "plugin_config" / "vertical-canvas" / "config.json")
+            self.assertEqual(paths.carpeta_obs("sentinel"),
+                             base / ".sentinel")
 
     def test_sin_appdata_usan_roaming_del_usuario(self):
         with tempfile.TemporaryDirectory() as tmp, \
@@ -231,6 +233,8 @@ class TestCarpetasObs(unittest.TestCase):
                 paths.carpeta_obs("lienzo_vertical"),
                 roaming / "obs-studio" / "plugin_config" / "vertical-canvas"
                 / "config.json")
+            self.assertEqual(paths.carpeta_obs("sentinel"),
+                             roaming / "obs-studio" / ".sentinel")
 
     def test_no_crea_la_carpeta(self):
         with tempfile.TemporaryDirectory() as tmp, \

@@ -8,6 +8,7 @@ import subprocess
 import time
 
 from guyrapu.core import diagnostico
+from guyrapu.core import paths
 from guyrapu.core import subprocesos
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_activacion
@@ -76,13 +77,50 @@ def cierre_incorrecto_previo(carpeta=None, listar=os.listdir):
     carpeta `%APPDATA%\\obs-studio\\.sentinel`. Carpeta inexistente o
     ilegible da False, para no frenar la apertura por avisar."""
     if carpeta is None:
-        carpeta = os.path.join(os.environ.get("APPDATA", ""),
-                               "obs-studio", ".sentinel")
+        carpeta = str(paths.carpeta_obs("sentinel"))
     try:
         nombres = listar(carpeta)
     except (OSError, ValueError):
         return False
     return any(str(nombre).startswith("run_") for nombre in nombres)
+
+
+def borrar_marca_cierre(carpeta=None, listar=os.listdir, borrar=os.remove):
+    """Borra los sentinel `run_*` para que OBS no pregunte por el modo seguro.
+
+    True si no queda ninguno, incluso si no había. Carpeta inexistente da
+    True. Cualquier otro error se registra y da False, para que quien
+    llama avise igual que antes."""
+    if carpeta is None:
+        carpeta = str(paths.carpeta_obs("sentinel"))
+    try:
+        nombres = listar(carpeta)
+    except FileNotFoundError:
+        return True
+    except (OSError, ValueError) as error:
+        logger.warning("no se pudo leer la marca de cierre de OBS: %s", error)
+        return False
+    borrado_limpio = True
+    for nombre in nombres:
+        if not str(nombre).startswith("run_"):
+            continue
+        try:
+            borrar(os.path.join(carpeta, nombre))
+        except (OSError, ValueError) as error:
+            logger.warning("no se pudo borrar la marca de cierre de OBS %s: %s",
+                           nombre, error)
+            borrado_limpio = False
+    return borrado_limpio
+
+
+def _modo_seguro_pendiente(hubo_cierre_incorrecto, borrar_cierre):
+    """Dice si el aviso de modo seguro sigue haciendo falta al abrir OBS."""
+    if not hubo_cierre_incorrecto():
+        return False
+    if borrar_cierre():
+        logger.info("se borró la marca de cierre incorrecto de OBS")
+        return False
+    return True
 
 
 def abrir_obs(ruta, popen=subprocess.Popen):
@@ -197,10 +235,10 @@ def _esperar_obs_abierto(probar_conexion, al_anunciar, parada, dormir, reloj,
 
 def asegurar_obs(probar_conexion, al_anunciar=None, parada=None,
                  en_ejecucion=obs_activacion.obs_esta_en_ejecucion,
-                 buscar=ruta_obs, abrir=abrir_obs,
-                 dormir=time.sleep, reloj=time.monotonic,
-                 limite=120.0, intervalo=2.0,
-                 hubo_cierre_incorrecto=cierre_incorrecto_previo):
+                 buscar=ruta_obs, abrir=abrir_obs, dormir=time.sleep,
+                 reloj=time.monotonic, limite=120.0, intervalo=2.0,
+                 hubo_cierre_incorrecto=cierre_incorrecto_previo,
+                 borrar_cierre=borrar_marca_cierre):
     """Abre OBS si no corre y espera a que su websocket responda."""
     if parada is not None and parada.is_set():
         return True
@@ -211,7 +249,7 @@ def asegurar_obs(probar_conexion, al_anunciar=None, parada=None,
         raise ObsNoInstalado(_("OBS no está instalado en este equipo. "
                                "Instálalo desde obsproject.com y vuelve a "
                                "intentarlo."))
-    modo_seguro = bool(hubo_cierre_incorrecto())
+    modo_seguro = _modo_seguro_pendiente(hubo_cierre_incorrecto, borrar_cierre)
     if al_anunciar is not None:
         al_anunciar(_(TEXTO_ABRIENDO))
         if modo_seguro:
