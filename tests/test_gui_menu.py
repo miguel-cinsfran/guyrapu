@@ -189,6 +189,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&OBS", "Mo&strar u ocultar la cámara", ANY, "normal"),
             ("&OBS", "---", None, "sep"),
             ("&OBS", "Mos&trar OBS", ANY, "normal"),
+            ("&OBS", "C&errar OBS", ANY, "normal"),
             ("&OBS", "&Avisar si OBS se sobrecarga", ANY, "check"),
             ("&Música", "&Elegir música…", ANY, "normal"),
             ("&Música", "---", None, "sep"),
@@ -682,6 +683,7 @@ class TestMenuObs(unittest.TestCase):
              ANY, "normal"),
             ("&OBS", "---", None, "sep"),
             ("&OBS", "Mos&trar OBS	Alt+Shift+O", ANY, "normal"),
+            ("&OBS", "C&errar OBS", ANY, "normal"),
             ("&OBS", "&Avisar si OBS se sobrecarga	Alt+Shift+A",
              ANY, "check"),
         ], _entradas_de("&OBS"))
@@ -791,6 +793,51 @@ class TestCableadoMostrarObs(unittest.TestCase):
     def test_microfono_de_obs_es_casilla(self):
         frame = self._frame_con_menu()
         self.assertTrue(frame.mi_obs_micro.IsCheckable())
+
+
+class TestCableadoCerrarObs(unittest.TestCase):
+    """Elegir Cerrar OBS llama al comando compartido con el panel."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = app_de_prueba()
+
+    @classmethod
+    def tearDownClass(cls):
+        del cls.app
+
+    def _frame_con_menu(self):
+        from guyrapu.ui import menu_obs
+
+        frame = wx.Frame(None)
+        self.addCleanup(destruir, frame)
+        frame._accel = lambda _accion: ""
+        frame._bind_menu = gui.VentanaPrincipal._bind_menu.__get__(frame)
+        frame._config = {"avisar_sobrecarga": True}
+        frame._on_obs_micro = mock.Mock()
+        frame._alternar_aviso_sobrecarga = mock.Mock()
+        barra = wx.MenuBar()
+        menu_obs.construir(frame, barra)
+        frame.SetMenuBar(barra)
+        return frame
+
+    def test_cerrar_obs_va_despues_de_mostrar_y_llama_al_comando(self):
+        from guyrapu.ui import comando_cerrar_obs, menu_obs
+
+        frame = self._frame_con_menu()
+        etiquetas = [item.GetItemLabelText()
+                     for item in frame.GetMenuBar().GetMenu(
+                         frame.GetMenuBar().FindMenu("&OBS")).GetMenuItems()]
+        self.assertEqual(etiquetas.index("Cerrar OBS"),
+                         etiquetas.index("Mostrar OBS") + 1)
+        with mock.patch.object(comando_cerrar_obs, "cerrar") as cerrar, \
+                mock.patch.object(menu_obs.wx, "CallAfter",
+                                  side_effect=lambda fn, *a: fn(*a)):
+            evento = wx.CommandEvent(
+                wx.EVT_MENU.typeId, frame.mi_obs_cerrar.GetId())
+            frame.GetEventHandler().ProcessEvent(evento)
+        cerrar.assert_called_once_with(menu_obs.anunciar)
+
 
 class TestCableadoComandosGrabacion(unittest.TestCase):
     """Elegir los comandos de grabación llega a comandos_grabacion."""

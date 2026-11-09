@@ -11,7 +11,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_entradas_audio
 from guyrapu.obs import obs_ventana
-from guyrapu.ui import camara_atajos, encuadre_camara
+from guyrapu.ui import camara_atajos, comando_cerrar_obs, encuadre_camara
 from guyrapu.ui.accesibilidad import anunciar
 
 
@@ -20,6 +20,11 @@ def mostrar_obs() -> None:
     texto = obs_ventana.mostrar()
     if texto:
         anunciar(texto)
+
+
+def cerrar_obs() -> None:
+    """Cierra OBS sin forzarlo, desde el menú y el panel."""
+    comando_cerrar_obs.cerrar(anunciar)
 
 
 def abrir_obs(frame) -> None:
@@ -55,7 +60,6 @@ def _agregar_comandos(m, frame):
     """Arma los comandos del menú OBS en su orden."""
     frame.mi_obs_panel = m.Append(
         wx.ID_ANY, _("Panel de &OBS…") + frame._accel("abrir_obs"))
-    frame._bind_menu(frame.mi_obs_panel, abrir_obs, frame)
     frame.mi_obs_grabar = m.Append(
         wx.ID_ANY,
         _("Iniciar o detener g&rabación") + frame._accel("obs_grabar"))
@@ -69,6 +73,7 @@ def _agregar_comandos(m, frame):
     _agregar_encuadre(frame, m)
     frame.mi_mostrar_obs = m.Append(
         wx.ID_ANY, _("Mos&trar OBS") + frame._accel("mostrar_obs"))
+    frame.mi_obs_cerrar = m.Append(wx.ID_ANY, _("C&errar OBS"))
     frame.mi_avisos_sobrecarga = m.AppendCheckItem(
         wx.ID_ANY,
         _("&Avisar si OBS se sobrecarga") + frame._accel("avisos_sobrecarga"))
@@ -91,7 +96,9 @@ def _enlazar(frame, m):
     from guyrapu.ui import comandos_grabacion
     frame.Bind(wx.EVT_MENU, frame._on_obs_micro, frame.mi_obs_micro)
     frame.Bind(wx.EVT_MENU_OPEN, lambda e: _al_abrir_obs(frame, m, e))
+    frame._bind_menu(frame.mi_obs_panel, abrir_obs, frame)
     frame._bind_menu(frame.mi_mostrar_obs, mostrar_obs)
+    frame._bind_menu(frame.mi_obs_cerrar, cerrar_obs)
     frame._bind_menu(frame.mi_obs_grabar,
                      comandos_grabacion.alternar_grabacion, frame)
     frame._bind_menu(frame.mi_obs_pausar_grabacion,

@@ -12942,3 +12942,27 @@ msgstr ""
 "Restream will also broadcast this live stream to: {destinos}. To choose "
 "where it goes, use a Restream profile in Broadcast to. Broadcast anyway?"
 
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "OBS está transmitiendo o grabando. Detenlo antes de cerrar OBS."
+msgstr "OBS is streaming or recording. Stop it before closing OBS."
+
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "Cerrando OBS…"
+msgstr "Closing OBS…"
+
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "OBS cerrado."
+msgstr "OBS closed."
+
+#: guyrapu/ui/comando_cerrar_obs.py
+msgid "OBS no se cerró. Ciérralo desde su ventana."
+msgstr "OBS did not close. Close it from its window."
+
+#: guyrapu/ui/menu_obs.py
+msgid "C&errar OBS"
+msgstr "Clos&e OBS"
+
+#: guyrapu/ui/obs_pagina_general.py
+msgid "&Cerrar OBS"
+msgstr "&Close OBS"
+

@@ -10,6 +10,7 @@ import threading
 import time
 
 from guyrapu.core import diagnostico
+from guyrapu.obs import obs_activacion
 from guyrapu.obs.obs_panel import GestorPanelObs
 
 PLAZO_FRESCURA = 12.0
@@ -27,9 +28,11 @@ class EstadoObs:
 class VigilanteObs:
     """Conserva una conexión a OBS y una copia segura para el hilo de GUI."""
 
-    def __init__(self, crear_gestor=GestorPanelObs, reloj=time.monotonic):
+    def __init__(self, crear_gestor=GestorPanelObs, reloj=time.monotonic,
+                 en_ejecucion=obs_activacion.obs_esta_en_ejecucion):
         self._crear_gestor = crear_gestor
         self._reloj = reloj
+        self._en_ejecucion = en_ejecucion
         self._parada = threading.Event()
         self._cerrojo = threading.Lock()
         self._estado = EstadoObs()
@@ -61,6 +64,7 @@ class VigilanteObs:
     def _vigilar(self):
         logger = diagnostico.obtener_logger(__name__)
         fallo = False
+        fallo_anunciable = False
         gestor = self._crear_gestor()
         self._gestor = gestor
         try:
@@ -74,21 +78,18 @@ class VigilanteObs:
                     with self._cerrojo:
                         self._estado = estado
                         self._ultimo_sondeo = self._reloj()
-                    if fallo:
+                    if fallo_anunciable:
                         logger.info("OBS volvió a responder")
-                        fallo = False
+                        fallo_anunciable = False
+                    fallo = False
                 except Exception:
                     if self._parada.is_set():
                         # Al cerrar la app la petición en vuelo se cancela; ese
                         # aviso se anuncia en voz alta y OBS no tiene la culpa.
                         break
-                    if not fallo:
-                        logger.warning("OBS no responde; se reintentará")
-                        fallo = True
-                    try:
-                        gestor.cerrar()
-                    except Exception as error:
-                        logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
+                    fallo_anunciable = self._fallo_visto(
+                        logger, fallo_anunciable, gestor)
+                    fallo = True
                 self._parada.wait(INTERVALO_SIN_OBS if fallo else INTERVALO_SONDEO)
         finally:
             try:
@@ -96,6 +97,27 @@ class VigilanteObs:
             except Exception as error:
                 logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
             self._gestor = None
+
+    def _fallo_visto(self, logger, fallo_anunciable, gestor):
+        """Registra un sondeo fallido y devuelve si queda una falla anunciada."""
+        try:
+            en_marcha = bool(self._en_ejecucion())
+        except Exception as error:
+            # Un fallo al comprobar la ejecución no puede callar una falla
+            # real de OBS.
+            logger.debug("no se pudo comprobar si OBS está en ejecución: %s",
+                         error)
+            en_marcha = True
+        if not en_marcha:
+            logger.debug("OBS no está en ejecución; se reintentará")
+        elif not fallo_anunciable:
+            logger.warning("OBS no responde; se reintentará")
+            fallo_anunciable = True
+        try:
+            gestor.cerrar()
+        except Exception as error:
+            logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
+        return fallo_anunciable
 
 
 def dato_fresco(ultimo_sondeo: float | None, ahora: float) -> bool:

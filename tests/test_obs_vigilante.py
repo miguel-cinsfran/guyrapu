@@ -41,9 +41,10 @@ class TestFrescura(unittest.TestCase):
 
 class TestParada(unittest.TestCase):
 
-    def _vigilar_con(self, fallo_en_vuelo):
+    def _vigilar_con(self, fallo_en_vuelo, en_ejecucion=lambda: True):
         gestor = mock.Mock(conectado=True)
-        vigilante = VigilanteObs(crear_gestor=lambda: gestor)
+        vigilante = VigilanteObs(crear_gestor=lambda: gestor,
+                                 en_ejecucion=en_ejecucion)
 
         def estado_transmision(parada):
             if fallo_en_vuelo:
@@ -73,6 +74,68 @@ class TestParada(unittest.TestCase):
     def test_fallo_real_sigue_avisando(self):
         logger, _ = self._vigilar_con(fallo_en_vuelo=False)
         logger.warning.assert_called_once_with("OBS no responde; se reintentará")
+
+    def test_sin_obs_en_ejecucion_no_avisa_que_no_responde(self):
+        logger, _ = self._vigilar_con(fallo_en_vuelo=False,
+                                      en_ejecucion=lambda: False)
+        logger.warning.assert_not_called()
+        logger.debug.assert_called()
+
+    def test_si_no_se_puede_comprobar_la_ejecucion_avisa(self):
+        def en_ejecucion():
+            raise OSError("tasklist")
+
+        logger, _ = self._vigilar_con(fallo_en_vuelo=False,
+                                      en_ejecucion=en_ejecucion)
+        logger.warning.assert_called_once_with("OBS no responde; se reintentará")
+
+
+class _ParadaPorEsperas:
+    """Parada que deja correr un número fijo de esperas."""
+
+    def __init__(self, esperas):
+        self._esperas = esperas
+        self.vistas = []
+
+    def is_set(self):
+        return len(self.vistas) >= self._esperas
+
+    def set(self):
+        self.vistas = [0] * self._esperas
+
+    def clear(self):
+        self.vistas = []
+
+    def wait(self, plazo):
+        self.vistas.append(plazo)
+
+
+class TestRecuperacion(unittest.TestCase):
+
+    def _vigilar(self, en_ejecucion):
+        gestor = mock.Mock(conectado=True)
+        gestor.estado_transmision.side_effect = [
+            RuntimeError("OBS no contesta"), {}]
+        gestor.estado_grabacion.return_value = {}
+        gestor.escena_al_aire.return_value = ""
+        vigilante = VigilanteObs(crear_gestor=lambda: gestor,
+                                 en_ejecucion=en_ejecucion)
+        vigilante._parada = _ParadaPorEsperas(2)
+        logger = mock.Mock()
+        with mock.patch.object(obs_vigilante.diagnostico, "obtener_logger",
+                               return_value=logger), \
+                mock.patch.object(obs_vigilante, "INTERVALO_SONDEO", 0), \
+                mock.patch.object(obs_vigilante, "INTERVALO_SIN_OBS", 0):
+            vigilante._vigilar()
+        return logger
+
+    def test_despues_de_avisar_el_fallo_anuncia_que_volvio(self):
+        logger = self._vigilar(lambda: True)
+        logger.info.assert_called_once_with("OBS volvió a responder")
+
+    def test_despues_de_un_fallo_sin_obs_no_anuncia_que_volvio(self):
+        logger = self._vigilar(lambda: False)
+        logger.info.assert_not_called()
 
 
 class _ParadaFalsa:
