@@ -217,6 +217,121 @@
 </head>
 <body>
 <h1 id="novedades-de-guyrapu">Novedades de Guyrapu</h1>
+<h2 id="300-beta-3-noviembre-de-2026">3.0.0 beta 3, noviembre de
+2026</h2>
+<h3 id="transmitir-en-horizontal-y-vertical-a-la-vez">Transmitir en
+horizontal y vertical a la vez</h3>
+<ul>
+<li>Un perfil de Restream puede tener la orientación <em>Horizontal y
+vertical a la vez</em>. Con el plugin Vertical Canvas de Aitum instalado
+en OBS, el horizontal va directo a YouTube y el vertical a los demás
+destinos del perfil, como TikTok. Por eso el perfil tiene que incluir
+YouTube.</li>
+<li>La primera vez, Guyrapu prepara la salida del plugin, y si OBS está
+abierto lo cierra y lo vuelve a abrir. Antes de cada directo copia al
+lienzo vertical las versiones verticales de tus escenas, y cuando
+cambias de escena, el vertical pasa a la suya.</li>
+<li>Si el vertical se interrumpe, suena un aviso y el horizontal sigue.
+Guyrapu lo vuelve a intentar cada 30 segundos y avisa cuando
+vuelve.</li>
+</ul>
+<h3 id="perfiles-de-obs">Perfiles de OBS</h3>
+<ul>
+<li>La pestaña <em>Perfiles</em> del <em>Panel de OBS</em> lista los
+perfiles de OBS y dice para qué se usa cada uno. Desde ahí se cambia de
+perfil, se crean, se duplican y se eliminan, y <em>Editar ajustes…</em>
+cambia el vídeo, la transmisión, la grabación y el audio, incluido el
+dispositivo de monitoreo.</li>
+<li><em>Usar para…</em> elige si un perfil se usa para transmitir en
+horizontal, en vertical o para grabar. Lo mismo se elige en
+<em>Preferencias</em>, categoría <em>OBS</em>. Guyrapu pasa a ese perfil
+al transmitir o grabar, y vuelve al anterior al terminar o si cancelas
+el directo.</li>
+<li><em>Preparar perfiles…</em> crea los tres perfiles, comprueba qué
+ajustes funcionan bien en tu PC y los deja asignados, sin tocar los
+perfiles que ya tenías.</li>
+</ul>
+<h3 id="probar-el-equipo-y-la-conexión">Probar el equipo y la
+conexión</h3>
+<ul>
+<li><em>Probar el equipo…</em>, en la pestaña <em>General</em>, graba
+unos segundos con el perfil en uso para ver si la PC pierde fotogramas.
+Si los pierde, busca ajustes más livianos que funcionen y ofrece
+guardarlos en el perfil. Con el plugin Vertical Canvas, la prueba puede
+grabar también el lienzo vertical. Las grabaciones de la prueba se
+borran al terminar.</li>
+<li><em>Probar la conexión…</em> hace un directo privado de prueba en
+YouTube, que nadie ve y que se borra solo, para saber qué tasa de bits
+admite tu conexión. Después ofrece guardarla en el perfil.</li>
+<li>Al terminar un directo, Guyrapu dice cuántos fotogramas se
+perdieron, si fue por la red, por el codificador o por el dibujo de la
+escena, y qué cambiar en el perfil para el próximo.</li>
+</ul>
+<h3 id="escenas-verticales">Escenas verticales</h3>
+<ul>
+<li><em>Crear la versión vertical</em>, en el menú contextual de una
+escena, arma una copia de la escena con las mismas fuentes y un diseño
+vertical. Al transmitir en vertical, esa copia sale al aire, y al
+terminar vuelve la escena que había.</li>
+<li><em>Aplicar diseño…</em> se adapta a un lienzo vertical:
+<em>Dividida en dos</em> apila las fuentes arriba y abajo, y el chat en
+franja va abajo. Hay un reparto nuevo, a la medida de la primera fuente,
+y en <em>Automático</em> la cámara llena su lugar.</li>
+</ul>
+<h3 id="chat">Chat</h3>
+<ul>
+<li>Con un perfil de Restream que tiene YouTube y TikTok, <em>Chat que
+lee Guyrapu</em> ofrece <em>YouTube y TikTok</em>, elegida de entrada en
+los perfiles nuevos. Los dos chats se leen en la misma lista, y cada
+fila dice de qué plataforma es.</li>
+<li>En <em>Eventos del directo</em>, <em>Sonido propio de cada
+plataforma</em> elige si los mensajes de TikTok tienen su sonido
+siempre, solo con varios chats o nunca, y <em>Anunciar qué plataforma
+tiene cada mensaje cuando hay varios chats</em> hace que la voz también
+lo diga.</li>
+<li>Cada evento del directo puede leerse con <em>Voz principal sin
+sonido</em> o <em>Voz secundaria sin sonido</em>.</li>
+</ul>
+<h3 id="música-y-grabaciones">Música y grabaciones</h3>
+<ul>
+<li>El editor de listas de música tiene dos listas. En <em>Canciones de
+la lista</em>, las canciones se reproducen, se quitan y se ordenan con
+el teclado, y <em>Todas las canciones</em> marca con una casilla las que
+ya están en la lista. Una canción ya no puede repetirse en una
+lista.</li>
+<li>En <em>Grabaciones y clips</em>, <em>Abrir carpeta</em> abre la
+carpeta de la grabación. Si OBS convierte la grabación a MP4 al
+terminar, la lista muestra y abre el MP4.</li>
+</ul>
+<h3 id="otros-cambios">Otros cambios</h3>
+<ul>
+<li>Las sesiones de YouTube y de Restream y las claves guardadas en la
+aplicación se guardan cifradas con tu cuenta de Windows. Si copias la
+carpeta de la aplicación a otra PC, tendrás que volver a iniciar
+sesión.</li>
+<li>La ventana principal aparece antes al abrir la aplicación.</li>
+<li>Gemini acepta las claves nuevas que empiezan con «AQ.».</li>
+</ul>
+<h3 id="arreglos">Arreglos</h3>
+<ul>
+<li><code>Intro</code> vuelve a funcionar en <em>Recientes</em>,
+<em>Grabaciones y clips</em>, el historial, la conversación con la IA,
+los perfiles y los eventos de Restream, y la lista de escenas del
+<em>Panel de OBS</em>.</li>
+<li>Las casillas con nombre propio, como <em>Creado para niños</em> o
+los destinos de un perfil de Restream, vuelven a leerse como casillas,
+con su estado.</li>
+<li>La lista de perfiles de Restream nombra YouTube también cuando el
+perfil tiene otros destinos.</li>
+<li>El <em>Panel de OBS</em> abierto mientras OBS se inicia se carga
+cuando OBS termina de abrirse, y los botones de grabación dicen el
+estado correcto. Si una acción del panel falla, los botones vuelven a
+quedar activos.</li>
+<li>Guyrapu ya no puede hacer que OBS se cierre al cambiar de
+perfil.</li>
+<li>Probar una voz en <em>Preferencias</em> ya no congela la
+ventana.</li>
+</ul>
 <h2 id="300-beta-2-noviembre-de-2026">3.0.0 beta 2, noviembre de
 2026</h2>
 <h3 id="el-nombre-nuevo">El nombre nuevo</h3>
@@ -310,7 +425,7 @@ reúne la cola y el historial. <code>Intro</code> descarga un vídeo y
 <em>Preferencias</em>, <em>Descargas</em>, se elige la carpeta, el
 nombre de los archivos y el canal de actualización de yt-dlp.</li>
 </ul>
-<h3 id="otros-cambios">Otros cambios</h3>
+<h3 id="otros-cambios-1">Otros cambios</h3>
 <ul>
 <li>También está en inglés. El idioma se elige en <em>Preferencias</em>,
 <em>General</em>, y se aplica al reiniciar.</li>
@@ -324,7 +439,7 @@ muestra en un cuadro el resultado de lo que haces. <code>F2</code> dice
 la cuota diaria de YouTube usada y, dos veces seguidas, abre la ventana
 <em>Estado de la sesión</em>.</li>
 </ul>
-<h3 id="arreglos">Arreglos</h3>
+<h3 id="arreglos-1">Arreglos</h3>
 <ul>
 <li>Algunos vídeos de YouTube no se abrían al primer intento o decían
 «Fin del vídeo». La aplicación espera a que YouTube deje disponible el
@@ -640,7 +755,7 @@ un número. Al capturarlo, la aplicación revisa tu teclado: si
 teclado latinoamericano, te lo dice y te pide otra. Así puedes seguir
 escribiendo ese carácter en el chat.</li>
 </ul>
-<h3 id="chat">Chat</h3>
+<h3 id="chat-1">Chat</h3>
 <ul>
 <li>Una pérdida de conexión ya no cierra el directo. Antes, si se
 interrumpía la conexión con el chat, al volver sola la aplicación leía
@@ -684,7 +799,7 @@ siempre.</li>
 para niños que crea la aplicación. Antes decía que no había ningún
 directo conectado.</li>
 </ul>
-<h3 id="chat-1">Chat</h3>
+<h3 id="chat-2">Chat</h3>
 <ul>
 <li>El chat deja de reintentar un directo que ya terminó. Si el chat
 quedaba conectado a un directo que había terminado, repetía sin fin
@@ -996,7 +1111,7 @@ conectar los últimos mensajes del directo. Ya se descartaban los de
 antes de la conexión, y ahora también los que TikTok marca como
 antiguos.</li>
 </ul>
-<h3 id="otros-cambios-1">Otros cambios</h3>
+<h3 id="otros-cambios-2">Otros cambios</h3>
 <ul>
 <li><code>F3</code> dice el autor del último mensaje leído.</li>
 <li>La aplicación ya no se cierra sola al finalizar un directo. Lo

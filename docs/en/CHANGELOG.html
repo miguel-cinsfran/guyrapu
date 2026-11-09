@@ -216,13 +216,124 @@
   </style>
 </head>
 <body>
-<!-- original: es/CHANGELOG.md 6cd28294d632071b1cd9afe3e3af14c0ce6630c0 -->
+<!-- original: es/CHANGELOG.md 125940369d8c514fae50eb695c8f379b94366a1b -->
 
 <h1 id="whats-new-in-guyrapu">What's new in Guyrapu</h1>
 <p>This is a translation of the Spanish original, made with artificial
 intelligence. If you find an error, report it at <a
 href="https://github.com/miguel-cinsfran/guyrapu/issues">https://github.com/miguel-cinsfran/guyrapu/issues</a>.
 See the <a href="../es/CHANGELOG.html">original in Spanish</a>.</p>
+<h2 id="300-beta-3-november-2026">3.0.0 beta 3, November 2026</h2>
+<h3
+id="broadcasting-horizontally-and-vertically-at-the-same-time">Broadcasting
+horizontally and vertically at the same time</h3>
+<ul>
+<li>A Restream profile can have the <em>Horizontal and vertical at the
+same time</em> orientation. With the Aitum Vertical Canvas plugin
+installed in OBS, the horizontal goes directly to YouTube and the
+vertical to the other destinations of the profile, such as TikTok. That
+is why the profile must include YouTube.</li>
+<li>The first time, Guyrapu prepares the plugin output, and if OBS is
+open it closes it and reopens it. Before each live stream it copies the
+vertical versions of your scenes to the vertical canvas, and when you
+change scenes, the vertical switches to its own.</li>
+<li>If the vertical is interrupted, a warning sounds and the horizontal
+continues. Guyrapu tries it again every 30 seconds and warns when it
+comes back.</li>
+</ul>
+<h3 id="obs-profiles">OBS profiles</h3>
+<ul>
+<li>The <em>Profiles</em> tab of the <em>OBS panel</em> lists the OBS
+profiles and says what each one is used for. From there you change
+profiles, create, duplicate and delete them, and <em>Edit settings…</em>
+changes the video, the broadcast, the recording and the audio, including
+the monitoring device.</li>
+<li><em>Use for…</em> chooses whether a profile is used to broadcast
+horizontally, vertically or to record. The same is chosen in
+<em>Preferences</em>, on the <em>OBS</em> category. Guyrapu switches to
+that profile when broadcasting or recording, and goes back to the
+previous one at the end or if you cancel the live stream.</li>
+<li><em>Prepare profiles…</em> creates the three profiles, checks which
+settings work well on your PC and assigns them, without touching the
+profiles you already had.</li>
+</ul>
+<h3 id="testing-the-computer-and-the-connection">Testing the computer
+and the connection</h3>
+<ul>
+<li><em>Test computer…</em>, on the <em>General</em> tab, records for a
+few seconds with the profile in use to see whether the PC drops frames.
+If it does, it looks for lighter settings that work and offers to save
+them in the profile. With the Vertical Canvas plugin, the test can also
+record the vertical canvas. Test recordings are deleted at the end.</li>
+<li><em>Test connection…</em> does a private test live stream on
+YouTube, which nobody sees and which deletes itself, to know what
+bitrate your connection supports. Then it offers to save it in the
+profile.</li>
+<li>When a live stream ends, Guyrapu says how many frames were dropped,
+whether it was due to the network, the encoder or the drawing of the
+scene, and what to change in the profile for the next one.</li>
+</ul>
+<h3 id="vertical-scenes">Vertical scenes</h3>
+<ul>
+<li><em>Create vertical version</em>, in the context menu of a scene,
+makes a copy of the scene with the same sources and a vertical layout.
+When broadcasting vertically, that copy goes on air, and at the end the
+scene that was there comes back.</li>
+<li><em>Apply layout…</em> adapts to a vertical canvas: <em>Split in
+two</em> stacks the sources at the top and bottom, and the chat in a
+strip goes at the bottom. There is a new layout, sized to the first
+source, and in <em>Automatic</em> the camera fills its place.</li>
+</ul>
+<h3 id="chat">Chat</h3>
+<ul>
+<li>With a Restream profile that has YouTube and TikTok, <em>Chat that
+Guyrapu reads</em> offers <em>YouTube and TikTok</em>, chosen by default
+in new profiles. Both chats are read in the same list, and each row says
+which platform it is from.</li>
+<li>In <em>Live events</em>, <em>Each platform's own sound</em> chooses
+whether TikTok messages always have their sound, only with several chats
+or never, and <em>Announce which platform each message has when there
+are multiple chats</em> makes the voice say it too.</li>
+<li>Each live event can be read with <em>Main voice without sound</em>
+or <em>Secondary voice without sound</em>.</li>
+</ul>
+<h3 id="music-and-recordings">Music and recordings</h3>
+<ul>
+<li>The music playlist editor has two lists. In <em>Playlist songs</em>,
+songs are played, removed and sorted with the keyboard, and <em>All
+songs</em> checks with a checkbox the ones already in the playlist. A
+song can no longer be repeated in a playlist.</li>
+<li>In <em>Recordings and clips</em>, <em>Open folder</em> opens the
+recording folder. If OBS converts the recording to MP4 at the end, the
+list shows and opens the MP4.</li>
+</ul>
+<h3 id="other-changes">Other changes</h3>
+<ul>
+<li>The YouTube and Restream sessions and the keys saved in the
+application are saved encrypted with your Windows account. If you copy
+the application folder to another PC, you will have to sign in
+again.</li>
+<li>The main window appears sooner when opening the application.</li>
+<li>Gemini accepts the new keys that start with “AQ.”.</li>
+</ul>
+<h3 id="fixes">Fixes</h3>
+<ul>
+<li><code>Enter</code> works again in <em>Recent items</em>,
+<em>Recordings and clips</em>, the history, the conversation with the
+AI, the profiles and the Restream events, and the scene list of the
+<em>OBS panel</em>.</li>
+<li>Checkboxes with their own name, such as <em>Made for kids</em> or
+the destinations of a Restream profile, are read as checkboxes again,
+with their state.</li>
+<li>The Restream profile list also names YouTube when the profile has
+other destinations.</li>
+<li>The <em>OBS panel</em> opened while OBS is starting loads when OBS
+finishes opening, and the recording buttons say the correct state. If an
+action of the panel fails, the buttons become active again.</li>
+<li>Guyrapu can no longer make OBS close when changing profiles.</li>
+<li>Testing a voice in <em>Preferences</em> no longer freezes the
+window.</li>
+</ul>
 <h2 id="300-beta-2-november-2026">3.0.0 beta 2, November 2026</h2>
 <h3 id="the-new-name">The new name</h3>
 <p>YTChat TTS is now called Guyrapu. Version 2.5.1 does not offer this
@@ -314,7 +425,7 @@ the queue and the history. <code>Enter</code> downloads a video and
 <em>Preferences</em>, <em>Downloads</em>, you choose the folder, the
 file name and the yt-dlp update channel.</li>
 </ul>
-<h3 id="other-changes">Other changes</h3>
+<h3 id="other-changes-1">Other changes</h3>
 <ul>
 <li>It is also in English. The language is chosen in
 <em>Preferences</em>, <em>General</em>, and applies on restart.</li>
@@ -328,7 +439,7 @@ result of what you do in a box. <code>F2</code> says the daily YouTube
 quota used and, twice in a row, opens the <em>Session status</em>
 window.</li>
 </ul>
-<h3 id="fixes">Fixes</h3>
+<h3 id="fixes-1">Fixes</h3>
 <ul>
 <li>Some YouTube videos did not open on the first try or said “End of
 the video”. The app waits until YouTube makes the video available and,
@@ -613,7 +724,7 @@ something, such as the at sign on the Latin American keyboard, it tells
 you and asks for another one, so you can keep typing that character in
 the chat.</li>
 </ul>
-<h3 id="chat">Chat</h3>
+<h3 id="chat-1">Chat</h3>
 <ul>
 <li>A connection drop no longer closes the live stream. Before, if the
 connection to the chat dropped, when it came back on its own the
@@ -652,7 +763,7 @@ the link of the private or made-for-kids live stream that the
 application creates. Before it said that no live stream was
 connected.</li>
 </ul>
-<h3 id="chat-1">Chat</h3>
+<h3 id="chat-2">Chat</h3>
 <ul>
 <li>The chat stops retrying a live stream that already ended. If the
 chat stayed connected to a live stream that had ended, it repeated
@@ -960,7 +1071,7 @@ messages of the live stream when connecting. Messages from before the
 connection were already discarded, and now also those that TikTok marks
 as old.</li>
 </ul>
-<h3 id="other-changes-1">Other changes</h3>
+<h3 id="other-changes-2">Other changes</h3>
 <ul>
 <li><code>F3</code> says the author of the last message read.</li>
 <li>The application no longer closes on its own when ending a live
