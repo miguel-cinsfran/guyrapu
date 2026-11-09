@@ -435,40 +435,6 @@ def gen_directo_con_cortes():
         _concat(pulso, _silencio(0.05), pulso, _silencio(0.05), pulso), 0.7)
 
 
-def gen_restream_destino_caido():
-    # Descenso E4→C4: un destino dejó de recibir, sin la insistencia grave
-    # de transmision_problema (A3) ni los tres pulsos de directo_con_cortes.
-    n1 = _perc(_seno(E4, 0.12, 0.36), 0.004, 0.09)
-    n2 = _perc(_seno(C4, 0.22, 0.36), 0.004, 0.16)
-    return _normalizar(_concat(n1, n2), 0.7)
-
-
-def gen_restream_destino_vuelve():
-    # Subida A4→D5: el destino vuelve a recibir. Distinta de la vuelta de la
-    # conexión (G4→C5) y del reintento del directo (B4→E5).
-    n1 = _perc(_seno(A4, 0.09, 0.34), 0.004, 0.07)
-    n2 = _perc(_seno(D5, 0.18, 0.36), 0.004, 0.14)
-    return _normalizar(_concat(n1, n2), 0.7)
-
-
-def gen_restream_sin_senal():
-    # Barrido grave A3→D3 que se apaga: la señal de OBS no llega.
-    return _normalizar(_perc(_glide(A3, D3, 0.36, 0.38), 0.005, 0.22), 0.7)
-
-
-def gen_restream_senal_vuelve():
-    # Barrido E4→A4, cálido y ascendente: la señal vuelve. No comparte el
-    # G4→C5 de transmision_recuperada ni el E4→B4 de grabacion_reanudada.
-    return _normalizar(_perc(_glide(E4, A4, 0.30, 0.34), 0.005, 0.20), 0.68)
-
-
-def gen_restream_senal_debil():
-    # Dos toques iguales G4 con hueco: advertencia, la señal baja. No es la
-    # repetición A4-A4 de grabacion_en_pausa.
-    nota = _perc(_seno(G4, 0.10, 0.34), 0.004, 0.07)
-    return _normalizar(_concat(nota, _silencio(0.07), nota), 0.68)
-
-
 def gen_aviso():
     # Campanita neutra de dos notas E6→B5: avisa sin calificar.
     n1 = _perc(_seno(E6, 0.12, 0.30), 0.002, 0.10)
@@ -982,34 +948,6 @@ def s_directo_con_cortes():
     return _seq(pulso, _silencio(0.05), pulso, _silencio(0.05), pulso)
 
 
-def s_restream_destino_caido():
-    # Descenso E4→C4 en madera cálida: un destino dejó de recibir.
-    return _seq(_madera(E4, 0.12, 0.36, 0.09),
-                _madera(C4, 0.22, 0.36, 0.16))
-
-
-def s_restream_destino_vuelve():
-    # Subida A4→D5 en madera: el destino vuelve a recibir.
-    return _seq(_madera(A4, 0.09, 0.34, 0.07),
-                _madera(D5, 0.18, 0.36, 0.14))
-
-
-def s_restream_sin_senal():
-    # Barrido grave A3→D3 en madera: la señal de OBS no llega.
-    return _normalizar(_perc(_glide(A3, D3, 0.34, 0.34), 0.006, 0.22), 0.65)
-
-
-def s_restream_senal_vuelve():
-    # Barrido E4→A4, el mismo alivio en madera cálida.
-    return _normalizar(_perc(_glide(E4, A4, 0.30, 0.30), 0.006, 0.20), 0.65)
-
-
-def s_restream_senal_debil():
-    # Dos toques iguales G4 con hueco: advertencia, la señal baja.
-    nota = _madera(G4, 0.10, 0.34, 0.07)
-    return _normalizar(_concat(nota, _silencio(0.07), nota), 0.68)
-
-
 def s_aviso():
     return _seq(_madera(E6, 0.10, 0.32, 0.08),
                 _madera(B5, 0.20, 0.34, 0.15))
@@ -1345,6 +1283,15 @@ def s_regalo_mediano():
     # Díada D5-A5 sostenida: regalo medio, otra quinta que la de conectado.
     return _normalizar(_perc(_suma(_seno(D5, 0.35, 0.30), _seno(A5, 0.35, 0.24)),
                              0.006, 0.28), 0.75)
+
+
+from scripts.sound_gen_restream import (  # noqa: E402
+    gen_restream_destino_caido,
+    gen_restream_destino_vuelve, gen_restream_senal_debil,
+    gen_restream_senal_vuelve, gen_restream_sin_senal,
+    s_restream_destino_caido,
+    s_restream_destino_vuelve, s_restream_senal_debil,
+    s_restream_senal_vuelve, s_restream_sin_senal)
 
 
 TEMAS = {
