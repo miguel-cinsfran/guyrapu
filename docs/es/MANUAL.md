@@ -4,7 +4,7 @@ Guyrapu lee en voz alta el chat de los directos de YouTube y TikTok, y
 maneja OBS Studio y Restream desde el teclado. Está pensado para personas
 ciegas o con baja visión que transmiten, y se prueba con NVDA.
 
-Versión 3.0.0 beta 2 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
+Versión 3.0.0 beta 3 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
 
 ## Instalación
 
@@ -190,7 +190,11 @@ Si OBS está cerrado, Guyrapu lo abre en el área de notificación.
 2. Elige *YouTube* o un perfil de Restream y pulsa *Continuar*.
 3. Guyrapu prepara OBS y revisa la escena: si está vacía, si una imagen
    sale en negro o si el micrófono está silenciado. Si encuentra un
-   problema, el botón elegido de entrada es *Cancelar*.
+   problema, el botón elegido de entrada es *Cancelar*. Si transmites a
+   TikTok y la cuenta de Restream también va a mandar el directo a otros
+   destinos encendidos, la confirmación lo dice antes de empezar, con un
+   sonido propio y el foco en *Cancelar*, y sugiere elegir un perfil de
+   Restream. Si algo falla al iniciar, el error sale siempre en un cuadro.
 4. Para YouTube, o un perfil con YouTube, escribe el título, la
    descripción y la privacidad. El resto de los datos es opcional, y
    Guyrapu recuerda lo último que escribiste. Para hacer pruebas, usa *No
@@ -250,7 +254,10 @@ haciendo en OBS, y el complemento de OBS para NVDA sigue funcionando.
 
 *Estado* resume la transmisión, la grabación, la escena actual, el
 micrófono y el uso del equipo. *Mostrar OBS* trae al frente la ventana de
-OBS, también desde el área de notificación.
+OBS, también desde el área de notificación. *Cerrar OBS*, también en el
+menú *OBS*, cierra OBS sin forzarlo, así no pregunta por el modo seguro al
+volver a abrirlo. Si OBS está transmitiendo o grabando, no lo cierra y
+avisa.
 
 *Probar el equipo…* graba unos segundos con el perfil en uso para ver si la
 PC pierde fotogramas. Si los pierde, prueba ajustes más livianos hasta dar
@@ -262,6 +269,12 @@ la vez. Las grabaciones de la prueba se borran al terminar.
 *Probar la conexión…* hace un directo privado de prueba en YouTube, que
 nadie ve y que se borra solo, para saber qué tasa de bits admite tu
 conexión, y ofrece guardarla en el perfil. Necesita la sesión de Google.
+
+Las pruebas del equipo y de la conexión muestran su avance en una ventana,
+con un sonido de espera, y si fallan dejan el error escrito en ella. En la
+prueba de la conexión, si un intento falla por un error de OBS, Guyrapu
+vuelve a intentarlo y sigue con el siguiente. Si la sesión de YouTube
+caducó, lo dice y explica cómo volver a iniciarla.
 
 ### Escena
 
@@ -278,7 +291,8 @@ La lista *Fuentes* muestra las fuentes de la escena elegida, y cada fila
 dice dónde está la fuente, qué parte del vídeo ocupa y si se ve. El menú
 contextual de cada fila reúne sus acciones. *Tamaño y posición…* la coloca
 en una de nueve posiciones, con un tamaño de un quinto a todo el ancho del
-vídeo, y *Mover con flechas* la mueve en pasos.
+vídeo, y *Mover con flechas* la mueve en pasos. Si la escena no tiene
+fuentes, la lista lo dice y explica cómo agregar una.
 
 *Agregar fuente…* agrega a la escena una cámara, una captura de ventana, de
 juego o de pantalla, una imagen, un archivo multimedia, un texto, el chat en
@@ -339,10 +353,16 @@ para qué se usa: transmitir en horizontal, transmitir en vertical o grabar.
 - *Preparar perfiles…* crea un perfil para transmitir en horizontal, otro
   en vertical y otro para grabar, comprueba qué ajustes funcionan bien en
   tu PC, los deja asignados y dice qué hizo. Los perfiles que ya tenías no
-  cambian.
+  cambian. Muestra su avance en una ventana, con un sonido de espera, y si
+  falla deja el error escrito en ella.
 
 Al transmitir o grabar sin directo, Guyrapu pasa OBS al perfil asignado, y
 al terminar vuelve al que tenía.
+
+Sin perfiles, la lista dice cómo crear uno. *Nuevo…* crea el perfil y abre
+sus ajustes. En la lista, `Supr` elimina el perfil, `Intro` abre sus
+ajustes y la tecla Aplicaciones abre un menú con las mismas acciones que
+los botones.
 
 ### Transmisión
 
@@ -352,7 +372,8 @@ la ventana principal, y *Restream…* abre la ventana de Restream.
 ### Audio
 
 La lista *Fuentes de audio* muestra cada fuente con su estado y sus
-filtros. Los botones actúan sobre la fuente elegida:
+filtros. Si no hay fuentes de audio, la lista lo dice. Los botones actúan
+sobre la fuente elegida:
 
 - *Silenciar* la silencia o la activa.
 - *Probar nivel* dice cada cinco segundos si el nivel es correcto, bajo o
@@ -389,13 +410,16 @@ Lista los canales de la cuenta con su plataforma, y los desactivados lo
 dicen al final. *Agregar destino…* abre la página de Restream en el
 navegador o agrega un destino manual con servidor y clave. El menú
 contextual de cada destino lo activa o lo desactiva, copia su enlace, lo
-abre en el navegador, le cambia el título o el nombre, y lo elimina.
+abre en el navegador, le cambia el título o el nombre, y lo elimina. Sin
+cuenta conectada, la lista dice cómo conectarla; sin destinos, dice cómo
+agregar uno.
 
 ### Perfiles
 
 Un perfil guarda a qué destinos se transmite y con qué orientación, y
-aparece con su nombre en el cuadro *Transmitir a*. *Nuevo perfil…* crea
-uno. En el perfil:
+aparece con su nombre en el cuadro *Transmitir a*. La lista tiene un botón
+por acción: *Nuevo perfil…*, *Editar…*, *Cambiar nombre…*, *Duplicar* y
+*Eliminar*. Sin perfiles, dice cómo crear uno. En el perfil:
 
 - *Orientación* es *Horizontal*, *Vertical* u *Horizontal y vertical a la
   vez*.
@@ -433,7 +457,7 @@ detiene los dos.
 historial. *Detalle del evento* muestra su estado, sus horarios, sus
 destinos y la descripción. El menú contextual copia los enlaces o la
 información del evento, abre el directo y agrega las estadísticas al
-detalle.
+detalle. Si no hay eventos para el filtro elegido, la lista lo dice.
 
 ### Avisos durante el directo
 
@@ -498,7 +522,9 @@ ejemplo si una fuente sale en negro. Requiere OBS abierto y la clave de un prove
 En *Preferencias*, categoría *Inteligencia artificial*, se elige el
 proveedor, como Google Gemini, OpenAI, Anthropic u OpenRouter, se guarda la
 clave y se elige el modelo. La clave queda en el Administrador de
-credenciales de Windows.
+credenciales de Windows. Si la clave no tiene el formato que Guyrapu
+espera, avisa y ofrece usarla de todos modos, por si el proveedor cambió el
+formato.
 
 *Preguntar a la IA sobre la imagen…*, en el menú *Ver*, abre una ventana
 donde *Agregar captura* elige la escena o una fuente, y la pregunta se
@@ -529,6 +555,8 @@ categorías, y los cambios se aplican al pulsar *Guardar*. En *General* se
 elige el idioma y el canal de actualización, y se exportan, se importan o
 se restablecen las preferencias. *Mostrar avisos importantes también en un
 cuadro de mensaje* muestra además en un cuadro el resultado de lo que haces.
+Cada categoría se prepara la primera vez que la eliges, así la ventana abre
+más rápido.
 
 Las preferencias se guardan en `config.ini` y `sounds.ini`, en la carpeta
 `data` junto a la aplicación.
@@ -548,7 +576,9 @@ corresponde a esa familia, Guyrapu dice por qué y sigue esperando.
 ## Atajos de teclado
 
 Cada familia de atajos usa sus propias teclas modificadoras. Todos figuran
-también en la barra de menús, junto a su comando.
+también en la barra de menús, junto a su comando. En las listas con
+acciones, escribir las primeras letras salta al elemento que empieza así, y
+al llegar al principio o al final suena un aviso.
 
 ### Fijos
 

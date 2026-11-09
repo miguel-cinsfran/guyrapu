@@ -1,4 +1,4 @@
-<!-- original: es/CHANGELOG.md 76f3e5447f9dd4169060217ceba3c91e04bed6fb -->
+<!-- original: es/CHANGELOG.md 928a44f5db9bd184b42959b06187b6cfcd1471b7 -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
@@ -33,6 +33,10 @@ This is a translation of the Spanish original, made with artificial intelligence
 - *Prepare profiles…* creates the three profiles, checks which settings work
   well on your PC and assigns them, without touching the profiles you already
   had.
+- In *OBS profiles*, `Delete` removes the profile, `Enter` opens its settings
+  and the Applications key opens a menu with the same actions as the
+  buttons. With no profiles, the list says how to create one, and a new
+  profile opens its settings when it is created.
 
 ### Testing the computer and the connection
 
@@ -47,6 +51,9 @@ This is a translation of the Spanish original, made with artificial intelligence
 - When a live stream ends, Guyrapu says how many frames were dropped, whether
   it was due to the network, the encoder or the drawing of the scene, and what
   to change in the profile for the next one.
+- The computer and connection tests, and *Prepare profiles…*, show their
+  progress in a window with a wait sound, and if they fail they leave the
+  error written in it. Errors from what you start always appear in a box.
 
 ### Vertical scenes
 
@@ -88,6 +95,22 @@ This is a translation of the Spanish original, made with artificial intelligence
   folder to another computer, you will have to sign in again.
 - The main window appears sooner when opening the application.
 - Gemini accepts the new keys that start with “AQ.”.
+- The *Sources* and *Audio sources* lists of the *OBS panel* say what is
+  missing when they are empty.
+- In Restream, the profile list has a button for each action, and the
+  destination, profile and event lists say what is missing when they are
+  empty. Action lists play a sound at the edges and jump to the item that
+  starts with the letters you type.
+- *Preferences* opens faster: each category is prepared the first time you
+  choose it.
+- When broadcasting to TikTok with Restream, if the Restream account is also
+  going to send the live stream to other enabled destinations, the
+  confirmation before starting says so, with its own sound and the focus on
+  *Cancel*, and suggests choosing a Restream profile.
+- There is a new command, *Close OBS*, in the *OBS* menu and on the *General*
+  tab of the *OBS panel*. It closes OBS without forcing it, so it does not ask
+  about safe mode when you open it again. If OBS is broadcasting or recording,
+  it does not close it and warns.
 
 ### Fixes
 
@@ -103,6 +126,16 @@ This is a translation of the Spanish original, made with artificial intelligence
   the panel fails, the buttons become active again.
 - Guyrapu can no longer make OBS close when changing profiles.
 - Testing a voice in *Preferences* no longer freezes the window.
+- An AI key with a format different from the one Guyrapu expects is no
+  longer rejected outright: it warns you and lets you use it anyway, in case
+  the provider changed the format.
+- The *Sources* list no longer says that a new capture, or a source of a
+  scene that is not on air, shows no image when it actually works.
+- *Test connection…* no longer stops after the first attempt with an OBS
+  error: it tries again and continues with the next one. If the YouTube
+  session expired, it says so in plain language and explains how to start it
+  again.
+- Guyrapu no longer says that OBS is not responding when OBS is closed.
 
 ## 3.0.0 beta 2, November 2026
 

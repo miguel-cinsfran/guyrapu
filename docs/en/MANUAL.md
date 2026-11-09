@@ -1,11 +1,11 @@
-<!-- original: es/MANUAL.md dc2e37633717a6c2e4a089cbfa07461dc279e459 -->
+<!-- original: es/MANUAL.md 479002f7d1e7df0d8afc910f357868aa2b14874a -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
 
 Guyrapu reads the chat of YouTube and TikTok live streams aloud, and controls OBS Studio and Restream from the keyboard. It is designed for people who are blind or have low vision and stream, and it is tested with NVDA.
 
-Version 3.0.0 beta 2 · Windows 10 and 11 · [News](CHANGELOG.md)
+Version 3.0.0 beta 3 · Windows 10 and 11 · [News](CHANGELOG.md)
 
 ## Installation
 
@@ -121,7 +121,14 @@ If OBS is closed, Guyrapu opens it in the notification area.
 
 1. Press *Broadcast live*, next to *Connect*. The *Broadcast to* dialog opens, with the destination from last time already chosen.
 2. Choose *YouTube* or a Restream profile and press *Continue*.
-3. Guyrapu prepares OBS and checks the scene: whether it is empty, whether an image comes out black or whether the microphone is muted. If it finds a problem, the button chosen by default is *Cancel*.
+3. Guyrapu prepares OBS and checks the scene: whether it is empty, whether an
+   image comes out black or whether the microphone is muted. If it finds a
+   problem, the button chosen by default is *Cancel*. If you broadcast to
+   TikTok and the Restream account is also going to send the live stream to
+   other enabled destinations, the confirmation before starting says so, with
+   its own sound and the focus on *Cancel*, and suggests choosing a Restream
+   profile. If something fails when starting, the error always appears in a
+   box.
 4. For YouTube, or a profile with YouTube, type the title, the description and the privacy. The rest of the data is optional, and Guyrapu remembers the last thing you typed. To do tests, use *Unlisted*.
 5. When the live stream starts, Guyrapu connects the chat and announces it.
 
@@ -153,11 +160,13 @@ The *OBS panel* brings together in tabs what is done with OBS, and it is opened 
 
 ### General
 
-*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area.
+*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area. *Close OBS*, also in the *OBS* menu, closes OBS without forcing it, so it does not ask about safe mode when you open it again. If OBS is broadcasting or recording, it does not close it and warns.
 
 *Test computer…* records for a few seconds with the profile in use to see whether the PC drops frames. If it does, it tries lighter settings until it finds some that work and offers to save them in the profile. With the Aitum Vertical Canvas plugin in OBS, the dialog offers to include the vertical canvas, to know whether the PC can broadcast in both orientations at the same time. Test recordings are deleted at the end.
 
 *Test connection…* does a private test live stream on YouTube, which nobody sees and which deletes itself, to know what bitrate your connection supports, and offers to save it in the profile. It needs the Google session.
+
+The computer and connection tests show their progress in a window, with a wait sound, and if they fail they leave the error written in it. In the connection test, if an attempt fails with an OBS error, Guyrapu tries again and continues with the next one. If the YouTube session expired, it says so and explains how to start it again.
 
 ### Scene
 
@@ -165,7 +174,7 @@ The *Scenes* list shows each scene, whether it is the current one and how many s
 
 *Create vertical version*, in the context menu of a scene, creates a copy with the same name followed by “vertical”, with the same sources and a vertical layout. When broadcasting vertically, that copy goes on air, and at the end the scene that was there comes back.
 
-The *Sources* list shows the sources of the chosen scene, and each row says where the source is, what part of the video it occupies and whether it is visible. The context menu of each row brings together its actions. *Size and position…* places it in one of nine positions, with a size from one fifth to the full width of the video, and *Move with arrows* moves it in steps.
+The *Sources* list shows the sources of the chosen scene, and each row says where the source is, what part of the video it occupies and whether it is visible. The context menu of each row brings together its actions. *Size and position…* places it in one of nine positions, with a size from one fifth to the full width of the video, and *Move with arrows* moves it in steps. If the scene has no sources, the list says so and explains how to add one.
 
 *Add source…* adds to the scene a camera, a window, game or screen capture, an image, a media file, a text, the chat on video or a source from another scene.
 
@@ -214,9 +223,11 @@ The *OBS profiles* list shows each OBS profile, its orientation and what it is u
 - *Use for…* chooses what it is used for. The same is chosen in *Preferences*, on the *OBS* category, where *The profile OBS is using* leaves OBS as it is.
 - *New…*, *Duplicate…* and *Delete profile* create, copy and delete profiles.
 - *Edit settings…* changes the canvas, the output, the frames per second, the encoder, the broadcast, the recording, the clip buffer and the audio, including the monitoring device.
-- *Prepare profiles…* creates a profile for broadcasting horizontally, another one vertically and another one for recording, checks which settings work well on your PC, assigns them and says what it did. The profiles you already had do not change.
+- *Prepare profiles…* creates a profile for broadcasting horizontally, another one vertically and another one for recording, checks which settings work well on your PC, assigns them and says what it did. The profiles you already had do not change. It shows its progress in a window, with a wait sound, and if it fails it leaves the error written in it.
 
 When broadcasting or recording without a live stream, Guyrapu switches OBS to the assigned profile, and at the end it goes back to the one it had.
+
+With no profiles, the list says how to create one. *New…* creates the profile and opens its settings. In the list, `Delete` removes the profile, `Enter` opens its settings and the Applications key opens a menu with the same actions as the buttons.
 
 ### Broadcast
 
@@ -224,7 +235,7 @@ When broadcasting or recording without a live stream, Guyrapu switches OBS to th
 
 ### Audio
 
-The *Audio sources* list shows each source with its status and its filters. The buttons act on the chosen source:
+The *Audio sources* list shows each source with its status and its filters. If there are no audio sources, the list says so. The buttons act on the chosen source:
 
 - *Mute* mutes or turns it on.
 - *Test level* says every five seconds whether the level is right, low or high, or whether it is clipping, until you press *Stop test*.
@@ -246,11 +257,11 @@ It shows the connected account and its destinations, and it lets you connect it,
 
 ### Destinations
 
-It lists the channels of the account with their platform, and the disabled ones say so at the end. *Add destination…* opens the Restream page in the browser or adds a manual destination with server and key. The context menu of each destination turns it on or off, copies its link, opens it in the browser, changes its title or name, and deletes it.
+It lists the channels of the account with their platform, and the disabled ones say so at the end. *Add destination…* opens the Restream page in the browser or adds a manual destination with server and key. The context menu of each destination turns it on or off, copies its link, opens it in the browser, changes its title or name, and deletes it. With no account connected, the list says how to connect it; with no destinations, it says how to add one.
 
 ### Profiles
 
-A profile saves which destinations are broadcast to and with what orientation, and it appears with its name in the *Broadcast to* dialog. *New profile…* creates one. In the profile:
+A profile saves which destinations are broadcast to and with what orientation, and it appears with its name in the *Broadcast to* dialog. The list has a button for each action: *New profile…*, *Edit…*, *Rename…*, *Duplicate* and *Delete*. With no profiles, it says how to create one. In the profile:
 
 - *Orientation* is *Horizontal*, *Vertical* or *Horizontal and vertical at the same time*.
 - *YouTube, the channel of your Google session* adds that channel, with the live stream that Guyrapu creates from the data you type when you broadcast.
@@ -266,7 +277,7 @@ Before going on air, Guyrapu copies the vertical versions of your scenes to the 
 
 ### Events
 
-*Show* chooses between upcoming events, those that are live and the history. *Event detail* shows its status, its times, its destinations and the description. The context menu copies the event links or information, opens the live stream and adds the statistics to the detail.
+*Show* chooses between upcoming events, those that are live and the history. *Event detail* shows its status, its times, its destinations and the description. The context menu copies the event links or information, opens the live stream and adds the statistics to the detail. If there are no events for the chosen filter, the list says so.
 
 ### Warnings during the live stream
 
@@ -302,7 +313,7 @@ The *Live stream history* shows what you watched, with a tab for YouTube and ano
 
 An artificial intelligence looks at an OBS screenshot and says what it sees, for example whether a source comes out black. It requires OBS open and a provider key.
 
-In *Preferences*, on the *Artificial intelligence* category, you choose the provider, such as Google Gemini, OpenAI, Anthropic or OpenRouter, save the key and choose the model. The key is kept in the Windows Credential Manager.
+In *Preferences*, on the *Artificial intelligence* category, you choose the provider, such as Google Gemini, OpenAI, Anthropic or OpenRouter, save the key and choose the model. The key is kept in the Windows Credential Manager. If the key does not have the format Guyrapu expects, it warns you and offers to use it anyway, in case the provider changed the format.
 
 *Ask the AI about the picture…*, in the *View* menu, opens a window where *Add screenshot* chooses the scene or a source, and the question is typed in *Message*. *Quick query* sends the current scene and reads the response without opening any window.
 
@@ -316,7 +327,7 @@ To start it, open *Preferences*, on the *YouTube* category, press *Sign in* and 
 
 ## Preferences
 
-*Preferences…*, in the *Tools* menu, brings together the configuration by categories, and the changes are applied when you press *Save*. In *General* you choose the language and the update channel, and you export, import or reset the preferences. *Show important notices also in a message box* also shows the result of what you do in a box.
+*Preferences…*, in the *Tools* menu, brings together the configuration by categories, and the changes are applied when you press *Save*. In *General* you choose the language and the update channel, and you export, import or reset the preferences. *Show important notices also in a message box* also shows the result of what you do in a box. Each category is prepared the first time you choose it, so the window opens faster.
 
 Preferences are saved in `config.ini` and `sounds.ini`, in the `data` folder next to the application.
 
@@ -331,7 +342,7 @@ In the *Shortcuts* category, each action has a button with its shortcut. Press t
 
 ## Keyboard shortcuts
 
-Each family of shortcuts uses its own modifier keys. They all also appear in the menu bar, next to their command.
+Each family of shortcuts uses its own modifier keys. They all also appear in the menu bar, next to their command. In action lists, typing the first letters jumps to the item that starts that way, and a sound plays when you reach the beginning or the end.
 
 ### Fixed
 

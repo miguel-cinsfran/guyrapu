@@ -29,6 +29,10 @@
 - *Preparar perfiles…* crea los tres perfiles, comprueba qué ajustes
   funcionan bien en tu PC y los deja asignados, sin tocar los perfiles que
   ya tenías.
+- En *Perfiles de OBS*, `Supr` elimina el perfil, `Intro` abre sus ajustes
+  y la tecla Aplicaciones abre un menú con las mismas acciones que los
+  botones. Sin perfiles, la lista dice cómo crear uno, y un perfil nuevo
+  abre sus ajustes al crearlo.
 
 ### Probar el equipo y la conexión
 
@@ -43,6 +47,10 @@
 - Al terminar un directo, Guyrapu dice cuántos fotogramas se perdieron, si
   fue por la red, por el codificador o por el dibujo de la escena, y qué
   cambiar en el perfil para el próximo.
+- Las pruebas del equipo y de la conexión, y *Preparar perfiles…*, muestran
+  su avance en una ventana con un sonido de espera, y si fallan dejan el
+  error escrito en ella. Los errores de lo que inicias salen siempre en un
+  cuadro.
 
 ### Escenas verticales
 
@@ -85,6 +93,22 @@
   carpeta de la aplicación a otro equipo, tendrás que volver a iniciar sesión.
 - La ventana principal aparece antes al abrir la aplicación.
 - Gemini acepta las claves nuevas que empiezan con «AQ.».
+- Las listas *Fuentes* y *Fuentes de audio* del *Panel de OBS* dicen qué
+  falta cuando están vacías.
+- En Restream, la lista de perfiles tiene un botón por acción, y las listas
+  de destinos, perfiles y eventos dicen qué falta cuando están vacías. Las
+  listas con acciones suenan al llegar a un borde y saltan al elemento que
+  empieza con las letras que escribes.
+- *Preferencias* abre más rápido: cada categoría se prepara la primera vez
+  que la eliges.
+- Al transmitir a TikTok con Restream, si la cuenta de Restream también va a
+  mandar el directo a otros destinos encendidos, la confirmación de antes
+  de empezar lo dice, con un sonido propio y el foco en *Cancelar*, y
+  sugiere elegir un perfil de Restream.
+- Hay un comando nuevo, *Cerrar OBS*, en el menú *OBS* y en la pestaña
+  *General* del *Panel de OBS*. Cierra OBS sin forzarlo, así no pregunta
+  por el modo seguro al volver a abrirlo. Si OBS está transmitiendo o
+  grabando, no lo cierra y avisa.
 
 ### Arreglos
 
@@ -100,6 +124,17 @@
   Si una acción del panel falla, los botones vuelven a quedar activos.
 - Guyrapu ya no puede hacer que OBS se cierre al cambiar de perfil.
 - Probar una voz en *Preferencias* ya no congela la ventana.
+- Una clave de IA con un formato distinto del que Guyrapu espera ya no se
+  rechaza sin más: avisa y deja usarla de todos modos, por si el proveedor
+  cambió el formato.
+- La lista *Fuentes* ya no dice que una captura nueva, o una fuente de una
+  escena que no está al aire, no muestra imagen cuando en realidad sí
+  funciona.
+- *Probar la conexión…* ya no se corta después del primer intento con un
+  error de OBS: vuelve a intentarlo y sigue con el siguiente. Si la sesión
+  de YouTube caducó, lo dice en lenguaje llano y explica cómo volver a
+  iniciarla.
+- Guyrapu ya no dice que OBS no responde cuando OBS está cerrado.
 
 ## 3.0.0 beta 2, noviembre de 2026
 

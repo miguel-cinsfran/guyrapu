@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md dc2e37633717a6c2e4a089cbfa07461dc279e459 -->
+<!-- original: es/MANUAL.md 479002f7d1e7df0d8afc910f357868aa2b14874a -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -227,7 +227,7 @@ See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
 controls OBS Studio and Restream from the keyboard. It is designed for
 people who are blind or have low vision and stream, and it is tested
 with NVDA.</p>
-<p>Version 3.0.0 beta 2 · Windows 10 and 11 · <a
+<p>Version 3.0.0 beta 3 · Windows 10 and 11 · <a
 href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
 <p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
@@ -442,8 +442,12 @@ already chosen.</li>
 <em>Continue</em>.</li>
 <li>Guyrapu prepares OBS and checks the scene: whether it is empty,
 whether an image comes out black or whether the microphone is muted. If
-it finds a problem, the button chosen by default is
-<em>Cancel</em>.</li>
+it finds a problem, the button chosen by default is <em>Cancel</em>. If
+you broadcast to TikTok and the Restream account is also going to send
+the live stream to other enabled destinations, the confirmation before
+starting says so, with its own sound and the focus on <em>Cancel</em>,
+and suggests choosing a Restream profile. If something fails when
+starting, the error always appears in a box.</li>
 <li>For YouTube, or a profile with YouTube, type the title, the
 description and the privacy. The rest of the data is optional, and
 Guyrapu remembers the last thing you typed. To do tests, use
@@ -495,7 +499,10 @@ NVDA still works.</p>
 <h3 id="general">General</h3>
 <p><em>Status</em> summarizes the broadcast, the recording, the current
 scene, the microphone and the computer usage. <em>Show OBS</em> brings
-the OBS window to the front, also from the notification area.</p>
+the OBS window to the front, also from the notification area. <em>Close
+OBS</em>, also in the <em>OBS</em> menu, closes OBS without forcing it,
+so it does not ask about safe mode when you open it again. If OBS is
+broadcasting or recording, it does not close it and warns.</p>
 <p><em>Test computer…</em> records for a few seconds with the profile in
 use to see whether the PC drops frames. If it does, it tries lighter
 settings until it finds some that work and offers to save them in the
@@ -507,6 +514,11 @@ end.</p>
 which nobody sees and which deletes itself, to know what bitrate your
 connection supports, and offers to save it in the profile. It needs the
 Google session.</p>
+<p>The computer and connection tests show their progress in a window,
+with a wait sound, and if they fail they leave the error written in it.
+In the connection test, if an attempt fails with an OBS error, Guyrapu
+tries again and continues with the next one. If the YouTube session
+expired, it says so and explains how to start it again.</p>
 <h3 id="scene">Scene</h3>
 <p>The <em>Scenes</em> list shows each scene, whether it is the current
 one and how many sources it has. Browsing it does not change what is
@@ -521,7 +533,8 @@ each row says where the source is, what part of the video it occupies
 and whether it is visible. The context menu of each row brings together
 its actions. <em>Size and position…</em> places it in one of nine
 positions, with a size from one fifth to the full width of the video,
-and <em>Move with arrows</em> moves it in steps.</p>
+and <em>Move with arrows</em> moves it in steps. If the scene has no
+sources, the list says so and explains how to add one.</p>
 <p><em>Add source…</em> adds to the scene a camera, a window, game or
 screen capture, an image, a media file, a text, the chat on video or a
 source from another scene.</p>
@@ -652,18 +665,26 @@ and the audio, including the monitoring device.</li>
 <li><em>Prepare profiles…</em> creates a profile for broadcasting
 horizontally, another one vertically and another one for recording,
 checks which settings work well on your PC, assigns them and says what
-it did. The profiles you already had do not change.</li>
+it did. The profiles you already had do not change. It shows its
+progress in a window, with a wait sound, and if it fails it leaves the
+error written in it.</li>
 </ul>
 <p>When broadcasting or recording without a live stream, Guyrapu
 switches OBS to the assigned profile, and at the end it goes back to the
 one it had.</p>
+<p>With no profiles, the list says how to create one. <em>New…</em>
+creates the profile and opens its settings. In the list,
+<code>Delete</code> removes the profile, <code>Enter</code> opens its
+settings and the Applications key opens a menu with the same actions as
+the buttons.</p>
 <h3 id="broadcast">Broadcast</h3>
 <p><em>Broadcast live</em> opens the <em>Broadcast to</em> dialog, the
 same as the button in the main window, and <em>Restream…</em> opens the
 Restream window.</p>
 <h3 id="audio">Audio</h3>
 <p>The <em>Audio sources</em> list shows each source with its status and
-its filters. The buttons act on the chosen source:</p>
+its filters. If there are no audio sources, the list says so. The
+buttons act on the chosen source:</p>
 <ul>
 <li><em>Mute</em> mutes or turns it on.</li>
 <li><em>Test level</em> says every five seconds whether the level is
@@ -696,11 +717,15 @@ disabled ones say so at the end. <em>Add destination…</em> opens the
 Restream page in the browser or adds a manual destination with server
 and key. The context menu of each destination turns it on or off, copies
 its link, opens it in the browser, changes its title or name, and
-deletes it.</p>
+deletes it. With no account connected, the list says how to connect it;
+with no destinations, it says how to add one.</p>
 <h3 id="profiles">Profiles</h3>
 <p>A profile saves which destinations are broadcast to and with what
 orientation, and it appears with its name in the <em>Broadcast to</em>
-dialog. <em>New profile…</em> creates one. In the profile:</p>
+dialog. The list has a button for each action: <em>New profile…</em>,
+<em>Edit…</em>, <em>Rename…</em>, <em>Duplicate</em> and
+<em>Delete</em>. With no profiles, it says how to create one. In the
+profile:</p>
 <ul>
 <li><em>Orientation</em> is <em>Horizontal</em>, <em>Vertical</em> or
 <em>Horizontal and vertical at the same time</em>.</li>
@@ -736,7 +761,8 @@ stops both.</p>
 and the history. <em>Event detail</em> shows its status, its times, its
 destinations and the description. The context menu copies the event
 links or information, opens the live stream and adds the statistics to
-the detail.</p>
+the detail. If there are no events for the chosen filter, the list says
+so.</p>
 <h3 id="warnings-during-the-live-stream">Warnings during the live
 stream</h3>
 <p>With a Restream profile, Guyrapu warns with its own sound when
@@ -793,7 +819,9 @@ open and a provider key.</p>
 <p>In <em>Preferences</em>, on the <em>Artificial intelligence</em>
 category, you choose the provider, such as Google Gemini, OpenAI,
 Anthropic or OpenRouter, save the key and choose the model. The key is
-kept in the Windows Credential Manager.</p>
+kept in the Windows Credential Manager. If the key does not have the
+format Guyrapu expects, it warns you and offers to use it anyway, in
+case the provider changed the format.</p>
 <p><em>Ask the AI about the picture…</em>, in the <em>View</em> menu,
 opens a window where <em>Add screenshot</em> chooses the scene or a
 source, and the question is typed in <em>Message</em>. <em>Quick
@@ -820,7 +848,8 @@ the configuration by categories, and the changes are applied when you
 press <em>Save</em>. In <em>General</em> you choose the language and the
 update channel, and you export, import or reset the preferences.
 <em>Show important notices also in a message box</em> also shows the
-result of what you do in a box.</p>
+result of what you do in a box. Each category is prepared the first time
+you choose it, so the window opens faster.</p>
 <p>Preferences are saved in <code>config.ini</code> and
 <code>sounds.ini</code>, in the <code>data</code> folder next to the
 application.</p>
@@ -850,7 +879,9 @@ returns to the original shortcuts.</p>
 </table>
 <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
 <p>Each family of shortcuts uses its own modifier keys. They all also
-appear in the menu bar, next to their command.</p>
+appear in the menu bar, next to their command. In action lists, typing
+the first letters jumps to the item that starts that way, and a sound
+plays when you reach the beginning or the end.</p>
 <h3 id="fixed">Fixed</h3>
 <table>
 <thead>

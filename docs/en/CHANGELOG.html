@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/CHANGELOG.md 76f3e5447f9dd4169060217ceba3c91e04bed6fb -->
+<!-- original: es/CHANGELOG.md 928a44f5db9bd184b42959b06187b6cfcd1471b7 -->
 
 <h1 id="whats-new-in-guyrapu">What's new in Guyrapu</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -256,6 +256,11 @@ previous one at the end or if you cancel the live stream.</li>
 <li><em>Prepare profiles…</em> creates the three profiles, checks which
 settings work well on your PC and assigns them, without touching the
 profiles you already had.</li>
+<li>In <em>OBS profiles</em>, <code>Delete</code> removes the profile,
+<code>Enter</code> opens its settings and the Applications key opens a
+menu with the same actions as the buttons. With no profiles, the list
+says how to create one, and a new profile opens its settings when it is
+created.</li>
 </ul>
 <h3 id="testing-the-computer-and-the-connection">Testing the computer
 and the connection</h3>
@@ -272,6 +277,10 @@ profile.</li>
 <li>When a live stream ends, Guyrapu says how many frames were dropped,
 whether it was due to the network, the encoder or the drawing of the
 scene, and what to change in the profile for the next one.</li>
+<li>The computer and connection tests, and <em>Prepare profiles…</em>,
+show their progress in a window with a wait sound, and if they fail they
+leave the error written in it. Errors from what you start always appear
+in a box.</li>
 </ul>
 <h3 id="vertical-scenes">Vertical scenes</h3>
 <ul>
@@ -315,6 +324,23 @@ the application folder to another computer, you will have to sign in
 again.</li>
 <li>The main window appears sooner when opening the application.</li>
 <li>Gemini accepts the new keys that start with “AQ.”.</li>
+<li>The <em>Sources</em> and <em>Audio sources</em> lists of the <em>OBS
+panel</em> say what is missing when they are empty.</li>
+<li>In Restream, the profile list has a button for each action, and the
+destination, profile and event lists say what is missing when they are
+empty. Action lists play a sound at the edges and jump to the item that
+starts with the letters you type.</li>
+<li><em>Preferences</em> opens faster: each category is prepared the
+first time you choose it.</li>
+<li>When broadcasting to TikTok with Restream, if the Restream account
+is also going to send the live stream to other enabled destinations, the
+confirmation before starting says so, with its own sound and the focus
+on <em>Cancel</em>, and suggests choosing a Restream profile.</li>
+<li>There is a new command, <em>Close OBS</em>, in the <em>OBS</em> menu
+and on the <em>General</em> tab of the <em>OBS panel</em>. It closes OBS
+without forcing it, so it does not ask about safe mode when you open it
+again. If OBS is broadcasting or recording, it does not close it and
+warns.</li>
 </ul>
 <h3 id="fixes">Fixes</h3>
 <ul>
@@ -333,6 +359,18 @@ action of the panel fails, the buttons become active again.</li>
 <li>Guyrapu can no longer make OBS close when changing profiles.</li>
 <li>Testing a voice in <em>Preferences</em> no longer freezes the
 window.</li>
+<li>An AI key with a format different from the one Guyrapu expects is no
+longer rejected outright: it warns you and lets you use it anyway, in
+case the provider changed the format.</li>
+<li>The <em>Sources</em> list no longer says that a new capture, or a
+source of a scene that is not on air, shows no image when it actually
+works.</li>
+<li><em>Test connection…</em> no longer stops after the first attempt
+with an OBS error: it tries again and continues with the next one. If
+the YouTube session expired, it says so in plain language and explains
+how to start it again.</li>
+<li>Guyrapu no longer says that OBS is not responding when OBS is
+closed.</li>
 </ul>
 <h2 id="300-beta-2-november-2026">3.0.0 beta 2, November 2026</h2>
 <h3 id="the-new-name">The new name</h3>

@@ -221,7 +221,7 @@
 y maneja OBS Studio y Restream desde el teclado. Está pensado para
 personas ciegas o con baja visión que transmiten, y se prueba con
 NVDA.</p>
-<p>Versión 3.0.0 beta 2 · Windows 10 y 11 · <a
+<p>Versión 3.0.0 beta 3 · Windows 10 y 11 · <a
 href="CHANGELOG.html">Novedades</a></p>
 <h2 id="instalación">Instalación</h2>
 <p>Descomprime el ZIP en cualquier carpeta y abre
@@ -436,7 +436,12 @@ ya elegido.</li>
 <em>Continuar</em>.</li>
 <li>Guyrapu prepara OBS y revisa la escena: si está vacía, si una imagen
 sale en negro o si el micrófono está silenciado. Si encuentra un
-problema, el botón elegido de entrada es <em>Cancelar</em>.</li>
+problema, el botón elegido de entrada es <em>Cancelar</em>. Si
+transmites a TikTok y la cuenta de Restream también va a mandar el
+directo a otros destinos encendidos, la confirmación lo dice antes de
+empezar, con un sonido propio y el foco en <em>Cancelar</em>, y sugiere
+elegir un perfil de Restream. Si algo falla al iniciar, el error sale
+siempre en un cuadro.</li>
 <li>Para YouTube, o un perfil con YouTube, escribe el título, la
 descripción y la privacidad. El resto de los datos es opcional, y
 Guyrapu recuerda lo último que escribiste. Para hacer pruebas, usa
@@ -488,7 +493,10 @@ NVDA sigue funcionando.</p>
 <h3 id="general">General</h3>
 <p><em>Estado</em> resume la transmisión, la grabación, la escena
 actual, el micrófono y el uso del equipo. <em>Mostrar OBS</em> trae al
-frente la ventana de OBS, también desde el área de notificación.</p>
+frente la ventana de OBS, también desde el área de notificación.
+<em>Cerrar OBS</em>, también en el menú <em>OBS</em>, cierra OBS sin
+forzarlo, así no pregunta por el modo seguro al volver a abrirlo. Si OBS
+está transmitiendo o grabando, no lo cierra y avisa.</p>
 <p><em>Probar el equipo…</em> graba unos segundos con el perfil en uso
 para ver si la PC pierde fotogramas. Si los pierde, prueba ajustes más
 livianos hasta dar con unos que funcionan y ofrece guardarlos en el
@@ -500,6 +508,11 @@ terminar.</p>
 YouTube, que nadie ve y que se borra solo, para saber qué tasa de bits
 admite tu conexión, y ofrece guardarla en el perfil. Necesita la sesión
 de Google.</p>
+<p>Las pruebas del equipo y de la conexión muestran su avance en una
+ventana, con un sonido de espera, y si fallan dejan el error escrito en
+ella. En la prueba de la conexión, si un intento falla por un error de
+OBS, Guyrapu vuelve a intentarlo y sigue con el siguiente. Si la sesión
+de YouTube caducó, lo dice y explica cómo volver a iniciarla.</p>
 <h3 id="escena">Escena</h3>
 <p>La lista <em>Escenas</em> muestra cada escena, si es la actual y
 cuántas fuentes tiene. Recorrerla no cambia lo que se emite: <em>Cambiar
@@ -514,7 +527,8 @@ cada fila dice dónde está la fuente, qué parte del vídeo ocupa y si se
 ve. El menú contextual de cada fila reúne sus acciones. <em>Tamaño y
 posición…</em> la coloca en una de nueve posiciones, con un tamaño de un
 quinto a todo el ancho del vídeo, y <em>Mover con flechas</em> la mueve
-en pasos.</p>
+en pasos. Si la escena no tiene fuentes, la lista lo dice y explica cómo
+agregar una.</p>
 <p><em>Agregar fuente…</em> agrega a la escena una cámara, una captura
 de ventana, de juego o de pantalla, una imagen, un archivo multimedia,
 un texto, el chat en el vídeo o una fuente de otra escena.</p>
@@ -645,17 +659,23 @@ clips y el audio, incluido el dispositivo de escucha del monitoreo.</li>
 <li><em>Preparar perfiles…</em> crea un perfil para transmitir en
 horizontal, otro en vertical y otro para grabar, comprueba qué ajustes
 funcionan bien en tu PC, los deja asignados y dice qué hizo. Los
-perfiles que ya tenías no cambian.</li>
+perfiles que ya tenías no cambian. Muestra su avance en una ventana, con
+un sonido de espera, y si falla deja el error escrito en ella.</li>
 </ul>
 <p>Al transmitir o grabar sin directo, Guyrapu pasa OBS al perfil
 asignado, y al terminar vuelve al que tenía.</p>
+<p>Sin perfiles, la lista dice cómo crear uno. <em>Nuevo…</em> crea el
+perfil y abre sus ajustes. En la lista, <code>Supr</code> elimina el
+perfil, <code>Intro</code> abre sus ajustes y la tecla Aplicaciones abre
+un menú con las mismas acciones que los botones.</p>
 <h3 id="transmisión">Transmisión</h3>
 <p><em>Transmitir en directo</em> abre el cuadro <em>Transmitir a</em>,
 igual que el botón de la ventana principal, y <em>Restream…</em> abre la
 ventana de Restream.</p>
 <h3 id="audio">Audio</h3>
 <p>La lista <em>Fuentes de audio</em> muestra cada fuente con su estado
-y sus filtros. Los botones actúan sobre la fuente elegida:</p>
+y sus filtros. Si no hay fuentes de audio, la lista lo dice. Los botones
+actúan sobre la fuente elegida:</p>
 <ul>
 <li><em>Silenciar</em> la silencia o la activa.</li>
 <li><em>Probar nivel</em> dice cada cinco segundos si el nivel es
@@ -688,11 +708,15 @@ volver a autorizarla o desconectarla.</p>
 lo dicen al final. <em>Agregar destino…</em> abre la página de Restream
 en el navegador o agrega un destino manual con servidor y clave. El menú
 contextual de cada destino lo activa o lo desactiva, copia su enlace, lo
-abre en el navegador, le cambia el título o el nombre, y lo elimina.</p>
+abre en el navegador, le cambia el título o el nombre, y lo elimina. Sin
+cuenta conectada, la lista dice cómo conectarla; sin destinos, dice cómo
+agregar uno.</p>
 <h3 id="perfiles">Perfiles</h3>
 <p>Un perfil guarda a qué destinos se transmite y con qué orientación, y
-aparece con su nombre en el cuadro <em>Transmitir a</em>. <em>Nuevo
-perfil…</em> crea uno. En el perfil:</p>
+aparece con su nombre en el cuadro <em>Transmitir a</em>. La lista tiene
+un botón por acción: <em>Nuevo perfil…</em>, <em>Editar…</em>,
+<em>Cambiar nombre…</em>, <em>Duplicar</em> y <em>Eliminar</em>. Sin
+perfiles, dice cómo crear uno. En el perfil:</p>
 <ul>
 <li><em>Orientación</em> es <em>Horizontal</em>, <em>Vertical</em> u
 <em>Horizontal y vertical a la vez</em>.</li>
@@ -726,7 +750,8 @@ Guyrapu lo vuelve a intentar cada 30 segundos y avisa cuando vuelve.
 directo y el historial. <em>Detalle del evento</em> muestra su estado,
 sus horarios, sus destinos y la descripción. El menú contextual copia
 los enlaces o la información del evento, abre el directo y agrega las
-estadísticas al detalle.</p>
+estadísticas al detalle. Si no hay eventos para el filtro elegido, la
+lista lo dice.</p>
 <h3 id="avisos-durante-el-directo">Avisos durante el directo</h3>
 <p>Con un perfil de Restream, Guyrapu avisa con un sonido propio cuando
 Restream deja de recibir la señal de OBS y cuando la recupera, cuando la
@@ -782,7 +807,9 @@ de un proveedor.</p>
 <p>En <em>Preferencias</em>, categoría <em>Inteligencia artificial</em>,
 se elige el proveedor, como Google Gemini, OpenAI, Anthropic u
 OpenRouter, se guarda la clave y se elige el modelo. La clave queda en
-el Administrador de credenciales de Windows.</p>
+el Administrador de credenciales de Windows. Si la clave no tiene el
+formato que Guyrapu espera, avisa y ofrece usarla de todos modos, por si
+el proveedor cambió el formato.</p>
 <p><em>Preguntar a la IA sobre la imagen…</em>, en el menú <em>Ver</em>,
 abre una ventana donde <em>Agregar captura</em> elige la escena o una
 fuente, y la pregunta se escribe en <em>Mensaje</em>. <em>Consulta
@@ -810,8 +837,9 @@ configuración por categorías, y los cambios se aplican al pulsar
 <em>Guardar</em>. En <em>General</em> se elige el idioma y el canal de
 actualización, y se exportan, se importan o se restablecen las
 preferencias. <em>Mostrar avisos importantes también en un cuadro de
-mensaje</em> muestra además en un cuadro el resultado de lo que
-haces.</p>
+mensaje</em> muestra además en un cuadro el resultado de lo que haces.
+Cada categoría se prepara la primera vez que la eliges, así la ventana
+abre más rápido.</p>
 <p>Las preferencias se guardan en <code>config.ini</code> y
 <code>sounds.ini</code>, en la carpeta <code>data</code> junto a la
 aplicación.</p>
@@ -841,7 +869,9 @@ atajos originales.</p>
 </table>
 <h2 id="atajos-de-teclado">Atajos de teclado</h2>
 <p>Cada familia de atajos usa sus propias teclas modificadoras. Todos
-figuran también en la barra de menús, junto a su comando.</p>
+figuran también en la barra de menús, junto a su comando. En las listas
+con acciones, escribir las primeras letras salta al elemento que empieza
+así, y al llegar al principio o al final suena un aviso.</p>
 <h3 id="fijos">Fijos</h3>
 <table>
 <thead>
