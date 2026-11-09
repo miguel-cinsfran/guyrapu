@@ -782,6 +782,17 @@ class TestVentanaObs(unittest.TestCase):
         self.assertEqual(
             self.anuncios, [TEXTO_VACIO_FUENTES, TEXTO_VACIO_FUENTES])
 
+    def test_sin_fuentes_espacio_anuncia_el_vacio(self):
+        self.gestor.escenas_por_nombre["Vacía"] = []
+        self.gestor.escena_resultante = "Vacía"
+        dialogo = self._crear()
+        pagina = dialogo._pagina_fuentes
+        self.anuncios.clear()
+        pagina._tecla_fuente(EventoTecla(wx.WXK_SPACE))
+        self.assertEqual(self.anuncios, [TEXTO_VACIO_FUENTES])
+        self.assertNotIn(
+            "mostrar", [llamada[0] for llamada in self.gestor.llamadas])
+
     def test_sin_seleccion_anuncia_y_no_abre_el_menu(self):
         pagina = self.dialogo._pagina_fuentes
         pagina.lst_fuentes.SetSelection(wx.NOT_FOUND)
