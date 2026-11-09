@@ -9,13 +9,20 @@ from guyrapu.obs import obs_grabacion, obs_panel
 
 
 def elemento(identificador, nombre, indice, x=32, y=882, ancho=460, alto=620,
-             alineacion=9, visible=True, bloqueada=False, ancho_fuente=460,
-             alto_fuente=620):
+             alineacion=9, visible=True, bloqueada=False, ancho_fuente=None,
+             alto_fuente=None):
+    if ancho_fuente is None:
+        ancho_fuente = ancho
+    if alto_fuente is None:
+        alto_fuente = alto
+    escala_x = ancho / ancho_fuente if ancho_fuente else 1.0
+    escala_y = alto / alto_fuente if alto_fuente else 1.0
     return {"sceneItemId": identificador, "sourceName": nombre,
             "sceneItemIndex": indice, "sceneItemEnabled": visible,
             "sceneItemLocked": bloqueada,
             "sceneItemTransform": {"positionX": x, "positionY": y,
                                    "width": ancho, "height": alto,
+                                   "scaleX": escala_x, "scaleY": escala_y,
                                    "alignment": alineacion,
                                    "sourceWidth": ancho_fuente,
                                    "sourceHeight": alto_fuente,
