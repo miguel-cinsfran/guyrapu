@@ -239,8 +239,9 @@ def datos_a_migrar() -> list[Path]:
 
 
 def carpeta_obs(tipo) -> Path:
-    sub = {"perfiles": "basic/profiles", "registros": "logs", "config": "plugin_config/obs-websocket/config.json"}[tipo]
-    return Path(os.environ.get("APPDATA") or Path.home() / "AppData" / "Roaming") / "obs-studio" / sub
+    sub = {"perfiles": "basic/profiles", "registros": "logs", "config": "plugin_config/obs-websocket/config.json"}
+    sub["lienzo_vertical"] = "plugin_config/vertical-canvas/config.json"
+    return Path(os.environ.get("APPDATA") or Path.home() / "AppData" / "Roaming") / "obs-studio" / sub[tipo]
 
 
 # ── Instalación (viene con el programa) ──────────────────────────────────────

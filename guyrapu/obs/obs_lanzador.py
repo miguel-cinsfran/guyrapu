@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Localiza y abre OBS solo cuando hace falta, sin robar el foco."""
 
+import csv
 import os
 import subprocess
 import time
@@ -100,6 +101,54 @@ def abrir_obs(ruta, popen=subprocess.Popen):
                   creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     except OSError as error:
         raise obs_cliente.ObsError(_("No se pudo abrir OBS.")) from error
+
+
+def _pids_obs(ejecutar=subprocess.run):
+    """Los PID de obs64.exe, leídos con tasklist sin abrir una consola."""
+    try:
+        resultado = ejecutar(
+            ["tasklist", "/FI", "IMAGENAME eq obs64.exe",
+             "/FO", "CSV", "/NH"],
+            capture_output=True, text=True, check=False,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except (OSError, subprocess.SubprocessError):
+        return []
+    pids = []
+    for fila in csv.reader((resultado.stdout or "").splitlines()):
+        if len(fila) < 2 or fila[0].casefold() != "obs64.exe":
+            continue
+        try:
+            pids.append(int(fila[1]))
+        except ValueError:
+            continue
+    return pids
+
+
+def _terminar_obs(pid, ejecutar=subprocess.run):
+    """Pide a OBS que se cierre, sin forzarlo."""
+    ejecutar(["taskkill", "/PID", str(pid)],
+             capture_output=True, text=True, check=False,
+             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+
+
+def cerrar_obs(en_ejecucion=obs_activacion.obs_esta_en_ejecucion,
+               ejecutar=subprocess.run, dormir=time.sleep,
+               reloj=time.monotonic, limite=30.0, intervalo=0.5):
+    """Cierra OBS sin forzarlo y devuelve si se cerró."""
+    if not en_ejecucion():
+        return True
+    for pid in _pids_obs(ejecutar):
+        try:
+            _terminar_obs(pid, ejecutar)
+        except (OSError, subprocess.SubprocessError) as error:
+            logger.debug("no se pudo pedir el cierre de OBS %s: %s", pid,
+                         error)
+    inicio = reloj()
+    while en_ejecucion():
+        if reloj() - inicio >= limite:
+            return False
+        dormir(intervalo)
+    return True
 
 
 def _esperar_obs_abierto(probar_conexion, al_anunciar, parada, dormir, reloj,

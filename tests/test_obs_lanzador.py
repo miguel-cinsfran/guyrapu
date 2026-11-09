@@ -13,7 +13,8 @@ from tests.pseudo_prueba import con_pseudo
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_lanzador
-from guyrapu.obs.obs_lanzador import ObsNoInstalado, abrir_obs, asegurar_obs, ruta_obs
+from guyrapu.obs.obs_lanzador import (
+    ObsNoInstalado, abrir_obs, asegurar_obs, cerrar_obs, ruta_obs)
 
 try:
     from guyrapu.ui import obs_ventana
@@ -194,6 +195,66 @@ class RelojFalso:
 
     def dormir(self, segundos):
         self.ahora += segundos
+
+
+class EjecutarFalso:
+    def __init__(self, pids=("1234",)):
+        self.orden = []
+        self._pids = pids
+
+    def __call__(self, args, **kwargs):
+        self.orden.append(list(args))
+        if args and args[0] == "tasklist":
+            filas = "".join(
+                f'"obs64.exe","{pid}",\n' for pid in self._pids)
+            return mock.Mock(stdout=filas, returncode=0)
+        return mock.Mock(stdout="", returncode=0)
+
+    def comandos(self, nombre):
+        return [args for args in self.orden if args and args[0] == nombre]
+
+
+class CerrarObsTest(unittest.TestCase):
+    def test_nunca_fuerza_el_cierre(self):
+        ejecutar = EjecutarFalso()
+        estados = iter([True, False])
+        self.assertTrue(cerrar_obs(
+            en_ejecucion=lambda: next(estados), ejecutar=ejecutar))
+        self.assertEqual(ejecutar.comandos("taskkill"),
+                         [["taskkill", "/PID", "1234"]])
+        for args in ejecutar.orden:
+            self.assertNotIn("/F", args)
+
+    def test_busca_el_proceso_de_obs(self):
+        ejecutar = EjecutarFalso()
+        estados = iter([True, False])
+        cerrar_obs(en_ejecucion=lambda: next(estados), ejecutar=ejecutar)
+        tarea = ejecutar.comandos("tasklist")[0]
+        self.assertIn("IMAGENAME eq obs64.exe", " ".join(tarea))
+
+    def test_espera_a_que_obs_salga(self):
+        ejecutar = EjecutarFalso()
+        reloj = RelojFalso()
+        estados = iter([True, True, True, False])
+        self.assertTrue(cerrar_obs(
+            en_ejecucion=lambda: next(estados), ejecutar=ejecutar,
+            dormir=reloj.dormir, reloj=reloj.reloj))
+        self.assertGreaterEqual(reloj.ahora, 1.0)
+
+    def test_devuelve_falso_si_no_sale(self):
+        ejecutar = EjecutarFalso()
+        reloj = RelojFalso()
+        self.assertFalse(cerrar_obs(
+            en_ejecucion=lambda: True, ejecutar=ejecutar,
+            dormir=reloj.dormir, reloj=reloj.reloj, limite=10.0,
+            intervalo=2.0))
+        self.assertGreaterEqual(reloj.ahora, 10.0)
+
+    def test_sin_obs_no_consulta_pids(self):
+        ejecutar = EjecutarFalso()
+        self.assertTrue(cerrar_obs(
+            en_ejecucion=lambda: False, ejecutar=ejecutar))
+        self.assertEqual(ejecutar.orden, [])
 
 
 class AsegurarObsTest(unittest.TestCase):
