@@ -518,7 +518,7 @@ crear el directo de YouTube. Sin ella, todo lo demás funciona.
 Para iniciarla, abre *Preferencias*, categoría *YouTube*, pulsa *Iniciar
 sesión* y autoriza en el navegador. Las sesiones de YouTube y de Restream
 se guardan cifradas con tu cuenta de Windows: si copias la carpeta de la
-aplicación a otra PC, tendrás que volver a iniciarlas. La cuota diaria de YouTube se comparte
+aplicación a otro equipo, tendrás que volver a iniciarlas. La cuota diaria de YouTube se comparte
 entre quienes usan Guyrapu. Para tener una propia, consulta la [guía de
 configuración de la API](../CONFIGURACION_API.md).
 

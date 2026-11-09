@@ -82,7 +82,7 @@
 
 - Las sesiones de YouTube y de Restream y las claves guardadas en la
   aplicación se guardan cifradas con tu cuenta de Windows. Si copias la
-  carpeta de la aplicación a otra PC, tendrás que volver a iniciar sesión.
+  carpeta de la aplicación a otro equipo, tendrás que volver a iniciar sesión.
 - La ventana principal aparece antes al abrir la aplicación.
 - Gemini acepta las claves nuevas que empiezan con «AQ.».
 
