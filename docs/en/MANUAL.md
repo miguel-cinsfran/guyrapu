@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 56823255c80cbc793caef50499375addffd119d6 -->
+<!-- original: es/MANUAL.md 3e4fd42f9a84a920f4fedb04754f0a5918615308 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -32,11 +32,14 @@ In the chat list, the arrows move from one message to another, and when you type
 
 On TikTok, Guyrapu only reads: TikTok does not offer an official way to comment or moderate.
 
+With a Restream profile that reads the YouTube chat and the TikTok chat, both arrive in the same list and each row says which platform it is from. In *Preferences*, on the *Live events* category, *Each platform's own sound* chooses whether TikTok messages always have their sound, only with several chats or never, and *Announce which platform each message has when there are multiple chats* makes the voice say it too.
+
 ### Live events
 
-Joins, likes, followers, gifts, polls, goals and TikTok battles are configured in *Preferences*, on the *Live events* category. Each event has a list with five modes:
+Joins, likes, followers, gifts, polls, goals and TikTok battles are configured in *Preferences*, on the *Live events* category. Each event has a list with these modes:
 
-- *Main voice* and *Secondary voice*: it appears in the list, plays a sound and is read with that voice.
+- *Main voice and sound* and *Secondary voice and sound*: it appears in the list, plays a sound and is read with that voice.
+- *Main voice without sound* and *Secondary voice without sound*: it appears and is read with that voice, without its sound.
 - *Sound only*: it appears and plays a sound, without being read.
 - *List only*: it appears without sound and without being read.
 - *Off*: it does not appear.
@@ -93,6 +96,8 @@ Guyrapu plays music while you stream. It uses the Music folder next to the appli
 - *Show the queue* shows what is going to play.
 - *Open link…* adds a YouTube video or playlist to the queue.
 
+When you create or edit a playlist, a dialog with two lists opens. In *Playlist songs*, `Delete` removes the song and `Alt+Up Arrow` and `Alt+Down Arrow` move it. *All songs* shows the folder with a checkbox for each song, checked for the ones already in the playlist: checking or unchecking it adds or removes the song. In both, `Enter` plays the song.
+
 *Match song volume* makes them all sound at a similar volume. Each file is measured once, with the *Match the volume* button in the *Music* window, and it is not modified. Between one song and the next there is a crossfade, which is adjusted in *Crossfade between songs, in seconds*.
 
 With *Use music shortcuts in any application*, the music shortcuts also work in OBS or in a game, and those keys stop reaching the other applications.
@@ -108,6 +113,7 @@ Guyrapu starts and ends the live stream with OBS Studio, to YouTube or to severa
 - Turn on the OBS WebSocket server in *Preferences*, on the *OBS* category.
 - For YouTube, start the Google session and enable live streams on your channel.
 - For Restream, connect the account and create a profile. See [Restream](#restream).
+- So that OBS uses a different profile when broadcasting horizontally, vertically or recording, assign them on the *Profiles* tab of the *OBS panel*. See [OBS profiles](#obs-profiles).
 
 If OBS is closed, Guyrapu opens it in the notification area.
 
@@ -121,7 +127,7 @@ If OBS is closed, Guyrapu opens it in the notification area.
 
 If the internet connection is lost, YouTube waits for it to come back without ending the live stream. Closing Guyrapu does not interrupt the live stream, and when you open it again it recognizes it.
 
-During the live stream, the button is called *End live stream* and asks for confirmation, with *Keep broadcasting* chosen by default.
+During the live stream, the button is called *End live stream* and asks for confirmation, with *Keep broadcasting* chosen by default. When it ends, Guyrapu says how many frames were dropped, whether it was due to the network, the encoder or the drawing of the scene, and what to change in the profile for the next one. OBS goes back to the profile it had before the live stream, also if you cancel it before it starts.
 
 ### Microphone
 
@@ -149,9 +155,15 @@ The *OBS panel* brings together in tabs what is done with OBS, and it is opened 
 
 *Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area.
 
+*Test computer…* records for a few seconds with the profile in use to see whether the PC drops frames. If it does, it tries lighter settings until it finds some that work and offers to save them in the profile. With the Aitum Vertical Canvas plugin in OBS, the dialog offers to include the vertical canvas, to know whether the PC can broadcast in both orientations at the same time. Test recordings are deleted at the end.
+
+*Test connection…* does a private test live stream on YouTube, which nobody sees and which deletes itself, to know what bitrate your connection supports, and offers to save it in the profile. It needs the Google session.
+
 ### Scene
 
 The *Scenes* list shows each scene, whether it is the current one and how many sources it has. Browsing it does not change what is broadcast: *Change scene* puts the chosen scene on air, and *Add scene…* creates a new one.
+
+*Create vertical version*, in the context menu of a scene, creates a copy with the same name followed by “vertical”, with the same sources and a vertical layout. When broadcasting vertically, that copy goes on air, and at the end the scene that was there comes back.
 
 The *Sources* list shows the sources of the chosen scene, and each row says where the source is, what part of the video it occupies and whether it is visible. The context menu of each row brings together its actions. *Size and position…* places it in one of nine positions, with a size from one fifth to the full width of the video, and *Move with arrows* moves it in steps.
 
@@ -163,6 +175,8 @@ the dialog lets you choose which source goes in each place, the corner, the
 split and the chat. *Fit* decides what happens if the aspect ratio does not
 match: *Fit* shows the whole source, *Fill* crops the edges and *Automatic*
 fills with the camera and fits the rest. *Save as…* saves your own layout.
+On a vertical canvas, *Split in two* stacks the sources at the top and
+bottom, and the chat in a strip goes at the bottom.
 
 *Undo all changes* returns the scene to how it was when the panel was opened.
 
@@ -192,6 +206,18 @@ fills with the camera and fits the rest. *Save as…* saves your own layout.
 | `Enter` | Confirm |
 | `Esc` | Undo the move |
 
+### OBS profiles
+
+The *OBS profiles* list shows each OBS profile, its orientation and what it is used for: broadcasting horizontally, broadcasting vertically or recording.
+
+- *Use this profile* switches OBS to that profile.
+- *Use for…* chooses what it is used for. The same is chosen in *Preferences*, on the *OBS* category, where *The profile OBS is using* leaves OBS as it is.
+- *New…*, *Duplicate…* and *Delete profile* create, copy and delete profiles.
+- *Edit settings…* changes the canvas, the output, the frames per second, the encoder, the broadcast, the recording, the clip buffer and the audio, including the monitoring device.
+- *Prepare profiles…* creates a profile for broadcasting horizontally, another one vertically and another one for recording, checks which settings work well on your PC, assigns them and says what it did. The profiles you already had do not change.
+
+When broadcasting or recording without a live stream, Guyrapu switches OBS to the assigned profile, and at the end it goes back to the one it had.
+
 ### Broadcast
 
 *Broadcast live* opens the *Broadcast to* dialog, the same as the button in the main window, and *Restream…* opens the Restream window.
@@ -208,7 +234,7 @@ The *Audio sources* list shows each source with its status and its filters. The 
 
 ### Recording
 
-*Start recording* and *Stop recording* record without broadcasting, and *Pause recording* pauses the recording in progress. The *Recordings and clips* list brings together the recordings and the clips, from newest to oldest. Its context menu opens the file or its folder, copies the path or removes it from the list without deleting the file.
+*Start recording* and *Stop recording* record without broadcasting, and *Pause recording* pauses the recording in progress. The *Recordings and clips* list brings together the recordings and the clips, from newest to oldest. Its context menu opens the file or its folder, copies the path or removes it from the list without deleting the file. If OBS converts the recording to MP4 at the end, the list shows the MP4.
 
 ## Restream
 
@@ -226,8 +252,17 @@ It lists the channels of the account with their platform, and the disabled ones 
 
 A profile saves which destinations are broadcast to and with what orientation, and it appears with its name in the *Broadcast to* dialog. *New profile…* creates one. In the profile:
 
+- *Orientation* is *Horizontal*, *Vertical* or *Horizontal and vertical at the same time*.
 - *YouTube, the channel of your Google session* adds that channel, with the live stream that Guyrapu creates from the data you type when you broadcast.
-- *Chat that Guyrapu reads* chooses which chat is read if the profile has YouTube and TikTok.
+- *Chat that Guyrapu reads* chooses which chat is read if the profile has YouTube and TikTok. With *YouTube and TikTok*, which comes chosen in new profiles, both are read.
+
+### Horizontal and vertical at the same time
+
+With the *Horizontal and vertical at the same time* orientation, the horizontal goes directly to YouTube and the vertical to the other destinations of the profile, such as TikTok. The profile must include YouTube, and the YouTube channels of the Restream account are turned off during the live stream, so that YouTube does not also receive the vertical.
+
+The Aitum Vertical Canvas plugin in OBS is required. It is downloaded from github.com/Aitum/obs-vertical-canvas/releases and installed with OBS closed. The first time, Guyrapu adds the “Guyrapu” output to the plugin: if OBS is open, it says so, closes it and reopens it.
+
+Before going on air, Guyrapu copies the vertical versions of your scenes to the vertical canvas, the ones that *Create vertical version* creates. During the live stream, when you change scenes, the vertical switches to the vertical version of that scene, and if it does not have one, it says so once. If the vertical cuts out, a warning sounds and the horizontal continues: Guyrapu tries it again every 30 seconds and warns when it comes back. *End live stream* stops both.
 
 ### Events
 
@@ -277,7 +312,7 @@ The screenshot and what you type are sent to the provider, and the first send as
 
 The Google session lets you moderate, write in the chat, comment on videos and create the YouTube live stream. Without it, everything else works.
 
-To start it, open *Preferences*, on the *YouTube* category, press *Sign in* and authorize in the browser. YouTube's daily quota is shared among those who use Guyrapu. To have your own, see the [API setup guide](../CONFIGURACION_API.md).
+To start it, open *Preferences*, on the *YouTube* category, press *Sign in* and authorize in the browser. The YouTube and Restream sessions are saved encrypted with your Windows account: if you copy the application folder to another PC, you will have to start them again. YouTube's daily quota is shared among those who use Guyrapu. To have your own, see the [API setup guide](../CONFIGURACION_API.md).
 
 ## Preferences
 

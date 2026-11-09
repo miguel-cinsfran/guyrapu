@@ -1,7 +1,108 @@
-<!-- original: es/CHANGELOG.md 6cd28294d632071b1cd9afe3e3af14c0ce6630c0 -->
+<!-- original: es/CHANGELOG.md 7445801d5f59f82a388b1985e8d14e4a8ca90de3 -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 3, November 2026
+
+### Broadcasting horizontally and vertically at the same time
+
+- A Restream profile can have the *Horizontal and vertical at the same time*
+  orientation. With the Aitum Vertical Canvas plugin installed in OBS, the
+  horizontal goes directly to YouTube and the vertical to the other
+  destinations of the profile, such as TikTok. That is why the profile must
+  include YouTube.
+- The first time, Guyrapu prepares the plugin output, and if OBS is open it
+  closes it and reopens it. Before each live stream it copies the vertical
+  versions of your scenes to the vertical canvas, and when you change scenes,
+  the vertical switches to its own.
+- If the vertical cuts out, a warning sounds and the horizontal continues.
+  Guyrapu tries it again every 30 seconds and warns when it comes back.
+
+### OBS profiles
+
+- The *Profiles* tab of the *OBS panel* lists the OBS profiles and says what
+  each one is used for. From there you change profiles, create, duplicate and
+  delete them, and *Edit settings…* changes the video, the broadcast, the
+  recording and the audio, including the monitoring device.
+- *Use for…* chooses whether a profile is used to broadcast horizontally,
+  vertically or to record. The same is chosen in *Preferences*, on the *OBS*
+  category. Guyrapu switches to that profile when broadcasting or recording,
+  and goes back to the previous one at the end or if you cancel the live
+  stream.
+- *Prepare profiles…* creates the three profiles, checks which settings work
+  well on your PC and assigns them, without touching the profiles you already
+  had.
+
+### Testing the computer and the connection
+
+- *Test computer…*, on the *General* tab, records for a few seconds with the
+  profile in use to see whether the PC drops frames. If it does, it looks for
+  lighter settings that work and offers to save them in the profile. With the
+  Vertical Canvas plugin, the test can also record the vertical canvas. Test
+  recordings are deleted at the end.
+- *Test connection…* does a private test live stream on YouTube, which nobody
+  sees and which deletes itself, to know what bitrate your connection
+  supports. Then it offers to save it in the profile.
+- When a live stream ends, Guyrapu says how many frames were dropped, whether
+  it was due to the network, the encoder or the drawing of the scene, and what
+  to change in the profile for the next one.
+
+### Vertical scenes
+
+- *Create vertical version*, in the context menu of a scene, makes a copy of
+  the scene with the same sources and a vertical layout. When broadcasting
+  vertically, that copy goes on air, and at the end the scene that was there
+  comes back.
+- *Apply layout…* adapts to a vertical canvas: *Split in two* stacks the
+  sources at the top and bottom, and the chat in a strip goes at the bottom.
+  There is a new layout, sized to the first source, and in *Automatic* the
+  camera fills its place.
+
+### Chat
+
+- With a Restream profile that has YouTube and TikTok, *Chat that Guyrapu
+  reads* offers *YouTube and TikTok*, chosen by default in new profiles. Both
+  chats are read in the same list, and each row says which platform it is
+  from.
+- In *Live events*, *Each platform's own sound* chooses whether TikTok
+  messages always have their sound, only with several chats or never, and
+  *Announce which platform each message has when there are multiple chats*
+  makes the voice say it too.
+- Each live event can be read with *Main voice without sound* or *Secondary
+  voice without sound*.
+
+### Music and recordings
+
+- The music playlist editor has two lists. In *Playlist songs*, songs are
+  played, removed and sorted with the keyboard, and *All songs* checks with a
+  checkbox the ones already in the playlist. A song can no longer be repeated
+  in a playlist.
+- In *Recordings and clips*, *Open folder* opens the recording folder. If OBS
+  converts the recording to MP4 at the end, the list shows and opens the MP4.
+
+### Other changes
+
+- The YouTube and Restream sessions and the keys saved in the application are
+  saved encrypted with your Windows account. If you copy the application
+  folder to another PC, you will have to sign in again.
+- The main window appears sooner when opening the application.
+- Gemini accepts the new keys that start with “AQ.”.
+
+### Fixes
+
+- `Enter` works again in *Recent items*, *Recordings and clips*, the history,
+  the conversation with the AI, the profiles and the Restream events, and the
+  scene list of the *OBS panel*.
+- Checkboxes with their own name, such as *Made for kids* or the destinations
+  of a Restream profile, are read as checkboxes again, with their state.
+- The Restream profile list also names YouTube when the profile has other
+  destinations.
+- The *OBS panel* opened while OBS is starting loads when OBS finishes
+  opening, and the recording buttons say the correct state. If an action of
+  the panel fails, the buttons become active again.
+- Guyrapu can no longer make OBS close when changing profiles.
+- Testing a voice in *Preferences* no longer freezes the window.
 
 ## 3.0.0 beta 2, November 2026
 
