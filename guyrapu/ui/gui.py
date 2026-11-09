@@ -40,7 +40,7 @@ from guyrapu.voice import escala_voz
 from guyrapu.voice import sound_player as _snd
 from guyrapu.youtube import credenciales
 from guyrapu.youtube import youtube_api
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, vigia_interfaz
 from guyrapu.core import apagado
 from guyrapu.capture.montos import sumar_monto, texto_importes
 from guyrapu.obs import overlay_servidor
@@ -214,7 +214,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self._init_timer()
         self._actualizar_vigilante_obs()
         diagnostico.crear_hilo(
-            lambda: diagnostico.vigilar_hilo_interfaz(
+            lambda: vigia_interfaz.vigilar_hilo_interfaz(
                 lambda: self._diagnostico_marca, self._diagnostico_parada),
             "VigilanteInterfaz").start()
         self.Centre()
