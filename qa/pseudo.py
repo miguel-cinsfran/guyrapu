@@ -60,7 +60,7 @@ DATOS_DE_USUARIO = (
     "colección", "coleccion", "chat", "historial", "descarga", "música",
     "musica", "canción", "cancion", "álbum", "album", "artista", "fuente",
     "ventana que se captura", "dispositivo", "lista", "modelo", "proveedor",
-    "mostrar", "género", "genero", "playlist",
+    "mostrar", "género", "genero", "playlist", "perfil",
 )
 
 _PROPIOS = re.compile(
