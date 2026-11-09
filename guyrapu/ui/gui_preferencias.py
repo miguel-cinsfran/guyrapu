@@ -491,7 +491,7 @@ def abrir_preferencias(parent, config: dict, pagina=None, avisos=None) -> bool:
     ventana principal los diga al recuperar el foco.
     """
     idioma_previo = config.get("idioma")
-    dlg = PreferenciasDialog(parent, config)
+    dlg = PreferenciasDialog(parent, config, perezosa=True)
     try:
         if pagina:
             try:

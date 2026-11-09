@@ -590,6 +590,29 @@ class TestPreferenciasPerezosas(unittest.TestCase):
         self.assertTrue(dialogo._libro_perezoso.construida(indice))
         self.assertEqual(dialogo.pagina_voz.sp_tono.GetValue(), 73)
 
+    def test_abrir_preferencias_en_youtube_la_elige_y_la_construye(self):
+        class DialogoEspia(gui_preferencias.PreferenciasDialog):
+            instancias = []
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.perezosa = kwargs.get("perezosa")
+                self.__class__.instancias.append(self)
+
+            def ShowModal(self):
+                indice = self.nb.GetSelection()
+                self.elegida = (self.nb.GetPageText(indice),
+                                self._libro_perezoso.construida(indice))
+                return wx.ID_CANCEL
+
+        with mock.patch.object(gui_preferencias, "PreferenciasDialog",
+                               DialogoEspia):
+            gui_preferencias.abrir_preferencias(
+                None, {"idioma": "es"}, pagina="YouTube")
+        dialogo = DialogoEspia.instancias[0]
+        self.assertTrue(dialogo.perezosa)
+        self.assertEqual(dialogo.elegida, ("YouTube", True))
+
 
 if __name__ == "__main__":
     unittest.main()
