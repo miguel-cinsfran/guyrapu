@@ -28,9 +28,11 @@ sys.path.insert(0, str(RAIZ / "qa"))
 from guyrapu.core.config import APP_NAME  # noqa: E402
 from guyrapu.restream import perfiles  # noqa: E402
 
+import titulos_restream  # noqa: E402
 from directo_comun import (  # noqa: E402
     NOMBRE_PERFIL, PRIVACIDAD_ESPERADA, armar_perfil,
-    comparar_destinos_en_vivo, comprobar_chats, destino_tiktok,
+    comparar_destinos_en_vivo, comprobar_chats,
+    destino_tiktok,  # noqa: F401  (lo importan las pruebas de este módulo)
     esperar_anuncio, imprimir, limpiar,
 )
 from directo_real import (  # noqa: E402
@@ -73,32 +75,6 @@ def _paso_cero() -> tuple[bool, str]:
         return (False, f"no se pudo comprobar: {exc}")
     texto = ((salida.stdout or "") + (salida.stderr or "")).strip()
     return (salida.returncode == 0, texto)
-
-
-def _leer_cuenta(anotar, cuenta_mod):
-    from guyrapu.core import paths
-    estado = {"respaldos": {}, "antes": {}, "rutas": {
-        "config": paths.config_ini(),
-        "sonidos": paths.sounds_ini(),
-        "perfiles": paths.perfiles_restream(),
-    }, "raiz": paths.carpeta_instalacion()}
-    try:
-        canales = cuenta_mod.canales()
-    except Exception as exc:
-        anotar("cuenta de Restream", False, f"no se pudo leer: {exc}")
-        return None
-    try:
-        canal_tiktok = destino_tiktok(canales)
-    except ValueError as exc:
-        anotar("destino de TikTok", False, str(exc))
-        return None
-    anotar("destino de TikTok", True,
-           f"{canal_tiktok.plataforma}: {canal_tiktok.nombre} "
-           f"(id {canal_tiktok.id})")
-    estado["canales_antes"] = list(canales)
-    estado["canal_tiktok"] = canal_tiktok
-    estado["antes"] = {canal.id: bool(canal.activo) for canal in canales}
-    return estado
 
 
 def _respaldar_todo(estado, anotar) -> bool:
@@ -147,7 +123,7 @@ def _guardar_perfil(estado, anotar) -> bool:
 
 
 def _preparar(anotar, cuenta_mod):
-    estado = _leer_cuenta(anotar, cuenta_mod)
+    estado = titulos_restream.leer_cuenta(anotar, cuenta_mod)
     if estado is None or not _respaldar_todo(estado, anotar):
         return None
     if not _guardar_perfil(estado, anotar):
@@ -387,6 +363,7 @@ def _correr(args, *, paso_cero=None, preparar=None, cuenta_mod=None):
         codigo = 1
     finally:
         limpiar(estado, anotar, cuenta_mod)
+        titulos_restream.paso_devolver(estado, anotar, cuenta_mod)
     imprimir(pasos)
     if any(not bien for _, bien, _ in pasos):
         return (pasos, 1)

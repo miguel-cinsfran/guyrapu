@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.restream import perfiles
+from guyrapu.restream.api import MetaCanal
 from guyrapu.restream.youtube_por_restream import NOMBRE_MANUAL
 
 _RUTA = Path(__file__).resolve().parent.parent / "qa" / "directo_restream.py"
@@ -19,6 +20,7 @@ _paquete = importlib.util.spec_from_file_location(
 directo_restream = importlib.util.module_from_spec(_paquete)
 _paquete.loader.exec_module(directo_restream)
 
+import titulos_restream  # noqa: E402
 from directo_comun import (  # noqa: E402
     cerrar_obs_y_limpiar, chats_conectados, comparar_destinos_en_vivo,
     destinos_a_restaurar, esperar_restauracion_app, leer_log_anuncios,
@@ -330,6 +332,165 @@ class TestLaAppBorraElManual(unittest.TestCase):
         self.assertTrue(borrado[0][1])
         self.assertEqual(cuenta.eliminados, [9])
 
+
+
+class CuentaConTitulos:
+
+    def __init__(self, canales, metas, fallos_lectura=(), fallos_cambio=()):
+        self.canales_actuales = list(canales)
+        self.metas = dict(metas)
+        self.fallos_lectura = set(fallos_lectura)
+        self.fallos_cambio = set(fallos_cambio)
+        self.cambios = []
+        self.leidos = []
+
+    def canales(self):
+        return list(self.canales_actuales)
+
+    def leer_meta(self, identificador):
+        self.leidos.append(identificador)
+        if identificador in self.fallos_lectura:
+            raise RuntimeError("sin respuesta")
+        titulo, descripcion = self.metas[identificador]
+        return MetaCanal(titulo, descripcion)
+
+    def cambiar_meta(self, identificador, titulo, descripcion):
+        if identificador in self.fallos_cambio:
+            raise RuntimeError("no se pudo cambiar")
+        self.cambios.append((identificador, titulo, descripcion))
+        self.metas[identificador] = (titulo, descripcion)
+
+
+def _pasos_de(funcion, estado, cuenta):
+    pasos = []
+
+    def anotar(nombre, bien, detalle=""):
+        pasos.append((nombre, bien, detalle))
+
+    funcion(estado, anotar, cuenta)
+    return pasos
+
+
+class TestTitulosRestream(unittest.TestCase):
+
+    def test_guardar_anota_titulo_y_descripcion(self):
+        cuenta = CuentaConTitulos(
+            [CanalFalso(1), CanalFalso(2)],
+            {1: ("Uno", "descripción uno"), 2: ("Dos", "")})
+        guardados = titulos_restream.guardar(cuenta.canales(), cuenta)
+        self.assertEqual(guardados, {1: ("Uno", "descripción uno"),
+                                     2: ("Dos", "")})
+
+    def test_el_cambiado_vuelve_y_el_igual_no_se_reescribe(self):
+        cuenta = CuentaConTitulos(
+            [CanalFalso(1), CanalFalso(2)],
+            {1: ("Prueba de Guyrapu 18:38", ""), 2: ("Igual", "igual")})
+        devueltos, fallos = titulos_restream.devolver(
+            {1: ("Viejo", "desc vieja"), 2: ("Igual", "igual")},
+            cuenta, {1, 2})
+        self.assertEqual(devueltos, [1])
+        self.assertEqual(fallos, [])
+        self.assertEqual(cuenta.cambios, [(1, "Viejo", "desc vieja")])
+        self.assertEqual(cuenta.metas[1], ("Viejo", "desc vieja"))
+
+    def test_un_destino_borrado_se_salta(self):
+        cuenta = CuentaConTitulos([CanalFalso(1)], {1: ("Siguió", "")})
+        devueltos, fallos = titulos_restream.devolver(
+            {1: ("Siguió", ""), 9: ("Borrado", "x")}, cuenta, {1})
+        self.assertEqual((devueltos, fallos), ([], []))
+        self.assertNotIn(9, cuenta.leidos)
+
+    def test_el_paso_dice_como_estaban_cuando_no_cambio_nada(self):
+        cuenta = CuentaConTitulos([CanalFalso(1)], {1: ("Igual", "")})
+        pasos = _pasos_de(
+            titulos_restream.paso_devolver,
+            {"titulos": {1: ("Igual", "")}}, cuenta)
+        self.assertEqual(len(pasos), 1)
+        self.assertEqual(pasos[0][0], "títulos de Restream")
+        self.assertTrue(pasos[0][1])
+        self.assertEqual(pasos[0][2], "como estaban")
+
+    def test_el_paso_lista_los_devueltos(self):
+        cuenta = CuentaConTitulos(
+            [CanalFalso(1), CanalFalso(2)],
+            {1: ("Prueba de Guyrapu 18:38", ""), 2: ("Otra prueba", "")})
+        pasos = _pasos_de(
+            titulos_restream.paso_devolver,
+            {"titulos": {1: ("Viejo", "d"), 2: ("Otra", "d2")}}, cuenta)
+        self.assertTrue(pasos[0][1])
+        self.assertIn("1", pasos[0][2])
+        self.assertIn("2", pasos[0][2])
+
+    def test_el_paso_falla_con_el_destino_y_el_error(self):
+        cuenta = CuentaConTitulos(
+            [CanalFalso(1)], {1: ("Prueba de Guyrapu 18:38", "")},
+            fallos_cambio={1})
+        pasos = _pasos_de(
+            titulos_restream.paso_devolver,
+            {"titulos": {1: ("Viejo", "d")}}, cuenta)
+        self.assertEqual(pasos[0][0], "títulos de Restream")
+        self.assertFalse(pasos[0][1])
+        self.assertIn("1", pasos[0][2])
+        self.assertIn("no se pudo cambiar", pasos[0][2])
+
+
+class TestLaPruebaDevuelveLosTitulos(unittest.TestCase):
+
+    def _args(self):
+        return directo_restream._ayuda().parse_args([])
+
+    def _correr(self, preparar, cuenta, transmitir):
+        with mock.patch("guyrapu.youtube.credenciales.hay_sesion",
+                        return_value=True), \
+             mock.patch.object(directo_restream, "_transmitir", transmitir), \
+             mock.patch.object(directo_restream, "limpiar"):
+            return directo_restream._correr(
+                self._args(), paso_cero=lambda: (True, "ok"),
+                preparar=preparar, cuenta_mod=cuenta)
+
+    def test_leer_cuenta_guarda_los_titulos(self):
+        cuenta = CuentaConTitulos(
+            [CanalFalso(1, "TikTok", "canal", 9)],
+            {1: ("Viejo", "desc")})
+        estado = titulos_restream.leer_cuenta(lambda *_: None, cuenta)
+        self.assertEqual(estado["titulos"], {1: ("Viejo", "desc")})
+
+    def test_si_transmitir_falla_igual_devuelve_los_titulos(self):
+        cuenta = CuentaConTitulos(
+            [CanalFalso(1), CanalFalso(2)],
+            {1: ("Prueba de Guyrapu 18:38", ""), 2: ("Igual", "igual")})
+        estado = {"titulos": {1: ("Viejo", "desc vieja"),
+                              2: ("Igual", "igual")}}
+
+        def transmitir(*_argumentos):
+            raise RuntimeError("se cayó")
+
+        pasos, codigo = self._correr(lambda *_: estado, cuenta, transmitir)
+        self.assertEqual(cuenta.metas[1], ("Viejo", "desc vieja"))
+        self.assertEqual(cuenta.metas[2], ("Igual", "igual"))
+        self.assertEqual(cuenta.cambios, [(1, "Viejo", "desc vieja")])
+        self.assertIn("títulos de Restream", [paso[0] for paso in pasos])
+        self.assertEqual(codigo, 1)
+
+    def test_si_no_se_leen_los_titulos_no_transmite(self):
+        cuenta = CuentaConTitulos(
+            [CanalFalso(1, "TikTok", "canal", 9)],
+            {1: ("Viejo", "desc")}, fallos_lectura={1})
+        transmitido = []
+
+        def transmitir(*_argumentos):
+            transmitido.append(True)
+
+        pasos, codigo = self._correr(
+            directo_restream._preparar, cuenta, transmitir)
+        self.assertEqual(transmitido, [])
+        titulos = [paso for paso in pasos if paso[0] == "títulos de Restream"]
+        self.assertEqual(len(titulos), 1)
+        self.assertFalse(titulos[0][1])
+        self.assertIn("no se pudieron leer", titulos[0][2])
+        self.assertIn("1", titulos[0][2])
+        self.assertIn("sin respuesta", titulos[0][2])
+        self.assertEqual(codigo, 1)
 
 
 class TestLeerLogAnuncios(unittest.TestCase):
