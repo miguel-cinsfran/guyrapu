@@ -110,6 +110,12 @@ class TestCompararDestinosEnVivo(unittest.TestCase):
         self.assertFalse(bien)
         self.assertIn("YouTube conectado", detalle)
 
+    def test_otro_destino_conocido_en_vez_del_manual_da_mal(self):
+        bien, detalle = comparar_destinos_en_vivo(
+            {"17448019", "111"}, self.TIKTOK, self.YOUTUBE, self.OTROS)
+        self.assertFalse(bien)
+        self.assertIn("otros destinos", detalle)
+
 
 class TestDestinosARestaurar(unittest.TestCase):
 
