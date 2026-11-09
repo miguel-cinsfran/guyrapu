@@ -137,6 +137,14 @@ def _asegurar(registro, conectar, al_anunciar=None, parada=None):
 
 
 class PrepararTest(unittest.TestCase):
+    def setUp(self):
+        # El perfil elegido sale de config.ini, que cambia de una PC a otra.
+        parche = mock.patch(
+            "guyrapu.obs.perfil_por_uso.perfil_elegido",
+            side_effect=lambda plataforma: plataforma)
+        parche.start()
+        self.addCleanup(parche.stop)
+
     def _preparar(self, gestor, destino="TikTok", parada=None):
         registro = []
         anuncios = []

@@ -371,6 +371,14 @@ class RutaDeEmisionTest(unittest.TestCase):
 
 
 class PrepararParaTransmitirTest(unittest.TestCase):
+    def setUp(self):
+        # El perfil elegido sale de config.ini, que cambia de una PC a otra.
+        parche = mock.patch.object(
+            perfil_por_uso, "perfil_elegido",
+            side_effect=lambda plataforma: plataforma)
+        parche.start()
+        self.addCleanup(parche.stop)
+
     def preparar(self, doble, destino, **extras):
         reloj = RelojFalso()
         extras.setdefault("dormir", reloj.dormir)
