@@ -10,10 +10,14 @@ la página no deje ningún texto visible sin envolver.
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
+import wx
+
 from guyrapu.ai import catalogo
-from guyrapu.ui import gui, gui_preferencias
+from guyrapu.ai import opciones_ia
+from guyrapu.ui import confirmar, gui, gui_preferencias
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
 from guyrapu.voice import motores
@@ -130,6 +134,127 @@ class TestDisenoIA(unittest.TestCase):
                      for elemento in fila.GetChildren()]
         self.assertLess(ventanas.index(modelo),
                         ventanas.index(actualizar))
+
+
+class TestClaveConFormatoAjeno(unittest.TestCase):
+    """Guardar y Probar con una clave de comienzo, largo o carácter ajenos.
+
+    Abre ventanas.
+    """
+
+    CLAVE_AJENA = "xx" + "a" * 30
+    CLAVE_CON_ESPACIO = "AIzaSyAbc def1234567890"
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.al_cambiar = mock.Mock()
+        self.proveedor = SimpleNamespace(
+            id="gemini", nombre="Gemini", prefijo_clave=("AIza", "AQ."))
+        parche = mock.patch.object(
+            preferencias_ia_clave.claves, "leer", return_value="")
+        parche.start()
+        self.addCleanup(parche.stop)
+        marco = wx.Frame(None)
+        self.addCleanup(destruir, marco)
+        panel = wx.Panel(marco)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.seccion = preferencias_ia_clave.SeccionClaveIA(
+            lambda: self.proveedor, self.al_cambiar)
+        self.seccion.construir(panel, sizer)
+        panel.SetSizer(sizer)
+
+    def _parches(self, respuesta):
+        preguntar = mock.patch.object(
+            preferencias_ia_clave.confirmar, "preguntar",
+            return_value=respuesta)
+        guardar = mock.patch.object(
+            preferencias_ia_clave.claves, "guardar")
+        avisar = mock.patch.object(preferencias_ia_clave, "avisar")
+        anunciar = mock.patch.object(preferencias_ia_clave, "anunciar")
+        sonar = mock.patch.object(preferencias_ia_clave._snd, "reproducir")
+        foco = mock.patch.object(self.seccion.txt_clave, "SetFocus")
+        return preguntar, guardar, avisar, anunciar, sonar, foco
+
+    def _guardar(self, clave, respuesta):
+        self.seccion.txt_clave.SetValue(clave)
+        parches = self._parches(respuesta)
+        with parches[0] as preguntar, parches[1] as guardar, \
+                parches[2] as avisar, parches[3] as anunciar, \
+                parches[4] as sonar, parches[5] as foco:
+            self.seccion._on_guardar(None)
+        return preguntar, guardar, avisar, anunciar, sonar, foco
+
+    def _probar(self, clave, respuesta):
+        self.seccion.txt_clave.SetValue(clave)
+        parches = self._parches(respuesta)
+        with parches[0] as preguntar, parches[1] as _guardar, \
+                parches[2] as _avisar, parches[3] as anunciar, \
+                parches[4] as sonar, parches[5] as foco:
+            resultado = self.seccion.revisar_para_probar(clave)
+        return resultado, preguntar, anunciar, sonar, foco
+
+    def test_usar_de_todos_modos_guarda_y_anuncia(self):
+        _p, guardar, _a, anunciar, sonar, _f = self._guardar(
+            self.CLAVE_AJENA, True)
+        guardar.assert_called_once_with("gemini", self.CLAVE_AJENA)
+        anunciar.assert_called_once_with(opciones_ia.TEXTO_CLAVE_GUARDADA)
+        self.al_cambiar.assert_called_once_with()
+        sonar.assert_called_once_with("ia_error")
+
+    def test_corregir_no_guarda_y_devuelve_el_foco_intacto(self):
+        _p, guardar, _a, _an, _s, foco = self._guardar(
+            self.CLAVE_AJENA, False)
+        guardar.assert_not_called()
+        foco.assert_called_once_with()
+        self.al_cambiar.assert_not_called()
+        self.assertEqual(self.seccion.txt_clave.GetValue(), self.CLAVE_AJENA)
+
+    def test_la_advertencia_trae_el_problema_el_titulo_y_corregir(self):
+        preguntar, _g, _a, _an, _s, _f = self._guardar(
+            self.CLAVE_AJENA, False)
+        problema = opciones_ia.problema_de_clave(
+            self.proveedor, self.CLAVE_AJENA)
+        argumentos = preguntar.call_args
+        self.assertIn(problema, argumentos.args[1])
+        self.assertIn("Si el proveedor cambió el formato de sus claves, "
+                      "puedes usarla de todos modos.", argumentos.args[1])
+        self.assertEqual(argumentos.args[2], "Clave de Gemini")
+        self.assertEqual(argumentos.args[3], "&Usar de todos modos")
+        self.assertEqual(argumentos.args[4], "&Corregir")
+        self.assertIs(argumentos.kwargs["icono"], confirmar.ICON_WARNING)
+        self.assertIs(argumentos.kwargs["predeterminado_si"], False)
+
+    def test_probar_afirmativo_sigue_y_negativo_no_prueba(self):
+        resultado, preguntar, _an, sonar, foco = self._probar(
+            self.CLAVE_AJENA, False)
+        self.assertFalse(resultado)
+        preguntar.assert_called_once()
+        sonar.assert_called_once_with("ia_error")
+        foco.assert_called_once_with()
+        resultado, preguntar, _an, _s, foco = self._probar(
+            self.CLAVE_AJENA, True)
+        self.assertTrue(resultado)
+        preguntar.assert_called_once()
+        foco.assert_not_called()
+
+    def test_guardar_con_espacio_en_el_medio_no_abre_cuadro(self):
+        for clave, esperado in (("", opciones_ia.TEXTO_FALTA_CLAVE),
+                                (self.CLAVE_CON_ESPACIO,
+                                 opciones_ia.TEXTO_CLAVE_CARACTERES)):
+            with self.subTest(clave=clave):
+                preguntar, guardar, avisar, _an, _s, _f = self._guardar(
+                    clave, False)
+                preguntar.assert_not_called()
+                guardar.assert_not_called()
+                avisar.assert_called_once_with(
+                    esperado, "ia_error", error=True)
+
+    def test_probar_con_espacio_en_el_medio_no_abre_cuadro(self):
+        resultado, preguntar, anunciar, _s, _f = self._probar(
+            self.CLAVE_CON_ESPACIO, True)
+        self.assertFalse(resultado)
+        preguntar.assert_not_called()
+        anunciar.assert_called_once_with(opciones_ia.TEXTO_CLAVE_CARACTERES)
 
 
 if __name__ == "__main__":

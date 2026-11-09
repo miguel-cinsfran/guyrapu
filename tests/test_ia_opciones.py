@@ -413,6 +413,24 @@ class TestProblemaDeClave(unittest.TestCase):
                 self.assertLessEqual(set(limpia), permitidos)
 
 
+class TestClaveUsableIgual(unittest.TestCase):
+
+    def test_solo_lo_vacio_o_con_espacios_se_rechaza(self):
+        from guyrapu.ai import opciones_ia
+        casos = (
+            ("", False),
+            ("     ", False),
+            ("AIza" + "a" * 8 + " " + "a" * 7, False),
+            ("corta", True),
+            ("xx" + "a" * 30, True),
+            ("AIza" + "a" * 15 + "/", True),
+        )
+        for clave, esperado in casos:
+            with self.subTest(clave=clave):
+                self.assertEqual(
+                    opciones_ia.se_puede_usar_igual(clave), esperado)
+
+
 def _muestra_pseudo():
     """Un proveedor con un modelo gratis y uno contributor."""
 

@@ -363,6 +363,26 @@ msgid ""
 "nuevo."
 msgstr "The key has spaces or characters that a key never has. Copy it again."
 
+#. Traductores: título del aviso de formato; {proveedor} es su nombre.
+#: guyrapu/ai/opciones_ia.py
+#, python-brace-format
+msgid "Clave de {proveedor}"
+msgstr "Key for {proveedor}"
+
+#: guyrapu/ai/opciones_ia.py
+msgid ""
+"Si el proveedor cambió el formato de sus claves, puedes usarla de todos "
+"modos."
+msgstr "If the provider changed its key format, you can use it anyway."
+
+#: guyrapu/ai/opciones_ia.py
+msgid "&Usar de todos modos"
+msgstr "&Use anyway"
+
+#: guyrapu/ai/opciones_ia.py
+msgid "&Corregir"
+msgstr "&Fix"
+
 #. Traductores: une dos comienzos; {uno} y {otro} son los comienzos.
 #: guyrapu/ai/opciones_ia.py
 #, python-brace-format

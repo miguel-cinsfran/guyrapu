@@ -2568,8 +2568,9 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
         self.assertFalse(dialogo.pagina_ia.ia_clave.txt_clave.IsShown())
 
     def test_guardar_una_clave_sin_forma_no_guarda_y_avisa(self):
+        clave = "AIzaSyAbc def1234567890"
         dialogo = self._dialogo()
-        dialogo.pagina_ia.ia_clave.txt_clave.SetValue("asdf")
+        dialogo.pagina_ia.ia_clave.txt_clave.SetValue(clave)
         boton = dialogo.pagina_ia.ia_clave.btn_guardar
         with mock.patch.object(
                 preferencias_ia_clave.claves, "guardar") as guardar, \
@@ -2580,9 +2581,9 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
             boton.GetEventHandler().ProcessEvent(self._evento_boton(boton))
         guardar.assert_not_called()
         avisar.assert_called_once_with(
-            opciones_ia.TEXTO_CLAVE_CORTA, "ia_error", error=True)
+            opciones_ia.TEXTO_CLAVE_CARACTERES, "ia_error", error=True)
         foco.assert_called_once_with()
-        self.assertEqual(dialogo.pagina_ia.ia_clave.txt_clave.GetValue(), "asdf")
+        self.assertEqual(dialogo.pagina_ia.ia_clave.txt_clave.GetValue(), clave)
 
     def test_guardar_quita_los_espacios_de_los_bordes(self):
         dialogo = self._dialogo()
@@ -2761,7 +2762,8 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
 
     def test_probar_una_clave_sin_forma_no_sale_a_la_red(self):
         dialogo = self._dialogo()
-        dialogo.pagina_ia.ia_clave.txt_clave.SetValue("asdf")
+        dialogo.pagina_ia.ia_clave.txt_clave.SetValue(
+            "AIzaSyAbc def1234567890")
         boton = dialogo.pagina_ia.btn_ia_probar_clave
         with mock.patch.object(
                 preferencias_ia.envio_ia, "enviar") as enviar, \
@@ -2772,7 +2774,7 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
             boton.GetEventHandler().ProcessEvent(self._evento_boton(boton))
         enviar.assert_not_called()
         sonar.assert_called_once_with("ia_error")
-        anunciar.assert_called_once_with(opciones_ia.TEXTO_CLAVE_CORTA)
+        anunciar.assert_called_once_with(opciones_ia.TEXTO_CLAVE_CARACTERES)
 
     def test_actualizar_la_lista_anuncia_los_modelos_del_proveedor(self):
         muestra = self._catalogo_con_openrouter()

@@ -32,6 +32,12 @@ TEXTO_CLAVE_CORTA = N_("La clave es demasiado corta. Copia la "
                        "clave entera desde la página del proveedor.")
 TEXTO_CLAVE_CARACTERES = N_("La clave tiene espacios o caracteres "
                             "que una clave no lleva. Cópiala de nuevo.")
+# Traductores: título del aviso de formato; {proveedor} es su nombre.
+TEXTO_TITULO_CLAVE = N_("Clave de {proveedor}")
+TEXTO_CLAVE_USAR_IGUAL = N_("Si el proveedor cambió el formato de sus "
+                            "claves, puedes usarla de todos modos.")
+TEXTO_BOTON_USAR_IGUAL = N_("&Usar de todos modos")
+TEXTO_BOTON_CORREGIR = N_("&Corregir")
 # Traductores: une dos comienzos; {uno} y {otro} son los comienzos.
 TEXTO_PREFIJOS_UNIDOS = N_("{uno} o {otro}")
 # Traductores: aviso de clave ajena; {proveedor} es su nombre y {prefijo} su inicio.
@@ -109,6 +115,19 @@ def problema_de_clave(proveedor, clave):
         return _(TEXTO_CLAVE_PREFIJO).format(
             proveedor=proveedor.nombre, prefijo=detalle)
     return ""
+
+
+def se_puede_usar_igual(clave):
+    """Si una clave con problema se puede guardar o probar igual.
+
+    Solo lo vacío y los espacios en blanco entre sus caracteres son un
+    defecto seguro. Un comienzo, un largo o un carácter que Guyrapu no
+    espera pueden ser el formato nuevo del proveedor.
+    """
+    limpia = (clave or "").strip()
+    if not limpia:
+        return False
+    return not any(caracter.isspace() for caracter in limpia)
 
 
 def filas_modelos(muestra, proveedor, solo_gratis, marcas=None):

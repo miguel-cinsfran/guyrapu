@@ -97,13 +97,31 @@ class SeccionClaveIA:
             problema = opciones_ia.problema_de_clave(
                 self._proveedor_actual(), escrita)
             if problema:
-                _snd.reproducir("ia_error")
-                anunciar(problema)
-                return False
+                if opciones_ia.se_puede_usar_igual(escrita):
+                    if not self._advertir_formato(problema):
+                        self.txt_clave.SetFocus()
+                        return False
+                else:
+                    _snd.reproducir("ia_error")
+                    anunciar(problema)
+                    return False
         if not clave:
             anunciar(opciones_ia.TEXTO_FALTA_CLAVE)
             return False
         return True
+
+    def _advertir_formato(self, problema):
+        """Abre el aviso de formato ajeno y dice si se usa la clave igual."""
+        proveedor = self._proveedor_actual()
+        _snd.reproducir("ia_error")
+        mensaje = problema + "\n" + _(opciones_ia.TEXTO_CLAVE_USAR_IGUAL)
+        return confirmar.preguntar(
+            self._panel, mensaje,
+            _(opciones_ia.TEXTO_TITULO_CLAVE).format(
+                proveedor=proveedor.nombre),
+            _(opciones_ia.TEXTO_BOTON_USAR_IGUAL),
+            _(opciones_ia.TEXTO_BOTON_CORREGIR),
+            icono=confirmar.ICON_WARNING, predeterminado_si=False)
 
     def _guardada(self):
         try:
@@ -130,12 +148,20 @@ class SeccionClaveIA:
         self._mostrar()
         self.txt_clave.SetFocus()
 
-    def _on_guardar(self, event):
-        clave = self.txt_clave.GetValue().strip()
+    def _revisar_guardado(self, clave):
+        """Dice si la clave se puede guardar, después de avisar si no."""
         problema = opciones_ia.problema_de_clave(
             self._proveedor_actual(), clave)
-        if problema:
-            avisar(problema, "ia_error", error=True)
+        if not problema:
+            return True
+        if opciones_ia.se_puede_usar_igual(clave):
+            return self._advertir_formato(problema)
+        avisar(problema, "ia_error", error=True)
+        return False
+
+    def _on_guardar(self, event):
+        clave = self.txt_clave.GetValue().strip()
+        if not self._revisar_guardado(clave):
             self.txt_clave.SetFocus()
             return
         proveedor = self._proveedor_actual()
