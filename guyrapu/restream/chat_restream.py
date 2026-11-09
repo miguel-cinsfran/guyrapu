@@ -11,6 +11,7 @@ hilo y la corta el fin de la supervisión.
 from __future__ import annotations
 
 import threading
+import time
 
 from guyrapu.capture import tiktok_vivo
 from guyrapu.core import diagnostico
@@ -23,7 +24,13 @@ logger = diagnostico.obtener_logger(__name__)
 CADA_TIKTOK = 5.0
 LIMITE_TIKTOK = 120.0
 
+# Mientras el chat principal termina de conectarse, el adicional lo mira cada
+# segundo y se rinde al pasar este plazo.
+CADA_CONEXION = 1.0
+LIMITE_CONEXION = 30.0
+
 _PARADA = threading.Event()
+_reloj = time.monotonic
 
 
 def reiniciar_espera() -> None:
@@ -39,6 +46,10 @@ def _en_interfaz(frame, funcion, *args):
         return
     from guyrapu.ui import gui as _gui
     _gui.wx.CallAfter(funcion, *args)
+
+
+def _dormir(segundos) -> None:
+    _PARADA.wait(segundos)
 
 
 def conectar_chat(frame, youtube=False, guardados=None, tiktok="",
@@ -96,17 +107,63 @@ def _esperar_tiktok(frame, usuario, al_anunciar, esperar_en_vivo):
         frase, sonido = tiktok_vivo.aviso_espera(resultado, usuario)
         _en_interfaz(frame, _avisar, al_anunciar, frase, sonido, True)
         return
-    _en_interfaz(frame, _conectar_adicional, frame, usuario)
+    _conectar_adicional(frame, usuario, al_anunciar)
 
 
-def _conectar_adicional(frame, usuario):
-    if not getattr(frame, "_alive", True):
-        return
+def _leer_estado(frame):
+    datos = {}
+    listo = threading.Event()
+
+    def _leer():
+        datos["conectado"] = bool(getattr(frame, "_conectado", False))
+        datos["conectando"] = bool(getattr(frame, "_conectando", False))
+        datos["es_tiktok"] = bool(getattr(frame.sesion, "es_tiktok", False))
+        listo.set()
+
+    _en_interfaz(frame, _leer)
+    if not listo.wait(1.0):
+        return None
+    return datos["conectado"], datos["conectando"], datos["es_tiktok"]
+
+
+def _conectar_adicional(frame, usuario, al_anunciar):
+    inicio = _reloj()
+    while True:
+        if _PARADA.is_set() or not getattr(frame, "_alive", True):
+            return
+        estado = _leer_estado(frame)
+        if _PARADA.is_set() or not getattr(frame, "_alive", True):
+            return
+        if estado is None:
+            conectado, conectando, es_tiktok = False, True, False
+        else:
+            conectado, conectando, es_tiktok = estado
+        if es_tiktok:
+            _sin_chat(frame, usuario, al_anunciar, "la sesión es de TikTok")
+            return
+        if conectado:
+            break
+        if not conectando:
+            _sin_chat(frame, usuario, al_anunciar,
+                      "el chat principal no está conectado")
+            return
+        if _reloj() - inicio >= LIMITE_CONEXION:
+            motivo = ("la interfaz no contestó" if estado is None
+                      else "el chat principal no se conectó a tiempo")
+            _sin_chat(frame, usuario, al_anunciar, motivo)
+            return
+        _dormir(CADA_CONEXION)
     if _PARADA.is_set():
         return
-    if not (frame._conectado and not frame.sesion.es_tiktok):
-        return
-    frame.conectar_chat_adicional(tiktok_vivo.url_directo(usuario))
+    _en_interfaz(frame, frame.conectar_chat_adicional,
+                 tiktok_vivo.url_directo(usuario))
+
+
+def _sin_chat(frame, usuario, al_anunciar, motivo):
+    logger.warning("No se conectó el chat de TikTok: %s.", motivo)
+    resultado = tiktok_vivo.ResultadoEspera(False, False)
+    frase, sonido = tiktok_vivo.aviso_espera(resultado, usuario)
+    _en_interfaz(frame, _avisar, al_anunciar, frase, sonido, True)
 
 
 def _avisar(al_anunciar, frase, sonido=None, importante=False):
