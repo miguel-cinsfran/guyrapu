@@ -29,9 +29,7 @@ PENDIENTES = {
         "lista de solo lectura sin acciones, en dialogo_estado.py:39"),
     "elegir_formato.py": (
         "lista de solo lectura para elegir un formato, en elegir_formato.py:52"),
-    "escena_pagina_audio.py": "todavía no pasó a la pieza común",
     "escena_pagina_escena.py": "todavía no pasó a la pieza común",
-    "escena_pagina_fuentes.py": "todavía no pasó a la pieza común",
     "gui.py": "todavía no pasó a la pieza común",
     "gui_comentarios.py": "todavía no pasó a la pieza común",
     "gui_grabaciones.py": "todavía no pasó a la pieza común",

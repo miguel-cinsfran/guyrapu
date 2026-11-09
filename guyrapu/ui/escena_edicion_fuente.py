@@ -167,4 +167,4 @@ class AccionesEdicion:
         self._pagina.lst_fuentes.SetFocus()
 
     def _sin_seleccion(self):
-        anunciar(_("Sin selección"))
+        self._pagina.lista_vacia.sin_elemento()

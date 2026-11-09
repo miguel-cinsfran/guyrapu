@@ -12,7 +12,7 @@ from guyrapu.obs import (
     disenos_guardados, obs_disposicion)
 from guyrapu.ui import (
     escena_acciones_fuente, escena_agregar_fuente, escena_disenos,
-    escena_menu_fuente, escena_version_vertical)
+    escena_menu_fuente, escena_version_vertical, lista_acciones)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, fila_campo, nombre_de_etiqueta
 
@@ -50,6 +50,10 @@ class PaginaFuentes(wx.Panel):
             self, name=nombre_de_etiqueta(_("&Fuentes:")))
         nombre_accesible(self.lst_fuentes, self.lst_fuentes.GetName())
         self.lst_fuentes.SetMinSize((-1, 120))
+        self.lista_vacia = lista_acciones.ListaConVacio(
+            self.lst_fuentes,
+            _("Esta escena no tiene fuentes. Usa Agregar fuente… para "
+              "sumar una."))
         fila_campo(caja, rotulo_fuentes, self.lst_fuentes)
 
     def _crear_botones(self, caja):
@@ -75,20 +79,20 @@ class PaginaFuentes(wx.Panel):
 
     def cargar(self, filas, fuente):
         self._filas = tuple(filas or ())
-        self.lst_fuentes.Set([fila.texto for fila in self._filas])
         indice = next((i for i, fila in enumerate(self._filas)
-                       if fila.nombre == fuente), wx.NOT_FOUND)
-        self.lst_fuentes.SetSelection(indice)
+                       if fila.nombre == fuente), None)
+        self.lista_vacia.fijar(
+            [fila.texto for fila in self._filas], indice)
 
     def fuente(self):
-        indice = self.lst_fuentes.GetSelection()
-        if 0 <= indice < len(self._filas):
+        indice = self.lista_vacia.indice()
+        if indice is not None:
             return self._filas[indice].nombre
         return ""
 
     def _fila(self):
-        indice = self.lst_fuentes.GetSelection()
-        if 0 <= indice < len(self._filas):
+        indice = self.lista_vacia.indice()
+        if indice is not None:
             return self._filas[indice]
         return None
 
@@ -114,7 +118,7 @@ class PaginaFuentes(wx.Panel):
     def _mostrar_menu_fuente(self, ancla):
         fila = self._fila()
         if fila is None:
-            anunciar(_("Sin selección"))
+            self.lista_vacia.sin_elemento()
             return
         menu = escena_menu_fuente.menu_de_fuente(
             fila, self.acciones_fuente)

@@ -9,7 +9,9 @@ import wx
 from guyrapu.core.idioma import _
 from guyrapu.obs import (
     filtros_microfono, nivel_microfono, prueba_microfono)
-from guyrapu.ui import escena_escucha, escena_filtros, fila_audio, gui_microfono
+from guyrapu.ui import (
+    escena_escucha, escena_filtros, fila_audio, gui_microfono,
+    lista_acciones)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import (
     boton, fila_campo, nombre_de_etiqueta)
@@ -66,6 +68,8 @@ class PaginaAudio(wx.Panel):
             self, name=nombre_de_etiqueta(etiqueta))
         nombre_accesible(self.lst_audio, self.lst_audio.GetName())
         self.lst_audio.SetMinSize((-1, 120))
+        self.lista_vacia = lista_acciones.ListaConVacio(
+            self.lst_audio, _("OBS no tiene fuentes de audio."))
         fila_campo(caja, self.rotulo_audio, self.lst_audio)
 
     def _crear_botones(self):
@@ -143,13 +147,12 @@ class PaginaAudio(wx.Panel):
     def _poner_filas(self, datos, preferido=""):
         actual = self.fuente()
         self._filas = tuple(datos)
-        self.lst_audio.Set(
-            [fila_audio.texto(nombre, silenciada, filtros)
-             for nombre, silenciada, filtros in self._filas])
         indice = self._indice_de(actual or preferido)
-        if indice is None:
-            indice = 0 if self._filas else wx.NOT_FOUND
-        self.lst_audio.SetSelection(indice)
+        if indice is None and self._filas:
+            indice = 0
+        self.lista_vacia.fijar(
+            [fila_audio.texto(nombre, silenciada, filtros)
+             for nombre, silenciada, filtros in self._filas], indice)
         self._fijar_casilla()
 
     def fuente(self):
@@ -157,8 +160,8 @@ class PaginaAudio(wx.Panel):
         return fila[0] if fila is not None else ""
 
     def _fila(self):
-        indice = self.lst_audio.GetSelection()
-        if 0 <= indice < len(self._filas):
+        indice = self.lista_vacia.indice()
+        if indice is not None:
             return self._filas[indice]
         return None
 
@@ -187,9 +190,14 @@ class PaginaAudio(wx.Panel):
     def _menu_contextual(self, _evento):
         self._mostrar_menu_audio(self.lst_audio)
 
+    def _sin_fuente(self):
+        if self.lista_vacia.vacia():
+            return self.lista_vacia.sin_elemento()
+        anunciar(_("Elige una fuente de audio."))
+
     def _mostrar_menu_audio(self, ancla):
         if self._fila() is None:
-            anunciar(_("Sin selección"))
+            self.lista_vacia.sin_elemento()
             return
         menu = self._menu_de_audio()
         ancla.PopupMenu(menu)
@@ -233,7 +241,7 @@ class PaginaAudio(wx.Panel):
             return
         fuente = self.fuente()
         if not fuente:
-            anunciar(_("Elige una fuente de audio."))
+            self._sin_fuente()
             return
         self._operaciones.en_hilo(
             lambda: prueba_microfono.preparar_fuente(self._gestor, fuente),
@@ -259,7 +267,7 @@ class PaginaAudio(wx.Panel):
 
     def _puede_empezar(self, fuente, silenciado):
         if not fuente:
-            anunciar(_("Elige una fuente de audio."))
+            self._sin_fuente()
             return False
         if silenciado:
             anunciar(_("La fuente {fuente} está silenciada en OBS. "
@@ -300,7 +308,7 @@ class PaginaAudio(wx.Panel):
     def _al_filtros(self, evento=None):
         fuente = self.fuente()
         if not fuente:
-            anunciar(_("Elige una fuente de audio."))
+            self._sin_fuente()
             return
         self._operaciones.en_hilo(
             lambda: (fuente, filtros_microfono.leer(fuente)),
@@ -309,7 +317,7 @@ class PaginaAudio(wx.Panel):
     def _filtros_listos(self, resultado):
         fuente, estado = resultado
         if not fuente:
-            anunciar(_("Elige una fuente de audio."))
+            self._sin_fuente()
             return
         elegido = escena_filtros.pedir_filtros(self, fuente, estado)
         self.btn_filtros.SetFocus()

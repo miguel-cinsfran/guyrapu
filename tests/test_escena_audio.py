@@ -14,7 +14,7 @@ import wx
 from guyrapu.obs import escucha_microfono, nivel_microfono
 from guyrapu.obs.filtros_microfono import Estado
 from guyrapu.obs.obs_cliente import ObsError
-from guyrapu.ui import escena_pagina_audio
+from guyrapu.ui import escena_pagina_audio, lista_acciones
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 TEXTO_INICIO = ("Probando Mic/Aux. Prueba del micrófono iniciada. "
@@ -22,6 +22,7 @@ TEXTO_INICIO = ("Probando Mic/Aux. Prueba del micrófono iniciada. "
 TEXTO_SILENCIADO = ("La fuente Mic/Aux está silenciada en OBS. "
                     "Desmárcala y vuelve a probar.")
 AVISO_SIN_FUENTE = "Elige una fuente de audio."
+TEXTO_VACIO_AUDIO = "OBS no tiene fuentes de audio."
 
 
 class GestorFalso:
@@ -249,6 +250,14 @@ class TestPaginaAudioPrueba(BaseAudio):
         self.clase.assert_not_called()
         self.anunciar.assert_called_once_with(AVISO_SIN_FUENTE)
 
+    def test_sin_fuentes_probar_nivel_anuncia_el_vacio_y_no_lanza_nada(self):
+        self.pagina._poner_filas((), "")
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._pulsar()
+        self.preparar.assert_not_called()
+        self.clase.assert_not_called()
+        anunciar.assert_called_once_with(TEXTO_VACIO_AUDIO)
+
 
 class TestPaginaAudioFiltros(BaseAudio):
     def setUp(self):
@@ -264,6 +273,7 @@ class TestPaginaAudioFiltros(BaseAudio):
                 escena_pagina_audio.escena_filtros, "pedir_filtros",
                 return_value=None),
             mock.patch.object(escena_pagina_audio, "anunciar"),
+            mock.patch.object(lista_acciones, "anunciar"),
             mock.patch.object(
                 escena_pagina_audio.wx, "CallAfter",
                 side_effect=lambda funcion, *args, **kwargs:
@@ -299,7 +309,7 @@ class TestPaginaAudioFiltros(BaseAudio):
         self.pagina._poner_filas((), "")
         self._pulsar()
         escena_pagina_audio.escena_filtros.pedir_filtros.assert_not_called()
-        escena_pagina_audio.anunciar.assert_called_once_with(AVISO_SIN_FUENTE)
+        lista_acciones.anunciar.assert_called_once_with(TEXTO_VACIO_AUDIO)
 
     def test_el_foco_vuelve_al_boton(self):
         with mock.patch.object(self.pagina.btn_filtros, "SetFocus") as foco:
@@ -486,10 +496,13 @@ class TestPaginaAudioLista(BaseAudio):
         filtros.assert_called_once_with()
         escuchar.assert_called_once_with()
 
-    def test_sin_conexion_la_lista_queda_vacia_y_los_controles_apagados(self):
+    def test_sin_conexion_la_lista_muestra_el_vacio_y_los_controles_apagados(
+            self):
         self.pagina._poner_filas((), "")
-        self.assertEqual(self.pagina.lst_audio.GetStrings(), [])
-        self.assertEqual(self.pagina.lst_audio.GetSelection(), wx.NOT_FOUND)
+        self.assertEqual(
+            self.pagina.lst_audio.GetStrings(), [TEXTO_VACIO_AUDIO])
+        self.assertEqual(self.pagina.lst_audio.GetSelection(), 0)
+        self.assertEqual(self.pagina.fuente(), "")
         self.assertFalse(self.pagina.chk_silenciar.GetValue())
         self.assertIn(self.pagina.lst_audio, self.pagina.acciones)
 
@@ -573,6 +586,20 @@ class TestPaginaAudioTeclas(BaseAudio):
         with mock.patch.object(self.pagina.lst_audio, "PopupMenu") as popup:
             self.pagina._mostrar_menu_audio(self.pagina.lst_audio)
         popup.assert_not_called()
+
+    def test_sin_seleccion_con_elementos_anuncia_lo_de_siempre(self):
+        self.pagina.lst_audio.SetSelection(wx.NOT_FOUND)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.pagina._mostrar_menu_audio(self.pagina.lst_audio)
+        anunciar.assert_called_once_with("Sin selección")
+
+    def test_sin_fuentes_la_tecla_aplicaciones_anuncia_el_vacio(self):
+        self.pagina._poner_filas((), "")
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar, \
+                mock.patch.object(self.pagina.lst_audio, "PopupMenu") as popup:
+            self.pagina._mostrar_menu_audio(self.pagina.lst_audio)
+        popup.assert_not_called()
+        anunciar.assert_called_once_with(TEXTO_VACIO_AUDIO)
 
 
 if __name__ == "__main__":

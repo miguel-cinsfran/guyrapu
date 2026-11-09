@@ -27,11 +27,15 @@ from guyrapu.ui import escena_tamano
 from guyrapu.ui import gui_grabaciones
 from guyrapu.ui import obs_ventana
 from guyrapu.ui import gui_microfono
+from guyrapu.ui import lista_acciones
 from guyrapu.ui import mover_con_flechas
 from guyrapu.ui import operaciones_obs
 from tests.test_gui_transmision import (
     Evento, EventoTecla, GestorFalso, HiloInmediato)
 from tests.ventanas_prueba import app_de_prueba, destruir
+
+TEXTO_VACIO_FUENTES = ("Esta escena no tiene fuentes. Usa Agregar fuente… "
+                       "para sumar una.")
 
 
 def _items_del_menu(menu):
@@ -206,6 +210,7 @@ class TestVentanaObs(unittest.TestCase):
             mock.patch.object(escena_agregar_fuente, "anunciar", anunciar),
             mock.patch.object(escena_acciones_fuente, "anunciar", anunciar),
             mock.patch.object(escena_edicion_fuente, "anunciar", anunciar),
+            mock.patch.object(lista_acciones, "anunciar", anunciar),
             mock.patch.object(escena_captura_ventana, "anunciar", anunciar),
             mock.patch.object(gui_microfono, "anunciar", anunciar),
             mock.patch.object(mover_con_flechas, "anunciar", anunciar),
@@ -751,6 +756,31 @@ class TestVentanaObs(unittest.TestCase):
         with mock.patch.object(pagina, "_mostrar_menu_fuente") as mostrar:
             pagina.lst_fuentes.ProcessEvent(evento)
         mostrar.assert_called_once_with(pagina.lst_fuentes)
+
+    def test_sin_fuentes_la_lista_muestra_la_linea_de_vacio(self):
+        self.gestor.escenas_por_nombre["Vacía"] = []
+        self.gestor.escena_resultante = "Vacía"
+        dialogo = self._crear()
+        pagina = dialogo._pagina_fuentes
+        self.assertEqual(
+            pagina.lst_fuentes.GetStrings(), [TEXTO_VACIO_FUENTES])
+        self.assertEqual(pagina.lst_fuentes.GetSelection(), 0)
+        self.assertEqual(pagina.fuente(), "")
+
+    def test_sin_fuentes_suprimir_y_aplicaciones_anuncian_el_vacio(self):
+        self.gestor.escenas_por_nombre["Vacía"] = []
+        self.gestor.escena_resultante = "Vacía"
+        dialogo = self._crear()
+        pagina = dialogo._pagina_fuentes
+        self.anuncios.clear()
+        with mock.patch.object(fuentes_obs, "eliminar") as eliminar, \
+                mock.patch.object(pagina.lst_fuentes, "PopupMenu") as popup:
+            pagina._tecla_fuente(EventoTecla(wx.WXK_DELETE))
+            pagina._tecla_fuente(EventoTecla(wx.WXK_WINDOWS_MENU))
+        eliminar.assert_not_called()
+        popup.assert_not_called()
+        self.assertEqual(
+            self.anuncios, [TEXTO_VACIO_FUENTES, TEXTO_VACIO_FUENTES])
 
     def test_sin_seleccion_anuncia_y_no_abre_el_menu(self):
         pagina = self.dialogo._pagina_fuentes

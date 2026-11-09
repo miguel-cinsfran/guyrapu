@@ -4043,18 +4043,36 @@ msgstr ""
 "OBS has no microphone. Choose one in the OBS panel, Audio tab, Choose a "
 "device"
 
+#: guyrapu/obs/obs_escena.py guyrapu/obs/obs_prevuelo.py
+msgid "captura de pantalla"
+msgstr "screen capture"
+
+#: guyrapu/obs/obs_escena.py guyrapu/obs/obs_prevuelo.py
+#: guyrapu/obs/tipos_fuente.py
+msgid "captura de ventana"
+msgstr "window capture"
+
+#: guyrapu/obs/obs_escena.py guyrapu/obs/obs_prevuelo.py
+#: guyrapu/obs/tipos_fuente.py
+msgid "captura de juego"
+msgstr "game capture"
+
 #: guyrapu/obs/obs_escena.py
 #, python-brace-format
 msgid "cerca de la posición {texto}"
 msgstr "near the {texto} position"
 
 #: guyrapu/obs/obs_escena.py
-msgid "no muestra imagen"
-msgstr "shows no image"
-
-#: guyrapu/obs/obs_escena.py
 msgid "oculta en OBS"
 msgstr "hidden in OBS"
+
+#: guyrapu/obs/obs_escena.py
+msgid "se mide al ponerla al aire"
+msgstr "measured once it is on air"
+
+#: guyrapu/obs/obs_escena.py
+msgid "no muestra imagen"
+msgstr "shows no image"
 
 #: guyrapu/obs/obs_escena.py guyrapu/obs/revision_escena.py
 msgid "sin nombre"
@@ -4284,18 +4302,6 @@ msgid ""
 msgstr ""
 "OBS is not installed on this computer. Install it from obsproject.com and "
 "try again."
-
-#: guyrapu/obs/obs_prevuelo.py guyrapu/obs/tipos_fuente.py
-msgid "captura de ventana"
-msgstr "window capture"
-
-#: guyrapu/obs/obs_prevuelo.py guyrapu/obs/tipos_fuente.py
-msgid "captura de juego"
-msgstr "game capture"
-
-#: guyrapu/obs/obs_prevuelo.py
-msgid "captura de pantalla"
-msgstr "screen capture"
 
 #: guyrapu/obs/obs_prevuelo.py
 msgid "navegador"
@@ -6616,7 +6622,8 @@ msgstr "Before broadcasting"
 
 #. Traductores: botón para cerrar sin publicar.
 #: guyrapu/ui/confirmar_transmision.py guyrapu/ui/descargas_acciones.py
-#: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_prueba_conexion.py
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/dialogo_prueba_conexion.py
 #: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/dialogo_usos_perfil.py
 #: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_captura_ventana.py
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
@@ -6627,7 +6634,7 @@ msgstr "Before broadcasting"
 #: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/preferencias_general.py
 #: guyrapu/ui/preferencias_ia_clave.py guyrapu/ui/restream_pagina_cuenta.py
 #: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
-#: guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/restream_perfil.py guyrapu/ui/ventana_espera.py
 msgid "&Cancelar"
 msgstr "&Cancel"
 
@@ -6956,16 +6963,16 @@ msgstr ""
 msgid "Ajustes del perfil {nombre}"
 msgstr "Settings for profile {nombre}"
 
-#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/dialogo_nombre_perfil_obs.py
 msgid "Orientación"
 msgstr "Orientation"
 
-#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/dialogo_nombre_perfil_obs.py
 #: guyrapu/ui/restream_perfil.py
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/dialogo_nombre_perfil_obs.py
 #: guyrapu/ui/restream_perfil.py
 msgid "Vertical"
 msgstr "Vertical"
@@ -7125,10 +7132,6 @@ msgid "&Preparar"
 msgstr "&Prepare"
 
 #: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Preparando perfiles de OBS"
-msgstr "Preparing OBS profiles"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
 msgid "Resumen de la preparación"
 msgstr "Preparation summary"
 
@@ -7138,8 +7141,17 @@ msgstr "Preparation summary"
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 #: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
 #: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/ventana_espera.py
 msgid "&Cerrar"
 msgstr "&Close"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparando perfiles de OBS"
+msgstr "Preparing OBS profiles"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparando los perfiles…"
+msgstr "Preparing the profiles…"
 
 #: guyrapu/ui/dialogo_estado.py
 msgid "Estado de la sesión"
@@ -7154,6 +7166,23 @@ msgstr "No status information."
 #: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
 msgid "Cerrar"
 msgstr "Close"
+
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py
+msgid "Nombre del perfil"
+msgstr "Profile name"
+
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/musica_editor_lista.py
+#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
+msgid "&Nombre:"
+msgstr "&Name:"
+
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/obs_pagina_perfiles.py
+msgid "C&rear"
+msgstr "C&reate"
+
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py
+msgid "Escribe un nombre para el perfil."
+msgstr "Type a name for the profile."
 
 #: guyrapu/ui/dialogo_prueba_conexion.py
 msgid "La prueba no llegó a medir ninguna tasa de bits."
@@ -7219,15 +7248,6 @@ msgstr ""
 msgid "&Empezar"
 msgstr "&Start"
 
-#: guyrapu/ui/dialogo_prueba_conexion.py
-msgid "Probando la conexión"
-msgstr "Testing the connection"
-
-#: guyrapu/ui/dialogo_prueba_conexion.py
-#, python-brace-format
-msgid "Probando la conexión a {tasa} kbps…"
-msgstr "Testing the connection at {tasa} kbps…"
-
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 msgid "Resultado de la prueba"
 msgstr "Test result"
@@ -7239,6 +7259,19 @@ msgstr "&Save to profile"
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 msgid "&Dejar como estaba"
 msgstr "&Leave as it was"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+msgid "Probando la conexión"
+msgstr "Testing the connection"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Preparando la prueba…"
+msgstr "Preparing the test…"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid "Probando la conexión a {tasa} kbps…"
+msgstr "Testing the connection at {tasa} kbps…"
 
 #: guyrapu/ui/dialogo_prueba_conexion.py
 msgid "Prueba cancelada. OBS quedó como estaba y la prueba se borró de YouTube."
@@ -7520,10 +7553,9 @@ msgstr "There's nothing to undo."
 msgid "Deshecho: {accion} de {fuente}."
 msgstr "Undone: {accion} of {fuente}."
 
-#: guyrapu/ui/escena_acciones_fuente.py guyrapu/ui/escena_agregar_fuente.py
-#: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_audio.py
-#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_pagina_fuentes.py
-#: guyrapu/ui/gui_historial.py guyrapu/ui/mover_con_flechas.py
+#: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_pagina_escena.py
+#: guyrapu/ui/escena_pagina_fuentes.py guyrapu/ui/gui_historial.py
+#: guyrapu/ui/lista_acciones.py guyrapu/ui/mover_con_flechas.py
 #: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_destinos.py
 #: guyrapu/ui/restream_pagina_eventos.py guyrapu/ui/restream_pagina_perfiles.py
 #: guyrapu/ui/restream_ventana.py
@@ -7973,6 +8005,10 @@ msgid "Fuentes de &audio:"
 msgstr "&Audio sources:"
 
 #: guyrapu/ui/escena_pagina_audio.py
+msgid "OBS no tiene fuentes de audio."
+msgstr "OBS has no audio sources."
+
+#: guyrapu/ui/escena_pagina_audio.py
 msgid "Elegir &micrófono…"
 msgstr "Choose a &device…"
 
@@ -8087,6 +8123,10 @@ msgstr "Image saved"
 #: guyrapu/ui/escena_pagina_fuentes.py
 msgid "&Fuentes:"
 msgstr "S&ources:"
+
+#: guyrapu/ui/escena_pagina_fuentes.py
+msgid "Esta escena no tiene fuentes. Usa Agregar fuente… para sumar una."
+msgstr "This scene has no sources. Use Add source… to add one."
 
 #: guyrapu/ui/escena_pagina_fuentes.py
 msgid "&Aplicar diseño…"
@@ -10618,11 +10658,6 @@ msgstr "Edit playlist"
 msgid "El nombre no puede tener más de 60 caracteres"
 msgstr "The name cannot be more than 60 characters"
 
-#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
-msgid "&Nombre:"
-msgstr "&Name:"
-
 #: guyrapu/ui/musica_editor_lista.py
 msgid "Nombre de la lista"
 msgstr "Playlist name"
@@ -10832,18 +10867,6 @@ msgid "Grabar también al transmitir"
 msgstr "Record while broadcasting"
 
 #: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Nombre del perfil"
-msgstr "Profile name"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "C&rear"
-msgstr "C&reate"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Escribe un nombre para el perfil."
-msgstr "Type a name for the profile."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
 msgid "Perfiles de OBS"
 msgstr "OBS profiles"
 
@@ -10854,10 +10877,6 @@ msgstr "&Use this profile"
 #: guyrapu/ui/obs_pagina_perfiles.py
 msgid "Usar p&ara…"
 msgstr "Use f&or…"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Usar para…"
-msgstr "Use for…"
 
 #: guyrapu/ui/obs_pagina_perfiles.py
 msgid "&Nuevo…"
@@ -10878,6 +10897,14 @@ msgstr "Edit &settings…"
 #: guyrapu/ui/obs_pagina_perfiles.py
 msgid "&Preparar perfiles…"
 msgstr "&Prepare profiles…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "No hay perfiles en OBS. Usa Nuevo… para crear uno."
+msgstr "No profiles in OBS. Use New… to create one."
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Usar para…"
+msgstr "Use for…"
 
 #: guyrapu/ui/obs_pagina_perfiles.py
 msgid "Preparar perfiles…"
@@ -12627,6 +12654,10 @@ msgstr "(Recording)"
 msgid "{titulo} — {app}"
 msgstr "{titulo} — {app}"
 
+#: guyrapu/ui/ventana_espera.py
+msgid "Cancelando…"
+msgstr "Canceling…"
+
 #: guyrapu/voice/caida_elevenlabs.py
 msgid ""
 "Se alcanzó el límite de caracteres de ElevenLabs de esta sesión. Se usa la "
@@ -12885,24 +12916,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/obs/obs_escena.py
-msgid "se mide al ponerla al aire"
-msgstr "measured once it is on air"
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "No hay perfiles en OBS. Usa Nuevo… para crear uno."
-msgstr "No profiles in OBS. Use New… to create one."
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Preparando los perfiles…"
-msgstr "Preparing the profiles…"
-
-#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Preparando la prueba…"
-msgstr "Preparing the test…"
-
-#: guyrapu/ui/ventana_espera.py
-msgid "Cancelando…"
-msgstr "Canceling…"
 
