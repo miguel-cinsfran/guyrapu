@@ -18,11 +18,12 @@ logger = diagnostico.obtener_logger(__name__)
 class OperacionesObs:
 
     def __init__(self, ventana, activar, escribir_fallo, enfocar_tras_fallo,
-                 tras_operacion=None):
+                 tras_operacion=None, conectado=None):
         self._activar = activar
         self._escribir_fallo = escribir_fallo
         self._enfocar_tras_fallo = enfocar_tras_fallo
         self._tras_operacion = tras_operacion or (lambda resultado: None)
+        self._conectado = conectado or (lambda: True)
         self.cerrando = False
         self.en_vuelo = False
         self._temporizador_consulta = wx.Timer(ventana)
@@ -64,7 +65,8 @@ class OperacionesObs:
         self.en_vuelo = False
         if self.cerrando:
             return
-        self._activar(False)
+        conectado = getattr(self, "_conectado", None)
+        self._activar(True if conectado is None else bool(conectado()))
         self._escribir_fallo(mensaje)
         avisar(mensaje, "error", error=True)
         self._enfocar_tras_fallo()

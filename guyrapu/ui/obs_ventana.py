@@ -51,7 +51,7 @@ class VentanaObs(wx.Dialog):
         self._asegurar = obs_lanzador.asegurar_obs
         self._operaciones = OperacionesObs(
             self, self._activar, self._escribir_fallo, self._enfocar_tras_fallo,
-            self._tras_operacion)
+            self._tras_operacion, lambda: self._gestor.conectado)
         self._pestana_inicial = (
             pestana if 0 <= pestana < 6 else PESTANA_ESCENA)
         self._crear_controles()

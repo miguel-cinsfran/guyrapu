@@ -302,6 +302,25 @@ class TestCableado(unittest.TestCase):
                          confirmar.ICON_ERROR)
         sonar.assert_any_call("error")
 
+    def test_i_fallo_reactiva_el_panel_solo_si_obs_sigue_conectado(self):
+        for conectado, esperado in ((True, True), (False, False)):
+            with self.subTest(conectado=conectado):
+                activaciones = []
+                escribir = mock.Mock()
+                enfocar = mock.Mock()
+                instancia = SimpleNamespace(
+                    cerrando=False, en_vuelo=False,
+                    _temporizador_consulta=mock.Mock(),
+                    _activar=activaciones.append,
+                    _escribir_fallo=escribir,
+                    _enfocar_tras_fallo=enfocar,
+                    _conectado=lambda: conectado)
+                with mock.patch.object(operaciones_obs, "avisar"):
+                    operaciones_obs.OperacionesObs.fallo(instancia, "Falló.")
+                self.assertEqual(activaciones[-1], esperado)
+                escribir.assert_called_once_with("Falló.")
+                enfocar.assert_called_once_with()
+
     def test_no_revisando_obs_no_pide_cuadro(self):
         instancia = object.__new__(boton_directo.BotonDirecto)
         instancia._marco = SimpleNamespace(
