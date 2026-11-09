@@ -41,6 +41,7 @@ SUPERFICIES = {
     "obs_pagina_grabacion.py": "grabacion",
     "obs_pagina_general.py": "escena",
     "obs_pagina_perfiles.py": "escena",
+    "dialogo_nombre_perfil_obs.py": "escena",
     "dialogo_ajustes_perfil.py": "escena",
     "dialogo_usos_perfil.py": "escena",
     "dialogo_asistente_perfiles.py": "escena",
