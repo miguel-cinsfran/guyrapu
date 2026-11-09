@@ -253,7 +253,7 @@ class VentanaObs(wx.Dialog):
             return
         dialogo_prueba_equipo.PruebaEquipoPanel(
             self, self._en_hilo, self._cliente_obs(), self._refrescar_general,
-            self._anunciar_equipo).empezar()
+            self._anunciar_equipo, self._escribir_fallo).empezar()
 
     def _anunciar_equipo(self, texto, error=False):
         self._pagina_general.mostrar([texto])
@@ -271,7 +271,7 @@ class VentanaObs(wx.Dialog):
             self, self._en_hilo, self._cliente_obs(),
             youtube_api.ClienteYouTube(credenciales.efectivas()),
             credenciales.hay_sesion(), self._refrescar_general,
-            self._anunciar_equipo).empezar()
+            self._anunciar_equipo, self._escribir_fallo).empezar()
 
     def _activar(self, activo):
         paginas = (self._pagina_transmision, self._pagina_escena,

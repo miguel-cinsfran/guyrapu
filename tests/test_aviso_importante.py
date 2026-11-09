@@ -60,6 +60,14 @@ class TestDecision(unittest.TestCase):
     def test_casilla_encendida_con_cuadro_abierto_anuncia(self):
         self.assertEqual(aviso_importante.decidir(True, True), "anuncio")
 
+    def test_un_error_con_la_casilla_apagada_abre_cuadro(self):
+        self.assertEqual(
+            aviso_importante.decidir(False, False, error=True), "cuadro")
+
+    def test_un_error_con_un_cuadro_abierto_solo_anuncia(self):
+        self.assertEqual(
+            aviso_importante.decidir(False, True, error=True), "anuncio")
+
 
 class TestAvisar(unittest.TestCase):
 
@@ -87,6 +95,14 @@ class TestAvisar(unittest.TestCase):
         anunciar.assert_called_once_with("Listo.")
         cuadro.assert_not_called()
         diferir.assert_not_called()
+
+    def test_un_error_abre_cuadro_aunque_la_casilla_este_apagada(self):
+        anunciar, _sonar, cuadro, diferir = self._llamar(
+            casilla=False, error=True)
+        anunciar.assert_not_called()
+        cuadro.assert_not_called()
+        diferir.assert_called_once()
+        self.assertTrue(aviso_importante._cuadro_abierto)
 
     def test_casilla_encendida_suena_y_abre_cuadro_sin_anunciar(self):
         anunciar, sonar, cuadro, diferir = self._llamar(casilla=True)

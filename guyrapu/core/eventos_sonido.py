@@ -11,6 +11,8 @@ EVENTOS = [
     # v0.6 online y acciones que antes reutilizaban otros sonidos:
     "enviado", "comentario", "moderacion", "cola_vaciada",
     "transporte_en_curso",
+    # Operación larga en curso: se repite cada dos segundos mientras espera.
+    "espera",
     # Eventos de TikTok y tramos de regalo por tamaño en diamantes:
     "seguir", "compartir", "cofre", "me_gusta",
     "regalo_chico", "regalo_mediano", "regalo_grande", "entrada",
@@ -99,6 +101,7 @@ NOMBRES = {
     "moderacion": "Acción de moderación",
     "cola_vaciada": "Cola de lectura vaciada",
     "transporte_en_curso": "Reproductor ocupado",
+    "espera": "Espera",
     "seguir": "Nuevo seguidor del directo",
     "compartir": "Alguien compartió el directo",
     "cofre": "Cofre de regalos recibido",

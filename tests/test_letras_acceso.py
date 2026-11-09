@@ -434,8 +434,8 @@ class TestLetrasAccesoPruebaEquipo(unittest.TestCase):
                     None, "Casa", original, 48),
                 dialogo_prueba_equipo.DialogoPruebaEquipo(
                     None, "Casa", original, 48, vertical=True),
-                dialogo_prueba_equipo.DialogoProgresoPrueba(
-                    None, threading.Event()),
+                dialogo_prueba_equipo.VentanaEspera(
+                    None, _("Probando el equipo"), "", threading.Event()),
                 dialogo_prueba_equipo.DialogoResultadoPrueba(
                     None, self._resultado(None)),
                 dialogo_prueba_equipo.DialogoResultadoPrueba(
@@ -466,8 +466,8 @@ class TestLetrasAccesoPruebaConexion(unittest.TestCase):
             casos = (
                 dialogo_prueba_conexion.DialogoPruebaConexion(
                     None, "Casa", 2500, 60),
-                dialogo_prueba_conexion.DialogoProgresoPruebaConexion(
-                    None, threading.Event()),
+                dialogo_prueba_conexion.VentanaEspera(
+                    None, _("Probando la conexión"), "", threading.Event()),
                 dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
                     None, self._resultado(None)),
                 dialogo_prueba_conexion.DialogoResultadoPruebaConexion(

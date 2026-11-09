@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de los cuadros de la prueba del equipo. Abren ventanas."""
 
-import threading
 import unittest
 from dataclasses import replace
 from unittest import mock
@@ -87,29 +86,6 @@ class TestCasillaVertical(BaseCuadro):
         self.assertNotIn("se graban los dos", cuadro.texto())
 
 
-class TestDialogoProgresoPrueba(BaseCuadro):
-
-    def test_cancelar_corta_la_prueba_y_el_foco_queda_en_cancelar(self):
-        parada = threading.Event()
-        cuadro = self._mostrar(
-            dialogo_prueba_equipo.DialogoProgresoPrueba(None, parada))
-        self.assertTrue(cuadro.btn_cancelar.HasFocus())
-        cuadro._cancelar(None)
-        self.assertTrue(parada.is_set())
-        self.assertFalse(cuadro.btn_cancelar.IsEnabled())
-
-    def test_cada_escalon_se_muestra_y_se_anuncia(self):
-        parada = threading.Event()
-        cuadro = self._mostrar(
-            dialogo_prueba_equipo.DialogoProgresoPrueba(None, parada))
-        with mock.patch.object(
-                dialogo_prueba_equipo, "anunciar") as anunciar:
-            cuadro.mostrar_paso(_ajustes())
-        self.assertIn("Probando", cuadro.txt_estado.GetValue())
-        self.assertIn("codificador", cuadro.txt_estado.GetValue())
-        anunciar.assert_called_once_with(cuadro.txt_estado.GetValue())
-
-
 class TestDialogoResultadoPrueba(BaseCuadro):
 
     def test_si_aguanta_tal_cual_lo_dice_y_solo_cierra(self):
@@ -162,31 +138,36 @@ class TestCoordinador(unittest.TestCase):
         self.app = app_de_prueba()
         self.refrescos = []
 
-    def _panel(self, en_hilo=None):
+    def _panel(self, en_hilo=None, anunciar_texto=None, escribir_texto=None):
         return dialogo_prueba_equipo.PruebaEquipoPanel(
             None, en_hilo or (lambda _funcion, _terminar: None),
             "cliente", lambda: self.refrescos.append(True),
-            lambda _texto: None)
+            anunciar_texto or (lambda _texto, error=False: None),
+            escribir_texto)
 
-    def test_al_cancelar_anuncia_que_obs_quedo_como_estaba(self):
+    def test_al_cancelar_lo_deja_escrito_en_la_ventana(self):
         resultado = prueba_equipo.ResultadoEquipo(
             "Casa", _ajustes(), None, (), cancelada=True)
-        with mock.patch.object(dialogo_prueba_equipo, "anunciar") as anunciar:
-            self._panel()._terminada(mock.Mock(), resultado)
-        anunciar.assert_called_once_with(
-            "Prueba cancelada. OBS quedó como estaba.")
+        progreso = mock.Mock()
+        self._panel()._terminada(progreso, resultado)
+        progreso.terminar.assert_called_once_with(
+            "Prueba cancelada. OBS quedó como estaba.", error=False)
         self.assertTrue(self.refrescos)
 
-    def test_un_fallo_dice_que_obs_quedo_como_estaba(self):
+    def test_un_fallo_despues_de_abrir_la_ventana_queda_escrito(self):
         avisos = []
-        panel = dialogo_prueba_equipo.PruebaEquipoPanel(
-            None, lambda _funcion, _terminar: None, "cliente",
-            lambda: None,
-            lambda texto, error=False: avisos.append(texto))
-        with mock.patch.object(dialogo_prueba_equipo, "anunciar"):
-            panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
-        self.assertIn("sin OBS", avisos[0])
-        self.assertIn("OBS quedó como estaba", avisos[0])
+        escritos = []
+        panel = self._panel(
+            anunciar_texto=lambda texto, error=False: avisos.append(texto),
+            escribir_texto=escritos.append)
+        progreso = mock.Mock()
+        panel._terminada(progreso, obs_cliente.ObsError("sin OBS"))
+        texto = progreso.terminar.call_args.args[0]
+        self.assertIn("sin OBS", texto)
+        self.assertIn("OBS quedó como estaba", texto)
+        self.assertEqual(progreso.terminar.call_args.kwargs["error"], True)
+        self.assertEqual(escritos, [texto])
+        self.assertEqual(avisos, [])
 
     def test_preparar_avisa_si_esta_el_plugin_vertical(self):
         panel = self._panel()
@@ -215,7 +196,7 @@ class TestCoordinador(unittest.TestCase):
 
         panel._en_hilo = en_hilo
         with mock.patch.object(
-                dialogo_prueba_equipo, "DialogoProgresoPrueba"), \
+                dialogo_prueba_equipo, "VentanaEspera"), \
                 mock.patch.object(
                     dialogo_prueba_equipo.prueba_equipo,
                     "ejecutar") as ejecutar, \
@@ -262,13 +243,13 @@ class TestCoordinador(unittest.TestCase):
 
 class TestFalloDelPanel(unittest.TestCase):
 
-    def test_p5_el_fallo_llega_al_aviso_con_error(self):
+    def test_p5_un_fallo_antes_de_abrir_la_ventana_va_por_el_aviso(self):
         recibidos = []
         panel = dialogo_prueba_equipo.PruebaEquipoPanel(
             None, lambda _funcion, _terminar: None, "cliente",
             lambda: None,
             lambda texto, error=False: recibidos.append((texto, error)))
-        panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
+        panel._preparado(obs_cliente.ObsError("sin OBS"))
         self.assertEqual(recibidos[0][1], True)
 
 

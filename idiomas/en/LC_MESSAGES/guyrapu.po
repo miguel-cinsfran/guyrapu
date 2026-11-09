@@ -7129,10 +7129,6 @@ msgid "Preparando perfiles de OBS"
 msgstr "Preparing OBS profiles"
 
 #: guyrapu/ui/dialogo_asistente_perfiles.py
-msgid "Estado de la preparación"
-msgstr "Preparation status"
-
-#: guyrapu/ui/dialogo_asistente_perfiles.py
 msgid "Resumen de la preparación"
 msgstr "Preparation summary"
 
@@ -7226,10 +7222,6 @@ msgstr "&Start"
 #: guyrapu/ui/dialogo_prueba_conexion.py
 msgid "Probando la conexión"
 msgstr "Testing the connection"
-
-#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Estado de la prueba"
-msgstr "Test status"
 
 #: guyrapu/ui/dialogo_prueba_conexion.py
 #, python-brace-format
@@ -12901,4 +12893,16 @@ msgstr "measured once it is on air"
 #: guyrapu/ui/obs_pagina_perfiles.py
 msgid "No hay perfiles en OBS. Usa Nuevo… para crear uno."
 msgstr "No profiles in OBS. Use New… to create one."
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparando los perfiles…"
+msgstr "Preparing the profiles…"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Preparando la prueba…"
+msgstr "Preparing the test…"
+
+#: guyrapu/ui/ventana_espera.py
+msgid "Cancelando…"
+msgstr "Canceling…"
 

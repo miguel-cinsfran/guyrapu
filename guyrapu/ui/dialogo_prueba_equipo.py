@@ -17,6 +17,7 @@ from guyrapu.obs import (escalones_equipo, lienzo_vertical, perfiles_obs,
                          prueba_equipo, prueba_vertical)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
+from guyrapu.ui.ventana_espera import VentanaEspera
 
 _PROPIEDADES_TEXTO = wx.TE_MULTILINE | wx.TE_READONLY
 
@@ -128,41 +129,6 @@ class DialogoPruebaEquipo(wx.Dialog):
         return self.txt_detalle.GetValue()
 
 
-class DialogoProgresoPrueba(wx.Dialog):
-    """El cuadro de la prueba en curso, con Cancelar para detenerla."""
-
-    def __init__(self, padre, parada):
-        super().__init__(padre, title=_("Probando el equipo"),
-                         name="DialogoProgresoPrueba")
-        self._parada = parada
-        caja = wx.BoxSizer(wx.VERTICAL)
-        self.txt_estado = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO, name=_("Estado de la prueba"))
-        nombre_accesible(self.txt_estado, _("Estado de la prueba"))
-        self.txt_estado.SetMinSize((-1, 90))
-        caja.Add(self.txt_estado, 1, wx.EXPAND | wx.ALL, 10)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_cancelar = _boton(self, _("&Cancelar"), self._cancelar)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((460, -1))
-        self.Centre()
-        self.btn_cancelar.SetFocus()
-
-    def mostrar_paso(self, ajustes):
-        # Traductores: {ajustes} son el codificador, los fotogramas por
-        # segundo y la salida que se están probando.
-        frase = _("Probando {ajustes}…").format(
-            ajustes=escalones_equipo.describir(ajustes))
-        self.txt_estado.SetValue(frase)
-        anunciar(frase)
-
-    def _cancelar(self, _evento):
-        self._parada.set()
-        self.btn_cancelar.Disable()
-
-
 class DialogoResultadoPrueba(wx.Dialog):
     """El cuadro de resultado y, si hubo cambios, si se guardan."""
 
@@ -214,12 +180,14 @@ class DialogoResultadoPrueba(wx.Dialog):
 class PruebaEquipoPanel:
     """Coordina la prueba con el panel: hilo, cuadros, parada y guardado."""
 
-    def __init__(self, ventana, en_hilo, cliente, refrescar, anunciar_texto):
+    def __init__(self, ventana, en_hilo, cliente, refrescar, anunciar_texto,
+                 escribir_texto=None):
         self._ventana = ventana
         self._en_hilo = en_hilo
         self._cliente = cliente
         self._refrescar = refrescar
         self._anunciar_texto = anunciar_texto
+        self._escribir_texto = escribir_texto
 
     def empezar(self):
         self._en_hilo(self._preparar, self._preparado)
@@ -251,12 +219,18 @@ class PruebaEquipoPanel:
 
     def _correr(self, preparacion, incluir_vertical=False):
         parada = threading.Event()
-        progreso = DialogoProgresoPrueba(self._ventana, parada)
+        progreso = VentanaEspera(
+            self._ventana, _("Probando el equipo"),
+            _("Preparando la prueba…"), parada)
         cliente = (prueba_vertical.ClienteVertical(self._cliente)
                    if incluir_vertical else self._cliente)
 
         def al_escalon(ajustes):
-            wx.CallAfter(progreso.mostrar_paso, ajustes)
+            # Traductores: {ajustes} son el codificador, los fotogramas por
+            # segundo y la salida que se están probando.
+            frase = _("Probando {ajustes}…").format(
+                ajustes=escalones_equipo.describir(ajustes))
+            wx.CallAfter(progreso.estado, frase)
 
         def trabajo():
             try:
@@ -275,17 +249,19 @@ class PruebaEquipoPanel:
             progreso.Destroy()
 
     def _terminada(self, progreso, resultado):
+        self._refrescar()
+        if isinstance(resultado, Exception):
+            self._terminar_en(progreso, self._texto_fallo(resultado),
+                              error=True)
+            return
+        if resultado.cancelada:
+            self._terminar_en(progreso, _("Prueba cancelada. OBS quedó como "
+                                          "estaba."))
+            return
         try:
             progreso.EndModal(wx.ID_OK)
         except RuntimeError:
             pass
-        self._refrescar()
-        if isinstance(resultado, Exception):
-            self._anunciar_texto(self._texto_fallo(resultado), error=True)
-            return
-        if resultado.cancelada:
-            anunciar(_("Prueba cancelada. OBS quedó como estaba."))
-            return
         cuadro = DialogoResultadoPrueba(self._ventana, resultado)
         try:
             cuadro.ShowModal()
@@ -293,6 +269,15 @@ class PruebaEquipoPanel:
                 self._guardar(resultado)
         finally:
             cuadro.Destroy()
+
+    def _terminar_en(self, progreso, texto, error=False):
+        try:
+            progreso.terminar(texto, error=error)
+        except RuntimeError:
+            self._anunciar_texto(texto, error=error)
+            return
+        if self._escribir_texto is not None:
+            self._escribir_texto(texto)
 
     def _guardar(self, resultado):
         self._en_hilo(

@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de los cuadros de la prueba de conexión. Abren ventanas."""
 
-import threading
 import unittest
 from dataclasses import replace
 from unittest import mock
@@ -62,31 +61,6 @@ class TestDialogoPruebaConexion(BaseCuadro):
                         cuadro.btn_empezar.GetPosition().y)
 
 
-class TestDialogoProgresoPruebaConexion(BaseCuadro):
-
-    def test_cancelar_corta_la_prueba_y_el_foco_queda_en_cancelar(self):
-        parada = threading.Event()
-        cuadro = self._mostrar(
-            dialogo_prueba_conexion.DialogoProgresoPruebaConexion(
-                None, parada))
-        self.assertTrue(cuadro.btn_cancelar.HasFocus())
-        cuadro._cancelar(None)
-        self.assertTrue(parada.is_set())
-        self.assertFalse(cuadro.btn_cancelar.IsEnabled())
-
-    def test_cada_bitrate_se_muestra_y_se_anuncia(self):
-        parada = threading.Event()
-        cuadro = self._mostrar(
-            dialogo_prueba_conexion.DialogoProgresoPruebaConexion(
-                None, parada))
-        with mock.patch.object(
-                dialogo_prueba_conexion, "anunciar") as anunciar:
-            cuadro.mostrar_bitrate(2500)
-        self.assertIn("Probando la conexión a 2500 kbps",
-                      cuadro.txt_estado.GetValue())
-        anunciar.assert_called_once_with(cuadro.txt_estado.GetValue())
-
-
 class TestDialogoResultadoPruebaConexion(BaseCuadro):
 
     def test_si_el_perfil_aguanta_lo_dice_con_el_mayor_y_solo_cierra(self):
@@ -140,30 +114,37 @@ class TestCoordinador(unittest.TestCase):
         self.app = app_de_prueba()
         self.refrescos = []
 
-    def _panel(self, en_hilo=None, anunciar_texto=None, cliente=None):
+    def _panel(self, en_hilo=None, anunciar_texto=None, cliente=None,
+               escribir_texto=None):
         return dialogo_prueba_conexion.PruebaConexionPanel(
             None, en_hilo or (lambda _funcion, _terminar: None),
             cliente or "cliente-obs", "cliente-yt", True,
             lambda: self.refrescos.append(True),
-            anunciar_texto or (lambda _texto, error=False: None))
+            anunciar_texto or (lambda _texto, error=False: None),
+            escribir_texto)
 
-    def test_al_cancelar_anuncia_que_obs_y_youtube_quedaron_limpios(self):
-        resultado = _resultado(None, pasos=())
-        resultado = replace(resultado, cancelada=True)
-        with mock.patch.object(dialogo_prueba_conexion, "anunciar") as anunciar:
-            self._panel()._terminada(mock.Mock(), resultado)
-        anunciar.assert_called_once_with(
+    def test_al_cancelar_lo_deja_escrito_en_la_ventana(self):
+        resultado = replace(_resultado(None, pasos=()), cancelada=True)
+        progreso = mock.Mock()
+        self._panel()._terminada(progreso, resultado)
+        progreso.terminar.assert_called_once_with(
             "Prueba cancelada. OBS quedó como estaba y la prueba se borró "
-            "de YouTube.")
+            "de YouTube.", error=False)
         self.assertTrue(self.refrescos)
 
-    def test_un_fallo_se_anuncia_con_su_texto(self):
+    def test_un_fallo_despues_de_abrir_la_ventana_queda_escrito_con_error(self):
         avisos = []
+        escritos = []
         panel = self._panel(
-            anunciar_texto=lambda texto, error=False: avisos.append(texto))
+            anunciar_texto=lambda texto, error=False: avisos.append(texto),
+            escribir_texto=escritos.append)
+        progreso = mock.Mock()
         panel._terminada(
-            mock.Mock(), prueba_conexion.ErrorPruebaConexion("sin sesión"))
-        self.assertEqual(avisos, ["sin sesión"])
+            progreso, prueba_conexion.ErrorPruebaConexion("sin sesión"))
+        progreso.terminar.assert_called_once_with(
+            "sin sesión", error=True)
+        self.assertEqual(escritos, ["sin sesión"])
+        self.assertEqual(avisos, [])
 
     def test_al_guardar_avisa_con_el_perfil_y_el_bitrate(self):
         resultado = _resultado(1300)
@@ -187,12 +168,11 @@ class TestCoordinador(unittest.TestCase):
         self.assertTrue(self.refrescos)
 
     def test_un_error_de_obs_generico_dice_que_fue_de_la_prueba(self):
-        avisos = []
-        panel = self._panel(
-            anunciar_texto=lambda texto, error=False: avisos.append(texto))
-        panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
-        self.assertIn("sin OBS", avisos[0])
-        self.assertIn("prueba de conexión", avisos[0])
+        progreso = mock.Mock()
+        self._panel()._terminada(progreso, obs_cliente.ObsError("sin OBS"))
+        texto = progreso.terminar.call_args.args[0]
+        self.assertIn("sin OBS", texto)
+        self.assertIn("prueba de conexión", texto)
 
 
 class TestFalloDelPanel(unittest.TestCase):
@@ -222,11 +202,11 @@ class TestFalloDelPanel(unittest.TestCase):
             error)
         self.assertFalse(texto.endswith(".."), texto)
 
-    def test_p5_el_fallo_llega_al_aviso_con_error(self):
+    def test_p5_un_fallo_antes_de_abrir_la_ventana_va_por_el_aviso(self):
         recibidos = []
         panel = self._panel(
             lambda texto, error=False: recibidos.append((texto, error)))
-        panel._terminada(mock.Mock(), obs_cliente.ObsError("sin OBS"))
+        panel._preparado(obs_cliente.ObsError("sin OBS"))
         self.assertEqual(recibidos[0][1], True)
 
     def test_p5_el_texto_de_error_va_por_avisar_con_el_sonido_de_error(self):

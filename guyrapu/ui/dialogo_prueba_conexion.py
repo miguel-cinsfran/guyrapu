@@ -17,6 +17,7 @@ from guyrapu.core.idioma import _
 from guyrapu.obs import perfiles_obs, prueba_conexion
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
+from guyrapu.ui.ventana_espera import VentanaEspera
 from guyrapu.youtube import youtube_api
 
 _PROPIEDADES_TEXTO = wx.TE_MULTILINE | wx.TE_READONLY
@@ -100,39 +101,6 @@ class DialogoPruebaConexion(wx.Dialog):
         return self.txt_detalle.GetValue()
 
 
-class DialogoProgresoPruebaConexion(wx.Dialog):
-    """El cuadro de la prueba en curso, con Cancelar para detenerla."""
-
-    def __init__(self, padre, parada):
-        super().__init__(padre, title=_("Probando la conexión"),
-                         name="DialogoProgresoPruebaConexion")
-        self._parada = parada
-        caja = wx.BoxSizer(wx.VERTICAL)
-        self.txt_estado = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO, name=_("Estado de la prueba"))
-        nombre_accesible(self.txt_estado, _("Estado de la prueba"))
-        self.txt_estado.SetMinSize((-1, 90))
-        caja.Add(self.txt_estado, 1, wx.EXPAND | wx.ALL, 10)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_cancelar = _boton(self, _("&Cancelar"), self._cancelar)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((480, -1))
-        self.Centre()
-        self.btn_cancelar.SetFocus()
-
-    def mostrar_bitrate(self, bitrate):
-        frase = _("Probando la conexión a {tasa} kbps…").format(
-            tasa=bitrate)
-        self.txt_estado.SetValue(frase)
-        anunciar(frase)
-
-    def _cancelar(self, _evento):
-        self._parada.set()
-        self.btn_cancelar.Disable()
-
-
 class DialogoResultadoPruebaConexion(wx.Dialog):
     """El cuadro de resultado y, si aguantó uno menor, si se guarda."""
 
@@ -185,7 +153,7 @@ class PruebaConexionPanel:
     """Coordina la prueba con el panel: hilo, cuadros, parada y guardado."""
 
     def __init__(self, ventana, en_hilo, cliente_obs, cliente_yt, hay_sesion,
-                 refrescar, anunciar_texto):
+                 refrescar, anunciar_texto, escribir_texto=None):
         self._ventana = ventana
         self._en_hilo = en_hilo
         self._cliente_obs = cliente_obs
@@ -193,6 +161,7 @@ class PruebaConexionPanel:
         self._hay_sesion = hay_sesion
         self._refrescar = refrescar
         self._anunciar_texto = anunciar_texto
+        self._escribir_texto = escribir_texto
 
     def empezar(self):
         self._en_hilo(self._preparar, self._preparado)
@@ -220,10 +189,14 @@ class PruebaConexionPanel:
 
     def _correr(self):
         parada = threading.Event()
-        progreso = DialogoProgresoPruebaConexion(self._ventana, parada)
+        progreso = VentanaEspera(
+            self._ventana, _("Probando la conexión"),
+            _("Preparando la prueba…"), parada)
 
         def al_bitrate(bitrate):
-            wx.CallAfter(progreso.mostrar_bitrate, bitrate)
+            frase = _("Probando la conexión a {tasa} kbps…").format(
+                tasa=bitrate)
+            wx.CallAfter(progreso.estado, frase)
 
         def trabajo():
             try:
@@ -241,13 +214,10 @@ class PruebaConexionPanel:
             progreso.Destroy()
 
     def _terminada(self, progreso, resultado):
-        try:
-            progreso.EndModal(wx.ID_OK)
-        except RuntimeError:
-            pass
         self._refrescar()
         if isinstance(resultado, Exception):
-            self._anunciar_texto(self._texto_fallo(resultado), error=True)
+            self._terminar_en(progreso, self._texto_fallo(resultado),
+                              error=True)
             return
         if resultado.cancelada:
             frase = _("Prueba cancelada. OBS quedó como estaba y la prueba "
@@ -255,8 +225,12 @@ class PruebaConexionPanel:
             if resultado.errores:
                 frase += " " + _("Quedó pendiente: {errores}").format(
                     errores=" ".join(resultado.errores))
-            anunciar(frase)
+            self._terminar_en(progreso, frase)
             return
+        try:
+            progreso.EndModal(wx.ID_OK)
+        except RuntimeError:
+            pass
         cuadro = DialogoResultadoPruebaConexion(self._ventana, resultado)
         try:
             cuadro.ShowModal()
@@ -264,6 +238,15 @@ class PruebaConexionPanel:
                 self._guardar(resultado)
         finally:
             cuadro.Destroy()
+
+    def _terminar_en(self, progreso, texto, error=False):
+        try:
+            progreso.terminar(texto, error=error)
+        except RuntimeError:
+            self._anunciar_texto(texto, error=error)
+            return
+        if self._escribir_texto is not None:
+            self._escribir_texto(texto)
 
     def _guardar(self, resultado):
         ajustes = replace(resultado.original,

@@ -18,8 +18,8 @@ from guyrapu.obs import asistente_perfiles
 from guyrapu.restream import transmitir
 from guyrapu.ui import paleta
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
+from guyrapu.ui.ventana_espera import VentanaEspera
 
 _PROPIEDADES_TEXTO = wx.TE_MULTILINE | wx.TE_READONLY
 
@@ -123,36 +123,6 @@ class DialogoAsistentePerfiles(wx.Dialog):
         evento.Skip()
 
 
-class DialogoProgresoAsistente(wx.Dialog):
-    """Lo que se está haciendo, con Cancelar para cortar y limpiar."""
-
-    def __init__(self, padre, parada):
-        super().__init__(padre, title=_("Preparando perfiles de OBS"),
-                         name="DialogoProgresoAsistente")
-        self._parada = parada
-        caja = wx.BoxSizer(wx.VERTICAL)
-        self.txt_estado = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO,
-            name=_("Estado de la preparación"))
-        nombre_accesible(self.txt_estado, _("Estado de la preparación"))
-        self.txt_estado.SetMinSize((-1, 90))
-        caja.Add(self.txt_estado, 1, wx.EXPAND | wx.ALL, 10)
-        self.btn_cancelar = _boton(self, _("&Cancelar"), self._cancelar)
-        caja.Add(self.btn_cancelar, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((480, -1))
-        self.Centre()
-        self.btn_cancelar.SetFocus()
-
-    def mostrar_paso(self, texto):
-        self.txt_estado.SetValue(texto)
-        anunciar(texto)
-
-    def _cancelar(self, _evento):
-        self._parada.set()
-        self.btn_cancelar.Disable()
-
-
 class DialogoResumenAsistente(wx.Dialog):
     """Lo que quedó hecho, en un texto de solo lectura que recibe el foco."""
 
@@ -203,14 +173,16 @@ class AsistentePerfilesPanel:
 
     def _correr(self, usos, probar):
         parada = threading.Event()
-        progreso = DialogoProgresoAsistente(self._ventana, parada)
+        progreso = VentanaEspera(
+            self._ventana, _("Preparando perfiles de OBS"),
+            _("Preparando los perfiles…"), parada)
 
         def trabajo():
             try:
                 return asistente_perfiles.preparar(
                     self._cliente(), usos, probar=probar, parada=parada,
                     anunciar=lambda texto: wx.CallAfter(
-                        progreso.mostrar_paso, texto),
+                        progreso.estado, texto),
                     anteriores=self._anteriores())
             except Exception as error:
                 return error
@@ -228,18 +200,24 @@ class AsistentePerfilesPanel:
                 for clave, _base, _vertical in asistente_perfiles.USOS}
 
     def _terminado(self, progreso, resultado):
+        if isinstance(resultado, Exception):
+            self._terminar_en(progreso, str(resultado), error=True)
+            return
+        if resultado.cancelada:
+            self._terminar_en(progreso, _(MENSAJE_CANCELADO))
+            return
         try:
             progreso.EndModal(wx.ID_OK)
         except RuntimeError:
             pass
-        if isinstance(resultado, Exception):
-            avisar(str(resultado), "error", error=True)
-            return
-        if resultado.cancelada:
-            anunciar(_(MENSAJE_CANCELADO))
-            return
         self._mostrar_resumen(resultado)
         self._al_terminar(resultado)
+
+    def _terminar_en(self, progreso, texto, error=False):
+        try:
+            progreso.terminar(texto, error=error)
+        except RuntimeError:
+            anunciar(texto)
 
     def _sin_restream(self):
         destino = str(self._config.get("transmision_destino") or "")

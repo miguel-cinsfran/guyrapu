@@ -248,6 +248,14 @@ def gen_transporte_en_curso():
     return _normalizar(_perc(_triangular(A4, 0.07, 0.28), 0.003, 0.05), 0.52)
 
 
+def gen_espera():
+    # Dos notas bajas D5→C5 con un respiro, muy suaves: se repite cada dos
+    # segundos mientras el lector habla, sin taparlo ni cansar.
+    n1 = _perc(_seno(D5, 0.12, 0.20), 0.010, 0.10)
+    n2 = _perc(_seno(C5, 0.16, 0.20), 0.010, 0.12)
+    return _normalizar(_concat(n1, _silencio(0.04), n2), 0.38)
+
+
 def gen_copiar():
     # Tic agudo y muy breve: confirmación discreta.
     return _normalizar(_perc(_triangular(C6, 0.05, 0.30), 0.002, 0.04), 0.55)
@@ -842,6 +850,13 @@ def s_transporte_en_curso():
     return _normalizar(_madera(A4, 0.08, 0.26, 0.05), 0.48)
 
 
+def s_espera():
+    # Las mismas dos notas de espera en madera, todavía más bajas y breves.
+    return _normalizar(_concat(_madera(D5, 0.12, 0.22, 0.10),
+                               _silencio(0.04),
+                               _madera(C5, 0.16, 0.22, 0.12)), 0.38)
+
+
 def s_copiar():
     return _normalizar(_madera(C6, 0.07, 0.30, 0.04), 0.5)
 
@@ -1351,6 +1366,7 @@ TEMAS = {
         "pausa.wav":         gen_pausa,
         "reanudar.wav":      gen_reanudar,
         "transporte_en_curso.wav": gen_transporte_en_curso,
+        "espera.wav":        gen_espera,
         "copiar.wav":        gen_copiar,
         "voz_cambiada.wav":  gen_voz_cambiada,
         "enviado.wav":       gen_enviado,
@@ -1458,6 +1474,7 @@ TEMAS = {
         "pausa.wav":         s_pausa,
         "reanudar.wav":      s_reanudar,
         "transporte_en_curso.wav": s_transporte_en_curso,
+        "espera.wav":        s_espera,
         "copiar.wav":        s_copiar,
         "voz_cambiada.wav":  s_voz_cambiada,
         "enviado.wav":       s_enviado,

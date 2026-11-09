@@ -32,8 +32,15 @@ _cerrojo = threading.Lock()
 _cuadro_abierto = False
 
 
-def decidir(mostrar_cuadro: bool, cuadro_abierto: bool) -> str:
-    """Elige entre cuadro y anuncio. Función pura, con sus dos casos."""
+def decidir(mostrar_cuadro: bool, cuadro_abierto: bool,
+            error: bool = False) -> str:
+    """Elige entre cuadro y anuncio. Función pura.
+
+    Un error siempre pide cuadro si no hay otro abierto, aunque la casilla
+    esté apagada. Sin error decide la casilla.
+    """
+    if error and not cuadro_abierto:
+        return CUADRO
     if mostrar_cuadro and not cuadro_abierto:
         return CUADRO
     return ANUNCIO
@@ -96,7 +103,7 @@ def avisar(texto: str, sonido: str | None = None, *, error: bool = False) -> Non
     if not texto:
         return
     with _cerrojo:
-        decision = decidir(_casilla_activa(), _cuadro_abierto)
+        decision = decidir(_casilla_activa(), _cuadro_abierto, error)
         if decision == CUADRO:
             _cuadro_abierto = True
     if decision == ANUNCIO:

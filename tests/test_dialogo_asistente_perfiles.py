@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de los cuadros del asistente de perfiles. Abren ventanas con wx."""
 
-import threading
 import unittest
 from unittest import mock
 
@@ -62,28 +61,6 @@ class TestDialogoAsistentePerfiles(unittest.TestCase):
              False))
 
 
-class TestDialogoProgreso(unittest.TestCase):
-
-    def setUp(self):
-        self.app = app_de_prueba()
-
-    def test_cancelar_dispara_la_parada(self):
-        parada = threading.Event()
-        dialogo = modulo.DialogoProgresoAsistente(None, parada)
-        self.addCleanup(destruir, dialogo)
-        dialogo._cancelar(None)
-        self.assertTrue(parada.is_set())
-        self.assertFalse(dialogo.btn_cancelar.IsEnabled())
-
-    def test_mostrar_paso_escribe_y_anuncia(self):
-        dialogo = modulo.DialogoProgresoAsistente(None, threading.Event())
-        self.addCleanup(destruir, dialogo)
-        with mock.patch.object(modulo, "anunciar") as anunciar:
-            dialogo.mostrar_paso("Creando el perfil X…")
-        self.assertEqual(dialogo.txt_estado.GetValue(), "Creando el perfil X…")
-        anunciar.assert_called_once_with("Creando el perfil X…")
-
-
 class TestDialogoResumen(unittest.TestCase):
 
     def setUp(self):
@@ -112,7 +89,7 @@ class _OperacionesQueEjecuta:
 
 
 class _ProgresoFalso:
-    def __init__(self, _ventana, _parada):
+    def __init__(self, _ventana, _titulo, _texto, _parada):
         pass
 
     def ShowModal(self):
@@ -121,7 +98,7 @@ class _ProgresoFalso:
     def Destroy(self):
         pass
 
-    def mostrar_paso(self, _texto):
+    def estado(self, _texto):
         pass
 
 
@@ -144,13 +121,32 @@ class TestAnteriores(unittest.TestCase):
             lambda _resultado: None)
         with mock.patch.object(modulo.asistente_perfiles, "preparar",
                                preparar_falso), \
-                mock.patch.object(modulo, "DialogoProgresoAsistente",
+                mock.patch.object(modulo, "VentanaEspera",
                                   _ProgresoFalso):
             panel._correr(["perfil_horizontal"], True)
         self.assertEqual(
             capturado["anteriores"],
             {"perfil_horizontal": "YouTube", "perfil_vertical": "TikTok",
              "perfil_grabar": ""})
+
+    def test_un_fallo_despues_de_abrir_la_ventana_queda_escrito(self):
+        panel = modulo.AsistentePerfilesPanel(
+            None, _OperacionesQueEjecuta(), lambda: object(), {},
+            lambda _resultado: None)
+        progreso = mock.Mock()
+        panel._terminado(progreso, RuntimeError("sin OBS"))
+        progreso.terminar.assert_called_once_with("sin OBS", error=True)
+
+    def test_una_cancelacion_queda_escrita_en_la_ventana(self):
+        resultado = asistente_perfiles.ResultadoAsistente((), cancelada=True)
+        progreso = mock.Mock()
+        with mock.patch.object(modulo, "anunciar") as anunciar:
+            modulo.AsistentePerfilesPanel(
+                None, _OperacionesQueEjecuta(), lambda: object(), {},
+                lambda _resultado: None)._terminado(progreso, resultado)
+        progreso.terminar.assert_called_once_with(
+            _(modulo.MENSAJE_CANCELADO), error=False)
+        anunciar.assert_not_called()
 
 
 if __name__ == "__main__":
