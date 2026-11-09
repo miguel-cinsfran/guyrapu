@@ -304,6 +304,32 @@ class ClienteConCodigos:
         return {"responseData": {"ok": True}}
 
 
+class TransporteConVideoTomado(TransporteDoble):
+    """Responde con el 500 a las primeras peticiones y después acepta."""
+
+    def __init__(self, veces=1):
+        super().__init__([])
+        self.veces = veces
+        self.peticiones = 0
+
+    def send(self, mensaje):
+        datos = json.loads(mensaje)
+        self.enviados.append(datos)
+        if datos.get("op") != 6:
+            return
+        self.peticiones += 1
+        estado = ({"result": False, "code": 500, "comment": "OutputRunning"}
+                  if self.peticiones <= self.veces else {"result": True})
+        self.mensajes.append(json.dumps({
+            "op": 7,
+            "d": {
+                "requestId": datos["d"]["requestId"],
+                "requestStatus": estado,
+                "responseData": {"ok": True},
+            },
+        }))
+
+
 class ReintentoDeVideoTest(unittest.TestCase):
     def parchear_reloj(self, reloj):
         return (
@@ -321,6 +347,20 @@ class ReintentoDeVideoTest(unittest.TestCase):
         self.assertEqual(resultado["responseData"], {"ok": True})
         self.assertEqual(cliente.pedidos, 3)
         self.assertEqual(reloj.ahora, 1.0)
+
+    def test_el_500_de_la_respuesta_real_de_obs_se_reintenta(self):
+        transporte = TransporteConVideoTomado(veces=1)
+        cliente = obs_cliente.ClienteObs(
+            obs_cliente.AjustesObs(True, 4455, ""), lambda uri: transporte)
+        cliente._transporte = transporte
+        reloj = RelojFalso()
+        parches = self.parchear_reloj(reloj)
+        with parches[0], parches[1]:
+            resultado = obs_cliente.pedir_reintentando(
+                cliente, "SetVideoSettings", {"baseWidth": 1280})
+        self.assertEqual(resultado["responseData"], {"ok": True})
+        self.assertEqual(transporte.peticiones, 2)
+        self.assertEqual(reloj.ahora, 0.5)
 
     def test_otro_codigo_falla_al_primer_intento(self):
         cliente = ClienteConCodigos([601])
