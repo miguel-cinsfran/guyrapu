@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 3e4fd42f9a84a920f4fedb04754f0a5918615308 -->
+<!-- original: es/MANUAL.md 2f9ba5396a82539fdf12be2b96328630fb085f13 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -262,7 +262,7 @@ With the *Horizontal and vertical at the same time* orientation, the horizontal 
 
 The Aitum Vertical Canvas plugin in OBS is required. It is downloaded from github.com/Aitum/obs-vertical-canvas/releases and installed with OBS closed. The first time, Guyrapu adds the “Guyrapu” output to the plugin: if OBS is open, it says so, closes it and reopens it.
 
-Before going on air, Guyrapu copies the vertical versions of your scenes to the vertical canvas, the ones that *Create vertical version* creates. During the live stream, when you change scenes, the vertical switches to the vertical version of that scene, and if it does not have one, it says so once. If the vertical cuts out, a warning sounds and the horizontal continues: Guyrapu tries it again every 30 seconds and warns when it comes back. *End live stream* stops both.
+Before going on air, Guyrapu copies the vertical versions of your scenes to the vertical canvas, the ones that *Create vertical version* creates. During the live stream, when you change scenes, the vertical switches to the vertical version of that scene, and if it does not have one, it says so once. If the vertical is interrupted, a warning sounds and the horizontal continues: Guyrapu tries it again every 30 seconds and warns when it comes back. *End live stream* stops both.
 
 ### Events
 

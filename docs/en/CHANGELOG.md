@@ -1,4 +1,4 @@
-<!-- original: es/CHANGELOG.md 7445801d5f59f82a388b1985e8d14e4a8ca90de3 -->
+<!-- original: es/CHANGELOG.md 125940369d8c514fae50eb695c8f379b94366a1b -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
@@ -16,7 +16,7 @@ This is a translation of the Spanish original, made with artificial intelligence
   closes it and reopens it. Before each live stream it copies the vertical
   versions of your scenes to the vertical canvas, and when you change scenes,
   the vertical switches to its own.
-- If the vertical cuts out, a warning sounds and the horizontal continues.
+- If the vertical is interrupted, a warning sounds and the horizontal continues.
   Guyrapu tries it again every 30 seconds and warns when it comes back.
 
 ### OBS profiles
