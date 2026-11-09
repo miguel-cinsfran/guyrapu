@@ -12898,3 +12898,7 @@ msgstr "Untitled"
 msgid "se mide al ponerla al aire"
 msgstr "measured once it is on air"
 
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "No hay perfiles en OBS. Usa Nuevo… para crear uno."
+msgstr "No profiles in OBS. Use New… to create one."
+

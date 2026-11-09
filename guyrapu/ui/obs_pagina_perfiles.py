@@ -21,6 +21,7 @@ from guyrapu.ui.dialogo_ajustes_perfil import DialogoAjustesPerfil
 from guyrapu.ui.dialogo_asistente_perfiles import AsistentePerfilesPanel
 from guyrapu.ui.dialogo_nombre_perfil_obs import DialogoNombrePerfil
 from guyrapu.ui.dialogo_usos_perfil import DialogoUsosPerfil
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import (
     fila_horizontal,
     nombre_de_etiqueta,
@@ -39,7 +40,6 @@ class PaginaPerfiles(wx.Panel):
         self._actual = ""
         self._foco_pendiente = None
         self._crear_controles()
-        self._enlazar_eventos()
         self.acciones = (self.lista, self.btn_usar, self.btn_usar_para,
                          self.btn_nuevo, self.btn_duplicar, self.btn_eliminar,
                          self.btn_editar, self.btn_preparar)
@@ -51,20 +51,9 @@ class PaginaPerfiles(wx.Panel):
             name=_("Perfiles de OBS"))
         nombre_accesible(self.lista, _("Perfiles de OBS"))
         caja.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
-        self.btn_usar = self._boton(_("&Usar este perfil"),
-                                    _("&Usar este perfil"), self.usar)
-        self.btn_usar_para = self._boton(_("Usar p&ara…"), _("Usar para…"),
-                                         self.usar_para)
-        self.btn_nuevo = self._boton(_("&Nuevo…"), _("&Nuevo…"), self.nuevo)
-        self.btn_duplicar = self._boton(_("&Duplicar…"), _("&Duplicar…"),
-                                        self.duplicar)
-        self.btn_eliminar = self._boton(_("&Eliminar perfil"), _("&Eliminar perfil"),
-                                        self.eliminar)
-        self.btn_editar = self._boton(_("Editar a&justes…"),
-                                      _("Editar a&justes…"), self.editar)
-        self.btn_preparar = self._boton(
-            _("&Preparar perfiles…"), _("Preparar perfiles…"),
-            self.preparar_perfiles)
+        etiquetas = self._etiquetas()
+        self._crear_lista_acciones(etiquetas)
+        self._crear_botones(etiquetas)
         caja.Add(fila_horizontal((self.btn_usar, self.btn_usar_para,
                                   self.btn_nuevo, self.btn_duplicar,
                                   self.btn_eliminar, self.btn_editar,
@@ -72,16 +61,59 @@ class PaginaPerfiles(wx.Panel):
                  0, wx.ALL, 6)
         self.SetSizer(caja)
 
-    def _boton(self, etiqueta, nombre, manejador):
+    def _etiquetas(self):
+        return {
+            "usar": _("&Usar este perfil"),
+            "usar_para": _("Usar p&ara…"),
+            "nuevo": _("&Nuevo…"),
+            "duplicar": _("&Duplicar…"),
+            "eliminar": _("&Eliminar perfil"),
+            "editar": _("Editar a&justes…"),
+            "preparar": _("&Preparar perfiles…"),
+        }
+
+    def _crear_lista_acciones(self, etiquetas):
+        self._lista_acciones = ListaConAcciones(
+            self.lista,
+            (
+                Accion("usar", etiquetas["usar"], self.usar),
+                Accion("usar_para", etiquetas["usar_para"], self.usar_para),
+                Accion("nuevo", etiquetas["nuevo"], self.nuevo,
+                       necesita_elemento=False),
+                Accion("duplicar", etiquetas["duplicar"], self.duplicar),
+                Accion("eliminar", etiquetas["eliminar"], self.eliminar,
+                       tecla="suprimir"),
+                Accion("editar", etiquetas["editar"], self.editar,
+                       tecla="intro"),
+                Accion("preparar", etiquetas["preparar"],
+                       self.preparar_perfiles, necesita_elemento=False),
+            ),
+            _("No hay perfiles en OBS. Usa Nuevo… para crear uno."))
+
+    def _crear_botones(self, etiquetas):
+        self.btn_usar = self._boton(
+            etiquetas["usar"], etiquetas["usar"], "usar")
+        self.btn_usar_para = self._boton(
+            etiquetas["usar_para"], _("Usar para…"), "usar_para")
+        self.btn_nuevo = self._boton(
+            etiquetas["nuevo"], etiquetas["nuevo"], "nuevo")
+        self.btn_duplicar = self._boton(
+            etiquetas["duplicar"], etiquetas["duplicar"], "duplicar")
+        self.btn_eliminar = self._boton(
+            etiquetas["eliminar"], etiquetas["eliminar"], "eliminar")
+        self.btn_editar = self._boton(
+            etiquetas["editar"], etiquetas["editar"], "editar")
+        self.btn_preparar = self._boton(
+            etiquetas["preparar"], _("Preparar perfiles…"), "preparar")
+
+    def _boton(self, etiqueta, nombre, clave):
         control = wx.Button(self, label=etiqueta,
                             name=nombre_de_etiqueta(nombre))
         nombre_accesible(control, control.GetName())
-        control.Bind(wx.EVT_BUTTON, lambda _evento: manejador())
+        control.Bind(
+            wx.EVT_BUTTON,
+            lambda _evento: self._lista_acciones.ejecutar(clave))
         return control
-
-    def _enlazar_eventos(self):
-        self.lista.Bind(wx.EVT_LISTBOX_DCLICK,
-                        lambda _evento: self.editar())
 
     def _cliente(self):
         cliente = getattr(self._gestor, "_cliente", None)
@@ -97,15 +129,11 @@ class PaginaPerfiles(wx.Panel):
         """Pone la lista que se leyó de OBS y elige el perfil afectado."""
         self._perfiles = list(perfiles)
         self._actual = actual or ""
-        self.lista.Clear()
-        for nombre in self._perfiles:
-            self.lista.Append(self._etiqueta(nombre))
-        if not self._perfiles:
-            return
         indice = self._indice(foco)
         if indice is None:
             indice = self._indice(self._actual)
-        self.lista.SetSelection(0 if indice is None else indice)
+        self._lista_acciones.fijar(
+            [self._etiqueta(nombre) for nombre in self._perfiles], indice)
         if foco is not None:
             self.lista.SetFocus()
 
@@ -115,10 +143,10 @@ class PaginaPerfiles(wx.Panel):
         return None
 
     def _elegido(self):
-        indice = self.lista.GetSelection()
-        if 0 <= indice < len(self._perfiles):
-            return self._perfiles[indice]
-        return ""
+        indice = self._lista_acciones.indice()
+        if indice is None:
+            return ""
+        return self._perfiles[indice]
 
     def _sin_seleccion(self):
         anunciar(_("Sin selección"))
@@ -199,8 +227,13 @@ class PaginaPerfiles(wx.Panel):
         self._operaciones.en_hilo(
             lambda: perfiles_obs.crear_perfil(
                 self._cliente(), nombre, vertical=vertical),
-            lambda _resultado: self._hecho(
-                _("Perfil creado: {nombre}.").format(nombre=nombre), nombre))
+            lambda _resultado: self._creado(nombre))
+
+    def _creado(self, nombre):
+        anunciar(_("Perfil creado: {nombre}.").format(nombre=nombre))
+        self._operaciones.en_hilo(
+            lambda: self._leer_para_editar(nombre),
+            lambda datos: self._abrir_ajustes(datos, foco=nombre))
 
     def duplicar(self):
         origen = self._elegido()
@@ -284,20 +317,25 @@ class PaginaPerfiles(wx.Panel):
                 salidas_audio.salidas(cliente),
                 codificadores_obs.codificadores_disponibles())
 
-    def _abrir_ajustes(self, datos):
+    def _abrir_ajustes(self, datos, foco=None):
         (nombre, ajustes, avanzado, personalizado, salidas,
          codificadores) = datos
         dialogo = DialogoAjustesPerfil(
             self, ajustes, nombre, avanzado=avanzado,
             personalizado=personalizado, salidas=salidas,
             codificadores=codificadores)
+        aceptado = False
         try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return
-            pasar = dialogo.pasar_a_sencillo_pedido()
-            nuevos = None if pasar else dialogo.ajustes()
+            if dialogo.ShowModal() == wx.ID_OK:
+                aceptado = True
+                pasar = dialogo.pasar_a_sencillo_pedido()
+                nuevos = None if pasar else dialogo.ajustes()
         finally:
             dialogo.Destroy()
+        if not aceptado:
+            if foco is not None:
+                self._recargar(foco)
+            return
         if pasar:
             self._operaciones.en_hilo(
                 lambda: perfiles_obs.pasar_a_sencillo(

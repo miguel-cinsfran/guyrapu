@@ -18,6 +18,7 @@ from guyrapu.obs import ajustes_perfil, codificadores_obs, obs_cliente
 from guyrapu.obs import asistente_perfiles
 from guyrapu.obs import perfiles_obs, salidas_audio
 from guyrapu.ui import gui
+from guyrapu.ui import lista_acciones
 from guyrapu.ui import obs_pagina_perfiles as pagina_mod
 from guyrapu.ui.obs_pagina_perfiles import PaginaPerfiles
 
@@ -164,6 +165,15 @@ class BasePagina(unittest.TestCase):
     def _elegir(self, nombre):
         self.pagina.lista.SetSelection(self.pagina._perfiles.index(nombre))
 
+    def _pulsar(self, boton):
+        evento = wx.CommandEvent(wx.EVT_BUTTON.typeId, boton.GetId())
+        boton.GetEventHandler().ProcessEvent(evento)
+
+    def _tecla(self, codigo):
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = codigo
+        self.pagina.lista.GetEventHandler().ProcessEvent(evento)
+
 
 class TestPestana(BasePagina):
 
@@ -201,6 +211,33 @@ class TestPestana(BasePagina):
     def test_el_boton_preparar_tiene_su_nombre_accesible(self):
         self.assertEqual(self.pagina.btn_preparar.GetName(),
                          "Preparar perfiles…")
+
+    def test_fijar_vacio_deja_la_linea_de_vacio_elegida(self):
+        self.pagina.fijar([], "")
+        self.assertEqual(self.pagina.lista.GetCount(), 1)
+        self.assertEqual(
+            self.pagina.lista.GetString(0),
+            _("No hay perfiles en OBS. Usa Nuevo… para crear uno."))
+        self.assertEqual(self.pagina.lista.GetSelection(), 0)
+        self.assertEqual(self.pagina._elegido(), "")
+
+    def test_el_menu_tiene_las_siete_acciones_en_orden(self):
+        self._fijar()
+        vistos = []
+
+        def popup(menu):
+            vistos.extend(item.GetItemLabel()
+                          for item in menu.GetMenuItems())
+
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = wx.WXK_WINDOWS_MENU
+        with mock.patch.object(self.pagina.lista, "PopupMenu",
+                               side_effect=popup):
+            self.pagina.lista.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(vistos, [
+            "&Usar este perfil", "Usar p&ara…", "&Nuevo…",
+            "&Duplicar…", "&Eliminar perfil\tDel",
+            "Editar a&justes…\tEnter", "&Preparar perfiles…"])
 
 
 class TestPrepararPerfiles(BasePagina):
@@ -311,16 +348,51 @@ class TestUsarPara(BasePagina):
 
 class TestNuevo(BasePagina):
 
+    def _parches_ajustes(self):
+        return (
+            mock.patch.object(perfiles_obs, "leer_para_editar",
+                              return_value=(de_prueba(), False, True)),
+            mock.patch.object(salidas_audio, "salidas",
+                              return_value=(("default", "Por defecto"),)),
+            mock.patch.object(codificadores_obs, "codificadores_disponibles",
+                              return_value=("x264",)),
+        )
+
     def test_pide_orientacion_y_crea_con_ella(self):
         _DialogoNombreFalso.devuelve = ("Nuevo", True)
         with mock.patch.object(pagina_mod, "DialogoNombrePerfil",
                                _DialogoNombreFalso), \
+                mock.patch.object(self.pagina, "_leer_para_editar",
+                                  return_value=("Nuevo",)), \
+                mock.patch.object(self.pagina, "_abrir_ajustes"), \
                 mock.patch.object(perfiles_obs, "crear_perfil") as crear:
             self.pagina.nuevo()
         self.assertTrue(_DialogoNombreFalso.visto["con_orientacion"])
         crear.assert_called_once_with(self.pagina._cliente(), "Nuevo",
                                       vertical=True)
         self.assertIn("Perfil creado: Nuevo.", self.anuncios)
+
+    def test_al_crear_abre_los_ajustes_y_deja_el_foco_en_el_nuevo(self):
+        _DialogoNombreFalso.devuelve = ("Nuevo", True)
+        _DialogoAjustesFalso.visto = {}
+        _DialogoAjustesFalso.pasar = False
+        _DialogoAjustesFalso.devuelve = de_prueba()
+        for parche in self._parches_ajustes():
+            parche.start()
+            self.addCleanup(parche.stop)
+        with mock.patch.object(pagina_mod, "DialogoNombrePerfil",
+                               _DialogoNombreFalso), \
+                mock.patch.object(pagina_mod, "DialogoAjustesPerfil",
+                                  _DialogoAjustesFalso), \
+                mock.patch.object(_DialogoAjustesFalso, "ShowModal",
+                                  return_value=wx.ID_CANCEL), \
+                mock.patch.object(perfiles_obs, "crear_perfil"), \
+                mock.patch.object(perfiles_obs, "listar_perfiles",
+                                  return_value=(["Uno", "Dos", "Nuevo"],
+                                                "Uno")):
+            self._pulsar(self.pagina.btn_nuevo)
+        self.assertEqual(_DialogoAjustesFalso.visto.get("nombre"), "Nuevo")
+        self.assertEqual(self.pagina._elegido(), "Nuevo")
 
 
 class TestDuplicar(BasePagina):
@@ -364,6 +436,26 @@ class TestEliminar(BasePagina):
         preguntar.assert_called_once()
         eliminar.assert_called_once_with(self.pagina._cliente(), "Dos")
         self.assertIn("Perfil eliminado: Dos.", self.anuncios)
+
+    def test_suprimir_elimina_el_perfil_elegido(self):
+        self._fijar(("Uno", "Dos", "Tres"))
+        self._elegir("Dos")
+        with mock.patch.object(pagina_mod.confirmar, "preguntar",
+                               return_value=True), \
+                mock.patch.object(perfiles_obs, "eliminar_perfil") as eliminar:
+            self._tecla(wx.WXK_DELETE)
+        eliminar.assert_called_once_with(self.pagina._cliente(), "Dos")
+
+    def test_eliminar_con_la_lista_vacia_anuncia_el_vacio_y_no_pregunta(self):
+        self.pagina.fijar([], "")
+        with mock.patch.object(pagina_mod.confirmar, "preguntar") as preguntar, \
+                mock.patch.object(lista_acciones, "anunciar",
+                                  self.anuncios.append):
+            self._pulsar(self.pagina.btn_eliminar)
+        preguntar.assert_not_called()
+        self.assertIn(
+            _("No hay perfiles en OBS. Usa Nuevo… para crear uno."),
+            self.anuncios)
 
     def test_un_perfil_asignado_avisa_antes_y_deja_el_uso_vacio(self):
         base = tempfile.TemporaryDirectory()
