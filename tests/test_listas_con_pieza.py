@@ -40,9 +40,6 @@ PENDIENTES = {
     "preferencias_programados.py": "todavía no pasó a la pieza común",
     "preferencias_sonidos.py": "todavía no pasó a la pieza común",
     "recientes_inicio.py": "todavía no pasó a la pieza común",
-    "restream_pagina_destinos.py": "todavía no pasó a la pieza común",
-    "restream_pagina_eventos.py": "todavía no pasó a la pieza común",
-    "restream_pagina_perfiles.py": "todavía no pasó a la pieza común",
 }
 
 

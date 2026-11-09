@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Menús contextuales de la ventana de Restream.
 
-Arma el menú de una fila de Destinos, Perfiles o Eventos y el de «Agregar
+Arma el menú de una fila de Destinos o Eventos y el de «Agregar
 destino…». Cada elemento dice su tecla, como en la pestaña Escena del Panel
 de OBS.
 """
@@ -27,17 +27,6 @@ def menu_destino(destino, acciones):
     _accion(menu, _("&Copiar enlace") + "\tCtrl+C", acciones.copiar)
     menu.AppendSeparator()
     _accion(menu, _("&Eliminar") + "\tDel", acciones.eliminar)
-    return menu
-
-
-def menu_perfil(acciones):
-    """El menú de un perfil de Restream."""
-    menu = wx.Menu()
-    _accion(menu, _("&Editar…") + "\tEnter", acciones.editar)
-    _accion(menu, _("Cambiar &nombre…") + "\tF2", acciones.renombrar)
-    _accion(menu, _("&Duplicar") + "\tCtrl+D", acciones.duplicar)
-    menu.AppendSeparator()
-    _accion(menu, _("E&liminar") + "\tDel", acciones.eliminar)
     return menu
 
 

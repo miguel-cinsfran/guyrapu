@@ -2,31 +2,27 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pestaña Perfiles de Restream: los perfiles guardados de esta instalación.
 
-Lista, crea, edita, cambia el nombre, duplica y elimina los perfiles. Las
-acciones de la fila viven en su menú contextual, como en la pestaña Escena
-del Panel de OBS. El único botón es el que no depende de la fila.
+Lista, crea, edita, cambia el nombre, duplica y elimina los perfiles. Cada
+acción tiene su botón y su entrada en el menú contextual, con su tecla.
 """
 
 from __future__ import annotations
 
 from dataclasses import replace
-from types import SimpleNamespace
 
 import wx
 
-from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.obs import nombres_escena
 from guyrapu.restream import perfiles, resumen_cuenta
-from guyrapu.ui import confirmar, restream_menus
-from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
-from guyrapu.ui.preferencias_comun import fila_horizontal
+from guyrapu.ui import confirmar
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
+from guyrapu.ui.preferencias_comun import fila_horizontal, nombre_de_etiqueta
 from guyrapu.ui.restream_perfil import (
     DialogoNombrePerfil,
     DialogoPerfilRestream,
 )
-from guyrapu.voice import sound_player as _snd
 
 
 class PaginaPerfiles(wx.Panel):
@@ -48,22 +44,62 @@ class PaginaPerfiles(wx.Panel):
         self.lista_perfiles = wx.ListBox(
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Perfiles"))
         nombre_accesible(self.lista_perfiles, _("Perfiles"))
-        instalar_busqueda_tipo(
-            self.lista_perfiles,
-            lambda: [self.lista_perfiles.GetString(i) for i
-                     in range(self.lista_perfiles.GetCount())])
-        self.lista_perfiles.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
-        entregar_intro(self.lista_perfiles, self._al_tecla)
-        self.lista_perfiles.Bind(wx.EVT_CONTEXT_MENU, self._menu_contextual)
-        self.lista_perfiles.Bind(wx.EVT_SET_FOCUS, self._al_foco)
+        etiquetas = self._etiquetas()
+        self._lista_acciones = self._crear_lista_acciones(etiquetas)
         vs.Add(self.lista_perfiles, 1, wx.EXPAND | wx.ALL, 8)
-
-        self.btn_nuevo = wx.Button(
-            self, label=_("&Nuevo perfil…"), name=_("Nuevo perfil"))
-        nombre_accesible(self.btn_nuevo, self.btn_nuevo.GetName())
-        self.btn_nuevo.Bind(wx.EVT_BUTTON, lambda evento: self.nuevo())
-        vs.Add(fila_horizontal((self.btn_nuevo,)), 0, wx.ALL, 10)
+        self._crear_botones(etiquetas)
+        vs.Add(fila_horizontal(self._botones), 0, wx.ALL, 10)
         self.SetSizer(vs)
+
+    def _etiquetas(self):
+        return {
+            "nuevo": _("Nuevo &perfil…"),
+            "editar": _("&Editar…"),
+            "renombrar": _("Cambiar &nombre…"),
+            "duplicar": _("&Duplicar"),
+            "eliminar": _("E&liminar"),
+        }
+
+    def _crear_lista_acciones(self, etiquetas):
+        return ListaConAcciones(
+            self.lista_perfiles,
+            (
+                Accion("nuevo", etiquetas["nuevo"], lambda: self.nuevo(),
+                       necesita_elemento=False),
+                Accion("editar", etiquetas["editar"], lambda: self.editar(),
+                       tecla="intro"),
+                Accion("renombrar", etiquetas["renombrar"],
+                       lambda: self.renombrar(), tecla="f2"),
+                Accion("duplicar", etiquetas["duplicar"],
+                       lambda: self.duplicar(), tecla="ctrl+d"),
+                Accion("eliminar", etiquetas["eliminar"],
+                       lambda: self.eliminar(), tecla="suprimir"),
+            ),
+            _("No hay perfiles de Restream. Usa Nuevo perfil… para crear "
+              "uno."))
+
+    def _crear_botones(self, etiquetas):
+        self.btn_nuevo = wx.Button(
+            self, label=etiquetas["nuevo"], name=_("Nuevo perfil"))
+        nombre_accesible(self.btn_nuevo, self.btn_nuevo.GetName())
+        self.btn_nuevo.Bind(
+            wx.EVT_BUTTON,
+            lambda _evento: self._lista_acciones.ejecutar("nuevo"))
+        self.btn_editar = self._boton(etiquetas["editar"], "editar")
+        self.btn_renombrar = self._boton(etiquetas["renombrar"], "renombrar")
+        self.btn_duplicar = self._boton(etiquetas["duplicar"], "duplicar")
+        self.btn_eliminar = self._boton(etiquetas["eliminar"], "eliminar")
+        self._botones = (self.btn_nuevo, self.btn_editar, self.btn_renombrar,
+                         self.btn_duplicar, self.btn_eliminar)
+
+    def _boton(self, etiqueta, clave):
+        control = wx.Button(
+            self, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+        nombre_accesible(control, control.GetName())
+        control.Bind(
+            wx.EVT_BUTTON,
+            lambda _evento: self._lista_acciones.ejecutar(clave))
+        return control
 
     def cantidad(self):
         return len(self._perfiles)
@@ -98,25 +134,19 @@ class PaginaPerfiles(wx.Panel):
 
     def poblar(self, indice=None):
         self._perfiles = perfiles.cargar(self._ruta)
-        self.lista_perfiles.Clear()
-        for perfil in self._perfiles:
-            self.lista_perfiles.Append(self._etiqueta(perfil))
-        if not self._perfiles:
-            return
-        if indice is None:
-            indice = 0
-        indice = max(0, min(indice, len(self._perfiles) - 1))
-        self.lista_perfiles.SetSelection(indice)
+        if self._perfiles:
+            if indice is None:
+                indice = 0
+            indice = max(0, min(indice, len(self._perfiles) - 1))
+        self._lista_acciones.fijar(
+            [self._etiqueta(perfil) for perfil in self._perfiles], indice)
 
     def actualizar(self):
         indice = self.lista_perfiles.GetSelection()
         self.poblar(indice if indice >= 0 else None)
 
     def _indice_seleccionado(self):
-        indice = self.lista_perfiles.GetSelection()
-        if 0 <= indice < len(self._perfiles):
-            return indice
-        return None
+        return self._lista_acciones.indice()
 
     def nuevo(self):
         perfil = self._pedir_perfil(None, self._perfiles)
@@ -226,50 +256,3 @@ class PaginaPerfiles(wx.Panel):
             if not mensajes:
                 return nombre
             anunciar(" ".join(mensajes))
-
-    def _al_foco(self, evento):
-        if not self.lista_perfiles.GetCount() and not self._conectada():
-            self._avisar_sin_cuenta()
-        evento.Skip()
-
-    def _avisar_sin_cuenta(self):
-        padre = self.GetParent()
-        if getattr(padre, "_sin_cuenta_anunciado", False):
-            return
-        padre._sin_cuenta_anunciado = True
-        anunciar(_("Sin cuenta de Restream. Conéctala en la pestaña Cuenta."))
-
-    def _menu_contextual(self, evento):
-        if self._indice_seleccionado() is None:
-            anunciar(_("Sin selección"))
-            return
-        acciones = SimpleNamespace(
-            editar=self.editar, renombrar=self.renombrar,
-            duplicar=self.duplicar, eliminar=self.eliminar)
-        menu = restream_menus.menu_perfil(acciones)
-        self.lista_perfiles.PopupMenu(menu)
-        menu.Destroy()
-        evento.Skip()
-
-    def _al_tecla(self, evento):
-        lista = evento.GetEventObject()
-        try:
-            seleccion, total = lista.GetSelection(), lista.GetCount()
-        except Exception:
-            seleccion, total = -1, 0
-        tecla = evento.GetKeyCode()
-        if sonidos_eventos.es_orilla(tecla, seleccion, total):
-            _snd.reproducir("orilla")
-        if tecla in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            self.editar()
-        elif tecla == wx.WXK_F2:
-            self.renombrar()
-        elif tecla in (ord("D"), ord("d")) and evento.ControlDown():
-            self.duplicar()
-        elif tecla == wx.WXK_DELETE:
-            self.eliminar()
-        elif (tecla == wx.WXK_WINDOWS_MENU
-              or (tecla == wx.WXK_F10 and evento.ShiftDown())):
-            self._menu_contextual(evento)
-        else:
-            evento.Skip()

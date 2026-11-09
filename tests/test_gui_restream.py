@@ -22,6 +22,7 @@ from guyrapu.restream import perfiles
 from guyrapu.restream.api import Canal, ErrorApi
 from guyrapu.restream.perfiles import Perfil
 from guyrapu.ui import restream_acciones_destino
+from guyrapu.ui import lista_acciones
 from guyrapu.ui import restream_pagina_destinos
 from guyrapu.ui import restream_pagina_eventos
 from guyrapu.ui import restream_pagina_perfiles
@@ -439,11 +440,52 @@ class PruebaVentanaRestream(unittest.TestCase):
             ["TikTok, vertical: TikTok: uno",
              "TikTok y YouTube, horizontal: TikTok: uno, YouTube: dos"],
             list(lista.GetStrings()))
-        self.assertEqual("&Nuevo perfil…", pagina.btn_nuevo.GetLabel())
+        self.assertEqual("Nuevo &perfil…", pagina.btn_nuevo.GetLabel())
         self.assertEqual("Nuevo perfil", pagina.btn_nuevo.GetName())
-        self.assertFalse(hasattr(pagina, "btn_editar"))
-        self.assertFalse(hasattr(pagina, "btn_duplicar"))
-        self.assertFalse(hasattr(pagina, "btn_eliminar"))
+        self.assertTrue(hasattr(pagina, "btn_editar"))
+        self.assertTrue(hasattr(pagina, "btn_renombrar"))
+        self.assertTrue(hasattr(pagina, "btn_duplicar"))
+        self.assertTrue(hasattr(pagina, "btn_eliminar"))
+
+    def test_perfiles_vacia_muestra_su_linea(self):
+        dialogo = self._ventana(guardados=[])
+        pagina = dialogo._pagina_perfiles
+        self.assertEqual(1, pagina.lista_perfiles.GetCount())
+        self.assertEqual(
+            "No hay perfiles de Restream. Usa Nuevo perfil… para crear uno.",
+            pagina.lista_perfiles.GetString(0))
+        self.assertEqual(0, pagina.lista_perfiles.GetSelection())
+
+    def test_los_cinco_botones_en_orden_y_con_nombre_accesible(self):
+        dialogo = self._ventana(guardados=[_perfil()])
+        pagina = dialogo._pagina_perfiles
+        botones = (pagina.btn_nuevo, pagina.btn_editar,
+                   pagina.btn_renombrar, pagina.btn_duplicar,
+                   pagina.btn_eliminar)
+        self.assertEqual(
+            ["Nuevo &perfil…", "&Editar…", "Cambiar &nombre…", "&Duplicar",
+             "E&liminar"],
+            [boton.GetLabel() for boton in botones])
+        self.assertEqual(
+            ["Nuevo perfil", "Editar…", "Cambiar nombre…", "Duplicar",
+             "Eliminar"],
+            [boton.GetName() for boton in botones])
+
+    def test_suprimir_y_el_boton_eliminar_llaman_a_eliminar(self):
+        dialogo = self._ventana(guardados=[_perfil()])
+        pagina = dialogo._pagina_perfiles
+        pagina.lista_perfiles.SetSelection(0)
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_DELETE
+        evento.GetModifiers.return_value = wx.MOD_NONE
+        with mock.patch.object(pagina, "eliminar") as eliminar:
+            pagina._lista_acciones._al_tecla(evento)
+        eliminar.assert_called_once_with()
+        with mock.patch.object(pagina, "eliminar") as eliminar:
+            pagina.btn_eliminar.GetEventHandler().ProcessEvent(
+                wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                pagina.btn_eliminar.GetId()))
+        eliminar.assert_called_once_with()
 
     def test_p3_sin_seleccion_anuncia_y_no_hace_nada(self):
         dialogo = self._ventana()
@@ -461,26 +503,20 @@ class PruebaVentanaRestream(unittest.TestCase):
     def test_p7_cada_tecla_llama_a_su_accion(self):
         dialogo = self._ventana(guardados=[_perfil()])
         pagina = dialogo._pagina_perfiles
-        lista = pagina.lista_perfiles
-        lista.SetSelection(0)
+        pagina.lista_perfiles.SetSelection(0)
 
-        for tecla, accion in ((wx.WXK_RETURN, "editar"),
-                              (wx.WXK_F2, "renombrar"),
-                              (wx.WXK_DELETE, "eliminar")):
-            evento = mock.Mock()
-            evento.GetKeyCode.return_value = tecla
-            evento.GetEventObject.return_value = lista
-            with mock.patch.object(pagina, accion) as llamada:
-                pagina._al_tecla(evento)
-            llamada.assert_called_once_with()
-
-        evento = mock.Mock()
-        evento.GetKeyCode.return_value = ord("D")
-        evento.ControlDown.return_value = True
-        evento.GetEventObject.return_value = lista
-        with mock.patch.object(pagina, "duplicar") as duplicar:
-            pagina._al_tecla(evento)
-        duplicar.assert_called_once_with()
+        for codigo, modificadores, accion in (
+                (wx.WXK_RETURN, wx.MOD_NONE, "editar"),
+                (wx.WXK_F2, wx.MOD_NONE, "renombrar"),
+                (wx.WXK_DELETE, wx.MOD_NONE, "eliminar"),
+                (ord("D"), wx.MOD_CONTROL, "duplicar")):
+            with self.subTest(accion=accion):
+                evento = mock.Mock()
+                evento.GetKeyCode.return_value = codigo
+                evento.GetModifiers.return_value = modificadores
+                with mock.patch.object(pagina, accion) as llamada:
+                    pagina._lista_acciones._al_tecla(evento)
+                llamada.assert_called_once_with()
 
     def test_intro_por_char_hook_edita_el_perfil(self):
         dialogo = self._ventana(guardados=[_perfil()])
@@ -497,12 +533,12 @@ class PruebaVentanaRestream(unittest.TestCase):
         dialogo = self._ventana(guardados=[_perfil()])
         pagina = dialogo._pagina_perfiles
         pagina.lista_perfiles.SetSelection(0)
-        evento = mock.Mock()
-        evento.GetKeyCode.return_value = wx.WXK_WINDOWS_MENU
-        evento.GetEventObject.return_value = pagina.lista_perfiles
-        with mock.patch.object(pagina, "_menu_contextual") as menu:
-            pagina._al_tecla(evento)
-        menu.assert_called_once_with(evento)
+        with mock.patch.object(
+                pagina.lista_perfiles, "PopupMenu") as popup:
+            evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+            evento.KeyCode = wx.WXK_WINDOWS_MENU
+            pagina.lista_perfiles.GetEventHandler().ProcessEvent(evento)
+        popup.assert_called_once()
 
     def test_p10_nuevo_guarda_y_anuncia(self):
         nuevo = _perfil(nombre="Nuevo", canales=(1,))
@@ -651,6 +687,24 @@ class PruebaVentanaRestream(unittest.TestCase):
         self.assertFalse(hasattr(pagina, "btn_activar"))
         self.assertFalse(hasattr(pagina, "btn_titulo"))
 
+    def test_destinos_sin_cuenta_muestran_el_motivo(self):
+        dialogo = self._ventana(cuenta=CuentaFalsa(False))
+        pagina = dialogo._pagina_destinos
+        self.assertEqual(1, pagina.lista.GetCount())
+        self.assertEqual(
+            "Sin cuenta de Restream. Conéctala en la pestaña Cuenta.",
+            pagina.lista.GetString(0))
+
+    def test_destinos_con_cuenta_y_vacios_muestran_el_motivo(self):
+        dialogo = self._ventana(
+            cuenta=CuentaFalsa(True), destinos=lambda: [])
+        pagina = dialogo._pagina_destinos
+        self.assertTrue(_esperar(lambda: pagina.leidos))
+        self.assertEqual(1, pagina.lista.GetCount())
+        self.assertEqual(
+            "No hay destinos. Usa Agregar destino… para sumar uno.",
+            pagina.lista.GetString(0))
+
     def test_p6_espacio_activa_o_desactiva(self):
         destinos = [Canal(1, 67, "TikTok", "uno", "", True),
                     Canal(2, 5, "YouTube", "dos", "", False)]
@@ -717,8 +771,7 @@ class PruebaVentanaRestream(unittest.TestCase):
         destinos = [Canal(1, 67, "TikTok", "uno", url, True)]
         dialogo = self._ventana(
             cuenta=CuentaFalsa(True), destinos=lambda: list(destinos))
-        self.assertTrue(_esperar(
-            lambda: dialogo._pagina_destinos.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: dialogo._pagina_destinos.destinos))
         dialogo._pagina_destinos.lista.SetSelection(0)
         return dialogo
 
@@ -797,12 +850,12 @@ class PruebaVentanaRestream(unittest.TestCase):
         sonar.assert_not_called()
 
     def test_p3_destinos_instala_la_busqueda_por_teclado(self):
-        with mock.patch.object(restream_pagina_destinos,
+        with mock.patch.object(lista_acciones,
                                "instalar_busqueda_tipo") as instalar:
             dialogo = self._ventana()
-        instalar.assert_called_once()
-        self.assertIs(dialogo._pagina_destinos.lista,
-                      instalar.call_args.args[0])
+        self.assertIn(
+            mock.call(dialogo._pagina_destinos.lista, mock.ANY),
+            instalar.call_args_list)
 
     def test_p3_destinos_supr_elimina(self):
         dialogo = self._ventana(
@@ -904,7 +957,7 @@ class PruebaVentanaRestream(unittest.TestCase):
             cuenta=CuentaFalsa(True), destinos=lambda: list(destinos),
             eliminar=eliminar)
         pagina = dialogo._pagina_destinos
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina.destinos))
         pagina.lista.SetSelection(0)
 
         sonar = mock.Mock()
@@ -1059,14 +1112,14 @@ class PruebaVentanaRestream(unittest.TestCase):
         evento.Skip.assert_called_once_with()
 
     def test_p7_el_menu_de_perfil_en_orden_y_con_teclas(self):
-        from guyrapu.ui import restream_menus
-
-        acciones = mock.Mock()
-        menu = restream_menus.menu_perfil(acciones)
+        dialogo = self._ventana(guardados=[_perfil()])
+        pagina = dialogo._pagina_perfiles
+        pagina.lista_perfiles.SetSelection(0)
+        menu = pagina._lista_acciones._construir_menu()
         self.addCleanup(menu.Destroy)
         self.assertEqual(
-            ["&Editar…\tEnter", "Cambiar &nombre…\tF2",
-             "&Duplicar\tCtrl+D", "", "E&liminar\tDel"],
+            ["Nuevo &perfil…", "&Editar…\tEnter", "Cambiar &nombre…\tF2",
+             "&Duplicar\tCtrl+D", "E&liminar\tDel"],
             [elemento.GetItemLabel() for elemento in menu.GetMenuItems()])
 
     def test_p5_desconectar_pide_confirmacion_y_cancelar_no_desconecta(self):
@@ -1108,20 +1161,18 @@ class PruebaVentanaRestream(unittest.TestCase):
         sonar.assert_called_once_with("error")
         anunciar.assert_called_once_with("No se pudieron leer los destinos.")
 
-    def test_p13_sin_cuenta_avisa_una_vez_al_enfocar_las_listas(self):
+    def test_p5_enfocar_sin_cuenta_ya_no_anuncia(self):
         dialogo = self._ventana(cuenta=CuentaFalsa(False))
         with mock.patch.object(restream_pagina_destinos,
                                "anunciar") as en_destinos, \
                 mock.patch.object(restream_pagina_perfiles,
                                   "anunciar") as en_perfiles:
-            evento = mock.Mock()
-            dialogo._pagina_destinos._al_foco(evento)
-            dialogo._pagina_destinos._al_foco(evento)
-            dialogo._pagina_perfiles._al_foco(evento)
-        en_destinos.assert_called_once_with(
-            "Sin cuenta de Restream. Conéctala en la pestaña Cuenta.")
+            dialogo._pagina_destinos.lista.ProcessEvent(
+                wx.FocusEvent(wx.wxEVT_SET_FOCUS))
+            dialogo._pagina_perfiles.lista_perfiles.ProcessEvent(
+                wx.FocusEvent(wx.wxEVT_SET_FOCUS))
+        en_destinos.assert_not_called()
         en_perfiles.assert_not_called()
-        self.assertTrue(evento.Skip.called)
 
     def test_p13_el_cuadro_de_perfil_sin_cuenta_dice_lo_mismo(self):
         dialogo = self._ventana(cuenta=CuentaFalsa(False))
@@ -1263,7 +1314,7 @@ class PruebaPaginaEventos(unittest.TestCase):
         evento = self._evento()
         pagina = self._pagina(leer_eventos=lambda tipo: [evento])
         pagina.al_mostrarse()
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina._eventos))
         pagina.lista.SetSelection(0)
         pagina._al_elegir(mock.Mock())
         detalle = pagina.detalle.GetValue()
@@ -1285,7 +1336,7 @@ class PruebaPaginaEventos(unittest.TestCase):
             eventos_restream.DestinoEvento(10, 10, 67, "https://a"),))
         pagina = self._pagina(leer_eventos=lambda tipo: [evento])
         pagina.al_mostrarse()
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina._eventos))
         pagina.lista.SetSelection(0)
         with mock.patch.object(restream_pagina_eventos,
                                "abrir_navegador") as abrir:
@@ -1297,7 +1348,7 @@ class PruebaPaginaEventos(unittest.TestCase):
             eventos_restream.DestinoEvento(10, 10, 67, ""),))
         pagina = self._pagina(leer_eventos=lambda tipo: [evento])
         pagina.al_mostrarse()
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina._eventos))
         pagina.lista.SetSelection(0)
         with mock.patch.object(restream_pagina_eventos,
                                "abrir_navegador") as abrir, \
@@ -1315,7 +1366,7 @@ class PruebaPaginaEventos(unittest.TestCase):
         ))
         pagina = self._pagina(leer_eventos=lambda tipo: [evento])
         pagina.al_mostrarse()
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina._eventos))
         pagina.lista.SetSelection(0)
 
         with mock.patch.object(restream_pagina_eventos,
@@ -1336,7 +1387,7 @@ class PruebaPaginaEventos(unittest.TestCase):
         ))
         pagina = self._pagina(leer_eventos=lambda tipo: [evento])
         pagina.al_mostrarse()
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina._eventos))
         pagina.lista.SetSelection(0)
 
         with mock.patch.object(restream_pagina_eventos,
@@ -1368,7 +1419,7 @@ class PruebaPaginaEventos(unittest.TestCase):
             leer_eventos=lambda tipo: [evento], leer_estadisticas=leer)
         pagina.cho_mostrar.SetSelection(2)
         pagina._al_cambiar_mostrar(None)
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina._eventos))
         pagina.lista.SetSelection(0)
         frase = eventos_restream.frase_estadisticas(leidas)
 
@@ -1386,7 +1437,7 @@ class PruebaPaginaEventos(unittest.TestCase):
         evento = self._evento()
         pagina = self._pagina(leer_eventos=lambda tipo: [evento])
         pagina.al_mostrarse()
-        self.assertTrue(_esperar(lambda: pagina.lista.GetCount() == 1))
+        self.assertTrue(_esperar(lambda: pagina._eventos))
         pagina.lista.SetSelection(0)
 
         with mock.patch.object(pagina, "_leer_estadisticas") as leer, \
@@ -1449,7 +1500,7 @@ class PruebaPaginaEventos(unittest.TestCase):
         self.assertTrue(_esperar(lambda: len(llamadas) == 2))
         self.assertEqual([eventos_restream.TIPO_PROXIMOS] * 2, llamadas)
 
-    def test_p7_sin_cuenta_deja_la_lista_vacia_y_lo_dice(self):
+    def test_p7_sin_cuenta_deja_la_lista_con_el_motivo_y_lo_dice(self):
         llamadas = []
 
         def leer(tipo):
@@ -1460,11 +1511,48 @@ class PruebaPaginaEventos(unittest.TestCase):
         pagina.al_mostrarse()
         wx.Yield()
 
-        self.assertEqual(0, pagina.lista.GetCount())
+        self.assertEqual(1, pagina.lista.GetCount())
+        self.assertEqual(
+            "Sin cuenta de Restream. Conéctala en la pestaña Cuenta.",
+            pagina.lista.GetString(0))
         self.assertEqual(
             "Conecta una cuenta de Restream en la pestaña Cuenta.",
             pagina.detalle.GetValue())
         self.assertEqual([], llamadas)
+
+    def test_p4_sin_eventos_la_lista_dice_el_motivo(self):
+        llamadas = []
+
+        def leer(tipo):
+            llamadas.append(tipo)
+            return []
+
+        pagina = self._pagina(leer_eventos=leer)
+        pagina.al_mostrarse()
+        self.assertTrue(_esperar(lambda: llamadas))
+        self.assertEqual(
+            "No hay eventos para mostrar.", pagina.lista.GetString(0))
+
+    def test_p4_al_fallar_la_lectura_la_lista_dice_el_motivo(self):
+        error = ErrorApi()
+
+        def leer(_tipo):
+            raise error
+
+        pagina = self._pagina(leer_eventos=leer)
+        with mock.patch.object(restream_pagina_eventos,
+                               "anunciar"), \
+                mock.patch.object(restream_pagina_eventos._snd,
+                                  "reproducir"):
+            pagina.al_mostrarse()
+            self.assertTrue(_esperar(
+                lambda: pagina.detalle.GetValue() == str(error)))
+
+        self.assertEqual(1, pagina.lista.GetCount())
+        self.assertEqual(
+            "No se pudieron leer los eventos. Pulsa Actualizar para "
+            "reintentar.",
+            pagina.lista.GetString(0))
 
     def test_p7_un_fallo_de_red_suena_y_se_anuncia(self):
         error = ErrorApi()
@@ -1482,7 +1570,7 @@ class PruebaPaginaEventos(unittest.TestCase):
 
         sonar.assert_called_once_with("error")
         anunciar.assert_called_once_with(str(error))
-        self.assertEqual(0, pagina.lista.GetCount())
+        self.assertEqual(1, pagina.lista.GetCount())
 
     def test_p8_sin_evento_elegido_las_dos_acciones_lo_dicen(self):
         pagina = self._pagina()

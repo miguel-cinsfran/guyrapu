@@ -15,13 +15,11 @@ from types import SimpleNamespace
 
 import wx
 
-from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.ui import confirmar, restream_menus
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.ui.lista_acciones import ListaConVacio
 from guyrapu.ui.preferencias_comun import fila_horizontal
-from guyrapu.voice import sound_player as _snd
 
 # Página donde Restream agrega los canales de la cuenta.
 URL_DESTINOS = "https://app.restream.io/channels"
@@ -64,13 +62,10 @@ class PaginaDestinos(wx.Panel):
         self.lista = wx.ListBox(
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Destinos"))
         nombre_accesible(self.lista, _("Destinos"))
-        instalar_busqueda_tipo(
-            self.lista,
-            lambda: [self.lista.GetString(i) for i
-                     in range(self.lista.GetCount())])
+        self.lista_vacia = ListaConVacio(self.lista, self._texto_vacio())
+        self.lista_vacia.fijar([])
         self.lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
         self.lista.Bind(wx.EVT_CONTEXT_MENU, self._menu_contextual)
-        self.lista.Bind(wx.EVT_SET_FOCUS, self._al_foco)
         self.lista.Bind(wx.EVT_LISTBOX, self._al_elegir_destino)
         vs.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
 
@@ -91,14 +86,15 @@ class PaginaDestinos(wx.Panel):
         self.destinos = list(destinos)
         self.leidos = True
         seleccion = self.lista.GetSelection()
-        self.lista.Set([texto_de_destino(canal)
-                        for canal in self.destinos])
         if elegido is not None:
             seleccion = next(
                 (indice for indice, canal in enumerate(self.destinos)
                  if canal.id == elegido), seleccion)
-        if 0 <= seleccion < len(self.destinos):
-            self.lista.SetSelection(seleccion)
+        if not 0 <= seleccion < len(self.destinos):
+            seleccion = None
+        self.lista_vacia.fijar(
+            [texto_de_destino(canal) for canal in self.destinos], seleccion,
+            vacio=self._texto_vacio())
 
     def seleccionado(self):
         indice = self.lista.GetSelection()
@@ -109,10 +105,10 @@ class PaginaDestinos(wx.Panel):
     def _al_elegir_destino(self, evento):
         evento.Skip()
 
-    def _al_foco(self, evento):
-        if not self.lista.GetCount() and not self._conectada():
-            self._avisar_sin_cuenta()
-        evento.Skip()
+    def _texto_vacio(self):
+        if not self._conectada():
+            return _("Sin cuenta de Restream. Conéctala en la pestaña Cuenta.")
+        return _("No hay destinos. Usa Agregar destino… para sumar uno.")
 
     def _conectada(self):
         if self._esta_conectada is None:
@@ -121,13 +117,6 @@ class PaginaDestinos(wx.Panel):
             return bool(self._esta_conectada())
         except Exception:
             return False
-
-    def _avisar_sin_cuenta(self):
-        padre = self.GetParent()
-        if getattr(padre, "_sin_cuenta_anunciado", False):
-            return
-        padre._sin_cuenta_anunciado = True
-        anunciar(_("Sin cuenta de Restream. Conéctala en la pestaña Cuenta."))
 
     def _activar(self):
         self._al_activar()
@@ -181,14 +170,7 @@ class PaginaDestinos(wx.Panel):
         evento.Skip()
 
     def _al_tecla(self, evento):
-        lista = evento.GetEventObject()
-        try:
-            seleccion, total = lista.GetSelection(), lista.GetCount()
-        except Exception:
-            seleccion, total = -1, 0
         tecla = evento.GetKeyCode()
-        if sonidos_eventos.es_orilla(tecla, seleccion, total):
-            _snd.reproducir("orilla")
         if tecla == wx.WXK_SPACE:
             self._activar()
         elif tecla == wx.WXK_DELETE:

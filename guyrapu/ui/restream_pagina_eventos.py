@@ -14,14 +14,14 @@ from types import SimpleNamespace
 
 import wx
 
-from guyrapu.core import diagnostico, sonidos_eventos
+from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.restream import eventos as eventos_restream
 from guyrapu.restream.api import ErrorApi
 from guyrapu.ui import restream_menus
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.gui import copiar_al_portapapeles
+from guyrapu.ui.lista_acciones import ListaConVacio
 from guyrapu.ui.preferencias_comun import CampoEstado, fila_horizontal
 from guyrapu.voice import sound_player as _snd
 
@@ -75,10 +75,9 @@ class PaginaEventos(wx.Panel):
         self.lista = wx.ListBox(
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Eventos"))
         nombre_accesible(self.lista, _("Eventos"))
-        instalar_busqueda_tipo(
-            self.lista,
-            lambda: [self.lista.GetString(i) for i
-                     in range(self.lista.GetCount())])
+        self.lista_vacia = ListaConVacio(
+            self.lista, _("No hay eventos para mostrar."))
+        self.lista_vacia.fijar([])
         self.lista.Bind(wx.EVT_LISTBOX, self._al_elegir)
         self.lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
         entregar_intro(self.lista, self._al_tecla)
@@ -113,8 +112,8 @@ class PaginaEventos(wx.Panel):
         """Olvida lo leído y deja la pestaña lista para volver a leer."""
         self._primera_vez = True
         self._eventos = []
-        self.lista.Set([])
         if self._conectada():
+            self.lista_vacia.fijar([])
             self.detalle.SetValue("")
         else:
             self._sin_cuenta()
@@ -234,7 +233,9 @@ class PaginaEventos(wx.Panel):
 
     def _sin_cuenta(self):
         self._eventos = []
-        self.lista.Set([])
+        self.lista_vacia.fijar(
+            [], vacio=_("Sin cuenta de Restream. Conéctala en la pestaña "
+                        "Cuenta."))
         self.detalle.SetValue(_(
             "Conecta una cuenta de Restream en la pestaña Cuenta."))
 
@@ -242,8 +243,10 @@ class PaginaEventos(wx.Panel):
         if tipo != self._tipo:
             return
         self._eventos = list(leidos or ())
-        self.lista.Set([eventos_restream.fila(evento, tipo)
-                        for evento in self._eventos])
+        self.lista_vacia.fijar(
+            [eventos_restream.fila(evento, tipo)
+             for evento in self._eventos],
+            vacio=_("No hay eventos para mostrar."))
         self._mostrar_detalle(None)
 
     def _fallo_lectura(self, error):
@@ -253,7 +256,9 @@ class PaginaEventos(wx.Panel):
             texto = _("No se pudieron leer los eventos de Restream. "
                       "Vuelve a intentarlo.")
         self._eventos = []
-        self.lista.Set([])
+        self.lista_vacia.fijar(
+            [], vacio=_("No se pudieron leer los eventos. Pulsa Actualizar "
+                        "para reintentar."))
         self.detalle.SetValue(texto)
         _snd.reproducir("error")
         anunciar(texto)
@@ -321,14 +326,7 @@ class PaginaEventos(wx.Panel):
         evento.Skip()
 
     def _al_tecla(self, evento):
-        lista = evento.GetEventObject()
-        try:
-            seleccion, total = lista.GetSelection(), lista.GetCount()
-        except Exception:
-            seleccion, total = -1, 0
         tecla = evento.GetKeyCode()
-        if sonidos_eventos.es_orilla(tecla, seleccion, total):
-            _snd.reproducir("orilla")
         if tecla == wx.WXK_F5:
             self.actualizar()
         elif tecla in (ord("C"), ord("c")) and evento.ControlDown():
