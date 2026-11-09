@@ -20,6 +20,13 @@ def _ajustes(**cambios):
     return replace(base, **cambios)
 
 
+# Un servicio distinto del que escribe la prueba: así el restablecimiento
+# final solo queda bien si `_restaurar` vuelve a poner el original entero.
+SERVICIO_ORIGINAL = {
+    "streamServiceType": "rtmp_common",
+    "streamServiceSettings": {"server": "viejo", "key": "vieja"}}
+
+
 class DobleObs:
     """Emula lo que la prueba pide a OBS, con pérdida según el bitrate."""
 
@@ -32,8 +39,9 @@ class DobleObs:
         self.transmitiendo = False
         self.tasas = dict(tasas or {})
         self.servicio = {
-            "streamServiceType": "rtmp_custom",
-            "streamServiceSettings": {"server": "viejo", "key": "vieja"}}
+            "streamServiceType": SERVICIO_ORIGINAL["streamServiceType"],
+            "streamServiceSettings": dict(
+                SERVICIO_ORIGINAL["streamServiceSettings"])}
         self.perfiles = ["Principal", "Otro"]
         self.actual = "Principal"
         self.consultas = 0
@@ -226,9 +234,10 @@ class BasePrueba(unittest.TestCase):
         self.assertEqual(doble.ajustes,
                          replace(_ajustes(),
                                  carpeta_grabacion=str(self.carpeta)))
-        self.assertEqual(doble.servicio, {
-            "streamServiceType": "rtmp_custom",
-            "streamServiceSettings": {"server": "viejo", "key": "vieja"}})
+        self.assertEqual(doble.servicio, SERVICIO_ORIGINAL)
+        ultimo = next(datos for tipo, datos in reversed(doble.pedidos)
+                      if tipo == "SetStreamServiceSettings")
+        self.assertEqual(ultimo, SERVICIO_ORIGINAL)
         self.assertFalse(doble.transmitiendo)
 
 
