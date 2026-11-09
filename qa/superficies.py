@@ -127,6 +127,9 @@ SUPERFICIES = {
 # Módulos que dibujan interfaz sin escena a propósito: cada uno lleva su
 # motivo como valor y no cuenta como huérfano en `superficies_sin_escenario()`.
 SIN_ESCENARIO: dict[str, str] = {
+    "lista_acciones.py": (
+        "da teclas y menú a una lista; la recorren los escenarios de las "
+        "ventanas que la usen."),
     "operaciones_obs.py": "opera sobre OBS en un hilo para las ventanas; no abre una propia.",
     "comandos_grabacion.py": "comandos del menú OBS que actúan sobre OBS; no abren ventana.",
     "comandos_clips.py": "comanda el búfer de clips del menú OBS; no abre ventana.",
