@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+from datetime import datetime
 import os
 import shutil
 import subprocess
@@ -168,12 +169,8 @@ def _lanzar_app(estado, anotar) -> bool:
                    DIRECTO_REAL_ANUNCIOS=estado["ruta_anuncios"],
                    DIRECTO_REAL_CHAT=estado["ruta_chat"])
     from guyrapu.core import paths
-    ruta_log = paths.log_detallado()
-    estado["ruta_log"] = ruta_log
-    try:
-        estado["marca_log"] = os.path.getsize(ruta_log)
-    except OSError:
-        estado["marca_log"] = 0
+    estado["ruta_log"] = paths.log_detallado()
+    estado["marca_log"] = datetime.now()
     estado["app"] = subprocess.Popen([sys.executable, ruta_lanzador],
                                      cwd=str(estado["raiz"]), env=entorno)
     try:

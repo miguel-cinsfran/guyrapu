@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import contextlib
 import os
+import re
 import shutil
 import time
 from pathlib import Path
@@ -115,19 +116,21 @@ def chats_conectados(anuncios) -> tuple[bool, str]:
 
 def leer_log_anuncios(ruta, marca) -> str:
     try:
-        datos = Path(ruta).read_bytes()[marca:]
+        texto = Path(ruta).read_text(encoding="utf-8", errors="replace")
     except OSError:
         return ""
-    texto = datos.decode("utf-8", "replace")
-    return "\n".join(linea for linea in texto.splitlines()
-                     if "ANUNCIO " in linea)
+    marca = marca.strftime("%Y-%m-%d %H:%M:%S.%f")[:23] if marca else ""
+    return "\n".join(
+        linea for linea in texto.splitlines()
+        if "ANUNCIO " in linea
+        and re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} ", linea)
+        and linea[:23] >= marca)
 
 
 def texto_anuncios(estado, desde=0) -> str:
     ruta_log = estado.get("ruta_log")
     return (_leer_anuncios(estado["ruta_anuncios"])[desde:] + "\n"
-            + (leer_log_anuncios(ruta_log, estado.get("marca_log", 0))
-               if ruta_log else ""))
+            + (leer_log_anuncios(ruta_log, estado.get("marca_log")) if ruta_log else ""))
 
 
 def esperar_anuncio(estado, fragmentos, segundos, desde=0):
@@ -192,8 +195,7 @@ def buscar_por_titulo(estado) -> None:
         return
     if hallado and es_borrable(titulo, privacidad):
         estado["id_video"] = hallado
-        estado.setdefault("enlace_manual",
-                          "https://www.youtube.com/watch?v=" + hallado)
+        estado.setdefault("enlace_manual", "https://www.youtube.com/watch?v=" + hallado)
 
 
 def paso_detener_obs(estado, anotar) -> None:
@@ -206,12 +208,11 @@ def paso_detener_obs(estado, anotar) -> None:
             anotar("detener OBS", False, f"sin conexión a OBS: {exc}")
             return
     try:
-        actual = gestor.estado_transmision() or {}
-        if actual.get("outputActive"):
+        activo = bool((gestor.estado_transmision() or {}).get("outputActive"))
+        if activo:
             gestor.detener_transmision()
-            anotar("detener OBS", True, "salida detenida")
-        else:
-            anotar("detener OBS", True, "ya estaba detenida")
+        anotar("detener OBS", True,
+               "salida detenida" if activo else "ya estaba detenida")
     except Exception as exc:
         anotar("detener OBS", False, str(exc))
 
@@ -245,8 +246,7 @@ def paso_restaurar_destinos(estado, anotar, cuenta_mod) -> None:
     cambios = destinos_a_restaurar(antes, actuales)
     if estado.get("finalizado"):
         anotar("la app devolvió los destinos", not cambios,
-               "cambiados: " + (", ".join(str(c[0]) for c in cambios)
-                                or "ninguno"))
+               "cambiados: " + (", ".join(str(c[0]) for c in cambios) or "ninguno"))
     _aplicar(cuenta_mod.activar_canal, cambios, anotar, "destinos de Restream",
              "como estaban")
 

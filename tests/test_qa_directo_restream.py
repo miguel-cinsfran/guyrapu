@@ -6,6 +6,7 @@ import importlib.util
 import os
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
@@ -333,23 +334,34 @@ class TestLaAppBorraElManual(unittest.TestCase):
 
 class TestLeerLogAnuncios(unittest.TestCase):
 
-    def test_lee_solo_los_anuncios_desde_la_marca(self):
+    MARCA = datetime(2026, 11, 9, 17, 18, 49, 574000)
+
+    def _ruta_con(self, lineas):
         descriptor, ruta = tempfile.mkstemp(suffix=".log")
         os.close(descriptor)
         self.addCleanup(os.remove, ruta)
         with open(ruta, "w", encoding="utf-8") as archivo:
-            archivo.write("2026 ANUNCIO viejo\n")
-            archivo.write("2026 ruido anterior\n")
-        marca_log = os.path.getsize(ruta)
-        with open(ruta, "a", encoding="utf-8") as archivo:
-            archivo.write("2026 ANUNCIO Directo iniciado en YouTube\n")
-            archivo.write("2026 ruido nuevo\n")
-            archivo.write("2026 ANUNCIO TikTok: Conectado al directo.\n")
-        leido = leer_log_anuncios(ruta, marca_log)
-        self.assertIn("Directo iniciado en YouTube", leido)
-        self.assertIn("TikTok: Conectado al directo.", leido)
-        self.assertNotIn("viejo", leido)
-        self.assertNotIn("ruido", leido)
+            archivo.write("\n".join(lineas) + "\n")
+        return ruta
+
+    def test_encuentra_el_anuncio_posterior_con_registro_rotado(self):
+        anterior = "2026-11-09 17:18:49.000 INFO ANUNCIO anterior"
+        posterior = ("2026-11-09 17:19:02.100 INFO ANUNCIO "
+                     "Directo iniciado en YouTube")
+        for relleno in ([], ["x" * 200] * 100):
+            ruta = self._ruta_con(relleno + [anterior, posterior])
+            leido = leer_log_anuncios(ruta, self.MARCA)
+            self.assertIn("Directo iniciado en YouTube", leido)
+            self.assertNotIn("anterior", leido)
+
+    def test_descarta_lineas_sin_fecha_valida(self):
+        ruta = self._ruta_con([
+            "sin fecha ANUNCIO no cuenta",
+            "2026-11-09 17:19:02.100 INFO ANUNCIO vale",
+        ])
+        leido = leer_log_anuncios(ruta, self.MARCA)
+        self.assertIn("vale", leido)
+        self.assertNotIn("no cuenta", leido)
 
 
 class AppFalsa:
