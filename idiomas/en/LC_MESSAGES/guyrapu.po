@@ -12754,3 +12754,7 @@ msgstr "&Prepare profiles…"
 msgid "Preparar perfiles…"
 msgstr "Prepare profiles…"
 
+#: guyrapu/ui/preferencias_eventos.py
+msgid "So&nido propio de cada plataforma:"
+msgstr "Eac&h platform's own sound:"
+

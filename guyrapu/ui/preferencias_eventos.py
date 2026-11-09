@@ -117,8 +117,9 @@ class PaginaEventos:
 
     def _agregar_plataformas(self, grilla, p):
         texto_sonido = _("Sonido propio de cada plataforma")
-        grilla.Add(self._fila_label(p, texto_sonido), 0,
-                   wx.ALIGN_CENTER_VERTICAL)
+        grilla.Add(self._fila_label(
+            p, _("So&nido propio de cada plataforma:")), 0,
+            wx.ALIGN_CENTER_VERTICAL)
         self.cho_sonido_plataformas = EleccionTexto(
             p, (("varios", _("Solo con varios chats")),
                 ("siempre", _("Siempre")),

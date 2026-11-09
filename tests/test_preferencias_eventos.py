@@ -167,7 +167,7 @@ class TestControlesEventos(BaseEventos):
                     "Agrupar entradas durante (segund&os):")
             if atributo == "cho_evento_me_gusta":
                 esperadas.append("&Agrupar me gusta durante (segundos):")
-        esperadas.append("Sonido propio de cada plataforma")
+        esperadas.append("So&nido propio de cada plataforma:")
         self.assertEqual(etiquetas, esperadas)
 
     def test_el_contador_de_me_gusta_va_despues_de_su_lista(self):
