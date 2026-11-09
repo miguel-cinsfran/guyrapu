@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import contextlib
-import importlib.util
 import os
 import shutil
 import time
@@ -14,20 +13,17 @@ from pathlib import Path
 from guyrapu.restream import perfiles
 
 from directo_real import (
-    COMENTARIOS_PRUEBA, FUENTE_APLICACION, FUENTE_CAMARA, _borrar_video,
-    _buscar_video_por_titulo, _cerrar_obs, _cerrar_ventanas_prueba,
-    _cliente_youtube, _comentario_faltante, _detalle_lista_chat,
-    _detener_y_finalizar,
+    COMENTARIOS_PRUEBA, _borrar_video, _buscar_video_por_titulo,
+    _cerrar_obs, _cliente_youtube, _comentario_faltante, _control,
+    _detalle_lista_chat, _detener_y_finalizar, _dialogo_hijo, _gestor_obs,
     _guardar_token_si_renovo, _leer_anuncios, _live_chat_id,
-    _obs_en_ejecucion, _quitar_fuente, contestar_salir_si_aparece,
-    es_borrable,
+    _obs_en_ejecucion, contestar_salir_si_aparece, es_borrable,
 )
 
 NOMBRE_PERFIL = "Prueba de Guyrapu"
 PRIVACIDAD_ESPERADA = "unlisted"
 CHAT_YOUTUBE = "Conectado al directo. Leyendo el chat."
 CHAT_TIKTOK = "TikTok: Conectado al directo. Leyendo el chat."
-SEGUNDOS_WS = 20
 
 
 def _claves(valores) -> set[str]:
@@ -115,52 +111,40 @@ def chats_conectados(anuncios) -> tuple[bool, str]:
     return (False, "falta conectar: " + ", ".join(faltan))
 
 
-def _candidatos(canal) -> set[str]:
-    valores = {str(canal.id)}
-    if getattr(canal, "identificador", ""):
-        valores.add(canal.identificador)
-    return valores
-
-
-def _escuchar(segundos: int):
-    ruta = Path(__file__).resolve().parent.parent / "herramientas"         / "sin_directo.py"
-    especificacion = importlib.util.spec_from_file_location(
-        "sin_directo_qa", ruta)
-    modulo = importlib.util.module_from_spec(especificacion)
-    especificacion.loader.exec_module(modulo)
-    return modulo.escuchar(segundos)
-
-
-def comprobar_restream(estado, anotar) -> bool:
-    tiktok = _candidatos(estado["canal_tiktok"])
-    youtube: set[str] = set()
-    otros: set[str] = set()
-    for canal in estado["canales_antes"]:
-        if canal.id == estado["canal_tiktok"].id:
-            continue
-        if perfiles.es_manual_youtube(canal):
-            continue
-        if perfiles.es_youtube_conectado(canal):
-            youtube |= _candidatos(canal)
-        else:
-            otros |= _candidatos(canal)
+def leer_log_anuncios(ruta, marca) -> str:
     try:
-        entrada, en_vivo = _escuchar(SEGUNDOS_WS)
-    except Exception as exc:
-        anotar("destinos en vivo de Restream", False, f"no se pudo escuchar: {exc}")
-        return False
-    bien, detalle = comparar_destinos_en_vivo(en_vivo, tiktok, youtube, otros)
-    anotar("destinos en vivo de Restream", bien, f"{detalle}; entrada {entrada or 'sin dato'}")
-    return bien
+        datos = Path(ruta).read_bytes()[marca:]
+    except OSError:
+        return ""
+    texto = datos.decode("utf-8", "replace")
+    return "\n".join(linea for linea in texto.splitlines()
+                     if "ANUNCIO " in linea)
 
+
+def texto_anuncios(estado, desde=0) -> str:
+    ruta_log = estado.get("ruta_log")
+    return (_leer_anuncios(estado["ruta_anuncios"])[desde:] + "\n"
+            + (leer_log_anuncios(ruta_log, estado.get("marca_log", 0))
+               if ruta_log else ""))
+
+
+def esperar_anuncio(estado, fragmentos, segundos, desde=0):
+    fin = time.monotonic() + segundos
+    while True:
+        texto = texto_anuncios(estado, desde).lower()
+        for fragmento in fragmentos:
+            if fragmento.lower() in texto:
+                return fragmento
+        if time.monotonic() >= fin:
+            return None
+        time.sleep(1)
 
 
 def comprobar_chats(estado, anotar, timeout) -> bool:
     marca = len(_leer_anuncios(estado["ruta_anuncios"]))
     fin = time.time() + timeout
     while True:
-        bien, detalle = chats_conectados(
-            _leer_anuncios(estado["ruta_anuncios"])[marca:])
+        bien, detalle = chats_conectados(texto_anuncios(estado, marca))
         if bien or time.time() >= fin:
             break
         time.sleep(1)
@@ -213,8 +197,12 @@ def buscar_por_titulo(estado) -> None:
 def paso_detener_obs(estado, anotar) -> None:
     gestor = estado.get("gestor_obs")
     if gestor is None:
-        anotar("detener OBS", True, "OBS no se conectó")
-        return
+        try:
+            gestor = _gestor_obs()
+            estado["gestor_obs"] = gestor
+        except Exception as exc:
+            anotar("detener OBS", False, f"sin conexión a OBS: {exc}")
+            return
     try:
         actual = gestor.estado_transmision() or {}
         if actual.get("outputActive"):
@@ -255,13 +243,10 @@ def paso_restaurar_destinos(estado, anotar, cuenta_mod) -> None:
     cambios = destinos_a_restaurar(antes, actuales)
     if estado.get("finalizado"):
         anotar("la app devolvió los destinos", not cambios,
-               f"quedaron cambiados: {', '.join(str(c[0]) for c in cambios)}"
-               if cambios else "sin cambios")
-    if not cambios:
-        anotar("destinos de Restream", True, "no había nada que restaurar")
-        return
+               "cambiados: " + (", ".join(str(c[0]) for c in cambios)
+                                or "ninguno"))
     _aplicar(cuenta_mod.activar_canal, cambios, anotar, "destinos de Restream",
-             "se devolvieron a su estado")
+             "como estaban")
 
 
 def paso_borrar_manual(estado, anotar, cuenta_mod) -> None:
@@ -275,13 +260,39 @@ def paso_borrar_manual(estado, anotar, cuenta_mod) -> None:
     sobrantes = manuales_nuevos(antes, actuales)
     if estado.get("finalizado"):
         anotar("la app borró el destino manual", not sobrantes,
-               f"quedó {', '.join(map(str, sobrantes))}" if sobrantes
-               else "sin sobrantes")
-    if not sobrantes:
-        anotar("destino manual de YouTube", True, "no había nada que borrar")
-        return
+               "quedó " + (", ".join(map(str, sobrantes)) or "ninguno"))
     _aplicar(cuenta_mod.eliminar_canal, [(i,) for i in sobrantes], anotar,
-             "destino manual de YouTube", f"borrado {', '.join(map(str, sobrantes))}")
+             "destino manual de YouTube", "sin sobrantes")
+
+
+def esperar_restauracion_app(estado, cuenta_mod, segundos=30, intervalo=2,
+                             reloj=time.monotonic, dormir=time.sleep) -> bool:
+    app = estado.get("app")
+    if not estado.get("salio_al_aire") or app is None or app.poll() is not None:
+        return True
+    fin = reloj() + segundos
+    while reloj() <= fin:
+        try:
+            actuales = cuenta_mod.canales()
+        except Exception:
+            actuales = None
+        if actuales is not None and not destinos_a_restaurar(
+                estado.get("antes") or {}, actuales) and not manuales_nuevos(
+                estado.get("canales_antes") or [], actuales):
+            return True
+        dormir(intervalo)
+    return False
+
+
+def paso_finalizar_app(estado, anotar) -> None:
+    if estado.get("salio_al_aire") or not estado.get("pulso_transmitir"):
+        return
+    principal = estado.get("principal")
+    with contextlib.suppress(RuntimeError):
+        if principal is not None:
+            _control(principal, "Finalizar directo", "Button", 5).invoke()
+            _control(_dialogo_hijo(principal, "Finalizar directo", 10),
+                     "Finalizar directo", "Button", 5).invoke()
 
 
 def paso_borrar_video(estado, anotar) -> None:
@@ -317,20 +328,6 @@ def paso_borrar_video(estado, anotar) -> None:
     estado["borrado_id"] = id_video
     estado["id_video"] = ""
     estado["enlace_manual"] = ""
-
-
-def paso_quitar_escena(estado, anotar) -> None:
-    escena = estado.get("escena_prueba")
-    gestor = estado.get("gestor_obs")
-    if not escena or gestor is None:
-        anotar("quitar la escena de prueba", True, "no se llegó a armar")
-        return
-    _quitar_fuente(gestor, escena, FUENTE_CAMARA, borrar_entrada=True)
-    _quitar_fuente(gestor, escena, FUENTE_APLICACION, borrar_entrada=True)
-    if estado.get("creo_panel"):
-        from guyrapu.obs.obs_panel import NOMBRE_FUENTE
-        _quitar_fuente(gestor, escena, NOMBRE_FUENTE)
-    anotar("quitar la escena de prueba", True, "capturas y panel fuera de la escena")
 
 
 def paso_cerrar_app(estado, anotar) -> None:
@@ -375,12 +372,12 @@ def restaurar_archivos(estado, anotar) -> None:
 
 def limpiar(estado, anotar, cuenta_mod) -> None:
     pasos = (
+        lambda: paso_finalizar_app(estado, anotar),
         lambda: paso_detener_obs(estado, anotar),
+        lambda: esperar_restauracion_app(estado, cuenta_mod),
         lambda: paso_restaurar_destinos(estado, anotar, cuenta_mod),
         lambda: paso_borrar_manual(estado, anotar, cuenta_mod),
         lambda: paso_borrar_video(estado, anotar),
-        lambda: paso_quitar_escena(estado, anotar),
-        lambda: _cerrar_ventanas_prueba(estado.get("ventanas_prueba") or []),
         lambda: paso_cerrar_app(estado, anotar),
         lambda: restaurar_archivos(estado, anotar),
     )

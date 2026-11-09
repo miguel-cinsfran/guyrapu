@@ -11,6 +11,7 @@ estaban. No corre en la suite ni en el hook.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -27,22 +28,22 @@ from guyrapu.core.config import APP_NAME  # noqa: E402
 from guyrapu.restream import perfiles  # noqa: E402
 
 from directo_comun import (  # noqa: E402
-    NOMBRE_PERFIL, PRIVACIDAD_ESPERADA, armar_perfil, comprobar_chats,
-    comprobar_restream, destino_tiktok, imprimir, limpiar,
+    NOMBRE_PERFIL, PRIVACIDAD_ESPERADA, armar_perfil,
+    comparar_destinos_en_vivo, comprobar_chats, destino_tiktok,
+    esperar_anuncio, imprimir, limpiar,
 )
 from directo_real import (  # noqa: E402
-    OK_FIN, _LANZADOR, _abrir_ventanas_prueba, _armar_escena_prueba,
-    _borrar_video, _buscar_video_por_titulo, _cliente_youtube, _control,
-    _dialogo_hijo, _esperar_anuncio, _esperar_estado, _gestor_obs,
-    _guardar_token_si_renovo, _leer_anuncios, _leer_valor, _limpiar_sentinel,
-    _obs_en_ejecucion, _puerto_panel, _ventana, armar_titulo,
-    extraer_id_video,
+    OK_FIN, _LANZADOR, _buscar_video_por_titulo,
+    _cliente_youtube, _control, _dialogo_hijo, _esperar_estado,
+    _guardar_token_si_renovo, _leer_anuncios, _leer_valor,
+    _obs_en_ejecucion, _ventana, armar_titulo, extraer_id_video,
 )
 
 PREFIJO_OPCION = "restream:"
 OK_AL_AIRE = "directo iniciado en youtube"
 ERRORES_AL_AIRE = ("no se pudo", "error", "falló", "no tiene",
                    "todavía no muestra")
+SEGUNDOS_WS = 20
 
 
 def _ayuda() -> argparse.ArgumentParser:
@@ -115,19 +116,13 @@ def _respaldar_todo(estado, anotar) -> bool:
         estado["respaldos"][clave] = respaldo
     anotar("respaldos", True, "config.ini, sounds.ini y perfiles_restream.json")
     estado["estaba_obs"] = _obs_en_ejecucion()
-    if not estado["estaba_obs"]:
-        _limpiar_sentinel()
-    anotar("OBS sin modo seguro", True,
-           "sentinel limpio" if not estado["estaba_obs"]
-           else "ya estaba abierto, no se toca el sentinel")
     return True
 
 
 def _guardar_perfil(estado, anotar) -> bool:
     perfil = armar_perfil(estado["canal_tiktok"],
                           armar_titulo(time.strftime("%H:%M")))
-    existentes = perfiles.cargar(estado["rutas"]["perfiles"])
-    otros = [previo for previo in existentes
+    otros = [previo for previo in perfiles.cargar(estado["rutas"]["perfiles"])
              if previo.nombre.strip().casefold() != NOMBRE_PERFIL.casefold()]
     problemas = perfiles.validar(perfil, otros)
     if problemas:
@@ -164,16 +159,16 @@ def _lanzar_app(estado, anotar) -> bool:
     ruta_lanzador = os.path.join(tmpdir, "app_directo_restream.py")
     with open(ruta_lanzador, "w", encoding="utf-8") as archivo:
         archivo.write(_LANZADOR.format(repo=str(estado["raiz"])))
-    try:
-        estado["ventanas_prueba"] = _abrir_ventanas_prueba()
-        anotar("ventanas de prueba", True,
-               "«Cámara de prueba» y «Aplicación de prueba» abiertas")
-    except Exception as exc:
-        anotar("ventanas de prueba", False, str(exc))
-        return False
     entorno = dict(os.environ,
                    DIRECTO_REAL_ANUNCIOS=estado["ruta_anuncios"],
                    DIRECTO_REAL_CHAT=estado["ruta_chat"])
+    from guyrapu.core import paths
+    ruta_log = paths.log_detallado()
+    estado["ruta_log"] = ruta_log
+    try:
+        estado["marca_log"] = os.path.getsize(ruta_log)
+    except OSError:
+        estado["marca_log"] = 0
     estado["app"] = subprocess.Popen([sys.executable, ruta_lanzador],
                                      cwd=str(estado["raiz"]), env=entorno)
     try:
@@ -215,24 +210,10 @@ def _armar_y_transmitir(estado, anotar) -> bool:
         from guyrapu.youtube.emision import ETIQUETAS_PRIVACIDAD
         aceptados = {PRIVACIDAD_ESPERADA,
                      _(ETIQUETAS_PRIVACIDAD[PRIVACIDAD_ESPERADA])}
-        if not any(a.casefold() in (privacidad or "").casefold()
-                   for a in aceptados):
+        if not any(a.casefold() in (privacidad or "").casefold() for a in aceptados):
             anotar("privacidad no listado", False, f"dice «{privacidad}»")
             return False
         anotar("privacidad no listado", True, "«No listado»")
-        try:
-            gestor = _gestor_obs()
-            url_panel = (f"http://127.0.0.1:"
-                         f"{_puerto_panel(estado['rutas']['config'])}/chat")
-            escena, creo_panel = _armar_escena_prueba(gestor, url_panel)
-            estado["gestor_obs"] = gestor
-            estado["escena_prueba"] = escena
-            estado["creo_panel"] = creo_panel
-            anotar("escena de prueba", True,
-                   f"escena «{escena}» con dos capturas sobre el panel")
-        except Exception as exc:
-            anotar("escena de prueba", False, str(exc))
-            return False
         estado["marca_salida"] = len(_leer_anuncios(estado["ruta_anuncios"]))
         _control(directo, "Transmitir", "Button").invoke()
         estado["pulso_transmitir"] = True
@@ -242,15 +223,52 @@ def _armar_y_transmitir(estado, anotar) -> bool:
         return False
 
 
+def _candidatos(canal) -> set[str]:
+    valores = {str(canal.id)}
+    if getattr(canal, "identificador", ""):
+        valores.add(canal.identificador)
+    return valores
+
+
+def _escuchar(segundos: int):
+    ruta = Path(__file__).resolve().parent.parent / "herramientas"         / "sin_directo.py"
+    especificacion = importlib.util.spec_from_file_location(
+        "sin_directo_qa", ruta)
+    modulo = importlib.util.module_from_spec(especificacion)
+    especificacion.loader.exec_module(modulo)
+    return modulo.escuchar(segundos)
+
+
+def comprobar_restream(estado, anotar) -> bool:
+    tiktok = _candidatos(estado["canal_tiktok"])
+    youtube: set[str] = set()
+    otros: set[str] = set()
+    for canal in estado["canales_antes"]:
+        if canal.id == estado["canal_tiktok"].id:
+            continue
+        if perfiles.es_manual_youtube(canal):
+            continue
+        if perfiles.es_youtube_conectado(canal):
+            youtube |= _candidatos(canal)
+        else:
+            otros |= _candidatos(canal)
+    try:
+        entrada, en_vivo = _escuchar(SEGUNDOS_WS)
+    except Exception as exc:
+        anotar("destinos en vivo de Restream", False, f"no se pudo escuchar: {exc}")
+        return False
+    bien, detalle = comparar_destinos_en_vivo(en_vivo, tiktok, youtube, otros)
+    anotar("destinos en vivo de Restream", bien, f"{detalle}; entrada {entrada or 'sin dato'}")
+    return bien
+
+
 def _esperar_al_aire(estado, anotar, args) -> bool:
-    resultado = _esperar_anuncio(
-        estado["ruta_anuncios"], (OK_AL_AIRE,) + ERRORES_AL_AIRE,
-        args.timeout_salida, estado["marca_salida"])
+    resultado = esperar_anuncio(estado, (OK_AL_AIRE,) + ERRORES_AL_AIRE,
+                               args.timeout_salida, estado["marca_salida"])
     if resultado is None or OK_AL_AIRE not in resultado.lower():
         anotar("salir al aire", False,
-               f"sin «Directo iniciado en YouTube» en "
-               f"{args.timeout_salida} s" if resultado is None
-               else f"la app anunció «{resultado}»")
+               f"sin «Directo iniciado en YouTube» en {args.timeout_salida} s"
+               if resultado is None else f"la app anunció «{resultado}»")
         return False
     anotar("salir al aire", True, resultado)
     estado["salio_al_aire"] = True
@@ -287,7 +305,7 @@ def _resolver_video(estado, anotar) -> bool:
     return True
 
 
-def _finalizar_y_borrar(estado, anotar, args) -> bool:
+def _finalizar_directo(estado, anotar, args) -> bool:
     try:
         marca = len(_leer_anuncios(estado["ruta_anuncios"]))
         _control(estado["principal"], "Finalizar directo", "Button").invoke()
@@ -297,8 +315,7 @@ def _finalizar_y_borrar(estado, anotar, args) -> bool:
     except RuntimeError as exc:
         anotar("finalizar directo", False, str(exc))
         return False
-    resultado = _esperar_anuncio(estado["ruta_anuncios"], OK_FIN,
-                                 args.timeout_fin, marca)
+    resultado = esperar_anuncio(estado, OK_FIN, args.timeout_fin, marca)
     if resultado is None:
         anotar("finalizar directo", False,
                f"sin «Transmisión detenida» en {args.timeout_fin} s")
@@ -311,21 +328,6 @@ def _finalizar_y_borrar(estado, anotar, args) -> bool:
         return False
     anotar("YouTube terminó el directo", True, "estado «complete»")
     estado["finalizado"] = True
-    try:
-        borrado, motivo = _borrar_video(
-            estado["cliente"], estado["creds"], estado["id_video"])
-    except Exception as exc:
-        anotar("borrar el vídeo", False,
-               f"{exc}; a mano: {estado['enlace_manual']}")
-        return False
-    if not borrado:
-        anotar("borrar el vídeo", False,
-               f"{motivo}; a mano: {estado['enlace_manual']}")
-        return False
-    anotar("borrar el vídeo", True, f"id {estado['id_video']}")
-    estado["borrado_id"] = estado["id_video"]
-    estado["id_video"] = ""
-    estado["enlace_manual"] = ""
     return True
 
 
@@ -346,7 +348,7 @@ def _transmitir(args, anotar, cuenta_mod, estado) -> int:
         return 1
     time.sleep(max(0, args.duracion))
     anotar("directo al aire", True, f"{args.duracion} s")
-    if not _finalizar_y_borrar(estado, anotar, args):
+    if not _finalizar_directo(estado, anotar, args):
         return 1
     return 0
 

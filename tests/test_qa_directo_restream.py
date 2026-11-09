@@ -20,7 +20,8 @@ _paquete.loader.exec_module(directo_restream)
 
 from directo_comun import (  # noqa: E402
     chats_conectados, comparar_destinos_en_vivo, destinos_a_restaurar,
-    manuales_nuevos, paso_borrar_manual, paso_restaurar_destinos,
+    esperar_restauracion_app, leer_log_anuncios, manuales_nuevos,
+    paso_borrar_manual, paso_restaurar_destinos,
 )
 
 
@@ -320,6 +321,98 @@ class TestLaAppBorraElManual(unittest.TestCase):
         borrado = _buscar(pasos, "destino manual de YouTube")
         self.assertTrue(borrado[0][1])
         self.assertEqual(cuenta.eliminados, [9])
+
+
+
+class TestLeerLogAnuncios(unittest.TestCase):
+
+    def test_lee_solo_los_anuncios_desde_la_marca(self):
+        descriptor, ruta = tempfile.mkstemp(suffix=".log")
+        os.close(descriptor)
+        self.addCleanup(os.remove, ruta)
+        with open(ruta, "w", encoding="utf-8") as archivo:
+            archivo.write("2026 ANUNCIO viejo\n")
+            archivo.write("2026 ruido anterior\n")
+        marca_log = os.path.getsize(ruta)
+        with open(ruta, "a", encoding="utf-8") as archivo:
+            archivo.write("2026 ANUNCIO Directo iniciado en YouTube\n")
+            archivo.write("2026 ruido nuevo\n")
+            archivo.write("2026 ANUNCIO TikTok: Conectado al directo.\n")
+        leido = leer_log_anuncios(ruta, marca_log)
+        self.assertIn("Directo iniciado en YouTube", leido)
+        self.assertIn("TikTok: Conectado al directo.", leido)
+        self.assertNotIn("viejo", leido)
+        self.assertNotIn("ruido", leido)
+
+
+class AppFalsa:
+
+    def poll(self):
+        return None
+
+
+class RelojDoblado:
+
+    def __init__(self):
+        self.ahora = 0.0
+        self.dormidas = []
+
+    def __call__(self):
+        return self.ahora
+
+    def dormir(self, segundos):
+        self.dormidas.append(segundos)
+        self.ahora += segundos
+
+
+class CuentaSecuencia:
+
+    def __init__(self, secuencia):
+        self.secuencia = list(secuencia)
+        self.llamadas = 0
+
+    def canales(self):
+        indice = min(self.llamadas, len(self.secuencia) - 1)
+        self.llamadas += 1
+        return list(self.secuencia[indice])
+
+
+class TestEsperaRestauracionApp(unittest.TestCase):
+
+    def _estado(self):
+        return {"salio_al_aire": True, "app": AppFalsa(),
+                "antes": {1: True}, "canales_antes": [CanalFalso(1)]}
+
+    def test_espera_hasta_que_la_app_devuelve_los_destinos(self):
+        cuenta = CuentaSecuencia([
+            [CanalFalso(1, activo=False)],
+            [CanalFalso(1, activo=True)],
+        ])
+        reloj = RelojDoblado()
+        bien = esperar_restauracion_app(
+            self._estado(), cuenta, 30, 2, reloj, reloj.dormir)
+        self.assertTrue(bien)
+        self.assertEqual(cuenta.llamadas, 2)
+        self.assertEqual(reloj.dormidas, [2])
+
+    def test_corta_a_los_treinta_segundos(self):
+        cuenta = CuentaSecuencia([[CanalFalso(1, activo=False)]])
+        reloj = RelojDoblado()
+        bien = esperar_restauracion_app(
+            self._estado(), cuenta, 30, 2, reloj, reloj.dormir)
+        self.assertFalse(bien)
+        self.assertEqual(reloj.ahora, 32)
+        self.assertEqual(len(reloj.dormidas), 16)
+
+    def test_si_no_salio_al_aire_no_espera(self):
+        estado = {"salio_al_aire": False, "app": AppFalsa(),
+                  "antes": {1: True}, "canales_antes": [CanalFalso(1)]}
+        cuenta = CuentaSecuencia([[CanalFalso(1, activo=False)]])
+        reloj = RelojDoblado()
+        bien = esperar_restauracion_app(
+            estado, cuenta, 30, 2, reloj, reloj.dormir)
+        self.assertTrue(bien)
+        self.assertEqual(cuenta.llamadas, 0)
 
 
 if __name__ == "__main__":
