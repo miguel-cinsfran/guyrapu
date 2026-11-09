@@ -114,11 +114,8 @@ def sesion_caducada(exc) -> bool:
     """True si la excepción indica que el token OAuth murió (p. ej. revocado,
     contraseña cambiada o meses sin uso). Pura: no importa google, solo mira
     el nombre de la clase y el texto."""
-    try:
-        if type(exc).__name__ == "RefreshError":
-            return True
-    except Exception as error:
-        logger.debug("no se pudo revisar el tipo de error: %s", error)
+    if type(exc).__name__ == "RefreshError":
+        return True
     try:
         return "invalid_grant" in str(exc).lower()
     except Exception:
@@ -173,16 +170,9 @@ def es_error_403(exc) -> bool:
     Mira el código del `HttpError` de googleapiclient (`resp.status` o
     `status_code`) y, si no lo encuentra, el texto. Pura: no importa google.
     """
-    codigo = None
-    try:
-        codigo = getattr(getattr(exc, "resp", None), "status", None)
-    except Exception:
-        codigo = None
+    codigo = getattr(getattr(exc, "resp", None), "status", None)
     if codigo is None:
-        try:
-            codigo = getattr(exc, "status_code", None)
-        except Exception:
-            codigo = None
+        codigo = getattr(exc, "status_code", None)
     if codigo is not None:
         try:
             return int(codigo) == 403
