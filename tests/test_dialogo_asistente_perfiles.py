@@ -104,5 +104,54 @@ class TestDialogoResumen(unittest.TestCase):
         self.assertIs(wx.Window.FindFocus(), dialogo.txt_resumen)
 
 
+class _OperacionesQueEjecuta:
+    """Corre el trabajo en el acto y no avisa el final."""
+
+    def en_hilo(self, funcion, al_terminar=None):
+        funcion()
+
+
+class _ProgresoFalso:
+    def __init__(self, _ventana, _parada):
+        pass
+
+    def ShowModal(self):
+        return wx.ID_OK
+
+    def Destroy(self):
+        pass
+
+    def mostrar_paso(self, _texto):
+        pass
+
+
+class TestAnteriores(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_preparar_recibe_el_perfil_que_tenia_cada_uso(self):
+        capturado = {}
+
+        def preparar_falso(cliente, usos, **opciones):
+            capturado.update(opciones)
+            return asistente_perfiles.ResultadoAsistente(())
+
+        config = {"perfil_horizontal": "YouTube", "perfil_vertical": "TikTok",
+                  "perfil_grabar": ""}
+        panel = modulo.AsistentePerfilesPanel(
+            None, _OperacionesQueEjecuta(), lambda: object(), config,
+            lambda _resultado: None)
+        with mock.patch.object(modulo.asistente_perfiles, "preparar",
+                               preparar_falso), \
+                mock.patch.object(modulo, "DialogoProgresoAsistente",
+                                  _ProgresoFalso):
+            panel._correr(["perfil_horizontal"], True)
+        self.assertEqual(
+            capturado["anteriores"],
+            {"perfil_horizontal": "YouTube", "perfil_vertical": "TikTok",
+             "perfil_grabar": ""})
+
+
 if __name__ == "__main__":
     unittest.main()
