@@ -12,12 +12,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from guyrapu.core.idioma import _, ngettext
+from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.obs import geometria_fuente, obs_disposicion, transformar_fuente
 
 
 # Cubre este porcentaje del lienzo o más y se considera imagen completa.
 _UMBRAL_TODO = 95.0
+# Los tipos que OBS solo dibuja cuando la escena está al aire; fuera de él
+# no informan tamaño.
+_TIPOS_SIN_DIBUJO = (N_("captura de pantalla"), N_("captura de ventana"),
+                     N_("captura de juego"))
 # Tapada en este porcentaje o más por una fuente visible de más adelante,
 # se considera que no aparece en la imagen.
 _UMBRAL_TAPA_ENTERA = 95.0
@@ -150,9 +154,14 @@ class FilaFuente:
     tamano: str = ""
 
 
-def _texto_sin_imagen(nombre, tipo, visible) -> tuple:
+def _texto_sin_imagen(nombre, tipo, visible, al_aire) -> tuple:
     """La fuente no muestra imagen: no se le inventa posición ni tamaño."""
-    estado = _("no muestra imagen") if visible else _("oculta en OBS")
+    if not visible:
+        estado = _("oculta en OBS")
+    elif not al_aire and tipo in {_(texto) for texto in _TIPOS_SIN_DIBUJO}:
+        estado = _("se mide al ponerla al aire")
+    else:
+        estado = _("no muestra imagen")
     partes = [nombre]
     if tipo:
         partes.append(str(tipo))
@@ -199,7 +208,8 @@ def _texto_fuente(elemento, rect, delanteros, lienzo_ancho,
     return ", ".join(partes), posicion, tamano
 
 
-def _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos) -> list:
+def _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos,
+                al_aire=True) -> list:
     ordenados = sorted(elementos or (),
                        key=lambda elemento: elemento.get("sceneItemIndex", 0),
                        reverse=True)
@@ -213,7 +223,7 @@ def _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos) -> list:
         visible = _visible(elemento)
         if medida is not None and not medida.tiene_imagen:
             texto, posicion, tamano = _texto_sin_imagen(
-                nombre, tipo, visible)
+                nombre, tipo, visible, al_aire)
         else:
             texto, posicion, tamano = _texto_fuente(
                 elemento, rect, delanteros, lienzo_ancho, lienzo_alto, tipos)
@@ -225,11 +235,13 @@ def _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos) -> list:
     return filas
 
 
-def filas_de_escena(elementos, lienzo_ancho, lienzo_alto, tipos) -> tuple:
+def filas_de_escena(elementos, lienzo_ancho, lienzo_alto, tipos,
+                    al_aire=True) -> tuple:
     """Una fila por fuente, de adelante hacia atrás, con todo lo que se dice.
 
     El texto es el de la descripción sin número ni punto; si la fuente está
-    bloqueada, se agrega «bloqueada» al final.
+    bloqueada, se agrega «bloqueada» al final. Fuera del aire, una captura
+    que OBS no dibuja se mide al poner la escena al aire.
     """
     return tuple(
         FilaFuente(
@@ -238,7 +250,7 @@ def filas_de_escena(elementos, lienzo_ancho, lienzo_alto, tipos) -> tuple:
             visible=visible, bloqueada=bloqueada, tipo=tipo,
             posicion=posicion, tamano=tamano)
         for nombre, texto, visible, bloqueada, tipo, posicion, tamano
-        in _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos))
+        in _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos, al_aire))
 
 
 def describir_escena(escena, elementos, lienzo_ancho, lienzo_alto, tipos,

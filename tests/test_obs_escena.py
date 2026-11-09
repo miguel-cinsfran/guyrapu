@@ -240,6 +240,55 @@ class SinImagenTest(unittest.TestCase):
         self.assertIn("75 por ciento del ancho", frase)
 
 
+class CapturaFueraDelAireTest(unittest.TestCase):
+    def _sin_tamano(self, visible=True):
+        transformacion = {
+            "positionX": 0, "positionY": 0, "width": 0, "height": 0,
+            "sourceWidth": 0, "sourceHeight": 0,
+            "scaleX": 1, "scaleY": 1, "rotation": 0, "alignment": 5,
+            "boundsType": "OBS_BOUNDS_SCALE_INNER", "boundsAlignment": 0,
+            "boundsWidth": 1600, "boundsHeight": 900,
+            "cropLeft": 0, "cropRight": 0, "cropTop": 0, "cropBottom": 0,
+        }
+        return {"sourceName": "Captura", "sceneItemIndex": 0,
+                "sceneItemEnabled": visible,
+                "sceneItemTransform": transformacion}
+
+    def test_las_tres_capturas_fuera_del_aire_se_miden_al_pasar_al_aire(self):
+        for tipo in ("captura de pantalla", "captura de ventana",
+                     "captura de juego"):
+            with self.subTest(tipo=tipo):
+                filas = obs_escena.filas_de_escena(
+                    [self._sin_tamano()], *LIENZO, {"Captura": tipo},
+                    al_aire=False)
+                self.assertEqual(
+                    filas[0].texto,
+                    f"Captura, {tipo}, se mide al ponerla al aire")
+
+    def test_una_captura_sin_tamano_al_aire_sigue_sin_mostrar_imagen(self):
+        filas = obs_escena.filas_de_escena(
+            [self._sin_tamano()], *LIENZO,
+            {"Captura": "captura de pantalla"}, al_aire=True)
+        self.assertEqual(
+            filas[0].texto,
+            "Captura, captura de pantalla, no muestra imagen")
+
+    def test_una_imagen_sin_tamano_fuera_del_aire_sigue_como_hoy(self):
+        filas = obs_escena.filas_de_escena(
+            [self._sin_tamano()], *LIENZO, {"Captura": "imagen"},
+            al_aire=False)
+        self.assertEqual(filas[0].texto,
+                         "Captura, imagen, no muestra imagen")
+
+    def test_una_fuente_oculta_sin_tamano_sigue_diciendo_oculta(self):
+        filas = obs_escena.filas_de_escena(
+            [self._sin_tamano(visible=False)], *LIENZO,
+            {"Captura": "captura de pantalla"})
+        self.assertEqual(
+            filas[0].texto,
+            "Captura, captura de pantalla, oculta en OBS")
+
+
 class FilasDeEscenaTest(unittest.TestCase):
     def test_el_ejemplo_de_e3_sin_numero_ni_punto(self):
         elementos = [

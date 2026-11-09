@@ -44,27 +44,27 @@ class GestorPanelObs:
 
     def _datos_escena(self, escena, parada):
         actual = escena is None
-        if actual:
-            escena = self.escena_al_aire(parada)
+        al_aire = self.escena_al_aire(parada)
+        escena = al_aire if actual else escena
         elementos = self.elementos(escena, parada)
         lienzo = self._pedir("GetVideoSettings", parada=parada)
         entradas = self._pedir("GetInputList", parada=parada).get("inputs", ())
-        return (actual, escena, elementos, lienzo,
+        return (actual, al_aire, escena, elementos, lienzo,
                 obs_prevuelo.tipos_de_entradas(entradas))
 
     def descripcion_escena(self, escena=None, parada=None) -> str:
-        actual, escena, elementos, lienzo, tipos = self._datos_escena(
-            escena, parada)
+        actual, _al_aire, escena, elementos, lienzo, tipos = (
+            self._datos_escena(escena, parada))
         return obs_escena.describir_escena(
             escena, elementos, lienzo.get("baseWidth", 0),
             lienzo.get("baseHeight", 0), tipos, actual=actual)
 
     def filas_escena(self, escena=None, parada=None) -> tuple:
-        _actual, escena, elementos, lienzo, tipos = self._datos_escena(
-            escena, parada)
+        actual, al_aire, escena, elementos, lienzo, tipos = (
+            self._datos_escena(escena, parada))
         return obs_escena.filas_de_escena(
             elementos, lienzo.get("baseWidth", 0),
-            lienzo.get("baseHeight", 0), tipos)
+            lienzo.get("baseHeight", 0), tipos, al_aire=escena == al_aire)
 
     def poner_escena_al_aire(self, escena, parada=None) -> str:
         self._pedir("SetCurrentProgramScene", {"sceneName": escena}, parada)

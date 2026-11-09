@@ -12894,3 +12894,7 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/obs/obs_escena.py
+msgid "se mide al ponerla al aire"
+msgstr "measured once it is on air"
+

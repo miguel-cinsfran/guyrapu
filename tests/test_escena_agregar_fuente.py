@@ -43,9 +43,11 @@ class Operaciones:
 
 
 class Gestor:
-    def __init__(self, filas=(), fuentes_escena=("Cámara",)):
+    def __init__(self, filas=(), fuentes_escena=("Cámara",), lecturas=None):
         self.llamadas = []
         self.filas = list(filas)
+        self.lecturas = list(lecturas or ())
+        self.veces_filas = 0
         self.fuentes_escena = tuple(fuentes_escena)
         self.ventana = None
 
@@ -58,6 +60,9 @@ class Gestor:
         return {}
 
     def filas_escena(self, escena, parada=None):
+        self.veces_filas += 1
+        if self.lecturas:
+            return tuple(self.lecturas.pop(0))
         return tuple(self.filas)
 
     def fuentes(self, escena):
@@ -74,6 +79,11 @@ class Lista:
 
     def SetFocus(self):
         self.veces += 1
+
+
+def fila(nombre, posicion="", tamano="", texto=""):
+    return SimpleNamespace(nombre=nombre, posicion=posicion, tamano=tamano,
+                           texto=texto)
 
 
 class Ventana:
@@ -201,6 +211,93 @@ class AgregarTest(unittest.TestCase):
         self.assertEqual(pagina.cargado, (filas, "Imagen"))
         self.assertIn("Imagen agregada a la escena Principal.", anuncios)
         self.assertGreater(pagina.lst_fuentes.veces, 0)
+
+    def test_la_fuente_nueva_se_relee_hasta_que_tiene_imagen(self):
+        sin_imagen = (fila("Imagen", texto="Imagen, imagen, no muestra imagen"),)
+        con_imagen = (fila(
+            "Imagen", "abajo a la izquierda", "29 por ciento del ancho",
+            "Imagen, imagen, abajo a la izquierda, 29 por ciento del ancho, "
+            "se ve"),)
+        pagina = Pagina(Gestor(filas=sin_imagen,
+                               lecturas=[sin_imagen, con_imagen]))
+        anuncios = []
+        with mock.patch.object(
+                escena_agregar_fuente, "_pedir_nombre",
+                return_value="Imagen"), \
+                mock.patch.object(
+                    escena_agregar_fuente.escena_propiedades, "pedir",
+                    return_value={}), \
+                mock.patch.object(fuente_nueva, "crear"), \
+                mock.patch.object(
+                    escena_agregar_fuente.time, "sleep") as dormir, \
+                mock.patch.object(
+                    escena_agregar_fuente.time, "monotonic",
+                    return_value=0.0), \
+                mock.patch.object(escena_agregar_fuente, "anunciar",
+                                  anuncios.append):
+            escena_agregar_fuente.agregar(pagina, "imagen")
+        self.assertEqual(pagina.cargado, (con_imagen, "Imagen"))
+        self.assertEqual(pagina._gestor.veces_filas, 2)
+        dormir.assert_called_once_with(0.25)
+        self.assertEqual(anuncios, ["Imagen agregada a la escena Principal."])
+
+    def test_una_fuente_que_nunca_toma_imagen_no_pasa_del_tiempo_maximo(self):
+        sin_imagen = (fila("Imagen", texto="Imagen, imagen, no muestra imagen"),)
+        pagina = Pagina(Gestor(filas=sin_imagen))
+        reloj = [0.0]
+
+        def dormir(segundos):
+            reloj[0] += segundos
+
+        with mock.patch.object(
+                escena_agregar_fuente, "_pedir_nombre",
+                return_value="Imagen"), \
+                mock.patch.object(
+                    escena_agregar_fuente.escena_propiedades, "pedir",
+                    return_value={}), \
+                mock.patch.object(fuente_nueva, "crear"), \
+                mock.patch.object(escena_agregar_fuente.time, "sleep", dormir), \
+                mock.patch.object(
+                    escena_agregar_fuente.time, "monotonic",
+                    side_effect=lambda: reloj[0]), \
+                mock.patch.object(escena_agregar_fuente, "anunciar"):
+            escena_agregar_fuente.agregar(pagina, "imagen")
+        self.assertEqual(pagina.cargado, (sin_imagen, "Imagen"))
+        self.assertEqual(pagina.cargado[0][0].texto,
+                         "Imagen, imagen, no muestra imagen")
+        self.assertLessEqual(reloj[0], 1.5)
+        self.assertEqual(pagina._gestor.veces_filas, 7)
+
+    def test_agregar_de_otra_escena_relee_hasta_que_tiene_imagen(self):
+        sin_imagen = (fila("Imagen", texto="Imagen, imagen, no muestra imagen"),)
+        con_imagen = (fila(
+            "Imagen", "abajo a la izquierda", "29 por ciento del ancho",
+            "Imagen, imagen, abajo a la izquierda, 29 por ciento del ancho, "
+            "se ve"),)
+        pagina = Pagina(Gestor(filas=sin_imagen,
+                               lecturas=[sin_imagen, con_imagen]))
+        anuncios = []
+        with mock.patch.object(
+                fuente_nueva, "fuentes_de_otras",
+                return_value=("Imagen",)), \
+                mock.patch.object(
+                    escena_agregar_fuente.escena_propiedades, "pedir_fuente",
+                    return_value="Imagen"), \
+                mock.patch.object(fuente_nueva, "agregar_de_otra") as agregar, \
+                mock.patch.object(
+                    escena_agregar_fuente.time, "sleep") as dormir, \
+                mock.patch.object(
+                    escena_agregar_fuente.time, "monotonic",
+                    return_value=0.0), \
+                mock.patch.object(escena_agregar_fuente, "anunciar",
+                                  anuncios.append):
+            escena_agregar_fuente.agregar(pagina, "otra_escena")
+        agregar.assert_called_once_with(
+            pagina._gestor._pedir, "Principal", "Imagen")
+        self.assertEqual(pagina.cargado, (con_imagen, "Imagen"))
+        self.assertEqual(pagina._gestor.veces_filas, 2)
+        dormir.assert_called_once_with(0.25)
+        self.assertEqual(anuncios, ["Imagen agregada a la escena Principal."])
 
     def test_sin_fuentes_de_otras_escenas_lo_dice(self):
         pagina = Pagina()

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+import time
+
 import wx
 
 from guyrapu.core.idioma import _
@@ -104,7 +106,35 @@ def _con_datos(pagina, escena, tipo, datos):
 def _crear_y_leer(pagina, escena, tipo, nombre, valores):
     fuente_nueva.crear(
         pagina._gestor._pedir, escena, tipo.clave, nombre, valores)
-    return consultas_transmision.leer_filas(pagina._gestor, escena)
+    return _leer_hasta_dibujar(pagina, escena, nombre)
+
+
+# OBS tarda en dibujar el primer cuadro de una fuente recién agregada. Se
+# vuelve a leer la lista hasta que la fila nueva tenga posición o tamaño.
+_ESPERA_MAXIMA = 1.5
+_PASO_ESPERA = 0.25
+
+
+def _tiene_imagen(filas, nombre):
+    """Si la fila de la fuente ya trae posición o tamaño."""
+    for fila in filas or ():
+        if getattr(fila, "nombre", None) != nombre:
+            continue
+        posicion = getattr(fila, "posicion", None)
+        tamano = getattr(fila, "tamano", None)
+        if posicion is None and tamano is None:
+            return True
+        return bool(posicion or tamano)
+    return False
+
+
+def _leer_hasta_dibujar(pagina, escena, nombre):
+    filas = consultas_transmision.leer_filas(pagina._gestor, escena)
+    limite = time.monotonic() + _ESPERA_MAXIMA
+    while not _tiene_imagen(filas, nombre) and time.monotonic() < limite:
+        time.sleep(_PASO_ESPERA)
+        filas = consultas_transmision.leer_filas(pagina._gestor, escena)
+    return filas
 
 
 def _agregada(pagina, escena, nombre, filas):
@@ -268,7 +298,7 @@ def _elegir_de_otra(pagina, escena, opciones):
 
 def _agregar_de_otra_y_leer(pagina, escena, fuente):
     fuente_nueva.agregar_de_otra(pagina._gestor._pedir, escena, fuente)
-    return consultas_transmision.leer_filas(pagina._gestor, escena)
+    return _leer_hasta_dibujar(pagina, escena, fuente)
 
 
 def abrir_propiedades(pagina):

@@ -295,6 +295,30 @@ class GestorPanelObsTest(unittest.TestCase):
         self.assertTrue(filas[1].texto.endswith(", bloqueada"))
         self.assertTrue(filas[1].bloqueada)
 
+    def test_filas_escena_fuera_del_aire_mide_la_captura_al_pasar_al_aire(self):
+        doble = DobleObs(
+            [elemento(1, "Pantalla", 0, ancho=0, alto=0,
+                      ancho_fuente=0, alto_fuente=0)],
+            entradas=[{"inputName": "Pantalla",
+                       "inputKind": "monitor_capture"}],
+            escena="Escena", escenas=("Escena", "Otra"))
+        filas = self.gestor(doble).filas_escena("Otra")
+        self.assertEqual(
+            filas[0].texto,
+            "Pantalla, captura de pantalla, se mide al ponerla al aire")
+
+    def test_filas_escena_al_aire_mantiene_no_muestra_imagen(self):
+        doble = DobleObs(
+            [elemento(1, "Pantalla", 0, ancho=0, alto=0,
+                      ancho_fuente=0, alto_fuente=0)],
+            entradas=[{"inputName": "Pantalla",
+                       "inputKind": "monitor_capture"}],
+            escena="Escena")
+        filas = self.gestor(doble).filas_escena("Escena")
+        self.assertEqual(
+            filas[0].texto,
+            "Pantalla, captura de pantalla, no muestra imagen")
+
     def test_descripcion_escena_pide_escena_elementos_lienzo_y_entradas(self):
         doble = DobleObs(
             [elemento(1, obs_panel.NOMBRE_FUENTE, 0),
