@@ -3,8 +3,9 @@
 """Teclas, menú contextual y caso vacío para una lista con acciones.
 
 La parte pura no abre ventanas: `clave_de_tecla`, `acciones_encendidas` y
-`etiqueta_de_menu` se prueban con códigos y acciones. `ListaConAcciones` ata
-esas reglas a una `wx.ListBox`.
+`etiqueta_de_menu` se prueban con códigos y acciones. `ListaConVacio` deja
+el caso vacío elegido en una `wx.ListBox` y `ListaConAcciones` ata esas
+reglas a una lista.
 """
 
 from __future__ import annotations
@@ -72,19 +73,13 @@ def etiqueta_de_menu(accion: Accion) -> str:
     return accion.etiqueta + _SUFIJOS.get(accion.tecla, "")
 
 
-class ListaConAcciones:
-    """Da teclas, menú contextual y caso vacío a una `wx.ListBox`."""
+class ListaConVacio:
+    """Deja el caso vacío elegido en una `wx.ListBox` y da el índice real."""
 
-    def __init__(self, lista, acciones, texto_vacio):
+    def __init__(self, lista, texto_vacio):
         self._lista = lista
-        self._acciones = tuple(acciones)
         self._texto_vacio = texto_vacio
         self._textos = []
-        self._ultimo_menu = None
-        self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
-        self._lista.Bind(wx.EVT_CONTEXT_MENU, self._al_contexto)
-        self._lista.Bind(wx.EVT_LISTBOX_DCLICK, self._al_doble_clic)
-        entregar_intro(self._lista, self._al_intro)
 
     def fijar(self, textos, elegido=None):
         """Reemplaza a Clear y Append y deja el caso vacío elegido."""
@@ -110,6 +105,36 @@ class ListaConAcciones:
             return seleccion
         return None
 
+    def vacia(self):
+        """Si la lista no tiene elementos, solo la línea vacía."""
+        return not self._textos
+
+    def sin_elemento(self):
+        """Dice por qué no hay nada que usar o que falta elegir."""
+        anunciar(self._texto_vacio if self.vacia() else _("Sin selección"))
+
+
+class ListaConAcciones:
+    """Da teclas, menú contextual y caso vacío a una `wx.ListBox`."""
+
+    def __init__(self, lista, acciones, texto_vacio):
+        self._lista = lista
+        self._acciones = tuple(acciones)
+        self._vacio = ListaConVacio(lista, texto_vacio)
+        self._ultimo_menu = None
+        self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
+        self._lista.Bind(wx.EVT_CONTEXT_MENU, self._al_contexto)
+        self._lista.Bind(wx.EVT_LISTBOX_DCLICK, self._al_doble_clic)
+        entregar_intro(self._lista, self._al_intro)
+
+    def fijar(self, textos, elegido=None):
+        """Reemplaza a Clear y Append y deja el caso vacío elegido."""
+        self._vacio.fijar(textos, elegido)
+
+    def indice(self):
+        """El índice elegido de verdad, o None también con la línea vacía."""
+        return self._vacio.indice()
+
     def _accion(self, clave):
         for accion in self._acciones:
             if accion.clave == clave:
@@ -122,10 +147,7 @@ class ListaConAcciones:
         if accion is None:
             return False
         if accion.necesita_elemento and self.indice() is None:
-            if self._textos:
-                anunciar(_("Sin selección"))
-            else:
-                anunciar(self._texto_vacio)
+            self._vacio.sin_elemento()
             return True
         accion.manejador()
         return True

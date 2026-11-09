@@ -71,6 +71,39 @@ class PruebaPartePura(unittest.TestCase):
         self.assertTrue(all(con_elemento.values()))
 
 
+class PruebaListaConVacio(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.lista = wx.ListBox(self.marco)
+        self.vacio = lista_acciones.ListaConVacio(
+            self.lista, "Sin elementos.")
+
+    def test_vacia_deja_la_linea_elegida_y_sin_indice(self):
+        self.vacio.fijar([])
+        self.assertTrue(self.vacio.vacia())
+        self.assertEqual(self.lista.GetCount(), 1)
+        self.assertEqual(self.lista.GetString(0), "Sin elementos.")
+        self.assertEqual(self.lista.GetSelection(), 0)
+        self.assertIsNone(self.vacio.indice())
+
+    def test_sin_elemento_con_la_lista_vacia_anuncia_el_texto(self):
+        self.vacio.fijar([])
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.vacio.sin_elemento()
+        anunciar.assert_called_once_with("Sin elementos.")
+
+    def test_con_elementos_sin_elegir_anuncia_sin_seleccion(self):
+        self.vacio.fijar(["a", "b"])
+        self.assertFalse(self.vacio.vacia())
+        self.lista.SetSelection(wx.NOT_FOUND)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.vacio.sin_elemento()
+        anunciar.assert_called_once_with("Sin selección")
+
+
 class PruebaConLista(unittest.TestCase):
 
     def setUp(self):
