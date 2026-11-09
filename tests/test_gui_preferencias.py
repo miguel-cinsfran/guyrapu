@@ -590,6 +590,14 @@ class TestPreferenciasPerezosas(unittest.TestCase):
         self.assertTrue(dialogo._libro_perezoso.construida(indice))
         self.assertEqual(dialogo.pagina_voz.sp_tono.GetValue(), 73)
 
+    def test_construir_otra_categoria_no_recarga_las_filas_ya_cambiadas(self):
+        dialogo = self._dialogo()
+        casilla = dialogo.chk_confirmar_salida
+        self.assertTrue(casilla.GetValue())
+        casilla.SetValue(False)
+        dialogo.nb.SetSelection(self._indice(dialogo, "Voces"))
+        self.assertFalse(dialogo.chk_confirmar_salida.GetValue())
+
     def test_abrir_preferencias_en_youtube_la_elige_y_la_construye(self):
         class DialogoEspia(gui_preferencias.PreferenciasDialog):
             instancias = []
