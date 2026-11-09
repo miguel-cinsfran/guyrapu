@@ -95,20 +95,8 @@ def _mostrar(texto: str, error: bool) -> None:
             _cuadro_abierto = False
 
 
-def avisar(texto: str, sonido: str | None = None, *, error: bool = False) -> None:
-    """Reproduce el sonido y anuncia o muestra el texto, según la casilla."""
+def _diferir_cuadro(texto: str, error: bool) -> None:
     global _cuadro_abierto
-    if sonido:
-        sound_player.reproducir(sonido)
-    if not texto:
-        return
-    with _cerrojo:
-        decision = decidir(_casilla_activa(), _cuadro_abierto, error)
-        if decision == CUADRO:
-            _cuadro_abierto = True
-    if decision == ANUNCIO:
-        anunciar(texto)
-        return
     try:
         wx.CallAfter(_mostrar, texto, error)
     except Exception as exc:
@@ -116,3 +104,22 @@ def avisar(texto: str, sonido: str | None = None, *, error: bool = False) -> Non
         with _cerrojo:
             _cuadro_abierto = False
         anunciar(texto)
+
+
+def avisar(texto: str, sonido: str | None = None, *, error: bool = False) -> None:
+    """Reproduce el sonido y anuncia o muestra el texto, según la casilla."""
+    global _cuadro_abierto
+    if sonido:
+        sound_player.reproducir(sonido)
+    if not texto:
+        return
+    if error:
+        logger.warning("%s", texto)
+    with _cerrojo:
+        decision = decidir(_casilla_activa(), _cuadro_abierto, error)
+        if decision == CUADRO:
+            _cuadro_abierto = True
+    if decision == ANUNCIO:
+        anunciar(texto)
+        return
+    _diferir_cuadro(texto, error)

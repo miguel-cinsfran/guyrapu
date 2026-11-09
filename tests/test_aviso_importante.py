@@ -160,6 +160,16 @@ class TestAvisar(unittest.TestCase):
         anunciar.assert_called_once_with("Listo.")
         cuadro.assert_called_once()
 
+    def test_p4_un_error_deja_su_texto_como_advertencia(self):
+        with mock.patch.object(aviso_importante.logger, "warning") as aviso:
+            self._llamar(casilla=False, error=True, texto="OBS falló.")
+        aviso.assert_called_once_with("%s", "OBS falló.")
+
+    def test_p4_sin_error_no_deja_advertencia(self):
+        with mock.patch.object(aviso_importante.logger, "warning") as aviso:
+            self._llamar(casilla=False, error=False)
+        aviso.assert_not_called()
+
     def test_desde_otro_hilo_el_cuadro_se_pide_por_callafter(self):
         with mock.patch.object(aviso_importante, "_casilla_activa",
                                return_value=True), \
