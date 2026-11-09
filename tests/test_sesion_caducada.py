@@ -171,7 +171,7 @@ class TestCierreAntesDelAviso(unittest.TestCase):
 class DialogoFalso:
     instancias = []
 
-    def __init__(self, parent, config):
+    def __init__(self, parent, config, perezosa=False):
         self.nb = mock.Mock()
         self.nb.GetPageCount.return_value = 3
         self.nb.GetPageText.side_effect = ["Voz", "YouTube", "Atajos"]
@@ -254,7 +254,7 @@ class TestOfrecerIniciarSesion(unittest.TestCase):
         class DialogoTraducido(DialogoFalso):
             instancias = []
 
-            def __init__(self, parent, config):
+            def __init__(self, parent, config, perezosa=False):
                 super().__init__(parent, config)
                 self.nb.GetPageCount.return_value = 3
                 self.nb.GetPageText.side_effect = ["Voz", _("YouTube"), "Atajos"]

@@ -2,15 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Diálogo de Preferencias por categorías (accesible).
 
-Reúne en un solo sitio lo que antes solo se editaba a mano en config.ini y
-sounds.ini: interfaz (fuente), sonidos (tema y callados), lectura, filtros de
-palabras y usuarios, y un editor de atajos. Persiste con `config.guardar_opciones`, que
-escribe todo de una vez al pulsar Guardar (conservando comentarios y orden del
-INI), y actualiza el dict de config en memoria.
+Cada categoría se construye recién al elegirla. Guardar escribe solo las
+construidas con `config.guardar_opciones` y actualiza la config en memoria.
 La configuración de API/OAuth sigue en su propio diálogo (Herramientas).
 """
 
 from __future__ import annotations
+
+from functools import partial
 
 import wx
 
@@ -23,6 +22,7 @@ from guyrapu.ui import atajos_captura, confirmar
 from guyrapu.capture import estado_sesion
 from guyrapu.voice import sound_player as _snd
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc, nombre_accesible
+from guyrapu.ui.libro_perezoso import LibroPerezoso
 from guyrapu.ui import paleta
 from guyrapu.ui.preferencias_comun import (
     ANCHO_NOTA, ajustar_ancho_categorias, crear_panel, fila_label)
@@ -41,8 +41,6 @@ from guyrapu.ui.preferencias_sonidos import PaginaSonidos
 from guyrapu.ui.preferencias_voz import PaginaVoz
 
 logger = diagnostico.obtener_logger(__name__)
-
-TAMANO_DIALOGO = (720, 600)
 
 # Traductores: nombre de la categoría de Preferencias con la sesión de YouTube.
 CATEGORIA_YOUTUBE = N_("YouTube")
@@ -82,25 +80,24 @@ _OPCIONES_SIMPLES = (
 
 class PreferenciasDialog(wx.Dialog):
 
-    def __init__(self, parent, config: dict):
+    def __init__(self, parent, config: dict, perezosa: bool = False):
         # Redimensionable: quien ve poco puede agrandarlo; las páginas se
         # desplazan solas si no caben.
-        super().__init__(parent, title=_("Preferencias"), size=TAMANO_DIALOGO,
+        super().__init__(parent, title=_("Preferencias"), size=(720, 600),
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
                          name="DialogoPreferencias")
         self._config = config
         self._ruta = paths.config_ini()
         self._cambios = False
         self._pendientes = []
+        self._filas_cargadas = set()
         self.avisos = []
-        self._build_ui()
+        self._build_ui(perezosa)
         self._ajustar_minimo()
         paleta.pintar_ventana(self)
         self.Centre()
 
-    # ── UI ───────────────────────────────────────────────────────────────────
-
-    def _build_ui(self):
+    def _build_ui(self, perezosa):
         panel = wx.Panel(self, name="PanelPreferencias")
         vs = wx.BoxSizer(wx.VERTICAL)
 
@@ -110,50 +107,8 @@ class PreferenciasDialog(wx.Dialog):
         # Traductores: nombre accesible de la lista de categorías.
         nombre_accesible(self.lista_categorias, _("Categorías"))
         _tc(self.lista_categorias, bg=_T.surface)
-        self.pagina_general = PaginaGeneral(self)
-        self.nb.AddPage(self.pagina_general.construir(self.nb), _("General"))
-        self.chk_buscar_actualizaciones = self.pagina_general.chk_buscar_actualizaciones
-        self.cho_idioma = self.pagina_general.cho_idioma
-        self.chk_confirmar_salida = self.pagina_general.chk_confirmar_salida
-        self.chk_sonido_inicio = self.pagina_general.chk_sonido_inicio
-        self.chk_registro_detallado = self.pagina_general.chk_registro_detallado
-        self.nb.AddPage(self._pag_interfaz(self.nb), _("Interfaz"))
-        self.pagina_sonidos = PaginaSonidos()
-        self.nb.AddPage(self.pagina_sonidos.construir(self.nb), _("Sonidos"))
-        self.cho_tema = self.pagina_sonidos.cho_tema
-        self.pagina_atajos = PaginaAtajos(self, self._config)
-        self.nb.AddPage(self.pagina_atajos.construir(self.nb), _("Atajos"))
-        self.pagina_voz = PaginaVoz(self, self._config)
-        self.nb.AddPage(self.pagina_voz.construir(self.nb), _("Voces"))
-        self.pagina_lectura = self._pagina(
-            self.nb, _("Lectura"), PaginaLectura, OPCIONES_LECTURA)
-        self.rb_formato = self.pagina_lectura.rb_formato
-        self.nb.AddPage(self._pag_cola(self.nb), _("Cola de lectura"))
-        self.pagina_eventos = self._pagina(
-            self.nb, _("Eventos del directo"), PaginaEventos, OPCIONES_EVENTOS)
-        self.nb.AddPage(self._pag_filtros(self.nb), _("Filtros"))
-        self.nb.AddPage(self._pag_estado(self.nb), _("Estado (F2)"))
-        self.pagina_programados = PaginaProgramados()
-        self.nb.AddPage(self.pagina_programados.construir(self.nb), _("Mensajes automáticos"))
-        self.chk_programados = self.pagina_programados.chk_programados
-        self.nb.AddPage(self._pag_conexion(self.nb), _("Conexión"))
-        self.pagina_api = PaginaApi(self)
-        self.nb.AddPage(self.pagina_api.construir(self.nb), _(CATEGORIA_YOUTUBE))
-        self.nb.AddPage(self._pag_reproductor(self.nb), _("Reproductor"))
-        self.pagina_musica = PaginaMusica(self, self._config)
-        self.nb.AddPage(self.pagina_musica.construir(self.nb), _("Música"))
-        for fila in OPCIONES_MUSICA:
-            setattr(self, fila[0], getattr(self.pagina_musica, fila[0]))
-        self.pagina_descargas = PaginaDescargasPreferencias()
-        self.nb.AddPage(self.pagina_descargas.construir(self.nb), _("Descargas"))
-        self.pagina_ia = PaginaIA(self, self._ruta)
-        self.nb.AddPage(self.pagina_ia.construir(self.nb), _("Inteligencia artificial"))
-        self.pagina_transmision = PaginaTransmision(self, self._config)
-        self.nb.AddPage(self.pagina_transmision.construir(self.nb), _("OBS"))
-        for _nombre in ("sp_puerto_overlay", "chk_avisar_sobrecarga", "chk_titulo_estado_obs"):
-            setattr(self, _nombre, getattr(self.pagina_transmision, _nombre))
-        self.pagina_camara = PaginaCamara(self, self._config)
-        self.nb.AddPage(self.pagina_camara.construir(self.nb), _("Cámara"))
+        self._libro_perezoso = LibroPerezoso(
+            self.nb, self._entradas(), perezosa)
         ajustar_ancho_categorias(self.nb, self.lista_categorias)
         # Mínimo explícito: si no, el libro pide el «mejor tamaño» de la página
         # más alta (Atajos, más de 1200 px) y el sizer lo desbordaría en vez
@@ -172,22 +127,64 @@ class PreferenciasDialog(wx.Dialog):
         panel.SetSizer(vs)
         btn_guardar.Bind(wx.EVT_BUTTON, self._on_guardar)
         self._cargar_opciones_simples()
+        self._perezoso = perezosa
         self.lista_categorias.SetFocus()
+
+    def _entradas(self):
+        def externa(atributo, clase, argumentos=()):
+            return self._envolver(
+                partial(self._pagina_de, atributo, clase, argumentos))
+        return (
+            (_("General"), externa("pagina_general", PaginaGeneral, (self,))),
+            (_("Interfaz"), self._envolver(self._pag_interfaz)),
+            (_("Sonidos"), externa("pagina_sonidos", PaginaSonidos)),
+            (_("Atajos"), externa("pagina_atajos", PaginaAtajos, (self, self._config))),
+            (_("Voces"), externa("pagina_voz", PaginaVoz, (self, self._config))),
+            (_("Lectura"), externa("pagina_lectura", PaginaLectura,
+                                   (self._config, fila_label, crear_panel))),
+            (_("Cola de lectura"), self._envolver(self._pag_cola)),
+            (_("Eventos del directo"), externa("pagina_eventos", PaginaEventos,
+                                                (self._config, fila_label, crear_panel))),
+            (_("Filtros"), self._envolver(self._pag_filtros)),
+            (_("Estado (F2)"), self._envolver(self._pag_estado)),
+            (_("Mensajes automáticos"), externa("pagina_programados", PaginaProgramados)),
+            (_("Conexión"), self._envolver(self._pag_conexion)),
+            (_(CATEGORIA_YOUTUBE), externa("pagina_api", PaginaApi, (self,))),
+            (_("Reproductor"), self._envolver(self._pag_reproductor)),
+            (_("Música"), externa("pagina_musica", PaginaMusica, (self, self._config))),
+            (_("Descargas"), externa("pagina_descargas", PaginaDescargasPreferencias)),
+            (_("Inteligencia artificial"), externa("pagina_ia", PaginaIA, (self, self._ruta))),
+            (_("OBS"), externa("pagina_transmision", PaginaTransmision,
+                               (self, self._config))),
+            (_("Cámara"), externa("pagina_camara", PaginaCamara, (self, self._config))),
+        )
+
+    def _envolver(self, fabrica):
+        def armar(parent):
+            panel = fabrica(parent)
+            if getattr(self, "_perezoso", False):
+                self._cargar_opciones_simples()
+                wx.CallAfter(self._ajustar_minimo)
+            return panel
+        return armar
 
     def _cargar_opciones_simples(self):
         """Vuelca la config en los controles de la tabla. El valor por
         defecto de cada fila es el de fábrica, y se usa tanto si la config no
         trae la clave como si el valor no se puede convertir al tipo."""
         for atributo, _seccion, _clave, en_memoria, tipo, por_defecto in _OPCIONES_SIMPLES:
+            if atributo in self._filas_cargadas or not hasattr(self, atributo):
+                continue
             control = getattr(self, atributo)
             try:
                 valor = tipo(self._config.get(en_memoria, por_defecto))
             except (TypeError, ValueError):
                 valor = por_defecto
             control.SetValue(valor)
+            self._filas_cargadas.add(atributo)
 
     def _paginas(self):
-        return [self.nb.GetPage(i) for i in range(self.nb.GetPageCount())]
+        return (self.nb.GetPage(i) for i in range(self.nb.GetPageCount()))
 
     def _ajustar_minimo(self):
         """Ancho mínimo del diálogo: el que deja a la página más ancha entera
@@ -196,9 +193,13 @@ class PreferenciasDialog(wx.Dialog):
         try:
             self.Layout()
             visible = self.nb.GetPage(0).GetClientSize().width
-            necesario = max(p.GetSizer().GetMinSize().width for p in self._paginas())
+            necesario = max(p.GetSizer().GetMinSize().width
+                            for i, p in enumerate(self._paginas())
+                            if self._libro_perezoso.construida(i))
             barra = wx.SystemSettings.GetMetric(wx.SYS_VSCROLL_X)
-            ancho = self.GetSize().width - visible + necesario + barra
+            # Solo agranda: una página construida después puede pedir más ancho.
+            ancho = max(self.GetSize().width - visible + necesario + barra,
+                        self.GetMinSize().width)
             alto = 480
             self.SetMinSize((ancho, alto))
             actual = self.GetSize()
@@ -312,14 +313,16 @@ class PreferenciasDialog(wx.Dialog):
         p.SetSizer(vs)
         return p
 
-    def _pagina(self, parent, nombre, clase, tabla):
+    def _pagina_de(self, atributo, clase, argumentos, parent):
         # La página vive en su módulo (composición); el diálogo conserva
         # los atributos públicos de los controles para las pruebas y la tabla.
-        pagina = clase(self._config, fila_label, crear_panel)
-        self.nb.AddPage(pagina.construir(parent), nombre)
-        for fila in tabla:
-            setattr(self, fila[0], getattr(pagina, fila[0]))
-        return pagina
+        pagina = clase(*argumentos)
+        setattr(self, atributo, pagina)
+        panel = pagina.construir(parent)
+        for nombre in tuple(f[0] for f in _OPCIONES_SIMPLES) + ("cho_tema", "rb_formato"):
+            if hasattr(pagina, nombre):
+                setattr(self, nombre, getattr(pagina, nombre))
+        return panel
 
     def _pag_estado(self, parent):
         """Una casilla por componente del anuncio de estado (tecla F2). Sin
@@ -376,8 +379,6 @@ class PreferenciasDialog(wx.Dialog):
         p.SetSizer(vs)
         return p
 
-    # ── Guardar ───────────────────────────────────────────────────────────────
-
     def _set(self, seccion, clave, valor):
         self._pendientes.append((seccion, clave, valor))
         self._cambios = True
@@ -392,89 +393,83 @@ class PreferenciasDialog(wx.Dialog):
         # que aquí solo se guardan; no hace falta revalidar por escritura.
 
         for atributo, seccion, clave, en_memoria, tipo, _por_defecto in _OPCIONES_SIMPLES:
+            if not hasattr(self, atributo):
+                continue
             control = getattr(self, atributo)
-            if tipo is bool:
-                valor = control.GetValue()
-                self._set(seccion, clave, "true" if valor else "false")
-                c[en_memoria] = valor
-            elif tipo is str:
-                valor = control.GetValue()
-                self._set(seccion, clave, valor)
-                c[en_memoria] = valor
-            else:
-                valor = int(control.GetValue())
-                self._set(seccion, clave, str(valor))
-                c[en_memoria] = valor
+            valor = control.GetValue() if tipo in (bool, str) else int(control.GetValue())
+            texto = ("true" if valor else "false") if tipo is bool else str(valor)
+            self._set(seccion, clave, texto)
+            c[en_memoria] = valor
 
-        if self.pagina_sonidos.tema_cambiado():
+        if hasattr(self, "pagina_sonidos") and self.pagina_sonidos.tema_cambiado():
             self._cambios = True
-
-        motor_no_disponible = self.pagina_voz.guardar(self._set, c)
-
+        motor_no_disponible = False
+        if hasattr(self, "pagina_voz"):
+            motor_no_disponible = self.pagina_voz.guardar(self._set, c)
         # Lectura: la página calcula el valor en cambios(); se aplica con el
         # _set de hoy, igual que los demás controles manuales de abajo.
-        formato = self.pagina_lectura.cambios()[0][2]
-        self._set("lectura", "formato_prefijo", formato)
-        c["formato_prefijo"] = formato
-
+        if hasattr(self, "pagina_lectura"):
+            formato = self.pagina_lectura.cambios()[0][2]
+            self._set("lectura", "formato_prefijo", formato)
+            c["formato_prefijo"] = formato
         # Se guarda la clave, no la etiqueta, porque config.ini solo admite estas claves.
-        estrategia = ("todas", "limite")[self.rb_estrategia.GetSelection()]
-        self._set("cola", "estrategia", estrategia)
-        c["estrategia"] = estrategia
-        self.pagina_transmision.guardar(self._set, c)
-        self.pagina_camara.guardar(self._set, c)
+        if hasattr(self, "rb_estrategia"):
+            estrategia = ("todas", "limite")[self.rb_estrategia.GetSelection()]
+            self._set("cola", "estrategia", estrategia)
+            c["estrategia"] = estrategia
+        for nombre in ("pagina_transmision", "pagina_camara", "pagina_musica"):
+            pagina = getattr(self, nombre, None)
+            if pagina is not None:
+                pagina.guardar(self._set, c)
+        if hasattr(self, "pagina_descargas"):
+            self.pagina_descargas.guardar()
 
-        self.pagina_musica.guardar(self._set, c)
-        self.pagina_descargas.guardar()
+        if hasattr(self, "_chk_estado"):
+            activos = set()
+            for comp, chk in self._chk_estado.items():
+                on = chk.GetValue()
+                self._set("estado", comp, "true" if on else "false")
+                if on:
+                    activos.add(comp)
+            c["estado_toggles"] = activos
 
-        activos = set()
-        for comp, chk in self._chk_estado.items():
-            on = chk.GetValue()
-            self._set("estado", comp, "true" if on else "false")
-            if on:
-                activos.add(comp)
-        c["estado_toggles"] = activos
+        if hasattr(self, "txt_palabras"):
+            palabras = self.txt_palabras.GetValue().strip()
+            self._set("filtros", "palabras_silenciadas", palabras)
+            c["palabras_silenciadas"] = separar_por_comas(palabras)
+            usuarios = self.txt_usuarios.GetValue().strip()
+            self._set("filtros", "usuarios_silenciados", usuarios)
+            c["usuarios_silenciados"] = separar_por_comas(usuarios)
 
-        # Filtros
-        palabras = self.txt_palabras.GetValue().strip()
-        self._set("filtros", "palabras_silenciadas", palabras)
-        c["palabras_silenciadas"] = separar_por_comas(palabras)
-        usuarios = self.txt_usuarios.GetValue().strip()
-        self._set("filtros", "usuarios_silenciados", usuarios)
-        c["usuarios_silenciados"] = separar_por_comas(usuarios)
-
-        self.pagina_atajos.guardar(self._set, c)
-
-        self._pendientes.extend([*self.pagina_ia._cambios_ia(),
-                                 *self.pagina_general.cambios_canal()])
-        if not self.pagina_sonidos.guardar():
+        if hasattr(self, "pagina_atajos"):
+            self.pagina_atajos.guardar(self._set, c)
+        if hasattr(self, "pagina_ia"):
+            self._pendientes.extend(self.pagina_ia._cambios_ia())
+        if hasattr(self, "pagina_general"):
+            self._pendientes.extend(self.pagina_general.cambios_canal())
+        if hasattr(self, "pagina_sonidos") and not self.pagina_sonidos.guardar():
             self._fallo_guardado = True
         if not cfg.guardar_opciones(self._ruta, self._pendientes):
             self._fallo_guardado = True
 
-        if not self._fallo_guardado:
-            _snd.reproducir("copiar")
-        else:
-            _snd.reproducir("error")
+        _snd.reproducir("error" if self._fallo_guardado else "copiar")
 
         # Los avisos se juntan acá y los dice la ventana principal una sola vez,
         # ya con el foco de vuelta en ella: anunciarlos antes de cerrar hacía que
         # el cambio de foco los cortara entre sí.
-        self.avisos = []
-        if not self._fallo_guardado:
-            self.avisos.append(_("Preferencias guardadas."))
-        else:
-            self.avisos.append(_("Las preferencias se aplicaron, pero no se pudieron "
-                                 "guardar en el disco. Se perderán al cerrar la "
-                                 "aplicación."))
+        guardado = _("Preferencias guardadas.")
+        fallo = _("Las preferencias se aplicaron, pero no se pudieron guardar "
+                  "en el disco. Se perderán al cerrar la aplicación.")
+        self.avisos = [guardado if not self._fallo_guardado else fallo]
         if motor_no_disponible:
             self.avisos.append(_("El motor elegido no está disponible, se conserva el anterior."))
-        if c["registro_detallado"] != registro_detallado_inicial:
+        if c.get("registro_detallado", True) != registro_detallado_inicial:
             self.avisos.append(_("El cambio del registro detallado se aplica al reiniciar "
                                  "la aplicación."))
         # El servidor del panel ya escucha en el puerto viejo; no se reinicia
         # solo, así que se avisa dónde se aplica.
-        if c["overlay_puerto"] != puerto_anterior and c.get("overlay_activo", False):
+        if (c.get("overlay_puerto", 8730) != puerto_anterior
+                and c.get("overlay_activo", False)):
             self.avisos.append(_("El puerto del chat en el vídeo se aplica al desactivarlo y "
                                  "volver a activarlo desde el panel de transmisión."))
         self.EndModal(wx.ID_OK)

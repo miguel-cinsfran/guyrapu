@@ -98,6 +98,7 @@ SUPERFICIES = {
     "gui_transmitir.py": "transmitir_destino",
     "inicio_youtube.py": "transmitir_destino",
     "gui_preferencias.py": "preferencias",
+    "libro_perezoso.py": "preferencias",
     "gui_redactar.py": "redactar",
     "reproductor.py": "reproductor",
     "pantalla_completa.py": "reproductor",

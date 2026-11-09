@@ -221,7 +221,7 @@ class TestReinicioPorIdioma(unittest.TestCase):
 
 def _dialogo_falso(cambiar_idioma):
     class DialogoFalso:
-        def __init__(self, parent, config):
+        def __init__(self, parent, config, perezosa=False):
             self._config = config
             self.avisos = []
 

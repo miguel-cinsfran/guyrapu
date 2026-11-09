@@ -13,12 +13,16 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import wx
+
 from guyrapu.ai import catalogo
 from guyrapu.core import config
 from guyrapu.core import idioma
 from guyrapu.ui import gui_preferencias
+from guyrapu.ui import preferencias_descargas
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
+from guyrapu.ui import preferencias_sonidos
 from guyrapu.ui import preferencias_transmision
 from guyrapu.voice import motores
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -490,6 +494,101 @@ class TestPaginaDescargas(unittest.TestCase):
         pagina.guardar()
         self.assertEqual(
             config.obtener_opciones_descarga()["canal_ytdlp"], "estable")
+
+
+CATEGORIAS = [
+    "General", "Interfaz", "Sonidos", "Atajos", "Voces", "Lectura",
+    "Cola de lectura", "Eventos del directo", "Filtros", "Estado (F2)",
+    "Mensajes automáticos", "Conexión", "YouTube", "Reproductor",
+    "Música", "Descargas", "Inteligencia artificial", "OBS", "Cámara"]
+
+# Lo único que puede quedar pendiente cuando solo General está construida.
+CLAVES_GENERAL = {
+    ("ui", "idioma"),
+    ("ui", "avisos_cuadro"),
+    ("actualizaciones", "buscar_al_iniciar"),
+    ("ui", "confirmar_salida"),
+    ("ui", "sonido_inicio"),
+    ("diagnostico", "registro_detallado"),
+    ("actualizaciones", "canal"),
+}
+
+
+class TestPreferenciasPerezosas(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ruta = Path(self.tmp.name)
+        (self.ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                              encoding="utf-8")
+        parche = redirigir_rutas(self.ruta)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        sin_clave = mock.patch.object(
+            preferencias_ia_clave.claves, "leer", return_value="")
+        sin_clave.start()
+        self.addCleanup(sin_clave.stop)
+        catalogo_vacio = mock.patch.object(
+            preferencias_ia.catalogo, "cargar",
+            return_value={"version": catalogo.VERSION, "fecha": None,
+                          "proveedores": {}})
+        catalogo_vacio.start()
+        self.addCleanup(catalogo_vacio.stop)
+
+    def _dialogo(self, configuracion=None):
+        with mock.patch.object(motores, "listar_voces", return_value=[]):
+            dialogo = gui_preferencias.PreferenciasDialog(
+                None, configuracion or {}, perezosa=True)
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def _indice(self, dialogo, titulo):
+        for i in range(dialogo.nb.GetPageCount()):
+            if dialogo.nb.GetPageText(i) == titulo:
+                return i
+        self.fail(f"No está la categoría {titulo}")
+
+    def test_recien_creado_solo_general_esta_construida(self):
+        dialogo = self._dialogo()
+        textos = [dialogo.nb.GetPageText(i)
+                  for i in range(dialogo.nb.GetPageCount())]
+        self.assertEqual(textos, CATEGORIAS)
+        libro = dialogo._libro_perezoso
+        self.assertTrue(libro.construida(0))
+        for i in range(1, 19):
+            self.assertFalse(libro.construida(i))
+
+    def test_guardar_solo_escribe_lo_construido(self):
+        dialogo = self._dialogo(
+            {"motor": "sapi", "musica_carpeta": "/x", "velocidad_voz": 100})
+        with mock.patch.object(gui_preferencias.cfg, "guardar_opciones",
+                               return_value=True), \
+                mock.patch.object(gui_preferencias._snd, "reproducir"), \
+                mock.patch.object(preferencias_sonidos.PaginaSonidos,
+                                  "guardar") as guardar_sonidos, \
+                mock.patch.object(
+                    preferencias_descargas.PaginaDescargasPreferencias,
+                    "guardar") as guardar_descargas, \
+                mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        claves = {(seccion, clave)
+                  for seccion, clave, _valor in dialogo._pendientes}
+        self.assertLessEqual(claves, CLAVES_GENERAL)
+        self.assertEqual(dialogo._config["motor"], "sapi")
+        self.assertEqual(dialogo._config["musica_carpeta"], "/x")
+        self.assertEqual(dialogo._config["velocidad_voz"], 100)
+        guardar_sonidos.assert_not_called()
+        guardar_descargas.assert_not_called()
+
+    def test_elegir_voces_construye_la_pagina_y_carga_sus_filas(self):
+        dialogo = self._dialogo({"tono": 73})
+        indice = self._indice(dialogo, "Voces")
+        self.assertFalse(hasattr(dialogo, "pagina_voz"))
+        dialogo.nb.SetSelection(indice)
+        self.assertTrue(dialogo._libro_perezoso.construida(indice))
+        self.assertEqual(dialogo.pagina_voz.sp_tono.GetValue(), 73)
 
 
 if __name__ == "__main__":
