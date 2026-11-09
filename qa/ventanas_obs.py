@@ -43,7 +43,8 @@ ESPERADOS_POR_PESTANA = {
     "Grabación": ("Iniciar grabación", "Grabar también al transmitir",
                   "Grabaciones y clips"),
     "Perfiles": ("Perfiles de OBS", "Usar este perfil", "Nuevo…",
-                 "Duplicar…", "Eliminar", "Editar ajustes…"),
+                 "Duplicar…", "Eliminar", "Editar ajustes…",
+                 "Preparar perfiles…"),
 }
 
 

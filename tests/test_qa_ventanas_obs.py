@@ -190,7 +190,8 @@ class TestEsperadosDePestana(unittest.TestCase):
     def test_perfiles_pide_su_lista_y_sus_acciones(self):
         esperados = ventanas_obs.esperados_de_pestana("Perfiles")
         for nombre in ("Perfiles de OBS", "Usar este perfil", "Nuevo…",
-                       "Duplicar…", "Eliminar", "Editar ajustes…", "Cerrar"):
+                       "Duplicar…", "Eliminar", "Editar ajustes…",
+                       "Preparar perfiles…", "Cerrar"):
             with self.subTest(nombre=nombre):
                 self.assertIn(nombre, esperados)
 

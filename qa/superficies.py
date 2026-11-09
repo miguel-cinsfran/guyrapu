@@ -43,6 +43,7 @@ SUPERFICIES = {
     "obs_pagina_perfiles.py": "escena",
     "dialogo_ajustes_perfil.py": "escena",
     "dialogo_usos_perfil.py": "escena",
+    "dialogo_asistente_perfiles.py": "escena",
     "dialogo_prueba_equipo.py": "escena",
     "dialogo_prueba_conexion.py": "escena",
     "textos_perfil.py": "escena",

@@ -15,6 +15,7 @@ import wx
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, codificadores_obs, obs_cliente
+from guyrapu.obs import asistente_perfiles
 from guyrapu.obs import perfiles_obs, salidas_audio
 from guyrapu.ui import gui
 from guyrapu.ui import obs_pagina_perfiles as pagina_mod
@@ -116,6 +117,18 @@ class _DialogoAjustesFalso:
         return type(self).devuelve
 
 
+class _AsistenteFalso:
+    resultado = None
+    visto = {}
+
+    def __init__(self, ventana, operaciones, cliente, config, al_terminar):
+        type(self).visto = {"config": dict(config)}
+        self._al_terminar = al_terminar
+
+    def empezar(self):
+        self._al_terminar(type(self).resultado)
+
+
 def de_prueba(**cambios):
     return dataclasses.replace(ajustes_perfil.valores_iniciales(False, "x264"),
                                **cambios)
@@ -172,17 +185,60 @@ class TestPestana(BasePagina):
     def test_la_lista_tiene_su_nombre_accesible(self):
         self.assertEqual(self.pagina.lista.GetName(), "Perfiles de OBS")
 
-    def test_estan_los_seis_botones_de_la_pestana(self):
+    def test_estan_los_siete_botones_de_la_pestana(self):
         etiquetas = [boton.GetLabel() for boton in (
             self.pagina.btn_usar, self.pagina.btn_usar_para,
             self.pagina.btn_nuevo, self.pagina.btn_duplicar,
-            self.pagina.btn_eliminar, self.pagina.btn_editar)]
+            self.pagina.btn_eliminar, self.pagina.btn_editar,
+            self.pagina.btn_preparar)]
         self.assertEqual(etiquetas, [
             "&Usar este perfil", "Usar p&ara…", "&Nuevo…", "&Duplicar…",
-            "&Eliminar perfil", "Editar a&justes…"])
+            "&Eliminar perfil", "Editar a&justes…", "&Preparar perfiles…"])
 
     def test_el_boton_usar_para_tiene_su_nombre_accesible(self):
         self.assertEqual(self.pagina.btn_usar_para.GetName(), "Usar para…")
+
+    def test_el_boton_preparar_tiene_su_nombre_accesible(self):
+        self.assertEqual(self.pagina.btn_preparar.GetName(),
+                         "Preparar perfiles…")
+
+
+class TestPrepararPerfiles(BasePagina):
+
+    def _archivo(self):
+        base = tempfile.TemporaryDirectory()
+        self.addCleanup(base.cleanup)
+        ruta = Path(base.name) / "config.ini"
+        ruta.write_text(
+            "[transmision]\nperfil_horizontal =\nperfil_vertical =\n"
+            "perfil_grabar =\n", encoding="utf-8")
+        return ruta
+
+    def _leer(self, ruta, clave):
+        parser = configparser.ConfigParser(interpolation=None)
+        parser.read(ruta, encoding="utf-8")
+        return parser.get("transmision", clave)
+
+    def test_los_perfiles_del_asistente_quedan_asignados(self):
+        ruta = self._archivo()
+        _AsistenteFalso.resultado = asistente_perfiles.ResultadoAsistente((
+            asistente_perfiles.PerfilPreparado(
+                "Guyrapu horizontal", "perfil_horizontal", de_prueba()),
+            asistente_perfiles.PerfilPreparado(
+                "Guyrapu grabación", "perfil_grabar", de_prueba()),
+        ))
+        with mock.patch.object(pagina_mod, "AsistentePerfilesPanel",
+                               _AsistenteFalso), \
+                mock.patch.object(gui, "RUTA_CONFIG", ruta):
+            self.pagina.preparar_perfiles()
+        self.assertEqual(self._leer(ruta, "perfil_horizontal"),
+                         "Guyrapu horizontal")
+        self.assertEqual(self._leer(ruta, "perfil_grabar"),
+                         "Guyrapu grabación")
+        self.assertEqual(self.principal._config["perfil_horizontal"],
+                         "Guyrapu horizontal")
+        self.assertEqual(self.principal._config["perfil_grabar"],
+                         "Guyrapu grabación")
 
 
 class TestUsar(BasePagina):

@@ -12623,3 +12623,134 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/obs/asistente_perfiles.py
+msgid "Ningún ajuste aguantó: se guardó el último escalón probado."
+msgstr "No setting held up: the last step tested was saved."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Se eliminaron los perfiles creados: {nombres}."
+msgstr "The created profiles were deleted: {nombres}."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "No se pudo eliminar: {nombres}."
+msgstr "Could not delete: {nombres}."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "grabación en formato {formato}, calidad alta para archivo mediano"
+msgstr "recording in {formato} format, high quality for medium file"
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Perfil «{nombre}» {uso}: {ajustes}."
+msgstr "Profile “{nombre}” {uso}: {ajustes}."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Prueba del equipo: {cambios}"
+msgstr "Computer test: {cambios}"
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Antes ese uso lo tenía «{anterior}»."
+msgstr "That use previously belonged to “{anterior}”."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid ""
+"Para TikTok sin Restream, escribe el servidor y la clave en «Editar "
+"ajustes» del perfil «{nombre}»."
+msgstr ""
+"To stream to TikTok without Restream, type the server and the key in “Edit "
+"settings” of the “{nombre}” profile."
+
+#: guyrapu/obs/asistente_perfiles.py
+msgid "Crea la versión vertical de las escenas con «Crear la versión vertical»."
+msgstr "Create the vertical version of the scenes with “Create vertical version”."
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Probando el equipo con {nombre}: {ajustes}…"
+msgstr "Testing the computer with {nombre}: {ajustes}…"
+
+#: guyrapu/obs/asistente_perfiles.py
+#, python-brace-format
+msgid "Creando el perfil {nombre}…"
+msgstr "Creating the profile {nombre}…"
+
+#: guyrapu/obs/nombres_asistente.py
+msgid "Guyrapu horizontal"
+msgstr "Guyrapu horizontal"
+
+#: guyrapu/obs/nombres_asistente.py
+msgid "Guyrapu vertical"
+msgstr "Guyrapu vertical"
+
+#: guyrapu/obs/nombres_asistente.py
+msgid "Guyrapu grabación"
+msgstr "Guyrapu recording"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid ""
+"Guyrapu crea perfiles nuevos con el mejor codificador de este equipo, los "
+"prueba y los deja asignados. Tus perfiles no se tocan. Puede tardar unos "
+"minutos."
+msgstr ""
+"Guyrapu creates new profiles with the best encoder on this computer, tests "
+"them and leaves them assigned. Your profiles are not touched. It may take a"
+" few minutes."
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "&Transmitir en horizontal (YouTube)"
+msgstr "&Broadcast horizontally (YouTube)"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Transmitir en &vertical (TikTok)"
+msgstr "Broadcast &vertically (TikTok)"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Marca al menos una de las tres primeras casillas."
+msgstr "Select at least one of the first three check boxes."
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparación cancelada. No se creó ningún perfil."
+msgstr "Preparation canceled. No profile was created."
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparar perfiles de OBS"
+msgstr "Prepare OBS profiles"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Cómo funciona"
+msgstr "How it works"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Probar cada perfil con el e&quipo"
+msgstr "Test each profile with the co&mputer"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "&Preparar"
+msgstr "&Prepare"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Preparando perfiles de OBS"
+msgstr "Preparing OBS profiles"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Estado de la preparación"
+msgstr "Preparation status"
+
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+msgid "Resumen de la preparación"
+msgstr "Preparation summary"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "&Preparar perfiles…"
+msgstr "&Prepare profiles…"
+
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid "Preparar perfiles…"
+msgstr "Prepare profiles…"
+

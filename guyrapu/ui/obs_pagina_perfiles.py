@@ -18,6 +18,7 @@ from guyrapu.obs import usos_perfil
 from guyrapu.ui import confirmar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.dialogo_ajustes_perfil import DialogoAjustesPerfil
+from guyrapu.ui.dialogo_asistente_perfiles import AsistentePerfilesPanel
 from guyrapu.ui.dialogo_usos_perfil import DialogoUsosPerfil
 from guyrapu.ui.preferencias_comun import (
     fila_horizontal,
@@ -110,7 +111,7 @@ class PaginaPerfiles(wx.Panel):
         self._enlazar_eventos()
         self.acciones = (self.lista, self.btn_usar, self.btn_usar_para,
                          self.btn_nuevo, self.btn_duplicar, self.btn_eliminar,
-                         self.btn_editar)
+                         self.btn_editar, self.btn_preparar)
 
     def _crear_controles(self):
         caja = wx.BoxSizer(wx.VERTICAL)
@@ -130,9 +131,13 @@ class PaginaPerfiles(wx.Panel):
                                         self.eliminar)
         self.btn_editar = self._boton(_("Editar a&justes…"),
                                       _("Editar a&justes…"), self.editar)
+        self.btn_preparar = self._boton(
+            _("&Preparar perfiles…"), _("Preparar perfiles…"),
+            self.preparar_perfiles)
         caja.Add(fila_horizontal((self.btn_usar, self.btn_usar_para,
                                   self.btn_nuevo, self.btn_duplicar,
-                                  self.btn_eliminar, self.btn_editar)),
+                                  self.btn_eliminar, self.btn_editar,
+                                  self.btn_preparar)),
                  0, wx.ALL, 6)
         self.SetSizer(caja)
 
@@ -376,3 +381,14 @@ class PaginaPerfiles(wx.Panel):
             lambda _resultado: self._hecho(
                 _("Ajustes guardados en el perfil {nombre}.").format(
                     nombre=nombre), nombre))
+
+    def preparar_perfiles(self):
+        AsistentePerfilesPanel(
+            self, self._operaciones, self._cliente, self._config,
+            self._asistente_terminado).empezar()
+
+    def _asistente_terminado(self, resultado):
+        self._guardar_cambios([(perfil.uso, perfil.nombre)
+                               for perfil in resultado.perfiles])
+        foco = resultado.perfiles[0].nombre if resultado.perfiles else None
+        self._recargar(foco)

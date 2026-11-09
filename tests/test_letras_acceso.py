@@ -39,6 +39,7 @@ from guyrapu.ui import escena_pagina_fuentes
 from guyrapu.ui import escena_propiedades
 from guyrapu.ui import escena_tamano
 from guyrapu.ui import dialogo_ajustes_perfil
+from guyrapu.ui import dialogo_asistente_perfiles
 from guyrapu.ui import dialogo_usos_perfil
 from guyrapu.ui import dialogo_prueba_conexion
 from guyrapu.ui import dialogo_prueba_equipo
@@ -407,6 +408,11 @@ class TestLetrasAccesoPerfilesObs(unittest.TestCase):
                     None, con_orientacion=con_orientacion, accion=accion)
                 self.addCleanup(destruir, dialogo)
                 self.assertEqual(letras_repetidas(dialogo), {})
+
+    def test_cuadro_de_preparar_perfiles_sin_letras_repetidas(self):
+        dialogo = dialogo_asistente_perfiles.DialogoAsistentePerfiles(None)
+        self.addCleanup(destruir, dialogo)
+        self.assertEqual(letras_repetidas(dialogo), {})
 
 
 class TestLetrasAccesoPruebaEquipo(unittest.TestCase):
