@@ -3059,6 +3059,34 @@ msgid_plural "{n} segundos"
 msgstr[0] "{n} second"
 msgstr[1] "{n} seconds"
 
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid ""
+"codificador {codificador}, preset {preset}, {fps} fotogramas por segundo y "
+"salida de {ancho} por {alto}"
+msgstr ""
+"encoder {codificador}, preset {preset}, {fps} frames per second and output "
+"{ancho} by {alto}"
+
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid "Codificador: {antes} a {despues}."
+msgstr "Encoder: {antes} to {despues}."
+
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid "Fotogramas por segundo: {antes} a {despues}."
+msgstr "Frames per second: {antes} to {despues}."
+
+#: guyrapu/obs/escalones_equipo.py
+#, python-brace-format
+msgid "Salida: {ancho} por {alto} a {nuevo_ancho} por {nuevo_alto}."
+msgstr "Output: {ancho} by {alto} to {nuevo_ancho} by {nuevo_alto}."
+
+#: guyrapu/obs/escalones_equipo.py guyrapu/ui/obs_pagina_perfiles.py
+msgid "Sin cambios."
+msgstr "No changes."
+
 #: guyrapu/obs/escucha_microfono.py
 msgid "La monitorización ya estaba activada en OBS."
 msgstr "Audio monitoring was already enabled in OBS."
@@ -3620,6 +3648,12 @@ msgstr "OBS ready to broadcast to {destino}. {formato} format, {ancho} by {alto}
 #, python-brace-format
 msgid "Se creó en OBS el perfil {destino}."
 msgstr "The {destino} profile was created in OBS."
+
+#. Traductores: {escena} es el nombre de la escena original.
+#: guyrapu/obs/obs_destinos.py
+#, python-brace-format
+msgid "Escena al aire: {escena} vertical."
+msgstr "Live scene: {escena} vertical."
 
 #: guyrapu/obs/obs_disposicion.py
 msgid "Arriba a la izquierda"
@@ -4194,6 +4228,15 @@ msgstr ""
 
 #: guyrapu/obs/obs_prevuelo.py
 #, python-brace-format
+msgid ""
+"La escena {escena} no tiene versión vertical: créala con Crear la versión "
+"vertical, en el menú de la escena del Panel de OBS."
+msgstr ""
+"The scene {escena} has no vertical version: create it with Create vertical "
+"version, in the scene menu of the OBS panel."
+
+#: guyrapu/obs/obs_prevuelo.py
+#, python-brace-format
 msgid "Atención: {problemas}"
 msgstr "Warning: {problemas}"
 
@@ -4398,6 +4441,107 @@ msgstr "The only OBS profile cannot be deleted."
 #: guyrapu/obs/perfiles_obs.py
 msgid "Ya existe un perfil de OBS con ese nombre."
 msgstr "An OBS profile with that name already exists."
+
+#: guyrapu/obs/prueba_conexion.py
+msgid "Prueba de conexión de Guyrapu"
+msgstr "Guyrapu connection test"
+
+#: guyrapu/obs/prueba_conexion.py
+msgid ""
+"No se puede probar la conexión sin una sesión de YouTube. Inicia sesión en "
+"Preferencias, categoría YouTube."
+msgstr ""
+"You cannot test the connection without a YouTube session. Sign in in "
+"Preferences, YouTube category."
+
+#: guyrapu/obs/prueba_conexion.py
+msgid ""
+"No se puede probar la conexión con un perfil de OBS en modo Avanzado. "
+"Pásalo a modo Sencillo y vuelve a intentarlo."
+msgstr ""
+"The connection cannot be tested with an OBS profile in Advanced mode. "
+"Switch it to Simple mode and try again."
+
+#: guyrapu/obs/prueba_conexion.py
+msgid "YouTube no devolvió el flujo de transmisión de la prueba."
+msgstr "YouTube did not return the test stream."
+
+#: guyrapu/obs/prueba_conexion.py
+#, python-brace-format
+msgid "La prueba dio un error: {error} Además quedó pendiente: {errores}."
+msgstr "The test gave an error: {error} Also left pending: {errores}."
+
+#: guyrapu/obs/prueba_conexion.py
+msgid "Detener la transmisión de la prueba"
+msgstr "Stop the test broadcast"
+
+#: guyrapu/obs/prueba_conexion.py guyrapu/obs/prueba_equipo.py
+msgid "Restablecer los ajustes del perfil"
+msgstr "Reset the profile settings"
+
+#: guyrapu/obs/prueba_conexion.py
+msgid "Restablecer el servidor y la clave"
+msgstr "Reset the server and key"
+
+#: guyrapu/obs/prueba_conexion.py
+#, python-brace-format
+msgid "El directo privado «{titulo}» quedó en YouTube: {error}"
+msgstr "The private live stream “{titulo}” was left on YouTube: {error}"
+
+#: guyrapu/obs/prueba_conexion.py
+#, python-brace-format
+msgid "El flujo de transmisión de la prueba quedó en YouTube: {error}"
+msgstr "The test stream was left on YouTube: {error}"
+
+#: guyrapu/obs/prueba_conexion.py
+msgid "Borrar el directo de la prueba"
+msgstr "Delete the test live stream"
+
+#: guyrapu/obs/prueba_conexion.py
+msgid "Borrar el flujo de la prueba"
+msgstr "Delete the test stream"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Guyrapu prueba del equipo"
+msgstr "Guyrapu computer test"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Guyrapu prueba del equipo (movimiento)"
+msgstr "Guyrapu computer test (motion)"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid ""
+"No se puede probar el equipo con un perfil de OBS en modo Avanzado. Pásalo "
+"a modo Sencillo y vuelve a intentarlo."
+msgstr ""
+"The computer cannot be tested with an OBS profile in Advanced mode. Switch "
+"it to Simple mode and try again."
+
+#: guyrapu/obs/prueba_equipo.py
+#, python-brace-format
+msgid "La prueba dio un error: {error} No se pudo restablecer: {errores}."
+msgstr "The test gave an error: {error} Could not reset: {errores}."
+
+#: guyrapu/obs/prueba_equipo.py
+#, python-brace-format
+msgid "La prueba terminó, pero no se pudo restablecer: {errores}."
+msgstr "The test finished, but could not reset: {errores}."
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Detener la grabación de la prueba"
+msgstr "Stop the test recording"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Volver a la escena anterior"
+msgstr "Return to the previous scene"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Eliminar la escena de la prueba"
+msgstr "Delete the test scene"
+
+#: guyrapu/obs/prueba_equipo.py
+msgid "Eliminar la fuente de la prueba"
+msgstr "Delete the test source"
 
 #: guyrapu/obs/prueba_microfono.py
 msgid "Prueba del micrófono iniciada. Habla como en un directo."
@@ -5208,6 +5352,22 @@ msgstr "YouTube on Restream: {canales}, the same channel as the {app} session."
 msgid "YouTube en Restream: {canales}, que no es el canal de la sesión de {app}."
 msgstr "YouTube on Restream: {canales}, which is not the {app} session's channel."
 
+#: guyrapu/restream/chat_restream.py guyrapu/ui/gui_transmitir.py
+msgid "El chat ya estaba conectado y no se cambió."
+msgstr "The chat was already connected and was not changed."
+
+#: guyrapu/restream/chat_restream.py
+msgid ""
+"No se encontró el usuario de TikTok del perfil: conecta el chat de TikTok a"
+" mano."
+msgstr ""
+"The TikTok user for the profile was not found: connect the TikTok chat "
+"manually."
+
+#: guyrapu/restream/chat_restream.py
+msgid "Esperando a que TikTok muestre el directo para leer su chat."
+msgstr "Waiting for TikTok to show the live stream to read its chat."
+
 #: guyrapu/restream/eventos.py
 #, python-brace-format
 msgid "{titulo}, sin programar"
@@ -5294,10 +5454,6 @@ msgstr "Preparing Restream for {nombre}."
 #: guyrapu/restream/ganchos.py
 msgid "Directo iniciado con Restream. Conecta el chat manualmente."
 msgstr "Live stream started with Restream. Connect the chat manually."
-
-#: guyrapu/restream/ganchos.py guyrapu/ui/gui_transmitir.py
-msgid "El chat ya estaba conectado y no se cambió."
-msgstr "The chat was already connected and was not changed."
 
 #: guyrapu/restream/ganchos.py guyrapu/ui/directo_panel.py
 msgid "Elige primero a dónde transmitir, en Transmitir a."
@@ -5416,7 +5572,6 @@ msgstr "{nombre}, {orientacion}"
 #. Traductores: nombre de la categoría de Preferencias con la sesión de
 #. YouTube.
 #: guyrapu/restream/resumen_cuenta.py guyrapu/ui/gui_preferencias.py
-#: guyrapu/ui/restream_perfil.py
 msgid "YouTube"
 msgstr "YouTube"
 
@@ -6277,6 +6432,7 @@ msgstr "Before broadcasting"
 
 #. Traductores: botón para cerrar sin publicar.
 #: guyrapu/ui/confirmar_transmision.py guyrapu/ui/descargas_acciones.py
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 #: guyrapu/ui/dialogo_usos_perfil.py guyrapu/ui/escena_agregar_fuente.py
 #: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_edicion_fuente.py
 #: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_pagina_escena.py
@@ -6753,11 +6909,191 @@ msgstr "Close"
 
 #. Traductores: botón para cerrar la ventana.
 #. Traductores: cierra la ventana; segunda, su nombre accesible.
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_actualizacion.py
+#: guyrapu/ui/dialogo_estado.py guyrapu/ui/dialogo_prueba_conexion.py
+#: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/gui_actualizacion.py
 #: guyrapu/ui/gui_descargas.py guyrapu/ui/ia_ventana.py
 #: guyrapu/ui/musica_ventana.py
 msgid "&Cerrar"
 msgstr "&Close"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+msgid "La prueba no llegó a medir ninguna tasa de bits."
+msgstr "The test did not measure any bitrate."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format, python-format
+msgid ""
+"Ninguna tasa de bits aguantó. En el último intento se perdió el "
+"{porcentaje} % de los cuadros por la red."
+msgstr ""
+"No bitrate held up. In the last attempt, {porcentaje} % of frames were lost"
+" on the network."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid "El perfil «{perfil}» aguantó con {tasa} kbps."
+msgstr "Profile “{perfil}” held up at {tasa} kbps."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid "La conexión aguantó hasta {mayor} kbps."
+msgstr "The connection held up to {mayor} kbps."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+msgid "La conexión no aguantó una tasa de bits mayor."
+msgstr "The connection did not hold up at a higher bitrate."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid ""
+"El perfil «{perfil}» no aguantó con {tasa_perfil} kbps. Aguanta con {tasa} "
+"kbps."
+msgstr ""
+"Profile “{perfil}” did not hold up at {tasa_perfil} kbps. It holds up at "
+"{tasa} kbps."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid "Quedó pendiente: {errores}"
+msgstr "Left pending: {errores}"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+msgid "Probar la conexión"
+msgstr "Test connection"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Detalle de la prueba"
+msgstr "Test details"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid ""
+"Se va a hacer un directo privado de prueba en YouTube, que nadie ve y que "
+"se borra al terminar. Se probará el perfil «{perfil}», con {tasa} kbps. La "
+"prueba tarda como mucho {segundos} segundos."
+msgstr ""
+"A private test live stream will be made on YouTube, which nobody sees and "
+"which is deleted when it ends. Profile “{perfil}” will be tested at {tasa} "
+"kbps. The test takes at most {segundos} seconds."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "&Empezar"
+msgstr "&Start"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+msgid "Probando la conexión"
+msgstr "Testing the connection"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Estado de la prueba"
+msgstr "Test status"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid "Probando la conexión a {tasa} kbps…"
+msgstr "Testing the connection at {tasa} kbps…"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Resultado de la prueba"
+msgstr "Test result"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "&Guardar en el perfil"
+msgstr "&Save to profile"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+msgid "&Dejar como estaba"
+msgstr "&Leave as it was"
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+msgid "Prueba cancelada. OBS quedó como estaba y la prueba se borró de YouTube."
+msgstr "Test canceled. OBS was left as it was and the test was deleted from YouTube."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid "Tasa de bits guardada en el perfil {nombre}: {tasa} kbps."
+msgstr "Bitrate saved in profile {nombre}: {tasa} kbps."
+
+#: guyrapu/ui/dialogo_prueba_conexion.py
+#, python-brace-format
+msgid "La prueba de conexión dio un error: {error}"
+msgstr "The connection test gave an error: {error}"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Ningún escalón llegó a medirse."
+msgstr "No step could be measured."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format, python-format
+msgid ""
+"Ningún ajuste aguantó. En el último escalón se perdió el {dibujar} % de los"
+" fotogramas al dibujar y el {codificar} % al codificar."
+msgstr ""
+"No settings held up. In the last step, {dibujar} % of frames were lost "
+"while drawing and {codificar} % while encoding."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format, python-format
+msgid ""
+"Se perdió el {dibujar} % de los fotogramas al dibujar y el {codificar} % al"
+" codificar."
+msgstr ""
+"{dibujar} % of frames were lost while drawing and {codificar} % while "
+"encoding."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "El perfil «{perfil}» aguantó tal como está. {porcentajes}"
+msgstr "Profile “{perfil}” held up as it is. {porcentajes}"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "El perfil «{perfil}» aguantó con estos cambios: {cambios} {porcentajes}"
+msgstr "Profile “{perfil}” held up with these changes: {cambios} {porcentajes}"
+
+#. Traductores: {rutas} son las rutas de los archivos que quedaron.
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "No se pudo eliminar la grabación de la prueba: {rutas}."
+msgstr "Could not delete the test recording: {rutas}."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Probar el equipo"
+msgstr "Test computer"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid ""
+"Se va a probar el perfil «{perfil}» con {ajustes}. La prueba tarda como "
+"mucho {segundos} segundos."
+msgstr ""
+"Profile “{perfil}” will be tested with {ajustes}. The test takes at most "
+"{segundos} seconds."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Probando el equipo"
+msgstr "Testing the computer"
+
+#. Traductores: {ajustes} son el codificador, los fotogramas por
+#. segundo y la salida que se están probando.
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "Probando {ajustes}…"
+msgstr "Testing {ajustes}…"
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+msgid "Prueba cancelada. OBS quedó como estaba."
+msgstr "Test canceled. OBS was left as it was."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "Ajustes guardados en el perfil {perfil}."
+msgstr "Settings saved in profile {perfil}."
+
+#: guyrapu/ui/dialogo_prueba_equipo.py
+#, python-brace-format
+msgid "La prueba dio un error: {error} OBS quedó como estaba."
+msgstr "The test gave an error: {error} OBS was left as it was."
 
 #: guyrapu/ui/dialogo_usos_perfil.py
 msgid "&Transmitir en horizontal"
@@ -7275,6 +7611,10 @@ msgid "&Ganancia:"
 msgstr "&Gain:"
 
 #: guyrapu/ui/escena_menu_escena.py
+msgid "&Guardar imagen…"
+msgstr "&Save image…"
+
+#: guyrapu/ui/escena_menu_escena.py
 msgid "&Cambiar escena"
 msgstr "&Change scene"
 
@@ -7287,15 +7627,15 @@ msgstr "Change &name…"
 msgid "&Duplicar"
 msgstr "&Duplicate"
 
+#: guyrapu/ui/escena_menu_escena.py
+msgid "Crear la versión &vertical"
+msgstr "Create &vertical version"
+
 #: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
 #: guyrapu/ui/gui_historial.py guyrapu/ui/preferencias_programados.py
 #: guyrapu/ui/restream_menus.py
 msgid "E&liminar"
 msgstr "De&lete"
-
-#: guyrapu/ui/escena_menu_escena.py
-msgid "&Guardar imagen…"
-msgstr "&Save image…"
 
 #: guyrapu/ui/escena_menu_fuente.py
 msgid "&Transformar"
@@ -7513,7 +7853,7 @@ msgstr "A&dd source…"
 msgid "Deshacer todos los cambi&os"
 msgstr "&Undo all changes"
 
-#: guyrapu/ui/escena_pagina_fuentes.py
+#: guyrapu/ui/escena_pagina_fuentes.py guyrapu/ui/escena_version_vertical.py
 msgid "La escena no tiene fuentes para un diseño."
 msgstr "The scene does not have sources for a layout."
 
@@ -7616,6 +7956,34 @@ msgstr "H&eight:"
 #: guyrapu/ui/escena_tamano.py
 msgid "Alto en porcentaje del vídeo"
 msgstr "Height as a percentage of the video"
+
+#: guyrapu/ui/escena_version_vertical.py
+msgid ""
+"Elige primero el perfil para transmitir en vertical, en Preferencias, "
+"Transmisión."
+msgstr "Choose the profile to broadcast vertically first, in Preferences, Broadcast."
+
+#: guyrapu/ui/escena_version_vertical.py
+#, python-brace-format
+msgid ""
+"Ya existe la escena {escena} vertical. Para acomodarla, usa Aplicar diseño "
+"sobre ella."
+msgstr ""
+"The scene {escena} vertical already exists. To arrange it, use Apply layout"
+" on it."
+
+#: guyrapu/ui/escena_version_vertical.py
+msgid "Creando la versión vertical…"
+msgstr "Creating the vertical version…"
+
+#: guyrapu/ui/escena_version_vertical.py
+msgid "Versión vertical cancelada."
+msgstr "Vertical version canceled."
+
+#: guyrapu/ui/escena_version_vertical.py
+#, python-brace-format
+msgid "Versión vertical creada: {escena} vertical. Diseño: {diseño}."
+msgstr "Vertical version created: {escena} vertical. Layout: {diseño}."
 
 #: guyrapu/ui/fila_audio.py guyrapu/ui/gui_microfono.py
 msgid "silenciada"
@@ -10192,6 +10560,22 @@ msgstr "Re&fresh status"
 msgid "Mostrar &OBS"
 msgstr "Show &OBS"
 
+#: guyrapu/ui/obs_pagina_general.py
+msgid "Probar el e&quipo…"
+msgstr "Test the co&mputer…"
+
+#: guyrapu/ui/obs_pagina_general.py
+msgid "Probar el equipo…"
+msgstr "Test computer…"
+
+#: guyrapu/ui/obs_pagina_general.py
+msgid "Probar la co&nexión…"
+msgstr "Test the co&nnection…"
+
+#: guyrapu/ui/obs_pagina_general.py
+msgid "Probar la conexión…"
+msgstr "Test connection…"
+
 #: guyrapu/ui/obs_pagina_grabacion.py
 msgid "Grabar ta&mbién al transmitir"
 msgstr "Record whi&le broadcasting"
@@ -10244,7 +10628,7 @@ msgstr "De&lete profile"
 msgid "Editar a&justes…"
 msgstr "Edit &settings…"
 
-#: guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/obs_ventana.py
 msgid "OBS no está disponible."
 msgstr "OBS is not available."
 
@@ -10252,10 +10636,6 @@ msgstr "OBS is not available."
 #, python-brace-format
 msgid "Perfil en uso: {nombre}."
 msgstr "Profile in use: {nombre}."
-
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid "Sin cambios."
-msgstr "No changes."
 
 #: guyrapu/ui/obs_pagina_perfiles.py
 #, python-brace-format
@@ -11805,6 +12185,18 @@ msgid "&Chat que lee Guyrapu:"
 msgstr "&Chat that Guyrapu reads:"
 
 #: guyrapu/ui/restream_perfil.py
+msgid "YouTube y TikTok"
+msgstr "YouTube and TikTok"
+
+#: guyrapu/ui/restream_perfil.py
+msgid "Solo YouTube"
+msgstr "YouTube only"
+
+#: guyrapu/ui/restream_perfil.py
+msgid "Solo TikTok"
+msgstr "TikTok only"
+
+#: guyrapu/ui/restream_perfil.py
 msgid "Chat que lee Guyrapu"
 msgstr "Chat that Guyrapu reads"
 
@@ -12230,253 +12622,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/restream/chat_restream.py
-msgid ""
-"No se encontró el usuario de TikTok del perfil: conecta el chat de TikTok a"
-" mano."
-msgstr ""
-"The TikTok user for the profile was not found: connect the TikTok chat "
-"manually."
-
-#: guyrapu/restream/chat_restream.py
-msgid "Esperando a que TikTok muestre el directo para leer su chat."
-msgstr "Waiting for TikTok to show the live stream to read its chat."
-
-#: guyrapu/ui/restream_perfil.py
-msgid "YouTube y TikTok"
-msgstr "YouTube and TikTok"
-
-#: guyrapu/ui/restream_perfil.py
-msgid "Solo YouTube"
-msgstr "YouTube only"
-
-#: guyrapu/ui/restream_perfil.py
-msgid "Solo TikTok"
-msgstr "TikTok only"
-
-#. Traductores: {escena} es el nombre de la escena original.
-#: guyrapu/obs/obs_destinos.py
-#, python-brace-format
-msgid "Escena al aire: {escena} vertical."
-msgstr "Live scene: {escena} vertical."
-
-#: guyrapu/obs/obs_prevuelo.py
-#, python-brace-format
-msgid ""
-"La escena {escena} no tiene versión vertical: créala con Crear la versión "
-"vertical, en el menú de la escena del Panel de OBS."
-msgstr ""
-"The scene {escena} has no vertical version: create it with Create vertical "
-"version, in the scene menu of the OBS panel."
-
-#: guyrapu/ui/escena_menu_escena.py
-msgid "Crear la versión &vertical"
-msgstr "Create &vertical version"
-
-#: guyrapu/ui/escena_version_vertical.py
-msgid ""
-"Elige primero el perfil para transmitir en vertical, en Preferencias, "
-"Transmisión."
-msgstr "Choose the profile to broadcast vertically first, in Preferences, Broadcast."
-
-#: guyrapu/ui/escena_version_vertical.py
-#, python-brace-format
-msgid ""
-"Ya existe la escena {escena} vertical. Para acomodarla, usa Aplicar diseño "
-"sobre ella."
-msgstr ""
-"The scene {escena} vertical already exists. To arrange it, use Apply layout"
-" on it."
-
-#: guyrapu/ui/escena_version_vertical.py
-msgid "Creando la versión vertical…"
-msgstr "Creating the vertical version…"
-
-#: guyrapu/ui/escena_version_vertical.py
-msgid "Versión vertical cancelada."
-msgstr "Vertical version canceled."
-
-#: guyrapu/ui/escena_version_vertical.py
-#, python-brace-format
-msgid "Versión vertical creada: {escena} vertical. Diseño: {diseño}."
-msgstr "Vertical version created: {escena} vertical. Layout: {diseño}."
-
-#: guyrapu/obs/escalones_equipo.py
-#, python-brace-format
-msgid ""
-"codificador {codificador}, preset {preset}, {fps} fotogramas por segundo y "
-"salida de {ancho} por {alto}"
-msgstr ""
-"encoder {codificador}, preset {preset}, {fps} frames per second and output "
-"{ancho} by {alto}"
-
-#: guyrapu/obs/escalones_equipo.py
-#, python-brace-format
-msgid "Codificador: {antes} a {despues}."
-msgstr "Encoder: {antes} to {despues}."
-
-#: guyrapu/obs/escalones_equipo.py
-#, python-brace-format
-msgid "Fotogramas por segundo: {antes} a {despues}."
-msgstr "Frames per second: {antes} to {despues}."
-
-#: guyrapu/obs/escalones_equipo.py
-#, python-brace-format
-msgid "Salida: {ancho} por {alto} a {nuevo_ancho} por {nuevo_alto}."
-msgstr "Output: {ancho} by {alto} to {nuevo_ancho} by {nuevo_alto}."
-
-#: guyrapu/obs/prueba_equipo.py
-msgid "Guyrapu prueba del equipo"
-msgstr "Guyrapu computer test"
-
-#: guyrapu/obs/prueba_equipo.py
-msgid "Guyrapu prueba del equipo (movimiento)"
-msgstr "Guyrapu computer test (motion)"
-
-#: guyrapu/obs/prueba_equipo.py
-msgid ""
-"No se puede probar el equipo con un perfil de OBS en modo Avanzado. Pásalo "
-"a modo Sencillo y vuelve a intentarlo."
-msgstr ""
-"The computer cannot be tested with an OBS profile in Advanced mode. Switch "
-"it to Simple mode and try again."
-
-#: guyrapu/obs/prueba_equipo.py
-#, python-brace-format
-msgid "La prueba dio un error: {error} No se pudo restablecer: {errores}."
-msgstr "The test gave an error: {error} Could not reset: {errores}."
-
-#: guyrapu/obs/prueba_equipo.py
-#, python-brace-format
-msgid "La prueba terminó, pero no se pudo restablecer: {errores}."
-msgstr "The test finished, but could not reset: {errores}."
-
-#: guyrapu/obs/prueba_equipo.py
-msgid "Detener la grabación de la prueba"
-msgstr "Stop the test recording"
-
-#: guyrapu/obs/prueba_equipo.py
-msgid "Volver a la escena anterior"
-msgstr "Return to the previous scene"
-
-#: guyrapu/obs/prueba_equipo.py
-msgid "Eliminar la escena de la prueba"
-msgstr "Delete the test scene"
-
-#: guyrapu/obs/prueba_equipo.py
-msgid "Eliminar la fuente de la prueba"
-msgstr "Delete the test source"
-
-#: guyrapu/obs/prueba_equipo.py
-msgid "Restablecer los ajustes del perfil"
-msgstr "Reset the profile settings"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Ningún escalón llegó a medirse."
-msgstr "No step could be measured."
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format, python-format
-msgid ""
-"Ningún ajuste aguantó. En el último escalón se perdió el {dibujar} % de los"
-" fotogramas al dibujar y el {codificar} % al codificar."
-msgstr ""
-"No settings held up. In the last step, {dibujar} % of frames were lost "
-"while drawing and {codificar} % while encoding."
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format, python-format
-msgid ""
-"Se perdió el {dibujar} % de los fotogramas al dibujar y el {codificar} % al"
-" codificar."
-msgstr ""
-"{dibujar} % of frames were lost while drawing and {codificar} % while "
-"encoding."
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid "El perfil «{perfil}» aguantó tal como está. {porcentajes}"
-msgstr "Profile “{perfil}” held up as it is. {porcentajes}"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid "El perfil «{perfil}» aguantó con estos cambios: {cambios} {porcentajes}"
-msgstr "Profile “{perfil}” held up with these changes: {cambios} {porcentajes}"
-
-#. Traductores: {rutas} son las rutas de los archivos que quedaron.
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid "No se pudo eliminar la grabación de la prueba: {rutas}."
-msgstr "Could not delete the test recording: {rutas}."
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Probar el equipo"
-msgstr "Test computer"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Detalle de la prueba"
-msgstr "Test details"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid ""
-"Se va a probar el perfil «{perfil}» con {ajustes}. La prueba tarda como "
-"mucho {segundos} segundos."
-msgstr ""
-"Profile “{perfil}” will be tested with {ajustes}. The test takes at most "
-"{segundos} seconds."
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "&Empezar"
-msgstr "&Start"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Probando el equipo"
-msgstr "Testing the computer"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Estado de la prueba"
-msgstr "Test status"
-
-#. Traductores: {ajustes} son el codificador, los fotogramas por
-#. segundo y la salida que se están probando.
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid "Probando {ajustes}…"
-msgstr "Testing {ajustes}…"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Resultado de la prueba"
-msgstr "Test result"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "&Guardar en el perfil"
-msgstr "&Save to profile"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "&Dejar como estaba"
-msgstr "&Leave as it was"
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Prueba cancelada. OBS quedó como estaba."
-msgstr "Test canceled. OBS was left as it was."
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid "Ajustes guardados en el perfil {perfil}."
-msgstr "Settings saved in profile {perfil}."
-
-#: guyrapu/ui/dialogo_prueba_equipo.py
-#, python-brace-format
-msgid "La prueba dio un error: {error} OBS quedó como estaba."
-msgstr "The test gave an error: {error} OBS was left as it was."
-
-#: guyrapu/ui/obs_pagina_general.py
-msgid "Probar el e&quipo…"
-msgstr "Test the co&mputer…"
-
-#: guyrapu/ui/obs_pagina_general.py
-msgid "Probar el equipo…"
-msgstr "Test computer…"
 

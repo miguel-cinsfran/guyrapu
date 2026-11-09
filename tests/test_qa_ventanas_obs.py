@@ -201,6 +201,10 @@ class TestEsperadosDePestana(unittest.TestCase):
         self.assertIn("Mostrar OBS", esperados)
         self.assertIn("Probar el equipo…", esperados)
 
+    def test_general_pide_probar_la_conexion(self):
+        self.assertIn("Probar la conexión…",
+                      ventanas_obs.esperados_de_pestana("General"))
+
 
 class TestEsperarHabilitado(unittest.TestCase):
 

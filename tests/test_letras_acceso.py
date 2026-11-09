@@ -27,7 +27,7 @@ from guyrapu.ai import catalogo
 from guyrapu.core import config
 from guyrapu.core.idioma import _
 from guyrapu.downloads import descargas, formatos_reales
-from guyrapu.obs import ajustes_perfil, disenos_escena, prueba_equipo
+from guyrapu.obs import ajustes_perfil, disenos_escena, prueba_conexion, prueba_equipo
 from guyrapu.obs.filtros_microfono import Estado
 from guyrapu.ui import descargas_listas, operaciones_obs, elegir_formato, gui, gui_comentarios, gui_descargas, gui_directo_youtube, gui_grabaciones, gui_historial, gui_microfono, gui_transmision, gui_preferencias, control_grabacion, mover_con_flechas
 from guyrapu.ui import escena_disenos
@@ -40,6 +40,7 @@ from guyrapu.ui import escena_propiedades
 from guyrapu.ui import escena_tamano
 from guyrapu.ui import dialogo_ajustes_perfil
 from guyrapu.ui import dialogo_usos_perfil
+from guyrapu.ui import dialogo_prueba_conexion
 from guyrapu.ui import dialogo_prueba_equipo
 from guyrapu.ui import obs_pagina_perfiles
 from guyrapu.ui import obs_ventana
@@ -340,6 +341,13 @@ class TestLetrasAccesoPanelObs(unittest.TestCase):
         self.assertEqual(boton_equipo.GetLabel(), _("Probar el e&quipo…"))
         self.assertEqual(boton_equipo.GetName(), _("Probar el equipo…"))
 
+    def test_general_tiene_el_boton_de_probar_la_conexion(self):
+        boton_conexion = self.dialogo._pagina_general.btn_probar_conexion
+        self.assertEqual(boton_conexion.GetLabel(),
+                         _("Probar la co&nexión…"))
+        self.assertEqual(boton_conexion.GetName(),
+                         _("Probar la conexión…"))
+
     def test_etiquetas_alternativas_de_grabacion(self):
         grabacion = self.dialogo._pagina_grabacion._grabacion
         for grabando, pausa in ((True, False), (True, True)):
@@ -427,6 +435,38 @@ class TestLetrasAccesoPruebaEquipo(unittest.TestCase):
                 dialogo_prueba_equipo.DialogoResultadoPrueba(
                     None, self._resultado(ajustes_perfil.AjustesPerfil(
                         codificador="x264", preset="veryfast", fps=30))),
+            )
+            for cuadro in casos:
+                self.addCleanup(destruir, cuadro)
+                self.assertEqual(letras_repetidas(cuadro), {})
+
+
+class TestLetrasAccesoPruebaConexion(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def _resultado(self, aguantaron, mayor=None):
+        original = ajustes_perfil.valores_iniciales(False, "x264")
+        paso = prueba_conexion.PasoRed(original.bitrate_video, 1, 100)
+        return prueba_conexion.ResultadoConexion(
+            "Casa", original, original.bitrate_video, aguantaron, mayor,
+            (paso,))
+
+    def test_los_cuadros_sin_letras_repetidas(self):
+        original = ajustes_perfil.valores_iniciales(False, "x264")
+        with mock.patch.object(dialogo_prueba_conexion, "anunciar"):
+            casos = (
+                dialogo_prueba_conexion.DialogoPruebaConexion(
+                    None, "Casa", 2500, 60),
+                dialogo_prueba_conexion.DialogoProgresoPruebaConexion(
+                    None, threading.Event()),
+                dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                    None, self._resultado(None)),
+                dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                    None, self._resultado(original.bitrate_video,
+                                          mayor=3800)),
+                dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                    None, self._resultado(1300)),
             )
             for cuadro in casos:
                 self.addCleanup(destruir, cuadro)
@@ -800,6 +840,20 @@ class TestLetrasAccesoRestreamEnIngles(TestLetrasAccesoRestream):
 
 
 class TestLetrasAccesoPruebaEquipoEnIngles(TestLetrasAccesoPruebaEquipo):
+    # Gemela en inglés: repite la prueba sin copiarla.
+
+    @classmethod
+    def setUpClass(cls):
+        cls._ingles = ingles()
+        cls._ingles.__enter__()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._ingles.__exit__(None, None, None)
+        del cls._ingles
+
+
+class TestLetrasAccesoPruebaConexionEnIngles(TestLetrasAccesoPruebaConexion):
     # Gemela en inglés: repite la prueba sin copiarla.
 
     @classmethod

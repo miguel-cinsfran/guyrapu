@@ -33,7 +33,7 @@ ORDEN_TRANSMISION = ("Transmitir en directo", "Restream…")
 
 ESPERADOS_POR_PESTANA = {
     "General": ("Estado", "Actualizar estado", "Mostrar OBS",
-                "Probar el equipo…"),
+                "Probar el equipo…", "Probar la conexión…"),
     "Transmisión": ("Transmitir en directo", "Restream…"),
     "Escena": ("Escenas", "Cambiar escena", "Agregar escena", "Fuentes",
                "Aplicar diseño", "Agregar fuente",

@@ -88,7 +88,7 @@ class VentanaObs(wx.Dialog):
             self.nb, self._principal, self._gestor, self._operaciones)
         self._pagina_general = PaginaGeneral(
             self.nb, self._actualizar_general, self._mostrar_obs,
-            self._probar_equipo)
+            self._probar_equipo, self._probar_conexion)
         self.nb.AddPage(self._pagina_general, _("General"))
         self.nb.AddPage(self._pagina_escena, _("Escena"))
         self.nb.AddPage(self._pagina_transmision, _("Transmisión"))
@@ -257,6 +257,17 @@ class VentanaObs(wx.Dialog):
     def _anunciar_equipo(self, texto):
         self._pagina_general.mostrar([texto])
         anunciar(texto)
+
+    def _probar_conexion(self):
+        if self._operaciones.en_vuelo or self._operaciones.cerrando:
+            return
+        from guyrapu.ui import dialogo_prueba_conexion
+        from guyrapu.youtube import credenciales, youtube_api
+        dialogo_prueba_conexion.PruebaConexionPanel(
+            self, self._en_hilo, self._cliente_obs(),
+            youtube_api.ClienteYouTube(credenciales.efectivas()),
+            credenciales.hay_sesion(), self._refrescar_general,
+            self._anunciar_equipo).empezar()
 
     def _activar(self, activo):
         paginas = (self._pagina_transmision, self._pagina_escena,

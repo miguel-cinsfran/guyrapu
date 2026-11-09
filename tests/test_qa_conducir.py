@@ -118,6 +118,11 @@ class TestSuperficiesQa(unittest.TestCase):
             conducir.SUPERFICIES.get("restream_pagina_eventos.py"),
             "restream")
 
+    def test_declara_el_cuadro_de_la_prueba_de_conexion(self):
+        self.assertEqual(
+            conducir.SUPERFICIES.get("dialogo_prueba_conexion.py"),
+            "escena")
+
 
 class TestTodosCubreLosEscenarios(unittest.TestCase):
 

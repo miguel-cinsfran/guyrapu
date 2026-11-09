@@ -14,15 +14,18 @@ from guyrapu.ui.preferencias_comun import (
 
 class PaginaGeneral(wx.Panel):
 
-    def __init__(self, parent, al_actualizar, al_mostrar, al_probar_equipo):
+    def __init__(self, parent, al_actualizar, al_mostrar, al_probar_equipo,
+                 al_probar_conexion):
         super().__init__(parent, name="PaginaGeneral")
         self._al_actualizar = al_actualizar
         self._al_mostrar = al_mostrar
         self._al_probar_equipo = al_probar_equipo
+        self._al_probar_conexion = al_probar_conexion
         self._crear_controles()
         self._enlazar_eventos()
         self.acciones = (self.txt_estado, self.btn_actualizar,
-                         self.btn_mostrar, self.btn_probar_equipo)
+                         self.btn_mostrar, self.btn_probar_equipo,
+                         self.btn_probar_conexion)
 
     def _crear_controles(self):
         caja = wx.BoxSizer(wx.VERTICAL)
@@ -42,13 +45,14 @@ class PaginaGeneral(wx.Panel):
             self, _("Mostrar &OBS"), nombre_de_etiqueta(_("Mostrar &OBS")))
         self.btn_probar_equipo = boton(
             self, _("Probar el e&quipo…"), _("Probar el equipo…"))
+        self.btn_probar_conexion = boton(self, _("Probar la co&nexión…"), _("Probar la conexión…"))
         caja.Add(self._fila_botones(), 0, wx.ALL, 6)
         self.SetSizer(caja)
 
     def _fila_botones(self):
         fila = wx.BoxSizer(wx.HORIZONTAL)
         for control in (self.btn_actualizar, self.btn_mostrar,
-                        self.btn_probar_equipo):
+                        self.btn_probar_equipo, self.btn_probar_conexion):
             fila.Add(control, 0, wx.ALL, 4)
         return fila
 
@@ -56,6 +60,11 @@ class PaginaGeneral(wx.Panel):
         self.btn_actualizar.Bind(wx.EVT_BUTTON, self._actualizar)
         self.btn_mostrar.Bind(wx.EVT_BUTTON, self._mostrar)
         self.btn_probar_equipo.Bind(wx.EVT_BUTTON, self._probar_equipo)
+        self.btn_probar_conexion.Bind(wx.EVT_BUTTON,
+                                      self._probar_conexion)
+
+    def _probar_conexion(self, event):
+        self._al_probar_conexion()
 
     def _actualizar(self, event):
         self._al_actualizar()
