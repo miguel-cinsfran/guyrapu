@@ -102,10 +102,11 @@ class GestorVertical:
             logger.debug("no se pudo arrancar el vertical: %s", error)
             self._marcar_corte(parada)
             return
+        if not inicial:
+            return
         self._vertical_activo = True
         self._cortado = False
-        self._anunciar(_(MENSAJE_ARRANQUE) if inicial else _(MENSAJE_VUELTA),
-                       "conectado" if inicial else "transmision_recuperada")
+        self._anunciar(_(MENSAJE_ARRANQUE), "conectado")
 
     def _marcar_corte(self, parada) -> None:
         if self._cortado:
@@ -144,6 +145,9 @@ class GestorVertical:
             return
         self._escena_horizontal = escena
         pareja = escena_gemela.nombre_gemela(escena)
+        if not self._existe_pareja(pareja, parada):
+            self._avisar_sin_pareja(escena)
+            return
         try:
             self._lienzo_mod.cambiar_escena(
                 self._cliente_obs(), pareja, parada)
@@ -154,6 +158,22 @@ class GestorVertical:
             return
         self._vertical_actual = pareja
         self._sin_pareja.discard(escena)
+
+    def _existe_pareja(self, pareja, parada) -> bool:
+        lienzo = self._estado.get("lienzo") or {}
+        uuid = lienzo.get("canvasUuid")
+        if not uuid:
+            return False
+        try:
+            respuesta = self._cliente_obs().pedir(
+                "GetSceneList", {"canvasUuid": uuid}, parada)
+        except Exception as error:
+            logger.debug("no se pudieron leer las escenas del vertical: %s",
+                         error)
+            return False
+        datos = (respuesta or {}).get("responseData", respuesta or {}) or {}
+        return any(escena.get("sceneName", "") == pareja
+                   for escena in datos.get("scenes") or ())
 
     def _avisar_sin_pareja(self, escena) -> None:
         if escena in self._sin_pareja:
@@ -166,9 +186,20 @@ class GestorVertical:
         self._vigilando = False
         if not self._vertical_activo:
             return
+        if not self._vertical_sigue(parada):
+            self._vertical_activo = False
+            return
         self._detener_vertical(parada)
         self._vertical_activo = False
         self._anunciar(_(MENSAJE_FIN), "transmision_problema")
+
+    def _vertical_sigue(self, parada) -> bool:
+        try:
+            return bool(self._lienzo_mod.estado(
+                self._cliente_obs(), parada).get("transmitiendo"))
+        except Exception as error:
+            logger.debug("no se pudo leer el estado del vertical: %s", error)
+            return False
 
     def _detener_vertical(self, parada) -> None:
         try:

@@ -25,6 +25,7 @@ class GestorFalso:
     def __init__(self, activo=True, escena="Juego"):
         self.activo = activo
         self.escena = escena
+        self.escenas_verticales = {"Juego vertical"}
         self.llamadas = []
         self.orden = []
 
@@ -44,6 +45,14 @@ class GestorFalso:
         self.llamadas.append("escena")
         return self.escena
 
+    def pedir(self, tipo, datos=None, parada=None):
+        self.llamadas.append((tipo, datos))
+        if tipo == "GetSceneList":
+            return {"responseData": {"scenes": [
+                {"sceneName": nombre}
+                for nombre in self.escenas_verticales]}}
+        return {"responseData": {}}
+
 
 class LienzoFalso:
 
@@ -56,6 +65,7 @@ class LienzoFalso:
         self.orden = orden if orden is not None else []
         self.fallo_estado = None
         self.fallo_arrancar = None
+        self.conecta_al_arrancar = True
 
     def estado(self, cliente, parada=None):
         self.llamadas.append("estado")
@@ -68,7 +78,8 @@ class LienzoFalso:
         self.orden.append("vertical_arrancar")
         if self.fallo_arrancar is not None:
             raise self.fallo_arrancar
-        self.activo = True
+        if self.conecta_al_arrancar:
+            self.activo = True
 
     def detener(self, cliente, parada=None):
         self.llamadas.append("detener")
@@ -82,7 +93,7 @@ class LienzoFalso:
     def cambiar_escena(self, cliente, escena, parada=None):
         self.llamadas.append(("cambiar", escena))
         if self.parejas is not None and escena not in self.parejas:
-            raise obs_cliente.ObsError("no existe la escena")
+            return
         self.actual = escena
 
 
@@ -94,6 +105,8 @@ class BaseGestorVertical(unittest.TestCase):
         self.base = base or GestorFalso()
         self.base.orden = self.orden
         self.lienzo = lienzo or LienzoFalso(orden=self.orden)
+        if self.lienzo.parejas is not None:
+            self.base.escenas_verticales = set(self.lienzo.parejas)
         self.reloj = reloj or Reloj()
         gestor = gestor_vertical.GestorVertical(
             self.base,
@@ -170,11 +183,16 @@ class VigilanciaTest(BaseGestorVertical):
         gestor.estado_transmision(None)
         self.assertEqual(self.lienzo.llamadas.count("arrancar"), arranques)
 
+        self.lienzo.conecta_al_arrancar = False
         self.reloj.ahora = 30.0
         gestor.estado_transmision(None)
-
         self.assertEqual(self.lienzo.llamadas.count("arrancar"),
                          arranques + 1)
+        self.assertNotIn((_("El vertical volvió."), "transmision_recuperada"),
+                         self.anuncios)
+
+        self.lienzo.activo = True
+        gestor.estado_transmision(None)
         self.assertIn((_("El vertical volvió."), "transmision_recuperada"),
                       self.anuncios)
 
@@ -218,6 +236,7 @@ class EscenasTest(BaseGestorVertical):
               "sigue en {vertical}. Créala con Crear la versión vertical.")
             .format(escena="Charla", vertical="Juego vertical"), "aviso")])
         self.assertEqual(lienzo.actual, "Juego vertical")
+        self.assertNotIn(("cambiar", "Charla vertical"), lienzo.llamadas)
 
 
 class FinTest(BaseGestorVertical):
@@ -233,6 +252,18 @@ class FinTest(BaseGestorVertical):
         self.assertNotIn("detener", self.base.llamadas)
         self.assertIn((_("También se detuvo el vertical."),
                        "transmision_problema"), self.anuncios)
+
+    def test_no_avisa_fin_si_el_vertical_ya_estaba_detenido(self):
+        gestor = self.armar()
+        self.iniciar(gestor)
+        self.lienzo.activo = False
+        self.base.activo = False
+
+        gestor.estado_transmision(None)
+
+        self.assertNotIn("detener", self.lienzo.llamadas)
+        self.assertNotIn((_("También se detuvo el vertical."),
+                          "transmision_problema"), self.anuncios)
 
     def test_no_lo_dice_cada_vuelta_despues_del_fin(self):
         gestor = self.armar()

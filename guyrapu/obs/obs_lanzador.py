@@ -131,22 +131,37 @@ def _terminar_obs(pid, ejecutar=subprocess.run):
              creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
 
 
-def cerrar_obs(en_ejecucion=obs_activacion.obs_esta_en_ejecucion,
-               ejecutar=subprocess.run, dormir=time.sleep,
-               reloj=time.monotonic, limite=30.0, intervalo=0.5):
-    """Cierra OBS sin forzarlo y devuelve si se cerró."""
-    if not en_ejecucion():
-        return True
-    for pid in _pids_obs(ejecutar):
+def _pedir_cierre(pids, ejecutar) -> None:
+    for pid in pids:
         try:
             _terminar_obs(pid, ejecutar)
         except (OSError, subprocess.SubprocessError) as error:
             logger.debug("no se pudo pedir el cierre de OBS %s: %s", pid,
                          error)
+
+
+def cerrar_obs(en_ejecucion=obs_activacion.obs_esta_en_ejecucion,
+               ejecutar=subprocess.run, dormir=time.sleep,
+               reloj=time.monotonic, limite=30.0, intervalo=0.5,
+               intervalo_pedido=5.0):
+    """Cierra OBS sin forzarlo y devuelve si se cerró.
+
+    En el área de notificación el primer pedido no alcanza: se repite sin
+    `/F` cada `intervalo_pedido` segundos mientras OBS siga vivo.
+    """
+    if not en_ejecucion():
+        return True
+    pids = _pids_obs(ejecutar)
+    _pedir_cierre(pids, ejecutar)
     inicio = reloj()
+    siguiente = intervalo_pedido
     while en_ejecucion():
-        if reloj() - inicio >= limite:
+        transcurrido = reloj() - inicio
+        if transcurrido >= limite:
             return False
+        if transcurrido >= siguiente:
+            _pedir_cierre(pids, ejecutar)
+            siguiente = transcurrido + intervalo_pedido
         dormir(intervalo)
     return True
 

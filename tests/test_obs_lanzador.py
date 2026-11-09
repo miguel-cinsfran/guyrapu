@@ -256,6 +256,20 @@ class CerrarObsTest(unittest.TestCase):
             en_ejecucion=lambda: False, ejecutar=ejecutar))
         self.assertEqual(ejecutar.orden, [])
 
+    def test_reintenta_el_pedido_si_obs_no_sale(self):
+        ejecutar = EjecutarFalso()
+        reloj = RelojFalso()
+
+        def en_ejecucion():
+            return len(ejecutar.comandos("taskkill")) < 2
+
+        self.assertTrue(cerrar_obs(
+            en_ejecucion=en_ejecucion, ejecutar=ejecutar,
+            dormir=reloj.dormir, reloj=reloj.reloj))
+        self.assertEqual(len(ejecutar.comandos("taskkill")), 2)
+        for args in ejecutar.orden:
+            self.assertNotIn("/F", args)
+
 
 class AsegurarObsTest(unittest.TestCase):
     def test_ya_abierto_no_hace_nada(self):
