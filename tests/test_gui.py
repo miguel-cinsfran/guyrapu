@@ -4377,7 +4377,7 @@ class TestActualizarYtdlp(unittest.TestCase):
         with mock.patch("guyrapu.ui.gui_actualizacion.DialogoActualizacion",
                         side_effect=fabrica), \
                 mock.patch.object(gui.wx, "ProgressDialog") as dialogo, \
-                mock.patch.object(gui.wx, "MessageBox") as mensaje, \
+                mock.patch.object(gui.confirmar, "avisar") as mensaje, \
                 mock.patch.object(gui.diagnostico, "crear_hilo", side_effect=crear), \
                 mock.patch.object(ytdlp_actualizar, "actualizar_ytdlp", side_effect=doble):
             gui.VentanaPrincipal._on_actualizar_ytdlp(frame, None)

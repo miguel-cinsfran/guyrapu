@@ -98,10 +98,10 @@ class AcercaDeCableadoTest(unittest.TestCase):
         marco = mock.Mock()
         with mock.patch.object(gui.acerca_de, "texto",
                                return_value="texto completo") as texto, \
-                mock.patch.object(gui.wx, "MessageBox") as cuadro:
+                mock.patch.object(gui.confirmar, "avisar") as cuadro:
             gui.VentanaPrincipal._on_about(marco, None)
         texto.assert_called_once_with(APP_VERSION)
-        self.assertEqual(cuadro.call_args.args[0], "texto completo")
+        self.assertEqual(cuadro.call_args.args[1], "texto completo")
 
 
 class AplicarTest(unittest.TestCase):

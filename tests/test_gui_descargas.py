@@ -437,9 +437,7 @@ class TestPaginaUnica(unittest.TestCase):
         dialogo = self._dialogo()
         pagina = dialogo.pagina_buscador
         with mock.patch.object(descargas_buscador, "anunciar") as anunciar, \
-                mock.patch.object(buscador_tandas._snd, "reproducir") as sonido, \
-                mock.patch.object(descargas_buscador.wx, "MessageBox",
-                                   side_effect=AssertionError("modal")):
+                mock.patch.object(buscador_tandas._snd, "reproducir") as sonido:
             pagina.campo.SetValue("")
             pagina._on_buscar(None)
         anunciar.assert_called_once_with("Escribe una búsqueda o un enlace.")

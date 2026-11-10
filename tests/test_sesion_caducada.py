@@ -19,6 +19,7 @@ from guyrapu.core.idioma import _
 from guyrapu.youtube import youtube_api
 from guyrapu.ui import gui
 from guyrapu.ui import gui_comentarios
+from guyrapu.ui import gui_envio_chat
 from guyrapu.ui import gui_preferencias
 from guyrapu.ui.sesion_conectada import SesionConectada
 from tests.pseudo_prueba import con_pseudo
@@ -285,7 +286,7 @@ class TestApiErr(unittest.TestCase):
         receptor, config = self._receptor()
         with mock.patch.object(gui._snd, "reproducir") as sonar, \
                 mock.patch.object(gui, "anunciar") as anunciar, \
-                mock.patch.object(gui.wx, "MessageBox") as caja, \
+                mock.patch.object(gui_envio_chat.confirmar, "avisar") as caja, \
                 mock.patch.object(gui_preferencias, "ofrecer_iniciar_sesion",
                                   return_value=True) as ofrecer:
             gui.VentanaPrincipal._api_err(receptor, RefreshError("invalid_grant"))
@@ -300,7 +301,7 @@ class TestApiErr(unittest.TestCase):
         receptor, _ = self._receptor()
         with mock.patch.object(gui._snd, "reproducir"), \
                 mock.patch.object(gui, "anunciar"), \
-                mock.patch.object(gui.wx, "MessageBox") as caja, \
+                mock.patch.object(gui_envio_chat.confirmar, "avisar") as caja, \
                 mock.patch.object(gui_preferencias, "ofrecer_iniciar_sesion",
                                   return_value=False):
             gui.VentanaPrincipal._api_err(receptor, RefreshError("invalid_grant"))
@@ -311,7 +312,7 @@ class TestApiErr(unittest.TestCase):
         receptor, _ = self._receptor()
         with mock.patch.object(gui._snd, "reproducir"), \
                 mock.patch.object(gui, "anunciar"), \
-                mock.patch.object(gui.wx, "MessageBox") as caja, \
+                mock.patch.object(gui_envio_chat.confirmar, "avisar") as caja, \
                 mock.patch.object(gui_preferencias, "ofrecer_iniciar_sesion") as ofrecer:
             gui.VentanaPrincipal._api_err(receptor, RuntimeError("quotaExceeded"))
         ofrecer.assert_not_called()
@@ -330,7 +331,7 @@ class TestEscrituraErr(unittest.TestCase):
         panel = self._panel()
         with mock.patch.object(gui_comentarios._snd, "reproducir") as sonar, \
                 mock.patch.object(gui_comentarios, "anunciar") as anunciar, \
-                mock.patch.object(gui_comentarios.wx, "MessageBox") as caja, \
+                mock.patch.object(gui_comentarios.confirmar, "avisar") as caja, \
                 mock.patch.object(gui_preferencias, "ofrecer_iniciar_sesion",
                                   return_value=False) as ofrecer:
             panel._escritura_err(RefreshError("invalid_grant"))
@@ -343,7 +344,7 @@ class TestEscrituraErr(unittest.TestCase):
         panel = self._panel()
         with mock.patch.object(gui_comentarios._snd, "reproducir"), \
                 mock.patch.object(gui_comentarios, "anunciar"), \
-                mock.patch.object(gui_comentarios.wx, "MessageBox") as caja, \
+                mock.patch.object(gui_comentarios.confirmar, "avisar") as caja, \
                 mock.patch.object(gui_preferencias, "ofrecer_iniciar_sesion") as ofrecer:
             panel._escritura_err(RuntimeError("quotaExceeded"))
         ofrecer.assert_not_called()
@@ -362,7 +363,7 @@ class TestProgramadoFallo(unittest.TestCase):
     def test_frase_exacta_sin_dialogo(self):
         frame = self._frame()
         with mock.patch.object(gui, "anunciar") as anunciar, \
-                mock.patch.object(gui.wx, "MessageBox") as caja:
+                mock.patch.object(gui_envio_chat.confirmar, "avisar") as caja:
             frame._programado_fallo(RefreshError("invalid_grant"))
         anunciar.assert_called_once_with(FRASE_PROGRAMADO)
         caja.assert_not_called()
