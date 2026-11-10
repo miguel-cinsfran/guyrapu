@@ -282,7 +282,7 @@ def _fuera(s, largo) -> str:
     texto = texto[:1].upper() + texto[1:]
     if not largo:
         # Traductores: se suma a la frase anterior cuando la fuente no entra.
-        texto += ". " + _("Para que entre, usa Aplicar diseño.")
+        texto += ". " + _("Para ajustarla al vídeo, usa Aplicar diseño.")
     return texto
 
 

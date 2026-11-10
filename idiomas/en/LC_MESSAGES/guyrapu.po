@@ -3998,8 +3998,8 @@ msgstr "{porcentaje}% of the source is off the video"
 
 #. Traductores: se suma a la frase anterior cuando la fuente no entra.
 #: guyrapu/obs/obs_disposicion.py
-msgid "Para que entre, usa Aplicar diseño."
-msgstr "To make it fit, use Apply layout."
+msgid "Para ajustarla al vídeo, usa Aplicar diseño."
+msgstr "To fit it to the video, use Apply layout."
 
 #: guyrapu/obs/obs_disposicion.py
 #, python-brace-format

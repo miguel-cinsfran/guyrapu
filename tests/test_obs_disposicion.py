@@ -251,7 +251,7 @@ class DescripcionTest(unittest.TestCase):
         self.assertEqual(obs.describir(s, ("bloqueada",)), "Bloqueada.")
         self.assertEqual(obs.describir(s, ("fuera",)),
                          "Queda fuera del vídeo el 12% de la fuente. "
-                         "Para que entre, usa Aplicar diseño.")
+                         "Para ajustarla al vídeo, usa Aplicar diseño.")
         self.assertEqual(obs.describir(s, ("aspecto",)), "14 mensajes, letra 18.")
 
     def test_visible_largo_y_corto(self):
@@ -267,7 +267,7 @@ class DescripcionTest(unittest.TestCase):
         snap = obs.SnapshotPanel(conectado=True, fuera=22.4)
         self.assertEqual(obs.describir(snap, ("fuera",)),
                          "Queda fuera del vídeo el 22% de la fuente. "
-                         "Para que entre, usa Aplicar diseño.")
+                         "Para ajustarla al vídeo, usa Aplicar diseño.")
 
     def test_fuera_largo_indica_recorte(self):
         snap = obs.SnapshotPanel(conectado=True, fuera=22.4)
@@ -285,7 +285,7 @@ class DescripcionTest(unittest.TestCase):
                                  lienzo_alto=900, fuera=65.2)
         frase = obs.describir(snap, ("posicion", "fuera"))
         self.assertEqual(frase, "Queda fuera del vídeo el 65% de la fuente. "
-                                "Para que entre, usa Aplicar diseño. "
+                                "Para ajustarla al vídeo, usa Aplicar diseño. "
                                 "Se sale del vídeo por la izquierda, y a 2% del borde inferior.")
         self.assertEqual(frase.lower().count("fuera"), 1)
 
@@ -298,7 +298,7 @@ class DescripcionTest(unittest.TestCase):
         self.assertEqual(
             obs.describir(s, obs.ACTIVOS_DEFECTO),
             "Juego; Oculta en OBS; Queda fuera del vídeo el 22% de la fuente. "
-            "Para que entre, usa Aplicar diseño. Bloqueada; La tapa Cámara; "
+            "Para ajustarla al vídeo, usa Aplicar diseño. Bloqueada; La tapa Cámara; "
             "Superpone al 30% de Cámara; A 5% del borde izquierdo y a 3% del "
             "borde inferior; 29% del ancho y 69% del alto.")
 
@@ -307,7 +307,7 @@ class DescripcionTest(unittest.TestCase):
         self.assertEqual(
             obs.describir(snap, ("fuera",)),
             "Queda fuera del vídeo el 22% de la fuente. "
-            "Para que entre, usa Aplicar diseño.")
+            "Para ajustarla al vídeo, usa Aplicar diseño.")
         self.assertEqual(
             obs.describir(snap, ("fuera",), "largo"),
             "Queda fuera del vídeo el 22% de la fuente")
@@ -443,7 +443,7 @@ class TestFrasesFijadas(unittest.TestCase):
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "corto"),
                          "Juego; Oculta en OBS; "
                          "Queda fuera del vídeo el 22% de la fuente. "
-                         "Para que entre, usa Aplicar diseño. Bloqueada; "
+                         "Para ajustarla al vídeo, usa Aplicar diseño. Bloqueada; "
                          "La tapa Cámara; Superpone al 30% de Cámara y al 4% de Juego; "
                          "A 5% del borde izquierdo y a 3% del borde inferior; "
                          "29% del ancho y 69% del alto; 14 mensajes, letra 18.")
