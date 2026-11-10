@@ -142,5 +142,6 @@ SIN_ESCENARIO: dict[str, str] = {
         "El banco no tiene cámara de Windows; el flujo lo cubren las pruebas "
         "con wx y la prueba contra OBS real."),
     "confirmar.py": "Envuelve los cuadros nativos de Windows; no abre una ventana propia.",
+    "tecla_escape.py": "Atiende teclas y no abre ventana propia.",
     "aviso_importante.py": "Envuelve los cuadros de aviso de Windows; no abre una ventana propia.",
 }

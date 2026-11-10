@@ -16,7 +16,7 @@ import wx
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import asistente_perfiles
 from guyrapu.restream import transmitir
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 from guyrapu.ui.ventana_espera import VentanaEspera
@@ -117,10 +117,7 @@ class DialogoAsistentePerfiles(wx.Dialog):
         self.EndModal(wx.ID_OK)
 
     def _al_tecla(self, evento):
-        if evento.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        evento.Skip()
+        tecla_escape.cancelar_si_escape(self, evento)
 
 
 class DialogoResumenAsistente(wx.Dialog):

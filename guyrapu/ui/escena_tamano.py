@@ -12,7 +12,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_disposicion, tamano_relativo
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible
 from guyrapu.ui.preferencias_comun import (
     fila_campo, lista_con_nombre, mostrar_control, nombre_de_etiqueta)
@@ -176,10 +176,7 @@ class TamanoFuenteDialog(wx.Dialog):
         self.EndModal(wx.ID_CANCEL)
 
     def _al_tecla(self, event):
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)
 
 
 def pedir_tamano(padre, porcentaje_ancho, porcentaje_alto):

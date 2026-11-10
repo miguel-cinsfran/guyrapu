@@ -12,7 +12,7 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui.accesibilidad import nombre_accesible
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 
 TITULO = N_("Abrir enlace")
 MODO_AHORA = "ahora"
@@ -90,10 +90,7 @@ class DialogoEnlace(wx.Dialog):
         return resultado(self.txt_enlace.GetValue(), self._modo)
 
     def _tecla(self, evento):
-        if evento.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        evento.Skip()
+        tecla_escape.cancelar_si_escape(self, evento)
 
 
 def pedir_enlace(parent):

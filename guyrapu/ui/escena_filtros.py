@@ -12,7 +12,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs.filtros_microfono import GANANCIAS, Estado
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.preferencias_comun import (
     fila_campo, lista_con_nombre, nombre_de_etiqueta)
 
@@ -90,10 +90,7 @@ class FiltrosMicrofonoDialog(wx.Dialog):
         self.EndModal(wx.ID_CANCEL)
 
     def _al_tecla(self, event):
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)
 
 
 def pedir_filtros(padre, fuente, estado):

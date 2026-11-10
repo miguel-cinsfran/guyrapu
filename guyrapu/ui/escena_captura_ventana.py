@@ -8,7 +8,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import consultas_transmision
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.preferencias_comun import (
     boton, fila_campo, lista_con_nombre, nombre_de_etiqueta)
@@ -83,10 +83,7 @@ class DialogoCapturarVentana(wx.Dialog):
         self.EndModal(wx.ID_CANCEL)
 
     def _al_tecla(self, event):
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)
 
 
 def pedir_valor(padre, opciones, actual):

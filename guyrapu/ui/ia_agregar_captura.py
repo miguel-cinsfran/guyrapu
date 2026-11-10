@@ -19,7 +19,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_captura_ia
 from guyrapu.obs import obs_cliente
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.voice.sound_player import reproducir
 
@@ -124,7 +124,7 @@ class DialogoAgregarCaptura(wx.Dialog):
         self._terminar(wx.ID_CANCEL)
 
     def _al_tecla(self, event) -> None:
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
+        if tecla_escape.es_escape(event.GetKeyCode()):
             self._terminar(wx.ID_CANCEL)
             return
         event.Skip()

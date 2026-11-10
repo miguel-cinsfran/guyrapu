@@ -20,7 +20,7 @@ from guyrapu.obs import obs_audio
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_entradas_audio
 from guyrapu.ui.accesibilidad import anunciar
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
@@ -292,7 +292,4 @@ class MicrofonoObsDialog(wx.Dialog):
         self.EndModal(wx.ID_CANCEL)
 
     def _al_tecla(self, event) -> None:
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)

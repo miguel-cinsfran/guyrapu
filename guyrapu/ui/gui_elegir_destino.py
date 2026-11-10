@@ -14,7 +14,7 @@ import wx
 from guyrapu.obs.obs_destinos import DESTINOS
 from guyrapu.core.idioma import _
 from guyrapu.restream import ganchos, transmitir
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 
 
@@ -139,10 +139,7 @@ class DialogoElegirDestino(wx.Dialog):
         self.EndModal(wx.ID_OK)
 
     def _al_tecla(self, event) -> None:
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)
 
 
 def pedir_destino(padre, destino_guardado, usuario_guardado):

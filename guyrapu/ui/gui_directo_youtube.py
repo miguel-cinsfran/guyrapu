@@ -16,7 +16,7 @@ import wx
 
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.youtube import youtube_api
 from guyrapu.youtube.emision import (
@@ -377,10 +377,7 @@ class DialogoDirectoYoutube(wx.Dialog):
         self.EndModal(wx.ID_OK)
 
     def _al_tecla(self, event) -> None:
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)
 
 
 def pedir_datos_directo(padre, titulo="", descripcion="",

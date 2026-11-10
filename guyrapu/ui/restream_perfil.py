@@ -15,7 +15,7 @@ import wx
 from guyrapu.core.idioma import _, ngettext
 from guyrapu.restream import perfiles
 from guyrapu.restream.perfiles import ORIENTACIONES, Perfil
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.gui import caja_de_grupo
 from guyrapu.ui.preferencias_comun import mostrar_control, nombre_de_etiqueta
@@ -225,10 +225,7 @@ class DialogoPerfilRestream(wx.Dialog):
             self.chk_youtube.SetFocus()
 
     def _al_tecla(self, evento):
-        if evento.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        evento.Skip()
+        tecla_escape.cancelar_si_escape(self, evento)
 
 
 class DialogoNombrePerfil(wx.Dialog):
@@ -281,7 +278,4 @@ class DialogoNombrePerfil(wx.Dialog):
         self.EndModal(wx.ID_OK)
 
     def _al_tecla(self, evento):
-        if evento.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        evento.Skip()
+        tecla_escape.cancelar_si_escape(self, evento)

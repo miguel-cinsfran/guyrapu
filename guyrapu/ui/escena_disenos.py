@@ -13,7 +13,7 @@ import wx
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.obs import disenos_fabrica, disenos_guardados, obs_disposicion
 from guyrapu.obs.disenos_escena import ESQUINAS, Diseno
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.disenos_nombres import buscar_guardado as _buscar_guardado
 from guyrapu.ui.disenos_nombres import pedir_nombre as _pedir_nombre
@@ -353,10 +353,7 @@ class DisenoEscenaDialog(wx.Dialog):
         self.EndModal(wx.ID_CANCEL)
 
     def _al_tecla(self, event):
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)
 
     def _enfocar(self, lugar):
         self._lugares[lugar][2].SetFocus()

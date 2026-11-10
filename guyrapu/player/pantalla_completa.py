@@ -12,6 +12,7 @@ import wx
 from guyrapu.core import config as _cfg
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
+from guyrapu.ui import tecla_escape
 from guyrapu.ui.accesibilidad import nombre_accesible
 
 logger = diagnostico.obtener_logger(__name__)
@@ -98,7 +99,7 @@ class PantallaCompleta(wx.Frame):
         k = event.GetKeyCode()
         mods = event.GetModifiers()
         logger.debug("TECLA origen=pantalla_completa codigo=%s mods=%s", k, mods)
-        if k in (wx.WXK_ESCAPE, wx.WXK_F11):
+        if tecla_escape.es_escape(k) or k == wx.WXK_F11:
             self._acciones.salir()
             return
         accion = self._atajos.get((mods, k))

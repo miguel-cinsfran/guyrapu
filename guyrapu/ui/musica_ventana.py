@@ -16,7 +16,7 @@ import wx
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios, vista
-from guyrapu.ui import musica_filtros, musica_menus, musica_teclas
+from guyrapu.ui import musica_filtros, musica_menus, musica_teclas, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui import paleta
@@ -297,7 +297,7 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
 
     def _tecla_buscar(self, evento):
         codigo = evento.GetKeyCode()
-        if codigo == wx.WXK_ESCAPE:
+        if tecla_escape.es_escape(codigo):
             if self.txt_buscar.GetValue():
                 self.txt_buscar.ChangeValue("")
                 self._aplicar_filtro()

@@ -14,7 +14,7 @@ from guyrapu.core import config as cfg
 from guyrapu.core.config import APP_NAME
 from guyrapu.core.idioma import _
 from guyrapu.ui import atajos_captura
-from guyrapu.ui import confirmar
+from guyrapu.ui import confirmar, tecla_escape
 from guyrapu.ui.atajos_captura import etiqueta_de_accion
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.gui import caja_de_grupo
@@ -139,7 +139,7 @@ class PaginaAtajos:
             return
         k = event.GetKeyCode()
         mods = event.GetModifiers()
-        if k == wx.WXK_ESCAPE:
+        if tecla_escape.es_escape(k):
             self._salir_captura_atajo(True)
             return
         if k in (wx.WXK_SHIFT, wx.WXK_CONTROL, wx.WXK_ALT, wx.WXK_RAW_CONTROL):

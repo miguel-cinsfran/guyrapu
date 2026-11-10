@@ -25,7 +25,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.core import paths
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.ui import ia_privacidad
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.ia_agregar_captura import pedir_captura
@@ -59,10 +59,7 @@ class DialogoMensaje(wx.Dialog):
         self.EndModal(wx.ID_OK)
 
     def _al_tecla(self, event) -> None:
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        event.Skip()
+        tecla_escape.cancelar_si_escape(self, event)
 
 
 class VentanaIA(wx.Dialog):
@@ -290,7 +287,7 @@ class VentanaIA(wx.Dialog):
         self._cerrar()
 
     def _al_tecla(self, event) -> None:
-        if event.GetKeyCode() == wx.WXK_ESCAPE:
+        if tecla_escape.es_escape(event.GetKeyCode()):
             if self._en_curso:
                 self._cancelar()
                 reproducir("ia_cancelada")

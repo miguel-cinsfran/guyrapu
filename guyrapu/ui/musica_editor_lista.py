@@ -17,7 +17,7 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.music import anuncios, listas, vista
 from guyrapu.music.edicion_lista import ListaEnEdicion
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui import musica_menus, paleta
+from guyrapu.ui import musica_menus, paleta, tecla_escape
 
 MAX_NOMBRE = 60
 TITULO_NUEVA = N_("Nueva lista")
@@ -42,7 +42,7 @@ def accion_tecla(codigo, modificadores, en_lista):
     reproduce; el resto de las teclas de la lista propia actúan solo en
     ella. Fuera de las listas, Enter sigue su camino hacia Guardar.
     """
-    if codigo == wx.WXK_ESCAPE:
+    if tecla_escape.es_escape(codigo):
         return ACCION_CANCELAR
     if codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
         if en_lista in ("lista", "todas"):

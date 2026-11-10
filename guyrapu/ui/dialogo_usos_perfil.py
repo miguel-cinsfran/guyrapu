@@ -11,7 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import paleta
+from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 
@@ -78,7 +78,4 @@ class DialogoUsosPerfil(wx.Dialog):
                 for clave, casilla in self.casillas.items()}
 
     def _al_tecla(self, evento):
-        if evento.GetKeyCode() == wx.WXK_ESCAPE:
-            self.EndModal(wx.ID_CANCEL)
-            return
-        evento.Skip()
+        tecla_escape.cancelar_si_escape(self, evento)
