@@ -20,6 +20,8 @@ logger = diagnostico.obtener_logger(__name__)
 
 TEXTO_SIN_OBS = N_("OBS no está abierto.")
 TEXTO_SIN_FRENTE = N_("No se pudo mostrar la ventana de OBS.")
+TEXTO_OBS_TRABADO = N_(
+    "OBS no responde. Espera a que vuelva o ciérralo con Cerrar OBS.")
 
 _SW_RESTORE = 9
 _PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
@@ -118,31 +120,51 @@ def _nombre_ejecutable(kernel32, proceso) -> str:
     return ruta.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]
 
 
-def _traer(ventana) -> bool:
-    """Restaura la ventana y la trae al frente.
+def _ventana_trabada(ventana) -> bool:
+    """True si Windows marca la ventana como sin responder.
 
-    Devuelve si `SetForegroundWindow` dio verdadero. Un fallo de ctypes
-    se anota y cuenta como no traído.
+    `IsHungAppWindow` solo consulta al sistema: no le manda mensajes a la
+    ventana, así que es seguro preguntar aunque OBS esté colgado. Un fallo
+    de ctypes se anota y cuenta como no trabada.
     """
     try:
         user32 = ctypes.WinDLL("user32")
-        user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
-        user32.ShowWindow.restype = wintypes.BOOL
+        user32.IsHungAppWindow.argtypes = [wintypes.HWND]
+        user32.IsHungAppWindow.restype = wintypes.BOOL
+        return bool(user32.IsHungAppWindow(ventana))
+    except Exception as exc:
+        logger.debug("No se pudo saber si la ventana de OBS responde: %s", exc)
+        return False
+
+
+def _traer(ventana) -> bool:
+    """Restaura la ventana y la trae al frente.
+
+    Restaura con `ShowWindowAsync`, que no espera a que OBS atienda el
+    mensaje: con `ShowWindow` una ventana trabada deja colgado a Guyrapu.
+    Devuelve si `SetForegroundWindow` dio verdadero. Un fallo de ctypes se
+    anota y cuenta como no traído.
+    """
+    try:
+        user32 = ctypes.WinDLL("user32")
+        user32.ShowWindowAsync.argtypes = [wintypes.HWND, ctypes.c_int]
+        user32.ShowWindowAsync.restype = wintypes.BOOL
         user32.SetForegroundWindow.argtypes = [wintypes.HWND]
         user32.SetForegroundWindow.restype = wintypes.BOOL
-        user32.ShowWindow(ventana, _SW_RESTORE)
+        user32.ShowWindowAsync(ventana, _SW_RESTORE)
         return bool(user32.SetForegroundWindow(ventana))
     except Exception as exc:
         logger.debug("No se pudo traer al frente la ventana de OBS: %s", exc)
         return False
 
 
-def mostrar(buscar=buscar_ventana, traer=_traer) -> str:
+def mostrar(buscar=buscar_ventana, traer=_traer,
+            trabada=_ventana_trabada) -> str:
     """Trae al frente la ventana de OBS y devuelve el texto a anunciar.
 
     Vacío si la ventana quedó al frente: el lector ya lee la ventana que
-    toma el foco. Si OBS no está abierto o no se pudo traer al frente,
-    devuelve el aviso que toca anunciar. Nunca lanza.
+    toma el foco. Si OBS no está abierto, está trabado o no se pudo traer
+    al frente, devuelve el aviso que toca anunciar. Nunca lanza.
     """
     try:
         ventana = buscar()
@@ -151,6 +173,8 @@ def mostrar(buscar=buscar_ventana, traer=_traer) -> str:
         return _(TEXTO_SIN_OBS)
     if ventana is None:
         return _(TEXTO_SIN_OBS)
+    if trabada(ventana):
+        return _(TEXTO_OBS_TRABADO)
     try:
         al_frente = traer(ventana)
     except Exception as exc:

@@ -4540,6 +4540,12 @@ msgstr "OBS is not open."
 msgid "No se pudo mostrar la ventana de OBS."
 msgstr "Could not show the OBS window."
 
+#: guyrapu/obs/obs_ventana.py
+msgid "OBS no responde. Espera a que vuelva o ciérralo con Cerrar OBS."
+msgstr ""
+"OBS is not responding. Wait until it responds again or close it with Close "
+"OBS."
+
 #. Traductores: {perfil} es el perfil de OBS que está activo.
 #: guyrapu/obs/perfil_grabacion.py
 #, python-brace-format
@@ -6427,7 +6433,10 @@ msgstr "With this keyboard, AltGr+{tecla} types {letra}. Choose another."
 msgid "Capturado: {atajo}. Se aplica al pulsar Guardar."
 msgstr "Captured: {atajo}. It applies when you press Save."
 
-#: guyrapu/ui/aviso_importante.py
+#: guyrapu/ui/aviso_importante.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
+#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py
+#: guyrapu/ui/preferencias_api.py guyrapu/ui/preferencias_atajos.py
+#: guyrapu/ui/preferencias_general.py
 msgid "Aceptar"
 msgstr "OK"
 

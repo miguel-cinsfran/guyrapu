@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la búsqueda y el primer plano de la ventana de OBS."""
 
+import ctypes
 import unittest
+from ctypes import wintypes
+from unittest import mock
 
 import wx
 
@@ -43,6 +46,29 @@ class TestMostrar(unittest.TestCase):
             obs_ventana.TEXTO_SIN_OBS)
 
 
+class TestMostrarTrabada(unittest.TestCase):
+
+    def test_ventana_trabada_avisa_y_no_la_trae(self):
+        traidas = []
+        self.assertEqual(
+            obs_ventana.mostrar(
+                buscar=lambda: 1234,
+                trabada=lambda h: True,
+                traer=lambda h: traidas.append(h) or True),
+            obs_ventana.TEXTO_OBS_TRABADO)
+        self.assertEqual(traidas, [])
+
+    def test_ventana_no_trabada_la_trae_como_hoy(self):
+        traidas = []
+        self.assertEqual(
+            obs_ventana.mostrar(
+                buscar=lambda: 5678,
+                trabada=lambda h: False,
+                traer=lambda h: traidas.append(h) or True),
+            "")
+        self.assertEqual(traidas, [5678])
+
+
 class TestPseudoTextos(unittest.TestCase):
     """Bajo pseudotraducción, cada frase al usuario sale marcada."""
 
@@ -56,8 +82,11 @@ class TestPseudoTextos(unittest.TestCase):
                 obs_ventana.mostrar(buscar=buscar),
                 obs_ventana.mostrar(
                     buscar=lambda: 5678, traer=lambda h: False),
+                obs_ventana.mostrar(
+                    buscar=lambda: 1234, trabada=lambda h: True),
                 _(obs_ventana.TEXTO_SIN_OBS),
                 _(obs_ventana.TEXTO_SIN_FRENTE),
+                _(obs_ventana.TEXTO_OBS_TRABADO),
             ]
         for texto in marcados:
             with self.subTest(texto=texto):
@@ -69,6 +98,28 @@ class TestBuscarVentanaReal(unittest.TestCase):
     def test_buscar_ventana_no_lanza_y_da_none_o_entero(self):
         resultado = obs_ventana.buscar_ventana()
         self.assertTrue(resultado is None or isinstance(resultado, int))
+
+
+class TestVentanaTrabadaReal(unittest.TestCase):
+
+    def test_el_escritorio_no_esta_trabado(self):
+        user32 = ctypes.WinDLL("user32")
+        user32.GetDesktopWindow.argtypes = []
+        user32.GetDesktopWindow.restype = wintypes.HWND
+        escritorio = user32.GetDesktopWindow()
+        self.assertTrue(escritorio)
+        self.assertFalse(obs_ventana._ventana_trabada(escritorio))
+
+
+class TestTraerAsync(unittest.TestCase):
+
+    def test_trae_con_showwindowasync(self):
+        user32 = mock.MagicMock()
+        with mock.patch.object(
+                obs_ventana.ctypes, "WinDLL", return_value=user32):
+            self.assertTrue(obs_ventana._traer(1234))
+        self.assertTrue(user32.ShowWindowAsync.called)
+        self.assertFalse(user32.ShowWindow.called)
 
 
 class TestBotonCerrarObs(unittest.TestCase):
