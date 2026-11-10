@@ -290,13 +290,13 @@ class TestMenuAyudaDocumentos(unittest.TestCase):
                                   return_value=Path("x.html")), \
                 mock.patch.object(gui_menu.os, "startfile",
                                   side_effect=OSError("sin navegador")), \
-                mock.patch.object(gui_menu.wx, "MessageBox") as cuadro:
+                mock.patch.object(gui_menu.confirmar, "avisar") as cuadro:
             frame, _items = self._ayuda()
             self._manejador(frame, "&Novedades")(None)
 
         cuadro.assert_called_once()
-        self.assertIn("sin navegador", cuadro.call_args.args[0])
-        self.assertEqual(cuadro.call_args.args[1], "Novedades")
+        self.assertIn("sin navegador", cuadro.call_args.args[1])
+        self.assertEqual(cuadro.call_args.args[2], "Novedades")
 
 
 class TestMenuMusica(unittest.TestCase):

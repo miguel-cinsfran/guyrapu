@@ -53,13 +53,7 @@ REGLAS = (
         id="R1",
         prohibido="wx.MessageBox y wx.MessageDialog solo en guyrapu/ui/confirmar.py",
         detectar=detectar_cuadros,
-        pendientes=_pendientes("pasar a confirmar.py", {
-            "guyrapu/ui/confirmar_transmision.py": 1, "guyrapu/ui/gui.py": 7,
-            "guyrapu/ui/gui_comentarios.py": 1, "guyrapu/ui/gui_envio_chat.py": 1,
-            "guyrapu/ui/gui_menu.py": 2, "guyrapu/ui/preferencias_api.py": 2,
-            "guyrapu/ui/preferencias_atajos.py": 1,
-            "guyrapu/ui/preferencias_general.py": 5,
-        }),
+        pendientes={},
         duenos=("guyrapu/ui/confirmar.py",),
     ),
     Regla(

@@ -431,7 +431,7 @@ class TestApiLoginClienteApp(unittest.TestCase):
                                       start=lambda: hilos.append(t))), \
                 mock.patch.object(api, "anunciar"), \
                 mock.patch.object(api.wx, "CallAfter"), \
-                mock.patch.object(api.wx, "MessageBox") as aviso:
+                mock.patch.object(api.confirmar, "avisar") as aviso:
             pagina._api_login(None)
             for objetivo in hilos:
                 objetivo()
@@ -451,7 +451,7 @@ class TestApiLoginClienteApp(unittest.TestCase):
         login, aviso = self._correr_login(pagina)
         login.assert_not_called()
         aviso.assert_called_once()
-        self.assertIn("Rellena el ID", aviso.call_args.args[0])
+        self.assertIn("Rellena el ID", aviso.call_args.args[1])
 
     def test_campos_propios_guardan_como_hoy(self):
         pagina = self._dialogo(cid="ID-MIO", secret="SEC-MIO")

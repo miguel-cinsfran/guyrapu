@@ -15,6 +15,7 @@ import wx
 from guyrapu.core import diagnostico
 from guyrapu.core.config import URL_REPOSITORIO
 from guyrapu.core.idioma import _
+from guyrapu.ui import confirmar
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.tema import _T, _tc
@@ -135,9 +136,10 @@ class PaginaApi:
             cid_app = (efectivas.get("oauth_client_id") or "").strip()
             secret_app = (efectivas.get("oauth_client_secret") or "").strip()
             if not (cid_app and secret_app):
-                wx.MessageBox(_("Rellena el ID y el secreto de cliente OAuth antes de "
-                                "iniciar sesión."), _("Faltan datos"), wx.OK | wx.ICON_WARNING,
-                              self._ventana)
+                confirmar.avisar(self._ventana,
+                                 _("Rellena el ID y el secreto de cliente OAuth antes de "
+                                   "iniciar sesión."), _("Faltan datos"), _("Aceptar"),
+                                 icono=confirmar.ICON_WARNING)
                 return
             cid, secret = cid_app, secret_app
         else:
@@ -172,8 +174,9 @@ class PaginaApi:
         self.btn_api_login.Enable()
         _snd.reproducir("error")
         anunciar(_("No se pudo iniciar sesión."))
-        wx.MessageBox(_("No se pudo iniciar sesión:\n\n{exc}").format(exc=exc), _("Error de inicio de sesión"),
-                      wx.OK | wx.ICON_ERROR, self._ventana)
+        confirmar.avisar(self._ventana, _("No se pudo iniciar sesión:\n\n{exc}").format(exc=exc),
+                         _("Error de inicio de sesión"), _("Aceptar"),
+                         icono=confirmar.ICON_ERROR)
 
     def _api_logout(self, event):
         credenciales.cerrar_sesion()

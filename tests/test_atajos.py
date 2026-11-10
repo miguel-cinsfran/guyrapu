@@ -548,11 +548,11 @@ class TestParsearAtajos(unittest.TestCase):
         anuncios = []
         with mock.patch.object(preferencias_atajos, "anunciar",
                                side_effect=anuncios.append), \
-                mock.patch.object(gui_preferencias.wx, "MessageBox") as aviso:
+                mock.patch.object(preferencias_atajos.confirmar, "avisar") as aviso:
             pagina._on_tecla_captura(evento)
         aviso.assert_called_once_with(
-            texto, preferencias_atajos.APP_NAME, wx.OK | wx.ICON_ERROR,
-            pagina._ventana)
+            pagina._ventana, texto, preferencias_atajos.APP_NAME, "Aceptar",
+            icono=preferencias_atajos.confirmar.ICON_ERROR)
         boton.SetFocus.assert_called_once_with()
         self.assertEqual(pagina._capturando_atajo,
                          ("ir_lista", "Ir a la lista del panel actual"))

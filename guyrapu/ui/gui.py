@@ -725,8 +725,8 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         else:
             url = self.txt_url.GetValue().strip()
             if not url:
-                wx.MessageBox(_("Introduce un enlace o un ID de YouTube."),
-                              _("Falta el enlace"), wx.OK | wx.ICON_WARNING, self)
+                confirmar.avisar(self, _("Introduce un enlace o un ID de YouTube."),
+                                 _("Falta el enlace"), _("Aceptar"), icono=confirmar.ICON_WARNING)
                 self.txt_url.SetFocus()
                 return
             self._conectando = True
@@ -752,8 +752,8 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self._set_conectado_ui(False)
         anunciar(_("No se reconoce el enlace o el ID de YouTube"))
         self.txt_url.SetFocus()
-        wx.MessageBox(_("No se reconoce el enlace o el ID de YouTube. Comprueba el enlace pegado."),
-                      _("Enlace no reconocido"), wx.OK | wx.ICON_WARNING, self)
+        confirmar.avisar(self, _("No se reconoce el enlace o el ID de YouTube. Comprueba el enlace pegado."),
+                         _("Enlace no reconocido"), _("Aceptar"), icono=confirmar.ICON_WARNING)
 
     def _on_preferencias(self, event):
         try:
@@ -776,9 +776,9 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
                 wx.CallLater(300, _aplicar_y_avisar)
         except Exception as exc:
             logger.warning("No se pudo abrir preferencias: %s", exc)
-            wx.MessageBox(_("No se pudo abrir Preferencias:\n{detalle}").format(detalle=exc),
-                          # Traductores: título de un cuadro de error.
-                          _("Error"), wx.OK | wx.ICON_ERROR, self)
+            confirmar.avisar(self, _("No se pudo abrir Preferencias:\n{detalle}").format(detalle=exc),
+                             # Traductores: título de un cuadro de error.
+                             _("Error"), _("Aceptar"), icono=confirmar.ICON_ERROR)
         # La pestaña API puede haber cambiado la sesión: refrescar.
         self._actualizar_estado_online()
 
@@ -808,17 +808,17 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
             from guyrapu.ui.gui_descargas import abrir
         except Exception as exc:
             logger.warning("No se pudo abrir el gestor de descargas: %s", exc)
-            wx.MessageBox(_("No se pudo abrir el Administrador de descargas:\n{detalle}").format(detalle=exc),
-                          # Traductores: título de un cuadro de error.
-                          _("Error"), wx.OK | wx.ICON_ERROR, self)
+            confirmar.avisar(self, _("No se pudo abrir el Administrador de descargas:\n{detalle}").format(detalle=exc),
+                             # Traductores: título de un cuadro de error.
+                             _("Error"), _("Aceptar"), icono=confirmar.ICON_ERROR)
             return
         try:
             abrir(self, url, self._reconectar_desde_historial, self._musica)
         except Exception as exc:
             logger.warning("gestor de descargas: %s", exc)
-            wx.MessageBox(_("Error en el Administrador de descargas:\n{detalle}").format(detalle=exc),
-                          # Traductores: título de un cuadro de error.
-                          _("Error"), wx.OK | wx.ICON_ERROR, self)
+            confirmar.avisar(self, _("Error en el Administrador de descargas:\n{detalle}").format(detalle=exc),
+                             # Traductores: título de un cuadro de error.
+                             _("Error"), _("Aceptar"), icono=confirmar.ICON_ERROR)
 
     def _aplicar_preferencias_en_caliente(self):
         from guyrapu.ui import gui_aplicar_preferencias
@@ -836,9 +836,9 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
             self._obs_vigilante = None
 
     def _on_about(self, event):
-        wx.MessageBox(
-            acerca_de.texto(APP_VERSION),
-            _("Acerca de"), wx.OK | wx.ICON_INFORMATION, self)
+        confirmar.avisar(
+            self, acerca_de.texto(APP_VERSION),
+            _("Acerca de"), _("Aceptar"), icono=confirmar.ICON_INFORMATION)
 
     def _on_marcar_incidencia(self, event):
         diagnostico.marcar_incidencia()
@@ -1148,8 +1148,8 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         urls = _URL_RE.findall(data.texto)
         if not urls:
             anunciar(_("No se encontró ningún enlace"))
-            wx.MessageBox(_("No se encontró ningún enlace en este mensaje."),
-                          _("Sin enlace"), wx.OK | wx.ICON_INFORMATION, self)
+            confirmar.avisar(self, _("No se encontró ningún enlace en este mensaje."),
+                             _("Sin enlace"), _("Aceptar"), icono=confirmar.ICON_INFORMATION)
             return
         webbrowser.open(urls[0])
         anunciar(_("Abriendo enlace"))

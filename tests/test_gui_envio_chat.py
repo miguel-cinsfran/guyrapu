@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pseudotraducción de los avisos y cuadros del envío al chat.
 
-Sin ventanas: el MessageBox va simulado y la API también. El mensaje de
+Sin ventanas: el cuadro va simulado y la API también. El mensaje de
 error lo arma `guyrapu/youtube/youtube_api.py`: pasa tal cual, sin marcar.
 """
 
@@ -51,13 +51,13 @@ class TestPseudoEnvioChat(unittest.TestCase):
         frame = mock.Mock()
         captado = {}
 
-        def caja(mensaje, titulo, estilo, padre=None):
+        def caja(padre, mensaje, titulo, etiqueta_ok, *, icono=None):
             captado["mensaje"] = mensaje
             captado["titulo"] = titulo
             return gui.wx.ID_OK
 
         with con_pseudo(), \
-                mock.patch.object(gui.wx, "MessageBox", caja), \
+                mock.patch.object(envio.confirmar, "avisar", caja), \
                 mock.patch.object(gui._snd, "reproducir"), \
                 mock.patch.object(gui, "anunciar"), \
                 mock.patch.object(gui.youtube_api, "sesion_caducada",

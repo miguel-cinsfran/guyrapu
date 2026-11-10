@@ -408,7 +408,7 @@ class TestComentariosPanel(unittest.TestCase):
                    (gui_comentarios, "anunciar", None))
         for objeto, nombre, valor in parches:
             self.enterContext(mock.patch.object(objeto, nombre, return_value=valor))
-        self.enterContext(mock.patch.object(gui_comentarios.wx, "MessageBox",
+        self.enterContext(mock.patch.object(gui_comentarios.confirmar, "avisar",
                                              side_effect=AssertionError("Se abrió un modal")))
         return gui_comentarios.ComentariosPanel(frame, queue.Queue(), {"tamanio_fuente_chat": 12}), hay_lectura
 
@@ -1918,8 +1918,8 @@ class TestCategoriasDePreferencias(unittest.TestCase):
                 mock.patch.object(preferencias_ia, "anunciar") as anunciar_ia, \
                 mock.patch.object(gui_preferencias._snd, "reproducir") as sonar, \
                 mock.patch.object(preferencias_api._snd, "reproducir") as sonar_api, \
-                mock.patch.object(gui_preferencias.wx, "MessageBox") as aviso, \
-                mock.patch.object(preferencias_api.wx, "MessageBox") as aviso_api:
+                mock.patch.object(gui_preferencias.confirmar, "avisar") as aviso, \
+                mock.patch.object(preferencias_api.confirmar, "avisar") as aviso_api:
             dialogo.pagina_api._api_login_ok()
             dialogo.pagina_api._api_login_err(RuntimeError("x"))
             dialogo.pagina_ia._ia_prueba_lista(True, "x")
@@ -3701,7 +3701,7 @@ class TestPreferenciasArchivoBotones(unittest.TestCase):
         cuadro = self._cuadro_archivo(origen)
         with mock.patch.object(gui_preferencias.wx, "FileDialog",
                                return_value=cuadro) as crear, \
-                mock.patch.object(gui_preferencias.wx, "MessageBox"), \
+                mock.patch.object(preferencias_general.confirmar, "avisar"), \
                 mock.patch.object(gui_preferencias.cfg,
                                   "guardar_opciones") as guardar, \
                 mock.patch.object(dialogo, "EndModal") as cerrar:
@@ -3721,8 +3721,8 @@ class TestPreferenciasArchivoBotones(unittest.TestCase):
         cuadro = self._cuadro_archivo(origen)
         with mock.patch.object(gui_preferencias.wx, "FileDialog",
                                return_value=cuadro) as crear, \
-                mock.patch.object(gui_preferencias.wx,
-                                  "MessageBox") as aviso, \
+                mock.patch.object(preferencias_general.confirmar,
+                                  "avisar") as aviso, \
                 mock.patch.object(dialogo, "EndModal") as cerrar:
             crear.return_value.__enter__.return_value = cuadro
             dialogo.pagina_general._importar_prefs(None)
@@ -3739,8 +3739,8 @@ class TestPreferenciasArchivoBotones(unittest.TestCase):
         cuadro = self._cuadro_archivo(origen)
         with mock.patch.object(gui_preferencias.wx, "FileDialog",
                                return_value=cuadro) as crear, \
-                mock.patch.object(gui_preferencias.wx,
-                                  "MessageBox") as aviso, \
+                mock.patch.object(preferencias_general.confirmar,
+                                  "avisar") as aviso, \
                 mock.patch.object(preferencias_general.preferencias_archivo,
                                   "importar",
                                   side_effect=OSError("disco lleno")), \
@@ -3748,7 +3748,7 @@ class TestPreferenciasArchivoBotones(unittest.TestCase):
             crear.return_value.__enter__.return_value = cuadro
             dialogo.pagina_general._importar_prefs(None)
         aviso.assert_called_once()
-        texto = aviso.call_args.args[0]
+        texto = aviso.call_args.args[1]
         self.assertIn("No se pudieron importar las preferencias:", texto)
         self.assertIn("disco lleno", texto)
         cerrar.assert_not_called()
@@ -6110,12 +6110,12 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco.txt_url.GetValue.return_value = "   "
         captado = {}
 
-        def caja(mensaje, titulo, estilo, padre=None):
+        def caja(padre, mensaje, titulo, etiqueta_ok, *, icono=None):
             captado["mensaje"] = mensaje
             captado["titulo"] = titulo
             return 0
 
-        with mock.patch.object(gui.wx, "MessageBox", caja):
+        with mock.patch.object(gui.confirmar, "avisar", caja):
             gui.VentanaPrincipal._on_conectar(marco, None)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
@@ -6135,12 +6135,12 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco.txt_url = mock.Mock()
         captado = {}
 
-        def caja(mensaje, titulo, estilo, padre=None):
+        def caja(padre, mensaje, titulo, etiqueta_ok, *, icono=None):
             captado["mensaje"] = mensaje
             captado["titulo"] = titulo
             return 0
 
-        with mock.patch.object(gui.wx, "MessageBox", caja):
+        with mock.patch.object(gui.confirmar, "avisar", caja):
             gui.VentanaPrincipal.url_invalida(marco)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
@@ -6238,7 +6238,7 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco._get_selected_data = mock.Mock(return_value=None)
         captado = {}
 
-        def caja(mensaje, titulo, estilo, padre=None):
+        def caja(padre, mensaje, titulo, etiqueta_ok, *, icono=None):
             captado["mensaje"] = mensaje
             captado["titulo"] = titulo
             return 0
@@ -6246,7 +6246,7 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco._get_selected_data = mock.Mock(return_value=dato)
         with mock.patch.object(gui, "_URL_RE",
                                mock.Mock(findall=mock.Mock(return_value=[]))), \
-                mock.patch.object(gui.wx, "MessageBox", caja):
+                mock.patch.object(gui.confirmar, "avisar", caja):
             gui.VentanaPrincipal._abrir_enlace(marco)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
@@ -6289,26 +6289,26 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco = self._marco()
         captado = {}
 
-        def caja(mensaje, titulo, estilo, padre=None):
+        def caja(padre, mensaje, titulo, etiqueta_ok, *, icono=None):
             captado["mensaje"] = mensaje
             captado["titulo"] = titulo
             return 0
 
-        with mock.patch.object(gui.wx, "MessageBox", caja):
+        with mock.patch.object(gui.confirmar, "avisar", caja):
             gui.VentanaPrincipal._on_about(marco, None)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
         with mock.patch(
                 "guyrapu.ui.gui_preferencias.abrir_preferencias",
                 side_effect=RuntimeError("boom")):
-            with mock.patch.object(gui.wx, "MessageBox", caja):
+            with mock.patch.object(gui.confirmar, "avisar", caja):
                 gui.VentanaPrincipal._on_preferencias(marco, None)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
         with mock.patch(
                 "guyrapu.ui.gui_descargas.abrir",
                 side_effect=RuntimeError("boom")):
-            with mock.patch.object(gui.wx, "MessageBox", caja):
+            with mock.patch.object(gui.confirmar, "avisar", caja):
                 gui.VentanaPrincipal._abrir_descargas(marco)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))

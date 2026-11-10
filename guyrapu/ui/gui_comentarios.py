@@ -11,9 +11,6 @@ responder requieren haber iniciado sesión en Configuración.
 
 from __future__ import annotations
 
-import logging
-import threading
-
 import wx
 
 from guyrapu.core import diagnostico
@@ -23,6 +20,7 @@ from guyrapu.youtube import credenciales
 from guyrapu.youtube import youtube_api
 from guyrapu.voice import sound_player as _snd
 from guyrapu.capture import redaccion
+from guyrapu.ui import confirmar
 from guyrapu.ui.gui_redactar import DialogoRedactar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.aviso_importante import avisar
@@ -456,7 +454,7 @@ class ComentariosPanel(wx.Panel):
         _snd.reproducir("error")
         msg = youtube_api.mensaje_error_api(exc)
         anunciar(msg)
-        wx.MessageBox(msg, _("No se pudo enviar"), wx.OK | wx.ICON_ERROR, self)
+        confirmar.avisar(self, msg, _("No se pudo enviar"), _("Aceptar"), icono=confirmar.ICON_ERROR)
 
 
 def _btn(b: wx.Button) -> None:

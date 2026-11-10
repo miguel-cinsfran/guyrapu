@@ -163,9 +163,8 @@ class PaginaGeneral:
         try:
             os.startfile(str(paths.carpeta_datos()))  # noqa: S606
         except Exception as exc:
-            wx.MessageBox(_("No se pudo abrir la carpeta de datos:\n\n{exc}").format(exc=exc),
-                          _("Carpeta de datos"), wx.OK | wx.ICON_ERROR,
-                          self._ventana)
+            confirmar.avisar(self._ventana, _("No se pudo abrir la carpeta de datos:\n\n{exc}").format(exc=exc),
+                             _("Carpeta de datos"), _("Aceptar"), icono=confirmar.ICON_ERROR)
 
     def _exportar_prefs(self, event):
         with wx.FileDialog(
@@ -180,9 +179,10 @@ class PaginaGeneral:
         try:
             preferencias_archivo.exportar(ruta)
         except Exception as exc:
-            wx.MessageBox(_("No se pudieron exportar las preferencias:\n\n{exc}").format(exc=exc),
-                          _("Exportar preferencias"),
-                          wx.OK | wx.ICON_ERROR, self._ventana)
+            confirmar.avisar(self._ventana,
+                             _("No se pudieron exportar las preferencias:\n\n{exc}").format(exc=exc),
+                             _("Exportar preferencias"), _("Aceptar"),
+                             icono=confirmar.ICON_ERROR)
             return
         anunciar(_("Preferencias exportadas"))
 
@@ -197,20 +197,19 @@ class PaginaGeneral:
             ruta = cuadro.GetPath()
         motivo = preferencias_archivo.motivo_no_importable(ruta)
         if motivo is not None:
-            wx.MessageBox(motivo, _("Importar preferencias"),
-                          wx.OK | wx.ICON_WARNING, self._ventana)
+            confirmar.avisar(self._ventana, motivo, _("Importar preferencias"),
+                             _("Aceptar"), icono=confirmar.ICON_WARNING)
             return
         try:
             preferencias_archivo.importar(ruta)
         except Exception as exc:
-            wx.MessageBox(_("No se pudieron importar las preferencias:\n\n{exc}").format(exc=exc),
-                          _("Importar preferencias"),
-                          wx.OK | wx.ICON_ERROR, self._ventana)
+            confirmar.avisar(self._ventana, _("No se pudieron importar las preferencias:\n\n{exc}").format(exc=exc),
+                             _("Importar preferencias"), _("Aceptar"), icono=confirmar.ICON_ERROR)
             return
-        wx.MessageBox(_("Preferencias importadas. Se aplican al reiniciar "
-                        "la aplicación."),
-                      _("Preferencias importadas"),
-                      wx.OK | wx.ICON_INFORMATION, self._ventana)
+        confirmar.avisar(self._ventana,
+                         _("Preferencias importadas. Se aplican al reiniciar "
+                           "la aplicación."),
+                         _("Preferencias importadas"), _("Aceptar"), icono=confirmar.ICON_INFORMATION)
         # Como Cancelar: cierra sin guardar para no pisar el archivo nuevo.
         self._ventana.EndModal(wx.ID_CANCEL)
 

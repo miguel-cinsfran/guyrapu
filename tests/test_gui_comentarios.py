@@ -301,12 +301,12 @@ class TestPseudoAvisos(unittest.TestCase):
         panel = self._panel()
         captado = {}
 
-        def caja(mensaje, titulo, estilo, padre=None):
+        def caja(padre, mensaje, titulo, etiqueta_ok, *, icono=None):
             captado["mensaje"] = mensaje
             captado["titulo"] = titulo
             return wx.ID_OK
 
-        with con_pseudo(), mock.patch.object(gui_comentarios.wx, "MessageBox", caja), \
+        with con_pseudo(), mock.patch.object(gui_comentarios.confirmar, "avisar", caja), \
                 mock.patch.object(gui_comentarios._snd, "reproducir"), \
                 mock.patch.object(gui_comentarios, "anunciar"):
             panel._escritura_err(Exception("commentsDisabled"))

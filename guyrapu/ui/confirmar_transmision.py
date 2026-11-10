@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import wx
-
 from guyrapu.core.idioma import N_, _
 from guyrapu.restream import destinos_de_mas
 from guyrapu.ui import confirmar
@@ -33,14 +31,6 @@ def _frase_con_destinos(revision, destinos):
     return destinos_de_mas.mensaje(destinos) + "\n\n" + frase
 
 
-def _estilo_confirmacion(problemas):
-    """El estilo del cuadro, con Cancelar por defecto si hay problemas."""
-    estilo = wx.OK | wx.CANCEL
-    if problemas:
-        estilo |= wx.CANCEL_DEFAULT
-    return estilo
-
-
 def confirmar_transmision(padre, revision, destinos=()) -> bool:
     """Pide confirmar el inicio del directo con la revisión a la vista.
 
@@ -51,12 +41,9 @@ def confirmar_transmision(padre, revision, destinos=()) -> bool:
     """
     frase = _frase_con_destinos(revision, destinos)
     problemas = bool(getattr(revision, "problemas", ())) or bool(destinos)
-    estilo = _estilo_confirmacion(problemas)
-    dialogo = wx.MessageDialog(padre, frase, _("Antes de transmitir"), estilo)
-    try:
-        dialogo.SetOKCancelLabels(_(_ETIQUETA_TRANSMITIR), _("&Cancelar"))
-        if destinos:
-            sound_player.reproducir("destinos_de_mas")
-        return dialogo.ShowModal() == wx.ID_OK
-    finally:
-        dialogo.Destroy()
+    if destinos:
+        sound_player.reproducir("destinos_de_mas")
+    return confirmar.preguntar(
+        padre, frase, _("Antes de transmitir"), _(_ETIQUETA_TRANSMITIR),
+        _("&Cancelar"), icono=confirmar.ICON_INFORMATION,
+        predeterminado_si=not problemas)

@@ -14,6 +14,7 @@ from guyrapu.core import config as cfg
 from guyrapu.core.config import APP_NAME
 from guyrapu.core.idioma import _
 from guyrapu.ui import atajos_captura
+from guyrapu.ui import confirmar
 from guyrapu.ui.atajos_captura import etiqueta_de_accion
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.gui import caja_de_grupo
@@ -157,7 +158,7 @@ class PaginaAtajos:
                 accion, combo, self._valores_atajo)
         anunciar(texto)
         if estado == "rechazado":
-            wx.MessageBox(texto, APP_NAME, wx.OK | wx.ICON_ERROR, self._ventana)
+            confirmar.avisar(self._ventana, texto, APP_NAME, _("Aceptar"), icono=confirmar.ICON_ERROR)
             boton = self._botones_atajo[accion]
             boton.SetFocus()
             self._capturar_atajo(accion, etiqueta)

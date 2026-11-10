@@ -3,7 +3,7 @@
 """Cableado de «Abrir carpeta de registros» del menú Ayuda.
 
 Sin ventanas: se llama a `abrir_carpeta_registros` con un frame de mentira
-y dobles de `os.startfile` y `wx.MessageBox`. No se corre con wx.App.
+y dobles de `os.startfile` y `confirmar.avisar`. No se corre con wx.App.
 """
 
 import unittest
@@ -29,12 +29,13 @@ class TestAbrirCarpetaRegistros(unittest.TestCase):
                                side_effect=OSError("falla")), \
              mock.patch.object(gui_menu.paths, "carpeta_datos",
                                return_value=Path("X")), \
-             mock.patch.object(gui_menu.wx, "MessageBox") as mensaje:
+             mock.patch.object(gui_menu.confirmar, "avisar") as mensaje:
             gui_menu.abrir_carpeta_registros(frame)
         mensaje.assert_called_once_with(
+            frame,
             "No se pudo abrir la carpeta de registros:\n\nfalla",
-            "Carpeta de registros",
-            gui_menu.wx.OK | gui_menu.wx.ICON_ERROR, frame)
+            "Carpeta de registros", "Aceptar",
+            icono=gui_menu.confirmar.ICON_ERROR)
 
 
 if __name__ == "__main__":

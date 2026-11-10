@@ -1030,36 +1030,23 @@ class TestConfirmarFinalizarSinVentana(unittest.TestCase):
 
 class TestConfirmarTransmisionSinVentana(unittest.TestCase):
 
-    def _confirmar(self, revision, destinos=(), resultado=wx.ID_OK):
-        creados = []
-
-        def fabrica(*args, **kwargs):
-            dialogo = mock.Mock()
-            dialogo.ShowModal.return_value = resultado
-            creados.append((args, dialogo))
-            return dialogo
-
-        with mock.patch.object(modulo_confirmar.wx, "MessageDialog",
-                               fabrica), \
+    def _confirmar(self, revision, destinos=(), resultado=True):
+        with mock.patch.object(modulo_confirmar.confirmar, "preguntar",
+                               return_value=resultado) as preguntar, \
                 mock.patch.object(modulo_confirmar.sound_player,
                                   "reproducir") as sonar:
             acepta = modulo_confirmar.confirmar_transmision(
                 mock.sentinel.padre, revision, destinos)
-        return acepta, creados, sonar
+        return acepta, preguntar, sonar
 
     def test_sin_destinos_queda_como_hoy(self):
         revision = _revision()
-        acepta, creados, sonar = self._confirmar(revision)
+        acepta, preguntar, sonar = self._confirmar(revision)
         self.assertTrue(acepta)
-        args, dialogo = creados[0]
-        self.assertEqual(args[0], mock.sentinel.padre)
-        self.assertEqual(args[1], obs_prevuelo.frase_revision(revision))
-        self.assertEqual(args[2], "Antes de transmitir")
-        self.assertTrue(args[3] & wx.OK)
-        self.assertTrue(args[3] & wx.CANCEL)
-        self.assertFalse(args[3] & wx.CANCEL_DEFAULT)
-        dialogo.SetOKCancelLabels.assert_called_once_with(
-            "&Transmitir", "&Cancelar")
+        preguntar.assert_called_once_with(
+            mock.sentinel.padre, obs_prevuelo.frase_revision(revision),
+            "Antes de transmitir", "&Transmitir", "&Cancelar",
+            icono=wx.ICON_INFORMATION, predeterminado_si=True)
         sonar.assert_not_called()
 
     def test_con_destinos_suena_y_el_mensaje_nombra_los_destinos(self):
@@ -1068,25 +1055,23 @@ class TestConfirmarTransmisionSinVentana(unittest.TestCase):
             SimpleNamespace(plataforma="Facebook", nombre="Página"),
         ]
         revision = _revision()
-        acepta, creados, sonar = self._confirmar(revision, canales)
+        acepta, preguntar, sonar = self._confirmar(revision, canales)
         self.assertTrue(acepta)
-        args, dialogo = creados[0]
         esperado = (
             "Restream también va a transmitir este directo a: "
             "YouTube (Canal), Facebook (Página). Para elegir a dónde sale, "
             "usa un perfil de Restream en Transmitir a. ¿Transmitir igual?"
             "\n\n" + obs_prevuelo.frase_revision(revision))
-        self.assertEqual(args[1], esperado)
-        self.assertEqual(args[2], "Antes de transmitir")
-        self.assertTrue(args[3] & wx.CANCEL_DEFAULT)
-        dialogo.SetOKCancelLabels.assert_called_once_with(
-            "&Transmitir", "&Cancelar")
+        preguntar.assert_called_once_with(
+            mock.sentinel.padre, esperado, "Antes de transmitir",
+            "&Transmitir", "&Cancelar", icono=wx.ICON_INFORMATION,
+            predeterminado_si=False)
         sonar.assert_called_once_with("destinos_de_mas")
 
     def test_con_destinos_y_cancelar_devuelve_falso(self):
         canales = [SimpleNamespace(plataforma="YouTube", nombre="Canal")]
-        acepta, _creados, _sonar = self._confirmar(
-            _revision(), canales, resultado=wx.ID_CANCEL)
+        acepta, _preguntar, _sonar = self._confirmar(
+            _revision(), canales, resultado=False)
         self.assertFalse(acepta)
 
 
@@ -1095,25 +1080,23 @@ class TestPseudoConfirmarTransmision(unittest.TestCase):
     def test_titulo_mensaje_y_botones_pasan_por_gettext(self):
         revision = _revision()
         captado = {}
-        creados = []
 
-        def fabrica(padre, mensaje, titulo, estilo):
+        def caja(padre, mensaje, titulo, etiqueta_si, etiqueta_no, **kwargs):
             captado["mensaje"] = mensaje
             captado["titulo"] = titulo
-            dialogo = mock.Mock()
-            dialogo.ShowModal.return_value = wx.ID_OK
-            creados.append(dialogo)
-            return dialogo
+            captado["etiqueta_si"] = etiqueta_si
+            captado["etiqueta_no"] = etiqueta_no
+            return True
 
         with con_pseudo(), \
-                mock.patch.object(modulo_confirmar.wx, "MessageDialog", fabrica):
+                mock.patch.object(modulo_confirmar.confirmar, "preguntar", caja):
             esperada = obs_prevuelo.frase_revision(revision)
             modulo_confirmar.confirmar_transmision(mock.sentinel.padre, revision)
         self.assertEqual(captado["mensaje"], esperada)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
-        for etiqueta in creados[0].SetOKCancelLabels.call_args.args:
-            self.assertTrue(etiqueta.startswith("[¡"))
+        self.assertTrue(captado["etiqueta_si"].startswith("[¡"))
+        self.assertTrue(captado["etiqueta_no"].startswith("[¡"))
 
     def test_finalizar_pasa_por_gettext(self):
         captado = {}

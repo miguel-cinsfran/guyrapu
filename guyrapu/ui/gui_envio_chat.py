@@ -90,7 +90,7 @@ def api_err(frame, exc):
     _gui._snd.reproducir("error")
     msg = _gui.youtube_api.mensaje_error_api(exc)
     _gui.anunciar(msg)
-    _gui.wx.MessageBox(msg, _("Error de la API"), _gui.wx.OK | _gui.wx.ICON_ERROR, frame)
+    confirmar.avisar(frame, msg, _("Error de la API"), _("Aceptar"), icono=confirmar.ICON_ERROR)
 
 
 def actualizar_estado_online(frame):
