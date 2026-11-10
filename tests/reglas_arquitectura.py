@@ -69,7 +69,6 @@ REGLAS = (
         pendientes=_pendientes(
             "recibir funciones en vez de importar la ventana", {
                 "guyrapu/capture/chat_adicional.py": 1,
-                "guyrapu/obs/escalones_equipo.py": 1,
                 "guyrapu/restream/chat_restream.py": 3,
                 "guyrapu/restream/ganchos.py": 5,
             }),

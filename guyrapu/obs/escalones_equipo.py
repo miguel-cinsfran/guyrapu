@@ -12,7 +12,7 @@ from dataclasses import replace
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil
-from guyrapu.ui import textos_perfil
+from guyrapu.obs import textos_perfil
 
 UMBRAL = 0.02
 _GPU = ("nvenc", "qsv", "amd")

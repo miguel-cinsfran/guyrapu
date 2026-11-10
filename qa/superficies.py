@@ -48,7 +48,6 @@ SUPERFICIES = {
     "dialogo_prueba_equipo.py": "escena",
     "dialogo_prueba_conexion.py": "escena",
     "ventana_espera.py": "escena",
-    "textos_perfil.py": "escena",
     "restream_ventana.py": "restream",
     "restream_pagina_perfiles.py": "restream",
     "restream_pagina_destinos.py": "restream",

@@ -15,7 +15,8 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import ajustes_perfil
-from guyrapu.ui import paleta, textos_perfil
+from guyrapu.obs import textos_perfil
+from guyrapu.ui import paleta
 from guyrapu.ui.accesibilidad import (
     ContadorAccesible,
     nombre_accesible,

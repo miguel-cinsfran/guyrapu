@@ -4,7 +4,7 @@
 
 import unittest
 
-from guyrapu.ui import textos_perfil
+from guyrapu.obs import textos_perfil
 
 
 class TestCodificadores(unittest.TestCase):

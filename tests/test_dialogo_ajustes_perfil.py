@@ -7,7 +7,7 @@ import unittest
 
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.obs import ajustes_perfil
-from guyrapu.ui import textos_perfil
+from guyrapu.obs import textos_perfil
 from guyrapu.ui.dialogo_ajustes_perfil import DialogoAjustesPerfil
 
 
