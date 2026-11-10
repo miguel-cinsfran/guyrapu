@@ -57,6 +57,12 @@ def _armar_vigia(archivo, segundos: int) -> None:
         segundos, repeat=False, file=archivo, exit=False)
 
 
+def _registrar_bloqueo(demora_ms: float) -> None:
+    pila = pila_hilo_interfaz(
+        sys._current_frames(), threading.main_thread().ident)
+    logger.warning("%s", componer_bloqueo_interfaz(demora_ms, pila))
+
+
 def vigilar_hilo_interfaz(obtener_marca, parada: threading.Event,
                           segundos: int = SEGUNDOS_SIN_LATIDO) -> None:
     """Registra una pila del hilo principal mientras su latido está atrasado."""
@@ -84,9 +90,6 @@ def vigilar_hilo_interfaz(obtener_marca, parada: threading.Event,
             registrar, ya_registrado = decidir_bloqueo_interfaz(
                 marca_latido, ahora, ya_registrado)
             if registrar:
-                demora_ms = (ahora - marca_latido) * 1000
-                pila = pila_hilo_interfaz(
-                    sys._current_frames(), threading.main_thread().ident)
-                logger.warning("%s", componer_bloqueo_interfaz(demora_ms, pila))
+                _registrar_bloqueo((ahora - marca_latido) * 1000)
     finally:
         faulthandler.cancel_dump_traceback_later()
