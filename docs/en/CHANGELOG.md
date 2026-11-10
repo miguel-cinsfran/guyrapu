@@ -1,7 +1,18 @@
-<!-- original: es/CHANGELOG.md 5a50710a64adb3251c13afd30ed9f3b1a4082e3b -->
+<!-- original: es/CHANGELOG.md b90b5997caa75a491abb2a0887d825f25a127217 -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 4, November 2026
+
+- Before broadcasting to TikTok with an OBS profile that has no stream key,
+  Guyrapu warns and says where to write it in OBS: *Settings*, *Stream*.
+  Before, the live stream did not start and the warning did not say why.
+- *Show OBS* no longer leaves Guyrapu hanging when OBS is not responding: it
+  warns that OBS is not responding and that you can wait or close it with
+  *Close OBS*.
+- The error and warning dialogs that still showed the buttons in the Windows
+  language now show them in the app language.
 
 ## 3.0.0 beta 3, November 2026
 

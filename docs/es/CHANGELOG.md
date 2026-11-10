@@ -1,5 +1,15 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 4, noviembre de 2026
+
+- Antes de transmitir a TikTok con un perfil de OBS que no tiene clave de
+  transmisión, Guyrapu lo avisa y dice dónde escribirla en OBS: *Ajustes*,
+  *Emisión*. Antes el directo no empezaba y el aviso no decía por qué.
+- *Mostrar OBS* ya no deja colgado Guyrapu cuando OBS no responde: avisa
+  que OBS está trabado y que puedes esperar o cerrarlo con *Cerrar OBS*.
+- Los cuadros de error y de aviso que todavía mostraban los botones en el
+  idioma de Windows ahora los muestran en el idioma de la app.
+
 ## 3.0.0 beta 3, noviembre de 2026
 
 ### Transmitir en horizontal y vertical a la vez

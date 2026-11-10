@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md ff492d65626ebde9effaad4a54147ada6e25d2f5 -->
+<!-- original: es/MANUAL.md 8375d36162575d4c42279a1d472e196d4fd1e2ab -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -227,7 +227,7 @@ See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
 controls OBS Studio and Restream from the keyboard. It is designed for
 people who are blind or have low vision and stream, and it is tested
 with NVDA.</p>
-<p>Version 3.0.0 beta 3 · Windows 10 and 11 · <a
+<p>Version 3.0.0 beta 4 · Windows 10 and 11 · <a
 href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
 <p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
@@ -444,12 +444,14 @@ already chosen.</li>
 <em>Continue</em>.</li>
 <li>Guyrapu prepares OBS and checks the scene: whether it is empty,
 whether an image comes out black or whether the microphone is muted. If
-it finds a problem, the button chosen by default is <em>Cancel</em>. If
-you broadcast to TikTok and the Restream account is also going to send
-the live stream to other enabled destinations, the confirmation before
-starting says so, with its own sound and the focus on <em>Cancel</em>,
-and suggests choosing a Restream profile. If something fails when
-starting, the error always appears in a box.</li>
+you choose <em>TikTok</em> and the OBS profile has no stream key, it
+warns and says where to write it in OBS. If it finds a problem, the
+button chosen by default is <em>Cancel</em>. If you broadcast to TikTok
+and the Restream account is also going to send the live stream to other
+enabled destinations, the confirmation before starting says so, with its
+own sound and the focus on <em>Cancel</em>, and suggests choosing a
+Restream profile. If something fails when starting, the error always
+appears in a box.</li>
 <li>For YouTube, or a profile with YouTube, type the title, the
 description and the privacy. The rest of the data is optional, and
 Guyrapu remembers the last thing you typed. To do tests, use
@@ -501,10 +503,11 @@ NVDA still works.</p>
 <h3 id="general">General</h3>
 <p><em>Status</em> summarizes the broadcast, the recording, the current
 scene, the microphone and the computer usage. <em>Show OBS</em> brings
-the OBS window to the front, also from the notification area. <em>Close
-OBS</em>, also in the <em>OBS</em> menu, closes OBS without forcing it,
-so it does not ask about safe mode when you open it again. If OBS is
-broadcasting or recording, it does not close it and warns.</p>
+the OBS window to the front, also from the notification area. If OBS is
+not responding, it warns instead of waiting for it. <em>Close OBS</em>,
+also in the <em>OBS</em> menu, closes OBS without forcing it, so it does
+not ask about safe mode when you open it again. If OBS is broadcasting
+or recording, it does not close it and warns.</p>
 <p><em>Test computer…</em> records for a few seconds with the profile in
 use to see whether the PC drops frames. If it does, it tries lighter
 settings until it finds some that work and offers to save them in the

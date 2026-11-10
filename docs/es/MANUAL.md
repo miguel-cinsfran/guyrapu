@@ -4,7 +4,7 @@ Guyrapu lee en voz alta el chat de los directos de YouTube y TikTok, y
 maneja OBS Studio y Restream desde el teclado. Está pensado para personas
 ciegas o con baja visión que transmiten, y se prueba con NVDA.
 
-Versión 3.0.0 beta 3 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
+Versión 3.0.0 beta 4 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
 
 ## Instalación
 
@@ -191,7 +191,9 @@ Si OBS está cerrado, Guyrapu lo abre en el área de notificación.
    *Transmitir a*, con el destino de la vez anterior ya elegido.
 2. Elige *YouTube* o un perfil de Restream y pulsa *Continuar*.
 3. Guyrapu prepara OBS y revisa la escena: si está vacía, si una imagen
-   sale en negro o si el micrófono está silenciado. Si encuentra un
+   sale en negro o si el micrófono está silenciado. Si eliges *TikTok* y el
+   perfil de OBS no tiene clave de transmisión, lo avisa y dice dónde
+   escribirla en OBS. Si encuentra un
    problema, el botón elegido de entrada es *Cancelar*. Si transmites a
    TikTok y la cuenta de Restream también va a mandar el directo a otros
    destinos encendidos, la confirmación lo dice antes de empezar, con un
@@ -256,10 +258,10 @@ haciendo en OBS, y el complemento de OBS para NVDA sigue funcionando.
 
 *Estado* resume la transmisión, la grabación, la escena actual, el
 micrófono y el uso del equipo. *Mostrar OBS* trae al frente la ventana de
-OBS, también desde el área de notificación. *Cerrar OBS*, también en el
-menú *OBS*, cierra OBS sin forzarlo, así no pregunta por el modo seguro al
-volver a abrirlo. Si OBS está transmitiendo o grabando, no lo cierra y
-avisa.
+OBS, también desde el área de notificación. Si OBS no responde, lo avisa en
+vez de esperarlo. *Cerrar OBS*, también en el menú *OBS*, cierra OBS sin
+forzarlo, así no pregunta por el modo seguro al volver a abrirlo. Si OBS
+está transmitiendo o grabando, no lo cierra y avisa.
 
 *Probar el equipo…* graba unos segundos con el perfil en uso para ver si la
 PC pierde fotogramas. Si los pierde, prueba ajustes más livianos hasta dar

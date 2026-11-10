@@ -1,11 +1,11 @@
-<!-- original: es/MANUAL.md ff492d65626ebde9effaad4a54147ada6e25d2f5 -->
+<!-- original: es/MANUAL.md 8375d36162575d4c42279a1d472e196d4fd1e2ab -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
 
 Guyrapu reads the chat of YouTube and TikTok live streams aloud, and controls OBS Studio and Restream from the keyboard. It is designed for people who are blind or have low vision and stream, and it is tested with NVDA.
 
-Version 3.0.0 beta 3 · Windows 10 and 11 · [News](CHANGELOG.md)
+Version 3.0.0 beta 4 · Windows 10 and 11 · [News](CHANGELOG.md)
 
 ## Installation
 
@@ -122,7 +122,9 @@ If OBS is closed, Guyrapu opens it in the notification area.
 1. Press *Broadcast live*, next to *Connect*. The *Broadcast to* dialog opens, with the destination from last time already chosen.
 2. Choose *YouTube* or a Restream profile and press *Continue*.
 3. Guyrapu prepares OBS and checks the scene: whether it is empty, whether an
-   image comes out black or whether the microphone is muted. If it finds a
+   image comes out black or whether the microphone is muted. If you choose
+   *TikTok* and the OBS profile has no stream key, it warns and says where to
+   write it in OBS. If it finds a
    problem, the button chosen by default is *Cancel*. If you broadcast to
    TikTok and the Restream account is also going to send the live stream to
    other enabled destinations, the confirmation before starting says so, with
@@ -160,7 +162,7 @@ The *OBS panel* brings together in tabs what is done with OBS, and it is opened 
 
 ### General
 
-*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area. *Close OBS*, also in the *OBS* menu, closes OBS without forcing it, so it does not ask about safe mode when you open it again. If OBS is broadcasting or recording, it does not close it and warns.
+*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area. If OBS is not responding, it warns instead of waiting for it. *Close OBS*, also in the *OBS* menu, closes OBS without forcing it, so it does not ask about safe mode when you open it again. If OBS is broadcasting or recording, it does not close it and warns.
 
 *Test computer…* records for a few seconds with the profile in use to see whether the PC drops frames. If it does, it tries lighter settings until it finds some that work and offers to save them in the profile. With the Aitum Vertical Canvas plugin in OBS, the dialog offers to include the vertical canvas, to know whether the PC can broadcast in both orientations at the same time. Test recordings are deleted at the end.
 
