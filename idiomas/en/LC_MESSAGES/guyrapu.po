@@ -3996,6 +3996,11 @@ msgstr "Locked"
 msgid "queda fuera del vídeo el {porcentaje}% de la fuente"
 msgstr "{porcentaje}% of the source is off the video"
 
+#. Traductores: se suma a la frase anterior cuando la fuente no entra.
+#: guyrapu/obs/obs_disposicion.py
+msgid "Para que entre, usa Aplicar diseño."
+msgstr "To make it fit, use Apply layout."
+
 #: guyrapu/obs/obs_disposicion.py
 #, python-brace-format
 msgid "Entran {mensajes} mensajes, tamaño de letra {letra}"

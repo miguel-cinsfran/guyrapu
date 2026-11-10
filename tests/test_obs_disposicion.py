@@ -249,7 +249,9 @@ class DescripcionTest(unittest.TestCase):
         self.assertEqual(obs.describir(s, ("solape",)), "Superpone al 12% de Cámara.")
         self.assertEqual(obs.describir(s, ("visible",)), "Oculta en OBS.")
         self.assertEqual(obs.describir(s, ("bloqueada",)), "Bloqueada.")
-        self.assertEqual(obs.describir(s, ("fuera",)), "Queda fuera del vídeo el 12% de la fuente.")
+        self.assertEqual(obs.describir(s, ("fuera",)),
+                         "Queda fuera del vídeo el 12% de la fuente. "
+                         "Para que entre, usa Aplicar diseño.")
         self.assertEqual(obs.describir(s, ("aspecto",)), "14 mensajes, letra 18.")
 
     def test_visible_largo_y_corto(self):
@@ -263,7 +265,9 @@ class DescripcionTest(unittest.TestCase):
 
     def test_fuera_corto_indica_recorte(self):
         snap = obs.SnapshotPanel(conectado=True, fuera=22.4)
-        self.assertEqual(obs.describir(snap, ("fuera",)), "Queda fuera del vídeo el 22% de la fuente.")
+        self.assertEqual(obs.describir(snap, ("fuera",)),
+                         "Queda fuera del vídeo el 22% de la fuente. "
+                         "Para que entre, usa Aplicar diseño.")
 
     def test_fuera_largo_indica_recorte(self):
         snap = obs.SnapshotPanel(conectado=True, fuera=22.4)
@@ -280,9 +284,33 @@ class DescripcionTest(unittest.TestCase):
                                  ancho=460, alto=620, lienzo_ancho=1600,
                                  lienzo_alto=900, fuera=65.2)
         frase = obs.describir(snap, ("posicion", "fuera"))
-        self.assertEqual(frase, "Se sale del vídeo por la izquierda, y a 2% del borde inferior; "
-                                "Queda fuera del vídeo el 65% de la fuente.")
+        self.assertEqual(frase, "Queda fuera del vídeo el 65% de la fuente. "
+                                "Para que entre, usa Aplicar diseño. "
+                                "Se sale del vídeo por la izquierda, y a 2% del borde inferior.")
         self.assertEqual(frase.lower().count("fuera"), 1)
+
+    def test_orden_corto_de_p3(self):
+        s = obs.SnapshotPanel(
+            conectado=True, escena="Juego", visible=False, fuera=22.4,
+            bloqueada=True, tapada_por="Cámara",
+            solapes=(("Cámara", 30.4),), izquierda=80, arriba=253,
+            ancho=460, alto=620, lienzo_ancho=1600, lienzo_alto=900)
+        self.assertEqual(
+            obs.describir(s, obs.ACTIVOS_DEFECTO),
+            "Juego; Oculta en OBS; Queda fuera del vídeo el 22% de la fuente. "
+            "Para que entre, usa Aplicar diseño. Bloqueada; La tapa Cámara; "
+            "Superpone al 30% de Cámara; A 5% del borde izquierdo y a 3% del "
+            "borde inferior; 29% del ancho y 69% del alto.")
+
+    def test_la_fuente_fuera_dice_como_hacerla_entrar(self):
+        snap = obs.SnapshotPanel(conectado=True, fuera=22.4)
+        self.assertEqual(
+            obs.describir(snap, ("fuera",)),
+            "Queda fuera del vídeo el 22% de la fuente. "
+            "Para que entre, usa Aplicar diseño.")
+        self.assertEqual(
+            obs.describir(snap, ("fuera",), "largo"),
+            "Queda fuera del vídeo el 22% de la fuente")
 
     def test_largo_y_union(self):
         s = obs.SnapshotPanel(conectado=True, escena="Juego", al_aire=False,
@@ -290,9 +318,10 @@ class DescripcionTest(unittest.TestCase):
                               lienzo_ancho=1600, lienzo_alto=900,
                               mensajes_visibles=14, tamano_letra=18)
         esperado = ("OBS: conectado\nEscena: Juego, no es la escena actual\n"
+                    "Se ve completa\n"
                     "Posición: a 5% del borde izquierdo y a 3% del borde inferior\n"
                     "Tamaño: 29% del ancho y 69% del alto del vídeo (460 por 620 píxeles)\n"
-                    "Se ve completa\nEntran 14 mensajes, tamaño de letra 18\n"
+                    "Entran 14 mensajes, tamaño de letra 18\n"
                     "El fondo del panel es transparente. Solo se ven las tarjetas de los mensajes, "
                     "apiladas contra el borde inferior.")
         self.assertEqual(obs.describir(s, obs.COMPONENTES, "largo"), esperado)
@@ -359,14 +388,14 @@ class TestFrasesFijadas(unittest.TestCase):
                                  izquierda=32, arriba=18, ancho=460, alto=620,
                                  lienzo_ancho=1600, lienzo_alto=900)
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "corto"),
-                         "Juego; Arriba a la izquierda; 29% del ancho y 69% del alto; "
-                         "Se ve completa.")
+                         "Juego; Se ve completa; Arriba a la izquierda; "
+                         "29% del ancho y 69% del alto.")
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "largo"),
                          "OBS: conectado\n"
                          "Escena: Juego\n"
+                         "Se ve completa\n"
                          "Posición: arriba a la izquierda\n"
                          "Tamaño: 29% del ancho y 69% del alto del vídeo (460 por 620 píxeles)\n"
-                         "Se ve completa\n"
                          "El fondo del panel es transparente. Solo se ven las tarjetas de los mensajes, "
                          "apiladas contra el borde inferior.")
 
@@ -375,14 +404,15 @@ class TestFrasesFijadas(unittest.TestCase):
                                  izquierda=-300, arriba=500, ancho=460, alto=620,
                                  lienzo_ancho=1600, lienzo_alto=900)
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "corto"),
-                         "Juego, no es la escena actual; Se sale del vídeo por la izquierda y por abajo; "
-                         "29% del ancho y 69% del alto; Se ve completa.")
+                         "Juego, no es la escena actual; Se ve completa; "
+                         "Se sale del vídeo por la izquierda y por abajo; "
+                         "29% del ancho y 69% del alto.")
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "largo"),
                          "OBS: conectado\n"
                          "Escena: Juego, no es la escena actual\n"
+                         "Se ve completa\n"
                          "Posición: se sale del vídeo por la izquierda y por abajo\n"
                          "Tamaño: 29% del ancho y 69% del alto del vídeo (460 por 620 píxeles)\n"
-                         "Se ve completa\n"
                          "El fondo del panel es transparente. Solo se ven las tarjetas de los mensajes, "
                          "apiladas contra el borde inferior.")
 
@@ -391,14 +421,15 @@ class TestFrasesFijadas(unittest.TestCase):
                                  izquierda=80, arriba=253, ancho=460, alto=620,
                                  lienzo_ancho=1600, lienzo_alto=900)
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "corto"),
-                         "Juego; A 5% del borde izquierdo y a 3% del borde inferior; "
-                         "29% del ancho y 69% del alto; Se ve completa.")
+                         "Juego; Se ve completa; "
+                         "A 5% del borde izquierdo y a 3% del borde inferior; "
+                         "29% del ancho y 69% del alto.")
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "largo"),
                          "OBS: conectado\n"
                          "Escena: Juego\n"
+                         "Se ve completa\n"
                          "Posición: a 5% del borde izquierdo y a 3% del borde inferior\n"
                          "Tamaño: 29% del ancho y 69% del alto del vídeo (460 por 620 píxeles)\n"
-                         "Se ve completa\n"
                          "El fondo del panel es transparente. Solo se ven las tarjetas de los mensajes, "
                          "apiladas contra el borde inferior.")
 
@@ -410,20 +441,22 @@ class TestFrasesFijadas(unittest.TestCase):
                                  solapes=(("Cámara", 30.4), ("Juego", 4.1)),
                                  fuera=22.4, mensajes_visibles=14, tamano_letra=18)
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "corto"),
-                         "Juego; A 5% del borde izquierdo y a 3% del borde inferior; "
-                         "29% del ancho y 69% del alto; La tapa Cámara; "
-                         "Superpone al 30% de Cámara y al 4% de Juego; Oculta en OBS; Bloqueada; "
-                         "Queda fuera del vídeo el 22% de la fuente; 14 mensajes, letra 18.")
+                         "Juego; Oculta en OBS; "
+                         "Queda fuera del vídeo el 22% de la fuente. "
+                         "Para que entre, usa Aplicar diseño. Bloqueada; "
+                         "La tapa Cámara; Superpone al 30% de Cámara y al 4% de Juego; "
+                         "A 5% del borde izquierdo y a 3% del borde inferior; "
+                         "29% del ancho y 69% del alto; 14 mensajes, letra 18.")
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "largo"),
                          "OBS: conectado\n"
                          "Escena: Juego\n"
-                         "Posición: a 5% del borde izquierdo y a 3% del borde inferior\n"
-                         "Tamaño: 29% del ancho y 69% del alto del vídeo (460 por 620 píxeles)\n"
+                         "Oculta en OBS\n"
+                         "Queda fuera del vídeo el 22% de la fuente\n"
+                         "Bloqueada\n"
                          "La tapa Cámara\n"
                          "Superpone al 30% de Cámara y al 4% de Juego\n"
-                         "Oculta en OBS\n"
-                         "Bloqueada\n"
-                         "Queda fuera del vídeo el 22% de la fuente\n"
+                         "Posición: a 5% del borde izquierdo y a 3% del borde inferior\n"
+                         "Tamaño: 29% del ancho y 69% del alto del vídeo (460 por 620 píxeles)\n"
                          "Entran 14 mensajes, tamaño de letra 18\n"
                          "El fondo del panel es transparente. Solo se ven las tarjetas de los mensajes, "
                          "apiladas contra el borde inferior.")

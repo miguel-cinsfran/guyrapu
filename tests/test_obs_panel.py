@@ -719,6 +719,17 @@ class InstantaneaConMarcoTest(unittest.TestCase):
             "Pantalla", snap, obs_disposicion.ACTIVOS_DEFECTO)
         self.assertIn("Se ve completa", descripcion)
 
+    def test_fuente_con_marco_oculta_empieza_por_oculta(self):
+        doble = DobleObs([self._pantalla(visible=False)], lienzo=(720, 1280))
+        gestor = obs_panel.GestorPanelObs(doble)
+        snap = gestor.instantanea("Escena", fuente="Pantalla")
+        descripcion = obs_disposicion.describir_fuente(
+            "Pantalla", snap, obs_disposicion.ACTIVOS_DEFECTO)
+        self.assertTrue(
+            descripcion.startswith("Pantalla. Escena; Oculta en OBS"),
+            descripcion)
+        self.assertNotIn("Se sale del vídeo", descripcion)
+
     def test_el_solape_usa_el_tamano_dibujado_de_cada_fuente(self):
         doble = DobleObs([
             elemento(1, "Pantalla", 0, x=800, y=450, ancho=800, alto=600,

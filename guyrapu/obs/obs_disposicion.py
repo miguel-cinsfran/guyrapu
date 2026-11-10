@@ -113,8 +113,8 @@ class SnapshotPanel:
     tamano_letra: int = 0
 
 
-COMPONENTES = ("conexion", "escena", "posicion", "tamano", "capa",
-               "solape", "visible", "bloqueada", "fuera", "aspecto",
+COMPONENTES = ("conexion", "escena", "visible", "fuera", "bloqueada",
+               "capa", "solape", "posicion", "tamano", "aspecto",
                "transparencia")
 
 ACTIVOS_DEFECTO = frozenset({"conexion", "escena", "posicion", "tamano",
@@ -279,7 +279,11 @@ def _fuera(s, largo) -> str:
         return ""
     texto = _("queda fuera del vídeo el {porcentaje}% de la fuente").format(
         porcentaje=_porcentaje(s.fuera))
-    return texto[:1].upper() + texto[1:]
+    texto = texto[:1].upper() + texto[1:]
+    if not largo:
+        # Traductores: se suma a la frase anterior cuando la fuente no entra.
+        texto += ". " + _("Para que entre, usa Aplicar diseño.")
+    return texto
 
 
 def _aspecto(s, largo) -> str:
@@ -341,7 +345,12 @@ def describir(snap: SnapshotPanel, componentes, modo="corto") -> str:
             partes.append(texto)
     if not partes:
         return ""
-    return "\n".join(partes) if modo == "largo" else "; ".join(partes) + "."
+    if modo == "largo":
+        return "\n".join(partes)
+    texto = partes[0]
+    for parte in partes[1:]:
+        texto += (" " if texto.endswith(".") else "; ") + parte
+    return texto if texto.endswith(".") else texto + "."
 
 
 def describir_fuente(nombre, snap, componentes, modo="corto") -> str:
