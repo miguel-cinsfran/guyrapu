@@ -101,6 +101,7 @@ class GestorFalso:
         self.fallo = fallo
         self.resultado_preparar = resultado_preparar
         self.llamadas = []
+        self.revisiones = []
         self.cierres = 0
 
     def conectar(self, *args, **kwargs):
@@ -121,6 +122,7 @@ class GestorFalso:
         return self.resultado_preparar
 
     def revisar(self, destino, *args, **kwargs):
+        self.revisiones.append((destino, dict(kwargs)))
         self.llamadas.append(("revisar", destino))
         return ("revision", destino)
 
@@ -145,14 +147,14 @@ class PrepararTest(unittest.TestCase):
         parche.start()
         self.addCleanup(parche.stop)
 
-    def _preparar(self, gestor, destino="TikTok", parada=None):
+    def _preparar(self, gestor, destino="TikTok", parada=None, opcion=None):
         registro = []
         anuncios = []
         resultado = preparar(
             gestor, destino,
             lambda conectar, al_anunciar=None, parada=None: _asegurar(
                 registro, conectar, al_anunciar, parada),
-            anuncios.append, parada=parada)
+            anuncios.append, parada=parada, opcion=opcion)
         return resultado, registro, anuncios
 
     def test_orden_exacta_de_llamadas(self):
@@ -170,6 +172,20 @@ class PrepararTest(unittest.TestCase):
             ["conectar", "estado", "perfil", ("preparar", "TikTok"),
              ("revisar", "TikTok"), "cerrar"])
         self.assertEqual(anuncios, [])
+
+    def test_la_opcion_tiktok_revisa_con_servicio_propio(self):
+        gestor = GestorFalso(transmitiendo=False, perfil="TikTok")
+        self._preparar(gestor, "TikTok", opcion="TikTok")
+        self.assertEqual(gestor.revisiones,
+                         [("TikTok", {"servicio_propio": True})])
+
+    def test_el_perfil_de_restream_vertical_no_lee_el_servicio(self):
+        gestor = GestorFalso(transmitiendo=False, perfil="TikTok")
+        with mock.patch("guyrapu.restream.ganchos.cuenta_conectada",
+                        return_value=False):
+            self._preparar(gestor, "TikTok", opcion="restream:Vertical")
+        self.assertEqual(gestor.revisiones,
+                         [("TikTok", {"servicio_propio": False})])
 
     def test_ya_transmitiendo_no_prepara_ni_revisa(self):
         gestor = GestorFalso(transmitiendo=True, perfil="YouTube")

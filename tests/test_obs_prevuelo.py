@@ -26,9 +26,9 @@ class DoblePrevuelo:
     def __init__(self, perfil="TikTok", coleccion="TikTok", ancho=720,
                  alto=1280, escena="Escena", elementos=None, entradas=None,
                  ajustes=None, silencios=None, escenas=("Escena vertical",),
-                 imagen=None,
-                 falla_imagen=False, modo="Simple", calidad="Stream",
-                 codificador="none"):
+                 imagen=None, servicio=None,
+                 falla_imagen=False, falla_servicio=False,
+                 modo="Simple", calidad="Stream", codificador="none"):
         self.perfil = perfil
         self.coleccion = coleccion
         self.ancho = ancho
@@ -57,6 +57,10 @@ class DoblePrevuelo:
         self.escenas = list(escenas)
         self.imagen = imagen
         self.falla_imagen = falla_imagen
+        self.servicio = dict(servicio if servicio is not None else {
+            "streamServiceType": "rtmp_common",
+            "streamServiceSettings": {"server": "rtmp://servidor", "key": "clave"}})
+        self.falla_servicio = falla_servicio
         self.llamadas = []
 
     def pedir(self, tipo, datos=None, parada=None):
@@ -89,6 +93,10 @@ class DoblePrevuelo:
             if self.falla_imagen:
                 raise RuntimeError("fuente sin imagen")
             return {"responseData": {"imageData": self.imagen}}
+        if tipo == "GetStreamServiceSettings":
+            if self.falla_servicio:
+                raise RuntimeError("servicio sin respuesta")
+            return {"responseData": dict(self.servicio)}
         if tipo == "GetProfileParameter":
             valores = {
                 ("Output", "Mode"): self.modo,
@@ -311,6 +319,65 @@ class RevisarTest(unittest.TestCase):
                 imagen=imagen_dato(png_plano(1, 1, (200, 0, 0, 255))))
             (fuente,) = revisar(doble, "TikTok").fuentes
             self.assertEqual(fuente.detalle, "")
+
+
+class ServicioDeTransmisionTest(unittest.TestCase):
+    """El perfil propio de TikTok tiene que tener servidor y clave."""
+
+    _PROBLEMA = (
+        "El perfil TikTok de OBS no tiene clave de transmisión, así que OBS "
+        "no va a poder transmitir. Escríbela en OBS, en Ajustes, Emisión, o "
+        "transmite con un perfil de Restream.")
+
+    def _imagen(self):
+        return imagen_dato(png_plano(2, 2, (200, 0, 0, 255)))
+
+    def test_falta_la_clave_y_avisa(self):
+        doble = DoblePrevuelo(
+            servicio={"streamServiceType": "rtmp_common",
+                      "streamServiceSettings": {"server": "rtmp://servidor"}},
+            imagen=self._imagen())
+        revision = revisar(doble, "TikTok", servicio_propio=True)
+        self.assertEqual(revision.problemas, (self._PROBLEMA,))
+
+    def test_falta_el_servidor_y_avisa(self):
+        doble = DoblePrevuelo(
+            servicio={"streamServiceType": "rtmp_custom",
+                      "streamServiceSettings": {"key": "clave"}},
+            imagen=self._imagen())
+        revision = revisar(doble, "TikTok", servicio_propio=True)
+        self.assertIn(self._PROBLEMA, revision.problemas)
+
+    def test_con_servidor_y_clave_no_avisa(self):
+        doble = DoblePrevuelo(imagen=self._imagen())
+        revision = revisar(doble, "TikTok", servicio_propio=True)
+        self.assertEqual(revision.problemas, ())
+
+    def test_otro_tipo_de_servicio_no_avisa(self):
+        doble = DoblePrevuelo(
+            servicio={"streamServiceType": "otro",
+                      "streamServiceSettings": {}},
+            imagen=self._imagen())
+        revision = revisar(doble, "TikTok", servicio_propio=True)
+        self.assertEqual(revision.problemas, ())
+
+    def test_sin_servicio_propio_no_pide_el_servicio(self):
+        doble = DoblePrevuelo(
+            servicio={"streamServiceType": "rtmp_common",
+                      "streamServiceSettings": {}},
+            imagen=self._imagen())
+        revision = revisar(doble, "TikTok", servicio_propio=False)
+        self.assertEqual(revision.problemas, ())
+        self.assertFalse(any(tipo == "GetStreamServiceSettings"
+                             for tipo, _datos in doble.llamadas))
+
+    def test_si_el_pedido_falla_no_avisa_y_lo_anota(self):
+        doble = DoblePrevuelo(falla_servicio=True, imagen=self._imagen())
+        with self.assertLogs("guyrapu.obs_prevuelo", level="DEBUG") as registro:
+            revision = revisar(doble, "TikTok", servicio_propio=True)
+        self.assertEqual(revision.problemas, ())
+        self.assertTrue(any("servicio" in mensaje.lower()
+                            for mensaje in registro.output), registro.output)
 
 
 class FraseRevisionTest(unittest.TestCase):

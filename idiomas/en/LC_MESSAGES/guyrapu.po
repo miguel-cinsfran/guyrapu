@@ -4372,6 +4372,17 @@ msgstr ""
 #: guyrapu/obs/obs_prevuelo.py
 #, python-brace-format
 msgid ""
+"El perfil {perfil} de OBS no tiene clave de transmisión, así que OBS no va "
+"a poder transmitir. Escríbela en OBS, en Ajustes, Emisión, o transmite con "
+"un perfil de Restream."
+msgstr ""
+"The OBS profile {perfil} has no stream key, so OBS will not be able to "
+"broadcast. Enter it in OBS, in Settings, Stream, or broadcast with a "
+"Restream profile."
+
+#: guyrapu/obs/obs_prevuelo.py
+#, python-brace-format
+msgid ""
 "La escena {escena} no tiene versión vertical: créala con Crear la versión "
 "vertical, en el menú de la escena del Panel de OBS."
 msgstr ""

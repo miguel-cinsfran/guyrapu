@@ -12,9 +12,12 @@ from __future__ import annotations
 import base64
 from dataclasses import dataclass
 
+from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs.obs_png import imagen_vacia_png
 from guyrapu.obs import escena_gemela, obs_grabacion, revision_escena
+
+logger = diagnostico.obtener_logger(__name__)
 
 
 # Tipo legible por inputKind. Lo que no está acá se muestra tal cual.
@@ -231,7 +234,33 @@ def _problemas_revision(audio, fuentes, imagen) -> list:
     return problemas
 
 
-def revisar(cliente, destino, parada=None, grabar=False) -> Revision:
+def _problemas_servicio(cliente, perfil, parada) -> list:
+    """Clave y servidor del perfil propio, solo cuando la opción los usa.
+
+    Los perfiles de Restream escriben su clave en OBS después de la
+    revisión, así que ahí el dato todavía no dice nada.
+    """
+    try:
+        datos = _datos(cliente, "GetStreamServiceSettings", parada=parada)
+    except Exception as error:
+        logger.debug("no se pudo leer el servicio de transmisión de OBS: %s",
+                     error)
+        return []
+    if datos.get("streamServiceType") not in ("rtmp_common", "rtmp_custom"):
+        return []
+    ajustes = datos.get("streamServiceSettings") or {}
+    if (str(ajustes.get("server") or "").strip()
+            and str(ajustes.get("key") or "").strip()):
+        return []
+    # «Emisión» es el nombre de la pestaña de OBS en español, medido el 10/11/2026.
+    return [_("El perfil {perfil} de OBS no tiene clave de transmisión, así "
+              "que OBS no va a poder transmitir. Escríbela en OBS, en "
+              "Ajustes, Emisión, o transmite con un perfil de Restream.").format(
+                  perfil=perfil)]
+
+
+def revisar(cliente, destino, parada=None, grabar=False,
+            servicio_propio=False) -> Revision:
     """Lee OBS y devuelve qué hay al aire y qué impide transmitir."""
     (perfil, coleccion, lienzo, escena, elementos, entradas, por_nombre,
      escenas) = _base_obs(cliente, destino, parada)
@@ -239,6 +268,8 @@ def revisar(cliente, destino, parada=None, grabar=False) -> Revision:
     audio = _audio_obs(cliente, entradas, parada)
     imagen = _leer_imagen_vacia(cliente, escena, parada)
     problemas = _problemas_revision(audio, fuentes, imagen)
+    if servicio_propio:
+        problemas.extend(_problemas_servicio(cliente, perfil, parada))
     hallazgos = revision_escena.revisar(
         elementos, lienzo.get("baseWidth"), lienzo.get("baseHeight"))
     problemas.extend(hallazgos.problemas)

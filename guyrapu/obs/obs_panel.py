@@ -138,8 +138,8 @@ class GestorPanelObs:
         fuente_chat.renombrar_anterior(self._pedir, parada)
         return resultado
 
-    def revisar(self, destino, parada=None):
-        return obs_prevuelo.revisar(self._cliente, destino, parada, grabar=obs_grabacion.grabar_al_transmitir())
+    def revisar(self, destino, parada=None, **opciones):
+        return obs_prevuelo.revisar(self._cliente, destino, parada, obs_grabacion.grabar_al_transmitir(), **opciones)
 
     def ventanas(self, escena, parada=None):
         return obs_captura.ventanas(self._cliente, escena, parada)

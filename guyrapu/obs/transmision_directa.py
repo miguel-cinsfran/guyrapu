@@ -219,7 +219,7 @@ def preparar(gestor, destino: str, asegurar: Callable, al_anunciar: Callable,
         perfil = _perfil_para(destino, actual)
         resultado = gestor.preparar_destino(destino)
         _anunciar_preparacion(al_anunciar, actual, perfil, resultado)
-        revision = gestor.revisar(destino)
+        revision = gestor.revisar(destino, servicio_propio=(opcion == "TikTok"))
         return Preparacion(ya_transmitiendo=False, revision=revision,
                            destinos_de_mas=leer_destinos_de_mas(opcion))
     finally:
