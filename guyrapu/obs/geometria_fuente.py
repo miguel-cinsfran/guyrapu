@@ -13,6 +13,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from guyrapu.obs import obs_disposicion
+
 _IZQUIERDA = 1
 _DERECHA = 2
 _ARRIBA = 4
@@ -237,3 +239,19 @@ def medir(transformacion) -> Medida | None:
     deformacion = (aspecto_dibujado / aspecto_origen
                    if aspecto_origen else 1.0)
     return Medida(izquierda, arriba, ancho, alto, True, deformacion)
+
+
+def rectangulo_dibujado(transformacion) -> tuple:
+    """Rectángulo que OBS dibuja de la fuente.
+
+    Es el de `medir` cuando hay imagen. Si no, cae a la posición y el
+    tamaño que informa la transformación, como antes de medir el marco.
+    """
+    medida = medir(transformacion)
+    if medida is not None and medida.tiene_imagen:
+        return medida.rectangulo
+    datos = transformacion if isinstance(transformacion, dict) else {}
+    return obs_disposicion.rectangulo(
+        datos.get("positionX", 0), datos.get("positionY", 0),
+        datos.get("width", 0), datos.get("height", 0),
+        datos.get("alignment", 0))

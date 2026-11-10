@@ -5,12 +5,13 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from guyrapu.obs import obs_grabacion, obs_panel
+from guyrapu.obs import obs_disposicion, obs_grabacion, obs_panel
 
 
 def elemento(identificador, nombre, indice, x=32, y=882, ancho=460, alto=620,
              alineacion=9, visible=True, bloqueada=False, ancho_fuente=None,
-             alto_fuente=None):
+             alto_fuente=None, bounds_type="OBS_BOUNDS_NONE",
+             bounds_width=0.0, bounds_height=0.0, bounds_alignment=0):
     if ancho_fuente is None:
         ancho_fuente = ancho
     if alto_fuente is None:
@@ -26,14 +27,17 @@ def elemento(identificador, nombre, indice, x=32, y=882, ancho=460, alto=620,
                                    "alignment": alineacion,
                                    "sourceWidth": ancho_fuente,
                                    "sourceHeight": alto_fuente,
-                                   "boundsWidth": 0.0, "boundsHeight": 0.0}}
+                                   "boundsType": bounds_type,
+                                   "boundsWidth": bounds_width,
+                                   "boundsHeight": bounds_height,
+                                   "boundsAlignment": bounds_alignment}}
 
 
 class DobleObs:
     def __init__(self, elementos=None, entradas=(), escena="Escena", escenas=None,
                   silencios=None, grupos=None, perfiles=(), perfil_actual="",
                   estadisticas=None, reconectando=False, parametros=None,
-                  pausa_no_cambia=False, ruta_grabacion=""):
+                  pausa_no_cambia=False, ruta_grabacion="", lienzo=(1600, 900)):
         self.elementos = list(elementos or ())
         self.entradas = list(entradas)
         self.grupos = dict(grupos or {})
@@ -54,6 +58,7 @@ class DobleObs:
         self.parametros = dict(parametros or {})
         self.parametros_pedidos = []
         self.pausa_no_cambia = pausa_no_cambia
+        self.lienzo = lienzo
 
     def conectar(self, parada=None):
         self.conectado = True
@@ -119,7 +124,8 @@ class DobleObs:
             self.escena = datos["sceneName"]
             return {"responseData": {}}
         if tipo == "GetVideoSettings":
-            return {"responseData": {"baseWidth": 1600, "baseHeight": 900}}
+            ancho, alto = self.lienzo
+            return {"responseData": {"baseWidth": ancho, "baseHeight": alto}}
         if tipo == "GetProfileList":
             return {"responseData": {"profiles": list(self.perfiles),
                                      "currentProfileName": self.perfil_actual}}
@@ -694,6 +700,40 @@ class GestorPanelObsTest(unittest.TestCase):
         self.gestor(doble).detener_transmision(parada)
         self.assertEqual(doble.llamadas[-1][0], "StopStream")
         self.assertIs(doble.llamadas[-1][2], parada)
+
+
+class InstantaneaConMarcoTest(unittest.TestCase):
+    def _pantalla(self, visible=True):
+        return elemento(
+            1, "Pantalla", 0, x=0, y=0, ancho=1366, alto=768,
+            ancho_fuente=1366, alto_fuente=768, alineacion=5, visible=visible,
+            bounds_type="OBS_BOUNDS_SCALE_INNER",
+            bounds_width=720, bounds_height=1280)
+
+    def test_fuente_con_marco_que_entera_no_se_sale(self):
+        doble = DobleObs([self._pantalla()], lienzo=(720, 1280))
+        gestor = obs_panel.GestorPanelObs(doble)
+        snap = gestor.instantanea("Escena", fuente="Pantalla")
+        self.assertAlmostEqual(snap.fuera, 0.0)
+        descripcion = obs_disposicion.describir_fuente(
+            "Pantalla", snap, obs_disposicion.ACTIVOS_DEFECTO)
+        self.assertIn("Se ve completa", descripcion)
+
+    def test_el_solape_usa_el_tamano_dibujado_de_cada_fuente(self):
+        doble = DobleObs([
+            elemento(1, "Pantalla", 0, x=800, y=450, ancho=800, alto=600,
+                     ancho_fuente=800, alto_fuente=600, alineacion=0,
+                     bounds_type="OBS_BOUNDS_SCALE_INNER",
+                     bounds_width=1600, bounds_height=900),
+            elemento(2, "Cámara", 1, x=800, y=450, ancho=400, alto=300,
+                     ancho_fuente=400, alto_fuente=300, alineacion=0,
+                     bounds_type="OBS_BOUNDS_SCALE_INNER",
+                     bounds_width=800, bounds_height=600),
+        ])
+        gestor = obs_panel.GestorPanelObs(doble)
+        snap = gestor.instantanea("Escena", fuente="Pantalla")
+        self.assertEqual(len(snap.solapes), 1)
+        self.assertAlmostEqual(snap.solapes[0][1], 400 / 9, delta=0.1)
 
 
 class RevisarGrabacionTest(unittest.TestCase):

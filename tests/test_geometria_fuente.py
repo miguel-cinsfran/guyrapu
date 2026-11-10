@@ -155,5 +155,26 @@ class CropToBoundsTest(unittest.TestCase):
         self.assertAlmostEqual(medida.alto, 200, delta=0.6)
 
 
+class RectanguloDibujadoTest(unittest.TestCase):
+    def test_con_marco_usa_la_medida(self):
+        rect = geometria_fuente.rectangulo_dibujado(transformacion(
+            sourceWidth=800, sourceHeight=600, width=800, height=600,
+            boundsType="OBS_BOUNDS_SCALE_INNER",
+            boundsWidth=1600, boundsHeight=900, boundsAlignment=0))
+        for valor, esperado in zip(rect, (200, 0, 1200, 900)):
+            self.assertAlmostEqual(valor, esperado, delta=0.6)
+
+    def test_sin_marco_usa_la_medida(self):
+        rect = geometria_fuente.rectangulo_dibujado(transformacion(
+            positionX=800, positionY=450, alignment=0))
+        for valor, esperado in zip(rect, (600, 350, 400, 200)):
+            self.assertAlmostEqual(valor, esperado, delta=0.6)
+
+    def test_sin_positionx_usa_el_rectangulo_de_la_disposicion(self):
+        rect = geometria_fuente.rectangulo_dibujado(
+            {"width": 460, "height": 620, "alignment": 5})
+        self.assertEqual(rect, (0, 0, 460, 620))
+
+
 if __name__ == "__main__":
     unittest.main()

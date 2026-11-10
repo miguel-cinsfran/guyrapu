@@ -5,8 +5,9 @@
 from __future__ import annotations
 
 from guyrapu.obs import (fuente_chat, obs_disposicion, obs_capas, obs_captura,
-                        obs_cliente, obs_destinos, obs_entradas_audio,
-                        obs_escena, obs_grabacion, obs_prevuelo)
+                        geometria_fuente, obs_cliente, obs_destinos,
+                        obs_entradas_audio, obs_escena, obs_grabacion,
+                        obs_prevuelo)
 from guyrapu.obs.fuente_chat import (NOMBRE_FUENTE, TIPO_FUENTE,
                                       fuente_encima_del_panel)
 
@@ -350,9 +351,7 @@ class GestorPanelObs:
                 lienzo_alto=lienzo.get("baseHeight", 0))
 
         transformacion = panel["sceneItemTransform"]
-        rect_panel = obs_disposicion.rectangulo(transformacion.get("positionX", 0),
-            transformacion.get("positionY", 0), transformacion.get("width", 0),
-            transformacion.get("height", 0), transformacion.get("alignment", 0))
+        rect_panel = geometria_fuente.rectangulo_dibujado(transformacion)
         # width/height ya llevan la escala aplicada. El panel se redimensiona
         # escribiendo el tamaño de la entrada (redimensionar), así que el valor
         # editable es sourceWidth/sourceHeight: con width, un panel escalado se
@@ -369,12 +368,7 @@ class GestorPanelObs:
             if elemento["sceneItemId"] == panel["sceneItemId"]:
                 continue
             transformacion_otro = elemento["sceneItemTransform"]
-            rect_otro = obs_disposicion.rectangulo(
-                transformacion_otro.get("positionX", 0),
-                transformacion_otro.get("positionY", 0),
-                transformacion_otro.get("width", 0),
-                transformacion_otro.get("height", 0),
-                transformacion_otro.get("alignment", 0))
+            rect_otro = geometria_fuente.rectangulo_dibujado(transformacion_otro)
             porcentaje = obs_disposicion.solape(rect_otro, rect_panel)
             if porcentaje:
                 solapes.append((elemento.get("sourceName", ""), porcentaje))
