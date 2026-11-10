@@ -13,6 +13,17 @@ directo_chat = importlib.util.module_from_spec(_paquete)
 _paquete.loader.exec_module(directo_chat)
 
 
+class TestRutasDelCorte(unittest.TestCase):
+
+    def test_pedido_con_nombre_nuevo(self):
+        self.assertTrue(directo_chat.RUTA_PEDIDO.endswith(
+            "guyrapu_corte_red.pedido"))
+
+    def test_hecho_con_nombre_nuevo(self):
+        self.assertTrue(directo_chat.RUTA_HECHO.endswith(
+            "guyrapu_corte_red.hecho"))
+
+
 class TestLimitarCorte(unittest.TestCase):
 
     def test_cero_se_queda_en_cero(self):
@@ -45,7 +56,7 @@ class TestLeerHecho(unittest.TestCase):
     def test_vacio_pide_lanzar_la_tarea(self):
         bien, detalle = directo_chat.leer_hecho("")
         self.assertFalse(bien)
-        self.assertIn("BellbirdCorteRed no respondió", detalle)
+        self.assertIn("GuyrapuCorteRed no respondió", detalle)
         self.assertIn("lánzala antes del banco", detalle)
 
     def test_error_devuelve_el_motivo(self):

@@ -136,11 +136,11 @@ y botón «Enviar», por UI Automation sin teclas) y
 lo busca por la API. Con `--corte SEGUNDOS` (tope 30) además le corta la
 red a la app esos segundos y comprueba que avisa la pérdida, se
 reconecta, sigue leyendo y escribiendo, y no repite los comentarios de
-antes del corte. El corte lo hace la tarea BellbirdCorteRed, que tiene
+antes del corte. El corte lo hace la tarea GuyrapuCorteRed, que tiene
 que estar registrada antes de la escena: el
 banco solo le escribe los segundos en
-`C:\Users\Public\bellbird_corte_red.pedido` y espera su
-`bellbird_corte_red.hecho`.
+`C:\Users\Public\guyrapu_corte_red.pedido` y espera su
+`guyrapu_corte_red.hecho`.
 
 Si falla a mitad, la limpieza detiene la transmisión y finaliza el directo
 por API, borra el vídeo si se creó, quita las dos capturas (y el panel si

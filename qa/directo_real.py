@@ -380,7 +380,7 @@ def _ayuda() -> argparse.ArgumentParser:
                              "(por defecto 90)")
     parser.add_argument("--corte", type=int, default=0,
                         help="segundos de corte de red tras escribir desde "
-                             "la app, con la tarea BellbirdCorteRed ya "
+                             "la app, con la tarea GuyrapuCorteRed ya "
                              "lanzada (0 sin corte, tope 30)")
     return parser
 

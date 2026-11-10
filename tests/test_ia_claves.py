@@ -7,7 +7,7 @@ import unittest
 
 from guyrapu.ai import claves
 
-PREFIJO_PRUEBA = "Bellbird/ia-prueba/"
+PREFIJO_PRUEBA = "Guyrapu/ia-prueba/"
 
 
 @unittest.skipUnless(os.name == "nt", "solo Windows")

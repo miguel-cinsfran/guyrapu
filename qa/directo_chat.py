@@ -8,7 +8,7 @@ valor, archivos de pedido del corte y API de YouTube) también vive acá,
 pero recibe lo que necesita como argumentos y no importa nada de
 `directo_real.py`, para no armar un import circular.
 
-El corte lo hace la tarea BellbirdCorteRed, que tiene que estar
+El corte lo hace la tarea GuyrapuCorteRed, que tiene que estar
 registrada antes de la escena: acá solo se escribe el pedido con los segundos y se espera el
 `.hecho`. Durante el corte todo Python queda sin red, así que entre el
 pedido y la reconexión no se llama a la API: solo se leen archivos.
@@ -19,11 +19,11 @@ from __future__ import annotations
 import os
 import time
 
-# Tope del corte, igual que el de la tarea `BellbirdCorteRed`.
+# Tope del corte, igual que el de la tarea `GuyrapuCorteRed`.
 TOPE_CORTE = 30
 # Archivos por los que el banco habla con la tarea del corte.
-RUTA_PEDIDO = r"C:\Users\Public\bellbird_corte_red.pedido"
-RUTA_HECHO = r"C:\Users\Public\bellbird_corte_red.hecho"
+RUTA_PEDIDO = r"C:\Users\Public\guyrapu_corte_red.pedido"
+RUTA_HECHO = r"C:\Users\Public\guyrapu_corte_red.hecho"
 # Nombres que da UI Automation, salen de las etiquetas y no del name= de wx.
 NOMBRE_CUADRO = "Mensaje:"
 NOMBRE_BOTON = "Enviar"
@@ -51,7 +51,7 @@ def leer_hecho(texto) -> tuple[bool, str]:
     """Si el `.hecho` de la tarea cuenta un corte bien hecho."""
     limpio = (texto or "").lstrip("﻿").strip()
     if not limpio:
-        return (False, "la tarea BellbirdCorteRed no respondió: "
+        return (False, "la tarea GuyrapuCorteRed no respondió: "
                        "lánzala antes del banco")
     if limpio.lower().startswith("error"):
         motivo = limpio[5:].strip() or limpio
