@@ -74,6 +74,18 @@ class VigiaInterfazTest(unittest.TestCase):
             vigia_interfaz.vigilar_hilo_interfaz(lambda: next(marcas), _Parada(2))
         registrar.assert_called_once()
 
+    def test_el_aviso_del_bloqueo_incluye_la_cadena_de_espera(self):
+        marcas = iter((0.0, 0.1))
+        with patch.object(vigia_interfaz.time, "monotonic", side_effect=[1.0, 1.1]), \
+                patch.object(diagnostico, "archivo_fallos", return_value=None), \
+                patch.object(vigia_interfaz.sys, "_current_frames", return_value={}), \
+                patch.object(vigia_interfaz.cadena_espera, "cadena_espera_de_hilo",
+                             return_value="CADENA CONOCIDA") as cadena, \
+                patch.object(vigia_interfaz.logger, "warning") as registrar:
+            vigia_interfaz.vigilar_hilo_interfaz(lambda: next(marcas), _Parada(2))
+        self.assertIn("CADENA CONOCIDA", registrar.call_args.args[1])
+        cadena.assert_called_once_with(threading.main_thread().native_id)
+
     def test_vigilante_registra_un_solo_bloqueo_largo(self):
         self.assertEqual(
             vigia_interfaz.decidir_bloqueo_interfaz(10.0, 11.0, False), (True, True))

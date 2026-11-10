@@ -53,6 +53,24 @@ class DiagnosticoTest(unittest.TestCase):
         self.assertEqual(cierre, "=== CIERRE LIMPIO 2026-08-25T21:52:09-04:00 ===")
         self.assertNotEqual(inicio, cierre)
 
+    def test_cierre_pedido_escribe_la_marca_y_deja_el_evento_puesto(self):
+        momento = datetime(2026, 8, 25, 21, 52, 9,
+                           tzinfo=timezone(timedelta(hours=-4)))
+        evento = threading.Event()
+        anterior = diagnostico._ARCHIVO_FALLOS
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                ruta = Path(tmp) / "fallos.log"
+                with open(ruta, "a", encoding="utf-8") as archivo:
+                    diagnostico._ARCHIVO_FALLOS = archivo
+                    diagnostico.registrar_cierre_pedido(evento, momento)
+                self.assertTrue(evento.is_set())
+                self.assertEqual(
+                    ruta.read_text(encoding="utf-8").strip(),
+                    "=== CIERRE PEDIDO 2026-08-25T21:52:09-04:00 ===")
+        finally:
+            diagnostico._ARCHIVO_FALLOS = anterior
+
     def test_manejador_detallado_tiene_nivel_rotacion_y_formato(self):
         with tempfile.TemporaryDirectory() as tmp:
             manejador = diagnostico.crear_manejador_detallado(Path(tmp) / "x.log")

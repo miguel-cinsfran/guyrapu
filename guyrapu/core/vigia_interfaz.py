@@ -10,7 +10,7 @@ import threading
 import time
 import traceback
 
-from guyrapu.core import diagnostico
+from guyrapu.core import cadena_espera, diagnostico
 
 
 UMBRAL_BLOQUEO_INTERFAZ_MS = 500
@@ -29,8 +29,12 @@ def decidir_bloqueo_interfaz(
     return not ya_registrado, True
 
 
-def componer_bloqueo_interfaz(demora_ms: float, pila: str) -> str:
-    return f"INTERFAZ bloqueada_ms={demora_ms:.0f}\n{pila.rstrip()}"
+def componer_bloqueo_interfaz(demora_ms: float, pila: str,
+                              cadena: str = "") -> str:
+    texto = f"INTERFAZ bloqueada_ms={demora_ms:.0f}\n{pila.rstrip()}"
+    if cadena:
+        texto += f"\ncadena de espera de Windows:\n{cadena.rstrip()}"
+    return texto
 
 
 def esta_vivo_el_latido(marca_inicial: float, marca_actual: float,
@@ -60,7 +64,9 @@ def _armar_vigia(archivo, segundos: int) -> None:
 def _registrar_bloqueo(demora_ms: float) -> None:
     pila = pila_hilo_interfaz(
         sys._current_frames(), threading.main_thread().ident)
-    logger.warning("%s", componer_bloqueo_interfaz(demora_ms, pila))
+    cadena = cadena_espera.cadena_espera_de_hilo(
+        threading.main_thread().native_id)
+    logger.warning("%s", componer_bloqueo_interfaz(demora_ms, pila, cadena))
 
 
 def vigilar_hilo_interfaz(obtener_marca, parada: threading.Event,

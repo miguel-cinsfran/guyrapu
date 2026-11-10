@@ -1226,7 +1226,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
                     return
         self._apagando = True
         self._alive = False
-        self._diagnostico_parada.set()
+        diagnostico.registrar_cierre_pedido(self._diagnostico_parada)
         self._actualizar_vigilante_obs_cierre()
         supervisor = getattr(self, "_supervisor", None)
         if supervisor is not None and supervisor.activo:

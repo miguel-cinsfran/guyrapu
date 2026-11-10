@@ -63,6 +63,12 @@ def componer_cierre_fallos(momento: datetime) -> str:
     return f"=== CIERRE LIMPIO {marca} ==="
 
 
+def componer_cierre_pedido_fallos(momento: datetime) -> str:
+    """Compone la marca de un cierre pedido desde la ventana."""
+    marca = momento.isoformat(timespec="seconds")
+    return f"=== CIERRE PEDIDO {marca} ==="
+
+
 def crear_manejador_detallado(ruta: str | Path) -> RotatingFileHandler:
     """Arma el manejador del registro detallado, sin instalarlo."""
     ruta = Path(ruta)
@@ -297,6 +303,14 @@ def registrar_texto_fallos(texto: str) -> None:
 def archivo_fallos():
     """Devuelve el archivo de fallos abierto, o None si no se abrió."""
     return _ARCHIVO_FALLOS
+
+
+def registrar_cierre_pedido(evento: threading.Event,
+                            momento: datetime | None = None) -> None:
+    """Escribe la marca de cierre pedido y después libera el evento."""
+    marca = momento or datetime.now().astimezone()
+    registrar_texto_fallos(componer_cierre_pedido_fallos(marca))
+    evento.set()
 
 
 def registrar_entorno(version: str) -> None:
