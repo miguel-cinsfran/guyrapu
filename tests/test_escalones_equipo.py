@@ -5,7 +5,7 @@
 import unittest
 from dataclasses import replace
 
-from guyrapu.obs import ajustes_perfil, escalones_equipo
+from guyrapu.obs import ajustes_perfil, escalones_equipo, textos_perfil
 
 
 def _ajustes(**cambios):
@@ -82,6 +82,8 @@ class TestDescripciones(unittest.TestCase):
         self.assertIn("Procesador (x264)", frase)
         self.assertIn("60 fotogramas", frase)
         self.assertIn("1920 por 1080", frase)
+        self.assertIn(
+            textos_perfil.decir_preset(antes.codificador, antes.preset), frase)
         cambios = escalones_equipo.diferencias(antes, despues)
         self.assertIn("Gráfica Intel (QuickSync)", cambios)
         self.assertIn("30", cambios)
