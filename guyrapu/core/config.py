@@ -134,9 +134,9 @@ tema = default
 # mensaje_miembro, superchat, nuevo_miembro, error, pausa, reanudar, copiar, espera, seguir, compartir, cofre, me_gusta
 # regalo_chico, regalo_mediano, regalo_grande, entrada, orilla, fin_directo, descarga_completada, descarga_fallida
 # al_aire, transmision_detenida, transmision_problema, aviso, transmision_recuperada, actualizacion_disponible
-# musica_tema, musica_fin, musica_fallo, musica_igualando, ia_respuesta, ia_analizando, microfono_sin_senal
-# microfono_bien, microfono_revisar, directo_pausado, directo_reanudado, cola_descargas_terminada, encuadre_fuera
-# encuadre_dentro, descarga_avance, descarga_quieta, encuesta, encuesta_fin, meta, batalla, batalla_fin
+# musica_tema, musica_fin, musica_fallo, musica_igualando, musica_igualada, ia_respuesta, ia_analizando
+# microfono_bien, microfono_revisar, directo_pausado, directo_reanudado, cola_descargas_terminada, microfono_sin_senal
+# encuadre_dentro, encuadre_fuera, descarga_avance, descarga_quieta, encuesta, encuesta_fin, meta, batalla, batalla_fin
 """
 
 # Carpeta base de temas y tema por defecto.
