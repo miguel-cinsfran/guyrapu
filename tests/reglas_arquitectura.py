@@ -126,7 +126,7 @@ REGLAS = (
             "guyrapu/ui/gui_historial.py": 2, "guyrapu/ui/gui_microfono.py": 2,
             "guyrapu/ui/ia_agregar_captura.py": 2, "guyrapu/ui/ia_ventana.py": 2,
             "guyrapu/ui/lista_acciones.py": 1, "guyrapu/ui/musica_ventana.py": 1,
-            "guyrapu/ui/obs_ventana.py": 2, "guyrapu/ui/preferencias_api.py": 3,
+            "guyrapu/ui/obs_ventana.py": 1, "guyrapu/ui/preferencias_api.py": 3,
             "guyrapu/ui/preferencias_atajos.py": 1, "guyrapu/ui/preferencias_ia.py": 1,
             "guyrapu/ui/preferencias_ia_lista.py": 1, "guyrapu/ui/preferencias_voz.py": 5,
             "guyrapu/ui/restream_pagina_cuenta.py": 1,
