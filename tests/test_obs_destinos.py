@@ -2,11 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Tests de obs_destinos con un doble que simula lo medido en OBS real."""
 
+import tempfile
 import threading
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
+from tests.test_perfil_en_disco import crear_perfil
+from guyrapu.core import paths
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_destinos
 from guyrapu.obs import perfil_por_uso
@@ -135,6 +139,47 @@ class DobleObsDestinos:
         return [llamada[0] for llamada in self.llamadas]
 
 
+def audio_de(ruta):
+    valores = {}
+    for linea in ruta.read_text(encoding="utf-8-sig").splitlines():
+        limpia = linea.strip()
+        if "=" not in limpia:
+            continue
+        clave, valor = limpia.split("=", 1)
+        if clave.strip() in ("SampleRate", "ChannelSetup"):
+            valores[clave.strip()] = valor.strip()
+    return valores
+
+
+class DobleConAudio(DobleObsDestinos):
+    """Responde el audio del perfil en uso y anota lo que se fija."""
+
+    def __init__(self, *args, audio=None, ruta=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.audio = dict(audio or {})
+        self.ruta = ruta
+        self.parametros = {}
+        self.audio_al_cambiar = None
+
+    def pedir(self, tipo, datos=None, parada=None):
+        datos = datos or {}
+        if tipo == "GetProfileParameter":
+            self.llamadas.append((tipo, dict(datos)))
+            return {"responseData": {
+                "parameterValue": self.audio.get(
+                    datos.get("parameterName"), ""),
+                "defaultParameterValue": ""}}
+        if tipo == "SetProfileParameter":
+            self.llamadas.append((tipo, dict(datos)))
+            self.parametros[(datos.get("parameterCategory"),
+                             datos.get("parameterName"))] = (
+                datos.get("parameterValue"))
+            return {"responseData": {}}
+        if tipo == "SetCurrentProfile" and self.ruta is not None:
+            self.audio_al_cambiar = audio_de(self.ruta)
+        return super().pedir(tipo, datos, parada)
+
+
 class RelojFalso:
     def __init__(self):
         self.ahora = 0.0
@@ -174,6 +219,30 @@ class PrepararDestinoTest(unittest.TestCase):
         self.preparar(doble, Destino(perfil="Juego"))
         self.assertNotIn("CreateProfile", doble.tipos())
         self.assertNotIn("SetCurrentProfile", doble.tipos())
+
+    def test_p1_igual_el_audio_del_destino_antes_de_cambiar(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            carpeta = crear_perfil(base, "Destino", {
+                "Audio": {"SampleRate": "44100", "ChannelSetup": "Mono"}})
+            doble = DobleConAudio(
+                perfiles=["Viejo", "Destino"], actual="Viejo",
+                audio={"SampleRate": "48000", "ChannelSetup": "Stereo"},
+                ruta=carpeta / "basic.ini")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                self.preparar(doble, Destino(perfil="Destino"))
+        self.assertEqual(doble.audio_al_cambiar, {
+            "SampleRate": "48000", "ChannelSetup": "Stereo"})
+        self.assertEqual(doble.actual, "Destino")
+
+    def test_p2_al_crear_pone_el_audio_del_perfil_en_uso(self):
+        doble = DobleConAudio(
+            perfiles=["Viejo"], actual="Viejo",
+            audio={"SampleRate": "44100", "ChannelSetup": "Mono"})
+        self.preparar(doble, Destino(perfil="Nuevo"))
+        self.assertEqual(doble.parametros[("Audio", "SampleRate")], "44100")
+        self.assertEqual(doble.parametros[("Audio", "ChannelSetup")], "Mono")
 
     def test_transmitiendo_falla_sin_pedir_nada_mas(self):
         doble = DobleObsDestinos(perfiles=["Juego"], actual="Juego",

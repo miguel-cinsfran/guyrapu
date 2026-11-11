@@ -13,7 +13,9 @@ from dataclasses import dataclass
 
 from guyrapu.core import plataformas
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import escena_gemela, obs_cliente, perfil_por_uso, perfil_previo
+from guyrapu.obs import (
+    audio_de_perfil, escena_gemela, obs_cliente, perfil_por_uso,
+    perfil_previo)
 
 
 # Traductores: {perfil} es el nombre de un perfil de OBS.
@@ -193,7 +195,9 @@ def _asegurar_perfil(cliente, perfil, parada, espera, intervalo, dormir,
     datos = _lista_perfiles(cliente, parada)
     perfiles = datos.get("profiles", ()) or ()
     actual = datos.get("currentProfileName", "") or ""
+    audio = {}
     if perfil not in perfiles:
+        audio = audio_de_perfil.audio_en_uso(cliente, parada)
         cliente.pedir("CreateProfile", {"profileName": perfil},
                       parada=parada)
         datos = _esperar_en_lista(
@@ -203,6 +207,7 @@ def _asegurar_perfil(cliente, perfil, parada, espera, intervalo, dormir,
             parada, espera, intervalo, dormir, reloj)
         actual = datos.get("currentProfileName", "") or ""
     if actual != perfil:
+        audio_de_perfil.igualar(cliente, perfil, parada)
         cliente.pedir("SetCurrentProfile", {"profileName": perfil},
                       parada=parada)
         _esperar_en_lista(
@@ -210,6 +215,7 @@ def _asegurar_perfil(cliente, perfil, parada, espera, intervalo, dormir,
             lambda vistos: (vistos.get("currentProfileName", "")
                             or "") == perfil,
             parada, espera, intervalo, dormir, reloj)
+    audio_de_perfil.poner_en_uso(cliente, audio, parada)
 
 
 def _aplicar_destino(cliente, destino, parada):

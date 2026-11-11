@@ -6,10 +6,14 @@ Sin ventanas y sin OBS real: un cliente falso responde como el websocket
 y la conexión del gestor se reemplaza por un doble.
 """
 
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
+from guyrapu.core import paths
 from guyrapu.obs import obs_cliente, perfil_previo
+from tests.test_perfil_en_disco import crear_perfil
 
 
 class ObsFalso:
@@ -77,6 +81,40 @@ class GestorFalso:
         self.cerrado = True
 
 
+def audio_de(ruta):
+    valores = {}
+    for linea in ruta.read_text(encoding="utf-8-sig").splitlines():
+        limpia = linea.strip()
+        if "=" not in limpia:
+            continue
+        clave, valor = limpia.split("=", 1)
+        if clave.strip() in ("SampleRate", "ChannelSetup"):
+            valores[clave.strip()] = valor.strip()
+    return valores
+
+
+class ObsQueMiraElArchivo(ObsFalso):
+    """Responde el audio del perfil en uso y mira el archivo al cambiar."""
+
+    def __init__(self, *args, audio=None, ruta=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.audio = dict(audio or {})
+        self.ruta = ruta
+        self.audio_al_cambiar = None
+
+    def pedir(self, tipo, datos=None, parada=None):
+        datos = datos or {}
+        if tipo == "GetProfileParameter":
+            self.llamadas.append((tipo, dict(datos)))
+            return {"responseData": {
+                "parameterValue": self.audio.get(
+                    datos.get("parameterName"), ""),
+                "defaultParameterValue": ""}}
+        if tipo == "SetCurrentProfile" and self.ruta is not None:
+            self.audio_al_cambiar = audio_de(self.ruta)
+        return super().pedir(tipo, datos, parada)
+
+
 class HiloFalso:
     def __init__(self, target, nombre):
         self.target = target
@@ -100,6 +138,21 @@ class PerfilPrevioTest(unittest.TestCase):
         self.assertEqual(cliente.cambios(), [{"profileName": "YouTube"}])
         self.assertEqual(perfil_previo.volver(cliente), "")
         self.assertEqual(cliente.cambios(), [{"profileName": "YouTube"}])
+
+    def test_p1_igual_el_audio_del_destino_antes_de_volver(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            carpeta = crear_perfil(base, "YouTube", {
+                "Audio": {"SampleRate": "44100", "ChannelSetup": "Mono"}})
+            perfil_previo.recordar("YouTube", "TikTok")
+            cliente = ObsQueMiraElArchivo(
+                audio={"SampleRate": "48000", "ChannelSetup": "Stereo"},
+                ruta=carpeta / "basic.ini")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                self.assertEqual(perfil_previo.volver(cliente), "YouTube")
+        self.assertEqual(cliente.audio_al_cambiar, {
+            "SampleRate": "48000", "ChannelSetup": "Stereo"})
 
     def test_cualquier_salida_activa_o_buffer_frena_la_vuelta(self):
         for estado in ("transmitiendo", "grabando", "buffer"):

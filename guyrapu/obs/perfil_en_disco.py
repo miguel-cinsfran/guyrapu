@@ -317,6 +317,23 @@ def guardar_ajustes(nombre, ajustes):
     _escribir_servicio(carpeta, ajustes)
 
 
+def igualar_audio(nombre, audio):
+    """Iguala el audio del perfil sin tocar las claves que no tiene."""
+    carpeta = _carpeta(nombre)
+    texto = _leer_texto(carpeta, nombre)
+    actuales = _secciones(texto).get("Audio", {})
+    cambios = {}
+    for clave, valor in (audio or {}).items():
+        valor = str(valor)
+        if clave not in actuales or actuales[clave] == valor:
+            continue
+        cambios[("Audio", clave)] = valor
+    if not cambios:
+        return False
+    _escribir_texto(carpeta / "basic.ini", _editar(texto, cambios))
+    return True
+
+
 def pasar_a_sencillo(nombre, codificador, bitrate):
     """Pasa el perfil a Sencillo con el codificador y el bitrate recibidos."""
     carpeta = _carpeta(nombre)

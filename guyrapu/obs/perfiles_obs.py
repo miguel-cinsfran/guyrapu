@@ -9,13 +9,15 @@ Recibe un cliente con `pedir(tipo, datos=None, parada=None)` como
 
 from __future__ import annotations
 
+import dataclasses
 import time
 import uuid
 
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import (
-    ajustes_perfil, codificadores_obs, obs_cliente, perfil_en_disco)
+    ajustes_perfil, audio_de_perfil, codificadores_obs, obs_cliente,
+    perfil_en_disco)
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -112,16 +114,20 @@ def cambiar(cliente, nombre, parada):
     if nombre not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=nombre))
+    audio_de_perfil.igualar(cliente, nombre, parada)
     cliente.pedir("SetCurrentProfile", {"profileName": nombre}, parada)
     _esperar(cliente, lambda perfiles, actual: actual == nombre, parada)
 
 
 def _crear(cliente, nombre, parada):
+    audio = audio_de_perfil.audio_en_uso(cliente, parada)
     cliente.pedir("CreateProfile", {"profileName": nombre}, parada)
     _esperar(cliente,
              lambda perfiles, actual: (nombre in perfiles
                                        or actual == nombre), parada)
     cambiar(cliente, nombre, parada)
+    audio_de_perfil.poner_en_uso(cliente, audio, parada)
+    return audio
 
 
 def _intentar_volver(cliente, original, parada):
@@ -252,6 +258,23 @@ def guardar_ajustes(cliente, ajustes, perfil=None, parada=None):
         raise
 
 
+def _con_audio(ajustes, audio):
+    """Los ajustes con el muestreo y los canales del perfil que estaba en uso."""
+    cambios = {}
+    muestreo = audio.get("SampleRate")
+    if muestreo:
+        try:
+            muestreo = int(float(muestreo))
+        except (TypeError, ValueError):
+            muestreo = None
+        if muestreo in ajustes_perfil.MUESTREOS:
+            cambios["muestreo"] = muestreo
+    canales = audio.get("ChannelSetup")
+    if canales in ajustes_perfil.CANALES:
+        cambios["canales"] = canales
+    return dataclasses.replace(ajustes, **cambios) if cambios else ajustes
+
+
 def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
                  parada=None):
     """Crea un perfil horizontal o vertical y lo deja como actual."""
@@ -264,7 +287,8 @@ def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
     ajustes = ajustes_perfil.valores_iniciales(
         vertical, ajustes_perfil.mejor_codificador(disponibles))
     try:
-        _crear(cliente, nombre, parada)
+        audio = _crear(cliente, nombre, parada)
+        ajustes = _con_audio(ajustes, audio)
         _escribir_actual(cliente, ajustes, parada, escribir_servicio=False)
         cambiar(cliente, actual, parada)
     except Exception:

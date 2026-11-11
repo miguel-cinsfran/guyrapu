@@ -12,8 +12,11 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
+from guyrapu.core import paths
 from guyrapu.obs import obs_cliente, obs_clips, obs_lanzador
+from tests.test_perfil_en_disco import crear_perfil
 
 
 class ObsFalso:
@@ -90,6 +93,42 @@ class ObsFalso:
 
     def tipos(self):
         return [tipo for tipo, _datos in self.llamadas]
+
+
+def audio_de(ruta):
+    valores = {}
+    for linea in ruta.read_text(encoding="utf-8-sig").splitlines():
+        limpia = linea.strip()
+        if "=" not in limpia:
+            continue
+        clave, valor = limpia.split("=", 1)
+        if clave.strip() in ("SampleRate", "ChannelSetup"):
+            valores[clave.strip()] = valor.strip()
+    return valores
+
+
+class ObsConAudio(ObsFalso):
+    """Responde el audio del perfil en uso y mira el archivo al cambiar."""
+
+    def __init__(self, *args, audio=None, ruta=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.audio = dict(audio or {})
+        self.ruta = ruta
+        self.audio_al_cambiar = []
+
+    def pedir(self, tipo, datos=None, parada=None):
+        datos = dict(datos or {})
+        if (tipo == "GetProfileParameter"
+                and datos.get("parameterCategory") == "Audio"):
+            self.llamadas.append((tipo, datos))
+            return {"responseData": {
+                "parameterValue": self.audio.get(
+                    datos.get("parameterName"), ""),
+                "defaultParameterValue": ""}}
+        if tipo == "SetCurrentProfile" and self.ruta is not None:
+            self.audio_al_cambiar.append(
+                (datos.get("profileName"), audio_de(self.ruta)))
+        return super().pedir(tipo, datos, parada)
 
 
 class Reloj:
@@ -236,6 +275,21 @@ class PrepararTest(unittest.TestCase):
         self.assertNotIn("RemoveProfile", cliente.tipos())
         self.assertTrue(cliente.buffer)
 
+    def test_p1_igual_el_audio_del_destino_antes_de_cambiar(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            carpeta = crear_perfil(base, "Otro", {
+                "Audio": {"SampleRate": "44100", "ChannelSetup": "Mono"}})
+            cliente = ObsConAudio(
+                perfiles=("Principal", "Otro"),
+                audio={"SampleRate": "48000", "ChannelSetup": "Stereo"},
+                ruta=carpeta / "basic.ini")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                obs_clips.preparar(cliente, 30)
+        self.assertEqual(cliente.audio_al_cambiar[0], (
+            "Otro", {"SampleRate": "48000", "ChannelSetup": "Stereo"}))
+
     def test_en_avanzado_usa_adv_out(self):
         cliente = ObsFalso(modo="Advanced", codificador="x264")
         obs_clips.preparar(cliente, 60)
@@ -254,6 +308,22 @@ class PrepararTest(unittest.TestCase):
         self.assertIn(("RemoveProfile", {"profileName": creados[0]}),
                       cliente.llamadas)
         self.assertEqual(cliente.perfil, "Principal")
+
+    def test_p2_el_temporal_recibe_el_audio_antes_de_volver(self):
+        cliente = ObsConAudio(
+            perfiles=("Principal",),
+            audio={"SampleRate": "44100", "ChannelSetup": "Mono"})
+        obs_clips.preparar(cliente, 30)
+        audio = [indice for indice, (tipo, datos) in enumerate(cliente.llamadas)
+                 if tipo == "SetProfileParameter"
+                 and datos.get("parameterCategory") == "Audio"]
+        cambios = [indice for indice, (tipo, _datos)
+                   in enumerate(cliente.llamadas)
+                   if tipo == "SetCurrentProfile"]
+        self.assertTrue(audio)
+        self.assertLess(audio[0], cambios[1])
+        self.assertEqual(cliente.parametros[("Audio", "SampleRate")], "44100")
+        self.assertEqual(cliente.parametros[("Audio", "ChannelSetup")], "Mono")
 
     def test_no_prepara_con_una_salida_activa(self):
         cliente = ObsFalso(transmitiendo=True)

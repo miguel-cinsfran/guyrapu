@@ -14,7 +14,7 @@ from __future__ import annotations
 import threading
 
 from guyrapu.core import diagnostico
-from guyrapu.obs import obs_cliente
+from guyrapu.obs import audio_de_perfil, obs_cliente
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -109,6 +109,7 @@ def _volver_perfil(cliente, pendiente):
                      pendiente)
         _olvidar(pendiente)
         return ""
+    audio_de_perfil.igualar(cliente, pendiente)
     cliente.pedir("SetCurrentProfile", {"profileName": pendiente})
     return pendiente
 

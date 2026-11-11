@@ -130,6 +130,11 @@ class ClienteFalso:
             clave = (datos["parameterCategory"], datos["parameterName"])
             self.parametros[self.actual][clave] = datos["parameterValue"]
             return {"responseData": {}}
+        if tipo == "GetProfileParameter":
+            clave = (datos["parameterCategory"], datos["parameterName"])
+            valor = self.parametros[self.actual].get(clave, "")
+            return {"responseData": {"parameterValue": valor,
+                                     "defaultParameterValue": valor}}
         if tipo == "GetStreamServiceSettings":
             return {"responseData": {
                 "streamServiceType": "rtmp_custom",

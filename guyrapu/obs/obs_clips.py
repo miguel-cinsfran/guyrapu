@@ -18,7 +18,7 @@ from dataclasses import dataclass
 
 from guyrapu.core import diagnostico, ini_tipado, paths
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import obs_cliente
+from guyrapu.obs import audio_de_perfil, obs_cliente
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -164,11 +164,16 @@ def _cambiar_y_volver(cliente, parada=None) -> None:
     perfiles = [str(nombre) for nombre in (datos.get("profiles") or [])]
     otro = next((nombre for nombre in perfiles if nombre != actual), "")
     temporal = ""
+    audio = {}
     if not otro:
         temporal = "Guyrapu " + uuid.uuid4().hex[:8]
+        audio = audio_de_perfil.audio_en_uso(cliente, parada)
         cliente.pedir("CreateProfile", {"profileName": temporal}, parada)
         otro = temporal
+    audio_de_perfil.igualar(cliente, otro, parada)
     cliente.pedir("SetCurrentProfile", {"profileName": otro}, parada)
+    audio_de_perfil.poner_en_uso(cliente, audio, parada)
+    audio_de_perfil.igualar(cliente, actual, parada)
     cliente.pedir("SetCurrentProfile", {"profileName": actual}, parada)
     if temporal:
         cliente.pedir("RemoveProfile", {"profileName": temporal}, parada)

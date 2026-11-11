@@ -166,6 +166,32 @@ class ClienteFalso:
                 if tipo == "SetCurrentProfile"]
 
 
+def audio_de(ruta):
+    valores = {}
+    for linea in ruta.read_text(encoding="utf-8-sig").splitlines():
+        limpia = linea.strip()
+        if "=" not in limpia:
+            continue
+        clave, valor = limpia.split("=", 1)
+        if clave.strip() in ("SampleRate", "ChannelSetup"):
+            valores[clave.strip()] = valor.strip()
+    return valores
+
+
+class ClienteQueMiraElArchivo(ClienteFalso):
+    """Anota el audio del archivo del destino justo al cambiar de perfil."""
+
+    def __init__(self, *args, ruta=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ruta = ruta
+        self.audio_al_cambiar = None
+
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "SetCurrentProfile":
+            self.audio_al_cambiar = audio_de(self.ruta)
+        return super().pedir(tipo, datos, parada)
+
+
 class ClienteQueTardaEnQuitar(ClienteFalso):
     """Sigue listando el perfil eliminado durante una consulta, como OBS."""
 
@@ -486,6 +512,18 @@ class TestCrear(unittest.TestCase):
         self.assertEqual(cliente.actual, "B")
         self.assertIn("Nuevo", cliente.estado)
 
+    def test_p2_el_creado_queda_con_el_audio_del_perfil_en_uso(self):
+        cliente = ClienteFalso(("Viejo",), actual="Viejo")
+        cliente.configurar("Viejo", parametros={
+            ("Audio", "SampleRate"): "44100",
+            ("Audio", "ChannelSetup"): "Mono"})
+        perfiles_obs.crear_perfil(cliente, "Nuevo",
+                                  codificadores=("x264",))
+        self.assertEqual(cliente.estado["Nuevo"]["parametros"][
+            ("Audio", "SampleRate")], "44100")
+        self.assertEqual(cliente.estado["Nuevo"]["parametros"][
+            ("Audio", "ChannelSetup")], "Mono")
+
 
 class TestDuplicar(unittest.TestCase):
 
@@ -603,6 +641,20 @@ class TestCambiar(unittest.TestCase):
             perfiles_obs.cambiar_perfil(cliente, "Fantasma")
         self.assertEqual(cliente.actual, "A")
         self.assertNotIn("SetCurrentProfile", cliente.tipos())
+
+    def test_p1_igual_el_audio_del_destino_antes_de_cambiar(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            carpeta = crear_perfil(base, "B", {
+                "Audio": {"SampleRate": "44100", "ChannelSetup": "Mono"}})
+            cliente = ClienteQueMiraElArchivo(
+                ("A", "B"), actual="A", ruta=carpeta / "basic.ini")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                perfiles_obs.cambiar_perfil(cliente, "B")
+        self.assertEqual(cliente.audio_al_cambiar, {
+            "SampleRate": "48000", "ChannelSetup": "Stereo"})
+        self.assertEqual(cliente.actual, "B")
 
 
 class TestAvanzado(unittest.TestCase):
