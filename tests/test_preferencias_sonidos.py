@@ -80,6 +80,22 @@ class TestPaginaSonidos(unittest.TestCase):
             ruta = str(oir.call_args.args[0])
             self.assertTrue(ruta.endswith(f"{EVENTOS[1]}.wav"))
 
+    def test_oir_usa_el_sonido_asignado_si_falta_el_del_evento(self):
+        from guyrapu.core import eventos_sonido
+        tema = Path(self.temporal.name) / "sounds" / "themes" / "default"
+        tema.mkdir(parents=True)
+        asignada = tema / "otro.wav"
+        asignada.write_bytes(b"RIFF")
+        evento = EVENTOS[0]
+        with mock.patch.dict(eventos_sonido.SONIDOS, {evento: "otro"}), \
+                mock.patch.object(preferencias_sonidos.paths,
+                                  "carpeta_sonidos",
+                                  return_value=Path(self.temporal.name) / "sounds"), \
+                mock.patch.object(preferencias_sonidos._snd,
+                                  "reproducir_archivo") as oir:
+            self.pagina._on_oir(None)
+        oir.assert_called_once_with(asignada)
+
     def test_sin_fila_elegida_no_hace_nada(self):
         self.pagina._lista.Select(0, False)
         with mock.patch.object(preferencias_sonidos._snd,

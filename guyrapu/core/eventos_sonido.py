@@ -78,6 +78,10 @@ EVENTOS = [
     "meta", "batalla", "batalla_fin",
 ]
 
+# Sonido con el que suena cada evento que no usa su propio archivo. Un
+# evento fuera de la tabla suena con `<evento>.wav`.
+SONIDOS = {}
+
 # Nombre llano de cada evento para la página Sonidos de Preferencias.
 # Registro de la app: impersonal, sin jerga, lo importante primero,
 # hasta unas seis palabras. Un nombre por evento, sin repetir.

@@ -19,6 +19,7 @@ from guyrapu.core import archivos
 from guyrapu.core import diagnostico
 from guyrapu.core import paths
 from guyrapu.core import config as cfg
+from guyrapu.core import sonidos_tema
 from guyrapu.core.eventos_sonido import EVENTOS, NOMBRES
 from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_ini import con_silenciados, silenciados
@@ -58,8 +59,8 @@ def _ruta_evento(evento: str, tema: str) -> Path:
             if not candidata.is_absolute():
                 candidata = paths.carpeta_instalacion() / candidata
             return candidata
-    return (paths.carpeta_sonidos() / "themes"
-            / tema / f"{evento}.wav")
+    return sonidos_tema.ruta_evento(
+        paths.carpeta_sonidos() / "themes" / tema, evento)
 
 
 def _nombre_visible_tema(tema: str) -> str:

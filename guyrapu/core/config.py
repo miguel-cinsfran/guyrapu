@@ -16,6 +16,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.ini_tipado import leer_texto, a_entero, a_decimal, leer_entero, leer_decimal, leer_booleano, separar_por_comas
 from guyrapu.core.eventos_sonido import EVENTOS as _EVENTOS_SONIDO
 from guyrapu.core import paths
+from guyrapu.core import sonidos_tema
 from guyrapu.core.atajos import (
     ATAJOS_DEFAULTS, ATAJOS_FIJOS_DEFAULTS, ATAJOS_FIJOS, ATAJOS_GRUPOS,
     _AREA_POR_GRUPO, ATAJOS_AREA, _SIMBOLOS_PERMITIDOS, _TECLAS_NOMBRE,
@@ -444,20 +445,18 @@ def cargar_sonidos() -> dict:
                 ruta_ev = paths.carpeta_instalacion() / ruta_ev
             eventos[ev] = ruta_ev
             continue
-        # 2) Si no, el archivo del tema: sounds/themes/<tema>/<evento>.wav
-        eventos[ev] = _ruta_evento_tema(tema, ev)
+        # 2) Si no, el archivo del tema: el del evento o el del sonido que
+        # la tabla le asigne, en sounds/themes/<tema>/.
+        eventos[ev] = sonidos_tema.ruta_evento(
+            paths.carpeta_sonidos() / _TEMAS_DIR / tema, ev)
 
     return {"activar": activar, "volumen": volumen, "eventos": eventos}
 
 
-def _ruta_evento_tema(tema: str, evento: str) -> Path:
-    """Ruta del `.wav` de un evento dentro de un tema."""
-    return paths.carpeta_sonidos() / _TEMAS_DIR / tema / f"{evento}.wav"
-
-
 def ruta_muestra_tema(tema: str, evento: str = "mensaje_nuevo") -> Path:
     """Ruta de la muestra que suena al recorrer la lista de temas."""
-    return _ruta_evento_tema(tema, evento)
+    return sonidos_tema.ruta_evento(
+        paths.carpeta_sonidos() / _TEMAS_DIR / tema, evento)
 
 
 # ── Helpers de temas de sonido (para el diálogo de Preferencias) ──────────────
