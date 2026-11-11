@@ -219,6 +219,21 @@ class TestEscritura(unittest.TestCase):
         self.assertEqual((leidos.servidor, leidos.clave),
                          ("rtmp://nuevo", "clave-nueva"))
 
+    def test_guarda_fps_sobre_un_perfil_con_fps_por_defecto(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "Perfil", {
+                "Video": {"BaseCX": "1920", "BaseCY": "1080",
+                          "OutputCX": "1280", "OutputCY": "720",
+                          "FPSType": "0", "FPSCommon": "30"},
+            })
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                perfil_en_disco.guardar_ajustes(
+                    "Perfil", ajustes_de_prueba(fps=20))
+                leidos = perfil_en_disco.leer_ajustes("Perfil")
+        self.assertEqual(leidos.fps, 20)
+
     def test_una_linea_que_no_se_toca_queda_igual_byte_a_byte(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp) / "profiles"
