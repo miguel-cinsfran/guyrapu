@@ -4,8 +4,8 @@
 
 Dueña de su estado: el tema elegido, la lista de casillas y el conjunto
 inicial de silenciados. El diálogo solo la construye y le pide `guardar()`.
-Cada fila es un evento de `eventos_sonido.EVENTOS` con su nombre llano;
-destildar lo calla al guardar, sin reiniciar.
+Cada fila es un evento de `eventos_sonido.CATALOGO` con su nombre llano y
+su familia; destildar lo calla al guardar, sin reiniciar.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core import paths
 from guyrapu.core import config as cfg
 from guyrapu.core import sonidos_tema
-from guyrapu.core.eventos_sonido import EVENTOS, NOMBRES
+from guyrapu.core.eventos_sonido import CATALOGO, FAMILIAS, NOMBRES
 from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_ini import con_silenciados, silenciados
 from guyrapu.ui.accesibilidad import nombre_accesible
@@ -86,6 +86,7 @@ class PaginaSonidos:
         self._temas = []
         self._tema_inicial = ""
         self._inicial = set()
+        self._eventos_visibles = []
 
     def construir(self, libro) -> wx.ScrolledWindow:
         self._panel = wx.ScrolledWindow(
@@ -152,26 +153,36 @@ class PaginaSonidos:
         # Traductores: nombre accesible de la lista de sonidos.
         nombre_accesible(self._lista, _("Sonidos"))
         # Traductores: columna con el nombre de cada sonido.
-        self._lista.InsertColumn(0, _("Sonido"), width=420)
+        self._lista.InsertColumn(0, _("Sonido"), width=280)
+        # Traductores: columna con la familia de cada sonido.
+        self._lista.InsertColumn(1, _("Familia"), width=180)
         self._lista.EnableCheckBoxes(True)
         self._lista.SetMinSize((460, 300))
         self._lista.Bind(wx.EVT_SIZE, self._on_tamanio_lista)
         vs.Add(self._lista, 1, wx.EXPAND | wx.ALL, 10)
 
     def _on_tamanio_lista(self, event):
-        # La única columna ocupa todo el cliente: sin franja vacía a la
-        # derecha cuando la ventana se agranda.
-        self._lista.SetColumnWidth(0, self._lista.GetClientSize().width)
+        # Las dos columnas se reparten el cliente: sin franja vacía a la
+        # derecha cuando la ventana se agranda. El nombre lleva más ancho.
+        ancho = self._lista.GetClientSize().width
+        primera = ancho * 3 // 5
+        self._lista.SetColumnWidth(0, primera)
+        self._lista.SetColumnWidth(1, ancho - primera)
         event.Skip()
 
     def _cargar_filas(self):
         texto = _leer_texto(paths.sounds_ini())
         self._inicial = silenciados(texto)
         self._lista.DeleteAllItems()
-        for evento in EVENTOS:
+        self._eventos_visibles = []
+        nombres_familia = dict(FAMILIAS)
+        for evento in CATALOGO:
             indice = self._lista.InsertItem(
-                self._lista.GetItemCount(), NOMBRES[evento])
-            self._lista.CheckItem(indice, evento not in self._inicial)
+                self._lista.GetItemCount(), _(NOMBRES[evento.clave]))
+            self._lista.SetItem(
+                indice, 1, _(nombres_familia[evento.familia]))
+            self._lista.CheckItem(indice, evento.clave not in self._inicial)
+            self._eventos_visibles.append(evento.clave)
         if self._lista.GetItemCount():
             self._lista.Select(0)
             self._lista.Focus(0)
@@ -179,7 +190,7 @@ class PaginaSonidos:
     def _marcados(self) -> set:
         """Eventos destildados, o sea callados, según la lista."""
         callados = set()
-        for indice, evento in enumerate(EVENTOS):
+        for indice, evento in enumerate(self._eventos_visibles):
             if indice >= self._lista.GetItemCount():
                 break
             if not self._lista.IsItemChecked(indice):
@@ -188,11 +199,12 @@ class PaginaSonidos:
 
     def _on_oir(self, _evento=None):
         indice = self._lista.GetFirstSelected()
-        if indice < 0 or indice >= len(EVENTOS):
+        if indice < 0 or indice >= len(self._eventos_visibles):
             return
         try:
             _snd.reproducir_archivo(
-                _ruta_evento(EVENTOS[indice], self._tema_elegido()))
+                _ruta_evento(self._eventos_visibles[indice],
+                             self._tema_elegido()))
         except Exception as exc:
             logger.warning("Sonidos: no se pudo oír: %s", exc)
 
@@ -226,7 +238,8 @@ class PaginaSonidos:
             return False
         try:
             archivos.escribir_texto_atomico(
-                ruta, con_silenciados(texto, callados, list(EVENTOS)))
+                ruta, con_silenciados(
+                    texto, callados, self._eventos_visibles))
         except OSError as exc:
             logger.warning("Sonidos: no se pudo escribir %s: %s", ruta, exc)
             return False

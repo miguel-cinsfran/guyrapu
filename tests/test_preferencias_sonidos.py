@@ -74,8 +74,7 @@ class TestPaginaSonidos(unittest.TestCase):
         from guyrapu.core import eventos_sonido
         indice = next(i for i, evento in enumerate(EVENTOS)
                       if evento not in eventos_sonido.SONIDOS)
-        self.pagina._lista.SetItemState(
-            indice, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
+        self.pagina._lista.Select(indice)
         with mock.patch.object(preferencias_sonidos._snd,
                                "reproducir_archivo") as oir:
             self.pagina._on_oir(None)
@@ -111,14 +110,67 @@ class TestPaginaSonidos(unittest.TestCase):
                    if isinstance(c, wx.StaticText)]
         self.assertIn("&Sonidos:", [r.GetLabel() for r in rotulos])
 
+    def test_primera_fila_es_listo_con_su_familia(self):
+        from guyrapu.core import eventos_sonido
+        self.assertEqual(self.pagina._lista.GetItemText(0, 0),
+                         eventos_sonido.NOMBRES["listo"])
+        self.assertEqual(self.pagina._lista.GetItemText(0, 1), "Completado")
+
+    def test_filas_agrupadas_por_familia_en_orden(self):
+        from guyrapu.core import eventos_sonido
+        orden = [clave for clave, _nombre in eventos_sonido.FAMILIAS]
+        por_evento = {evento.clave: evento.familia
+                      for evento in eventos_sonido.CATALOGO}
+        vistos = [por_evento[evento]
+                  for evento in self.pagina._eventos_visibles]
+        self.assertEqual(list(dict.fromkeys(vistos)), orden)
+        self.assertEqual(vistos, sorted(vistos, key=orden.index))
+
+    def test_destildar_chat_cortado_calla_solo_ese_evento(self):
+        indice = self.pagina._eventos_visibles.index("chat_cortado")
+        self.pagina._lista.CheckItem(indice, False)
+        with mock.patch.object(preferencias_sonidos._snd, "cargar"), \
+                mock.patch.object(preferencias_sonidos.cfg, "cargar_sonidos",
+                                   return_value={"eventos": {}}):
+            self.assertTrue(self.pagina.guardar())
+        texto = self.ruta.read_text(encoding="utf-8")
+        self.assertIn("chat_cortado =", texto)
+        for evento in ("listo", "error", "mensaje_nuevo", "app_inicio"):
+            self.assertNotIn(f"{evento} =", texto)
+
+    def test_reproducir_sobre_chat_cortado_pide_su_archivo(self):
+        indice = self.pagina._eventos_visibles.index("chat_cortado")
+        self.pagina._lista.Select(indice)
+        with mock.patch.object(preferencias_sonidos, "_ruta_evento",
+                               return_value=Path("elegido.wav")) as ruta, \
+                mock.patch.object(preferencias_sonidos._snd,
+                                  "reproducir_archivo") as oir:
+            self.pagina._on_oir(None)
+        ruta.assert_called_once_with("chat_cortado", self.pagina._tema_elegido())
+        oir.assert_called_once_with(Path("elegido.wav"))
+
+    def test_nombres_y_familias_pasan_por_traduccion(self):
+        with con_pseudo():
+            libro = wx.Notebook(wx.Frame(None), name="LibroPrueba")
+            self.addCleanup(libro.GetParent().Destroy)
+            pagina = PaginaSonidos()
+            pagina.construir(libro)
+            for indice in range(pagina._lista.GetItemCount()):
+                for columna in (0, 1):
+                    self.assertTrue(
+                        pagina._lista.GetItemText(indice, columna)
+                        .startswith("[¡"), (indice, columna))
+
     def test_primera_fila_elegida_al_cargar(self):
+        from guyrapu.core import eventos_sonido
         self.assertEqual(self.pagina._lista.GetFirstSelected(), 0)
         with mock.patch.object(preferencias_sonidos._snd,
                                "reproducir_archivo") as oir:
             self.pagina._on_oir(None)
             oir.assert_called_once()
             ruta = str(oir.call_args.args[0])
-            self.assertTrue(ruta.endswith(f"{EVENTOS[0]}.wav"))
+        archivo = eventos_sonido.SONIDOS.get(EVENTOS[0], EVENTOS[0])
+        self.assertTrue(ruta.endswith(f"{archivo}.wav"))
 
     def test_cambiar_tema_suena_muestra_sin_guardar(self):
         from guyrapu.core import config as cfg
@@ -210,12 +262,14 @@ class TestPaginaSonidos(unittest.TestCase):
         self.assertEqual(pagina.cho_tema.GetString(0), "Predeterminado")
         self.assertEqual(pagina.cho_tema.GetString(1), "Suave")
 
-    def test_columna_sigue_el_ancho_de_la_lista(self):
+    def test_columnas_se_reparten_el_ancho_de_la_lista(self):
         lista = self.pagina._lista
         lista.SetSize((500, 300))
         lista.SendSizeEvent()
-        self.assertEqual(lista.GetColumnWidth(0),
+        self.assertEqual(lista.GetColumnWidth(0) + lista.GetColumnWidth(1),
                          lista.GetClientSize().width)
+        self.assertGreater(lista.GetColumnWidth(0), 0)
+        self.assertGreater(lista.GetColumnWidth(1), 0)
 
     def test_mnemonicos_no_chocan_con_guardar(self):
         letras = []

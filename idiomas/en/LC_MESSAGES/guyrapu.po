@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: main.py
+#: guyrapu/core/eventos_sonido.py main.py
 msgid "Super Chat"
 msgstr "Super Chat"
 
@@ -727,7 +727,7 @@ msgstr "Battle: {primero} versus {segundo}"
 msgid "Batalla: {nombres}"
 msgstr "Battle: {nombres}"
 
-#: guyrapu/capture/batallas.py
+#: guyrapu/capture/batallas.py guyrapu/core/eventos_sonido.py
 msgid "Batalla terminada"
 msgstr "Battle ended"
 
@@ -1398,7 +1398,7 @@ msgstr "Duration: {duracion}"
 msgid "Meta cumplida: {descripcion}"
 msgstr "Goal reached: {descripcion}"
 
-#: guyrapu/capture/metas.py
+#: guyrapu/capture/metas.py guyrapu/core/eventos_sonido.py
 msgid "Meta cumplida"
 msgstr "Goal reached"
 
@@ -1997,9 +1997,487 @@ msgstr "Sound only"
 msgid "Solo en la lista"
 msgstr "List only"
 
-#: guyrapu/core/avisos_tiktok.py
+#. Traductores: familia de los sonidos de algo que se apaga o se detiene.
+#: guyrapu/core/avisos_tiktok.py guyrapu/core/eventos_sonido.py
 msgid "Desactivado"
 msgstr "Off"
+
+#. Traductores: familia de los sonidos de acciones que salen bien.
+#: guyrapu/core/eventos_sonido.py
+msgid "Completado"
+msgstr "Completed"
+
+#. Traductores: familia de los sonidos de error.
+#. Traductores: título de un cuadro de error.
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/gui.py
+msgid "Error"
+msgstr "Error"
+
+#. Traductores: familia de los sonidos de algo en curso o en espera.
+#: guyrapu/core/eventos_sonido.py
+msgid "En curso"
+msgstr "In progress"
+
+#. Traductores: familia de los sonidos de algo que se enciende o vuelve.
+#: guyrapu/core/eventos_sonido.py
+msgid "Activado"
+msgstr "On"
+
+#. Traductores: familia de los sonidos de advertencia.
+#: guyrapu/core/eventos_sonido.py
+msgid "Advertencia"
+msgstr "Warning"
+
+#. Traductores: familia de los sonidos de algo en vivo que se cae.
+#: guyrapu/core/eventos_sonido.py
+msgid "Desconexión"
+msgstr "Disconnected"
+
+#. Traductores: familia de los sonidos de algo en vivo que vuelve.
+#: guyrapu/core/eventos_sonido.py
+msgid "Reconexión"
+msgstr "Reconnected"
+
+#. Traductores: familia de los sonidos de la transmisión y el directo.
+#: guyrapu/core/eventos_sonido.py
+msgid "Transmisión y directo"
+msgstr "Broadcast and live stream"
+
+#. Traductores: familia de los sonidos del chat.
+#: guyrapu/core/eventos_sonido.py
+msgid "Chat"
+msgstr "Chat"
+
+#. Traductores: familia de los sonidos de las descargas.
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/gui_descargas.py
+#: guyrapu/ui/gui_preferencias.py
+msgid "Descargas"
+msgstr "Downloads"
+
+#. Traductores: familia de los sonidos de la inteligencia artificial.
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/gui_preferencias.py
+msgid "Inteligencia artificial"
+msgstr "Artificial intelligence"
+
+#. Traductores: familia de los sonidos de la música.
+#. Traductores: título de la ventana de música; una sola palabra.
+#. Traductores: título del diálogo que confirma el borrado; una sola palabra.
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/gui_preferencias.py
+#: guyrapu/ui/musica_ventana.py guyrapu/ui/musica_ventana_acciones.py
+#: guyrapu/youtube/emision.py
+msgid "Música"
+msgstr "Music"
+
+#. Traductores: familia de los sonidos de los indicadores.
+#: guyrapu/core/eventos_sonido.py
+msgid "Indicadores"
+msgstr "Indicators"
+
+#. Traductores: familia de los sonidos de la aplicación.
+#: guyrapu/core/eventos_sonido.py
+msgid "Aplicación"
+msgstr "Application"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Acción completada"
+msgstr "Action completed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Texto copiado"
+msgstr "Text copied"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Voz cambiada"
+msgstr "Voice changed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Mensaje enviado"
+msgstr "Message sent"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/gui_comentarios.py
+msgid "Comentario publicado"
+msgstr "Comment posted"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Acción de moderación"
+msgstr "Moderation action"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Cola de lectura vaciada"
+msgstr "Reading queue cleared"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Clip guardado"
+msgstr "Clip saved"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Captura agregada"
+msgstr "Screenshot added"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Búsqueda con resultados"
+msgstr "Search with results"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Búsqueda sin resultados"
+msgstr "Search without results"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Descarga agregada a la cola"
+msgstr "Download added to the queue"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Actualización lista para instalar"
+msgstr "Update ready to install"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Error de la IA"
+msgstr "AI error"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Búsqueda fallida"
+msgstr "Search failed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Formatos no disponibles"
+msgstr "Formats unavailable"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Captura negra detectada"
+msgstr "Black screenshot detected"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Espera"
+msgstr "Waiting"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Conexión en curso"
+msgstr "Connecting"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Reproductor ocupado"
+msgstr "Player busy"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Consulta enviada a la IA"
+msgstr "Query sent to the AI"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Búsqueda en curso"
+msgstr "Search in progress"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Carga de formatos"
+msgstr "Loading formats"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "TikTok limita las consultas"
+msgstr "TikTok is limiting queries"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Preparación de la transmisión"
+msgstr "Preparing the broadcast"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Lectura reanudada"
+msgstr "Reading resumed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Conexión establecida"
+msgstr "Connected"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/obs/obs_estado.py
+msgid "Grabación iniciada"
+msgstr "Recording started"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/obs/obs_estado.py
+msgid "Grabación reanudada"
+msgstr "Recording resumed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Lectura en pausa"
+msgstr "Reading paused"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Desconexión del chat"
+msgstr "Chat disconnected"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/obs/obs_estado.py
+msgid "Grabación detenida"
+msgstr "Recording stopped"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/obs/obs_estado.py
+msgid "Grabación en pausa"
+msgstr "Recording paused"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Consulta a la IA cancelada"
+msgstr "AI query canceled"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/downloads/descargas.py
+#: guyrapu/downloads/motivo_error.py
+msgid "Descarga cancelada"
+msgstr "Download canceled"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Aviso general"
+msgstr "General alert"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Problema de la grabación"
+msgstr "Recording problem"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Otros destinos de Restream"
+msgstr "Other Restream destinations"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Atajos globales ocupados"
+msgstr "Global shortcuts already in use"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Señal débil en Restream"
+msgstr "Weak Restream signal"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Problema de la transmisión"
+msgstr "Broadcast problem"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Reconexión del directo"
+msgstr "Reconnecting the live stream"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Directo con cortes seguidos"
+msgstr "Live stream with repeated interruptions"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Destino de Restream desconectado"
+msgstr "Restream destination disconnected"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Restream sin señal"
+msgstr "No Restream signal"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Chat desconectado"
+msgstr "Chat disconnected"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "OBS no responde"
+msgstr "OBS is not responding"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Reproducción interrumpida"
+msgstr "Playback interrupted"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Transmisión recuperada"
+msgstr "Broadcast restored"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Destino de Restream de vuelta"
+msgstr "Restream destination back"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Señal de Restream recuperada"
+msgstr "Restream signal restored"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Chat reconectado"
+msgstr "Chat reconnected"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "OBS vuelve a responder"
+msgstr "OBS is responding again"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Directo en curso"
+msgstr "Live stream in progress"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/obs/obs_estado.py
+msgid "Transmisión detenida"
+msgstr "Broadcast stopped"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Fin del directo"
+msgstr "Live stream ended"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Cierre confirmado del directo"
+msgstr "Live stream close confirmed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Reproducción finalizada"
+msgstr "Playback finished"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Directo de TikTok en pausa"
+msgstr "TikTok live stream paused"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Directo de TikTok continúa"
+msgstr "TikTok live stream continues"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Mensaje nuevo del chat"
+msgstr "New chat message"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Mensaje de TikTok"
+msgstr "TikTok message"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Mensaje del propietario del canal"
+msgstr "Channel owner message"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Mensaje del moderador"
+msgstr "Moderator message"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Mensaje de una cuenta verificada"
+msgstr "Message from a verified account"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Mensaje de un miembro del canal"
+msgstr "Message from a channel member"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Nuevo miembro del canal"
+msgstr "New channel member"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Nuevo seguidor del directo"
+msgstr "New live stream follower"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Alguien compartió el directo"
+msgstr "Someone shared the live stream"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Cofre de regalos recibido"
+msgstr "Gift chest received"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Me gusta del directo"
+msgstr "Live stream like"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Regalo chico recibido"
+msgstr "Small gift received"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Regalo mediano recibido"
+msgstr "Medium gift received"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Regalo grande recibido"
+msgstr "Large gift received"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Alguien entró al directo"
+msgstr "Someone joined the live stream"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Encuesta abierta"
+msgstr "Poll opened"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Encuesta terminada"
+msgstr "Poll ended"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Batalla iniciada"
+msgstr "Battle started"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Descarga iniciada"
+msgstr "Download started"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Procesamiento de descarga"
+msgstr "Processing download"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Avance de descarga"
+msgstr "Download progress"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Descarga quieta"
+msgstr "Download stalled"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/downloads/motivo_error.py
+msgid "Descarga completada"
+msgstr "Download completed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Descarga fallida"
+msgstr "Download failed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Descarga parcial"
+msgstr "Partial download"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Cola de descargas terminada"
+msgstr "Download queue finished"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "La IA está analizando"
+msgstr "The AI is analyzing"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Respuesta de la IA"
+msgstr "AI response"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Canción cambiada"
+msgstr "Song changed"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Canción terminada"
+msgstr "Song finished"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Error al reproducir la canción"
+msgstr "Error playing the song"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/musica_ventana_igualando.py
+msgid "Igualación del volumen"
+msgstr "Volume matching"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Principio o final de una lista"
+msgstr "Start or end of a list"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Rostro fuera del encuadre"
+msgstr "Face outside the frame"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Rostro de vuelta en el encuadre"
+msgstr "Face back in the frame"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Micrófono con buen nivel"
+msgstr "Microphone level good"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Nivel del micrófono para revisar"
+msgstr "Microphone level to check"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Micrófono sin señal"
+msgstr "No microphone signal"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Inicio de la aplicación"
+msgstr "Application start"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Actualización disponible"
+msgstr "Update available"
 
 #. Traductores: fecha corta de una fila del historial; se ordena como la
 #. fecha corta de Windows en ese idioma, y en inglés de Estados Unidos es
@@ -2160,10 +2638,6 @@ msgstr ""
 "extract audio. Use the packaged build or install ffmpeg. For development, "
 "having ffmpeg in the PATH is enough."
 
-#: guyrapu/downloads/descargas.py guyrapu/downloads/motivo_error.py
-msgid "Descarga cancelada"
-msgstr "Download canceled"
-
 #: guyrapu/downloads/descargas.py
 #, python-brace-format
 msgid "{hechos} vídeos"
@@ -2265,10 +2739,6 @@ msgstr "Download completed: {nombre}, {mensaje}"
 #, python-brace-format
 msgid "Descarga completada: {nombre}"
 msgstr "Download completed: {nombre}"
-
-#: guyrapu/downloads/motivo_error.py
-msgid "Descarga completada"
-msgstr "Download completed"
 
 #: guyrapu/downloads/motivo_error.py
 #, python-brace-format
@@ -4274,26 +4744,6 @@ msgstr "transmision_iniciada"
 #: guyrapu/obs/obs_estado.py
 msgid "Transmisión iniciada"
 msgstr "Broadcast started"
-
-#: guyrapu/obs/obs_estado.py
-msgid "Transmisión detenida"
-msgstr "Broadcast stopped"
-
-#: guyrapu/obs/obs_estado.py
-msgid "Grabación iniciada"
-msgstr "Recording started"
-
-#: guyrapu/obs/obs_estado.py
-msgid "Grabación detenida"
-msgstr "Recording stopped"
-
-#: guyrapu/obs/obs_estado.py
-msgid "Grabación en pausa"
-msgstr "Recording paused"
-
-#: guyrapu/obs/obs_estado.py
-msgid "Grabación reanudada"
-msgstr "Recording resumed"
 
 #: guyrapu/obs/obs_estado.py
 msgid "Escena actual cambiada"
@@ -8741,11 +9191,6 @@ msgstr ""
 "Could not open Preferences:\n"
 "{detalle}"
 
-#. Traductores: título de un cuadro de error.
-#: guyrapu/ui/gui.py
-msgid "Error"
-msgstr "Error"
-
 #: guyrapu/ui/gui.py
 #, python-brace-format
 msgid ""
@@ -9342,10 +9787,6 @@ msgid "&Comentario:"
 msgstr "&Comment:"
 
 #: guyrapu/ui/gui_comentarios.py
-msgid "Comentario publicado"
-msgstr "Comment posted"
-
-#: guyrapu/ui/gui_comentarios.py
 msgid "Comentar"
 msgstr "Comment"
 
@@ -9412,10 +9853,6 @@ msgstr "&Quality:"
 #: guyrapu/ui/gui_descargas.py
 msgid "Buscar en YouTube"
 msgstr "Search on YouTube"
-
-#: guyrapu/ui/gui_descargas.py guyrapu/ui/gui_preferencias.py
-msgid "Descargas"
-msgstr "Downloads"
 
 #: guyrapu/ui/gui_directo_huerfano.py
 #, python-brace-format
@@ -10234,17 +10671,6 @@ msgstr "Filters"
 #: guyrapu/ui/gui_preferencias.py
 msgid "Estado (F2)"
 msgstr "Status (F2)"
-
-#. Traductores: título de la ventana de música; una sola palabra.
-#. Traductores: título del diálogo que confirma el borrado; una sola palabra.
-#: guyrapu/ui/gui_preferencias.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/musica_ventana_acciones.py guyrapu/youtube/emision.py
-msgid "Música"
-msgstr "Music"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Inteligencia artificial"
-msgstr "Artificial intelligence"
 
 #: guyrapu/ui/gui_preferencias.py
 msgid "OBS"
@@ -11069,10 +11495,6 @@ msgstr "Playlist name:"
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/preferencias_musica.py
 msgid "Elige la carpeta de música"
 msgstr "Choose the music folder"
-
-#: guyrapu/ui/musica_ventana_igualando.py
-msgid "Igualación del volumen"
-msgstr "Volume matching"
 
 #: guyrapu/ui/musica_ventana_igualando.py
 msgid "Progreso de la igualación"
@@ -12162,6 +12584,11 @@ msgstr "Sound theme"
 #: guyrapu/ui/preferencias_sonidos.py
 msgid "Sonido"
 msgstr "Sound"
+
+#. Traductores: columna con la familia de cada sonido.
+#: guyrapu/ui/preferencias_sonidos.py
+msgid "Familia"
+msgstr "Family"
 
 #: guyrapu/ui/preferencias_transmision.py
 msgid "Desactivados"

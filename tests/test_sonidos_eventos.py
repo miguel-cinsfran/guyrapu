@@ -10,6 +10,7 @@ import unittest
 from unittest import mock
 
 import main
+from guyrapu.core import eventos_sonido
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.config import (
     TIPO_TEXTO, TIPO_SUPERCHAT, TIPO_STICKER, TIPO_MIEMBRO, TIPO_ENTRADA,
@@ -19,6 +20,19 @@ from guyrapu.core.tipos_mensaje import (
     TIPO_ENCUESTA, TIPO_ENCUESTA_FIN, TIPO_META, TIPO_BATALLA,
     TIPO_BATALLA_FIN,
 )
+
+
+class TestFamiliasDeSonido(unittest.TestCase):
+    def test_cada_evento_tiene_exactamente_una_familia(self):
+        claves = {clave for clave, _nombre in eventos_sonido.FAMILIAS}
+        sin_familia = [evento.clave for evento in eventos_sonido.CATALOGO
+                       if evento.familia not in claves]
+        self.assertEqual(sin_familia, [])
+
+    def test_familias_del_catalogo_estan_declaradas(self):
+        declaradas = {clave for clave, _nombre in eventos_sonido.FAMILIAS}
+        usadas = {evento.familia for evento in eventos_sonido.CATALOGO}
+        self.assertEqual(usadas - declaradas, set())
 
 
 class AutorFalso:
