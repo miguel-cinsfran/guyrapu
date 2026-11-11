@@ -459,32 +459,7 @@ class GrabadorDeVoz:
         self.brailleado.append(texto)
 
 
-class TestRegistroEsAnunciable(unittest.TestCase):
-
-    def test_obs_vigilante_ya_no_se_anuncia(self):
-        self.assertFalse(gui.registro_es_anunciable("guyrapu.obs_vigilante"))
-
-    def test_diagnostico_no_se_anuncia(self):
-        self.assertFalse(gui.registro_es_anunciable("guyrapu.diagnostico"))
-
-    def test_tecnicos_no_se_anuncian(self):
-        for nombre in ("guyrapu.descargas", "guyrapu.main", "guyrapu.tts_worker",
-                       "guyrapu.sound_player"):
-            with self.subTest(nombre=nombre):
-                self.assertFalse(gui.registro_es_anunciable(nombre))
-
-    def test_nombres_vacios_no_se_anuncian(self):
-        self.assertFalse(gui.registro_es_anunciable(""))
-        self.assertFalse(gui.registro_es_anunciable(None))
-
-    def test_manejador_consulta_el_nombre_del_registro(self):
-        manejador = accesibilidad.WxAnnouncingHandler()
-        registro = logging.LogRecord(
-            "diagnostico.hilos", logging.INFO, __file__, 1, "oculto", (), None)
-        with mock.patch.object(accesibilidad, "registro_es_anunciable", return_value=False) as decidir:
-            with mock.patch.object(accesibilidad, "anunciar"):
-                manejador.emit(registro)
-        decidir.assert_called_once_with("diagnostico.hilos")
+class TestAnunciar(unittest.TestCase):
 
     def test_anunciar_interrumpe_por_defecto(self):
         grabador = GrabadorDeVoz()
@@ -552,27 +527,6 @@ class TestRegistroEsAnunciable(unittest.TestCase):
             reproductor.ReproductorPanel._on_timer_progreso(panel, None)
 
         anunciar.assert_called_once_with("Buscando el vídeo, 2 segundos", urgente=False)
-
-    def test_manejador_omite_diagnostico_sin_parchear_anunciar(self):
-        grabador = GrabadorDeVoz()
-        registro = logging.LogRecord(
-            "guyrapu.diagnostico", logging.INFO, __file__, 1, "oculto", (), None)
-        with mock.patch.object(accesibilidad, "_lector", grabador):
-            accesibilidad.WxAnnouncingHandler().emit(registro)
-
-        self.assertEqual(grabador.hablado, [])
-        self.assertEqual(grabador.brailleado, [])
-
-    def test_manejador_anuncia_cuando_el_registro_es_anunciable(self):
-        grabador = GrabadorDeVoz()
-        registro = logging.LogRecord(
-            "guyrapu.obs_vigilante", logging.INFO, __file__, 1, "OBS volvio a responder", (), None)
-        with mock.patch.object(accesibilidad, "_lector", grabador), \
-                mock.patch.object(accesibilidad, "registro_es_anunciable",
-                                  return_value=True):
-            accesibilidad.WxAnnouncingHandler().emit(registro)
-
-        self.assertEqual(grabador.hablado, ["OBS volvio a responder"])
 
     def test_log_wx_redirige_segun_nivel(self):
         with mock.patch.object(gui.logger, "warning") as warn, \

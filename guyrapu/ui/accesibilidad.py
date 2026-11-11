@@ -13,8 +13,6 @@ el nombre y deja intactos el rol y el estado que informa el control.
 
 from __future__ import annotations
 
-import logging
-
 import wx
 
 from guyrapu.core import diagnostico, nombre_msaa
@@ -138,30 +136,3 @@ class ContadorAccesible(wx.SpinCtrl):
         self.SetSelection(0, len(self.GetTextValue()))
         event.Skip()
 
-
-class WxAnnouncingHandler(logging.Handler):
-    """Reenvía los mensajes del logger al lector de pantalla."""
-
-    def __init__(self):
-        super().__init__()
-        self.setFormatter(logging.Formatter("%(message)s"))
-
-    def emit(self, record):
-        if not registro_es_anunciable(record.name):
-            return
-        try:
-            anunciar(self.format(record))
-        except Exception as exc:
-            logger.debug("No se pudo anunciar un registro: %s", exc)
-
-
-# Lista blanca: solo estos loggers llegan al lector. Lo no listado se registra
-# pero no se habla, para que un logger.info nuevo no se convierta en voz por descuido.
-# Vacía: los avisos con sonido salen por anunciar_con_sonido.
-_LOGGERS_ANUNCIABLES = frozenset()
-
-
-def registro_es_anunciable(nombre_logger: str | None) -> bool:
-    """Decide si un registro del log debe llegar al lector de pantalla."""
-    # Lista blanca: solo lo explicitamente permitido se habla; lo desconocido se calla.
-    return bool(nombre_logger) and nombre_logger in _LOGGERS_ANUNCIABLES

@@ -10,7 +10,6 @@ URL es un directo o un vídeo subido y se ajustan los paneles.
 
 from __future__ import annotations
 
-import logging
 import random
 import re
 import threading
@@ -101,8 +100,8 @@ _OBS_COMPONENTES = frozenset(("obs_transmision", "obs_grabacion", "obs_escena"))
 
 # Reexportados: muchos módulos todavía los piden a gui.
 from guyrapu.ui.accesibilidad import (
-    ContadorAccesible, WxAnnouncingHandler, _lector_init, anunciar,
-    anunciar_con_sonido, enlazar_anuncio_de_pestana, nombre_accesible, registro_es_anunciable,
+    ContadorAccesible, _lector_init, anunciar,
+    anunciar_con_sonido, enlazar_anuncio_de_pestana, nombre_accesible,
 )
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.tema import ALTO_CONTRASTE, _T, _pintar, _tc, _titulo
@@ -1801,10 +1800,6 @@ def iniciar_gui(config, cola, stats, worker, parada,
     frame.on_conectar_cb    = iniciar_captura_cb
     frame.on_desconectar_cb = detener_captura_cb
 
-    h = WxAnnouncingHandler()
-    h.setLevel(logging.INFO)
-    logging.getLogger().addHandler(h)
-
     voces = worker.voces()
     idx_voz = escala_voz.resolver_voz(config.get("voz"), voces)
     frame.poblar_voces(voces, 0 if idx_voz is None else idx_voz)
@@ -1852,5 +1847,3 @@ def iniciar_gui(config, cola, stats, worker, parada,
 
     app.MainLoop()
     _gui_frame = None
-
-    logging.getLogger().removeHandler(h)
