@@ -4,9 +4,19 @@
 
 import unittest
 
-from guyrapu.obs import audio_de_perfil
+from guyrapu.obs import audio_de_perfil, obs_cliente
 from tests.test_perfil_en_disco import (
     carpeta_de_perfiles, crear_perfil, lectura_que_falla)
+
+
+class ClienteQueFalla:
+    """OBS falso que falla en cualquier pedido."""
+
+    def __init__(self, error):
+        self.error = error
+
+    def pedir(self, tipo, datos=None, parada=None):
+        raise self.error
 
 
 class ClienteFalso:
@@ -108,6 +118,27 @@ class TestIgualar(unittest.TestCase):
             ("Audio", "SampleRate"): "48000",
             ("Audio", "ChannelSetup"): "Stereo",
         })
+
+
+class TestFalloDeObs(unittest.TestCase):
+
+    def test_p5_un_fallo_al_leer_devuelve_vacio_y_deja_advertencia(self):
+        for error in (obs_cliente.ObsError("sin OBS"),
+                      OSError("sin socket")):
+            with self.subTest(error=type(error).__name__), \
+                    self.assertLogs("guyrapu.audio_de_perfil",
+                                    level="WARNING"):
+                self.assertEqual(
+                    audio_de_perfil.audio_en_uso(ClienteQueFalla(error)), {})
+
+    def test_p6_un_fallo_al_poner_deja_advertencia_y_vuelve(self):
+        for error in (obs_cliente.ObsError("sin OBS"),
+                      OSError("sin socket")):
+            with self.subTest(error=type(error).__name__), \
+                    self.assertLogs("guyrapu.audio_de_perfil",
+                                    level="WARNING"):
+                audio_de_perfil.poner_en_uso(
+                    ClienteQueFalla(error), {"SampleRate": "48000"})
 
 
 if __name__ == "__main__":

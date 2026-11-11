@@ -18,6 +18,10 @@ logger = diagnostico.obtener_logger(__name__)
 CLAVES = ("SampleRate", "ChannelSetup")
 
 
+def _advertir(mensaje, error):
+    logger.warning("%s: %s", mensaje, error)
+
+
 def _parametro(cliente, categoria, nombre, parada):
     respuesta = cliente.pedir(
         "GetProfileParameter",
@@ -33,10 +37,14 @@ def _parametro(cliente, categoria, nombre, parada):
 def audio_en_uso(cliente, parada=None):
     """El muestreo y los canales del perfil que está en uso."""
     audio = {}
-    for clave in CLAVES:
-        valor = _parametro(cliente, "Audio", clave, parada)
-        if valor:
-            audio[clave] = valor
+    try:
+        for clave in CLAVES:
+            valor = _parametro(cliente, "Audio", clave, parada)
+            if valor:
+                audio[clave] = valor
+    except (obs_cliente.ObsError, OSError) as error:
+        _advertir("no se pudo leer el audio del perfil en uso de OBS", error)
+        return {}
     return audio
 
 
@@ -56,9 +64,12 @@ def igualar(cliente, perfil, parada=None):
 
 def poner_en_uso(cliente, audio, parada=None):
     """Pone al perfil recién creado, ya en uso, el audio que se leyó antes."""
-    for clave, valor in (audio or {}).items():
-        cliente.pedir("SetProfileParameter", {
-            "parameterCategory": "Audio",
-            "parameterName": clave,
-            "parameterValue": str(valor),
-        }, parada)
+    try:
+        for clave, valor in (audio or {}).items():
+            cliente.pedir("SetProfileParameter", {
+                "parameterCategory": "Audio",
+                "parameterName": clave,
+                "parameterValue": str(valor),
+            }, parada)
+    except (obs_cliente.ObsError, OSError) as error:
+        _advertir("no se pudo poner el audio del perfil de OBS", error)

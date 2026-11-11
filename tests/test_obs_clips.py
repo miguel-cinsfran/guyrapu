@@ -131,6 +131,17 @@ class ObsConAudio(ObsFalso):
         return super().pedir(tipo, datos, parada)
 
 
+class ObsQueFallaAlPonerAudio(ObsConAudio):
+    """Responde el audio pero falla al fijarlo en el perfil en uso."""
+
+    def pedir(self, tipo, datos=None, parada=None):
+        datos = dict(datos or {})
+        if (tipo == "SetProfileParameter"
+                and datos.get("parameterCategory") == "Audio"):
+            raise obs_cliente.ObsError("OBS no pudo completar la operación.")
+        return super().pedir(tipo, datos, parada)
+
+
 class Reloj:
     def __init__(self):
         self.ahora = 0.0
@@ -256,6 +267,22 @@ class LeerEstadoTest(unittest.TestCase):
         self.assertFalse(estado.conocido)
         self.assertFalse(estado.soportado)
         self.assertFalse(estado.preparado)
+
+
+class CambiarYVolverTest(unittest.TestCase):
+
+    def test_p6_un_fallo_al_poner_el_audio_vuelve_al_perfil_original(self):
+        cliente = ObsQueFallaAlPonerAudio(
+            perfiles=("Principal",),
+            audio={"SampleRate": "44100", "ChannelSetup": "Mono"})
+        with self.assertLogs("guyrapu.audio_de_perfil", level="WARNING"):
+            obs_clips._cambiar_y_volver(cliente)
+        creados = [datos["profileName"] for tipo, datos in cliente.llamadas
+                   if tipo == "CreateProfile"]
+        self.assertEqual(cliente.perfil, "Principal")
+        self.assertEqual(len(creados), 1)
+        self.assertIn(("RemoveProfile", {"profileName": creados[0]}),
+                      cliente.llamadas)
 
 
 class PrepararTest(unittest.TestCase):
