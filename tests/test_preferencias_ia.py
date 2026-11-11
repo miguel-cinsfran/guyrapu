@@ -17,6 +17,7 @@ import wx
 
 from guyrapu.ai import catalogo
 from guyrapu.ai import opciones_ia
+from guyrapu.ai import protocolos
 from guyrapu.ui import confirmar, gui, gui_preferencias
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
@@ -255,6 +256,64 @@ class TestClaveConFormatoAjeno(unittest.TestCase):
         self.assertFalse(resultado)
         preguntar.assert_not_called()
         anunciar.assert_called_once_with(opciones_ia.TEXTO_CLAVE_CARACTERES)
+
+
+class TestModeloElegidoDeLaPagina(unittest.TestCase):
+    """La actualización recibe el id que está elegido en la página.
+
+    Abre ventanas.
+    """
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        parche = redirigir_rutas(Path(self.tmp.name))
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        sin_clave = mock.patch.object(
+            preferencias_ia_clave.claves, "leer", return_value="")
+        sin_clave.start()
+        self.addCleanup(sin_clave.stop)
+        con_modelos = mock.patch.object(
+            preferencias_ia.catalogo, "cargar",
+            return_value=self._catalogo())
+        con_modelos.start()
+        self.addCleanup(con_modelos.stop)
+
+    @staticmethod
+    def _catalogo():
+        base = "https://generativelanguage.googleapis.com/v1beta"
+        return {
+            "version": catalogo.VERSION,
+            "fecha": "2026-10-21",
+            "proveedores": {
+                "google": {
+                    "nombre": "Google",
+                    "modelos": [
+                        {"id": "gemini-uno", "nombre": "Gemini Uno",
+                         "protocolo": protocolos.GEMINI, "base": base},
+                        {"id": "gemini-dos", "nombre": "Gemini Dos",
+                         "protocolo": protocolos.GEMINI, "base": base},
+                    ],
+                },
+            },
+        }
+
+    def test_recibe_el_id_de_la_lista_y_el_texto_de_otro(self):
+        with mock.patch.object(motores, "listar_voces",
+                               return_value=["Voz de prueba"]):
+            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+        self.addCleanup(destruir, dialogo)
+        pagina = dialogo.pagina_ia
+        self.assertEqual(["gemini-uno", "gemini-dos"],
+                         pagina._ia_modelos_ids)
+        pagina.cho_ia_modelo.SetSelection(1)
+        elegido = pagina.ia_lista._modelo_elegido()
+        pagina.txt_ia_otro.ChangeValue("modelo-escrito")
+        escrito = pagina.ia_lista._modelo_elegido()
+        self.assertEqual("gemini-dos", elegido)
+        self.assertEqual("modelo-escrito", escrito)
 
 
 if __name__ == "__main__":
