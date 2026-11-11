@@ -18,6 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from guyrapu.capture.componentes_estado import (ACTIVOS_DEFECTO, COMPONENTES, ETIQUETAS, etiqueta)
+from guyrapu.capture.estado_espectadores import _fmt_num, _render_espectadores
 from guyrapu.core.idioma import N_, _, ngettext
 
 
@@ -72,12 +73,6 @@ class SnapshotSesion:
     cuota_youtube: int | None = None  # unidades usadas hoy; None sin sesión
 
 
-def _fmt_num(n) -> str:
-    """Miles con punto al estilo español: 30044 → «30.044»."""
-    try:    return f"{int(n):,}".replace(",", ".")
-    except (TypeError, ValueError): return str(n)
-
-
 def _duracion(segundos: int) -> str:
     if segundos < 60:
         # Traductores: parte del estado F2 (duración del directo).
@@ -124,43 +119,6 @@ def _render_canal(s: SnapshotSesion, largo: bool) -> str:
         return ""
     # Traductores: parte del estado F2 (canal). {canal} es el canal o autor.
     return _("Canal: {canal}").format(canal=c)
-
-
-def _espectadores_tiktok(cuenta: int, n: str, total: str, largo: bool) -> str:
-    if largo:
-        # Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora y {total} el total.
-        return ngettext("Espectador: {n} ahora, {total} en total",
-                        "Espectadores: {n} ahora, {total} en total", cuenta).format(n=n, total=total)
-    # Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora y {total} el total.
-    return ngettext("{n} espectador ahora, {total} en total",
-                    "{n} espectadores ahora, {total} en total", cuenta).format(n=n, total=total)
-
-
-def _espectadores_resto(cuenta: int, n: str, en_directo: bool, largo: bool) -> str:
-    if en_directo and largo:
-        # Traductores: parte del estado F2 (espectadores). {n} es el nº actual.
-        return ngettext("Espectador: {n}", "Espectadores: {n}", cuenta).format(n=n)
-    if en_directo:
-        # Traductores: parte del estado F2 (espectadores). {n} es el nº actual.
-        return ngettext("{n} espectador", "{n} espectadores", cuenta).format(n=n)
-    if largo:
-        # Traductores: parte del estado F2 (vistas). {n} es el nº total.
-        return ngettext("Vista: {n}", "Vistas: {n}", cuenta).format(n=n)
-    # Traductores: parte del estado F2 (vistas). {n} es el nº total.
-    return ngettext("{n} vista", "{n} vistas", cuenta).format(n=n)
-
-
-def _render_espectadores(s: SnapshotSesion, largo: bool) -> str:
-    if s.espectadores is None:
-        return ""
-    n = _fmt_num(s.espectadores)
-    # En un directo es el nº de espectadores AHORA; en un vídeo, las vistas
-    # totales (números distintos, no confundir).
-    cuenta = s.espectadores if isinstance(s.espectadores, int) else 2
-    if s.tipo == "live_tiktok" and s.espectadores_total is not None:
-        return _espectadores_tiktok(cuenta, n, _fmt_num(s.espectadores_total), largo)
-    en_directo = s.tipo in ("live_youtube", "live_tiktok")
-    return _espectadores_resto(cuenta, n, en_directo, largo)
 
 
 def _render_tiempo_directo(s: SnapshotSesion, largo: bool) -> str:

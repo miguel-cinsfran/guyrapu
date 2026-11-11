@@ -35,8 +35,9 @@ def _es_texto(nodo):
 def _datos_f2():
     """COMPONENTES y ETIQUETAS viven en `componentes_estado.py`; claves del
     dict de render, campos del snapshot y campos dichos (`s.campo`) en
-    `estado_sesion.py`. `formatear_estado` cuenta como render porque anuncia
-    `transmision_supervisada`, que ningún `_render_*` toca por separado."""
+    `estado_sesion.py` y `estado_espectadores.py`. `formatear_estado` cuenta
+    como render porque anuncia `transmision_supervisada`, que ningún
+    `_render_*` toca por separado."""
     componentes, etiquetas = set(), set()
     arbol_cat = _arbol("guyrapu/capture/componentes_estado.py")
     for nodo in ast.walk(arbol_cat):
@@ -50,29 +51,30 @@ def _datos_f2():
                 elif nombre == "ETIQUETAS" and isinstance(valor, ast.Dict):
                     etiquetas = {k.value for k in valor.keys}
     render, campos, dichos = set(), set(), set()
-    arbol = _arbol("guyrapu/capture/estado_sesion.py")
-    for nodo in ast.walk(arbol):
-        if isinstance(nodo, (ast.Assign, ast.AnnAssign)):
-            valor = nodo.value
-            destinos = nodo.targets if isinstance(nodo, ast.Assign) else [nodo.target]
-            if len(destinos) == 1 and isinstance(destinos[0], ast.Name):
-                if (isinstance(valor, ast.Dict) and valor.keys and all(
-                        _es_texto(k) and isinstance(v, ast.Name)
-                        and v.id.startswith("_render")
-                        for k, v in zip(valor.keys, valor.values))):
-                    render = {k.value for k in valor.keys}
-        elif isinstance(nodo, ast.ClassDef) and nodo.name == "SnapshotSesion":
-            campos = {n.target.id for n in nodo.body
-                      if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)}
-        elif (isinstance(nodo, ast.FunctionDef)
-                and (nodo.name.startswith("_render")
-                     or nodo.name == "formatear_estado")):
-            parametros = nodo.args.args
-            dueno = parametros[0].arg if parametros else ""
-            dichos.update(sub.attr for sub in ast.walk(nodo)
-                          if isinstance(sub, ast.Attribute)
-                          and isinstance(sub.value, ast.Name)
-                          and sub.value.id == dueno)
+    for ruta in ("guyrapu/capture/estado_sesion.py",
+                 "guyrapu/capture/estado_espectadores.py"):
+        for nodo in ast.walk(_arbol(ruta)):
+            if isinstance(nodo, (ast.Assign, ast.AnnAssign)):
+                valor = nodo.value
+                destinos = nodo.targets if isinstance(nodo, ast.Assign) else [nodo.target]
+                if len(destinos) == 1 and isinstance(destinos[0], ast.Name):
+                    if (isinstance(valor, ast.Dict) and valor.keys and all(
+                            _es_texto(k) and isinstance(v, ast.Name)
+                            and v.id.startswith("_render")
+                            for k, v in zip(valor.keys, valor.values))):
+                        render = {k.value for k in valor.keys}
+            elif isinstance(nodo, ast.ClassDef) and nodo.name == "SnapshotSesion":
+                campos = {n.target.id for n in nodo.body
+                          if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)}
+            elif (isinstance(nodo, ast.FunctionDef)
+                    and (nodo.name.startswith("_render")
+                         or nodo.name == "formatear_estado")):
+                parametros = nodo.args.args
+                dueno = parametros[0].arg if parametros else ""
+                dichos.update(sub.attr for sub in ast.walk(nodo)
+                              if isinstance(sub, ast.Attribute)
+                              and isinstance(sub.value, ast.Name)
+                              and sub.value.id == dueno)
     return componentes, etiquetas, render, campos, dichos
 
 
