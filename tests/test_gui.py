@@ -5719,7 +5719,7 @@ class TestSupervisarDirectoYoutube(unittest.TestCase):
                            anunciar):
             frame._supervisar_transmision("iniciar", "YouTube", "")
         anunciar.assert_called_once_with("Falta el título del directo.",
-                                         error=True)
+                                         "error", error=True)
         fabrica.assert_not_called()
         self.assertIsNone(frame._supervisor)
 
