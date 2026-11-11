@@ -65,7 +65,9 @@ class PaginaIA:
         self._ia_modelo(p, vs)
         self.ia_lista = ActualizacionModelosIA(
             self.btn_ia_actualizar, self._ia_proveedor_actual,
-            self._ia_lista_recibida)
+            self._ia_lista_recibida,
+            lambda: opciones_ia.modelo_elegido(
+                self._ia_id_en_lista(), self.txt_ia_otro.GetValue()))
         self._ia_pregunta(p, vs)
         self._ia_largo(p, vs)
         self._ia_mostrar_condicionales()

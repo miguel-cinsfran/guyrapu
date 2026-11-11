@@ -66,6 +66,13 @@ TEXTO_LISTA_CON_GRATIS = N_("Lista de modelos actualizada: {n} modelos "
 # Traductores: anuncio de lista nueva; {n} modelos, {r} útiles, {proveedor} su nombre.
 TEXTO_LISTA_CON_TU_CLAVE = N_("Lista de modelos actualizada: {n} modelos "
                               "de {proveedor}, {r} funcionan con tu clave.")
+# Traductores: aviso de modelo elegido de pago; {modelo} es su identificador.
+TEXTO_MODELO_ELEGIDO_DE_PAGO = N_("El modelo elegido, {modelo}, no está en "
+                                   "el nivel gratuito de tu clave. Elige uno "
+                                   "de los gratis.")
+# Traductores: aviso de modelo elegido sin respuesta; {modelo} es su identificador.
+TEXTO_MODELO_ELEGIDO_SIN_RESPUESTA = N_("El modelo elegido, {modelo}, no "
+                                        "respondió con tu clave. Elige otro.")
 TEXTO_INSTRUCCION_RESTAURADA = N_("Instrucción restablecida.")
 TEXTO_CONTRIBUTOR = N_("Este modelo entrena con lo que se le envía.")
 # Traductores: marca de modelo que entrena, se suma a su nombre.
@@ -178,6 +185,18 @@ def resumen_sondeo(resultados, n, proveedor):
                     if valor == sondeo_gratis.MARCA_CON_TU_CLAVE)
     return _(TEXTO_LISTA_CON_TU_CLAVE).format(
         n=n, proveedor=proveedor, r=con_clave)
+
+
+def aviso_modelo_elegido(resultados, modelo):
+    """La frase sobre el modelo elegido, o "" si responde o no se probó."""
+    if not modelo:
+        return ""
+    resultado = resultados.get(modelo)
+    if resultado == sondeo_gratis.DE_PAGO:
+        return _(TEXTO_MODELO_ELEGIDO_DE_PAGO).format(modelo=modelo)
+    if resultado == sondeo_gratis.SIN_SABER:
+        return _(TEXTO_MODELO_ELEGIDO_SIN_RESPUESTA).format(modelo=modelo)
+    return ""
 
 
 def modelo_elegido(id_de_lista, otro):

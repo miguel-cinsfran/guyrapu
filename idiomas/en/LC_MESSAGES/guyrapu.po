@@ -13014,3 +13014,20 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#. Traductores: aviso de modelo elegido de pago; {modelo} es su identificador.
+#: guyrapu/ai/opciones_ia.py
+#, python-brace-format
+msgid ""
+"El modelo elegido, {modelo}, no está en el nivel gratuito de tu clave. "
+"Elige uno de los gratis."
+msgstr ""
+"The chosen model, {modelo}, is not in your key's free tier. Choose one of "
+"the free models."
+
+#. Traductores: aviso de modelo elegido sin respuesta; {modelo} es su
+#. identificador.
+#: guyrapu/ai/opciones_ia.py
+#, python-brace-format
+msgid "El modelo elegido, {modelo}, no respondió con tu clave. Elige otro."
+msgstr "The chosen model, {modelo}, did not respond with your key. Choose another."
+

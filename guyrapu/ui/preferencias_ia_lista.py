@@ -34,10 +34,11 @@ INTERVALO_ANALIZANDO_MS = 2000
 class ActualizacionModelosIA:
     """El botón de actualizar, su hilo, su sondeo y su aviso sonoro."""
 
-    def __init__(self, boton, proveedor_elegido, al_actualizar):
+    def __init__(self, boton, proveedor_elegido, al_actualizar, modelo_elegido):
         self._boton = boton
         self._proveedor_elegido = proveedor_elegido
         self._al_actualizar = al_actualizar
+        self._modelo_elegido = modelo_elegido
         self._en_curso = False
         self._panel = boton.GetParent()
         self._temporizador = wx.Timer(self._panel)
@@ -121,11 +122,12 @@ class ActualizacionModelosIA:
             return
         actual = proveedor or self._proveedor_elegido()
         marcas = self._leer_marcas(actual)
+        elegido = self._modelo_elegido()
         n = self._al_actualizar(muestra, marcas, actual)
         if n is None:
             return
         if resultados is not None:
-            self._anunciar_sondeo(actual, muestra, resultados)
+            self._anunciar_sondeo(actual, muestra, resultados, elegido)
             return
         self._anunciar_lista(actual, n)
 
@@ -144,12 +146,18 @@ class ActualizacionModelosIA:
             logger.warning("IA: no se pudieron leer las marcas: %s", exc)
             return {}
 
-    def _anunciar_sondeo(self, proveedor, muestra, resultados):
+    def _anunciar_sondeo(self, proveedor, muestra, resultados, elegido):
         if sondeo_gratis.CLAVE_MALA in resultados.values():
             _snd.reproducir("ia_error")
             anunciar(consulta.texto_de_error(
                 protocolos.ErrorIA(protocolos.CLAVE_RECHAZADA)))
             return
         n = len(catalogo.modelos(muestra, proveedor.id_catalogo))
-        _snd.reproducir("ia_respuesta")
-        anunciar(opciones_ia.resumen_sondeo(resultados, n, proveedor.nombre))
+        resumen = opciones_ia.resumen_sondeo(resultados, n, proveedor.nombre)
+        aviso = opciones_ia.aviso_modelo_elegido(resultados, elegido)
+        if aviso:
+            _snd.reproducir("ia_error")
+            anunciar(resumen + " " + aviso)
+        else:
+            _snd.reproducir("ia_respuesta")
+            anunciar(resumen)
