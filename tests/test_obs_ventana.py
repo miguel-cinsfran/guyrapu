@@ -5,6 +5,7 @@
 import ctypes
 import unittest
 from ctypes import wintypes
+from types import SimpleNamespace
 from unittest import mock
 
 import wx
@@ -13,7 +14,10 @@ from tests.pseudo_prueba import con_pseudo
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_ventana
+from guyrapu.ui import gui_grabaciones
 from guyrapu.ui import obs_pagina_general
+from guyrapu.ui import obs_ventana as panel_obs
+from guyrapu.ui import operaciones_obs
 
 
 class TestMostrar(unittest.TestCase):
@@ -157,6 +161,57 @@ class TestBotonCerrarObs(unittest.TestCase):
             wx.EVT_BUTTON.typeId, pagina.btn_cerrar.GetId())
         pagina.btn_cerrar.GetEventHandler().ProcessEvent(evento)
         self.assertEqual(llamadas, ["cerrar"])
+
+
+class GestorSinConexion:
+    """Gestor doble que nunca se conecta con OBS."""
+
+    conectado = False
+
+    def conectar(self):
+        pass
+
+    def cerrar(self):
+        pass
+
+
+class TestCerrarSiempreActivo(unittest.TestCase):
+    """El panel nunca queda sin un control activo fuera de las pestañas."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = app_de_prueba()
+
+    @classmethod
+    def tearDownClass(cls):
+        del cls.app
+
+    def _crear(self):
+        principal = SimpleNamespace(_config={})
+        with mock.patch.object(panel_obs.VentanaObs, "_en_hilo"), \
+                mock.patch.object(gui_grabaciones.grabaciones, "existentes",
+                                  return_value=[]):
+            dialogo = panel_obs.VentanaObs(
+                None, principal, gestor=GestorSinConexion())
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def test_activar_false_no_desactiva_cerrar(self):
+        dialogo = self._crear()
+        dialogo._activar(False)
+        self.assertTrue(dialogo.btn_cerrar.IsEnabled())
+        self.assertFalse(dialogo._pagina_escena.btn_cambiar.IsEnabled())
+        dialogo._activar(True)
+        self.assertTrue(dialogo._pagina_escena.btn_cambiar.IsEnabled())
+        self.assertTrue(dialogo.btn_cerrar.IsEnabled())
+
+    def test_un_fallo_con_obs_desconectado_deja_cerrar_activo(self):
+        dialogo = self._crear()
+        with mock.patch.object(operaciones_obs, "avisar"):
+            dialogo._operaciones.fallo(
+                "OBS está abierto pero no responde")
+        self.assertTrue(dialogo.btn_cerrar.IsEnabled())
+        self.assertFalse(dialogo._pagina_escena.btn_cambiar.IsEnabled())
 
 
 if __name__ == "__main__":

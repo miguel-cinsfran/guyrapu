@@ -285,7 +285,6 @@ class VentanaObs(wx.Dialog):
         for pagina in paginas:
             for control in pagina.acciones:
                 control.Enable(activo)
-        self.btn_cerrar.Enable(activo)
 
     def _tras_operacion(self, resultado):
         """La lista de fuentes se refresca en el callback de cada acción."""
