@@ -80,6 +80,10 @@ EVENTOS = [
     "meta", "batalla", "batalla_fin",
     # El vigilante de OBS: deja de responder y vuelve.
     "obs_sin_respuesta", "obs_responde",
+    # Acciones pedidas por el usuario que salen bien, sus pasos de espera y
+    # el fin o el corte de lo que se mira en el reproductor.
+    "listo", "transmision_paso",
+    "reproduccion_terminada", "reproduccion_cortada",
 ]
 
 # Sonido con el que suena cada evento que no usa su propio archivo. Un
@@ -90,6 +94,12 @@ SONIDOS = {
     # El vigilante de OBS suena como una caída y una vuelta de la transmisión.
     "obs_sin_respuesta": "transmision_problema",
     "obs_responde": "transmision_recuperada",
+    # Lo pedido que sale bien, el paso que se espera y el fin o el corte
+    # de lo que se mira.
+    "listo": "copiar",
+    "transmision_paso": "espera",
+    "reproduccion_terminada": "fin_directo",
+    "reproduccion_cortada": "transmision_problema",
 }
 
 # Nombre llano de cada evento para la página Sonidos de Preferencias.
@@ -196,4 +206,8 @@ NOMBRES = {
     "batalla_fin": "Batalla terminada",
     "obs_sin_respuesta": "OBS no responde",
     "obs_responde": "OBS vuelve a responder",
+    "listo": "Acción completada",
+    "transmision_paso": "Preparación de la transmisión",
+    "reproduccion_terminada": "Reproducción finalizada",
+    "reproduccion_cortada": "Reproducción interrumpida",
 }

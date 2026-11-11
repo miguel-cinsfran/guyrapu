@@ -1603,30 +1603,36 @@ class TestDirectoInterrumpido(unittest.TestCase):
 
     def test_fin_con_relevo_en_directo_avisa_y_recarga_una_vez(self):
         panel = self._panel(relevo=mock.Mock())
-        with mock.patch.object(reproductor, "anunciar") as anunciar:
+        with mock.patch.object(reproductor,
+                               "anunciar_con_sonido") as anunciar:
             panel._on_timer(None)
         panel._detener.assert_called_once_with(silencioso=True)
-        anunciar.assert_called_once_with("El directo se interrumpió")
+        anunciar.assert_called_once_with(
+            "El directo se interrumpió", "reproduccion_cortada")
         panel.cargar.assert_called_once_with(reproducir=True)
         self.assertEqual(panel._recargas_directo, 1)
 
     def test_agotadas_las_recargas_no_vuelve_a_intentar(self):
         panel = self._panel(relevo=mock.Mock(),
                             recargas=reproductor.TOPE_RECARGAS_DIRECTO)
-        with mock.patch.object(reproductor, "anunciar") as anunciar:
+        with mock.patch.object(reproductor,
+                               "anunciar_con_sonido") as anunciar:
             panel._on_timer(None)
         panel._detener.assert_called_once_with(silencioso=True)
-        anunciar.assert_called_once_with("El directo se interrumpió")
+        anunciar.assert_called_once_with(
+            "El directo se interrumpió", "reproduccion_cortada")
         panel.cargar.assert_not_called()
         panel._fijar_estado.assert_called_once_with("El directo se interrumpió.")
         self.assertEqual(panel._recargas_directo, reproductor.TOPE_RECARGAS_DIRECTO)
 
     def test_fin_sin_relevo_sigue_siendo_fin_del_video(self):
         panel = self._panel(relevo=None, is_live=False)
-        with mock.patch.object(reproductor, "anunciar") as anunciar:
+        with mock.patch.object(reproductor,
+                               "anunciar_con_sonido") as anunciar:
             panel._on_timer(None)
         panel._detener.assert_called_once_with(silencioso=True)
-        anunciar.assert_called_once_with("Fin del vídeo")
+        anunciar.assert_called_once_with(
+            "Fin del vídeo", "reproduccion_terminada")
         panel.cargar.assert_not_called()
 
     def test_cambiar_de_video_reinicia_el_contador(self):
@@ -1836,6 +1842,8 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         self.captados = []
         parches = [
             mock.patch.object(reproductor, "anunciar", self._guardar),
+            mock.patch.object(reproductor, "anunciar_con_sonido",
+                              self._guardar),
             mock.patch("guyrapu.voice.sound_player.reproducir"),
         ]
         for parche in parches:

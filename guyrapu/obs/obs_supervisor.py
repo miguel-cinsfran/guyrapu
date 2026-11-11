@@ -246,7 +246,7 @@ class SupervisorTransmision:
         """Prepara los clips antes de que arranque el directo, sin impedirlo."""
         obs_clips.preparar_para_directo(
             cliente, obs_clips.leer_segundos(),
-            al_preparar=lambda: self._anunciar(_("Preparando los clips."), None),
+            al_preparar=lambda: self._anunciar(_("Preparando los clips."), "transmision_paso"),
             al_fallar=lambda error: self._anunciar(
                 obs_cliente.mensaje_de_fallo_obs(error), "error"),
             parada=self._parada)
@@ -280,7 +280,7 @@ class SupervisorTransmision:
                 return
             cliente = getattr(gestor, "_cliente", gestor)
             if self._preparar_emision is not None:
-                self._anunciar(_("Creando el directo en YouTube."), None)
+                self._anunciar(_("Creando el directo en YouTube."), "transmision_paso")
                 try:
                     self._id_video = self._preparar_emision(
                         cliente, self._parada)
@@ -310,7 +310,7 @@ class SupervisorTransmision:
                     return
             elif self._destino == "TikTok":
                 frase = _("No hay usuario de TikTok guardado: conecta el chat manualmente.")
-                self._anunciar(frase, None)
+                self._anunciar(frase, "aviso")
             self._vigilar(gestor)
         except Exception as error:
             if self._parada.is_set():
@@ -332,7 +332,7 @@ class SupervisorTransmision:
                     logger.debug("no se pudo avisar el fin de la supervisión: %s", error)
 
     def _confirmar_tiktok(self) -> bool:
-        self._anunciar(_("Esperando a que TikTok muestre el directo."), None)
+        self._anunciar(_("Esperando a que TikTok muestre el directo."), "transmision_paso")
         resultado = self._esperar_en_vivo(
             self._usuario, self._parada,
             limite=self._limite_tiktok)
@@ -349,7 +349,7 @@ class SupervisorTransmision:
         return True
 
     def _confirmar_youtube(self) -> bool:
-        self._anunciar(_("Esperando a que YouTube muestre el directo."), None)
+        self._anunciar(_("Esperando a que YouTube muestre el directo."), "transmision_paso")
         ok = self._esperar_emision(
             self._id_video, self._parada, self._limite_tiktok)
         if self._parada.is_set():

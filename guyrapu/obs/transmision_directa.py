@@ -62,7 +62,7 @@ def cuenta_restream_conectada(opcion, avisar) -> bool:
         return True
     if ganchos.cuenta_conectada():
         return True
-    avisar(_(ganchos.MENSAJE_SIN_CUENTA), "transmision_problema", error=True)
+    avisar(_(ganchos.MENSAJE_SIN_CUENTA), "error", error=True)
     return False
 
 

@@ -83,7 +83,7 @@ def _esperar_a_obs(gestor, anunciar, reloj, dormir, resumen,
         if transcurrido >= LIMITE_ESPERA_OBS:
             anunciar(
                 _("OBS sigue transmitiendo. Detén la transmisión en OBS."),
-                "transmision_problema", True)
+                "error", True)
             return
         dormir(INTERVALO_ESPERA_OBS)
 
@@ -98,7 +98,7 @@ def _anunciar_sin_respuesta(anunciar, error, resumen, obs_activo) -> None:
     if corre:
         anunciar(
             _("No se pudo conectar con OBS para detener la transmisión."),
-            "transmision_problema", True)
+            "error", True)
     else:
         _anunciar_detenida(anunciar, resumen)
 

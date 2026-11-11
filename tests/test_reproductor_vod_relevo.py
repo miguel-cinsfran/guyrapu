@@ -589,7 +589,8 @@ class PruebasVodRelevoCaidaAEsclavo(unittest.TestCase):
         panel._relevo_vod_base_ms = 0
         panel._relevo_vod_ultima = 60_000
         panel._relevo_vod_recuperaciones = 2
-        with mock.patch.object(reproductor, "anunciar") as anunciar:
+        with mock.patch.object(reproductor,
+                               "anunciar_con_sonido") as anunciar:
             panel._fin_flujo_vod()
         panel._continuar_reproducir_calidad.assert_not_called()
         frases = [c.args[0] for c in anunciar.call_args_list]

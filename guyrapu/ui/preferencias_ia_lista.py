@@ -132,7 +132,7 @@ class ActualizacionModelosIA:
         self._anunciar_lista(actual, n)
 
     def _anunciar_lista(self, proveedor, n):
-        _snd.reproducir("ia_respuesta")
+        _snd.reproducir("listo")
         if proveedor.id_catalogo is None:
             anunciar(opciones_ia.TEXTO_LISTA_ACTUALIZADA_SIN_PROVEEDOR)
         else:
@@ -159,5 +159,5 @@ class ActualizacionModelosIA:
             _snd.reproducir("ia_error")
             anunciar(resumen + " " + aviso)
         else:
-            _snd.reproducir("ia_respuesta")
+            _snd.reproducir("listo")
             anunciar(resumen)

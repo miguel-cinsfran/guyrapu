@@ -2703,7 +2703,7 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
         enviar.assert_called_once()
         self.assertEqual(consulta["nombre"], "ProbarClaveIA")
         hilo.start.assert_called_once_with()
-        sonar.assert_any_call("ia_respuesta")
+        sonar.assert_any_call("listo")
         anunciar.assert_any_call(opciones_ia.TEXTO_PROBANDO)
         self.assertTrue(dialogo.pagina_ia.btn_ia_probar_clave.IsEnabled())
 
@@ -2878,7 +2878,7 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
             dialogo, muestra, enviar)
         self.assertEqual(llamada.call_count, 3)
         self.assertTrue(all(espera == 20 for _url, espera in enviados))
-        sonar.assert_any_call("ia_respuesta")
+        sonar.assert_any_call("listo")
         anunciar.assert_any_call(opciones_ia.TEXTO_ACTUALIZANDO)
         anunciar.assert_any_call(
             opciones_ia.TEXTO_LISTA_CON_GRATIS.format(
@@ -3932,16 +3932,17 @@ class TestProgramadorGui(unittest.TestCase):
 
     def test_error_apaga_programador_y_anuncia_una_vez(self):
         frame = self._frame()
-        with mock.patch.object(gui, "anunciar") as anunciar:
+        with mock.patch.object(gui, "anunciar_con_sonido") as anunciar:
             frame._programado_fallo(RuntimeError("rateLimitExceeded"))
         self.assertFalse(frame._config["programados_activo"])
         anunciar.assert_called_once_with(
-            "Los mensajes automáticos se detuvieron por un error del servicio.")
+            "Los mensajes automáticos se detuvieron por un error del servicio.",
+            "aviso")
 
     def test_error_baja_la_bandera_de_envio(self):
         frame = self._frame()
         frame.programador.en_curso = True
-        with mock.patch.object(gui, "anunciar"):
+        with mock.patch.object(gui, "anunciar_con_sonido"):
             frame._programado_fallo(RuntimeError("rateLimitExceeded"))
         self.assertFalse(frame.programador.en_curso)
 

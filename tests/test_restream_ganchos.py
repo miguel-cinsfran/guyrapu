@@ -332,6 +332,24 @@ class TestYouTubePorRestream(unittest.TestCase):
 
         self.assertIn(("eliminar", 90), cuenta.llamadas)
 
+    def test_los_extras_que_fallan_avisan_con_aviso(self):
+        perfil = _perfil(canales=(1,), youtube=True,
+                         directo={"titulo": "Directo"})
+        preparados = _preparados(ClienteYouTubeFalso())
+
+        def preparar_falso(*_args, **_kwargs):
+            _kwargs["avisar"]("No se pudo poner la categoría.")
+            return "video1"
+
+        with mock.patch.object(ganchos.emision, "preparar_en_youtube",
+                               side_effect=preparar_falso):
+            preparar, _restaurar, anuncios, _extras = _armar(
+                "restream:Uno", CuentaFalsa([_canal(1, "TikTok")]), perfil,
+                preparados=preparados)
+            preparar(None)
+
+        self.assertIn(("No se pudo poner la categoría.", "aviso"), anuncios)
+
     def test_los_ganchos_pasan_esperar_y_finalizar(self):
         perfil = _perfil(canales=(1,), youtube=True)
         preparados = _preparados(ClienteYouTubeFalso())

@@ -362,20 +362,21 @@ class TestProgramadoFallo(unittest.TestCase):
 
     def test_frase_exacta_sin_dialogo(self):
         frame = self._frame()
-        with mock.patch.object(gui, "anunciar") as anunciar, \
+        with mock.patch.object(gui, "anunciar_con_sonido") as anunciar, \
                 mock.patch.object(gui_envio_chat.confirmar, "avisar") as caja:
             frame._programado_fallo(RefreshError("invalid_grant"))
-        anunciar.assert_called_once_with(FRASE_PROGRAMADO)
+        anunciar.assert_called_once_with(FRASE_PROGRAMADO, "aviso")
         caja.assert_not_called()
         self.assertFalse(frame._config["programados_activo"])
         self.assertFalse(frame.programador.en_curso)
 
     def test_error_comun_conserva_la_frase_generica(self):
         frame = self._frame()
-        with mock.patch.object(gui, "anunciar") as anunciar:
+        with mock.patch.object(gui, "anunciar_con_sonido") as anunciar:
             frame._programado_fallo(RuntimeError("rateLimitExceeded"))
         anunciar.assert_called_once_with(
-            "Los mensajes automáticos se detuvieron por un error del servicio.")
+            "Los mensajes automáticos se detuvieron por un error del servicio.",
+            "aviso")
 
 
 if __name__ == "__main__":

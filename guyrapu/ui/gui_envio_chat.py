@@ -155,9 +155,13 @@ def programado_fallo(frame, exc) -> None:
         return
     frame._config["programados_activo"] = False
     if _gui.youtube_api.sesion_caducada(exc):
-        _gui.anunciar(_("Los mensajes automáticos se detuvieron porque la sesión de YouTube caducó."))
+        _gui.anunciar_con_sonido(
+            _("Los mensajes automáticos se detuvieron porque la sesión de "
+              "YouTube caducó."), "aviso")
     else:
-        _gui.anunciar(_("Los mensajes automáticos se detuvieron por un error del servicio."))
+        _gui.anunciar_con_sonido(
+            _("Los mensajes automáticos se detuvieron por un error del "
+              "servicio."), "aviso")
 
 
 def procesar_programado(frame) -> None:

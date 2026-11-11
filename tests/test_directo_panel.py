@@ -208,6 +208,13 @@ class TestDirectoPanel(unittest.TestCase):
         self.assertEqual(self.boton.GetLabel(), "Finalizando el directo")
         armar.assert_called_once_with(2000)
 
+    def test_sin_destino_avisa_con_error(self):
+        with mock.patch.object(directo_panel, "avisar") as avisar:
+            self.panel._atender_decision(transmision_directa.FALTA_DESTINO)
+        avisar.assert_called_once_with(
+            "Elige primero a dónde transmitir, en Transmitir a.",
+            "error", error=True)
+
     def test_temporizador_devuelve_el_boton_al_estado_normal(self):
         self.panel.sincronizar(True)
         self.panel._deteniendo = True

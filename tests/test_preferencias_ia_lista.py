@@ -136,7 +136,7 @@ class TestActualizacionModelosIA(unittest.TestCase):
         anunciar.assert_called_once_with(
             "Lista de modelos actualizada: 2 modelos de Google Gemini, "
             "2 funcionan con tu clave.")
-        sonar.assert_called_once_with("ia_respuesta")
+        sonar.assert_called_once_with("listo")
 
     def test_recibir_sin_sondeo_anuncia_como_hoy(self):
         actualizacion = self._actualizacion()
@@ -151,7 +151,7 @@ class TestActualizacionModelosIA(unittest.TestCase):
         anunciar.assert_called_once_with(
             opciones_ia.TEXTO_LISTA_ACTUALIZADA.format(
                 n=3, proveedor="Google Gemini"))
-        sonar.assert_called_once_with("ia_respuesta")
+        sonar.assert_called_once_with("listo")
 
 
 if __name__ == "__main__":

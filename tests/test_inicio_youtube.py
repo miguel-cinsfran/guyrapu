@@ -113,7 +113,7 @@ class TestPerfil(unittest.TestCase):
         self.assertIsNone(resultado)
         avisar.assert_called_once_with(
             inicio_youtube._(inicio_youtube.MENSAJE_SIN_GOOGLE),
-            "transmision_problema", error=True)
+            "error", error=True)
         pedir.assert_not_called()
         self.assertFalse(self.ruta.exists())
 

@@ -53,7 +53,7 @@ from guyrapu.player.formatos_youtube import (
     _video_para_altura, espera_para_abrir, fuentes_de_vod,
     fuentes_para_directo,
 )
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, anunciar_con_sonido, nombre_accesible
 from guyrapu.ui.teclas_wx import combo_wx
 from guyrapu.ui.tema import _T
 from guyrapu.core import anuncio_ajuste
@@ -2005,7 +2005,7 @@ class ReproductorPanel(wx.Panel):
     def _terminar_flujo_tiktok(self) -> None:
         if self._flujo_sono():
             self._detener(silencioso=True)
-            anunciar(_("El directo de TikTok terminó"))
+            anunciar_con_sonido(_("El directo de TikTok terminó"), "reproduccion_terminada")
             return
         if getattr(self, "_aviso_fallo_flujo", False):
             return
@@ -2103,7 +2103,7 @@ class ReproductorPanel(wx.Panel):
             self._terminar_flujo_tiktok()
         elif decision == recuperacion.FIN_VIDEO:
             self._detener(silencioso=True)
-            anunciar(_("Fin del vídeo"))
+            anunciar_con_sonido(_("Fin del vídeo"), "reproduccion_terminada")
         elif decision == recuperacion.FALLO:
             self._fallo_reproduccion()
 
@@ -2156,7 +2156,7 @@ class ReproductorPanel(wx.Panel):
         seguidas para no entrar en bucle si el directo de verdad acabó."""
         recargas = getattr(self, "_recargas_directo", 0)
         self._detener(silencioso=True)
-        anunciar(_("El directo se interrumpió"))
+        anunciar_con_sonido(_("El directo se interrumpió"), "reproduccion_cortada")
         if recargas >= TOPE_RECARGAS_DIRECTO:
             logger.warning("DIRECTO_INTERRUMPIDO sin recargar recargas=%d", recargas)
             self._fijar_estado(_("El directo se interrumpió."))
@@ -2192,13 +2192,13 @@ class ReproductorPanel(wx.Panel):
             getattr(self, "_relevo_fuentes", None) is not None)
         if decision == recuperacion.FIN_VIDEO:
             self._detener(silencioso=True)
-            anunciar(_("Fin del vídeo"))
+            anunciar_con_sonido(_("Fin del vídeo"), "reproduccion_terminada")
             return
         if decision == recuperacion.CORTE_SONADO:
             logger.warning("VOD_RELEVO corte sin recuperar ultima=%d dur=%d", ultima, dur)
         if decision in (recuperacion.CORTE_SONADO, recuperacion.CORTE):
             self._detener(silencioso=True)
-            anunciar(_("Vídeo interrumpido"))
+            anunciar_con_sonido(_("Vídeo interrumpido"), "reproduccion_cortada")
             return
         fuentes = getattr(self, "_relevo_fuentes", None)
         if decision == recuperacion.ESCLAVO:

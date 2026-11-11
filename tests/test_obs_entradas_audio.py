@@ -334,7 +334,7 @@ class MicrofonoPorAtajoTest(unittest.TestCase):
         clase, avisos, medicion, estados = self._ejecutar(gestor, senal=False)
         self.assertEqual(avisos, [
             ("Micrófono activado: USB", ""),
-            (TEXTO_SIN_SENAL, "microfono_sin_senal")])
+            (TEXTO_SIN_SENAL, "aviso")])
         medicion.assert_called_once_with("Mic/Aux")
         self.assertTrue(gestor.cerrado)
 
@@ -467,7 +467,7 @@ class TestPseudoAvisoSinSenal(unittest.TestCase):
         self.assertEqual(len(avisos), 2)
         self.assertTrue(avisos[0][0].startswith("[¡"), avisos)
         self.assertTrue(avisos[1][0].startswith("[¡"), avisos)
-        self.assertEqual(avisos[1][1], "microfono_sin_senal")
+        self.assertEqual(avisos[1][1], "aviso")
 
 
 class DispositivoTest(unittest.TestCase):

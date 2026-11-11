@@ -165,7 +165,8 @@ class CaminoFelizTest(BaseSupervisor):
         self.assertEqual(anuncios, [
             ("Iniciando la transmisión.", "conectando"),
             ("OBS está enviando la señal a Restream.", "conectado"),
-            ("Esperando a que TikTok muestre el directo.", None),
+            ("Esperando a que TikTok muestre el directo.",
+             "transmision_paso"),
             ("Directo iniciado en TikTok", "al_aire"),
         ])
         self.assertEqual(chats, ["https://www.tiktok.com/@amigo/live"])
@@ -200,7 +201,7 @@ class ClipsAlIniciarTest(BaseSupervisor):
             self.iniciar_y_esperar_fin(supervisor)
 
         self.assertEqual(orden[:2], ["clips", "iniciar"])
-        self.assertIn(("Preparando los clips.", None), anuncios)
+        self.assertIn(("Preparando los clips.", "transmision_paso"), anuncios)
 
     def test_un_fallo_de_clips_no_detiene_el_directo(self):
         armado = self.armar(estados=[muestra(False)])
@@ -256,7 +257,8 @@ class TikTokAusenteTest(BaseSupervisor):
                          ("Iniciando la transmisión.", "conectando"))
         self.assertEqual(anuncios[1][1], "conectado")
         self.assertEqual(anuncios[2],
-                         ("Esperando a que TikTok muestre el directo.", None))
+                         ("Esperando a que TikTok muestre el directo.",
+                          "transmision_paso"))
         self.assertEqual(anuncios[3], (
             "OBS está transmitiendo, pero TikTok todavía no muestra "
             "ningún directo de amigo. Revisa que en Restream esté "
@@ -311,7 +313,7 @@ class SinUsuarioTest(BaseSupervisor):
             ("Iniciando la transmisión.", "conectando"),
             ("OBS está enviando la señal a Restream.", "conectado"),
             ("No hay usuario de TikTok guardado: conecta el chat manualmente.",
-             None),
+             "aviso"),
         ])
         self.assertEqual(chats, [])
         self.assertEqual(vivo, [])
@@ -1059,9 +1061,10 @@ class YouTubeEmisionTest(BaseSupervisor):
         self.iniciar_y_esperar_fin(supervisor)
         self.assertEqual(anuncios, [
             ("Iniciando la transmisión.", "conectando"),
-            ("Creando el directo en YouTube.", None),
+            ("Creando el directo en YouTube.", "transmision_paso"),
             ("OBS está enviando la señal a YouTube.", "conectado"),
-            ("Esperando a que YouTube muestre el directo.", None),
+            ("Esperando a que YouTube muestre el directo.",
+             "transmision_paso"),
             ("Directo iniciado en YouTube", "al_aire"),
         ])
         self.assertEqual(
@@ -1079,7 +1082,7 @@ class YouTubeEmisionTest(BaseSupervisor):
         self.iniciar_y_esperar_fin(supervisor)
         self.assertEqual(anuncios, [
             ("Iniciando la transmisión.", "conectando"),
-            ("Creando el directo en YouTube.", None),
+            ("Creando el directo en YouTube.", "transmision_paso"),
             ("falla youtube", "transmision_problema"),
         ])
         self.assertEqual(chats, [])
@@ -1432,7 +1435,7 @@ class EsperaObsTest(unittest.TestCase):
         supervisor._detener_obs()
         self.assertEqual(anuncios[-1], (
             "OBS sigue transmitiendo. Detén la transmisión en OBS.",
-            "transmision_problema"))
+            "error"))
         self.assertFalse(any(f == "Transmisión detenida." for f, _ in anuncios))
         avisos = [f for f, _ in anuncios
                   if f == "Deteniendo la transmisión. "
@@ -1458,7 +1461,7 @@ class EsperaObsTest(unittest.TestCase):
             supervisor._detener_obs()
         self.assertEqual(anuncios, [(
             "No se pudo conectar con OBS para detener la transmisión.",
-            "transmision_problema")])
+            "error")])
 
     def test_conectar_falla_con_obs_cerrado(self):
         supervisor, anuncios, _gestores, _ = self._supervisor(

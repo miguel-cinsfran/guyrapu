@@ -130,7 +130,7 @@ def _preparar_youtube(cliente_obs, parada, cuenta_mod, restaurador,
         youtube_por_restream.preparar_destino(cuenta_mod, restaurador))
 
     def avisar(frase):
-        al_anunciar(frase, None)
+        al_anunciar(frase, "aviso")
 
     return emision.preparar_en_youtube(
         preparados["cliente"], cliente_obs, preparados["cuerpo"],

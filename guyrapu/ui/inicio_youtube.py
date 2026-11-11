@@ -140,7 +140,7 @@ def pedir_y_guardar_perfil(frame, revision, perfil, lista):
     from guyrapu.ui.gui_directo_youtube import pedir_datos_directo
     from guyrapu.youtube import emision
     if perfil.youtube and not hay_sesion():
-        avisar(_(MENSAJE_SIN_GOOGLE), "transmision_problema", error=True)
+        avisar(_(MENSAJE_SIN_GOOGLE), "error", error=True)
         return None
     cargar = None
     cliente = None

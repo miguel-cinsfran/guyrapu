@@ -846,7 +846,7 @@ class TestPanelTransmision(unittest.TestCase):
             avisar.call_args.args[0],
             "Para transmitir con un perfil de Restream hace falta conectar "
             "la cuenta, en el cuadro Restream, pestaña Cuenta.")
-        self.assertEqual(avisar.call_args.args[1], "transmision_problema")
+        self.assertEqual(avisar.call_args.args[1], "error")
         self.assertTrue(avisar.call_args.kwargs["error"])
         self.principal.supervisar.assert_not_called()
 

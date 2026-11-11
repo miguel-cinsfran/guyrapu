@@ -333,7 +333,7 @@ class PaginaIA:
         if not self._ventana:   # el diálogo pudo cerrarse mientras se probaba
             return
         self.btn_ia_probar_clave.Enable()
-        _snd.reproducir("ia_respuesta" if bien else "ia_error")
+        _snd.reproducir("listo" if bien else "ia_error")
         anunciar(texto)
 
     def _ia_lista_recibida(self, muestra, marcas, proveedor):

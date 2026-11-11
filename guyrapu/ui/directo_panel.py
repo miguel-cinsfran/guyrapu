@@ -146,7 +146,7 @@ class DirectoPanel:
             self._mostrar_transmision(False)
             return True
         if decision == transmision_directa.FALTA_DESTINO:
-            avisar(_("Elige primero a dónde transmitir, en Transmitir a."), "transmision_problema", error=True)
+            avisar(_("Elige primero a dónde transmitir, en Transmitir a."), "error", error=True)
             return True
         if decision == transmision_directa.FALTA_USUARIO:
             anunciar(_("Escribe tu usuario de TikTok en Usuario de TikTok."))

@@ -256,7 +256,9 @@ class TestDespachoAlTerminar(unittest.TestCase):
                 }
                 with mock.patch.object(recuperacion, "decidir_al_terminar",
                                        return_value=decision), \
-                        mock.patch.object(reproductor, "anunciar") as anunciar:
+                        mock.patch.object(
+                            reproductor,
+                            "anunciar_con_sonido") as anunciar:
                     panel._on_timer(None)
                 for nombre, metodo in destinos.items():
                     if nombre == destino:
@@ -265,7 +267,8 @@ class TestDespachoAlTerminar(unittest.TestCase):
                         metodo.assert_not_called()
                 if decision == recuperacion.FIN_VIDEO:
                     panel._detener.assert_called_once_with(silencioso=True)
-                    anunciar.assert_called_once_with("Fin del vídeo")
+                    anunciar.assert_called_once_with(
+                        "Fin del vídeo", "reproduccion_terminada")
                 else:
                     anunciar.assert_not_called()
 
@@ -295,23 +298,28 @@ class TestDespachoFinVod(unittest.TestCase):
                 panel = self._panel()
                 with mock.patch.object(recuperacion, "decidir_fin_vod",
                                        return_value=decision), \
-                        mock.patch.object(reproductor, "anunciar") as anunciar, \
+                        mock.patch.object(
+                            reproductor,
+                            "anunciar_con_sonido") as anunciar, \
                         mock.patch.object(reproductor.logger, "warning") as aviso:
                     panel._fin_flujo_vod()
                 if decision == recuperacion.FIN_VIDEO:
                     panel._detener.assert_called_once_with(silencioso=True)
-                    anunciar.assert_called_once_with("Fin del vídeo")
+                    anunciar.assert_called_once_with(
+                        "Fin del vídeo", "reproduccion_terminada")
                     aviso.assert_not_called()
                 elif decision == recuperacion.CORTE:
                     panel._detener.assert_called_once_with(silencioso=True)
-                    anunciar.assert_called_once_with("Vídeo interrumpido")
+                    anunciar.assert_called_once_with(
+                        "Vídeo interrumpido", "reproduccion_cortada")
                     aviso.assert_not_called()
                 elif decision == recuperacion.CORTE_SONADO:
                     aviso.assert_called_once_with(
                         "VOD_RELEVO corte sin recuperar ultima=%d dur=%d",
                         20000, 60000)
                     panel._detener.assert_called_once_with(silencioso=True)
-                    anunciar.assert_called_once_with("Vídeo interrumpido")
+                    anunciar.assert_called_once_with(
+                        "Vídeo interrumpido", "reproduccion_cortada")
                 elif decision == recuperacion.ESCLAVO:
                     aviso.assert_called_once_with(
                         "VOD_RELEVO sin arrancar, sigue con esclavo")

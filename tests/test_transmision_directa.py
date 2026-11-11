@@ -600,7 +600,7 @@ class CuentaRestreamConectadaTest(unittest.TestCase):
             avisos,
             [("Para transmitir con un perfil de Restream hace falta conectar "
               "la cuenta, en el cuadro Restream, pestaña Cuenta.",
-              "transmision_problema", True)])
+              "error", True)])
 
     def test_sin_restream_no_consulta_la_cuenta(self):
         avisos = []

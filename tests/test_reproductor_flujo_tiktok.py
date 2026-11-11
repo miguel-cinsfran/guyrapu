@@ -100,14 +100,15 @@ class TestFinalDelFlujo(unittest.TestCase):
 
     def test_flujo_que_sono_y_termina_anuncia_el_fin_sin_sonda_ni_error(self):
         panel = _panel_timer("ended", sono=True)
-        with mock.patch.object(reproductor, "anunciar") as anunciar, \
+        with mock.patch.object(reproductor, "anunciar_con_sonido") as anunciar, \
                 mock.patch.object(reproductor.flujo_tiktok,
                                   "sondear_en_hilo") as sonda, \
                 mock.patch("guyrapu.voice.sound_player.reproducir") as sonido:
             panel._on_timer(None)
 
         panel._detener.assert_called_once_with(silencioso=True)
-        anunciar.assert_called_once_with("El directo de TikTok terminó")
+        anunciar.assert_called_once_with(
+            "El directo de TikTok terminó", "reproduccion_terminada")
         sonda.assert_not_called()
         sonido.assert_not_called()
         panel._fijar_estado.assert_not_called()
@@ -117,11 +118,13 @@ class TestFinalDelFlujo(unittest.TestCase):
         panel._url_flujo = ""
         panel._video_id = "A" * 11
         panel._info = {"is_live": False}
-        with mock.patch.object(reproductor, "anunciar") as anunciar:
+        with mock.patch.object(reproductor,
+                               "anunciar_con_sonido") as anunciar:
             panel._on_timer(None)
 
         panel._detener.assert_called_once_with(silencioso=True)
-        anunciar.assert_called_once_with("Fin del vídeo")
+        anunciar.assert_called_once_with(
+            "Fin del vídeo", "reproduccion_terminada")
 
 
 class TestLogDelEnlace(unittest.TestCase):

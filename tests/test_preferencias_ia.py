@@ -316,5 +316,29 @@ class TestModeloElegidoDeLaPagina(unittest.TestCase):
         self.assertEqual("modelo-escrito", escrito)
 
 
+class TestSonidoDeLaPruebaDeClave(unittest.TestCase):
+    """Sin ventanas: la vuelta de la prueba toca solo el sonido y el botón."""
+
+    def _pagina(self):
+        pagina = preferencias_ia.PaginaIA.__new__(preferencias_ia.PaginaIA)
+        pagina._ventana = object()
+        pagina.btn_ia_probar_clave = mock.Mock()
+        return pagina
+
+    def test_clave_probada_bien_suena_listo(self):
+        pagina = self._pagina()
+        with mock.patch.object(preferencias_ia._snd, "reproducir") as sonar, \
+                mock.patch.object(preferencias_ia, "anunciar"):
+            pagina._ia_prueba_lista(True, "La clave funciona.")
+        sonar.assert_called_once_with("listo")
+
+    def test_clave_probada_mal_sigue_sonando_error(self):
+        pagina = self._pagina()
+        with mock.patch.object(preferencias_ia._snd, "reproducir") as sonar, \
+                mock.patch.object(preferencias_ia, "anunciar"):
+            pagina._ia_prueba_lista(False, "La clave no funciona.")
+        sonar.assert_called_once_with("ia_error")
+
+
 if __name__ == "__main__":
     unittest.main()

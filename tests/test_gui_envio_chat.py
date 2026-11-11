@@ -95,8 +95,9 @@ class TestPseudoEnvioChat(unittest.TestCase):
                 with con_pseudo(), \
                         mock.patch.object(gui.youtube_api, "sesion_caducada",
                                           return_value=caducada), \
-                        mock.patch.object(gui, "anunciar",
-                                          captados.append):
+                        mock.patch.object(
+                            gui, "anunciar_con_sonido",
+                            lambda texto, sonido: captados.append(texto)):
                     envio.programado_fallo(frame, RuntimeError("x"))
                 self.assertEqual(len(captados), 1)
                 self.assertTrue(captados[0].startswith("[¡"), captados)

@@ -348,7 +348,8 @@ class PruebasFalloAperturaVod(unittest.TestCase):
 
     def test_con_requiere_falso_ended_anuncia_fin_como_antes(self):
         panel = _panel_timer("ended", False)
-        with mock.patch.object(reproductor, "anunciar") as anunciar:
+        with mock.patch.object(reproductor,
+                               "anunciar_con_sonido") as anunciar:
             panel._on_timer(None)
         panel.cargar.assert_not_called()
         frases = [c.args[0] for c in anunciar.call_args_list]

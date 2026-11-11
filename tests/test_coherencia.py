@@ -197,23 +197,30 @@ class PruebaSonidos(unittest.TestCase):
 
     def test_usados_tienen_wav_en_temas(self):
         nombres, _ = _nombres_y_dinamicos()
-        faltan = [f"{tema}/{ev}.wav" for ev in sorted(nombres)
-                  for tema in self.TEMAS
-                  if not (RAIZ / "sounds" / "themes" / tema / f"{ev}.wav").exists()]
+        faltan = []
+        for ev in sorted(nombres):
+            archivo = eventos_sonido.SONIDOS.get(ev, ev)
+            for tema in self.TEMAS:
+                if not (RAIZ / "sounds" / "themes" / tema
+                        / f"{archivo}.wav").exists():
+                    faltan.append(f"{tema}/{archivo}.wav")
         self.assertEqual(faltan, [], "Sonidos usados sin .wav:\n" + "\n".join(faltan))
 
     def test_usados_en_generadores(self):
         nombres, _ = _nombres_y_dinamicos()
         generadores = _eventos_generadores()
         faltan = [f"{t}/{ev}" for ev in sorted(nombres) for t in self.TEMAS
-                  if ev not in generadores.get(t, set())]
+                  if eventos_sonido.SONIDOS.get(ev, ev)
+                  not in generadores.get(t, set())]
         self.assertEqual(faltan, [],
                          "Sonidos usados fuera de scripts/sound_gen.py:\n"
                          + "\n".join(faltan))
 
     def test_usados_en_sounds_ini(self):
         nombres, _ = _nombres_y_dinamicos()
-        faltan = sorted(nombres - _eventos_sounds_ini())
+        fisicos = {eventos_sonido.SONIDOS.get(nombre, nombre)
+                   for nombre in nombres}
+        faltan = sorted(fisicos - _eventos_sounds_ini())
         self.assertEqual(faltan, [],
                          "Sonidos usados fuera de la lista comentada de "
                          f"sounds.ini: {faltan}")
