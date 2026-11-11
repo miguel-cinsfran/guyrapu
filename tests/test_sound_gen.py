@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Contratos entre la configuración y el generador de sonidos."""
 
+import ast
 import contextlib
 import io
 import os
@@ -39,15 +40,16 @@ class PruebasSoundGen(unittest.TestCase):
             self.assertTrue(callable(generador_suave), nombre)
             self.assertIsNot(generador_suave, generador_default, nombre)
 
-    def test_el_clip_suena_distinto_de_los_sonidos_de_grabacion(self):
-        grabacion = ("grabacion_iniciada.wav", "grabacion_detenida.wav",
-                     "grabacion_en_pausa.wav", "grabacion_reanudada.wav",
-                     "grabacion_problema.wav")
-        for tema, sonidos in sound_gen.TEMAS.items():
-            with self.subTest(tema=tema):
-                clip = sonidos["clip.wav"]()
-                for nombre in grabacion:
-                    self.assertNotEqual(clip, sonidos[nombre](), nombre)
+    def test_no_queda_generador_sin_tema(self):
+        arbol = ast.parse(Path(sound_gen.__file__).read_text(encoding="utf-8"))
+        definidas = {
+            nodo.name for nodo in arbol.body
+            if isinstance(nodo, ast.FunctionDef)
+            and (nodo.name.startswith("gen_") or nodo.name.startswith("s_"))}
+        usadas = {
+            nodo.id for nodo in ast.walk(arbol)
+            if isinstance(nodo, ast.Name) and isinstance(nodo.ctx, ast.Load)}
+        self.assertEqual(sorted(definidas - usadas), [])
 
     def test_el_paneo_solo_refiere_eventos_validos_y_esta_en_rango(self):
         eventos = set(sound_gen.TEMAS["default"])

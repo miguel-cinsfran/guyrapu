@@ -56,6 +56,13 @@ class TestRutaEvento(unittest.TestCase):
         self.assertEqual(
             sonidos_tema.ruta_evento(self.carpeta, self.evento), propia)
 
+    def test_un_tema_propio_conserva_el_archivo_de_un_evento_asignado(self):
+        evento = "conectado"
+        self.assertIn(evento, eventos_sonido.SONIDOS)
+        propia = _tocar(self.carpeta, evento)
+        self.assertEqual(
+            sonidos_tema.ruta_evento(self.carpeta, evento), propia)
+
 
 class TestCableadoConfig(unittest.TestCase):
     def setUp(self):

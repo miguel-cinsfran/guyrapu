@@ -22,9 +22,9 @@ class EventoSonido(NamedTuple):
 # `<clave>.wav`.
 CATALOGO: tuple[EventoSonido, ...] = (
     EventoSonido("app_inicio", nombre="Inicio de la aplicación"),
-    EventoSonido("conectando", nombre="Conexión en curso"),
-    EventoSonido("conectado", nombre="Conexión establecida"),
-    EventoSonido("desconectado", nombre="Desconexión del chat"),
+    EventoSonido("conectando", nombre="Conexión en curso", sonido="espera"),
+    EventoSonido("conectado", nombre="Conexión establecida", sonido="reanudar"),
+    EventoSonido("desconectado", nombre="Desconexión del chat", sonido="pausa"),
     # Corte y vuelta automáticos del chat, distintos de conectar a mano.
     EventoSonido(
         "chat_cortado",
@@ -50,13 +50,13 @@ CATALOGO: tuple[EventoSonido, ...] = (
     EventoSonido("pausa", nombre="Lectura en pausa"),
     EventoSonido("reanudar", nombre="Lectura reanudada"),
     EventoSonido("copiar", nombre="Texto copiado"),
-    EventoSonido("voz_cambiada", nombre="Voz cambiada"),
+    EventoSonido("voz_cambiada", nombre="Voz cambiada", sonido="copiar"),
     # v0.6 online y acciones que antes reutilizaban otros sonidos:
-    EventoSonido("enviado", nombre="Mensaje enviado"),
-    EventoSonido("comentario", nombre="Comentario publicado"),
-    EventoSonido("moderacion", nombre="Acción de moderación"),
-    EventoSonido("cola_vaciada", nombre="Cola de lectura vaciada"),
-    EventoSonido("transporte_en_curso", nombre="Reproductor ocupado"),
+    EventoSonido("enviado", nombre="Mensaje enviado", sonido="copiar"),
+    EventoSonido("comentario", nombre="Comentario publicado", sonido="copiar"),
+    EventoSonido("moderacion", nombre="Acción de moderación", sonido="copiar"),
+    EventoSonido("cola_vaciada", nombre="Cola de lectura vaciada", sonido="copiar"),
+    EventoSonido("transporte_en_curso", nombre="Reproductor ocupado", sonido="espera"),
     # Operación larga en curso: se repite cada dos segundos mientras espera.
     EventoSonido("espera", nombre="Espera"),
     # Eventos de TikTok y tramos de regalo por tamaño en diamantes:
@@ -73,30 +73,31 @@ CATALOGO: tuple[EventoSonido, ...] = (
     EventoSonido("orilla", nombre="Principio o final de una lista"),
     EventoSonido("fin_directo", nombre="Fin del directo"),
     # Avisos del gestor de descargas, cada fin con su resultado:
-    EventoSonido("descarga_iniciada", nombre="Descarga iniciada"),
+    EventoSonido("descarga_iniciada", nombre="Descarga iniciada", sonido="descarga_avance"),
     EventoSonido("descarga_completada", nombre="Descarga completada"),
     EventoSonido("descarga_fallida", nombre="Descarga fallida"),
-    EventoSonido("descarga_cancelada", nombre="Descarga cancelada"),
+    EventoSonido("descarga_cancelada", nombre="Descarga cancelada", sonido="pausa"),
     # Avisos del supervisor de transmisión y descartes del chat:
     EventoSonido("al_aire", nombre="Directo en curso"),
     EventoSonido("transmision_detenida", nombre="Transmisión detenida"),
     EventoSonido("transmision_problema", nombre="Problema de la transmisión"),
-    EventoSonido("grabacion_problema", nombre="Problema de la grabación"),
+    EventoSonido("grabacion_problema", nombre="Problema de la grabación", sonido="aviso"),
     EventoSonido("aviso", nombre="Aviso general"),
     # Vuelta de la conexión con el servicio: alivio, distinto de la alarma:
     EventoSonido("transmision_recuperada", nombre="Transmisión recuperada"),
     # Confirmación de cierre, distinta del descenso de transmision_detenida:
-    EventoSonido("directo_finalizado", nombre="Cierre confirmado del directo"),
+    EventoSonido("directo_finalizado", nombre="Cierre confirmado del directo", sonido="fin_directo"),
     # Pregunta antes de transmitir a TikTok cuando Restream manda a otros
     # destinos encendidos.
-    EventoSonido("destinos_de_mas", nombre="Otros destinos de Restream"),
+    EventoSonido("destinos_de_mas", nombre="Otros destinos de Restream", sonido="aviso"),
     # Ventanas que se abren solas al arrancar o al terminar bien:
     EventoSonido(
         "actualizacion_disponible",
         nombre="Actualización disponible"),
     EventoSonido(
         "actualizacion_lista",
-        nombre="Actualización lista para instalar"),
+        nombre="Actualización lista para instalar",
+        sonido="copiar"),
     # Música: cambio, fin, fallo e igualación al medir muchas canciones:
     EventoSonido("musica_tema", nombre="Canción cambiada"),
     EventoSonido("musica_fin", nombre="Canción terminada"),
@@ -104,15 +105,15 @@ CATALOGO: tuple[EventoSonido, ...] = (
     EventoSonido("musica_igualando", nombre="Igualación del volumen"),
     # Preguntar a la IA: consulta que sale, espera que suena, respuesta que
     # llega, fallo, captura agregada, consulta cancelada y captura negra:
-    EventoSonido("ia_enviada", nombre="Consulta enviada a la IA"),
+    EventoSonido("ia_enviada", nombre="Consulta enviada a la IA", sonido="espera"),
     EventoSonido("ia_respuesta", nombre="Respuesta de la IA"),
-    EventoSonido("ia_error", nombre="Error de la IA"),
+    EventoSonido("ia_error", nombre="Error de la IA", sonido="error"),
     EventoSonido("ia_analizando", nombre="La IA está analizando"),
-    EventoSonido("ia_captura", nombre="Captura agregada"),
-    EventoSonido("ia_cancelada", nombre="Consulta a la IA cancelada"),
-    EventoSonido("ia_imagen_negra", nombre="Captura negra detectada"),
+    EventoSonido("ia_captura", nombre="Captura agregada", sonido="copiar"),
+    EventoSonido("ia_cancelada", nombre="Consulta a la IA cancelada", sonido="pausa"),
+    EventoSonido("ia_imagen_negra", nombre="Captura negra detectada", sonido="error"),
     # Atajos globales que otro programa ya ocupa: tono de ocupado.
-    EventoSonido("atajos_ocupados", nombre="Atajos globales ocupados"),
+    EventoSonido("atajos_ocupados", nombre="Atajos globales ocupados", sonido="aviso"),
     # El micrófono quedó activado y en tres segundos no entró nada.
     EventoSonido("microfono_sin_senal", nombre="Micrófono sin señal"),
     # Nivel del micrófono en la prueba por tramos: bien o para revisar.
@@ -124,47 +125,50 @@ CATALOGO: tuple[EventoSonido, ...] = (
     EventoSonido("directo_pausado", nombre="Directo de TikTok en pausa"),
     EventoSonido("directo_reanudado", nombre="Directo de TikTok continúa"),
     # Búsqueda de descargas: pedido, con filas, vacía y con fallo.
-    EventoSonido("busqueda_iniciada", nombre="Búsqueda en curso"),
-    EventoSonido("busqueda_resultados", nombre="Búsqueda con resultados"),
-    EventoSonido("busqueda_sin_resultados", nombre="Búsqueda sin resultados"),
-    EventoSonido("busqueda_fallida", nombre="Búsqueda fallida"),
+    EventoSonido("busqueda_iniciada", nombre="Búsqueda en curso", sonido="espera"),
+    EventoSonido("busqueda_resultados", nombre="Búsqueda con resultados", sonido="copiar"),
+    EventoSonido("busqueda_sin_resultados", nombre="Búsqueda sin resultados", sonido="copiar"),
+    EventoSonido("busqueda_fallida", nombre="Búsqueda fallida", sonido="error"),
     # Cola de descargas: agregado, proceso, fin de la cola y lista parcial.
-    EventoSonido("descarga_encolada", nombre="Descarga agregada a la cola"),
-    EventoSonido("descarga_procesando", nombre="Procesamiento de descarga"),
+    EventoSonido("descarga_encolada", nombre="Descarga agregada a la cola", sonido="copiar"),
+    EventoSonido("descarga_procesando", nombre="Procesamiento de descarga", sonido="descarga_avance"),
     EventoSonido(
         "cola_descargas_terminada",
         nombre="Cola de descargas terminada"),
-    EventoSonido("descarga_parcial", nombre="Descarga parcial"),
+    EventoSonido("descarga_parcial", nombre="Descarga parcial", sonido="descarga_fallida"),
     # Elección de formato de un vídeo: consulta y fallo, cada uno con el suyo.
-    EventoSonido("formatos_cargando", nombre="Carga de formatos"),
-    EventoSonido("formatos_fallidos", nombre="Formatos no disponibles"),
+    EventoSonido("formatos_cargando", nombre="Carga de formatos", sonido="espera"),
+    EventoSonido("formatos_fallidos", nombre="Formatos no disponibles", sonido="error"),
     # TikTok frena las consultas seguidas: espera un minuto antes de mirar.
-    EventoSonido("tiktok_limitado", nombre="TikTok limita las consultas"),
+    EventoSonido("tiktok_limitado", nombre="TikTok limita las consultas", sonido="espera"),
     # Encuadre de cámara: el rostro sale y vuelve, cada uno con el suyo.
     EventoSonido("encuadre_fuera", nombre="Rostro fuera del encuadre"),
     EventoSonido("encuadre_dentro", nombre="Rostro de vuelta en el encuadre"),
     # Grabación desde la ventana de Transmisión, cada resultado con el suyo.
-    EventoSonido("grabacion_iniciada", nombre="Grabación iniciada"),
-    EventoSonido("grabacion_detenida", nombre="Grabación detenida"),
-    EventoSonido("grabacion_en_pausa", nombre="Grabación en pausa"),
-    EventoSonido("grabacion_reanudada", nombre="Grabación reanudada"),
+    EventoSonido("grabacion_iniciada", nombre="Grabación iniciada", sonido="reanudar"),
+    EventoSonido("grabacion_detenida", nombre="Grabación detenida", sonido="pausa"),
+    EventoSonido("grabacion_en_pausa", nombre="Grabación en pausa", sonido="pausa"),
+    EventoSonido("grabacion_reanudada", nombre="Grabación reanudada", sonido="reanudar"),
     # Clip de los últimos segundos guardado con el búfer de repetición.
-    EventoSonido("clip", nombre="Clip guardado"),
+    EventoSonido("clip", nombre="Clip guardado", sonido="copiar"),
     # Reconexión del relevo de un directo de YouTube: intento y aviso final.
-    EventoSonido("reconectando_directo", nombre="Reconexión del directo"),
-    EventoSonido("directo_con_cortes", nombre="Directo con cortes seguidos"),
+    EventoSonido("reconectando_directo", nombre="Reconexión del directo", sonido="transmision_problema"),
+    EventoSonido("directo_con_cortes", nombre="Directo con cortes seguidos", sonido="transmision_problema"),
     # Estado de Restream por su WebSocket: destinos y señal de OBS.
     EventoSonido(
         "restream_destino_caido",
-        nombre="Destino de Restream desconectado"),
+        nombre="Destino de Restream desconectado",
+        sonido="transmision_problema"),
     EventoSonido(
         "restream_destino_vuelve",
-        nombre="Destino de Restream de vuelta"),
-    EventoSonido("restream_sin_senal", nombre="Restream sin señal"),
+        nombre="Destino de Restream de vuelta",
+        sonido="transmision_recuperada"),
+    EventoSonido("restream_sin_senal", nombre="Restream sin señal", sonido="transmision_problema"),
     EventoSonido(
         "restream_senal_vuelve",
-        nombre="Señal de Restream recuperada"),
-    EventoSonido("restream_senal_debil", nombre="Señal débil en Restream"),
+        nombre="Señal de Restream recuperada",
+        sonido="transmision_recuperada"),
+    EventoSonido("restream_senal_debil", nombre="Señal débil en Restream", sonido="aviso"),
     # Avance de una descarga en curso y descarga que sigue en cero.
     EventoSonido("descarga_avance", nombre="Avance de descarga"),
     EventoSonido("descarga_quieta", nombre="Descarga quieta"),

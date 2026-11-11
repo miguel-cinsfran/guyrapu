@@ -1,10 +1,10 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Distinción de los sonidos: un WAV por evento, sin duplicados.
+"""Distinción de los sonidos: las familias y sus cabezas, sin duplicados.
 
-Dentro de cada tema no hay dos WAV con el mismo contenido (md5), y todo
-evento de `_EVENTOS_SONIDO` sin sonido asignado tiene su archivo en cada
-tema. Lee los WAV del disco, sin ventanas y sin reproducir nada.
+Dentro de cada tema no hay dos WAV con el mismo contenido (md5), todo
+evento resuelve a un archivo que existe en cada tema de fábrica y no sobra
+ningún WAV. Lee los WAV del disco, sin ventanas y sin reproducir nada.
 """
 
 import hashlib
@@ -13,10 +13,57 @@ import unittest
 import wave
 from pathlib import Path
 
-from guyrapu.core import config, eventos_sonido
+from guyrapu.core import config, eventos_sonido, sonidos_tema
 
 RAIZ = Path(__file__).resolve().parent.parent
 TEMAS_DIR = RAIZ / "sounds" / "themes"
+
+# Evento y archivo de la cabeza de su familia, en los dos temas de fábrica.
+ASIGNACIONES = {
+    "voz_cambiada": "copiar",
+    "enviado": "copiar",
+    "comentario": "copiar",
+    "moderacion": "copiar",
+    "cola_vaciada": "copiar",
+    "clip": "copiar",
+    "ia_captura": "copiar",
+    "busqueda_resultados": "copiar",
+    "busqueda_sin_resultados": "copiar",
+    "descarga_encolada": "copiar",
+    "actualizacion_lista": "copiar",
+    "ia_error": "error",
+    "busqueda_fallida": "error",
+    "formatos_fallidos": "error",
+    "ia_imagen_negra": "error",
+    "conectando": "espera",
+    "transporte_en_curso": "espera",
+    "ia_enviada": "espera",
+    "busqueda_iniciada": "espera",
+    "formatos_cargando": "espera",
+    "tiktok_limitado": "espera",
+    "conectado": "reanudar",
+    "grabacion_iniciada": "reanudar",
+    "grabacion_reanudada": "reanudar",
+    "desconectado": "pausa",
+    "grabacion_detenida": "pausa",
+    "grabacion_en_pausa": "pausa",
+    "ia_cancelada": "pausa",
+    "descarga_cancelada": "pausa",
+    "grabacion_problema": "aviso",
+    "destinos_de_mas": "aviso",
+    "atajos_ocupados": "aviso",
+    "restream_senal_debil": "aviso",
+    "reconectando_directo": "transmision_problema",
+    "directo_con_cortes": "transmision_problema",
+    "restream_destino_caido": "transmision_problema",
+    "restream_sin_senal": "transmision_problema",
+    "restream_destino_vuelve": "transmision_recuperada",
+    "restream_senal_vuelve": "transmision_recuperada",
+    "directo_finalizado": "fin_directo",
+    "descarga_iniciada": "descarga_avance",
+    "descarga_procesando": "descarga_avance",
+    "descarga_parcial": "descarga_fallida",
+}
 
 # Los doce avisos con sonido propio (más directo_finalizado y
 # la vuelta de la conexión), los cuatro de música y los siete de la IA.
@@ -85,15 +132,43 @@ def _rms(muestras: list[int]) -> float:
 
 
 class PruebasSonidosDistintos(unittest.TestCase):
-    def test_cada_evento_tiene_su_wav_en_cada_tema(self):
+    def test_cada_evento_resuelve_a_un_wav_existente_en_cada_tema(self):
         temas = sorted(d.name for d in TEMAS_DIR.iterdir() if d.is_dir())
         faltantes = []
         for tema in temas:
             for evento in config._EVENTOS_SONIDO:
-                archivo = eventos_sonido.SONIDOS.get(evento, evento)
-                if not (TEMAS_DIR / tema / f"{archivo}.wav").exists():
-                    faltantes.append(f"{tema}/{archivo}.wav")
+                if not sonidos_tema.ruta_evento(TEMAS_DIR / tema,
+                                                evento).is_file():
+                    faltantes.append(f"{tema}/{evento}")
         self.assertEqual(faltantes, [])
+
+    def test_los_eventos_de_cada_familia_suenan_con_la_cabeza(self):
+        for evento, cabeza in ASIGNACIONES.items():
+            with self.subTest(evento=evento):
+                self.assertEqual(eventos_sonido.SONIDOS.get(evento), cabeza)
+                for tema in ("default", "suave"):
+                    ruta = TEMAS_DIR / tema / f"{cabeza}.wav"
+                    self.assertTrue(ruta.is_file(), f"falta {ruta}")
+                    self.assertEqual(
+                        sonidos_tema.ruta_evento(TEMAS_DIR / tema, evento),
+                        ruta)
+
+    def test_cargar_sonidos_usa_la_cabeza_de_cada_familia(self):
+        sonidos = config.cargar_sonidos()["eventos"]
+        for evento, cabeza in ASIGNACIONES.items():
+            with self.subTest(evento=evento):
+                self.assertEqual(
+                    sonidos[evento],
+                    TEMAS_DIR / "default" / f"{cabeza}.wav")
+
+    def test_ningun_tema_de_fabrica_tiene_wav_sobrante(self):
+        propios = set(config._EVENTOS_SONIDO) - set(eventos_sonido.SONIDOS)
+        sobrantes = []
+        for tema in ("default", "suave"):
+            for ruta in sorted((TEMAS_DIR / tema).glob("*.wav")):
+                if ruta.stem not in propios:
+                    sobrantes.append(f"{tema}/{ruta.name}")
+        self.assertEqual(sobrantes, [])
 
     def test_sin_duplicados_dentro_de_cada_tema(self):
         temas = sorted(d.name for d in TEMAS_DIR.iterdir() if d.is_dir())
@@ -119,6 +194,8 @@ class PruebasSonidosDistintos(unittest.TestCase):
         temas = sorted(d.name for d in TEMAS_DIR.iterdir() if d.is_dir())
         for tema in temas:
             for evento in EVENTOS_NUEVOS:
+                if evento in eventos_sonido.SONIDOS:
+                    continue
                 ruta = TEMAS_DIR / tema / f"{evento}.wav"
                 with self.subTest(tema=tema, evento=evento):
                     self.assertTrue(ruta.exists(), f"falta {ruta.name}")

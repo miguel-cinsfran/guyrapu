@@ -172,10 +172,6 @@ def gen_app_inicio():
     return _normalizar(mix, 0.75)
 
 
-def gen_conectando():
-    # Dos pulsos con hueco: leído como "esperando", no como "listo".
-    pulso = _perc(_triangular(A4, 0.10, 0.40), 0.006, 0.05)
-    return _concat(pulso, _silencio(0.06), pulso, _silencio(0.02))
 
 
 def gen_conectado():
@@ -244,8 +240,6 @@ def gen_reanudar():
     return _normalizar(_concat(n1, n2), 0.7)
 
 
-def gen_transporte_en_curso():
-    return _normalizar(_perc(_triangular(A4, 0.07, 0.28), 0.003, 0.05), 0.52)
 
 
 def gen_espera():
@@ -261,8 +255,6 @@ def gen_copiar():
     return _normalizar(_perc(_triangular(C6, 0.05, 0.30), 0.002, 0.04), 0.55)
 
 
-def gen_voz_cambiada():
-    return _normalizar(_perc(_triangular(E5, 0.10, 0.30), 0.005, 0.07), 0.65)
 
 
 # ── Sonidos nuevos (v0.6 online y acciones que antes reusaban otros) ──────────
@@ -291,11 +283,6 @@ def gen_moderacion():
     return _normalizar(_concat(n1, n2), 0.78)
 
 
-def gen_cola_vaciada():
-    # Cola de lectura vaciada. Barrido descendente A5→D5: gesto de "barrer/
-    # limpiar". Corto y suave para no competir con nada importante.
-    sweep = _glide(A5, D5, 0.16, 0.30)
-    return _normalizar(_perc(sweep, 0.004, 0.13), 0.55)
 
 
 # ── Avisos con sonido propio ───────────────────────────────────
@@ -303,11 +290,6 @@ def gen_cola_vaciada():
 # en seno cálido, actualización en barrido y acorde, y un aviso neutro en
 # campanita de dos notas. Dentro de cada familia el contorno dice el resultado.
 
-def gen_descarga_iniciada():
-    # Dos notas cortas ascendentes E5→G5: "arranca".
-    n1 = _perc(_detune(E5, 0.07, 0.36), 0.003, 0.06)
-    n2 = _perc(_detune(G5, 0.09, 0.38), 0.003, 0.08)
-    return _normalizar(_concat(n1, n2), 0.7)
 
 
 def gen_descarga_completada():
@@ -327,11 +309,6 @@ def gen_descarga_fallida():
     return _normalizar(_concat(n1, n2), 0.72)
 
 
-def gen_descarga_cancelada():
-    # Dos notas cortas descendentes E5→C5: "se cortó", espejo de la iniciada.
-    n1 = _perc(_detune(E5, 0.07, 0.34), 0.003, 0.06)
-    n2 = _perc(_detune(C5, 0.09, 0.34), 0.003, 0.08)
-    return _normalizar(_concat(n1, n2), 0.68)
 
 
 def gen_al_aire():
@@ -356,58 +333,18 @@ def gen_transmision_problema():
     return _concat(pulso, _silencio(0.08), pulso, _silencio(0.02))
 
 
-def gen_grabacion_problema():
-    # Pulso grave y otro más agudo y corto: la grabación no arrancó.
-    grave = _perc(_seno(A3, 0.14, 0.38), 0.004, 0.11)
-    agudo = _perc(_seno(E4, 0.08, 0.34), 0.003, 0.06)
-    return _normalizar(
-        _concat(grave, _silencio(0.04), agudo, _silencio(0.02)), 0.7)
 
 
-def gen_grabacion_iniciada():
-    # Subida G4→D5: la grabación arranca, sin el brillo del arpegio de al_aire
-    # ni la subida de transmision_recuperada (G4-C5).
-    n1 = _perc(_seno(G4, 0.09, 0.32), 0.004, 0.07)
-    n2 = _perc(_seno(D5, 0.18, 0.34), 0.004, 0.14)
-    return _normalizar(_concat(n1, n2), 0.7)
 
 
-def gen_grabacion_detenida():
-    # Bajada D5→G4, espejo de la iniciada y más corta que el descenso de
-    # transmision_detenida (G5-E5-C5).
-    n1 = _perc(_seno(D5, 0.10, 0.32), 0.004, 0.08)
-    n2 = _perc(_seno(G4, 0.18, 0.32), 0.004, 0.14)
-    return _normalizar(_concat(n1, n2), 0.68)
 
 
-def gen_grabacion_en_pausa():
-    # Dos notas iguales A4, cortas y con hueco: el tiempo se detuvo. No es la
-    # repetición grave de transmision_problema (A3).
-    nota = _perc(_seno(A4, 0.10, 0.32), 0.004, 0.08)
-    return _normalizar(
-        _concat(nota, _silencio(0.08), nota, _silencio(0.02)), 0.65)
 
 
-def gen_grabacion_reanudada():
-    # Barrido sostenido E4→B4: el tiempo vuelve a correr, distinto del salto
-    # corto de reanudar (G4-C5).
-    return _normalizar(_perc(_glide(E4, B4, 0.28, 0.28), 0.005, 0.22), 0.67)
 
 
-def gen_clip():
-    # Dos toques breves C6→E6, gesto de captura; distinto de los de grabación
-    # (G4-D5, D5-G4, A4-A4 y E4-B4).
-    n1 = _perc(_seno(C6, 0.05, 0.34), 0.001, 0.035)
-    n2 = _perc(_seno(E6, 0.09, 0.34), 0.001, 0.06)
-    return _normalizar(_concat(n1, n2), 0.7)
 
 
-def gen_directo_finalizado():
-    # Confirmación de cierre corta y resuelta: subida E5→C6 que asienta.
-    # Distinta del descenso de transmision_detenida y del arpegio de al_aire.
-    n1 = _perc(_seno(E5, 0.10, 0.34), 0.004, 0.09)
-    n2 = _perc(_seno(C6, 0.20, 0.34), 0.004, 0.16)
-    return _normalizar(_concat(n1, n2), 0.72)
 
 
 def gen_transmision_recuperada():
@@ -419,20 +356,8 @@ def gen_transmision_recuperada():
     return _normalizar(_concat(n1, n2), 0.7)
 
 
-def gen_reconectando_directo():
-    # Dos notas que suben B4→E5: reintento en curso. Distinto de la vuelta
-    # de la conexión (G4→C5) y del cierre confirmado (E5→C6).
-    n1 = _perc(_seno(B4, 0.09, 0.32), 0.003, 0.07)
-    n2 = _perc(_seno(E5, 0.17, 0.34), 0.004, 0.13)
-    return _normalizar(_concat(n1, n2), 0.68)
 
 
-def gen_directo_con_cortes():
-    # Tres pulsos cortos F4 con hueco: el directo se corta una y otra vez,
-    # distinto del doble pulso grave de transmision_problema (A3).
-    pulso = _perc(_seno(F4, 0.08, 0.34), 0.003, 0.06)
-    return _normalizar(
-        _concat(pulso, _silencio(0.05), pulso, _silencio(0.05), pulso), 0.7)
 
 
 def gen_aviso():
@@ -448,12 +373,6 @@ def gen_actualizacion_disponible():
     return _normalizar(_perc(barrido, 0.004, 0.18), 0.7)
 
 
-def gen_actualizacion_lista():
-    # Acorde mayor C-E-G sostenido y resuelto: "quedó instalada".
-    acorde = _suma(_detune(C5, 0.45, 0.28),
-                   _detune(E5, 0.45, 0.28),
-                   _detune(G5, 0.45, 0.30))
-    return _normalizar(_perc(acorde, 0.005, 0.34), 0.75)
 
 
 # ── Música: cambio, fin y fallo ────────────────────────────────
@@ -495,10 +414,6 @@ def gen_musica_igualando():
 # ── Preguntar a la IA: consulta, respuesta y fallo ────────────────────────────
 # Cortos y sobrios: la respuesta suena justo antes de que lea el lector.
 
-def gen_ia_enviada():
-    # Glide ascendente continuo E4→A4, grave: la pregunta sale.
-    barrido = _glide(E4, A4, 0.20, 0.30)
-    return _normalizar(_perc(barrido, 0.004, 0.16), 0.7)
 
 
 def gen_ia_respuesta():
@@ -508,11 +423,6 @@ def gen_ia_respuesta():
     return _normalizar(_concat(n1, n2), 0.58)
 
 
-def gen_ia_error():
-    # Dos notas graves descendentes C4→A3: la consulta falló.
-    n1 = _perc(_seno(C4, 0.11, 0.30), 0.005, 0.10)
-    n2 = _perc(_seno(A3, 0.18, 0.30), 0.005, 0.15)
-    return _normalizar(_concat(n1, n2), 0.72)
 
 
 # ── Preguntar a la IA: espera, captura, cancelación y captura negra ──────────
@@ -529,36 +439,14 @@ def gen_ia_analizando():
     return _normalizar(_concat(n1, n2, n3, n4), 0.4)
 
 
-def gen_ia_captura():
-    # Clic de obturador: dos toques brevísimos y secos, menos de 0,2 segundos.
-    c1 = _perc(_seno(E6, 0.05, 0.35), 0.001, 0.035)
-    c2 = _perc(_seno(B5, 0.11, 0.35), 0.001, 0.08)
-    return _normalizar(_concat(c1, c2), 0.7)
 
 
-def gen_ia_cancelada():
-    # Dos notas descendentes cortas y más agudas que ia_error: se canceló
-    # a pedido, no falló nada.
-    n1 = _perc(_seno(B5, 0.06, 0.30), 0.003, 0.05)
-    n2 = _perc(_seno(G5, 0.10, 0.30), 0.003, 0.08)
-    return _normalizar(_concat(n1, n2), 0.68)
 
 
-def gen_ia_imagen_negra():
-    # Nota grave sostenida con pulso: hay que cambiar algo en OBS. Distinta
-    # del doble descenso de ia_error y del par agudo de ia_cancelada.
-    base = _seno(F3, 0.45, 0.32)
-    pulsada = [m * (0.65 + 0.35 * math.sin(2 * math.pi * 7 * i / SR))
-               for i, m in enumerate(base)]
-    return _normalizar(_perc(pulsada, 0.005, 0.38), 0.72)
 
 
 # ── Atajos globales ocupados ──────────────────────────────────────────────────
 
-def gen_atajos_ocupados():
-    # Tono de ocupado, como el del teléfono: dos toques graves iguales.
-    toque = _perc(_triangular(E4, 0.07, 0.40), 0.005, 0.10)
-    return _normalizar(_concat(toque, _silencio(0.06), toque), 0.5)
 
 
 def gen_microfono_sin_senal():
@@ -603,58 +491,18 @@ def gen_directo_reanudado():
 # con detune de las descargas. Dentro de cada familia el contorno dice el
 # resultado.
 
-def gen_busqueda_iniciada():
-    # Barrido corto ascendente: una pregunta.
-    barrido = _glide(E5, A5, 0.20, 0.30)
-    return _normalizar(_perc(barrido, 0.004, 0.16), 0.7)
 
 
-def gen_busqueda_resultados():
-    # Dos notas ascendentes con la segunda sostenida: "hay algo".
-    n1 = _perc(_seno(E5, 0.08, 0.32), 0.004, 0.07)
-    n2 = _perc(_seno(A5, 0.20, 0.34), 0.004, 0.16)
-    return _normalizar(_concat(n1, n2), 0.7)
 
 
-def gen_busqueda_sin_resultados():
-    # Una nota sola media que cae apenas al final: "no hay nada".
-    nota = _perc(_seno(A4, 0.22, 0.32), 0.005, 0.18)
-    caida = _perc(_glide(A4, G4, 0.10, 0.30), 0.005, 0.08)
-    return _normalizar(_concat(nota, caida), 0.68)
 
 
-def gen_busqueda_fallida():
-    # Dos notas graves descendentes: "no se pudo buscar".
-    n1 = _perc(_seno(D4, 0.12, 0.32), 0.005, 0.10)
-    n2 = _perc(_seno(B3, 0.20, 0.32), 0.005, 0.16)
-    return _normalizar(_concat(n1, n2), 0.72)
 
 
-def gen_formatos_cargando():
-    # Tres pulsos cortos ascendentes en seno claro: se piden los formatos
-    # del vídeo. Tres notas porque la búsqueda iniciada es un barrido
-    # (E5→A5).
-    n1 = _perc(_seno(D5, 0.06, 0.32), 0.004, 0.05)
-    n2 = _perc(_seno(F5, 0.06, 0.32), 0.004, 0.05)
-    n3 = _perc(_seno(A5, 0.12, 0.34), 0.004, 0.10)
-    return _normalizar(_concat(n1, n2, n3), 0.7)
 
 
-def gen_formatos_fallidos():
-    # Dos notas medias descendentes A4→F4: no se pudieron cargar. Distintas
-    # de la caída grave de busqueda_fallida (D4→B3).
-    n1 = _perc(_seno(A4, 0.11, 0.32), 0.005, 0.10)
-    n2 = _perc(_seno(F4, 0.18, 0.32), 0.005, 0.15)
-    return _normalizar(_concat(n1, n2), 0.7)
 
 
-def gen_tiktok_limitado():
-    # TikTok frena las consultas seguidas: dos notas medias que suben,
-    # F4→A4, con hueco. Ni el doble grave de transmision_problema (A3) ni
-    # el batido del error: avisa de una espera, no de un fallo.
-    n1 = _perc(_seno(F4, 0.11, 0.32), 0.005, 0.10)
-    n2 = _perc(_seno(A4, 0.18, 0.32), 0.005, 0.15)
-    return _normalizar(_concat(n1, _silencio(0.04), n2, _silencio(0.02)), 0.7)
 
 
 def gen_encuadre_fuera():
@@ -674,17 +522,8 @@ def gen_encuadre_dentro():
     return _normalizar(_concat(n1, n2), 0.7)
 
 
-def gen_descarga_encolada():
-    # Una nota corta con golpe: breve para no cansar al agregar muchas.
-    return _normalizar(_perc(_detune(A5, 0.16, 0.42), 0.003, 0.10), 0.7)
 
 
-def gen_descarga_procesando():
-    # Tres pulsos iguales en la misma nota: trabajo en curso.
-    pulso = _perc(_detune(E5, 0.07, 0.36), 0.003, 0.05)
-    return _normalizar(
-        _concat(pulso, _silencio(0.04), pulso, _silencio(0.04), pulso,
-                _silencio(0.02)), 0.7)
 
 
 def gen_cola_descargas_terminada():
@@ -695,12 +534,6 @@ def gen_cola_descargas_terminada():
     return _normalizar(_concat(*notas), 0.75)
 
 
-def gen_descarga_parcial():
-    # Sube y baja: ni bien ni mal, distinta de descarga_fallida.
-    subida = _perc(_detune(E5, 0.08, 0.36), 0.003, 0.06)
-    cima = _perc(_detune(G5, 0.08, 0.36), 0.003, 0.06)
-    bajada = _perc(_detune(E5, 0.14, 0.36), 0.003, 0.12)
-    return _normalizar(_concat(subida, cima, bajada), 0.7)
 
 
 def gen_descarga_avance():
@@ -762,9 +595,6 @@ def s_app_inicio():
                 _madera(C5, 0.30, 0.46, 0.26))
 
 
-def s_conectando():
-    pulso = _madera(A3, 0.12, 0.40, 0.09)
-    return _concat(pulso, _silencio(0.07), pulso, _silencio(0.02))
 
 
 def s_conectado():
@@ -812,8 +642,6 @@ def s_reanudar():
     return _seq(_madera(D4, 0.10, 0.34, 0.08), _madera(G4, 0.16, 0.34, 0.12))
 
 
-def s_transporte_en_curso():
-    return _normalizar(_madera(A4, 0.08, 0.26, 0.05), 0.48)
 
 
 def s_espera():
@@ -827,8 +655,6 @@ def s_copiar():
     return _normalizar(_madera(C6, 0.07, 0.30, 0.04), 0.5)
 
 
-def s_voz_cambiada():
-    return _normalizar(_madera(E5, 0.12, 0.30, 0.08), 0.6)
 
 
 def s_enviado():
@@ -843,16 +669,11 @@ def s_moderacion():
     return _seq(_madera(A3, 0.16, 0.42, 0.13), _madera(E3, 0.24, 0.42, 0.20))
 
 
-def s_cola_vaciada():
-    return _normalizar(_perc(_glide(A5, D5, 0.18, 0.28), 0.005, 0.14), 0.5)
 
 
 # ── Avisos con sonido propio, versión suave ──────────────────────────────────
 # Los mismos gestos que en el tema por defecto, en madera cálida.
 
-def s_descarga_iniciada():
-    return _seq(_madera(D5, 0.07, 0.34, 0.06),
-                _madera(A5, 0.10, 0.36, 0.08))
 
 
 def s_descarga_completada():
@@ -867,9 +688,6 @@ def s_descarga_fallida():
                 _madera(E5, 0.18, 0.36, 0.14))
 
 
-def s_descarga_cancelada():
-    return _seq(_madera(E5, 0.07, 0.32, 0.06),
-                _madera(C5, 0.10, 0.32, 0.08))
 
 
 def s_al_aire():
@@ -890,45 +708,18 @@ def s_transmision_problema():
     return _concat(pulso, _silencio(0.08), pulso, _silencio(0.02))
 
 
-def s_grabacion_problema():
-    grave = _madera(A3, 0.14, 0.38, 0.11)
-    agudo = _madera(E4, 0.08, 0.34, 0.06)
-    return _concat(grave, _silencio(0.04), agudo, _silencio(0.02))
 
 
-def s_grabacion_iniciada():
-    # Subida G4→D5 en madera: la grabación arranca sin brillo.
-    return _seq(_madera(G4, 0.09, 0.34, 0.07),
-                _madera(D5, 0.18, 0.36, 0.14))
 
 
-def s_grabacion_detenida():
-    # Bajada D5→G4, espejo de la iniciada.
-    return _seq(_madera(D5, 0.10, 0.32, 0.08),
-                _madera(G4, 0.18, 0.32, 0.14))
 
 
-def s_grabacion_en_pausa():
-    # Dos notas iguales A4 con hueco: el tiempo se detuvo.
-    nota = _madera(A4, 0.10, 0.32, 0.08)
-    return _normalizar(
-        _concat(nota, _silencio(0.08), nota, _silencio(0.02)), 0.65)
 
 
-def s_grabacion_reanudada():
-    # Barrido F4→C5: el tiempo vuelve a correr.
-    return _normalizar(_perc(_glide(F4, C5, 0.28, 0.26), 0.006, 0.20), 0.65)
 
 
-def s_clip():
-    # Los mismos dos toques de captura en madera cálida.
-    return _normalizar(_concat(_madera(C6, 0.05, 0.34, 0.035),
-                               _madera(E6, 0.09, 0.34, 0.06)), 0.65)
 
 
-def s_directo_finalizado():
-    return _seq(_madera(E5, 0.11, 0.34, 0.09),
-                _madera(C6, 0.20, 0.36, 0.16))
 
 
 def s_transmision_recuperada():
@@ -938,14 +729,8 @@ def s_transmision_recuperada():
                 _madera(C5, 0.16, 0.36, 0.13))
 
 
-def s_reconectando_directo():
-    return _seq(_madera(B4, 0.09, 0.32, 0.07),
-                _madera(E5, 0.17, 0.35, 0.13))
 
 
-def s_directo_con_cortes():
-    pulso = _madera(F4, 0.08, 0.34, 0.06)
-    return _seq(pulso, _silencio(0.05), pulso, _silencio(0.05), pulso)
 
 
 def s_aviso():
@@ -957,9 +742,6 @@ def s_actualizacion_disponible():
     return _normalizar(_perc(_glide(C5, A5, 0.24, 0.28), 0.005, 0.18), 0.6)
 
 
-def s_actualizacion_lista():
-    return _normalizar(_perc(_suma(_seno(C5, 0.45, 0.30), _seno(E5, 0.45, 0.24),
-                                  _seno(G5, 0.45, 0.22)), 0.006, 0.34), 0.75)
 
 
 # ── Música en el tema suave ────────────────────────────────────
@@ -994,9 +776,6 @@ def s_musica_igualando():
 # ── Preguntar a la IA en el tema suave ────────────────────────────────────────
 # Los mismos gestos en madera cálida, bajos y breves por el lector.
 
-def s_ia_enviada():
-    # El mismo glide ascendente continuo, grave y mate.
-    return _normalizar(_perc(_glide(E4, A4, 0.20, 0.28), 0.005, 0.16), 0.6)
 
 
 def s_ia_respuesta():
@@ -1005,10 +784,6 @@ def s_ia_respuesta():
                                _madera(D5, 0.14, 0.28, 0.11)), 0.58)
 
 
-def s_ia_error():
-    # Las mismas dos notas graves descendentes en madera.
-    return _seq(_madera(C4, 0.11, 0.32, 0.09),
-                _madera(A3, 0.18, 0.32, 0.14))
 
 
 # ── Preguntar a la IA en el tema suave: espera, captura y demás ──────────────
@@ -1022,32 +797,14 @@ def s_ia_analizando():
                                _madera(G4, 0.30, 0.26, 0.24)), 0.4)
 
 
-def s_ia_captura():
-    # El mismo clic de obturador en madera, brevísimo y seco.
-    return _normalizar(_concat(_madera(E6, 0.05, 0.34, 0.035),
-                               _madera(B5, 0.11, 0.34, 0.08)), 0.65)
 
 
-def s_ia_cancelada():
-    # El mismo par descendente agudo en madera, más breve que el error.
-    return _normalizar(_concat(_madera(B5, 0.06, 0.32, 0.05),
-                               _madera(G5, 0.10, 0.32, 0.08)), 0.62)
 
 
-def s_ia_imagen_negra():
-    # La misma nota grave sostenida con pulso, en madera cálida.
-    base = _suma(_seno(F3, 0.45, 0.32), _seno(F3 * 2, 0.45, 0.06))
-    pulsada = [m * (0.65 + 0.35 * math.sin(2 * math.pi * 7 * i / SR))
-               for i, m in enumerate(base)]
-    return _normalizar(_perc(pulsada, 0.006, 0.38), 0.7)
 
 
 # ── Atajos globales ocupados en el tema suave ─────────────────────────────────
 
-def s_atajos_ocupados():
-    # El mismo tono de ocupado en madera: dos toques graves iguales.
-    toque = _madera(E4, 0.07, 0.40)
-    return _normalizar(_concat(toque, _silencio(0.06), toque), 0.45)
 
 
 def s_microfono_sin_senal():
@@ -1091,50 +848,18 @@ def s_directo_reanudado():
 # Los mismos gestos: la búsqueda en seno claro como en el tema por defecto,
 # las descargas en madera cálida.
 
-def s_busqueda_iniciada():
-    # El mismo barrido ascendente en seno claro.
-    barrido = _glide(D5, A5, 0.22, 0.28)
-    return _normalizar(_perc(barrido, 0.005, 0.17), 0.62)
 
 
-def s_busqueda_resultados():
-    # Las mismas dos notas ascendentes, la segunda sostenida.
-    n1 = _perc(_seno(E5, 0.09, 0.30), 0.005, 0.07)
-    n2 = _perc(_seno(A5, 0.22, 0.30), 0.005, 0.17)
-    return _normalizar(_concat(n1, n2), 0.62)
 
 
-def s_busqueda_sin_resultados():
-    # La misma nota sola que cae apenas al final.
-    nota = _perc(_seno(A4, 0.24, 0.30), 0.006, 0.19)
-    caida = _perc(_glide(A4, G4, 0.11, 0.28), 0.006, 0.09)
-    return _normalizar(_concat(nota, caida), 0.6)
 
 
-def s_busqueda_fallida():
-    # Las mismas dos notas graves descendentes.
-    n1 = _perc(_seno(D4, 0.13, 0.30), 0.006, 0.11)
-    n2 = _perc(_seno(B3, 0.21, 0.30), 0.006, 0.17)
-    return _normalizar(_concat(n1, n2), 0.65)
 
 
-def s_formatos_cargando():
-    # Los mismos tres pulsos ascendentes, en madera cálida.
-    return _seq(_madera(D5, 0.06, 0.32, 0.05),
-                _madera(F5, 0.06, 0.32, 0.05),
-                _madera(A5, 0.12, 0.34, 0.10))
 
 
-def s_formatos_fallidos():
-    # Las mismas dos notas medias descendentes, en madera cálida.
-    return _seq(_madera(A4, 0.11, 0.32, 0.09),
-                _madera(F4, 0.18, 0.32, 0.14))
 
 
-def s_tiktok_limitado():
-    # El mismo gesto ascendente en madera cálida.
-    return _seq(_madera(F4, 0.11, 0.32, 0.09),
-                _madera(A4, 0.18, 0.34, 0.14))
 
 
 def s_encuadre_fuera():
@@ -1149,16 +874,8 @@ def s_encuadre_dentro():
                 _madera(A5, 0.12, 0.34, 0.10))
 
 
-def s_descarga_encolada():
-    # La misma nota corta con golpe, en madera.
-    return _normalizar(_madera(A5, 0.16, 0.40, 0.10), 0.65)
 
 
-def s_descarga_procesando():
-    # Los mismos tres pulsos iguales, en madera.
-    pulso = _madera(E5, 0.07, 0.36, 0.05)
-    return _concat(pulso, _silencio(0.04), pulso, _silencio(0.04), pulso,
-                   _silencio(0.02))
 
 
 def s_cola_descargas_terminada():
@@ -1169,11 +886,6 @@ def s_cola_descargas_terminada():
                 _madera(C6, 0.26, 0.38, 0.20))
 
 
-def s_descarga_parcial():
-    # La misma subida y bajada, en madera.
-    return _seq(_madera(E5, 0.08, 0.36, 0.06),
-                _madera(G5, 0.08, 0.36, 0.06),
-                _madera(E5, 0.16, 0.36, 0.12))
 
 
 def s_descarga_avance():
@@ -1285,24 +997,11 @@ def s_regalo_mediano():
                              0.006, 0.28), 0.75)
 
 
-from scripts.sound_gen_restream import (  # noqa: E402
-    gen_destinos_de_mas, gen_restream_destino_caido,
-    gen_restream_destino_vuelve, gen_restream_senal_debil,
-    gen_restream_senal_vuelve, gen_restream_sin_senal,
-    s_destinos_de_mas, s_restream_destino_caido,
-    s_restream_destino_vuelve, s_restream_senal_debil,
-    s_restream_senal_vuelve, s_restream_sin_senal)
-
-
 TEMAS = {
     "default": {
         "app_inicio.wav":    gen_app_inicio,
-        "conectando.wav":    gen_conectando,
-        "conectado.wav":     gen_conectado,
-        "desconectado.wav":  gen_desconectado,
         "mensaje_nuevo.wav": gen_mensaje,
         "mensaje_tiktok.wav": lambda: _normalizar(_concat(gen_comentario(), _silencio(0.02)), 0.5),
-        # Sonidos provisorios de roles hasta que el dueño elija los definitivos.
         "mensaje_propietario.wav": gen_superchat,
         "mensaje_moderador.wav": gen_moderacion,
         "mensaje_verificado.wav": gen_copiar,
@@ -1312,15 +1011,8 @@ TEMAS = {
         "error.wav":         gen_error,
         "pausa.wav":         gen_pausa,
         "reanudar.wav":      gen_reanudar,
-        "transporte_en_curso.wav": gen_transporte_en_curso,
         "espera.wav":        gen_espera,
         "copiar.wav":        gen_copiar,
-        "voz_cambiada.wav":  gen_voz_cambiada,
-        "enviado.wav":       gen_enviado,
-        "comentario.wav":    gen_comentario,
-        "moderacion.wav":    gen_moderacion,
-        "cola_vaciada.wav":  gen_cola_vaciada,
-        # Provisorios: reutilizan otros generadores, nunca el común.
         "seguir.wav":         gen_miembro,
         "compartir.wav":      gen_enviado,
         "cofre.wav":          gen_superchat,
@@ -1333,48 +1025,24 @@ TEMAS = {
         "orilla.wav":         gen_copiar,
         "fin_directo.wav":    gen_desconectado,
         # Avisos con sonido propio.
-        "descarga_iniciada.wav":       gen_descarga_iniciada,
         "descarga_completada.wav":     gen_descarga_completada,
         "descarga_fallida.wav":        gen_descarga_fallida,
-        "descarga_cancelada.wav":      gen_descarga_cancelada,
         "al_aire.wav":                 gen_al_aire,
         "transmision_detenida.wav":    gen_transmision_detenida,
         "transmision_problema.wav":    gen_transmision_problema,
-        "grabacion_problema.wav":      gen_grabacion_problema,
-        "grabacion_iniciada.wav":      gen_grabacion_iniciada,
-        "grabacion_detenida.wav":      gen_grabacion_detenida,
-        "grabacion_en_pausa.wav":      gen_grabacion_en_pausa,
-        "grabacion_reanudada.wav":     gen_grabacion_reanudada,
-        "clip.wav":                    gen_clip,
-        "reconectando_directo.wav":    gen_reconectando_directo,
-        "directo_con_cortes.wav":      gen_directo_con_cortes,
         # Avisos del WebSocket de estado de Restream.
-        "restream_destino_caido.wav":  gen_restream_destino_caido,
-        "restream_destino_vuelve.wav": gen_restream_destino_vuelve,
-        "restream_sin_senal.wav":      gen_restream_sin_senal,
-        "restream_senal_vuelve.wav":   gen_restream_senal_vuelve,
-        "restream_senal_debil.wav":    gen_restream_senal_debil,
         "transmision_recuperada.wav":  gen_transmision_recuperada,
-        "directo_finalizado.wav":      gen_directo_finalizado,
-        "destinos_de_mas.wav":         gen_destinos_de_mas,
         "aviso.wav":                   gen_aviso,
         "actualizacion_disponible.wav": gen_actualizacion_disponible,
-        "actualizacion_lista.wav":      gen_actualizacion_lista,
         # Música.
         "musica_tema.wav":             gen_musica_tema,
         "musica_fin.wav":              gen_musica_fin,
         "musica_fallo.wav":            gen_musica_fallo,
         "musica_igualando.wav":        gen_musica_igualando,
         # Preguntar a la IA.
-        "ia_enviada.wav":              gen_ia_enviada,
         "ia_respuesta.wav":            gen_ia_respuesta,
-        "ia_error.wav":                gen_ia_error,
         "ia_analizando.wav":           gen_ia_analizando,
-        "ia_captura.wav":              gen_ia_captura,
-        "ia_cancelada.wav":            gen_ia_cancelada,
-        "ia_imagen_negra.wav":         gen_ia_imagen_negra,
         # Atajos globales ocupados.
-        "atajos_ocupados.wav":         gen_atajos_ocupados,
         # Micrófono activado sin señal que entre.
         "microfono_sin_senal.wav":     gen_microfono_sin_senal,
         "microfono_bien.wav":          gen_microfono_bien,
@@ -1383,17 +1051,7 @@ TEMAS = {
         "directo_pausado.wav":         gen_directo_pausado,
         "directo_reanudado.wav":       gen_directo_reanudado,
         # Búsqueda y cola de descargas.
-        "busqueda_iniciada.wav":       gen_busqueda_iniciada,
-        "busqueda_resultados.wav":     gen_busqueda_resultados,
-        "busqueda_sin_resultados.wav": gen_busqueda_sin_resultados,
-        "busqueda_fallida.wav":        gen_busqueda_fallida,
-        "formatos_cargando.wav":       gen_formatos_cargando,
-        "formatos_fallidos.wav":       gen_formatos_fallidos,
-        "descarga_encolada.wav":       gen_descarga_encolada,
-        "descarga_procesando.wav":     gen_descarga_procesando,
         "cola_descargas_terminada.wav": gen_cola_descargas_terminada,
-        "descarga_parcial.wav":        gen_descarga_parcial,
-        "tiktok_limitado.wav":         gen_tiktok_limitado,
         "encuadre_fuera.wav":          gen_encuadre_fuera,
         "encuadre_dentro.wav":         gen_encuadre_dentro,
         "descarga_avance.wav":         gen_descarga_avance,
@@ -1406,12 +1064,8 @@ TEMAS = {
     },
     "suave": {
         "app_inicio.wav":    s_app_inicio,
-        "conectando.wav":    s_conectando,
-        "conectado.wav":     s_conectado,
-        "desconectado.wav":  s_desconectado,
         "mensaje_nuevo.wav": s_mensaje,
         "mensaje_tiktok.wav": lambda: _normalizar(_concat(s_comentario(), _silencio(0.02)), 0.5),
-        # Sonidos provisorios de roles hasta que el dueño elija los definitivos.
         "mensaje_propietario.wav": s_mensaje_propietario,
         "mensaje_moderador.wav": s_moderacion,
         "mensaje_verificado.wav": s_mensaje_verificado,
@@ -1421,15 +1075,8 @@ TEMAS = {
         "error.wav":         s_error,
         "pausa.wav":         s_pausa,
         "reanudar.wav":      s_reanudar,
-        "transporte_en_curso.wav": s_transporte_en_curso,
         "espera.wav":        s_espera,
         "copiar.wav":        s_copiar,
-        "voz_cambiada.wav":  s_voz_cambiada,
-        "enviado.wav":       s_enviado,
-        "comentario.wav":    s_comentario,
-        "moderacion.wav":    s_moderacion,
-        "cola_vaciada.wav":  s_cola_vaciada,
-        # Provisorios: reutilizan otros generadores, nunca el común.
         "seguir.wav":         s_seguir,
         "compartir.wav":      s_enviado,
         "cofre.wav":          s_cofre,
@@ -1442,48 +1089,24 @@ TEMAS = {
         "orilla.wav":         s_orilla,
         "fin_directo.wav":    s_fin_directo,
         # Avisos con sonido propio.
-        "descarga_iniciada.wav":       s_descarga_iniciada,
         "descarga_completada.wav":     s_descarga_completada,
         "descarga_fallida.wav":        s_descarga_fallida,
-        "descarga_cancelada.wav":      s_descarga_cancelada,
         "al_aire.wav":                 s_al_aire,
         "transmision_detenida.wav":    s_transmision_detenida,
         "transmision_problema.wav":    s_transmision_problema,
-        "grabacion_problema.wav":      s_grabacion_problema,
-        "grabacion_iniciada.wav":      s_grabacion_iniciada,
-        "grabacion_detenida.wav":      s_grabacion_detenida,
-        "grabacion_en_pausa.wav":      s_grabacion_en_pausa,
-        "grabacion_reanudada.wav":     s_grabacion_reanudada,
-        "clip.wav":                    s_clip,
-        "reconectando_directo.wav":    s_reconectando_directo,
-        "directo_con_cortes.wav":      s_directo_con_cortes,
         # Avisos del WebSocket de estado de Restream.
-        "restream_destino_caido.wav":  s_restream_destino_caido,
-        "restream_destino_vuelve.wav": s_restream_destino_vuelve,
-        "restream_sin_senal.wav":      s_restream_sin_senal,
-        "restream_senal_vuelve.wav":   s_restream_senal_vuelve,
-        "restream_senal_debil.wav":    s_restream_senal_debil,
         "transmision_recuperada.wav":  s_transmision_recuperada,
-        "directo_finalizado.wav":      s_directo_finalizado,
-        "destinos_de_mas.wav":         s_destinos_de_mas,
         "aviso.wav":                   s_aviso,
         "actualizacion_disponible.wav": s_actualizacion_disponible,
-        "actualizacion_lista.wav":      s_actualizacion_lista,
         # Música.
         "musica_tema.wav":             s_musica_tema,
         "musica_fin.wav":              s_musica_fin,
         "musica_fallo.wav":            s_musica_fallo,
         "musica_igualando.wav":        s_musica_igualando,
         # Preguntar a la IA.
-        "ia_enviada.wav":              s_ia_enviada,
         "ia_respuesta.wav":            s_ia_respuesta,
-        "ia_error.wav":                s_ia_error,
         "ia_analizando.wav":           s_ia_analizando,
-        "ia_captura.wav":              s_ia_captura,
-        "ia_cancelada.wav":            s_ia_cancelada,
-        "ia_imagen_negra.wav":         s_ia_imagen_negra,
         # Atajos globales ocupados.
-        "atajos_ocupados.wav":         s_atajos_ocupados,
         # Micrófono activado sin señal que entre.
         "microfono_sin_senal.wav":     s_microfono_sin_senal,
         "microfono_bien.wav":          s_microfono_bien,
@@ -1492,17 +1115,7 @@ TEMAS = {
         "directo_pausado.wav":         s_directo_pausado,
         "directo_reanudado.wav":       s_directo_reanudado,
         # Búsqueda y cola de descargas.
-        "busqueda_iniciada.wav":       s_busqueda_iniciada,
-        "busqueda_resultados.wav":     s_busqueda_resultados,
-        "busqueda_sin_resultados.wav": s_busqueda_sin_resultados,
-        "busqueda_fallida.wav":        s_busqueda_fallida,
-        "formatos_cargando.wav":       s_formatos_cargando,
-        "formatos_fallidos.wav":       s_formatos_fallidos,
-        "descarga_encolada.wav":       s_descarga_encolada,
-        "descarga_procesando.wav":     s_descarga_procesando,
         "cola_descargas_terminada.wav": s_cola_descargas_terminada,
-        "descarga_parcial.wav":        s_descarga_parcial,
-        "tiktok_limitado.wav":         s_tiktok_limitado,
         "encuadre_fuera.wav":          s_encuadre_fuera,
         "encuadre_dentro.wav":         s_encuadre_dentro,
         "descarga_avance.wav":         s_descarga_avance,
@@ -1519,9 +1132,6 @@ TEMAS = {
 # ayuda a diferenciar; el resto va centrado. Compartido por todos los temas.
 PANEO = {
     "nuevo_miembro.wav": 0.25,    # llega alguien → ligeramente a la derecha
-    "enviado.wav":       0.20,    # acción saliente → derecha
-    "comentario.wav":    0.20,
-    "moderacion.wav":   -0.25,    # acción de moderación → izquierda
 }
 
 

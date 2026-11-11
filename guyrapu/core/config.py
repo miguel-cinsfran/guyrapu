@@ -124,20 +124,19 @@ logger = diagnostico.obtener_logger(__name__)
 
 _CONFIG_FALLBACK = config_predeterminada.generar_texto()
 
-_SOUNDS_FALLBACK = """\
-[sonidos]
-activar = true
+_SOUNDS_FALLBACK = """[sonidos]
 volumen = 0.7
-
-# Tema de sonido: carpeta dentro de sounds/themes/ con un WAV por evento,
-# nombrado igual que el evento (p. ej. mensaje_nuevo.wav). Para crear tu
-# propio tema, copia sounds/themes/default a sounds/themes/mi_tema,
-# reemplaza los .wav que quieras y pon aquí:  tema = mi_tema
+# Tema: carpeta en sounds/themes/ con un WAV por sonido y, si hace falta, uno
+# con el nombre de un evento. Copia default a mi_tema y pon: tema = mi_tema
 tema = default
-
-# Opcional (avanzado): puedes forzar un archivo concreto para un evento
-# escribiendo su ruta aquí; tiene prioridad sobre el tema. Por ejemplo:
-#   superchat = sounds/mis_efectos/caja.wav
+# Archivos de fábrica:
+# app_inicio, mensaje_nuevo, mensaje_tiktok, mensaje_propietario, mensaje_moderador, mensaje_verificado
+# mensaje_miembro, superchat, nuevo_miembro, error, pausa, reanudar, copiar, espera, seguir, compartir, cofre, me_gusta
+# regalo_chico, regalo_mediano, regalo_grande, entrada, orilla, fin_directo, descarga_completada, descarga_fallida
+# al_aire, transmision_detenida, transmision_problema, aviso, transmision_recuperada, actualizacion_disponible
+# musica_tema, musica_fin, musica_fallo, musica_igualando, ia_respuesta, ia_analizando, microfono_sin_senal
+# microfono_bien, microfono_revisar, directo_pausado, directo_reanudado, cola_descargas_terminada, encuadre_fuera
+# encuadre_dentro, descarga_avance, descarga_quieta, encuesta, encuesta_fin, meta, batalla, batalla_fin
 """
 
 # Carpeta base de temas y tema por defecto.

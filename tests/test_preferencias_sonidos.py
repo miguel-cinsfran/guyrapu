@@ -71,14 +71,17 @@ class TestPaginaSonidos(unittest.TestCase):
             escribir.assert_not_called()
 
     def test_boton_llama_con_la_ruta_del_tema(self):
+        from guyrapu.core import eventos_sonido
+        indice = next(i for i, evento in enumerate(EVENTOS)
+                      if evento not in eventos_sonido.SONIDOS)
         self.pagina._lista.SetItemState(
-            1, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
+            indice, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
         with mock.patch.object(preferencias_sonidos._snd,
                                "reproducir_archivo") as oir:
             self.pagina._on_oir(None)
             oir.assert_called_once()
             ruta = str(oir.call_args.args[0])
-            self.assertTrue(ruta.endswith(f"{EVENTOS[1]}.wav"))
+            self.assertTrue(ruta.endswith(f"{EVENTOS[indice]}.wav"))
 
     def test_oir_usa_el_sonido_asignado_si_falta_el_del_evento(self):
         from guyrapu.core import eventos_sonido
