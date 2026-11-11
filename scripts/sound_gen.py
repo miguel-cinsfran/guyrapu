@@ -411,6 +411,15 @@ def gen_musica_igualando():
     return _normalizar(_concat(n1, n2, n3), 0.55)
 
 
+def gen_musica_igualada():
+    # Tres notas que suben y se quedan arriba, A4→C5→E5, la última más
+    # larga: el cierre de la igualación, con el timbre de su comienzo.
+    n1 = _perc(_seno(A4, 0.08, 0.24), 0.004, 0.07)
+    n2 = _perc(_seno(C5, 0.08, 0.24), 0.004, 0.07)
+    n3 = _perc(_seno(E5, 0.16, 0.24), 0.004, 0.13)
+    return _normalizar(_concat(n1, n2, n3), 0.55)
+
+
 # ── Preguntar a la IA: consulta, respuesta y fallo ────────────────────────────
 # Cortos y sobrios: la respuesta suena justo antes de que lea el lector.
 
@@ -773,6 +782,13 @@ def s_musica_igualando():
                 _madera(A4, 0.14, 0.28, 0.11))
 
 
+def s_musica_igualada():
+    # Las mismas tres notas del cierre en madera cálida.
+    return _seq(_madera(A4, 0.08, 0.28, 0.06),
+                _madera(C5, 0.08, 0.28, 0.06),
+                _madera(E5, 0.16, 0.28, 0.12))
+
+
 # ── Preguntar a la IA en el tema suave ────────────────────────────────────────
 # Los mismos gestos en madera cálida, bajos y breves por el lector.
 
@@ -1039,6 +1055,7 @@ TEMAS = {
         "musica_fin.wav":              gen_musica_fin,
         "musica_fallo.wav":            gen_musica_fallo,
         "musica_igualando.wav":        gen_musica_igualando,
+        "musica_igualada.wav":         gen_musica_igualada,
         # Preguntar a la IA.
         "ia_respuesta.wav":            gen_ia_respuesta,
         "ia_analizando.wav":           gen_ia_analizando,
@@ -1103,6 +1120,7 @@ TEMAS = {
         "musica_fin.wav":              s_musica_fin,
         "musica_fallo.wav":            s_musica_fallo,
         "musica_igualando.wav":        s_musica_igualando,
+        "musica_igualada.wav":         s_musica_igualada,
         # Preguntar a la IA.
         "ia_respuesta.wav":            s_ia_respuesta,
         "ia_analizando.wav":           s_ia_analizando,

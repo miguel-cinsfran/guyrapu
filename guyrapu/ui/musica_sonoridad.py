@@ -17,9 +17,11 @@ import wx
 
 from guyrapu.core import diagnostico
 from guyrapu.core import paths
+from guyrapu.core.idioma import _
 from guyrapu.downloads import ffmpeg_bin
 from guyrapu.music import medicion_paralela
 from guyrapu.music import sonoridad
+from guyrapu.ui import accesibilidad
 
 
 logger = diagnostico.obtener_logger(__name__)
@@ -327,11 +329,19 @@ class SonoridadMusica:
                 hechas += 1
                 if hechas % 20 == 0:
                     self._guardar_sonoridad()
-            if self._seguir_midiendo(generacion):
-                self._guardar_sonoridad()
+            self._cerrar_igualacion(generacion, hechas, total)
         finally:
             self._midiendo_sonoridad = False
             self._progreso_sonoridad = None
+
+    def _cerrar_igualacion(self, generacion, hechas, total) -> None:
+        """Guarda la caché y avisa el fin, si la medición llegó hasta acá."""
+        if not self._seguir_midiendo(generacion):
+            return
+        self._guardar_sonoridad()
+        accesibilidad.anunciar_con_sonido(
+            _(sonoridad.TEXTO_IGUALADA).format(hechas=hechas, total=total),
+            sonoridad.SONIDO_IGUALADA)
 
     def _seguir_midiendo(self, generacion) -> bool:
         """Si la medición puede seguir con la canción siguiente."""

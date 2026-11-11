@@ -2448,6 +2448,10 @@ msgid "Igualación del volumen"
 msgstr "Volume matching"
 
 #: guyrapu/core/eventos_sonido.py
+msgid "Igualación del volumen completada"
+msgstr "Volume matching complete"
+
+#: guyrapu/core/eventos_sonido.py
 msgid "Principio o final de una lista"
 msgstr "Start or end of a list"
 
@@ -3381,6 +3385,11 @@ msgstr "{inicio} ({tamano}). {pregunta}"
 #, python-brace-format
 msgid "Igualando el volumen de {total} canciones"
 msgstr "Matching the volume of {total} songs"
+
+#: guyrapu/music/sonoridad.py
+#, python-brace-format
+msgid "Igualación del volumen completada: {hechas} de {total} canciones."
+msgstr "Volume matching complete: {hechas} of {total} songs."
 
 #: guyrapu/music/sonoridad.py
 msgid ""

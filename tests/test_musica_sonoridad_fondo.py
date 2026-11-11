@@ -20,6 +20,7 @@ from unittest import mock
 from guyrapu.music.modelo import Tema
 from guyrapu.music import sonoridad
 from guyrapu.music.sonoridad import CacheSonoridad
+from guyrapu.ui import accesibilidad
 from guyrapu.ui import musica_indice
 from guyrapu.ui import musica_sonoridad
 from guyrapu.ui.musica_indice import IndiceMusica
@@ -720,6 +721,60 @@ class TestIniciarIgualacion(unittest.TestCase):
                                         side_effect=_medir):
                 anfitrion._medir_sonoridad_fondo(tuple(temas), 3)
         self.assertEqual(vistos[-1], (2, 3))
+
+
+class TestAvisoDeFin(unittest.TestCase):
+    """El fin de la igualación avisa con las que quedaron y su sonido."""
+
+    def test_avisa_con_las_que_quedaron_medidas(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            temas = [_tema_local(tmp, f"t{i}.mp3",
+                                  contenido=f"audio-{i}".encode())
+                      for i in range(3)]
+            anfitrion = _Anfitrion(
+                biblioteca=_BibliotecaFalsa(temas),
+                cache=CacheSonoridad(Path(tmp) / "s.json"))
+
+            def _medir(_ruta, origen):
+                if origen == temas[0].origen:
+                    return None
+                return 1.5
+
+            with mock.patch.object(musica_sonoridad.ffmpeg_bin,
+                                    "ruta_ffmpeg",
+                                    return_value="C:/ffmpeg.exe"), \
+                    mock.patch.object(musica_sonoridad.sonoridad, "medir",
+                                        side_effect=_medir), \
+                    mock.patch.object(accesibilidad,
+                                        "anunciar_con_sonido") as anunciar:
+                anfitrion._medir_sonoridad_fondo(tuple(temas), 3)
+            anunciar.assert_called_once_with(
+                "Igualación del volumen completada: 2 de 3 canciones.",
+                sonoridad.SONIDO_IGUALADA)
+
+    def test_detenida_a_mitad_no_avisa_el_fin(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            temas = [_tema_local(tmp, "a.mp3"), _tema_local(tmp, "b.mp3")]
+
+            def _medir(_ruta, _origen):
+                anfitrion.detener_igualacion()
+                return 1.5
+
+            anfitrion = _Anfitrion(
+                biblioteca=_BibliotecaFalsa(temas),
+                cache=CacheSonoridad(Path(tmp) / "s.json"))
+            with mock.patch.object(musica_sonoridad.ffmpeg_bin,
+                                    "ruta_ffmpeg",
+                                    return_value="C:/ffmpeg.exe"), \
+                    mock.patch.object(musica_sonoridad.medicion_paralela,
+                                        "trabajos_de_medicion",
+                                        return_value=1), \
+                    mock.patch.object(musica_sonoridad.sonoridad, "medir",
+                                        side_effect=_medir), \
+                    mock.patch.object(accesibilidad,
+                                        "anunciar_con_sonido") as anunciar:
+                anfitrion._medir_sonoridad_fondo(tuple(temas), 3)
+            anunciar.assert_not_called()
 
 
 def _muchos_temas(tmp, cantidad):

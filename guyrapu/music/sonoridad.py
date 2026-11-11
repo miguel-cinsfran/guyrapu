@@ -45,8 +45,11 @@ SIN_FFMPEG = "sin_ffmpeg"
 NADA_PENDIENTE = "nada_pendiente"
 
 SONIDO_IGUALANDO = "musica_igualando"
+SONIDO_IGUALADA = "musica_igualada"
 
 TEXTO_IGUALANDO = N_("Igualando el volumen de {total} canciones")
+TEXTO_IGUALADA = N_(
+    "Igualación del volumen completada: {hechas} de {total} canciones.")
 TEXTO_IGUALACION_DESACTIVADA = N_(
     "La igualación del volumen está desactivada. Actívala en Preferencias, "
     "categoría Música.")

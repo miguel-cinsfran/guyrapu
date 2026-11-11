@@ -274,6 +274,9 @@ CATALOGO: tuple[EventoSonido, ...] = (
                  familia="musica"),
     EventoSonido("musica_igualando", nombre=N_("Igualación del volumen"),
                  familia="musica"),
+    EventoSonido("musica_igualada",
+                 nombre=N_("Igualación del volumen completada"),
+                 familia="musica"),
     # Orilla de las listas y fin del directo de TikTok (suena distinto a
     # «desconectado», que sigue para YouTube y el resto de los cortes):
     EventoSonido("orilla", nombre=N_("Principio o final de una lista"),

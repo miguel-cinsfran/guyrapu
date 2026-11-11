@@ -66,7 +66,7 @@ ASIGNACIONES = {
 }
 
 # Los doce avisos con sonido propio (más directo_finalizado y
-# la vuelta de la conexión), los cuatro de música y los siete de la IA.
+# la vuelta de la conexión), los cinco de música y los siete de la IA.
 EVENTOS_NUEVOS = [
     "descarga_iniciada", "descarga_completada", "descarga_fallida",
     "descarga_cancelada", "al_aire", "transmision_detenida",
@@ -74,6 +74,7 @@ EVENTOS_NUEVOS = [
     "grabacion_problema",
     "actualizacion_disponible", "actualizacion_lista", "directo_finalizado",
     "musica_tema", "musica_fin", "musica_fallo", "musica_igualando",
+    "musica_igualada",
     "ia_enviada", "ia_respuesta", "ia_error",
     "espera", "ia_analizando", "ia_captura", "ia_cancelada",
     "ia_imagen_negra", "atajos_ocupados",
