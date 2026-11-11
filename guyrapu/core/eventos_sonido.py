@@ -1,213 +1,212 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Nombres de los eventos de sonido de la aplicación, en orden."""
+"""Catálogo único de los eventos de sonido de la aplicación, en orden."""
 
-EVENTOS = [
-    "app_inicio", "conectando", "conectado", "desconectado",
+from __future__ import annotations
+
+from typing import NamedTuple
+
+
+class EventoSonido(NamedTuple):
+    """Clave, nombre visible y evento cuyo archivo usa."""
+
+    clave: str
+    nombre: str
+    sonido: str | None = None
+
+
+# Cada evento se declara una sola vez. El nombre es el llano para la página
+# Sonidos de Preferencias: registro de la app, impersonal, sin jerga, lo
+# importante primero, hasta unas seis palabras, sin repetir. Un sonido
+# asignado es la clave de otro evento cuyo archivo usa; `None` es que usa
+# `<clave>.wav`.
+CATALOGO: tuple[EventoSonido, ...] = (
+    EventoSonido("app_inicio", nombre="Inicio de la aplicación"),
+    EventoSonido("conectando", nombre="Conexión en curso"),
+    EventoSonido("conectado", nombre="Conexión establecida"),
+    EventoSonido("desconectado", nombre="Desconexión del chat"),
     # Corte y vuelta automáticos del chat, distintos de conectar a mano.
-    "chat_cortado", "chat_reconectado",
-    "mensaje_nuevo", "mensaje_tiktok", "mensaje_propietario",
-    "mensaje_moderador", "mensaje_verificado", "mensaje_miembro",
-    "superchat", "nuevo_miembro", "error",
-    "pausa", "reanudar", "copiar", "voz_cambiada",
+    EventoSonido(
+        "chat_cortado",
+        nombre="Chat desconectado",
+        sonido="transmision_problema"),
+    EventoSonido(
+        "chat_reconectado",
+        nombre="Chat reconectado",
+        sonido="transmision_recuperada"),
+    EventoSonido("mensaje_nuevo", nombre="Mensaje nuevo del chat"),
+    EventoSonido("mensaje_tiktok", nombre="Mensaje de TikTok"),
+    EventoSonido(
+        "mensaje_propietario",
+        nombre="Mensaje del propietario del canal"),
+    EventoSonido("mensaje_moderador", nombre="Mensaje del moderador"),
+    EventoSonido(
+        "mensaje_verificado",
+        nombre="Mensaje de una cuenta verificada"),
+    EventoSonido("mensaje_miembro", nombre="Mensaje de un miembro del canal"),
+    EventoSonido("superchat", nombre="Super Chat"),
+    EventoSonido("nuevo_miembro", nombre="Nuevo miembro del canal"),
+    EventoSonido("error", nombre="Error"),
+    EventoSonido("pausa", nombre="Lectura en pausa"),
+    EventoSonido("reanudar", nombre="Lectura reanudada"),
+    EventoSonido("copiar", nombre="Texto copiado"),
+    EventoSonido("voz_cambiada", nombre="Voz cambiada"),
     # v0.6 online y acciones que antes reutilizaban otros sonidos:
-    "enviado", "comentario", "moderacion", "cola_vaciada",
-    "transporte_en_curso",
+    EventoSonido("enviado", nombre="Mensaje enviado"),
+    EventoSonido("comentario", nombre="Comentario publicado"),
+    EventoSonido("moderacion", nombre="Acción de moderación"),
+    EventoSonido("cola_vaciada", nombre="Cola de lectura vaciada"),
+    EventoSonido("transporte_en_curso", nombre="Reproductor ocupado"),
     # Operación larga en curso: se repite cada dos segundos mientras espera.
-    "espera",
+    EventoSonido("espera", nombre="Espera"),
     # Eventos de TikTok y tramos de regalo por tamaño en diamantes:
-    "seguir", "compartir", "cofre", "me_gusta",
-    "regalo_chico", "regalo_mediano", "regalo_grande", "entrada",
+    EventoSonido("seguir", nombre="Nuevo seguidor del directo"),
+    EventoSonido("compartir", nombre="Alguien compartió el directo"),
+    EventoSonido("cofre", nombre="Cofre de regalos recibido"),
+    EventoSonido("me_gusta", nombre="Me gusta del directo"),
+    EventoSonido("regalo_chico", nombre="Regalo chico recibido"),
+    EventoSonido("regalo_mediano", nombre="Regalo mediano recibido"),
+    EventoSonido("regalo_grande", nombre="Regalo grande recibido"),
+    EventoSonido("entrada", nombre="Alguien entró al directo"),
     # Orilla de las listas y fin del directo de TikTok (suena distinto a
     # «desconectado», que sigue para YouTube y el resto de los cortes):
-    "orilla", "fin_directo",
+    EventoSonido("orilla", nombre="Principio o final de una lista"),
+    EventoSonido("fin_directo", nombre="Fin del directo"),
     # Avisos del gestor de descargas, cada fin con su resultado:
-    "descarga_iniciada", "descarga_completada", "descarga_fallida",
-    "descarga_cancelada",
+    EventoSonido("descarga_iniciada", nombre="Descarga iniciada"),
+    EventoSonido("descarga_completada", nombre="Descarga completada"),
+    EventoSonido("descarga_fallida", nombre="Descarga fallida"),
+    EventoSonido("descarga_cancelada", nombre="Descarga cancelada"),
     # Avisos del supervisor de transmisión y descartes del chat:
-    "al_aire", "transmision_detenida", "transmision_problema",
-    "grabacion_problema", "aviso",
+    EventoSonido("al_aire", nombre="Directo en curso"),
+    EventoSonido("transmision_detenida", nombre="Transmisión detenida"),
+    EventoSonido("transmision_problema", nombre="Problema de la transmisión"),
+    EventoSonido("grabacion_problema", nombre="Problema de la grabación"),
+    EventoSonido("aviso", nombre="Aviso general"),
     # Vuelta de la conexión con el servicio: alivio, distinto de la alarma:
-    "transmision_recuperada",
+    EventoSonido("transmision_recuperada", nombre="Transmisión recuperada"),
     # Confirmación de cierre, distinta del descenso de transmision_detenida:
-    "directo_finalizado",
+    EventoSonido("directo_finalizado", nombre="Cierre confirmado del directo"),
     # Pregunta antes de transmitir a TikTok cuando Restream manda a otros
     # destinos encendidos.
-    "destinos_de_mas",
+    EventoSonido("destinos_de_mas", nombre="Otros destinos de Restream"),
     # Ventanas que se abren solas al arrancar o al terminar bien:
-    "actualizacion_disponible", "actualizacion_lista",
+    EventoSonido(
+        "actualizacion_disponible",
+        nombre="Actualización disponible"),
+    EventoSonido(
+        "actualizacion_lista",
+        nombre="Actualización lista para instalar"),
     # Música: cambio, fin, fallo e igualación al medir muchas canciones:
-    "musica_tema", "musica_fin", "musica_fallo", "musica_igualando",
+    EventoSonido("musica_tema", nombre="Canción cambiada"),
+    EventoSonido("musica_fin", nombre="Canción terminada"),
+    EventoSonido("musica_fallo", nombre="Error al reproducir la canción"),
+    EventoSonido("musica_igualando", nombre="Igualación del volumen"),
     # Preguntar a la IA: consulta que sale, espera que suena, respuesta que
     # llega, fallo, captura agregada, consulta cancelada y captura negra:
-    "ia_enviada", "ia_respuesta", "ia_error",
-    "ia_analizando", "ia_captura", "ia_cancelada", "ia_imagen_negra",
+    EventoSonido("ia_enviada", nombre="Consulta enviada a la IA"),
+    EventoSonido("ia_respuesta", nombre="Respuesta de la IA"),
+    EventoSonido("ia_error", nombre="Error de la IA"),
+    EventoSonido("ia_analizando", nombre="La IA está analizando"),
+    EventoSonido("ia_captura", nombre="Captura agregada"),
+    EventoSonido("ia_cancelada", nombre="Consulta a la IA cancelada"),
+    EventoSonido("ia_imagen_negra", nombre="Captura negra detectada"),
     # Atajos globales que otro programa ya ocupa: tono de ocupado.
-    "atajos_ocupados",
+    EventoSonido("atajos_ocupados", nombre="Atajos globales ocupados"),
     # El micrófono quedó activado y en tres segundos no entró nada.
-    "microfono_sin_senal",
+    EventoSonido("microfono_sin_senal", nombre="Micrófono sin señal"),
     # Nivel del micrófono en la prueba por tramos: bien o para revisar.
-    "microfono_bien", "microfono_revisar",
+    EventoSonido("microfono_bien", nombre="Micrófono con buen nivel"),
+    EventoSonido(
+        "microfono_revisar",
+        nombre="Nivel del micrófono para revisar"),
     # Pausa del directo de TikTok y su vuelta: cada una con su sonido.
-    "directo_pausado", "directo_reanudado",
+    EventoSonido("directo_pausado", nombre="Directo de TikTok en pausa"),
+    EventoSonido("directo_reanudado", nombre="Directo de TikTok continúa"),
     # Búsqueda de descargas: pedido, con filas, vacía y con fallo.
-    "busqueda_iniciada", "busqueda_resultados", "busqueda_sin_resultados",
-    "busqueda_fallida",
+    EventoSonido("busqueda_iniciada", nombre="Búsqueda en curso"),
+    EventoSonido("busqueda_resultados", nombre="Búsqueda con resultados"),
+    EventoSonido("busqueda_sin_resultados", nombre="Búsqueda sin resultados"),
+    EventoSonido("busqueda_fallida", nombre="Búsqueda fallida"),
     # Cola de descargas: agregado, proceso, fin de la cola y lista parcial.
-    "descarga_encolada", "descarga_procesando", "cola_descargas_terminada",
-    "descarga_parcial",
+    EventoSonido("descarga_encolada", nombre="Descarga agregada a la cola"),
+    EventoSonido("descarga_procesando", nombre="Procesamiento de descarga"),
+    EventoSonido(
+        "cola_descargas_terminada",
+        nombre="Cola de descargas terminada"),
+    EventoSonido("descarga_parcial", nombre="Descarga parcial"),
     # Elección de formato de un vídeo: consulta y fallo, cada uno con el suyo.
-    "formatos_cargando", "formatos_fallidos",
+    EventoSonido("formatos_cargando", nombre="Carga de formatos"),
+    EventoSonido("formatos_fallidos", nombre="Formatos no disponibles"),
     # TikTok frena las consultas seguidas: espera un minuto antes de mirar.
-    "tiktok_limitado",
+    EventoSonido("tiktok_limitado", nombre="TikTok limita las consultas"),
     # Encuadre de cámara: el rostro sale y vuelve, cada uno con el suyo.
-    "encuadre_fuera", "encuadre_dentro",
+    EventoSonido("encuadre_fuera", nombre="Rostro fuera del encuadre"),
+    EventoSonido("encuadre_dentro", nombre="Rostro de vuelta en el encuadre"),
     # Grabación desde la ventana de Transmisión, cada resultado con el suyo.
-    "grabacion_iniciada", "grabacion_detenida",
-    "grabacion_en_pausa", "grabacion_reanudada",
+    EventoSonido("grabacion_iniciada", nombre="Grabación iniciada"),
+    EventoSonido("grabacion_detenida", nombre="Grabación detenida"),
+    EventoSonido("grabacion_en_pausa", nombre="Grabación en pausa"),
+    EventoSonido("grabacion_reanudada", nombre="Grabación reanudada"),
     # Clip de los últimos segundos guardado con el búfer de repetición.
-    "clip",
+    EventoSonido("clip", nombre="Clip guardado"),
     # Reconexión del relevo de un directo de YouTube: intento y aviso final.
-    "reconectando_directo", "directo_con_cortes",
+    EventoSonido("reconectando_directo", nombre="Reconexión del directo"),
+    EventoSonido("directo_con_cortes", nombre="Directo con cortes seguidos"),
     # Estado de Restream por su WebSocket: destinos y señal de OBS.
-    "restream_destino_caido", "restream_destino_vuelve",
-    "restream_sin_senal", "restream_senal_vuelve", "restream_senal_debil",
+    EventoSonido(
+        "restream_destino_caido",
+        nombre="Destino de Restream desconectado"),
+    EventoSonido(
+        "restream_destino_vuelve",
+        nombre="Destino de Restream de vuelta"),
+    EventoSonido("restream_sin_senal", nombre="Restream sin señal"),
+    EventoSonido(
+        "restream_senal_vuelve",
+        nombre="Señal de Restream recuperada"),
+    EventoSonido("restream_senal_debil", nombre="Señal débil en Restream"),
     # Avance de una descarga en curso y descarga que sigue en cero.
-    "descarga_avance", "descarga_quieta",
+    EventoSonido("descarga_avance", nombre="Avance de descarga"),
+    EventoSonido("descarga_quieta", nombre="Descarga quieta"),
     # Encuestas del directo de TikTok: apertura y cierre.
-    "encuesta", "encuesta_fin",
+    EventoSonido("encuesta", nombre="Encuesta abierta"),
+    EventoSonido("encuesta_fin", nombre="Encuesta terminada"),
     # Metas y batallas del directo de TikTok.
-    "meta", "batalla", "batalla_fin",
+    EventoSonido("meta", nombre="Meta cumplida"),
+    EventoSonido("batalla", nombre="Batalla iniciada"),
+    EventoSonido("batalla_fin", nombre="Batalla terminada"),
     # El vigilante de OBS: deja de responder y vuelve.
-    "obs_sin_respuesta", "obs_responde",
+    EventoSonido(
+        "obs_sin_respuesta",
+        nombre="OBS no responde",
+        sonido="transmision_problema"),
+    EventoSonido(
+        "obs_responde",
+        nombre="OBS vuelve a responder",
+        sonido="transmision_recuperada"),
     # Acciones pedidas por el usuario que salen bien, sus pasos de espera y
     # el fin o el corte de lo que se mira en el reproductor.
-    "listo", "transmision_paso",
-    "reproduccion_terminada", "reproduccion_cortada",
-]
+    EventoSonido("listo", nombre="Acción completada", sonido="copiar"),
+    EventoSonido(
+        "transmision_paso",
+        nombre="Preparación de la transmisión",
+        sonido="espera"),
+    EventoSonido(
+        "reproduccion_terminada",
+        nombre="Reproducción finalizada",
+        sonido="fin_directo"),
+    EventoSonido(
+        "reproduccion_cortada",
+        nombre="Reproducción interrumpida",
+        sonido="transmision_problema"),
+)
+
+EVENTOS = [evento.clave for evento in CATALOGO]
+
+# Nombre llano de cada evento, en el orden del catálogo.
+NOMBRES = {evento.clave: evento.nombre for evento in CATALOGO}
 
 # Sonido con el que suena cada evento que no usa su propio archivo. Un
 # evento fuera de la tabla suena con `<evento>.wav`.
-SONIDOS = {
-    "chat_cortado": "transmision_problema",
-    "chat_reconectado": "transmision_recuperada",
-    # El vigilante de OBS suena como una caída y una vuelta de la transmisión.
-    "obs_sin_respuesta": "transmision_problema",
-    "obs_responde": "transmision_recuperada",
-    # Lo pedido que sale bien, el paso que se espera y el fin o el corte
-    # de lo que se mira.
-    "listo": "copiar",
-    "transmision_paso": "espera",
-    "reproduccion_terminada": "fin_directo",
-    "reproduccion_cortada": "transmision_problema",
-}
-
-# Nombre llano de cada evento para la página Sonidos de Preferencias.
-# Registro de la app: impersonal, sin jerga, lo importante primero,
-# hasta unas seis palabras. Un nombre por evento, sin repetir.
-NOMBRES = {
-    "app_inicio": "Inicio de la aplicación",
-    "conectando": "Conexión en curso",
-    "conectado": "Conexión establecida",
-    "chat_cortado": "Chat desconectado",
-    "chat_reconectado": "Chat reconectado",
-    "desconectado": "Desconexión del chat",
-    "mensaje_nuevo": "Mensaje nuevo del chat",
-    "mensaje_tiktok": "Mensaje de TikTok",
-    "mensaje_propietario": "Mensaje del propietario del canal",
-    "mensaje_moderador": "Mensaje del moderador",
-    "mensaje_verificado": "Mensaje de una cuenta verificada",
-    "mensaje_miembro": "Mensaje de un miembro del canal",
-    "superchat": "Super Chat",
-    "nuevo_miembro": "Nuevo miembro del canal",
-    "error": "Error",
-    "pausa": "Lectura en pausa",
-    "reanudar": "Lectura reanudada",
-    "copiar": "Texto copiado",
-    "voz_cambiada": "Voz cambiada",
-    "enviado": "Mensaje enviado",
-    "comentario": "Comentario publicado",
-    "moderacion": "Acción de moderación",
-    "cola_vaciada": "Cola de lectura vaciada",
-    "transporte_en_curso": "Reproductor ocupado",
-    "espera": "Espera",
-    "seguir": "Nuevo seguidor del directo",
-    "compartir": "Alguien compartió el directo",
-    "cofre": "Cofre de regalos recibido",
-    "me_gusta": "Me gusta del directo",
-    "regalo_chico": "Regalo chico recibido",
-    "regalo_mediano": "Regalo mediano recibido",
-    "regalo_grande": "Regalo grande recibido",
-    "entrada": "Alguien entró al directo",
-    "orilla": "Principio o final de una lista",
-    "fin_directo": "Fin del directo",
-    "descarga_iniciada": "Descarga iniciada",
-    "descarga_completada": "Descarga completada",
-    "descarga_fallida": "Descarga fallida",
-    "descarga_cancelada": "Descarga cancelada",
-    "al_aire": "Directo en curso",
-    "transmision_detenida": "Transmisión detenida",
-    "transmision_problema": "Problema de la transmisión",
-    "grabacion_problema": "Problema de la grabación",
-    "aviso": "Aviso general",
-    "transmision_recuperada": "Transmisión recuperada",
-    "directo_finalizado": "Cierre confirmado del directo",
-    "destinos_de_mas": "Otros destinos de Restream",
-    "actualizacion_disponible": "Actualización disponible",
-    "actualizacion_lista": "Actualización lista para instalar",
-    "musica_tema": "Canción cambiada",
-    "musica_fin": "Canción terminada",
-    "musica_fallo": "Error al reproducir la canción",
-    "musica_igualando": "Igualación del volumen",
-    "ia_enviada": "Consulta enviada a la IA",
-    "ia_respuesta": "Respuesta de la IA",
-    "ia_error": "Error de la IA",
-    "ia_analizando": "La IA está analizando",
-    "ia_captura": "Captura agregada",
-    "ia_cancelada": "Consulta a la IA cancelada",
-    "ia_imagen_negra": "Captura negra detectada",
-    "atajos_ocupados": "Atajos globales ocupados",
-    "microfono_sin_senal": "Micrófono sin señal",
-    "microfono_bien": "Micrófono con buen nivel",
-    "microfono_revisar": "Nivel del micrófono para revisar",
-    "directo_pausado": "Directo de TikTok en pausa",
-    "directo_reanudado": "Directo de TikTok continúa",
-    "busqueda_iniciada": "Búsqueda en curso",
-    "busqueda_resultados": "Búsqueda con resultados",
-    "busqueda_sin_resultados": "Búsqueda sin resultados",
-    "busqueda_fallida": "Búsqueda fallida",
-    "descarga_encolada": "Descarga agregada a la cola",
-    "descarga_procesando": "Procesamiento de descarga",
-    "cola_descargas_terminada": "Cola de descargas terminada",
-    "descarga_parcial": "Descarga parcial",
-    "formatos_cargando": "Carga de formatos",
-    "formatos_fallidos": "Formatos no disponibles",
-    "tiktok_limitado": "TikTok limita las consultas",
-    "encuadre_fuera": "Rostro fuera del encuadre",
-    "encuadre_dentro": "Rostro de vuelta en el encuadre",
-    "grabacion_iniciada": "Grabación iniciada",
-    "grabacion_detenida": "Grabación detenida",
-    "grabacion_en_pausa": "Grabación en pausa",
-    "grabacion_reanudada": "Grabación reanudada",
-    "clip": "Clip guardado",
-    "reconectando_directo": "Reconexión del directo",
-    "directo_con_cortes": "Directo con cortes seguidos",
-    "restream_destino_caido": "Destino de Restream desconectado",
-    "restream_destino_vuelve": "Destino de Restream de vuelta",
-    "restream_sin_senal": "Restream sin señal",
-    "restream_senal_vuelve": "Señal de Restream recuperada",
-    "restream_senal_debil": "Señal débil en Restream",
-    "descarga_avance": "Avance de descarga",
-    "descarga_quieta": "Descarga quieta",
-    "encuesta": "Encuesta abierta",
-    "encuesta_fin": "Encuesta terminada",
-    "meta": "Meta cumplida",
-    "batalla": "Batalla iniciada",
-    "batalla_fin": "Batalla terminada",
-    "obs_sin_respuesta": "OBS no responde",
-    "obs_responde": "OBS vuelve a responder",
-    "listo": "Acción completada",
-    "transmision_paso": "Preparación de la transmisión",
-    "reproduccion_terminada": "Reproducción finalizada",
-    "reproduccion_cortada": "Reproducción interrumpida",
-}
+SONIDOS = {evento.clave: evento.sonido for evento in CATALOGO
+           if evento.sonido is not None}

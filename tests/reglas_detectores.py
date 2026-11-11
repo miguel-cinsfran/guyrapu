@@ -13,13 +13,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
+from guyrapu.core.eventos_sonido import EVENTOS as EVENTOS_SONIDO
+
 if TYPE_CHECKING:
     from tests.reglas_arquitectura import Regla
 
 RAIZ = Path(__file__).resolve().parent.parent
 FUENTES = RAIZ / "guyrapu"
 MAIN = RAIZ / "main.py"
-ARCHIVO_EVENTOS = RAIZ / "guyrapu" / "core" / "eventos_sonido.py"
 
 SONIDOS_GENERICOS = {"error", "copiar"}
 ATRIBUTOS_CUADRO = {"MessageBox", "MessageDialog"}
@@ -95,14 +96,7 @@ def detectar_escape(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
 
 @lru_cache(maxsize=None)
 def eventos_de_sonido() -> frozenset[str]:
-    arbol = ast.parse(ARCHIVO_EVENTOS.read_text(encoding="utf-8"))
-    for nodo in arbol.body:
-        if (isinstance(nodo, ast.Assign)
-                and len(nodo.targets) == 1
-                and isinstance(nodo.targets[0], ast.Name)
-                and nodo.targets[0].id == "EVENTOS"):
-            return frozenset(ast.literal_eval(nodo.value))
-    raise AssertionError("eventos_sonido.py no declara EVENTOS")
+    return frozenset(EVENTOS_SONIDO)
 
 
 def _nombres_avisar(arbol: ast.Module) -> tuple[set[str], set[str]]:

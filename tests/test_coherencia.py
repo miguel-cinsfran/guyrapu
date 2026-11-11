@@ -233,11 +233,49 @@ class PruebaSonidos(unittest.TestCase):
                           f"(guyrapu/core/config.py): {faltan}")
 
 
-class PruebaNombresSonido(unittest.TestCase):
-    def test_nombres_cubren_exactamente_los_eventos(self):
-        self.assertEqual(set(eventos_sonido.NOMBRES),
-                         set(eventos_sonido.EVENTOS))
+def _problemas_del_catalogo(catalogo):
+    """Asignaciones que no se resuelven dentro del catálogo: un sonido tiene
+    que ser la clave de otro evento y ese evento no puede tener sonido propio."""
+    por_clave = {evento.clave: evento for evento in catalogo}
+    problemas = []
+    for evento in catalogo:
+        if evento.sonido is None:
+            continue
+        if evento.sonido not in por_clave:
+            problemas.append(
+                f"{evento.clave} usa el sonido {evento.sonido!r}, que no es "
+                "un evento del catálogo")
+        elif por_clave[evento.sonido].sonido is not None:
+            problemas.append(
+                f"{evento.clave} apunta a {evento.sonido!r}, que a su vez "
+                "tiene sonido asignado")
+    return problemas
 
+
+class PruebaCatalogoSonido(unittest.TestCase):
+    def test_claves_unicas(self):
+        claves = [evento.clave for evento in eventos_sonido.CATALOGO]
+        repetidas = sorted({clave for clave in claves
+                            if claves.count(clave) > 1})
+        self.assertEqual(repetidas, [])
+
+    def test_catalogo_real_sin_problemas(self):
+        self.assertEqual(_problemas_del_catalogo(eventos_sonido.CATALOGO), [])
+
+    def test_cadena_de_asignaciones(self):
+        catalogo = (
+            eventos_sonido.EventoSonido("uno", "Uno"),
+            eventos_sonido.EventoSonido("dos", "Dos", "uno"),
+            eventos_sonido.EventoSonido("tres", "Tres", "dos"),
+        )
+        self.assertNotEqual(_problemas_del_catalogo(catalogo), [])
+
+    def test_sonido_inexistente(self):
+        catalogo = (eventos_sonido.EventoSonido("uno", "Uno", "ajeno"),)
+        self.assertNotEqual(_problemas_del_catalogo(catalogo), [])
+
+
+class PruebaNombresSonido(unittest.TestCase):
     def test_nombres_no_se_repiten(self):
         nombres = list(eventos_sonido.NOMBRES.values())
         repetidos = sorted({n for n in nombres if nombres.count(n) > 1})
