@@ -847,7 +847,7 @@ class PruebaVentanaRestream(unittest.TestCase):
                          list(pagina.lista.GetStrings()))
         self.assertEqual(0, pagina.lista.GetSelection())
         anunciar.assert_called_once_with("TikTok: uno desactivado")
-        sonar.assert_not_called()
+        sonar.assert_called_once_with("pausa")
 
     def test_p3_destinos_instala_la_busqueda_por_teclado(self):
         with mock.patch.object(lista_acciones,

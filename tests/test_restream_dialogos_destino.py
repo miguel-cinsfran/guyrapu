@@ -271,7 +271,7 @@ class PruebaAccionesDestino(unittest.TestCase):
         self.assertEqual((ventana._destinos, None),
                          ventana._pagina_destinos.mostradas[-1])
         anunciar.assert_called_once_with("TikTok: uno desactivado")
-        sonar.assert_not_called()
+        sonar.assert_called_once_with("pausa")
 
     def test_p2_activar_llama_con_el_estado_contrario(self):
         destino = Canal(1, 67, "TikTok", "uno", "", False)

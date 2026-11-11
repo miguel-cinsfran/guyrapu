@@ -95,7 +95,7 @@ class TestPerfil(unittest.TestCase):
 
         self.assertIsNone(resultado)
         avisar.assert_called_once_with("Falta el título del directo.",
-                                       error=True)
+                                       "error", error=True)
 
     def test_p4_sin_youtube_el_cuadro_pide_solo_titulo(self):
         _armado, recibido = self._pedir(_perfil(youtube=False))
@@ -135,6 +135,25 @@ class TestPerfil(unittest.TestCase):
 
 
 class TestSoloYoutube(unittest.TestCase):
+
+    def test_p1_el_error_al_armar_el_directo_suena_con_error(self):
+        frame = SimpleNamespace(
+            _config={},
+            _guardar_datos_directo_youtube=mock.Mock(return_value={}))
+        with mock.patch.object(inicio_youtube, "hay_sesion", return_value=True), \
+                mock.patch.object(inicio_youtube, "_cliente",
+                                  return_value=mock.Mock()), \
+                mock.patch.object(inicio_youtube, "_pedir_datos",
+                                  return_value=NUEVO), \
+                mock.patch.object(
+                    inicio_youtube, "_cuerpo",
+                    side_effect=EmisionError("Falta el título del directo.")), \
+                mock.patch.object(inicio_youtube, "avisar") as avisar:
+            resultado = inicio_youtube.pedir_y_armar(frame, None)
+
+        self.assertIsNone(resultado)
+        avisar.assert_called_once_with("Falta el título del directo.",
+                                       "error", error=True)
 
     def test_el_directo_solo_a_youtube_sigue_leyendo_y_guardando_config(self):
         frame = SimpleNamespace(

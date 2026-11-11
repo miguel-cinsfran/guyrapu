@@ -166,7 +166,7 @@ def pedir_y_guardar_perfil(frame, revision, perfil, lista):
         preparados = (_preparados(cliente, actualizado, emision)
                       if actualizado.youtube else None)
     except emision.EmisionError as exc:
-        avisar(str(exc), error=True)
+        avisar(str(exc), "error", error=True)
         return None
     return actualizado, preparados
 
@@ -198,7 +198,7 @@ def pedir_y_armar(frame, revision):
     try:
         cuerpo = _cuerpo(emision, guardados)
     except emision.EmisionError as exc:
-        avisar(str(exc), error=True)
+        avisar(str(exc), "error", error=True)
         return None
     return guardados, _ganchos(cliente, cuerpo, guardados, emision)
 

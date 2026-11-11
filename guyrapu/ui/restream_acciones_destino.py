@@ -87,9 +87,11 @@ def _estado_cambiado(ventana, destino, nuevo):
     ventana._pagina_destinos.mostrar(ventana._destinos)
     ventana._actualizar_cuenta()
     if nuevo:
-        avisar(_("{destino} activado").format(destino=destino.texto))
+        avisar(_("{destino} activado").format(destino=destino.texto),
+               "reanudar")
     else:
-        avisar(_("{destino} desactivado").format(destino=destino.texto))
+        avisar(_("{destino} desactivado").format(destino=destino.texto),
+               "pausa")
 
 
 def _pedir_titulo(ventana, destino, meta):
@@ -110,7 +112,7 @@ def _pedir_titulo(ventana, destino, meta):
 def _titulo_cambiado(ventana):
     ventana._error_destinos = ""
     ventana._actualizar_cuenta()
-    avisar(_("Título cambiado."))
+    avisar(_("Título cambiado."), "listo")
 
 
 def _pedir_manual(ventana, plataformas):
@@ -134,7 +136,7 @@ def _destino_agregado(ventana, canal):
     ventana._pagina_destinos.mostrar(ventana._destinos, elegido=canal.id)
     ventana._pagina_eventos.actualizar_nombres()
     ventana._actualizar_cuenta()
-    avisar(_("Destino agregado."))
+    avisar(_("Destino agregado."), "listo")
 
 
 def abrir_enlace(ventana):

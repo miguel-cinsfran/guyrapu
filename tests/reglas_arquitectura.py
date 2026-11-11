@@ -105,8 +105,6 @@ REGLAS = (
             "guyrapu/ui/directo_panel.py": 1,
             "guyrapu/ui/gui_envio_chat.py": 1, "guyrapu/ui/gui_musica.py": 1,
             "guyrapu/ui/gui_transmitir.py": 1,
-            "guyrapu/ui/inicio_youtube.py": 2,
-            "guyrapu/ui/restream_acciones_destino.py": 4,
         }),
     ),
     Regla(
