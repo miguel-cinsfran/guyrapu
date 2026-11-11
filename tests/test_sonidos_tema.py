@@ -64,6 +64,47 @@ class TestRutaEvento(unittest.TestCase):
             sonidos_tema.ruta_evento(self.carpeta, evento), propia)
 
 
+class TestRespaldoDelTemaPredeterminado(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.temas = Path(self._tmp.name) / "themes"
+        self.propio = self.temas / "propio"
+        self.predeterminado = self.temas / "default"
+        self.propio.mkdir(parents=True)
+        self.predeterminado.mkdir()
+        self.evento = eventos_sonido.EVENTOS[0]
+
+    def test_evento_en_el_predeterminado_respalda_al_tema_propio(self):
+        respaldo = _tocar(self.predeterminado, self.evento)
+        with mock.patch.dict(eventos_sonido.SONIDOS,
+                             {self.evento: "otro"}):
+            self.assertEqual(
+                sonidos_tema.ruta_evento(self.propio, self.evento), respaldo)
+
+    def test_asignado_en_el_predeterminado_respalda_al_tema_propio(self):
+        respaldo = _tocar(self.predeterminado, "otro")
+        with mock.patch.dict(eventos_sonido.SONIDOS,
+                             {self.evento: "otro"}):
+            self.assertEqual(
+                sonidos_tema.ruta_evento(self.propio, self.evento), respaldo)
+
+    def test_asignado_del_tema_propio_gana_sobre_el_evento_predeterminado(self):
+        propia = _tocar(self.propio, "otro")
+        _tocar(self.predeterminado, self.evento)
+        with mock.patch.dict(eventos_sonido.SONIDOS,
+                             {self.evento: "otro"}):
+            self.assertEqual(
+                sonidos_tema.ruta_evento(self.propio, self.evento), propia)
+
+    def test_sin_archivos_en_ningun_tema_devuelve_la_ruta_del_evento(self):
+        with mock.patch.dict(eventos_sonido.SONIDOS,
+                             {self.evento: "otro"}):
+            self.assertEqual(
+                sonidos_tema.ruta_evento(self.propio, self.evento),
+                self.propio / f"{self.evento}.wav")
+
+
 class TestCableadoConfig(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
