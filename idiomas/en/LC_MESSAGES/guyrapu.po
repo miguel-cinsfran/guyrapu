@@ -4079,11 +4079,6 @@ msgid "captura de juego"
 msgstr "game capture"
 
 #: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "cerca de la posición {texto}"
-msgstr "near the {texto} position"
-
-#: guyrapu/obs/obs_escena.py
 msgid "oculta en OBS"
 msgstr "hidden in OBS"
 

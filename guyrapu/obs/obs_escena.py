@@ -104,7 +104,7 @@ def _texto_de_anclaje(nombre, rect, lienzo_ancho, lienzo_alto) -> str:
 
 
 def _texto_anclaje(rect, lienzo_ancho, lienzo_alto) -> str:
-    """Texto del anclaje en minúscula, o zona cercana con «cerca» si no calza.
+    """Texto del anclaje en minúscula, o el de la zona más cercana si no calza.
 
     Reusa la descripción de posición del panel en vez de copiar su tabla:
     si esa tabla cambia, esta frase la sigue.
@@ -113,10 +113,7 @@ def _texto_anclaje(rect, lienzo_ancho, lienzo_alto) -> str:
         nombre = zona_cercana(rect, lienzo_ancho, lienzo_alto)
         if not nombre:
             return ""
-        texto = _texto_de_anclaje(nombre, rect, lienzo_ancho, lienzo_alto)
-        if not texto:
-            return ""
-        return _("cerca de la posición {texto}").format(texto=texto)
+        return _texto_de_anclaje(nombre, rect, lienzo_ancho, lienzo_alto)
     snap = obs_disposicion.SnapshotPanel(
         conectado=True, izquierda=rect[0], arriba=rect[1],
         ancho=int(round(rect[2])), alto=int(round(rect[3])),

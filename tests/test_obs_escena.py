@@ -158,7 +158,7 @@ class DescribirEscenaTest(unittest.TestCase):
         self.assertEqual(
             frase,
             "Escena actual: Principal. 1 fuente, de adelante hacia atrás.\n"
-            "1: Juego, captura de juego, cerca de la posición centro a la derecha, "
+            "1: Juego, captura de juego, centro a la derecha, "
             "la mitad del vídeo, se ve y un 25 por ciento queda "
             "fuera del vídeo.")
 
@@ -391,13 +391,13 @@ class ZonaCercanaTest(unittest.TestCase):
                 self.assertEqual(
                     obs_escena.zona_cercana(rect, 900, 900), esperado)
 
-    def test_panel_grande_en_la_esquina_da_cerca_de_esa_esquina(self):
+    def test_panel_grande_en_la_esquina_da_esa_esquina(self):
         frase = obs_escena.describir_escena(
             "Principal",
             [elemento(1, "Panel", 0, 0, 0, 460, 620, 5)],
             1360, 768, {})
         self.assertIn(
-            "1: Panel, cerca de la posición arriba a la izquierda, "
+            "1: Panel, arriba a la izquierda, "
             "un tercio del vídeo, se ve.", frase)
 
     def test_la_esquina_no_decide_la_zona_sino_el_centro(self):
