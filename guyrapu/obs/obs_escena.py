@@ -160,17 +160,44 @@ def _texto_sin_imagen(nombre, tipo, visible, al_aire) -> tuple:
     else:
         estado = _("no muestra imagen")
     partes = [nombre]
-    if tipo:
+    if tipo and str(tipo).casefold() != nombre.casefold():
         partes.append(str(tipo))
     partes.append(estado)
     return ", ".join(partes), "", ""
+
+
+def _problema_de(elemento, rect, delanteros, lienzo_ancho, lienzo_alto) -> str:
+    """Lo que falla en la fuente: oculta, tapada o fuera del vídeo."""
+    if not _visible(elemento):
+        problema = _("oculta en OBS")
+    else:
+        tapa, porcentaje = _quien_mas_tapa(rect, delanteros) if rect is not None else (None, 0.0)
+        if tapa is not None and porcentaje >= _UMBRAL_TAPA_ENTERA:
+            problema = _("no aparece en el vídeo, la tapa entera {tapa}").format(
+                tapa=tapa)
+        elif tapa is not None and porcentaje >= _UMBRAL_AVISO:
+            problema = _("se ve en parte: {nombre} tapa el {porcentaje} por ciento").format(
+                nombre=tapa, porcentaje=int(round(porcentaje)))
+        else:
+            problema = ""
+    if rect is not None and lienzo_ancho and lienzo_alto:
+        fuera = obs_disposicion.fuera_del_lienzo(rect, lienzo_ancho, lienzo_alto)
+        if fuera >= _UMBRAL_AVISO:
+            if problema:
+                # Traductores: {p} es un porcentaje.
+                problema += _(" y un {p} por ciento queda fuera del vídeo").format(
+                    p=int(round(fuera)))
+            else:
+                # Traductores: {p} es un porcentaje.
+                problema = _("un {p} por ciento queda fuera del vídeo").format(
+                    p=int(round(fuera)))
+    return problema
 
 
 def _texto_fuente(elemento, rect, delanteros, lienzo_ancho,
                   lienzo_alto, tipos) -> tuple:
     nombre = str(elemento.get("sourceName") or _("sin nombre"))
     tipo = (tipos or {}).get(nombre, "")
-    visible = _visible(elemento)
     if rect is None or not lienzo_ancho or not lienzo_alto:
         posicion, tamano = _("posición desconocida"), ""
     elif rect[2] * rect[3] / (lienzo_ancho * lienzo_alto) * 100 >= _UMBRAL_TODO:
@@ -178,30 +205,17 @@ def _texto_fuente(elemento, rect, delanteros, lienzo_ancho,
     else:
         posicion = _texto_anclaje(rect, lienzo_ancho, lienzo_alto) or _("en una posición libre")
         tamano = transformar_fuente.texto_de_tamano(rect[2], lienzo_ancho)
-    if not visible:
-        estado = _("oculta en OBS")
-    else:
-        tapa, porcentaje = _quien_mas_tapa(rect, delanteros) if rect is not None else (None, 0.0)
-        if tapa is not None and porcentaje >= _UMBRAL_TAPA_ENTERA:
-            estado = (_("visible en OBS, pero no aparece en el vídeo: "
-                        "la tapa entera {tapa}").format(tapa=tapa))
-        elif tapa is not None and porcentaje >= _UMBRAL_AVISO:
-            estado = _("se ve en parte: {nombre} tapa el {porcentaje} por ciento").format(
-                nombre=tapa, porcentaje=int(round(porcentaje)))
-        else:
-            estado = _("se ve")
-    if rect is not None and lienzo_ancho and lienzo_alto:
-        fuera = obs_disposicion.fuera_del_lienzo(rect, lienzo_ancho, lienzo_alto)
-        if fuera >= _UMBRAL_AVISO:
-            # Traductores: {p} es un porcentaje.
-            estado += _(" y un {p} por ciento queda fuera del vídeo").format(p=int(round(fuera)))
+    problema = _problema_de(elemento, rect, delanteros, lienzo_ancho, lienzo_alto)
     partes = [nombre]
-    if tipo:
+    if tipo and str(tipo).casefold() != nombre.casefold():
         partes.append(str(tipo))
-    partes += [posicion]
+    if problema:
+        partes.append(problema)
+    partes.append(posicion)
     if tamano:
         partes.append(tamano)
-    partes.append(estado)
+    if not problema:
+        partes.append(_("se ve"))
     return ", ".join(partes), posicion, tamano
 
 

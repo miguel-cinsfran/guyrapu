@@ -4162,13 +4162,6 @@ msgstr "in a free position"
 
 #: guyrapu/obs/obs_escena.py
 #, python-brace-format
-msgid "visible en OBS, pero no aparece en el vídeo: la tapa entera {tapa}"
-msgstr ""
-"visible in OBS, but it does not appear in the video: {tapa} covers it "
-"entirely"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
 msgid "se ve en parte: {nombre} tapa el {porcentaje} por ciento"
 msgstr "partly visible: {nombre} covers {porcentaje} percent"
 
@@ -13084,4 +13077,15 @@ msgstr ""
 #, python-brace-format
 msgid "El modelo elegido, {modelo}, no respondió con tu clave. Elige otro."
 msgstr "The chosen model, {modelo}, did not respond with your key. Choose another."
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "no aparece en el vídeo, la tapa entera {tapa}"
+msgstr "it does not appear in the video, {tapa} covers it entirely"
+
+#. Traductores: {p} es un porcentaje.
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "un {p} por ciento queda fuera del vídeo"
+msgstr "{p} percent is off the video"
 
