@@ -217,6 +217,75 @@
 </head>
 <body>
 <h1 id="novedades-de-guyrapu">Novedades de Guyrapu</h1>
+<h2 id="300-beta-5-noviembre-de-2026">3.0.0 beta 5, noviembre de
+2026</h2>
+<ul>
+<li>Los sonidos cambiaron y hay que volver a aprenderlos. Ahora se
+agrupan por familias, y un tema propio sigue sonando con sus
+archivos.</li>
+</ul>
+<h3 id="panel-de-obs">Panel de OBS</h3>
+<ul>
+<li>El <em>Panel de OBS</em> ya no dice que una fuente ajustada con un
+diseño se sale del vídeo cuando entra completa. Al describir una fuente,
+dice primero si se ve y qué hacer para ajustarla al vídeo.</li>
+<li>Guyrapu ya no se congela al pulsar <code>Tab</code> en el <em>Panel
+de OBS</em> mientras espera a OBS o después de que OBS dejó de
+responder, y el panel siempre se puede cerrar.</li>
+<li>En la pestaña <em>Escena</em> del <em>Panel de OBS</em>, cada fuente
+dice su posición con las mismas palabras que el cuadro de tamaño y
+posición, sin «cerca de», dice primero si tiene un problema (oculta,
+tapada o fuera del vídeo) y ya no repite el tipo cuando es igual al
+nombre.</li>
+<li>Editar en el <em>Panel de OBS</em> un perfil que no es el que está
+en uso ya no cambia el perfil de OBS ni lo deja cargando.</li>
+<li>Cambiar de perfil desde Guyrapu ya no deja a OBS esperando con un
+cuadro de reiniciar cuando los perfiles tienen distinta frecuencia de
+audio.</li>
+</ul>
+<h3 id="inteligencia-artificial">Inteligencia artificial</h3>
+<ul>
+<li>Al actualizar la lista de modelos de la inteligencia artificial,
+Guyrapu avisa si el modelo elegido no responde con tu clave o es de
+pago, sin esperar a la primera pregunta.</li>
+</ul>
+<h3 id="chat-y-estado">Chat y estado</h3>
+<ul>
+<li>Cuando transmites a YouTube y TikTok a la vez, <em>Anunciar
+estado</em> y <code>F2</code> dicen los espectadores de las dos
+plataformas.</li>
+<li>Si el chat de YouTube o de TikTok se corta solo en pleno directo,
+suena a desconexión, y al volver, a reconexión, distinto de cuando lo
+conectas tú. Un fallo que la app reintenta sola ya no suena a
+error.</li>
+</ul>
+<h3 id="sonidos">Sonidos</h3>
+<ul>
+<li>Cuando OBS deja de responder y cuando vuelve, el aviso suena como
+una desconexión y una reconexión, y sale en el idioma de la
+aplicación.</li>
+<li>Más avisos tienen sonido, y los que tenían uno equivocado ahora
+suenan según lo que pasó: error si lo pedido no se pudo hacer,
+advertencia si conviene mirar algo, y el fin o el corte de lo que se
+mira en el reproductor. Entre ellos, activar, desactivar, cambiar el
+título y agregar un destino de Restream, y los errores al preparar el
+directo de YouTube.</li>
+<li>Los sonidos se ordenan por familias: lo que sale bien suena igual en
+toda la app, igual que los errores, lo que está en curso, lo que se
+activa y se desactiva, las advertencias y lo que se desconecta y se
+reconecta. Hay menos sonidos que aprender.</li>
+<li>La página <em>Sonidos</em> de <em>Preferencias</em> muestra los
+sonidos ordenados por familia y dice la familia de cada uno. En inglés,
+los nombres salen traducidos.</li>
+<li>Un tema de sonidos propio que no trae el sonido de un evento nuevo
+suena con el de su familia en ese tema o, si no está, con el del tema
+predeterminado, en vez de quedar en silencio.</li>
+</ul>
+<h3 id="música">Música</h3>
+<ul>
+<li>Cuando la igualación del volumen termina, se avisa con un sonido y
+cuántas canciones quedaron igualadas.</li>
+</ul>
 <h2 id="300-beta-4-noviembre-de-2026">3.0.0 beta 4, noviembre de
 2026</h2>
 <ul>
@@ -402,7 +471,7 @@ de tareas pasan solos a <code>Guyrapu.exe</code> y conservan su tecla.
 La fuente del chat en OBS se renombra sola a <em>Chat en el
 vídeo</em>.</li>
 </ul>
-<h3 id="panel-de-obs">Panel de OBS</h3>
+<h3 id="panel-de-obs-1">Panel de OBS</h3>
 <ul>
 <li>En el <em>Panel de OBS</em>, <em>General</em> reúne el estado de la
 transmisión, la grabación, la escena y el micrófono, y <code>F1</code>
@@ -520,7 +589,7 @@ la biblioteca de canciones.</p>
 otra aplicación tiene que publicar la suya con la misma licencia. Las
 versiones hasta la 2.5.0 siguen con la licencia MIT.</li>
 </ul>
-<h3 id="música">Música</h3>
+<h3 id="música-1">Música</h3>
 <ul>
 <li>La música y el reproductor ya no comparten el volumen. Antes,
 silenciar el vídeo o el directo con <code>Ctrl+M</code> callaba también
@@ -593,7 +662,7 @@ tiene elegido qué capturar.</li>
 <li>El primer envío pide confirmación, porque la captura y lo que
 escribas salen de tu equipo hacia el proveedor.</li>
 </ul>
-<h3 id="música-1">Música</h3>
+<h3 id="música-2">Música</h3>
 <ul>
 <li>Hay un fundido entre canciones. El final de una canción se mezcla
 con el principio de la siguiente, y se salta el silencio que muchos
@@ -720,7 +789,7 @@ habitual.</li>
 <h2 id="240-octubre-de-2026">2.4.0, octubre de 2026</h2>
 <p>Música mientras transmites, sin abrir otra aplicación en el
 equipo.</p>
-<h3 id="música-2">Música</h3>
+<h3 id="música-3">Música</h3>
 <ul>
 <li>El menú <em>Música</em> tiene sus atajos. Con
 <code>Ctrl+Alt+Espacio</code> puedes reproducir o pausar.
@@ -1015,7 +1084,7 @@ sonaban igual que otro tienen ahora su sonido propio.</li>
 <li>Al iniciar ya no dice «Preparando el reproductor» ni «Reproductor
 listo». El reproductor se prepara igual, en silencio.</li>
 </ul>
-<h3 id="sonidos">Sonidos</h3>
+<h3 id="sonidos-1">Sonidos</h3>
 <ul>
 <li>El tema <em>Suave</em> vuelve a sonar distinto. Desde la 2.2.0 sus
 sonidos eran una copia de los del tema <em>Predeterminado</em>. Ahora
@@ -1139,7 +1208,7 @@ conservan.</li>
 progreso y cada paso anunciado: buscando, descargando y el
 resultado.</li>
 </ul>
-<h3 id="sonidos-1">Sonidos</h3>
+<h3 id="sonidos-2">Sonidos</h3>
 <ul>
 <li>Todos los sonidos son grabaciones nuevas, de dominio público,
 elegidas una por una para que se distingan entre sí. El archivo

@@ -221,7 +221,7 @@
 y maneja OBS Studio y Restream desde el teclado. Está pensado para
 personas ciegas o con baja visión que transmiten, y se prueba con
 NVDA.</p>
-<p>Versión 3.0.0 beta 4 · Windows 10 y 11 · <a
+<p>Versión 3.0.0 beta 5 · Windows 10 y 11 · <a
 href="CHANGELOG.html">Novedades</a></p>
 <h2 id="instalación">Instalación</h2>
 <p>Descomprime el ZIP en cualquier carpeta y abre
@@ -260,6 +260,9 @@ Cada cambio de región o de pestaña se anuncia.</p>
 <p>Cada mensaje se lee con la voz elegida y lleva un sonido según quién
 escribe (propietario del canal, moderador, cuenta verificada o miembro)
 y según lo que es (Super Chat, membresía o regalo de TikTok).</p>
+<p>Si el chat se interrumpe solo en pleno directo, suena como una
+desconexión, y al volver, como una reconexión. Es distinto de conectarlo
+o desconectarlo a mano.</p>
 <p>En la lista del chat, las flechas pasan de un mensaje a otro, y al
 escribir unas letras el foco salta al primer autor que empieza así. El
 menú contextual copia el mensaje, silencia al autor durante la sesión y
@@ -364,9 +367,130 @@ muestra. Si ElevenLabs falla por la red o por falta de saldo, Guyrapu
 lee con la <em>Voz de Windows de respaldo</em> y lo avisa una vez.</p>
 <p>Cada tipo de mensaje, evento y aviso tiene su sonido. En la categoría
 <em>Sonidos</em> se elige el tema, <em>Predeterminado</em> o
-<em>Suave</em>, y se desactiva cada sonido por separado. Para crear un
-tema propio, copia la carpeta <code>sounds/themes/default</code> con
-otro nombre y reemplaza los archivos <code>.wav</code>.</p>
+<em>Suave</em>, y se desactiva cada sonido por separado. La página
+muestra los sonidos agrupados por familia y dice la familia de cada uno.
+En inglés, los nombres salen traducidos.</p>
+<h3 id="las-familias-de-sonidos">Las familias de sonidos</h3>
+<p>Las familias aparecen en este orden, y cada una dice qué clase de
+aviso suena con ella:</p>
+<ul>
+<li><em>Completado</em>: lo que pediste salió bien. <em>Texto
+copiado</em> suena con <code>copiar.wav</code>, y el resto de la familia
+usa el mismo archivo: <em>Acción completada</em>, <em>Voz cambiada</em>,
+<em>Mensaje enviado</em>, <em>Comentario publicado</em>, <em>Acción de
+moderación</em>, <em>Cola de lectura vaciada</em>, <em>Clip
+guardado</em>, <em>Captura agregada</em>, <em>Búsqueda con
+resultados</em>, <em>Búsqueda sin resultados</em>, <em>Descarga agregada
+a la cola</em> y <em>Actualización lista para instalar</em>.</li>
+<li><em>Error</em>: lo que pediste no se pudo hacer. <em>Error</em>
+suena con <code>error.wav</code>, y el resto de la familia usa el mismo
+archivo: <em>Error de la IA</em>, <em>Búsqueda fallida</em>,
+<em>Formatos no disponibles</em> y <em>Captura negra
+detectada</em>.</li>
+<li><em>En curso</em>: algo está en marcha o en espera. <em>Espera</em>
+suena con <code>espera.wav</code>, y el resto de la familia usa el mismo
+archivo: <em>Conexión en curso</em>, <em>Reproductor ocupado</em>,
+<em>Consulta enviada a la IA</em>, <em>Búsqueda en curso</em>, <em>Carga
+de formatos</em>, <em>TikTok limita las consultas</em> y <em>Preparación
+de la transmisión</em>.</li>
+<li><em>Activado</em>: algo se activa o vuelve. <em>Lectura
+reanudada</em> suena con <code>reanudar.wav</code>, y <em>Conexión
+establecida</em>, <em>Grabación iniciada</em> y <em>Grabación
+reanudada</em> usan el mismo archivo.</li>
+<li><em>Desactivado</em>: algo se desactiva o se detiene. <em>Lectura en
+pausa</em> suena con <code>pausa.wav</code>, y el resto de la familia
+usa el mismo archivo: <em>Desconexión del chat</em>, <em>Grabación
+detenida</em>, <em>Grabación en pausa</em>, <em>Consulta a la IA
+cancelada</em> y <em>Descarga cancelada</em>.</li>
+<li><em>Advertencia</em>: conviene mirar algo. <em>Aviso general</em>
+suena con <code>aviso.wav</code>, y el resto de la familia usa el mismo
+archivo: <em>Problema de la grabación</em>, <em>Otros destinos de
+Restream</em>, <em>Atajos globales ocupados</em> y <em>Señal débil en
+Restream</em>.</li>
+<li><em>Desconexión</em>: algo en directo se interrumpe o deja de
+responder. <em>Problema de la transmisión</em> suena con
+<code>transmision_problema.wav</code>, y el resto de la familia usa el
+mismo archivo: <em>Reconexión del directo</em>, <em>Directo con cortes
+seguidos</em>, <em>Destino de Restream desconectado</em>, <em>Restream
+sin señal</em>, <em>Chat desconectado</em>, <em>OBS no responde</em> y
+<em>Reproducción interrumpida</em>.</li>
+<li><em>Reconexión</em>: eso mismo vuelve. <em>Transmisión
+recuperada</em> suena con <code>transmision_recuperada.wav</code>, y el
+resto de la familia usa el mismo archivo: <em>Destino de Restream de
+vuelta</em>, <em>Señal de Restream recuperada</em>, <em>Chat
+reconectado</em> y <em>OBS vuelve a responder</em>.</li>
+<li><em>Transmisión y directo</em>: el estado de la transmisión y del
+directo. <em>Directo en curso</em> suena con <code>al_aire.wav</code>,
+<em>Transmisión detenida</em> con <code>transmision_detenida.wav</code>,
+<em>Fin del directo</em> con <code>fin_directo.wav</code>, <em>Directo
+de TikTok en pausa</em> con <code>directo_pausado.wav</code> y
+<em>Directo de TikTok continúa</em> con
+<code>directo_reanudado.wav</code>. <em>Cierre confirmado del
+directo</em> y <em>Reproducción finalizada</em> usan el de su familia,
+<code>fin_directo.wav</code>.</li>
+<li><em>Chat</em>: los mensajes y los eventos del chat. <em>Mensaje
+nuevo del chat</em> suena con <code>mensaje_nuevo.wav</code>,
+<em>Mensaje de TikTok</em> con <code>mensaje_tiktok.wav</code>,
+<em>Mensaje del propietario del canal</em> con
+<code>mensaje_propietario.wav</code>, <em>Mensaje del moderador</em> con
+<code>mensaje_moderador.wav</code>, <em>Mensaje de una cuenta
+verificada</em> con <code>mensaje_verificado.wav</code>, <em>Mensaje de
+un miembro del canal</em> con <code>mensaje_miembro.wav</code>,
+<em>Super Chat</em> con <code>superchat.wav</code>, <em>Nuevo miembro
+del canal</em> con <code>nuevo_miembro.wav</code>, <em>Nuevo seguidor
+del directo</em> con <code>seguir.wav</code>, <em>Alguien compartió el
+directo</em> con <code>compartir.wav</code>, <em>Cofre de regalos
+recibido</em> con <code>cofre.wav</code>, <em>Me gusta del directo</em>
+con <code>me_gusta.wav</code>, <em>Regalo chico recibido</em> con
+<code>regalo_chico.wav</code>, <em>Regalo mediano recibido</em> con
+<code>regalo_mediano.wav</code>, <em>Regalo grande recibido</em> con
+<code>regalo_grande.wav</code>, <em>Alguien entró al directo</em> con
+<code>entrada.wav</code>, <em>Encuesta abierta</em> con
+<code>encuesta.wav</code>, <em>Encuesta terminada</em> con
+<code>encuesta_fin.wav</code>, <em>Meta cumplida</em> con
+<code>meta.wav</code>, <em>Batalla iniciada</em> con
+<code>batalla.wav</code> y <em>Batalla terminada</em> con
+<code>batalla_fin.wav</code>.</li>
+<li><em>Descargas</em>: el avance y el resultado de las descargas.
+<em>Avance de descarga</em> suena con <code>descarga_avance.wav</code>,
+y <em>Descarga iniciada</em> y <em>Procesamiento de descarga</em> usan
+el mismo archivo. <em>Descarga quieta</em> suena con
+<code>descarga_quieta.wav</code>, <em>Descarga completada</em> con
+<code>descarga_completada.wav</code>, <em>Descarga fallida</em> con
+<code>descarga_fallida.wav</code>, <em>Descarga parcial</em> usa
+<code>descarga_fallida.wav</code> y <em>Cola de descargas terminada</em>
+suena con <code>cola_descargas_terminada.wav</code>.</li>
+<li><em>Inteligencia artificial</em>: las consultas y las respuestas de
+la IA. <em>La IA está analizando</em> suena con
+<code>ia_analizando.wav</code> y <em>Respuesta de la IA</em> con
+<code>ia_respuesta.wav</code>.</li>
+<li><em>Música</em>: lo que pasa con las canciones. <em>Canción
+cambiada</em> suena con <code>musica_tema.wav</code>, <em>Canción
+terminada</em> con <code>musica_fin.wav</code>, <em>Error al reproducir
+la canción</em> con <code>musica_fallo.wav</code>, <em>Igualación del
+volumen</em> con <code>musica_igualando.wav</code> y <em>Igualación del
+volumen completada</em> con <code>musica_igualada.wav</code>.</li>
+<li><em>Indicadores</em>: los avisos de las listas, el encuadre y el
+micrófono. <em>Principio o final de una lista</em> suena con
+<code>orilla.wav</code>, <em>Rostro fuera del encuadre</em> con
+<code>encuadre_fuera.wav</code>, <em>Rostro de vuelta en el
+encuadre</em> con <code>encuadre_dentro.wav</code>, <em>Micrófono con
+buen nivel</em> con <code>microfono_bien.wav</code>, <em>Nivel del
+micrófono para revisar</em> con <code>microfono_revisar.wav</code> y
+<em>Micrófono sin señal</em> con
+<code>microfono_sin_senal.wav</code>.</li>
+<li><em>Aplicación</em>: el inicio de Guyrapu y las actualizaciones.
+<em>Inicio de la aplicación</em> suena con <code>app_inicio.wav</code> y
+<em>Actualización disponible</em> con
+<code>actualizacion_disponible.wav</code>.</li>
+</ul>
+<h3 id="un-tema-propio">Un tema propio</h3>
+<p>Para armar un tema propio, copia la carpeta
+<code>sounds/themes/default</code> con otro nombre. Un archivo con el
+nombre de un evento suena para ese evento, por ejemplo
+<code>superchat.wav</code>. Si el tema no trae ese archivo, suena el de
+su familia dentro del mismo tema y, si tampoco está, el del tema
+predeterminado. Así puedes cambiar solo los sonidos que quieras.</p>
 <h2 id="reproductor">Reproductor</h2>
 <p>El vídeo del directo se reproduce dentro de Guyrapu, con los comandos
 del menú <em>Reproductor</em>. En un directo, cada salto dice la
@@ -403,8 +527,9 @@ desmarcarla, la canción se agrega o se quita. En las dos,
 <p><em>Igualar volumen de las canciones</em> hace que todas suenen con
 un volumen parecido. Cada archivo se mide una vez, con el botón
 <em>Igualar volumen</em> de la ventana <em>Música</em>, y no se
-modifica. Entre una canción y la siguiente hay un fundido, que se ajusta
-en <em>Fundido entre canciones, en segundos</em>.</p>
+modifica. Al terminar, suena un sonido y dice cuántas canciones quedaron
+igualadas. Entre una canción y la siguiente hay un fundido, que se
+ajusta en <em>Fundido entre canciones, en segundos</em>.</p>
 <p>Con <em>Usar atajos de música en cualquier aplicación</em>, los
 atajos de música funcionan también en OBS o en un juego, y esas teclas
 dejan de llegar a las demás aplicaciones.</p>
@@ -498,10 +623,12 @@ NVDA sigue funcionando.</p>
 <p><em>Estado</em> resume la transmisión, la grabación, la escena
 actual, el micrófono y el uso del equipo. <em>Mostrar OBS</em> trae al
 frente la ventana de OBS, también desde el área de notificación. Si OBS
-no responde, lo avisa en vez de esperarlo. <em>Cerrar OBS</em>, también
-en el menú <em>OBS</em>, cierra OBS sin forzarlo, así no pregunta por el
-modo seguro al volver a abrirlo. Si OBS está transmitiendo o grabando,
-no lo cierra y avisa.</p>
+no responde, lo avisa en vez de esperarlo, con el sonido de desconexión,
+y con el de reconexión cuando vuelve. El panel sigue respondiendo
+mientras espera a OBS y se puede cerrar en cualquier momento. <em>Cerrar
+OBS</em>, también en el menú <em>OBS</em>, cierra OBS sin forzarlo, así
+no pregunta por el modo seguro al volver a abrirlo. Si OBS está
+transmitiendo o grabando, no lo cierra y avisa.</p>
 <p><em>Probar el equipo…</em> graba unos segundos con el perfil en uso
 para ver si la PC pierde fotogramas. Si los pierde, prueba ajustes más
 livianos hasta dar con unos que funcionan y ofrece guardarlos en el
@@ -527,13 +654,16 @@ crea una nueva.</p>
 escena, crea una copia con el mismo nombre seguido de «vertical», con
 las mismas fuentes y un diseño vertical. Al transmitir en vertical, esa
 copia sale al aire, y al terminar vuelve la escena que había.</p>
-<p>La lista <em>Fuentes</em> muestra las fuentes de la escena elegida, y
-cada fila dice dónde está la fuente, qué parte del vídeo ocupa y si se
-ve. El menú contextual de cada fila reúne sus acciones. <em>Tamaño y
-posición…</em> la coloca en una de nueve posiciones, con un tamaño de un
-quinto a todo el ancho del vídeo, y <em>Mover con flechas</em> la mueve
-en pasos. Si la escena no tiene fuentes, la lista lo dice y explica cómo
-agregar una.</p>
+<p>La lista <em>Fuentes</em> muestra las fuentes de la escena elegida.
+Cada fila dice primero si la fuente tiene un problema (oculta, tapada o
+fuera del vídeo), después dónde está, con las mismas palabras que el
+cuadro de tamaño y posición, y qué parte del vídeo ocupa. Si una fuente
+no entra, sugiere <em>Aplicar diseño</em> para ajustarla. El menú
+contextual de cada fila reúne sus acciones. <em>Tamaño y posición…</em>
+la coloca en una de nueve posiciones, con un tamaño de un quinto a todo
+el ancho del vídeo, y <em>Mover con flechas</em> la mueve en pasos. Si
+la escena no tiene fuentes, la lista lo dice y explica cómo agregar
+una.</p>
 <p><em>Agregar fuente…</em> agrega a la escena una cámara, una captura
 de ventana, de juego o de pantalla, una imagen, un archivo multimedia,
 un texto, el chat en el vídeo o una fuente de otra escena.</p>
@@ -668,7 +798,10 @@ perfiles que ya tenías no cambian. Muestra su avance en una ventana, con
 un sonido de espera, y si falla deja el error escrito en ella.</li>
 </ul>
 <p>Al transmitir o grabar sin directo, Guyrapu pasa OBS al perfil
-asignado, y al terminar vuelve al que tenía.</p>
+asignado, y al terminar vuelve al que tenía. Editar los ajustes de un
+perfil que no está en uso no cambia el perfil de OBS. Al cambiar de
+perfil, Guyrapu iguala antes el audio del perfil de destino con el del
+perfil en uso, para que OBS no pida reiniciar.</p>
 <p>Sin perfiles, la lista dice cómo crear uno. <em>Nuevo…</em> crea el
 perfil y abre sus ajustes. En la lista, <code>Supr</code> elimina el
 perfil, <code>Intro</code> abre sus ajustes y la tecla Aplicaciones abre
@@ -802,19 +935,23 @@ pestaña para YouTube y otra para TikTok.</p>
 <h2 id="estado-por-voz">Estado por voz</h2>
 <p><em>Anunciar estado</em>, en el menú <em>Ver</em>, resume la
 conexión, el directo, los espectadores, los mensajes leídos y las
-donaciones. Qué se incluye se elige en <em>Preferencias</em>, categoría
-<em>Estado (F2)</em>. Dos veces seguidas, abre la ventana <em>Estado de
-la sesión</em>, con cada dato en una línea.</p>
+donaciones. Cuando transmites a YouTube y TikTok a la vez, los
+espectadores son los de las dos plataformas. Qué se incluye se elige en
+<em>Preferencias</em>, categoría <em>Estado (F2)</em>. Dos veces
+seguidas, abre la ventana <em>Estado de la sesión</em>, con cada dato en
+una línea.</p>
 <h2 id="preguntar-a-la-ia">Preguntar a la IA</h2>
 <p>Una inteligencia artificial mira una captura de OBS y dice qué se ve,
 por ejemplo si una fuente sale en negro. Requiere OBS abierto y la clave
 de un proveedor.</p>
 <p>En <em>Preferencias</em>, categoría <em>Inteligencia artificial</em>,
 se elige el proveedor, como Google Gemini, OpenAI, Anthropic u
-OpenRouter, se guarda la clave y se elige el modelo. La clave queda en
-el Administrador de credenciales de Windows. Si la clave no tiene el
-formato que Guyrapu espera, avisa y ofrece usarla de todos modos, por si
-el proveedor cambió el formato.</p>
+OpenRouter, se guarda la clave y se elige el modelo. Al actualizar la
+lista de modelos, Guyrapu prueba el modelo elegido con tu clave y avisa
+si no responde o si es de pago. La clave queda en el Administrador de
+credenciales de Windows. Si la clave no tiene el formato que Guyrapu
+espera, avisa y ofrece usarla de todos modos, por si el proveedor cambió
+el formato.</p>
 <p><em>Preguntar a la IA sobre la imagen…</em>, en el menú <em>Ver</em>,
 abre una ventana donde <em>Agregar captura</em> elige la escena o una
 fuente, y la pregunta se escribe en <em>Mensaje</em>. <em>Consulta

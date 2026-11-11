@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md 8375d36162575d4c42279a1d472e196d4fd1e2ab -->
+<!-- original: es/MANUAL.md acb4ff3b2e502f778850516946c4dee883a8601c -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -227,7 +227,7 @@ See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
 controls OBS Studio and Restream from the keyboard. It is designed for
 people who are blind or have low vision and stream, and it is tested
 with NVDA.</p>
-<p>Version 3.0.0 beta 4 · Windows 10 and 11 · <a
+<p>Version 3.0.0 beta 5 · Windows 10 and 11 · <a
 href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
 <p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
@@ -266,6 +266,10 @@ or tab is announced.</p>
 <p>Each message is read with the chosen voice and has a sound according
 to who writes (channel owner, moderator, verified account or member) and
 according to what it is (Super Chat, membership or TikTok gift).</p>
+<p>If the chat drops on its own in the middle of a live stream, it
+sounds like a disconnection, and when it comes back, like a
+reconnection. It is different from connecting or disconnecting it by
+hand.</p>
 <p>In the chat list, the arrows move from one message to another, and
 when you type a few letters the focus jumps to the first author that
 starts that way. The context menu copies the message, mutes the author
@@ -374,9 +378,127 @@ a lack of balance, Guyrapu reads with the <em>Backup Windows voice</em>
 and warns you once.</p>
 <p>Each type of message, event and notice has its sound. In the
 <em>Sounds</em> category you choose the theme, <em>Default</em> or
-<em>Soft</em>, and turn off each sound separately. To create your own
-theme, copy the <code>sounds/themes/default</code> folder with another
-name and replace the <code>.wav</code> files.</p>
+<em>Soft</em>, and turn off each sound separately. The page shows the
+sounds grouped by family and says the family of each one. In English,
+the names come translated.</p>
+<h3 id="sound-families">Sound families</h3>
+<p>The families appear in this order, and each one says what kind of
+notice plays with it:</p>
+<ul>
+<li><em>Completed</em>: what you asked for worked. <em>Text copied</em>
+plays <code>copiar.wav</code>, and the rest of the family uses the same
+file: <em>Action completed</em>, <em>Voice changed</em>, <em>Message
+sent</em>, <em>Comment posted</em>, <em>Moderation action</em>,
+<em>Reading queue cleared</em>, <em>Clip saved</em>, <em>Screenshot
+added</em>, <em>Search with results</em>, <em>Search without
+results</em>, <em>Download added to the queue</em> and <em>Update ready
+to install</em>.</li>
+<li><em>Error</em>: what you asked for could not be done. <em>Error</em>
+plays <code>error.wav</code>, and the rest of the family uses the same
+file: <em>AI error</em>, <em>Search failed</em>, <em>Formats
+unavailable</em> and <em>Black screenshot detected</em>.</li>
+<li><em>In progress</em>: something is running or waiting.
+<em>Waiting</em> plays <code>espera.wav</code>, and the rest of the
+family uses the same file: <em>Connecting</em>, <em>Player busy</em>,
+<em>Query sent to the AI</em>, <em>Search in progress</em>, <em>Loading
+formats</em>, <em>TikTok is limiting queries</em> and <em>Preparing the
+broadcast</em>.</li>
+<li><em>On</em>: something turns on or comes back. <em>Reading
+resumed</em> plays <code>reanudar.wav</code>, and <em>Connected</em>,
+<em>Recording started</em> and <em>Recording resumed</em> use the same
+file.</li>
+<li><em>Off</em>: something turns off or stops. <em>Reading paused</em>
+plays <code>pausa.wav</code>, and the rest of the family uses the same
+file: <em>Chat disconnected</em>, <em>Recording stopped</em>,
+<em>Recording paused</em>, <em>AI query canceled</em> and <em>Download
+canceled</em>.</li>
+<li><em>Warning</em>: something is worth checking. <em>General
+alert</em> plays <code>aviso.wav</code>, and the rest of the family uses
+the same file: <em>Recording problem</em>, <em>Other Restream
+destinations</em>, <em>Global shortcuts already in use</em> and <em>Weak
+Restream signal</em>.</li>
+<li><em>Disconnected</em>: something live drops or stops responding.
+<em>Broadcast problem</em> plays <code>transmision_problema.wav</code>,
+and the rest of the family uses the same file: <em>Reconnecting the live
+stream</em>, <em>Live stream with repeated interruptions</em>,
+<em>Restream destination disconnected</em>, <em>No Restream signal</em>,
+<em>Chat disconnected</em>, <em>OBS is not responding</em> and
+<em>Playback interrupted</em>.</li>
+<li><em>Reconnected</em>: that same thing comes back. <em>Broadcast
+restored</em> plays <code>transmision_recuperada.wav</code>, and the
+rest of the family uses the same file: <em>Restream destination
+back</em>, <em>Restream signal restored</em>, <em>Chat reconnected</em>
+and <em>OBS is responding again</em>.</li>
+<li><em>Broadcast and live stream</em>: the state of the broadcast and
+the live stream. <em>Live stream in progress</em> plays
+<code>al_aire.wav</code>, <em>Broadcast stopped</em> plays
+<code>transmision_detenida.wav</code>, <em>Live stream ended</em> plays
+<code>fin_directo.wav</code>, <em>TikTok live stream paused</em> plays
+<code>directo_pausado.wav</code> and <em>TikTok live stream
+continues</em> plays <code>directo_reanudado.wav</code>. <em>Live stream
+close confirmed</em> and <em>Playback finished</em> use the one of their
+family, <code>fin_directo.wav</code>.</li>
+<li><em>Chat</em>: the messages and events of the chat. <em>New chat
+message</em> plays <code>mensaje_nuevo.wav</code>, <em>TikTok
+message</em> plays <code>mensaje_tiktok.wav</code>, <em>Channel owner
+message</em> plays <code>mensaje_propietario.wav</code>, <em>Moderator
+message</em> plays <code>mensaje_moderador.wav</code>, <em>Message from
+a verified account</em> plays <code>mensaje_verificado.wav</code>,
+<em>Message from a channel member</em> plays
+<code>mensaje_miembro.wav</code>, <em>Super Chat</em> plays
+<code>superchat.wav</code>, <em>New channel member</em> plays
+<code>nuevo_miembro.wav</code>, <em>New live stream follower</em> plays
+<code>seguir.wav</code>, <em>Someone shared the live stream</em> plays
+<code>compartir.wav</code>, <em>Gift chest received</em> plays
+<code>cofre.wav</code>, <em>Live stream like</em> plays
+<code>me_gusta.wav</code>, <em>Small gift received</em> plays
+<code>regalo_chico.wav</code>, <em>Medium gift received</em> plays
+<code>regalo_mediano.wav</code>, <em>Large gift received</em> plays
+<code>regalo_grande.wav</code>, <em>Someone joined the live stream</em>
+plays <code>entrada.wav</code>, <em>Poll opened</em> plays
+<code>encuesta.wav</code>, <em>Poll ended</em> plays
+<code>encuesta_fin.wav</code>, <em>Goal reached</em> plays
+<code>meta.wav</code>, <em>Battle started</em> plays
+<code>batalla.wav</code> and <em>Battle ended</em> plays
+<code>batalla_fin.wav</code>.</li>
+<li><em>Downloads</em>: the progress and result of downloads.
+<em>Download progress</em> plays <code>descarga_avance.wav</code>, and
+<em>Download started</em> and <em>Processing download</em> use the same
+file. <em>Download stalled</em> plays <code>descarga_quieta.wav</code>,
+<em>Download completed</em> plays <code>descarga_completada.wav</code>,
+<em>Download failed</em> plays <code>descarga_fallida.wav</code>,
+<em>Partial download</em> uses <code>descarga_fallida.wav</code> and
+<em>Download queue finished</em> plays
+<code>cola_descargas_terminada.wav</code>.</li>
+<li><em>Artificial intelligence</em>: the queries and answers of the AI.
+<em>The AI is analyzing</em> plays <code>ia_analizando.wav</code> and
+<em>AI response</em> plays <code>ia_respuesta.wav</code>.</li>
+<li><em>Music</em>: what happens with the songs. <em>Song changed</em>
+plays <code>musica_tema.wav</code>, <em>Song finished</em> plays
+<code>musica_fin.wav</code>, <em>Error playing the song</em> plays
+<code>musica_fallo.wav</code>, <em>Volume matching</em> plays
+<code>musica_igualando.wav</code> and <em>Volume matching complete</em>
+plays <code>musica_igualada.wav</code>.</li>
+<li><em>Indicators</em>: the notices of the lists, the framing and the
+microphone. <em>Start or end of a list</em> plays
+<code>orilla.wav</code>, <em>Face outside the frame</em> plays
+<code>encuadre_fuera.wav</code>, <em>Face back in the frame</em> plays
+<code>encuadre_dentro.wav</code>, <em>Microphone level good</em> plays
+<code>microfono_bien.wav</code>, <em>Microphone level to check</em>
+plays <code>microfono_revisar.wav</code> and <em>No microphone
+signal</em> plays <code>microfono_sin_senal.wav</code>.</li>
+<li><em>Application</em>: the start of Guyrapu and the updates.
+<em>Application start</em> plays <code>app_inicio.wav</code> and
+<em>Update available</em> plays
+<code>actualizacion_disponible.wav</code>.</li>
+</ul>
+<h3 id="your-own-theme">Your own theme</h3>
+<p>To make your own theme, copy the <code>sounds/themes/default</code>
+folder with another name. A file with the name of an event plays for
+that event, for example <code>superchat.wav</code>. If the theme does
+not bring that file, the one of its family in the same theme plays and,
+if that is missing too, the one of the default theme. That way you can
+change only the sounds you want.</p>
 <h2 id="player">Player</h2>
 <p>The live stream video plays inside Guyrapu, with the commands in the
 <em>Player</em> menu. In a live stream, each jump says the distance to
@@ -410,8 +532,9 @@ adds or removes the song. In both, <code>Enter</code> plays the
 song.</p>
 <p><em>Match song volume</em> makes them all sound at a similar volume.
 Each file is measured once, with the <em>Match the volume</em> button in
-the <em>Music</em> window, and it is not modified. Between one song and
-the next there is a crossfade, which is adjusted in <em>Crossfade
+the <em>Music</em> window, and it is not modified. When it finishes, a
+sound plays and it says how many songs were matched. Between one song
+and the next there is a crossfade, which is adjusted in <em>Crossfade
 between songs, in seconds</em>.</p>
 <p>With <em>Use music shortcuts in any application</em>, the music
 shortcuts also work in OBS or in a game, and those keys stop reaching
@@ -504,10 +627,13 @@ NVDA still works.</p>
 <p><em>Status</em> summarizes the broadcast, the recording, the current
 scene, the microphone and the computer usage. <em>Show OBS</em> brings
 the OBS window to the front, also from the notification area. If OBS is
-not responding, it warns instead of waiting for it. <em>Close OBS</em>,
-also in the <em>OBS</em> menu, closes OBS without forcing it, so it does
-not ask about safe mode when you open it again. If OBS is broadcasting
-or recording, it does not close it and warns.</p>
+not responding, it warns instead of waiting for it, with the
+disconnection sound, and with the reconnection sound when it comes back.
+The panel keeps responding while it waits for OBS and can be closed at
+any time. <em>Close OBS</em>, also in the <em>OBS</em> menu, closes OBS
+without forcing it, so it does not ask about safe mode when you open it
+again. If OBS is broadcasting or recording, it does not close it and
+warns.</p>
 <p><em>Test computer…</em> records for a few seconds with the profile in
 use to see whether the PC drops frames. If it does, it tries lighter
 settings until it finds some that work and offers to save them in the
@@ -533,13 +659,16 @@ broadcast: <em>Change scene</em> puts the chosen scene on air, and
 creates a copy with the same name followed by “vertical”, with the same
 sources and a vertical layout. When broadcasting vertically, that copy
 goes on air, and at the end the scene that was there comes back.</p>
-<p>The <em>Sources</em> list shows the sources of the chosen scene, and
-each row says where the source is, what part of the video it occupies
-and whether it is visible. The context menu of each row brings together
-its actions. <em>Size and position…</em> places it in one of nine
-positions, with a size from one fifth to the full width of the video,
-and <em>Move with arrows</em> moves it in steps. If the scene has no
-sources, the list says so and explains how to add one.</p>
+<p>The <em>Sources</em> list shows the sources of the chosen scene. Each
+row first says whether the source has a problem (hidden, covered or
+outside the video), then where it is, with the same words as the size
+and position dialog, and what part of the video it occupies. If a source
+does not fit, it suggests <em>Apply layout</em> to fit it. The context
+menu of each row brings together its actions. <em>Size and
+position…</em> places it in one of nine positions, with a size from one
+fifth to the full width of the video, and <em>Move with arrows</em>
+moves it in steps. If the scene has no sources, the list says so and
+explains how to add one.</p>
 <p><em>Add source…</em> adds to the scene a camera, a window, game or
 screen capture, an image, a media file, a text, the chat on video or a
 source from another scene.</p>
@@ -676,7 +805,10 @@ error written in it.</li>
 </ul>
 <p>When broadcasting or recording without a live stream, Guyrapu
 switches OBS to the assigned profile, and at the end it goes back to the
-one it had.</p>
+one it had. Editing the settings of a profile that is not in use does
+not change the OBS profile. When it changes profiles, Guyrapu first
+matches the audio of the destination profile to the one of the profile
+in use, so OBS does not ask to restart.</p>
 <p>With no profiles, the list says how to create one. <em>New…</em>
 creates the profile and opens its settings. In the list,
 <code>Delete</code> removes the profile, <code>Enter</code> opens its
@@ -814,19 +946,23 @@ for YouTube and another for TikTok.</p>
 <h2 id="spoken-status">Spoken status</h2>
 <p><em>Announce status</em>, in the <em>View</em> menu, summarizes the
 connection, the live stream, the viewers, the messages read and the
-donations. What is included is chosen in <em>Preferences</em>, on the
-<em>Status (F2)</em> category. Twice in a row, it opens the <em>Session
-status</em> window, with each piece of data on one line.</p>
+donations. When you broadcast to YouTube and TikTok at the same time,
+the viewers are those of both platforms. What is included is chosen in
+<em>Preferences</em>, on the <em>Status (F2)</em> category. Twice in a
+row, it opens the <em>Session status</em> window, with each piece of
+data on one line.</p>
 <h2 id="asking-the-ai">Asking the AI</h2>
 <p>An artificial intelligence looks at an OBS screenshot and says what
 it sees, for example whether a source comes out black. It requires OBS
 open and a provider key.</p>
 <p>In <em>Preferences</em>, on the <em>Artificial intelligence</em>
 category, you choose the provider, such as Google Gemini, OpenAI,
-Anthropic or OpenRouter, save the key and choose the model. The key is
-kept in the Windows Credential Manager. If the key does not have the
-format Guyrapu expects, it warns you and offers to use it anyway, in
-case the provider changed the format.</p>
+Anthropic or OpenRouter, save the key and choose the model. When the
+list of models is updated, Guyrapu tests the chosen model with your key
+and warns if it does not respond or if it is paid. The key is kept in
+the Windows Credential Manager. If the key does not have the format
+Guyrapu expects, it warns you and offers to use it anyway, in case the
+provider changed the format.</p>
 <p><em>Ask the AI about the picture…</em>, in the <em>View</em> menu,
 opens a window where <em>Add screenshot</em> chooses the scene or a
 source, and the question is typed in <em>Message</em>. <em>Quick

@@ -1,7 +1,69 @@
-<!-- original: es/CHANGELOG.md b90b5997caa75a491abb2a0887d825f25a127217 -->
+<!-- original: es/CHANGELOG.md 4da6274e9ed84f1250c73d7f793f4cffa083d459 -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 5, November 2026
+
+- The sounds changed and you have to learn them again. They are now grouped
+  by families, and your own theme still plays with its files.
+
+### OBS panel
+
+- The *OBS panel* no longer says that a source adjusted with a layout goes
+  outside the video when it fits completely. When it describes a source, it
+  first says whether it is visible and what to do to fit it to the video.
+- Guyrapu no longer freezes when you press `Tab` in the *OBS panel* while it
+  waits for OBS or after OBS stopped responding, and the panel can always be
+  closed.
+- On the *Scene* tab of the *OBS panel*, each source says its position with
+  the same words as the size and position dialog, without “near”, first says
+  whether it has a problem (hidden, covered or outside the video) and no
+  longer repeats the type when it is the same as the name.
+- Editing a profile that is not the one in use in the *OBS panel* no longer
+  changes the OBS profile or leaves it loading.
+- Changing profiles from Guyrapu no longer leaves OBS waiting with a restart
+  dialog when the profiles have a different audio frequency.
+
+### Artificial intelligence
+
+- When the list of artificial intelligence models is updated, Guyrapu warns
+  if the chosen model does not respond with your key or is paid, without
+  waiting for the first question.
+
+### Chat and status
+
+- When you broadcast to YouTube and TikTok at the same time, *Announce
+  status* and `F2` say the viewers of both platforms.
+- If the YouTube or TikTok chat drops on its own in the middle of a live
+  stream, it sounds like a disconnection, and when it comes back, like a
+  reconnection, different from when you connect it yourself. A failure that
+  the app retries on its own no longer sounds like an error.
+
+### Sounds
+
+- When OBS stops responding and when it comes back, the warning sounds like
+  a disconnection and a reconnection, and it comes out in the application
+  language.
+- More warnings have a sound, and the ones that had a wrong one now sound
+  according to what happened: error if what you asked for could not be done,
+  warning if something is worth checking, and the end or the cut of what you
+  are watching in the player. Among them, turning on, turning off, changing
+  the title and adding a Restream destination, and the errors when preparing
+  the YouTube live stream.
+- The sounds are ordered by families: what works sounds the same throughout
+  the app, as do errors, what is in progress, what turns on and off, warnings
+  and what disconnects and reconnects. There are fewer sounds to learn.
+- The *Sounds* page of *Preferences* shows the sounds ordered by family and
+  says the family of each one. In English, the names come translated.
+- Your own sound theme that does not bring the sound of a new event plays the
+  one of its family in that theme or, if that is missing, the one of the
+  default theme, instead of staying silent.
+
+### Music
+
+- When volume matching finishes, a sound plays and it says how many songs
+  were matched.
 
 ## 3.0.0 beta 4, November 2026
 

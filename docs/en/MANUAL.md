@@ -1,11 +1,11 @@
-<!-- original: es/MANUAL.md 8375d36162575d4c42279a1d472e196d4fd1e2ab -->
+<!-- original: es/MANUAL.md acb4ff3b2e502f778850516946c4dee883a8601c -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
 
 Guyrapu reads the chat of YouTube and TikTok live streams aloud, and controls OBS Studio and Restream from the keyboard. It is designed for people who are blind or have low vision and stream, and it is tested with NVDA.
 
-Version 3.0.0 beta 4 · Windows 10 and 11 · [News](CHANGELOG.md)
+Version 3.0.0 beta 5 · Windows 10 and 11 · [News](CHANGELOG.md)
 
 ## Installation
 
@@ -27,6 +27,8 @@ The window has three regions: *Connection*, *Content* and *Player*. In *Content*
 ## The chat
 
 Each message is read with the chosen voice and has a sound according to who writes (channel owner, moderator, verified account or member) and according to what it is (Super Chat, membership or TikTok gift).
+
+If the chat drops on its own in the middle of a live stream, it sounds like a disconnection, and when it comes back, like a reconnection. It is different from connecting or disconnecting it by hand.
 
 In the chat list, the arrows move from one message to another, and when you type a few letters the focus jumps to the first author that starts that way. The context menu copies the message, mutes the author for the session and assigns an alias. With the Google session started, it also puts the author in timeout or hides them from the channel.
 
@@ -78,7 +80,31 @@ On a published video, the *Comments* tab reads the comments, and with the Google
 
 Guyrapu reads with three voice engines: SAPI 5 and OneCore, which come with Windows, and ElevenLabs, which requires an account. The engine, the voice, the speed, the volume and the pitch are chosen in *Preferences*, on the *Voices* category, where *Test voice* plays a sample. If ElevenLabs fails because of the network or a lack of balance, Guyrapu reads with the *Backup Windows voice* and warns you once.
 
-Each type of message, event and notice has its sound. In the *Sounds* category you choose the theme, *Default* or *Soft*, and turn off each sound separately. To create your own theme, copy the `sounds/themes/default` folder with another name and replace the `.wav` files.
+Each type of message, event and notice has its sound. In the *Sounds* category you choose the theme, *Default* or *Soft*, and turn off each sound separately. The page shows the sounds grouped by family and says the family of each one. In English, the names come translated.
+
+### Sound families
+
+The families appear in this order, and each one says what kind of notice plays with it:
+
+- *Completed*: what you asked for worked. *Text copied* plays `copiar.wav`, and the rest of the family uses the same file: *Action completed*, *Voice changed*, *Message sent*, *Comment posted*, *Moderation action*, *Reading queue cleared*, *Clip saved*, *Screenshot added*, *Search with results*, *Search without results*, *Download added to the queue* and *Update ready to install*.
+- *Error*: what you asked for could not be done. *Error* plays `error.wav`, and the rest of the family uses the same file: *AI error*, *Search failed*, *Formats unavailable* and *Black screenshot detected*.
+- *In progress*: something is running or waiting. *Waiting* plays `espera.wav`, and the rest of the family uses the same file: *Connecting*, *Player busy*, *Query sent to the AI*, *Search in progress*, *Loading formats*, *TikTok is limiting queries* and *Preparing the broadcast*.
+- *On*: something turns on or comes back. *Reading resumed* plays `reanudar.wav`, and *Connected*, *Recording started* and *Recording resumed* use the same file.
+- *Off*: something turns off or stops. *Reading paused* plays `pausa.wav`, and the rest of the family uses the same file: *Chat disconnected*, *Recording stopped*, *Recording paused*, *AI query canceled* and *Download canceled*.
+- *Warning*: something is worth checking. *General alert* plays `aviso.wav`, and the rest of the family uses the same file: *Recording problem*, *Other Restream destinations*, *Global shortcuts already in use* and *Weak Restream signal*.
+- *Disconnected*: something live drops or stops responding. *Broadcast problem* plays `transmision_problema.wav`, and the rest of the family uses the same file: *Reconnecting the live stream*, *Live stream with repeated interruptions*, *Restream destination disconnected*, *No Restream signal*, *Chat disconnected*, *OBS is not responding* and *Playback interrupted*.
+- *Reconnected*: that same thing comes back. *Broadcast restored* plays `transmision_recuperada.wav`, and the rest of the family uses the same file: *Restream destination back*, *Restream signal restored*, *Chat reconnected* and *OBS is responding again*.
+- *Broadcast and live stream*: the state of the broadcast and the live stream. *Live stream in progress* plays `al_aire.wav`, *Broadcast stopped* plays `transmision_detenida.wav`, *Live stream ended* plays `fin_directo.wav`, *TikTok live stream paused* plays `directo_pausado.wav` and *TikTok live stream continues* plays `directo_reanudado.wav`. *Live stream close confirmed* and *Playback finished* use the one of their family, `fin_directo.wav`.
+- *Chat*: the messages and events of the chat. *New chat message* plays `mensaje_nuevo.wav`, *TikTok message* plays `mensaje_tiktok.wav`, *Channel owner message* plays `mensaje_propietario.wav`, *Moderator message* plays `mensaje_moderador.wav`, *Message from a verified account* plays `mensaje_verificado.wav`, *Message from a channel member* plays `mensaje_miembro.wav`, *Super Chat* plays `superchat.wav`, *New channel member* plays `nuevo_miembro.wav`, *New live stream follower* plays `seguir.wav`, *Someone shared the live stream* plays `compartir.wav`, *Gift chest received* plays `cofre.wav`, *Live stream like* plays `me_gusta.wav`, *Small gift received* plays `regalo_chico.wav`, *Medium gift received* plays `regalo_mediano.wav`, *Large gift received* plays `regalo_grande.wav`, *Someone joined the live stream* plays `entrada.wav`, *Poll opened* plays `encuesta.wav`, *Poll ended* plays `encuesta_fin.wav`, *Goal reached* plays `meta.wav`, *Battle started* plays `batalla.wav` and *Battle ended* plays `batalla_fin.wav`.
+- *Downloads*: the progress and result of downloads. *Download progress* plays `descarga_avance.wav`, and *Download started* and *Processing download* use the same file. *Download stalled* plays `descarga_quieta.wav`, *Download completed* plays `descarga_completada.wav`, *Download failed* plays `descarga_fallida.wav`, *Partial download* uses `descarga_fallida.wav` and *Download queue finished* plays `cola_descargas_terminada.wav`.
+- *Artificial intelligence*: the queries and answers of the AI. *The AI is analyzing* plays `ia_analizando.wav` and *AI response* plays `ia_respuesta.wav`.
+- *Music*: what happens with the songs. *Song changed* plays `musica_tema.wav`, *Song finished* plays `musica_fin.wav`, *Error playing the song* plays `musica_fallo.wav`, *Volume matching* plays `musica_igualando.wav` and *Volume matching complete* plays `musica_igualada.wav`.
+- *Indicators*: the notices of the lists, the framing and the microphone. *Start or end of a list* plays `orilla.wav`, *Face outside the frame* plays `encuadre_fuera.wav`, *Face back in the frame* plays `encuadre_dentro.wav`, *Microphone level good* plays `microfono_bien.wav`, *Microphone level to check* plays `microfono_revisar.wav` and *No microphone signal* plays `microfono_sin_senal.wav`.
+- *Application*: the start of Guyrapu and the updates. *Application start* plays `app_inicio.wav` and *Update available* plays `actualizacion_disponible.wav`.
+
+### Your own theme
+
+To make your own theme, copy the `sounds/themes/default` folder with another name. A file with the name of an event plays for that event, for example `superchat.wav`. If the theme does not bring that file, the one of its family in the same theme plays and, if that is missing too, the one of the default theme. That way you can change only the sounds you want.
 
 ## Player
 
@@ -98,7 +124,7 @@ Guyrapu plays music while you stream. It uses the Music folder next to the appli
 
 When you create or edit a playlist, a dialog with two lists opens. In *Playlist songs*, `Delete` removes the song and `Alt+Up Arrow` and `Alt+Down Arrow` move it. *All songs* shows the folder with a checkbox for each song, checked for the ones already in the playlist: checking or unchecking it adds or removes the song. In both, `Enter` plays the song.
 
-*Match song volume* makes them all sound at a similar volume. Each file is measured once, with the *Match the volume* button in the *Music* window, and it is not modified. Between one song and the next there is a crossfade, which is adjusted in *Crossfade between songs, in seconds*.
+*Match song volume* makes them all sound at a similar volume. Each file is measured once, with the *Match the volume* button in the *Music* window, and it is not modified. When it finishes, a sound plays and it says how many songs were matched. Between one song and the next there is a crossfade, which is adjusted in *Crossfade between songs, in seconds*.
 
 With *Use music shortcuts in any application*, the music shortcuts also work in OBS or in a game, and those keys stop reaching the other applications.
 
@@ -162,7 +188,7 @@ The *OBS panel* brings together in tabs what is done with OBS, and it is opened 
 
 ### General
 
-*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area. If OBS is not responding, it warns instead of waiting for it. *Close OBS*, also in the *OBS* menu, closes OBS without forcing it, so it does not ask about safe mode when you open it again. If OBS is broadcasting or recording, it does not close it and warns.
+*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area. If OBS is not responding, it warns instead of waiting for it, with the disconnection sound, and with the reconnection sound when it comes back. The panel keeps responding while it waits for OBS and can be closed at any time. *Close OBS*, also in the *OBS* menu, closes OBS without forcing it, so it does not ask about safe mode when you open it again. If OBS is broadcasting or recording, it does not close it and warns.
 
 *Test computer…* records for a few seconds with the profile in use to see whether the PC drops frames. If it does, it tries lighter settings until it finds some that work and offers to save them in the profile. With the Aitum Vertical Canvas plugin in OBS, the dialog offers to include the vertical canvas, to know whether the PC can broadcast in both orientations at the same time. Test recordings are deleted at the end.
 
@@ -176,7 +202,7 @@ The *Scenes* list shows each scene, whether it is the current one and how many s
 
 *Create vertical version*, in the context menu of a scene, creates a copy with the same name followed by “vertical”, with the same sources and a vertical layout. When broadcasting vertically, that copy goes on air, and at the end the scene that was there comes back.
 
-The *Sources* list shows the sources of the chosen scene, and each row says where the source is, what part of the video it occupies and whether it is visible. The context menu of each row brings together its actions. *Size and position…* places it in one of nine positions, with a size from one fifth to the full width of the video, and *Move with arrows* moves it in steps. If the scene has no sources, the list says so and explains how to add one.
+The *Sources* list shows the sources of the chosen scene. Each row first says whether the source has a problem (hidden, covered or outside the video), then where it is, with the same words as the size and position dialog, and what part of the video it occupies. If a source does not fit, it suggests *Apply layout* to fit it. The context menu of each row brings together its actions. *Size and position…* places it in one of nine positions, with a size from one fifth to the full width of the video, and *Move with arrows* moves it in steps. If the scene has no sources, the list says so and explains how to add one.
 
 *Add source…* adds to the scene a camera, a window, game or screen capture, an image, a media file, a text, the chat on video or a source from another scene.
 
@@ -227,7 +253,7 @@ The *OBS profiles* list shows each OBS profile, its orientation and what it is u
 - *Edit settings…* changes the canvas, the output, the frames per second, the encoder, the broadcast, the recording, the clip buffer and the audio, including the monitoring device.
 - *Prepare profiles…* creates a profile for broadcasting horizontally, another one vertically and another one for recording, checks which settings work well on your PC, assigns them and says what it did. The profiles you already had do not change. It shows its progress in a window, with a wait sound, and if it fails it leaves the error written in it.
 
-When broadcasting or recording without a live stream, Guyrapu switches OBS to the assigned profile, and at the end it goes back to the one it had.
+When broadcasting or recording without a live stream, Guyrapu switches OBS to the assigned profile, and at the end it goes back to the one it had. Editing the settings of a profile that is not in use does not change the OBS profile. When it changes profiles, Guyrapu first matches the audio of the destination profile to the one of the profile in use, so OBS does not ask to restart.
 
 With no profiles, the list says how to create one. *New…* creates the profile and opens its settings. In the list, `Delete` removes the profile, `Enter` opens its settings and the Applications key opens a menu with the same actions as the buttons.
 
@@ -309,13 +335,13 @@ The *Live stream history* shows what you watched, with a tab for YouTube and ano
 
 ## Spoken status
 
-*Announce status*, in the *View* menu, summarizes the connection, the live stream, the viewers, the messages read and the donations. What is included is chosen in *Preferences*, on the *Status (F2)* category. Twice in a row, it opens the *Session status* window, with each piece of data on one line.
+*Announce status*, in the *View* menu, summarizes the connection, the live stream, the viewers, the messages read and the donations. When you broadcast to YouTube and TikTok at the same time, the viewers are those of both platforms. What is included is chosen in *Preferences*, on the *Status (F2)* category. Twice in a row, it opens the *Session status* window, with each piece of data on one line.
 
 ## Asking the AI
 
 An artificial intelligence looks at an OBS screenshot and says what it sees, for example whether a source comes out black. It requires OBS open and a provider key.
 
-In *Preferences*, on the *Artificial intelligence* category, you choose the provider, such as Google Gemini, OpenAI, Anthropic or OpenRouter, save the key and choose the model. The key is kept in the Windows Credential Manager. If the key does not have the format Guyrapu expects, it warns you and offers to use it anyway, in case the provider changed the format.
+In *Preferences*, on the *Artificial intelligence* category, you choose the provider, such as Google Gemini, OpenAI, Anthropic or OpenRouter, save the key and choose the model. When the list of models is updated, Guyrapu tests the chosen model with your key and warns if it does not respond or if it is paid. The key is kept in the Windows Credential Manager. If the key does not have the format Guyrapu expects, it warns you and offers to use it anyway, in case the provider changed the format.
 
 *Ask the AI about the picture…*, in the *View* menu, opens a window where *Add screenshot* chooses the scene or a source, and the question is typed in *Message*. *Quick query* sends the current scene and reads the response without opening any window.
 

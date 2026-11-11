@@ -1,5 +1,66 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 5, noviembre de 2026
+
+- Los sonidos cambiaron y hay que volver a aprenderlos. Ahora se agrupan por
+  familias, y un tema propio sigue sonando con sus archivos.
+
+### Panel de OBS
+
+- El *Panel de OBS* ya no dice que una fuente ajustada con un diseño se sale
+  del vídeo cuando entra completa. Al describir una fuente, dice primero si
+  se ve y qué hacer para ajustarla al vídeo.
+- Guyrapu ya no se congela al pulsar `Tab` en el *Panel de OBS* mientras
+  espera a OBS o después de que OBS dejó de responder, y el panel siempre se
+  puede cerrar.
+- En la pestaña *Escena* del *Panel de OBS*, cada fuente dice su posición con
+  las mismas palabras que el cuadro de tamaño y posición, sin «cerca de», dice
+  primero si tiene un problema (oculta, tapada o fuera del vídeo) y ya no
+  repite el tipo cuando es igual al nombre.
+- Editar en el *Panel de OBS* un perfil que no es el que está en uso ya no
+  cambia el perfil de OBS ni lo deja cargando.
+- Cambiar de perfil desde Guyrapu ya no deja a OBS esperando con un cuadro de
+  reiniciar cuando los perfiles tienen distinta frecuencia de audio.
+
+### Inteligencia artificial
+
+- Al actualizar la lista de modelos de la inteligencia artificial, Guyrapu
+  avisa si el modelo elegido no responde con tu clave o es de pago, sin
+  esperar a la primera pregunta.
+
+### Chat y estado
+
+- Cuando transmites a YouTube y TikTok a la vez, *Anunciar estado* y `F2`
+  dicen los espectadores de las dos plataformas.
+- Si el chat de YouTube o de TikTok se corta solo en pleno directo, suena a
+  desconexión, y al volver, a reconexión, distinto de cuando lo conectas tú.
+  Un fallo que la app reintenta sola ya no suena a error.
+
+### Sonidos
+
+- Cuando OBS deja de responder y cuando vuelve, el aviso suena como una
+  desconexión y una reconexión, y sale en el idioma de la aplicación.
+- Más avisos tienen sonido, y los que tenían uno equivocado ahora suenan
+  según lo que pasó: error si lo pedido no se pudo hacer, advertencia si
+  conviene mirar algo, y el fin o el corte de lo que se mira en el
+  reproductor. Entre ellos, activar, desactivar, cambiar el título y agregar
+  un destino de Restream, y los errores al preparar el directo de YouTube.
+- Los sonidos se ordenan por familias: lo que sale bien suena igual en toda
+  la app, igual que los errores, lo que está en curso, lo que se activa y se
+  desactiva, las advertencias y lo que se desconecta y se reconecta. Hay
+  menos sonidos que aprender.
+- La página *Sonidos* de *Preferencias* muestra los sonidos ordenados por
+  familia y dice la familia de cada uno. En inglés, los nombres salen
+  traducidos.
+- Un tema de sonidos propio que no trae el sonido de un evento nuevo suena
+  con el de su familia en ese tema o, si no está, con el del tema
+  predeterminado, en vez de quedar en silencio.
+
+### Música
+
+- Cuando la igualación del volumen termina, se avisa con un sonido y cuántas
+  canciones quedaron igualadas.
+
 ## 3.0.0 beta 4, noviembre de 2026
 
 - Antes de transmitir a TikTok con un perfil de OBS que no tiene clave de
