@@ -42,7 +42,52 @@ def _espectadores_resto(cuenta: int, n: str, en_directo: bool, largo: bool) -> s
     return ngettext("{n} vista", "{n} vistas", cuenta).format(n=n)
 
 
+def _espectadores_youtube(s, largo: bool) -> str:
+    n = _fmt_num(s.espectadores)
+    cuenta = s.espectadores if isinstance(s.espectadores, int) else 2
+    if largo:
+        # Traductores: parte del estado F2 (espectadores en YouTube). {n} es el nº actual.
+        return ngettext("Espectador en YouTube: {n}",
+                        "Espectadores en YouTube: {n}", cuenta).format(n=n)
+    # Traductores: parte del estado F2 (espectadores en YouTube). {n} es el nº actual.
+    return ngettext("En YouTube, {n} espectador",
+                    "En YouTube, {n} espectadores", cuenta).format(n=n)
+
+
+def _espectadores_adicional(n_actual, total, largo: bool) -> str:
+    n = _fmt_num(n_actual)
+    cuenta = n_actual if isinstance(n_actual, int) else 2
+    if total is not None:
+        total_txt = _fmt_num(total)
+        if largo:
+            # Traductores: parte del estado F2 (espectadores del chat adicional). {n} son los de ahora y {total} el total.
+            return ngettext("Espectador en TikTok: {n} ahora, {total} en total",
+                            "Espectadores en TikTok: {n} ahora, {total} en total",
+                            cuenta).format(n=n, total=total_txt)
+        # Traductores: parte del estado F2 (espectadores del chat adicional). {n} son los de ahora y {total} el total.
+        return ngettext("en TikTok, {n} espectador ahora, {total} en total",
+                        "en TikTok, {n} espectadores ahora, {total} en total",
+                        cuenta).format(n=n, total=total_txt)
+    if largo:
+        # Traductores: parte del estado F2 (espectadores del chat adicional). {n} es el nº actual.
+        return ngettext("Espectador en TikTok: {n}",
+                        "Espectadores en TikTok: {n}", cuenta).format(n=n)
+    # Traductores: parte del estado F2 (espectadores del chat adicional). {n} es el nº actual.
+    return ngettext("en TikTok, {n} espectador",
+                    "en TikTok, {n} espectadores", cuenta).format(n=n)
+
+
 def _render_espectadores(s, largo: bool) -> str:
+    if s.espectadores_adicional is not None:
+        partes = []
+        if s.espectadores is not None:
+            partes.append(_espectadores_youtube(s, largo))
+        adicional = _espectadores_adicional(
+            s.espectadores_adicional, s.espectadores_adicional_total, largo)
+        if s.espectadores is None:
+            adicional = adicional[0].upper() + adicional[1:]
+        partes.append(adicional)
+        return "\n".join(partes) if largo else "; ".join(partes)
     if s.espectadores is None:
         return ""
     n = _fmt_num(s.espectadores)

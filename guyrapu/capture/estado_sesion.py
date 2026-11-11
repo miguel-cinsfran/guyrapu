@@ -45,6 +45,8 @@ class SnapshotSesion:
     canal: str = ""
     espectadores: int | None = None
     espectadores_total: int | None = None
+    espectadores_adicional: int | None = None
+    espectadores_adicional_total: int | None = None
     segundos_directo: int | None = None
     desfase_directo: str = ""
     mensajes_leidos: int = 0

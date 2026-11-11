@@ -23,6 +23,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from guyrapu.capture.montos import texto_importes
+from guyrapu.capture import chat_adicional
 from guyrapu.capture import encuestas
 from guyrapu.capture import batallas
 from guyrapu.capture import metas
@@ -92,8 +93,7 @@ def snapshot_sesion(frame):
     def _texto_atajo_directo():
         at = (frame._atajos or {}).get("rep_directo")
         return at.texto if at is not None else ""
-    vigilante = getattr(frame, "_obs_vigilante", None)
-    estado_obs = _seguro(lambda: vigilante.estado(), None) if vigilante else None
+    estado_obs = _seguro(lambda: frame._obs_vigilante.estado(), None)
     transmision = estado_obs.transmision if estado_obs else None
     grabacion = estado_obs.grabacion if estado_obs else None
     supervisada = _supervisada(frame)
@@ -104,6 +104,7 @@ def snapshot_sesion(frame):
         canal=(meta.get("canal") or "").strip(),
         espectadores=espectadores,
         espectadores_total=espectadores_total,
+        **_seguro(chat_adicional.campos_de_estado, {}),
         segundos_directo=_seguro(lambda: int(_gui.time.time() - datetime.fromisoformat(
             meta["comienzo_directo"].replace("Z", "+00:00")).timestamp()), None),
         desfase_directo=_seguro(lambda: frame._rep_panel.frase_posicion_directo() if frame._rep_panel._desfase_relevo_segundos() > 0 else "", ""),

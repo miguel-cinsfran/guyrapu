@@ -28,10 +28,21 @@ class VistaAdicional(_VistaNula):
         self.conexion_propia = conexion_propia
         self._al_parar = al_parar
         self._conectado = False
+        self._espectadores = None
 
     @property
     def activa(self):
         return self._vista.activa
+
+    def set_espectadores(self, n, total=None):
+        self._espectadores = (n, total)
+        return True
+
+    def espectadores(self):
+        return self._espectadores
+
+    def olvidar_espectadores(self):
+        self._espectadores = None
 
     def agregar_mensaje(self, autor, mensaje, hora, tipo="", monto="",
                         canal_id="", plataforma="", rol=""):
@@ -63,6 +74,7 @@ class VistaAdicional(_VistaNula):
         return True
 
     def _parar(self):
+        self.olvidar_espectadores()
         if self._al_parar:
             self._al_parar()
 
@@ -81,6 +93,9 @@ class ChatAdicional:
 
     def activo(self) -> bool:
         return self._activo
+
+    def espectadores(self):
+        return self._vista.espectadores()
 
     def conectar(self, url, principal_activo=None) -> bool:
         if principal_activo is not None and not principal_activo():
@@ -107,6 +122,7 @@ class ChatAdicional:
             return
         self._activo = False
         self._usuario = ""
+        self._vista.olvidar_espectadores()
         self._conexiones.desconectar()
 
     def _parar(self) -> None:
@@ -137,6 +153,21 @@ def usar(instancia: ChatAdicional | None) -> None:
 
 def activo() -> bool:
     return _INSTANCIA is not None and _INSTANCIA.activo()
+
+
+def espectadores():
+    if _INSTANCIA is None or not _INSTANCIA.activo():
+        return None
+    return _INSTANCIA.espectadores()
+
+
+def campos_de_estado() -> dict:
+    """Los campos de SnapshotSesion con los espectadores del adicional."""
+    datos = espectadores()
+    if datos is None:
+        return {}
+    return {"espectadores_adicional": datos[0],
+            "espectadores_adicional_total": datos[1]}
 
 
 def _instancia(cola, config, stats, parada, crear_hilo=None) -> ChatAdicional:

@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Espectadores y su total en el marco y en la foto para F2."""
 
+import queue
+import threading
 import types
 import unittest
 from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
+from guyrapu.capture import chat_adicional
 from guyrapu.capture import encuestas
 from guyrapu.capture import batallas
 from guyrapu.capture import metas
@@ -17,10 +20,10 @@ from guyrapu.ui import gui_estado
 from guyrapu.ui.sesion_conectada import SesionConectada
 
 
-def _marco_falso(metadatos):
+def _marco_falso(metadatos, es_tiktok=True):
     frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
     frame._conectado = True
-    frame.sesion = SesionConectada(es_tiktok=True, tipo_video="live")
+    frame.sesion = SesionConectada(es_tiktok=es_tiktok, tipo_video="live")
     frame._titulo_stream = "T"
     frame._metadatos = metadatos
     frame._sc_totales = {}
@@ -82,6 +85,33 @@ class TestSnapshotEspectadores(unittest.TestCase):
         snap = gui_estado.snapshot_sesion(
             _marco_falso({"vistas": 3, "vistas_total": "muchos"}))
         self.assertEqual(snap.espectadores_total, None)
+
+
+def _chat_adicional_activo(n, total):
+    chat = chat_adicional.ChatAdicional(
+        queue.Queue(), {}, mock.Mock(), threading.Event(),
+        crear_hilo=lambda *args, **kwargs: mock.Mock(start=lambda: None),
+        vista_gui=mock.Mock(activa=True))
+    chat_adicional.usar(chat)
+    chat._activo = True
+    chat._vista.set_espectadores(n, total)
+    return chat
+
+
+class TestEspectadoresDelAdicional(unittest.TestCase):
+
+    def setUp(self):
+        chat_adicional.usar(None)
+        self.addCleanup(chat_adicional.usar, None)
+
+    def test_el_estado_nombra_las_dos_plataformas(self):
+        _chat_adicional_activo(30, 120)
+        snap = gui_estado.snapshot_sesion(
+            _marco_falso({"vistas": 12}, es_tiktok=False))
+        self.assertEqual(
+            gui.estado_sesion.formatear_estado(snap, {"espectadores"}),
+            "En YouTube, 12 espectadores; en TikTok, 30 espectadores ahora, "
+            "120 en total.")
 
 
 class TestSnapshotEncuesta(unittest.TestCase):

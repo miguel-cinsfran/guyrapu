@@ -215,5 +215,47 @@ class TestPararConElPrincipal(unittest.TestCase):
                                 "conectar_chat_adicional"))
 
 
+class TestEspectadoresDelAdicional(unittest.TestCase):
+
+    def setUp(self):
+        chat_adicional.usar(None)
+        self.addCleanup(chat_adicional.usar, None)
+
+    def _chat_activo(self):
+        chat = _chat(VistaGuiFalsa())
+        chat_adicional.usar(chat)
+        chat._activo = True
+        return chat
+
+    def test_la_vista_guarda_los_espectadores_que_recibe(self):
+        vista = chat_adicional.VistaAdicional(vista=VistaGuiFalsa())
+        vista.set_espectadores(30, 120)
+        self.assertEqual(vista.espectadores(), (30, 120))
+        vista.set_espectadores(31)
+        self.assertEqual(vista.espectadores(), (31, None))
+
+    def test_la_funcion_de_modulo_devuelve_los_del_adicional_activo(self):
+        chat = self._chat_activo()
+        chat._vista.set_espectadores(30, 120)
+        self.assertEqual(chat_adicional.espectadores(), (30, 120))
+
+    def test_sin_adicional_activo_la_funcion_devuelve_none(self):
+        self.assertIsNone(chat_adicional.espectadores())
+
+    def test_detener_olvida_los_espectadores(self):
+        chat = self._chat_activo()
+        chat._vista.set_espectadores(30, 120)
+        chat.detener()
+        self.assertIsNone(chat._vista.espectadores())
+        self.assertIsNone(chat_adicional.espectadores())
+
+    def test_pararse_solo_olvida_los_espectadores(self):
+        chat = self._chat_activo()
+        chat._vista.set_espectadores(30, 120)
+        chat._vista.set_conectado_si_existe(False)
+        self.assertIsNone(chat._vista.espectadores())
+        self.assertIsNone(chat_adicional.espectadores())
+
+
 if __name__ == "__main__":
     unittest.main()

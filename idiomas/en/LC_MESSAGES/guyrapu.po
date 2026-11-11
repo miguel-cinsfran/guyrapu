@@ -985,6 +985,110 @@ msgstr "Poll in progress: {titulo} {opciones}"
 msgid "Encuesta en curso. {opciones}"
 msgstr "Poll in progress. {opciones}"
 
+#. Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora
+#. y {total} el total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "Espectador: {n} ahora, {total} en total"
+msgid_plural "Espectadores: {n} ahora, {total} en total"
+msgstr[0] "Viewer: {n} now, {total} in total"
+msgstr[1] "Viewers: {n} now, {total} in total"
+
+#. Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora
+#. y {total} el total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "{n} espectador ahora, {total} en total"
+msgid_plural "{n} espectadores ahora, {total} en total"
+msgstr[0] "{n} viewer now, {total} in total"
+msgstr[1] "{n} viewers now, {total} in total"
+
+#. Traductores: parte del estado F2 (espectadores). {n} es el nº actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "Espectador: {n}"
+msgid_plural "Espectadores: {n}"
+msgstr[0] "Viewer: {n}"
+msgstr[1] "Viewers: {n}"
+
+#. Traductores: parte del estado F2 (espectadores). {n} es el nº actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "{n} espectador"
+msgid_plural "{n} espectadores"
+msgstr[0] "{n} viewer"
+msgstr[1] "{n} viewers"
+
+#. Traductores: parte del estado F2 (vistas). {n} es el nº total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "Vista: {n}"
+msgid_plural "Vistas: {n}"
+msgstr[0] "View: {n}"
+msgstr[1] "Views: {n}"
+
+#. Traductores: parte del estado F2 (vistas). {n} es el nº total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "{n} vista"
+msgid_plural "{n} vistas"
+msgstr[0] "{n} view"
+msgstr[1] "{n} views"
+
+#. Traductores: parte del estado F2 (espectadores en YouTube). {n} es el nº
+#. actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "Espectador en YouTube: {n}"
+msgid_plural "Espectadores en YouTube: {n}"
+msgstr[0] "Viewer on YouTube: {n}"
+msgstr[1] "Viewers on YouTube: {n}"
+
+#. Traductores: parte del estado F2 (espectadores en YouTube). {n} es el nº
+#. actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "En YouTube, {n} espectador"
+msgid_plural "En YouTube, {n} espectadores"
+msgstr[0] "On YouTube, {n} viewer"
+msgstr[1] "On YouTube, {n} viewers"
+
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} son
+#. los de ahora y {total} el total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "Espectador en TikTok: {n} ahora, {total} en total"
+msgid_plural "Espectadores en TikTok: {n} ahora, {total} en total"
+msgstr[0] "Viewer on TikTok: {n} now, {total} in total"
+msgstr[1] "Viewers on TikTok: {n} now, {total} in total"
+
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} son
+#. los de ahora y {total} el total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "en TikTok, {n} espectador ahora, {total} en total"
+msgid_plural "en TikTok, {n} espectadores ahora, {total} en total"
+msgstr[0] "on TikTok, {n} viewer now, {total} in total"
+msgstr[1] "on TikTok, {n} viewers now, {total} in total"
+
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
+#. el nº actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "Espectador en TikTok: {n}"
+msgid_plural "Espectadores en TikTok: {n}"
+msgstr[0] "Viewer on TikTok: {n}"
+msgstr[1] "Viewers on TikTok: {n}"
+
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
+#. el nº actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "en TikTok, {n} espectador"
+msgid_plural "en TikTok, {n} espectadores"
+msgstr[0] "on TikTok, {n} viewer"
+msgstr[1] "on TikTok, {n} viewers"
+
 #. Traductores: parte del estado F2 (tipo de conexión).
 #: guyrapu/capture/estado_sesion.py guyrapu/ui/gui_directo_youtube.py
 msgid "Directo de YouTube"
@@ -1056,56 +1160,6 @@ msgstr "Title: {titulo}"
 #, python-brace-format
 msgid "Canal: {canal}"
 msgstr "Channel: {canal}"
-
-#. Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora
-#. y {total} el total.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "Espectador: {n} ahora, {total} en total"
-msgid_plural "Espectadores: {n} ahora, {total} en total"
-msgstr[0] "Viewer: {n} now, {total} in total"
-msgstr[1] "Viewers: {n} now, {total} in total"
-
-#. Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora
-#. y {total} el total.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "{n} espectador ahora, {total} en total"
-msgid_plural "{n} espectadores ahora, {total} en total"
-msgstr[0] "{n} viewer now, {total} in total"
-msgstr[1] "{n} viewers now, {total} in total"
-
-#. Traductores: parte del estado F2 (espectadores). {n} es el nº actual.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "Espectador: {n}"
-msgid_plural "Espectadores: {n}"
-msgstr[0] "Viewer: {n}"
-msgstr[1] "Viewers: {n}"
-
-#. Traductores: parte del estado F2 (espectadores). {n} es el nº actual.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "{n} espectador"
-msgid_plural "{n} espectadores"
-msgstr[0] "{n} viewer"
-msgstr[1] "{n} viewers"
-
-#. Traductores: parte del estado F2 (vistas). {n} es el nº total.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "Vista: {n}"
-msgid_plural "Vistas: {n}"
-msgstr[0] "View: {n}"
-msgstr[1] "Views: {n}"
-
-#. Traductores: parte del estado F2 (vistas). {n} es el nº total.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "{n} vista"
-msgid_plural "{n} vistas"
-msgstr[0] "{n} view"
-msgstr[1] "{n} views"
 
 #. Traductores: parte del estado F2 (tiempo). {texto} es la duración.
 #: guyrapu/capture/estado_sesion.py
