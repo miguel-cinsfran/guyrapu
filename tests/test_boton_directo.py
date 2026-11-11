@@ -157,7 +157,7 @@ class TestTransmitirSinVentana(unittest.TestCase):
         anunciar.assert_called_once_with(
             "Para transmitir con un perfil de Restream hace falta conectar "
             "la cuenta, en el cuadro Restream, pestaña Cuenta.")
-        sonido.assert_called_once_with("transmision_problema")
+        sonido.assert_called_once_with("error")
         hilos.assert_not_called()
         marco._guardar_destino_transmision.assert_called_once_with(
             "restream:Uno")
