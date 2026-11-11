@@ -6,20 +6,52 @@ No abre ventanas ni habla con OBS: el cliente guarda perfiles, perfil en uso
 y ajustes, y la prueba del equipo se inyecta.
 """
 
+import tempfile
 import threading
 import unittest
 from dataclasses import replace
+from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
+from guyrapu.core import paths
 from guyrapu.obs import ajustes_perfil, asistente_perfiles, obs_cliente
+
+
+def _leer_basic(ruta):
+    secciones = {}
+    actual = None
+    for linea in ruta.read_text(encoding="utf-8-sig").splitlines():
+        limpia = linea.strip()
+        if not limpia or limpia.startswith((";", "#")):
+            continue
+        if limpia.startswith("[") and limpia.endswith("]"):
+            actual = limpia[1:-1].strip()
+            secciones[actual] = {}
+            continue
+        if actual is not None and "=" in linea:
+            clave, valor = linea.split("=", 1)
+            secciones[actual][clave.strip()] = valor.strip().replace(
+                "\\\\", "\\")
+    return secciones
+
+
+def _entero(valor):
+    try:
+        return int(float(valor))
+    except (TypeError, ValueError):
+        return 0
 
 
 class ClienteFalso:
     """Lo mínimo del WebSocket de OBS para crear, guardar y borrar perfiles."""
 
-    def __init__(self, perfiles=("Casa", "Copia"), actual="Casa"):
+    def __init__(self, perfiles=("Casa", "Copia"), actual="Casa",
+                 carpeta_perfiles=None):
         self.perfiles = list(perfiles)
         self.actual = actual
+        self.carpeta_perfiles = carpeta_perfiles
+        self._carpetas = {}
         self.video = {nombre: {"baseWidth": 1920, "baseHeight": 1080,
                                "outputWidth": 1280, "outputHeight": 720,
                                "fpsNumerator": 30, "fpsDenominator": 1}
@@ -30,6 +62,37 @@ class ClienteFalso:
         if nombre not in self.perfiles:
             raise obs_cliente.ObsError("No hay perfil " + nombre)
         return nombre
+
+    def _carpeta_nueva(self, nombre):
+        if self.carpeta_perfiles is None:
+            return
+        carpeta = self.carpeta_perfiles / nombre
+        carpeta.mkdir(parents=True, exist_ok=True)
+        (carpeta / "basic.ini").write_bytes(
+            b"\xef\xbb\xbf" + (
+                "[General]\nName=" + nombre + "\n").encode("utf-8"))
+        self._carpetas[nombre] = carpeta
+
+    def sincronizar(self):
+        """Copia al estado en memoria lo que quedó escrito en los archivos."""
+        for nombre, carpeta in self._carpetas.items():
+            basic = carpeta / "basic.ini"
+            if not basic.is_file():
+                continue
+            secciones = _leer_basic(basic)
+            self.parametros[nombre] = {
+                (seccion, clave): valor
+                for seccion, claves in secciones.items()
+                for clave, valor in claves.items()}
+            video = secciones.get("Video", {})
+            self.video[nombre] = {
+                "baseWidth": _entero(video.get("BaseCX")),
+                "baseHeight": _entero(video.get("BaseCY")),
+                "outputWidth": _entero(video.get("OutputCX")),
+                "outputHeight": _entero(video.get("OutputCY")),
+                "fpsNumerator": _entero(video.get("FPSNum")),
+                "fpsDenominator": _entero(video.get("FPSDen")),
+            }
 
     def pedir(self, tipo, datos=None, parada=None):
         datos = datos or {}
@@ -49,6 +112,7 @@ class ClienteFalso:
             self.perfiles.append(nombre)
             self.video[nombre] = {}
             self.parametros[nombre] = {}
+            self._carpeta_nueva(nombre)
             return {"responseData": {}}
         if tipo == "RemoveProfile":
             nombre = self._exigir(datos["profileName"])
@@ -57,6 +121,7 @@ class ClienteFalso:
             self.perfiles.remove(nombre)
             self.video.pop(nombre, None)
             self.parametros.pop(nombre, None)
+            self._carpetas.pop(nombre, None)
             return {"responseData": {}}
         if tipo == "SetVideoSettings":
             self.video[self.actual] = dict(datos)
@@ -93,12 +158,22 @@ def _prueba_cancelada(parada):
 class BaseAsistente(unittest.TestCase):
 
     def setUp(self):
-        self.cliente = ClienteFalso()
+        self._temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(self._temporal.cleanup)
+        self.carpeta_perfiles = Path(self._temporal.name) / "profiles"
+        self.carpeta_perfiles.mkdir()
+        parche = mock.patch.object(
+            paths, "carpeta_obs", return_value=self.carpeta_perfiles)
+        parche.start()
+        self.addCleanup(parche.stop)
+        self.cliente = ClienteFalso(carpeta_perfiles=self.carpeta_perfiles)
 
     def _preparar(self, usos, probar=False, **extra):
-        return asistente_perfiles.preparar(
+        resultado = asistente_perfiles.preparar(
             self.cliente, usos, probar=probar,
             disponibles=("x264",), **extra)
+        self.cliente.sincronizar()
+        return resultado
 
 
 class TestCreacion(BaseAsistente):

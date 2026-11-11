@@ -4562,6 +4562,18 @@ msgstr ""
 "OBS is not responding. Wait until it responds again or close it with Close "
 "OBS."
 
+#. Traductores: {perfil} es el nombre de un perfil de OBS.
+#: guyrapu/obs/perfil_en_disco.py
+#, python-brace-format
+msgid "No se encontró la carpeta del perfil {perfil} de OBS."
+msgstr "The folder for the OBS profile {perfil} was not found."
+
+#. Traductores: {perfil} es el nombre de un perfil de OBS.
+#: guyrapu/obs/perfil_en_disco.py
+#, python-brace-format
+msgid "No se pudo leer el perfil {perfil} de OBS."
+msgstr "The OBS profile {perfil} could not be read."
+
 #. Traductores: {perfil} es el perfil de OBS que está activo.
 #: guyrapu/obs/perfil_grabacion.py
 #, python-brace-format

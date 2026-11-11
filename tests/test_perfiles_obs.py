@@ -11,6 +11,7 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.obs import ajustes_perfil, codificadores_obs, obs_cliente, perfiles_obs
+from tests.test_perfil_en_disco import crear_perfil
 
 PARAMETROS_DE_FABRICA = {
     ("Output", "Mode"): "Simple",
@@ -119,7 +120,7 @@ class ClienteFalso:
             if nombre not in self.estado:
                 raise obs_cliente.ObsError("600 not found")
             if self.actual == nombre:
-                self.actual = next(n for n in self.estado if n != nombre)
+                raise obs_cliente.ObsError("600 profile in use")
             del self.estado[nombre]
             return {"responseData": {}}
         if tipo == "GetVideoSettings":
@@ -225,43 +226,26 @@ class TestListar(unittest.TestCase):
 class TestLeerParaEditar(unittest.TestCase):
 
     def test_devuelve_ajustes_avanzado_y_servicio_personalizado(self):
-        cliente = ClienteFalso(("A", "B"), actual="A")
-        cliente.configurar("B", parametros={
-            ("Output", "Mode"): "Advanced",
-            ("SimpleOutput", "VBitrate"): "4000",
-        })
-        ajustes, avanzado, personalizado = perfiles_obs.leer_para_editar(
-            cliente, "B")
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "B", {
+                "Output": {"Mode": "Advanced"},
+                "SimpleOutput": {"VBitrate": "4000"},
+            }, servicio={"type": "rtmp_custom",
+                         "settings": {"server": "rtmp://b", "key": "kb"}})
+            cliente = ClienteFalso(("A", "B"), actual="A")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                ajustes, avanzado, personalizado = (
+                    perfiles_obs.leer_para_editar(cliente, "B"))
         self.assertTrue(avanzado)
         self.assertTrue(personalizado)
         self.assertEqual(ajustes.bitrate_video, 4000)
         self.assertEqual(cliente.actual, "A")
-        self.assertEqual(cliente.cambios_de_perfil(), ["B", "A"])
-
-    def test_un_servicio_conocido_no_es_personalizado(self):
-        cliente = ClienteFalso(("A", "B"), actual="A")
-        cliente.configurar("B", servicio={
-            "streamServiceType": "YouTube",
-            "streamServiceSettings": {"server": "rtmp://yt", "key": "k"}})
-        _ajustes, avanzado, personalizado = perfiles_obs.leer_para_editar(
-            cliente, "B")
-        self.assertFalse(avanzado)
-        self.assertFalse(personalizado)
-        self.assertEqual(cliente.actual, "A")
+        self.assertEqual(cliente.cambios_de_perfil(), [])
 
 
 class TestMonitoreo(unittest.TestCase):
-
-    def test_leer_trae_el_dispositivo_del_perfil(self):
-        cliente = ClienteFalso(("A", "B"), actual="A")
-        cliente.configurar("B", parametros={
-            ("Audio", "MonitoringDeviceId"): "{0.0.0.3}",
-            ("Audio", "MonitoringDeviceName"): "Auriculares",
-        })
-        ajustes = perfiles_obs.leer_ajustes(cliente, "B")
-        self.assertEqual(ajustes.monitoreo_id, "{0.0.0.3}")
-        self.assertEqual(ajustes.monitoreo_nombre, "Auriculares")
-        self.assertEqual(cliente.actual, "A")
 
     def test_guardar_escribe_el_dispositivo_del_perfil(self):
         cliente = ClienteFalso(("A",), actual="A")
@@ -274,55 +258,8 @@ class TestMonitoreo(unittest.TestCase):
         self.assertEqual(guardado[("Audio", "MonitoringDeviceName")],
                          "Altavoces")
 
-    def test_duplicar_copia_el_dispositivo(self):
-        cliente = ClienteFalso(("A", "Origen"), actual="A")
-        cliente.configurar("Origen", parametros={
-            ("Audio", "MonitoringDeviceId"): "{0.0.0.5}",
-            ("Audio", "MonitoringDeviceName"): "Auriculares",
-        })
-        perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
-        copia = cliente.estado["Copia"]["parametros"]
-        self.assertEqual(copia[("Audio", "MonitoringDeviceId")],
-                         "{0.0.0.5}")
-        self.assertEqual(copia[("Audio", "MonitoringDeviceName")],
-                         "Auriculares")
-
 
 class TestLeer(unittest.TestCase):
-
-    def test_p2_lee_otro_perfil_y_vuelve_al_anterior(self):
-        cliente = ClienteFalso(("A", "B"), actual="A")
-        cliente.configurar("A", parametros={("SimpleOutput", "VBitrate"): "1111"})
-        cliente.configurar(
-            "B",
-            parametros={
-                ("SimpleOutput", "StreamEncoder"): "qsv",
-                ("SimpleOutput", "VBitrate"): "4000",
-                ("SimpleOutput", "ABitrate"): "192",
-                ("SimpleOutput", "QSVPreset"): "quality",
-            },
-            video={"baseWidth": 1080, "baseHeight": 1920,
-                   "outputWidth": 720, "outputHeight": 1280,
-                   "fpsNumerator": 60, "fpsDenominator": 1},
-            servicio={"streamServiceType": "rtmp_custom",
-                      "streamServiceSettings": {"server": "rtmp://b",
-                                                "key": "clave-b"}},
-            carpeta="C:\\Grabaciones\\B")
-        ajustes = perfiles_obs.leer_ajustes(cliente, "B")
-        self.assertEqual(cliente.actual, "A")
-        self.assertEqual(cliente.cambios_de_perfil(), ["B", "A"])
-        self.assertEqual((ajustes.ancho_lienzo, ajustes.alto_lienzo),
-                         (1080, 1920))
-        self.assertEqual((ajustes.ancho_salida, ajustes.alto_salida),
-                         (720, 1280))
-        self.assertEqual(ajustes.fps, 60)
-        self.assertEqual(ajustes.servidor, "rtmp://b")
-        self.assertEqual(ajustes.clave, "clave-b")
-        self.assertEqual(ajustes.codificador, "qsv")
-        self.assertEqual(ajustes.bitrate_video, 4000)
-        self.assertEqual(ajustes.bitrate_audio, 192)
-        self.assertEqual(ajustes.preset, "quality")
-        self.assertEqual(ajustes.carpeta_grabacion, "C:\\Grabaciones\\B")
 
     def test_p2_lee_el_actual_sin_cambiar_de_perfil(self):
         cliente = ClienteFalso(("A", "B"), actual="B")
@@ -336,39 +273,40 @@ class TestLeer(unittest.TestCase):
             perfiles_obs.leer_ajustes(cliente, "Fantasma")
         self.assertEqual(cliente.actual, "A")
 
-    def test_p2_vuelve_al_perfil_si_falla_a_mitad(self):
-        cliente = ClienteFalso(("A", "B"), actual="A")
-        cliente.fallar_en = ("GetProfileParameter", 1)
-        with self.assertRaises(obs_cliente.ObsError):
-            perfiles_obs.leer_ajustes(cliente, "B")
-        self.assertEqual(cliente.actual, "A")
-
 
 class TestGuardar(unittest.TestCase):
 
-    def test_p3_guarda_en_otro_perfil_y_vuelve_al_anterior(self):
-        cliente = ClienteFalso(("A", "B"), actual="A")
-        ajustes = ajustes_de_prueba(
-            codificador="qsv", preset="quality", bitrate_video=3500,
-            bitrate_audio=192, fps=50, ancho_lienzo=1600, alto_lienzo=900,
-            ancho_salida=1280, alto_salida=720,
-            servidor="rtmp://nuevo", clave="clave-nueva",
-            carpeta_grabacion="C:\\Nueva")
-        perfiles_obs.guardar_ajustes(cliente, ajustes, "B")
+    def test_p3_guarda_en_otro_perfil_sin_cambiar_de_perfil(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "B", {
+                "SimpleOutput": {"StreamEncoder": "x264",
+                                 "VBitrate": "2500"},
+                "Video": {"BaseCX": "1920", "BaseCY": "1080",
+                          "OutputCX": "1280", "OutputCY": "720",
+                          "FPSType": "2", "FPSNum": "30", "FPSDen": "1"},
+            })
+            cliente = ClienteFalso(("A", "B"), actual="A")
+            ajustes = ajustes_de_prueba(
+                codificador="qsv", preset="quality", bitrate_video=3500,
+                bitrate_audio=192, fps=50, ancho_lienzo=1600, alto_lienzo=900,
+                ancho_salida=1280, alto_salida=720,
+                servidor="rtmp://nuevo", clave="clave-nueva",
+                carpeta_grabacion="C:\\Nueva")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                perfiles_obs.guardar_ajustes(cliente, ajustes, "B")
+                guardado = perfiles_obs.leer_ajustes(cliente, "B")
         self.assertEqual(cliente.actual, "A")
-        self.assertEqual(cliente.cambios_de_perfil(), ["B", "A"])
-        guardado = cliente.estado["B"]
-        self.assertEqual(guardado["parametros"][
-            ("SimpleOutput", "StreamEncoder")], "qsv")
-        self.assertEqual(guardado["parametros"][
-            ("SimpleOutput", "VBitrate")], "3500")
-        self.assertEqual(guardado["parametros"][
-            ("SimpleOutput", "QSVPreset")], "quality")
-        self.assertEqual(guardado["video"]["baseWidth"], 1600)
-        self.assertEqual(guardado["video"]["fpsNumerator"], 50)
-        self.assertEqual(guardado["servicio"]["streamServiceSettings"],
-                         {"server": "rtmp://nuevo", "key": "clave-nueva"})
-        self.assertEqual(guardado["carpeta"], "C:\\Nueva")
+        self.assertEqual(cliente.cambios_de_perfil(), [])
+        self.assertEqual(guardado.codificador, "qsv")
+        self.assertEqual(guardado.bitrate_video, 3500)
+        self.assertEqual(guardado.preset, "quality")
+        self.assertEqual(guardado.ancho_lienzo, 1600)
+        self.assertEqual(guardado.fps, 50)
+        self.assertEqual((guardado.servidor, guardado.clave),
+                         ("rtmp://nuevo", "clave-nueva"))
+        self.assertEqual(guardado.carpeta_grabacion, "C:\\Nueva")
 
     def test_p3_guardar_en_el_actual_lo_recarga(self):
         cliente = ClienteFalso(("A", "B"), actual="A")
@@ -388,6 +326,13 @@ class TestGuardar(unittest.TestCase):
         self.assertNotIn(creados[0], cliente.estado)
         self.assertEqual(cliente.actual, "A")
 
+    def test_p3_vuelve_al_perfil_si_falla_a_mitad(self):
+        cliente = ClienteFalso(("A",), actual="A")
+        cliente.fallar_en = ("SetCurrentProfile", 1)
+        with self.assertRaises(obs_cliente.ObsError):
+            perfiles_obs.guardar_ajustes(cliente, ajustes_de_prueba(), "A")
+        self.assertEqual(cliente.actual, "A")
+
     def test_p3_falla_si_el_perfil_no_existe(self):
         cliente = ClienteFalso(("A",), actual="A")
         with self.assertRaisesRegex(obs_cliente.ObsError, "no tiene un perfil"):
@@ -395,12 +340,18 @@ class TestGuardar(unittest.TestCase):
                                          "Fantasma")
         self.assertNotIn("SetCurrentProfile", cliente.tipos())
 
-    def test_p3_vuelve_al_perfil_si_falla_a_mitad(self):
-        cliente = ClienteFalso(("A", "B"), actual="A")
-        cliente.fallar_en = ("SetProfileParameter", 2)
-        with self.assertRaises(obs_cliente.ObsError):
-            perfiles_obs.guardar_ajustes(cliente, ajustes_de_prueba(), "B")
+    def test_p3_si_falta_la_carpeta_dice_que_perfil(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            cliente = ClienteFalso(("A", "B"), actual="A")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                with self.assertRaisesRegex(obs_cliente.ObsError,
+                                            "perfil B"):
+                    perfiles_obs.guardar_ajustes(
+                        cliente, ajustes_de_prueba(), "B")
         self.assertEqual(cliente.actual, "A")
+        self.assertEqual(cliente.cambios_de_perfil(), [])
 
     def test_p3_servicio_personalizado_escribe_servidor_y_clave(self):
         cliente = ClienteFalso(("A",), actual="A")
@@ -539,34 +490,34 @@ class TestCrear(unittest.TestCase):
 class TestDuplicar(unittest.TestCase):
 
     def test_p5_duplica_con_todos_los_ajustes(self):
-        cliente = ClienteFalso(("A", "Origen"), actual="A")
-        cliente.configurar(
-            "Origen",
-            parametros={
-                ("SimpleOutput", "StreamEncoder"): "nvenc",
-                ("SimpleOutput", "NVENCPreset2"): "p6",
-                ("SimpleOutput", "VBitrate"): "5000",
-                ("SimpleOutput", "ABitrate"): "256",
-                ("SimpleOutput", "DynamicBitrate"): "true",
-                ("Output", "Reconnect"): "false",
-                ("Output", "RetryDelay"): "8",
-                ("Output", "MaxRetries"): "10",
-                ("SimpleOutput", "RecFormat2"): "mov",
-                ("SimpleOutput", "RecQuality"): "HQ",
-                ("SimpleOutput", "RecRB"): "true",
-                ("SimpleOutput", "RecRBTime"): "45",
-                ("Audio", "SampleRate"): "44100",
-                ("Audio", "ChannelSetup"): "Mono",
-            },
-            video={"baseWidth": 1080, "baseHeight": 1920,
-                   "outputWidth": 720, "outputHeight": 1280,
-                   "fpsNumerator": 48, "fpsDenominator": 1},
-            servicio={"streamServiceType": "rtmp_custom",
-                      "streamServiceSettings": {"server": "rtmp://origen",
-                                                "key": "clave-origen"}},
-            carpeta="C:\\Origen")
-        ajustes = perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "Origen", {
+                "SimpleOutput": {
+                    "StreamEncoder": "nvenc", "NVENCPreset2": "p6",
+                    "VBitrate": "5000", "ABitrate": "256",
+                    "DynamicBitrate": "true", "RecFormat2": "mov",
+                    "RecQuality": "HQ", "RecRB": "true", "RecRBTime": "45",
+                    "FilePath": r"C:\Origen",
+                },
+                "Output": {"Reconnect": "false", "RetryDelay": "8",
+                           "MaxRetries": "10"},
+                "Video": {"BaseCX": "1080", "BaseCY": "1920",
+                          "OutputCX": "720", "OutputCY": "1280",
+                          "FPSType": "2", "FPSNum": "48", "FPSDen": "1"},
+                "Audio": {"SampleRate": "44100", "ChannelSetup": "Mono",
+                          "MonitoringDeviceId": "{0.0.0.5}",
+                          "MonitoringDeviceName": "Auriculares"},
+            }, servicio={"type": "rtmp_custom",
+                         "settings": {"server": "rtmp://origen",
+                                      "key": "clave-origen"}})
+            cliente = ClienteFalso(("A", "Origen"), actual="A")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                ajustes = perfiles_obs.duplicar_perfil(
+                    cliente, "Origen", "Copia")
         self.assertEqual(cliente.actual, "A")
+        self.assertNotIn("Origen", cliente.cambios_de_perfil())
         self.assertEqual(ajustes.codificador, "nvenc")
         self.assertEqual(ajustes.preset, "p6")
         destino = cliente.estado["Copia"]
@@ -574,8 +525,10 @@ class TestDuplicar(unittest.TestCase):
             self.assertEqual(destino["parametros"][(categoria, nombre)],
                              valor,
                              f"{categoria}/{nombre}")
-        self.assertEqual(destino["video"], cliente.estado["Origen"]["video"])
-        self.assertEqual(destino["servicio"], cliente.estado["Origen"]["servicio"])
+        self.assertEqual(destino["video"]["baseWidth"], 1080)
+        self.assertEqual(destino["video"]["fpsNumerator"], 48)
+        self.assertEqual(destino["servicio"]["streamServiceSettings"],
+                         {"server": "rtmp://origen", "key": "clave-origen"})
         self.assertEqual(destino["carpeta"], "C:\\Origen")
 
     def test_p5_falla_si_el_nuevo_ya_existe(self):
@@ -586,19 +539,18 @@ class TestDuplicar(unittest.TestCase):
         self.assertNotIn("CreateProfile", cliente.tipos())
 
     def test_p5_si_falla_a_medias_borra_el_perfil_nuevo(self):
-        cliente = ClienteFalso(("A", "Origen"), actual="A")
-        cliente.fallar_en = ("SetProfileParameter", 2)
-        with self.assertRaises(obs_cliente.ObsError):
-            perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "Origen", {})
+            cliente = ClienteFalso(("A", "Origen"), actual="A")
+            cliente.fallar_en = ("SetProfileParameter", 2)
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                with self.assertRaises(obs_cliente.ObsError):
+                    perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
         self.assertEqual(set(cliente.estado), {"A", "Origen"})
         self.assertEqual(cliente.actual, "A")
         self.assertNotIn("Copia", cliente.estado)
-
-    def test_p5_deja_el_perfil_que_estaba(self):
-        cliente = ClienteFalso(("A", "Origen"), actual="A")
-        perfiles_obs.duplicar_perfil(cliente, "Origen", "Copia")
-        self.assertEqual(cliente.actual, "A")
-        self.assertIn("Copia", cliente.estado)
 
 
 class TestEliminar(unittest.TestCase):
@@ -655,79 +607,87 @@ class TestCambiar(unittest.TestCase):
 
 class TestAvanzado(unittest.TestCase):
 
-    def _carpeta_de_perfiles(self, temporal, nombre, bitrate):
-        base = Path(temporal) / "profiles"
-        carpeta = base / "carpeta-cualquiera"
-        carpeta.mkdir(parents=True)
-        (carpeta / "basic.ini").write_text(
-            "[General]\nName=" + nombre + "\n", encoding="utf-8-sig")
-        (carpeta / "streamEncoder.json").write_text(
-            '{"bitrate": ' + str(bitrate) + ', "rate_control": "CBR"}',
-            encoding="utf-8")
-        return base
-
     def test_p8_detecta_avanzado_y_pasa_a_sencillo(self):
         with tempfile.TemporaryDirectory() as tmp:
-            base = self._carpeta_de_perfiles(tmp, "Avanzado", 4500)
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "Avanzado", {
+                "Output": {"Mode": "Advanced"},
+                "AdvOut": {"Encoder": "obs_nvenc_h264_tex"},
+                "SimpleOutput": {"StreamEncoder": "x264",
+                                 "VBitrate": "2500"},
+            }, bitrate=4500)
             cliente = ClienteFalso(("A", "Avanzado"), actual="A")
-            cliente.configurar("Avanzado", parametros={
-                ("Output", "Mode"): "Advanced",
-                ("AdvOut", "Encoder"): "obs_nvenc_h264_tex"})
             with mock.patch.object(paths, "carpeta_obs",
                                    return_value=base):
-                convertido = perfiles_obs.pasar_a_sencillo(cliente, "Avanzado")
-            self.assertTrue(convertido)
-            self.assertEqual(cliente.actual, "A")
-            guardado = cliente.estado["Avanzado"]["parametros"]
-            self.assertEqual(guardado[("Output", "Mode")], "Simple")
-            self.assertEqual(guardado[("SimpleOutput", "StreamEncoder")],
-                             "nvenc")
-            self.assertEqual(guardado[("SimpleOutput", "VBitrate")], "4500")
-            escritos = [datos.get("parameterName") for tipo, datos
-                        in cliente.llamadas if tipo == "SetProfileParameter"]
-            self.assertEqual(escritos,
-                             ["StreamEncoder", "VBitrate", "Mode"])
+                convertido = perfiles_obs.pasar_a_sencillo(
+                    cliente, "Avanzado")
+                guardado = perfiles_obs.leer_ajustes(cliente, "Avanzado")
+        self.assertTrue(convertido)
+        self.assertEqual(cliente.actual, "A")
+        self.assertEqual(cliente.cambios_de_perfil(), [])
+        self.assertEqual(guardado.codificador, "nvenc")
+        self.assertEqual(guardado.bitrate_video, 4500)
 
     def test_p8_perfil_sencillo_no_cambia_nada(self):
-        cliente = ClienteFalso(("A", "Sencillo"), actual="A")
-        cliente.configurar("Sencillo", parametros={("Output", "Mode"): "Simple"})
-        convertido = perfiles_obs.pasar_a_sencillo(cliente, "Sencillo")
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            carpeta = crear_perfil(base, "Sencillo", {
+                "Output": {"Mode": "Simple"}})
+            antes = (carpeta / "basic.ini").read_bytes()
+            cliente = ClienteFalso(("A", "Sencillo"), actual="A")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                convertido = perfiles_obs.pasar_a_sencillo(
+                    cliente, "Sencillo")
+            despues = (carpeta / "basic.ini").read_bytes()
         self.assertFalse(convertido)
         self.assertEqual(cliente.actual, "A")
-        self.assertNotIn("SetProfileParameter", cliente.tipos())
+        self.assertEqual(cliente.cambios_de_perfil(), [])
+        self.assertEqual(antes, despues)
 
     def test_p8_codificador_desconocido_deja_x264(self):
         with tempfile.TemporaryDirectory() as tmp:
-            base = self._carpeta_de_perfiles(tmp, "Avanzado", 3000)
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "Avanzado", {
+                "Output": {"Mode": "Advanced"},
+                "AdvOut": {"Encoder": "obs_desconocido"},
+                "SimpleOutput": {"StreamEncoder": "x264",
+                                 "VBitrate": "2500"},
+            }, bitrate=3000)
             cliente = ClienteFalso(("A", "Avanzado"), actual="A")
-            cliente.configurar("Avanzado", parametros={
-                ("Output", "Mode"): "Advanced",
-                ("AdvOut", "Encoder"): "obs_desconocido"})
             with mock.patch.object(paths, "carpeta_obs",
                                    return_value=base):
                 perfiles_obs.pasar_a_sencillo(cliente, "Avanzado")
-            self.assertEqual(cliente.estado["Avanzado"]["parametros"][
-                ("SimpleOutput", "StreamEncoder")], "x264")
-            self.assertEqual(cliente.estado["Avanzado"]["parametros"][
-                ("SimpleOutput", "VBitrate")], "3000")
+                guardado = perfiles_obs.leer_ajustes(cliente, "Avanzado")
+        self.assertEqual(guardado.codificador, "x264")
+        self.assertEqual(guardado.bitrate_video, 3000)
 
     def test_p8_sin_streamencoder_usa_el_bitrate_inicial(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp) / "profiles"
-            (base / "otra").mkdir(parents=True)
+            base.mkdir()
+            crear_perfil(base, "Avanzado", {
+                "Output": {"Mode": "Advanced"},
+                "AdvOut": {"Encoder": "obs_x264"},
+                "SimpleOutput": {"StreamEncoder": "x264",
+                                 "VBitrate": "2500"},
+            })
             cliente = ClienteFalso(("A", "Avanzado"), actual="A")
-            cliente.configurar("Avanzado", parametros={
-                ("Output", "Mode"): "Advanced",
-                ("AdvOut", "Encoder"): "obs_x264"})
             with mock.patch.object(paths, "carpeta_obs",
                                    return_value=base):
                 perfiles_obs.pasar_a_sencillo(cliente, "Avanzado")
-            self.assertEqual(cliente.estado["Avanzado"]["parametros"][
-                ("SimpleOutput", "VBitrate")], "2500")
+                guardado = perfiles_obs.leer_ajustes(cliente, "Avanzado")
+        self.assertEqual(guardado.bitrate_video, 2500)
 
     def test_p8_en_el_perfil_actual_lo_recarga(self):
         with tempfile.TemporaryDirectory() as tmp:
-            base = self._carpeta_de_perfiles(tmp, "Avanzado", 4000)
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "Avanzado", {
+                "Output": {"Mode": "Advanced"},
+                "AdvOut": {"Encoder": "obs_x264"}})
             cliente = ClienteFalso(("A", "Avanzado"), actual="Avanzado")
             cliente.configurar("Avanzado", parametros={
                 ("Output", "Mode"): "Advanced",
@@ -738,16 +698,56 @@ class TestAvanzado(unittest.TestCase):
             self.assertEqual(cliente.actual, "Avanzado")
             self.assertEqual(cliente.cambios_de_perfil(), ["A", "Avanzado"])
 
-    def test_p8_dice_si_esta_en_avanzado_y_vuelve(self):
-        cliente = ClienteFalso(("A", "Avanzado", "Sencillo"), actual="A")
-        cliente.configurar("Avanzado", parametros={
+    def test_p8_vuelve_al_perfil_si_falla_a_mitad(self):
+        cliente = ClienteFalso(("A",), actual="A")
+        cliente.configurar("A", parametros={
             ("Output", "Mode"): "Advanced"})
-        cliente.configurar("Sencillo", parametros={
-            ("Output", "Mode"): "Simple"})
-        self.assertTrue(perfiles_obs.esta_en_avanzado(cliente, "Avanzado"))
+        cliente.fallar_en = ("SetCurrentProfile", 1)
+        with self.assertRaises(obs_cliente.ObsError):
+            perfiles_obs.pasar_a_sencillo(cliente, "A")
         self.assertEqual(cliente.actual, "A")
-        self.assertFalse(perfiles_obs.esta_en_avanzado(cliente, "Sencillo"))
+
+    def test_p8_dice_si_esta_en_avanzado_y_vuelve(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "Avanzado", {"Output": {"Mode": "Advanced"}})
+            crear_perfil(base, "Sencillo", {"Output": {"Mode": "Simple"}})
+            cliente = ClienteFalso(("A", "Avanzado", "Sencillo"), actual="A")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                self.assertTrue(
+                    perfiles_obs.esta_en_avanzado(cliente, "Avanzado"))
+                self.assertFalse(
+                    perfiles_obs.esta_en_avanzado(cliente, "Sencillo"))
         self.assertEqual(cliente.actual, "A")
+        self.assertEqual(cliente.cambios_de_perfil(), [])
+
+
+class TestPerfilInactivoEnDisco(unittest.TestCase):
+
+    def test_leer_un_perfil_inactivo_no_cambia_de_perfil(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            crear_perfil(base, "B", {"SimpleOutput": {"VBitrate": "4000"}})
+            cliente = ClienteFalso(("A", "B"), actual="A")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                ajustes = perfiles_obs.leer_ajustes(cliente, "B")
+            self.assertEqual(cliente.cambios_de_perfil(), [])
+            self.assertEqual(cliente.actual, "A")
+            self.assertEqual(ajustes.bitrate_video, 4000)
+
+    def test_leer_sin_carpeta_dice_que_perfil_y_no_cambia(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "profiles"
+            base.mkdir()
+            cliente = ClienteFalso(("A", "B"), actual="A")
+            with mock.patch.object(paths, "carpeta_obs", return_value=base):
+                with self.assertRaisesRegex(obs_cliente.ObsError,
+                                            "perfil B"):
+                    perfiles_obs.leer_ajustes(cliente, "B")
+        self.assertEqual(cliente.actual, "A")
+        self.assertEqual(cliente.cambios_de_perfil(), [])
 
 
 class TestSinSalidas(unittest.TestCase):

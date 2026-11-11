@@ -14,7 +14,8 @@ import uuid
 
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import ajustes_perfil, codificadores_obs, obs_cliente
+from guyrapu.obs import (
+    ajustes_perfil, codificadores_obs, obs_cliente, perfil_en_disco)
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -201,20 +202,6 @@ def _escribir_actual(cliente, ajustes, parada, escribir_servicio=True):
             "recordDirectory": ajustes.carpeta_grabacion}, parada)
 
 
-def _leer_de(cliente, objetivo, actual, parada):
-    if actual != objetivo:
-        cambiar(cliente, objetivo, parada)
-    try:
-        ajustes = _leer_actual(cliente, parada)
-    except Exception:
-        if actual != objetivo:
-            _intentar_volver(cliente, actual, parada)
-        raise
-    if actual != objetivo:
-        cambiar(cliente, actual, parada)
-    return ajustes
-
-
 def leer_ajustes(cliente, perfil=None, parada=None):
     """Lee los ajustes de un perfil y deja OBS en el que estaba."""
     comprobar_salidas(cliente, parada)
@@ -223,7 +210,9 @@ def leer_ajustes(cliente, perfil=None, parada=None):
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
-    return _leer_de(cliente, objetivo, actual, parada)
+    if objetivo != actual:
+        return perfil_en_disco.leer_ajustes(objetivo)
+    return _leer_actual(cliente, parada)
 
 
 def leer_para_editar(cliente, perfil=None, parada=None):
@@ -234,21 +223,13 @@ def leer_para_editar(cliente, perfil=None, parada=None):
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
-    if actual != objetivo:
-        cambiar(cliente, objetivo, parada)
-    try:
-        ajustes = _leer_actual(cliente, parada)
-        avanzado = _modo(cliente, parada) == "advanced"
-        servicio = _datos(
-            cliente.pedir("GetStreamServiceSettings", parada=parada))
-        personalizado = (str(servicio.get("streamServiceType") or "")
-                         == "rtmp_custom")
-    except Exception:
-        if actual != objetivo:
-            _intentar_volver(cliente, actual, parada)
-        raise
-    if actual != objetivo:
-        cambiar(cliente, actual, parada)
+    if objetivo != actual:
+        return perfil_en_disco.leer_para_editar(objetivo)
+    ajustes = _leer_actual(cliente, parada)
+    avanzado = _modo(cliente, parada) == "advanced"
+    servicio = _datos(cliente.pedir("GetStreamServiceSettings", parada=parada))
+    personalizado = (str(servicio.get("streamServiceType") or "")
+                     == "rtmp_custom")
     return ajustes, avanzado, personalizado
 
 
@@ -260,17 +241,15 @@ def guardar_ajustes(cliente, ajustes, perfil=None, parada=None):
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
-    if actual != objetivo:
-        cambiar(cliente, objetivo, parada)
+    if objetivo != actual:
+        perfil_en_disco.guardar_ajustes(objetivo, ajustes)
+        return
     try:
         _escribir_actual(cliente, ajustes, parada)
-        if objetivo == actual:
-            _recargar(cliente, objetivo, perfiles, parada)
+        _recargar(cliente, objetivo, perfiles, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
         raise
-    if objetivo != actual:
-        cambiar(cliente, actual, parada)
 
 
 def crear_perfil(cliente, nombre, vertical=False, codificadores=None,
@@ -305,7 +284,10 @@ def duplicar_perfil(cliente, origen, nuevo, parada=None):
     if nuevo in perfiles:
         raise obs_cliente.ObsError(_(MENSAJE_EXISTE))
     try:
-        ajustes = _leer_de(cliente, origen, actual, parada)
+        if origen != actual:
+            ajustes = perfil_en_disco.leer_ajustes(origen)
+        else:
+            ajustes = _leer_actual(cliente, parada)
         _crear(cliente, nuevo, parada)
         _escribir_actual(cliente, ajustes, parada)
         cambiar(cliente, actual, parada)
@@ -351,20 +333,12 @@ def esta_en_avanzado(cliente, perfil=None, parada=None):
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
-    if actual != objetivo:
-        cambiar(cliente, objetivo, parada)
-    try:
-        modo = _modo(cliente, parada)
-    except Exception:
-        if actual != objetivo:
-            _intentar_volver(cliente, actual, parada)
-        raise
-    if actual != objetivo:
-        cambiar(cliente, actual, parada)
-    return modo == "advanced"
+    if objetivo != actual:
+        return perfil_en_disco.esta_en_avanzado(objetivo)
+    return _modo(cliente, parada) == "advanced"
 
 
-def _convertir(cliente, objetivo, actual, perfiles, parada):
+def _convertir(cliente, objetivo, perfiles, parada):
     if _modo(cliente, parada) != "advanced":
         return False
     codificador = codificadores_obs.codificador_simple(
@@ -374,8 +348,7 @@ def _convertir(cliente, objetivo, actual, perfiles, parada):
                      parada)
     _fijar_parametro(cliente, "SimpleOutput", "VBitrate", str(bitrate), parada)
     _fijar_parametro(cliente, "Output", "Mode", "Simple", parada)
-    if objetivo == actual:
-        _recargar(cliente, objetivo, perfiles, parada)
+    _recargar(cliente, objetivo, perfiles, parada)
     return True
 
 
@@ -387,13 +360,16 @@ def pasar_a_sencillo(cliente, perfil=None, parada=None):
     if objetivo not in perfiles:
         raise obs_cliente.ObsError(
             _(MENSAJE_SIN_PERFIL).format(perfil=objetivo))
-    if actual != objetivo:
-        cambiar(cliente, objetivo, parada)
+    if objetivo != actual:
+        if not perfil_en_disco.esta_en_avanzado(objetivo):
+            return False
+        codificador = codificadores_obs.codificador_simple(
+            perfil_en_disco.encoder_avanzado(objetivo))
+        bitrate = codificadores_obs.bitrate_avanzado(objetivo)
+        perfil_en_disco.pasar_a_sencillo(objetivo, codificador, bitrate)
+        return True
     try:
-        convertido = _convertir(cliente, objetivo, actual, perfiles, parada)
+        return _convertir(cliente, objetivo, perfiles, parada)
     except Exception:
         _intentar_volver(cliente, actual, parada)
         raise
-    if actual != objetivo:
-        cambiar(cliente, actual, parada)
-    return convertido
