@@ -90,10 +90,9 @@ class PruebasSonidosDistintos(unittest.TestCase):
         faltantes = []
         for tema in temas:
             for evento in config._EVENTOS_SONIDO:
-                if evento in eventos_sonido.SONIDOS:
-                    continue
-                if not (TEMAS_DIR / tema / f"{evento}.wav").exists():
-                    faltantes.append(f"{tema}/{evento}.wav")
+                archivo = eventos_sonido.SONIDOS.get(evento, evento)
+                if not (TEMAS_DIR / tema / f"{archivo}.wav").exists():
+                    faltantes.append(f"{tema}/{archivo}.wav")
         self.assertEqual(faltantes, [])
 
     def test_sin_duplicados_dentro_de_cada_tema(self):

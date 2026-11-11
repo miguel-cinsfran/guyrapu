@@ -18,6 +18,7 @@ import logging
 import wx
 
 from guyrapu.core import diagnostico, nombre_msaa
+from guyrapu.voice import sound_player
 
 
 logger = diagnostico.obtener_logger(__name__)
@@ -61,6 +62,19 @@ def anunciar(texto: str, urgente: bool = True) -> None:
         _lector.braille(texto)
     except Exception as exc:
         logger.debug("No se pudo enviar el anuncio a la línea braille: %s", exc)
+
+
+def anunciar_con_sonido(frase: str, sonido: str | None = None) -> None:
+    """Reproduce el sonido y anuncia la frase desde el hilo de la interfaz."""
+    def _avisar():
+        if sonido:
+            sound_player.reproducir(sonido)
+        anunciar(frase)
+
+    try:
+        wx.CallAfter(_avisar)
+    except Exception as exc:
+        logger.debug("No se pudo diferir el aviso con sonido: %s", exc)
 
 
 def enlazar_anuncio_de_pestana(notebook) -> None:
@@ -143,9 +157,8 @@ class WxAnnouncingHandler(logging.Handler):
 
 # Lista blanca: solo estos loggers llegan al lector. Lo no listado se registra
 # pero no se habla, para que un logger.info nuevo no se convierta en voz por descuido.
-_LOGGERS_ANUNCIABLES = frozenset({
-    "guyrapu.obs_vigilante",  # avisa cuando OBS vuelve a responder
-})
+# Vacía: los avisos con sonido salen por anunciar_con_sonido.
+_LOGGERS_ANUNCIABLES = frozenset()
 
 
 def registro_es_anunciable(nombre_logger: str | None) -> bool:

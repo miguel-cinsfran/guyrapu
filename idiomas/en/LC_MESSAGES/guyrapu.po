@@ -462,6 +462,23 @@ msgid ""
 " tu clave."
 msgstr "Model list updated: {n} {proveedor} models, {r} work with your key."
 
+#. Traductores: aviso de modelo elegido de pago; {modelo} es su identificador.
+#: guyrapu/ai/opciones_ia.py
+#, python-brace-format
+msgid ""
+"El modelo elegido, {modelo}, no está en el nivel gratuito de tu clave. "
+"Elige uno de los gratis."
+msgstr ""
+"The chosen model, {modelo}, is not in your key's free tier. Choose one of "
+"the free models."
+
+#. Traductores: aviso de modelo elegido sin respuesta; {modelo} es su
+#. identificador.
+#: guyrapu/ai/opciones_ia.py
+#, python-brace-format
+msgid "El modelo elegido, {modelo}, no respondió con tu clave. Elige otro."
+msgstr "The chosen model, {modelo}, did not respond with your key. Choose another."
+
 #: guyrapu/ai/opciones_ia.py
 msgid "Instrucción restablecida."
 msgstr "Instruction restored."
@@ -4144,6 +4161,28 @@ msgstr "measured once it is on air"
 msgid "no muestra imagen"
 msgstr "shows no image"
 
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "no aparece en el vídeo, la tapa entera {tapa}"
+msgstr "it does not appear in the video, {tapa} covers it entirely"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "se ve en parte: {nombre} tapa el {porcentaje} por ciento"
+msgstr "partly visible: {nombre} covers {porcentaje} percent"
+
+#. Traductores: {p} es un porcentaje.
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid " y un {p} por ciento queda fuera del vídeo"
+msgstr " and {p} percent is off the video"
+
+#. Traductores: {p} es un porcentaje.
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "un {p} por ciento queda fuera del vídeo"
+msgstr "{p} percent is off the video"
+
 #: guyrapu/obs/obs_escena.py guyrapu/obs/revision_escena.py
 msgid "sin nombre"
 msgstr "unnamed"
@@ -4161,19 +4200,8 @@ msgid "en una posición libre"
 msgstr "in a free position"
 
 #: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "se ve en parte: {nombre} tapa el {porcentaje} por ciento"
-msgstr "partly visible: {nombre} covers {porcentaje} percent"
-
-#: guyrapu/obs/obs_escena.py
 msgid "se ve"
 msgstr "visible"
-
-#. Traductores: {p} es un porcentaje.
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid " y un {p} por ciento queda fuera del vídeo"
-msgstr " and {p} percent is off the video"
 
 #: guyrapu/obs/obs_escena.py
 msgid "bloqueada"
@@ -4603,6 +4631,14 @@ msgid "OBS no responde. Espera a que vuelva o ciérralo con Cerrar OBS."
 msgstr ""
 "OBS is not responding. Wait until it responds again or close it with Close "
 "OBS."
+
+#: guyrapu/obs/obs_vigilante.py
+msgid "OBS no responde. Se sigue intentando."
+msgstr "OBS is not responding. Still trying."
+
+#: guyrapu/obs/obs_vigilante.py
+msgid "OBS volvió a responder."
+msgstr "OBS is responding again."
 
 #. Traductores: {perfil} es el nombre de un perfil de OBS.
 #: guyrapu/obs/perfil_en_disco.py
@@ -13060,32 +13096,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: aviso de modelo elegido de pago; {modelo} es su identificador.
-#: guyrapu/ai/opciones_ia.py
-#, python-brace-format
-msgid ""
-"El modelo elegido, {modelo}, no está en el nivel gratuito de tu clave. "
-"Elige uno de los gratis."
-msgstr ""
-"The chosen model, {modelo}, is not in your key's free tier. Choose one of "
-"the free models."
-
-#. Traductores: aviso de modelo elegido sin respuesta; {modelo} es su
-#. identificador.
-#: guyrapu/ai/opciones_ia.py
-#, python-brace-format
-msgid "El modelo elegido, {modelo}, no respondió con tu clave. Elige otro."
-msgstr "The chosen model, {modelo}, did not respond with your key. Choose another."
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "no aparece en el vídeo, la tapa entera {tapa}"
-msgstr "it does not appear in the video, {tapa} covers it entirely"
-
-#. Traductores: {p} es un porcentaje.
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "un {p} por ciento queda fuera del vídeo"
-msgstr "{p} percent is off the video"
 

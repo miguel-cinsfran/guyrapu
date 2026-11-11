@@ -102,7 +102,7 @@ _OBS_COMPONENTES = frozenset(("obs_transmision", "obs_grabacion", "obs_escena"))
 # Reexportados: muchos módulos todavía los piden a gui.
 from guyrapu.ui.accesibilidad import (
     ContadorAccesible, WxAnnouncingHandler, _lector_init, anunciar,
-    enlazar_anuncio_de_pestana, nombre_accesible, registro_es_anunciable,
+    anunciar_con_sonido, enlazar_anuncio_de_pestana, nombre_accesible, registro_es_anunciable,
 )
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.tema import ALTO_CONTRASTE, _T, _pintar, _tc, _titulo
@@ -829,7 +829,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         con_titulo = bool(self._config.get("titulo_estado_obs", False))
         if con_titulo or _OBS_COMPONENTES.intersection(activos):
             if self._obs_vigilante is None:
-                self._obs_vigilante = obs_vigilante.VigilanteObs()
+                self._obs_vigilante = obs_vigilante.VigilanteObs(al_anunciar=anunciar_con_sonido)
                 self._obs_vigilante.iniciar()
         elif self._obs_vigilante is not None:
             self._obs_vigilante.detener()

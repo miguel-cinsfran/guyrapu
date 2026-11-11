@@ -461,8 +461,8 @@ class GrabadorDeVoz:
 
 class TestRegistroEsAnunciable(unittest.TestCase):
 
-    def test_obs_vigilante_si_se_anuncia(self):
-        self.assertTrue(gui.registro_es_anunciable("guyrapu.obs_vigilante"))
+    def test_obs_vigilante_ya_no_se_anuncia(self):
+        self.assertFalse(gui.registro_es_anunciable("guyrapu.obs_vigilante"))
 
     def test_diagnostico_no_se_anuncia(self):
         self.assertFalse(gui.registro_es_anunciable("guyrapu.diagnostico"))
@@ -563,11 +563,13 @@ class TestRegistroEsAnunciable(unittest.TestCase):
         self.assertEqual(grabador.hablado, [])
         self.assertEqual(grabador.brailleado, [])
 
-    def test_manejador_anuncia_mensaje_de_aplicacion(self):
+    def test_manejador_anuncia_cuando_el_registro_es_anunciable(self):
         grabador = GrabadorDeVoz()
         registro = logging.LogRecord(
             "guyrapu.obs_vigilante", logging.INFO, __file__, 1, "OBS volvio a responder", (), None)
-        with mock.patch.object(accesibilidad, "_lector", grabador):
+        with mock.patch.object(accesibilidad, "_lector", grabador), \
+                mock.patch.object(accesibilidad, "registro_es_anunciable",
+                                  return_value=True):
             accesibilidad.WxAnnouncingHandler().emit(registro)
 
         self.assertEqual(grabador.hablado, ["OBS volvio a responder"])
@@ -586,6 +588,22 @@ class TestRegistroEsAnunciable(unittest.TestCase):
         warn.assert_any_call("wx: %s", "fallo error")
         warn.assert_any_call("wx: %s", "aviso")
         dbg.assert_any_call("wx: %s", "mensaje")
+
+
+class TestAnunciarConSonido(unittest.TestCase):
+
+    def test_toca_el_sonido_y_anuncia_la_frase(self):
+        with mock.patch.object(accesibilidad.wx, "CallAfter",
+                               side_effect=lambda fn: fn()) as diferir, \
+                mock.patch.object(accesibilidad.sound_player,
+                                  "reproducir") as sonar, \
+                mock.patch.object(accesibilidad, "anunciar") as hablar:
+            accesibilidad.anunciar_con_sonido(
+                "OBS volvió a responder.", "obs_responde")
+
+        diferir.assert_called_once()
+        sonar.assert_called_once_with("obs_responde")
+        hablar.assert_called_once_with("OBS volvió a responder.")
 
 
 class TestAltoContraste(unittest.TestCase):
@@ -4248,6 +4266,13 @@ class TestEstadoObsEnF2(unittest.TestCase):
             frame._config["estado_toggles"] = set()
             frame._actualizar_vigilante_obs()
         clase.return_value.detener.assert_called_once_with()
+
+    def test_el_vigilante_recibe_el_anunciador_con_sonido(self):
+        frame = self._frame({"obs_transmision"})
+        with mock.patch.object(gui.obs_vigilante, "VigilanteObs") as clase:
+            frame._actualizar_vigilante_obs()
+        clase.assert_called_once_with(
+            al_anunciar=accesibilidad.anunciar_con_sonido)
 
 class TestTransmisionSupervisadaEnF2(unittest.TestCase):
     def _frame(self, supervisor):

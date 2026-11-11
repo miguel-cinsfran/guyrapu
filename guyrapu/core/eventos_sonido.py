@@ -78,6 +78,8 @@ EVENTOS = [
     "encuesta", "encuesta_fin",
     # Metas y batallas del directo de TikTok.
     "meta", "batalla", "batalla_fin",
+    # El vigilante de OBS: deja de responder y vuelve.
+    "obs_sin_respuesta", "obs_responde",
 ]
 
 # Sonido con el que suena cada evento que no usa su propio archivo. Un
@@ -85,6 +87,9 @@ EVENTOS = [
 SONIDOS = {
     "chat_cortado": "transmision_problema",
     "chat_reconectado": "transmision_recuperada",
+    # El vigilante de OBS suena como una caída y una vuelta de la transmisión.
+    "obs_sin_respuesta": "transmision_problema",
+    "obs_responde": "transmision_recuperada",
 }
 
 # Nombre llano de cada evento para la página Sonidos de Preferencias.
@@ -189,4 +194,6 @@ NOMBRES = {
     "meta": "Meta cumplida",
     "batalla": "Batalla iniciada",
     "batalla_fin": "Batalla terminada",
+    "obs_sin_respuesta": "OBS no responde",
+    "obs_responde": "OBS vuelve a responder",
 }

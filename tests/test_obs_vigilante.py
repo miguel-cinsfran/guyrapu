@@ -90,6 +90,37 @@ class TestParada(unittest.TestCase):
         logger.warning.assert_called_once_with("OBS no responde; se reintentará")
 
 
+class TestAnuncios(unittest.TestCase):
+
+    def _vigilar(self, en_ejecucion, fallos):
+        gestor = mock.Mock(conectado=True)
+        gestor.estado_transmision.side_effect = (
+            [RuntimeError("OBS no contesta")] * fallos + [{}])
+        gestor.estado_grabacion.return_value = {}
+        gestor.escena_al_aire.return_value = ""
+        anuncios = []
+        vigilante = VigilanteObs(
+            crear_gestor=lambda: gestor, en_ejecucion=en_ejecucion,
+            al_anunciar=lambda frase, sonido: anuncios.append((frase, sonido)))
+        vigilante._parada = _ParadaPorEsperas(fallos + 1)
+        with mock.patch.object(obs_vigilante.diagnostico, "obtener_logger",
+                               return_value=mock.Mock()), \
+                mock.patch.object(obs_vigilante, "INTERVALO_SONDEO", 0), \
+                mock.patch.object(obs_vigilante, "INTERVALO_SIN_OBS", 0):
+            vigilante._vigilar()
+        return anuncios
+
+    def test_avisa_la_caida_y_la_vuelta_una_vez_cada_una(self):
+        anuncios = self._vigilar(lambda: True, fallos=3)
+        self.assertEqual(anuncios, [
+            ("OBS no responde. Se sigue intentando.", "obs_sin_respuesta"),
+            ("OBS volvió a responder.", "obs_responde"),
+        ])
+
+    def test_sin_obs_en_ejecucion_no_avisa_nada(self):
+        self.assertEqual(self._vigilar(lambda: False, fallos=3), [])
+
+
 class _ParadaPorEsperas:
     """Parada que deja correr un número fijo de esperas."""
 
