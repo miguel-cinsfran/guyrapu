@@ -127,12 +127,15 @@ class ActualizacionModelosIA:
         if resultados is not None:
             self._anunciar_sondeo(actual, muestra, resultados)
             return
+        self._anunciar_lista(actual, n)
+
+    def _anunciar_lista(self, proveedor, n):
         _snd.reproducir("ia_respuesta")
-        if actual.id_catalogo is None:
+        if proveedor.id_catalogo is None:
             anunciar(opciones_ia.TEXTO_LISTA_ACTUALIZADA_SIN_PROVEEDOR)
         else:
             anunciar(opciones_ia.TEXTO_LISTA_ACTUALIZADA.format(
-                n=n, proveedor=actual.nombre))
+                n=n, proveedor=proveedor.nombre))
 
     def _leer_marcas(self, proveedor):
         try:
