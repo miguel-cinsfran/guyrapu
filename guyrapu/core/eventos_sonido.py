@@ -4,6 +4,8 @@
 
 EVENTOS = [
     "app_inicio", "conectando", "conectado", "desconectado",
+    # Corte y vuelta automáticos del chat, distintos de conectar a mano.
+    "chat_cortado", "chat_reconectado",
     "mensaje_nuevo", "mensaje_tiktok", "mensaje_propietario",
     "mensaje_moderador", "mensaje_verificado", "mensaje_miembro",
     "superchat", "nuevo_miembro", "error",
@@ -80,7 +82,10 @@ EVENTOS = [
 
 # Sonido con el que suena cada evento que no usa su propio archivo. Un
 # evento fuera de la tabla suena con `<evento>.wav`.
-SONIDOS = {}
+SONIDOS = {
+    "chat_cortado": "transmision_problema",
+    "chat_reconectado": "transmision_recuperada",
+}
 
 # Nombre llano de cada evento para la página Sonidos de Preferencias.
 # Registro de la app: impersonal, sin jerga, lo importante primero,
@@ -89,6 +94,8 @@ NOMBRES = {
     "app_inicio": "Inicio de la aplicación",
     "conectando": "Conexión en curso",
     "conectado": "Conexión establecida",
+    "chat_cortado": "Chat desconectado",
+    "chat_reconectado": "Chat reconectado",
     "desconectado": "Desconexión del chat",
     "mensaje_nuevo": "Mensaje nuevo del chat",
     "mensaje_tiktok": "Mensaje de TikTok",

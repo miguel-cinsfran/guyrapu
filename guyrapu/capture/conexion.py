@@ -7,6 +7,7 @@ import logging
 from guyrapu.core import diagnostico
 from guyrapu.voice import sound_player as _snd
 from guyrapu.capture import tiktok_captura
+from guyrapu.capture.sonido_reconexion import SonidoReconexion
 from guyrapu.obs import overlay_servidor
 from guyrapu.obs.overlay_datos import (
     evento_de_mensaje, va_al_chat_en_el_video,
@@ -189,6 +190,7 @@ class Conexiones:
         sesion = self._registro.abrir()
         self._activo = True
         ps, gen = sesion.parada, sesion.gen
+        sonido = SonidoReconexion()
 
         def _on_msg(autor, mensaje, hora, tipo=main.TIPO_TEXTO, monto="", canal_id="", rol=""):
             if not self._registro.vigente(gen):
@@ -215,14 +217,15 @@ class Conexiones:
                 return
             # Los sonidos van aquí (no en tiktok_captura, que queda sin wx ni
             # audio): mismo mapa de eventos que la captura de YouTube.
-            if tipo_estado in ("conectando", "reintentando"):
-                _snd.reproducir("conectando")
+            if tipo_estado in ("conectando", "reintentando", "conectado",
+                               "reconectado"):
                 if tipo_estado == "reintentando":
                     self._stats.inc("reconexiones")
-            elif tipo_estado == "conectado":
-                _snd.reproducir("conectado")
-                self._vista.set_conectado(True)
-                return  # set_conectado ya anuncia el mensaje adecuado
+                if (evento := sonido.recibir(tipo_estado)):
+                    _snd.reproducir(evento)
+                if tipo_estado in ("conectado", "reconectado"):
+                    self._vista.set_conectado(True)
+                    return  # set_conectado ya anuncia el mensaje adecuado
             elif tipo_estado in ("error_permanente", "error"):
                 _snd.reproducir("error")
                 self._terminar()
@@ -231,10 +234,10 @@ class Conexiones:
             elif tipo_estado in ("desconectado", "fin_directo"):
                 # «fin_directo» cierra igual que «desconectado»: solo cambia
                 # el sonido que reproduce set_conectado al desconectar.
-                sonido = ("fin_directo" if tipo_estado == "fin_directo"
-                          else "desconectado")
+                sonido_fin = ("fin_directo" if tipo_estado == "fin_directo"
+                              else "desconectado")
                 self._terminar()
-                self._vista.set_conectado(False, sonido)
+                self._vista.set_conectado(False, sonido_fin)
                 self._vista.set_titulo("")
             elif tipo_estado in ("directo_pausado", "directo_reanudado"):
                 _snd.reproducir(tipo_estado)

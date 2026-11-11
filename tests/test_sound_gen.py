@@ -12,14 +12,14 @@ import unittest
 import wave
 from pathlib import Path
 
-from guyrapu.core import config
+from guyrapu.core import config, eventos_sonido
 from scripts import sound_gen
 
 
 class PruebasSoundGen(unittest.TestCase):
     def test_eventos_del_tema_default_coinciden_con_configuracion(self):
         generados = {Path(nombre).stem for nombre in sound_gen.TEMAS["default"]}
-        configurados = set(config._EVENTOS_SONIDO)
+        configurados = set(config._EVENTOS_SONIDO) - set(eventos_sonido.SONIDOS)
         sobrantes = sorted(generados - configurados)
         faltantes = sorted(configurados - generados)
 

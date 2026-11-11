@@ -42,6 +42,7 @@ from guyrapu.voice.cola_tts import ColaTTS
 from guyrapu.voice import sound_player as _snd
 from guyrapu.capture import deteccion
 from guyrapu.capture.reconexion import FiltroNuevos, espera_reconexion
+from guyrapu.capture.sonido_reconexion import SonidoReconexion
 from guyrapu.core import diagnostico
 from guyrapu.core import avisos_red
 from guyrapu.downloads import ytdlp_bin
@@ -436,6 +437,7 @@ def captura_con_reconexion(video_id, cola, config, parada, stats, on_message=Non
     conecto = [False]
     llego_conectado = [False]
     filtro = FiltroNuevos()
+    sonido = SonidoReconexion()
 
     def _estado(tipo, texto):
         # «leido» es interno: marca que la conexión leyó al menos una vuelta de
@@ -452,6 +454,7 @@ def captura_con_reconexion(video_id, cola, config, parada, stats, on_message=Non
             llego_conectado[0] = True
         elif tipo == "conectando" and llego_conectado[0]:
             return
+        if (evento := sonido.recibir(tipo)): _snd.reproducir(evento)
         if on_estado:
             on_estado(tipo, texto)
 
@@ -487,12 +490,11 @@ def captura_con_reconexion(video_id, cola, config, parada, stats, on_message=Non
         motivo = str(err) if err is not None else "la conexión se cerró sin error"
         logger.warning("Reconexión del chat video=%s, intento %s: %s", video_id, intentos, motivo)
         # Traductores: {segundos} puede ser 1; {unidad}, segundo o segundos; {total}, el máximo.
-        if on_estado: on_estado("reintentando", (_("Se perdió la conexión con el chat. "
+        _estado("reintentando", (_("Se perdió la conexión con el chat. "
             "Reintentando en {segundos} {unidad} (intento {intento} de {total}).") if mi else _("Se"
             " perdió la conexión con el chat. Reintentando en {segundos} {unidad} (intento"
             " {intento}).")).format(segundos=espera, unidad=unidad, intento=intentos, total=mi))
         stats.inc("reconexiones")
-        _snd.reproducir("conectando")
         parada.wait(timeout=espera)
 
 
@@ -548,7 +550,6 @@ def _captura_en_loop(video_id, cola, config, parada, stats, on_message, on_estad
         parada.set(); return None
 
     if on_estado: on_estado("conectando", _("Conectando al directo…"))
-    _snd.reproducir("conectando")
 
     cliente = _cliente_pytchat()
     try:
@@ -558,11 +559,9 @@ def _captura_en_loop(video_id, cola, config, parada, stats, on_message, on_estad
         except Exception as error: logger.debug("no se pudo cerrar el cliente del chat: %s", error)
         msg = _mensaje_error_amigable(exc)
         if on_estado: on_estado("error_conexion", msg)
-        _snd.reproducir("error")
         return exc
 
     if on_estado: on_estado("conectado", _("Conectado. Esperando mensajes…"))
-    _snd.reproducir("conectado")
     logger.info("Conectado al directo video=%s.", video_id)
 
     if filtro is None: filtro = FiltroNuevos()

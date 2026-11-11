@@ -29,9 +29,6 @@ class TestRutaEvento(unittest.TestCase):
         self.carpeta = Path(self._tmp.name)
         self.evento = eventos_sonido.EVENTOS[0]
 
-    def test_la_tabla_no_asigna_ningun_sonido(self):
-        self.assertEqual(eventos_sonido.SONIDOS, {})
-
     def test_archivo_del_evento_gana_al_asignado(self):
         propia = _tocar(self.carpeta, self.evento)
         _tocar(self.carpeta, "otro")

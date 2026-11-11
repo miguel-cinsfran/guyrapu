@@ -3,8 +3,8 @@
 """Distinción de los sonidos: un WAV por evento, sin duplicados.
 
 Dentro de cada tema no hay dos WAV con el mismo contenido (md5), y todo
-evento de `_EVENTOS_SONIDO` tiene su archivo en cada tema. Lee los WAV del
-disco, sin ventanas y sin reproducir nada.
+evento de `_EVENTOS_SONIDO` sin sonido asignado tiene su archivo en cada
+tema. Lee los WAV del disco, sin ventanas y sin reproducir nada.
 """
 
 import hashlib
@@ -90,6 +90,8 @@ class PruebasSonidosDistintos(unittest.TestCase):
         faltantes = []
         for tema in temas:
             for evento in config._EVENTOS_SONIDO:
+                if evento in eventos_sonido.SONIDOS:
+                    continue
                 if not (TEMAS_DIR / tema / f"{evento}.wav").exists():
                     faltantes.append(f"{tema}/{evento}.wav")
         self.assertEqual(faltantes, [])

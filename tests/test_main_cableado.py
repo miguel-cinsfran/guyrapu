@@ -258,6 +258,32 @@ class PruebasReconexion(unittest.TestCase):
         self.assertIn(("error", "Se agotaron los 3 intentos de reconexión."),
                       estados)
 
+    def test_un_corte_y_la_vuelta_suenan_distinto_de_conectar(self):
+        llamadas = [0]
+
+        def captura(video_id, cola, cfg, parada, stats, on_message, on_estado,
+                    sesion_activa, filtro=None):
+            llamadas[0] += 1
+            on_estado("conectando", "Conectando al directo…")
+            on_estado("conectado", "Conectado. Esperando mensajes…")
+            on_estado("leido", "ok")
+            if llamadas[0] == 1:
+                return RuntimeError("Chat data stream is empty.")
+            parada.set()
+            return None
+
+        sonidos = []
+        parada = threading.Event()
+        with patch.object(main, "_captura", side_effect=captura), \
+                patch.object(main, "_directo_terminado", return_value=False), \
+                patch.object(main._snd, "reproducir",
+                             side_effect=sonidos.append):
+            main.captura_con_reconexion(
+                "v", queue.Queue(), self._config(max_intentos=0), parada,
+                main.Stats())
+        self.assertEqual(sonidos, ["conectando", "conectado",
+                                   "chat_cortado", "chat_reconectado"])
+
     def test_captura_cierra_el_loop_de_asyncio_de_cada_intento(self):
         loops = []
 
@@ -271,6 +297,22 @@ class PruebasReconexion(unittest.TestCase):
         self.assertEqual(len(loops), 2)
         self.assertIsNot(loops[0], loops[1])
         self.assertTrue(all(loop.is_closed() for loop in loops))
+
+    def test_un_fallo_reintentable_al_abrir_no_suena_a_error(self):
+        def crear(**_kwargs):
+            raise RuntimeError("timeout temporal")
+
+        with patch.dict(sys.modules, {"pytchat": types.SimpleNamespace(
+                create=crear)}), \
+                patch.object(main, "_cliente_pytchat",
+                             return_value=Mock(close=lambda: None)), \
+                patch.object(main._snd, "reproducir") as sonido:
+            main._captura_en_loop(
+                "v", queue.Queue(), {}, threading.Event(), main.Stats(),
+                None, None, None)
+        self.assertNotIn(
+            "error",
+            [llamada.args[0] for llamada in sonido.call_args_list])
 
 
 class _Parada:

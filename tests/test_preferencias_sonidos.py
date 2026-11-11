@@ -153,13 +153,13 @@ class TestPaginaSonidos(unittest.TestCase):
     def test_oir_usa_el_tema_elegido_sin_guardarlo(self):
         pagina = self._pagina_con_temas(["default", "suave"], "default")
         pagina.cho_tema.SetStringSelection("Suave")
-        pagina._lista.Select(4)
+        pagina._lista.Select(EVENTOS.index("mensaje_nuevo"))
         with mock.patch.object(preferencias_sonidos._snd,
                                "reproducir_archivo") as oir:
             pagina._on_oir(None)
         oir.assert_called_once()
         ruta = Path(oir.call_args.args[0])
-        self.assertEqual(ruta.name, f"{EVENTOS[4]}.wav")
+        self.assertEqual(ruta.name, "mensaje_nuevo.wav")
         self.assertEqual(ruta.parent.name, "suave")
         self.assertIn("tema = default", self.ruta.read_text(encoding="utf-8"))
 

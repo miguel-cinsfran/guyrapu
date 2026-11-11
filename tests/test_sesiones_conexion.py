@@ -437,6 +437,15 @@ class PruebasFinDirectoTiktok(unittest.TestCase):
             self.conexiones._conectar_tiktok("pepe")
         return callbacks
 
+    def test_un_corte_y_la_vuelta_suenan_distinto_de_conectar(self):
+        from guyrapu.capture import conexion as modulo_conexion
+        callbacks = self._callbacks_tiktok()
+        with mock.patch.object(modulo_conexion._snd, "reproducir") as sonar:
+            for estado in ("conectado", "reintentando", "conectado"):
+                callbacks["on_estado"](estado, estado)
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["conectado", "chat_cortado", "chat_reconectado"])
+
     def test_fin_directo_cierra_igual_que_desconectado_con_otro_sonido(self):
         callbacks = self._callbacks_tiktok()
         # El _run de TikTok ya apagó la vista al terminar: solo importan

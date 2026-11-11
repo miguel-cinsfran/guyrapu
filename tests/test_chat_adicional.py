@@ -161,7 +161,8 @@ class TestEstadosDelAdicional(unittest.TestCase):
             self.assertTrue(chat.conectar("@pepe",
                                           principal_activo=lambda: True))
         self.assertEqual([llamada.args[0] for llamada in sonido.call_args_list],
-                         ["conectando", "conectado", "conectando", "fin_directo"])
+                         ["conectando", "conectado", "chat_cortado",
+                          "fin_directo"])
         self.assertTrue(vista_gui.anuncios)
         for anuncio in vista_gui.anuncios:
             self.assertTrue(anuncio.startswith("TikTok: "), anuncio)

@@ -174,7 +174,8 @@ class TestReconexionDirectoTerminado(unittest.TestCase):
             ("error_permanente", "El directo terminó. Chat desconectado."),
             estados)
         self.assertFalse(any(tipo == "reintentando" for tipo, _ in estados))
-        sonido.assert_called_once_with("fin_directo")
+        self.assertEqual([llamada.args[0] for llamada in sonido.call_args_list],
+                         ["conectado", "fin_directo"])
         self.assertTrue(parada.is_set())
 
     def test_cortes_sin_lectura_agotan_los_intentos(self):
