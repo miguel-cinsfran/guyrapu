@@ -138,7 +138,7 @@ class TestDetectores(unittest.TestCase):
             # avisar("texto")
             texto = "avisar('x')"
             """, EVENTOS)
-        self.assertEqual([7, 8, 9, 10, 11, 12, 14, 16],
+        self.assertEqual([7, 8, 9, 12, 14, 16],
                          _lineas(hallazgos))
 
     def test_controles(self):

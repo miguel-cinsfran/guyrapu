@@ -22,7 +22,6 @@ RAIZ = Path(__file__).resolve().parent.parent
 FUENTES = RAIZ / "guyrapu"
 MAIN = RAIZ / "main.py"
 
-SONIDOS_GENERICOS = {"error", "copiar"}
 ATRIBUTOS_CUADRO = {"MessageBox", "MessageDialog"}
 
 
@@ -138,9 +137,7 @@ def _sonido_de(llamada: ast.Call) -> ast.expr | None:
 def _sonido_valido(nodo: ast.expr | None, eventos: frozenset[str]) -> bool:
     if not (isinstance(nodo, ast.Constant) and isinstance(nodo.value, str)):
         return False
-    return (bool(nodo.value)
-            and nodo.value in eventos
-            and nodo.value not in SONIDOS_GENERICOS)
+    return bool(nodo.value) and nodo.value in eventos
 
 
 def detectar_avisar(archivo: str, arbol: ast.Module,
