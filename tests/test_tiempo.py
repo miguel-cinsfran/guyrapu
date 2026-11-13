@@ -3,6 +3,7 @@
 """Pruebas del reloj y del sueño comunes, con su doble."""
 
 import threading
+import time
 import unittest
 
 from guyrapu.core.tiempo import TIEMPO_REAL, TiempoDoble
@@ -14,6 +15,30 @@ class TestTiempoReal(unittest.TestCase):
         antes = TIEMPO_REAL.ahora()
         despues = TIEMPO_REAL.ahora()
         self.assertGreaterEqual(despues, antes)
+
+    def test_dormir_con_parada_ya_puesta_vuelve_en_seguida(self):
+        parada = threading.Event()
+        parada.set()
+        inicio = time.monotonic()
+        self.assertTrue(TIEMPO_REAL.dormir(5, parada))
+        self.assertLess(time.monotonic() - inicio, 1.0)
+
+    def test_dormir_termina_cuando_otro_hilo_dispara_la_parada(self):
+        parada = threading.Event()
+
+        def disparar():
+            time.sleep(0.05)
+            parada.set()
+
+        hilo = threading.Thread(target=disparar)
+        hilo.start()
+        inicio = time.monotonic()
+        self.assertTrue(TIEMPO_REAL.dormir(5, parada))
+        self.assertLess(time.monotonic() - inicio, 1.0)
+        hilo.join()
+
+    def test_dormir_sin_parada_devuelve_falso(self):
+        self.assertFalse(TIEMPO_REAL.dormir(0.01))
 
 
 class TestTiempoDoble(unittest.TestCase):
