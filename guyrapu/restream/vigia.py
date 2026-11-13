@@ -11,11 +11,12 @@ el texto de la excepción.
 from __future__ import annotations
 
 import threading
+import time
 from urllib.parse import quote
 
 from websockets.sync.client import connect
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -23,6 +24,35 @@ DIRECCION = "wss://streaming.api.restream.io/ws"
 ESPERA_MINIMA = 2.0
 ESPERA_MAXIMA = 30.0
 INTERVALO_LECTURA = 1.0
+
+
+class _CadenciaDeReintento:
+    """Crece con cada espera y vuelve al mínimo tras una conexión abierta."""
+
+    def __init__(self):
+        self._intentos = 0
+        self._creciente = esperas.Creciente(ESPERA_MINIMA, ESPERA_MAXIMA)
+
+    def reiniciar(self):
+        self._intentos = 0
+
+    def espera(self, intento, transcurrido):
+        valor = self._creciente.espera(self._intentos, transcurrido)
+        self._intentos += 1
+        return valor
+
+
+class _TiempoDeVigia:
+    """Reloj real y el dormir que inyectan las pruebas."""
+
+    def __init__(self, esperar):
+        self._esperar = esperar
+
+    def ahora(self):
+        return time.monotonic()
+
+    def dormir(self, segundos, parada=None):
+        return bool(self._esperar(segundos))
 
 
 def direccion_con_token(direccion, token):
@@ -76,27 +106,27 @@ class VigiaSenal:
             return ""
 
     def _vigilar(self):
-        espera = ESPERA_MINIMA
-        while self._seguir():
+        cadencia = _CadenciaDeReintento()
+
+        def consultar():
+            if not self._seguir():
+                return False
             token = self._token()
             if not token:
-                if self._esperar(espera):
-                    return
-                espera = self._siguiente(espera)
-                continue
+                return True
             try:
                 with self._conectar_fn(
                         direccion_con_token(self._direccion, token)) as conexion:
-                    espera = ESPERA_MINIMA
+                    cadencia.reiniciar()
                     self._escuchar(conexion)
             except Exception as error:
                 logger.warning("se cortó la conexión con Restream: %s",
                                type(error).__name__)
-            if not self._seguir():
-                return
-            if self._esperar(espera):
-                return
-            espera = self._siguiente(espera)
+            return self._seguir()
+
+        esperas.esperar(
+            consultar, lambda valor: not valor, cadencia=cadencia,
+            parada=self._parada, tiempo=_TiempoDeVigia(self._esperar))
 
     def _escuchar(self, conexion):
         while self._seguir():
@@ -109,6 +139,3 @@ class VigiaSenal:
             except Exception as error:
                 logger.warning("no se pudo procesar un mensaje de Restream: %s",
                                type(error).__name__)
-
-    def _siguiente(self, espera):
-        return min(espera * 2, ESPERA_MAXIMA)

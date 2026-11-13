@@ -94,6 +94,27 @@ class TestAvisosRepetidos(unittest.TestCase):
         tiempo.avanzar(3.0)
         self.assertTrue(avisos.toca("red"))
 
+    def test_los_plazos_por_defecto_y_la_vuelta_siempre_toca(self):
+        tiempo = TiempoDoble()
+        avisos = vigilancia.AvisosRepetidos(tiempo.ahora)
+        self.assertTrue(avisos.toca("red"))
+        self.assertFalse(avisos.toca("red"))
+        tiempo.avanzar(59.0)
+        self.assertFalse(avisos.toca("red"))
+        tiempo.avanzar(1.0)
+        self.assertTrue(avisos.toca("red"))
+        self.assertTrue(avisos.toca("vuelta"))
+        self.assertTrue(avisos.toca("vuelta"))
+
+    def test_la_sobrecarga_espera_su_plazo_mas_largo(self):
+        tiempo = TiempoDoble()
+        avisos = vigilancia.AvisosRepetidos(tiempo.ahora)
+        self.assertTrue(avisos.toca("sobrecarga"))
+        tiempo.avanzar(299.0)
+        self.assertFalse(avisos.toca("sobrecarga"))
+        tiempo.avanzar(1.0)
+        self.assertTrue(avisos.toca("sobrecarga"))
+
 
 if __name__ == "__main__":
     unittest.main()

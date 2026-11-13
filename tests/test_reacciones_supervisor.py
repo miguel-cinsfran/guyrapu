@@ -8,14 +8,6 @@ import unittest
 from guyrapu.obs import reacciones_supervisor
 
 
-class RelojFalso:
-    def __init__(self):
-        self.ahora = 0.0
-
-    def __call__(self):
-        return self.ahora
-
-
 class EsperaDeArranqueTest(unittest.TestCase):
     def test_anuncia_cada_veredicto_una_vez_y_recupera(self):
         veredictos = ["reconectando", "esperando", "reconectando", "enviando"]
@@ -47,29 +39,6 @@ class EsperaDeArranqueTest(unittest.TestCase):
         self.assertFalse(recuperado)
         self.assertEqual(anuncios, [
             ("frase de sin_salida", "transmision_problema", True)])
-
-
-class AvisosRepetidosTest(unittest.TestCase):
-    def test_respeta_los_plazos_y_la_vuelta_siempre_toca(self):
-        reloj = RelojFalso()
-        avisos = reacciones_supervisor.AvisosRepetidos(reloj)
-        self.assertTrue(avisos.toca("red"))
-        self.assertFalse(avisos.toca("red"))
-        reloj.ahora = 59.0
-        self.assertFalse(avisos.toca("red"))
-        reloj.ahora = 60.0
-        self.assertTrue(avisos.toca("red"))
-        self.assertTrue(avisos.toca("vuelta"))
-        self.assertTrue(avisos.toca("vuelta"))
-
-    def test_la_sobrecarga_espera_su_plazo_mas_largo(self):
-        reloj = RelojFalso()
-        avisos = reacciones_supervisor.AvisosRepetidos(reloj)
-        self.assertTrue(avisos.toca("sobrecarga"))
-        reloj.ahora = 299.0
-        self.assertFalse(avisos.toca("sobrecarga"))
-        reloj.ahora = 300.0
-        self.assertTrue(avisos.toca("sobrecarga"))
 
 
 class LectorDeEstadoTest(unittest.TestCase):

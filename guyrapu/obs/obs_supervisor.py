@@ -15,8 +15,9 @@ import threading
 import time
 
 from guyrapu.capture import tiktok_vivo
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas, vigilancia
 from guyrapu.core.idioma import _
+from guyrapu.core.tiempo import TiempoDeFunciones
 from guyrapu.obs import codificadores_obs
 from guyrapu.obs import detener_obs
 from guyrapu.obs import obs_activacion
@@ -29,7 +30,7 @@ from guyrapu.obs import reacciones_supervisor
 from guyrapu.obs import resumen_directo
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.obs.reacciones_supervisor import (
-    PLAZO_REPETICION, PLAZO_SOBRECARGA, SONIDOS_AVISO, segundos_de_cierre)  # noqa: F401
+    SONIDOS_AVISO, segundos_de_cierre)  # noqa: F401
 from guyrapu.youtube import emision
 from guyrapu.youtube import fin_pendiente
 
@@ -205,15 +206,6 @@ class SupervisorTransmision:
         if hilo is not None:
             hilo.join(2.0)
 
-    def _esperar(self, segundos) -> None:
-        # La vigilancia duerme con la parada para que detener() despierte
-        # enseguida; los dobles de las pruebas inyectan otro dormir y se
-        # respeta para no romper su reloj falso.
-        if self._dormir is time.sleep:
-            self._parada.wait(segundos)
-        else:
-            self._dormir(segundos)
-
     def _anunciar(self, frase, sonido, importante=False) -> None:
         texto = frase if isinstance(frase, str) else ""
         self._ultima_frase = texto
@@ -386,45 +378,53 @@ class SupervisorTransmision:
         lector = reacciones_supervisor.LectorDeEstado(
             gestor, self._parada, self._anunciar,
             en_ejecucion=obs_activacion.obs_esta_en_ejecucion)
-        avisos = reacciones_supervisor.AvisosRepetidos(self._reloj)
-        anterior = None
-        estadisticas_anterior = None
-        while not self._parada.is_set():
-            if self._corte.is_set():
-                return
-            actual, apagado = lector.leer()
-            if apagado:
-                self._terminar_transmision(None)
-                return
-            if actual is None:
-                self._esperar(self._intervalo_salud)
-                continue
-            self._ultimo_estado = actual
+        avisos = vigilancia.AvisosRepetidos(self._reloj)
+        estado = {"anterior": None, "estadisticas": None}
+        # La vigilancia duerme con la parada para que detener() despierte
+        # enseguida; los dobles de las pruebas inyectan otro dormir y se
+        # respeta para no romper su reloj falso.
+        dormir = self._parada.wait if self._dormir is time.sleep else self._dormir
+        esperas.esperar(
+            lambda: self._vuelta_de_vigilancia(gestor, lector, avisos, estado),
+            lambda valor: valor != "sigue",
+            cadencia=esperas.Fija(self._intervalo_salud),
+            parada=self._parada, tiempo=TiempoDeFunciones(self._reloj, dormir))
+
+    def _vuelta_de_vigilancia(self, gestor, lector, avisos, estado) -> str:
+        if self._corte.is_set():
+            return "termina"
+        actual, apagado = lector.leer()
+        if apagado:
+            self._terminar_transmision(None)
+            return "termina"
+        if actual is None:
+            return "sigue"
+        self._ultimo_estado = actual
+        if self._parada.is_set() or self._corte.is_set():
+            return "termina"
+        if not actual.get("outputActive"):
+            self._puede_seguir_al_aire = False
             if self._parada.is_set() or self._corte.is_set():
-                return
-            if not actual.get("outputActive"):
-                self._puede_seguir_al_aire = False
-                if self._parada.is_set() or self._corte.is_set():
-                    return
-                if anterior is not None:
-                    self._terminar_transmision(actual)
-                return
-            if anterior is None:
-                estadisticas_anterior = self._estadisticas(gestor)
-                self._resumen_primero = (actual, estadisticas_anterior)
-                self._resumen_ultimo = self._resumen_primero
-                self._resumen_perfil = resumen_directo.datos_del_perfil(
-                    getattr(gestor, "_cliente", gestor), self._parada)
-            else:
-                estadisticas = self._estadisticas(gestor)
-                estadisticas_anterior = reacciones_supervisor.revisar_directo(
-                    anterior, actual, estadisticas_anterior, estadisticas,
-                    avisos, self._avisar_sobrecarga, self._anunciar,
-                    self._panel_tapado, gestor, self._anunciar_panel_tapado,
-                    self._reconfirmador)
-            anterior = actual
-            self._resumen_ultimo = (self._ultimo_estado, estadisticas_anterior)
-            self._esperar(self._intervalo_salud)
+                return "termina"
+            if estado["anterior"] is not None:
+                self._terminar_transmision(actual)
+            return "termina"
+        if estado["anterior"] is None:
+            estado["estadisticas"] = self._estadisticas(gestor)
+            self._resumen_primero = (actual, estado["estadisticas"])
+            self._resumen_ultimo = self._resumen_primero
+            self._resumen_perfil = resumen_directo.datos_del_perfil(
+                getattr(gestor, "_cliente", gestor), self._parada)
+        else:
+            estadisticas = self._estadisticas(gestor)
+            estado["estadisticas"] = reacciones_supervisor.revisar_directo(
+                estado["anterior"], actual, estado["estadisticas"],
+                estadisticas, avisos, self._avisar_sobrecarga,
+                self._anunciar, self._panel_tapado, gestor,
+                self._anunciar_panel_tapado, self._reconfirmador)
+        estado["anterior"] = actual
+        self._resumen_ultimo = (self._ultimo_estado, estado["estadisticas"])
+        return "sigue"
 
     def _estadisticas(self, gestor):
         # Los dobles que no traen estadísticas quedan sin avisos de equipo en

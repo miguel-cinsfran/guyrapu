@@ -159,6 +159,43 @@ class TestReintento(unittest.TestCase):
 
         self.assertEqual(esperas[:6], [2, 4, 8, 16, 30, 30])
 
+    def test_una_conexion_abierta_reinicia_la_espera(self):
+        esperas = []
+        parada = threading.Event()
+        conexiones = [0]
+
+        class Conexion:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def recv(self, timeout=None):
+                raise RuntimeError("se cortó")
+
+        def conectar(_direccion):
+            conexiones[0] += 1
+            if conexiones[0] == 3:
+                return Conexion()
+            raise RuntimeError("sin servidor")
+
+        def esperar(segundos):
+            esperas.append(segundos)
+            if len(esperas) >= 4:
+                parada.set()
+                return True
+            return False
+
+        prueba = vigia.VigiaSenal(
+            lambda: "token", lambda mensaje: None,
+            direccion="ws://127.0.0.1:1", conectar_fn=conectar,
+            parada=parada, esperar=esperar)
+        prueba.iniciar()
+        prueba._hilo.join(5)
+
+        self.assertEqual(esperas[:4], [2, 4, 2, 4])
+
 
 if __name__ == "__main__":
     unittest.main()

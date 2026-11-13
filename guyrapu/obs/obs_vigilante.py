@@ -9,8 +9,9 @@ import logging
 import threading
 import time
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas, vigilancia
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import TiempoDeFunciones
 from guyrapu.obs import obs_activacion
 from guyrapu.obs.obs_panel import GestorPanelObs
 
@@ -27,6 +28,16 @@ class EstadoObs:
     transmision: dict | None = None
     grabacion: dict | None = None
     escena: str = ""
+
+
+class _CadenciaDeSondeo:
+    """Espera según cómo salió la última lectura de OBS."""
+
+    def __init__(self):
+        self.buena = True
+
+    def espera(self, intento, transcurrido):
+        return INTERVALO_SONDEO if self.buena else INTERVALO_SIN_OBS
 
 
 class VigilanteObs:
@@ -69,32 +80,15 @@ class VigilanteObs:
 
     def _vigilar(self):
         logger = diagnostico.obtener_logger(__name__)
-        fallo = False
-        fallo_anunciable = False
         gestor = self._crear_gestor()
         self._gestor = gestor
+        vigia = self._vigilancia(logger)
+        cadencia = _CadenciaDeSondeo()
         try:
-            while not self._parada.is_set():
-                try:
-                    if not gestor.conectado:
-                        gestor.conectar(self._parada)
-                    estado = EstadoObs(gestor.estado_transmision(self._parada),
-                                       gestor.estado_grabacion(self._parada),
-                                       gestor.escena_al_aire(self._parada))
-                    with self._cerrojo:
-                        self._estado = estado
-                        self._ultimo_sondeo = self._reloj()
-                    fallo_anunciable = self._sondeo_ok(logger, fallo_anunciable)
-                    fallo = False
-                except Exception:
-                    if self._parada.is_set():
-                        # Al cerrar la app la petición en vuelo se cancela; ese
-                        # aviso se anuncia en voz alta y OBS no tiene la culpa.
-                        break
-                    fallo_anunciable = self._fallo_visto(
-                        logger, fallo_anunciable, gestor)
-                    fallo = True
-                self._parada.wait(INTERVALO_SIN_OBS if fallo else INTERVALO_SONDEO)
+            esperas.esperar(
+                lambda: self._ronda(logger, gestor, vigia, cadencia),
+                lambda valor: False, cadencia=cadencia, parada=self._parada,
+                tiempo=TiempoDeFunciones(self._reloj, self._parada.wait))
         finally:
             try:
                 gestor.cerrar()
@@ -102,34 +96,65 @@ class VigilanteObs:
                 logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
             self._gestor = None
 
-    def _sondeo_ok(self, logger, fallo_anunciable):
-        """Cierra la caída anunciada, si la había, y avisa la vuelta."""
-        if fallo_anunciable:
-            logger.info("OBS volvió a responder")
-            self._avisar(logger, _(MENSAJE_RESPONDE), "obs_responde")
-        return False
-
-    def _fallo_visto(self, logger, fallo_anunciable, gestor):
-        """Registra un sondeo fallido y devuelve si queda una falla anunciada."""
+    def _ronda(self, logger, gestor, vigia, cadencia):
         try:
-            en_marcha = bool(self._en_ejecucion())
+            if not gestor.conectado:
+                gestor.conectar(self._parada)
+            estado = EstadoObs(gestor.estado_transmision(self._parada),
+                               gestor.estado_grabacion(self._parada),
+                               gestor.escena_al_aire(self._parada))
+            with self._cerrojo:
+                self._estado = estado
+                self._ultimo_sondeo = self._reloj()
+            vigia.leida(True)
+            cadencia.buena = True
+        except Exception:
+            if self._parada.is_set():
+                # Al cerrar la app la petición en vuelo se cancela; ese
+                # aviso se anuncia en voz alta y OBS no tiene la culpa.
+                cadencia.buena = False
+                return
+            self._fallo_visto(logger, gestor, vigia)
+            cadencia.buena = False
+
+    def _fallo_visto(self, logger, gestor, vigia):
+        """Registra un sondeo fallido y cierra el gestor."""
+        if self._sigue_en_ejecucion(logger):
+            vigia.leida(False)
+        else:
+            logger.debug("OBS no está en ejecución; se reintentará")
+        try:
+            gestor.cerrar()
+        except Exception as error:
+            logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
+
+    def _sigue_en_ejecucion(self, logger):
+        try:
+            return bool(self._en_ejecucion())
         except Exception as error:
             # Un fallo al comprobar la ejecución no puede callar una falla
             # real de OBS.
             logger.debug("no se pudo comprobar si OBS está en ejecución: %s",
                          error)
-            en_marcha = True
-        if not en_marcha:
-            logger.debug("OBS no está en ejecución; se reintentará")
-        elif not fallo_anunciable:
+            return True
+
+    def _vigilancia(self, logger):
+        return vigilancia.Vigilancia(
+            lambda frase, sonido: self._anuncio_de_vigilancia(
+                logger, frase, sonido),
+            caida=vigilancia.Aviso(_(MENSAJE_SIN_RESPUESTA),
+                                   "obs_sin_respuesta"),
+            vuelta=vigilancia.Aviso(_(MENSAJE_RESPONDE), "obs_responde"),
+            rendicion=vigilancia.Aviso(_(MENSAJE_SIN_RESPUESTA),
+                                      "obs_sin_respuesta"),
+            tiempo=TiempoDeFunciones(self._reloj, lambda segundos: None))
+
+    def _anuncio_de_vigilancia(self, logger, frase, sonido):
+        if sonido == "obs_sin_respuesta":
             logger.warning("OBS no responde; se reintentará")
-            self._avisar(logger, _(MENSAJE_SIN_RESPUESTA), "obs_sin_respuesta")
-            fallo_anunciable = True
-        try:
-            gestor.cerrar()
-        except Exception as error:
-            logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
-        return fallo_anunciable
+        elif sonido == "obs_responde":
+            logger.info("OBS volvió a responder")
+        self._avisar(logger, frase, sonido)
 
     def _avisar(self, logger, frase, sonido):
         try:

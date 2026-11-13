@@ -9,20 +9,13 @@ Sin wx: recibe los invocables que usa y no lee atributos del supervisor.
 
 from __future__ import annotations
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, vigilancia
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_salida
 from guyrapu.obs import obs_vigilante
 from guyrapu.obs.duraciones import duracion_legible
 
 logger = diagnostico.obtener_logger(__name__)
-
-# La misma frase no se repite antes de este plazo durante la vigilancia.
-PLAZO_REPETICION = 60.0
-
-# El aviso de sobrecarga es más molesto y no aporta nada repetirlo seguido:
-# no se repite antes de este plazo, y solo si el usuario lo tiene activado.
-PLAZO_SOBRECARGA = 300.0
 
 # Sonido por tipo de aviso de la vigilancia. Los problemas de red y de
 # sobrecarga comparten el de transmisión con problema; la vuelta de la conexión
@@ -132,30 +125,6 @@ class Reconfirmador:
             self._al_confirmar()
 
 
-class AvisosRepetidos:
-    """Decide si un aviso de la vigilancia ya se dijo hace poco."""
-
-    def __init__(self, reloj, plazo=PLAZO_REPETICION,
-                 plazo_sobrecarga=PLAZO_SOBRECARGA):
-        self._reloj = reloj
-        self._plazo = plazo
-        self._plazo_sobrecarga = plazo_sobrecarga
-        self._ultimos = {}
-
-    def toca(self, tipo) -> bool:
-        """Verdadero si el aviso toca ahora, y anota el momento."""
-        if tipo == "vuelta":
-            return True
-        ahora = self._reloj()
-        ultimo = self._ultimos.get(tipo)
-        plazo = (self._plazo_sobrecarga if tipo == "sobrecarga"
-                 else self._plazo)
-        if ultimo is not None and ahora - ultimo < plazo:
-            return False
-        self._ultimos[tipo] = ahora
-        return True
-
-
 def revisar_directo(anterior, actual, estadisticas_anterior, estadisticas,
                     avisos, avisar_sobrecarga, anunciar, panel_tapado, gestor,
                     anunciar_panel, reconfirmar):
@@ -180,22 +149,26 @@ class LectorDeEstado:
     def __init__(self, gestor, parada, anunciar, en_ejecucion):
         self._gestor = gestor
         self._parada = parada
-        self._anunciar = anunciar
         self._en_ejecucion = en_ejecucion
-        self._fallo_anunciado = False
+        self._vigilancia = vigilancia.Vigilancia(
+            anunciar,
+            caida=vigilancia.Aviso(_(obs_vigilante.MENSAJE_SIN_RESPUESTA),
+                                   "obs_sin_respuesta"),
+            vuelta=vigilancia.Aviso(_(obs_vigilante.MENSAJE_RESPONDE),
+                                    "obs_responde"),
+            rendicion=vigilancia.Aviso(
+                _(obs_vigilante.MENSAJE_SIN_RESPUESTA), "obs_sin_respuesta"))
 
     def leer(self):
         """Devuelve `(estado, obs_apagado)`; el estado es None si no contestó."""
         try:
-            if self._fallo_anunciado:
+            if self._vigilancia.caido:
                 self._gestor.conectar(self._parada)
             estado = self._gestor.estado_transmision(self._parada)
         except Exception as error:
             logger.debug("no se pudo leer el estado de OBS: %s", error)
             return self._fallo()
-        if self._fallo_anunciado:
-            self._fallo_anunciado = False
-            self._anunciar(_(obs_vigilante.MENSAJE_RESPONDE), "obs_responde")
+        self._vigilancia.leida(True)
         return estado, False
 
     def _fallo(self):
@@ -203,10 +176,7 @@ class LectorDeEstado:
             return None, False
         if not self._sigue_en_ejecucion():
             return None, True
-        if not self._fallo_anunciado:
-            self._fallo_anunciado = True
-            self._anunciar(_(obs_vigilante.MENSAJE_SIN_RESPUESTA),
-                           "obs_sin_respuesta")
+        self._vigilancia.leida(False)
         return None, False
 
     def _sigue_en_ejecucion(self) -> bool:
