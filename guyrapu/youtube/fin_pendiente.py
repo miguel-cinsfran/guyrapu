@@ -15,8 +15,9 @@ import threading
 from datetime import datetime
 
 from guyrapu.core import archivos, config
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import _
+from guyrapu.core.tiempo import resolver_tiempo
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -70,6 +71,17 @@ def quitar(ruta, id_video) -> list[dict]:
     return restantes
 
 
+def _intento_tras_intervalo(intento, dormir, intervalo) -> bool:
+    """Duerme el intervalo y prueba; un fallo se registra y da False."""
+    dormir(intervalo)
+    try:
+        intento()
+    except Exception as error:
+        logger.info("reintento del fin del directo falló: %s", error)
+        return False
+    return True
+
+
 def reintentar(intento, dormir, reloj, intervalo=INTERVALO_REINTENTO,
                limite=LIMITE_REINTENTO) -> bool:
     """Reintenta `intento()` cada `intervalo` hasta lograrlo o rendirse.
@@ -78,17 +90,11 @@ def reintentar(intento, dormir, reloj, intervalo=INTERVALO_REINTENTO,
     reintento. `intento` lanza si el fin todavía no se confirmó. Cada fallo
     se registra. Devuelve True si algún intento salió bien.
     """
-    inicio = reloj()
-    while True:
-        dormir(intervalo)
-        try:
-            intento()
-        except Exception as error:
-            logger.info("reintento del fin del directo falló: %s", error)
-        else:
-            return True
-        if reloj() - inicio >= limite:
-            return False
+    resultado = esperas.esperar(
+        lambda: _intento_tras_intervalo(intento, dormir, intervalo),
+        bool, cadencia=esperas.Fija(0), plazo=limite,
+        tiempo=resolver_tiempo(reloj, lambda _segundos: None))
+    return resultado.motivo == esperas.MOTIVO_LISTO
 
 
 class CierreYoutube:

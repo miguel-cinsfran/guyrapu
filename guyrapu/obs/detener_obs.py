@@ -9,8 +9,9 @@ dormir) y no guardan ni leen atributos del supervisor. Solo las llama
 
 from __future__ import annotations
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import _
+from guyrapu.core.tiempo import resolver_tiempo
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -64,28 +65,36 @@ def _esperar_a_obs(gestor, anunciar, reloj, dormir, resumen,
                    obs_activo) -> None:
     """Consulta a OBS hasta que la salida se apague, con un límite."""
     inicio = reloj()
-    avisado = False
-    while True:
+    estado = {"avisado": False, "error": None}
+
+    def consultar():
         try:
             activa = bool(
                 gestor.estado_transmision().get("outputActive"))
         except Exception as error:
-            _anunciar_sin_respuesta(anunciar, error, resumen, obs_activo)
-            return
+            estado["error"] = error
+            return "sin_respuesta"
         if not activa:
-            _anunciar_detenida(anunciar, resumen)
-            return
+            return "detenida"
         transcurrido = reloj() - inicio
-        if not avisado and transcurrido >= AVISO_ESPERA_OBS:
+        if not estado["avisado"] and transcurrido >= AVISO_ESPERA_OBS:
             anunciar(_("Deteniendo la transmisión. Esperando a que OBS confirme."),
                      None)
-            avisado = True
-        if transcurrido >= LIMITE_ESPERA_OBS:
-            anunciar(
-                _("OBS sigue transmitiendo. Detén la transmisión en OBS."),
-                "error", True)
-            return
-        dormir(INTERVALO_ESPERA_OBS)
+            estado["avisado"] = True
+        return "sigue"
+
+    resultado = esperas.esperar(
+        consultar, lambda veredicto: veredicto != "sigue",
+        cadencia=esperas.Fija(INTERVALO_ESPERA_OBS),
+        plazo=LIMITE_ESPERA_OBS, tiempo=resolver_tiempo(reloj, dormir))
+    if resultado.valor == "sin_respuesta":
+        _anunciar_sin_respuesta(anunciar, estado["error"], resumen, obs_activo)
+    elif resultado.valor == "detenida":
+        _anunciar_detenida(anunciar, resumen)
+    else:
+        anunciar(
+            _("OBS sigue transmitiendo. Detén la transmisión en OBS."),
+            "error", True)
 
 
 def _anunciar_sin_respuesta(anunciar, error, resumen, obs_activo) -> None:

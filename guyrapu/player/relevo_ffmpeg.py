@@ -25,7 +25,8 @@ import socket
 import subprocess
 import time
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.downloads import ffmpeg_bin
 
 logger = diagnostico.obtener_logger(__name__)
@@ -67,15 +68,18 @@ def esperar_listener(puerto: int, sigue_vivo, timeout=TIEMPO_ESPERA_LISTENER,
                      dormir=time.sleep) -> bool:
     """Espera a que el puerto escuche. False si el proceso murió antes o se
     agotó el plazo."""
-    limite = ahora() + timeout
-    while True:
+    def consultar():
         if not sigue_vivo():
-            return False
+            return "muerto"
         if escuchando(puerto):
-            return True
-        if ahora() >= limite:
-            return False
-        dormir(intervalo)
+            return "listo"
+        return "esperando"
+
+    resultado = esperas.esperar(
+        consultar, lambda estado: estado != "esperando",
+        cadencia=esperas.Fija(intervalo), plazo=timeout,
+        tiempo=resolver_tiempo(ahora, dormir))
+    return resultado.valor == "listo"
 
 
 # Relevos con proceso vivo. Si la app se cierra mientras un relevo se estaba

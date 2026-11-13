@@ -7,10 +7,11 @@ import os
 import subprocess
 import time
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 from guyrapu.core import paths
 from guyrapu.core import subprocesos
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_cliente
 
@@ -178,6 +179,21 @@ def _pedir_cierre(pids, ejecutar) -> None:
                          error)
 
 
+def _probar_conexion(probar, mensaje) -> bool:
+    try:
+        probar()
+    except Exception as error:
+        logger.debug(mensaje, error)
+        return False
+    return True
+
+
+def _tiempo_de_espera(reloj, dormir, parada):
+    if parada is not None and dormir is time.sleep:
+        dormir = parada.wait
+    return resolver_tiempo(reloj, dormir)
+
+
 def cerrar_obs(en_ejecucion=obs_activacion.obs_esta_en_ejecucion,
                ejecutar=subprocess.run, dormir=time.sleep,
                reloj=time.monotonic, limite=30.0, intervalo=0.5,
@@ -193,44 +209,49 @@ def cerrar_obs(en_ejecucion=obs_activacion.obs_esta_en_ejecucion,
     _pedir_cierre(pids, ejecutar)
     inicio = reloj()
     siguiente = intervalo_pedido
-    while en_ejecucion():
+
+    def consultar():
+        nonlocal siguiente
+        if not en_ejecucion():
+            return "cerrado"
         transcurrido = reloj() - inicio
         if transcurrido >= limite:
-            return False
+            return "plazo"
         if transcurrido >= siguiente:
             _pedir_cierre(pids, ejecutar)
             siguiente = transcurrido + intervalo_pedido
-        dormir(intervalo)
-    return True
+        return "sigue"
+
+    resultado = esperas.esperar(
+        consultar, lambda estado: estado != "sigue",
+        cadencia=esperas.Fija(intervalo), plazo=limite,
+        tiempo=resolver_tiempo(reloj, dormir))
+    return resultado.valor == "cerrado"
 
 
 def _esperar_obs_abierto(probar_conexion, al_anunciar, parada, dormir, reloj,
                          limite=60.0, intervalo=2.0):
     """Espera a que un OBS ya abierto acepte el WebSocket, sin abrirlo."""
-    try:
-        probar_conexion()
+    anunciado = {"hecho": False}
+
+    def consultar():
+        if _probar_conexion(
+                probar_conexion,
+                "OBS abierto todavía no responde, se reintenta: %s"):
+            return True
+        if not anunciado["hecho"] and al_anunciar is not None:
+            al_anunciar(_(TEXTO_TERMINANDO_DE_ABRIR))
+            anunciado["hecho"] = True
         return False
-    except Exception as error:
-        logger.debug("OBS abierto todavía no responde, se reintenta: %s", error)
-    if al_anunciar is not None:
-        al_anunciar(_(TEXTO_TERMINANDO_DE_ABRIR))
-    inicio = reloj()
-    while True:
-        if parada is not None and parada.is_set():
-            return False
-        if reloj() - inicio >= limite:
-            raise obs_cliente.ObsError(
-                _(obs_cliente.TEXTO_ABIERTO_SIN_RESPUESTA))
-        if parada is not None and dormir is time.sleep:
-            parada.wait(intervalo)
-        else:
-            dormir(intervalo)
-        try:
-            probar_conexion()
-            return False
-        except Exception as error:
-            logger.debug("OBS abierto todavía no responde, se reintenta: %s",
-                         error)
+
+    resultado = esperas.esperar(
+        consultar, lambda conectado: conectado,
+        cadencia=esperas.Fija(intervalo), parada=parada, plazo=limite,
+        tiempo=_tiempo_de_espera(reloj, dormir, parada))
+    if resultado.motivo == esperas.MOTIVO_PLAZO:
+        raise obs_cliente.ObsError(
+            _(obs_cliente.TEXTO_ABIERTO_SIN_RESPUESTA))
+    return False
 
 
 def asegurar_obs(probar_conexion, al_anunciar=None, parada=None,
@@ -255,20 +276,14 @@ def asegurar_obs(probar_conexion, al_anunciar=None, parada=None,
         if modo_seguro:
             al_anunciar(_(TEXTO_MODO_SEGURO))
     abrir(ruta)
-    inicio = reloj()
-    while True:
-        if parada is not None and parada.is_set():
-            return True
-        try:
-            probar_conexion()
-            return True
-        except Exception as error:
-            logger.debug("no se pudo conectar con OBS, se reintenta: %s", error)
-        if reloj() - inicio >= limite:
-            if modo_seguro:
-                raise obs_cliente.ObsError(_(TEXTO_SIN_RESPUESTA_MODO_SEGURO))
-            raise obs_cliente.ObsError(_(TEXTO_SIN_RESPUESTA))
-        if parada is not None and dormir is time.sleep:
-            parada.wait(intervalo)
-        else:
-            dormir(intervalo)
+
+    resultado = esperas.esperar(
+        lambda: _probar_conexion(
+            probar_conexion, "no se pudo conectar con OBS, se reintenta: %s"),
+        bool, cadencia=esperas.Fija(intervalo), parada=parada, plazo=limite,
+        tiempo=_tiempo_de_espera(reloj, dormir, parada))
+    if resultado.motivo != esperas.MOTIVO_PLAZO:
+        return True
+    if modo_seguro:
+        raise obs_cliente.ObsError(_(TEXTO_SIN_RESPUESTA_MODO_SEGURO))
+    raise obs_cliente.ObsError(_(TEXTO_SIN_RESPUESTA))

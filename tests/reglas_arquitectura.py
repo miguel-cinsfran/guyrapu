@@ -136,18 +136,8 @@ REGLAS = (
         pendientes={
             "guyrapu/obs/candado_obs.py": Pendiente(
                 2, "el candado de OBS no espera a un servicio"),
-            "guyrapu/obs/detener_obs.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_cliente.py": Pendiente(
-                3, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_lanzador.py": Pendiente(
-                3, "usar guyrapu.core.esperas"),
             "guyrapu/obs/reacciones_supervisor.py": Pendiente(
                 1, "repite esperar_salida, que ya usa guyrapu.core.esperas"),
-            "guyrapu/player/relevo_ffmpeg.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/youtube/fin_pendiente.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
         },
         duenos=("guyrapu/core/tiempo.py", "guyrapu/core/esperas.py",
                 "guyrapu/core/vigilancia.py"),

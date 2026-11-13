@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from websockets.exceptions import ConnectionClosed
 from websockets.sync.client import connect
 
-from guyrapu.core import paths
+from guyrapu.core import esperas, paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import candado_obs, obs_activacion
 
@@ -125,20 +125,26 @@ _PASO_REINTENTO = 0.5
 
 def pedir_reintentando(cliente, tipo, datos=None, parada=None):
     """Pide a OBS y reintenta mientras su salida todavía tenga el vídeo."""
-    limite = time.monotonic() + ESPERA_REINTENTO
-    while True:
+    ultimo = []
+
+    def consultar():
         try:
             return cliente.pedir(tipo, datos, parada)
         except ObsError as error:
             if error.codigo != CODIGO_VIDEO_TOMADO:
                 raise
-            if time.monotonic() >= limite:
-                raise
-        if parada is not None:
-            if parada.wait(_PASO_REINTENTO):
-                raise ObsError(_("Operación cancelada.")) from None
-        else:
-            time.sleep(_PASO_REINTENTO)
+            ultimo.append(error)
+            return None
+
+    resultado = esperas.esperar(
+        consultar, lambda respuesta: respuesta is not None,
+        cadencia=esperas.Fija(_PASO_REINTENTO), parada=parada,
+        plazo=ESPERA_REINTENTO)
+    if resultado.motivo == esperas.MOTIVO_LISTO:
+        return resultado.valor
+    if resultado.motivo == esperas.MOTIVO_PARADA:
+        raise ObsError(_("Operación cancelada.")) from None
+    raise ultimo[-1]
 
 
 class ClienteObs:
@@ -240,28 +246,25 @@ class ClienteObs:
         nombre = datos.get("profileName")
         if not nombre:
             return
-        limite = time.monotonic() + self._TIEMPO_LIMITE
-        while True:
+
+        def consultar():
             respuesta = self._intercambiar(transporte, "GetProfileList", {},
                                            parada)
-            lista = respuesta.get("responseData", {}) or {}
-            if str(lista.get("currentProfileName") or "") == nombre:
-                return
-            if (tipo == "CreateProfile"
-                    and nombre in (lista.get("profiles") or ())):
-                # OBS de otra versión crea el perfil sin dejarlo como actual:
-                # no hay cambio en curso que esperar.
-                return
-            if time.monotonic() >= limite:
-                return
-            self._esperar_intervalo(parada)
+            return respuesta.get("responseData", {}) or {}
 
-    @classmethod
-    def _esperar_intervalo(cls, parada):
-        if parada is not None:
-            parada.wait(cls._INTERVALO_PERFIL)
-        else:
-            time.sleep(cls._INTERVALO_PERFIL)
+        def listo(lista):
+            if str(lista.get("currentProfileName") or "") == nombre:
+                return True
+            # OBS de otra versión crea el perfil sin dejarlo como actual:
+            # no hay cambio en curso que esperar.
+            return (tipo == "CreateProfile"
+                    and nombre in (lista.get("profiles") or ()))
+
+        resultado = esperas.esperar(
+            consultar, listo, cadencia=esperas.Fija(self._INTERVALO_PERFIL),
+            parada=parada, plazo=self._TIEMPO_LIMITE)
+        if resultado.motivo == esperas.MOTIVO_PARADA:
+            raise ObsError(_("Operación cancelada.")) from None
 
     def _intercambiar(self, transporte, tipo, datos, parada):
         """Manda la petición y devuelve su respuesta, esperando el 207."""
@@ -274,20 +277,36 @@ class ClienteObs:
                 "requestData": datos,
             },
         }
-        limite = time.monotonic() + self._TIEMPO_NO_LISTO
-        while True:
+
+        def consultar():
             transporte.send(json.dumps(peticion))
-            datos_respuesta = self._respuesta(transporte, identificador, parada)
+            return self._respuesta(transporte, identificador, parada)
+
+        def listo(datos_respuesta):
             estado = datos_respuesta.get("requestStatus", {})
             if estado.get("result", False):
-                return datos_respuesta
-            if estado.get("code") != 207 or time.monotonic() >= limite:
-                codigo = estado.get("code", "")
-                logger.debug("OBS respondió con error %s a %s", codigo, tipo)
-                motivo = f"{codigo} {estado.get('comment', '')}"
-                raise ObsError(mensaje_de_fallo_obs(motivo, registrar=False),
-                               codigo or None)
-            self._esperar_no_listo(parada)
+                return True
+            if estado.get("code") != 207:
+                self._fallar_estado(estado, tipo)
+            return False
+
+        resultado = esperas.esperar(
+            consultar, listo, cadencia=esperas.Fija(self._ESPERA_NO_LISTO),
+            parada=parada, plazo=self._TIEMPO_NO_LISTO)
+        if resultado.motivo == esperas.MOTIVO_LISTO:
+            return resultado.valor
+        if resultado.motivo == esperas.MOTIVO_PARADA:
+            raise ObsError(_("Operación cancelada.")) from None
+        self._fallar_estado(
+            resultado.valor.get("requestStatus", {}), tipo)
+
+    @staticmethod
+    def _fallar_estado(estado, tipo):
+        codigo = estado.get("code", "")
+        logger.debug("OBS respondió con error %s a %s", codigo, tipo)
+        motivo = f"{codigo} {estado.get('comment', '')}"
+        raise ObsError(mensaje_de_fallo_obs(motivo, registrar=False),
+                       codigo or None)
 
     def _respuesta(self, transporte, identificador, parada):
         """La respuesta del pedido, salteando eventos y respuestas ajenas."""
@@ -300,13 +319,6 @@ class ClienteObs:
             if datos.get("requestId") != identificador:
                 continue
             return datos
-
-    @classmethod
-    def _esperar_no_listo(cls, parada):
-        if parada is not None:
-            parada.wait(cls._ESPERA_NO_LISTO)
-        else:
-            time.sleep(cls._ESPERA_NO_LISTO)
 
     @classmethod
     def _mensaje_seguido(cls, transporte, restante):
