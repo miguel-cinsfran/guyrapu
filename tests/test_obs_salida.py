@@ -93,6 +93,14 @@ class EsperarSalidaTest(unittest.TestCase):
         veredicto, _ = self.esperar(cliente, limite=2.0, intervalo=1.0)
         self.assertEqual(veredicto, "sin_salida")
 
+    def test_parada_puesta_antes_devuelve_sin_salida_sin_consultar(self):
+        cliente = ClienteFalso([muestra(True, 10)] * 50)
+        parada = threading.Event()
+        parada.set()
+        veredicto = esperar_salida(cliente, parada=parada)
+        self.assertEqual(veredicto, "sin_salida")
+        self.assertEqual(cliente.llamadas, 0)
+
     def test_parada_devuelve_lo_ultimo(self):
         cliente = ClienteFalso([muestra(True, 10)] * 50)
         parada = threading.Event()

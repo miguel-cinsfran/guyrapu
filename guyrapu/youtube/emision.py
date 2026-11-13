@@ -12,8 +12,9 @@ import os
 import time
 from datetime import datetime
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import TiempoDeFunciones
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_destinos
 from guyrapu.youtube import youtube_api
@@ -385,16 +386,8 @@ def esperar_en_vivo(consultar_estado, id_video, parada=None, cada=5.0,
                     limite=120.0, dormir=time.sleep,
                     reloj=time.monotonic) -> bool:
     """Consulta el estado hasta ver "live", agotar el límite o la parada."""
-    inicio = reloj()
-    while True:
-        if parada is not None and parada.is_set():
-            return False
-        try:
-            estado = consultar_estado(id_video)
-        except Exception:
-            estado = ""
-        if estado == "live":
-            return True
-        if reloj() - inicio >= limite:
-            return False
-        dormir(cada)
+    resultado = esperas.esperar(
+        lambda: consultar_estado(id_video), lambda estado: estado == "live",
+        cadencia=esperas.Fija(cada), parada=parada, plazo=limite,
+        tolerar=(Exception,), tiempo=TiempoDeFunciones(reloj, dormir))
+    return resultado.motivo == esperas.MOTIVO_LISTO

@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import time
 
+from guyrapu.core import esperas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import TiempoDeFunciones
 
 
 def evaluar_inicio(muestras) -> str:
@@ -40,21 +42,19 @@ def evaluar_inicio(muestras) -> str:
 def esperar_salida(cliente, parada=None, limite=20.0, intervalo=1.0,
                    dormir=time.sleep, reloj=time.monotonic) -> str:
     """Muestrea hasta que OBS confirma que envía o se agota el límite."""
-    inicio = reloj()
     muestras = []
-    veredicto = "sin_salida"
-    while True:
-        if parada is not None and parada.is_set():
-            return veredicto
+
+    def consultar():
         respuesta = cliente.pedir("GetStreamStatus", parada=parada)
         datos = respuesta.get("responseData", {}) or {}
         muestras.append(dict(datos))
-        veredicto = evaluar_inicio(muestras)
-        if veredicto == "enviando":
-            return veredicto
-        if reloj() - inicio >= limite:
-            return veredicto
-        dormir(intervalo)
+        return evaluar_inicio(muestras)
+
+    resultado = esperas.esperar(
+        consultar, lambda veredicto: veredicto == "enviando",
+        cadencia=esperas.Fija(intervalo), parada=parada, plazo=limite,
+        tiempo=TiempoDeFunciones(reloj, dormir))
+    return resultado.valor if resultado.valor is not None else "sin_salida"
 
 
 def frase_salida(veredicto, destino, servicio="") -> str:

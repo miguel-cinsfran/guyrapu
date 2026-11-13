@@ -15,8 +15,9 @@ import threading
 import time
 
 from guyrapu.capture import chat_adicional, tiktok_vivo
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import _
+from guyrapu.core.tiempo import TiempoDeFunciones
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
@@ -58,6 +59,10 @@ def _en_interfaz(frame, funcion, *args):
 
 def _dormir(segundos) -> None:
     _PARADA.wait(segundos)
+
+
+def _tiempo():
+    return TiempoDeFunciones(lambda: _reloj(), lambda segundos: _dormir(segundos))
 
 
 def _sigue(frame) -> bool:
@@ -187,30 +192,44 @@ def _aviso_desconexiones(frame, al_anunciar):
 
 
 def _esperar_principal(frame, usuario, al_anunciar):
-    while _sigue(frame):
+    def consultar():
+        if not _sigue(frame):
+            return "cerrado"
         estado = _leer_estado(frame)
         if not _sigue(frame):
-            return False
-        if estado is not None:
-            conectado, _conectando, es_tiktok = estado
-            if es_tiktok:
-                _sin_chat(frame, usuario, al_anunciar,
-                          "la sesión es de TikTok")
-                return False
-            if conectado:
-                return True
-        _dormir(CADA_CONEXION)
-    return False
+            return "cerrado"
+        if estado is None:
+            return "esperando"
+        conectado, _conectando, es_tiktok = estado
+        if es_tiktok:
+            _sin_chat(frame, usuario, al_anunciar, "la sesión es de TikTok")
+            return "tiktok"
+        return "conectado" if conectado else "esperando"
+
+    resultado = esperas.esperar(
+        consultar, lambda valor: valor != "esperando",
+        cadencia=esperas.Fija(CADA_CONEXION), parada=_PARADA,
+        tiempo=_tiempo())
+    return resultado.valor == "conectado"
 
 
 def _vigilar_adicional(frame):
-    while _sigue(frame):
-        _dormir(CADA_TIKTOK)
+    if not _sigue(frame):
+        return False
+    _dormir(CADA_TIKTOK)
+
+    def consultar():
         if not _sigue(frame):
-            return False
-        if not chat_adicional.activo():
-            return True
-    return False
+            return "cerrado"
+        return "inactivo" if not chat_adicional.activo() else "activo"
+
+    def terminar(valor):
+        return valor != "activo" or _PARADA.is_set()
+
+    resultado = esperas.esperar(
+        consultar, terminar, cadencia=esperas.Fija(CADA_TIKTOK),
+        parada=_PARADA, tiempo=_tiempo())
+    return resultado.valor == "inactivo"
 
 
 def _leer_estado(frame):

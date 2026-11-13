@@ -154,8 +154,6 @@ REGLAS = (
                 1, "usar guyrapu.core.esperas"),
             "guyrapu/obs/obs_lanzador.py": Pendiente(
                 3, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_salida.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
             "guyrapu/obs/obs_supervisor.py": Pendiente(
                 1, "usar guyrapu.core.vigilancia"),
             "guyrapu/obs/obs_vigilante.py": Pendiente(
@@ -169,14 +167,10 @@ REGLAS = (
             "guyrapu/obs/prueba_vertical.py": Pendiente(
                 2, "usar guyrapu.core.esperas"),
             "guyrapu/obs/reacciones_supervisor.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
+                1, "repite esperar_salida, que ya usa guyrapu.core.esperas"),
             "guyrapu/player/relevo_ffmpeg.py": Pendiente(
                 1, "usar guyrapu.core.esperas"),
-            "guyrapu/restream/chat_restream.py": Pendiente(
-                2, "usar guyrapu.core.esperas"),
             "guyrapu/restream/vigia.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/youtube/emision.py": Pendiente(
                 1, "usar guyrapu.core.esperas"),
             "guyrapu/youtube/fin_pendiente.py": Pendiente(
                 1, "usar guyrapu.core.esperas"),

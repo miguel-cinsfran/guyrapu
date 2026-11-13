@@ -29,6 +29,22 @@ class TiempoReal:
 TIEMPO_REAL = TiempoReal()
 
 
+class TiempoDeFunciones:
+    """Arma un objeto de tiempo con un reloj y un dormir ya resueltos."""
+
+    def __init__(self, reloj, dormir):
+        self._reloj = reloj
+        self._dormir = dormir
+
+    def ahora(self) -> float:
+        return self._reloj()
+
+    def dormir(self, segundos: float, parada=None) -> bool:
+        """Duerme con el dormir recibido y dice si la parada quedó puesta."""
+        self._dormir(segundos)
+        return parada is not None and parada.is_set()
+
+
 class TiempoDoble:
     """Reloj de prueba que avanza al dormir y no espera de verdad."""
 

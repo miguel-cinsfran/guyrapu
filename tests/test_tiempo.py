@@ -6,7 +6,7 @@ import threading
 import time
 import unittest
 
-from guyrapu.core.tiempo import TIEMPO_REAL, TiempoDoble
+from guyrapu.core.tiempo import TIEMPO_REAL, TiempoDeFunciones, TiempoDoble
 
 
 class TestTiempoReal(unittest.TestCase):
@@ -39,6 +39,25 @@ class TestTiempoReal(unittest.TestCase):
 
     def test_dormir_sin_parada_devuelve_falso(self):
         self.assertFalse(TIEMPO_REAL.dormir(0.01))
+
+
+class TestTiempoDeFunciones(unittest.TestCase):
+
+    def test_toma_el_reloj_y_el_dormir_recibidos(self):
+        dormidas = []
+        tiempo = TiempoDeFunciones(lambda: 7.0, dormidas.append)
+        self.assertEqual(tiempo.ahora(), 7.0)
+        self.assertFalse(tiempo.dormir(2.5))
+        self.assertEqual(dormidas, [2.5])
+
+    def test_dormir_devuelve_si_la_parada_quedo_puesta(self):
+        parada = threading.Event()
+
+        def dormir(_segundos):
+            parada.set()
+
+        tiempo = TiempoDeFunciones(lambda: 0.0, dormir)
+        self.assertTrue(tiempo.dormir(1.0, parada))
 
 
 class TestTiempoDoble(unittest.TestCase):
