@@ -377,6 +377,15 @@ class GuardarTest(unittest.TestCase):
         self.assertIn("SaveReplayBuffer", cliente.tipos())
         self.assertGreaterEqual(reloj.ahora, 0.2)
 
+    def test_si_obs_sigue_devolviendo_la_ruta_anterior_espera_la_nueva(self):
+        cliente = ObsFalso(rutas=["C:/clips/viejo.mkv", "C:/clips/viejo.mkv",
+                                 "C:/clips/nuevo.mkv"])
+        reloj = Reloj()
+        ruta = obs_clips.guardar(cliente, dormir=reloj.dormir,
+                                 reloj=reloj, intervalo=0.2, limite=1.0)
+        self.assertEqual(ruta, "C:/clips/nuevo.mkv")
+        self.assertGreaterEqual(reloj.ahora, 0.2)
+
     def test_el_primer_clip_no_necesita_una_ruta_anterior(self):
         cliente = ObsFalso(rutas=["C:/clips/clip.mkv"],
                            fallo_ruta_antes=True)
