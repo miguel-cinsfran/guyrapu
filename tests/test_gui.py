@@ -5195,6 +5195,24 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         sonar.assert_not_called()
         anunciar.assert_called_once_with("No hay ningún directo conectado.")
 
+    def test_con_adicional_tiktok_copia_los_dos_enlaces(self):
+        frame = self._frame()
+        url = "https://www.youtube.com/watch?v=abcdefghijk"
+        self._registrar(frame, "youtube", url, True)
+        adicional = mock.Mock()
+        adicional.activo.return_value = True
+        adicional.enlace.return_value = "https://www.tiktok.com/@usuario/live"
+        gui.chat_adicional.usar(adicional)
+        self.addCleanup(gui.chat_adicional.usar, None)
+        with mock.patch.object(gui._snd, "reproducir") as sonar, \
+                mock.patch.object(gui, "anunciar") as anunciar:
+            frame._copiar_enlace_directo()
+        frame._clipboard_set.assert_called_once_with(
+            url + "\nhttps://www.tiktok.com/@usuario/live")
+        sonar.assert_called_once_with("copiar")
+        anunciar.assert_called_once_with(
+            "Enlaces de YouTube y TikTok copiados.")
+
     def test_registrar_directo_tiktok_y_copiar_copia(self):
         frame = self._frame()
         url = "https://www.tiktok.com/@usuario/live"

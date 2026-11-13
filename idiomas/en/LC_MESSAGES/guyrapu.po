@@ -776,6 +776,18 @@ msgstr "The link is not a TikTok live stream."
 msgid "Ya estás leyendo el chat de TikTok de @{usuario}."
 msgstr "You are already reading the TikTok chat of @{usuario}."
 
+#: guyrapu/capture/chat_adicional.py
+msgid "No hay ningún directo conectado."
+msgstr "No live stream connected."
+
+#: guyrapu/capture/chat_adicional.py
+msgid "Enlaces de YouTube y TikTok copiados."
+msgstr "YouTube and TikTok links copied."
+
+#: guyrapu/capture/chat_adicional.py
+msgid "Enlace del directo copiado."
+msgstr "Live stream link copied."
+
 #. Traductores: rótulo en Preferencias del componente de F2.
 #: guyrapu/capture/componentes_estado.py
 msgid "Estado de conexión y tipo"
@@ -9324,14 +9336,6 @@ msgstr "Alias removed"
 #: guyrapu/ui/gui.py
 msgid "Mensaje copiado"
 msgstr "Message copied"
-
-#: guyrapu/ui/gui.py
-msgid "No hay ningún directo conectado."
-msgstr "No live stream connected."
-
-#: guyrapu/ui/gui.py
-msgid "Enlace del directo copiado."
-msgstr "Live stream link copied."
 
 #: guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
 msgid "Línea copiada"

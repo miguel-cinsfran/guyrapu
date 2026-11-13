@@ -1113,13 +1113,12 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         anunciar(_("Mensaje copiado"))
 
     def _copiar_enlace_directo(self):
-        enlace = self.sesion.enlace_directo
-        if not enlace:
-            anunciar(_("No hay ningún directo conectado."))
-            return
-        self._clipboard_set(enlace)
-        _snd.reproducir("copiar")
-        anunciar(_("Enlace del directo copiado."))
+        texto, frase = chat_adicional.texto_enlace_directo(
+            self.sesion.enlace_directo)
+        if texto:
+            self._clipboard_set(texto)
+            _snd.reproducir("copiar")
+        anunciar(frase)
 
     def _copiar_todo(self):
         data = self._get_selected_data()

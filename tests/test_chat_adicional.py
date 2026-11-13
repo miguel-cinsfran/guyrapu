@@ -216,6 +216,40 @@ class TestPararConElPrincipal(unittest.TestCase):
                                 "conectar_chat_adicional"))
 
 
+class TestTextoDelEnlaceDirecto(unittest.TestCase):
+
+    PRINCIPAL = "https://www.youtube.com/watch?v=abcdefghijk"
+    ADICIONAL = "https://www.tiktok.com/@usuario/live"
+
+    def setUp(self):
+        chat_adicional.usar(None)
+        self.addCleanup(chat_adicional.usar, None)
+
+    def _adicional_activo(self):
+        chat = _chat(VistaGuiFalsa())
+        chat_adicional.usar(chat)
+        chat._usuario = "usuario"
+        chat._activo = True
+        return chat
+
+    def test_con_adicional_copia_los_dos_enlaces_y_lo_anuncia(self):
+        self._adicional_activo()
+        texto, frase = chat_adicional.texto_enlace_directo(self.PRINCIPAL)
+        self.assertEqual(texto, self.PRINCIPAL + "\n" + self.ADICIONAL)
+        self.assertEqual(frase, "Enlaces de YouTube y TikTok copiados.")
+
+    def test_sin_adicional_copia_solo_el_principal(self):
+        texto, frase = chat_adicional.texto_enlace_directo(self.PRINCIPAL)
+        self.assertEqual(texto, self.PRINCIPAL)
+        self.assertEqual(frase, "Enlace del directo copiado.")
+
+    def test_sin_principal_no_copia_aunque_haya_adicional(self):
+        self._adicional_activo()
+        texto, frase = chat_adicional.texto_enlace_directo("")
+        self.assertEqual(texto, "")
+        self.assertEqual(frase, "No hay ningún directo conectado.")
+
+
 class TestEspectadoresDelAdicional(unittest.TestCase):
 
     def setUp(self):

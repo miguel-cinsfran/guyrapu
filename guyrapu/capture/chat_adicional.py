@@ -94,6 +94,12 @@ class ChatAdicional:
     def activo(self) -> bool:
         return self._activo
 
+    def enlace(self) -> str:
+        """Enlace del directo de TikTok que se está leyendo, o cadena vacía."""
+        if not self._activo or not self._usuario:
+            return ""
+        return f"https://www.tiktok.com/@{self._usuario}/live"
+
     def espectadores(self):
         return self._vista.espectadores()
 
@@ -114,7 +120,7 @@ class ChatAdicional:
             self.detener()
         self._usuario = usuario
         self._activo = True
-        self._conexiones.conectar(f"https://www.tiktok.com/@{usuario}/live")
+        self._conexiones.conectar(self.enlace())
         return True
 
     def detener(self) -> None:
@@ -141,6 +147,18 @@ def _usuario_de_entrada(entrada: str) -> str:
         return usuario
     coincidencia = _USUARIO_RE.match((entrada or "").strip())
     return coincidencia.group(1).lower() if coincidencia else ""
+
+
+def texto_enlace_directo(enlace_principal: str) -> tuple[str, str]:
+    """Texto a copiar y frase a anunciar al copiar el enlace del directo."""
+    if not enlace_principal:
+        return "", _("No hay ningún directo conectado.")
+    adicional = (_INSTANCIA.enlace()
+                 if _INSTANCIA is not None and _INSTANCIA.activo() else "")
+    if adicional:
+        return (f"{enlace_principal}\n{adicional}",
+                _("Enlaces de YouTube y TikTok copiados."))
+    return enlace_principal, _("Enlace del directo copiado.")
 
 
 _INSTANCIA: ChatAdicional | None = None
