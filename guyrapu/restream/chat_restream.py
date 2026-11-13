@@ -17,6 +17,7 @@ import time
 from guyrapu.capture import chat_adicional, tiktok_vivo
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
+from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -169,8 +170,7 @@ def _pedir_adicional(frame, usuario, reconexion):
 
 
 def _sonar(sonido):
-    from guyrapu.ui import gui as _gui
-    _gui._snd.reproducir(sonido)
+    _snd.reproducir(sonido)
 
 
 def _contar_desconexion(inicio, desconexiones_seguidas):

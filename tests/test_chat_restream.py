@@ -207,9 +207,10 @@ class TestConectarChat(unittest.TestCase):
         with mock.patch.object(chat_restream, "_leer_estado",
                                return_value=(True, False, False)), \
                 mock.patch.object(chat_restream, "_dormir"), \
-                mock.patch.object(chat_restream, "_sonar", side_effect=sonar), \
+                mock.patch.object(chat_restream, "_snd") as snd, \
                 mock.patch.object(chat_adicional, "activo",
                                   side_effect=activo):
+            snd.reproducir.side_effect = sonar
             anuncios = self._conectar(frame, esperar_en_vivo=esperar,
                                       tiktok="amigo", pedido=True)
 
@@ -237,7 +238,7 @@ class TestConectarChat(unittest.TestCase):
                 mock.patch.object(chat_restream, "_dormir"), \
                 mock.patch.object(chat_restream, "_reloj",
                                   side_effect=lambda: 0.0, create=True), \
-                mock.patch.object(chat_restream, "_sonar"), \
+                mock.patch.object(chat_restream, "_snd"), \
                 mock.patch.object(chat_adicional, "activo",
                                   side_effect=activo):
             anuncios = self._conectar(frame, tiktok="amigo", pedido=True)
@@ -267,7 +268,7 @@ class TestConectarChat(unittest.TestCase):
                                   side_effect=reloj.dormir), \
                 mock.patch.object(chat_restream, "_reloj",
                                   side_effect=reloj.reloj, create=True), \
-                mock.patch.object(chat_restream, "_sonar"), \
+                mock.patch.object(chat_restream, "_snd"), \
                 mock.patch.object(chat_adicional, "activo",
                                   side_effect=activo):
             anuncios = self._conectar(frame, tiktok="amigo", pedido=True)
