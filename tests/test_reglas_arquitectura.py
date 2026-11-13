@@ -27,9 +27,9 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_seis_reglas_estan_en_la_tabla(self):
+    def test_las_siete_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
-                         ["R1", "R2", "R3", "R4", "R5", "R6"])
+                         ["R1", "R2", "R3", "R4", "R5", "R6", "R7"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -156,6 +156,28 @@ class TestDetectores(unittest.TestCase):
             boton.Enable(False, False)
             """)
         self.assertEqual([1, 3, 4, 9], _lineas(hallazgos))
+
+    def test_esperas(self):
+        hallazgos = _hallazgos(detectores.detectar_esperas, """\
+            while activo:
+                leer()
+                dormir(1)
+            while activo:
+                parada.wait(1)
+            while activo:
+                leer_socket()
+            while activo:
+                def anidada():
+                    time.sleep(1)
+                leer()
+            while activo:
+                time.sleep(1)
+            while activo:
+                esperar(1)
+            while activo:
+                self._esperar_intervalo()
+            """)
+        self.assertEqual([1, 4, 12, 14, 16], _lineas(hallazgos))
 
 
 if __name__ == "__main__":

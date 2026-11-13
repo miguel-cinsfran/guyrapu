@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from tests.reglas_detectores import (
     Hallazgo,
     _controles,
+    _esperas,
     _paquete,
     _todo,
     detectar_avisar,
@@ -23,6 +24,7 @@ from tests.reglas_detectores import (
     detectar_controles,
     detectar_cuadros,
     detectar_escape,
+    detectar_esperas,
     detectar_red,
 )
 
@@ -126,5 +128,61 @@ REGLAS = (
             "guyrapu/ui/restream_pagina_cuenta.py": 1,
         }),
         ambito=_controles,
+    ),
+    Regla(
+        id="R7",
+        prohibido="usar guyrapu.core.esperas o guyrapu.core.vigilancia",
+        detectar=detectar_esperas,
+        pendientes={
+            "guyrapu/obs/candado_obs.py": Pendiente(
+                2, "el candado de OBS no espera a un servicio"),
+            "guyrapu/obs/detener_obs.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/fuente_nueva.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_camara_nueva.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_captura.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_cliente.py": Pendiente(
+                3, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_clips.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_destinos.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_grabacion.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_lanzador.py": Pendiente(
+                3, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_salida.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/obs_supervisor.py": Pendiente(
+                1, "usar guyrapu.core.vigilancia"),
+            "guyrapu/obs/obs_vigilante.py": Pendiente(
+                1, "usar guyrapu.core.vigilancia"),
+            "guyrapu/obs/perfiles_obs.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/prueba_conexion.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/prueba_equipo.py": Pendiente(
+                2, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/prueba_vertical.py": Pendiente(
+                2, "usar guyrapu.core.esperas"),
+            "guyrapu/obs/reacciones_supervisor.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/player/relevo_ffmpeg.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/restream/chat_restream.py": Pendiente(
+                2, "usar guyrapu.core.esperas"),
+            "guyrapu/restream/vigia.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/youtube/emision.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+            "guyrapu/youtube/fin_pendiente.py": Pendiente(
+                1, "usar guyrapu.core.esperas"),
+        },
+        duenos=("guyrapu/core/tiempo.py", "guyrapu/core/esperas.py",
+                "guyrapu/core/vigilancia.py"),
+        ambito=_esperas,
     ),
 )

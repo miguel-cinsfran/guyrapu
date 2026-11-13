@@ -177,6 +177,41 @@ def detectar_controles(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+PREFIJOS_ESPERA = ("dormir", "_dormir", "esperar", "_esperar")
+ATRIBUTOS_ESPERA = {"sleep", "wait"}
+
+
+def _recorrer_sin_funciones(nodos):
+    for nodo in nodos:
+        yield nodo
+        if isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            continue
+        yield from _recorrer_sin_funciones(ast.iter_child_nodes(nodo))
+
+
+def _llamada_de_espera(nodo: ast.Call) -> bool:
+    funcion = nodo.func
+    if isinstance(funcion, ast.Attribute):
+        nombre = funcion.attr
+    elif isinstance(funcion, ast.Name):
+        nombre = funcion.id
+    else:
+        return False
+    return (nombre in ATRIBUTOS_ESPERA
+            or nombre.startswith(PREFIJOS_ESPERA))
+
+
+def detectar_esperas(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if not isinstance(nodo, ast.While):
+            continue
+        if any(isinstance(sub, ast.Call) and _llamada_de_espera(sub)
+               for sub in _recorrer_sin_funciones(nodo.body)):
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
 def _todo(archivo: str) -> bool:
     return True
 
@@ -187,6 +222,13 @@ def _paquete(archivo: str) -> bool:
 
 def _controles(archivo: str) -> bool:
     return archivo.startswith(("guyrapu/ui/", "guyrapu/player/"))
+
+
+def _esperas(archivo: str) -> bool:
+    return (archivo.startswith(("guyrapu/obs/", "guyrapu/restream/",
+                                "guyrapu/youtube/"))
+            or archivo in ("guyrapu/player/relevo_ffmpeg.py",
+                           "guyrapu/player/vigilancia_relevo.py"))
 
 
 def _rutas() -> list[Path]:
