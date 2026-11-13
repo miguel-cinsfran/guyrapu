@@ -118,6 +118,12 @@ class PaginaCamara:
             "CamaraAtajosGlobales")
         vs.Add(self.chk_camara_atajos_globales, 0,
                wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self.chk_escena_atajos_globales = _casilla_atajos_globales(
+            p, self._config.get("escena_atajos_globales", False),
+            _("&Describir la escena y consultar a la IA en cualquier aplicación"),
+            "EscenaAtajosGlobales")
+        vs.Add(self.chk_escena_atajos_globales, 0,
+               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _elegir_sonido(self, event):
         timbre = tono_guia.TIMBRES[self.cho_sonido_guia.GetSelection()]
@@ -182,3 +188,7 @@ class PaginaCamara:
         fijar("transmision", "camara_atajos_globales",
               "true" if globales else "false")
         en_memoria["camara_atajos_globales"] = globales
+        escena = bool(self.chk_escena_atajos_globales.GetValue())
+        fijar("transmision", "escena_atajos_globales",
+              "true" if escena else "false")
+        en_memoria["escena_atajos_globales"] = escena

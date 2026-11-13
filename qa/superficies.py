@@ -104,6 +104,7 @@ SUPERFICIES = {
     "iconos.py": "reproductor",
     "boton_directo.py": "principal",
     "camara_atajos.py": "principal",
+    "escena_atajos.py": "principal",
     "accesibilidad.py": "principal",
     "preferencias_comun.py": "preferencias",
     "preferencias_api.py": "preferencias",

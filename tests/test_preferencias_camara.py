@@ -137,6 +137,8 @@ class TestPaginaCamara(unittest.TestCase):
             self._indice_categoria(dialogo, "Cámara"))
         hijos = [h for h in pagina.GetChildren() if h.IsShown()]
         self.assertIs(hijos[-1],
+                      dialogo.pagina_camara.chk_escena_atajos_globales)
+        self.assertIs(hijos[-2],
                       dialogo.pagina_camara.chk_camara_atajos_globales)
 
     def test_la_casilla_muestra_el_valor_guardado(self):
@@ -154,6 +156,23 @@ class TestPaginaCamara(unittest.TestCase):
             cambios[("transmision", "camara_atajos_globales")], "true")
         self.assertIs(
             dialogo._config["camara_atajos_globales"], True)
+
+    def test_los_atajos_de_escena_estan_apagados_de_fabrica(self):
+        dialogo = self._dialogo({})
+        casilla = dialogo.pagina_camara.chk_escena_atajos_globales
+        self.assertEqual(casilla.GetName(), "EscenaAtajosGlobales")
+        self.assertFalse(casilla.GetValue())
+
+    def test_guardar_los_atajos_de_escena_deja_la_preferencia(self):
+        dialogo = self._dialogo({})
+        dialogo.pagina_camara.chk_escena_atajos_globales.SetValue(True)
+        cambios = {}
+        dialogo.pagina_camara.guardar(
+            lambda s, k, v: cambios.setdefault((s, k), v), dialogo._config)
+        self.assertEqual(
+            cambios[("transmision", "escena_atajos_globales")], "true")
+        self.assertIs(
+            dialogo._config["escena_atajos_globales"], True)
 
     def _indice_categoria(self, dialogo, nombre):
         for i in range(dialogo.nb.GetPageCount()):

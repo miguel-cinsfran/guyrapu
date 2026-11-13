@@ -8347,6 +8347,19 @@ msgstr "This source has no properties in Guyrapu. Change them in OBS."
 msgid "Propiedades de {fuente} aplicadas."
 msgstr "{fuente} properties applied."
 
+#. Traductores: confirmación de que los atajos de escena e IA valen fuera de la
+#. app.
+#: guyrapu/ui/escena_atajos.py
+msgid "Atajos de escena e IA en cualquier aplicación"
+msgstr "Scene and AI shortcuts in any application"
+
+#. Traductores: confirmación de que los atajos de escena e IA valen solo en la
+#. app.
+#: guyrapu/ui/escena_atajos.py
+#, python-brace-format
+msgid "Atajos de escena e IA solo en {app}"
+msgstr "Scene and AI shortcuts only in {app}"
+
 #: guyrapu/ui/escena_captura_ventana.py
 msgid "Capturar ventana"
 msgstr "Capture window"
@@ -11877,6 +11890,10 @@ msgstr "Guide sound"
 #: guyrapu/ui/preferencias_camara.py
 msgid "Usar atajos de cámara en cualquier a&plicación"
 msgstr "Use camera shortcuts in any a&pplication"
+
+#: guyrapu/ui/preferencias_camara.py
+msgid "&Describir la escena y consultar a la IA en cualquier aplicación"
+msgstr "&Describe the scene and ask the AI from any application"
 
 #: guyrapu/ui/preferencias_descargas.py
 msgid "Carpeta de &descargas:"

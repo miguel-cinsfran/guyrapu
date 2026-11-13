@@ -11,7 +11,8 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_entradas_audio
 from guyrapu.obs import obs_ventana
-from guyrapu.ui import camara_atajos, comando_cerrar_obs, encuadre_camara
+from guyrapu.ui import (
+    camara_atajos, comando_cerrar_obs, encuadre_camara, escena_atajos)
 from guyrapu.ui.accesibilidad import anunciar
 
 
@@ -88,6 +89,8 @@ def construir(frame, mb):
     _enlazar(frame, m)
     if getattr(frame, "_camara_atajos", None) is None:
         frame._camara_atajos = camara_atajos.CamaraAtajos(frame)
+    if getattr(frame, "_escena_atajos", None) is None:
+        frame._escena_atajos = escena_atajos.EscenaAtajos(frame)
 
 
 def _enlazar(frame, m):

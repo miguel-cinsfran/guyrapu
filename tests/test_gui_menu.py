@@ -938,6 +938,13 @@ class TestCableadoCamaraVisible(unittest.TestCase):
         self.assertIsInstance(frame._camara_atajos,
                               camara_atajos.CamaraAtajos)
 
+    def test_construir_deja_los_atajos_de_escena_en_el_marco(self):
+        from guyrapu.ui import escena_atajos
+
+        frame = self._frame_con_menu()
+        self.assertIsInstance(frame._escena_atajos,
+                              escena_atajos.EscenaAtajos)
+
 
 # Textos que arma otro módulo y la barra solo muestra. Las etiquetas de
 # `guyrapu/ui/atajos_captura.py` (ETIQUETAS) y los nombres de filtro de

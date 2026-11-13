@@ -42,6 +42,13 @@ class TestAplicarEnCaliente(unittest.TestCase):
             gui_aplicar_preferencias.aplicar_en_caliente(frame)
         frame._camara_atajos.aplicar_preferencias.assert_called_once_with()
 
+    def test_aplicar_llama_a_los_atajos_de_escena(self):
+        frame = _frame({"escena_atajos_globales": True})
+        frame._escena_atajos = mock.Mock()
+        with mock.patch("guyrapu.ui.gui.anunciar"):
+            gui_aplicar_preferencias.aplicar_en_caliente(frame)
+        frame._escena_atajos.aplicar_preferencias.assert_called_once_with()
+
     def test_motor_distinto_anuncia_el_nombre(self):
         frame = _frame({"motor": "onecore", "voz": "Voz B",
                         "atajos_raw": {}})

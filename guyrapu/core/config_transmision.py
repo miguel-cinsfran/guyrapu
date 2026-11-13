@@ -63,6 +63,8 @@ def opciones_transmision(p) -> dict:
         "guia_timbre": _timbre(p),
         "camara_atajos_globales": leer_booleano(
             p, "transmision", "camara_atajos_globales"),
+        "escena_atajos_globales": leer_booleano(
+            p, "transmision", "escena_atajos_globales"),
         **_opciones_youtube(p),
     }
 
