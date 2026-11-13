@@ -25,12 +25,42 @@ class Aviso:
     sonido: str
 
 
+class _Gracia:
+    """La espera de arranque y el comienzo de la racha buena."""
+
+    def __init__(self, plazo):
+        self.plazo = plazo
+        self.inicio_buena = None
+        self.inicio_mala = None
+
+    def reiniciar(self):
+        if self.plazo is None:
+            return
+        self.inicio_buena = None
+        self.inicio_mala = None
+
+    def buena(self, ahora):
+        if self.inicio_buena is None:
+            self.inicio_buena = ahora
+        self.inicio_mala = None
+
+    def en_gracia(self, ahora):
+        if self.plazo is None or self.inicio_buena is not None:
+            return False
+        if self.inicio_mala is None:
+            self.inicio_mala = ahora
+        if ahora - self.inicio_mala < self.plazo:
+            return True
+        self.inicio_mala = None
+        return False
+
+
 class Vigilancia:
     """Sigue un enlace en vivo a partir de las lecturas de quien lo vigila."""
 
     def __init__(self, anunciar, *, caida, vuelta, rendicion,
                  tiempo=TIEMPO_REAL, max_caidas=None,
-                 duracion_estable=60.0):
+                 duracion_estable=60.0, gracia=None):
         self._anunciar = anunciar
         self._caida = caida
         self._vuelta = vuelta
@@ -38,11 +68,11 @@ class Vigilancia:
         self._tiempo = tiempo
         self._max_caidas = max_caidas
         self._duracion_estable = duracion_estable
+        self._gracia = _Gracia(gracia)
         self._caido = False
         self._desde = None
         self._rendido = False
         self._caidas_seguidas = 0
-        self._inicio_buena = None
 
     @property
     def caido(self) -> bool:
@@ -56,6 +86,10 @@ class Vigilancia:
     def rendido(self) -> bool:
         return self._rendido
 
+    def reiniciar_gracia(self) -> None:
+        """Vuelve a esperar la primera respuesta sin tocar la caída."""
+        self._gracia.reiniciar()
+
     def leida(self, ok: bool) -> None:
         """Recibe el resultado de una lectura del enlace."""
         if self._rendido:
@@ -67,20 +101,19 @@ class Vigilancia:
             self._mala(ahora)
 
     def _buena(self, ahora):
-        if self._inicio_buena is None:
-            self._inicio_buena = ahora
+        self._gracia.buena(ahora)
         if self._caido:
             self._caido = False
             self._desde = None
             self._anunciar(self._vuelta.frase, self._vuelta.sonido)
 
     def _mala(self, ahora):
-        if self._caido:
+        if self._caido or self._gracia.en_gracia(ahora):
             return
-        if (self._inicio_buena is not None
-                and ahora - self._inicio_buena >= self._duracion_estable):
+        if (self._gracia.inicio_buena is not None
+                and ahora - self._gracia.inicio_buena >= self._duracion_estable):
             self._caidas_seguidas = 0
-        self._inicio_buena = None
+        self._gracia.inicio_buena = None
         self._caidas_seguidas += 1
         self._caido = True
         self._desde = ahora

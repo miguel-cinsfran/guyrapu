@@ -77,6 +77,53 @@ class TestVigilancia(unittest.TestCase):
         self.assertFalse(vigia.rendido)
         self.assertEqual(avisos.count(("me rindo", "error")), 0)
 
+    def test_la_gracia_calla_la_caida_y_la_anuncia_al_vencer(self):
+        tiempo = TiempoDoble()
+        vigia, avisos = self._crear(tiempo, gracia=60.0)
+        vigia.leida(False)
+        tiempo.avanzar(59.0)
+        vigia.leida(False)
+        self.assertEqual(avisos, [])
+        tiempo.avanzar(1.0)
+        vigia.leida(False)
+        self.assertTrue(vigia.caido)
+        self.assertEqual(avisos, [("se cayó", "error")])
+
+    def test_una_lectura_buena_dentro_de_la_gracia_no_anuncia_nada(self):
+        tiempo = TiempoDoble()
+        vigia, avisos = self._crear(tiempo, gracia=60.0)
+        vigia.leida(False)
+        vigia.leida(True)
+        self.assertFalse(vigia.caido)
+        self.assertEqual(avisos, [])
+
+    def test_con_gracia_y_ya_respondido_el_fallo_se_anuncia_enseguida(self):
+        tiempo = TiempoDoble()
+        vigia, avisos = self._crear(tiempo, gracia=60.0)
+        vigia.leida(True)
+        vigia.leida(False)
+        self.assertEqual(avisos, [("se cayó", "error")])
+
+    def test_reiniciar_gracia_devuelve_la_gracia_sin_borrar_la_caida(self):
+        tiempo = TiempoDoble()
+        vigia, avisos = self._crear(tiempo, gracia=60.0)
+        vigia.leida(False)
+        tiempo.avanzar(60.0)
+        vigia.leida(False)
+        desde = vigia.desde
+        vigia.reiniciar_gracia()
+        self.assertTrue(vigia.caido)
+        self.assertEqual(vigia.desde, desde)
+        vigia.leida(True)
+        avisos_antes = list(avisos)
+        tiempo.avanzar(1.0)
+        vigia.reiniciar_gracia()
+        vigia.leida(False)
+        self.assertEqual(avisos, avisos_antes)
+        tiempo.avanzar(60.0)
+        vigia.leida(False)
+        self.assertEqual(avisos, avisos_antes + [("se cayó", "error")])
+
 
 class TestAvisosRepetidos(unittest.TestCase):
 

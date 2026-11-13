@@ -3,6 +3,7 @@
 import unittest
 from unittest import mock
 
+from guyrapu.core.tiempo import TiempoDoble
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_vigilante
 from guyrapu.obs.obs_vigilante import (
@@ -41,7 +42,8 @@ class TestFrescura(unittest.TestCase):
 
 class TestParada(unittest.TestCase):
 
-    def _vigilar_con(self, fallo_en_vuelo, en_ejecucion=lambda: True):
+    def _vigilar_con(self, fallo_en_vuelo, en_ejecucion=lambda: True,
+                     responde_antes=False):
         gestor = mock.Mock(conectado=True)
         vigilante = VigilanteObs(crear_gestor=lambda: gestor,
                                  en_ejecucion=en_ejecucion)
@@ -52,7 +54,10 @@ class TestParada(unittest.TestCase):
                 raise obs_cliente.ObsError("Operación cancelada.")
             raise RuntimeError("OBS no contesta")
 
-        gestor.estado_transmision.side_effect = estado_transmision
+        if responde_antes:
+            gestor.estado_transmision.side_effect = [{}, estado_transmision]
+        else:
+            gestor.estado_transmision.side_effect = estado_transmision
         # El bucle no termina solo: se detiene desde el cierre que sigue al
         # primer fallo.
         gestor.cerrar.side_effect = vigilante._parada.set
@@ -72,7 +77,8 @@ class TestParada(unittest.TestCase):
         gestor.cerrar.assert_called()
 
     def test_fallo_real_sigue_avisando(self):
-        logger, _ = self._vigilar_con(fallo_en_vuelo=False)
+        logger, _ = self._vigilar_con(fallo_en_vuelo=False,
+                                      responde_antes=True)
         logger.warning.assert_called_once_with("OBS no responde; se reintentará")
 
     def test_sin_obs_en_ejecucion_no_avisa_que_no_responde(self):
@@ -86,7 +92,8 @@ class TestParada(unittest.TestCase):
             raise OSError("tasklist")
 
         logger, _ = self._vigilar_con(fallo_en_vuelo=False,
-                                      en_ejecucion=en_ejecucion)
+                                      en_ejecucion=en_ejecucion,
+                                      responde_antes=True)
         logger.warning.assert_called_once_with("OBS no responde; se reintentará")
 
 
@@ -95,14 +102,14 @@ class TestAnuncios(unittest.TestCase):
     def _vigilar(self, en_ejecucion, fallos):
         gestor = mock.Mock(conectado=True)
         gestor.estado_transmision.side_effect = (
-            [RuntimeError("OBS no contesta")] * fallos + [{}])
+            [{}] + [RuntimeError("OBS no contesta")] * fallos + [{}])
         gestor.estado_grabacion.return_value = {}
         gestor.escena_al_aire.return_value = ""
         anuncios = []
         vigilante = VigilanteObs(
             crear_gestor=lambda: gestor, en_ejecucion=en_ejecucion,
             al_anunciar=lambda frase, sonido: anuncios.append((frase, sonido)))
-        vigilante._parada = _ParadaPorEsperas(fallos + 1)
+        vigilante._parada = _ParadaPorEsperas(fallos + 2)
         with mock.patch.object(obs_vigilante.diagnostico, "obtener_logger",
                                return_value=mock.Mock()), \
                 mock.patch.object(obs_vigilante, "INTERVALO_SONDEO", 0), \
@@ -146,12 +153,12 @@ class TestRecuperacion(unittest.TestCase):
     def _vigilar(self, en_ejecucion):
         gestor = mock.Mock(conectado=True)
         gestor.estado_transmision.side_effect = [
-            RuntimeError("OBS no contesta"), {}]
+            {}, RuntimeError("OBS no contesta"), {}]
         gestor.estado_grabacion.return_value = {}
         gestor.escena_al_aire.return_value = ""
         vigilante = VigilanteObs(crear_gestor=lambda: gestor,
                                  en_ejecucion=en_ejecucion)
-        vigilante._parada = _ParadaPorEsperas(2)
+        vigilante._parada = _ParadaPorEsperas(3)
         logger = mock.Mock()
         with mock.patch.object(obs_vigilante.diagnostico, "obtener_logger",
                                return_value=logger), \
@@ -167,6 +174,76 @@ class TestRecuperacion(unittest.TestCase):
     def test_despues_de_un_fallo_sin_obs_no_anuncia_que_volvio(self):
         logger = self._vigilar(lambda: False)
         logger.info.assert_not_called()
+
+
+class _ParadaConReloj:
+    """Parada que avanza un reloj falso en cada espera."""
+
+    def __init__(self, esperas):
+        self.tiempo = TiempoDoble()
+        self._esperas = esperas
+        self.vistas = []
+
+    def is_set(self):
+        return len(self.vistas) >= self._esperas
+
+    def set(self):
+        self.vistas = [0] * self._esperas
+
+    def clear(self):
+        self.vistas = []
+
+    def wait(self, plazo):
+        self.vistas.append(plazo)
+        self.tiempo.avanzar(plazo)
+
+
+def _secuencia(valores):
+    pendientes = iter(valores)
+    return lambda: next(pendientes)
+
+
+class TestGraciaDeArranque(unittest.TestCase):
+
+    def _vigilar(self, lecturas, ejecucion, esperas):
+        parada = _ParadaConReloj(esperas)
+        gestor = mock.Mock(conectado=True)
+        gestor.estado_transmision.side_effect = list(lecturas)
+        gestor.estado_grabacion.return_value = {}
+        gestor.escena_al_aire.return_value = ""
+        anuncios = []
+        vigilante = VigilanteObs(
+            crear_gestor=lambda: gestor, reloj=parada.tiempo.ahora,
+            en_ejecucion=ejecucion,
+            al_anunciar=lambda frase, sonido: anuncios.append((frase, sonido)))
+        vigilante._parada = parada
+        logger = mock.Mock()
+        with mock.patch.object(obs_vigilante.diagnostico, "obtener_logger",
+                               return_value=logger):
+            vigilante._vigilar()
+        return anuncios, logger
+
+    def test_falla_tres_veces_y_responde_antes_del_minuto_sin_anuncios(self):
+        anuncios, logger = self._vigilar(
+            [RuntimeError("no responde")] * 3 + [{}],
+            lambda: True, esperas=4)
+        self.assertEqual(anuncios, [])
+        self.assertEqual(logger.debug.call_args_list.count(
+            mock.call("OBS todavía no responde; se espera a que termine de abrir")),
+            3)
+
+    def test_sin_respuesta_en_sesenta_segundos_anuncia_una_vez(self):
+        anuncios, logger = self._vigilar(
+            [RuntimeError("no responde")] * 5, lambda: True, esperas=5)
+        self.assertEqual(anuncios, [
+            ("OBS no responde. Se sigue intentando.", "obs_sin_respuesta")])
+        logger.warning.assert_called_once_with("OBS no responde; se reintentará")
+
+    def test_obs_fuera_de_ejecucion_entre_arranques_vuelve_a_tener_gracia(self):
+        anuncios, _ = self._vigilar(
+            [{}, RuntimeError("no responde"), RuntimeError("no responde")],
+            _secuencia([False, True]), esperas=3)
+        self.assertEqual(anuncios, [])
 
 
 class _ParadaFalsa:

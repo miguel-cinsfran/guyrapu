@@ -17,6 +17,8 @@ from guyrapu.obs.obs_panel import GestorPanelObs
 PLAZO_FRESCURA = 12.0
 INTERVALO_SONDEO = 5.0
 INTERVALO_SIN_OBS = 15.0
+# El mismo minuto que promete el aviso de abrir OBS.
+PLAZO_ARRANQUE = 60.0
 
 MENSAJE_SIN_RESPUESTA = N_("OBS no responde. Se sigue intentando.")
 MENSAJE_RESPONDE = N_("OBS volvió a responder.")
@@ -120,8 +122,12 @@ class VigilanteObs:
         """Registra un sondeo fallido y cierra el gestor."""
         if self._sigue_en_ejecucion(logger):
             vigia.leida(False)
+            if not vigia.caido:
+                logger.debug(
+                    "OBS todavía no responde; se espera a que termine de abrir")
         else:
             logger.debug("OBS no está en ejecución; se reintentará")
+            vigia.reiniciar_gracia()
         try:
             gestor.cerrar()
         except Exception as error:
@@ -146,6 +152,7 @@ class VigilanteObs:
             vuelta=vigilancia.Aviso(_(MENSAJE_RESPONDE), "obs_responde"),
             rendicion=vigilancia.Aviso(_(MENSAJE_SIN_RESPUESTA),
                                       "obs_sin_respuesta"),
+            gracia=PLAZO_ARRANQUE,
             tiempo=TiempoDeFunciones(self._reloj, lambda segundos: None))
 
     def _anuncio_de_vigilancia(self, logger, frase, sonido):
