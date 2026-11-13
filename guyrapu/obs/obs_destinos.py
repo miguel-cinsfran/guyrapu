@@ -8,7 +8,6 @@ conexiones, igual que `obs_panel`.
 
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass
 
 from guyrapu.core import esperas, plataformas
@@ -101,7 +100,7 @@ def coleccion_para(destino, colecciones):
 
 
 def cambiar_coleccion(cliente, nombre, parada=None, espera=60.0,
-                      intervalo=0.05, dormir=time.sleep, reloj=time.monotonic):
+                      intervalo=0.05, dormir=None, reloj=None):
     """Deja activa la colección de escenas indicada, esperando a verla."""
     datos = _lista_colecciones(cliente, parada)
     if (datos.get("currentSceneCollectionName", "") or "") == nombre:
@@ -118,8 +117,7 @@ def cambiar_coleccion(cliente, nombre, parada=None, espera=60.0,
 
 
 def preparar_para_transmitir(cliente, destino, parada=None, espera=60.0,
-                             intervalo=0.05, dormir=time.sleep,
-                             reloj=time.monotonic):
+                             intervalo=0.05, dormir=None, reloj=None):
     """Deja OBS listo para transmitir al destino: perfil y colección."""
     datos = _lista_perfiles(cliente, parada)
     perfiles = datos.get("profiles", ()) or ()
@@ -255,7 +253,7 @@ def _poner_segun_lienzo(cliente, parada):
 
 
 def preparar_perfil(cliente, destino, perfil, parada=None, espera=60.0,
-                    intervalo=0.05, dormir=time.sleep, reloj=time.monotonic):
+                    intervalo=0.05, dormir=None, reloj=None):
     """Deja OBS en un perfil ya resuelto y aplica el resto del destino.
 
     Vacío significa no cambiar el perfil que tenga OBS.
@@ -275,7 +273,7 @@ def preparar_perfil(cliente, destino, perfil, parada=None, espera=60.0,
 
 
 def preparar_destino(cliente, destino, parada=None, espera=60.0,
-                     intervalo=0.05, dormir=time.sleep, reloj=time.monotonic):
+                     intervalo=0.05, dormir=None, reloj=None):
     """Deja el perfil de OBS listo para emitir al destino indicado.
 
     Si el perfil del destino es una plataforma del registro, se usa el

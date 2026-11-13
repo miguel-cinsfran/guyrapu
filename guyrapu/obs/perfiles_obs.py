@@ -10,12 +10,10 @@ Recibe un cliente con `pedir(tipo, datos=None, parada=None)` como
 from __future__ import annotations
 
 import dataclasses
-import time
 import uuid
 
 from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import N_, _
-from guyrapu.core.tiempo import TiempoDeFunciones
 from guyrapu.obs import (
     ajustes_perfil, audio_de_perfil, codificadores_obs, obs_cliente,
     perfil_en_disco)
@@ -99,8 +97,7 @@ def _esperar(cliente, cumple, parada):
     resultado = esperas.esperar(
         lambda: _lista(cliente, parada), lambda lista: cumple(*lista),
         cadencia=esperas.Fija(_INTERVALO_CAMBIO), parada=parada,
-        plazo=_ESPERA_CAMBIO,
-        tiempo=TiempoDeFunciones(time.monotonic, time.sleep))
+        plazo=_ESPERA_CAMBIO)
     if resultado.motivo == esperas.MOTIVO_PARADA:
         raise obs_cliente.ObsError(_("Operación cancelada."))
     if resultado.motivo == esperas.MOTIVO_PLAZO:

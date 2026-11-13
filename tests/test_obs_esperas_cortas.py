@@ -7,6 +7,7 @@ vencimiento del plazo, la parada y el error de la consulta.
 """
 
 import threading
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -17,12 +18,18 @@ from guyrapu.obs import (
     obs_camara_nueva,
     obs_cliente,
     obs_clips,
+    obs_destinos,
     obs_grabacion,
     perfiles_obs,
     prueba_conexion,
     prueba_equipo,
     prueba_vertical,
 )
+
+
+def _poner_parada(parada):
+    time.sleep(0.05)
+    parada.set()
 
 
 class RelojFalso:
@@ -166,9 +173,9 @@ class PerfilesEsperaTest(unittest.TestCase):
         reloj = RelojFalso()
         with mock.patch.object(perfiles_obs, "_ESPERA_CAMBIO", 0.05), \
                 mock.patch.object(perfiles_obs, "_INTERVALO_CAMBIO", 0.01), \
-                mock.patch.object(perfiles_obs.time, "monotonic",
+                mock.patch.object(tiempo_core.time, "monotonic",
                                   reloj.leer), \
-                mock.patch.object(perfiles_obs.time, "sleep", reloj.dormir):
+                mock.patch.object(tiempo_core.time, "sleep", reloj.dormir):
             with self.assertRaisesRegex(obs_cliente.ObsError, "no terminó"):
                 perfiles_obs._esperar(
                     doble, lambda perfiles, actual: False, None)
@@ -307,6 +314,114 @@ class ConfirmarGrabacionTest(unittest.TestCase):
                 mock.patch.object(tiempo_core.time, "sleep", reloj.dormir):
             obs_grabacion._confirmar_grabacion(pedir, True)
         self.assertEqual(instantes, [0.1])
+
+
+class SondaQueSigue:
+    """`pedir` falso que mantiene la sonda visible en todo momento."""
+
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "GetInputList":
+            return {"responseData": {"inputs": [
+                {"inputName": fuente_nueva.NOMBRE_SONDA}]}}
+        if tipo == "GetSceneItemList":
+            return {"responseData": {"sceneItems": [
+                {"sourceName": fuente_nueva.NOMBRE_SONDA, "sceneItemId": 1}]}}
+        if tipo in ("RemoveSceneItem", "RemoveInput", "CreateInput"):
+            return {"responseData": {}}
+        if tipo == "GetInputPropertiesListPropertyItems":
+            return {"responseData": {"propertyItems": []}}
+        raise AssertionError(tipo)
+
+
+class ColeccionesQueNoCambian:
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "GetSceneCollectionList":
+            return {"responseData": {"currentSceneCollectionName": "Otra",
+                                     "sceneCollections": ["Otra"]}}
+        if tipo == "SetCurrentSceneCollection":
+            return {"responseData": {}}
+        raise AssertionError(tipo)
+
+
+class PerfilesQueNoCambian:
+    def pedir(self, tipo, datos=None, parada=None):
+        if tipo == "GetProfileList":
+            return {"responseData": {"profiles": ["A"],
+                                     "currentProfileName": "A"}}
+        raise AssertionError(tipo)
+
+
+class ParadaCortaTest(unittest.TestCase):
+    """La parada corta el sueño de las esperas que la reciben."""
+
+    def test_la_parada_corta_el_sueno_de_la_sonda(self):
+        parada = threading.Event()
+        hilo = threading.Thread(target=_poner_parada, args=(parada,))
+        hilo.start()
+        inicio = time.monotonic()
+        fuente_nueva.opciones_lista(
+            SondaQueSigue().pedir, "Escena", "pantalla", "monitor_id",
+            parada=parada)
+        transcurrido = time.monotonic() - inicio
+        hilo.join()
+        self.assertLess(transcurrido, 1.0)
+
+    def test_la_parada_corta_el_sueno_de_cambiar_coleccion(self):
+        parada = threading.Event()
+        hilo = threading.Thread(target=_poner_parada, args=(parada,))
+        hilo.start()
+        inicio = time.monotonic()
+        with self.assertRaisesRegex(obs_cliente.ObsError, "cancelada"):
+            obs_destinos.cambiar_coleccion(
+                ColeccionesQueNoCambian(), "Destino", parada=parada,
+                espera=20.0, intervalo=5.0)
+        transcurrido = time.monotonic() - inicio
+        hilo.join()
+        self.assertLess(transcurrido, 1.0)
+
+    def test_la_parada_corta_el_sueno_de_perfiles(self):
+        parada = threading.Event()
+        hilo = threading.Thread(target=_poner_parada, args=(parada,))
+        hilo.start()
+        inicio = time.monotonic()
+        with mock.patch.object(perfiles_obs, "_ESPERA_CAMBIO", 20.0), \
+                mock.patch.object(perfiles_obs, "_INTERVALO_CAMBIO", 5.0), \
+                self.assertRaisesRegex(obs_cliente.ObsError, "cancelada"):
+            perfiles_obs._esperar(
+                PerfilesQueNoCambian(),
+                lambda perfiles, actual: False, parada)
+        transcurrido = time.monotonic() - inicio
+        hilo.join()
+        self.assertLess(transcurrido, 1.0)
+
+    def test_la_parada_corta_el_sueno_de_guardar(self):
+        parada = threading.Event()
+        hilo = threading.Thread(target=_poner_parada, args=(parada,))
+        hilo.start()
+        inicio = time.monotonic()
+        ruta = obs_clips.guardar(
+            Clips(fallos=0, ruta=""), parada=parada, intervalo=5.0,
+            limite=2.0)
+        transcurrido = time.monotonic() - inicio
+        hilo.join()
+        self.assertEqual(ruta, "")
+        self.assertLess(transcurrido, 1.0)
+
+    def test_la_parada_corta_el_primer_sueno_de_la_confirmacion(self):
+        parada = threading.Event()
+        hilo = threading.Thread(target=_poner_parada, args=(parada,))
+        hilo.start()
+
+        def pedir(tipo, datos=None, parada=None):
+            return {"outputActive": True}
+
+        inicio = time.monotonic()
+        with mock.patch.object(obs_grabacion, "_ESPERA_CONFIRMACION", 1.0), \
+                mock.patch.object(obs_grabacion, "_TIEMPO_CONFIRMACION", 5.0):
+            obs_grabacion._confirmar_grabacion(pedir, True, parada=parada)
+        transcurrido = time.monotonic() - inicio
+        hilo.join()
+        self.assertLess(transcurrido, 0.5)
 
 
 if __name__ == "__main__":

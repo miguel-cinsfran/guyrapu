@@ -12,7 +12,6 @@ salida activa.
 from __future__ import annotations
 
 import configparser
-import time
 import uuid
 from dataclasses import dataclass
 
@@ -217,7 +216,7 @@ def _ruta_guardada(cliente, parada=None, tolerar_error=False) -> str:
     return str(datos.get("savedReplayPath") or "")
 
 
-def guardar(cliente, parada=None, dormir=time.sleep, reloj=time.monotonic,
+def guardar(cliente, parada=None, dormir=None, reloj=None,
             limite=LIMITE_CLIP, intervalo=INTERVALO_CLIP) -> str:
     """Guarda el clip y devuelve su ruta cuando OBS termina de escribirlo."""
     anterior = _ruta_guardada(cliente, parada, tolerar_error=True)
@@ -232,7 +231,7 @@ def guardar(cliente, parada=None, dormir=time.sleep, reloj=time.monotonic,
 
     resultado = esperas.esperar(
         consultar, lambda ruta: bool(ruta) and ruta != anterior,
-        cadencia=esperas.Fija(intervalo), plazo=limite,
+        cadencia=esperas.Fija(intervalo), parada=parada, plazo=limite,
         tiempo=resolver_tiempo(reloj, dormir))
     if resultado.motivo == esperas.MOTIVO_PLAZO:
         raise obs_cliente.ObsError(_(MENSAJE_SIN_ARCHIVO))

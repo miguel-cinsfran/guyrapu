@@ -8,8 +8,6 @@ Recibe un cliente con `pedir(tipo, datos=None, parada=None)` como
 
 from __future__ import annotations
 
-import time
-
 from guyrapu.core import esperas
 from guyrapu.core.idioma import N_, _
 from guyrapu.core.tiempo import resolver_tiempo
@@ -182,8 +180,7 @@ def _sonda_visible(cliente, escena, parada=None) -> bool:
 
 
 def _esperar_sonda_fuera(cliente, escena, parada=None, espera=3.0,
-                         intervalo=0.05, dormir=time.sleep,
-                         reloj=time.monotonic):
+                         intervalo=0.05, dormir=None, reloj=None):
     # OBS aplica el borrado de forma asincrónica: la entrada puede seguir en
     # GetInputList y el elemento en la escena justo después de borrarlos
     # (medido el 13/10/2026). Sin esta espera captura_de_escena encuentra la
@@ -191,12 +188,11 @@ def _esperar_sonda_fuera(cliente, escena, parada=None, espera=3.0,
     # sigue igual, porque captura_de_escena ya la ignora.
     esperas.esperar(
         lambda: not _sonda_visible(cliente, escena, parada),
-        lambda fuera: fuera, cadencia=esperas.Fija(intervalo),
+        lambda fuera: fuera, cadencia=esperas.Fija(intervalo), parada=parada,
         plazo=espera, tiempo=resolver_tiempo(reloj, dormir))
 
 
-def ventanas(cliente, escena, parada=None, dormir=time.sleep,
-             reloj=time.monotonic):
+def ventanas(cliente, escena, parada=None, dormir=None, reloj=None):
     """Ventanas abiertas y cuál captura la escena, si tiene captura."""
     captura = captura_de_escena(cliente, escena, parada)
     if captura is not None:

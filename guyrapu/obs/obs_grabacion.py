@@ -16,7 +16,7 @@ import time
 
 from guyrapu.core import diagnostico, esperas, ini_tipado, paths
 from guyrapu.core.idioma import N_, _
-from guyrapu.core.tiempo import TiempoDeFunciones
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import grabaciones
 
 logger = diagnostico.obtener_logger(__name__)
@@ -95,15 +95,16 @@ _TIEMPO_CONFIRMACION = 3.0
 
 def _confirmar_grabacion(pedir, esperado, parada=None):
     """Consulta GetRecordStatus cada décima hasta ver el estado pedido."""
-    tiempo = TiempoDeFunciones(time.monotonic, time.sleep)
+    tiempo = resolver_tiempo()
     # La primera consulta sale una décima después del pedido, así que dentro
     # de la espera queda el resto del plazo.
-    tiempo.dormir(_ESPERA_CONFIRMACION)
+    tiempo.dormir(_ESPERA_CONFIRMACION, parada)
     esperas.esperar(
         lambda: _datos_respuesta(pedir("GetRecordStatus", parada=parada)),
         lambda estado: bool(estado.get("outputActive")) == esperado,
         cadencia=esperas.Fija(_ESPERA_CONFIRMACION),
-        plazo=_TIEMPO_CONFIRMACION - _ESPERA_CONFIRMACION, tiempo=tiempo)
+        parada=parada, plazo=_TIEMPO_CONFIRMACION - _ESPERA_CONFIRMACION,
+        tiempo=tiempo)
 
 
 def alternar_con_ruta(pedir, parada=None):

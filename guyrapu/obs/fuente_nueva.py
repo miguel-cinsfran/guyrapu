@@ -9,8 +9,6 @@ que se borra siempre, también si la lectura falla.
 
 from __future__ import annotations
 
-import time
-
 from guyrapu.core import esperas
 from guyrapu.core.idioma import N_
 from guyrapu.core.tiempo import resolver_tiempo
@@ -129,20 +127,19 @@ def _quitar_sonda(pedir, escena, parada=None) -> None:
 
 
 def _esperar_sonda_fuera(pedir, escena, parada=None, espera=3.0,
-                         intervalo=0.05, dormir=time.sleep,
-                         reloj=time.monotonic):
+                         intervalo=0.05, dormir=None, reloj=None):
     # OBS aplica el borrado de forma asincrónica: la entrada puede seguir en
     # GetInputList y el elemento en la escena justo después de borrarlos
     # (medido el 13/10/2026). Si vence el plazo se sigue igual, porque la
     # sonda se reutiliza si quedó suelta.
     esperas.esperar(
         lambda: not _sonda_visible(pedir, escena, parada),
-        lambda fuera: fuera, cadencia=esperas.Fija(intervalo),
+        lambda fuera: fuera, cadencia=esperas.Fija(intervalo), parada=parada,
         plazo=espera, tiempo=resolver_tiempo(reloj, dormir))
 
 
 def opciones_lista(pedir, escena, clave, propiedad, parada=None,
-                   dormir=time.sleep, reloj=time.monotonic) -> tuple:
+                   dormir=None, reloj=None) -> tuple:
     """Las opciones de una lista de OBS, leídas con una sonda oculta."""
     tipo = tipos_fuente.por_clave(clave)
     if tipo is None:
