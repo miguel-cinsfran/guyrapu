@@ -69,5 +69,24 @@ class TestArchivos(unittest.TestCase):
             os.chmod(ruta, stat.S_IWRITE | stat.S_IREAD)
 
 
+class EnUsoTest(unittest.TestCase):
+
+    def test_permission_error_es_archivo_en_uso(self):
+        self.assertTrue(archivos.en_uso(PermissionError(13, "en uso")))
+
+    def test_winerror_32_es_archivo_en_uso(self):
+        error = OSError("en uso")
+        error.winerror = 32
+        self.assertTrue(archivos.en_uso(error))
+
+    def test_winerror_33_es_archivo_en_uso(self):
+        error = OSError("en uso")
+        error.winerror = 33
+        self.assertTrue(archivos.en_uso(error))
+
+    def test_otro_oserror_no_es_archivo_en_uso(self):
+        self.assertFalse(archivos.en_uso(OSError("otra cosa")))
+
+
 if __name__ == "__main__":
     unittest.main()

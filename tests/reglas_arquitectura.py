@@ -138,34 +138,14 @@ REGLAS = (
                 2, "el candado de OBS no espera a un servicio"),
             "guyrapu/obs/detener_obs.py": Pendiente(
                 1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/fuente_nueva.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_camara_nueva.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_captura.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
             "guyrapu/obs/obs_cliente.py": Pendiente(
                 3, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_clips.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_destinos.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/obs_grabacion.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
             "guyrapu/obs/obs_lanzador.py": Pendiente(
                 3, "usar guyrapu.core.esperas"),
             "guyrapu/obs/obs_supervisor.py": Pendiente(
                 1, "usar guyrapu.core.vigilancia"),
             "guyrapu/obs/obs_vigilante.py": Pendiente(
                 1, "usar guyrapu.core.vigilancia"),
-            "guyrapu/obs/perfiles_obs.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/prueba_conexion.py": Pendiente(
-                1, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/prueba_equipo.py": Pendiente(
-                2, "usar guyrapu.core.esperas"),
-            "guyrapu/obs/prueba_vertical.py": Pendiente(
-                2, "usar guyrapu.core.esperas"),
             "guyrapu/obs/reacciones_supervisor.py": Pendiente(
                 1, "repite esperar_salida, que ya usa guyrapu.core.esperas"),
             "guyrapu/player/relevo_ffmpeg.py": Pendiente(

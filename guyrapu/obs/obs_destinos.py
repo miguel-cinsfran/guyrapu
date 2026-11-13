@@ -11,8 +11,9 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 
-from guyrapu.core import plataformas
+from guyrapu.core import esperas, plataformas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import (
     audio_de_perfil, escena_gemela, obs_cliente, perfil_por_uso,
     perfil_previo)
@@ -64,16 +65,15 @@ def _lista_colecciones(cliente, parada):
 
 def _esperar(cliente, leer, cumple, parada, espera, intervalo, dormir, reloj,
              mensaje):
-    inicio = reloj()
-    while True:
-        if parada is not None and parada.is_set():
-            raise obs_cliente.ObsError(_("Operación cancelada."))
-        datos = leer(cliente, parada)
-        if cumple(datos):
-            return datos
-        if reloj() - inicio >= espera:
-            raise obs_cliente.ObsError(mensaje)
-        dormir(intervalo)
+    resultado = esperas.esperar(
+        lambda: leer(cliente, parada), cumple,
+        cadencia=esperas.Fija(intervalo), parada=parada, plazo=espera,
+        tiempo=resolver_tiempo(reloj, dormir))
+    if resultado.motivo == esperas.MOTIVO_PARADA:
+        raise obs_cliente.ObsError(_("Operación cancelada."))
+    if resultado.motivo == esperas.MOTIVO_PLAZO:
+        raise obs_cliente.ObsError(mensaje)
+    return resultado.valor
 
 
 def _esperar_en_lista(cliente, cumple, parada, espera, intervalo, dormir, reloj):

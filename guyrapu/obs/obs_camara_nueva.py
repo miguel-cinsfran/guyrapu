@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import time
 
+from guyrapu.core import esperas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import obs_cliente, obs_disposicion, tipos_fuente
 
 
@@ -78,13 +80,10 @@ def _esperar_sonda_fuera(cliente, escena, parada=None, espera=3.0,
     # GetInputList y el elemento en la escena justo después de borrarlos
     # (medido el 13/10/2026). Si vence el plazo se sigue igual, porque la
     # sonda se reutiliza si quedó suelta.
-    inicio = reloj()
-    while True:
-        if not _sonda_visible(cliente, escena, parada):
-            return
-        if reloj() - inicio >= espera:
-            return
-        dormir(intervalo)
+    esperas.esperar(
+        lambda: not _sonda_visible(cliente, escena, parada),
+        lambda fuera: fuera, cadencia=esperas.Fija(intervalo),
+        plazo=espera, tiempo=resolver_tiempo(reloj, dormir))
 
 
 def camaras_disponibles(cliente, escena, parada=None, dormir=time.sleep,

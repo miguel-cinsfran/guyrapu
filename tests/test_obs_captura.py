@@ -425,7 +425,7 @@ class VentanasTest(unittest.TestCase):
         self.assertEqual(len(opciones), 2)
         self.assertEqual(actual, "")
         self.assertGreaterEqual(sum(reloj.pausas), 3.0)
-        self.assertTrue(all(pausa == 0.05 for pausa in reloj.pausas))
+        self.assertTrue(all(0 < pausa <= 0.05 for pausa in reloj.pausas))
 
 
 class UsarVentanaTest(unittest.TestCase):

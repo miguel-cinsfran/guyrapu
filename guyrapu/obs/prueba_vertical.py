@@ -10,10 +10,10 @@ el búfer no estaba encendido antes de la prueba, se apaga.
 
 from __future__ import annotations
 
-import time
 from pathlib import Path
 
-from guyrapu.core import diagnostico, paths
+from guyrapu.core import diagnostico, esperas, paths
+from guyrapu.core.archivos import en_uso
 from guyrapu.obs import config_lienzo_vertical, lienzo_vertical, obs_cliente
 
 logger = diagnostico.obtener_logger(__name__)
@@ -47,24 +47,21 @@ def _verticales(carpeta):
         return set()
 
 
-def _en_uso(error):
-    return (isinstance(error, PermissionError)
-            or getattr(error, "winerror", None) in (32, 33))
-
-
 def _borrar(ruta):
     """Borra la grabación vertical; False si OBS la siguió tomando."""
-    limite = time.monotonic() + _ESPERA_BORRADO
-    while True:
+
+    def intentar():
         try:
             ruta.unlink(missing_ok=True)
-            return True
         except OSError as error:
-            if not _en_uso(error) or time.monotonic() >= limite:
-                logger.warning("la grabación vertical quedó en %s: %s",
-                               ruta, error)
-                return False
-            time.sleep(_PASO_BORRADO)
+            return error
+
+    resultado = esperas.esperar(
+        intentar, lambda error: error is None or not en_uso(error),
+        cadencia=esperas.Fija(_PASO_BORRADO), plazo=_ESPERA_BORRADO)
+    if resultado.valor is not None:
+        logger.warning("la grabación vertical quedó en %s: %s", ruta, resultado.valor)
+    return resultado.valor is None
 
 
 class ClienteVertical:
@@ -138,16 +135,16 @@ class ClienteVertical:
         self._activa = False
 
     def _esperar_detencion(self):
-        limite = time.monotonic() + _ESPERA_DETENCION
-        while time.monotonic() < limite:
-            try:
-                if not lienzo_vertical.estado(self._cliente).get("grabando"):
-                    return True
-            except obs_cliente.ObsError as error:
-                logger.debug("no se pudo leer el estado vertical: %s", error)
-                return False
-            time.sleep(_PASO_DETENCION)
-        return False
+        try:
+            resultado = esperas.esperar(
+                lambda: lienzo_vertical.estado(self._cliente).get("grabando"),
+                lambda grabando: not grabando,
+                cadencia=esperas.Fija(_PASO_DETENCION),
+                plazo=_ESPERA_DETENCION)
+        except obs_cliente.ObsError as error:
+            logger.debug("no se pudo leer el estado vertical: %s", error)
+            return False
+        return resultado.motivo == esperas.MOTIVO_LISTO
 
     def _borrar_nuevas(self):
         if self._carpeta is None or self._previos is None:

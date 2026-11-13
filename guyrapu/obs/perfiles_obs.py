@@ -13,8 +13,9 @@ import dataclasses
 import time
 import uuid
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import TiempoDeFunciones
 from guyrapu.obs import (
     ajustes_perfil, audio_de_perfil, codificadores_obs, obs_cliente,
     perfil_en_disco)
@@ -95,16 +96,15 @@ def _fijar_parametro(cliente, categoria, nombre, valor, parada):
 
 
 def _esperar(cliente, cumple, parada):
-    inicio = time.monotonic()
-    while True:
-        if parada is not None and parada.is_set():
-            raise obs_cliente.ObsError(_("Operación cancelada."))
-        perfiles, actual = _lista(cliente, parada)
-        if cumple(perfiles, actual):
-            return
-        if time.monotonic() - inicio >= _ESPERA_CAMBIO:
-            raise obs_cliente.ObsError(_(MENSAJE_CAMBIO))
-        time.sleep(_INTERVALO_CAMBIO)
+    resultado = esperas.esperar(
+        lambda: _lista(cliente, parada), lambda lista: cumple(*lista),
+        cadencia=esperas.Fija(_INTERVALO_CAMBIO), parada=parada,
+        plazo=_ESPERA_CAMBIO,
+        tiempo=TiempoDeFunciones(time.monotonic, time.sleep))
+    if resultado.motivo == esperas.MOTIVO_PARADA:
+        raise obs_cliente.ObsError(_("Operación cancelada."))
+    if resultado.motivo == esperas.MOTIVO_PLAZO:
+        raise obs_cliente.ObsError(_(MENSAJE_CAMBIO))
 
 
 def cambiar(cliente, nombre, parada):

@@ -14,7 +14,8 @@ import time
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
+from guyrapu.core.archivos import en_uso
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import (codificadores_obs, escalones_equipo, escenas_obs,
                          movimiento_prueba, obs_cliente, perfiles_obs)
@@ -225,38 +226,36 @@ def _entero(valor):
 
 def _esperar_detencion(cliente):
     """Espera a que OBS suelte el archivo después de StopRecord."""
-    limite = time.monotonic() + _ESPERA_DETENCION
-    while time.monotonic() < limite:
-        try:
-            if not _datos(cliente, "GetRecordStatus").get("outputActive"):
-                return True
-        except obs_cliente.ObsError as error:
-            logger.debug("OBS no informó el fin de la grabación: %s", error)
-            return False
-        time.sleep(_PASO_DETENCION)
-    return False
-
-
-def _en_uso(error):
-    return (isinstance(error, PermissionError)
-            or getattr(error, "winerror", None) in (32, 33))
+    try:
+        resultado = esperas.esperar(
+            lambda: _datos(cliente, "GetRecordStatus").get("outputActive"),
+            lambda activo: not activo,
+            cadencia=esperas.Fija(_PASO_DETENCION), plazo=_ESPERA_DETENCION)
+    except obs_cliente.ObsError as error:
+        logger.debug("OBS no informó el fin de la grabación: %s", error)
+        return False
+    return resultado.motivo == esperas.MOTIVO_LISTO
 
 
 def _borrar(ruta):
     """Borra la grabación de la prueba; False si quedó tomada por OBS."""
     if not ruta:
         return True
-    limite = time.monotonic() + _ESPERA_BORRADO
-    while True:
+
+    def intentar():
         try:
             Path(ruta).unlink(missing_ok=True)
-            return True
         except OSError as error:
-            if not _en_uso(error) or time.monotonic() >= limite:
-                logger.warning("la grabación de la prueba quedó en %s: %s",
-                               ruta, error)
-                return False
-            time.sleep(_PASO_BORRADO)
+            return error
+        return True
+
+    resultado = esperas.esperar(
+        intentar, lambda valor: valor is True or not en_uso(valor),
+        cadencia=esperas.Fija(_PASO_BORRADO), plazo=_ESPERA_BORRADO)
+    if resultado.valor is not True:
+        logger.warning("la grabación de la prueba quedó en %s: %s",
+                       ruta, resultado.valor)
+    return resultado.valor is True
 
 
 def _medir(cliente, parada, ajustes, estado, calentamiento, medicion, dormir):

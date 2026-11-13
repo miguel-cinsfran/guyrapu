@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import time
 
+from guyrapu.core import esperas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import obs_cliente, tipos_fuente
 
 
@@ -187,13 +189,10 @@ def _esperar_sonda_fuera(cliente, escena, parada=None, espera=3.0,
     # (medido el 13/10/2026). Sin esta espera captura_de_escena encuentra la
     # sonda y usar_ventana la configura y habilita. Si vence el plazo se
     # sigue igual, porque captura_de_escena ya la ignora.
-    inicio = reloj()
-    while True:
-        if not _sonda_visible(cliente, escena, parada):
-            return
-        if reloj() - inicio >= espera:
-            return
-        dormir(intervalo)
+    esperas.esperar(
+        lambda: not _sonda_visible(cliente, escena, parada),
+        lambda fuera: fuera, cadencia=esperas.Fija(intervalo),
+        plazo=espera, tiempo=resolver_tiempo(reloj, dormir))
 
 
 def ventanas(cliente, escena, parada=None, dormir=time.sleep,

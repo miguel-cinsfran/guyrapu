@@ -16,8 +16,9 @@ import time
 import uuid
 from dataclasses import dataclass
 
-from guyrapu.core import diagnostico, ini_tipado, paths
+from guyrapu.core import diagnostico, esperas, ini_tipado, paths
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import audio_de_perfil, obs_cliente
 
 logger = diagnostico.obtener_logger(__name__)
@@ -221,18 +222,21 @@ def guardar(cliente, parada=None, dormir=time.sleep, reloj=time.monotonic,
     """Guarda el clip y devuelve su ruta cuando OBS termina de escribirlo."""
     anterior = _ruta_guardada(cliente, parada, tolerar_error=True)
     cliente.pedir("SaveReplayBuffer", parada=parada)
-    inicio = reloj()
-    while True:
+
+    def consultar():
         try:
-            ruta = _ruta_guardada(cliente, parada)
+            return _ruta_guardada(cliente, parada)
         except obs_cliente.ObsError as error:
             logger.debug("OBS todavía no devolvió el clip: %s", error)
-            ruta = ""
-        if ruta and ruta != anterior:
-            return ruta
-        if reloj() - inicio >= limite:
-            raise obs_cliente.ObsError(_(MENSAJE_SIN_ARCHIVO))
-        dormir(intervalo)
+            return ""
+
+    resultado = esperas.esperar(
+        consultar, lambda ruta: bool(ruta) and ruta != anterior,
+        cadencia=esperas.Fija(intervalo), plazo=limite,
+        tiempo=resolver_tiempo(reloj, dormir))
+    if resultado.motivo == esperas.MOTIVO_PLAZO:
+        raise obs_cliente.ObsError(_(MENSAJE_SIN_ARCHIVO))
+    return resultado.valor
 
 
 def _avisar_fallo(al_fallar, error) -> None:

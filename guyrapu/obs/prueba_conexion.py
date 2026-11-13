@@ -14,8 +14,9 @@ import time
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import escalones_red, obs_cliente, perfiles_obs
 from guyrapu.youtube import emision, flujo_prueba
 
@@ -133,16 +134,16 @@ def _esperar(parada, segundos, dormir):
 
 
 def _esperar_detencion(cliente, dormir=time.sleep):
-    limite = time.monotonic() + _ESPERA_DETENCION
-    while time.monotonic() < limite:
-        try:
-            if not _datos(cliente, "GetStreamStatus").get("outputActive"):
-                return True
-        except obs_cliente.ObsError as error:
-            logger.debug("OBS no informó el fin de la transmisión: %s", error)
-            return False
-        dormir(_PASO_DETENCION)
-    return False
+    try:
+        resultado = esperas.esperar(
+            lambda: _datos(cliente, "GetStreamStatus").get("outputActive"),
+            lambda activo: not activo,
+            cadencia=esperas.Fija(_PASO_DETENCION), plazo=_ESPERA_DETENCION,
+            tiempo=resolver_tiempo(dormir=dormir))
+    except obs_cliente.ObsError as error:
+        logger.debug("OBS no informó el fin de la transmisión: %s", error)
+        return False
+    return resultado.motivo == esperas.MOTIVO_LISTO
 
 
 def _detener(cliente):
