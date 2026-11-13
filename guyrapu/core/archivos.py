@@ -79,7 +79,6 @@ def leer_json(ruta, predeterminado):
 
 
 def en_uso(error) -> bool:
-    """Dice si el error es de un archivo tomado por otro proceso."""
-    # Archivo tomado por otro proceso en Windows.
+    """Dice si el error es de un archivo tomado por otro proceso en Windows."""
     return (isinstance(error, PermissionError)
             or getattr(error, "winerror", None) in (32, 33))
