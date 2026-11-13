@@ -9,12 +9,11 @@ parámetro, así se prueba con dobles sin tocar la API real.
 from __future__ import annotations
 
 import os
-import time
 from datetime import datetime
 
 from guyrapu.core import diagnostico, esperas
 from guyrapu.core.idioma import N_, _
-from guyrapu.core.tiempo import TiempoDeFunciones
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_destinos
 from guyrapu.youtube import youtube_api
@@ -383,11 +382,10 @@ def ganchos_youtube(cliente_yt, cuerpo, guardar_token, extras=None,
 
 
 def esperar_en_vivo(consultar_estado, id_video, parada=None, cada=5.0,
-                    limite=120.0, dormir=time.sleep,
-                    reloj=time.monotonic) -> bool:
+                    limite=120.0, dormir=None, reloj=None) -> bool:
     """Consulta el estado hasta ver "live", agotar el límite o la parada."""
     resultado = esperas.esperar(
         lambda: consultar_estado(id_video), lambda estado: estado == "live",
         cadencia=esperas.Fija(cada), parada=parada, plazo=limite,
-        tolerar=(Exception,), tiempo=TiempoDeFunciones(reloj, dormir))
+        tolerar=(Exception,), tiempo=resolver_tiempo(reloj, dormir))
     return resultado.motivo == esperas.MOTIVO_LISTO

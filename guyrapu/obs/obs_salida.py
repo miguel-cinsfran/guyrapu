@@ -9,11 +9,9 @@ llama todavía: lo usará la ventana Transmisión.
 
 from __future__ import annotations
 
-import time
-
 from guyrapu.core import esperas
 from guyrapu.core.idioma import N_, _
-from guyrapu.core.tiempo import TiempoDeFunciones
+from guyrapu.core.tiempo import resolver_tiempo
 
 
 def evaluar_inicio(muestras) -> str:
@@ -40,7 +38,7 @@ def evaluar_inicio(muestras) -> str:
 
 
 def esperar_salida(cliente, parada=None, limite=20.0, intervalo=1.0,
-                   dormir=time.sleep, reloj=time.monotonic) -> str:
+                   dormir=None, reloj=None) -> str:
     """Muestrea hasta que OBS confirma que envía o se agota el límite."""
     muestras = []
 
@@ -53,7 +51,7 @@ def esperar_salida(cliente, parada=None, limite=20.0, intervalo=1.0,
     resultado = esperas.esperar(
         consultar, lambda veredicto: veredicto == "enviando",
         cadencia=esperas.Fija(intervalo), parada=parada, plazo=limite,
-        tiempo=TiempoDeFunciones(reloj, dormir))
+        tiempo=resolver_tiempo(reloj, dormir))
     return resultado.valor if resultado.valor is not None else "sin_salida"
 
 

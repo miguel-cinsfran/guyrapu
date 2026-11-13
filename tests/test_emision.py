@@ -3,6 +3,7 @@
 """Pruebas de la emisión de YouTube con dobles (sin red ni API real)."""
 
 import threading
+import time
 import unittest
 from datetime import datetime
 from unittest import mock
@@ -608,6 +609,23 @@ class TestEsperarEnVivo(unittest.TestCase):
         visto = esperar_en_vivo(consultar, "vid", parada=parada,
                                 dormir=reloj.dormir, reloj=reloj.reloj)
         self.assertFalse(visto)
+
+    def test_la_parada_corta_el_sueno(self):
+        parada = threading.Event()
+
+        def disparar():
+            time.sleep(0.05)
+            parada.set()
+
+        hilo = threading.Thread(target=disparar)
+        hilo.start()
+        inicio = time.monotonic()
+        visto = esperar_en_vivo(lambda _id: "ready", "vid", parada=parada,
+                                cada=5.0, limite=20.0)
+        transcurrido = time.monotonic() - inicio
+        hilo.join()
+        self.assertFalse(visto)
+        self.assertLess(transcurrido, 1.0)
 
     def test_excepcion_no_corta(self):
         reloj = RelojFalso()

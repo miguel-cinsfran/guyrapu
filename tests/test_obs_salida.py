@@ -3,6 +3,7 @@
 """Tests de obs_salida con secuencias de muestras y reloj falso."""
 
 import threading
+import time
 import unittest
 
 from tests.pseudo_prueba import con_pseudo
@@ -100,6 +101,24 @@ class EsperarSalidaTest(unittest.TestCase):
         veredicto = esperar_salida(cliente, parada=parada)
         self.assertEqual(veredicto, "sin_salida")
         self.assertEqual(cliente.llamadas, 0)
+
+    def test_la_parada_corta_el_sueno(self):
+        cliente = ClienteFalso([muestra(True, 10)] * 50)
+        parada = threading.Event()
+
+        def disparar():
+            time.sleep(0.05)
+            parada.set()
+
+        hilo = threading.Thread(target=disparar)
+        hilo.start()
+        inicio = time.monotonic()
+        veredicto = esperar_salida(cliente, parada=parada, limite=20.0,
+                                   intervalo=5.0)
+        transcurrido = time.monotonic() - inicio
+        hilo.join()
+        self.assertEqual(veredicto, "esperando")
+        self.assertLess(transcurrido, 1.0)
 
     def test_parada_devuelve_lo_ultimo(self):
         cliente = ClienteFalso([muestra(True, 10)] * 50)

@@ -45,6 +45,13 @@ class TiempoDeFunciones:
         return parada is not None and parada.is_set()
 
 
+def resolver_tiempo(reloj=None, dormir=None):
+    """Devuelve el tiempo real si no se inyectaron reloj ni dormir."""
+    if reloj is None and dormir is None:
+        return TIEMPO_REAL
+    return TiempoDeFunciones(reloj or time.monotonic, dormir or time.sleep)
+
+
 class TiempoDoble:
     """Reloj de prueba que avanza al dormir y no espera de verdad."""
 
