@@ -45,6 +45,13 @@ def _guardar_preferencia(seccion, clave, valor):
         paths.config_ini(), seccion, clave, valor)
 
 
+def _casilla_atajos_globales(padre, valor, rotulo, nombre):
+    """Una casilla de atajos globales con su valor guardado."""
+    casilla = wx.CheckBox(padre, label=rotulo, name=nombre)
+    casilla.SetValue(bool(valor))
+    return casilla
+
+
 class PaginaCamara:
     """Página Cámara: avisos de encuadre, cámara e inversión."""
 
@@ -105,11 +112,10 @@ class PaginaCamara:
         self.cho_sonido_guia.Bind(wx.EVT_CHOICE, self._elegir_sonido)
 
     def _atajos_globales(self, p, vs):
-        self.chk_camara_atajos_globales = wx.CheckBox(
-            p, label=_("Usar atajos de cámara en cualquier a&plicación"),
-            name="CamaraAtajosGlobales")
-        self.chk_camara_atajos_globales.SetValue(
-            bool(self._config.get("camara_atajos_globales", False)))
+        self.chk_camara_atajos_globales = _casilla_atajos_globales(
+            p, self._config.get("camara_atajos_globales", False),
+            _("Usar atajos de cámara en cualquier a&plicación"),
+            "CamaraAtajosGlobales")
         vs.Add(self.chk_camara_atajos_globales, 0,
                wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
