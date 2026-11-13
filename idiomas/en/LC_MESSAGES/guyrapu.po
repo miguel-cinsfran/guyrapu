@@ -5076,17 +5076,12 @@ msgid "Esperando a que YouTube muestre el directo."
 msgstr "Waiting for YouTube to show the live stream."
 
 #: guyrapu/obs/obs_supervisor.py
-msgid "Directo iniciado en YouTube"
-msgstr "Live stream started on YouTube"
-
-#: guyrapu/obs/obs_supervisor.py
 msgid "OBS está transmitiendo, pero YouTube todavía no muestra el directo."
 msgstr "OBS is broadcasting, but YouTube still shows no live stream."
 
 #: guyrapu/obs/obs_supervisor.py
-#, python-brace-format
-msgid "La transmisión terminó. Duró {duracion}."
-msgstr "The broadcast ended. It lasted {duracion}."
+msgid "Directo iniciado en YouTube"
+msgstr "Live stream started on YouTube"
 
 #: guyrapu/obs/obs_ventana.py guyrapu/ui/comando_cerrar_obs.py
 #: guyrapu/ui/gui_estado.py guyrapu/ui/ia_agregar_captura.py
@@ -5282,6 +5277,11 @@ msgid ""
 msgstr ""
 "{nombre} is a headset in hands-free mode and sounds low quality. For "
 "streaming, use another microphone."
+
+#: guyrapu/obs/reacciones_supervisor.py
+#, python-brace-format
+msgid "La transmisión terminó. Duró {duracion}."
+msgstr "The broadcast ended. It lasted {duracion}."
 
 #: guyrapu/obs/resumen_directo.py
 #, python-brace-format
@@ -6188,15 +6188,17 @@ msgstr "The chat was already connected and was not changed."
 
 #: guyrapu/restream/chat_restream.py
 msgid ""
-"No se encontró el usuario de TikTok del perfil: conecta el chat de TikTok a"
-" mano."
+"El chat de TikTok no se va a leer porque el perfil de Restream no tiene "
+"usuario de TikTok."
 msgstr ""
-"The TikTok user for the profile was not found: connect the TikTok chat "
-"manually."
+"The TikTok chat will not be read because the Restream profile has no TikTok"
+" user."
 
 #: guyrapu/restream/chat_restream.py
-msgid "Esperando a que TikTok muestre el directo para leer su chat."
-msgstr "Waiting for TikTok to show the live stream to read its chat."
+msgid "El chat de TikTok se dejó de reconectar porque se desconectaba enseguida."
+msgstr ""
+"The TikTok chat stopped reconnecting because it kept disconnecting right "
+"away."
 
 #: guyrapu/restream/destinos_de_mas.py
 #, python-brace-format
