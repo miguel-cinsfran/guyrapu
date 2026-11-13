@@ -505,6 +505,7 @@ class TestSupervisarRestream(unittest.TestCase):
                 self.iniciado = False
                 self.activo = True
                 self.deteniendo = False
+                self.puede_seguir_al_aire = False
                 creados.append(self)
 
             def iniciar(self):
@@ -677,6 +678,13 @@ class TestSupervisarRestream(unittest.TestCase):
         self.assertEqual(anuncios, [])
         self.assertFalse(vigia.debe_seguir())
 
+    def test_p9_el_supervisor_habla_de_restream(self):
+        perfil = _perfil("Uno", "horizontal", (1,))
+        canales = [_canal(1, "YouTube")]
+        _frame, _cuenta, creados, _anuncios = self._supervisar(perfil, canales)
+
+        self.assertEqual(creados[0].kwargs["servicio"], "Restream")
+
     def test_al_terminar_restaura_los_canales_cambiados(self):
         perfil = _perfil("Uno", "horizontal", (1, 2))
         canales = [_canal(1, "YouTube", False), _canal(2, "TikTok", False),
@@ -695,6 +703,26 @@ class TestSupervisarRestream(unittest.TestCase):
             ("activar", 2, False),
             ("activar", 3, True),
         ])
+        frame._al_terminar_supervisor.assert_called_once_with()
+
+    def test_p6_no_restaura_si_la_salida_puede_seguir_al_aire(self):
+        perfil = _perfil("Uno", "horizontal", (1, 2))
+        canales = [_canal(1, "YouTube", False), _canal(2, "TikTok", False),
+                   _canal(3, "YouTube", True)]
+        with mock.patch.object(ganchos.obs_destinos, "preparar_destino"):
+            frame, cuenta, creados, _anuncios = self._supervisar(perfil,
+                                                                 canales)
+            supervisor = creados[0]
+            supervisor.kwargs["preparar_emision"](None)
+
+        self.assertTrue(any(llamada[0] == "activar"
+                            for llamada in cuenta.llamadas))
+        antes = len(cuenta.llamadas)
+        supervisor.puede_seguir_al_aire = True
+        supervisor.kwargs["al_terminar"]()
+
+        self.assertFalse(any(llamada[0] in ("activar", "eliminar")
+                             for llamada in cuenta.llamadas[antes:]))
         frame._al_terminar_supervisor.assert_called_once_with()
 
 

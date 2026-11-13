@@ -123,6 +123,12 @@ class FraseSalidaTest(unittest.TestCase):
         self.assertEqual(frase_salida("esperando", "YouTube"),
                          "OBS todavía no confirma que la señal salga.")
 
+    def test_p9_restream_nombra_a_restream_con_destino_youtube(self):
+        self.assertEqual(
+            frase_salida("reconectando", "YouTube", "Restream"),
+            "OBS no logra conectar con Restream y está reintentando. "
+            "Revisa internet.")
+
 
 class ProblemasEnDirectoTest(unittest.TestCase):
     def test_reconectando(self):

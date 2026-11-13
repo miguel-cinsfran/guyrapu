@@ -57,10 +57,10 @@ def esperar_salida(cliente, parada=None, limite=20.0, intervalo=1.0,
         dormir(intervalo)
 
 
-def frase_salida(veredicto, destino) -> str:
+def frase_salida(veredicto, destino, servicio="") -> str:
     """Frase audible para el veredicto de la salida."""
-    servicio = {"TikTok": "Restream", "YouTube": "YouTube"}.get(destino,
-                                                                 destino)
+    servicio = servicio or {"TikTok": "Restream", "YouTube": "YouTube"}.get(
+        destino, destino)
     if veredicto == "enviando":
         # Traductores: {servicio} es el nombre del servicio de emisión.
         return _("OBS está enviando la señal a {servicio}.").format(

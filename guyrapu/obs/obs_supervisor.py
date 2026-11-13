@@ -25,40 +25,16 @@ from guyrapu.obs import obs_clips
 from guyrapu.obs import obs_estado
 from guyrapu.obs import obs_lanzador
 from guyrapu.obs import obs_salida
+from guyrapu.obs import reacciones_supervisor
 from guyrapu.obs import resumen_directo
-from guyrapu.obs.duraciones import duracion_legible
 from guyrapu.obs.obs_panel import GestorPanelObs
+from guyrapu.obs.reacciones_supervisor import (
+    PLAZO_REPETICION, PLAZO_SOBRECARGA, SONIDOS_AVISO, segundos_de_cierre)  # noqa: F401
 from guyrapu.youtube import emision
 from guyrapu.youtube import fin_pendiente
 
 logger = diagnostico.obtener_logger(__name__)
 
-# La misma frase no se repite antes de este plazo durante la vigilancia.
-PLAZO_REPETICION = 60.0
-
-# El aviso de sobrecarga es más molesto y no aporta nada repetirlo seguido:
-# no se repite antes de este plazo, y solo si el usuario lo tiene activado.
-PLAZO_SOBRECARGA = 300.0
-
-# Sonido por tipo de aviso de la vigilancia. Los problemas de red y de
-# sobrecarga comparten el de transmisión con problema; la vuelta de la conexión
-# tiene el suyo, distinto, para no sonar a alarma cuando ya se resolvió.
-SONIDOS_AVISO = {
-    "reconexion": "transmision_problema",
-    "red": "transmision_problema",
-    "sobrecarga": "transmision_problema",
-    "vuelta": "transmision_recuperada",
-}
-
-
-def segundos_de_cierre(actual, ultimo_activo):
-    """Los segundos del fin: el estado final, o el último activo si viene en cero."""
-    def segundos(estado):
-        try:
-            return int(float((estado or {}).get("outputDuration", 0)))
-        except (TypeError, ValueError):
-            return 0
-    return segundos(actual) or segundos(ultimo_activo)
 
 class SupervisorTransmision:
     """Arranca OBS y vigila el directo desde un hilo propio."""
@@ -73,9 +49,10 @@ class SupervisorTransmision:
                  asegurar=None, al_terminar=None,
                  preparar_emision=None, esperar_emision=None,
                  finalizar_emision=None, ruta_fin_pendiente=None,
-                 avisar_sobrecarga=None):
+                 avisar_sobrecarga=None, servicio=""):
         self._destino = destino
         self._usuario = usuario_tiktok or ""
+        self._servicio = servicio
         self._al_anunciar = al_anunciar or (lambda frase, sonido: None)
         self._al_conectar_chat = al_conectar_chat or (lambda url: None)
         self._crear_gestor = crear_gestor
@@ -104,6 +81,9 @@ class SupervisorTransmision:
         self._ultimo_estado = None
         self._ultima_frase = ""
         self._destino_confirmado = None
+        self._salida_confirmada = False
+        self._puede_seguir_al_aire = False
+        self._reconfirmador = None
         # Muestras del directo para el resumen del final: la primera con la
         # salida activa, la última activa, y el perfil con su codificador.
         self._resumen_primero = None
@@ -120,6 +100,13 @@ class SupervisorTransmision:
         # hasta que _detener_obs deja de esperar a OBS. El fin en YouTube no
         # la mantiene: la salida de OBS ya no emite.
         return self._deteniendo
+
+    @property
+    def puede_seguir_al_aire(self) -> bool:
+        # Verdadera desde que se pidió a OBS transmitir hasta que se vio la
+        # salida inactiva o terminó detener(). Al cerrar la app sigue
+        # verdadera: el directo no se corta.
+        return self._puede_seguir_al_aire
 
     def frase_estado(self) -> str:
         """Fase actual para F2, sin repetir lo ya anunciado.
@@ -158,6 +145,9 @@ class SupervisorTransmision:
         self._resumen_primero = None
         self._resumen_ultimo = None
         self._resumen_perfil = None
+        self._salida_confirmada = False
+        self._puede_seguir_al_aire = False
+        self._reconfirmador = None
         self._hilo = diagnostico.crear_hilo(
             self._supervisar, "SupervisorTransmision")
         self._hilo.start()
@@ -175,6 +165,8 @@ class SupervisorTransmision:
                 self._detener_obs()
             finally:
                 self._deteniendo = False
+                self._salida_confirmada = False
+                self._puede_seguir_al_aire = False
             self._finalizar_youtube_si_toca()
         hilo = self._hilo
         if hilo is not None:
@@ -223,8 +215,10 @@ class SupervisorTransmision:
             self._dormir(segundos)
 
     def _anunciar(self, frase, sonido, importante=False) -> None:
-        self._ultima_frase = frase if isinstance(frase, str) else ""
-        marcado = importante or "YouTube no confirmó el fin" in (frase if isinstance(frase, str) else "")
+        texto = frase if isinstance(frase, str) else ""
+        self._ultima_frase = texto
+        marcado = reacciones_supervisor.marcar_importante(
+            self._salida_confirmada, sonido, texto, importante)
         self._al_anunciar(frase, sonido, marcado)
 
     def _panel_tapado(self, gestor):
@@ -291,16 +285,11 @@ class SupervisorTransmision:
             if nombre:
                 self._anunciar_panel_tapado(nombre)
             self._iniciar_transmision(gestor, cliente)
+            self._puede_seguir_al_aire = True
             if self._parada.is_set():
                 return
-            veredicto = self._esperar_salida(cliente, self._parada)
-            if self._parada.is_set():
+            if self._esperar_la_salida(cliente) is None:
                 return
-            frase = obs_salida.frase_salida(veredicto, self._destino)
-            if veredicto != "enviando":
-                self._anunciar(frase, "transmision_problema", True)
-                return
-            self._anunciar(frase, "conectado")
             if self._destino == "TikTok" and self._usuario:
                 if not self._confirmar_tiktok():
                     return
@@ -331,6 +320,17 @@ class SupervisorTransmision:
                 except Exception as error:
                     logger.debug("no se pudo avisar el fin de la supervisión: %s", error)
 
+    def _esperar_la_salida(self, cliente):
+        veredicto = reacciones_supervisor.esperar_la_salida(
+            self._esperar_salida, cliente, self._parada, self._anunciar,
+            self._destino, self._servicio)
+        if veredicto != "enviando":
+            if veredicto == "sin_salida":
+                self._puede_seguir_al_aire = False
+            return None
+        self._salida_confirmada = True
+        return veredicto
+
     def _confirmar_tiktok(self) -> bool:
         self._anunciar(_("Esperando a que TikTok muestre el directo."), "transmision_paso")
         resultado = self._esperar_en_vivo(
@@ -355,76 +355,76 @@ class SupervisorTransmision:
         if self._parada.is_set():
             return False
         if ok:
-            self._destino_confirmado = True
-            self._anunciar(_("Directo iniciado en YouTube"), "al_aire", True)
-            self._al_conectar_chat(
-                emision.url_video(self._id_video))
+            self._conectar_youtube()
         else:
             self._destino_confirmado = False
+            self._reconfirmador = reacciones_supervisor.Reconfirmador(
+                self._destino, self._id_video, self._esperar_emision,
+                self._parada, self._reloj, self._conectar_youtube)
             self._anunciar(_("OBS está transmitiendo, pero YouTube todavía no muestra "
                              "el directo."), "transmision_problema", True)
         return True
 
+    def _conectar_youtube(self) -> None:
+        self._destino_confirmado = True
+        self._reconfirmador = None
+        self._anunciar(_("Directo iniciado en YouTube"), "al_aire", True)
+        self._al_conectar_chat(emision.url_video(self._id_video))
+
     def _finalizar_youtube_si_toca(self) -> None:
         self._cierre.finalizar_si_toca(self._id_video)
 
+    def _terminar_transmision(self, actual) -> None:
+        self._puede_seguir_al_aire = False
+        self._salida_confirmada = False
+        reacciones_supervisor.anunciar_fin(
+            actual, self._resumen_ultimo and self._resumen_ultimo[0],
+            self._resumen, self._anunciar)
+        self._finalizar_youtube_si_toca()
+
     def _vigilar(self, gestor) -> None:
-        anterior = gestor.estado_transmision(self._parada)
-        self._ultimo_estado = anterior
-        if self._parada.is_set() or self._corte.is_set():
-            return
-        if not anterior.get("outputActive"):
-            return
-        estadisticas_anterior = self._estadisticas(gestor)
-        self._resumen_primero = (self._ultimo_estado, estadisticas_anterior)
-        self._resumen_ultimo = self._resumen_primero
-        self._resumen_perfil = resumen_directo.datos_del_perfil(
-            getattr(gestor, "_cliente", gestor), self._parada)
-        ultimos_avisos = {}
+        lector = reacciones_supervisor.LectorDeEstado(
+            gestor, self._parada, self._anunciar,
+            en_ejecucion=obs_activacion.obs_esta_en_ejecucion)
+        avisos = reacciones_supervisor.AvisosRepetidos(self._reloj)
+        anterior = None
+        estadisticas_anterior = None
         while not self._parada.is_set():
-            self._esperar(self._intervalo_salud)
+            if self._corte.is_set():
+                return
+            actual, apagado = lector.leer()
+            if apagado:
+                self._terminar_transmision(None)
+                return
+            if actual is None:
+                self._esperar(self._intervalo_salud)
+                continue
+            self._ultimo_estado = actual
             if self._parada.is_set() or self._corte.is_set():
                 return
-            actual = gestor.estado_transmision(self._parada)
-            self._ultimo_estado = actual
             if not actual.get("outputActive"):
-                if self._corte.is_set() or self._parada.is_set():
+                self._puede_seguir_al_aire = False
+                if self._parada.is_set() or self._corte.is_set():
                     return
-                segundos = segundos_de_cierre(actual, self._resumen_ultimo and self._resumen_ultimo[0])
-                frase = _("La transmisión terminó. Duró {duracion}.").format(
-                    duracion=duracion_legible(segundos))
-                resumen = self._resumen()
-                if resumen:
-                    frase = "{} {}".format(frase, resumen)
-                self._anunciar(frase, "transmision_detenida")
-                self._finalizar_youtube_si_toca()
+                if anterior is not None:
+                    self._terminar_transmision(actual)
                 return
-            estadisticas = self._estadisticas(gestor)
-            for tipo, frase in obs_salida.problemas_en_directo(
-                    anterior, actual, estadisticas_anterior, estadisticas):
-                if tipo == "sobrecarga" and not self._avisar_sobrecarga():
-                    continue
-                if tipo != "vuelta":
-                    ahora = self._reloj()
-                    ultimo = ultimos_avisos.get(tipo)
-                    plazo = (PLAZO_SOBRECARGA if tipo == "sobrecarga"
-                             else PLAZO_REPETICION)
-                    if ultimo is not None and ahora - ultimo < plazo:
-                        continue
-                    ultimos_avisos[tipo] = ahora
-                self._anunciar(frase, SONIDOS_AVISO[tipo])
-            nombre = self._panel_tapado(gestor)
-            if nombre:
-                ahora = self._reloj()
-                ultimo = ultimos_avisos.get(nombre)
-                if ultimo is None or ahora - ultimo >= PLAZO_REPETICION:
-                    self._anunciar_panel_tapado(nombre)
-                    ultimos_avisos[nombre] = ahora
+            if anterior is None:
+                estadisticas_anterior = self._estadisticas(gestor)
+                self._resumen_primero = (actual, estadisticas_anterior)
+                self._resumen_ultimo = self._resumen_primero
+                self._resumen_perfil = resumen_directo.datos_del_perfil(
+                    getattr(gestor, "_cliente", gestor), self._parada)
+            else:
+                estadisticas = self._estadisticas(gestor)
+                estadisticas_anterior = reacciones_supervisor.revisar_directo(
+                    anterior, actual, estadisticas_anterior, estadisticas,
+                    avisos, self._avisar_sobrecarga, self._anunciar,
+                    self._panel_tapado, gestor, self._anunciar_panel_tapado,
+                    self._reconfirmador)
             anterior = actual
-            if estadisticas is not None:
-                estadisticas_anterior = estadisticas
-            self._resumen_ultimo = (self._ultimo_estado,
-                                    estadisticas_anterior)
+            self._resumen_ultimo = (self._ultimo_estado, estadisticas_anterior)
+            self._esperar(self._intervalo_salud)
 
     def _estadisticas(self, gestor):
         # Los dobles que no traen estadísticas quedan sin avisos de equipo en

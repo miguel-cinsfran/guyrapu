@@ -283,8 +283,10 @@ def _al_terminar(frame, restaurar):
         try:
             frame._al_terminar_supervisor()
         finally:
-            diagnostico.crear_hilo(
-                restaurar, "RestaurarRestream").start()
+            if getattr(getattr(frame, "_supervisor", None), "puede_seguir_al_aire", False) is True:
+                logger.debug("la salida de OBS puede seguir al aire; no se restaura Restream")
+            else:
+                diagnostico.crear_hilo(restaurar, "RestaurarRestream").start()
     return al_terminar
 
 
@@ -329,7 +331,7 @@ def _instanciar_supervisor(frame, destino, usuario, perfil, envoltura,
             _al_terminar(frame, restaurar)),
         ruta_fin_pendiente=paths.fin_pendiente(),
         **parametros,
-        preparar_emision=preparar, **extras)
+        preparar_emision=preparar, servicio="Restream", **extras)
 
 
 def _crear_supervisor(frame, modulo_cuenta, opcion, perfil, destino, usuario,

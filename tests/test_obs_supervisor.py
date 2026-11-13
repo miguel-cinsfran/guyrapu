@@ -49,9 +49,11 @@ def muestra(activa=True, duracion=0, perdidos=0, totales=0,
 class GestorFalso:
     """Doble de GestorPanelObs con estados enlatados para la vigilancia."""
 
-    def __init__(self, estados=None, fallo=None, estadisticas=None):
+    def __init__(self, estados=None, fallo=None, estadisticas=None,
+                 fallos_estado=0):
         self.estados = list(estados or [muestra(False)])
         self.fallo = fallo
+        self.fallos_estado = fallos_estado
         self.llamadas = []
         self.conectado = False
         self.cerrado = 0
@@ -76,6 +78,9 @@ class GestorFalso:
 
     def estado_transmision(self, parada=None):
         self.llamadas.append("estado")
+        if self.fallos_estado:
+            self.fallos_estado -= 1
+            raise RuntimeError("boom en estado")
         if self.fallo == "estado":
             raise RuntimeError("boom en estado")
         indice = min(self.indice, len(self.estados) - 1)
@@ -110,8 +115,10 @@ def esperar_condicion(condicion, plazo=2.0):
 class BaseSupervisor(unittest.TestCase):
     def armar(self, destino="TikTok", usuario="amigo",
               estados=None, fallo=None, veredicto="enviando",
-              en_vivo=True, sin_directos=False, intervalo=1000.0,
-              estadisticas=None):
+              veredictos=None, en_vivo=True, sin_directos=False,
+              intervalo=1000.0, estadisticas=None, fallos_estado=0,
+              al_terminar=None, preparar_emision=None,
+              esperar_emision=None, finalizar_emision=None):
         reloj = RelojFalso()
         anuncios = []
         chats = []
@@ -120,13 +127,17 @@ class BaseSupervisor(unittest.TestCase):
         llamadas_vivo = []
 
         def crear_gestor():
-            gestor = GestorFalso(estados, fallo, estadisticas)
+            gestor = GestorFalso(estados, fallo, estadisticas,
+                                 fallos_estado)
             gestores.append(gestor)
             return gestor
 
+        pendientes = list(veredictos or [veredicto])
+
         def esperar_salida(cliente, parada=None):
             llamadas_salida.append(parada)
-            return veredicto
+            indice = min(len(llamadas_salida) - 1, len(pendientes) - 1)
+            return pendientes[indice]
 
         def esperar_en_vivo(usuario_pedido, parada=None, limite=None):
             llamadas_vivo.append((usuario_pedido, limite))
@@ -142,7 +153,11 @@ class BaseSupervisor(unittest.TestCase):
             esperar_en_vivo=esperar_en_vivo,
             dormir=reloj.dormir, reloj=reloj.reloj,
             intervalo_salud=intervalo,
-            asegurar=lambda probar, al_anunciar=None, parada=None: False)
+            asegurar=lambda probar, al_anunciar=None, parada=None: False,
+            al_terminar=al_terminar,
+            preparar_emision=preparar_emision,
+            esperar_emision=esperar_emision,
+            finalizar_emision=finalizar_emision)
         return (supervisor, anuncios, chats, gestores, llamadas_salida,
                 llamadas_vivo, reloj)
 
@@ -244,6 +259,64 @@ class SalidaFallidaTest(BaseSupervisor):
         ])
         self.assertEqual(chats, [])
         self.assertEqual(vivo, [])
+
+
+class ArranqueConTropiezoTest(BaseSupervisor):
+    def test_p1_reconectando_y_esperando_no_terminan_la_supervision(self):
+        terminados = []
+        armado = self.armar(
+            destino="YouTube",
+            veredictos=["reconectando", "esperando", "enviando"],
+            estados=[muestra(True, duracion=10)] * 50,
+            intervalo=1000.0, al_terminar=lambda: terminados.append(True))
+        supervisor, anuncios, _chats, gestores, llamadas, _, _ = armado
+        supervisor.iniciar()
+        try:
+            self.assertTrue(esperar_condicion(
+                lambda: gestores and "estado" in gestores[0].llamadas))
+            self.assertTrue(supervisor.activo)
+            self.assertEqual(terminados, [])
+            self.assertEqual(len(llamadas), 3)
+        finally:
+            supervisor.abandonar()
+        reconexion = "OBS no logra conectar con YouTube y está reintentando. Revisa internet."
+        espera = "OBS todavía no confirma que la señal salga."
+        self.assertEqual(
+            [a for a in anuncios if a[0] == reconexion],
+            [(reconexion, "transmision_problema")])
+        self.assertEqual(
+            [a for a in anuncios if a[0] == espera],
+            [(espera, "aviso")])
+
+    def test_p2_al_recuperarse_el_envio_suena_como_recuperado(self):
+        armado = self.armar(
+            destino="YouTube",
+            veredictos=["reconectando", "enviando"],
+            estados=[muestra(True, duracion=10)] * 50,
+            intervalo=1000.0)
+        supervisor, anuncios, _chats, gestores, _, _, _ = armado
+        supervisor.iniciar()
+        try:
+            self.assertTrue(esperar_condicion(
+                lambda: gestores and "estado" in gestores[0].llamadas))
+            self.assertTrue(supervisor.activo)
+        finally:
+            supervisor.abandonar()
+        self.assertIn(
+            ("OBS está enviando la señal a YouTube.",
+             "transmision_recuperada"), anuncios)
+
+    def test_p3_sin_salida_despues_de_un_tropiezo_termina_igual(self):
+        armado = self.armar(
+            destino="YouTube",
+            veredictos=["reconectando", "sin_salida"],
+            estados=[muestra(False)])
+        supervisor, anuncios, chats, _, _, _, _ = armado
+        self.iniciar_y_esperar_fin(supervisor)
+        self.assertEqual(anuncios[-1],
+                         ("OBS no empezó a transmitir.",
+                          "transmision_problema"))
+        self.assertEqual(chats, [])
 
 
 class TikTokAusenteTest(BaseSupervisor):
@@ -522,6 +595,51 @@ class AvisosDeEquipoTest(BaseSupervisor):
         self.assertEqual(len(frases), 1)
 
 
+class FalloDeLecturaTest(BaseSupervisor):
+    def test_p4_un_fallo_de_estado_no_corta_y_avisa_la_vuelta(self):
+        armado = self.armar(
+            destino="YouTube",
+            estados=[muestra(True, duracion=10), muestra(True, duracion=11),
+                     muestra(False, duracion=12)],
+            fallos_estado=1, intervalo=5.0)
+        supervisor, anuncios, _chats, gestores, _, _, _ = armado
+        with mock.patch.object(
+                obs_supervisor.obs_activacion, "obs_esta_en_ejecucion",
+                return_value=True):
+            self.iniciar_y_esperar_fin(supervisor, plazo=3.0)
+        sin_respuesta = "OBS no responde. Se sigue intentando."
+        responde = "OBS volvió a responder."
+        self.assertEqual(
+            [a for a in anuncios if a[0] == sin_respuesta],
+            [(sin_respuesta, "obs_sin_respuesta")])
+        self.assertEqual(
+            [a for a in anuncios if a[0] == responde],
+            [(responde, "obs_responde")])
+        self.assertGreaterEqual(gestores[0].llamadas.count("conectar"), 2)
+        self.assertIn(("La transmisión terminó. Duró 12 segundos.",
+                       "transmision_detenida"), anuncios)
+
+    def test_p5_con_obs_fuera_de_ejecucion_termina_la_transmision(self):
+        finalizados = []
+        armado = self.armar(
+            destino="YouTube", estados=[muestra(True, duracion=10)] * 10,
+            fallos_estado=1, intervalo=5.0,
+            preparar_emision=lambda cliente, parada: "vid123",
+            esperar_emision=lambda id_video, parada, limite: True,
+            finalizar_emision=finalizados.append)
+        supervisor, anuncios, _chats, _gestores, _, _, _ = armado
+        with mock.patch.object(
+                obs_supervisor.obs_activacion, "obs_esta_en_ejecucion",
+                return_value=False):
+            self.iniciar_y_esperar_fin(supervisor, plazo=3.0)
+        self.assertEqual(finalizados, ["vid123"])
+        self.assertIn(("La transmisión terminó. Duró 0 segundos.",
+                       "transmision_detenida"), anuncios)
+        self.assertFalse(any(f == "OBS no responde. Se sigue intentando."
+                             for f, _ in anuncios))
+        self.assertFalse(supervisor.puede_seguir_al_aire)
+
+
 class FinTransmisionTest(BaseSupervisor):
     def test_fin_anuncia_la_duracion(self):
         estados = [muestra(True, duracion=61),
@@ -616,6 +734,21 @@ class DetenerTest(BaseSupervisor):
         self.assertIs(supervisor._hilo, primero)
         supervisor.detener()
         self.assertFalse(supervisor.activo)
+
+
+    def test_p6_detener_marca_que_la_salida_ya_no_sigue(self):
+        armado = self.armar(
+            destino="YouTube", estados=[muestra(True, duracion=10)] * 500,
+            intervalo=1000.0)
+        supervisor, _anuncios, _chats, gestores, _, _, _ = armado
+        supervisor.iniciar()
+        try:
+            self.assertTrue(esperar_condicion(
+                lambda: gestores and "estado" in gestores[0].llamadas))
+            self.assertTrue(supervisor.puede_seguir_al_aire)
+        finally:
+            supervisor.detener()
+        self.assertFalse(supervisor.puede_seguir_al_aire)
 
 
 class DetenerRapidoTest(BaseSupervisor):
@@ -757,6 +890,23 @@ class AbandonarTest(BaseSupervisor):
         self.assertEqual(len(gestores), 1)
         self.assertNotIn("detener", gestores[0].llamadas)
         self.assertNotIn(("Transmisión detenida.", "transmision_detenida"), anuncios)
+
+
+    def test_p6_abandonar_deja_la_salida_posiblemente_al_aire(self):
+        armado = self.armar(
+            destino="YouTube", estados=[muestra(True, duracion=10)] * 500,
+            intervalo=1000.0)
+        supervisor, _anuncios, _chats, gestores, _, _, _ = armado
+        supervisor.iniciar()
+        try:
+            self.assertTrue(esperar_condicion(
+                lambda: gestores and "estado" in gestores[0].llamadas))
+            self.assertTrue(supervisor.puede_seguir_al_aire)
+            supervisor.abandonar()
+            self.assertTrue(supervisor.puede_seguir_al_aire)
+        finally:
+            if supervisor.activo:
+                supervisor.abandonar()
 
 
 class ExcepcionTest(BaseSupervisor):
@@ -1106,6 +1256,74 @@ class YouTubeEmisionTest(BaseSupervisor):
                 ", sin confirmar en YouTube"))
         finally:
             supervisor.abandonar()
+
+
+class ReconfirmarYoutubeTest(BaseSupervisor):
+    def _armar_reconfirmacion(self, resultados, estados, intervalo=30.0):
+        relojes = {}
+        llamadas = []
+
+        def esperar(id_video, parada, limite):
+            llamadas.append((relojes["reloj"].ahora, limite))
+            return resultados.pop(0) if resultados else False
+
+        armado = self.armar(
+            destino="YouTube", estados=estados, intervalo=intervalo,
+            preparar_emision=lambda cliente, parada: "vid123",
+            esperar_emision=esperar)
+        supervisor, anuncios, chats, gestores, _, _, reloj = armado
+        relojes["reloj"] = reloj
+        return supervisor, anuncios, chats, llamadas, gestores
+
+    def test_p7_reconfirma_a_los_treinta_segundos_y_conecta_el_chat(self):
+        supervisor, anuncios, chats, llamadas, _gestores = (
+            self._armar_reconfirmacion(
+                [False, True], [muestra(True, duracion=10)] * 10))
+        supervisor.iniciar()
+        try:
+            self.assertTrue(esperar_condicion(lambda: chats, 3.0))
+            self.assertTrue(supervisor.activo)
+        finally:
+            supervisor.abandonar()
+        self.assertEqual(llamadas, [(0.0, 120.0), (30.0, 0)])
+        self.assertEqual(chats, ["https://www.youtube.com/watch?v=vid123"])
+        self.assertIn(("Directo iniciado en YouTube", "al_aire"), anuncios)
+
+    def test_p7_deja_de_consultar_pasados_los_diez_minutos(self):
+        estados = ([muestra(True, duracion=10)] * 22
+                   + [muestra(False, duracion=700)])
+        supervisor, anuncios, chats, llamadas, _gestores = (
+            self._armar_reconfirmacion([], estados))
+        self.iniciar_y_esperar_fin(supervisor, plazo=3.0)
+        self.assertEqual(chats, [])
+        self.assertEqual(llamadas[0], (0.0, 120.0))
+        self.assertEqual(min(tiempo for tiempo, _ in llamadas[1:]), 30.0)
+        self.assertLessEqual(max(tiempo for tiempo, _ in llamadas), 600.0)
+        self.assertIn(("La transmisión terminó. Duró 11 minutos y 40 segundos.",
+                       "transmision_detenida"), anuncios)
+
+
+class SinCuadroAlAireTest(BaseSupervisor):
+    def test_p8_un_aviso_de_problema_no_abre_cuadro_tras_enviar(self):
+        registros = []
+        supervisor = SupervisorTransmision(
+            "YouTube", "",
+            al_anunciar=lambda frase, sonido, importante=False: registros.append(
+                (frase, sonido, importante)),
+            al_conectar_chat=lambda url: None,
+            crear_gestor=lambda: GestorFalso([muestra(True, duracion=10)] * 10),
+            esperar_salida=lambda cliente, parada=None: "enviando",
+            esperar_en_vivo=lambda u, parada=None, limite=None: ResultadoEspera(
+                False, False),
+            dormir=time.sleep, reloj=time.monotonic,
+            intervalo_salud=1000.0,
+            asegurar=lambda probar, al_anunciar=None, parada=None: False)
+        supervisor._anunciar("mismo aviso", "transmision_problema", True)
+        supervisor._esperar_la_salida(None)
+        supervisor._anunciar("mismo aviso", "transmision_problema", True)
+        importantes = [i for frase, _sonido, i in registros
+                       if frase == "mismo aviso"]
+        self.assertEqual(importantes, [True, False])
 
 
 class FinalizarYoutubeTest(BaseSupervisor):
