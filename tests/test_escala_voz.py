@@ -96,6 +96,93 @@ class TestAjustarVelocidad(unittest.TestCase):
         self.assertEqual(escala_voz.ajustar_velocidad(52, 0), 50)
 
 
+class TestFactorVelocidadLocal(unittest.TestCase):
+
+    def test_anclas(self):
+        self.assertAlmostEqual(escala_voz.factor_velocidad_local(0), 1 / 3)
+        self.assertEqual(escala_voz.factor_velocidad_local(50), 1.0)
+        self.assertEqual(escala_voz.factor_velocidad_local(100), 3.0)
+
+    def test_acotado(self):
+        self.assertAlmostEqual(escala_voz.factor_velocidad_local(-20), 1 / 3)
+        self.assertEqual(escala_voz.factor_velocidad_local(200), 3.0)
+
+    def test_nunca_baja(self):
+        anterior = 0.0
+        for pct in range(0, 101, 5):
+            valor = escala_voz.factor_velocidad_local(pct)
+            self.assertGreaterEqual(valor, anterior)
+            anterior = valor
+
+
+class TestRepartirVelocidad(unittest.TestCase):
+
+    def test_el_producto_es_el_factor_pedido(self):
+        for factor in (1 / 3, 0.5, 1.0, 1.7, 3.0):
+            propio, estiramiento = escala_voz.repartir_velocidad(
+                factor, 1.0, 2.0)
+            self.assertAlmostEqual(propio * estiramiento, factor)
+            self.assertGreaterEqual(propio, 1.0)
+            self.assertLessEqual(propio, 2.0)
+
+    def test_acota_al_rango_del_motor(self):
+        self.assertEqual(escala_voz.repartir_velocidad(0.5, 1.0, 2.0),
+                         (1.0, 0.5))
+        self.assertEqual(escala_voz.repartir_velocidad(3.0, 1.0, 2.0),
+                         (2.0, 1.5))
+        self.assertEqual(escala_voz.repartir_velocidad(1.25, 1.0, 2.0),
+                         (1.25, 1.0))
+
+    def test_nunca_baja(self):
+        anterior_propio = 0.0
+        anterior_estiramiento = 0.0
+        for pct in range(0, 101, 5):
+            propio, estiramiento = escala_voz.repartir_velocidad(
+                escala_voz.factor_velocidad_local(pct), 1.0, 2.0)
+            self.assertGreaterEqual(propio, anterior_propio)
+            self.assertGreaterEqual(estiramiento, anterior_estiramiento)
+            anterior_propio = propio
+            anterior_estiramiento = estiramiento
+
+
+class TestSemitonosLocal(unittest.TestCase):
+
+    def test_anclas(self):
+        self.assertEqual(escala_voz.semitonos_local(0), -6.0)
+        self.assertEqual(escala_voz.semitonos_local(50), 0.0)
+        self.assertEqual(escala_voz.semitonos_local(100), 6.0)
+
+    def test_acotado(self):
+        self.assertEqual(escala_voz.semitonos_local(-10), -6.0)
+        self.assertEqual(escala_voz.semitonos_local(150), 6.0)
+
+    def test_nunca_baja(self):
+        anterior = -6.0
+        for pct in range(0, 101, 5):
+            valor = escala_voz.semitonos_local(pct)
+            self.assertGreaterEqual(valor, anterior)
+            anterior = valor
+
+
+class TestGananciaLocal(unittest.TestCase):
+
+    def test_anclas(self):
+        self.assertEqual(escala_voz.ganancia_local(0), 0.0)
+        self.assertEqual(escala_voz.ganancia_local(50), 0.5)
+        self.assertEqual(escala_voz.ganancia_local(100), 1.0)
+
+    def test_acotado(self):
+        self.assertEqual(escala_voz.ganancia_local(-10), 0.0)
+        self.assertEqual(escala_voz.ganancia_local(150), 1.0)
+
+    def test_nunca_baja(self):
+        anterior = 0.0
+        for pct in range(0, 101, 5):
+            valor = escala_voz.ganancia_local(pct)
+            self.assertGreaterEqual(valor, anterior)
+            anterior = valor
+
+
 class TestResolverVoz(unittest.TestCase):
 
     VOCES = [

@@ -67,6 +67,41 @@ def porcentaje_a_prism(pct: int) -> float:
     return min(1.0, max(0.0, int(pct) / 100))
 
 
+def factor_velocidad_local(pct: int) -> float:
+    """Convierte el porcentaje 0..100 al factor de velocidad de un motor local.
+
+    50 es 1.0. La escala es la de SAPI, donde su velocidad 10 es unas tres
+    veces la normal: 100 da 3.0 y 0 da 1/3, para que cambiar de motor no
+    cambie la velocidad que se oye.
+    """
+    valor = max(VELOCIDAD_MIN, min(VELOCIDAD_MAX, int(pct)))
+    return 3 ** ((valor - VELOCIDAD_NORMAL) / VELOCIDAD_NORMAL)
+
+
+def repartir_velocidad(factor: float, minimo_propio: float,
+                       maximo_propio: float) -> tuple[float, float]:
+    """Reparte un factor de velocidad entre el motor y el estiramiento.
+
+    Devuelve `(propio, estiramiento)`: el motor recibe su parte acotada a su
+    rango y el estiramiento se queda con el resto. El producto de las dos es
+    siempre el factor pedido.
+    """
+    factor = float(factor)
+    propio = min(float(maximo_propio), max(float(minimo_propio), factor))
+    return propio, factor / propio
+
+
+def semitonos_local(pct: int) -> float:
+    """Convierte el porcentaje 0..100 a semitonos, de -6 a +6 con 50 en 0."""
+    valor = max(VELOCIDAD_MIN, min(VELOCIDAD_MAX, int(pct)))
+    return (valor - VELOCIDAD_NORMAL) * 6.0 / VELOCIDAD_NORMAL
+
+
+def ganancia_local(pct: int) -> float:
+    """Convierte el porcentaje 0..100 a ganancia lineal de 0.0 a 1.0."""
+    return max(0.0, min(1.0, int(pct) / 100))
+
+
 def velocidad_a_elevenlabs(pct: int) -> float:
     """Convierte el porcentaje 0..100 a la velocidad de ElevenLabs (0.7 a 1.2).
 
