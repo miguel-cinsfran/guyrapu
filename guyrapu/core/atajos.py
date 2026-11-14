@@ -60,7 +60,7 @@ ATAJOS_GRUPOS = [
      ["rep_play", "rep_retro", "rep_avanz", "rep_directo", "rep_detener", "rep_mute",
       "rep_vol_menos", "rep_vol_mas", "pantalla_completa"]),
     (N_("Chat (Alt)"),
-     ["enviar_chat"]),
+     ["enviar_chat", "buscar_chat"]),
     (N_("Ventanas (Ctrl+Mayús)"),
       ["abrir_preferencias", "abrir_historial",
        "abrir_restream", "abrir_obs",

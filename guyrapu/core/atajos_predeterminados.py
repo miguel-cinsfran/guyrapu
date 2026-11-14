@@ -28,6 +28,7 @@ ATAJOS_PREDETERMINADOS = [
     ("conectar", "alt+shift+c"),
     ("desconectar", "alt+shift+d"),
     ("enviar_chat", "alt+enter"),
+    ("buscar_chat", "alt+b"),
     ("ir_lista", "alt+shift+l"),
     ("pausa", "f5"),
     ("detener_tts", "f8"),

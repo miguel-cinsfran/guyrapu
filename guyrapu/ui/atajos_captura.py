@@ -81,6 +81,7 @@ ETIQUETAS = {
     "conectar": N_("Conectar"),
     # Traductores: acción del atajo que desconecta el chat.
     "desconectar": N_("Desconectar"), "enviar_chat": N_("Enviar mensaje al chat"),
+    "buscar_chat": N_("Buscar en el chat"),
     "ir_lista": N_("Ir a la lista del panel actual"), "salir": N_("Salir de la aplicación"),
     # Voz / lectura
     "pausa": N_("Pausar o reanudar lectura"), "detener_tts": N_("Detener voz actual"),

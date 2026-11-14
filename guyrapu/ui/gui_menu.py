@@ -74,6 +74,10 @@ def construir_menu(frame):
         _("&Enviar mensaje al chat del directo (solo YouTube)") + frame._accel("enviar_chat"))
     m.AppendSeparator()
     _construir_submenu_filtro_chat(frame, m)
+    frame.mi_buscar_chat = m.Append(
+        wx.ID_ANY, _("&Buscar en el chat…") + frame._accel("buscar_chat"))
+    frame._bind_menu(frame.mi_buscar_chat,
+                     lambda: frame._chat_acciones.abrir_busqueda())
     mb.Append(m, _("&Chat"))
     frame.Bind(wx.EVT_MENU, frame._on_enviar_live, frame.mi_enviar_live)
 

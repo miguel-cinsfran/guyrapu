@@ -718,6 +718,7 @@ al llegar al principio o al final suena un aviso.
 | Atajo | Acción |
 |---|---|
 | `Alt+Intro` | Ir al cuadro de escritura |
+| `Alt+B` | Buscar en el chat |
 
 ### Ventanas (Ctrl+Mayús)
 

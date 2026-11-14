@@ -57,6 +57,32 @@ class AccionesChat:
         anunciar(_("Filtro: {filtro}. {n} mensajes").format(
             filtro=_(FILTROS[idx][0]), n=self.lb_chat.GetCount()))
 
+    def abrir_busqueda(self) -> None:
+        """Abre el cuadro que busca en los mensajes de la sesión."""
+        from guyrapu.ui import chat_buscar
+        chat_buscar.abrir(self._padre, self)
+
+    def enfocar_mensaje(self, mensaje) -> bool:
+        """Lleva el foco al mensaje en la lista del chat.
+
+        Si el filtro de tipo lo ocultaba, pasa a Todos y lo anuncia antes de
+        enfocarlo. Devuelve False si el mensaje ya salió de la sesión.
+        """
+        modelo = self.chat_vivo.modelo
+        indice = next((i for i, actual in enumerate(modelo.todos)
+                       if actual is mensaje), None)
+        if indice is None:
+            anunciar(_("Ese mensaje ya no está en el chat."))
+            return False
+        if indice not in modelo.visibles:
+            self._aplicar_filtro(0)
+            self._marcar_filtro()
+        fila = modelo.visibles.index(indice)
+        self.lb_chat.SetSelection(fila)
+        self.lb_chat.SetFirstItem(fila)
+        self.lb_chat.SetFocus()
+        return True
+
     def _on_chat_key(self, event):
         k = event.GetKeyCode()
         # La orilla suena sin consumir la tecla: NVDA sigue leyendo la fila.

@@ -379,6 +379,14 @@ class TestParsearAtajos(unittest.TestCase):
                       dict(ATAJOS_GRUPOS)["Directo y OBS (Alt+Mayús)"])
         self.assertEqual(etiqueta_de_accion("guardar_clip"), "Guardar clip")
 
+    def test_buscar_chat_es_atajo_editable_del_chat(self):
+        self.assertEqual(ATAJOS_DEFAULTS["buscar_chat"], "alt+b")
+        self.assertEqual(ATAJOS_AREA["buscar_chat"], "alt")
+        self.assertIn("buscar_chat", dict(ATAJOS_GRUPOS)["Chat (Alt)"])
+        self.assertNotIn("buscar_chat", ATAJOS_FIJOS)
+        self.assertEqual(etiqueta_de_accion("buscar_chat"),
+                         "Buscar en el chat")
+
     def test_guardar_clip_aparece_en_el_menu_obs_con_su_atajo(self):
         from guyrapu.ui import menu_obs
 
@@ -483,6 +491,7 @@ class TestParsearAtajos(unittest.TestCase):
         self.assertIn('._accel("guardar_clip")', fuente)
         self.assertIn('._accel("copiar_enlace")', fuente)
         self.assertIn('._accel("anunciar_autor")', fuente)
+        self.assertIn('._accel("buscar_chat")', fuente)
         # Los diez recientes se arman en un bucle con su etiqueta y su _accel.
         self.assertIn("_(ETIQUETAS[accion]) + frame._accel(accion)", fuente)
         self.assertIn('._accel("describir_escena")', fuente)

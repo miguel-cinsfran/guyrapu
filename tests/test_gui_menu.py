@@ -21,10 +21,11 @@ import wx
 from tests.letras_acceso import ingles
 from tests.pseudo_prueba import con_pseudo
 from tests.ventanas_prueba import app_de_prueba, destruir
+from guyrapu.ui import chat_acciones
 from guyrapu.ui import gui
 
 
-def _construir_lista(accel=None):
+def _construir_lista(accel=None, con_frame=False):
     """Llama a `_build_menubar` con dobles y devuelve la lista ordenada."""
     barra = []
 
@@ -65,6 +66,8 @@ def _construir_lista(accel=None):
         return barra_mock
 
     frame = mock.Mock()
+    frame._chat_acciones = chat_acciones.AccionesChat(
+        mock.Mock(), mock.Mock(), mock.Mock(), {}, lambda: None, frame)
     frame._accel.return_value = ""
     if accel is not None:
         frame._accel.side_effect = accel
@@ -83,6 +86,8 @@ def _construir_lista(accel=None):
                     lista.append((etiqueta, setiqueta, sid, stipo))
             else:
                 lista.append((titulo, etiqueta, dato, tipo))
+    if con_frame:
+        return [titulo for titulo, _ in barra], lista, frame
     return [titulo for titulo, _ in barra], lista
 
 
@@ -140,6 +145,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Filtro de mensajes", "Super Chats", ANY, "radio"),
             ("&Filtro de mensajes", "Membresías", ANY, "radio"),
             ("&Filtro de mensajes", "Avisos", ANY, "radio"),
+            ("&Chat", "&Buscar en el chat…", ANY, "normal"),
             ("Vo&z", "&Pausar lectura", ANY, "normal"),
             ("Vo&z", "&Detener voz", ANY, "normal"),
             ("Vo&z", "&Vaciar cola", ANY, "normal"),
@@ -335,6 +341,28 @@ class TestMenuMusica(unittest.TestCase):
             ("&Música", "&Orden aleatorio\tCtrl+Alt+A", ANY, "check"),
             ("&Música", "Cambiar &repetición\tCtrl+Alt+R", ANY, "normal"),
         ], self._entradas())
+
+
+class TestMenuBuscarChat(unittest.TestCase):
+    """El comando Buscar en el chat, con su atajo y su manejador."""
+
+    def test_comando_con_alt_b_y_su_manejador(self):
+        from guyrapu.core import config as cfg
+
+        def accel(accion):
+            valor = cfg.ATAJOS_DEFAULTS.get(accion, "")
+            return ("\t" + gui._fmt_accel(valor)) if valor else ""
+
+        _, lista, frame = _construir_lista(accel, con_frame=True)
+        self.assertIn(("&Chat", "&Buscar en el chat…\tAlt+B",
+                       gui.wx.ID_ANY, "normal"), lista)
+        enlace = next(
+            llamada.args[1] for llamada in frame._bind_menu.call_args_list
+            if llamada.args[0] is frame.mi_buscar_chat)
+        with mock.patch.object(frame._chat_acciones,
+                               "abrir_busqueda") as abrir:
+            enlace()
+        abrir.assert_called_once_with()
 
 
 class TestMenuRecientes(unittest.TestCase):

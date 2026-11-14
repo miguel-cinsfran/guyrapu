@@ -3330,7 +3330,7 @@ msgstr "Music shortcuts only in {app}"
 msgid "La ventana de música ya está abierta"
 msgstr "The music window is already open"
 
-#: guyrapu/music/anuncios.py
+#: guyrapu/music/anuncios.py guyrapu/ui/chat_buscar.py
 msgid "Búsqueda vaciada"
 msgstr "Search cleared"
 
@@ -6797,6 +6797,11 @@ msgstr "Disconnect"
 msgid "Enviar mensaje al chat"
 msgstr "Send message to the chat"
 
+#. Traductores: título del cuadro que busca en los mensajes del chat.
+#: guyrapu/ui/atajos_captura.py guyrapu/ui/chat_buscar.py
+msgid "Buscar en el chat"
+msgstr "Search chat"
+
 #: guyrapu/ui/atajos_captura.py
 msgid "Ir a la lista del panel actual"
 msgstr "Go to the current pane list"
@@ -7383,6 +7388,10 @@ msgid "Filtro: {filtro}. {n} mensajes"
 msgstr "Filter: {filtro}. {n} messages"
 
 #: guyrapu/ui/chat_acciones.py
+msgid "Ese mensaje ya no está en el chat."
+msgstr "That message is no longer in the chat."
+
+#: guyrapu/ui/chat_acciones.py
 msgid "Copiar mensaje"
 msgstr "Copy message"
 
@@ -7477,6 +7486,58 @@ msgstr "{autor} muted"
 #, python-brace-format
 msgid "{autor} ya no está silenciado"
 msgstr "{autor} is no longer muted"
+
+#: guyrapu/ui/chat_buscar.py
+msgid "Escribe para buscar en los mensajes del chat."
+msgstr "Type to search the chat messages."
+
+#: guyrapu/ui/chat_buscar.py
+#, python-brace-format
+msgid "No hay mensajes con «{texto}»."
+msgstr "No messages with «{texto}»."
+
+#: guyrapu/ui/chat_buscar.py
+msgid "Ningún mensaje coincide"
+msgstr "No messages match"
+
+#: guyrapu/ui/chat_buscar.py
+msgid "1 mensaje coincide"
+msgstr "1 message matches"
+
+#: guyrapu/ui/chat_buscar.py
+#, python-brace-format
+msgid "{n} mensajes coinciden"
+msgstr "{n} messages match"
+
+#: guyrapu/ui/chat_buscar.py
+msgid "&Buscar en el chat:"
+msgstr "&Search chat:"
+
+#: guyrapu/ui/chat_buscar.py
+msgid "&Resultados:"
+msgstr "&Results:"
+
+#: guyrapu/ui/chat_buscar.py
+msgid "Resultados"
+msgstr "Results"
+
+#. Traductores: botón para cerrar la ventana.
+#. Traductores: cierra la ventana; segunda, su nombre accesible.
+#: guyrapu/ui/chat_buscar.py guyrapu/ui/dialogo_asistente_perfiles.py
+#: guyrapu/ui/dialogo_estado.py guyrapu/ui/dialogo_prueba_conexion.py
+#: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/gui_actualizacion.py
+#: guyrapu/ui/gui_descargas.py guyrapu/ui/ia_ventana.py
+#: guyrapu/ui/musica_ventana.py guyrapu/ui/ventana_espera.py
+#: guyrapu/ui/voces_ventana.py
+msgid "&Cerrar"
+msgstr "&Close"
+
+#: guyrapu/ui/chat_buscar.py guyrapu/ui/dialogo_estado.py
+#: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
+#: guyrapu/ui/musica_ventana.py guyrapu/ui/obs_ventana.py
+#: guyrapu/ui/restream_ventana.py guyrapu/ui/voces_ventana.py
+msgid "Cerrar"
+msgstr "Close"
 
 #: guyrapu/ui/chat_recientes.py
 msgid "Mensajes recientes del chat en cualquier aplicación"
@@ -7584,14 +7645,14 @@ msgstr "Before broadcasting"
 #: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_captura_ventana.py
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_propiedades.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py guyrapu/ui/gui_envio_chat.py
-#: guyrapu/ui/gui_preferencias.py guyrapu/ui/gui_redactar.py
-#: guyrapu/ui/ia_privacidad.py guyrapu/ui/musica_ventana_acciones.py
-#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/preferencias_general.py
-#: guyrapu/ui/preferencias_ia_clave.py guyrapu/ui/restream_pagina_cuenta.py
-#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
-#: guyrapu/ui/restream_perfil.py guyrapu/ui/ventana_espera.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui_cierre.py
+#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
+#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
+#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
+#: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
+#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
 msgid "&Cancelar"
 msgstr "&Cancel"
 
@@ -8092,16 +8153,6 @@ msgstr "&Prepare"
 msgid "Resumen de la preparación"
 msgstr "Preparation summary"
 
-#. Traductores: botón para cerrar la ventana.
-#. Traductores: cierra la ventana; segunda, su nombre accesible.
-#: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_estado.py
-#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
-#: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
-#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
-msgid "&Cerrar"
-msgstr "&Close"
-
 #: guyrapu/ui/dialogo_asistente_perfiles.py
 msgid "Preparando perfiles de OBS"
 msgstr "Preparing OBS profiles"
@@ -8117,13 +8168,6 @@ msgstr "Session status"
 #: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_estado.py
 msgid "Sin información de estado."
 msgstr "No status information."
-
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_microfono.py
-#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
-#: guyrapu/ui/voces_ventana.py
-msgid "Cerrar"
-msgstr "Close"
 
 #: guyrapu/ui/dialogo_nombre_perfil_obs.py
 msgid "Nombre del perfil"
@@ -9430,19 +9474,6 @@ msgid "Sin información de la escena."
 msgstr "No scene information."
 
 #: guyrapu/ui/gui.py
-msgid "Salir"
-msgstr "Exit"
-
-#: guyrapu/ui/gui.py guyrapu/ui/gui_menu.py
-msgid "&Salir"
-msgstr "&Exit"
-
-#. Traductores: aviso mientras se cierra la app.
-#: guyrapu/ui/gui.py
-msgid "Cerrando"
-msgstr "Closing"
-
-#: guyrapu/ui/gui.py
 msgid "Directo programado. Aún no hay chat; puedes ver los comentarios."
 msgstr "Scheduled live stream. No chat yet; you can read the comments."
 
@@ -9714,6 +9745,19 @@ msgstr "Preferences applied"
 #, python-brace-format
 msgid "Motor de voz: {nombre}"
 msgstr "Voice engine: {nombre}"
+
+#: guyrapu/ui/gui_cierre.py
+msgid "Salir"
+msgstr "Exit"
+
+#: guyrapu/ui/gui_cierre.py guyrapu/ui/gui_menu.py
+msgid "&Salir"
+msgstr "&Exit"
+
+#. Traductores: aviso mientras se cierra la app.
+#: guyrapu/ui/gui_cierre.py
+msgid "Cerrando"
+msgstr "Closing"
 
 #: guyrapu/ui/gui_comentarios.py
 msgid "Más relevantes"
@@ -10418,8 +10462,8 @@ msgid "&Enviar mensaje al chat del directo (solo YouTube)"
 msgstr "&Send message to the live chat (YouTube only)"
 
 #: guyrapu/ui/gui_menu.py
-msgid "&Filtro de mensajes"
-msgstr "&Message filter"
+msgid "&Buscar en el chat…"
+msgstr "Search &chat…"
 
 #: guyrapu/ui/gui_menu.py
 msgid "&Chat"
@@ -10508,6 +10552,10 @@ msgstr "&Preferences…"
 #: guyrapu/ui/gui_menu.py
 msgid "&Herramientas"
 msgstr "&Tools"
+
+#: guyrapu/ui/gui_menu.py
+msgid "&Filtro de mensajes"
+msgstr "&Message filter"
 
 #: guyrapu/ui/gui_menu.py
 msgid "Bajar ve&locidad de la voz"

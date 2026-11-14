@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md d124ebe7868364baf958a2446e887516e708fd72 -->
+<!-- original: es/MANUAL.md 154b72385d9c6cc1886a7627c63f684f69929df8 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -398,6 +398,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | Shortcut | Action |
 |---|---|
 | `Alt+Enter` | Go to the writing box |
+| `Alt+B` | Search chat |
 
 ### Windows (Ctrl+Shift)
 
