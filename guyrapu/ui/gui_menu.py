@@ -67,7 +67,8 @@ def construir_menu(frame):
     mb.Append(m, _("&Archivo"))
     frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(frame._conectar_si_procede), frame.mi_conectar)
     frame.Bind(wx.EVT_MENU, lambda e: frame._desconectar_si_procede(), frame.mi_desconectar)
-    frame._bind_menu(frame.mi_copiar_enlace, frame._copiar_enlace_directo)
+    frame._bind_menu(frame.mi_copiar_enlace,
+                     frame._chat_acciones._copiar_enlace_directo)
     frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(frame._on_historial), mi_historial)
     frame.Bind(wx.EVT_MENU, lambda e: frame.Close(), mi_salir)
     # Ver
@@ -80,11 +81,11 @@ def construir_menu(frame):
         _("&Enviar mensaje al chat del directo (solo YouTube)") + frame._accel("enviar_chat"))
     m.AppendSeparator()
     sub_f = wx.Menu()
-    frame.fi_items = []
+    frame._chat_acciones.fi_items = []
     for i, (nombre, _sin_uso) in enumerate(FILTROS):
         it = sub_f.AppendRadioItem(wx.ID_ANY, _(nombre))
-        frame.fi_items.append(it)
-        frame._bind_menu(it, frame._aplicar_filtro, i)
+        frame._chat_acciones.fi_items.append(it)
+        frame._bind_menu(it, frame._chat_acciones._aplicar_filtro, i)
     frame._mi_filtro_sub = m.AppendSubMenu(sub_f, _("&Filtro de mensajes"))
     mb.Append(m, _("&Chat"))
     frame.Bind(wx.EVT_MENU, frame._on_enviar_live, frame.mi_enviar_live)

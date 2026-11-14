@@ -11,7 +11,6 @@ URL es un directo o un vídeo subido y se ajustan los paneles.
 from __future__ import annotations
 
 import random
-import re
 import threading
 import time
 import webbrowser
@@ -22,17 +21,17 @@ from wx.lib.wordwrap import wordwrap
 from guyrapu.core.config import APP_NAME, APP_VERSION, TIPO_TEXTO
 from guyrapu.core.version_legible import version_legible
 from guyrapu.ui.gui_menu import FILTROS
+from guyrapu.ui.chat_acciones import AccionesChat, IDX_FILTRO
 from guyrapu.core.config import parsear_atajos, detectar_conflictos_atajos, guardar_opcion
 from guyrapu.core.idioma import N_, _
 from guyrapu.core import acerca_de, paths
 from guyrapu.core import anuncio_ajuste
-from guyrapu.core import sonidos_eventos
 from guyrapu.capture import chat_adicional, deteccion
 from guyrapu.capture import metadatos
 from guyrapu.capture import estado_sesion
 from guyrapu.core import historial
 from guyrapu.downloads.descargas import gestor
-from guyrapu.ui.lista_chat import MensajeChat, texto_fila
+from guyrapu.ui.lista_chat import MensajeChat
 from guyrapu.ui.chat_vivo import ControladorChat
 from guyrapu.ui import atajos_captura, confirmar, recientes_inicio as recientes
 from guyrapu.voice import escala_voz
@@ -46,7 +45,6 @@ from guyrapu.obs import overlay_servidor
 from guyrapu.capture import programados
 from guyrapu.capture import descartes
 from guyrapu.capture import redaccion
-from guyrapu.capture import alias
 from guyrapu.obs import obs_entradas_audio
 from guyrapu.obs import obs_estado
 from guyrapu.obs import obs_vigilante
@@ -58,14 +56,9 @@ from guyrapu.ui.barra_estado import anchos_barra_estado
 from guyrapu.ui.confirmar_salida import (
     descargas_sin_terminar, mensaje_confirmar_salida, mensaje_con_descargas)
 from guyrapu.ui.gui_redactar import PanelRedactar
-from guyrapu.ui import menu_moderacion
 from guyrapu.ui import paleta
 from guyrapu.ui import titulo_ventana
 from guyrapu.ui.sesion_conectada import SesionConectada
-
-# Mapeo entre índice de FILTROS y clave persistida en config.ini.
-_NOMBRES_FILTRO = ("todos", "texto", "superchat", "miembro", "avisos")
-_IDX_FILTRO     = {"todos": 0, "texto": 1, "superchat": 2, "miembro": 3, "avisos": 4}
 
 MAX_ITEMS_CHAT  = 500
 TIMER_STATUS_MS = 1000
@@ -80,7 +73,6 @@ MENSAJE_INICIAL = N_("Sin conectar. Pega un enlace de YouTube (directo o vídeo)
                      "podrás leer el chat y los comentarios; en TikTok, el chat del "
                      "directo.")
 RUTA_CONFIG = None  # se asigna en iniciar_gui() con paths.config_ini()
-_URL_RE         = re.compile(r'https?://[^\s<>"\']+', re.IGNORECASE)
 
 # Índices de las páginas del notebook (solo chat y comentarios; el reproductor
 # es una región fija, no una pestaña).
@@ -206,6 +198,10 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self._supervisor = None
         self._descripcion_escena_en_curso = False
 
+        # El menú arma los ítems del filtro antes que la lista del chat, así
+        # que las acciones existen desde acá y toman la lista al crearse.
+        self._chat_acciones = AccionesChat(
+            None, None, self._cola, self._config, lambda: self.sesion, self)
         self._build_menubar()
         if self._config.get("overlay_activo", False):
             self._cambiar_overlay(True)
@@ -414,10 +410,12 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self.chat_vivo = ControladorChat(
             self.lb_chat, MAX_ITEMS_CHAT,
             activo=lambda: self._alive and self._conectado,
-            autor_oculto=self._autor_esta_oculto,
-            formatear=self._format_display,
+            autor_oculto=lambda autor: self._chat_acciones._autor_esta_oculto(autor),
+            formatear=lambda *args: self._chat_acciones._format_display(*args),
             al_superchat=self._sumar_superchat,
             config=self._config, varios_chats=chat_adicional.activo)
+        self._chat_acciones.lb_chat = self.lb_chat
+        self._chat_acciones.chat_vivo = self.chat_vivo
         vs.Add(self.lb_chat, 1, wx.EXPAND | wx.ALL, 8)
 
         self._panel_redactar = PanelRedactar(
@@ -480,16 +478,17 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self.btn_conectar.Bind(wx.EVT_BUTTON, self._on_conectar)
         self.txt_url.Bind(wx.EVT_TEXT_ENTER,  self._on_conectar)
         enlazar_anuncio_de_pestana(self.nb)
-        self.lb_chat.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self._copiar_mensaje())
+        self.lb_chat.Bind(wx.EVT_LISTBOX_DCLICK,
+                          lambda e: self._chat_acciones._copiar_mensaje())
         self._enlazar_eventos_chat()
         instalar_busqueda_tipo(
             self.lb_chat,
             lambda: [self.lb_chat.GetString(i) for i in range(self.lb_chat.GetCount())])
 
     def _enlazar_eventos_chat(self):
-        self.lb_chat.Bind(wx.EVT_KEY_DOWN, self._on_chat_key)
-        self.lb_chat.Bind(wx.EVT_CHAR_HOOK, self._on_chat_char_hook)
-        self.lb_chat.Bind(wx.EVT_CONTEXT_MENU, self._on_chat_menu)
+        self.lb_chat.Bind(wx.EVT_KEY_DOWN, self._chat_acciones._on_chat_key)
+        self.lb_chat.Bind(wx.EVT_CHAR_HOOK, self._chat_acciones._on_chat_char_hook)
+        self.lb_chat.Bind(wx.EVT_CONTEXT_MENU, self._chat_acciones._on_chat_menu)
 
     def _on_resize(self, event):
         # Primero el Wrap y luego Skip: así el Layout por defecto del panel ya
@@ -880,13 +879,6 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
             return self._voces_menu[idx]
         return "—"
 
-    def _aplicar_filtro(self, idx: int):
-        self.chat_vivo.filtro = FILTROS[idx][1] if idx < len(FILTROS) else None
-        self.chat_vivo.reconstruir()
-        guardar_opcion(RUTA_CONFIG, "ui", "filtro_activo",
-                       _NOMBRES_FILTRO[idx] if idx < len(_NOMBRES_FILTRO) else "todos")
-        anunciar(_("Filtro: {filtro}. {n} mensajes").format(filtro=_(FILTROS[idx][0]), n=self.lb_chat.GetCount()))
-
     def _ajustar_rate(self, delta):
         # El worker mueve su porcentaje al instante (lo aplica en su hilo), así
         # que get_rate() ya devuelve el valor nuevo sin predecirlo aquí.
@@ -999,198 +991,6 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
     def _moderar(self, autor: str, canal_id: str, segundos: int | None) -> None:
         from guyrapu.ui import gui_envio_chat
         gui_envio_chat.moderar(self, autor, canal_id, segundos)
-
-    # ── Chat: teclado, menú, copiar, silenciar ───────────────────────────────
-
-    def _on_chat_key(self, event):
-        k = event.GetKeyCode()
-        # La orilla suena sin consumir la tecla: NVDA sigue leyendo la fila.
-        if sonidos_eventos.es_orilla(k, self.lb_chat.GetSelection(), self.lb_chat.GetCount()):
-            _snd.reproducir("orilla")
-        if k == ord('C') and event.ControlDown():
-            self._copiar_mensaje()
-        elif k == wx.WXK_WINDOWS_MENU:
-            self._mostrar_menu_chat()
-        else:
-            # Enter se atiende en EVT_CHAR_HOOK porque wx no lo entrega aquí.
-            event.Skip()
-
-    def _on_chat_char_hook(self, event):
-        if (event.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER)
-                and event.GetModifiers() == wx.MOD_NONE):
-            # Solo Enter a secas: Alt+Enter es el acelerador de «Enviar mensaje»
-            # y debe seguir hasta el menú.
-            self._copiar_mensaje()
-        else:
-            event.Skip()
-
-    def _on_chat_menu(self, event):
-        self._mostrar_menu_chat()
-
-    def _mostrar_menu_chat(self):
-        idx = self.lb_chat.GetSelection()
-        if idx == wx.NOT_FOUND:
-            return
-        menu = wx.Menu()
-
-        id_copiar   = wx.NewIdRef()
-        id_copiar2  = wx.NewIdRef()
-        id_releer   = wx.NewIdRef()
-        id_link     = wx.NewIdRef()
-        id_sil_tts  = wx.NewIdRef()
-        id_sil_full = wx.NewIdRef()
-        id_rehab    = wx.NewIdRef()
-        id_alias    = wx.NewIdRef()
-
-        menu.Append(id_copiar,  _("Copiar mensaje"))
-        menu.Append(id_copiar2, _("Copiar todo (autor: mensaje, hora)"))
-        menu.Append(id_releer,  _("Leer en voz alta"))
-        menu.AppendSeparator()
-        menu.Append(id_link,    _("Abrir enlace"))
-        menu.AppendSeparator()
-
-        registro_sel = self._get_selected_data()
-        autor = registro_sel.autor if registro_sel else ""
-        autor_mostrado = alias.visible(autor) if autor else ""
-        if autor:
-            if self._autor_esta_silenciado(autor):
-                menu.Append(id_rehab, _("Dejar de silenciar a {autor}").format(autor=autor_mostrado))
-            else:
-                menu.Append(id_sil_tts,  _("Silenciar voz de {autor}").format(autor=autor_mostrado))
-                menu.Append(id_sil_full, _("Ocultar y silenciar a {autor}").format(autor=autor_mostrado))
-            if alias.clave(autor) not in alias.vigente():
-                menu.Append(id_alias, _("Asignar &alias a {autor}…").format(autor=autor_mostrado))
-            else:
-                menu.Append(id_alias, _("Cambiar &alias de {autor}…").format(autor=autor_mostrado))
-
-        menu_moderacion.agregar(menu, self, registro_sel, autor_mostrado, chat_adicional.activo())
-
-        # Los handlers van sobre el propio menú (no sobre la ventana): así mueren
-        # con él y no se acumulan bindings en cada apertura del menú contextual.
-        self._bind_menu((menu, id_copiar), self._copiar_mensaje)
-        self._bind_menu((menu, id_copiar2), self._copiar_todo)
-        self._bind_menu((menu, id_releer), self._releer_mensaje)
-        self._bind_menu((menu, id_link), self._abrir_enlace)
-        self._bind_menu((menu, id_sil_tts), self._silenciar_autor, autor, False)
-        self._bind_menu((menu, id_sil_full), self._silenciar_autor, autor, True)
-        self._bind_menu((menu, id_rehab), self._rehabilitar_autor, autor)
-        self._bind_menu((menu, id_alias), self._editar_alias_autor, autor)
-
-        self.lb_chat.PopupMenu(menu)
-        menu.Destroy()
-
-    def _editar_alias_autor(self, autor: str) -> None:
-        mapa = alias.vigente()
-        actual = mapa.get(alias.clave(autor), "")
-        dialogo = wx.TextEntryDialog(
-            self, _("Alias para {autor}. Déjalo vacío para eliminarlo.").format(autor=autor),
-            _("Alias del usuario"), value=actual)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return
-            nuevo = dialogo.GetValue()
-        finally:
-            dialogo.Destroy()
-            self.lb_chat.SetFocus()
-
-        actualizado = alias.poner(mapa, autor, nuevo)
-        alias.guardar(paths.alias(), actualizado)
-        alias.usar(actualizado)
-        self.chat_vivo.reconstruir()
-        anunciar(_("Alias guardado, {nuevo}").format(nuevo=actualizado[alias.clave(autor)])
-                  if nuevo.strip() else _("Alias eliminado"))
-
-    def _copiar_mensaje(self):
-        data = self._get_selected_data()
-        if data is None:
-            return
-        mensaje = data.texto
-        self._clipboard_set(mensaje)
-        _snd.reproducir("copiar")
-        anunciar(_("Mensaje copiado"))
-
-    def _copiar_enlace_directo(self):
-        texto, frase = chat_adicional.texto_enlace_directo(
-            self.sesion.enlace_directo)
-        if texto:
-            self._clipboard_set(texto)
-            _snd.reproducir("copiar")
-        anunciar(frase)
-
-    def _copiar_todo(self):
-        data = self._get_selected_data()
-        if data is None:
-            return
-        linea = f"{data.autor}: {data.texto}, {data.hora}"
-        if data.monto:
-            linea += f" [{data.monto}]"
-        self._clipboard_set(linea)
-        _snd.reproducir("copiar")
-        anunciar(_("Línea copiada"))
-
-    def _releer_mensaje(self):
-        data = self._get_selected_data()
-        if data is None:
-            return
-        from guyrapu.voice.tts_worker import construir_tts
-        self._cola.put({"texto_tts": construir_tts(data.autor, data.texto, self._config),
-                        "autor": data.autor})
-
-    def _abrir_enlace(self):
-        data = self._get_selected_data()
-        if data is None:
-            return
-        urls = _URL_RE.findall(data.texto)
-        if not urls:
-            anunciar(_("No se encontró ningún enlace"))
-            confirmar.avisar(self, _("No se encontró ningún enlace en este mensaje."),
-                             _("Sin enlace"), _("Aceptar"), icono=confirmar.ICON_INFORMATION)
-            return
-        webbrowser.open(urls[0])
-        anunciar(_("Abriendo enlace"))
-
-    # ── Silenciado en caliente ───────────────────────────────────────────────
-
-    def _silenciar_autor(self, autor: str, ocultar: bool) -> None:
-        if not autor:
-            return
-        al = autor.lower().strip()
-        self._config.setdefault("silenciados_runtime", set()).add(al)
-        sil_oculto = self._config.setdefault("silenciados_ocultar", set())
-        if ocultar:
-            sil_oculto.add(al)
-            self.chat_vivo.reconstruir()
-        else:
-            sil_oculto.discard(al)
-        # Traductores: {autor} es el autor del mensaje.
-        anunciar(_("{autor} silenciado").format(autor=autor))
-
-    def _rehabilitar_autor(self, autor: str) -> None:
-        if not autor:
-            return
-        al = autor.lower().strip()
-        self._config.setdefault("silenciados_runtime", set()).discard(al)
-        self._config.setdefault("silenciados_ocultar", set()).discard(al)
-        self.chat_vivo.reconstruir()
-        # Traductores: {autor} es el autor del mensaje.
-        anunciar(_("{autor} ya no está silenciado").format(autor=autor))
-
-    def _autor_esta_silenciado(self, autor: str) -> bool:
-        return autor.lower().strip() in self._config.get("silenciados_runtime", set())
-
-    def _autor_esta_oculto(self, autor: str) -> bool:
-        return autor.lower().strip() in self._config.get("silenciados_ocultar", set())
-
-    # ── Selección y portapapeles ─────────────────────────────────────────────
-
-    def _get_selected_data(self):
-        idx = self.lb_chat.GetSelection()
-        if idx == wx.NOT_FOUND:
-            return None
-        return self.chat_vivo.modelo.dato_en_fila(idx)
-
-    def _clipboard_set(self, text: str) -> None:
-        copiar_al_portapapeles(text)
 
     # ── Cierre y timer ───────────────────────────────────────────────────────
 
@@ -1568,32 +1368,11 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self._voz_idx = idx_actual
         self._voz_nombre = voces[idx_actual]
 
-    def _marcar_filtro(self):
-        idx = _IDX_FILTRO.get(_NOMBRES_FILTRO[0] if self.chat_vivo.filtro is None else "", 0)
-        # Buscar el índice cuyo valor coincide con el filtro del chat.
-        for i, (_sin_uso, val) in enumerate(FILTROS):
-            if val == self.chat_vivo.filtro:
-                idx = i
-                break
-        if 0 <= idx < len(self.fi_items):
-            self.fi_items[idx].Check(True)
-
     def _sincronizar_checks(self):
         try:    self.mi_sil_sonidos.Check(_snd.esta_silenciado())
         except Exception as error: logger.debug("no se pudo marcar el silencio: %s", error)
         try:    self.mi_sil_lectura.Check(self._config.get("silenciar_lectura", False))
         except Exception as error: logger.debug("no se pudo marcar la lectura: %s", error)
-
-    # ── Formato y helpers ────────────────────────────────────────────────────
-
-    def _format_display(self, autor, msg, hora, tipo, monto):
-        autor = alias.visible(autor)
-        # Si "quitar emojis" está activo, también se ocultan en la lista (incluye
-        # los shortcodes :nombre: de YouTube). Los marcadores 💲🎨⭐ se conservan.
-        if self._config.get("limpiar_emojis", True):
-            from guyrapu.voice.tts_worker import quitar_emojis
-            msg = quitar_emojis(msg)
-        return texto_fila(autor, msg, hora, tipo, monto)
 
     def _set_conectado_ui(self, conectado: bool) -> None:
         # Botón (toggle), items de menú Conectar/Desconectar y campo URL. El
@@ -1802,10 +1581,10 @@ def iniciar_gui(config, cola, stats, worker, parada,
 
     # Restaurar filtro de la sesión anterior.
     fa = config.get("filtro_activo", "todos")
-    idx_f = _IDX_FILTRO.get(fa, 0)
+    idx_f = IDX_FILTRO.get(fa, 0)
     if 0 <= idx_f < len(FILTROS):
         frame.chat_vivo.filtro = FILTROS[idx_f][1]
-        frame._marcar_filtro()
+        frame._chat_acciones._marcar_filtro()
 
     # Restaurar silenciado de sonidos si la sesión anterior lo tenía activo.
     if config.get("silenciar_sonidos", False):

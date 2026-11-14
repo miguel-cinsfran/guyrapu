@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.ui import gui
+from guyrapu.ui import chat_acciones
 from guyrapu.ui import gui_estado
 from guyrapu.ui import accesibilidad
 from guyrapu.ui import tema
@@ -330,11 +331,11 @@ class TestEnterEnListas(unittest.TestCase):
 
     def test_chat_alt_enter_se_deja_pasar_al_acelerador(self):
         # Alt+Enter es el acelerador de «Enviar mensaje»: no debe copiar.
-        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
-        frame._copiar_mensaje = mock.Mock()
+        acciones = chat_acciones.AccionesChat.__new__(chat_acciones.AccionesChat)
+        acciones._copiar_mensaje = mock.Mock()
         evento = EventoTecladoFalso(gui.wx.WXK_RETURN, gui.wx.MOD_ALT)
-        frame._on_chat_char_hook(evento)
-        frame._copiar_mensaje.assert_not_called()
+        acciones._on_chat_char_hook(evento)
+        acciones._copiar_mensaje.assert_not_called()
         self.assertTrue(evento.omitido)
 
     def test_comentarios_alt_enter_se_deja_pasar_al_acelerador(self):
@@ -349,24 +350,25 @@ class TestEnterEnListas(unittest.TestCase):
     def test_chat_enlaza_el_gancho_de_caracteres(self):
         frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
         frame.lb_chat = mock.Mock()
+        frame._chat_acciones = mock.Mock()
         frame._enlazar_eventos_chat()
         enlaces = [llamada.args[0] for llamada in frame.lb_chat.Bind.call_args_list]
         self.assertIn(gui.wx.EVT_CHAR_HOOK, enlaces)
 
     def test_chat_enter_copia_sin_omitirlo(self):
-        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
-        frame._copiar_mensaje = mock.Mock()
+        acciones = chat_acciones.AccionesChat.__new__(chat_acciones.AccionesChat)
+        acciones._copiar_mensaje = mock.Mock()
         evento = EventoTecladoFalso(gui.wx.WXK_RETURN)
-        frame._on_chat_char_hook(evento)
-        frame._copiar_mensaje.assert_called_once_with()
+        acciones._on_chat_char_hook(evento)
+        acciones._copiar_mensaje.assert_called_once_with()
         self.assertFalse(evento.omitido)
 
     def test_chat_otra_tecla_se_deja_pasar(self):
-        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
-        frame._copiar_mensaje = mock.Mock()
+        acciones = chat_acciones.AccionesChat.__new__(chat_acciones.AccionesChat)
+        acciones._copiar_mensaje = mock.Mock()
         evento = EventoTecladoFalso(ord("a"))
-        frame._on_chat_char_hook(evento)
-        frame._copiar_mensaje.assert_not_called()
+        acciones._on_chat_char_hook(evento)
+        acciones._copiar_mensaje.assert_not_called()
         self.assertTrue(evento.omitido)
 
     def test_comentarios_enlaza_el_gancho_de_caracteres(self):
@@ -1094,10 +1096,10 @@ class TestAliasEnLaLista(unittest.TestCase):
         autor = "xX_gamer_29384756_Xx"
         alias.usar({autor.lower(): "Carlos"})
         self.addCleanup(alias.usar, {})
-        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
-        frame._config = {"limpiar_emojis": True}
+        acciones = chat_acciones.AccionesChat.__new__(chat_acciones.AccionesChat)
+        acciones._config = {"limpiar_emojis": True}
 
-        texto = frame._format_display(autor, "hola", "12:00", 0, "")
+        texto = acciones._format_display(autor, "hola", "12:00", 0, "")
 
         self.assertEqual(texto, "Carlos: hola, 12:00")
 
@@ -1105,9 +1107,9 @@ class TestAliasEnLaLista(unittest.TestCase):
 class TestFilasEventosTikTok(unittest.TestCase):
 
     def _frame(self):
-        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
-        frame._config = {"limpiar_emojis": True}
-        return frame
+        acciones = chat_acciones.AccionesChat.__new__(chat_acciones.AccionesChat)
+        acciones._config = {"limpiar_emojis": True}
+        return acciones
 
     def test_seguir_dice_que_paso(self):
         texto = self._frame()._format_display("Ana", "", "12:00", config.TIPO_SEGUIR, "")
@@ -1181,6 +1183,8 @@ class TestAliasDesdeElChat(unittest.TestCase):
         frame.chat_vivo = mock.Mock()
         frame.chat_vivo.reconstruir = mock.Mock()
         frame.sesion = SesionConectada()
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            frame.lb_chat, frame.chat_vivo, None, {}, lambda: frame.sesion, frame)
         return frame
 
     def test_aceptar_guarda_persiste_y_redibuja(self):
@@ -1188,9 +1192,9 @@ class TestAliasDesdeElChat(unittest.TestCase):
         dialogo = DialogoAliasFalso(True, "Carlos")
         alias.usar({})
         with mock.patch.object(gui.wx, "TextEntryDialog", return_value=dialogo), \
-                mock.patch.object(gui.alias, "guardar") as guardar, \
-                mock.patch.object(gui, "anunciar") as anunciar:
-            frame._editar_alias_autor(self.autor)
+                mock.patch.object(chat_acciones.alias, "guardar") as guardar, \
+                mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            frame._chat_acciones._editar_alias_autor(self.autor)
 
         self.assertEqual(alias.visible(self.autor), "Carlos")
         guardar.assert_called_once_with(
@@ -1206,9 +1210,9 @@ class TestAliasDesdeElChat(unittest.TestCase):
         dialogo = DialogoAliasFalso(True, "")
         alias.usar({self.autor.lower(): "Carlos"})
         with mock.patch.object(gui.wx, "TextEntryDialog", return_value=dialogo), \
-                mock.patch.object(gui.alias, "guardar") as guardar, \
-                mock.patch.object(gui, "anunciar") as anunciar:
-            frame._editar_alias_autor(self.autor)
+                mock.patch.object(chat_acciones.alias, "guardar") as guardar, \
+                mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            frame._chat_acciones._editar_alias_autor(self.autor)
 
         self.assertEqual(alias.visible(self.autor), self.autor)
         guardar.assert_called_once_with(paths.alias(), {})
@@ -1221,9 +1225,9 @@ class TestAliasDesdeElChat(unittest.TestCase):
         dialogo = DialogoAliasFalso(False, "Carlos")
         alias.usar({})
         with mock.patch.object(gui.wx, "TextEntryDialog", return_value=dialogo), \
-                mock.patch.object(gui.alias, "guardar") as guardar, \
-                mock.patch.object(gui, "anunciar"):
-            frame._editar_alias_autor(self.autor)
+                mock.patch.object(chat_acciones.alias, "guardar") as guardar, \
+                mock.patch.object(chat_acciones, "anunciar"):
+            frame._chat_acciones._editar_alias_autor(self.autor)
 
         guardar.assert_not_called()
         frame.chat_vivo.reconstruir.assert_not_called()
@@ -1235,18 +1239,18 @@ class TestAliasDesdeElChat(unittest.TestCase):
         registro = MensajeChat(plataforma="youtube", autor=self.autor,
                                identificador="canal-real", texto="hola",
                                hora="12:00:00", tipo="text", monto="")
-        frame._get_selected_data = mock.Mock(return_value=registro)
-        frame._autor_esta_silenciado = mock.Mock(return_value=False)
+        frame._chat_acciones._get_selected_data = mock.Mock(return_value=registro)
+        frame._chat_acciones._autor_esta_silenciado = mock.Mock(return_value=False)
         frame.sesion.live_chat_id = "chat"
         frame._moderar = mock.Mock()
-        frame._silenciar_autor = mock.Mock()
+        frame._chat_acciones._silenciar_autor = mock.Mock()
         menu = MenuChatFalso()
         alias.usar({self.autor.lower(): "Carlos"})
         with mock.patch.object(gui.wx, "Menu", return_value=menu), \
                 mock.patch.object(gui.wx, "NewIdRef", side_effect=range(1, 11)), \
                 mock.patch.object(gui.youtube_api, "google_disponible", return_value=True), \
                 mock.patch.object(gui.credenciales, "hay_sesion", return_value=True):
-            frame._mostrar_menu_chat()
+            frame._chat_acciones._mostrar_menu_chat()
 
         self.assertIn("Silenciar voz de Carlos", menu.etiquetas.values())
         self.assertIn("Suspender temporalmente a Carlos (5 minutos)", menu.etiquetas.values())
@@ -1261,7 +1265,7 @@ class TestAliasDesdeElChat(unittest.TestCase):
             menu.handlers[identificador_ban](None)
             menu.handlers[identificador_silenciar](None)
         frame._moderar.assert_called_once_with(self.autor, "canal-real", None)
-        frame._silenciar_autor.assert_called_once_with(self.autor, False)
+        frame._chat_acciones._silenciar_autor.assert_called_once_with(self.autor, False)
         alias.usar({})
 
     def test_menu_sin_alias_dice_asignar(self):
@@ -1270,14 +1274,14 @@ class TestAliasDesdeElChat(unittest.TestCase):
         registro = MensajeChat(plataforma="youtube", autor=self.autor,
                                identificador="canal-real", texto="hola",
                                hora="12:00:00", tipo="text", monto="")
-        frame._get_selected_data = mock.Mock(return_value=registro)
-        frame._autor_esta_silenciado = mock.Mock(return_value=False)
+        frame._chat_acciones._get_selected_data = mock.Mock(return_value=registro)
+        frame._chat_acciones._autor_esta_silenciado = mock.Mock(return_value=False)
         frame.sesion.live_chat_id = "chat"
         menu = MenuChatFalso()
         alias.usar({})
         with mock.patch.object(gui.wx, "Menu", return_value=menu), \
                 mock.patch.object(gui.wx, "NewIdRef", side_effect=range(1, 11)):
-            frame._mostrar_menu_chat()
+            frame._chat_acciones._mostrar_menu_chat()
         self.assertIn(
             "Asignar &alias a {autor}…".format(autor=self.autor),
             menu.etiquetas.values())
@@ -1295,11 +1299,7 @@ class TestIdentidadModeracionChat(unittest.TestCase):
         frame.sesion = SesionConectada(live_chat_id="live123")
         frame._conectado = True
         frame._alive = True
-        frame._autor_esta_oculto = lambda autor: False
-        frame._autor_esta_silenciado = lambda autor: False
         frame._moderar = mock.Mock()
-        frame._silenciar_autor = mock.Mock()
-        frame._rehabilitar_autor = mock.Mock()
         frame.lb_chat = mock.Mock()
         frame.lb_chat.Freeze = mock.Mock()
         frame.lb_chat.Thaw = mock.Mock()
@@ -1308,12 +1308,20 @@ class TestIdentidadModeracionChat(unittest.TestCase):
         frame.lb_chat.Clear = mock.Mock()
         frame.lb_chat.GetSelection = mock.Mock(return_value=0)
         frame.lb_chat.GetCount = mock.Mock(return_value=0)
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            frame.lb_chat, None, mock.Mock(), frame._config,
+            lambda: frame.sesion, frame)
+        frame._chat_acciones._autor_esta_oculto = lambda autor: False
+        frame._chat_acciones._autor_esta_silenciado = lambda autor: False
+        frame._chat_acciones._silenciar_autor = mock.Mock()
+        frame._chat_acciones._rehabilitar_autor = mock.Mock()
         frame.chat_vivo = ControladorChat(
             frame.lb_chat, 500,
             activo=lambda: frame._alive and frame._conectado,
-            autor_oculto=frame._autor_esta_oculto,
-            formatear=frame._format_display,
+            autor_oculto=frame._chat_acciones._autor_esta_oculto,
+            formatear=frame._chat_acciones._format_display,
             al_superchat=mock.Mock())
+        frame._chat_acciones.chat_vivo = frame.chat_vivo
         return frame
 
     def _encolar_y_volcar(self, frame, plataforma, autor, identificador, texto="hola"):
@@ -1337,7 +1345,7 @@ class TestIdentidadModeracionChat(unittest.TestCase):
                 mock.patch.object(gui.wx, "NewIdRef", side_effect=range(1, 20)), \
                 mock.patch.object(gui.youtube_api, "google_disponible", return_value=True), \
                 mock.patch.object(gui.credenciales, "hay_sesion", return_value=True):
-            frame._mostrar_menu_chat()
+            frame._chat_acciones._mostrar_menu_chat()
         identificador_ban = next(i for i, texto in menu.etiquetas.items() if texto.startswith("Ocultar a"))
         with mock.patch.object(gui.wx, "CallAfter", side_effect=lambda fn, *a: fn(*a)):
             menu.handlers[identificador_ban](None)
@@ -1355,7 +1363,7 @@ class TestIdentidadModeracionChat(unittest.TestCase):
                 mock.patch.object(gui.wx, "NewIdRef", side_effect=range(1, 20)), \
                 mock.patch.object(gui.youtube_api, "google_disponible", return_value=True), \
                 mock.patch.object(gui.credenciales, "hay_sesion", return_value=True):
-            frame._mostrar_menu_chat()
+            frame._chat_acciones._mostrar_menu_chat()
         identificador_timeout = next(i for i, texto in menu.etiquetas.items() if texto.startswith("Suspender"))
         with mock.patch.object(gui.wx, "CallAfter", side_effect=lambda fn, *a: fn(*a)):
             menu.handlers[identificador_timeout](None)
@@ -1370,7 +1378,7 @@ class TestIdentidadModeracionChat(unittest.TestCase):
                 mock.patch.object(gui.wx, "NewIdRef", side_effect=range(1, 20)), \
                 mock.patch.object(gui.youtube_api, "google_disponible", return_value=True), \
                 mock.patch.object(gui.credenciales, "hay_sesion", return_value=True):
-            frame._mostrar_menu_chat()
+            frame._chat_acciones._mostrar_menu_chat()
         self.assertNotIn("Ocultar a Igual en el canal de YouTube", menu.etiquetas.values())
         self.assertNotIn("Suspender temporalmente a Igual (5 minutos)", menu.etiquetas.values())
 
@@ -1383,7 +1391,7 @@ class TestIdentidadModeracionChat(unittest.TestCase):
                 mock.patch.object(gui.wx, "NewIdRef", side_effect=range(1, 20)), \
                 mock.patch.object(gui.youtube_api, "google_disponible", return_value=True), \
                 mock.patch.object(gui.credenciales, "hay_sesion", return_value=True):
-            frame._mostrar_menu_chat()
+            frame._chat_acciones._mostrar_menu_chat()
         self.assertNotIn("Ocultar a Igual en el canal de YouTube", menu.etiquetas.values())
 
     def test_copia_usa_texto_del_registro_seleccionado(self):
@@ -1391,10 +1399,11 @@ class TestIdentidadModeracionChat(unittest.TestCase):
         self._encolar_y_volcar(frame, "youtube", "Igual", "AAA", "texto A")
         self._encolar_y_volcar(frame, "youtube", "Igual", "BBB", "texto B")
         frame.lb_chat.GetSelection.return_value = 0
-        frame._clipboard_set = mock.Mock()
-        with mock.patch.object(gui._snd, "reproducir"), mock.patch.object(gui, "anunciar"):
-            frame._copiar_mensaje()
-        frame._clipboard_set.assert_called_once_with("texto A")
+        frame._chat_acciones._clipboard_set = mock.Mock()
+        with mock.patch.object(gui._snd, "reproducir"), \
+                mock.patch.object(chat_acciones, "anunciar"):
+            frame._chat_acciones._copiar_mensaje()
+        frame._chat_acciones._clipboard_set.assert_called_once_with("texto A")
 
     def test_copia_todo_usa_registro_seleccionado(self):
         frame = self._frame_con_chat()
@@ -1405,21 +1414,23 @@ class TestIdentidadModeracionChat(unittest.TestCase):
                                            identificador="AAA", texto="hola",
                                            hora="12:34:56", tipo="text", monto="$5")
         frame.chat_vivo.modelo.visibles = [0]
-        frame._clipboard_set = mock.Mock()
-        with mock.patch.object(gui._snd, "reproducir"), mock.patch.object(gui, "anunciar"):
-            frame._copiar_todo()
-        frame._clipboard_set.assert_called_once_with("Igual: hola, 12:34:56 [$5]")
+        frame._chat_acciones._clipboard_set = mock.Mock()
+        with mock.patch.object(gui._snd, "reproducir"), \
+                mock.patch.object(chat_acciones, "anunciar"):
+            frame._chat_acciones._copiar_todo()
+        frame._chat_acciones._clipboard_set.assert_called_once_with(
+            "Igual: hola, 12:34:56 [$5]")
 
     def test_releer_usa_registro_seleccionado(self):
         frame = self._frame_con_chat()
-        frame._cola = mock.Mock()
-        frame._cola.put = mock.Mock()
+        frame._chat_acciones._cola = mock.Mock()
+        frame._chat_acciones._cola.put = mock.Mock()
         self._encolar_y_volcar(frame, "youtube", "Ana", "AAA", "hola mundo")
         frame.lb_chat.GetSelection.return_value = 0
-        with mock.patch.object(gui, "anunciar"):
-            frame._releer_mensaje()
-        self.assertTrue(frame._cola.put.called)
-        texto_tts = frame._cola.put.call_args.args[0]["texto_tts"]
+        with mock.patch.object(chat_acciones, "anunciar"):
+            frame._chat_acciones._releer_mensaje()
+        self.assertTrue(frame._chat_acciones._cola.put.called)
+        texto_tts = frame._chat_acciones._cola.put.call_args.args[0]["texto_tts"]
         self.assertIn("hola mundo", texto_tts)
 
     def test_abrir_enlace_usa_texto_del_registro(self):
@@ -1427,8 +1438,8 @@ class TestIdentidadModeracionChat(unittest.TestCase):
         self._encolar_y_volcar(frame, "youtube", "Ana", "AAA", "mira https://example.com")
         frame.lb_chat.GetSelection.return_value = 0
         with mock.patch.object(gui.webbrowser, "open") as abrir, \
-                mock.patch.object(gui, "anunciar"):
-            frame._abrir_enlace()
+                mock.patch.object(chat_acciones, "anunciar"):
+            frame._chat_acciones._abrir_enlace()
         abrir.assert_called_once_with("https://example.com")
 
     def test_alias_solo_cambia_texto_visible_moderacion_recibe_real(self):
@@ -1441,7 +1452,7 @@ class TestIdentidadModeracionChat(unittest.TestCase):
                 mock.patch.object(gui.wx, "NewIdRef", side_effect=range(1, 20)), \
                 mock.patch.object(gui.youtube_api, "google_disponible", return_value=True), \
                 mock.patch.object(gui.credenciales, "hay_sesion", return_value=True):
-            frame._mostrar_menu_chat()
+            frame._chat_acciones._mostrar_menu_chat()
         self.assertIn("Silenciar voz de Carlos", menu.etiquetas.values())
         identificador_ban = next(i for i, texto in menu.etiquetas.items() if texto.startswith("Ocultar a"))
         with mock.patch.object(gui.wx, "CallAfter", side_effect=lambda fn, *a: fn(*a)):
@@ -1457,19 +1468,22 @@ class TestMeGustaEnLaLista(unittest.TestCase):
         from guyrapu.ui.chat_vivo import ControladorChat
         frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
         frame._config = {"limpiar_emojis": True}
-        frame._autor_esta_oculto = lambda autor: False
         frame._sumar_superchat = mock.Mock()
         frame.lb_chat = mock.Mock()
         filas = []
         frame.lb_chat.Append.side_effect = lambda texto: filas.append(texto)
         frame.lb_chat.Delete.side_effect = lambda i: filas.pop(i)
         frame._filas = filas
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            frame.lb_chat, None, mock.Mock(), frame._config, lambda: None, frame)
+        frame._chat_acciones._autor_esta_oculto = lambda autor: False
         frame.chat_vivo = ControladorChat(
             frame.lb_chat, 500,
             activo=lambda: True,
-            autor_oculto=frame._autor_esta_oculto,
-            formatear=frame._format_display,
+            autor_oculto=frame._chat_acciones._autor_esta_oculto,
+            formatear=frame._chat_acciones._format_display,
             al_superchat=frame._sumar_superchat)
+        frame._chat_acciones.chat_vivo = frame.chat_vivo
         return frame
 
     def _registro(self, tipo, texto, monto=""):
@@ -1491,7 +1505,7 @@ class TestMeGustaEnLaLista(unittest.TestCase):
         self.assertEqual(len(frame.chat_vivo.modelo.todos), 3)
         self.assertEqual(len(frame._filas), 3)
         self.assertIs(frame.chat_vivo.modelo.dato_en_fila(1), me_gusta)
-        self.assertEqual(frame._filas[1], frame._format_display(
+        self.assertEqual(frame._filas[1], frame._chat_acciones._format_display(
             me_gusta.autor, me_gusta.texto, me_gusta.hora,
             me_gusta.tipo, me_gusta.monto))
         self.assertEqual(frame._filas[1], "Ana dio 3 me gusta, 12:00")
@@ -3325,10 +3339,11 @@ class TestAplicarPreferenciasMotor(unittest.TestCase):
         frame.lb_chat = mock.Mock()
         frame._rep_panel = mock.Mock()
         for metodo in ("_build_menubar", "poblar_voces", "_aplicar_voz",
-                       "_marcar_filtro", "_sincronizar_checks",
+                       "_sincronizar_checks",
                        "_set_conectado_ui", "_actualizar_estado_online",
                        "set_metadatos_visible", "_actualizar_vigilante_obs"):
             setattr(frame, metodo, mock.Mock())
+        frame._chat_acciones = mock.Mock()
         frame.chat_vivo = mock.Mock()
         frame.chat_vivo.reconstruir = mock.Mock()
         frame._worker = mock.Mock()
@@ -5205,8 +5220,10 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
         frame._alive = True
         frame.sesion = SesionConectada(enlace_directo="")
-        frame._clipboard_set = mock.Mock()
         frame._ruta_historial = mock.Mock(return_value="historial.json")
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            mock.Mock(), None, mock.Mock(), {}, lambda: frame.sesion, frame)
+        frame._chat_acciones._clipboard_set = mock.Mock()
         return frame
 
     def _registrar(self, frame, plataforma, url, directo):
@@ -5222,9 +5239,9 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         self._registrar(frame, "youtube", url, True)
         self.assertEqual(frame.sesion.enlace_directo, url)
         with mock.patch.object(gui._snd, "reproducir") as sonar, \
-                mock.patch.object(gui, "anunciar") as anunciar:
-            frame._copiar_enlace_directo()
-        frame._clipboard_set.assert_called_once_with(url)
+                mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            frame._chat_acciones._copiar_enlace_directo()
+        frame._chat_acciones._clipboard_set.assert_called_once_with(url)
         sonar.assert_called_once_with("copiar")
         anunciar.assert_called_once_with("Enlace del directo copiado.")
 
@@ -5234,9 +5251,9 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
                         "https://www.youtube.com/watch?v=abcdefghijk", False)
         self.assertEqual(frame.sesion.enlace_directo, "")
         with mock.patch.object(gui._snd, "reproducir") as sonar, \
-                mock.patch.object(gui, "anunciar") as anunciar:
-            frame._copiar_enlace_directo()
-        frame._clipboard_set.assert_not_called()
+                mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            frame._chat_acciones._copiar_enlace_directo()
+        frame._chat_acciones._clipboard_set.assert_not_called()
         sonar.assert_not_called()
         anunciar.assert_called_once_with("No hay ningún directo conectado.")
 
@@ -5250,9 +5267,9 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         gui.chat_adicional.usar(adicional)
         self.addCleanup(gui.chat_adicional.usar, None)
         with mock.patch.object(gui._snd, "reproducir") as sonar, \
-                mock.patch.object(gui, "anunciar") as anunciar:
-            frame._copiar_enlace_directo()
-        frame._clipboard_set.assert_called_once_with(
+                mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            frame._chat_acciones._copiar_enlace_directo()
+        frame._chat_acciones._clipboard_set.assert_called_once_with(
             url + "\nhttps://www.tiktok.com/@usuario/live")
         sonar.assert_called_once_with("copiar")
         anunciar.assert_called_once_with(
@@ -5264,9 +5281,9 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         self._registrar(frame, "tiktok", url, True)
         self.assertEqual(frame.sesion.enlace_directo, url)
         with mock.patch.object(gui._snd, "reproducir"), \
-                mock.patch.object(gui, "anunciar") as anunciar:
-            frame._copiar_enlace_directo()
-        frame._clipboard_set.assert_called_once_with(url)
+                mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            frame._chat_acciones._copiar_enlace_directo()
+        frame._chat_acciones._clipboard_set.assert_called_once_with(url)
         anunciar.assert_called_once_with("Enlace del directo copiado.")
 
     def test_tras_desconectar_no_hay_enlace(self):
@@ -5292,9 +5309,9 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         frame._actualizar_sb = mock.Mock()
         frame._reiniciar_datos_sesion()
         self.assertEqual(frame.sesion.enlace_directo, "")
-        with mock.patch.object(gui, "anunciar") as anunciar:
-            frame._copiar_enlace_directo()
-        frame._clipboard_set.assert_not_called()
+        with mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            frame._chat_acciones._copiar_enlace_directo()
+        frame._chat_acciones._clipboard_set.assert_not_called()
         anunciar.assert_called_once_with("No hay ningún directo conectado.")
 
     def test_reiniciar_deja_sesion_nueva(self):
@@ -5900,8 +5917,10 @@ class TestOrillaChat(unittest.TestCase):
         frame.lb_chat = mock.Mock()
         frame.lb_chat.GetSelection.return_value = seleccion
         frame.lb_chat.GetCount.return_value = total
-        frame._copiar_mensaje = mock.Mock()
-        frame._mostrar_menu_chat = mock.Mock()
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            frame.lb_chat, None, mock.Mock(), {}, lambda: None, frame)
+        frame._chat_acciones._copiar_mensaje = mock.Mock()
+        frame._chat_acciones._mostrar_menu_chat = mock.Mock()
         return frame
 
     def _tecla(self, codigo):
@@ -5915,7 +5934,7 @@ class TestOrillaChat(unittest.TestCase):
         frame = self._frame(0, 5)
         evento = self._tecla(sonidos_eventos.TECLA_FLECHA_ARRIBA)
         with mock.patch.object(gui._snd, "reproducir") as reproducir:
-            frame._on_chat_key(evento)
+            frame._chat_acciones._on_chat_key(evento)
         reproducir.assert_called_once_with("orilla")
         evento.Skip.assert_called_once_with()
 
@@ -5924,7 +5943,7 @@ class TestOrillaChat(unittest.TestCase):
         frame = self._frame(4, 5)
         evento = self._tecla(sonidos_eventos.TECLA_FLECHA_ABAJO)
         with mock.patch.object(gui._snd, "reproducir") as reproducir:
-            frame._on_chat_key(evento)
+            frame._chat_acciones._on_chat_key(evento)
         reproducir.assert_called_once_with("orilla")
         evento.Skip.assert_called_once_with()
 
@@ -5933,7 +5952,7 @@ class TestOrillaChat(unittest.TestCase):
         frame = self._frame(1, 5)
         evento = self._tecla(sonidos_eventos.TECLA_FLECHA_ARRIBA)
         with mock.patch.object(gui._snd, "reproducir") as reproducir:
-            frame._on_chat_key(evento)
+            frame._chat_acciones._on_chat_key(evento)
         reproducir.assert_not_called()
         evento.Skip.assert_called_once_with()
 
@@ -6076,6 +6095,7 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         self.captados = []
         parches = [
             mock.patch.object(gui, "anunciar", self.captados.append),
+            mock.patch.object(chat_acciones, "anunciar", self.captados.append),
             mock.patch.object(gui._snd, "reproducir"),
         ]
         for parche in parches:
@@ -6122,6 +6142,9 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco.chat_vivo.reconstruir = mock.Mock()
         marco.lb_chat = mock.Mock()
         marco.lb_chat.GetCount.return_value = 5
+        marco._chat_acciones = chat_acciones.AccionesChat(
+            marco.lb_chat, marco.chat_vivo, marco._cola, marco._config,
+            lambda: marco.sesion, marco)
         marco.__dict__.update(extras)
         return marco
 
@@ -6219,8 +6242,8 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         with mock.patch.object(gui, "guardar_opcion"):
             gui.VentanaPrincipal._aplicar_voz(marco, 0)
         self._exigir_marcados(1)
-        with mock.patch.object(gui, "guardar_opcion"):
-            gui.VentanaPrincipal._aplicar_filtro(marco, 0)
+        with mock.patch.object(chat_acciones, "guardar_opcion"):
+            marco._chat_acciones._aplicar_filtro(0)
         self._exigir_marcados(1)
         with mock.patch.object(anuncio_ajuste, "COMPARTIDO", AnuncioAjuste()), \
                 mock.patch.object(gui, "guardar_opcion"):
@@ -6261,23 +6284,23 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         dato = MensajeChat(plataforma="youtube", autor="Ana", identificador="c1",
                            texto="hola http://x", hora="10:00", tipo="texto",
                            monto="", rol="")
-        marco._get_selected_data = mock.Mock(return_value=dato)
-        marco._clipboard_set = mock.Mock()
-        gui.VentanaPrincipal._copiar_mensaje(marco)
+        marco._chat_acciones._get_selected_data = mock.Mock(return_value=dato)
+        marco._chat_acciones._clipboard_set = mock.Mock()
+        marco._chat_acciones._copiar_mensaje()
         self._exigir_marcados(1)
-        gui.VentanaPrincipal._copiar_enlace_directo(marco)
+        marco._chat_acciones._copiar_enlace_directo()
         self._exigir_marcados(1)
         marco.sesion.enlace_directo = "http://directo"
-        gui.VentanaPrincipal._copiar_enlace_directo(marco)
+        marco._chat_acciones._copiar_enlace_directo()
         self._exigir_marcados(1)
-        gui.VentanaPrincipal._copiar_todo(marco)
+        marco._chat_acciones._copiar_todo()
         self._exigir_marcados(1)
         marco._config.setdefault("silenciados_runtime", set())
         marco._config.setdefault("silenciados_ocultar", set())
-        gui.VentanaPrincipal._silenciar_autor(marco, "Ana", False)
-        gui.VentanaPrincipal._rehabilitar_autor(marco, "Ana")
+        marco._chat_acciones._silenciar_autor("Ana", False)
+        marco._chat_acciones._rehabilitar_autor("Ana")
         self._exigir_marcados(2)
-        marco._get_selected_data = mock.Mock(return_value=None)
+        marco._chat_acciones._get_selected_data = mock.Mock(return_value=None)
         captado = {}
 
         def caja(padre, mensaje, titulo, etiqueta_ok, *, icono=None):
@@ -6285,19 +6308,19 @@ class TestPseudoAnunciosGui(unittest.TestCase):
             captado["titulo"] = titulo
             return 0
 
-        marco._get_selected_data = mock.Mock(return_value=dato)
-        with mock.patch.object(gui, "_URL_RE",
+        marco._chat_acciones._get_selected_data = mock.Mock(return_value=dato)
+        with mock.patch.object(chat_acciones, "_URL_RE",
                                mock.Mock(findall=mock.Mock(return_value=[]))), \
                 mock.patch.object(gui.confirmar, "avisar", caja):
-            gui.VentanaPrincipal._abrir_enlace(marco)
+            marco._chat_acciones._abrir_enlace()
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
         self._exigir_marcados(1)
-        with mock.patch.object(gui, "_URL_RE",
+        with mock.patch.object(chat_acciones, "_URL_RE",
                                mock.Mock(findall=mock.Mock(
                                    return_value=["http://x"]))), \
                 mock.patch.object(gui.webbrowser, "open"):
-            gui.VentanaPrincipal._abrir_enlace(marco)
+            marco._chat_acciones._abrir_enlace()
         self._exigir_marcados(1)
 
     def test_alias_marca_cuadro_y_anuncio(self):
@@ -6315,14 +6338,14 @@ class TestPseudoAnunciosGui(unittest.TestCase):
             return dialogo
 
         with mock.patch.object(gui.wx, "TextEntryDialog", fabrica), \
-                mock.patch.object(gui.alias, "vigente", return_value={}), \
-                mock.patch.object(gui.alias, "poner",
+                mock.patch.object(chat_acciones.alias, "vigente", return_value={}), \
+                mock.patch.object(chat_acciones.alias, "poner",
                                   return_value={"ana": "Ana"}), \
-                mock.patch.object(gui.alias, "guardar"), \
-                mock.patch.object(gui.alias, "usar"), \
+                mock.patch.object(chat_acciones.alias, "guardar"), \
+                mock.patch.object(chat_acciones.alias, "usar"), \
                 mock.patch.object(gui.paths, "alias",
                                   return_value="ruta"):
-            gui.VentanaPrincipal._editar_alias_autor(marco, "Ana")
+            marco._chat_acciones._editar_alias_autor("Ana")
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
         self._exigir_marcados(1)

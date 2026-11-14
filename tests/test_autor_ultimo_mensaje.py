@@ -12,6 +12,7 @@ import main
 from main import Stats, procesar_entrante
 from guyrapu.capture import alias
 from guyrapu.ui import gui
+from guyrapu.ui import chat_acciones
 from guyrapu.ui import gui_comentarios
 
 
@@ -54,13 +55,15 @@ class TestRelecturasLlevanAutor(unittest.TestCase):
         frame._cola = queue.Queue()
         frame._config = {"limpiar_emojis": True,
                          "formato_prefijo": "nombre_mensaje"}
-        frame._get_selected_data = mock.Mock(return_value=types.SimpleNamespace(
-            autor="Ana", texto="hola mundo"))
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            mock.Mock(), None, frame._cola, frame._config, lambda: None, frame)
+        frame._chat_acciones._get_selected_data = mock.Mock(
+            return_value=types.SimpleNamespace(autor="Ana", texto="hola mundo"))
         return frame
 
     def test_releer_desde_la_lista_lleva_el_autor(self):
         frame = self._frame_chat()
-        frame._releer_mensaje()
+        frame._chat_acciones._releer_mensaje()
         item = frame._cola.get_nowait()
         self.assertEqual(item["autor"], "Ana")
         self.assertIn("hola mundo", item["texto_tts"])

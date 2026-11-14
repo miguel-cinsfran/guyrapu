@@ -33,14 +33,15 @@ class TestEtiquetasDeTablas(unittest.TestCase):
                         visibles)
 
     def test_anuncio_del_filtro_sale_marcado(self):
-        from guyrapu.ui import gui
+        from guyrapu.ui import chat_acciones
 
-        falso = SimpleNamespace(
-            chat_vivo=SimpleNamespace(filtro=None, reconstruir=lambda: None),
-            lb_chat=mock.Mock(**{"GetCount.return_value": 3}))
-        with mock.patch.object(gui, "guardar_opcion"), \
-                mock.patch.object(gui, "anunciar") as anunciar:
-            gui.VentanaPrincipal._aplicar_filtro(falso, 0)
+        chat_vivo = SimpleNamespace(filtro=None, reconstruir=lambda: None)
+        acciones = chat_acciones.AccionesChat(
+            mock.Mock(**{"GetCount.return_value": 3}), chat_vivo,
+            mock.Mock(), {}, lambda: None, None)
+        with mock.patch.object(chat_acciones, "guardar_opcion"), \
+                mock.patch.object(chat_acciones, "anunciar") as anunciar:
+            acciones._aplicar_filtro(0)
         texto = anunciar.call_args.args[0]
         self.assertTrue(texto.startswith("[¡"), texto)
         self.assertIn("[¡Todos!]", texto)

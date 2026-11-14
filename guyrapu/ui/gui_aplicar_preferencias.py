@@ -115,7 +115,7 @@ def _fijar_volumen_y_tono(frame):
 
 def _aplicar_interfaz_y_vista(frame):
     from guyrapu.ui import gui as _gui
-    frame._marcar_filtro()
+    frame._chat_acciones._marcar_filtro()
     frame._sincronizar_checks()
     try:
         frame.mi_avisos_sobrecarga.Check(

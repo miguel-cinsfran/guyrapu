@@ -501,18 +501,22 @@ class _HiloEjecuta:
 class TestSonidoGuiPorRol(unittest.TestCase):
     def _frame(self):
         from guyrapu.ui import gui
+        from guyrapu.ui import chat_acciones
         from guyrapu.ui.chat_vivo import ControladorChat
         frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
         frame._config = {"limpiar_emojis": True}
-        frame._autor_esta_oculto = lambda autor: False
         frame._sumar_superchat = mock.Mock()
         frame.lb_chat = mock.Mock()
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            frame.lb_chat, None, mock.Mock(), frame._config, lambda: None, frame)
+        frame._chat_acciones._autor_esta_oculto = lambda autor: False
         frame.chat_vivo = ControladorChat(
             frame.lb_chat, 500,
             activo=lambda: True,
-            autor_oculto=frame._autor_esta_oculto,
-            formatear=frame._format_display,
+            autor_oculto=frame._chat_acciones._autor_esta_oculto,
+            formatear=frame._chat_acciones._format_display,
             al_superchat=frame._sumar_superchat)
+        frame._chat_acciones.chat_vivo = frame.chat_vivo
         return frame
 
     def _procesar(self, frame, tipo, rol):

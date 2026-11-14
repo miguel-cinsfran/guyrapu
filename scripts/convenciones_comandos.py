@@ -16,6 +16,7 @@ Se corre así, en la PC donde no molesta a NVDA:
 from __future__ import annotations
 
 import sys
+import types
 from pathlib import Path
 from typing import NamedTuple
 
@@ -285,6 +286,10 @@ class _DobleFrame:
         self._real = real
         self._config = config
         self._accel = accel
+        # Las acciones del chat arman los ítems del filtro al construir el menú.
+        self._chat_acciones = types.SimpleNamespace(
+            fi_items=[], _aplicar_filtro=lambda idx: None,
+            _copiar_enlace_directo=lambda: None)
 
     def __getattr__(self, nombre: str):
         return lambda *args, **kwargs: None
