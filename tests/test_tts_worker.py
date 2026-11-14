@@ -12,6 +12,7 @@ from tests.pseudo_prueba import con_pseudo
 from guyrapu.core.idioma import _
 from guyrapu.voice import caida_elevenlabs
 from guyrapu.voice import elevenlabs
+from guyrapu.voice import gestor_motores
 from guyrapu.voice import motores
 from guyrapu.voice import tts_worker
 from guyrapu.voice.tts_worker import sanitizar, construir_tts
@@ -138,12 +139,12 @@ class TestArranque(unittest.TestCase):
     def test_un_worker_sin_arrancar_cierra_sin_error(self):
         worker = _worker_con(MotorFalso())
         worker._cerrar_motor()
-        self.assertIsNone(worker._motor)
+        self.assertIsNone(worker._gestor.motor)
 
     def test_voz_desinstalada_cae_a_la_primera(self):
         motor = MotorFalso()
         worker = _worker_con(motor, {"voz": "Lucía"})
-        with mock.patch.object(tts_worker.logger, "warning") as avisar:
+        with mock.patch.object(gestor_motores.logger, "warning") as avisar:
             worker._abrir_motor()
         self.assertEqual(motor.elegidas, [0])
         self.assertIn("no encontrada", avisar.call_args.args[0])
@@ -247,7 +248,7 @@ class TestVozPorMensaje(unittest.TestCase):
         worker = _worker_con(motor, {"voz": "Voz B"})
         worker._abrir_motor()
         motor.elegidas.clear()
-        worker._aplicar_voz(None)
+        worker._gestor.aplicar_voz(None)
         self.assertEqual(motor.elegidas, [])   # ya es la base, no la re-elige
 
     def test_voz_del_evento_se_aplica(self):
@@ -255,7 +256,7 @@ class TestVozPorMensaje(unittest.TestCase):
         worker = _worker_con(motor, {"voz": "Voz A"})
         worker._abrir_motor()
         motor.elegidas.clear()
-        worker._aplicar_voz("Voz B")
+        worker._gestor.aplicar_voz("Voz B")
         self.assertEqual(motor.elegidas, [1])
 
     def test_voz_no_resuelta_cae_a_la_base(self):
@@ -263,7 +264,7 @@ class TestVozPorMensaje(unittest.TestCase):
         worker = _worker_con(motor, {"voz": "Voz A"})
         worker._abrir_motor()
         motor.elegidas.clear()
-        worker._aplicar_voz("Inexistente")
+        worker._gestor.aplicar_voz("Inexistente")
         self.assertEqual(motor.elegidas, [])
 
 
@@ -339,7 +340,7 @@ class TestCambioDeMotor(unittest.TestCase):
             queue.Queue(), {}, fabrica_motor=fabrica)
         worker._abrir_motor()
 
-        with mock.patch.object(tts_worker.logger, "warning") as avisar:
+        with mock.patch.object(gestor_motores.logger, "warning") as avisar:
             worker.cambiar_motor("onecore", None)
             worker._procesar_comandos()
 

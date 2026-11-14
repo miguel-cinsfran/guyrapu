@@ -26,6 +26,7 @@ from guyrapu.core.lectura_eventos import (
 from guyrapu.voice import caida_elevenlabs
 from guyrapu.voice import escala_voz
 from guyrapu.voice import elevenlabs
+from guyrapu.voice import gestor_motores
 from guyrapu.voice import motores
 from guyrapu.voice import respaldo_windows
 from guyrapu.voice import voz_secundaria
@@ -97,12 +98,9 @@ class TTSWorker(threading.Thread):
         # con F3 sin volver a la lista. Se registra en run() justo antes de
         # hablar; asignar una cadena es atómico en CPython y no lleva lock.
         self._ultimo_autor = ""
-        # Motor, voces y voz activa. Todo se crea y se usa en el hilo del
-        # worker; la interfaz lee `voces()` solo después de `esperar_inicio`.
-        self._motor = None
-        self._voces: list[str] = []
-        self._voz_base = 0        # índice de la voz del menú/preferencias
-        self._voz_actual = None   # índice de la voz activa, o None antes de abrir
+        # Motor principal, voces y voz activa. Todo se crea y se usa en el hilo
+        # del worker; la interfaz lee `voces()` solo después de `esperar_inicio`.
+        self._gestor = gestor_motores.GestorMotores(self._fabrica_motor)
 
     def run(self):
         try:
@@ -153,77 +151,33 @@ class TTSWorker(threading.Thread):
     # ── Arranque y cierre del motor ──────────────────────────────────────────
 
     def _abrir_motor(self) -> None:
-        """Crea el motor pedido (con respaldo a SAPI), carga las voces y aplica
-        velocidad, volumen y tono. Lanza si no hay ningún motor con voces."""
-        pedido = self.config.get("motor") or "sapi"
-        try:
-            self._motor = self._fabrica_motor(pedido)
-        except motores.MotorNoDisponible as exc:
-            if pedido == "sapi":
-                raise
-            logger.warning("El motor de voz %r no está disponible (%s); "
-                           "se usa Windows SAPI 5.", pedido, exc)
-            self._motor = self._fabrica_motor("sapi")
-
-        self._voces = list(self._motor.voces())
-        if not self._voces:
-            raise RuntimeError("El motor de voz no tiene voces instaladas.")
-
-        guardada = self.config.get("voz")
-        idx = escala_voz.resolver_voz(guardada, self._voces)
-        if idx is None:
-            if guardada:
-                # Voz guardada que ya no está instalada: avisar con la lista
-                # numerada. Vacío significa «la primera» y no es un problema.
-                nombres = "\n".join(f"  [{i}] {n}" for i, n in enumerate(self._voces))
-                logger.warning("Voz '%s' no encontrada; se usa la primera "
-                               "disponible.\n%s", guardada, nombres)
-            idx = 0
-        self._voz_base = idx
-        if self._motor.elegir_voz(idx):
-            self._voz_actual = idx
-
-        self._motor.fijar_velocidad(self._rate)
-        self._motor.fijar_volumen(self._volume)
-        self._motor.fijar_tono(self._tono)
-        logger.info("Voz: %s | Velocidad: %d | Volumen: %d%% | Tono: %d",
-                    self._voces[idx], self._rate, self._volume, self._tono)
+        self._gestor.abrir(
+            self.config.get("motor") or "sapi", self.config.get("voz"),
+            self._rate, self._volume, self._tono)
 
     def _cerrar_motor(self) -> None:
-        if self._motor is not None:
-            self._motor.cerrar()
+        self._gestor.cerrar()
         self._respaldo.cerrar()
         self._voz_secundaria.cerrar()
 
     # ── Voz y habla ──────────────────────────────────────────────────────────
 
-    def _aplicar_voz(self, voz) -> None:
-        """Cambia la voz activa si el mensaje pide otra (o vuelve a la base)."""
-        if voz is None:
-            idx = self._voz_base
-        else:
-            idx = escala_voz.resolver_voz(voz, self._voces)
-            if idx is None:
-                idx = self._voz_base
-        if idx != self._voz_actual and self._motor.elegir_voz(idx):
-            self._voz_actual = idx
-
     def _hablar(self, texto: str, voz=None, importante=False, secundaria=False) -> None:
         # Secundaria con sus ajustes si el mensaje la pide y existe, si no la del mensaje o la base.
-        ajuste = self._voz_secundaria.indice(self._voces, secundaria)
-        self._aplicar_voz(self._voz_secundaria.voz if ajuste else voz)
-        self._motor.fijar_velocidad(ajuste[1] if ajuste else self._rate)
-        self._motor.fijar_volumen(ajuste[2] if ajuste else self._volume)
+        ajuste = self._voz_secundaria.indice(self._gestor.voces, secundaria)
+        self._gestor.aplicar_voz(self._voz_secundaria.voz if ajuste else voz)
+        self._gestor.fijar_velocidad(ajuste[1] if ajuste else self._rate)
+        self._gestor.fijar_volumen(ajuste[2] if ajuste else self._volume)
         self._voz_secundaria.sonando = ajuste is not None
         # Una purga pedida con la voz callada (p. ej. detener_actual() al
         # reconectar) quedaba armada y cortaba el SIGUIENTE mensaje: el primer
         # mensaje de cada reconexión se oía a medias. No había nada que cortar,
         # así que se descarta antes de hablar.
         self._purge_pending.clear()
-        if self._motor.motor == "elevenlabs":
+        if self._gestor.motor.motor == "elevenlabs":
             self._hablar_elevenlabs(texto, importante, ajuste is not None)
         else:
-            self._leer_frase(self._motor, texto)
+            self._leer_frase(self._gestor.motor, texto)
         self._voz_secundaria.sonando = False
 
     def _hablar_elevenlabs(self, texto: str, importante: bool, secundaria: bool = False) -> None:
@@ -231,7 +185,7 @@ class TTSWorker(threading.Thread):
         elegido = self._elegir_motor_elevenlabs(texto, importante, secundaria)
         if elegido is None:
             return
-        if elegido is not self._motor:
+        if elegido is not self._gestor.motor:
             # Ya se avisó al elegir (tope) o no corresponde aviso (solo
             # importantes): el mensaje va derecho al respaldo.
             self._leer_frase(elegido, texto)
@@ -257,11 +211,11 @@ class TTSWorker(threading.Thread):
             importante, self._caracteres_elevenlabs(), len(texto))
         if aviso:
             self._avisar(aviso)
-        return self._conseguir_respaldo(secundaria) if usar else self._motor
+        return self._conseguir_respaldo(secundaria) if usar else self._gestor.motor
 
     def _caracteres_elevenlabs(self) -> int:
         try:
-            return int(self._motor.caracteres_usados())
+            return int(self._gestor.motor.caracteres_usados())
         except Exception:
             return 0
 
@@ -333,17 +287,7 @@ class TTSWorker(threading.Thread):
 
     def _motor_de_comandos(self):
         """Motor que recibe los ajustes: el que suena, o el principal si no hay."""
-        return self._sonando or self._motor
-
-    def _cambiar_voz_base(self, val) -> None:
-        idx = escala_voz.resolver_voz(val, self._voces)
-        if idx is None:
-            logger.debug("Voz base %r no resuelta.", val)
-            return
-        self._voz_base = idx
-        if idx != self._voz_actual and self._motor.elegir_voz(idx):
-            self._voz_actual = idx
-        logger.info("Voz base: %s", self._voces[idx])
+        return self._sonando or self._gestor.motor
 
     def _configurar_elevenlabs(self, tope, solo_importantes, voz_respaldo) -> None:
         """Aplica los ajustes de ElevenLabs leídos de Preferencias, ya dentro
@@ -360,51 +304,16 @@ class TTSWorker(threading.Thread):
         """Aplica en caliente la voz secundaria y su respaldo."""
         self._voz_secundaria.configurar(voz, velocidad, volumen, respaldo, self._respaldo.voz, self._tono)
 
-    def _cambiar_motor(self, motor, voz) -> None:
-        """Reemplaza el motor activo dentro del hilo del worker.
-
-        Prism exige un motor por hilo: el nuevo se crea aquí, se para y se
-        cierra el anterior solo si el nuevo se pudo crear y tiene voces. Si la
-        fábrica falla se conserva el motor viejo sin tocarlo, para no dejar al
-        worker mudo."""
-        try:
-            nuevo = self._fabrica_motor(motor)
-        except motores.MotorNoDisponible as exc:
-            logger.warning("El motor de voz %r no está disponible (%s); "
-                           "se conserva %s.", motor, exc, self.motor_activo())
-            return
-        voces = list(nuevo.voces())
-        if not voces:
-            logger.warning("El motor de voz %r no tiene voces; se conserva %s.",
-                           motor, self.motor_activo())
-            nuevo.cerrar()
-            return
-        if self._motor is not None:
-            self._motor.parar()
-            self._motor.cerrar()
-        self._motor = nuevo
-        self._voces = voces
-        idx = escala_voz.resolver_voz(voz, voces)
-        if idx is None:
-            idx = 0
-        self._voz_base = idx
-        self._voz_actual = None
-        if self._motor.elegir_voz(idx):
-            self._voz_actual = idx
-        self._motor.fijar_velocidad(self._rate)
-        self._motor.fijar_volumen(self._volume)
-        self._motor.fijar_tono(self._tono)
-        logger.info("Motor de voz: %s | Voz: %s", motor, self._voces[idx])
-
     def _procesar_comandos(self):
         while not self._cmds.empty():
             try:    cmd, val = self._cmds.get_nowait()
             except queue.Empty: break
             try:
                 if cmd == "voice":
-                    self._cambiar_voz_base(val)
+                    self._gestor.cambiar_voz_base(val)
                 elif cmd == "motor":
-                    self._cambiar_motor(*val)
+                    self._gestor.cambiar(val[0], val[1], self._rate,
+                                         self._volume, self._tono)
                 elif cmd == "elevenlabs":
                     self._configurar_elevenlabs(*val)
                 elif cmd == "voz_secundaria":
@@ -432,11 +341,11 @@ class TTSWorker(threading.Thread):
 
     def voces(self) -> list[str]:
         """Nombres de voz del motor activo. Válida tras `esperar_inicio`."""
-        return list(self._voces)
+        return self._gestor.voces
 
     def motor_activo(self) -> str:
         """Motor que quedó activo de verdad: 'sapi' u 'onecore'."""
-        return self._motor.motor if self._motor is not None else ""
+        return self._gestor.motor.motor if self._gestor.motor is not None else ""
 
     def pausar(self):
         if not self._paused:
