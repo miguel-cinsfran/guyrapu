@@ -29,18 +29,17 @@ from guyrapu.capture import chat_adicional, deteccion
 from guyrapu.capture import metadatos
 from guyrapu.capture import estado_sesion
 from guyrapu.core import historial
-from guyrapu.downloads.descargas import gestor
 from guyrapu.ui.lista_chat import MensajeChat
 from guyrapu.ui import atajos_captura, confirmar
+from guyrapu.ui import gui_cierre
 from guyrapu.ui import gui_construccion
 from guyrapu.voice import escala_voz
 from guyrapu.voice import sound_player as _snd
 from guyrapu.youtube import credenciales
 from guyrapu.youtube import youtube_api
 from guyrapu.core import diagnostico, vigia_interfaz
-from guyrapu.core import apagado
 from guyrapu.capture.montos import sumar_monto, texto_importes
-from guyrapu.obs import overlay_servidor
+from guyrapu.obs import overlay_servidor  # noqa: F401  (reexport para gui_estado y gui_transmitir)
 from guyrapu.capture import programados
 from guyrapu.capture import descartes
 from guyrapu.capture import redaccion  # noqa: F401  (reexport para gui_envio_chat)
@@ -51,8 +50,6 @@ from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_cliente
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.player import flujo_tiktok
-from guyrapu.ui.confirmar_salida import (
-    descargas_sin_terminar, mensaje_confirmar_salida, mensaje_con_descargas)
 from guyrapu.ui import titulo_ventana
 from guyrapu.ui.sesion_conectada import SesionConectada
 
@@ -743,98 +740,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         from guyrapu.ui import gui_envio_chat
         gui_envio_chat.moderar(self, autor, canal_id, segundos)
 
-    # ── Cierre y timer ───────────────────────────────────────────────────────
-
-    def _on_close(self, event):
-        if self._apagando:
-            return
-        if not getattr(self, "_cerrar_sin_preguntar", False):
-            supervisor = getattr(self, "_supervisor", None)
-            mensaje = mensaje_confirmar_salida(
-                (getattr(self, "_config", None) or {}).get(
-                    "confirmar_salida", True),
-                bool(getattr(self, "_conectado", False)),
-                bool(supervisor is not None and supervisor.activo),
-                bool(getattr(self, "_obs_transmitiendo", False)))
-            try:
-                mensaje = mensaje_con_descargas(
-                    mensaje, descargas_sin_terminar(gestor().lista()))
-            except Exception as error:
-                logger.debug("no se pudo leer las descargas al salir: %s", error)
-            puede_vetar = callable(getattr(event, "CanVeto", None)) and event.CanVeto()
-            if mensaje is not None and puede_vetar:
-                # Traductores: título del cuadro para salir.
-                if not confirmar.preguntar(
-                        self, mensaje, _("Salir"), _("&Salir"),
-                        _("&Cancelar"), predeterminado_si=False,
-                        centrar=True):
-                    event.Veto()
-                    return
-        self._apagando = True
-        self._alive = False
-        diagnostico.registrar_cierre_pedido(self._diagnostico_parada)
-        self._actualizar_vigilante_obs_cierre()
-        supervisor = getattr(self, "_supervisor", None)
-        if supervisor is not None and supervisor.activo:
-            try:
-                supervisor.abandonar()
-            except Exception as error:
-                logger.debug("no se pudo abandonar la supervisión: %s", error)
-            self._supervisor = None
-        try:    self._timer.Stop()
-        except Exception as error: logger.debug("no se pudo detener el temporizador: %s", error)
-        try:    self._diagnostico_timer.Stop()
-        except Exception as error: logger.debug("no se pudo detener el diagnóstico: %s", error)
-        self.chat_vivo.descartar()
-        hilos_previos = diagnostico.hilos_vivos_de_la_aplicacion()
-        if apagado.hilos_captura_vivos(hilos_previos):
-            # Traductores: aviso mientras se cierra la app.
-            anunciar(_("Cerrando"))
-        try:    self.Hide()
-        except Exception as error: logger.debug("no se pudo ocultar la ventana: %s", error)
-        if self.on_desconectar_cb:
-            try:    self.on_desconectar_cb()
-            except Exception as error: logger.debug("no se pudo desconectar: %s", error)
-        self._parada.set()
-        overlay_servidor.apagar()
-        try:
-            self._rep_panel.detener_todo()
-        except Exception as error: logger.debug("no se pudo detener el panel: %s", error)
-        try:
-            self._musica.cerrar()
-        except Exception as error: logger.debug("no se pudo cerrar la música: %s", error)
-        try:
-            self._recientes.cerrar()
-        except Exception as error: logger.debug("no se pudo cerrar los recientes: %s", error)
-        try:
-            # Interrumpir lo que se esté leyendo (purga) antes de parar, para que
-            # el cierre sea inmediato y no termine el mensaje en curso.
-            self._worker.detener_actual()
-            self._worker.detener()
-        except Exception as error: logger.debug("no se pudo detener la voz: %s", error)
-        try:    _snd.cerrar()
-        except Exception as error: logger.debug("no se pudo cerrar los sonidos: %s", error)
-        self._cierre_inicio = time.monotonic()
-        self._cierre_tope = apagado.TOPE_ESPERA_CIERRE
-        self._comprobar_cierre()
-
-    def _actualizar_vigilante_obs_cierre(self):
-        vigilante = getattr(self, "_obs_vigilante", None)
-        if vigilante is not None:
-            vigilante.detener()
-            self._obs_vigilante = None
-
-    def _comprobar_cierre(self):
-        nombres = diagnostico.hilos_vivos_de_la_aplicacion()
-        transcurrido = time.monotonic() - self._cierre_inicio
-        if apagado.hay_que_seguir_esperando(nombres, transcurrido, self._cierre_tope):
-            wx.CallLater(200, self._comprobar_cierre)
-            return
-        diagnostico.logger.log(apagado.nivel_registro_cierre(nombres),
-            "%s", apagado.componer_resultado_cierre(nombres, self._cierre_tope))
-        if not nombres:
-            diagnostico.registrar_cierre_fallos()
-        self.Destroy()
+    # ── Timer ────────────────────────────────────────────────────────────────
 
     def _on_timer(self, event):
         if self._alive:
@@ -1297,7 +1203,7 @@ class AplicacionPrincipal(wx.App):
 
     def _on_fin_sesion(self, event):
         if _gui_frame is not None:
-            _gui_frame._on_close(event)
+            gui_cierre.on_close(_gui_frame, event)
 
 
 def iniciar_gui(config, cola, stats, worker, parada,

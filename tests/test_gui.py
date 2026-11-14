@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.ui import gui
+from guyrapu.ui import gui_cierre
 from guyrapu.ui import gui_construccion
 from guyrapu.ui import chat_acciones
 from guyrapu.ui import gui_estado
@@ -176,11 +177,12 @@ class TestInicioGui(unittest.TestCase):
         anterior = gui._gui_frame
         try:
             gui._gui_frame = ventana
-            gui.AplicacionPrincipal._on_fin_sesion(aplicacion, evento)
+            with mock.patch.object(gui_cierre, "on_close") as cerrar:
+                gui.AplicacionPrincipal._on_fin_sesion(aplicacion, evento)
         finally:
             gui._gui_frame = anterior
 
-        ventana._on_close.assert_called_once_with(evento)
+        cerrar.assert_called_once_with(ventana, evento)
 
     def test_menu_conectar_difiere_la_conexion(self):
         frame = self._menu_frame()
@@ -4636,14 +4638,14 @@ class TestCierreVentana(unittest.TestCase):
         hilo.name = "Chat"
         hilo.is_alive.return_value = True
         with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=("Chat",)), \
-                mock.patch.object(gui, "anunciar") as anunciar, \
+                mock.patch.object(gui_cierre, "anunciar") as anunciar, \
                 mock.patch.object(gui.wx, "CallLater") as call_later, \
                 mock.patch.object(gui.diagnostico.logger, "log") as logueo, \
                 mock.patch.object(gui.diagnostico, "registrar_cierre_fallos") as registro:
-            frame._on_close(None)
+            gui_cierre.on_close(frame, None)
 
         anunciar.assert_called_once_with("Cerrando")
-        call_later.assert_called_once_with(200, frame._comprobar_cierre)
+        call_later.assert_called_once_with(200, gui_cierre.comprobar_cierre, frame)
         frame.Destroy.assert_not_called()
         registro.assert_not_called()
         logueo.assert_not_called()
@@ -4651,11 +4653,11 @@ class TestCierreVentana(unittest.TestCase):
     def test_sin_captura_no_anuncia_y_destruye(self):
         frame = self._frame()
         with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.wx, "CallLater") as call_later, \
                 mock.patch.object(gui.diagnostico.logger, "log") as logueo, \
                 mock.patch.object(gui.diagnostico, "registrar_cierre_fallos") as registro:
-            frame._on_close(None)
+            gui_cierre.on_close(frame, None)
 
         call_later.assert_not_called()
         frame.Destroy.assert_called_once_with()
@@ -4665,21 +4667,31 @@ class TestCierreVentana(unittest.TestCase):
     def test_al_cerrar_detiene_el_vigilante_de_interfaz(self):
         frame = self._frame()
         with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.diagnostico.logger, "info"):
-            frame._on_close(None)
+            gui_cierre.on_close(frame, None)
 
         frame._diagnostico_parada.set.assert_called_once_with()
 
     def test_al_cerrar_para_los_dos_temporizadores(self):
         frame = self._frame()
         with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.diagnostico.logger, "info"):
-            frame._on_close(None)
+            gui_cierre.on_close(frame, None)
 
         frame._timer.Stop.assert_called_once_with()
         frame._diagnostico_timer.Stop.assert_called_once_with()
+
+    def test_al_cerrar_detiene_la_voz_en_curso(self):
+        frame = self._frame()
+        with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
+                mock.patch.object(gui_cierre, "anunciar"), \
+                mock.patch.object(gui.diagnostico.logger, "info"):
+            gui_cierre.on_close(frame, None)
+
+        frame._worker.detener_actual.assert_called_once_with()
+        frame._worker.detener.assert_called_once_with()
 
     def _frame_conectado(self):
         frame = self._frame()
@@ -4702,7 +4714,7 @@ class TestCierreVentana(unittest.TestCase):
         dialogo.ShowModal.return_value = gui.wx.ID_CANCEL
         with mock.patch.object(gui.confirmar, "MessageDialog",
                                return_value=dialogo) as crear:
-            frame._on_close(evento)
+            gui_cierre.on_close(frame, evento)
 
         crear.assert_called_once()
         args, _kwargs = crear.call_args
@@ -4723,9 +4735,9 @@ class TestCierreVentana(unittest.TestCase):
         with mock.patch.object(gui.confirmar, "MessageDialog",
                                return_value=dialogo), \
                 mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.diagnostico.logger, "info"):
-            frame._on_close(evento)
+            gui_cierre.on_close(frame, evento)
 
         evento.Veto.assert_not_called()
         self.assertTrue(frame._apagando)
@@ -4737,9 +4749,9 @@ class TestCierreVentana(unittest.TestCase):
         evento = self._evento_vetable()
         with mock.patch.object(gui.confirmar, "MessageDialog") as crear, \
                 mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.diagnostico.logger, "info"):
-            frame._on_close(evento)
+            gui_cierre.on_close(frame, evento)
 
         crear.assert_not_called()
         evento.Veto.assert_not_called()
@@ -4754,9 +4766,9 @@ class TestCierreVentana(unittest.TestCase):
         evento = self._evento_vetable()
         with mock.patch.object(gui.confirmar, "MessageDialog") as crear, \
                 mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.diagnostico.logger, "info"):
-            frame._on_close(evento)
+            gui_cierre.on_close(frame, evento)
 
         crear.assert_not_called()
         evento.Veto.assert_not_called()
@@ -4773,10 +4785,10 @@ class TestCierreVentana(unittest.TestCase):
         gestor.lista.return_value = [mock.Mock(estado="descargando")]
         dialogo = mock.Mock()
         dialogo.ShowModal.return_value = gui.wx.ID_CANCEL
-        with mock.patch.object(gui, "gestor", return_value=gestor), \
+        with mock.patch.object(gui_cierre, "gestor", return_value=gestor), \
                 mock.patch.object(gui.confirmar, "MessageDialog",
                                   return_value=dialogo) as crear:
-            frame._on_close(evento)
+            gui_cierre.on_close(frame, evento)
 
         crear.assert_called_once()
         args, _kwargs = crear.call_args
@@ -4798,12 +4810,12 @@ class TestCierreVentana(unittest.TestCase):
         evento = self._evento_vetable()
         gestor = mock.Mock()
         gestor.lista.return_value = []
-        with mock.patch.object(gui, "gestor", return_value=gestor), \
+        with mock.patch.object(gui_cierre, "gestor", return_value=gestor), \
                 mock.patch.object(gui.confirmar, "MessageDialog") as crear, \
                 mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.diagnostico.logger, "info"):
-            frame._on_close(evento)
+            gui_cierre.on_close(frame, evento)
 
         crear.assert_not_called()
         evento.Veto.assert_not_called()
@@ -5010,9 +5022,9 @@ class TestCierreVentana(unittest.TestCase):
         supervisor.activo = True
         frame._supervisor = supervisor
         with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
-                mock.patch.object(gui.overlay_servidor, "apagar"):
-            frame._on_close(None)
+                mock.patch.object(gui_cierre, "anunciar"), \
+                mock.patch.object(gui_cierre.overlay_servidor, "apagar"):
+            gui_cierre.on_close(frame, None)
         supervisor.abandonar.assert_called_once_with()
         supervisor.detener.assert_not_called()
         self.assertIsNone(frame._supervisor)
@@ -5020,9 +5032,9 @@ class TestCierreVentana(unittest.TestCase):
     def test_cerrar_apaga_el_overlay(self):
         frame = self._frame()
         with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=()), \
-                mock.patch.object(gui, "anunciar"), \
-                mock.patch.object(gui.overlay_servidor, "apagar") as apagar:
-            frame._on_close(None)
+                mock.patch.object(gui_cierre, "anunciar"), \
+                mock.patch.object(gui_cierre.overlay_servidor, "apagar") as apagar:
+            gui_cierre.on_close(frame, None)
         apagar.assert_called_once_with()
 
     def test_el_timer_actualiza_la_marca_del_vigilante(self):
@@ -5071,9 +5083,9 @@ class TestCierreVentana(unittest.TestCase):
         hilo.name = "TikTok"
         hilo.is_alive.return_value = True
         with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", return_value=("TikTok",)), \
-                mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_cierre, "anunciar"), \
                 mock.patch.object(gui.wx, "CallLater"):
-            frame._on_close(None)
+            gui_cierre.on_close(frame, None)
 
         self.assertEqual(frame._cierre_tope, apagado.TOPE_ESPERA_CIERRE)
 
@@ -5090,9 +5102,9 @@ class TestCierreVentana(unittest.TestCase):
                 mock.patch.object(gui.wx, "CallLater") as call_later, \
                 mock.patch.object(gui.diagnostico.logger, "log") as logueo, \
                 mock.patch.object(gui.diagnostico, "registrar_cierre_fallos") as registro:
-            frame._comprobar_cierre()
+            gui_cierre.comprobar_cierre(frame)
 
-        call_later.assert_called_once_with(200, frame._comprobar_cierre)
+        call_later.assert_called_once_with(200, gui_cierre.comprobar_cierre, frame)
         frame.Destroy.assert_not_called()
         registro.assert_not_called()
         logueo.assert_not_called()
@@ -5106,7 +5118,7 @@ class TestCierreVentana(unittest.TestCase):
                 mock.patch.object(gui.wx, "CallLater") as call_later, \
                 mock.patch.object(gui.diagnostico.logger, "log") as logueo, \
                 mock.patch.object(gui.diagnostico, "registrar_cierre_fallos") as registro:
-            frame._comprobar_cierre()
+            gui_cierre.comprobar_cierre(frame)
 
         call_later.assert_not_called()
         frame.Destroy.assert_called_once_with()
@@ -5126,7 +5138,7 @@ class TestCierreVentana(unittest.TestCase):
                 mock.patch.object(gui.wx, "CallLater") as call_later, \
                 mock.patch.object(gui.diagnostico.logger, "log") as logueo, \
                 mock.patch.object(gui.diagnostico, "registrar_cierre_fallos") as registro:
-            frame._comprobar_cierre()
+            gui_cierre.comprobar_cierre(frame)
 
         call_later.assert_not_called()
         frame.Destroy.assert_called_once_with()
@@ -5156,12 +5168,12 @@ class TestCierreVentana(unittest.TestCase):
 
         try:
             with mock.patch.object(gui.diagnostico, "hilos_vivos_de_la_aplicacion", side_effect=censo_aislado), \
-                    mock.patch.object(gui, "anunciar"), \
+                    mock.patch.object(gui_cierre, "anunciar"), \
                     mock.patch.object(gui.wx, "CallLater") as call_later, \
                     mock.patch.object(gui.diagnostico.logger, "log") as logueo, \
                     mock.patch.object(gui.diagnostico, "registrar_cierre_fallos") as registro:
-                frame._on_close(None)
-                call_later.assert_called_once_with(200, frame._comprobar_cierre)
+                gui_cierre.on_close(frame, None)
+                call_later.assert_called_once_with(200, gui_cierre.comprobar_cierre, frame)
                 frame.Destroy.assert_not_called()
                 registro.assert_not_called()
                 logueo.assert_not_called()
@@ -6151,13 +6163,13 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         return marco
 
     def test_confirmar_salida_marca_los_tres_caminos(self):
-        self.assertTrue(gui.mensaje_confirmar_salida(
+        self.assertTrue(gui_cierre.mensaje_confirmar_salida(
             True, True, False, True).startswith("[¡"))
-        self.assertTrue(gui.mensaje_confirmar_salida(
+        self.assertTrue(gui_cierre.mensaje_confirmar_salida(
             True, True, False, False).startswith("[¡"))
-        self.assertTrue(gui.mensaje_confirmar_salida(
+        self.assertTrue(gui_cierre.mensaje_confirmar_salida(
             True, False, False, True).startswith("[¡"))
-        self.assertIsNone(gui.mensaje_confirmar_salida(False, True, True, True))
+        self.assertIsNone(gui_cierre.mensaje_confirmar_salida(False, True, True, True))
 
     def test_conflictos_y_conexion_basica_marcados(self):
         with mock.patch.object(
@@ -6441,7 +6453,7 @@ class TestPseudoAnunciosGui(unittest.TestCase):
             return dialogo
 
         with mock.patch.object(gui.confirmar, "MessageDialog", fabrica):
-            gui.VentanaPrincipal._on_close(marco, evento)
+            gui_cierre.on_close(marco, evento)
         self.assertTrue(captado["mensaje"].startswith("[¡"))
         self.assertTrue(captado["titulo"].startswith("[¡"))
         evento.Veto.assert_called_once_with()

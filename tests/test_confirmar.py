@@ -129,7 +129,7 @@ class TestPreguntar(unittest.TestCase):
 class TestCuadrosDeP1(unittest.TestCase):
 
     def test_salir_de_la_aplicacion(self):
-        from guyrapu.ui import gui
+        from guyrapu.ui import gui_cierre
 
         frame = mock.Mock()
         frame._apagando = False
@@ -142,10 +142,10 @@ class TestCuadrosDeP1(unittest.TestCase):
         evento.CanVeto.return_value = True
         gestor = mock.Mock()
         gestor.lista.return_value = []
-        with mock.patch.object(gui, "gestor", return_value=gestor), \
-                mock.patch.object(gui.confirmar, "preguntar",
+        with mock.patch.object(gui_cierre, "gestor", return_value=gestor), \
+                mock.patch.object(gui_cierre.confirmar, "preguntar",
                                   return_value=False) as preguntar:
-            gui.VentanaPrincipal._on_close(frame, evento)
+            gui_cierre.on_close(frame, evento)
         preguntar.assert_called_once_with(
             frame, mock.ANY, _("Salir"), _("&Salir"), _("&Cancelar"),
             predeterminado_si=False, centrar=True)

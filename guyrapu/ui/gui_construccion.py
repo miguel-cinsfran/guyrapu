@@ -16,6 +16,7 @@ from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.ui import comando_directo
+from guyrapu.ui import gui_cierre
 from guyrapu.ui import paleta
 from guyrapu.ui import recientes_inicio as recientes
 from guyrapu.ui.accesibilidad import (
@@ -233,7 +234,7 @@ def on_info_url(frame, event):
 # ── Enlaces de eventos ───────────────────────────────────────────────────────
 
 def enlazar_eventos(frame):
-    frame.Bind(wx.EVT_CLOSE, frame._on_close)
+    frame.Bind(wx.EVT_CLOSE, lambda event: gui_cierre.on_close(frame, event))
     frame.Bind(wx.EVT_ACTIVATE, frame._on_activate)
     # En el panel, no en el frame: cuando el frame recibe EVT_SIZE el panel
     # aún tiene el tamaño viejo y cada Wrap iba un evento tarde.
