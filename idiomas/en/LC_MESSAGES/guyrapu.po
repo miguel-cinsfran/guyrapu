@@ -13348,6 +13348,26 @@ msgstr "Cloud service, according to your ElevenLabs account"
 msgid "ElevenLabs, en la nube"
 msgstr "ElevenLabs, in the cloud"
 
+#: guyrapu/voice/proveedores/phonon.py
+msgid ""
+"Según cada paquete de voces: Phonon en español y portugués, CC BY-NC 4.0; "
+"en inglés, Apache 2.0"
+msgstr ""
+"According to each voice package: Phonon in Spanish and Portuguese, CC BY-NC"
+" 4.0; in English, Apache 2.0"
+
+#: guyrapu/voice/proveedores/phonon.py
+msgid ""
+"No hay voces de Phonon instaladas. Descarga un paquete de voces en "
+"Preferencias, Voces."
+msgstr ""
+"No Phonon voices are installed. Download a voice package in Preferences, "
+"Voices."
+
+#: guyrapu/voice/proveedores/phonon.py
+msgid "Phonon, voces locales"
+msgstr "Phonon, local voices"
+
 #: guyrapu/voice/proveedores/prism.py
 msgid "Windows SAPI 5"
 msgstr "Windows SAPI 5"

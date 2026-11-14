@@ -84,6 +84,7 @@ call uv run pyinstaller main.py ^
   --collect-all yt_dlp ^
   --collect-all cv2 ^
   --collect-all sounddevice ^
+  --collect-all ptts ^
   --exclude-module imageio_ffmpeg ^
   --hidden-import vlc ^
   --add-data "!YTDOC!;googleapiclient/discovery_cache/documents"

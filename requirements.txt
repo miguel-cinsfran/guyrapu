@@ -19,6 +19,9 @@ prismatoid>=0.18.3,<0.19
 # Salida de audio de las voces locales por WASAPI.
 sounddevice==0.5.6
 
+# Motor de las voces Phonon descargables.
+ptts==0.7.1
+
 # Vigía de la carpeta de música: avisa cuando cambia sin recorrerla.
 # En Windows usa ReadDirectoryChangesW por ctypes.
 watchdog==6.0.0
