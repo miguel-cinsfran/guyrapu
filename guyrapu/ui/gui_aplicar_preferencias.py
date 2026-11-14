@@ -103,7 +103,8 @@ def _aplicar_ajustes_de_voz(frame):
                 _gui.escala_voz.VELOCIDAD_NORMAL)))),
             max(0.0, min(1.0, float(frame._config.get(
                 "volumen_secundaria", 1.0)))),
-            frame._config.get("voz_respaldo_secundaria") or "")
+            frame._config.get("voz_respaldo_secundaria") or "",
+            frame._config.get("motor_secundaria") or "")
     except Exception as exc:
         logger.debug("aplicar ajustes de voz desde preferencias: %s", exc)
 

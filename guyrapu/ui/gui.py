@@ -1791,9 +1791,9 @@ def iniciar_gui(config, cola, stats, worker, parada,
     # El lector de JAWS crea su COM en el hilo que lo inicializa: tiene que ser
     # con la aplicación de wx ya en pie, y antes de crear el frame.
     _lector_init()
-    # El worker avisa por acá cuando ElevenLabs falla y se cae a la voz de
-    # Windows; `anunciar` reenvía al hilo de la interfaz.
-    worker.al_avisar = anunciar
+    # El worker avisa por acá cuando un motor falla y se cae a la voz de
+    # Windows; el sonido y el anuncio se reenvían al hilo de la interfaz.
+    worker.al_avisar = lambda texto: anunciar_con_sonido(texto, "aviso")
     frame = VentanaPrincipal(None, config, cola, stats, worker, parada)
     _gui_frame = frame
     frame.on_conectar_cb    = iniciar_captura_cb

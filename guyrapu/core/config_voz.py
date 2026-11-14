@@ -64,6 +64,7 @@ def opciones_secundarias(p) -> dict:
         leer_texto(p, "voz", "volumen_secundaria"), 1.0)))
     return {
         "voz_secundaria": leer_texto(p, "voz", "voz_secundaria"),
+        "motor_secundaria": leer_texto(p, "voz", "motor_secundaria"),
         "velocidad_secundaria": velocidad,
         "volumen_secundaria": volumen,
         "voz_respaldo_secundaria": leer_texto(p, "voz", "voz_respaldo_secundaria"),

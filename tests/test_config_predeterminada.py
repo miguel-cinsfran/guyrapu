@@ -433,6 +433,18 @@ class TestReconexionYSonidos(unittest.TestCase):
         self.assertFalse(sonidos["activar"])
 
 
+class TestMotorSecundariaFabrica(unittest.TestCase):
+
+    def test_motor_secundaria_tiene_valor_de_fabrica_y_se_lee(self):
+        self.assertEqual(pred.obtener("voz", "motor_secundaria"), "")
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "config.ini").write_text(
+                "[voz]\nmotor_secundaria = phonon\n", encoding="utf-8")
+            with redirigir_rutas(Path(tmp)):
+                cfg = config.cargar_configuracion()
+        self.assertEqual(cfg["motor_secundaria"], "phonon")
+
+
 class TestMusicaFabrica(unittest.TestCase):
     def test_seccion_musica_valores_de_fabrica(self):
         self.assertEqual(pred.seccion("musica"), {

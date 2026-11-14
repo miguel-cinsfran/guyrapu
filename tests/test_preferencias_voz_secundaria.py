@@ -274,7 +274,7 @@ class TestAplicarVozSecundariaEnCaliente(unittest.TestCase):
         with mock.patch("guyrapu.ui.gui.anunciar"):
             gui_aplicar_preferencias.aplicar_en_caliente(frame)
         frame._worker.configurar_voz_secundaria.assert_called_once_with(
-            "Voz B", 25, 0.4, "Respaldo B")
+            "Voz B", 25, 0.4, "Respaldo B", "")
 
 
 if __name__ == "__main__":

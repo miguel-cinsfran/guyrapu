@@ -321,9 +321,11 @@ class TTSWorker(threading.Thread):
         sus ajustes; llamarlo desde la interfaz no toca la red ni el motor."""
         self._cmds.put(("elevenlabs", (tope, solo_importantes, voz_respaldo)))
 
-    def configurar_voz_secundaria(self, voz, velocidad, volumen, respaldo) -> None:
-        """Pide aplicar en caliente la voz secundaria y su respaldo."""
-        self._cmds.put(("voz_secundaria", (voz, velocidad, volumen, respaldo)))
+    def configurar_voz_secundaria(self, voz, velocidad, volumen, respaldo,
+                                  motor=None) -> None:
+        """Pide aplicar en caliente la voz secundaria, su respaldo y su motor."""
+        self._cmds.put(("voz_secundaria",
+                        (voz, velocidad, volumen, respaldo, motor)))
 
     def cambiar_rate(self, pasos: int) -> None:
         # El contador se actualiza AQUÍ (en el hilo del llamador) y al hilo TTS

@@ -10,9 +10,12 @@ porque depende de su pausa y su purga) y la que devuelve los ajustes base.
 
 from __future__ import annotations
 
+from guyrapu.core.idioma import _
 from guyrapu.core.ini_tipado import a_entero
 from guyrapu.voice import caida_elevenlabs
+from guyrapu.voice import caida_motor
 from guyrapu.voice import elevenlabs
+from guyrapu.voice import motores
 from guyrapu.voice import respaldo_windows
 from guyrapu.voice import voz_secundaria
 
@@ -35,6 +38,8 @@ class EleccionMotor:
         self.caida = caida_elevenlabs.CaidaElevenLabs(
             a_entero(config.get("elevenlabs_tope"), 0),
             config.get("elevenlabs_solo_importantes"))
+        self._caida_motor = caida_motor.CaidaMotor()
+        self._caida_secundaria = caida_motor.CaidaMotor()
 
     @property
     def sonando_secundaria(self) -> bool:
@@ -43,7 +48,17 @@ class EleccionMotor:
     def hablar(self, texto: str, voz=None, importante=False,
                secundaria=False) -> None:
         """Lee el mensaje con el motor y la voz que le corresponden."""
-        rate, volumen, _tono = self._ajustes()
+        rate, volumen, tono = self._ajustes()
+        if secundaria:
+            propio = self.voz_secundaria.preparar(
+                self._gestor.motor.motor, tono, self._avisar)
+            if propio is not None:
+                self.voz_secundaria.sonando = True
+                try:
+                    self._leer_local(propio, texto, secundaria=True)
+                finally:
+                    self.voz_secundaria.sonando = False
+                return
         # Secundaria con sus ajustes si el mensaje la pide y existe, si no la del mensaje o la base.
         ajuste = self.voz_secundaria.indice(self._gestor.voces, secundaria)
         self._gestor.aplicar_voz(self.voz_secundaria.voz if ajuste else voz)
@@ -53,8 +68,38 @@ class EleccionMotor:
         if self._gestor.motor.motor == "elevenlabs":
             self._hablar_elevenlabs(texto, importante, ajuste is not None)
         else:
-            self._leer_frase(self._gestor.motor, texto)
+            self._leer_local(self._gestor.motor, texto,
+                             secundaria=ajuste is not None)
         self.voz_secundaria.sonando = False
+
+    def _leer_local(self, motor, texto: str, secundaria: bool) -> None:
+        """Lee en un motor local y cae a Windows si falla.
+
+        Un motor SAPI no tiene a dónde caer. Una purga (Alt+D) llega como
+        lectura terminada, no como fallo."""
+        try:
+            sono = self._leer_frase(motor, texto)
+        except Exception:
+            if motor.motor == "sapi":
+                raise
+            self._caer_a_windows(texto, motor.motor, secundaria)
+            return
+        if not sono and motor.motor != "sapi":
+            self._caer_a_windows(texto, motor.motor, secundaria)
+        elif sono:
+            caida = (self._caida_secundaria if secundaria
+                     else self._caida_motor)
+            caida.exito()
+
+    def _caer_a_windows(self, texto: str, nombre: str,
+                        secundaria: bool) -> None:
+        caida = self._caida_secundaria if secundaria else self._caida_motor
+        aviso = caida.fallo(_(motores.NOMBRES.get(nombre, nombre)))
+        if aviso:
+            self._avisar(aviso)
+        respaldo = self._conseguir_respaldo(secundaria)
+        if respaldo is not None:
+            self._leer_frase(respaldo, texto)
 
     def _hablar_elevenlabs(self, texto: str, importante: bool,
                            secundaria: bool = False) -> None:
@@ -117,11 +162,11 @@ class EleccionMotor:
         self.voz_secundaria.seguir_respaldo(voz)
 
     def configurar_voz_secundaria(self, voz, velocidad, volumen,
-                                  respaldo) -> None:
-        """Aplica en caliente la voz secundaria y su respaldo."""
+                                  respaldo, motor=None) -> None:
+        """Aplica en caliente la voz secundaria, su respaldo y su motor."""
         _rate, _volumen, tono = self._ajustes()
         self.voz_secundaria.configurar(
-            voz, velocidad, volumen, respaldo, self.respaldo.voz, tono)
+            voz, velocidad, volumen, respaldo, self.respaldo.voz, tono, motor)
 
     def cerrar(self) -> None:
         """Cierra el respaldo y la voz secundaria."""

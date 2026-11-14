@@ -516,6 +516,104 @@ class TestRespaldoElevenLabs(unittest.TestCase):
                          (40, 50, 30))
 
 
+class TestRespaldoMotorLocal(unittest.TestCase):
+    """Un motor local que falla cae a la voz de Windows y avisa por racha."""
+
+    def _worker(self, motor):
+        local = MotorFalso(motor=motor)
+        local.duracion = 0.02
+        sapi = MotorFalso()
+        sapi.duracion = 0.02
+        fabrica = FabricaFalsa({motor: local, "sapi": sapi})
+        worker = tts_worker.TTSWorker(
+            queue.Queue(), {"motor": motor}, fabrica_motor=fabrica)
+        worker._abrir_motor()
+        worker._avisos = []
+        worker.al_avisar = worker._avisos.append
+        return worker, local, sapi, fabrica
+
+    def test_un_fallo_lee_el_mensaje_con_el_respaldo_y_avisa(self):
+        worker, local, sapi, _fabrica = self._worker("phonon")
+        local.hablar_ok = False
+        worker._hablar("uno")
+        self.assertEqual([t for t, _ in sapi.hablados], ["uno"])
+        self.assertEqual(len(worker._avisos), 1)
+        self.assertIn("Phonon", worker._avisos[0])
+
+    def test_dos_fallos_seguidos_avisan_una_sola_vez(self):
+        worker, local, sapi, _fabrica = self._worker("phonon")
+        local.hablar_ok = False
+        worker._hablar("uno")
+        worker._hablar("dos")
+        self.assertEqual([t for t, _ in sapi.hablados], ["uno", "dos"])
+        self.assertEqual(len(worker._avisos), 1)
+
+    def test_un_exito_en_el_medio_hace_que_el_fallo_siguiente_avise(self):
+        worker, local, _sapi, _fabrica = self._worker("phonon")
+        local.hablar_ok = False
+        worker._hablar("uno")
+        local.hablar_ok = True
+        worker._hablar("dos")
+        local.hablar_ok = False
+        worker._hablar("tres")
+        self.assertEqual(len(worker._avisos), 2)
+
+    def test_un_motor_sapi_que_falla_no_usa_respaldo(self):
+        sapi = MotorFalso()
+        sapi.hablar_ok = False
+        fabrica = FabricaFalsa({"sapi": sapi})
+        worker = tts_worker.TTSWorker(
+            queue.Queue(), {"motor": "sapi"}, fabrica_motor=fabrica)
+        worker._abrir_motor()
+        avisos = []
+        worker.al_avisar = avisos.append
+        worker._hablar("uno")
+        self.assertEqual(fabrica.creados, ["sapi"])
+        self.assertEqual(avisos, [])
+
+
+class TestSecundariaConMotorPropio(unittest.TestCase):
+    """Pausa y Alt+D llegan al motor secundario que está sonando."""
+
+    def _worker(self):
+        sapi = MotorFalso(motor="sapi")
+        phonon = MotorFalso(motor="phonon")
+        fabrica = FabricaFalsa({"sapi": sapi, "phonon": phonon})
+        config = {"motor": "sapi", "voz": "Voz A", "voz_secundaria": "Voz B",
+                  "motor_secundaria": "phonon"}
+        worker = tts_worker.TTSWorker(
+            queue.Queue(), config, fabrica_motor=fabrica)
+        worker._abrir_motor()
+        return worker, sapi, phonon
+
+    def test_alt_d_corta_el_motor_secundario(self):
+        worker, sapi, phonon = self._worker()
+        worker._procesar_comandos = mock.Mock(
+            side_effect=lambda: worker._purge_pending.set())
+        worker._hablar("evento", secundaria=True)
+        self.assertEqual(phonon.paradas, 1)
+        self.assertEqual(sapi.paradas, 0)
+
+    def test_la_pausa_llega_al_motor_secundario_que_suena(self):
+        worker, sapi, phonon = self._worker()
+        pasos = {"n": 0}
+
+        def procesar():
+            pasos["n"] += 1
+            if pasos["n"] == 1:
+                worker._active.clear()
+                worker._sonando.hablando_ = False
+            if pasos["n"] == 3:
+                worker._active.set()
+                worker._sonando.hablando_ = False
+
+        worker._procesar_comandos = mock.Mock(side_effect=procesar)
+        worker._hablar("evento", secundaria=True)
+        self.assertEqual(phonon.pausas, 1)
+        self.assertEqual(phonon.reanudadas, 1)
+        self.assertEqual(sapi.pausas, 0)
+
+
 class TestPrismReal(unittest.TestCase):
     """Ejecuta el envoltorio real de Prism: si Prism o las voces cambian de
     forma incompatible, esto lo caza (volumen 0 para no sonar)."""

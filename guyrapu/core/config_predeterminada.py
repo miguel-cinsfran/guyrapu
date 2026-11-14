@@ -35,6 +35,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("tono", "50"),
         ("voz_respaldo", ""),
         ("voz_secundaria", ""),
+        ("motor_secundaria", ""),
         ("velocidad_secundaria", "50"),
         ("volumen_secundaria", "1.0"),
         ("voz_respaldo_secundaria", ""),

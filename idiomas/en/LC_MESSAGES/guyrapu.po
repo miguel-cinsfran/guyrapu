@@ -13925,3 +13925,13 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/voice/caida_motor.py
+#, python-brace-format
+msgid "{nombre} no responde: se usa la voz de Windows."
+msgstr "{nombre} is not responding: the Windows voice is used."
+
+#: guyrapu/voice/voz_secundaria.py
+#, python-brace-format
+msgid "{nombre} no está disponible: la voz secundaria usa la voz de Windows."
+msgstr "{nombre} is not available: the secondary voice uses the Windows voice."
+

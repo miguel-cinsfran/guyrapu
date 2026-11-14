@@ -12,6 +12,7 @@ import time
 import unittest
 
 from guyrapu.voice import elevenlabs
+from guyrapu.voice import motores
 from guyrapu.voice import tts_worker
 from guyrapu.voice.voz_secundaria import VozSecundaria
 
@@ -359,6 +360,102 @@ class TestVozSecundaria(unittest.TestCase):
         self.assertTrue(motor.cerrado)
         self.assertIsNot(voz.conseguir_respaldo(), motor)
         self.assertEqual(len(self.fabrica.creados), 2)
+
+
+class FabricaPorMotor:
+    """Devuelve un motor distinto por id y registra cada creación."""
+
+    def __init__(self, por_nombre, fallan=()):
+        self.por_nombre = por_nombre
+        self.fallan = set(fallan)
+        self.creados = []
+
+    def __call__(self, nombre):
+        self.creados.append(nombre)
+        if nombre in self.fallan:
+            raise motores.MotorNoDisponible(f"{nombre} no disponible")
+        return self.por_nombre[nombre]
+
+
+def _config_con_motor_secundario(motor_secundaria, **extras):
+    base = {"motor": "sapi", "voz": "Voz A", "velocidad_voz": 50,
+            "volumen": 1.0, "tono": 50, "voz_secundaria": "Voz B",
+            "velocidad_secundaria": 20, "volumen_secundaria": 0.3,
+            "motor_secundaria": motor_secundaria}
+    base.update(extras)
+    return base
+
+
+def _worker_con_motores(fabrica, motor_secundaria="", **extras):
+    worker = tts_worker.TTSWorker(
+        queue.Queue(), _config_con_motor_secundario(motor_secundaria, **extras),
+        fabrica_motor=fabrica)
+    worker._abrir_motor()
+    return worker
+
+
+class TestSecundariaConMotorPropio(unittest.TestCase):
+    """La secundaria puede usar un motor distinto del principal."""
+
+    def test_secundaria_en_su_motor_y_principal_en_el_suyo(self):
+        sapi = Motor(("Voz A", "Voz B"), motor="sapi")
+        phonon = Motor(("Voz A", "Voz B"), motor="phonon")
+        fabrica = FabricaPorMotor({"sapi": sapi, "phonon": phonon})
+        worker = _worker_con_motores(fabrica, "phonon")
+        worker._hablar("evento", secundaria=True)
+        worker._hablar("mensaje")
+        self.assertEqual(phonon.registro, [("evento", "Voz B", 20, 30, 50)])
+        self.assertEqual(sapi.registro, [("mensaje", "Voz A", 50, 100, 50)])
+
+    def test_motor_secundaria_vacio_usa_el_principal(self):
+        sapi = Motor(("Voz A", "Voz B"), motor="sapi")
+        fabrica = FabricaPorMotor({"sapi": sapi})
+        worker = _worker_con_motores(fabrica, "")
+        worker._hablar("evento", secundaria=True)
+        self.assertEqual(sapi.registro, [("evento", "Voz B", 20, 30, 50)])
+        self.assertEqual(fabrica.creados, ["sapi"])
+
+    def test_el_motor_secundario_se_crea_una_sola_vez(self):
+        sapi = Motor(("Voz A", "Voz B"), motor="sapi")
+        phonon = Motor(("Voz A", "Voz B"), motor="phonon")
+        fabrica = FabricaPorMotor({"sapi": sapi, "phonon": phonon})
+        worker = _worker_con_motores(fabrica, "phonon")
+        worker._hablar("uno", secundaria=True)
+        worker._hablar("dos", secundaria=True)
+        self.assertEqual(fabrica.creados.count("phonon"), 1)
+
+    def test_si_no_se_puede_crear_usa_sapi_y_avisa_una_vez(self):
+        sapi = Motor(("Voz A", "Voz B"), motor="sapi")
+        fabrica = FabricaPorMotor({"sapi": sapi}, fallan=("phonon",))
+        worker = _worker_con_motores(fabrica, "phonon")
+        avisos = []
+        worker.al_avisar = avisos.append
+        worker._hablar("uno", secundaria=True)
+        worker._hablar("dos", secundaria=True)
+        self.assertEqual(sapi.registro, [
+            ("uno", "Voz B", 20, 30, 50),
+            ("dos", "Voz B", 20, 30, 50),
+        ])
+        self.assertEqual(len(avisos), 1)
+        self.assertIn("Phonon", avisos[0])
+        self.assertIn("voz de Windows", avisos[0])
+
+    def test_configurar_con_otro_motor_cierra_el_anterior_y_no_recrea_el_principal(self):
+        sapi = Motor(("Voz A", "Voz B"), motor="sapi")
+        phonon = Motor(("Voz A", "Voz B"), motor="phonon")
+        piper = Motor(("Voz A", "Voz B"), motor="piper")
+        fabrica = FabricaPorMotor(
+            {"sapi": sapi, "phonon": phonon, "piper": piper})
+        worker = _worker_con_motores(fabrica, "phonon")
+        worker._hablar("uno", secundaria=True)
+        self.assertFalse(phonon.cerrado)
+        worker.configurar_voz_secundaria("Voz B", 20, 0.3, "", "piper")
+        worker._procesar_comandos()
+        self.assertTrue(phonon.cerrado)
+        self.assertEqual(fabrica.creados.count("sapi"), 1)
+        worker._hablar("dos", secundaria=True)
+        self.assertEqual(fabrica.creados.count("piper"), 1)
+        self.assertFalse(sapi.cerrado)
 
 
 if __name__ == "__main__":

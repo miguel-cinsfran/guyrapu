@@ -320,6 +320,7 @@ INTERNAS = {
     ("transmision", "youtube_lista_titulo"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
     ("ui", "filtro_activo"): "lo cambia el menú de filtros (gui.py:1309)",
     ("ui", "silenciar_sonidos"): "lo cambia F7 en la ventana principal (gui.py:1332)",
+    ("voz", "motor_secundaria"): "se elige cuando llegue la pestaña Voces; hoy no tiene control",
 }
 
 # Pares que se leen fuera de `config.py`: dónde se lee cada uno.
