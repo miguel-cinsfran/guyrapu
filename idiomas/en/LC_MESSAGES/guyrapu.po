@@ -12866,7 +12866,7 @@ msgstr "(no voices available)"
 
 #: guyrapu/ui/preferencias_voz.py guyrapu/ui/voces_ventana.py
 msgid "&Motor de voz:"
-msgstr "&Voice engine:"
+msgstr "Voice &engine:"
 
 #: guyrapu/ui/preferencias_voz.py guyrapu/ui/voces_ventana.py
 msgid "Motor de voz"
@@ -12914,7 +12914,7 @@ msgstr "Voice volume"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "&Tono (0 a 100):"
-msgstr "&Pitch (0 to 100):"
+msgstr "&Voice pitch (0 to 100):"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Tono de la voz"
@@ -12982,7 +12982,7 @@ msgstr "Vo&ice:"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Veloci&dad (0 a 100):"
-msgstr "Sp&eed (0 to 100):"
+msgstr "S&peed (0 to 100):"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Velocidad de la voz secundaria"
@@ -13479,7 +13479,7 @@ msgstr "De&tails:"
 
 #: guyrapu/ui/voces_ventana.py
 msgid "&Voces del paquete:"
-msgstr "&Voices in the pack:"
+msgstr "V&oices in the pack:"
 
 #: guyrapu/ui/voces_ventana.py
 msgid "Voces del paquete"
@@ -13487,7 +13487,7 @@ msgstr "Voices in the pack"
 
 #: guyrapu/ui/voces_ventana.py
 msgid "Vista p&revia de voz"
-msgstr "Preview &voice"
+msgstr "&Preview voice"
 
 #: guyrapu/ui/voces_ventana.py
 msgid "No hay voces en este paquete."

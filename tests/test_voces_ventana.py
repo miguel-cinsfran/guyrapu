@@ -10,7 +10,7 @@ import wx
 
 from guyrapu.core import idioma, paquetes_instalacion
 from guyrapu.ui import preferencias_voz, voces_ventana
-from tests.letras_acceso import letras_repetidas
+from tests.letras_acceso import ingles, letras_repetidas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 MEGA = 1024 * 1024
@@ -431,6 +431,38 @@ class TestFalloYVistaPrevia(BaseVentana):
         dialogo._vista_previa()
         self.avisar.assert_called_once()
         self.assertIn("sin libVLC", self.avisar.call_args.args[1])
+
+
+class TestLetrasEnIngles(BaseVentana):
+
+    def test_la_ventana_no_repite_letras_en_ingles(self):
+        with ingles():
+            paquete = _paquete("piper-davefx", "piper", "Piper Davefx",
+                               "es-ES", [_voz("Davefx", "es-ES")])
+            dialogo = self._dialogo(paquetes=(paquete,), idioma="en")
+            self.assertEqual(letras_repetidas(dialogo), {})
+
+
+class TestAbrirReal(BaseVentana):
+
+    def test_abrir_llama_a_al_cerrar_despues_de_cerrar(self):
+        self._parchear(voces_ventana.paquetes_instalacion, "instalados",
+                       _Instalados())
+        self._parchear(voces_ventana.red, "pedir_texto",
+                       mock.Mock(return_value=_catalogo()))
+        self._parchear(voces_ventana.diagnostico, "crear_hilo", HiloInmediato)
+        self._parchear(voces_ventana.wx, "CallAfter",
+                       lambda funcion, *args: funcion(*args))
+        self._parchear(voces_ventana.voces_disponibles, "idioma_actual",
+                       lambda: "es")
+        self._parchear(voces_ventana.confirmar, "avisar", mock.Mock())
+        self._parchear(voces_ventana._snd, "reproducir", mock.Mock())
+        self._parchear(voces_ventana, "anunciar", mock.Mock())
+        al_cerrar = mock.Mock()
+        with mock.patch.object(voces_ventana.VentanaVoces, "ShowModal",
+                               return_value=wx.ID_CANCEL):
+            voces_ventana.abrir(None, al_cerrar=al_cerrar)
+        al_cerrar.assert_called_once_with()
 
 
 class TestDesdePreferencias(BaseVentana):
