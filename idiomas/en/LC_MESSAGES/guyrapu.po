@@ -9588,10 +9588,6 @@ msgstr "Comments are not available on TikTok live streams."
 msgid "Directo de TikTok de @{usuario}: leyendo el chat."
 msgstr "TikTok live stream by @{usuario}: reading the chat."
 
-#: guyrapu/ui/gui.py
-msgid "(no disponible)"
-msgstr "(not available)"
-
 #: guyrapu/ui/gui.py guyrapu/ui/gui_menu.py guyrapu/ui/restream_pagina_cuenta.py
 msgid "&Desconectar"
 msgstr "&Disconnect"
@@ -10449,10 +10445,6 @@ msgstr "Mute &reading"
 #: guyrapu/ui/gui_menu.py
 msgid "Silenciar s&onidos"
 msgstr "Mute so&unds"
-
-#: guyrapu/ui/gui_menu.py
-msgid "Elegir vo&z"
-msgstr "Select vo&ice"
 
 #: guyrapu/ui/gui_menu.py
 msgid "&Reproducir o pausar"
@@ -12407,11 +12399,11 @@ msgstr "&Provider:"
 msgid "&Dirección del servicio:"
 msgstr "Ser&vice address:"
 
-#: guyrapu/ui/preferencias_ia.py guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_ia.py guyrapu/ui/preferencias_voz_eleven.py
 msgid "Compro&bar clave"
 msgstr "C&heck key"
 
-#: guyrapu/ui/preferencias_ia.py guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_ia.py guyrapu/ui/preferencias_voz_eleven.py
 msgid "Comprobar clave"
 msgstr "Check key"
 
@@ -12886,9 +12878,9 @@ msgstr "Could not enable the OBS WebSocket server: {exc}"
 msgid "(comprueba la clave)"
 msgstr "(checks the key)"
 
-#: guyrapu/ui/preferencias_voz.py
-msgid "(no hay voces disponibles)"
-msgstr "(no voices available)"
+#: guyrapu/ui/preferencias_voz.py guyrapu/ui/preferencias_voz_secundaria.py
+msgid "(no hay voces instaladas: usa Administrar voces)"
+msgstr "(no voices installed: use Manage voices)"
 
 #: guyrapu/ui/preferencias_voz.py guyrapu/ui/voces_ventana.py
 msgid "&Motor de voz:"
@@ -12897,14 +12889,6 @@ msgstr "Voice &engine:"
 #: guyrapu/ui/preferencias_voz.py guyrapu/ui/voces_ventana.py
 msgid "Motor de voz"
 msgstr "Voice engine"
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "Cl&ave de ElevenLabs:"
-msgstr "ElevenLabs &key:"
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "Clave de ElevenLabs"
-msgstr "ElevenLabs key"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "&Voz principal:"
@@ -12955,18 +12939,34 @@ msgid "Probar voz"
 msgstr "Test voice"
 
 #: guyrapu/ui/preferencias_voz.py
+msgid "Primero comprueba la clave."
+msgstr "Check the key first."
+
+#: guyrapu/ui/preferencias_voz_eleven.py
+msgid "(no hay voces disponibles)"
+msgstr "(no voices available)"
+
+#: guyrapu/ui/preferencias_voz_eleven.py
+msgid "Cl&ave de ElevenLabs:"
+msgstr "ElevenLabs &key:"
+
+#: guyrapu/ui/preferencias_voz_eleven.py
+msgid "Clave de ElevenLabs"
+msgstr "ElevenLabs key"
+
+#: guyrapu/ui/preferencias_voz_eleven.py
 msgid "Límite de caracteres p&or sesión (0 sin límite):"
 msgstr "Character &limit per session (0 for no limit):"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz_eleven.py
 msgid "Límite de caracteres de ElevenLabs"
 msgstr "ElevenLabs character limit"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz_eleven.py
 msgid "Solo lo importante con ElevenLabs"
 msgstr "Only important things with ElevenLabs"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz_eleven.py
 msgid ""
 "U&sar ElevenLabs solo con Super Chats, miembros, cofres, propietario y "
 "moderadores"
@@ -12974,21 +12974,17 @@ msgstr ""
 "Use ElevenLabs o&nly for Super Chats, members, treasure chests, owner, and "
 "moderators"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz_eleven.py
 msgid "Voz de &Windows de respaldo:"
 msgstr "Backup &Windows voice:"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz_eleven.py
 msgid "Voz de Windows de respaldo"
 msgstr "Backup Windows voice"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz_eleven.py
 msgid "Escribe la clave de ElevenLabs."
 msgstr "Type the ElevenLabs key."
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "Primero comprueba la clave."
-msgstr "Check the key first."
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Igual que la voz principal"
@@ -13001,6 +12997,18 @@ msgstr "Same as the main voice backup"
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Voz secundaria"
 msgstr "Secondary voice"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Motor de vo&z:"
+msgstr "Vo&ice engine:"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Motor de la voz secundaria"
+msgstr "Secondary voice engine"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Voz:"
+msgstr "Voice:"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Veloci&dad (0 a 100):"
@@ -13956,20 +13964,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/preferencias_voz.py guyrapu/ui/preferencias_voz_secundaria.py
-msgid "(no hay voces instaladas: usa Administrar voces)"
-msgstr "(no voices installed: use Manage voices)"
-
-#: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Motor de vo&z:"
-msgstr "Vo&ice engine:"
-
-#: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Motor de la voz secundaria"
-msgstr "Secondary voice engine"
-
-#: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Voz:"
-msgstr "Voice:"
 

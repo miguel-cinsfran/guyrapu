@@ -95,8 +95,6 @@ def construir_menu(frame):
     frame.mi_sil_sonidos = m.AppendCheckItem(
         wx.ID_ANY, _("Silenciar s&onidos") + frame._accel("silenciar_sonidos"))
     m.AppendSeparator()
-    frame.voz_submenu = wx.Menu()
-    m.AppendSubMenu(frame.voz_submenu, _("Elegir vo&z"))
     _publicar_menu_voz(frame, m, mb)
     frame._bind_menu(frame.mi_pausa, frame._on_pausa, None)
     frame._bind_menu(mi_det, frame._on_detener_tts, None)

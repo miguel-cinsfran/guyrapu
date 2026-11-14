@@ -3321,8 +3321,7 @@ class TestAplicarPreferenciasMotor(unittest.TestCase):
         frame._config = dict(configuracion)
         frame._conectado = False
         frame._voz_idx = 0
-        frame.voz_submenu = mock.Mock()
-        frame.voz_submenu.GetMenuItems.return_value = []
+        frame._voces_menu = []
         frame.lb_chat = mock.Mock()
         frame._rep_panel = mock.Mock()
         for metodo in ("_build_menubar", "poblar_voces", "_aplicar_voz",
@@ -3382,6 +3381,50 @@ class TestAplicarPreferenciasMotor(unittest.TestCase):
             frame._aplicar_preferencias_en_caliente()
         frame._worker.configurar_elevenlabs.assert_called_once_with(
             40000, True, "Lucía")
+
+
+class TestVocesDeLaVentana(unittest.TestCase):
+    """La lista de voces vive en el marco, no en un submenú."""
+
+    def _marco(self, voces=None):
+        marco = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
+        marco._voces_menu = list(voces or [])
+        marco._voz_idx = 0
+        marco._voz_nombre = "—"
+        marco._config = {}
+        marco._worker = mock.Mock()
+        return marco
+
+    def test_poblar_guarda_lista_indice_y_nombre(self):
+        marco = self._marco()
+        voces = ["A", "B"]
+        gui.VentanaPrincipal.poblar_voces(marco, voces, 1)
+        voces.append("C")
+        self.assertEqual(marco._voces_menu, ["A", "B"])
+        self.assertEqual(marco._voz_idx, 1)
+        self.assertEqual(marco._voz_nombre, "B")
+        self.assertEqual(gui.VentanaPrincipal._nombre_voz(marco, 0), "A")
+
+    def test_sin_voces_el_nombre_es_la_raya(self):
+        marco = self._marco(["A"])
+        gui.VentanaPrincipal.poblar_voces(marco, [], 0)
+        self.assertEqual(marco._voces_menu, [])
+        self.assertEqual(marco._voz_nombre, "—")
+
+    def test_indice_inexistente_devuelve_la_raya(self):
+        marco = self._marco(["A"])
+        self.assertEqual(gui.VentanaPrincipal._nombre_voz(marco, 4), "—")
+
+    def test_aplicar_voz_guarda_y_anuncia_el_nombre(self):
+        marco = self._marco(["A", "B"])
+        with mock.patch.object(gui, "guardar_opcion") as guardar, \
+                mock.patch.object(gui._snd, "reproducir") as sonar, \
+                mock.patch.object(gui, "anunciar") as anunciar:
+            gui.VentanaPrincipal._aplicar_voz(marco, 0)
+        self.assertEqual(marco._config["voz"], "A")
+        guardar.assert_called_once_with(gui.RUTA_CONFIG, "voz", "voz", "A")
+        sonar.assert_called_once_with("voz_cambiada")
+        anunciar.assert_called_once_with("Voz: A")
 
 
 class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
@@ -6172,7 +6215,6 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         from guyrapu.core.anuncio_ajuste import AnuncioAjuste
         marco = self._marco()
         marco._worker.cambiar_voz = mock.Mock()
-        marco.voz_submenu = mock.Mock()
         marco._nombre_voz = mock.Mock(return_value="Voz")
         with mock.patch.object(gui, "guardar_opcion"):
             gui.VentanaPrincipal._aplicar_voz(marco, 0)

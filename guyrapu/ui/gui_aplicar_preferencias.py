@@ -40,14 +40,7 @@ def _reconstruir_atajos_y_menu(frame):
     from guyrapu.ui import gui as _gui
     # Reconstruir atajos y menú por si cambiaron las teclas.
     frame._atajos = _gui.parsear_atajos(frame._config.get("atajos_raw", {}))
-    try:
-        # Solo los radio items: si no había voces, el submenú tiene un item
-        # deshabilitado «(no disponible)» que no debe repoblarse como voz.
-        voces_actuales = [it.GetItemLabelText()
-                          for it in frame.voz_submenu.GetMenuItems()
-                          if it.GetKind() == _gui.wx.ITEM_RADIO]
-    except Exception:
-        voces_actuales = []
+    voces_actuales = getattr(frame, "_voces_menu", [])
     frame._build_menubar()
     return voces_actuales
 
@@ -55,7 +48,7 @@ def _reconstruir_atajos_y_menu(frame):
 def _aplicar_voz(frame, voces_actuales):
     from guyrapu.ui import gui as _gui
     # Preferencias puede haber cambiado el motor o la voz: aplicarlo en
-    # caliente. Con el motor nuevo hay que repoblar el menú de voz.
+    # caliente. Con el motor nuevo hay que repoblar la lista de voces.
     try:
         motor_cfg = frame._config.get("motor") or "sapi"
         if motor_cfg != (frame._worker.motor_activo() or ""):
@@ -68,8 +61,8 @@ def _aplicar_voz(frame, voces_actuales):
             _gui.anunciar(_("Motor de voz: {nombre}").format(
                 nombre=_(motores.NOMBRES.get(motor_cfg, motor_cfg))))
         else:
-            # Restaurar submenú de voz tras reconstruir (con lista vacía,
-            # poblar_voces repone el item «(no disponible)»).
+            # Restaurar la lista de voces tras reconstruir (con lista vacía,
+            # poblar_voces repone el nombre «—»).
             frame.poblar_voces(voces_actuales, frame._voz_idx)
             if voces_actuales:
                 # Preferencias puede haber cambiado la voz: aplicarla.

@@ -154,7 +154,6 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("Vo&z", "S&ilenciar lectura", ANY, "check"),
             ("Vo&z", "Silenciar s&onidos", ANY, "check"),
             ("Vo&z", "---", None, "sep"),
-            ("Vo&z", "Elegir vo&z", None, "submenu"),
             ("Vo&z", "&Administrar voces…", ANY, "normal"),
             ("&Reproductor", "&Reproducir o pausar", ANY, "normal"),
             ("&Reproductor", "R&etroceder 1 minuto", ANY, "normal"),
@@ -643,10 +642,11 @@ def _entradas_de(menu):
 class TestMenuAdministrarVoces(unittest.TestCase):
     """Administrar voces entra en el menú Voz y abre su ventana."""
 
-    def test_va_despues_del_submenu_y_sin_letras_repetidas(self):
+    def test_va_al_final_y_sin_letras_repetidas(self):
         entradas = _entradas_de("Vo&z")
         etiquetas = [fila[1] for fila in entradas]
-        self.assertEqual(etiquetas[etiquetas.index("Elegir vo&z") + 1],
+        self.assertNotIn("Elegir vo&z", etiquetas)
+        self.assertEqual([texto for texto in etiquetas if texto != "---"][-1],
                          "&Administrar voces…")
         letras = [texto[texto.index("&") + 1].lower()
                   for _menu, texto, _dato, _tipo in entradas

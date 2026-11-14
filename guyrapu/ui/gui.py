@@ -189,7 +189,8 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self.programador = programados.ProgramadorMensajes(
             programados.cargar(paths.mensajes_programados()))
 
-        # Voz activa: se elige en un submenú de radio.
+        # Voz activa: se elige en Preferencias, Voces.
+        self._voces_menu = []
         self._voz_idx = 0
         self._voz_nombre = "—"
 
@@ -865,12 +866,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
     def _aplicar_voz(self, idx: int):
         self._worker.cambiar_voz(idx)
         self._voz_idx = idx
-        try:    self._voz_nombre = self._nombre_voz(idx)
-        except Exception: self._voz_nombre = "—"
-        # Marcar el radio del submenú: al clicar lo hace wx solo, pero si
-        # llegamos aquí desde Preferencias hay que marcarlo a mano.
-        try:    self.voz_submenu.FindItemByPosition(idx).Check(True)
-        except Exception as error: logger.debug("no se pudo marcar la voz: %s", error)
+        self._voz_nombre = self._nombre_voz(idx)
         # Se guarda el NOMBRE, no el número: con el índice, instalar una voz
         # corre la lista y la app hablaría con otra sin avisar.
         self._config["voz"] = self._voz_nombre
@@ -880,8 +876,9 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         anunciar(_("Voz: {nombre}").format(nombre=self._voz_nombre))
 
     def _nombre_voz(self, idx: int) -> str:
-        it = self.voz_submenu.FindItemByPosition(idx)
-        return it.GetItemLabelText() if it else "—"
+        if 0 <= idx < len(self._voces_menu):
+            return self._voces_menu[idx]
+        return "—"
 
     def _aplicar_filtro(self, idx: int):
         self.chat_vivo.filtro = FILTROS[idx][1] if idx < len(FILTROS) else None
@@ -1563,19 +1560,11 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self._on_conectar(None)
 
     def poblar_voces(self, voces: list, idx_actual: int = 0) -> None:
-        # Vaciar el submenú de voz y reconstruir con radio items.
-        for it in list(self.voz_submenu.GetMenuItems()):
-            self.voz_submenu.Delete(it)
+        self._voces_menu = list(voces)
         if not voces:
-            it = self.voz_submenu.Append(wx.ID_ANY, _("(no disponible)"))
-            it.Enable(False)
             self._voz_nombre = "—"
             return
-        for i, nombre in enumerate(voces):
-            it = self.voz_submenu.AppendRadioItem(wx.ID_ANY, nombre)
-            self._bind_menu(it, self._aplicar_voz, i)
         idx_actual = idx_actual if 0 <= idx_actual < len(voces) else 0
-        self.voz_submenu.FindItemByPosition(idx_actual).Check(True)
         self._voz_idx = idx_actual
         self._voz_nombre = voces[idx_actual]
 

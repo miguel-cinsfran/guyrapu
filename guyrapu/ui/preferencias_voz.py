@@ -88,9 +88,8 @@ class PaginaVoz:
     def _crear_voz_lectura(self, p, vs, es_eleven):
         from guyrapu.voice import motores
 
-        # Voz del motor elegido. También está en el menú Voz → Seleccionar voz;
-        # aquí queda junto al resto de ajustes de lectura para encontrarla más
-        # fácil.
+        # Voz del motor elegido, junto al resto de ajustes de lectura para
+        # encontrarla más fácil.
         vs.Add(fila_label(p, _("&Voz principal:")), 0, wx.LEFT | wx.RIGHT, 10)
         if es_eleven:
             # Nunca se va a la red en el hilo de la interfaz: la lista queda
