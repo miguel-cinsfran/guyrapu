@@ -13981,7 +13981,7 @@ msgstr "Untitled"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Salida de audio de la voz (P&honon y Piper):"
-msgstr "Voice audio output (P&honon and Piper):"
+msgstr "Voice audio output (Phonon and Pipe&r):"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Salida de audio de la voz (Phonon y Piper)"

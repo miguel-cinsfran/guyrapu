@@ -25,6 +25,7 @@ from guyrapu.ui import preferencias_ia_clave
 from guyrapu.ui import preferencias_sonidos
 from guyrapu.ui import preferencias_transmision
 from guyrapu.voice import motores
+from guyrapu.voice import reproductor_pcm
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.rutas_temporales import redirigir_rutas
 from tests.test_preferencias_atajos import PENDIENTES_ATAJOS
@@ -71,7 +72,11 @@ class TestDialogoSinTextosSinEnvolver(unittest.TestCase):
         self.addCleanup(catalogo_vacio.stop)
 
     def _dialogo(self, configuracion=None):
-        with mock.patch.object(motores, "listar_voces", return_value=[]):
+        # Los nombres de las salidas de audio los pone Windows y no se
+        # traducen: se finge la lista vacía para mirar solo los textos propios.
+        with mock.patch.object(motores, "listar_voces", return_value=[]), \
+                mock.patch.object(reproductor_pcm, "listar_salidas",
+                                  return_value=[]):
             dialogo = gui_preferencias.PreferenciasDialog(
                 None, configuracion or {})
         self.addCleanup(destruir, dialogo)

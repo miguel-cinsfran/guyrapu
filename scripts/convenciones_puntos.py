@@ -16,6 +16,7 @@ ABREN_CUADRO = frozenset((
     "Administrador de descargas",
     "Administrar voces",
     "Buscar actualizaciones",
+    "Buscar en el chat",
     "Descargar este vídeo",
     "Elegir música",
     "Historial de directos",
