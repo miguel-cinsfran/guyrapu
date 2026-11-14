@@ -13584,3 +13584,22 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/voice/proveedores/piper.py
+msgid "Piper, voces locales"
+msgstr "Piper, local voices"
+
+#: guyrapu/voice/proveedores/piper.py
+msgid ""
+"Según cada voz: dominio público, CC0, CC BY, CC BY-SA, Apache 2.0 o "
+"Unlicense"
+msgstr "Per voice: public domain, CC0, CC BY, CC BY-SA, Apache 2.0 or Unlicense"
+
+#: guyrapu/voice/proveedores/piper.py
+msgid "No hay voces de Piper instaladas. Descarga una voz desde Preferencias."
+msgstr "No Piper voices installed. Download a voice from Preferences."
+
+#: guyrapu/voice/proveedores/piper.py
+#, python-brace-format
+msgid "No se pudo cargar Piper: {detalle}"
+msgstr "Could not load Piper: {detalle}"
+

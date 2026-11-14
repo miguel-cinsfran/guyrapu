@@ -233,7 +233,8 @@ class TestPseudoTextos(unittest.TestCase):
     def test_nombres_salen_marcados(self):
         with con_pseudo():
             marcados = [_(NOMBRES[motor]) for motor in
-                        ("sapi", "onecore", "elevenlabs", "phonon")]
+                        ("sapi", "onecore", "elevenlabs", "phonon",
+                         "piper")]
         for texto in marcados:
             with self.subTest(texto=texto):
                 self.assertTrue(texto.startswith("[¡"), texto)

@@ -10,10 +10,11 @@ from __future__ import annotations
 
 from guyrapu.voice.proveedores.elevenlabs import PROVEEDOR_ELEVENLABS
 from guyrapu.voice.proveedores.phonon import PROVEEDOR_PHONON
+from guyrapu.voice.proveedores.piper import PROVEEDOR_PIPER
 from guyrapu.voice.proveedores.prism import PROVEEDOR_ONECORE, PROVEEDOR_SAPI
 
 PROVEEDORES = (PROVEEDOR_SAPI, PROVEEDOR_ONECORE, PROVEEDOR_ELEVENLABS,
-               PROVEEDOR_PHONON)
+               PROVEEDOR_PHONON, PROVEEDOR_PIPER)
 
 
 def obtener(id):

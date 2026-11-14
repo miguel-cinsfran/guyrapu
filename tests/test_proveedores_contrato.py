@@ -21,7 +21,8 @@ class TestRegistro(unittest.TestCase):
 
     def test_los_proveedores_van_en_orden(self):
         self.assertEqual([proveedor.id for proveedor in PROVEEDORES],
-                         ["sapi", "onecore", "elevenlabs", "phonon"])
+                         ["sapi", "onecore", "elevenlabs", "phonon",
+                          "piper"])
 
 
 class TestContrato(unittest.TestCase):
