@@ -18,6 +18,7 @@ from guyrapu.core import actualizacion
 from guyrapu.core import instalador
 from guyrapu.core import paquete_release
 from guyrapu.core import paths
+from guyrapu.core import red
 from guyrapu.core import versiones
 
 
@@ -498,8 +499,8 @@ class TestDescargarPaquete(unittest.TestCase):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             with mock.patch.object(
-                    actualizacion, "_descargar_texto",
-                    side_effect=actualizacion._DescargaCancelada):
+                    red, "pedir_texto",
+                    side_effect=red.DescargaCancelada):
                 resultado = actualizacion.descargar_paquete(
                     "https://ejemplo.com/p.zip",
                     "https://ejemplo.com/p.zip.sha256",

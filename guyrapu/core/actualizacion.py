@@ -28,9 +28,11 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from guyrapu.core import paths
+from guyrapu.core import red
 from guyrapu.core.config import APP_NAME, URL_REPOSITORIO, USER_AGENT
 from guyrapu.core.idioma import _
 from guyrapu.core.paquete_release import PaqueteElegido, _es_https, elegir_paquete
+from guyrapu.core.red import TIEMPO_ESPERA
 from guyrapu.core.version_legible import version_legible
 from guyrapu.core.versiones import version_como_tupla
 # Se reexportan con el mismo nombre para quien las llama como
@@ -42,7 +44,6 @@ from guyrapu.core.versiones import hay_version_nueva as hay_version_nueva
 URL_API_REPOSITORIO = URL_REPOSITORIO.replace("https://github.com/", "https://api.github.com/repos/")
 URL_ULTIMA_VERSION = f"{URL_API_REPOSITORIO}/releases/latest"
 URL_PAGINA_RELEASES = f"{URL_REPOSITORIO}/releases/latest"
-TIEMPO_ESPERA = 30
 
 logger = logging.getLogger(f"guyrapu.{__name__}")
 
@@ -142,41 +143,6 @@ def leer_firma(texto: str | None) -> str:
 
 # ── Descarga ───────────────────────────────────────────────────────────────
 
-class _DescargaCancelada(Exception):
-    pass
-
-
-def _descargar_archivo(url: str, destino: Path, aviso=None, cancelar=None) -> None:
-    solicitud = Request(url, headers={"User-Agent": USER_AGENT})
-    with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
-        total = None
-        try:
-            total = int(respuesta.headers.get("Content-Length"))
-        except (AttributeError, TypeError, ValueError):
-            pass
-        descargado = 0
-        with destino.open("wb") as archivo:
-            while True:
-                if cancelar is not None and cancelar():
-                    raise _DescargaCancelada
-                bloque = respuesta.read(1024 * 1024)
-                if not bloque:
-                    break
-                archivo.write(bloque)
-                descargado += len(bloque)
-                if aviso is not None:
-                    if total:
-                        aviso(min(100, max(0, int(descargado * 100 / total))))
-                    else:
-                        aviso(None)
-
-
-def _descargar_texto(url: str) -> str:
-    solicitud = Request(url, headers={"User-Agent": USER_AGENT})
-    with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
-        return respuesta.read().decode("utf-8")
-
-
 def descargar_paquete(url_zip: str, url_firma: str, destino: str | os.PathLike,
                        aviso_progreso=None, cancelar=None,
                        permitir_http: bool = False) -> ResultadoDescarga:
@@ -193,8 +159,8 @@ def descargar_paquete(url_zip: str, url_firma: str, destino: str | os.PathLike,
     temporal = None
     try:
         try:
-            texto_firma = _descargar_texto(url_firma)
-        except _DescargaCancelada:
+            texto_firma = red.pedir_texto(url_firma)
+        except red.DescargaCancelada:
             return ResultadoDescarga(False, _("descarga cancelada"), "cancelada")
         except (OSError, HTTPError, URLError, ValueError, UnicodeError) as error:
             return ResultadoDescarga(
@@ -207,7 +173,7 @@ def descargar_paquete(url_zip: str, url_firma: str, destino: str | os.PathLike,
                 prefix=".paquete-", suffix=".tmp", dir=destino.parent,
                 delete=False) as archivo:
             temporal = Path(archivo.name)
-        _descargar_archivo(url_zip, temporal, aviso_progreso, cancelar)
+        red.descargar_archivo(url_zip, temporal, aviso_progreso, cancelar)
         resumen = hashlib.sha256()
         with temporal.open("rb") as archivo:
             for bloque in iter(lambda: archivo.read(1024 * 1024), b""):
@@ -217,7 +183,7 @@ def descargar_paquete(url_zip: str, url_firma: str, destino: str | os.PathLike,
         os.replace(temporal, destino)
         temporal = None
         return ResultadoDescarga(True, _("paquete descargado"))
-    except _DescargaCancelada:
+    except red.DescargaCancelada:
         return ResultadoDescarga(False, _("descarga cancelada"), "cancelada")
     except (OSError, HTTPError, URLError, ValueError) as error:
         return ResultadoDescarga(
