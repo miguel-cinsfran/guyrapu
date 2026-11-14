@@ -171,6 +171,7 @@ class VentanaObs(wx.Dialog):
             self._pagina_grabacion._grabacion.boton.SetFocus()
         elif self._pestana_inicial == PESTANA_PERFILES:
             self._pagina_perfiles.releer()
+            self._pagina_perfiles.lista.SetFocus()
         elif self._pestana_inicial == PESTANA_ESCENA:
             if leida.descripcion:
                 anunciar(leida.descripcion)

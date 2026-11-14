@@ -116,22 +116,34 @@ class TestFocoAlAbrir(unittest.TestCase):
         self.assertIs(control_principal(ventana), lista)
         self.assertTrue(_tiene_foco(lista))
 
-    def test_obs_abre_en_la_lista_de_escenas(self):
+    def _abrir_obs(self, pestana=obs_ventana.PESTANA_ESCENA):
         principal = SimpleNamespace(_config={"obs_microfono": "Mic/Aux"})
         with mock.patch.object(obs_ventana.VentanaObs, "_en_hilo") as en_hilo, \
+                mock.patch.object(obs_ventana.OperacionesObs, "en_hilo"), \
                 mock.patch.object(
                     obs_ventana.obs_lanzador, "asegurar_obs",
                     lambda probar, al_anunciar=None, parada=None: probar()), \
                 mock.patch.object(obs_ventana, "anunciar"):
             ventana = obs_ventana.VentanaObs(
-                None, principal, gestor=GestorFalso())
+                None, principal, gestor=GestorFalso(), pestana=pestana)
             self.addCleanup(destruir, ventana)
             ventana.Show()
             self.addCleanup(ventana.Hide)
             wx.Yield()
             funcion, al_terminar = en_hilo.call_args.args
             al_terminar(funcion())
+        return ventana
+
+    def test_obs_abre_en_la_lista_de_escenas(self):
+        ventana = self._abrir_obs()
         lista = ventana._pagina_escena.lst_escenas
+
+        self.assertIs(control_principal(ventana), lista)
+        self.assertTrue(_tiene_foco(lista))
+
+    def test_obs_en_perfiles_abre_en_la_lista_de_perfiles(self):
+        ventana = self._abrir_obs(obs_ventana.PESTANA_PERFILES)
+        lista = ventana._pagina_perfiles.lista
 
         self.assertIs(control_principal(ventana), lista)
         self.assertTrue(_tiene_foco(lista))
