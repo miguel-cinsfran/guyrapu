@@ -53,6 +53,7 @@ class _TTSFalso:
         self.agregadas = []
         self.condiciones = {}
         self.frases = []
+        self.llamadas = []
 
     def add_voice(self, nombre, ruta):
         self.agregadas.append((nombre, str(ruta)))
@@ -60,9 +61,11 @@ class _TTSFalso:
 
     def set_conditions(self, condiciones):
         self.condiciones.update(condiciones)
+        self.llamadas.append(("condiciones", dict(condiciones)))
 
     def stream(self, texto, voice=None):
         self.frases.append((texto, voice))
+        self.llamadas.append(("stream", (texto, voice)))
         return iter(([0.0],))
 
 
@@ -211,6 +214,15 @@ class TestSintetizador(BasePhonon):
         self.assertEqual(modelo.condiciones["duration_delta"],
                          phonon.delta_duracion(1.0))
         self.assertEqual(modelo.frases, [("Hola", "Ana")])
+
+    def test_la_velocidad_llega_al_modelo_antes_de_sintetizar(self):
+        self.assertTrue(self.sintetizador.elegir_voz(0))
+        modelo = self.falso.creados[0]
+        list(self.sintetizador.sintetizar("Hola", 1.288))
+        self.assertEqual(
+            modelo.llamadas,
+            [("condiciones", {"duration_delta": -0.45}),
+             ("stream", ("Hola", "Ana"))])
 
     def test_elegir_fuera_de_rango_no_carga_nada(self):
         self.assertFalse(self.sintetizador.elegir_voz(9))
