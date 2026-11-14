@@ -77,6 +77,9 @@ class ReproductorPCM:
         self._pausado = False
         self._generacion = 0
         self._cond = threading.Condition()
+        self._consumidas = 0
+        self._corte_confirmado = threading.Event()
+        self._esperando_corte = False
         self._aviso_dispositivo = False
         self._dispositivo = self._elegir_dispositivo(dispositivo)
 
@@ -105,7 +108,9 @@ class ReproductorPCM:
         try:
             self._stream = sd.OutputStream(
                 samplerate=tasa, channels=1, dtype="float32",
-                device=self._dispositivo, callback=self._callback)
+                device=self._dispositivo,
+                extra_settings=sd.WasapiSettings(auto_convert=True),
+                callback=self._callback)
             self._stream.start()
             self._tasa = tasa
             self._mudo = False
@@ -155,7 +160,12 @@ class ReproductorPCM:
             self._audio = np.empty(0, np.float32)
             self._fin = False
             self._sonando = False
+            self._esperando_corte = True
+            self._corte_confirmado.clear()
             self._cond.notify_all()
+        if (self._stream is None or self._mudo
+                or not self._stream.active):
+            self._corte_confirmado.set()
 
     def pausar(self) -> None:
         """Detiene el sonido sin perder lo encolado."""
@@ -212,6 +222,9 @@ class ReproductorPCM:
 
     def _rellenar(self, salida, cuadros: int) -> None:
         with self._cond:
+            if self._esperando_corte:
+                self._esperando_corte = False
+                self._corte_confirmado.set()
             if self._cerrado or self._pausado:
                 salida.fill(0)
                 return
@@ -222,6 +235,7 @@ class ReproductorPCM:
                 salida[tomar:, 0] = 0
             if tomar:
                 self._audio = self._audio[tomar:]
+                self._consumidas += tomar
             if self._fin and not len(self._audio):
                 self._sonando = False
             self._cond.notify_all()

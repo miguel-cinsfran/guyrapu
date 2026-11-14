@@ -24,6 +24,16 @@ def _esperar(condicion, plazo=3.0):
     return condicion()
 
 
+def _esperar_hasta(condicion, plazo):
+    """Segundos hasta que la condición se cumple, o None si no llega."""
+    inicio = time.perf_counter()
+    while time.perf_counter() - inicio < plazo:
+        if condicion():
+            return time.perf_counter() - inicio
+        time.sleep(0.005)
+    return None
+
+
 @unittest.skipUnless(HAY_AUDIO, "sin salida de audio")
 class TestReproductorPCM(unittest.TestCase):
 
@@ -42,11 +52,16 @@ class TestReproductorPCM(unittest.TestCase):
             self):
         self._encolar(1.0)
         self.assertTrue(self.reproductor.sonando)
+        time.sleep(0.05)
         inicio = time.perf_counter()
         self.reproductor.cortar()
+        self.assertTrue(self.reproductor._corte_confirmado.wait(0.2))
         medido = time.perf_counter() - inicio
         self.assertFalse(self.reproductor.sonando)
         self.assertLess(medido, 0.1)
+        consumidas = self.reproductor._consumidas
+        time.sleep(0.05)
+        self.assertEqual(self.reproductor._consumidas, consumidas)
 
     def test_pausar_no_avanza_y_reanudar_termina(self):
         self._encolar(1.0)
@@ -72,6 +87,37 @@ class TestReproductorPCM(unittest.TestCase):
         finally:
             reproductor.cortar()
             reproductor.cerrar()
+
+
+@unittest.skipUnless(HAY_AUDIO, "sin salida de audio")
+class TestReproductorPCMTasas(unittest.TestCase):
+
+    def _probar_tono(self, tasa):
+        reproductor = reproductor_pcm.ReproductorPCM()
+        try:
+            reproductor.empezar(tasa)
+            self.assertFalse(reproductor._mudo)
+            tiempos = np.arange(int(tasa * 0.5)) / tasa
+            tono = (0.01 * np.sin(2 * np.pi * 440 * tiempos)).astype(
+                np.float32)
+            trozo = int(tasa * 0.02)
+            for inicio in range(0, len(tono), trozo):
+                reproductor.encolar(tono[inicio:inicio + trozo])
+            self.assertTrue(reproductor.sonando)
+            reproductor.terminar()
+            transcurrido = _esperar_hasta(
+                lambda: not reproductor.sonando, 1.5)
+            self.assertIsNotNone(transcurrido)
+            self.assertGreaterEqual(transcurrido, 0.4)
+            self.assertLessEqual(transcurrido, 1.5)
+        finally:
+            reproductor.cerrar()
+
+    def test_un_tono_a_22050_suena_y_termina(self):
+        self._probar_tono(22050)
+
+    def test_un_tono_a_24000_suena_y_termina(self):
+        self._probar_tono(24000)
 
 
 class SintetizadorSilencio:
