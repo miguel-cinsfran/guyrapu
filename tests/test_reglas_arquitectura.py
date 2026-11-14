@@ -27,9 +27,10 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_ocho_reglas_estan_en_la_tabla(self):
+    def test_las_nueve_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
-                         ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"])
+                         ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
+                          "R9"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -170,6 +171,20 @@ class TestDetectores(unittest.TestCase):
             texto = "import piper"
             """)
         self.assertEqual([1, 2, 3, 4, 5], _lineas(hallazgos))
+
+    def test_rotulos_de_menu(self):
+        hallazgos = _hallazgos(detectores.detectar_rotulos_de_menu, """\
+            m.Append(wx.ID_ANY, nombre_voz)
+            m.Append(wx.ID_ANY, _("Abrir"))
+            m.Append(wx.ID_ANY, _("Abrir") + algo)
+            m.AppendSubMenu(sub, nombre_voz)
+            m.Append(wx.ID_ANY)
+            for nombre, _sin_uso in enumerate(FILTROS):
+                m.AppendRadioItem(wx.ID_ANY, _(nombre))
+            for etiqueta, altura in CALIDADES:
+                m.AppendRadioItem(wx.ID_ANY, _(etiqueta))
+            """)
+        self.assertEqual([1, 4], _lineas(hallazgos))
 
     def test_esperas(self):
         hallazgos = _hallazgos(detectores.detectar_esperas, """\

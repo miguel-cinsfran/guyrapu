@@ -68,7 +68,10 @@ class BotonDirecto:
             self.boton.Hide()
         comando = getattr(self._marco, "mi_directo", None)
         if comando is not None:
-            comando.SetItemLabel(etiqueta)
+            if self._transmitiendo or self._deteniendo:
+                comando.SetItemLabel(etiqueta)
+            else:
+                comando.SetItemLabel(etiqueta + "…")
             comando.Enable(visible)
         self.boton.GetParent().Layout()
 

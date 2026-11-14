@@ -17,6 +17,7 @@ from tests.reglas_detectores import (
     Hallazgo,
     _controles,
     _esperas,
+    _menus_de_la_barra,
     _paquete,
     _todo,
     detectar_avisar,
@@ -27,6 +28,7 @@ from tests.reglas_detectores import (
     detectar_escape,
     detectar_esperas,
     detectar_red,
+    detectar_rotulos_de_menu,
 )
 
 
@@ -119,7 +121,7 @@ REGLAS = (
             "guyrapu/ui/boton_directo.py": 2, "guyrapu/ui/buscador_tandas.py": 3,
             "guyrapu/ui/descargas_buscador.py": 1, "guyrapu/ui/escena_captura_ventana.py": 1,
             "guyrapu/ui/escena_propiedades.py": 2,
-            "guyrapu/ui/gui.py": 10, "guyrapu/ui/gui_comentarios.py": 7,
+            "guyrapu/ui/gui.py": 9, "guyrapu/ui/gui_comentarios.py": 7,
             "guyrapu/ui/gui_descargas.py": 1, "guyrapu/ui/gui_directo_youtube.py": 2,
             "guyrapu/ui/gui_historial.py": 2, "guyrapu/ui/gui_microfono.py": 2,
             "guyrapu/ui/ia_agregar_captura.py": 2, "guyrapu/ui/ia_ventana.py": 2,
@@ -157,5 +159,12 @@ REGLAS = (
                 "guyrapu/voice/lector.py",
                 "guyrapu/core/autocomprobacion.py"),
         ambito=_paquete,
+    ),
+    Regla(
+        id="R9",
+        prohibido="los rótulos de la barra de menús salen de textos fijos del código",
+        detectar=detectar_rotulos_de_menu,
+        pendientes={},
+        ambito=_menus_de_la_barra,
     ),
 )

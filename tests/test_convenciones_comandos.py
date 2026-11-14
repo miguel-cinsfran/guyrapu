@@ -11,6 +11,7 @@ pura, nombrando sus clases.
 import unittest
 
 from scripts import convenciones_comandos as cc
+from scripts import convenciones_puntos as cp
 
 
 def E(ruta, etiqueta, letra="", tecla="", tipo="normal", nivel=1):
@@ -30,6 +31,11 @@ class TestMayusculas(unittest.TestCase):
         entradas = [E(("Ver",), "Describir la escena de OBS", "o"),
                     E(("Herramientas",), "Actualizar yt-dlp", "a"),
                     E(("Voz",), "Silenciar lectura", "i")]
+        self.assertEqual(cc.faltas_mayusculas(entradas), [])
+
+    def test_acepta_super_chats_como_nombre_propio(self):
+        entradas = [E(("Filtro de mensajes",), "Super Chats", "",
+                      "", "radio")]
         self.assertEqual(cc.faltas_mayusculas(entradas), [])
 
 
@@ -121,6 +127,32 @@ class TestActivarDesactivar(unittest.TestCase):
         self.assertEqual(cc.faltas_activar_desactivar(entradas), [])
 
 
+class TestPuntosSuspensivos(unittest.TestCase):
+
+    def test_las_tres_faltas(self):
+        entradas = [E(("Ayuda",), "Historial de directos"),
+                    E(("Archivo",), "Conectar…"),
+                    E(("Ver",), "Comando nuevo")]
+        self.assertEqual(cp.faltas_puntos_suspensivos(entradas), [
+            "«Historial de directos» abre un cuadro y no lleva puntos "
+            "suspensivos",
+            "«Conectar…» actúa directo y lleva puntos suspensivos",
+            "«Comando nuevo» no está clasificado como abre un cuadro ni "
+            "actúa directo",
+        ])
+
+    def test_acepta_los_dos_rotulos_del_directo(self):
+        entradas = [E(("Transmisión",), "Transmitir en directo…"),
+                    E(("Transmisión",), "Finalizar directo")]
+        self.assertEqual(cp.faltas_puntos_suspensivos(entradas), [])
+
+    def test_entra_en_todas_las_faltas(self):
+        entrada = E(("Archivo",), "Conectar…")
+        self.assertIn(
+            "«Conectar…» actúa directo y lleva puntos suspensivos",
+            cc.todas_las_faltas([entrada]))
+
+
 class TestInformativos(unittest.TestCase):
 
     def test_lista_comandos_con_puntos_suspensivos(self):
@@ -136,10 +168,6 @@ class TestInformativos(unittest.TestCase):
 
 
 FALTAS_CONOCIDAS = [
-    "Mayúscula a mitad de rótulo en «Ir a Chat del directo»: «Chat»",
-    "Mayúscula a mitad de rótulo en «Ir a Comentarios»: «Comentarios»",
-    "Mayúscula a mitad de rótulo en «Ir al Reproductor»: «Reproductor»",
-    "Mayúscula a mitad de rótulo en «Super Chats»: «Chats»",
     "«Shift» en la tecla de «Conectar»",
     "«Shift» en la tecla de «Desconectar»",
     "«Shift» en la tecla de «Copiar enlace del directo»",
@@ -174,7 +202,7 @@ FALTAS_CONOCIDAS = [
     "«Shift» en la tecla de «Preferencias…»",
     "«Shift» en la tecla de «Marcar incidencia»",
     "«Enter» en la tecla de "
-    "«Enviar mensaje al chat del directo (solo YouTube)…»",
+    "«Enviar mensaje al chat del directo (solo YouTube)»",
     "«Left» en la tecla de «Retroceder 1 minuto»",
     "«Right» en la tecla de «Avanzar 1 minuto»",
     "«End» en la tecla de «Ir al directo»",
@@ -196,6 +224,14 @@ class TestCableadoMenuReal(unittest.TestCase):
         entradas = cc.construir_entradas_reales()
         self.assertEqual(sorted(cc.todas_las_faltas(entradas)),
                          sorted(FALTAS_CONOCIDAS))
+
+    def test_sin_mayusculas_a_mitad_de_rotulo(self):
+        entradas = cc.construir_entradas_reales()
+        self.assertEqual(cc.faltas_mayusculas(entradas), [])
+
+    def test_sin_faltas_de_puntos_suspensivos(self):
+        entradas = cc.construir_entradas_reales()
+        self.assertEqual(cp.faltas_puntos_suspensivos(entradas), [])
 
 
 if __name__ == "__main__":

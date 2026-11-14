@@ -612,7 +612,7 @@ El *Administrador de descargas* descarga vídeos, audio o listas de YouTube
 en MP4, WebM, MP3 o M4A, dos a la vez. Lo descargado queda en la carpeta
 Descargas, junto a la aplicación. En la pestaña *Buscar en YouTube*,
 Espacio reproduce un resultado en la música sin descargarlo. Si las
-descargas fallan, usa *Actualizar yt-dlp*, en el menú *Herramientas*.
+descargas fallan, usa *Actualizar yt-dlp…*, en el menú *Herramientas*.
 
 El *Historial de directos* muestra lo que viste, con una pestaña para
 YouTube y otra para TikTok.

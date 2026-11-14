@@ -233,6 +233,72 @@ def detectar_bibliotecas_voz(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+METODOS_MENU = frozenset(
+    ("Append", "AppendCheckItem", "AppendRadioItem", "AppendSubMenu"))
+
+
+def _iterable_de_constante(nodo: ast.expr) -> bool:
+    if isinstance(nodo, ast.Name):
+        return nodo.id.isupper()
+    return (isinstance(nodo, ast.Call)
+            and isinstance(nodo.func, ast.Name)
+            and nodo.func.id == "enumerate"
+            and bool(nodo.args)
+            and isinstance(nodo.args[0], ast.Name)
+            and nodo.args[0].id.isupper())
+
+
+def _nombres_de_bucles(arbol: ast.Module) -> set[str]:
+    nombres: set[str] = set()
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, ast.For) and _iterable_de_constante(nodo.iter):
+            nombres.update(sub.id for sub in ast.walk(nodo.target)
+                           if isinstance(sub, ast.Name))
+    return nombres
+
+
+def _rotulo_aceptado(nodo: ast.expr, bucles: set[str]) -> bool:
+    if isinstance(nodo, ast.BinOp) and isinstance(nodo.op, ast.Add):
+        return _rotulo_aceptado(nodo.left, bucles)
+    if not (isinstance(nodo, ast.Call) and isinstance(nodo.func, ast.Name)
+            and nodo.func.id == "_" and nodo.args):
+        return False
+    argumento = nodo.args[0]
+    if isinstance(argumento, ast.Constant) and isinstance(argumento.value, str):
+        return True
+    if isinstance(argumento, ast.Name) and argumento.id in bucles:
+        return True
+    return (isinstance(argumento, ast.Subscript)
+            and isinstance(argumento.value, ast.Name)
+            and argumento.value.id.isupper())
+
+
+def detectar_rotulos_de_menu(archivo: str,
+                             arbol: ast.Module) -> list[Hallazgo]:
+    bucles = _nombres_de_bucles(arbol)
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if not (isinstance(nodo, ast.Call)
+                and isinstance(nodo.func, ast.Attribute)):
+            continue
+        if nodo.func.attr not in METODOS_MENU or len(nodo.args) < 2:
+            continue
+        if not _rotulo_aceptado(nodo.args[1], bucles):
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
+MENUS_DE_LA_BARRA = (
+    "guyrapu/ui/gui_menu.py",
+    "guyrapu/ui/menu_obs.py",
+    "guyrapu/ui/menu_transmision.py",
+)
+
+
+def _menus_de_la_barra(archivo: str) -> bool:
+    return archivo in MENUS_DE_LA_BARRA
+
+
 def _todo(archivo: str) -> bool:
     return True
 

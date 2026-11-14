@@ -40,6 +40,16 @@ FILTROS = [
     (N_("Avisos"),       avisos_tiktok.TIPOS_AVISO),
 ]
 
+CALIDADES = (
+    (N_("Automática"), None),
+    (N_("1080p"), 1080),
+    (N_("720p"), 720),
+    (N_("480p"), 480),
+    (N_("360p"), 360),
+    (N_("240p"), 240),
+    (N_("144p"), 144),
+)
+
 
 def construir_menu(frame):
     anterior = frame.GetMenuBar()
@@ -67,7 +77,7 @@ def construir_menu(frame):
     m = wx.Menu()
     frame.mi_enviar_live = m.Append(
         wx.ID_ANY,
-        _("&Enviar mensaje al chat del directo (solo YouTube)…") + frame._accel("enviar_chat"))
+        _("&Enviar mensaje al chat del directo (solo YouTube)") + frame._accel("enviar_chat"))
     m.AppendSeparator()
     sub_f = wx.Menu()
     frame.fi_items = []
@@ -113,16 +123,15 @@ def construir_menu(frame):
     mi_rep_fs    = m.Append(wx.ID_ANY, _("Pantalla &completa") + frame._accel("pantalla_completa"))
     # Submenú de calidad (radio). Se elige la disponible más cercana.
     sub_cal = wx.Menu()
-    for etiqueta, altura in ((_("Automática"), None), (_("1080p"), 1080), (_("720p"), 720),
-                             (_("480p"), 480), (_("360p"), 360), (_("240p"), 240), (_("144p"), 144)):
-        it = sub_cal.AppendRadioItem(wx.ID_ANY, etiqueta)
+    for etiqueta, altura in CALIDADES:
+        it = sub_cal.AppendRadioItem(wx.ID_ANY, _(etiqueta))
         frame._bind_menu(it, frame._rep_accion, "set_calidad", altura)
     m.AppendSubMenu(sub_cal, _("Ca&lidad del vídeo"))
     m.AppendSeparator()
     # Descargar este vídeo (solo YouTube, no live). Se habilita en
     # `_actualizar_menus_por_conexion` cuando hay URL reproducible.
     frame.mi_descargar_este = m.Append(
-        wx.ID_ANY, _("Descargar este &vídeo"))
+        wx.ID_ANY, _("Descargar este &vídeo…"))
     m.AppendSeparator()
     mi_rep_volm  = m.Append(wx.ID_ANY, _("&Bajar volumen del reproductor") + frame._accel("rep_vol_menos"))
     mi_rep_volM  = m.Append(wx.ID_ANY, _("S&ubir volumen del reproductor") + frame._accel("rep_vol_mas"))
@@ -158,7 +167,7 @@ def construir_menu(frame):
     # chat, abriendo una URL pegada a mano). Ctrl+S es el atajo.
     frame.mi_descargas = m.Append(
         wx.ID_ANY, _("Administrador de &descargas…") + frame._accel("descargas_abrir"))
-    frame.mi_actualizar_ytdlp = m.Append(wx.ID_ANY, _("&Actualizar yt-dlp"))
+    frame.mi_actualizar_ytdlp = m.Append(wx.ID_ANY, _("&Actualizar yt-dlp…"))
     m.AppendSeparator()
     mi_pref = m.Append(wx.ID_ANY, _("&Preferencias…") + frame._accel("abrir_preferencias"))
     mb.Append(m, _("&Herramientas"))
@@ -212,7 +221,7 @@ def _construir_menu_ayuda(frame, mb):
     mi_incidente = m.Append(wx.ID_ANY, _("&Marcar incidencia") + frame._accel("marcar_incidencia"))
     mi_registros = m.Append(wx.ID_ANY, _("Abrir carpeta de &registros"))
     mi_actualizar_app = m.Append(wx.ID_ANY, _("&Buscar actualizaciones…"))
-    mi_about = m.Append(wx.ID_ABOUT, _("&Acerca de"))
+    mi_about = m.Append(wx.ID_ABOUT, _("&Acerca de…"))
     mb.Append(m, _("A&yuda"))
     frame.Bind(wx.EVT_MENU, lambda e: abrir_documento_paquete(
         frame, "MANUAL", _("Manual de uso")), mi_manual)
@@ -307,9 +316,9 @@ def _construir_menu_ver(frame, mb):
     m.AppendSeparator()
     mi_conx = m.Append(wx.ID_ANY, _("Ir a co&nexión"))
     mi_lista = m.Append(wx.ID_ANY, _("Ir a la &lista del panel actual") + frame._accel("ir_lista"))
-    mi_chat = m.Append(wx.ID_ANY, _("Ir a &Chat del directo"))
-    mi_com  = m.Append(wx.ID_ANY, _("Ir a Co&mentarios"))
-    mi_rep  = m.Append(wx.ID_ANY, _("Ir al &Reproductor"))
+    mi_chat = m.Append(wx.ID_ANY, _("Ir al &chat del directo"))
+    mi_com  = m.Append(wx.ID_ANY, _("Ir a co&mentarios"))
+    mi_rep  = m.Append(wx.ID_ANY, _("Ir al &reproductor"))
     m.AppendSeparator()
     mi_estado = m.Append(wx.ID_ANY, _("Anunciar &estado") + frame._accel("anunciar_estado"))
     mi_autor = m.Append(wx.ID_ANY, _("Anunciar a&utor del último mensaje") + frame._accel("anunciar_autor"))

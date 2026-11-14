@@ -15,7 +15,14 @@ Se corre así, en la PC donde no molesta a NVDA:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
 from typing import NamedTuple
+
+RAIZ = Path(__file__).resolve().parent.parent
+if str(RAIZ) not in sys.path:
+    sys.path.insert(0, str(RAIZ))
+from scripts.convenciones_puntos import faltas_puntos_suspensivos  # noqa: E402
 
 
 class Entrada(NamedTuple):
@@ -32,9 +39,10 @@ class Entrada(NamedTuple):
     nivel: int
 
 
+# «Chats» deja pasar «Super Chats»: la regla mira palabra por palabra.
 PERMITIDAS = ("YouTube", "TikTok", "OBS", "IA", "API", "VLC", "NVDA",
               "Guyrapu", "ElevenLabs", "SAPI5", "yt-dlp", "Windows",
-              "TTS")
+              "TTS", "Chats")
 
 TECLAS_INGLES = ("Left", "Right", "Up", "Down", "Home", "End", "PageUp",
                  "PageDown", "Delete", "Del", "Insert", "Space", "Back",
@@ -181,13 +189,15 @@ def faltas_teclas_ingles(entradas: list) -> list:
 
 def todas_las_faltas(entradas: list) -> list:
     """Todas las faltas en orden fijo: mayúsculas, letras, profundidad,
-    Shift, parejas de activar y desactivar y teclas en inglés."""
+    Shift, parejas de activar y desactivar, teclas en inglés y puntos
+    suspensivos."""
     return (faltas_mayusculas(entradas)
             + faltas_letras_repetidas(entradas)
             + faltas_profundidad(entradas)
             + faltas_shift(entradas)
             + faltas_activar_desactivar(entradas)
-            + faltas_teclas_ingles(entradas))
+            + faltas_teclas_ingles(entradas)
+            + faltas_puntos_suspensivos(entradas))
 
 
 def informativos_puntos(entradas: list) -> list:
@@ -353,13 +363,14 @@ def informar(entradas: list) -> None:
               ("Shift", faltas_shift(entradas)),
               ("Activar y desactivar",
                faltas_activar_desactivar(entradas)),
-              ("Teclas en inglés", faltas_teclas_ingles(entradas))]
+              ("Teclas en inglés", faltas_teclas_ingles(entradas)),
+              ("Puntos suspensivos", faltas_puntos_suspensivos(entradas))]
     for titulo, faltas in grupos:
         print(f"{titulo}: {len(faltas)}")
         for falta in faltas:
             print(f"    {falta}")
     puntos = informativos_puntos(entradas)
-    print(f"Puntos suspensivos: {len(puntos)}")
+    print(f"Con puntos suspensivos: {len(puntos)}")
     for aviso in puntos:
         print(f"    {aviso}")
     largos = informativos_largos(entradas)

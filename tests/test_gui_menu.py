@@ -111,9 +111,9 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Ver", "---", None, "sep"),
             ("&Ver", "Ir a co&nexión", ANY, "normal"),
             ("&Ver", "Ir a la &lista del panel actual", ANY, "normal"),
-            ("&Ver", "Ir a &Chat del directo", ANY, "normal"),
-            ("&Ver", "Ir a Co&mentarios", ANY, "normal"),
-            ("&Ver", "Ir al &Reproductor", ANY, "normal"),
+            ("&Ver", "Ir al &chat del directo", ANY, "normal"),
+            ("&Ver", "Ir a co&mentarios", ANY, "normal"),
+            ("&Ver", "Ir al &reproductor", ANY, "normal"),
             ("&Ver", "---", None, "sep"),
             ("&Ver", "Anunciar &estado", ANY, "normal"),
             ("&Ver", "Anunciar a&utor del último mensaje", ANY, "normal"),
@@ -131,7 +131,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Ver", "Describir escena de &OBS", ANY, "normal"),
             ("&Ver", "Preguntar a la &IA sobre la imagen…", ANY, "normal"),
             ("&Ver", "Consul&ta rápida a la IA", ANY, "normal"),
-            ("&Chat", "&Enviar mensaje al chat del directo (solo YouTube)…",
+            ("&Chat", "&Enviar mensaje al chat del directo (solo YouTube)",
              ANY, "normal"),
             ("&Chat", "---", None, "sep"),
             ("&Chat", "&Filtro de mensajes", None, "submenu"),
@@ -171,13 +171,13 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("Ca&lidad del vídeo", "240p", ANY, "radio"),
             ("Ca&lidad del vídeo", "144p", ANY, "radio"),
             ("&Reproductor", "---", None, "sep"),
-            ("&Reproductor", "Descargar este &vídeo", ANY, "normal"),
+            ("&Reproductor", "Descargar este &vídeo…", ANY, "normal"),
             ("&Reproductor", "---", None, "sep"),
             ("&Reproductor", "&Bajar volumen del reproductor", ANY, "normal"),
             ("&Reproductor", "S&ubir volumen del reproductor", ANY, "normal"),
             ("&Reproductor", "---", None, "sep"),
             ("&Reproductor", "Mostrar botones en &pantalla", ANY, "check"),
-            ("&Transmisión", "Transm&itir en directo", ANY, "normal"),
+            ("&Transmisión", "Transm&itir en directo…", ANY, "normal"),
             ("&Transmisión", "Re&stream…", ANY, "normal"),
             ("&Transmisión", "&Grabar también al transmitir", ANY, "check"),
             ("&OBS", "Panel de &OBS…", ANY, "normal"),
@@ -209,7 +209,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Música", "&Orden aleatorio", ANY, "check"),
             ("&Música", "Cambiar &repetición", ANY, "normal"),
             ("&Herramientas", "Administrador de &descargas…", ANY, "normal"),
-            ("&Herramientas", "&Actualizar yt-dlp", ANY, "normal"),
+            ("&Herramientas", "&Actualizar yt-dlp…", ANY, "normal"),
             ("&Herramientas", "---", None, "sep"),
             ("&Herramientas", "&Preferencias…", ANY, "normal"),
             ("A&yuda", "Manual de &uso\tF1", ANY, "normal"),
@@ -218,7 +218,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("A&yuda", "&Marcar incidencia", ANY, "normal"),
             ("A&yuda", "Abrir carpeta de &registros", ANY, "normal"),
             ("A&yuda", "&Buscar actualizaciones…", ANY, "normal"),
-            ("A&yuda", "&Acerca de", gui.wx.ID_ABOUT, "normal"),
+            ("A&yuda", "&Acerca de…", gui.wx.ID_ABOUT, "normal"),
         ], lista)
 
     def test_transmision_sin_letras_de_acceso_repetidas(self):
@@ -714,7 +714,7 @@ class TestMenuTransmision(unittest.TestCase):
     def test_contenido_en_orden(self):
         ANY = gui.wx.ID_ANY
         self.assertEqual([
-            ("&Transmisión", "Transm&itir en directo", ANY, "normal"),
+            ("&Transmisión", "Transm&itir en directo…", ANY, "normal"),
             ("&Transmisión", "Re&stream…	Ctrl+Shift+R", ANY, "normal"),
             ("&Transmisión", "&Grabar también al transmitir", ANY, "check"),
         ], _entradas_de("&Transmisión"))

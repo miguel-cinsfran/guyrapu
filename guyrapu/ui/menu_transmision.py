@@ -9,7 +9,6 @@ su estado.
 import wx
 
 from guyrapu.core.idioma import _
-from guyrapu.obs import transmision_directa
 
 
 def abrir_restream(frame) -> None:
@@ -36,8 +35,7 @@ def _pulsar_directo(frame):
 
 def construir(frame, mb):
     m = wx.Menu()
-    etiqueta, _nombre = transmision_directa.etiqueta(False)
-    frame.mi_directo = m.Append(wx.ID_ANY, etiqueta)
+    frame.mi_directo = m.Append(wx.ID_ANY, _("Transm&itir en directo…"))
     frame._bind_menu(frame.mi_directo, _pulsar_directo, frame)
     frame.mi_restream = m.Append(
         wx.ID_ANY, _("Re&stream…") + frame._accel("abrir_restream"))

@@ -374,7 +374,7 @@ def escenario_actualizaciones(app: Aplicacion, args, res: Resultado):
     """
     _auditar_actualizacion(app, res, "Buscar actualizaciones",
                            "Buscar actualizaciones")
-    _auditar_actualizacion(app, res, "Actualizar yt-dlp", "Actualizar yt-dlp")
+    _auditar_actualizacion(app, res, "Actualizar yt-dlp…", "Actualizar yt-dlp")
 
 
 def escenario_ayuda(app: Aplicacion, args, res: Resultado):
@@ -416,7 +416,7 @@ def escenario_dialogos_ayuda(app: Aplicacion, args, res: Resultado):
     # 2. Acerca de: cuadro nativo, invisible para wx.
     app.pedir("frente")
     try:
-        app.abrir_por_menu("Acerca de")
+        app.abrir_por_menu("Acerca de…")
     except Exception as exc:
         res.fallo(f"Acerca de: no se pudo disparar, {exc}")
         return

@@ -10407,6 +10407,34 @@ msgid "Avisos"
 msgstr "Alerts"
 
 #: guyrapu/ui/gui_menu.py
+msgid "Automática"
+msgstr "Automatic"
+
+#: guyrapu/ui/gui_menu.py
+msgid "1080p"
+msgstr "1080p"
+
+#: guyrapu/ui/gui_menu.py
+msgid "720p"
+msgstr "720p"
+
+#: guyrapu/ui/gui_menu.py
+msgid "480p"
+msgstr "480p"
+
+#: guyrapu/ui/gui_menu.py
+msgid "360p"
+msgstr "360p"
+
+#: guyrapu/ui/gui_menu.py
+msgid "240p"
+msgstr "240p"
+
+#: guyrapu/ui/gui_menu.py
+msgid "144p"
+msgstr "144p"
+
+#: guyrapu/ui/gui_menu.py
 msgid "Copiar &enlace del directo"
 msgstr "Copy live stream lin&k"
 
@@ -10419,8 +10447,8 @@ msgid "&Archivo"
 msgstr "&File"
 
 #: guyrapu/ui/gui_menu.py
-msgid "&Enviar mensaje al chat del directo (solo YouTube)…"
-msgstr "&Send message to the live chat (YouTube only)…"
+msgid "&Enviar mensaje al chat del directo (solo YouTube)"
+msgstr "&Send message to the live chat (YouTube only)"
 
 #: guyrapu/ui/gui_menu.py
 msgid "&Filtro de mensajes"
@@ -10475,40 +10503,12 @@ msgid "Pantalla &completa"
 msgstr "Full &screen"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Automática"
-msgstr "Automatic"
-
-#: guyrapu/ui/gui_menu.py
-msgid "1080p"
-msgstr "1080p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "720p"
-msgstr "720p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "480p"
-msgstr "480p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "360p"
-msgstr "360p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "240p"
-msgstr "240p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "144p"
-msgstr "144p"
-
-#: guyrapu/ui/gui_menu.py
 msgid "Ca&lidad del vídeo"
 msgstr "Video &quality"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Descargar este &vídeo"
-msgstr "Download this &video"
+msgid "Descargar este &vídeo…"
+msgstr "Download this &video…"
 
 #: guyrapu/ui/gui_menu.py
 msgid "&Bajar volumen del reproductor"
@@ -10531,8 +10531,8 @@ msgid "Administrador de &descargas…"
 msgstr "Download &manager…"
 
 #: guyrapu/ui/gui_menu.py
-msgid "&Actualizar yt-dlp"
-msgstr "&Update yt-dlp"
+msgid "&Actualizar yt-dlp…"
+msgstr "&Update yt-dlp…"
 
 #: guyrapu/ui/gui_menu.py
 msgid "&Preferencias…"
@@ -10599,8 +10599,8 @@ msgid "&Buscar actualizaciones…"
 msgstr "&Check for updates…"
 
 #: guyrapu/ui/gui_menu.py
-msgid "&Acerca de"
-msgstr "&About"
+msgid "&Acerca de…"
+msgstr "&About…"
 
 #: guyrapu/ui/gui_menu.py
 msgid "A&yuda"
@@ -10654,15 +10654,15 @@ msgid "Ir a la &lista del panel actual"
 msgstr "Go to current pane &list"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Ir a &Chat del directo"
+msgid "Ir al &chat del directo"
 msgstr "Go to the live &chat"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Ir a Co&mentarios"
+msgid "Ir a co&mentarios"
 msgstr "Go to co&mments"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Ir al &Reproductor"
+msgid "Ir al &reproductor"
 msgstr "Go to the &player"
 
 #: guyrapu/ui/gui_menu.py
@@ -11445,6 +11445,10 @@ msgstr "&Warn if OBS is overloaded"
 #: guyrapu/ui/menu_obs.py
 msgid "&OBS"
 msgstr "OB&S"
+
+#: guyrapu/ui/menu_transmision.py
+msgid "Transm&itir en directo…"
+msgstr "Broadcast l&ive…"
 
 #: guyrapu/ui/menu_transmision.py
 msgid "Re&stream…"

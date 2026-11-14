@@ -388,11 +388,11 @@ class TestActualizarDeteniendoSinVentana(unittest.TestCase):
         item = mock.Mock()
         boton._marco.mi_directo = item
         boton.actualizar(False, False, True, False)
-        item.SetItemLabel.assert_called_once_with("Transm&itir en directo")
+        item.SetItemLabel.assert_called_once_with("Transm&itir en directo…")
 
-    def test_el_comando_dice_lo_mismo_que_el_boton_en_cada_estado(self):
+    def test_el_comando_lleva_puntos_al_iniciar_y_no_al_detener(self):
         for argumentos, etiqueta in (
-                ((False, False, True, False), "Transm&itir en directo"),
+                ((False, False, True, False), "Transm&itir en directo…"),
                 ((False, False, True, True), "&Finalizar directo"),
                 ((False, False, True, True, True), "Finalizando el directo")):
             with self.subTest(etiqueta=etiqueta):

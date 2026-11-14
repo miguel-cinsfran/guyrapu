@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 317bcb8736b95dbebf947744966975f121d904a2 -->
+<!-- original: es/MANUAL.md ea9abb7c3e902b0296525e8eededc4aea012839c -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -329,7 +329,7 @@ Scheduled messages are sent to the chat every so often, for example your social 
 
 ## Downloads and history
 
-The *Download manager* downloads videos, audio or YouTube playlists in MP4, WebM, MP3 or M4A, two at a time. What is downloaded goes to the Downloads folder, next to the application. On the *Search on YouTube* tab, Space plays a result in the music without downloading it. If downloads fail, use *Update yt-dlp*, in the *Tools* menu.
+The *Download manager* downloads videos, audio or YouTube playlists in MP4, WebM, MP3 or M4A, two at a time. What is downloaded goes to the Downloads folder, next to the application. On the *Search on YouTube* tab, Space plays a result in the music without downloading it. If downloads fail, use *Update yt-dlp…*, in the *Tools* menu.
 
 The *Live stream history* shows what you watched, with a tab for YouTube and another for TikTok.
 
