@@ -141,6 +141,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "comandos_clips.py": "comanda el búfer de clips del menú OBS; no abre ventana.",
     "comando_cerrar_obs.py": (
         "comando del menú OBS y del panel que cierra OBS; no abre ventana."),
+    "comando_directo.py": (
+        "comando del botón y del panel que transmite y finaliza el directo; "
+        "no abre ventana propia."),
     "restream_perfil.py": "El banco no tiene cuenta ni canales; el diálogo lo cubren las pruebas con wx.",
     "restream_dialogos_destino.py": "El banco no tiene cuenta ni canales; los cuadros los cubren las pruebas con wx.",
     "agregar_camara.py": (

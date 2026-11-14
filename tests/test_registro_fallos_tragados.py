@@ -64,48 +64,48 @@ class TestConfigSonidos(unittest.TestCase):
         self.assertTrue(any("tema" in mensaje for mensaje in logs.output))
 
 
-class TestBotonDirecto(unittest.TestCase):
+class TestComandoDirecto(unittest.TestCase):
 
     def test_guardar_destino_falla_avisa_y_sigue(self):
-        from guyrapu.ui import boton_directo
+        from guyrapu.ui import comando_directo
         marco = SimpleNamespace(
             _config={},
             _guardar_destino_transmision=mock.Mock(
                 side_effect=RuntimeError("disco lleno")),
         )
-        falso_self = SimpleNamespace(_marco=marco, boton=mock.Mock())
+        falso_self = SimpleNamespace(_marco=marco, _boton=mock.Mock())
         with mock.patch("guyrapu.ui.gui_elegir_destino.pedir_destino",
                         return_value=("YouTube", "")), \
-             mock.patch.object(boton_directo, "anunciar"), \
-             mock.patch.object(boton_directo._snd, "reproducir"), \
-             mock.patch.object(boton_directo.diagnostico, "crear_hilo") as crear_hilo:
-            with self.assertLogs("guyrapu.boton_directo", level="WARNING") as logs:
-                boton_directo.BotonDirecto._transmitir(falso_self)
+             mock.patch.object(comando_directo, "anunciar"), \
+             mock.patch.object(comando_directo._snd, "reproducir"), \
+             mock.patch.object(comando_directo.diagnostico, "crear_hilo") as crear_hilo:
+            with self.assertLogs("guyrapu.comando_directo", level="WARNING") as logs:
+                comando_directo.ComandoDirecto._transmitir(falso_self, marco)
         marco._guardar_destino_transmision.assert_called_once_with("YouTube")
         crear_hilo.assert_called_once()
         self.assertTrue(any("destino" in mensaje for mensaje in logs.output))
 
     def test_guardar_usuario_falla_avisa_y_sigue(self):
-        from guyrapu.ui import boton_directo
+        from guyrapu.ui import comando_directo
         marco = SimpleNamespace(
             _config={},
             _guardar_destino_transmision=mock.Mock(),
             _guardar_usuario_tiktok=mock.Mock(
                 side_effect=RuntimeError("disco lleno")),
         )
-        falso_self = SimpleNamespace(_marco=marco, boton=mock.Mock())
+        falso_self = SimpleNamespace(_marco=marco, _boton=mock.Mock())
         with mock.patch("guyrapu.ui.gui_elegir_destino.pedir_destino",
                         return_value=("TikTok", "alguien")), \
-             mock.patch.object(boton_directo, "anunciar"), \
-             mock.patch.object(boton_directo._snd, "reproducir"), \
-             mock.patch.object(boton_directo.diagnostico, "crear_hilo") as crear_hilo:
-            with self.assertLogs("guyrapu.boton_directo", level="WARNING") as logs:
-                boton_directo.BotonDirecto._transmitir(falso_self)
+             mock.patch.object(comando_directo, "anunciar"), \
+             mock.patch.object(comando_directo._snd, "reproducir"), \
+             mock.patch.object(comando_directo.diagnostico, "crear_hilo") as crear_hilo:
+            with self.assertLogs("guyrapu.comando_directo", level="WARNING") as logs:
+                comando_directo.ComandoDirecto._transmitir(falso_self, marco)
         crear_hilo.assert_called_once()
         self.assertTrue(any("usuario" in mensaje for mensaje in logs.output))
 
     def test_guardar_token_falla_avisa_y_no_lanza(self):
-        from guyrapu.ui import boton_directo
+        from guyrapu.ui import comando_directo
         cliente = mock.Mock()
         cliente.flujo_reutilizable.return_value = ()
         cliente.token_actualizado.return_value = "nuevo-token"
@@ -116,8 +116,8 @@ class TestBotonDirecto(unittest.TestCase):
                         return_value=cliente), \
              mock.patch("guyrapu.youtube.credenciales.guardar_campo",
                         side_effect=RuntimeError("disco lleno")):
-            cerrar = boton_directo.BotonDirecto._cierre_en_youtube(mock.Mock())
-            with self.assertLogs("guyrapu.boton_directo", level="WARNING") as logs:
+            cerrar = comando_directo.ComandoDirecto._cierre_en_youtube(mock.Mock())
+            with self.assertLogs("guyrapu.comando_directo", level="WARNING") as logs:
                 cerrar()
         self.assertTrue(any("token" in mensaje for mensaje in logs.output))
 

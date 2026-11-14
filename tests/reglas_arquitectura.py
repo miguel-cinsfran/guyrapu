@@ -118,7 +118,9 @@ REGLAS = (
         prohibido="no se deshabilita un control con Disable() ni con Enable(False)",
         detectar=detectar_controles,
         pendientes=_pendientes("dejar el control habilitado y anunciar el motivo", {
-            "guyrapu/ui/boton_directo.py": 2, "guyrapu/ui/buscador_tandas.py": 3,
+            "guyrapu/ui/boton_directo.py": 1,
+            "guyrapu/ui/comando_directo.py": 1,
+            "guyrapu/ui/buscador_tandas.py": 3,
             "guyrapu/ui/descargas_buscador.py": 1, "guyrapu/ui/escena_captura_ventana.py": 1,
             "guyrapu/ui/escena_propiedades.py": 2,
             "guyrapu/ui/gui.py": 9, "guyrapu/ui/gui_comentarios.py": 7,

@@ -33,7 +33,7 @@ from guyrapu.core import historial
 from guyrapu.downloads.descargas import gestor
 from guyrapu.ui.lista_chat import MensajeChat
 from guyrapu.ui.chat_vivo import ControladorChat
-from guyrapu.ui import atajos_captura, confirmar, recientes_inicio as recientes
+from guyrapu.ui import atajos_captura, comando_directo, confirmar, recientes_inicio as recientes
 from guyrapu.voice import escala_voz
 from guyrapu.voice import sound_player as _snd
 from guyrapu.youtube import credenciales
@@ -312,7 +312,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self.btn_conectar.SetFont(self.btn_conectar.GetFont().Bold())
         row.Add(self.btn_conectar, 0, wx.ALIGN_CENTER_VERTICAL)
         from guyrapu.ui.boton_directo import BotonDirecto
-        self._boton_directo = BotonDirecto(panel, self.btn_conectar, self)
+        self._boton_directo = BotonDirecto(panel, self.btn_conectar, self, comando_directo.ComandoDirecto(self))
         row.Add(self._boton_directo.boton, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 8)
         vs.Add(row, 0, wx.EXPAND | wx.ALL, 12)
 

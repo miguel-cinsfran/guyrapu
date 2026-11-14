@@ -21,7 +21,7 @@ from guyrapu.core import config_predeterminada
 from guyrapu.core.idioma import _
 from guyrapu.music import anuncios as anuncios_musica
 from guyrapu.ui import aviso_importante
-from guyrapu.ui import boton_directo
+from guyrapu.ui import comando_directo
 from guyrapu.ui import buscador_acciones
 from guyrapu.ui import confirmar
 from guyrapu.ui import control_grabacion
@@ -243,7 +243,7 @@ class TestCableado(unittest.TestCase):
         sonar.assert_any_call("transmision_problema")
 
     def test_b_detener_la_transmision(self):
-        instancia = object.__new__(boton_directo.BotonDirecto)
+        instancia = object.__new__(comando_directo.ComandoDirecto)
         instancia._marco = SimpleNamespace(
             _alive=True, _obs_transmitiendo=True,
             _actualizar_boton_directo=lambda: None)
@@ -350,24 +350,24 @@ class TestCableado(unittest.TestCase):
                 enfocar.assert_called_once_with()
 
     def test_no_revisando_obs_no_pide_cuadro(self):
-        instancia = object.__new__(boton_directo.BotonDirecto)
+        instancia = object.__new__(comando_directo.ComandoDirecto)
         instancia._marco = SimpleNamespace(
             _alive=True,
             _config={},
             _guardar_destino_transmision=lambda destino: None)
-        instancia.boton = mock.Mock()
+        instancia._boton = mock.Mock()
         instancia._deteniendo = False
         instancia._transmitiendo = False
         with mock.patch("guyrapu.ui.gui_elegir_destino.pedir_destino",
                         return_value=("YouTube", "")), \
-                mock.patch.object(boton_directo.diagnostico, "crear_hilo",
+                mock.patch.object(comando_directo.diagnostico, "crear_hilo",
                                   return_value=mock.Mock()), \
-                mock.patch.object(boton_directo, "anunciar") as anunciar, \
+                mock.patch.object(comando_directo, "anunciar") as anunciar, \
                 mock.patch.object(aviso_importante, "_casilla_activa",
                                   return_value=True), \
                 mock.patch.object(aviso_importante.wx, "CallAfter"), \
                 mock.patch.object(confirmar, "avisar") as cuadro:
-            instancia._transmitir()
+            instancia._transmitir(instancia._marco)
         anunciar.assert_any_call(_("Revisando OBS antes de transmitir."))
         cuadro.assert_not_called()
 

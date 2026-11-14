@@ -9,14 +9,6 @@ aquí solo se corre TestGuardarDestino, sin ventana.
 import queue
 import threading
 import unittest
-
-
-def _avisar_de(anunciar, sonar):
-    def _avisar(texto, sonido=None, *, error=False):
-        anunciar(texto)
-        if sonido:
-            sonar(sonido)
-    return _avisar
 from types import SimpleNamespace
 from unittest import mock
 
@@ -58,299 +50,6 @@ class TestGuardarDestino(unittest.TestCase):
             gui.RUTA_CONFIG, "transmision", "destino", "")
 
 
-class TestTransmitirSinVentana(unittest.TestCase):
-    # Sin ventana: pedir_destino y la revisión de OBS van con dobles.
-
-    def _boton(self, **config):
-        from guyrapu.ui import boton_directo
-        boton = boton_directo.BotonDirecto.__new__(
-            boton_directo.BotonDirecto)
-        marco = mock.Mock()
-        marco._alive = True
-        marco._config = {"transmision_destino": "TikTok",
-                         "tiktok_usuario": "guardado"}
-        marco._config.update(config)
-        marco._guardar_destino_transmision = mock.Mock(
-            side_effect=lambda d: marco._config.update(
-                {"transmision_destino": d}) or d)
-        marco._guardar_usuario_tiktok = mock.Mock(
-            side_effect=lambda u: marco._config.update(
-                {"tiktok_usuario": u}) or u)
-        marco._supervisar_transmision = mock.Mock()
-        marco._actualizar_boton_directo = mock.Mock()
-        boton._marco = marco
-        boton.boton = mock.Mock()
-        return boton, marco
-
-    def test_cancelar_anuncia_y_no_revisa(self):
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton()
-        with mock.patch(
-                "guyrapu.ui.gui_elegir_destino.pedir_destino",
-                return_value=None) as pedir, \
-                mock.patch.object(boton_directo.diagnostico,
-                                  "crear_hilo") as hilos, \
-                mock.patch.object(boton_directo, "anunciar") as anunciar:
-            boton._transmitir()
-        pedir.assert_called_once_with(marco, "TikTok", "guardado")
-        anunciar.assert_called_once_with("No se transmitió.")
-        hilos.assert_not_called()
-        marco._guardar_destino_transmision.assert_not_called()
-
-    def test_youtube_guarda_y_revisa_aunque_el_guardado_decia_tiktok(self):
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton(transmision_destino="TikTok",
-                                   tiktok_usuario="guardado")
-        hilos = []
-        revision = mock.sentinel.revision
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=revision)
-
-        class Hilo:
-            def __init__(self, target, *args, **kwargs):
-                self.target = target
-
-            def start(self):
-                hilos.append(self.target)
-                self.target()
-
-        with mock.patch(
-                "guyrapu.ui.gui_elegir_destino.pedir_destino",
-                return_value=("YouTube", "")), \
-                mock.patch.object(boton_directo.diagnostico,
-                                  "crear_hilo",
-                                  side_effect=lambda f, n: Hilo(f)), \
-                mock.patch.object(boton_directo.transmision_directa,
-                                  "preparar",
-                                  return_value=preparacion) as preparar, \
-                mock.patch.object(boton_directo, "anunciar"), \
-                mock.patch.object(boton_directo._snd, "reproducir"), \
-                mock.patch.object(boton_directo.wx,
-                                  "CallAfter",
-                                  side_effect=lambda f, *a: f(*a)):
-            boton._transmitir()
-        marco._guardar_destino_transmision.assert_called_once_with(
-            "YouTube")
-        preparar.assert_called_once()
-        args, _ = preparar.call_args
-        self.assertEqual(args[1], "YouTube")
-        marco._supervisar_transmision.assert_called_once_with(
-            "iniciar", "YouTube", "", revision=revision)
-
-    def test_restream_sin_cuenta_avisa_y_no_revisa(self):
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton()
-        with mock.patch(
-                "guyrapu.ui.gui_elegir_destino.pedir_destino",
-                return_value=("restream:Uno", "")), \
-                mock.patch.object(boton_directo.ganchos,
-                                  "cuenta_conectada",
-                                  return_value=False), \
-                mock.patch.object(boton_directo, "anunciar") as anunciar, \
-                mock.patch.object(boton_directo._snd,
-                                  "reproducir") as sonido, \
-                mock.patch.object(boton_directo, "avisar",
-                                  _avisar_de(anunciar, sonido)), \
-                mock.patch.object(boton_directo.diagnostico,
-                                  "crear_hilo") as hilos:
-            boton._transmitir()
-        anunciar.assert_called_once_with(
-            "Para transmitir con un perfil de Restream hace falta conectar "
-            "la cuenta, en el cuadro Restream, pestaña Cuenta.")
-        sonido.assert_called_once_with("error")
-        hilos.assert_not_called()
-        marco._guardar_destino_transmision.assert_called_once_with(
-            "restream:Uno")
-
-    def test_restream_prepara_obs_y_supervisa_la_opcion(self):
-        from guyrapu.restream.perfiles import Perfil
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision)
-        perfil = Perfil(nombre="Vertical", canales=(1,),
-                        orientacion="vertical")
-
-        class Hilo:
-            def __init__(self, target, *args, **kwargs):
-                self.target = target
-
-            def start(self):
-                self.target()
-
-        with mock.patch(
-                "guyrapu.ui.gui_elegir_destino.pedir_destino",
-                return_value=("restream:Vertical", "")), \
-                mock.patch.object(boton_directo.ganchos,
-                                  "cuenta_conectada", return_value=True), \
-                mock.patch.object(boton_directo.ganchos,
-                                  "cargar_perfiles",
-                                  return_value=[perfil]), \
-                mock.patch.object(boton_directo.diagnostico,
-                                  "crear_hilo",
-                                  side_effect=lambda f, n: Hilo(f)), \
-                mock.patch.object(boton_directo.transmision_directa,
-                                  "preparar",
-                                  return_value=preparacion) as preparar, \
-                mock.patch.object(boton_directo, "anunciar"), \
-                mock.patch.object(boton_directo._snd, "reproducir"), \
-                mock.patch.object(boton_directo.wx, "CallAfter",
-                                  side_effect=lambda f, *a: f(*a)):
-            boton._transmitir()
-        args, kwargs = preparar.call_args
-        self.assertEqual(args[1], "TikTok")
-        self.assertEqual(kwargs.get("opcion"), "restream:Vertical")
-        marco._guardar_destino_transmision.assert_called_once_with(
-            "restream:Vertical")
-        marco._guardar_usuario_tiktok.assert_not_called()
-        marco._supervisar_transmision.assert_called_once_with(
-            "iniciar", "restream:Vertical", "")
-
-    def test_tiktok_guarda_usuario_y_revisa(self):
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision)
-
-        class Hilo:
-            def __init__(self, target, *args, **kwargs):
-                self.target = target
-
-            def start(self):
-                self.target()
-
-        with mock.patch(
-                "guyrapu.ui.gui_elegir_destino.pedir_destino",
-                return_value=("TikTok", "nuevo")), \
-                mock.patch.object(boton_directo.diagnostico,
-                                  "crear_hilo",
-                                  side_effect=lambda f, n: Hilo(f)), \
-                mock.patch.object(boton_directo.transmision_directa,
-                                  "preparar",
-                                  return_value=preparacion), \
-                mock.patch.object(boton_directo, "anunciar"), \
-                mock.patch.object(boton_directo._snd, "reproducir"), \
-                mock.patch(
-                    "guyrapu.ui.boton_directo.confirmar_transmision",
-                    return_value=True), \
-                mock.patch.object(boton_directo.wx,
-                                  "CallAfter",
-                                  side_effect=lambda f, *a: f(*a)):
-            boton._transmitir()
-        marco._guardar_destino_transmision.assert_called_once_with(
-            "TikTok")
-        marco._guardar_usuario_tiktok.assert_called_once_with("nuevo")
-
-
-class TestRevisionListaSinVentana(unittest.TestCase):
-    # Sin ventana: confirmar y supervisar van con dobles.
-
-    def _boton(self):
-        from guyrapu.ui import boton_directo
-        boton = boton_directo.BotonDirecto.__new__(
-            boton_directo.BotonDirecto)
-        marco = mock.Mock()
-        marco._alive = True
-        marco._supervisar_transmision = mock.Mock()
-        marco._actualizar_boton_directo = mock.Mock()
-        boton._marco = marco
-        boton.boton = mock.Mock()
-        return boton, marco
-
-    def test_youtube_no_confirma_y_pasa_la_revision(self):
-        boton, marco = self._boton()
-        revision = mock.sentinel.revision
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=revision)
-        with mock.patch(
-                "guyrapu.ui.boton_directo.confirmar_transmision") as confirmar:
-            boton._revision_lista(preparacion, "YouTube", "YouTube", "")
-        confirmar.assert_not_called()
-        marco._supervisar_transmision.assert_called_once_with(
-            "iniciar", "YouTube", "", revision=revision)
-
-    def test_tiktok_confirma_como_hoy(self):
-        boton, marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision)
-        with mock.patch(
-                "guyrapu.ui.boton_directo.confirmar_transmision",
-                return_value=True) as confirmar, \
-                mock.patch(
-                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
-            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
-        confirmar.assert_called_once_with(marco, preparacion.revision, ())
-        volver.assert_not_called()
-        marco._supervisar_transmision.assert_called_once_with(
-            "iniciar", "TikTok", "usuario")
-
-    def test_tiktok_cancelar_anuncia_y_no_inicia(self):
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision)
-        with mock.patch(
-                "guyrapu.ui.boton_directo.confirmar_transmision",
-                return_value=False), \
-                mock.patch.object(boton_directo, "anunciar") as anunciar, \
-                mock.patch(
-                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
-            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
-        anunciar.assert_called_once_with("No se transmitió.")
-        volver.assert_called_once_with()
-        marco._supervisar_transmision.assert_not_called()
-
-    def _con_destinos(self):
-        destino = SimpleNamespace(plataforma="YouTube", nombre="Canal",
-                                  activo=True)
-        return (destino,)
-
-    def test_con_destinos_de_mas_los_pasa_a_confirmar(self):
-        boton, marco = self._boton()
-        destinos = self._con_destinos()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision,
-                                      destinos_de_mas=destinos)
-        with mock.patch(
-                "guyrapu.ui.boton_directo.confirmar_transmision",
-                return_value=True) as confirmar:
-            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
-        confirmar.assert_called_once_with(
-            marco, preparacion.revision, destinos)
-        marco._supervisar_transmision.assert_called_once_with(
-            "iniciar", "TikTok", "usuario")
-
-    def test_con_destinos_y_cancelar_no_inicia(self):
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision,
-                                      destinos_de_mas=self._con_destinos())
-        with mock.patch(
-                "guyrapu.ui.boton_directo.confirmar_transmision",
-                return_value=False), \
-                mock.patch.object(boton_directo, "anunciar") as anunciar, \
-                mock.patch(
-                    "guyrapu.obs.perfil_previo.volver_sin_directo") as volver:
-            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
-        marco._supervisar_transmision.assert_not_called()
-        anunciar.assert_called_once_with("No se transmitió.")
-        volver.assert_called_once_with()
-
-    def test_sin_destinos_de_mas_confirma_vacio(self):
-        boton, marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision)
-        with mock.patch(
-                "guyrapu.ui.boton_directo.confirmar_transmision",
-                return_value=True) as confirmar:
-            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
-        confirmar.assert_called_once_with(
-            marco, preparacion.revision, ())
-        marco._supervisar_transmision.assert_called_once_with(
-            "iniciar", "TikTok", "usuario")
-
-
 class TestActualizarDeteniendoSinVentana(unittest.TestCase):
     # Sin ventana: el botón es un doble, así se mira lo que dice sin crearlo.
 
@@ -358,8 +57,7 @@ class TestActualizarDeteniendoSinVentana(unittest.TestCase):
         from guyrapu.ui import boton_directo
         boton = boton_directo.BotonDirecto.__new__(boton_directo.BotonDirecto)
         boton._conectar = mock.Mock()
-        boton._transmitiendo = False
-        boton._deteniendo = False
+        boton._comando = mock.Mock()
         boton._marco = mock.Mock()
         boton._marco.mi_directo = None
         boton.boton = mock.Mock()
@@ -370,7 +68,7 @@ class TestActualizarDeteniendoSinVentana(unittest.TestCase):
     def test_actualizar_con_deteniendo_cambia_etiqueta_y_guarda_el_estado(self):
         boton = self._boton()
         boton.actualizar(False, False, False, True, deteniendo=True)
-        self.assertTrue(boton._deteniendo)
+        boton._comando.sincronizar.assert_called_once_with(True, True)
         boton.boton.SetLabel.assert_called_once_with("Finalizando el directo")
         boton.boton.SetName.assert_called_once_with(
             "Finalizando el directo, esperando a OBS")
@@ -378,9 +76,8 @@ class TestActualizarDeteniendoSinVentana(unittest.TestCase):
 
     def test_actualizar_sin_deteniendo_vuelve_a_finalizar(self):
         boton = self._boton()
-        boton._deteniendo = True
         boton.actualizar(False, False, False, True)
-        self.assertFalse(boton._deteniendo)
+        boton._comando.sincronizar.assert_called_once_with(True, False)
         boton.boton.SetLabel.assert_called_once_with("&Finalizar directo")
 
     def test_actualizar_copia_la_etiqueta_al_comando_del_menu(self):
@@ -418,46 +115,20 @@ class TestActualizarDeteniendoSinVentana(unittest.TestCase):
         item.Enable.assert_called_once_with(True)
 
 
-class TestPulsarSinVentana(unittest.TestCase):
+class TestPulsarDelegaSinVentana(unittest.TestCase):
     # Sin ventana: pulsar es el único camino que comparten el botón y el menú.
 
-    def _boton(self, transmitiendo=False, deteniendo=False):
+    def test_pulsar_delega_en_el_comando_con_el_marco(self):
         from guyrapu.ui import boton_directo
         boton = boton_directo.BotonDirecto.__new__(boton_directo.BotonDirecto)
-        boton._transmitiendo = transmitiendo
-        boton._deteniendo = deteniendo
+        boton._comando = mock.Mock()
         boton._marco = mock.Mock()
-        boton.boton = mock.Mock()
-        return boton
-
-    def test_pulsar_sin_directo_transmite(self):
-        boton = self._boton()
-        with mock.patch.object(boton, "_transmitir") as transmitir:
-            boton.pulsar()
-        transmitir.assert_called_once_with()
-
-    def test_pulsar_transmitiendo_finaliza(self):
-        boton = self._boton(transmitiendo=True)
-        with mock.patch.object(boton, "_finalizar") as finalizar:
-            boton.pulsar()
-        finalizar.assert_called_once_with()
-
-    def test_pulsar_deteniendo_solo_avisa(self):
-        from guyrapu.ui import boton_directo
-        boton = self._boton(transmitiendo=True, deteniendo=True)
-        with (
-                mock.patch.object(boton, "_finalizar") as finalizar,
-                mock.patch.object(boton, "_transmitir") as transmitir,
-                mock.patch.object(boton_directo, "anunciar") as anunciar,
-        ):
-            boton.pulsar()
-        finalizar.assert_not_called()
-        transmitir.assert_not_called()
-        anunciar.assert_called_once_with(
-            "Deteniendo la transmisión. Esperando a que OBS confirme.")
+        boton.pulsar()
+        boton._comando.pulsar.assert_called_once_with(boton._marco)
 
     def test_al_pulsar_delega_en_pulsar(self):
-        boton = self._boton()
+        from guyrapu.ui import boton_directo
+        boton = boton_directo.BotonDirecto.__new__(boton_directo.BotonDirecto)
         with mock.patch.object(boton, "pulsar") as pulsar:
             boton._al_pulsar(mock.Mock())
         pulsar.assert_called_once_with()
@@ -503,35 +174,6 @@ class TestMenuDirectoSinVentana(unittest.TestCase):
         fn, args = enlaces[frame.mi_directo]
         fn(*args)
         boton.pulsar.assert_called_once_with()
-
-
-class TestAlPulsarDeteniendoSinVentana(unittest.TestCase):
-    # Sin ventana: se comprueba que pulsar mientras se detiene solo avisa.
-
-    def _boton(self):
-        from guyrapu.ui import boton_directo
-        boton = boton_directo.BotonDirecto.__new__(boton_directo.BotonDirecto)
-        boton._transmitiendo = True
-        boton._deteniendo = True
-        marco = mock.Mock()
-        marco._alive = True
-        boton._marco = marco
-        boton.boton = mock.Mock()
-        return boton, marco
-
-    def test_pulsar_deteniendo_anuncia_y_no_dialoga_ni_detiene(self):
-        from guyrapu.ui import boton_directo
-        boton, marco = self._boton()
-        with mock.patch.object(boton_directo.wx, "MessageDialog") as dialogo, \
-                mock.patch.object(boton_directo, "anunciar") as anunciar, \
-                mock.patch.object(boton_directo.diagnostico,
-                                  "crear_hilo") as hilos:
-            boton._al_pulsar(mock.Mock())
-        dialogo.assert_not_called()
-        hilos.assert_not_called()
-        marco._supervisar_transmision.assert_not_called()
-        anunciar.assert_called_once_with(
-            "Deteniendo la transmisión. Esperando a que OBS confirme.")
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
@@ -628,7 +270,8 @@ class TestPseudoBotonDirectoVentana(unittest.TestCase):
             cuadro = wx.Frame(None)
             panel = wx.Panel(cuadro)
             conectar = wx.Button(panel, label="Conectar")
-            boton = boton_directo.BotonDirecto(panel, conectar, mock.Mock())
+            boton = boton_directo.BotonDirecto(
+                panel, conectar, mock.Mock(), mock.Mock())
             vistos = list(textos_sin_marcar(boton.boton))
             boton.actualizar(False, False, False, True)
             vistos.extend(textos_sin_marcar(boton.boton))
@@ -636,123 +279,6 @@ class TestPseudoBotonDirectoVentana(unittest.TestCase):
             vistos.extend(textos_sin_marcar(boton.boton))
         self.addCleanup(destruir, cuadro)
         self.assertEqual(sorted(vistos), sorted(PENDIENTES_BOTON_DIRECTO))
-
-
-class TestPseudoAnunciosBotonDirecto(unittest.TestCase):
-    # Sin ventana: controles y marco con dobles, así se corre acá. Los
-    # textos que arman otros módulos (`mensaje_de_fallo_obs` y el error
-    # del cierre en YouTube) no entran.
-
-    def setUp(self):
-        from guyrapu.ui import boton_directo
-        self.modulo = boton_directo
-        self.captados = []
-        parches = [
-            mock.patch.object(boton_directo, "anunciar",
-                              self.captados.append),
-            mock.patch.object(boton_directo, "avisar",
-                              lambda texto, sonido=None, **k:
-                              self.captados.append(texto)),
-            mock.patch.object(boton_directo._snd, "reproducir"),
-        ]
-        for parche in parches:
-            parche.start()
-            self.addCleanup(parche.stop)
-        pseudo = con_pseudo()
-        pseudo.__enter__()
-        self.addCleanup(pseudo.__exit__, None, None, None)
-
-    def _exigir_marcados(self, cantidad):
-        self.assertEqual(len(self.captados), cantidad)
-        for frase in self.captados:
-            self.assertTrue(frase.startswith("[¡"), frase)
-        del self.captados[:]
-
-    def _boton(self, **config):
-        boton = self.modulo.BotonDirecto.__new__(self.modulo.BotonDirecto)
-        marco = mock.Mock()
-        marco._alive = True
-        marco._config = {"transmision_destino": "TikTok",
-                         "tiktok_usuario": "guardado"}
-        marco._config.update(config)
-        marco._guardar_destino_transmision = mock.Mock(
-            side_effect=lambda d: marco._config.update(
-                {"transmision_destino": d}) or d)
-        marco._guardar_usuario_tiktok = mock.Mock(
-            side_effect=lambda u: marco._config.update(
-                {"tiktok_usuario": u}) or u)
-        marco._supervisar_transmision = mock.Mock()
-        marco._actualizar_boton_directo = mock.Mock()
-        boton._marco = marco
-        boton.boton = mock.Mock()
-        boton._transmitiendo = False
-        boton._deteniendo = False
-        return boton, marco
-
-    def test_pulsar_deteniendo_avisa_marcado(self):
-        boton, marco = self._boton()
-        boton._transmitiendo = True
-        boton._deteniendo = True
-        with mock.patch.object(self.modulo.diagnostico,
-                               "crear_hilo") as hilos:
-            boton._al_pulsar(mock.Mock())
-        hilos.assert_not_called()
-        marco._supervisar_transmision.assert_not_called()
-        self._exigir_marcados(1)
-
-    def test_transmitir_cancelado_avisa_marcado(self):
-        boton, _marco = self._boton()
-        with mock.patch(
-                "guyrapu.ui.gui_elegir_destino.pedir_destino",
-                return_value=None), \
-                mock.patch.object(self.modulo.diagnostico,
-                                  "crear_hilo") as hilos:
-            boton._transmitir()
-        hilos.assert_not_called()
-        self._exigir_marcados(1)
-
-    def test_transmitir_revisa_marcado(self):
-        boton, marco = self._boton()
-        with mock.patch(
-                "guyrapu.ui.gui_elegir_destino.pedir_destino",
-                return_value=("TikTok", "nuevo")), \
-                mock.patch.object(self.modulo.diagnostico, "crear_hilo"):
-            boton._transmitir()
-        marco._guardar_usuario_tiktok.assert_called_once_with("nuevo")
-        self._exigir_marcados(1)
-
-    def test_revision_ya_transmitiendo_avisa_marcado(self):
-        boton, _marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=True,
-                                      revision=mock.sentinel.revision)
-        boton._revision_lista(preparacion, "YouTube", "YouTube", "")
-        self._exigir_marcados(1)
-
-    def test_revision_tiktok_cancelado_avisa_marcado(self):
-        boton, marco = self._boton()
-        preparacion = SimpleNamespace(ya_transmitiendo=False,
-                                      revision=mock.sentinel.revision)
-        with mock.patch(
-                "guyrapu.ui.boton_directo.confirmar_transmision",
-                return_value=False):
-            boton._revision_lista(preparacion, "TikTok", "TikTok", "usuario")
-        marco._supervisar_transmision.assert_not_called()
-        self._exigir_marcados(1)
-
-    def test_finalizar_pide_confirmacion_y_sigue_marcado(self):
-        boton, marco = self._boton()
-        boton._transmitiendo = True
-        with mock.patch.object(self.modulo, "confirmar_finalizar",
-                               return_value=False) as confirmar:
-            boton._finalizar()
-        confirmar.assert_called_once_with(marco)
-        marco._supervisar_transmision.assert_not_called()
-        self._exigir_marcados(1)
-
-    def test_finalizada_avisa_marcado(self):
-        boton, _marco = self._boton()
-        boton._finalizada()
-        self._exigir_marcados(1)
 
 
 if __name__ == "__main__":
