@@ -33,6 +33,7 @@ from guyrapu.core.config import APP_VERSION, USER_AGENT  # noqa: E402
 URL_CONTENIDO = "https://github.com/miguel-cinsfran/guyrapu-contenido"
 URL_SUBIR = URL_CONTENIDO + "/releases/download/modelos-1/"
 BASE_HF = "https://huggingface.co"
+URL_JENNY = "https://github.com/dioco-group/jenny-tts-dataset"
 CACHE = RAIZ / ".cache-voces"
 TIEMPO_ESPERA = 60
 SUBIR = CACHE / "subir"
@@ -164,7 +165,7 @@ def licencia_piper(nombre: str, texto: str) -> str | None:
     if (nombre or "").strip().lower() == "lessac":
         return None
     if (nombre or "").strip().lower() == "jenny_dioco":
-        return "See URL"
+        return "Licencia propia de Dioco: uso comercial permitido, citando la voz como Jenny (Dioco)"
     encontrado = _LICENCIA.search(texto or "")
     if not encontrado:
         return None
@@ -213,7 +214,7 @@ def _grupos_piper(voices: dict) -> dict:
 
 
 def _paquete(identificador, proveedor, nombre, idioma, licencia, origen,
-             repo, voces, archivos) -> dict:
+             repo, voces, archivos, enlace=None) -> dict:
     return {
         "id": identificador,
         "tipo": "voz",
@@ -223,7 +224,7 @@ def _paquete(identificador, proveedor, nombre, idioma, licencia, origen,
         "version": 1,
         "guyrapu_minima": APP_VERSION,
         "licencia": licencia,
-        "licencia_url": f"{BASE_HF}/{repo}",
+        "licencia_url": enlace or f"{BASE_HF}/{repo}",
         "origen": origen,
         "voces": voces,
         "archivos": archivos,
@@ -237,11 +238,10 @@ def _paquete_piper(clave, entrada, metadatos, repo, revision,
                     if ruta.endswith("MODEL_CARD")), None)
     texto = (pedir_texto(url_origen(repo, revision, tarjeta))
              if tarjeta else None)
-    if (nombre or "").strip().lower() == "lessac":
-        descartes.append((clave, "lessac"))
-        return None
     licencia = licencia_piper(nombre, texto)
-    motivo = ("licencia no permitida" if licencia is None
+    enlace = URL_JENNY if nombre_piper(nombre) == "Jenny (Dioco)" else f"{BASE_HF}/{repo}/blob/{revision}/{tarjeta}"
+    motivo = ("lessac" if (nombre or "").strip().lower() == "lessac"
+              else "licencia no permitida" if licencia is None
               else base_piper(texto, aceptadas))
     if motivo is not None:
         descartes.append((clave, motivo))
@@ -266,7 +266,7 @@ def _paquete_piper(clave, entrada, metadatos, repo, revision,
         [{"nombre": nombre_piper(nombre),
           "idioma": str(code or "").replace("_", "-"), "genero": None,
           "muestra": muestra, "archivo": pares[0][1]}],
-        archivos)
+        archivos, enlace)
 
 
 def paquetes_piper(token, descartes) -> list[dict]:
