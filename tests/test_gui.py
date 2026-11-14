@@ -13,6 +13,7 @@ from unittest import mock
 from guyrapu.ui import gui
 from guyrapu.ui import gui_cierre
 from guyrapu.ui import gui_construccion
+from guyrapu.ui import gui_sesion
 from guyrapu.ui import chat_acciones
 from guyrapu.ui import gui_estado
 from guyrapu.ui import accesibilidad
@@ -1003,7 +1004,7 @@ class TestConexionCancelable(unittest.TestCase):
     def test_mientras_conecta_desconectar_sigue_disponible(self):
         frame = self._frame()
         with mock.patch.object(gui._snd, "reproducir"), \
-                mock.patch.object(gui, "anunciar"):
+                mock.patch.object(gui_sesion, "anunciar"):
             frame._on_conectar(None)
         self.assertTrue(frame._conectando)
         frame.mi_desconectar.Enable.assert_called_once_with(True)
@@ -1014,7 +1015,7 @@ class TestConexionCancelable(unittest.TestCase):
     def test_desconectar_durante_la_conexion_la_cancela(self):
         frame = self._frame()
         with mock.patch.object(gui._snd, "reproducir"), \
-                mock.patch.object(gui, "anunciar") as anunciar:
+                mock.patch.object(gui_sesion, "anunciar") as anunciar:
             frame._on_conectar(None)
             frame._desconectar_si_procede()
         frame.on_desconectar_cb.assert_called_once_with()
@@ -4169,6 +4170,7 @@ class TestDescartesGui(unittest.TestCase):
         frame._stats.reset.side_effect = lambda: setattr(frame._stats, "descartados", 0)
 
         with mock.patch.object(gui, "anunciar") as anunciar, \
+                mock.patch.object(gui_sesion, "anunciar"), \
                 mock.patch.object(gui.wx, "CallAfter"), \
                 mock.patch.object(gui._snd, "reproducir"):
             frame._on_timer(None)
@@ -5214,6 +5216,7 @@ class TestSinDireccionRecordada(unittest.TestCase):
                 mock.patch.object(gui, "_lector_init"), \
                 mock.patch.object(gui._snd, "reproducir"), \
                 mock.patch.object(gui, "anunciar"), \
+                mock.patch.object(gui_sesion, "anunciar"), \
                 mock.patch.object(gui.wx, "CallAfter"), \
                 redirigir_rutas("."):
             gui.iniciar_gui(configuracion, queue.Queue(), stats, worker,
@@ -5999,7 +6002,7 @@ class TestFinDirectoGui(unittest.TestCase):
 
     def _desconectar(self, frame, *args):
         with mock.patch.object(gui._snd, "reproducir") as reproducir, \
-                mock.patch.object(gui, "anunciar") as anunciar, \
+                mock.patch.object(gui_sesion, "anunciar") as anunciar, \
                 mock.patch.object(gui_construccion, "fijar_tipo") as fijar_tipo, \
                 mock.patch.object(gui.wx, "CallAfter",
                                   side_effect=lambda fn, *a, **k: fn(*a, **k)):
@@ -6110,6 +6113,7 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         self.captados = []
         parches = [
             mock.patch.object(gui, "anunciar", self.captados.append),
+            mock.patch.object(gui_sesion, "anunciar", self.captados.append),
             mock.patch.object(chat_acciones, "anunciar", self.captados.append),
             mock.patch.object(gui._snd, "reproducir"),
         ]

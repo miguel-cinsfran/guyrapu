@@ -33,6 +33,7 @@ from guyrapu.ui.lista_chat import MensajeChat
 from guyrapu.ui import atajos_captura, confirmar
 from guyrapu.ui import gui_cierre
 from guyrapu.ui import gui_construccion
+from guyrapu.ui import gui_sesion
 from guyrapu.voice import escala_voz
 from guyrapu.voice import sound_player as _snd
 from guyrapu.youtube import credenciales
@@ -459,48 +460,10 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
             self._on_conectar(None)
 
     def _on_conectar(self, event):
-        if self._conectado or self._conectando:
-            # Desconectar o, si aún estaba «Conectando…», cancelar: el callback
-            # cierra la sesión y lo que devuelva ese hilo se descarta.
-            cancelando = not self._conectado
-            if self.on_desconectar_cb:
-                self.on_desconectar_cb()
-            self.set_conectado(False)
-            if cancelando:
-                anunciar(_("Conexión cancelada"))
-                self.txt_url.SetFocus()
-        else:
-            url = self.txt_url.GetValue().strip()
-            if not url:
-                confirmar.avisar(self, _("Introduce un enlace o un ID de YouTube."),
-                                 _("Falta el enlace"), _("Aceptar"), icono=confirmar.ICON_WARNING)
-                self.txt_url.SetFocus()
-                return
-            self._conectando = True
-            # El botón y «Desconectar» siguen activos para poder cancelar una
-            # conexión que no responde.
-            self.btn_conectar.SetLabel(_("&Cancelar conexión"))
-            self.btn_conectar.Enable()
-            self.mi_conectar.Enable(False)
-            self.mi_desconectar.Enable(True)
-            self.txt_url.Disable()
-            _snd.reproducir("conectando")
-            # Traductores: aviso mientras se conecta.
-            anunciar(_("Conectando"))
-            if self.on_conectar_cb:
-                self.on_conectar_cb(url)
-            self._actualizar_boton_directo()
+        gui_sesion.on_conectar(self, event)
 
     def url_invalida(self):
-        """La URL/ID no es válida: restaurar la UI y avisar (sin esperas)."""
-        if not self._alive:
-            return
-        _snd.reproducir("error")
-        self._set_conectado_ui(False)
-        anunciar(_("No se reconoce el enlace o el ID de YouTube"))
-        self.txt_url.SetFocus()
-        confirmar.avisar(self, _("No se reconoce el enlace o el ID de YouTube. Comprueba el enlace pegado."),
-                         _("Enlace no reconocido"), _("Aceptar"), icono=confirmar.ICON_WARNING)
+        gui_sesion.url_invalida(self)
 
     def _on_preferencias(self, event):
         try:
@@ -797,86 +760,16 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
 
     def set_conectado(self, conectado: bool,
                         sonido_desconexion: str = "desconectado") -> None:
-        if not self._alive:
-            return
-        estaba = self._conectado
-        self._conectado = conectado
-        if conectado:
-            if not estaba:
-                self._mostrar_zona(True)
-                self._region_idx = REG_CONTENIDO
-                self._anunciar_conectado()
-                wx.CallAfter(self._foco_contenido)
-        else:
-            self._reiniciar_datos_sesion()
-            # Solo si veníamos de una conexión real: ocultar, sonar y avisar.
-            # (Un fallo de conexión nunca llegó a "conectado", así que no suena.)
-            if estaba:
-                self._mostrar_zona(False)
-                self.set_titulo_stream("")
-                gui_construccion.fijar_tipo(self, _(MENSAJE_INICIAL))
-                # El fin del directo de TikTok llega con su propio sonido;
-                # el resto de los cortes sigue sonando «desconectado».
-                _snd.reproducir(sonido_desconexion)
-                # Traductores: aviso al desconectar.
-                anunciar(_("Desconectado"))
-                # Sacar el foco del panel del reproductor ANTES de que quede
-                # oculto: si el foco sigue dentro, wx tarda en repintar y el
-                # panel «se queda» visible hasta que tabulas. Al campo URL.
-                wx.CallAfter(self.txt_url.SetFocus)
-        self._set_conectado_ui(conectado)
-        self._actualizar_estado_online()
+        gui_sesion.set_conectado(self, conectado, sonido_desconexion)
 
     def _reiniciar_datos_sesion(self) -> None:
-        """Borra TODO el estado de la sesión para que volver a conectar sea como
-        recién abierta la app y nada del directo anterior se solape: chat,
-        comentarios, reproductor, cola de lectura, super chats y contadores. NO
-        toca las preferencias del usuario (filtro, voz, sonidos, tema)."""
-        self.sesion = SesionConectada()
-        # Chat: datos, lista visible y lo que aún estaba en cola sin volcar (es
-        # de la sesión que se cierra; no debe colarse en la siguiente).
-        self.chat_vivo.descartar()
-        self.chat_vivo.modelo.limpiar()
-        try:    self.lb_chat.Clear()
-        except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)
-        # Super Chats acumulados de la sesión.
-        self._sc_totales.clear()
-        # Panel de información del vídeo.
-        self._metadatos = {}
-        try:    self.txt_info.SetValue("")
-        except Exception as error: logger.debug("no se pudo limpiar la información: %s", error)
-        # Reproductor y panel de comentarios.
-        try:    self._rep_panel.detener_todo()
-        except Exception as error: logger.debug("no se pudo detener el reproductor: %s", error)
-        try:    self._com_panel.limpiar()
-        except Exception as error: logger.debug("no se pudo limpiar los comentarios: %s", error)
-        # Cola de lectura y lo que se esté leyendo ahora mismo.
-        try:
-            self._worker.vaciar_cola()
-            self._worker.detener_actual()
-        except Exception as error: logger.debug("no se pudo vaciar la cola: %s", error)
-        # Contadores a cero.
-        try:    self._stats.reset()
-        except Exception as error: logger.debug("no se pudo reiniciar los contadores: %s", error)
-        self._actualizar_sb()
+        gui_sesion.reiniciar_datos_sesion(self)
 
     def _mostrar_zona(self, mostrar: bool) -> None:
-        self._zona.Show(mostrar)
-        self._panel_principal.Layout()
-        gui_construccion.ajustar_minimo_ventana(self)
+        gui_sesion.mostrar_zona(self, mostrar)
 
     def _anunciar_conectado(self) -> None:
-        t = self.sesion.tipo_video
-        if t == deteccion.LIVE:
-            msg = _("Conectado al directo. Leyendo el chat.")
-        elif t == deteccion.UPCOMING:
-            msg = _("Directo programado. Aún no hay chat; puedes ver los comentarios.")
-        elif t == deteccion.VOD:
-            msg = _("Vídeo conectado. Comentarios y reproductor disponibles.")
-        else:
-            # Traductores: aviso genérico al conectar.
-            msg = _("Conectado.")
-        anunciar(msg)
+        gui_sesion.anunciar_conectado(self)
 
     def set_live_chat_id(self, live_chat_id: str, causa: str = "",
                          video_id: str | None = None, propio: bool = False) -> None:
