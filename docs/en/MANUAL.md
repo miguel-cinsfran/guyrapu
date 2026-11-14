@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md acb4ff3b2e502f778850516946c4dee883a8601c -->
+<!-- original: es/MANUAL.md 317bcb8736b95dbebf947744966975f121d904a2 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -439,6 +439,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | `F8` | Stop the current voice |
 | `F9` / `F10` | Lower or raise the voice speed |
 | `F11` / `F12` | Lower or raise the voice volume |
+| `Ctrl+F9` / `Ctrl+F10` | Lower or raise the voice pitch |
 | `Ctrl+F2` | Describe the OBS scene |
 | `Ctrl+Shift+F2` | Quick query |
 | `Ctrl+F3` | Announce camera framing. Twice, guide with beeps |

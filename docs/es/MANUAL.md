@@ -759,6 +759,7 @@ al llegar al principio o al final suena un aviso.
 | `F8` | Detener la voz actual |
 | `F9` / `F10` | Bajar o subir la velocidad de la voz |
 | `F11` / `F12` | Bajar o subir el volumen de la voz |
+| `Ctrl+F9` / `Ctrl+F10` | Bajar o subir el tono de la voz |
 | `Ctrl+F2` | Describir la escena de OBS |
 | `Ctrl+Mayús+F2` | Consulta rápida a la IA |
 | `Ctrl+F3` | Anunciar el encuadre de cámara. Dos veces, guía con pitidos |
