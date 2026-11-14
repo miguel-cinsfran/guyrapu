@@ -1,13 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Barra de menú de la ventana principal.
-
-El cuerpo de `construir_menu` es el antiguo `VentanaPrincipal._build_menubar`,
-movido sin cambios: cada etiqueta con su `&`, cada atajo, cada id, el orden
-de los menús y de sus elementos, los textos de ayuda y los enlaces con los
-manejadores quedan idénticos. En la clase queda un delegado de una línea
-porque lo enlazan la construcción, las preferencias y las pruebas.
-"""
+"""Barra de menú de la ventana principal."""
 
 from __future__ import annotations
 
@@ -80,13 +73,7 @@ def construir_menu(frame):
         wx.ID_ANY,
         _("&Enviar mensaje al chat del directo (solo YouTube)") + frame._accel("enviar_chat"))
     m.AppendSeparator()
-    sub_f = wx.Menu()
-    frame._chat_acciones.fi_items = []
-    for i, (nombre, _sin_uso) in enumerate(FILTROS):
-        it = sub_f.AppendRadioItem(wx.ID_ANY, _(nombre))
-        frame._chat_acciones.fi_items.append(it)
-        frame._bind_menu(it, frame._chat_acciones._aplicar_filtro, i)
-    frame._mi_filtro_sub = m.AppendSubMenu(sub_f, _("&Filtro de mensajes"))
+    _construir_submenu_filtro_chat(frame, m)
     mb.Append(m, _("&Chat"))
     frame.Bind(wx.EVT_MENU, frame._on_enviar_live, frame.mi_enviar_live)
 
@@ -188,6 +175,16 @@ def construir_menu(frame):
         except Exception as error: logger.debug("no se pudo destruir el menú anterior: %s", error)
     frame._sincronizar_pausa()
     _registrar_menus(frame)
+
+
+def _construir_submenu_filtro_chat(frame, menu):
+    sub_f = wx.Menu()
+    frame._chat_acciones.fi_items = []
+    for i, (nombre, _sin_uso) in enumerate(FILTROS):
+        it = sub_f.AppendRadioItem(wx.ID_ANY, _(nombre))
+        frame._chat_acciones.fi_items.append(it)
+        frame._bind_menu(it, frame._chat_acciones._aplicar_filtro, i)
+    frame._mi_filtro_sub = menu.AppendSubMenu(sub_f, _("&Filtro de mensajes"))
 
 
 def _agregar_ajustes_de_voz(frame, menu):
