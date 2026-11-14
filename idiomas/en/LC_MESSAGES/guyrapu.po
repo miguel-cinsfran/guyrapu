@@ -10443,30 +10443,6 @@ msgid "&Vaciar cola"
 msgstr "&Clear queue"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Bajar ve&locidad de la voz"
-msgstr "&Lower voice speed"
-
-#: guyrapu/ui/gui_menu.py
-msgid "Subi&r velocidad de la voz"
-msgstr "Raise voice spee&d"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Bajar volumen de la voz"
-msgstr "Lower voice &volume"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Subir volumen de la voz"
-msgstr "Raise voice volu&me"
-
-#: guyrapu/ui/gui_menu.py
-msgid "Bajar &tono de la voz"
-msgstr "Lower voice pi&tch"
-
-#: guyrapu/ui/gui_menu.py
-msgid "S&ubir tono de la voz"
-msgstr "Raise voice pitc&h"
-
-#: guyrapu/ui/gui_menu.py
 msgid "S&ilenciar lectura"
 msgstr "Mute &reading"
 
@@ -10573,6 +10549,30 @@ msgstr "&Preferences…"
 #: guyrapu/ui/gui_menu.py
 msgid "&Herramientas"
 msgstr "&Tools"
+
+#: guyrapu/ui/gui_menu.py
+msgid "Bajar ve&locidad de la voz"
+msgstr "&Lower voice speed"
+
+#: guyrapu/ui/gui_menu.py
+msgid "Subi&r velocidad de la voz"
+msgstr "Raise voice spee&d"
+
+#: guyrapu/ui/gui_menu.py
+msgid "&Bajar volumen de la voz"
+msgstr "Lower voice &volume"
+
+#: guyrapu/ui/gui_menu.py
+msgid "&Subir volumen de la voz"
+msgstr "Raise voice volu&me"
+
+#: guyrapu/ui/gui_menu.py
+msgid "Bajar &tono de la voz"
+msgstr "Lower voice pi&tch"
+
+#: guyrapu/ui/gui_menu.py
+msgid "S&ubir tono de la voz"
+msgstr "Raise voice pitc&h"
 
 #: guyrapu/ui/gui_menu.py
 msgid "&Administrar voces…"
