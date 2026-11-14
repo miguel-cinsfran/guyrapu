@@ -15,7 +15,7 @@ from guyrapu.obs import obs_prevuelo
 from guyrapu.obs.obs_escena import FilaFuente
 from guyrapu.ui import confirmar_transmision as modulo_confirmar
 from guyrapu.ui import control_grabacion
-from guyrapu.ui import directo_panel
+from guyrapu.ui import comando_directo
 from guyrapu.ui import escena_captura_ventana
 from guyrapu.ui import escena_pagina_escena
 from guyrapu.ui import escena_pagina_fuentes
@@ -248,10 +248,12 @@ class PrincipalFalsa:
                         "grabar_al_transmitir": False}
         self._config.update(config or {})
         self._atajos = {}
+        self._alive = True
+        self._obs_transmitiendo = False
         self.alternar_panel = mock.Mock(return_value=True)
         self.supervisar = mock.Mock(return_value=False)
-        self.guardar_usuario = mock.Mock()
-        self.guardar_destino = mock.Mock()
+        self.guardar_usuario = mock.Mock(side_effect=lambda usuario: usuario)
+        self.guardar_destino = mock.Mock(side_effect=lambda destino: destino)
 
     def _cambiar_overlay(self, encender):
         return self.alternar_panel(encender)
@@ -264,6 +266,9 @@ class PrincipalFalsa:
 
     def _guardar_destino_transmision(self, destino):
         return self.guardar_destino(destino)
+
+    def _actualizar_boton_directo(self):
+        pass
 
 
 class OperacionesFalsas:
@@ -338,14 +343,14 @@ class TestPanelTransmision(unittest.TestCase):
             mock.patch.object(escena_pagina_fuentes, "anunciar", anunciar),
             mock.patch.object(escena_captura_ventana, "anunciar", anunciar),
             mock.patch.object(mover_con_flechas, "anunciar", anunciar),
-            mock.patch.object(directo_panel, "anunciar", anunciar),
+            mock.patch.object(comando_directo, "anunciar", anunciar),
             mock.patch.object(operaciones_obs, "avisar",
                               _avisar_de(anunciar, self.sonar)),
             mock.patch.object(control_grabacion, "avisar",
                               _avisar_de(anunciar, self.sonar)),
-            mock.patch.object(directo_panel, "avisar",
+            mock.patch.object(comando_directo, "avisar",
                               _avisar_de(anunciar, self.sonar)),
-            mock.patch.object(directo_panel.sound_player, "reproducir"),
+            mock.patch.object(comando_directo._snd, "reproducir"),
             mock.patch.object(gui_grabaciones.grabaciones, "existentes",
                               return_value=[]),
             mock.patch.object(gui_microfono, "abrir_microfono_obs"),
@@ -753,27 +758,26 @@ class TestPanelTransmision(unittest.TestCase):
         self.assertEqual(self.dialogo.btn_restream.GetName(), "Restream…")
 
     def _pedir(self, resultado):
-        return mock.patch.object(gui_transmision, "pedir_destino",
-                                 return_value=resultado)
+        return mock.patch(
+            "guyrapu.ui.gui_elegir_destino.pedir_destino",
+            return_value=resultado)
 
     def test_el_boton_abre_el_cuadro_con_lo_guardado(self):
         pagina = self.dialogo
-        pagina._destino_guardado = "YouTube"
-        pagina._usuario_tiktok = "amigo"
+        self.principal._config["transmision_destino"] = "YouTube"
+        self.principal._config["tiktok_usuario"] = "amigo"
         with self._pedir(None) as pedir:
             self._pulsar(pagina.btn_directo)
         pedir.assert_called_once_with(pagina, "YouTube", "amigo")
 
-    def test_cancelar_no_transmite_anuncia_y_devuelve_el_foco(self):
+    def test_cancelar_no_transmite_anuncia_y_no_guarda(self):
         pagina = self.dialogo
         with self._pedir(None), \
-                mock.patch.object(directo_panel.transmision_directa,
-                                  "preparar") as preparar, \
-                mock.patch.object(pagina.btn_directo, "SetFocus") as foco:
+                mock.patch.object(comando_directo.transmision_directa,
+                                  "preparar") as preparar:
             self._pulsar(pagina.btn_directo)
         preparar.assert_not_called()
         self.assertIn("No se transmitió.", self.anuncios)
-        foco.assert_called_once_with()
         self.principal.guardar_destino.assert_not_called()
         self.principal.guardar_usuario.assert_not_called()
 
@@ -782,9 +786,9 @@ class TestPanelTransmision(unittest.TestCase):
         preparacion = SimpleNamespace(ya_transmitiendo=False,
                                       revision=mock.sentinel.revision)
         with self._pedir(("TikTok", "usuario")), \
-                mock.patch.object(directo_panel.transmision_directa,
+                mock.patch.object(comando_directo.transmision_directa,
                                   "preparar", return_value=preparacion) as preparar, \
-                mock.patch.object(directo_panel, "confirmar_transmision",
+                mock.patch.object(comando_directo, "confirmar_transmision",
                                   return_value=True):
             self._pulsar(pagina.btn_directo)
         self.principal.guardar_destino.assert_any_call("TikTok")
@@ -793,36 +797,6 @@ class TestPanelTransmision(unittest.TestCase):
         self.assertEqual(args[1], "TikTok")
         self.principal.supervisar.assert_any_call(
             "iniciar", "TikTok", "usuario")
-
-    def test_los_datos_directo_guardan_destino_y_usuario_de_tiktok(self):
-        pagina = self.dialogo
-        with self._pedir(("TikTok", "usuario")):
-            datos = pagina._datos_directo()
-        self.principal.guardar_destino.assert_called_once_with("TikTok")
-        self.principal.guardar_usuario.assert_called_once_with("usuario")
-        self.assertEqual(datos, ("TikTok", "TikTok", "usuario"))
-
-    def test_los_datos_directo_con_youtube_no_guardan_usuario(self):
-        pagina = self.dialogo
-        with self._pedir(("YouTube", "")):
-            datos = pagina._datos_directo()
-        self.principal.guardar_destino.assert_called_once_with("YouTube")
-        self.principal.guardar_usuario.assert_not_called()
-        self.assertEqual(datos, ("YouTube", "YouTube", ""))
-
-    def test_un_guardado_que_falla_avisa_y_sigue(self):
-        pagina = self.dialogo
-        self.principal.guardar_destino.side_effect = RuntimeError("disco lleno")
-        self.principal.guardar_usuario.side_effect = RuntimeError("disco lleno")
-        with self._pedir(("TikTok", "usuario")), \
-                self.assertLogs("guyrapu.gui_transmision",
-                                level="WARNING") as logs:
-            datos = pagina._datos_directo()
-        self.assertEqual(datos, ("TikTok", "TikTok", "usuario"))
-        self.assertTrue(any("destino de transmisión" in mensaje
-                            for mensaje in logs.output))
-        self.assertTrue(any("usuario de TikTok" in mensaje
-                            for mensaje in logs.output))
 
     def test_destino_actual_usa_el_guardado_y_relee_los_perfiles(self):
         with self._con_perfiles(_perfil_restream("Uno", "vertical")) as cargar:
@@ -840,7 +814,7 @@ class TestPanelTransmision(unittest.TestCase):
                 self._pedir(("restream:Uno", "")), \
                 mock.patch("guyrapu.restream.ganchos.cuenta_conectada",
                            return_value=False), \
-                mock.patch.object(directo_panel, "avisar") as avisar:
+                mock.patch.object(comando_directo, "avisar") as avisar:
             self._pulsar(pagina.btn_directo)
         self.assertEqual(
             avisar.call_args.args[0],
@@ -858,7 +832,7 @@ class TestPanelTransmision(unittest.TestCase):
                 self._pedir(("restream:Vertical", "")), \
                 mock.patch("guyrapu.restream.ganchos.cuenta_conectada",
                            return_value=True), \
-                mock.patch.object(directo_panel.transmision_directa,
+                mock.patch.object(comando_directo.transmision_directa,
                                   "preparar",
                                   return_value=preparacion) as preparar:
             self._pulsar(pagina.btn_directo)
@@ -922,9 +896,9 @@ class TestPseudoTransmisionVentana(unittest.TestCase):
                               lambda *args, **kwargs: None),
             mock.patch.object(control_grabacion, "avisar",
                               lambda *args, **kwargs: None),
-            mock.patch.object(directo_panel, "anunciar",
+            mock.patch.object(comando_directo, "anunciar",
                               lambda *args, **kwargs: None),
-            mock.patch.object(directo_panel, "avisar",
+            mock.patch.object(comando_directo, "avisar",
                               lambda *args, **kwargs: None),
             mock.patch.object(gui_transmision.ganchos, "cargar_perfiles",
                               return_value=[]),

@@ -25,7 +25,6 @@ from guyrapu.ui import comando_directo
 from guyrapu.ui import buscador_acciones
 from guyrapu.ui import confirmar
 from guyrapu.ui import control_grabacion
-from guyrapu.ui import directo_panel
 from guyrapu.ui import gui
 from guyrapu.ui import gui_comentarios
 from guyrapu.ui import gui_directo_huerfano
@@ -243,19 +242,11 @@ class TestCableado(unittest.TestCase):
         sonar.assert_any_call("transmision_problema")
 
     def test_b_detener_la_transmision(self):
-        instancia = object.__new__(comando_directo.ComandoDirecto)
-        instancia._marco = SimpleNamespace(
+        marco = SimpleNamespace(
             _alive=True, _obs_transmitiendo=True,
             _actualizar_boton_directo=lambda: None)
+        instancia = comando_directo.ComandoDirecto(marco)
         cuadro, _anunciar, sonar = self._pedir(instancia._finalizada)
-        self.assertEqual(self._texto(cuadro), _("Transmisión detenida."))
-        sonar.assert_any_call("desconectado")
-
-    def test_b_directo_panel_detener(self):
-        instancia = object.__new__(directo_panel.DirectoPanel)
-        instancia._mostrar_transmision = lambda activa: None
-        cuadro, _anunciar, sonar = self._pedir(
-            lambda: instancia._finalizada(None))
         self.assertEqual(self._texto(cuadro), _("Transmisión detenida."))
         sonar.assert_any_call("desconectado")
 
@@ -350,14 +341,13 @@ class TestCableado(unittest.TestCase):
                 enfocar.assert_called_once_with()
 
     def test_no_revisando_obs_no_pide_cuadro(self):
-        instancia = object.__new__(comando_directo.ComandoDirecto)
-        instancia._marco = SimpleNamespace(
+        marco = SimpleNamespace(
             _alive=True,
             _config={},
+            _supervisar_transmision=mock.Mock(return_value=False),
+            _actualizar_boton_directo=mock.Mock(),
             _guardar_destino_transmision=lambda destino: None)
-        instancia._boton = mock.Mock()
-        instancia._deteniendo = False
-        instancia._transmitiendo = False
+        instancia = comando_directo.ComandoDirecto(marco)
         with mock.patch("guyrapu.ui.gui_elegir_destino.pedir_destino",
                         return_value=("YouTube", "")), \
                 mock.patch.object(comando_directo.diagnostico, "crear_hilo",

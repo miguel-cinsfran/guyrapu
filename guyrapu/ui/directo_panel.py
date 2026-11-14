@@ -1,258 +1,57 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Iniciar y finalizar el directo desde el panel de transmisión.
+"""Botón del directo del panel de transmisión.
 
-Vive aparte de la ventana por composición: recibe los controles, el gestor y
-las funciones que necesita, y no lee atributos privados de la ventana. Su
-única razón para cambiar es el camino del directo en este panel.
+Vive aparte de la ventana por composición: recibe el botón y el comando del
+directo. Su única razón para cambiar es cómo muestra el estado del directo
+en este panel: delega el trabajo en el comando y copia el rótulo que el
+comando avisa.
 """
 
 from __future__ import annotations
 
 import wx
 
-from guyrapu.core import diagnostico
-from guyrapu.core.idioma import _
-from guyrapu.obs import obs_estado
 from guyrapu.obs import transmision_directa
-from guyrapu.restream import transmitir
-from guyrapu.ui.accesibilidad import anunciar
-from guyrapu.ui.aviso_importante import avisar
-from guyrapu.ui.confirmar_transmision import (
-    confirmar_finalizar, confirmar_transmision)
-from guyrapu.voice import sound_player
-
-logger = diagnostico.obtener_logger(__name__)
 
 
 class DirectoPanel:
-    """El botón del directo del panel y su espera a que OBS se detenga."""
+    """El botón del directo del panel y el estado que muestra."""
 
-    def __init__(self, ventana, boton, operaciones, gestor, supervisar,
-                 guardar_usuario, guardar_destino, usuario_guardado, asegurar,
-                 datos_directo, al_cambiar):
+    def __init__(self, ventana, boton, comando, al_cambiar=None):
         self._ventana = ventana
         self._boton = boton
-        self._operaciones = operaciones
-        self._gestor = gestor
-        self._supervisar = supervisar
-        self._guardar_usuario = guardar_usuario
-        self._guardar_destino = guardar_destino
-        self._usuario_guardado = usuario_guardado or ""
-        self._asegurar = asegurar
-        self._datos_directo = datos_directo
+        self._comando = comando
         self._al_cambiar = al_cambiar
-        self._transmitiendo = False
-        self._deteniendo = False
-        self._temporizador = wx.Timer(ventana)
-        ventana.Bind(wx.EVT_TIMER, self._al_temporizador, self._temporizador)
         boton.Bind(wx.EVT_BUTTON, self._al_pulsar)
+        self._comando.suscribir(self._al_cambiar_estado)
         self._actualizar_boton()
 
     @property
     def transmitiendo(self) -> bool:
-        return self._transmitiendo
+        return self._comando.transmitiendo
 
     @property
     def deteniendo(self) -> bool:
-        return self._deteniendo
+        return self._comando.deteniendo
 
     def sincronizar(self, transmitiendo, deteniendo=False) -> None:
         """Ajusta el estado y la etiqueta sin pedir nada a OBS."""
-        self._transmitiendo = bool(transmitiendo)
-        self._deteniendo = bool(deteniendo)
-        self._actualizar_boton()
+        self._comando.sincronizar(transmitiendo, deteniendo)
 
     def cerrar(self) -> None:
-        self._temporizador.Stop()
+        self._comando.desuscribir(self._al_cambiar_estado)
 
     def _actualizar_boton(self) -> None:
         etiqueta, nombre = transmision_directa.etiqueta(
-            self._transmitiendo, self._deteniendo)
+            self.transmitiendo, self.deteniendo)
         self._boton.SetLabel(etiqueta)
         self._boton.SetName(nombre)
 
-    def _al_pulsar(self, event) -> None:
-        if self._deteniendo:
-            anunciar(_("Deteniendo la transmisión. "
-                       "Esperando a que OBS confirme."))
-            return
-        if self._transmitiendo:
-            self._finalizar()
-        else:
-            self._transmitir()
-
-    def _normalizar_usuario(self, destino, usuario) -> str:
-        if destino != "TikTok":
-            return ""
-        from guyrapu.capture import tiktok_vivo
-        return tiktok_vivo.usuario_tiktok(usuario or "")
-
-    def _usuario_para(self, opcion, usuario):
-        if not transmision_directa.cuenta_restream_conectada(opcion, avisar):
-            return None
-        if not transmitir.es_restream(opcion):
-            return self._normalizar_usuario(opcion, usuario)
-        return ""
-
-    def _preguntar_supervisor(self, accion):
-        try:
-            return bool(self._supervisar(accion))
-        except Exception:
-            return False
-
-    def _transmitir(self) -> None:
-        datos = self._datos_directo()
-        if datos is None:
-            anunciar(_("No se transmitió."))
-            self._boton.SetFocus()
-            return
-        opcion, destino, usuario = datos
-        usuario = self._usuario_para(opcion, usuario)
-        if usuario is None:
-            return
-
-        decision = transmision_directa.decidir_transmision(
-            hay_supervisor=self._supervisar is not None,
-            deteniendo=lambda: self._preguntar_supervisor("deteniendo"),
-            con_supervisor=lambda: self._preguntar_supervisor("activo"),
-            transmitiendo=self._transmitiendo,
-            destino=opcion, usuario_tiktok=lambda: usuario)
-        if self._atender_decision(decision):
-            return
-        sound_player.reproducir("conectando")
-        anunciar(_("Revisando OBS antes de transmitir."))
-        self._operaciones.en_hilo(
-            lambda: self._preparar(destino, opcion),
-            lambda preparacion: self._revision_lista(
-                preparacion, opcion, destino, usuario))
-
-    def _atender_decision(self, decision) -> bool:
-        """Resuelve las decisiones que no llegan a preparar OBS."""
-        if decision == transmision_directa.ALTERNAR:
-            self._operaciones.en_hilo(
-                self._gestor.alternar_transmision,
-                self._transmision_alternada)
-            return True
-        if decision == transmision_directa.ESPERAR_DETENCION:
-            anunciar(_("Deteniendo la transmisión. "
-                       "Esperando a que OBS confirme."))
-            return True
-        if decision == transmision_directa.DETENER_SUPERVISADA:
-            try:
-                self._supervisar("detener")
-            except Exception as error:
-                logger.debug("no se pudo detener la supervisión: %s", error)
-            self._mostrar_transmision(False)
-            return True
-        if decision == transmision_directa.FALTA_DESTINO:
-            avisar(_("Elige primero a dónde transmitir, en Transmitir a."), "error", error=True)
-            return True
-        if decision == transmision_directa.FALTA_USUARIO:
-            anunciar(_("Escribe tu usuario de TikTok en Usuario de TikTok."))
-            self._al_cambiar("usuario")
-            return True
-        return False
-
-    def _preparar(self, destino, opcion):
-        return transmision_directa.preparar(
-            self._gestor, destino, self._asegurar,
-            lambda frase: wx.CallAfter(anunciar, frase), cerrar=False,
-            opcion=opcion)
-
-    def _guardar_usuario_tiktok(self, usuario) -> None:
-        if usuario == self._usuario_guardado or self._guardar_usuario is None:
-            return
-        try:
-            self._guardar_usuario(usuario)
-        except Exception as error:
-            logger.warning("no se pudo guardar el usuario de TikTok: %s", error)
-        self._usuario_guardado = usuario
-
-    def recordar_destino(self, destino) -> None:
-        self._recordar_destino(destino)
-
-    def _recordar_destino(self, destino) -> None:
-        if self._guardar_destino is None:
-            return
-        try:
-            self._guardar_destino(destino)
-        except Exception as error:
-            logger.warning("no se pudo guardar el destino de transmisión: %s", error)
-
-    def _revision_lista(self, preparacion, opcion, destino, usuario) -> None:
-        def _recordar():
-            self._recordar_destino(opcion)
-
-        def _guardar_usuario():
-            self._guardar_usuario_tiktok(usuario)
-
-        def _ya_transmitiendo():
-            _recordar()
-            self._mostrar_transmision(True)
-
-        def _confirmar(revision):
-            return confirmar_transmision(
-                self._ventana, revision,
-                getattr(preparacion, "destinos_de_mas", ()))
-
-        transmision_directa.resolver_revision(
-            preparacion, opcion, destino, usuario,
-            confirmar=_confirmar,
-            supervisar=self._supervisar,
-            anunciar=anunciar,
-            ya_transmitiendo=_ya_transmitiendo,
-            iniciar=lambda: self._mostrar_transmision(True),
-            recordar_destino=_recordar,
-            guardar_usuario=_guardar_usuario)
-
-    def _mostrar_transmision(self, activa) -> None:
-        self._transmitiendo = bool(activa)
-        self._deteniendo = False
+    def _al_cambiar_estado(self) -> None:
         self._actualizar_boton()
-        self._al_cambiar()
-
-    def _transmision_alternada(self, activa) -> None:
-        self._mostrar_transmision(activa)
-        accion = "transmision_iniciada" if activa else "transmision_detenida"
-        avisar(obs_estado.frase_resultado(accion),
-                obs_estado.sonido_resultado(accion))
-
-    def _finalizar(self) -> None:
-        if not confirmar_finalizar(self._ventana):
-            anunciar(_("Sigues transmitiendo."))
-            return
-        try:
-            activa = bool(self._supervisar("activo"))
-        except Exception:
-            activa = False
-        if self._supervisar is not None and activa:
-            try:
-                self._supervisar("detener")
-            except Exception as error:
-                logger.debug("no se pudo detener la supervisión: %s", error)
-            self._deteniendo = True
-            self._actualizar_boton()
-            self._temporizador.Start(2000)
+        if self._al_cambiar is not None:
             self._al_cambiar()
-            return
-        self._operaciones.en_hilo(
-            lambda: transmision_directa.finalizar(self._gestor),
-            self._finalizada)
 
-    def _finalizada(self, _resultado) -> None:
-        self._mostrar_transmision(False)
-        avisar(_("Transmisión detenida."), "desconectado")
-
-    def _al_temporizador(self, event) -> None:
-        if not self._deteniendo:
-            self._temporizador.Stop()
-            return
-        try:
-            deteniendo = bool(self._supervisar("deteniendo"))
-        except Exception:
-            deteniendo = False
-        if deteniendo:
-            return
-        self._temporizador.Stop()
-        self._mostrar_transmision(False)
+    def _al_pulsar(self, event) -> None:
+        self._comando.pulsar(self._ventana)

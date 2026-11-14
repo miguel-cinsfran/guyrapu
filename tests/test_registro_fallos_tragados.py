@@ -73,14 +73,14 @@ class TestComandoDirecto(unittest.TestCase):
             _guardar_destino_transmision=mock.Mock(
                 side_effect=RuntimeError("disco lleno")),
         )
-        falso_self = SimpleNamespace(_marco=marco, _boton=mock.Mock())
+        comando = comando_directo.ComandoDirecto(marco)
         with mock.patch("guyrapu.ui.gui_elegir_destino.pedir_destino",
                         return_value=("YouTube", "")), \
              mock.patch.object(comando_directo, "anunciar"), \
              mock.patch.object(comando_directo._snd, "reproducir"), \
              mock.patch.object(comando_directo.diagnostico, "crear_hilo") as crear_hilo:
             with self.assertLogs("guyrapu.comando_directo", level="WARNING") as logs:
-                comando_directo.ComandoDirecto._transmitir(falso_self, marco)
+                comando._transmitir(marco)
         marco._guardar_destino_transmision.assert_called_once_with("YouTube")
         crear_hilo.assert_called_once()
         self.assertTrue(any("destino" in mensaje for mensaje in logs.output))
@@ -93,14 +93,14 @@ class TestComandoDirecto(unittest.TestCase):
             _guardar_usuario_tiktok=mock.Mock(
                 side_effect=RuntimeError("disco lleno")),
         )
-        falso_self = SimpleNamespace(_marco=marco, _boton=mock.Mock())
+        comando = comando_directo.ComandoDirecto(marco)
         with mock.patch("guyrapu.ui.gui_elegir_destino.pedir_destino",
                         return_value=("TikTok", "alguien")), \
              mock.patch.object(comando_directo, "anunciar"), \
              mock.patch.object(comando_directo._snd, "reproducir"), \
              mock.patch.object(comando_directo.diagnostico, "crear_hilo") as crear_hilo:
             with self.assertLogs("guyrapu.comando_directo", level="WARNING") as logs:
-                comando_directo.ComandoDirecto._transmitir(falso_self, marco)
+                comando._transmitir(marco)
         crear_hilo.assert_called_once()
         self.assertTrue(any("usuario" in mensaje for mensaje in logs.output))
 
@@ -134,31 +134,6 @@ class TestDirectoHuerfano(unittest.TestCase):
                                  level="WARNING") as logs:
                 gui_directo_huerfano._guardar_token_si_hay(cliente)
         self.assertTrue(any("token" in mensaje for mensaje in logs.output))
-
-
-class TestTransmision(unittest.TestCase):
-
-    def test_guardar_usuario_falla_avisa_y_actualiza(self):
-        from guyrapu.ui import directo_panel
-        falso_self = SimpleNamespace(
-            _usuario_guardado="",
-            _guardar_usuario=mock.Mock(side_effect=RuntimeError("disco lleno")),
-        )
-        with self.assertLogs("guyrapu.directo_panel", level="WARNING") as logs:
-            directo_panel.DirectoPanel._guardar_usuario_tiktok(
-                falso_self, "nuevo")
-        self.assertEqual(falso_self._usuario_guardado, "nuevo")
-        falso_self._guardar_usuario.assert_called_once_with("nuevo")
-        self.assertTrue(any("usuario" in mensaje for mensaje in logs.output))
-
-    def test_recordar_destino_falla_avisa_y_no_lanza(self):
-        from guyrapu.ui import directo_panel
-        falso_self = SimpleNamespace(
-            _guardar_destino=mock.Mock(side_effect=RuntimeError("disco lleno")))
-        with self.assertLogs("guyrapu.directo_panel", level="WARNING") as logs:
-            directo_panel.DirectoPanel._recordar_destino(falso_self, "YouTube")
-        falso_self._guardar_destino.assert_called_once_with("YouTube")
-        self.assertTrue(any("destino" in mensaje for mensaje in logs.output))
 
 
 if __name__ == "__main__":

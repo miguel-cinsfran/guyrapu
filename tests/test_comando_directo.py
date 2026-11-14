@@ -10,7 +10,11 @@ import unittest
 from types import SimpleNamespace
 from unittest import mock
 
+from guyrapu.obs import obs_estado
+from guyrapu.ui import boton_directo
 from guyrapu.ui import comando_directo
+from guyrapu.ui import directo_panel
+from guyrapu.ui import menu_transmision
 from tests.pseudo_prueba import con_pseudo
 
 
@@ -20,6 +24,35 @@ def _avisar_de(anunciar, sonar):
         if sonido:
             sonar(sonido)
     return _avisar
+
+
+class _Hilo:
+    def __init__(self, target):
+        self._target = target
+
+    def start(self):
+        self._target()
+
+
+def _marco_directo(**cambios):
+    marco = SimpleNamespace(
+        _alive=True,
+        _config={"transmision_destino": "YouTube", "tiktok_usuario": ""},
+        _obs_transmitiendo=False,
+        _guardar_destino_transmision=mock.Mock(side_effect=lambda d: d),
+        _guardar_usuario_tiktok=mock.Mock(side_effect=lambda u: u),
+        _actualizar_boton_directo=mock.Mock(),
+        _supervisar_transmision=mock.Mock(return_value=False),
+    )
+    for nombre, valor in cambios.items():
+        setattr(marco, nombre, valor)
+    return marco
+
+
+def _marco_sin_supervisor(**cambios):
+    marco = _marco_directo(**cambios)
+    del marco._supervisar_transmision
+    return marco
 
 
 class TestTransmitirSinVentana(unittest.TestCase):
@@ -38,7 +71,8 @@ class TestTransmitirSinVentana(unittest.TestCase):
         marco._guardar_usuario_tiktok = mock.Mock(
             side_effect=lambda u: marco._config.update(
                 {"tiktok_usuario": u}) or u)
-        marco._supervisar_transmision = mock.Mock()
+        marco._supervisar_transmision = mock.Mock(return_value=False)
+        comando._supervisar = marco._supervisar_transmision
         marco._actualizar_boton_directo = mock.Mock()
         comando._boton = mock.Mock()
         return comando, marco
@@ -93,7 +127,7 @@ class TestTransmitirSinVentana(unittest.TestCase):
         preparar.assert_called_once()
         args, _ = preparar.call_args
         self.assertEqual(args[1], "YouTube")
-        marco._supervisar_transmision.assert_called_once_with(
+        marco._supervisar_transmision.assert_any_call(
             "iniciar", "YouTube", "", revision=revision)
 
     def test_restream_sin_cuenta_avisa_y_no_revisa(self):
@@ -160,7 +194,7 @@ class TestTransmitirSinVentana(unittest.TestCase):
         marco._guardar_destino_transmision.assert_called_once_with(
             "restream:Vertical")
         marco._guardar_usuario_tiktok.assert_not_called()
-        marco._supervisar_transmision.assert_called_once_with(
+        marco._supervisar_transmision.assert_any_call(
             "iniciar", "restream:Vertical", "")
 
     def test_tiktok_guarda_usuario_y_revisa(self):
@@ -205,7 +239,8 @@ class TestRevisionListaSinVentana(unittest.TestCase):
         comando = comando_directo.ComandoDirecto(mock.Mock())
         marco = comando._marco
         marco._alive = True
-        marco._supervisar_transmision = mock.Mock()
+        marco._supervisar_transmision = mock.Mock(return_value=False)
+        comando._supervisar = marco._supervisar_transmision
         marco._actualizar_boton_directo = mock.Mock()
         comando._boton = mock.Mock()
         return comando, marco
@@ -219,7 +254,7 @@ class TestRevisionListaSinVentana(unittest.TestCase):
                 comando_directo, "confirmar_transmision") as confirmar:
             comando._revision_lista(marco, preparacion, "YouTube", "YouTube", "")
         confirmar.assert_not_called()
-        marco._supervisar_transmision.assert_called_once_with(
+        marco._supervisar_transmision.assert_any_call(
             "iniciar", "YouTube", "", revision=revision)
 
     def test_tiktok_confirma_como_hoy(self):
@@ -410,7 +445,8 @@ class TestPseudoAnunciosComandoDirecto(unittest.TestCase):
         marco._guardar_usuario_tiktok = mock.Mock(
             side_effect=lambda u: marco._config.update(
                 {"tiktok_usuario": u}) or u)
-        marco._supervisar_transmision = mock.Mock()
+        marco._supervisar_transmision = mock.Mock(return_value=False)
+        comando._supervisar = marco._supervisar_transmision
         marco._actualizar_boton_directo = mock.Mock()
         comando._boton = mock.Mock()
         comando._transmitiendo = False
@@ -482,6 +518,172 @@ class TestPseudoAnunciosComandoDirecto(unittest.TestCase):
         comando, _marco = self._comando()
         comando._finalizada()
         self._exigir_marcados(1)
+
+
+class TestRevisionEnCurso(unittest.TestCase):
+
+    def test_pulsar_mientras_revisa_anuncia_el_texto_y_no_hace_nada_mas(self):
+        comando = comando_directo.ComandoDirecto(_marco_directo())
+        comando._revisando = True
+        with mock.patch.object(comando_directo, "anunciar") as anunciar, \
+                mock.patch(
+                    "guyrapu.ui.gui_elegir_destino.pedir_destino") as pedir, \
+                mock.patch.object(
+                    comando_directo, "confirmar_finalizar") as confirmar, \
+                mock.patch.object(
+                    comando_directo.diagnostico, "crear_hilo") as hilos:
+            comando.pulsar(comando._marco)
+        anunciar.assert_called_once_with(
+            "Revisando OBS antes de transmitir.")
+        pedir.assert_not_called()
+        confirmar.assert_not_called()
+        hilos.assert_not_called()
+
+
+class TestDecisionDelSupervisor(unittest.TestCase):
+
+    def test_deteniendo_anuncia_lo_del_panel_y_no_revisa_obs(self):
+        supervisor = mock.Mock(
+            side_effect=lambda accion: accion == "deteniendo")
+        marco = _marco_directo(_supervisar_transmision=supervisor)
+        comando = comando_directo.ComandoDirecto(marco)
+        with mock.patch(
+                "guyrapu.ui.gui_elegir_destino.pedir_destino",
+                return_value=("YouTube", "")), \
+                mock.patch.object(comando_directo, "anunciar") as anunciar, \
+                mock.patch.object(comando_directo.transmision_directa,
+                                  "preparar") as preparar, \
+                mock.patch.object(comando_directo.diagnostico,
+                                  "crear_hilo") as hilos:
+            comando._transmitir(marco)
+        anunciar.assert_any_call(
+            "Deteniendo la transmisión. Esperando a que OBS confirme.")
+        preparar.assert_not_called()
+        hilos.assert_not_called()
+
+    def test_supervisor_activo_detiene_y_espera(self):
+        supervisor = mock.Mock(
+            side_effect=lambda accion: accion == "activo")
+        marco = _marco_directo(_supervisar_transmision=supervisor)
+        comando = comando_directo.ComandoDirecto(marco)
+        comando.sincronizar(True)
+        with mock.patch.object(
+                comando_directo, "confirmar_finalizar",
+                return_value=True), \
+                mock.patch.object(comando_directo, "wx") as modulo_wx, \
+                mock.patch.object(comando_directo.transmision_directa,
+                                  "finalizar") as finalizar:
+            comando._finalizar(marco)
+        supervisor.assert_any_call("detener")
+        finalizar.assert_not_called()
+        self.assertTrue(comando.transmitiendo)
+        self.assertTrue(comando.deteniendo)
+        modulo_wx.CallLater.assert_called_once_with(
+            2000, comando._esperar_supervisor)
+
+    def test_sin_supervisor_y_transmitiendo_alterna(self):
+        marco = _marco_sin_supervisor()
+        comando = comando_directo.ComandoDirecto(marco)
+        comando._transmitiendo = True
+        gestor = mock.Mock()
+        gestor.alternar_transmision.return_value = True
+        with mock.patch(
+                "guyrapu.ui.gui_elegir_destino.pedir_destino",
+                return_value=("YouTube", "")), \
+                mock.patch.object(comando_directo, "GestorPanelObs",
+                                  return_value=gestor), \
+                mock.patch.object(comando_directo.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: _Hilo(f)), \
+                mock.patch.object(comando_directo.wx, "CallAfter",
+                                  side_effect=lambda f, *a: f(*a)), \
+                mock.patch.object(comando_directo, "avisar") as avisar:
+            comando._transmitir(marco)
+        gestor.alternar_transmision.assert_called_once_with()
+        avisar.assert_called_once_with(
+            obs_estado.frase_resultado("transmision_iniciada"),
+            obs_estado.sonido_resultado("transmision_iniciada"))
+        self.assertTrue(comando.transmitiendo)
+
+
+class TestCierreYoutubeDesdeLosTresSitios(unittest.TestCase):
+
+    def _montar(self):
+        marco = _marco_directo()
+        comando = comando_directo.ComandoDirecto(marco)
+        comando.sincronizar(True)
+        comando._cierre_en_youtube = mock.Mock(
+            return_value=mock.sentinel.cierre)
+        boton = boton_directo.BotonDirecto.__new__(
+            boton_directo.BotonDirecto)
+        boton._comando = comando
+        boton._marco = marco
+        frame = SimpleNamespace(_boton_directo=boton)
+        ventana = mock.Mock()
+        panel = directo_panel.DirectoPanel(
+            ventana, mock.Mock(), comando, None)
+        return marco, boton, frame, panel, ventana
+
+    def _verificar(self, sitio):
+        marco, boton, frame, panel, ventana = self._montar()
+        if sitio == "principal":
+            padre, disparar = marco, boton.pulsar
+        elif sitio == "menu":
+            padre = marco
+            disparar = lambda: menu_transmision._pulsar_directo(frame)
+        else:
+            padre = ventana
+            disparar = lambda: panel._al_pulsar(None)
+        with mock.patch.object(comando_directo, "confirmar_finalizar",
+                               return_value=True) as confirmar, \
+                mock.patch.object(comando_directo.transmision_directa,
+                                  "finalizar") as finalizar, \
+                mock.patch.object(comando_directo, "GestorPanelObs",
+                                  return_value=mock.Mock()), \
+                mock.patch.object(comando_directo.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: _Hilo(f)), \
+                mock.patch.object(comando_directo.wx, "CallAfter",
+                                  side_effect=lambda f, *a: f(*a)), \
+                mock.patch.object(comando_directo, "avisar"):
+            disparar()
+        confirmar.assert_called_once_with(padre)
+        finalizar.assert_called_once()
+        self.assertIs(finalizar.call_args.kwargs.get("finalizar_youtube"),
+                      mock.sentinel.cierre)
+
+    def test_boton_principal(self):
+        self._verificar("principal")
+
+    def test_menu(self):
+        self._verificar("menu")
+
+    def test_panel_de_obs(self):
+        self._verificar("panel")
+
+
+class TestEtiquetaCompartida(unittest.TestCase):
+
+    def test_los_dos_botones_muestran_el_mismo_rotulo(self):
+        comando = comando_directo.ComandoDirecto(_marco_directo())
+        boton = boton_directo.BotonDirecto.__new__(
+            boton_directo.BotonDirecto)
+        boton._comando = comando
+        boton._marco = SimpleNamespace(mi_directo=None)
+        boton.boton = mock.Mock()
+        comando.suscribir(boton._al_cambiar_estado)
+        panel_boton = mock.Mock()
+        directo_panel.DirectoPanel(mock.Mock(), panel_boton, comando, None)
+        for transmitiendo, deteniendo, etiqueta, nombre in (
+                (True, False, "&Finalizar directo", "Finalizar directo"),
+                (True, True, "Finalizando el directo",
+                 "Finalizando el directo, esperando a OBS"),
+                (False, False, "Transm&itir en directo",
+                 "Transmitir en directo")):
+            with self.subTest(etiqueta=etiqueta):
+                comando.sincronizar(transmitiendo, deteniendo)
+                boton.boton.SetLabel.assert_called_with(etiqueta)
+                boton.boton.SetName.assert_called_with(nombre)
+                panel_boton.SetLabel.assert_called_with(etiqueta)
+                panel_boton.SetName.assert_called_with(nombre)
 
 
 if __name__ == "__main__":

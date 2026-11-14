@@ -108,7 +108,7 @@ REGLAS = (
             "guyrapu/ui/comandos_clips.py": 2,
             "guyrapu/ui/comandos_grabacion.py": 2,
             "guyrapu/ui/control_grabacion.py": 2,
-            "guyrapu/ui/directo_panel.py": 1,
+            "guyrapu/ui/comando_directo.py": 1,
             "guyrapu/ui/gui_envio_chat.py": 1, "guyrapu/ui/gui_musica.py": 1,
             "guyrapu/ui/gui_transmitir.py": 1,
         }),
@@ -119,7 +119,6 @@ REGLAS = (
         detectar=detectar_controles,
         pendientes=_pendientes("dejar el control habilitado y anunciar el motivo", {
             "guyrapu/ui/boton_directo.py": 1,
-            "guyrapu/ui/comando_directo.py": 1,
             "guyrapu/ui/buscador_tandas.py": 3,
             "guyrapu/ui/descargas_buscador.py": 1, "guyrapu/ui/escena_captura_ventana.py": 1,
             "guyrapu/ui/escena_propiedades.py": 2,

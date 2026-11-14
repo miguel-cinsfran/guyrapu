@@ -4,9 +4,9 @@
 
 Crea el botón en el panel que le pasan y concentra la lógica de wx
 (visibilidad, etiqueta, nombre accesible, foco y repintado). El trabajo
-de fondo (pedir destino, preparar OBS, confirmar, supervisar, finalizar)
-lo hace `ComandoDirecto`, que recibe el marco: este solo crea el botón,
-lo mete en la fila y le pide `actualizar`.
+de fondo lo hace `ComandoDirecto`, que recibe el marco: este crea el
+botón, lo mete en la fila, le pide `actualizar` y muestra el estado que
+el comando le avisa.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ class BotonDirecto:
         _pintar(self.boton, _T.btn, _T.btn_t)
         self.boton.SetFont(self.boton.GetFont().Bold())
         self.boton.Bind(wx.EVT_BUTTON, self._al_pulsar)
-        self._comando.usar_boton(self.boton)
+        self._comando.suscribir(self._al_cambiar_estado)
 
     def actualizar(self, conectado, conectando, propio, transmitiendo,
                    deteniendo=False):
@@ -61,6 +61,15 @@ class BotonDirecto:
                 comando.SetItemLabel(etiqueta + "…")
             comando.Enable(visible)
         self.boton.GetParent().Layout()
+
+    def _al_cambiar_estado(self):
+        etiqueta, nombre = transmision_directa.etiqueta(
+            self._comando.transmitiendo, self._comando.deteniendo)
+        self.boton.SetLabel(etiqueta)
+        self.boton.SetName(nombre)
+        item = getattr(self._marco, "mi_directo", None)
+        if item is not None:
+            item.SetItemLabel(etiqueta)
 
     def _al_pulsar(self, event):
         self.pulsar()

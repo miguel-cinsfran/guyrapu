@@ -8,7 +8,7 @@ import wx
 
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _, pgettext
-from guyrapu.obs import (chat_en_video, consultas_transmision, obs_lanzador,
+from guyrapu.obs import (chat_en_video, consultas_transmision,
                           obs_panel_recarga, overlay_servidor,
                           transmision_directa)
 from guyrapu.obs.estado_panel import resumir
@@ -17,11 +17,8 @@ from guyrapu.ui import gui_microfono, menu_transmision, tema
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.directo_panel import DirectoPanel
 from guyrapu.ui.gui import caja_de_grupo
-from guyrapu.ui.gui_elegir_destino import pedir_destino
 from guyrapu.ui.preferencias_comun import boton
 from guyrapu.voice import sound_player
-
-logger = diagnostico.obtener_logger(__name__)
 
 
 class PaginaTransmision(wx.Panel):
@@ -34,20 +31,15 @@ class PaginaTransmision(wx.Panel):
         self._operaciones = operaciones
         self._al_terminar = al_terminar
         self._puerto_ocupado_avisado = False
-        self._supervisar = getattr(
-            principal, "_supervisar_transmision", None)
-        self._guardar_usuario = getattr(
-            principal, "_guardar_usuario_tiktok", None)
-        self._guardar_destino = getattr(
-            principal, "_guardar_destino_transmision", None)
         self._leer_config()
         self._escena_al_aire = ""
+        self._comando = getattr(principal, "_comando_directo", None)
+        if self._comando is None:
+            from guyrapu.ui.comando_directo import ComandoDirecto
+            self._comando = ComandoDirecto(principal)
         self._crear_controles()
         self._directo = DirectoPanel(
-            self, self.btn_directo, operaciones, gestor,
-            self._supervisar, self._guardar_usuario, self._guardar_destino,
-            self._usuario_tiktok, obs_lanzador.asegurar_obs,
-            self._datos_directo, self._al_cambiar_directo)
+            self, self.btn_directo, self._comando, self._al_cambiar_directo)
         self._enlazar_eventos()
 
     def _leer_config(self):
@@ -80,29 +72,6 @@ class PaginaTransmision(wx.Panel):
         perfiles = ganchos.cargar_perfiles()
         return transmitir.destino_obs(self._destino_guardado, perfiles) or ""
 
-    def _datos_directo(self):
-        elegido = pedir_destino(
-            self, self._destino_guardado, self._usuario_tiktok)
-        if elegido is None:
-            return None
-        opcion, usuario = elegido
-        if self._guardar_destino is not None:
-            try:
-                self._guardar_destino(opcion)
-            except Exception as error:
-                logger.warning(
-                    "no se pudo guardar el destino de transmisión: %s", error)
-        self._destino_guardado = opcion
-        if opcion == "TikTok":
-            if self._guardar_usuario is not None:
-                try:
-                    self._guardar_usuario(usuario)
-                except Exception as error:
-                    logger.warning(
-                        "no se pudo guardar el usuario de TikTok: %s", error)
-            self._usuario_tiktok = usuario
-        return (opcion, self.destino_actual(), usuario)
-
     def _microfono_preferido(self):
         try:
             return gui_microfono.microfono_preferido(self._principal)
@@ -110,6 +79,7 @@ class PaginaTransmision(wx.Panel):
             return ""
 
     def _al_cambiar_directo(self, foco=None):
+        self._leer_config()
         self._aplicar_visibilidad()
         self._refrescar_estado()
 
