@@ -40,6 +40,7 @@ class HistorialDialog(wx.Dialog):
         self._build_ui()
         paleta.pintar_ventana(self)
         self.Centre()
+        wx.CallAfter(self._listas["youtube"].SetFocus)
 
     def _build_ui(self):
         panel = wx.Panel(self, name="PanelHistorial")

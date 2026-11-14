@@ -80,6 +80,7 @@ class VentanaRestream(wx.Dialog):
         if self._cuenta.conectada():
             self._leer_canales()
             self._leer_perfil()
+        wx.CallAfter(self._pagina_cuenta.txt_estado.SetFocus)
 
     @property
     def _canales_leidos(self):

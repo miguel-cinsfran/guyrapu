@@ -77,6 +77,7 @@ class DialogoAjustesPerfil(wx.Dialog):
         self._crear(ajustes)
         paleta.pintar_ventana(self)
         self.Centre()
+        wx.CallAfter(self.rad_orientacion.SetFocus)
 
     def _crear(self, ajustes):
         caja = wx.BoxSizer(wx.VERTICAL)
