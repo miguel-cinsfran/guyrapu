@@ -105,7 +105,7 @@ class DialogoPruebaEquipo(wx.Dialog):
         if self.chk_vertical is not None:
             caja.Add(self.chk_vertical, 0, wx.LEFT | wx.RIGHT, 10)
         fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_empezar = _boton(self, _("&Empezar"), self._empezar)
+        self.btn_empezar = _boton(self, _("&Iniciar"), self._empezar)
         self.btn_cancelar = wx.Button(
             self, wx.ID_CANCEL, _("&Cancelar"),
             name=nombre_de_etiqueta(_("&Cancelar")))

@@ -8131,7 +8131,7 @@ msgstr ""
 "kbps. The test takes at most {segundos} seconds."
 
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
-msgid "&Empezar"
+msgid "&Iniciar"
 msgstr "&Start"
 
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
@@ -11674,7 +11674,7 @@ msgid "Ocultar cola"
 msgstr "Hide the queue"
 
 #: guyrapu/ui/musica_ventana_acciones.py
-msgid "Renombrar lista"
+msgid "Cambiar nombre de la lista"
 msgstr "Rename playlist"
 
 #: guyrapu/ui/musica_ventana_acciones.py

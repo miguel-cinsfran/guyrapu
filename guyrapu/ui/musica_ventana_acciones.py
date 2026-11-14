@@ -21,7 +21,7 @@ logger = diagnostico.obtener_logger(__name__)
 # Traductores: título del diálogo que confirma el borrado; una sola palabra.
 TITULO = N_("Música")
 TITULO_NUEVA = N_("Nueva lista")
-TITULO_RENOMBRAR = N_("Renombrar lista")
+TITULO_RENOMBRAR = N_("Cambiar nombre de la lista")
 TEXTO_NOMBRE = N_("Nombre de la lista:")
 
 
