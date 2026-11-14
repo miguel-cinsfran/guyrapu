@@ -100,18 +100,6 @@ TEXTO_FILTROS_OCULTOS = N_("Filtros ocultos")
 TEXTO_UN_TEMA_COINCIDE = N_("1 canción coincide")
 TEXTO_TEMAS_COINCIDEN = N_("{cantidad} canciones coinciden")
 TEXTO_NINGUN_TEMA_COINCIDE = N_("Ninguna canción coincide")
-TEXTO_AYUDA_BIBLIOTECA = N_(
-    "Intro reproduce ahora, Mayús más Intro a continuación, "
-    "Ctrl más Intro al final, tecla de aplicaciones para más opciones")
-TEXTO_AYUDA_BIBLIOTECA_LISTA = N_(
-    "Intro reproduce ahora, Mayús más Intro a continuación, Ctrl más Intro "
-    "al final, tecla de aplicaciones para más opciones. Supr elimina de la lista")
-TEXTO_AYUDA_COLA = N_(
-    "Intro reproduce, Supr elimina, Alt más flechas mueve, "
-    "tecla de aplicaciones para más opciones")
-TEXTO_AYUDA_BUSCAR = N_(
-    "Escribe para filtrar, flecha abajo va a las canciones, "
-    "Esc vacía la búsqueda")
 TEXTO_CONFIRMAR_BORRAR_LISTA = N_("¿Eliminar la lista {nombre}?")
 
 

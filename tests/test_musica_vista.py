@@ -320,41 +320,6 @@ class TestIndiceTrasRefrescar(unittest.TestCase):
         self.assertEqual(vista.indice_seleccion_tras_refrescar(0, 0), -1)
 
 
-class TestAyudas(unittest.TestCase):
-
-    def test_biblioteca_de_la_carpeta(self):
-        self.assertEqual(
-            vista.ayuda_biblioteca(False),
-            "Intro reproduce ahora, Mayús más Intro a continuación, "
-            "Ctrl más Intro al final, tecla de aplicaciones para más "
-            "opciones")
-
-    def test_biblioteca_de_una_lista_suma_suprimir(self):
-        self.assertEqual(
-            vista.ayuda_biblioteca(True),
-            "Intro reproduce ahora, Mayús más Intro a continuación, Ctrl más Intro "
-            "al final, tecla de aplicaciones para más opciones. "
-            "Supr elimina de la lista")
-
-    def test_colecciones(self):
-        self.assertEqual(
-            vista.ayuda_colecciones(),
-            "Intro reproduce la colección entera, Supr elimina la lista, "
-            "tecla de aplicaciones para más opciones")
-
-    def test_cola(self):
-        self.assertEqual(
-            vista.ayuda_cola(),
-            "Intro reproduce, Supr elimina, Alt más flechas mueve, "
-            "tecla de aplicaciones para más opciones")
-
-    def test_buscar(self):
-        self.assertEqual(
-            vista.ayuda_buscar(),
-            "Escribe para filtrar, flecha abajo va a las canciones, "
-            "Esc vacía la búsqueda")
-
-
 class TestTextoCarpetaExaminada(unittest.TestCase):
 
     def test_sin_cambios(self):
@@ -436,19 +401,6 @@ class TestPseudoVista(unittest.TestCase):
             with self.subTest(texto=texto):
                 self.assertTrue(texto.startswith("[¡"), texto)
         self.assertIn("8", varios)
-
-    def test_ayudas_salen_marcadas(self):
-        with con_pseudo():
-            ayudas = (
-                vista.ayuda_biblioteca(False),
-                vista.ayuda_biblioteca(True),
-                vista.ayuda_colecciones(),
-                vista.ayuda_cola(),
-                vista.ayuda_buscar(),
-            )
-        for ayuda in ayudas:
-            with self.subTest(ayuda=ayuda):
-                self.assertTrue(ayuda.startswith("[¡"), ayuda)
 
     def test_resumen_marca_con_y_sin_busqueda(self):
         with con_pseudo():

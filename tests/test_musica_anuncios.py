@@ -550,26 +550,6 @@ class TestTextosVentanaMusica(unittest.TestCase):
         self.assertEqual(anuncios.TEXTO_NINGUN_TEMA_COINCIDE,
                          "Ninguna canción coincide")
 
-    def test_ayudas(self):
-        self.assertEqual(
-            anuncios.TEXTO_AYUDA_BIBLIOTECA,
-            "Intro reproduce ahora, Mayús más Intro a continuación, "
-            "Ctrl más Intro al final, tecla de aplicaciones para más "
-            "opciones")
-        self.assertEqual(
-            anuncios.TEXTO_AYUDA_BIBLIOTECA_LISTA,
-            "Intro reproduce ahora, Mayús más Intro a continuación, Ctrl más Intro "
-            "al final, tecla de aplicaciones para más opciones. "
-            "Supr elimina de la lista")
-        self.assertEqual(
-            anuncios.TEXTO_AYUDA_COLA,
-            "Intro reproduce, Supr elimina, Alt más flechas mueve, "
-            "tecla de aplicaciones para más opciones")
-        self.assertEqual(
-            anuncios.TEXTO_AYUDA_BUSCAR,
-            "Escribe para filtrar, flecha abajo va a las canciones, "
-            "Esc vacía la búsqueda")
-
     def test_confirmar_borrar(self):
         self.assertEqual(anuncios.TEXTO_CONFIRMAR_BORRAR_LISTA,
                          "¿Eliminar la lista {nombre}?")
@@ -642,10 +622,6 @@ class TestPseudoAnuncios(unittest.TestCase):
         "TEXTO_UN_TEMA_COINCIDE",
         "TEXTO_TEMAS_COINCIDEN",
         "TEXTO_NINGUN_TEMA_COINCIDE",
-        "TEXTO_AYUDA_BIBLIOTECA",
-        "TEXTO_AYUDA_BIBLIOTECA_LISTA",
-        "TEXTO_AYUDA_COLA",
-        "TEXTO_AYUDA_BUSCAR",
         "TEXTO_CONFIRMAR_BORRAR_LISTA",
     )
 

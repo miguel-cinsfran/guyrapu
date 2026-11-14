@@ -367,28 +367,11 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
                 return self._tecla_temas(evento)
             if foco is self.lb_cola:
                 return self._tecla_cola(evento)
-        if evento.GetKeyCode() == wx.WXK_F1:
-            ayuda = self._ayuda_de_foco()
-            if ayuda:
-                anunciar(ayuda)
-                return
         if musica_teclas.manejar_atajo_de_tecla(
                 self._control, self._combos, evento):
             self.refrescar_cola()
             return
         evento.Skip()
-
-    def _ayuda_de_foco(self):
-        foco = wx.Window.FindFocus()
-        if foco is self.lb_colecciones:
-            return vista.ayuda_colecciones()
-        if foco is self.txt_buscar:
-            return vista.ayuda_buscar()
-        if foco is self.lb_temas:
-            return vista.ayuda_biblioteca(self._fuente is not None)
-        if foco is self.lb_cola:
-            return vista.ayuda_cola()
-        return ""
 
 
 def abrir_ventana(control, abrir_listas=False):

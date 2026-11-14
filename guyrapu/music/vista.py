@@ -19,9 +19,6 @@ from guyrapu.music.biblioteca import coincide_por_palabras
 # Traductores: primera fila de Colecciones, la carpeta entera; una sola palabra.
 ETIQUETA_BIBLIOTECA = N_("Biblioteca")
 
-TEXTO_AYUDA_COLECCIONES = N_(
-    "Intro reproduce la colección entera, Supr elimina la lista, "
-    "tecla de aplicaciones para más opciones")
 TEXTO_COLA_OCULTA = N_("Cola oculta")
 # Traductores: {total} es cuántas canciones hay en la carpeta; se lee en el resumen.
 _RESUMEN_CARPETA = (
@@ -121,28 +118,6 @@ def indice_seleccion_tras_refrescar(indice, total) -> int:
     if total == 0 or indice is None or int(indice) < 0:
         return -1
     return min(int(indice), total - 1)
-
-
-def ayuda_biblioteca(es_lista_propia: bool) -> str:
-    """La ayuda de teclas de la Biblioteca."""
-    if es_lista_propia:
-        return _(anuncios.TEXTO_AYUDA_BIBLIOTECA_LISTA)
-    return _(anuncios.TEXTO_AYUDA_BIBLIOTECA)
-
-
-def ayuda_colecciones() -> str:
-    """La ayuda de teclas de la lista de colecciones."""
-    return _(TEXTO_AYUDA_COLECCIONES)
-
-
-def ayuda_cola() -> str:
-    """La ayuda de teclas de la Cola."""
-    return _(anuncios.TEXTO_AYUDA_COLA)
-
-
-def ayuda_buscar() -> str:
-    """La ayuda de teclas del buscador."""
-    return _(anuncios.TEXTO_AYUDA_BUSCAR)
 
 
 def texto_duracion(ms) -> str:
