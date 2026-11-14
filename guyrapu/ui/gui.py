@@ -13,10 +13,9 @@ from __future__ import annotations
 import random
 import threading
 import time
-import webbrowser
+import webbrowser  # noqa: F401  (reexport para las pruebas)
 
 import wx
-from wx.lib.wordwrap import wordwrap
 
 from guyrapu.core.config import APP_NAME, APP_VERSION, TIPO_TEXTO
 from guyrapu.core.version_legible import version_legible
@@ -32,8 +31,8 @@ from guyrapu.capture import estado_sesion
 from guyrapu.core import historial
 from guyrapu.downloads.descargas import gestor
 from guyrapu.ui.lista_chat import MensajeChat
-from guyrapu.ui.chat_vivo import ControladorChat
-from guyrapu.ui import atajos_captura, comando_directo, confirmar, recientes_inicio as recientes
+from guyrapu.ui import atajos_captura, confirmar
+from guyrapu.ui import gui_construccion
 from guyrapu.voice import escala_voz
 from guyrapu.voice import sound_player as _snd
 from guyrapu.youtube import credenciales
@@ -44,7 +43,7 @@ from guyrapu.capture.montos import sumar_monto, texto_importes
 from guyrapu.obs import overlay_servidor
 from guyrapu.capture import programados
 from guyrapu.capture import descartes
-from guyrapu.capture import redaccion
+from guyrapu.capture import redaccion  # noqa: F401  (reexport para gui_envio_chat)
 from guyrapu.obs import obs_entradas_audio
 from guyrapu.obs import obs_estado
 from guyrapu.obs import obs_vigilante
@@ -52,11 +51,8 @@ from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_cliente
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.player import flujo_tiktok
-from guyrapu.ui.barra_estado import anchos_barra_estado
 from guyrapu.ui.confirmar_salida import (
     descargas_sin_terminar, mensaje_confirmar_salida, mensaje_con_descargas)
-from guyrapu.ui.gui_redactar import PanelRedactar
-from guyrapu.ui import paleta
 from guyrapu.ui import titulo_ventana
 from guyrapu.ui.sesion_conectada import SesionConectada
 
@@ -93,10 +89,10 @@ _OBS_COMPONENTES = frozenset(("obs_transmision", "obs_grabacion", "obs_escena"))
 # Reexportados: muchos módulos todavía los piden a gui.
 from guyrapu.ui.accesibilidad import (
     ContadorAccesible, _lector_init, anunciar,
-    anunciar_con_sonido, enlazar_anuncio_de_pestana, nombre_accesible,
+    anunciar_con_sonido,
+    nombre_accesible,  # noqa: F401  (reexport para la interfaz)
 )
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
-from guyrapu.ui.tema import ALTO_CONTRASTE, _T, _pintar, _tc, _titulo
+from guyrapu.ui.tema import ALTO_CONTRASTE, _T, _tc  # noqa: F401  (reexports)
 
 
 def anunciar_conflictos_atajos(raw: dict | None) -> None:
@@ -147,6 +143,22 @@ class _LogWx(wx.Log):
 # ── Frame principal ──────────────────────────────────────────────────────────
 
 class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
+
+    # La construcción (gui_construccion) crea estos controles sobre la ventana.
+    _boton_directo: object
+    _com_panel: object
+    _diagnostico_timer: wx.Timer
+    _inicio: object
+    _mi_filtro_sub: object
+    _musica: object
+    _pag_chat: object
+    _pag_info: object
+    _panel_principal: object
+    _recientes: object
+    _regiones: list
+    _rep_panel: object
+    _timer: wx.Timer
+    _zona: object
 
     def __init__(self, parent, config, cola, stats, worker, parada):
         super().__init__(
@@ -205,9 +217,9 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self._build_menubar()
         if self._config.get("overlay_activo", False):
             self._cambiar_overlay(True)
-        self._build_ui()
-        self._bind_events()
-        self._init_timer()
+        gui_construccion.construir(self)
+        gui_construccion.enlazar_eventos(self)
+        gui_construccion.iniciar_temporizadores(self)
         self._actualizar_vigilante_obs()
         diagnostico.crear_hilo(
             lambda: vigia_interfaz.vigilar_hilo_interfaz(
@@ -285,259 +297,6 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         from guyrapu.ui import gui_actualizar_app
         gui_actualizar_app.abrir_ventana_actualizacion(self)
 
-    # ── Construcción de la UI ────────────────────────────────────────────────
-
-    def _build_ui(self):
-        # Importes diferidos para evitar el ciclo (esos módulos importan de gui).
-        from guyrapu.ui.gui_comentarios import ComentariosPanel
-        from guyrapu.player.reproductor import ReproductorPanel
-
-        panel = wx.Panel(self, name="PanelPrincipal")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        # ── Barra superior: URL + tipo + Conectar ──
-        row = wx.BoxSizer(wx.HORIZONTAL)
-        lbl = wx.StaticText(panel, label=_("&Enlace o ID:"), name="EtiquetaURL")
-        _titulo(lbl)
-        row.Add(lbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 6)
-        self.txt_url = wx.TextCtrl(panel, style=wx.TE_PROCESS_ENTER, name=_("Enlace del directo o vídeo"))
-        self.txt_url.SetToolTip(
-            _("Enlace de YouTube (directo o vídeo) o de un directo de TikTok "
-              "(tiktok.com/@usuario/live). También vale el ID de 11 caracteres de "
-              "YouTube. Pulsa Intro para conectar."))
-        row.Add(self.txt_url, 1, wx.EXPAND | wx.RIGHT, 8)
-        # Traductores: nombre accesible del botón para conectar.
-        self.btn_conectar = wx.Button(panel, label=_("&Conectar"), name=_("Conectar"))
-        _pintar(self.btn_conectar, _T.primary, _T.primary_t)
-        self.btn_conectar.SetFont(self.btn_conectar.GetFont().Bold())
-        row.Add(self.btn_conectar, 0, wx.ALIGN_CENTER_VERTICAL)
-        from guyrapu.ui.boton_directo import BotonDirecto
-        self._boton_directo = BotonDirecto(panel, self.btn_conectar, self, comando_directo.ComandoDirecto(self))
-        row.Add(self._boton_directo.boton, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 8)
-        vs.Add(row, 0, wx.EXPAND | wx.ALL, 12)
-
-        self.lbl_tipo = wx.StaticText(panel, label=self._texto_tipo, name="TipoVideo")
-        _pintar(self.lbl_tipo, fg=_T.dim)
-        # Ancho mínimo fijo: si no, el mínimo del sizer (y el piso de la
-        # ventana) seguiría al texto sin partir, es decir, al ancho actual.
-        self.lbl_tipo.SetMinSize((200, -1))
-        self.lbl_tipo.Wrap(ANCHO_DEFECTO - 40)
-        vs.Add(self.lbl_tipo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        # ── Zona de contenido: notebook + reproductor. Se oculta hasta que hay
-        # conexión y se vuelve a ocultar al desconectar (queda solo la barra
-        # superior), para que no aparezca todo a medio cargar. ──
-        self._zona = wx.Panel(panel, name="ZonaContenido")
-        zvs = wx.BoxSizer(wx.VERTICAL)
-
-        # Traductores: cuaderno con los paneles.
-        self.nb = wx.Notebook(self._zona, name=_("Paneles"))
-        _tc(self.nb, bg=_T.surface)
-        self._pag_chat = self._build_pagina_chat(self.nb)
-        self._com_panel = ComentariosPanel(self.nb, self._cola, self._config)
-        self.nb.AddPage(self._pag_chat, _("Chat del directo"))
-        # Traductores: pestaña de comentarios.
-        self.nb.AddPage(self._com_panel, _("Comentarios"))
-        # Pestaña de información del vídeo (solo lectura). Se añade SIEMPRE al
-        # final, para no alterar los índices de Chat/Comentarios, y se puede
-        # ocultar por preferencia. La rellena set_metadatos con lo de yt-dlp.
-        self._pag_info = self._build_pagina_info(self.nb)
-        self._metadatos = {}
-        if bool(self._config.get("mostrar_metadatos", True)):
-            # Traductores: pestaña con los datos del vídeo.
-            self.nb.AddPage(self._pag_info, _("Información"))
-        else:
-            self._pag_info.Hide()
-        # Piso para que la lista del chat, los comentarios y la información no
-        # queden aplastados por el reproductor en ventanas bajas: 170 dejaba
-        # ver 2-3 mensajes; con esto se ven varios más sin tocar el reproductor.
-        self.nb.SetMinSize((-1, 260))
-        zvs.Add(self.nb, 4, wx.EXPAND | wx.BOTTOM, 10)
-
-        # Proporción 4/1 para lo que sobra, pero a 860x700 mandan los mínimos, que ya superan los 700.
-        self._rep_panel = ReproductorPanel(self._zona, self._config)
-        # Al alternar los botones del reproductor (desde su interruptor o el menú),
-        # sincronizamos la casilla del menú y persistimos la preferencia.
-        self._rep_panel.on_botones_toggle = self._on_botones_rep_cambio
-        zvs.Add(self._rep_panel, 1, wx.EXPAND)
-
-        self._zona.SetSizer(zvs)
-        vs.Add(self._zona, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self._zona.Hide()
-        self._inicio = recientes.armar(panel, vs, self._zona, self._reconectar_desde_historial)
-
-        panel.SetSizer(vs)
-        self._panel_principal = panel
-
-        # Control de la música: nace sin tocar VLC ni el disco.
-        from guyrapu.ui import gui_musica
-        self._musica = gui_musica.ControlMusica(self)
-
-        # Regiones que recorre F6 / Shift+F6.
-        self._region_idx = REG_CONTENIDO
-        self._regiones = [
-            lambda: self.txt_url.SetFocus(),
-            self._foco_contenido,
-            self._rep_panel.anclar_foco,
-        ]
-
-        self.sb = self.CreateStatusBar(7, name="BarraEstado")
-        # (Sin fondo: la barra de estado nativa lo ignora.)
-        _pintar(self.sb, fg=_T.dim)
-        self.sb.SetStatusWidths(anchos_barra_estado(lambda t: self.sb.GetTextExtent(t)[0]))
-        self._actualizar_sb()
-        self._set_conectado_ui(False)   # estado inicial: desconectado
-        paleta.pintar_ventana(self)
-
-    def _build_pagina_chat(self, parent) -> wx.Panel:
-        pag = wx.Panel(parent, name="PaginaChat")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        lbl = wx.StaticText(pag, label=_("Mensajes del chat:"), name="EtiquetaChat")
-        _titulo(lbl)
-        vs.Add(lbl, 0, wx.LEFT | wx.RIGHT | wx.TOP, 8)
-
-        self.lb_chat = wx.ListBox(
-            pag, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Chat del directo"))
-        pt = int(self._config.get("tamanio_fuente_chat", 12))
-        self.lb_chat.SetFont(wx.Font(
-            pt, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
-        self.lb_chat.SetToolTip(
-            _("Mensajes del chat. Intro copia el mensaje. "
-              "La tecla de aplicaciones abre el menú contextual."))
-        # msaa=False: ver el porqué en nombre_accesible() (lista dinámica).
-        nombre_accesible(self.lb_chat, _("Chat del directo"), msaa=False)
-        self.chat_vivo = ControladorChat(
-            self.lb_chat, MAX_ITEMS_CHAT,
-            activo=lambda: self._alive and self._conectado,
-            autor_oculto=lambda autor: self._chat_acciones._autor_esta_oculto(autor),
-            formatear=lambda *args: self._chat_acciones._format_display(*args),
-            al_superchat=self._sumar_superchat,
-            config=self._config, varios_chats=chat_adicional.activo)
-        self._chat_acciones.lb_chat = self.lb_chat
-        self._chat_acciones.chat_vivo = self.chat_vivo
-        vs.Add(self.lb_chat, 1, wx.EXPAND | wx.ALL, 8)
-
-        self._panel_redactar = PanelRedactar(
-            pag, _("&Mensaje:"), redaccion.MAXIMO_CHAT, self._enviar_live_redactado)
-        vs.Add(self._panel_redactar, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        pag.SetSizer(vs)
-        self._actualizar_motivo_redaccion()
-        # Mensajes recientes: lee con Ctrl+Mayús y un número, también fuera.
-        # Nace acá, donde ya existe lb_chat.
-        from guyrapu.ui import chat_recientes
-        self._recientes = chat_recientes.LecturaRecientes(
-            self, self.lb_chat, self._config, self._cola)
-        return pag
-
-    def _build_pagina_info(self, parent) -> wx.Panel:
-        pag = wx.Panel(parent, name="PaginaInfo")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        lbl = wx.StaticText(pag, label=_("Información del vídeo:"), name="EtiquetaInfo")
-        _titulo(lbl)
-        vs.Add(lbl, 0, wx.LEFT | wx.RIGHT | wx.TOP, 8)
-
-        # Solo lectura y multilínea. TE_AUTO_URL (con TE_RICH2, necesario en
-        # Windows) hace clicables los enlaces de la descripción SIN romper la
-        # lectura con NVDA, que recorre el cuadro como texto normal (flechas,
-        # selección, copiar). Es la opción accesible frente a un wx.html.
-        self.txt_info = wx.TextCtrl(
-            pag, value="", name=_("Información del vídeo"),
-            style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_AUTO_URL | wx.TE_RICH2)
-        self.txt_info.SetToolTip(
-            _("Datos del vídeo: canal, vistas, descripción. Solo lectura. Para "
-              "abrir un enlace, cópialo y pégalo en el navegador."))
-        vs.Add(self.txt_info, 1, wx.EXPAND | wx.ALL, 8)
-
-        pag.SetSizer(vs)
-        self.txt_info.Bind(wx.EVT_TEXT_URL, self._on_info_url)
-        return pag
-
-    def _on_info_url(self, event):
-        # TE_AUTO_URL dispara este evento para CADA movimiento del ratón sobre el
-        # enlace; abrir solo al soltar el botón izquierdo (si no, abriría a cada
-        # paso del cursor).
-        mouse = event.GetMouseEvent()
-        if mouse.LeftUp():
-            url = self.txt_info.GetRange(event.GetURLStart(), event.GetURLEnd())
-            if url:
-                webbrowser.open(url)
-        else:
-            event.Skip()
-
-    # ── Enlaces de eventos ───────────────────────────────────────────────────
-
-    def _bind_events(self):
-        self.Bind(wx.EVT_CLOSE, self._on_close)
-        self.Bind(wx.EVT_ACTIVATE, self._on_activate)
-        # En el panel, no en el frame: cuando el frame recibe EVT_SIZE el panel
-        # aún tiene el tamaño viejo y cada Wrap iba un evento tarde.
-        self._panel_principal.Bind(wx.EVT_SIZE, self._on_resize)
-        self.btn_conectar.Bind(wx.EVT_BUTTON, self._on_conectar)
-        self.txt_url.Bind(wx.EVT_TEXT_ENTER,  self._on_conectar)
-        enlazar_anuncio_de_pestana(self.nb)
-        self.lb_chat.Bind(wx.EVT_LISTBOX_DCLICK,
-                          lambda e: self._chat_acciones._copiar_mensaje())
-        self._enlazar_eventos_chat()
-        instalar_busqueda_tipo(
-            self.lb_chat,
-            lambda: [self.lb_chat.GetString(i) for i in range(self.lb_chat.GetCount())])
-
-    def _enlazar_eventos_chat(self):
-        self.lb_chat.Bind(wx.EVT_KEY_DOWN, self._chat_acciones._on_chat_key)
-        self.lb_chat.Bind(wx.EVT_CHAR_HOOK, self._chat_acciones._on_chat_char_hook)
-        self.lb_chat.Bind(wx.EVT_CONTEXT_MENU, self._chat_acciones._on_chat_menu)
-
-    def _on_resize(self, event):
-        # Primero el Wrap y luego Skip: así el Layout por defecto del panel ya
-        # cuenta con la altura nueva de la etiqueta.
-        self._ajustar_ancho_tipo()
-        event.Skip()
-
-    def _ajustar_ancho_tipo(self) -> None:
-        """Parte lbl_tipo al ancho actual sin StaticText.Wrap, que a veces no parte."""
-        if not hasattr(self, "lbl_tipo"):
-            return
-        try:
-            ancho = max(200, self.lbl_tipo.GetParent().GetClientSize().Width - 20)
-            dc = wx.ClientDC(self.lbl_tipo)
-            dc.SetFont(self.lbl_tipo.GetFont())
-            self.lbl_tipo.SetLabel(wordwrap(self._texto_tipo, ancho, dc).rstrip("\n"))
-        except Exception as error:
-            logger.debug("no se pudo ajustar el ancho del tipo de directo: %s", error)
-
-    def _fijar_tipo(self, texto: str) -> None:
-        self._texto_tipo = texto
-        self._ajustar_ancho_tipo()
-        try:    self._panel_principal.Layout()
-        except Exception as error: logger.debug("no se pudo reajustar el panel: %s", error)
-
-    def _ajustar_minimo_ventana(self) -> None:
-        """Piso real de la ventana: lo que pide el sizer (con el reproductor a
-        la vista ronda los 850 px de alto, muy por encima de 640×480, y el
-        vídeo quedaba cortado por abajo). Se limita a la pantalla y, si la
-        ventana era más chica, se agranda para que quepa todo."""
-        try:
-            minimo = self._panel_principal.GetSizer().GetMinSize()
-            area = wx.Display(self).GetClientArea()
-            # Descontar título, menú, barra de estado y bordes.
-            ancho = max(640, min(minimo.width, area.width - 40))
-            alto = max(480, min(minimo.height, area.height - 110))
-            self.SetMinClientSize((ancho, alto))
-            actual = self.GetClientSize()
-            if self.IsMaximized() or (actual.width >= ancho and actual.height >= alto):
-                return
-            self.SetClientSize((max(actual.width, ancho), max(actual.height, alto)))
-            rect = self.GetRect()
-            x = max(area.x, min(rect.x, area.right - rect.width))
-            y = max(area.y, min(rect.y, area.bottom - rect.height))
-            if (x, y) != (rect.x, rect.y):
-                self.Move((x, y))
-        except Exception as exc:
-            logger.debug("ajustar mínimo de la ventana: %s", exc)
-
     def _on_activate(self, event):
         if event.GetActive() and self._alive:
             # Diferido: wx repone el foco en el último control tras este evento.
@@ -566,14 +325,6 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
             try:    ventana = ventana.GetParent()
             except Exception: return False
         return False
-
-    def _init_timer(self):
-        self._timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self._on_timer, self._timer)
-        self._timer.Start(TIMER_STATUS_MS)
-        self._diagnostico_timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self._on_diagnostico_timer, self._diagnostico_timer)
-        self._diagnostico_timer.Start(TIMER_DIAGNOSTICO_MS)
 
     def _arrancar_precalentamiento(self) -> None:
         if self._alive:
@@ -1157,7 +908,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
             if estaba:
                 self._mostrar_zona(False)
                 self.set_titulo_stream("")
-                self._fijar_tipo(_(MENSAJE_INICIAL))
+                gui_construccion.fijar_tipo(self, _(MENSAJE_INICIAL))
                 # El fin del directo de TikTok llega con su propio sonido;
                 # el resto de los cortes sigue sonando «desconectado».
                 _snd.reproducir(sonido_desconexion)
@@ -1206,7 +957,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
     def _mostrar_zona(self, mostrar: bool) -> None:
         self._zona.Show(mostrar)
         self._panel_principal.Layout()
-        self._ajustar_minimo_ventana()
+        gui_construccion.ajustar_minimo_ventana(self)
 
     def _anunciar_conectado(self) -> None:
         t = self.sesion.tipo_video
@@ -1270,16 +1021,16 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         # ChangeSelection: sin anuncio de pestaña; el de «conectado» que viene
         # después ya dice qué hay disponible.
         if tipo == deteccion.LIVE:
-            self._fijar_tipo(_("Directo: leyendo el chat."))
+            gui_construccion.fijar_tipo(self, _("Directo: leyendo el chat."))
             self.nb.ChangeSelection(PAG_CHAT)
         elif tipo == deteccion.UPCOMING:
-            self._fijar_tipo(_("Directo programado: aún sin chat. Hay comentarios."))
+            gui_construccion.fijar_tipo(self, _("Directo programado: aún sin chat. Hay comentarios."))
             self.nb.ChangeSelection(PAG_COMENTARIOS)
         elif tipo == deteccion.VOD:
-            self._fijar_tipo(_("Vídeo subido: comentarios y reproductor."))
+            gui_construccion.fijar_tipo(self, _("Vídeo subido: comentarios y reproductor."))
             self.nb.ChangeSelection(PAG_COMENTARIOS)
         else:
-            self._fijar_tipo(_("Tipo no determinado: intentando leer el chat."))
+            gui_construccion.fijar_tipo(self, _("Tipo no determinado: intentando leer el chat."))
         self._actualizar_boton_directo()
 
     def configurar_tiktok(self, usuario: str, url_flujo: str) -> None:
@@ -1309,7 +1060,9 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
                         else bool(self._config.get("autoplay_reproductor", True)))
             try:    self._rep_panel.set_flujo(url_flujo, autoplay=autoplay)
             except Exception as exc: logger.debug("reproductor tiktok: %s", exc)
-        self._fijar_tipo(_("Directo de TikTok de @{usuario}: leyendo el chat.").format(usuario=usuario))
+        gui_construccion.fijar_tipo(
+            self, _("Directo de TikTok de @{usuario}: leyendo el chat.").format(
+                usuario=usuario))
         if not reconexion:
             self.nb.ChangeSelection(PAG_CHAT)
         self._actualizar_boton_directo()

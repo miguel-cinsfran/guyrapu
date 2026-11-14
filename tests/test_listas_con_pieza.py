@@ -30,7 +30,7 @@ PENDIENTES = {
     "elegir_formato.py": (
         "lista de solo lectura para elegir un formato, en elegir_formato.py:52"),
     "escena_pagina_escena.py": "todavía no pasó a la pieza común",
-    "gui.py": "todavía no pasó a la pieza común",
+    "gui_construccion.py": "todavía no pasó a la pieza común",
     "gui_comentarios.py": "todavía no pasó a la pieza común",
     "gui_grabaciones.py": "todavía no pasó a la pieza común",
     "gui_historial.py": "todavía no pasó a la pieza común",

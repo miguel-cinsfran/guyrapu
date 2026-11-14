@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.ui import gui
+from guyrapu.ui import gui_construccion
 from guyrapu.ui import chat_acciones
 from guyrapu.ui import gui_estado
 from guyrapu.ui import accesibilidad
@@ -351,7 +352,7 @@ class TestEnterEnListas(unittest.TestCase):
         frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
         frame.lb_chat = mock.Mock()
         frame._chat_acciones = mock.Mock()
-        frame._enlazar_eventos_chat()
+        gui_construccion.enlazar_eventos_chat(frame)
         enlaces = [llamada.args[0] for llamada in frame.lb_chat.Bind.call_args_list]
         self.assertIn(gui.wx.EVT_CHAR_HOOK, enlaces)
 
@@ -663,9 +664,10 @@ class TestVentanaReal(unittest.TestCase):
         frame = self._ventana()
         for ancho in (700, 860, 1000, 1300):
             frame.SetSize((ancho, 700)); gui.wx.Yield()
-            frame._fijar_tipo("Directo de TikTok de @rolon_100: leyendo el chat.")
+            gui_construccion.fijar_tipo(
+                frame, "Directo de TikTok de @rolon_100: leyendo el chat.")
             gui.wx.Yield()
-            frame._fijar_tipo(gui.MENSAJE_INICIAL)
+            gui_construccion.fijar_tipo(frame, gui.MENSAJE_INICIAL)
             gui.wx.Yield()
             ancho_panel = frame._panel_principal.GetClientSize().width
             self.assertLessEqual(frame.lbl_tipo.GetBestSize().width, ancho_panel - 20)
@@ -673,7 +675,8 @@ class TestVentanaReal(unittest.TestCase):
     def test_fijar_tipo_conserva_el_texto_original(self):
         frame = self._ventana()
         frame.SetSize((650, 700)); gui.wx.Yield()
-        frame._fijar_tipo("Directo programado: aún sin chat. Hay comentarios.")
+        gui_construccion.fijar_tipo(
+            frame, "Directo programado: aún sin chat. Hay comentarios.")
         frame.SetSize((1500, 700)); gui.wx.Yield()
         self.assertEqual(frame.lbl_tipo.GetLabel(),
                          "Directo programado: aún sin chat. Hay comentarios.")
@@ -4226,7 +4229,7 @@ class TestLiveChatIdPorSesion(unittest.TestCase):
             video_id="", tipo_video=gui.deteccion.DESCONOCIDO,
             es_tiktok=False)
         for nombre in ("lb_chat", "_com_panel",
-                       "_rep_panel", "_fijar_tipo", "_actualizar_estado_online",
+                       "_rep_panel", "_actualizar_estado_online",
                        "_actualizar_titulo"):
             setattr(frame, nombre, mock.Mock())
         frame.chat_vivo = mock.Mock()
@@ -4562,9 +4565,9 @@ class TestCierreVentana(unittest.TestCase):
 
         with mock.patch.object(gui.wx.Frame, "__init__", return_value=None), \
                 mock.patch.object(gui.VentanaPrincipal, "_build_menubar", construir_menu), \
-                mock.patch.object(gui.VentanaPrincipal, "_build_ui"), \
-                mock.patch.object(gui.VentanaPrincipal, "_bind_events"), \
-                mock.patch.object(gui.VentanaPrincipal, "_init_timer"), \
+                mock.patch.object(gui_construccion, "construir"), \
+                mock.patch.object(gui_construccion, "enlazar_eventos"), \
+                mock.patch.object(gui_construccion, "iniciar_temporizadores"), \
                 mock.patch.object(gui.VentanaPrincipal, "SetBackgroundColour"), \
                 mock.patch.object(gui.VentanaPrincipal, "Centre"), \
                 mock.patch.object(gui, "anunciar_conflictos_atajos"), \
@@ -4581,9 +4584,9 @@ class TestCierreVentana(unittest.TestCase):
 
         with mock.patch.object(gui.wx.Frame, "__init__", return_value=None), \
                 mock.patch.object(gui.VentanaPrincipal, "_build_menubar"), \
-                mock.patch.object(gui.VentanaPrincipal, "_build_ui"), \
-                mock.patch.object(gui.VentanaPrincipal, "_bind_events"), \
-                mock.patch.object(gui.VentanaPrincipal, "_init_timer"), \
+                mock.patch.object(gui_construccion, "construir"), \
+                mock.patch.object(gui_construccion, "enlazar_eventos"), \
+                mock.patch.object(gui_construccion, "iniciar_temporizadores"), \
                 mock.patch.object(gui.VentanaPrincipal, "SetBackgroundColour"), \
                 mock.patch.object(gui.VentanaPrincipal, "Centre"), \
                 mock.patch.object(gui, "anunciar_conflictos_atajos"), \
@@ -5045,9 +5048,9 @@ class TestCierreVentana(unittest.TestCase):
         configuracion.get.return_value = {}
         with mock.patch.object(gui.wx.Frame, "__init__", return_value=None), \
                 mock.patch.object(gui.VentanaPrincipal, "_build_menubar"), \
-                mock.patch.object(gui.VentanaPrincipal, "_build_ui"), \
-                mock.patch.object(gui.VentanaPrincipal, "_bind_events"), \
-                mock.patch.object(gui.VentanaPrincipal, "_init_timer"), \
+                mock.patch.object(gui_construccion, "construir"), \
+                mock.patch.object(gui_construccion, "enlazar_eventos"), \
+                mock.patch.object(gui_construccion, "iniciar_temporizadores"), \
                 mock.patch.object(gui.VentanaPrincipal, "SetBackgroundColour"), \
                 mock.patch.object(gui.VentanaPrincipal, "Centre"), \
                 mock.patch.object(gui, "anunciar_conflictos_atajos"), \
@@ -5971,7 +5974,6 @@ class TestFinDirectoGui(unittest.TestCase):
         frame._sc_totales = {}
         frame._mostrar_zona = mock.Mock()
         frame.set_titulo_stream = mock.Mock()
-        frame._fijar_tipo = mock.Mock()
         frame._set_conectado_ui = mock.Mock()
         frame._actualizar_estado_online = mock.Mock()
         frame._actualizar_sb = mock.Mock()
@@ -5986,30 +5988,31 @@ class TestFinDirectoGui(unittest.TestCase):
     def _desconectar(self, frame, *args):
         with mock.patch.object(gui._snd, "reproducir") as reproducir, \
                 mock.patch.object(gui, "anunciar") as anunciar, \
+                mock.patch.object(gui_construccion, "fijar_tipo") as fijar_tipo, \
                 mock.patch.object(gui.wx, "CallAfter",
                                   side_effect=lambda fn, *a, **k: fn(*a, **k)):
             frame.set_conectado(*args)
-        return reproducir, anunciar
+        return reproducir, anunciar, fijar_tipo
 
     def test_fin_directo_suena_distinto_y_cierra_igual(self):
         normal = self._frame_conectado()
-        rep_normal, _an_normal = self._desconectar(normal, False)
+        rep_normal, _an_normal, fijar_normal = self._desconectar(normal, False)
         fin = self._frame_conectado()
-        rep_fin, _an_fin = self._desconectar(fin, False, "fin_directo")
+        rep_fin, _an_fin, fijar_fin = self._desconectar(fin, False, "fin_directo")
         rep_normal.assert_called_once_with("desconectado")
         rep_fin.assert_called_once_with("fin_directo")
         self.assertEqual(normal._mostrar_zona.call_args,
                          fin._mostrar_zona.call_args)
         self.assertEqual(normal.set_titulo_stream.call_args,
                          fin.set_titulo_stream.call_args)
-        self.assertEqual(normal._fijar_tipo.call_args,
-                         fin._fijar_tipo.call_args)
+        self.assertEqual(fijar_normal.call_args.args[1],
+                         fijar_fin.call_args.args[1])
         self.assertEqual(normal._set_conectado_ui.call_args,
                          fin._set_conectado_ui.call_args)
 
     def test_por_defecto_sigue_sonando_desconectado(self):
         frame = self._frame_conectado()
-        reproducir, _anunciar = self._desconectar(frame, False)
+        reproducir, _anunciar, _fijar = self._desconectar(frame, False)
         reproducir.assert_called_once_with("desconectado")
 
 
@@ -6126,7 +6129,6 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco._com_panel = mock.Mock()
         marco._mostrar_zona = mock.Mock()
         marco.set_titulo_stream = mock.Mock()
-        marco._fijar_tipo = mock.Mock()
         marco._set_conectado_ui = mock.Mock()
         marco._actualizar_estado_online = mock.Mock()
         marco._texto_tipo = ""
@@ -6224,12 +6226,12 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco._conectado = True
         marco._mostrar_zona = mock.Mock()
         marco.set_titulo_stream = mock.Mock()
-        marco._fijar_tipo = mock.Mock()
         marco._set_conectado_ui = mock.Mock()
         marco._actualizar_estado_online = mock.Mock()
         marco.txt_url = mock.Mock()
-        with mock.patch.object(gui.wx, "CallAfter",
-                               side_effect=lambda f, *a: f(*a)):
+        with mock.patch.object(gui_construccion, "fijar_tipo"), \
+                mock.patch.object(gui.wx, "CallAfter",
+                                  side_effect=lambda f, *a: f(*a)):
             gui.VentanaPrincipal.set_conectado(marco, False)
         self._exigir_marcados(1)
 
@@ -6390,18 +6392,20 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco._com_panel = mock.Mock()
         marco._rep_panel = mock.Mock()
         marco.nb = mock.Mock()
-        marco._fijar_tipo = fijados.append
         marco._actualizar_boton_directo = mock.Mock()
-        for tipo in (deteccion.LIVE, deteccion.UPCOMING, deteccion.VOD,
-                     "otro"):
-            gui.VentanaPrincipal.set_tipo_video(marco, tipo, "video")
-        self.assertEqual(len(fijados), 4)
-        for texto in fijados:
-            self.assertTrue(texto.startswith("[¡"), texto)
-        del fijados[:]
-        avisos = []
-        marco._com_panel.mostrar_no_disponible = avisos.append
-        gui.VentanaPrincipal.configurar_tiktok(marco, "usuario", "http://flujo")
+        with mock.patch.object(gui_construccion, "fijar_tipo",
+                               side_effect=lambda _frame, texto: fijados.append(texto)):
+            for tipo in (deteccion.LIVE, deteccion.UPCOMING, deteccion.VOD,
+                         "otro"):
+                gui.VentanaPrincipal.set_tipo_video(marco, tipo, "video")
+            self.assertEqual(len(fijados), 4)
+            for texto in fijados:
+                self.assertTrue(texto.startswith("[¡"), texto)
+            del fijados[:]
+            avisos = []
+            marco._com_panel.mostrar_no_disponible = avisos.append
+            gui.VentanaPrincipal.configurar_tiktok(
+                marco, "usuario", "http://flujo")
         self.assertTrue(fijados[0].startswith("[¡"), fijados[0])
         self.assertTrue(avisos[0].startswith("[¡"), avisos[0])
 
@@ -6409,10 +6413,11 @@ class TestPseudoAnunciosGui(unittest.TestCase):
         marco = self._marco()
         marco._conectado = True
         marco.txt_url = mock.Mock()
-        with mock.patch.object(gui.wx, "CallAfter",
-                               side_effect=lambda f, *a: f(*a)):
+        with mock.patch.object(gui_construccion, "fijar_tipo") as fijar_tipo, \
+                mock.patch.object(gui.wx, "CallAfter",
+                                  side_effect=lambda f, *a: f(*a)):
             gui.VentanaPrincipal.set_conectado(marco, False)
-        fijado = marco._fijar_tipo.call_args.args[0]
+        fijado = fijar_tipo.call_args.args[1]
         self.assertTrue(fijado.startswith("[¡"), fijado)
         self._exigir_marcados(1)
 

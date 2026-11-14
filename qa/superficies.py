@@ -10,6 +10,7 @@ from __future__ import annotations
 
 SUPERFICIES = {
     "gui.py": "principal",
+    "gui_construccion.py": "principal",
     "chat_acciones.py": "principal",
     "confirmar_salida.py": "principal",
     "titulo_ventana.py": "principal",

@@ -15,6 +15,7 @@ from guyrapu.core.config import (
 from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_atajos
 from guyrapu.ui import gui
+from guyrapu.ui import gui_construccion
 from guyrapu.ui import gui_menu
 from guyrapu.ui import atajos_captura
 from guyrapu.core import config
@@ -609,9 +610,9 @@ class TestParsearAtajos(unittest.TestCase):
         with mock.patch.object(gui.wx.Frame, "__init__", return_value=None), \
                 mock.patch.object(gui.VentanaPrincipal, "SetBackgroundColour"), \
                 mock.patch.object(gui.VentanaPrincipal, "_build_menubar"), \
-                mock.patch.object(gui.VentanaPrincipal, "_build_ui"), \
-                mock.patch.object(gui.VentanaPrincipal, "_bind_events"), \
-                mock.patch.object(gui.VentanaPrincipal, "_init_timer"), \
+                mock.patch.object(gui_construccion, "construir"), \
+                mock.patch.object(gui_construccion, "enlazar_eventos"), \
+                mock.patch.object(gui_construccion, "iniciar_temporizadores"), \
                 mock.patch.object(gui.VentanaPrincipal, "Centre"), \
                 mock.patch.object(gui, "anunciar_conflictos_atajos") as anunciar:
             gui.VentanaPrincipal.__init__(frame, None, configuracion, None, None, None, None)
