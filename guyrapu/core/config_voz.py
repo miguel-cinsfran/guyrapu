@@ -16,20 +16,14 @@ from guyrapu.core.ini_tipado import (
 )
 
 
-def opciones_voz(p, ruta) -> dict:
-    """La sección [voz] como claves en memoria, en el mismo orden."""
+def _velocidad_voz(p, ruta):
+    """La velocidad en porcentaje propio, migrando una sola vez la clave vieja."""
     from guyrapu.core.config import guardar_opcion, a_entero
 
-    # [voz]: el motor se valida contra los válidos de Prism (importarlos aquí
-    # no arrastra Prism: motores lo importa de forma perezosa). La velocidad se
-    # guarda como porcentaje propio (0..100); la clave vieja en palabras por
-    # minuto se convierte una sola vez y se fija en el archivo, así el arranque
-    # siguiente no vuelve al valor de fábrica.
+    # La velocidad se guarda como porcentaje propio (0..100); la clave vieja
+    # en palabras por minuto se convierte una sola vez y se fija en el archivo,
+    # así el arranque siguiente no vuelve al valor de fábrica.
     from guyrapu.voice import escala_voz as _escala
-    from guyrapu.voice import motores as _motores
-    motor = leer_texto(p, "voz", "motor").lower()
-    if motor not in _motores.MOTORES:
-        motor = "sapi"
     if p.has_option("voz", "velocidad_voz"):
         velocidad_voz = max(0, min(100, a_entero(
             leer_texto(p, "voz", "velocidad_voz"), _escala.VELOCIDAD_NORMAL)))
@@ -39,6 +33,18 @@ def opciones_voz(p, ruta) -> dict:
         guardar_opcion(ruta, "voz", "velocidad_voz", str(velocidad_voz))
     else:
         velocidad_voz = _escala.VELOCIDAD_NORMAL
+    return velocidad_voz
+
+
+def opciones_voz(p, ruta) -> dict:
+    """La sección [voz] como claves en memoria, en el mismo orden."""
+    # [voz]: el motor se valida contra los válidos de Prism (importarlos aquí
+    # no arrastra Prism: motores lo importa de forma perezosa).
+    from guyrapu.voice import motores as _motores
+    motor = leer_texto(p, "voz", "motor").lower()
+    if motor not in _motores.MOTORES:
+        motor = "sapi"
+    velocidad_voz = _velocidad_voz(p, ruta)
 
     return {**opciones_secundarias(p),
         "motor": motor,
