@@ -220,6 +220,36 @@ class TestComandosGrabacion(unittest.TestCase):
                     error=True)
                 self.assertTrue(gestor.cerrado)
 
+    def test_el_menu_usa_la_operacion_comun_de_grabacion(self):
+        gestor = GestorGrabacionFalso()
+        with mock.patch.object(comandos_grabacion, "GestorPanelObs",
+                               return_value=gestor), \
+                mock.patch.object(comandos_grabacion.diagnostico,
+                                  "crear_hilo", HiloInmediato), \
+                mock.patch.object(
+                    comandos_grabacion, "alternar_grabacion_obs",
+                    return_value=("Grabación iniciada", "grabacion_iniciada",
+                                  True)) as operacion, \
+                mock.patch.object(comandos_grabacion, "avisar"):
+            comandos_grabacion.alternar_grabacion(
+                SimpleNamespace(_config={"perfil_grabar": "Grabar"}))
+        operacion.assert_called_once_with(gestor, "Grabar")
+
+    def test_el_menu_usa_la_operacion_comun_de_pausa(self):
+        gestor = GestorGrabacionFalso(grabando=True)
+        with mock.patch.object(comandos_grabacion, "GestorPanelObs",
+                               return_value=gestor), \
+                mock.patch.object(comandos_grabacion.diagnostico,
+                                  "crear_hilo", HiloInmediato), \
+                mock.patch.object(
+                    comandos_grabacion, "alternar_pausa_obs",
+                    return_value=("Grabación en pausa", "grabacion_en_pausa",
+                                  True)) as operacion, \
+                mock.patch.object(comandos_grabacion, "avisar"):
+            comandos_grabacion.alternar_pausa_grabacion(
+                SimpleNamespace(_config={}))
+        operacion.assert_called_once_with(gestor)
+
     def test_la_interfaz_no_espera_a_obs(self):
         gestor = GestorGrabacionFalso()
         hilos = []

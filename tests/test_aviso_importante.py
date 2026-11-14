@@ -262,8 +262,10 @@ class TestCableado(unittest.TestCase):
     def test_c_resultado_de_grabacion(self):
         instancia = object.__new__(control_grabacion.ControlGrabacion)
         instancia._al_cambiar = lambda: None
+        instancia.fijar = lambda grabando, en_pausa: None
         cuadro, _anunciar, sonar = self._pedir(
-            lambda: instancia._resultado("grabacion_iniciada"))
+            lambda: instancia._alternada(
+                ("Grabación iniciada", "grabacion_iniciada", True)))
         self.assertEqual(self._texto(cuadro), "Grabación iniciada")
         sonar.assert_any_call("grabacion_iniciada")
 

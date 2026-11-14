@@ -11,7 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.obs import grabaciones, obs_estado, obs_grabacion, perfil_grabacion
+from guyrapu.ui import comandos_grabacion
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.preferencias_comun import mostrar_control, nombre_de_etiqueta
 
@@ -58,44 +58,33 @@ class ControlGrabacion:
         mostrar_control(self.pausar, self.grabando, self._foco)
 
     def _alternar(self, event):
-        self._operaciones.en_hilo(self._alternar_grabacion, self._alternada)
-
-    def _alternar_grabacion(self):
-        return perfil_grabacion.alternar(
-            self._gestor._cliente, self._perfil())
+        self._operaciones.en_hilo(
+            lambda: comandos_grabacion.alternar_grabacion_obs(
+                self._gestor, self._perfil()),
+            self._alternada)
 
     def _alternada(self, resultado):
-        activa, ruta, aviso = resultado
+        frase, sonido, activa = resultado
         self.fijar(activa, False)
-        if activa:
-            self._anunciar_iniciada(aviso)
-            return
-        avisar(grabaciones.anotar_y_decir(ruta),
-                obs_estado.sonido_resultado("grabacion_detenida"))
-        self._al_cambiar()
-
-    def _anunciar_iniciada(self, aviso):
-        frase = obs_estado.frase_resultado("grabacion_iniciada")
-        if aviso:
-            frase = f"{aviso} {frase}"
-        avisar(frase, obs_estado.sonido_resultado("grabacion_iniciada"))
+        self._avisar(frase, sonido)
         self._al_cambiar()
 
     def _alternar_pausa(self, event):
         self._operaciones.en_hilo(
-            self._gestor.alternar_pausa_grabacion, self._pausa_alternada)
+            lambda: comandos_grabacion.alternar_pausa_obs(self._gestor),
+            self._pausa_alternada)
 
     def _pausa_alternada(self, resultado):
-        cambio, en_pausa = resultado
-        if cambio is None:
-            avisar(obs_grabacion.frase_fallo_pausa(en_pausa), "error",
-                    error=True)
+        frase, sonido, en_pausa = resultado
+        if sonido == "error":
+            self._avisar(frase, sonido)
             return
-        self.fijar(self.grabando, cambio)
-        accion = "grabacion_en_pausa" if cambio else "grabacion_reanudada"
-        self._resultado(accion)
-
-    def _resultado(self, accion):
-        avisar(obs_estado.frase_resultado(accion),
-                obs_estado.sonido_resultado(accion))
+        self.fijar(self.grabando, en_pausa)
+        self._avisar(frase, sonido)
         self._al_cambiar()
+
+    def _avisar(self, frase, sonido):
+        if sonido == "error":
+            avisar(frase, sonido, error=True)
+        else:
+            avisar(frase, sonido)

@@ -38,29 +38,40 @@ def _ejecutar_en_obs(operacion):
     diagnostico.crear_hilo(_trabajar, "GrabacionObs").start()
 
 
+def alternar_grabacion_obs(gestor, perfil):
+    """Inicia o detiene la grabación en un gestor ya conectado."""
+    activa, ruta, aviso = perfil_grabacion.alternar(gestor._cliente, perfil)
+    accion = "grabacion_iniciada" if activa else "grabacion_detenida"
+    frase = (obs_estado.frase_resultado(accion) if activa
+             else grabaciones.anotar_y_decir(ruta))
+    if activa and aviso:
+        frase = f"{aviso} {frase}"
+    return frase, obs_estado.sonido_resultado(accion), activa
+
+
 def alternar_grabacion(frame):
     """Inicia o detiene la grabación de OBS, como el botón del panel."""
     def _operacion(gestor):
-        activa, ruta, aviso = perfil_grabacion.alternar(
-            gestor._cliente, frame._config.get("perfil_grabar", ""))
-        accion = "grabacion_iniciada" if activa else "grabacion_detenida"
-        frase = (obs_estado.frase_resultado(accion) if activa
-                 else grabaciones.anotar_y_decir(ruta))
-        if activa and aviso:
-            frase = f"{aviso} {frase}"
-        return frase, obs_estado.sonido_resultado(accion)
+        return alternar_grabacion_obs(
+            gestor, frame._config.get("perfil_grabar", ""))[:2]
     _ejecutar_en_obs(_operacion)
+
+
+def alternar_pausa_obs(gestor):
+    """Pausa o reanuda una grabación en curso; sin ninguna, lo dice."""
+    estado = gestor.estado_grabacion()
+    if not estado.get("outputActive"):
+        return _("No hay ninguna grabación en curso."), "error", False
+    cambio, en_pausa = gestor.alternar_pausa_grabacion()
+    if cambio is None:
+        return obs_grabacion.frase_fallo_pausa(en_pausa), "error", en_pausa
+    accion = "grabacion_en_pausa" if cambio else "grabacion_reanudada"
+    return (obs_estado.frase_resultado(accion),
+            obs_estado.sonido_resultado(accion), cambio)
 
 
 def alternar_pausa_grabacion(frame):
     """Pausa o reanuda la grabación; sin ninguna en curso, lo dice."""
     def _operacion(gestor):
-        if not gestor.estado_grabacion().get("outputActive"):
-            return _("No hay ninguna grabación en curso."), "error"
-        cambio, en_pausa = gestor.alternar_pausa_grabacion()
-        if cambio is None:
-            return obs_grabacion.frase_fallo_pausa(en_pausa), "error"
-        accion = "grabacion_en_pausa" if cambio else "grabacion_reanudada"
-        return (obs_estado.frase_resultado(accion),
-                obs_estado.sonido_resultado(accion))
+        return alternar_pausa_obs(gestor)[:2]
     _ejecutar_en_obs(_operacion)

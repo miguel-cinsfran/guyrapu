@@ -107,7 +107,7 @@ REGLAS = (
             "guyrapu/restream/ganchos.py": 1,
             "guyrapu/ui/comandos_clips.py": 2,
             "guyrapu/ui/comandos_grabacion.py": 2,
-            "guyrapu/ui/control_grabacion.py": 3,
+            "guyrapu/ui/control_grabacion.py": 2,
             "guyrapu/ui/directo_panel.py": 1,
             "guyrapu/ui/gui_envio_chat.py": 1, "guyrapu/ui/gui_musica.py": 1,
             "guyrapu/ui/gui_transmitir.py": 1,

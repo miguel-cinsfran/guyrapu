@@ -11,6 +11,7 @@ import wx
 
 from guyrapu.obs import consultas_transmision
 from guyrapu.obs import obs_grabacion
+from guyrapu.ui import comandos_grabacion
 from guyrapu.ui import control_grabacion
 from guyrapu.ui import gui_grabaciones
 from guyrapu.ui import gui_transmitir
@@ -242,18 +243,19 @@ class TestPanelObsEnGrabacion(unittest.TestCase):
         self.assertIs(dialogo.FindFocus(),
                       dialogo._pagina_grabacion._grabacion.boton)
 
-    def test_iniciar_llama_a_alternar_grabacion_con_ruta_y_refresca(self):
-        def alternar(cliente, perfil, parada=None):
+    def test_iniciar_llama_a_la_operacion_comun_y_refresca(self):
+        def alternar(gestor, perfil):
             self.gestor.grabando = True
-            return True, "", ""
+            return "Grabación iniciada", "grabacion_iniciada", True
 
-        with mock.patch.object(control_grabacion.perfil_grabacion, "alternar",
-                               side_effect=alternar) as alternar_mock, \
+        with mock.patch.object(comandos_grabacion,
+                               "alternar_grabacion_obs",
+                               side_effect=alternar) as operacion, \
                 mock.patch.object(
                     consultas_transmision, "leer_estado",
                     wraps=consultas_transmision.leer_estado) as leer:
             self._pulsar(self.dialogo._pagina_grabacion._grabacion.boton)
-        alternar_mock.assert_called_once_with(self.gestor._cliente, "")
+        operacion.assert_called_once_with(self.gestor, "")
         self.assertEqual(leer.call_count, 2)
         self.assertIn("Grabación: en curso, 00:01:02",
                       self.dialogo._pagina_general.texto())
@@ -262,10 +264,10 @@ class TestPanelObsEnGrabacion(unittest.TestCase):
         dialogo = self._crear(principal=PrincipalFalsa(perfil="Grabar"))
         self.anuncios.clear()
         with mock.patch.object(
-                control_grabacion.perfil_grabacion, "alternar",
-                return_value=(True, "",
-                              "Con el directo en marcha, se graba "
-                              "con el perfil Directo.")):
+                comandos_grabacion, "alternar_grabacion_obs",
+                return_value=("Con el directo en marcha, se graba "
+                              "con el perfil Directo. Grabación iniciada",
+                              "grabacion_iniciada", True)):
             self._pulsar(dialogo._pagina_grabacion._grabacion.boton)
         self.assertEqual(
             self.anuncios[0],
@@ -276,10 +278,50 @@ class TestPanelObsEnGrabacion(unittest.TestCase):
     def test_pasa_el_perfil_elegido_de_la_configuracion(self):
         dialogo = self._crear(principal=PrincipalFalsa(perfil="Grabar"))
         with mock.patch.object(
-                control_grabacion.perfil_grabacion, "alternar",
-                return_value=(True, "", "")) as alternar:
+                comandos_grabacion, "alternar_grabacion_obs",
+                return_value=("Grabación iniciada", "grabacion_iniciada",
+                              True)) as operacion:
             self._pulsar(dialogo._pagina_grabacion._grabacion.boton)
-        alternar.assert_called_once_with(self.gestor._cliente, "Grabar")
+        operacion.assert_called_once_with(self.gestor, "Grabar")
+
+    def test_el_panel_usa_la_operacion_comun_de_grabacion(self):
+        with mock.patch.object(
+                comandos_grabacion, "alternar_grabacion_obs",
+                return_value=("Grabación iniciada", "grabacion_iniciada",
+                              True)) as operacion:
+            self._pulsar(self.dialogo._pagina_grabacion._grabacion.boton)
+        operacion.assert_called_once_with(self.gestor, "")
+        self.assertIn("Grabación iniciada", self.anuncios)
+        self.sonar.assert_called_with("grabacion_iniciada")
+
+    def test_el_panel_usa_la_operacion_comun_de_pausa(self):
+        self.dialogo._pagina_grabacion._grabacion.fijar(True, False)
+        with mock.patch.object(
+                comandos_grabacion, "alternar_pausa_obs",
+                return_value=("Grabación en pausa", "grabacion_en_pausa",
+                              True)) as operacion:
+            self._pulsar(self.dialogo._pagina_grabacion._grabacion.pausar)
+        operacion.assert_called_once_with(self.gestor)
+        self.assertIn("Grabación en pausa", self.anuncios)
+        self.sonar.assert_called_with("grabacion_en_pausa")
+
+    def test_pausar_sin_grabacion_avisa_como_el_menu_y_no_toca_obs(self):
+        self.dialogo._pagina_grabacion._grabacion.fijar(True, False)
+        self.gestor.grabando = False
+        with mock.patch.object(
+                self.gestor, "alternar_pausa_grabacion") as alternar, \
+                mock.patch.object(control_grabacion, "avisar") as avisar:
+            self._pulsar(self.dialogo._pagina_grabacion._grabacion.pausar)
+        alternar.assert_not_called()
+        avisar.assert_called_once_with(
+            "No hay ninguna grabación en curso.", "error", error=True)
+
+    def test_tras_pausar_los_botones_muestran_el_estado_nuevo(self):
+        self._pulsar(self.dialogo._pagina_grabacion._grabacion.boton)
+        pausar = self.dialogo._pagina_grabacion._grabacion.pausar
+        self.assertEqual(pausar.GetName(), "Pausar grabación")
+        self._pulsar(pausar)
+        self.assertEqual(pausar.GetName(), "Reanudar grabación")
 
     def test_los_botones_siguen_el_estado_confirmado_tras_alternar(self):
         dialogo = self._crear(gestor=GestorGrabacionLenta())
