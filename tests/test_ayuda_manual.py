@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """F1 abre el manual en la sección de la ventana."""
 
+import contextlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -142,3 +143,203 @@ class TestF1EnUnaVentana(unittest.TestCase):
                 _, cuadro = self._abrir_con(self._dialogo(), pagina)
             cuadro.assert_not_called()
             self.assertIn("#otra-seccion", pagina.read_text(encoding="utf-8"))
+
+
+@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
+class TestCadaVentana(unittest.TestCase):
+    """Cada ventana del registro toma F1 con su clave."""
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        from guyrapu.core import idioma
+        idioma.instalar("es")
+        self.addCleanup(idioma._reiniciar)
+
+    def _f1(self, ventana):
+        evento = wx.KeyEvent(wx.EVT_CHAR_HOOK.typeId)
+        evento.SetKeyCode(wx.WXK_F1)
+        ventana.GetEventHandler().ProcessEvent(evento)
+
+    def _panel_obs(self, pila):
+        from guyrapu.ui import obs_ventana
+        from tests.test_gui_transmision import GestorFalso, PrincipalFalsa
+        pila.enter_context(mock.patch.object(
+            obs_ventana.OperacionesObs, "en_hilo",
+            lambda self, *args, **kwargs: None))
+        pila.enter_context(mock.patch.object(
+            obs_ventana.obs_lanzador, "asegurar_obs",
+            lambda *args, **kwargs: False))
+        pila.enter_context(mock.patch.object(
+            obs_ventana.wx, "CallAfter", lambda *args, **kwargs: None))
+        pila.enter_context(mock.patch.object(obs_ventana, "anunciar",
+                                             mock.Mock()))
+        ventana = obs_ventana.VentanaObs(
+            None, PrincipalFalsa(), gestor=GestorFalso())
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _restream(self, pila):
+        from guyrapu.ui import restream_ventana
+
+        class CuentaFalsa:
+            def conectada(self):
+                return False
+
+        temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(temporal.cleanup)
+        pila.enter_context(mock.patch.object(
+            restream_ventana.wx, "CallAfter", lambda *args, **kwargs: None))
+        ventana = restream_ventana.VentanaRestream(
+            None, CuentaFalsa(), lambda: [("1", "Canal")],
+            Path(temporal.name) / "perfiles.json", id_canal=lambda: "")
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _musica(self, pila):
+        from guyrapu.ui import musica_ventana
+        from tests.test_musica_ventana import ControlFalso
+        pila.enter_context(mock.patch.object(
+            musica_ventana.wx, "CallAfter", lambda *args, **kwargs: None))
+        pila.enter_context(mock.patch.object(musica_ventana, "anunciar",
+                                             mock.Mock()))
+        ventana = musica_ventana.VentanaMusica(None, ControlFalso())
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _descargas(self, pila):
+        from guyrapu.downloads import descargas
+        from guyrapu.ui import (descargas_acciones, descargas_buscador,
+                                descargas_listas, gui_descargas)
+        pila.enter_context(mock.patch.object(
+            descargas_listas.historial_descargas, "cargar",
+            return_value=[]))
+        pila.enter_context(mock.patch.object(
+            descargas_listas.historial_descargas, "guardar"))
+        pila.enter_context(mock.patch.object(
+            descargas_acciones.historial_descargas, "guardar"))
+        pila.enter_context(mock.patch.object(
+            descargas_buscador.busquedas_recientes, "cargar",
+            return_value=[]))
+        pila.enter_context(mock.patch.object(
+            descargas_buscador.busquedas_recientes, "guardar"))
+        pila.enter_context(mock.patch.object(
+            gui_descargas.wx, "CallAfter", lambda *args, **kwargs: None))
+        descargas.reiniciar_gestor()
+        self.addCleanup(descargas.reiniciar_gestor)
+        self.addCleanup(setattr, gui_descargas, "_dialogo_activo", None)
+        ventana = gui_descargas.GestorDescargasDialog(None)
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _historial(self, pila):
+        from guyrapu.ui import gui_historial
+        temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(temporal.cleanup)
+        ruta = Path(temporal.name) / "historial.json"
+        ruta.write_text("[]", encoding="utf-8")
+        pila.enter_context(mock.patch.object(
+            gui_historial.wx, "CallAfter", lambda *args, **kwargs: None))
+        ventana = gui_historial.HistorialDialog(None, ruta, mock.Mock())
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _ia(self, pila):
+        from guyrapu.ui import ia_ventana
+        pila.enter_context(mock.patch.object(
+            ia_ventana.diagnostico, "crear_hilo", mock.Mock()))
+        pila.enter_context(mock.patch.object(
+            ia_ventana.wx, "CallAfter", lambda *args, **kwargs: None))
+        ventana = ia_ventana.VentanaIA(None)
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _preferencias(self, pila):
+        from guyrapu.ai import catalogo
+        from guyrapu.core import config
+        from guyrapu.ui import (gui_preferencias, preferencias_ia,
+                                preferencias_ia_clave)
+        from guyrapu.voice import motores
+        from tests.rutas_temporales import redirigir_rutas
+        temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(temporal.cleanup)
+        ruta = Path(temporal.name)
+        (ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                         encoding="utf-8")
+        pila.enter_context(redirigir_rutas(ruta))
+        pila.enter_context(mock.patch.object(
+            motores, "listar_voces", return_value=[]))
+        pila.enter_context(mock.patch.object(
+            preferencias_ia_clave.claves, "leer", return_value=""))
+        pila.enter_context(mock.patch.object(
+            preferencias_ia.catalogo, "cargar",
+            return_value={"version": catalogo.VERSION, "fecha": None,
+                          "proveedores": {}}))
+        ventana = gui_preferencias.PreferenciasDialog(None, {})
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _transmitir(self, pila):
+        pila.enter_context(mock.patch.object(
+            elegir.ganchos, "cargar_perfiles", return_value=[]))
+        ventana = elegir.DialogoElegirDestino(None, "YouTube", "")
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _microfono(self, pila):
+        from guyrapu.ui import gui_microfono
+        padre = wx.Frame(None)
+        padre._config = {"obs_microfono": "Mic/Aux"}
+        self.addCleanup(destruir, padre)
+        ventana = gui_microfono.MicrofonoObsDialog(
+            padre, ("Mic/Aux", "Audio USB"), "Mic/Aux",
+            (("Predeterminado", "default"), ("Micrófono (USB)", "{usb}")),
+            "{usb}")
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _voces(self, pila):
+        from guyrapu.ui import voces_ventana
+        from tests.test_voces_ventana import (
+            _Instalados, _catalogo, HiloInmediato)
+        pila.enter_context(mock.patch.object(
+            voces_ventana.paquetes_instalacion, "instalados",
+            _Instalados([])))
+        pila.enter_context(mock.patch.object(
+            voces_ventana.red, "pedir_texto", return_value=_catalogo()))
+        pila.enter_context(mock.patch.object(
+            voces_ventana.diagnostico, "crear_hilo", HiloInmediato))
+        pila.enter_context(mock.patch.object(
+            voces_ventana.wx, "CallAfter",
+            lambda funcion, *args, **kwargs: funcion(*args, **kwargs)))
+        pila.enter_context(mock.patch.object(
+            voces_ventana.voces_disponibles, "idioma_actual",
+            return_value="es"))
+        pila.enter_context(mock.patch.object(
+            voces_ventana.confirmar, "avisar", mock.Mock()))
+        pila.enter_context(mock.patch.object(
+            voces_ventana._snd, "reproducir", mock.Mock()))
+        pila.enter_context(mock.patch.object(voces_ventana, "anunciar",
+                                             mock.Mock()))
+        ventana = voces_ventana.VentanaVoces(None)
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def test_cada_ventana_abre_su_seccion(self):
+        fabricas = {
+            "panel_obs": self._panel_obs,
+            "restream": self._restream,
+            "musica": self._musica,
+            "descargas": self._descargas,
+            "ia": self._ia,
+            "preferencias": self._preferencias,
+            "transmitir": self._transmitir,
+            "microfono": self._microfono,
+            "voces": self._voces,
+        }
+        for clave, fabrica in fabricas.items():
+            with self.subTest(ventana=clave):
+                with mock.patch.object(ayuda_manual, "abrir") as abrir:
+                    with contextlib.ExitStack() as pila:
+                        ventana = fabrica(pila)
+                        self._f1(ventana)
+                abrir.assert_called_once_with(ventana, clave)
