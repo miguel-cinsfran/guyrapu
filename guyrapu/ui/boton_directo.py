@@ -55,12 +55,16 @@ class BotonDirecto:
             self.boton.Hide()
         comando = getattr(self._marco, "mi_directo", None)
         if comando is not None:
-            if self._transmitiendo or self._deteniendo:
-                comando.SetItemLabel(etiqueta)
-            else:
-                comando.SetItemLabel(etiqueta + "…")
+            comando.SetItemLabel(self._etiqueta_del_menu(
+                etiqueta, transmitiendo, deteniendo))
             comando.Enable(visible)
         self.boton.GetParent().Layout()
+
+    @staticmethod
+    def _etiqueta_del_menu(etiqueta, transmitiendo, deteniendo):
+        if transmitiendo or deteniendo:
+            return etiqueta
+        return etiqueta + "…"
 
     def _al_cambiar_estado(self):
         etiqueta, nombre = transmision_directa.etiqueta(
@@ -69,7 +73,9 @@ class BotonDirecto:
         self.boton.SetName(nombre)
         item = getattr(self._marco, "mi_directo", None)
         if item is not None:
-            item.SetItemLabel(etiqueta)
+            item.SetItemLabel(self._etiqueta_del_menu(
+                etiqueta, self._comando.transmitiendo,
+                self._comando.deteniendo))
 
     def _al_pulsar(self, event):
         self.pulsar()
