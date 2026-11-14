@@ -153,6 +153,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("Vo&z", "Silenciar s&onidos", ANY, "check"),
             ("Vo&z", "---", None, "sep"),
             ("Vo&z", "Elegir vo&z", None, "submenu"),
+            ("Vo&z", "&Administrar voces…", ANY, "normal"),
             ("&Reproductor", "&Reproducir o pausar", ANY, "normal"),
             ("&Reproductor", "R&etroceder 1 minuto", ANY, "normal"),
             ("&Reproductor", "&Avanzar 1 minuto", ANY, "normal"),
@@ -635,6 +636,56 @@ def _entradas_de(menu):
 
     _, lista = _construir_lista(accel)
     return [fila for fila in lista if fila[0] == menu]
+
+
+class TestMenuAdministrarVoces(unittest.TestCase):
+    """Administrar voces entra en el menú Voz y abre su ventana."""
+
+    def test_va_despues_del_submenu_y_sin_letras_repetidas(self):
+        entradas = _entradas_de("Vo&z")
+        etiquetas = [fila[1] for fila in entradas]
+        self.assertEqual(etiquetas[etiquetas.index("Elegir vo&z") + 1],
+                         "&Administrar voces…")
+        letras = [texto[texto.index("&") + 1].lower()
+                  for _menu, texto, _dato, _tipo in entradas
+                  if texto != "---" and "&" in texto]
+        self.assertEqual(len(letras), len(set(letras)))
+
+    def test_elegir_administrar_voces_abre_la_ventana(self):
+        from guyrapu.ui import voces_ventana
+
+        items = {}
+
+        def crear_menu(*_args, **_kwargs):
+            menu = mock.MagicMock()
+
+            def crear_item(*args):
+                etiqueta = args[1] if len(args) > 1 else args[0]
+                item = mock.Mock()
+                item._etiqueta = etiqueta
+                items[etiqueta] = item
+                return item
+
+            menu.Append.side_effect = crear_item
+            menu.AppendRadioItem.side_effect = crear_item
+            menu.AppendCheckItem.side_effect = crear_item
+            menu.AppendSubMenu.return_value = mock.Mock()
+            menu.AppendSeparator.return_value = None
+            return menu
+
+        frame = mock.Mock()
+        frame._accel.return_value = ""
+        frame._config = {"mostrar_botones_reproductor": True}
+        with mock.patch.object(gui.wx, "Menu", side_effect=crear_menu),                 mock.patch.object(gui.wx, "MenuBar",
+                                  return_value=mock.MagicMock()):
+            gui.VentanaPrincipal._build_menubar(frame)
+        item = items["&Administrar voces…"]
+        manejador = next(
+            llamada.args[1] for llamada in frame.Bind.call_args_list
+            if len(llamada.args) > 2 and llamada.args[2] is item)
+        with mock.patch.object(voces_ventana, "abrir") as abrir:
+            manejador(None)
+        abrir.assert_called_once_with(frame)
 
 
 class TestMenuTransmision(unittest.TestCase):

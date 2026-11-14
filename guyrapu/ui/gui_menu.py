@@ -25,6 +25,7 @@ from guyrapu.core import paths
 from guyrapu.ui import confirmar
 from guyrapu.ui import menu_obs
 from guyrapu.ui import menu_transmision
+from guyrapu.ui import voces_ventana
 from guyrapu.ui.atajos_captura import ETIQUETAS
 
 logger = diagnostico.obtener_logger(__name__)
@@ -98,7 +99,7 @@ def construir_menu(frame):
     m.AppendSeparator()
     frame.voz_submenu = wx.Menu()
     m.AppendSubMenu(frame.voz_submenu, _("Elegir vo&z"))
-    mb.Append(m, _("Vo&z"))
+    _publicar_menu_voz(frame, m, mb)
     frame._bind_menu(frame.mi_pausa, frame._on_pausa, None)
     frame._bind_menu(mi_det, frame._on_detener_tts, None)
     frame._bind_menu(mi_vac, frame._on_vaciar, None)
@@ -185,6 +186,14 @@ def construir_menu(frame):
         except Exception as error: logger.debug("no se pudo destruir el menú anterior: %s", error)
     frame._sincronizar_pausa()
     _registrar_menus(frame)
+
+
+def _publicar_menu_voz(frame, menu, barra):
+    """Cierra el menú Voz con Administrar voces y lo pone en la barra."""
+    frame.mi_administrar_voces = menu.Append(wx.ID_ANY, _("&Administrar voces…"))
+    barra.Append(menu, _("Vo&z"))
+    frame.Bind(wx.EVT_MENU, lambda e: voces_ventana.abrir(frame),
+               frame.mi_administrar_voces)
 
 
 def _construir_menu_ayuda(frame, mb):

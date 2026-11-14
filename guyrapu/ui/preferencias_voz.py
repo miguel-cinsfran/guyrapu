@@ -13,6 +13,7 @@ import wx
 from guyrapu.core.idioma import N_, _
 from guyrapu.youtube import credenciales
 from guyrapu.ui import clave_elevenlabs
+from guyrapu.ui import voces_ventana
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc, anunciar
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
 from guyrapu.ui.preferencias_voz_secundaria import BloqueVozSecundaria
@@ -112,6 +113,10 @@ class PaginaVoz:
         _tc(self.cho_voz)
         self._cargar_voces(self.cho_voz, self._config.get("voz"), vacio=vacio_voz)
         vs.Add(self.cho_voz, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self.btn_voces = wx.Button(p, label=_("Admi&nistrar voces…"), name=_("Administrar voces…"))
+        self.btn_voces.Bind(wx.EVT_BUTTON, lambda _e: voces_ventana.abrir(
+            self._ventana, al_cerrar=lambda: self._on_motor_cambiado(None)))
+        vs.Add(self.btn_voces, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _crear_ajustes(self, p, vs):
         from guyrapu.voice import escala_voz

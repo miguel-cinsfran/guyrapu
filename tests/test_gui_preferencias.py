@@ -164,6 +164,17 @@ class TestPaginaObsClips(unittest.TestCase):
         self.assertEqual(pagina.cho_clips.GetStringSelection(), "30 segundos")
         self.assertEqual(pagina.cho_clips.GetName(), "Clips")
 
+    def test_el_boton_administrar_voces_tiene_su_nombre(self):
+        pagina = self._dialogo().pagina_voz
+        self.assertEqual(pagina.btn_voces.GetLabel(), "Admi&nistrar voces…")
+        self.assertEqual(pagina.btn_voces.GetName(), "Administrar voces…")
+
+    def test_la_pagina_voces_no_repite_letras_con_administrar(self):
+        from tests.letras_acceso import letras_repetidas
+
+        pagina = self._dialogo().pagina_voz
+        self.assertEqual(letras_repetidas(pagina._pag_voz_panel), {})
+
     def test_la_pagina_obs_no_repite_letras_de_acceso(self):
         from tests.letras_acceso import letras_repetidas
 

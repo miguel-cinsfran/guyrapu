@@ -1869,6 +1869,7 @@ msgid "{app} se actualizó a la versión {hacia}."
 msgstr "{app} updated to version {hacia}."
 
 #: guyrapu/core/actualizacion.py guyrapu/ui/gui_actualizar_app.py
+#: guyrapu/ui/voces_ventana.py
 msgid "motivo desconocido"
 msgstr "unknown reason"
 
@@ -2621,6 +2622,149 @@ msgstr "Could not read that file."
 msgid "Ese archivo no es de preferencias de la aplicación."
 msgstr "That file is not an application preferences file."
 
+#: guyrapu/core/voces_disponibles.py
+msgid "español"
+msgstr "Spanish"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "inglés"
+msgstr "English"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "portugués"
+msgstr "Portuguese"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "español (España)"
+msgstr "Spanish (Spain)"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "español (México)"
+msgstr "Spanish (Mexico)"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "español (Argentina)"
+msgstr "Spanish (Argentina)"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "inglés (Estados Unidos)"
+msgstr "English (United States)"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "inglés (Reino Unido)"
+msgstr "English (United Kingdom)"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "portugués (Brasil)"
+msgstr "Portuguese (Brazil)"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "portugués (Portugal)"
+msgstr "Portuguese (Portugal)"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "femenina"
+msgstr "Female"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "masculina"
+msgstr "Male"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "disponible"
+msgstr "Available"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "instalado"
+msgstr "Installed"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "actualización disponible"
+msgstr "Update available"
+
+#. Traductores: tamaño menor a un megabyte.
+#: guyrapu/core/voces_disponibles.py guyrapu/downloads/formatos_reales.py
+#: guyrapu/music/pregunta_igualar.py
+msgid "menos de 1 MB"
+msgstr "less than 1 MB"
+
+#. Traductores: {n} son megabytes enteros, sin decimales.
+#: guyrapu/core/voces_disponibles.py guyrapu/downloads/formatos_reales.py
+#, python-brace-format
+msgid "{n} MB"
+msgstr "{n} MB"
+
+#: guyrapu/core/voces_disponibles.py
+#, python-brace-format
+msgid "{n} voz"
+msgid_plural "{n} voces"
+msgstr[0] "{n} voice"
+msgstr[1] "{n} voices"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Nombre:"
+msgstr "Name:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Motor de voz:"
+msgstr "Voice engine:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Idioma:"
+msgstr "Language:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Voces:"
+msgstr "Voices:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Tamaño:"
+msgstr "Size:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Estado:"
+msgstr "Status:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Licencia:"
+msgstr "License:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Esta licencia no permite el uso comercial."
+msgstr "This license does not allow commercial use."
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Enlace de la licencia:"
+msgstr "License link:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Cargando paquetes de voces…"
+msgstr "Loading voice packs…"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "No hay paquetes de voces con este filtro."
+msgstr "There are no voice packs with this filter."
+
+#: guyrapu/core/voces_disponibles.py
+msgid ""
+"No hay paquetes de voces instalados. Revisa la conexión a internet y vuelve"
+" a abrir esta ventana."
+msgstr ""
+"No voice packs are installed. Check the internet connection and reopen this"
+" window."
+
+#: guyrapu/core/voces_disponibles.py
+msgid "No hay paquetes de voces."
+msgstr "There are no voice packs."
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Todos los idiomas"
+msgstr "All languages"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Todos los motores"
+msgstr "All engines"
+
 #: guyrapu/downloads/analisis_enlace.py guyrapu/downloads/busqueda_youtube.py
 #: guyrapu/downloads/descargas.py
 msgid "yt-dlp no está instalado"
@@ -2677,17 +2821,6 @@ msgstr "A live stream in progress cannot be downloaded."
 #: guyrapu/downloads/formatos_reales.py
 msgid "tamaño desconocido"
 msgstr "unknown size"
-
-#. Traductores: tamaño menor a un megabyte.
-#: guyrapu/downloads/formatos_reales.py guyrapu/music/pregunta_igualar.py
-msgid "menos de 1 MB"
-msgstr "less than 1 MB"
-
-#. Traductores: {n} son megabytes enteros, sin decimales.
-#: guyrapu/downloads/formatos_reales.py
-#, python-brace-format
-msgid "{n} MB"
-msgstr "{n} MB"
 
 #. Traductores: {alto} es la resolución vertical, {cuadros} los
 #. cuadros por segundo, {contenedor} MP4 o WebM y {tamano} el tamaño.
@@ -7015,7 +7148,7 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 #: guyrapu/ui/aviso_importante.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
 #: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py
 #: guyrapu/ui/preferencias_api.py guyrapu/ui/preferencias_atajos.py
-#: guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/voces_ventana.py
 msgid "Aceptar"
 msgstr "OK"
 
@@ -7368,6 +7501,7 @@ msgstr "Before broadcasting"
 #: guyrapu/ui/preferencias_ia_clave.py guyrapu/ui/restream_pagina_cuenta.py
 #: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
 #: guyrapu/ui/restream_perfil.py guyrapu/ui/ventana_espera.py
+#: guyrapu/ui/voces_ventana.py
 msgid "&Cancelar"
 msgstr "&Cancel"
 
@@ -7513,7 +7647,7 @@ msgstr "Channel"
 msgid "D&etalles:"
 msgstr "&Details:"
 
-#: guyrapu/ui/descargas_buscador.py
+#: guyrapu/ui/descargas_buscador.py guyrapu/ui/voces_ventana.py
 msgid "Detalles"
 msgstr "Details"
 
@@ -7874,7 +8008,7 @@ msgstr "Preparation summary"
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 #: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
 #: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/ventana_espera.py
+#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
 msgid "&Cerrar"
 msgstr "&Close"
 
@@ -7897,6 +8031,7 @@ msgstr "No status information."
 #: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_microfono.py
 #: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
 #: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
+#: guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
 msgstr "Close"
 
@@ -10318,10 +10453,6 @@ msgid "Elegir vo&z"
 msgstr "Select vo&ice"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Vo&z"
-msgstr "V&oice"
-
-#: guyrapu/ui/gui_menu.py
 msgid "&Reproducir o pausar"
 msgstr "&Play or pause"
 
@@ -10416,6 +10547,14 @@ msgstr "&Preferences…"
 #: guyrapu/ui/gui_menu.py
 msgid "&Herramientas"
 msgstr "&Tools"
+
+#: guyrapu/ui/gui_menu.py
+msgid "&Administrar voces…"
+msgstr "Mana&ge voices…"
+
+#: guyrapu/ui/gui_menu.py
+msgid "Vo&z"
+msgstr "V&oice"
 
 #: guyrapu/ui/gui_menu.py
 msgid "Manual de &uso"
@@ -12047,7 +12186,7 @@ msgstr "Announce which platform each message has when there are multiple chats"
 msgid "El idioma nuevo se aplica al reiniciar la aplicación."
 msgstr "The new language takes effect when the application restarts."
 
-#: guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/voces_ventana.py
 msgid "Idioma"
 msgstr "Language"
 
@@ -12725,11 +12864,11 @@ msgstr "(checks the key)"
 msgid "(no hay voces disponibles)"
 msgstr "(no voices available)"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz.py guyrapu/ui/voces_ventana.py
 msgid "&Motor de voz:"
 msgstr "&Voice engine:"
 
-#: guyrapu/ui/preferencias_voz.py
+#: guyrapu/ui/preferencias_voz.py guyrapu/ui/voces_ventana.py
 msgid "Motor de voz"
 msgstr "Voice engine"
 
@@ -12748,6 +12887,14 @@ msgstr "&Main voice:"
 #: guyrapu/ui/preferencias_voz.py
 msgid "Voz principal"
 msgstr "Main voice"
+
+#: guyrapu/ui/preferencias_voz.py
+msgid "Admi&nistrar voces…"
+msgstr "M&anage voices…"
+
+#: guyrapu/ui/preferencias_voz.py
+msgid "Administrar voces…"
+msgstr "Manage voices…"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Ve&locidad (0 a 100):"
@@ -13297,6 +13444,165 @@ msgstr "{titulo} — {app}"
 msgid "Cancelando…"
 msgstr "Canceling…"
 
+#: guyrapu/ui/voces_ventana.py
+msgid "Administrar voces"
+msgstr "Manage voices"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "&Idioma:"
+msgstr "&Language:"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "&Paquetes de voces:"
+msgstr "&Voice packs:"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Paquetes de voces"
+msgstr "Voice packs"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "In&stalar"
+msgstr "In&stall"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "&Actualizar"
+msgstr "&Update"
+
+#: guyrapu/ui/voces_ventana.py
+msgctxt "paquete de voces"
+msgid "&Eliminar"
+msgstr "&Remove"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "De&talles:"
+msgstr "De&tails:"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "&Voces del paquete:"
+msgstr "&Voices in the pack:"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Voces del paquete"
+msgstr "Voices in the pack"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Vista p&revia de voz"
+msgstr "Preview &voice"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "No hay voces en este paquete."
+msgstr "There are no voices in this pack."
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Vista previa de voz"
+msgstr "Preview voice"
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid ""
+"No se pudo cargar la lista de paquetes de voces: {motivo}. Se muestran solo"
+" los paquetes instalados."
+msgstr ""
+"Could not load the list of voice packs: {motivo}. Only installed packs are "
+"shown."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "{n} paquete de voces"
+msgid_plural "{n} paquetes de voces"
+msgstr[0] "{n} voice pack"
+msgstr[1] "{n} voice packs"
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "{nombre} ya está instalado."
+msgstr "{nombre} is already installed."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "{nombre} no está instalado."
+msgstr "{nombre} is not installed."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "No hay actualización disponible para {nombre}."
+msgstr "No update is available for {nombre}."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "Instalar {nombre}"
+msgstr "Install {nombre}"
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "Actualizar {nombre}"
+msgstr "Update {nombre}"
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "Descargando {nombre}."
+msgstr "Downloading {nombre}."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "Descargando {nombre}: {porcentaje} por ciento"
+msgstr "Downloading {nombre}: {porcentaje} percent"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Instalación cancelada."
+msgstr "Installation canceled."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "Actualización completada: {nombre}."
+msgstr "Update complete: {nombre}."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "Instalación completada: {nombre}."
+msgstr "Installation complete: {nombre}."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid ""
+"No se pudo instalar {nombre}: {motivo}. Revisa la conexión a internet y "
+"vuelve a intentarlo."
+msgstr ""
+"Could not install {nombre}: {motivo}. Check the internet connection and try"
+" again."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid ""
+"¿Eliminar {nombre}? Se liberan {tamano} del disco. Para volver a usarlo, "
+"hay que instalarlo de nuevo."
+msgstr ""
+"Remove {nombre}? This frees {tamano} on the disk. To use it again, install "
+"it again."
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Eliminar paquete de voces"
+msgstr "Remove voice pack"
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "No se pudo eliminar {nombre}: {motivo}."
+msgstr "Could not remove {nombre}: {motivo}."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "Paquete eliminado: {nombre}."
+msgstr "Voice pack removed: {nombre}."
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Esta voz no tiene vista previa."
+msgstr "This voice has no preview."
+
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "No se pudo reproducir la vista previa: {motivo}."
+msgstr "Could not play the preview: {motivo}."
+
 #: guyrapu/voice/caida_elevenlabs.py
 msgid ""
 "Se alcanzó el límite de caracteres de ElevenLabs de esta sesión. Se usa la "
@@ -13340,6 +13646,22 @@ msgstr "The ElevenLabs key is missing."
 msgid "ElevenLabs no devolvió ninguna voz."
 msgstr "ElevenLabs returned no voices."
 
+#: guyrapu/voice/muestra_voz.py
+msgid "libVLC no está disponible"
+msgstr "libVLC is not available"
+
+#: guyrapu/voice/muestra_voz.py
+msgid "libVLC no pudo crear un reproductor"
+msgstr "libVLC could not create a player"
+
+#: guyrapu/voice/muestra_voz.py
+msgid "libVLC no pudo abrir la muestra de voz"
+msgstr "libVLC could not open the voice sample"
+
+#: guyrapu/voice/muestra_voz.py
+msgid "libVLC no pudo iniciar la vista previa"
+msgstr "libVLC could not start the preview"
+
 #: guyrapu/voice/proveedores/elevenlabs.py
 msgid "Servicio en la nube, según tu cuenta de ElevenLabs"
 msgstr "Cloud service, according to your ElevenLabs account"
@@ -13367,6 +13689,25 @@ msgstr ""
 #: guyrapu/voice/proveedores/phonon.py
 msgid "Phonon, voces locales"
 msgstr "Phonon, local voices"
+
+#: guyrapu/voice/proveedores/piper.py
+msgid "Piper, voces locales"
+msgstr "Piper, local voices"
+
+#: guyrapu/voice/proveedores/piper.py
+msgid ""
+"Según cada voz: dominio público, CC0, CC BY, CC BY-SA, Apache 2.0 o "
+"Unlicense"
+msgstr "Per voice: public domain, CC0, CC BY, CC BY-SA, Apache 2.0 or Unlicense"
+
+#: guyrapu/voice/proveedores/piper.py
+msgid "No hay voces de Piper instaladas. Descarga una voz desde Preferencias."
+msgstr "No Piper voices installed. Download a voice from Preferences."
+
+#: guyrapu/voice/proveedores/piper.py
+#, python-brace-format
+msgid "No se pudo cargar Piper: {detalle}"
+msgstr "Could not load Piper: {detalle}"
 
 #: guyrapu/voice/proveedores/prism.py
 msgid "Windows SAPI 5"
@@ -13583,23 +13924,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/voice/proveedores/piper.py
-msgid "Piper, voces locales"
-msgstr "Piper, local voices"
-
-#: guyrapu/voice/proveedores/piper.py
-msgid ""
-"Según cada voz: dominio público, CC0, CC BY, CC BY-SA, Apache 2.0 o "
-"Unlicense"
-msgstr "Per voice: public domain, CC0, CC BY, CC BY-SA, Apache 2.0 or Unlicense"
-
-#: guyrapu/voice/proveedores/piper.py
-msgid "No hay voces de Piper instaladas. Descarga una voz desde Preferencias."
-msgstr "No Piper voices installed. Download a voice from Preferences."
-
-#: guyrapu/voice/proveedores/piper.py
-#, python-brace-format
-msgid "No se pudo cargar Piper: {detalle}"
-msgstr "Could not load Piper: {detalle}"
 
