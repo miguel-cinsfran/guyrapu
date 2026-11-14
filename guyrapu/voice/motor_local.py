@@ -16,6 +16,7 @@ from collections.abc import Iterator
 from typing import Protocol
 
 from guyrapu.core import diagnostico
+from guyrapu.core.idioma import N_, _
 from guyrapu.voice import ajustes_audio
 from guyrapu.voice import escala_voz
 from guyrapu.voice import reproductor_pcm
@@ -23,6 +24,10 @@ from guyrapu.voice import reproductor_pcm
 logger = diagnostico.obtener_logger(__name__)
 
 HILOS_SINTESIS = 2
+
+# Traductores: aviso de la salida de audio de la voz que ya no existe.
+_AVISO_SIN_SALIDA = N_("No se encontró la salida de audio de la voz "
+                       "«{nombre}». La voz suena por la salida predeterminada.")
 
 # THREAD_PRIORITY_BELOW_NORMAL de Windows.
 _PRIORIDAD_BAJA = -1
@@ -92,10 +97,20 @@ def _cerrar_com() -> None:
 class MotorLocal:
     """Un motor con la interfaz de `MotorPrism` sobre un sintetizador de trozos."""
 
-    def __init__(self, sintetizador, reproductor=None):
+    def __init__(self, sintetizador, reproductor=None, salida=None,
+                 al_avisar=None):
         self._sintetizador = sintetizador
-        self._reproductor = (reproductor if reproductor is not None
-                             else reproductor_pcm.ReproductorPCM())
+        if reproductor is not None:
+            self._reproductor = reproductor
+        else:
+            if salida and salida not in reproductor_pcm.listar_salidas():
+                if al_avisar is not None:
+                    al_avisar(_(_AVISO_SIN_SALIDA).format(nombre=salida))
+                salida = None
+            if salida:
+                self._reproductor = reproductor_pcm.ReproductorPCM(salida)
+            else:
+                self._reproductor = reproductor_pcm.ReproductorPCM()
         self._velocidad = escala_voz.VELOCIDAD_NORMAL
         self._volumen = 100
         self._tono = escala_voz.VELOCIDAD_NORMAL

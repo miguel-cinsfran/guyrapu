@@ -27,6 +27,7 @@ from guyrapu.voice import eleccion_motor
 from guyrapu.voice import escala_voz
 from guyrapu.voice import gestor_motores
 from guyrapu.voice import motores
+from guyrapu.voice import proveedores
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -63,10 +64,12 @@ class TTSWorker(threading.Thread):
         self.config = config
         # Por defecto, la fábrica real (Prism o ElevenLabs según el motor).
         # Un doble permite probar el worker sin abrir un motor de verdad.
-        self._fabrica_motor = fabrica_motor or motores.crear_motor
+        self._fabrica_motor = fabrica_motor or self._crear_motor
+        self.salida_voz = config.get("salida_voz") or ""
         # Aviso al usuario (lo conecta la GUI con `anunciar`). Con None solo
         # queda el registro en el log.
-        self.al_avisar = None
+        self._al_avisar = None
+        self._aviso_pendiente = None
         # Motor que está sonando ahora (principal o respaldo), para que la
         # pausa, la purga, la velocidad y el volumen lleguen al correcto.
         self._sonando = None
@@ -141,6 +144,17 @@ class TTSWorker(threading.Thread):
 
     # ── Arranque y cierre del motor ──────────────────────────────────────────
 
+    def _crear_motor(self, motor, clave_elevenlabs=None):
+        """Crea el motor con la salida de audio de la voz de la configuración."""
+        salida = self.config.get("salida_voz") or ""
+        if motor in ("phonon", "piper"):
+            creado = proveedores.obtener(motor).crear(
+                clave_elevenlabs, salida=salida, al_avisar=self._avisar)
+        else:
+            creado = motores.crear_motor(motor, clave_elevenlabs)
+        self.salida_voz = salida
+        return creado
+
     def _abrir_motor(self) -> None:
         self._gestor.abrir(
             self.config.get("motor") or "sapi", self.config.get("voz"),
@@ -197,11 +211,23 @@ class TTSWorker(threading.Thread):
         finally:
             self._sonando = None
 
+    @property
+    def al_avisar(self):
+        return self._al_avisar
+
+    @al_avisar.setter
+    def al_avisar(self, llamar) -> None:
+        self._al_avisar = llamar
+        pendiente, self._aviso_pendiente = self._aviso_pendiente, None
+        if pendiente and llamar is not None:
+            llamar(pendiente)
+
     def _avisar(self, mensaje: str) -> None:
         """Avisa al usuario (o solo al log) una vez por racha."""
         logger.warning("TTS: %s", mensaje)
         llamar = self.al_avisar
         if llamar is None:
+            self._aviso_pendiente = mensaje
             return
         try:
             llamar(mensaje)
@@ -236,8 +262,12 @@ class TTSWorker(threading.Thread):
                 if cmd == "voice":
                     self._gestor.cambiar_voz_base(val)
                 elif cmd == "motor":
+                    salida_antes = self.salida_voz
                     self._gestor.cambiar(val[0], val[1], self._rate,
                                          self._volume, self._tono)
+                    if salida_antes != self.salida_voz:
+                        # La secundaria tiene su motor local: se reabre con la nueva.
+                        self._eleccion.voz_secundaria.cerrar()
                 elif cmd == "elevenlabs":
                     self._eleccion.configurar_elevenlabs(*val)
                 elif cmd == "voz_secundaria":

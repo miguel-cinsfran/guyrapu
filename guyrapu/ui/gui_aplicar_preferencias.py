@@ -51,15 +51,12 @@ def _aplicar_voz(frame, voces_actuales):
     # caliente. Con el motor nuevo hay que repoblar la lista de voces.
     try:
         motor_cfg = frame._config.get("motor") or "sapi"
-        if motor_cfg != (frame._worker.motor_activo() or ""):
-            from guyrapu.voice import motores
-            voces_nuevas = motores.listar_voces(motor_cfg)
-            idx_nuevo = _gui.escala_voz.resolver_voz(
-                frame._config.get("voz"), voces_nuevas)
-            frame.poblar_voces(voces_nuevas, 0 if idx_nuevo is None else idx_nuevo)
-            frame._worker.cambiar_motor(motor_cfg, frame._config.get("voz"))
-            _gui.anunciar(_("Motor de voz: {nombre}").format(
-                nombre=_(motores.NOMBRES.get(motor_cfg, motor_cfg))))
+        motor_actual = frame._worker.motor_activo() or ""
+        cambia_salida = (motor_cfg in ("phonon", "piper")
+                         and (frame._config.get("salida_voz") or "")
+                         != (frame._worker.salida_voz or ""))
+        if motor_cfg != motor_actual or cambia_salida:
+            _recrear_motor(frame, motor_cfg, motor_cfg != motor_actual)
         else:
             # Restaurar la lista de voces tras reconstruir (con lista vacía,
             # poblar_voces repone el nombre «—»).
@@ -72,6 +69,19 @@ def _aplicar_voz(frame, voces_actuales):
                     frame._aplicar_voz(idx_cfg)
     except Exception as exc:
         logger.debug("aplicar voz desde preferencias: %s", exc)
+
+
+def _recrear_motor(frame, motor_cfg, anunciar=True):
+    from guyrapu.ui import gui as _gui
+    from guyrapu.voice import motores
+    voces_nuevas = motores.listar_voces(motor_cfg)
+    idx_nuevo = _gui.escala_voz.resolver_voz(
+        frame._config.get("voz"), voces_nuevas)
+    frame.poblar_voces(voces_nuevas, 0 if idx_nuevo is None else idx_nuevo)
+    frame._worker.cambiar_motor(motor_cfg, frame._config.get("voz"))
+    if anunciar:
+        _gui.anunciar(_("Motor de voz: {nombre}").format(
+            nombre=_(motores.NOMBRES.get(motor_cfg, motor_cfg))))
 
 
 def _aplicar_ajustes_de_voz(frame):

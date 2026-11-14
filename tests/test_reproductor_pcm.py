@@ -88,6 +88,16 @@ class TestReproductorPCM(unittest.TestCase):
             reproductor.cortar()
             reproductor.cerrar()
 
+    def test_una_salida_real_abre_el_stream(self):
+        reproductor = reproductor_pcm.ReproductorPCM(
+            reproductor_pcm.listar_salidas()[0])
+        try:
+            reproductor.empezar(TASA)
+            self.assertFalse(reproductor._mudo)
+            self.assertIsNotNone(reproductor._stream)
+        finally:
+            reproductor.cerrar()
+
 
 @unittest.skipUnless(HAY_AUDIO, "sin salida de audio")
 class TestReproductorPCMTasas(unittest.TestCase):

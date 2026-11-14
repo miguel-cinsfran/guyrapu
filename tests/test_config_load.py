@@ -1504,5 +1504,26 @@ class TestMusicaCargador(unittest.TestCase):
         self.assertEqual(cfg["musica_decir"], "artista")
 
 
+class TestSalidaVozCargador(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def _cargar_en(self, contenido: str) -> dict:
+        tmp = Path(self._tmp.name)
+        (tmp / "config.ini").write_text(contenido, encoding="utf-8")
+        with redirigir_rutas(tmp):
+            return config.cargar_configuracion()
+
+    def test_salida_vacia_por_defecto(self):
+        self.assertEqual(self._cargar_en("")["salida_voz"], "")
+
+    def test_salida_con_caracteres_especiales_ida_y_vuelta(self):
+        nombre = "Auriculares 100% #1; principal"
+        cfg = self._cargar_en(
+            "[voz]\nsalida = " f"{config.codificar_texto_ini(nombre)}\n")
+        self.assertEqual(cfg["salida_voz"], nombre)
+
+
 if __name__ == "__main__":
     unittest.main()

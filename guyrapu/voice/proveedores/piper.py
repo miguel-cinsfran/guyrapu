@@ -162,7 +162,7 @@ class SintetizadorPiper:
         self._indice = None
 
 
-def crear(clave_elevenlabs=None):
+def crear(clave_elevenlabs=None, salida=None, al_avisar=None):
     entradas = _entradas()
     if not entradas:
         raise MotorNoDisponible(_(_MSG_SIN_VOCES))
@@ -173,7 +173,8 @@ def crear(clave_elevenlabs=None):
     from guyrapu.voice.motor_local import MotorLocal
 
     return MotorLocal(SintetizadorPiper(
-        entradas, (PiperVoice, SynthesisConfig)))
+        entradas, (PiperVoice, SynthesisConfig)), salida=salida,
+        al_avisar=al_avisar)
 
 
 def listar_voces(fabrica_contexto=None) -> list[str]:

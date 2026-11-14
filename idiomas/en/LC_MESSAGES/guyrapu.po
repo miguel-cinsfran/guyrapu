@@ -13979,3 +13979,21 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/preferencias_voz.py
+msgid "Salida de audio de la voz (P&honon y Piper):"
+msgstr "Voice audio output (P&honon and Piper):"
+
+#: guyrapu/ui/preferencias_voz.py
+msgid "Salida de audio de la voz (Phonon y Piper)"
+msgstr "Voice audio output (Phonon and Piper)"
+
+#. Traductores: aviso de la salida de audio de la voz que ya no existe.
+#: guyrapu/voice/motor_local.py
+#, python-brace-format
+msgid ""
+"No se encontró la salida de audio de la voz «{nombre}». La voz suena por la"
+" salida predeterminada."
+msgstr ""
+"The voice audio output “{nombre}” was not found. The voice plays through "
+"the default output."
+

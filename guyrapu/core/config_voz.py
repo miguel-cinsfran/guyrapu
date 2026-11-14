@@ -38,6 +38,8 @@ def _velocidad_voz(p, ruta):
 
 def opciones_voz(p, ruta) -> dict:
     """La sección [voz] como claves en memoria, en el mismo orden."""
+    from guyrapu.core.config import decodificar_texto_ini
+
     # [voz]: el motor se valida contra los válidos de Prism (importarlos aquí
     # no arrastra Prism: motores lo importa de forma perezosa).
     from guyrapu.voice import motores as _motores
@@ -49,6 +51,7 @@ def opciones_voz(p, ruta) -> dict:
     return {**opciones_secundarias(p),
         "motor": motor,
         "voz": leer_texto(p, "voz", "voz"),
+        "salida_voz": decodificar_texto_ini(leer_texto(p, "voz", "salida")),
         "velocidad_voz": velocidad_voz,
         "volumen": leer_decimal(p, "voz", "volumen"),
         "tono": leer_entero(p, "voz", "tono", lo=0, hi=100),

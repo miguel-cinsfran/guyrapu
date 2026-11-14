@@ -1953,7 +1953,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("ui", "mostrar_metadatos"),
             ("ui", "mostrar_botones_reproductor"),
             ("ui", "cache_video_mb"),
-            ("voz", "motor"), ("voz", "voz"),
+            ("voz", "motor"), ("voz", "voz"), ("voz", "salida"),
             ("voz", "motor_secundaria"),
             ("voz", "velocidad_voz"), ("voz", "volumen"), ("voz", "tono"),
             ("voz", "voz_respaldo"), ("voz", "voz_secundaria"),

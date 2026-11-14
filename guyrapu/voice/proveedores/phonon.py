@@ -183,11 +183,12 @@ def listar_voces(fabrica_contexto=None) -> list[str]:
     return [voz.mostrado for voz in _voces_instaladas()]
 
 
-def crear(clave_elevenlabs=None):
+def crear(clave_elevenlabs=None, salida=None, al_avisar=None):
     if not listar_voces():
         raise MotorNoDisponible(_(_MSG_SIN_VOCES))
     from guyrapu.voice.motor_local import MotorLocal
-    return MotorLocal(SintetizadorPhonon(_ptts()))
+    return MotorLocal(SintetizadorPhonon(_ptts()), salida=salida,
+                      al_avisar=al_avisar)
 
 
 _CAPACIDADES = Capacidades(streaming=True, tono=True, nube=False)

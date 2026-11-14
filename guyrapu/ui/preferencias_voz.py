@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.core import config as cfg
 from guyrapu.core.idioma import N_, _
 from guyrapu.youtube import credenciales
-from guyrapu.ui import voces_ventana
+from guyrapu.ui import opciones_musica, voces_ventana
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc, anunciar
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
 from guyrapu.ui.preferencias_voz_eleven import BloqueElevenLabs
@@ -108,6 +109,26 @@ class PaginaVoz:
         self.btn_voces.Bind(wx.EVT_BUTTON, lambda _e: voces_ventana.abrir(
             self._ventana, al_cerrar=lambda: self._on_motor_cambiado(None)))
         vs.Add(self.btn_voces, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self._crear_salida(p, vs)
+
+    def _crear_salida(self, p, vs):
+        from guyrapu.voice import reproductor_pcm
+
+        guardada = str(self._config.get("salida_voz", "") or "")
+        encontradas = [(nombre, nombre)
+                       for nombre in reproductor_pcm.listar_salidas()]
+        etiquetas, identificadores, seleccion = opciones_musica.opciones_salida(
+            guardada, guardada, encontradas)
+        self._salidas_voz = identificadores
+        vs.Add(fila_label(
+            p, _("Salida de audio de la voz (P&honon y Piper):")),
+            0, wx.LEFT | wx.RIGHT, 10)
+        self.cho_salida_voz = wx.Choice(
+            p, choices=etiquetas,
+            name=_("Salida de audio de la voz (Phonon y Piper)"))
+        self.cho_salida_voz.SetSelection(seleccion)
+        _tc(self.cho_salida_voz)
+        vs.Add(self.cho_salida_voz, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _crear_ajustes(self, p, vs):
         from guyrapu.voice import escala_voz
@@ -279,6 +300,11 @@ class PaginaVoz:
     def _guardar_ajustes_voz(self, fijar, en_memoria):
         self._cerrar_motor_prueba()
         from guyrapu.voice import escala_voz
+        elegida = self.cho_salida_voz.GetSelection()
+        nombre_salida = (self._salidas_voz[elegida]
+                         if 0 <= elegida < len(self._salidas_voz) else "")
+        fijar("voz", "salida", cfg.codificar_texto_ini(nombre_salida))
+        en_memoria["salida_voz"] = nombre_salida
         velocidad = escala_voz.ajustar_velocidad(self.sp_velocidad.GetValue(), 0)
         fijar("voz", "velocidad_voz", str(velocidad))
         en_memoria["velocidad_voz"] = velocidad

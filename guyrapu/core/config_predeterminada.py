@@ -30,6 +30,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
     ("voz", [
         ("motor", "sapi"),
         ("voz", ""),
+        ("salida", ""),
         ("velocidad_voz", "50"),
         ("volumen", "1.0"),
         ("tono", "50"),
@@ -224,8 +225,10 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
 _COMENTARIOS: dict[str, str] = {
     "voz": (
         "# Motor de voz: sapi, onecore o elevenlabs. Voz vacía es la\n"
-        "# primera del sistema; se guarda por nombre. La voz principal y\n"
-        "# la secundaria se cambian en Preferencias > Voces. Con ElevenLabs,\n"
+        "# primera del sistema; se guarda por nombre. La salida es el nombre\n"
+        "# de la salida de audio de la voz para Phonon y Piper; vacía usa la\n"
+        "# predeterminada. La voz principal y la secundaria se cambian en\n"
+        "# Preferencias > Voces. Con ElevenLabs,\n"
         "# voz_respaldo es la voz de Windows que suena si falla o se pasa\n"
         "# el límite de caracteres (elevenlabs_tope, 0 sin límite), y\n"
         "# elevenlabs_solo_importantes reserva la nube para Super Chats,\n"
