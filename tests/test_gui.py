@@ -1934,6 +1934,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("ui", "mostrar_botones_reproductor"),
             ("ui", "cache_video_mb"),
             ("voz", "motor"), ("voz", "voz"),
+            ("voz", "motor_secundaria"),
             ("voz", "velocidad_voz"), ("voz", "volumen"), ("voz", "tono"),
             ("voz", "voz_respaldo"), ("voz", "voz_secundaria"),
             ("voz", "velocidad_secundaria"), ("voz", "volumen_secundaria"),
@@ -3233,7 +3234,7 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
             pagina._on_probar_voz(None)
         probar.assert_called_once_with("clave sin espacios", "Beto", 60, 70)
 
-    def test_probar_con_prism_usa_el_motor_y_los_contadores(self):
+    def test_probar_con_un_motor_local_usa_el_motor_y_los_contadores(self):
         dialogo = self._dialogo({})
         pagina = dialogo.pagina_voz
         pagina.cho_voz.SetItems(["Ana", "Beto"])
@@ -3241,7 +3242,7 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
         pagina.sp_velocidad.SetValue(60)
         pagina.sp_volumen.SetValue(70)
         pagina.sp_tono.SetValue(40)
-        with mock.patch.object(pagina._prueba, "probar_prism") as probar:
+        with mock.patch.object(pagina._prueba, "probar_motor") as probar:
             pagina._on_probar_voz(None)
         probar.assert_called_once_with("sapi", 1, 60, 70, 40)
 
@@ -3251,7 +3252,7 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
         pagina._voces = []
         with mock.patch.object(preferencias_voz, "anunciar") as anunciar, \
                 mock.patch.object(pagina._prueba, "probar_elevenlabs") as eleven, \
-                mock.patch.object(pagina._prueba, "probar_prism") as prism:
+                mock.patch.object(pagina._prueba, "probar_motor") as prism:
             pagina._on_probar_voz(None)
         anunciar.assert_called_once_with("Primero comprueba la clave.")
         eleven.assert_not_called()

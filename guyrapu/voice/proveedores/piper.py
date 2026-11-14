@@ -14,6 +14,7 @@ import inspect
 from guyrapu.core import diagnostico
 from guyrapu.core import paquetes_instalacion
 from guyrapu.core import paths
+from guyrapu.core import voces_disponibles
 from guyrapu.core.idioma import N_, _
 from guyrapu.voice.proveedores.base import (
     Capacidades,
@@ -68,15 +69,14 @@ def _entradas():
 
 def _nombres(entradas):
     nombres = []
-    vistos = set()
+    vistos = {}
     for ficha, voz, _modelo in entradas:
-        base = str(voz.get("nombre", "")).strip()
-        nombre = base
-        if base in vistos:
-            nombre = f"{base} ({ficha.get('idioma') or ''})"
-        vistos.add(base)
-        vistos.add(nombre)
-        nombres.append(nombre)
+        nombre = str(voz.get("nombre", "")).strip()
+        idioma = voz.get("idioma") or ficha.get("idioma")
+        texto = f"{nombre}, {voces_disponibles.nombre_idioma(idioma)}"
+        cuenta = vistos.get(texto, 0) + 1
+        vistos[texto] = cuenta
+        nombres.append(texto if cuenta == 1 else f"{texto}, {cuenta}")
     return nombres
 
 

@@ -33,6 +33,7 @@ class BloqueElevenLabs:
         self._anunciar = anunciar
         self._al_cambiar_voces = al_cambiar_voces
         self.controles = []
+        self._respaldo_controles = []
         self.voces_respaldo = []
 
     def crear_clave(self, p, vs):
@@ -53,8 +54,8 @@ class BloqueElevenLabs:
                                self.btn_comprobar_clave))
 
     def crear_ajustes(self, p, vs):
-        # Tope de caracteres por sesión (0 sin tope), «solo lo importante» y
-        # la voz de Windows de respaldo. Solo se ven con ElevenLabs.
+        # El tope de caracteres por sesión (0 sin tope) y «solo lo importante»
+        # solo se ven con ElevenLabs.
         lbl_tope = fila_label(p, _("Límite de caracteres p&or sesión (0 sin límite):"))
         self.sp_tope_eleven = ContadorAccesible(
             p, min=0, max=1000000, name=_("Límite de caracteres de ElevenLabs"),
@@ -73,7 +74,9 @@ class BloqueElevenLabs:
             bool(self._config.get("elevenlabs_solo_importantes", False)))
         vs.Add(self.chk_solo_importantes, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
-        lbl_respaldo = fila_label(p, _("Voz de &Windows de respaldo:"))
+        # La voz de Windows de respaldo se ve con cualquier motor que no sea
+        # SAPI, así que no va en la lista de controles de ElevenLabs.
+        self.lbl_respaldo = fila_label(p, _("Voz de &Windows de respaldo:"))
         self.voces_respaldo = motores.listar_voces("sapi")
         self.cho_voz_respaldo = wx.Choice(
             p, choices=self.voces_respaldo or [_(_NO_HAY_VOCES)],
@@ -87,15 +90,19 @@ class BloqueElevenLabs:
         else:
             self.cho_voz_respaldo.SetSelection(0)
             self.cho_voz_respaldo.Disable()
-        vs.Add(lbl_respaldo, 0, wx.LEFT | wx.RIGHT, 10)
+        vs.Add(self.lbl_respaldo, 0, wx.LEFT | wx.RIGHT, 10)
         vs.Add(self.cho_voz_respaldo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
+        self._respaldo_controles = [self.lbl_respaldo, self.cho_voz_respaldo]
         self.controles.extend((lbl_tope, self.sp_tope_eleven,
-                               self.chk_solo_importantes, lbl_respaldo,
-                               self.cho_voz_respaldo))
+                               self.chk_solo_importantes))
 
     def mostrar(self, visible: bool) -> None:
         for ctrl in self.controles:
+            ctrl.Show(visible)
+
+    def mostrar_respaldo(self, visible: bool) -> None:
+        for ctrl in self._respaldo_controles:
             ctrl.Show(visible)
 
     def clave(self) -> str:

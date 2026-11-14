@@ -13003,10 +13003,6 @@ msgid "Voz secundaria"
 msgstr "Secondary voice"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Vo&z:"
-msgstr "Vo&ice:"
-
-#: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Veloci&dad (0 a 100):"
 msgstr "S&peed (0 to 100):"
 
@@ -13960,4 +13956,20 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
+
+#: guyrapu/ui/preferencias_voz.py guyrapu/ui/preferencias_voz_secundaria.py
+msgid "(no hay voces instaladas: usa Administrar voces)"
+msgstr "(no voices installed: use Manage voices)"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Motor de vo&z:"
+msgstr "Vo&ice engine:"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Motor de la voz secundaria"
+msgstr "Secondary voice engine"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Voz:"
+msgstr "Voice:"
 

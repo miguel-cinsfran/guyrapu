@@ -142,18 +142,43 @@ class TestProveedorPiper(unittest.TestCase):
     def test_lista_las_voces_de_los_paquetes_instalados(self):
         self._instalar(_ficha("a-daniela", "Daniela"),
                        _ficha("b-jorge", "Jorge"))
-        self.assertEqual(proveedor_piper.listar_voces(), ["Daniela", "Jorge"])
+        self.assertEqual(proveedor_piper.listar_voces(),
+                         ["Daniela, español (Argentina)",
+                          "Jorge, español (Argentina)"])
 
     def test_un_nombre_repetido_sale_con_su_idioma(self):
         self._instalar(_ficha("a-daniela", "Daniela", "es-AR"),
                        _ficha("b-daniela", "Daniela", "es-ES"))
         self.assertEqual(proveedor_piper.listar_voces(),
-                         ["Daniela", "Daniela (es-ES)"])
+                         ["Daniela, español (Argentina)",
+                          "Daniela, español (España)"])
+
+    def test_dos_voces_con_el_mismo_texto_llevan_numero(self):
+        self._instalar(_ficha("a-daniela", "Daniela", "es-AR"),
+                       _ficha("b-daniela", "Daniela", "es-AR"))
+        self.assertEqual(proveedor_piper.listar_voces(),
+                         ["Daniela, español (Argentina)",
+                          "Daniela, español (Argentina), 2"])
+
+    def test_la_voz_usa_su_propio_idioma(self):
+        ficha = _ficha("a-daniela", "Daniela", "es-AR")
+        ficha["voces"][0]["idioma"] = "es-ES"
+        self._instalar(ficha)
+        self.assertEqual(proveedor_piper.listar_voces(),
+                         ["Daniela, español (España)"])
+
+    def test_la_voz_sin_idioma_usa_el_del_paquete(self):
+        ficha = _ficha("a-daniela", "Daniela", "es-AR")
+        del ficha["voces"][0]["idioma"]
+        self._instalar(ficha)
+        self.assertEqual(proveedor_piper.listar_voces(),
+                         ["Daniela, español (Argentina)"])
 
     def test_un_paquete_de_otro_proveedor_no_aparece(self):
         self._instalar(_ficha("a-daniela", "Daniela"),
                        _ficha("b-otra", "Otra", proveedor="phonon"))
-        self.assertEqual(proveedor_piper.listar_voces(), ["Daniela"])
+        self.assertEqual(proveedor_piper.listar_voces(),
+                         ["Daniela, español (Argentina)"])
 
     def test_crear_devuelve_un_motor_local_con_el_sintetizador(self):
         self._instalar(_ficha("a-daniela", "Daniela"))
@@ -230,6 +255,28 @@ _HAY_MODELO = (_RUTA_MODELO.is_file()
                and Path(f"{_RUTA_MODELO}.json").is_file())
 
 
+def _armar_paquete_real(raiz):
+    carpeta = raiz / "voces" / "piper-es-ar-daniela-high"
+    carpeta.mkdir(parents=True)
+    modelo = carpeta / _RUTA_MODELO.name
+    configuracion = carpeta / f"{_RUTA_MODELO.name}.json"
+    for origen, destino in ((_RUTA_MODELO, modelo),
+                            (Path(f"{_RUTA_MODELO}.json"), configuracion)):
+        try:
+            os.link(origen, destino)
+        except OSError:
+            shutil.copy2(origen, destino)
+    ficha = _ficha("piper-es-ar-daniela-high", "Daniela", "es-AR")
+    ficha["archivos"] = [
+        {"url": "https://ejemplo.com/a", "bytes": 0, "sha256": "0" * 64,
+         "ruta": modelo.name},
+        {"url": "https://ejemplo.com/b", "bytes": 0, "sha256": "0" * 64,
+         "ruta": configuracion.name},
+    ]
+    (carpeta / "paquete.json").write_text(
+        json.dumps(ficha), encoding="utf-8")
+
+
 @unittest.skipUnless(_HAY_MODELO, "no hay un modelo de Piper local")
 class TestPiperReal(unittest.TestCase):
 
@@ -244,25 +291,7 @@ class TestPiperReal(unittest.TestCase):
         self._armar_paquete()
 
     def _armar_paquete(self):
-        carpeta = self.raiz / "voces" / "piper-es-ar-daniela-high"
-        carpeta.mkdir(parents=True)
-        modelo = carpeta / _RUTA_MODELO.name
-        configuracion = carpeta / f"{_RUTA_MODELO.name}.json"
-        for origen, destino in ((_RUTA_MODELO, modelo),
-                                (Path(f"{_RUTA_MODELO}.json"), configuracion)):
-            try:
-                os.link(origen, destino)
-            except OSError:
-                shutil.copy2(origen, destino)
-        ficha = _ficha("piper-es-ar-daniela-high", "Daniela", "es-AR")
-        ficha["archivos"] = [
-            {"url": "https://ejemplo.com/a", "bytes": 0, "sha256": "0" * 64,
-             "ruta": modelo.name},
-            {"url": "https://ejemplo.com/b", "bytes": 0, "sha256": "0" * 64,
-             "ruta": configuracion.name},
-        ]
-        (carpeta / "paquete.json").write_text(
-            json.dumps(ficha), encoding="utf-8")
+        _armar_paquete_real(self.raiz)
 
     def test_habla_una_voz_real_sin_red(self):
         motor = proveedor_piper.crear()

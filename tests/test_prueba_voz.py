@@ -2,16 +2,20 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la prueba de voz, sin ventanas."""
 
+import tempfile
 import threading
+import time
 import unittest
+from pathlib import Path
 from unittest import mock
 
+from guyrapu.core import paths
 from tests.pseudo_prueba import con_pseudo
+from tests.test_proveedor_piper import _HAY_MODELO, _armar_paquete_real
 from guyrapu.ui import prueba_voz
 from guyrapu.voice import escala_voz
 from guyrapu.voice import motor_elevenlabs
 from guyrapu.voice import motores
-from guyrapu.voice.proveedores import prism
 
 
 class _HiloInmediato:
@@ -107,15 +111,15 @@ class _MotorElevenFalso:
         self.cerrado += 1
 
 
-class TestProbarPrism(unittest.TestCase):
+class TestProbarMotor(unittest.TestCase):
 
     def test_no_crea_el_motor_antes_de_que_corra_el_hilo(self):
-        with mock.patch.object(prism, "MotorPrism") as crear, \
+        with mock.patch.object(motores, "crear_motor") as crear, \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
                     return_value=_HiloQuieto()) as crear_hilo:
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 2, 60, 70, 40)
+            prueba.probar_motor("sapi", 2, 60, 70, 40)
 
         crear.assert_not_called()
         self.assertEqual(crear_hilo.call_args[0][1], "ProbarVoz")
@@ -127,31 +131,64 @@ class TestProbarPrism(unittest.TestCase):
 
     def test_el_hilo_configura_habla_y_cierra_el_motor(self):
         motor = _MotorWindowsFalso()
-        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
+        with mock.patch.object(motores, "crear_motor",
+                               return_value=motor) as crear, \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
                     side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
                 mock.patch.object(prueba_voz, "VIDA_PRUEBA_VOZ", 0.01), \
                 mock.patch.object(prueba_voz, "anunciar") as anunciar:
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 2, 60, 70, 40)
+            prueba.probar_motor("phonon", 2, 60, 70, 40)
 
+        crear.assert_called_once_with("phonon")
         self.assertEqual(motor.llamadas, [
             "elegir_voz", "fijar_velocidad", "fijar_volumen", "fijar_tono",
             "hablar"])
         self.assertEqual(motor.dicho, "Así suena esta voz.")
         self.assertEqual(motor.cerrado, 1)
         self.assertEqual(motor.consultas_hablando, 0)
-        self.assertIsNone(prueba._corte_prism)
+        self.assertIsNone(prueba._corte_motor)
         anunciar.assert_not_called()
+
+    def test_crea_usa_y_cierra_el_motor_en_su_hilo(self):
+        idents = {}
+        motor = _MotorWindowsFalso(hablando=False)
+        hablar_original = motor.hablar
+
+        def hablar(texto):
+            idents["hablar"] = threading.get_ident()
+            hablar_original(texto)
+
+        def cerrar():
+            idents["cerrar"] = threading.get_ident()
+
+        def crear(_motor):
+            idents["crear"] = threading.get_ident()
+            return motor
+
+        motor.hablar = hablar
+        motor.cerrar = cerrar
+        hilos = []
+        with mock.patch.object(motores, "crear_motor", side_effect=crear), \
+                self._prueba_lanzada(motor, hilos), \
+                mock.patch.object(prueba_voz, "VIDA_PRUEBA_VOZ", 0.01), \
+                mock.patch.object(prueba_voz, "anunciar"):
+            prueba = prueba_voz.PruebaVoz()
+            prueba.probar_motor("phonon", 0, 50, 50, 50)
+            hilos[0].join(2)
+
+        self.assertEqual(idents["crear"], idents["hablar"])
+        self.assertEqual(idents["crear"], idents["cerrar"])
+        self.assertNotEqual(idents["crear"], threading.get_ident())
 
     def test_no_cierra_el_motor_mientras_no_se_ponga_el_corte(self):
         motor = _MotorWindowsFalso(hablando=False)
         hilos = []
-        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
+        with mock.patch.object(motores, "crear_motor", return_value=motor), \
                 self._prueba_lanzada(motor, hilos):
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 0, 50, 50, 50)
+            prueba.probar_motor("sapi", 0, 50, 50, 50)
             hilos[0].join(2.5)
             self.assertEqual(motor.cerrado, 0)
             prueba.cerrar()
@@ -162,11 +199,11 @@ class TestProbarPrism(unittest.TestCase):
     def test_una_segunda_prueba_cierra_la_primera(self):
         motor = _MotorWindowsFalso(hablando=False)
         hilos = []
-        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
+        with mock.patch.object(motores, "crear_motor", return_value=motor), \
                 self._prueba_lanzada(motor, hilos):
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 0, 50, 50, 50)
-            prueba.probar_prism("sapi", 0, 50, 50, 50)
+            prueba.probar_motor("sapi", 0, 50, 50, 50)
+            prueba.probar_motor("sapi", 0, 50, 50, 50)
             hilos[0].join(2)
             self.assertEqual(motor.cerrado, 1)
             prueba.cerrar()
@@ -177,10 +214,10 @@ class TestProbarPrism(unittest.TestCase):
     def test_cerrar_cierra_el_motor(self):
         motor = _MotorWindowsFalso(hablando=False)
         hilos = []
-        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
+        with mock.patch.object(motores, "crear_motor", return_value=motor), \
                 self._prueba_lanzada(motor, hilos):
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 0, 50, 50, 50)
+            prueba.probar_motor("sapi", 0, 50, 50, 50)
             prueba.cerrar()
             hilos[0].join(2)
 
@@ -188,20 +225,20 @@ class TestProbarPrism(unittest.TestCase):
 
     def test_se_cierra_al_vencer_la_vida_de_la_prueba(self):
         motor = _MotorWindowsFalso(hablando=False)
-        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
+        with mock.patch.object(motores, "crear_motor", return_value=motor), \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
                     side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
                 mock.patch.object(prueba_voz, "VIDA_PRUEBA_VOZ", 0.01):
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 0, 50, 50, 50)
+            prueba.probar_motor("sapi", 0, 50, 50, 50)
 
         self.assertEqual(motor.cerrado, 1)
         self.assertEqual(motor.consultas_hablando, 0)
 
     def test_motor_no_disponible_anuncia_con_call_after(self):
         with mock.patch.object(
-                prism, "MotorPrism",
+                motores, "crear_motor",
                 side_effect=motores.MotorNoDisponible("no")), \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
@@ -209,7 +246,7 @@ class TestProbarPrism(unittest.TestCase):
                 mock.patch.object(prueba_voz.wx, "CallAfter") as call_after, \
                 mock.patch.object(prueba_voz, "anunciar") as anunciar:
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 0, 50, 50, 50)
+            prueba.probar_motor("sapi", 0, 50, 50, 50)
 
         call_after.assert_called_once_with(
             anunciar, "No se pudo iniciar el motor de voz elegido.")
@@ -273,22 +310,22 @@ class TestProbarElevenLabs(unittest.TestCase):
 class TestPseudoTextos(unittest.TestCase):
     """Bajo pseudotraducción, cada frase al usuario sale marcada."""
 
-    def test_prism_habla_y_anuncia_marcado(self):
+    def test_motor_habla_y_anuncia_marcado(self):
         motor = _MotorWindowsFalso()
         with con_pseudo():
-            with mock.patch.object(prism, "MotorPrism", return_value=motor), \
+            with mock.patch.object(motores, "crear_motor", return_value=motor), \
                     mock.patch.object(
                         prueba_voz.diagnostico, "crear_hilo",
                         side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
                     mock.patch.object(prueba_voz, "VIDA_PRUEBA_VOZ", 0.01):
                 prueba = prueba_voz.PruebaVoz()
-                prueba.probar_prism("sapi", 2, 60, 70, 40)
+                prueba.probar_motor("sapi", 2, 60, 70, 40)
         self.assertTrue(motor.dicho.startswith("[¡"), motor.dicho)
 
-    def test_prism_sin_motor_anuncia_marcado(self):
+    def test_motor_sin_motor_anuncia_marcado(self):
         with con_pseudo():
             with mock.patch.object(
-                    prism, "MotorPrism",
+                    motores, "crear_motor",
                     side_effect=motores.MotorNoDisponible("no")), \
                     mock.patch.object(
                         prueba_voz.diagnostico, "crear_hilo",
@@ -298,7 +335,7 @@ class TestPseudoTextos(unittest.TestCase):
                         side_effect=lambda funcion, *args: funcion(*args)), \
                     mock.patch.object(prueba_voz, "anunciar") as anunciar:
                 prueba = prueba_voz.PruebaVoz()
-                prueba.probar_prism("sapi", 0, 50, 50, 50)
+                prueba.probar_motor("sapi", 0, 50, 50, 50)
         anunciar.assert_called_once()
         self.assertTrue(anunciar.call_args.args[0].startswith("[¡"),
                         anunciar.call_args.args[0])
@@ -309,15 +346,41 @@ class TestCerrar(unittest.TestCase):
     def test_sin_prueba_en_curso_no_hace_nada(self):
         prueba = prueba_voz.PruebaVoz()
         prueba.cerrar()
-        self.assertIsNone(prueba._corte_prism)
+        self.assertIsNone(prueba._corte_motor)
 
     def test_con_prueba_en_curso_la_corta(self):
         with mock.patch.object(
                 prueba_voz.diagnostico, "crear_hilo",
                 return_value=_HiloQuieto()):
             prueba = prueba_voz.PruebaVoz()
-            prueba.probar_prism("sapi", 0, 50, 50, 50)
-            corte = prueba._corte_prism
+            prueba.probar_motor("sapi", 0, 50, 50, 50)
+            corte = prueba._corte_motor
             prueba.cerrar()
 
         self.assertTrue(corte.is_set())
+
+@unittest.skipUnless(_HAY_MODELO, "no hay un modelo de Piper local")
+class TestPruebaVozPiperReal(unittest.TestCase):
+    """Frontera real: habla con Piper sin excepción, a volumen cero."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.raiz = Path(self._tmp.name)
+        parche = mock.patch.object(
+            paths, "carpeta_instalacion", return_value=self.raiz)
+        parche.start()
+        self.addCleanup(parche.stop)
+        _armar_paquete_real(self.raiz)
+
+    def test_habla_a_volumen_cero_sin_excepcion(self):
+        prueba = prueba_voz.PruebaVoz()
+        with mock.patch.object(prueba_voz, "VIDA_PRUEBA_VOZ", 0.5),                 mock.patch.object(prueba_voz.wx, "CallAfter") as call_after,                 mock.patch.object(prueba_voz.logger, "warning") as warning:
+            prueba.probar_motor("piper", 0, 50, 0, 50)
+            limite = time.monotonic() + 20.0
+            while prueba._corte_motor is not None and time.monotonic() < limite:
+                time.sleep(0.02)
+        call_after.assert_not_called()
+        warning.assert_not_called()
+        self.assertIsNone(prueba._corte_motor)
+

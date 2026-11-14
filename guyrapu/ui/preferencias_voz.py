@@ -20,7 +20,7 @@ from guyrapu.ui.preferencias_voz_secundaria import BloqueVozSecundaria
 from guyrapu.ui.prueba_voz import PruebaVoz
 
 _SIN_CLAVE_ELEVEN = N_("(comprueba la clave)")
-_NO_HAY_VOCES = N_("(no hay voces disponibles)")
+_NO_HAY_VOCES = N_("(no hay voces instaladas: usa Administrar voces)")
 
 
 class PaginaVoz:
@@ -58,7 +58,8 @@ class PaginaVoz:
         self._voz_secundaria = BloqueVozSecundaria(
             self._config, self._probar_voz_secundaria)
         vs.Add(self._voz_secundaria.construir(
-            p, self._voces, self._eleven.voces_respaldo), 0, wx.EXPAND | wx.ALL, 10)
+            p, self._voces, self._eleven.voces_respaldo,
+            self._motor_elegido()), 0, wx.EXPAND | wx.ALL, 10)
         self._prueba = PruebaVoz()
         # El motor de prueba se cierra al cerrar el diálogo por cualquier camino.
         # Se escucha en el panel: el diálogo llega al evento como un wx.Window
@@ -149,9 +150,7 @@ class PaginaVoz:
 
     def _mostrar_controles_eleven(self, visible: bool) -> None:
         self._eleven.mostrar(visible)
-        bloque = getattr(self, "_voz_secundaria", None)
-        if bloque is not None:
-            bloque.mostrar_respaldo(visible)
+        self._eleven.mostrar_respaldo(self._motor_elegido() != "sapi")
         panel = getattr(self, "_pag_voz_panel", None)
         if panel is not None:
             panel.Layout()
@@ -159,7 +158,8 @@ class PaginaVoz:
     def _al_cambiar_voces_eleven(self, voces, guardada) -> None:
         self._voces = list(voces)
         self._cargar_voces(self.cho_voz, guardada, vacio=_SIN_CLAVE_ELEVEN)
-        self._voz_secundaria.recargar_voces(self._voces)
+        self._voz_secundaria.actualizar_principal(
+            self._motor_elegido(), self._voces)
 
     def _comprobar_clave(self, anunciar_ok: bool) -> None:
         self._eleven.comprobar(anunciar_ok)
@@ -203,14 +203,14 @@ class PaginaVoz:
         self._mostrar_controles_eleven(False)
         self._voces = motores.listar_voces(motor)
         self._cargar_voces(self.cho_voz, self._config.get("voz"))
-        self._voz_secundaria.recargar_voces(self._voces)
+        self._voz_secundaria.actualizar_principal(motor, self._voces)
 
     def _on_probar_voz(self, event) -> None:
         motor = self._motor_elegido()
         if motor == "elevenlabs":
             self._probar_voz_elevenlabs()
             return
-        self._prueba.probar_prism(
+        self._prueba.probar_motor(
             motor, self.cho_voz.GetSelection(), self.sp_velocidad.GetValue(),
             self.sp_volumen.GetValue(), self.sp_tono.GetValue())
 
@@ -226,7 +226,7 @@ class PaginaVoz:
     def _probar_voz_secundaria(self) -> None:
         from guyrapu.voice import escala_voz
 
-        motor = self._motor_elegido()
+        motor = self._voz_secundaria.motor_efectivo()
         voz, velocidad, volumen = self._voz_secundaria.datos_de_prueba()
         if motor == "elevenlabs":
             if not self._voces:
@@ -236,10 +236,11 @@ class PaginaVoz:
                 self._eleven.clave(),
                 voz or self.cho_voz.GetStringSelection(), velocidad, volumen)
             return
-        indice = escala_voz.resolver_voz(voz, self._voces) if voz else None
+        indice = (escala_voz.resolver_voz(voz, self._voz_secundaria.voces())
+                  if voz else None)
         if indice is None:
             indice = self.cho_voz.GetSelection()
-        self._prueba.probar_prism(
+        self._prueba.probar_motor(
             motor, indice, velocidad, volumen, self.sp_tono.GetValue())
 
     def _cerrar_motor_prueba(self) -> None:
@@ -256,7 +257,7 @@ class PaginaVoz:
         # Si el motor elegido no tiene voces no se guardan motor ni voz (se
         # conservan los anteriores); el resto de las opciones se guarda igual.
         motor_no_disponible = self._guardar_motor_y_voces(fijar, en_memoria)
-        self._voz_secundaria.guardar(fijar, en_memoria, bool(self._voces))
+        self._voz_secundaria.guardar(fijar, en_memoria)
         self._eleven.guardar(fijar, en_memoria)
         self._guardar_ajustes_voz(fijar, en_memoria)
         return motor_no_disponible

@@ -20,17 +20,21 @@ _ARCHIVOS_MODELO = ("config.json", "default-voice.safetensors",
                     "model.q8.gguf", "tokenizer.json")
 
 
-def _ficha(base, identificador, idioma, voces, proveedor="phonon"):
+def _ficha(base, identificador, idioma, voces, proveedor="phonon",
+           idiomas=None):
     carpeta = base / identificador
     carpeta.mkdir(parents=True)
     for nombre in _ARCHIVOS_MODELO:
         (carpeta / nombre).write_bytes(b"modelo")
     lista = []
-    for nombre in voces:
+    for indice, nombre in enumerate(voces):
         archivo = f"{nombre}.safetensors"
         (carpeta / archivo).write_bytes(b"voz")
-        lista.append({"nombre": nombre, "idioma": idioma, "genero": None,
-                      "archivo": archivo})
+        entrada = {"nombre": nombre, "genero": None, "archivo": archivo}
+        idioma_voz = idiomas[indice] if idiomas is not None else idioma
+        if idioma_voz is not None:
+            entrada["idioma"] = idioma_voz
+        lista.append(entrada)
     ficha = {
         "id": identificador,
         "tipo": "voz",
@@ -161,18 +165,39 @@ class TestVoces(BasePhonon):
     def test_lista_las_voces_de_los_dos_paquetes(self):
         _ficha(self.base, "a-es", "es-ES", ["Ana", "Luis"])
         _ficha(self.base, "b-pt", "pt-BR", ["Bia"])
-        self.assertEqual(phonon.listar_voces(), ["Ana", "Luis", "Bia"])
+        self.assertEqual(phonon.listar_voces(),
+                         ["Ana, español (España)", "Luis, español (España)",
+                          "Bia, portugués (Brasil)"])
 
     def test_un_nombre_repetido_sale_con_su_idioma(self):
         _ficha(self.base, "a-es", "es-ES", ["Ana"])
         _ficha(self.base, "b-pt", "pt-BR", ["Ana"])
-        self.assertEqual(phonon.listar_voces(), ["Ana", "Ana (pt-BR)"])
+        self.assertEqual(phonon.listar_voces(),
+                         ["Ana, español (España)",
+                          "Ana, portugués (Brasil)"])
+
+    def test_dos_voces_con_el_mismo_texto_llevan_numero(self):
+        _ficha(self.base, "a-es", "es-ES", ["Ana"])
+        _ficha(self.base, "b-es", "es-ES", ["Ana"])
+        self.assertEqual(phonon.listar_voces(),
+                         ["Ana, español (España)",
+                          "Ana, español (España), 2"])
+
+    def test_la_voz_usa_su_propio_idioma(self):
+        _ficha(self.base, "a-es", "es-ES", ["Ana"], idiomas=["pt-BR"])
+        self.assertEqual(phonon.listar_voces(),
+                         ["Ana, portugués (Brasil)"])
+
+    def test_la_voz_sin_idioma_usa_el_del_paquete(self):
+        _ficha(self.base, "a-es", "es-ES", ["Ana"], idiomas=[None])
+        self.assertEqual(phonon.listar_voces(),
+                         ["Ana, español (España)"])
 
     def test_un_paquete_de_otro_proveedor_no_aparece(self):
         _ficha(self.base, "a-es", "es-ES", ["Ana"])
         _ficha(self.base, "c-piper", "es-AR", ["Daniela"],
                proveedor="piper")
-        self.assertEqual(phonon.listar_voces(), ["Ana"])
+        self.assertEqual(phonon.listar_voces(), ["Ana, español (España)"])
 
 
 class TestSintetizador(BasePhonon):

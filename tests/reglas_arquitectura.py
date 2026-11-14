@@ -128,6 +128,7 @@ REGLAS = (
             "guyrapu/ui/preferencias_atajos.py": 1, "guyrapu/ui/preferencias_ia.py": 1,
             "guyrapu/ui/preferencias_ia_lista.py": 1, "guyrapu/ui/preferencias_voz.py": 1,
             "guyrapu/ui/preferencias_voz_eleven.py": 3,
+            "guyrapu/ui/preferencias_voz_secundaria.py": 1,
             "guyrapu/ui/restream_pagina_cuenta.py": 1,
         }),
         ambito=_controles,

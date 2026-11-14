@@ -16,6 +16,7 @@ from pathlib import Path
 from guyrapu.core import diagnostico
 from guyrapu.core import paquetes_instalacion
 from guyrapu.core import paths
+from guyrapu.core import voces_disponibles
 from guyrapu.core.idioma import N_, _
 from guyrapu.voice.proveedores.base import (
     Capacidades,
@@ -56,25 +57,31 @@ def _paquetes() -> list[dict]:
             if ficha.get("proveedor") == _ID]
 
 
+def _texto_listado(nombre, idioma, vistos) -> str:
+    """El nombre con su idioma y, si se repite, su número."""
+    texto = f"{nombre}, {voces_disponibles.nombre_idioma(idioma)}"
+    cuenta = vistos.get(texto, 0) + 1
+    vistos[texto] = cuenta
+    return texto if cuenta == 1 else f"{texto}, {cuenta}"
+
+
 def _voces_instaladas() -> list[_VozInstalada]:
     voces = []
-    vistos = set()
+    vistos = {}
     base = paths.carpeta_voces()
     for ficha in _paquetes():
         paquete = str(ficha.get("id", ""))
-        idioma = str(ficha.get("idioma", ""))
+        idioma_paquete = str(ficha.get("idioma", ""))
         carpeta = base / paquete
         for voz in ficha.get("voces", ()):
             nombre = voz.get("nombre")
             archivo = voz.get("archivo")
             if not nombre or not archivo:
                 continue
-            mostrado = nombre
-            if nombre in vistos:
-                mostrado = f"{nombre} ({idioma})"
-            vistos.add(nombre)
+            idioma = voz.get("idioma") or idioma_paquete
+            mostrado = _texto_listado(nombre, idioma, vistos)
             voces.append(_VozInstalada(
-                nombre=nombre, mostrado=mostrado, idioma=idioma,
+                nombre=nombre, mostrado=mostrado, idioma=idioma_paquete,
                 archivo=carpeta / archivo, paquete=paquete, carpeta=carpeta))
     return voces
 

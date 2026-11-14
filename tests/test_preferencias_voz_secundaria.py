@@ -23,6 +23,7 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 IGUAL_PRINCIPAL = "Igual que la voz principal"
 IGUAL_RESPALDO = "Igual que el respaldo de la voz principal"
 NOMBRES = {
+    "cho_motor": "Motor de la voz secundaria",
     "cho_voz": "Voz secundaria",
     "sp_velocidad": "Velocidad de la voz secundaria",
     "sp_volumen": "Volumen de la voz secundaria",
@@ -131,15 +132,111 @@ class TestBloqueVozSecundaria(unittest.TestCase):
         parser.read(self.ruta / "config.ini", encoding="utf-8")
         self.assertEqual(parser.get("voz", "voz_secundaria"), "")
 
-    def test_el_respaldo_solo_se_ve_con_elevenlabs(self):
-        con_sapi = self._dialogo({"motor": "sapi"})
+    def test_el_respaldo_secundario_sigue_al_motor_efectivo(self):
+        con_sapi = self._dialogo_por_motor(
+            {"motor": "sapi"}, {"sapi": ["Voz A"]})
         bloque = self._bloque(con_sapi)
         self.assertFalse(bloque.lbl_respaldo.IsShown())
         self.assertFalse(bloque.cho_respaldo.IsShown())
-        con_eleven = self._dialogo({"motor": "elevenlabs"})
-        bloque = self._bloque(con_eleven)
-        self.assertTrue(bloque.lbl_respaldo.IsShown())
-        self.assertTrue(bloque.cho_respaldo.IsShown())
+        con_phonon = self._dialogo_por_motor(
+            {"motor": "phonon"}, {"phonon": ["Phono A"]})
+        self.assertTrue(self._bloque(con_phonon).lbl_respaldo.IsShown())
+        con_eleven = self._dialogo_por_motor(
+            {"motor": "elevenlabs"}, {"elevenlabs": []})
+        self.assertTrue(self._bloque(con_eleven).lbl_respaldo.IsShown())
+        propio = self._dialogo_por_motor(
+            {"motor": "sapi", "motor_secundaria": "phonon"},
+            {"sapi": ["Voz A"], "phonon": ["Phono A"]})
+        self.assertTrue(self._bloque(propio).lbl_respaldo.IsShown())
+
+    def _dialogo_por_motor(self, configuracion, voces_por_motor):
+        with mock.patch.object(
+                motores, "listar_voces",
+                side_effect=lambda motor: list(voces_por_motor.get(motor, []))):
+            dialogo = gui_preferencias.PreferenciasDialog(
+                None, configuracion)
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def test_el_cuadro_de_motor_tiene_las_opciones_locales(self):
+        bloque = self._bloque(self._dialogo())
+        cho = bloque.cho_motor
+        self.assertEqual([cho.GetString(i) for i in range(cho.GetCount())],
+                         [IGUAL_PRINCIPAL, "Windows SAPI 5", "Windows OneCore",
+                          "Phonon, voces locales", "Piper, voces locales"])
+        self.assertEqual(cho.GetName(), "Motor de la voz secundaria")
+
+    def test_cambiar_el_motor_recarga_las_voces_de_ese_motor(self):
+        por_motor = {"sapi": ["Voz A"], "phonon": ["Phono A", "Phono B"]}
+        dialogo = self._dialogo_por_motor(
+            {"motor": "sapi", "motor_secundaria": ""}, por_motor)
+        bloque = self._bloque(dialogo)
+        with mock.patch.object(
+                motores, "listar_voces",
+                side_effect=lambda motor: list(por_motor.get(motor, []))):
+            bloque.cho_motor.SetStringSelection("Phonon, voces locales")
+            bloque._on_motor_cambiado(None)
+        cho = bloque.cho_voz
+        self.assertEqual([cho.GetString(i) for i in range(cho.GetCount())],
+                         [IGUAL_PRINCIPAL, "Phono A", "Phono B"])
+
+    def test_guardar_escribe_motor_secundaria(self):
+        dialogo = self._dialogo_por_motor(
+            {"motor": "sapi", "motor_secundaria": "phonon"},
+            {"sapi": [], "phonon": ["Phono A"]})
+        with mock.patch.object(gui_preferencias._snd, "reproducir"),                 mock.patch.object(preferencias_transmision, "anunciar"),                 mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        self.assertEqual(dialogo._config["motor_secundaria"], "phonon")
+        parser = config._mk_parser()
+        parser.read(self.ruta / "config.ini", encoding="utf-8")
+        self.assertEqual(parser.get("voz", "motor_secundaria"), "phonon")
+
+    def test_guardar_con_igual_escribe_motor_vacio(self):
+        dialogo = self._dialogo_por_motor(
+            {"motor": "sapi", "motor_secundaria": "phonon"},
+            {"sapi": [], "phonon": ["Phono A"]})
+        bloque = self._bloque(dialogo)
+        bloque.cho_motor.SetSelection(0)
+        bloque._on_motor_cambiado(None)
+        with mock.patch.object(gui_preferencias._snd, "reproducir"),                 mock.patch.object(preferencias_transmision, "anunciar"),                 mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        self.assertEqual(dialogo._config["motor_secundaria"], "")
+        parser = config._mk_parser()
+        parser.read(self.ruta / "config.ini", encoding="utf-8")
+        self.assertEqual(parser.get("voz", "motor_secundaria"), "")
+
+    def test_probar_secundaria_usa_el_motor_elegido(self):
+        dialogo = self._dialogo_por_motor(
+            {"motor": "sapi", "motor_secundaria": "phonon"},
+            {"sapi": ["Voz A"], "phonon": ["Phono A", "Phono B"]})
+        pagina = dialogo.pagina_voz
+        bloque = self._bloque(dialogo)
+        bloque.cho_voz.SetSelection(2)
+        bloque.sp_velocidad.SetValue(60)
+        bloque.sp_volumen.SetValue(30)
+        pagina.sp_tono.SetValue(70)
+        pagina._prueba = mock.Mock()
+        pagina._probar_voz_secundaria()
+        pagina._prueba.probar_motor.assert_called_once_with(
+            "phonon", 1, 60, 30, 70)
+
+    def test_sin_voces_en_el_motor_secundario_muestra_el_aviso(self):
+        dialogo = self._dialogo_por_motor(
+            {"motor": "sapi", "motor_secundaria": "phonon"},
+            {"sapi": ["Voz A"], "phonon": []})
+        cho = self._bloque(dialogo).cho_voz
+        self.assertEqual([cho.GetString(i) for i in range(cho.GetCount())],
+                         ["(no hay voces instaladas: usa Administrar voces)"])
+        self.assertFalse(cho.IsEnabled())
+
+    def test_el_orden_de_tab_del_grupo(self):
+        bloque = self._bloque(self._dialogo())
+        padre = bloque.cho_motor.GetParent()
+        hijos = list(padre.GetChildren())
+        orden = [bloque.cho_motor, bloque.cho_voz, bloque.sp_velocidad,
+                 bloque.sp_volumen, bloque.btn_probar, bloque.cho_respaldo]
+        posiciones = [hijos.index(control) for control in orden]
+        self.assertEqual(posiciones, sorted(posiciones))
 
     def test_el_respaldo_empieza_por_igual_y_trae_las_voces_de_windows(self):
         dialogo = self._dialogo()
@@ -219,7 +316,7 @@ class TestBloqueVozSecundaria(unittest.TestCase):
         pagina._prueba = mock.Mock()
         bloque.btn_probar.Command(gui.wx.CommandEvent(
             gui.wx.EVT_BUTTON.typeId, bloque.btn_probar.GetId()))
-        pagina._prueba.probar_prism.assert_called_once_with(
+        pagina._prueba.probar_motor.assert_called_once_with(
             "sapi", 1, 60, 30, 70)
 
     def test_probar_secundaria_en_igual_usa_la_voz_principal(self):
@@ -232,7 +329,7 @@ class TestBloqueVozSecundaria(unittest.TestCase):
         bloque.sp_volumen.SetValue(30)
         pagina._prueba = mock.Mock()
         pagina._probar_voz_secundaria()
-        pagina._prueba.probar_prism.assert_called_once_with(
+        pagina._prueba.probar_motor.assert_called_once_with(
             "sapi", 1, 60, 30, pagina.sp_tono.GetValue())
 
     def test_probar_secundaria_con_eleven_sin_clave_avisa_lo_mismo(self):

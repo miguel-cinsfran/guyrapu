@@ -351,6 +351,60 @@ class TestPaginaObsClips(unittest.TestCase):
         self.assertEqual(memoria["perfil_horizontal"], "")
 
 
+
+class TestPaginaVocesMotor(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ruta = Path(self.tmp.name)
+        (self.ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                              encoding="utf-8")
+        parche = redirigir_rutas(self.ruta)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        sin_clave = mock.patch.object(
+            preferencias_ia_clave.claves, "leer", return_value="")
+        sin_clave.start()
+        self.addCleanup(sin_clave.stop)
+        catalogo_vacio = mock.patch.object(
+            preferencias_ia.catalogo, "cargar",
+            return_value={"version": catalogo.VERSION, "fecha": None,
+                          "proveedores": {}})
+        catalogo_vacio.start()
+        self.addCleanup(catalogo_vacio.stop)
+
+    def _dialogo(self, configuracion=None, voces=()):
+        with mock.patch.object(motores, "listar_voces",
+                               return_value=list(voces)):
+            dialogo = gui_preferencias.PreferenciasDialog(
+                None, configuracion or {})
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def test_con_un_motor_local_se_ve_el_respaldo_y_no_la_clave(self):
+        pagina = self._dialogo({"motor": "phonon"}).pagina_voz
+        self.assertTrue(pagina._eleven.lbl_respaldo.IsShown())
+        self.assertTrue(pagina._eleven.cho_voz_respaldo.IsShown())
+        self.assertFalse(pagina._eleven.txt_clave_eleven.IsShown())
+
+    def test_con_sapi_no_se_ve_ni_el_respaldo_ni_la_clave(self):
+        pagina = self._dialogo({"motor": "sapi"}).pagina_voz
+        self.assertFalse(pagina._eleven.lbl_respaldo.IsShown())
+        self.assertFalse(pagina._eleven.cho_voz_respaldo.IsShown())
+        self.assertFalse(pagina._eleven.txt_clave_eleven.IsShown())
+
+    def test_con_elevenlabs_se_ven_la_clave_y_el_respaldo(self):
+        pagina = self._dialogo({"motor": "elevenlabs"}).pagina_voz
+        self.assertTrue(pagina._eleven.txt_clave_eleven.IsShown())
+        self.assertTrue(pagina._eleven.lbl_respaldo.IsShown())
+
+    def test_una_lista_sin_voces_avisa_donde_administrarlas(self):
+        cho = self._dialogo({"motor": "phonon"}, voces=()).pagina_voz.cho_voz
+        self.assertEqual([cho.GetString(i) for i in range(cho.GetCount())],
+                         ["(no hay voces instaladas: usa Administrar voces)"])
+        self.assertFalse(cho.IsEnabled())
+
 class TestPaginaDescargas(unittest.TestCase):
     def setUp(self):
         self.app = app_de_prueba()

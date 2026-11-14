@@ -23,31 +23,32 @@ VIDA_PRUEBA_VOZ = 30.0
 
 
 class PruebaVoz:
-    """Motor de la prueba de voz, compartido por Prism y ElevenLabs."""
+    """Motor de la prueba de voz, compartido por los motores locales y
+    ElevenLabs."""
 
     def __init__(self):
         self._probando_eleven = False
-        self._corte_prism = None
+        self._corte_motor = None
 
-    def probar_prism(self, motor, indice_voz, velocidad, volumen, tono):
-        self._cortar_prueba_prism()
+    def probar_motor(self, motor, indice_voz, velocidad, volumen, tono):
+        self._cortar_prueba_motor()
         corte = threading.Event()
-        self._corte_prism = corte
+        self._corte_motor = corte
         diagnostico.crear_hilo(
-            lambda: self._sonar_prueba_prism(
+            lambda: self._sonar_prueba_motor(
                 motor, indice_voz, velocidad, volumen, tono, corte),
             "ProbarVoz").start()
 
-    def _sonar_prueba_prism(self, motor, indice_voz, velocidad, volumen, tono,
+    def _sonar_prueba_motor(self, motor, indice_voz, velocidad, volumen, tono,
                             corte) -> None:
         # El motor de la prueba se crea, usa y cierra dentro de su hilo.
-        from guyrapu.voice.proveedores import prism
+        from guyrapu.voice import motores
 
         prueba = None
         try:
-            prueba = prism.MotorPrism(motor)
-        except prism.MotorNoDisponible:
-            self._soltar_prueba_prism(corte)
+            prueba = motores.crear_motor(motor)
+        except motores.MotorNoDisponible:
+            self._soltar_prueba_motor(corte)
             wx.CallAfter(anunciar, _("No se pudo iniciar el motor de voz elegido."))
             return
         try:
@@ -60,22 +61,22 @@ class PruebaVoz:
         except Exception as exc:
             logger.warning("Prueba de voz: %s", exc)
         finally:
-            self._cerrar_prueba_prism(prueba, corte)
+            self._cerrar_prueba_motor(prueba, corte)
 
-    def _cerrar_prueba_prism(self, prueba, corte) -> None:
+    def _cerrar_prueba_motor(self, prueba, corte) -> None:
         try:
             prueba.cerrar()
         except Exception as exc:
             logger.debug("Cerrar motor de prueba: %s", exc)
-        self._soltar_prueba_prism(corte)
+        self._soltar_prueba_motor(corte)
 
-    def _soltar_prueba_prism(self, corte) -> None:
-        if self._corte_prism is corte:
-            self._corte_prism = None
+    def _soltar_prueba_motor(self, corte) -> None:
+        if self._corte_motor is corte:
+            self._corte_motor = None
 
-    def _cortar_prueba_prism(self) -> None:
-        if self._corte_prism is not None:
-            self._corte_prism.set()
+    def _cortar_prueba_motor(self) -> None:
+        if self._corte_motor is not None:
+            self._corte_motor.set()
 
     def probar_elevenlabs(self, clave, voz, velocidad, volumen):
         if self._probando_eleven:
@@ -114,4 +115,4 @@ class PruebaVoz:
         self._probando_eleven = False
 
     def cerrar(self) -> None:
-        self._cortar_prueba_prism()
+        self._cortar_prueba_motor()
