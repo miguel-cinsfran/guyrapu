@@ -55,6 +55,8 @@ _NO_LIBRE = re.compile(r"\b(nc|non[- ]?commercial)\b", re.IGNORECASE)
 _LICENCIA = re.compile(r"^\s*\*\s*License:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 _LIBRES = ("public domain", "cc0", "cc by", "attribution", "apache",
            "unlicense", "licenses/by/", "licenses/by sa/", "publicdomain/")
+_ENTRENAMIENTO = re.compile(r"^##\s+Training\s*$(.*?)(?=^##\s|\Z)", re.M | re.S | re.I)
+_BASE_NO_LIBRE = re.compile(r"fine?[- ]?tuned from [^\n]*(lessac|ryan)", re.I)
 
 
 def token_huggingface() -> str | None:
@@ -161,6 +163,8 @@ def licencia_piper(nombre: str, texto: str) -> str | None:
     """La licencia de un MODEL_CARD si deja repartir la voz, o None."""
     if (nombre or "").strip().lower() == "lessac":
         return None
+    if (nombre or "").strip().lower() == "jenny_dioco":
+        return "See URL"
     encontrado = _LICENCIA.search(texto or "")
     if not encontrado:
         return None
@@ -173,13 +177,31 @@ def licencia_piper(nombre: str, texto: str) -> str | None:
     return licencia if any(clave in bajo for clave in _LIBRES) else None
 
 
+def base_piper(texto: str, aceptadas=()) -> str | None:
+    """Motivo por el que el modelo base no es libre, o None si lo es."""
+    seccion = _ENTRENAMIENTO.search(texto or "")
+    if seccion is None:
+        return "base desconocida"
+    base = seccion.group(1).lower()
+    if no_libre := _BASE_NO_LIBRE.search(base):
+        return "base no libre: " + no_libre.group(1)
+    if any(clave in base for clave in ("scratch", "hifi_tts_92", "rdh", "brycebeattie.com")):
+        return None
+    if any(nombre in base for nombre in aceptadas):
+        return None
+    return "base desconocida"
+
+
+def nombre_piper(nombre: str) -> str:
+    return ("Jenny (Dioco)" if (nombre or "").lower() == "jenny_dioco"
+            else str(nombre).replace("_", " ").title())
+
+
 def _grupos_piper(voices: dict) -> dict:
     grupos = {}
     for entrada in voices.values():
         idioma = entrada.get("language") if isinstance(entrada, dict) else None
-        if not isinstance(idioma, dict):
-            continue
-        if idioma.get("family") not in ("es", "en", "pt"):
+        if not isinstance(idioma, dict) or idioma.get("family") not in ("es", "en", "pt"):
             continue
         clave = (idioma.get("code"), entrada.get("name"))
         actual = grupos.get(clave)
@@ -209,27 +231,27 @@ def _paquete(identificador, proveedor, nombre, idioma, licencia, origen,
 
 
 def _paquete_piper(clave, entrada, metadatos, repo, revision,
-                   descartes) -> dict | None:
+                   descartes, aceptadas) -> dict | None:
     code, nombre = clave
     tarjeta = next((ruta for ruta in entrada.get("files") or {}
                     if ruta.endswith("MODEL_CARD")), None)
-    if tarjeta is None:
-        descartes.append((clave, "sin MODEL_CARD"))
-        return None
-    texto = pedir_texto(url_origen(repo, revision, tarjeta))
+    texto = (pedir_texto(url_origen(repo, revision, tarjeta))
+             if tarjeta else None)
     if (nombre or "").strip().lower() == "lessac":
         descartes.append((clave, "lessac"))
         return None
     licencia = licencia_piper(nombre, texto)
-    if licencia is None:
-        descartes.append((clave, "licencia no permitida"))
+    motivo = ("licencia no permitida" if licencia is None
+              else base_piper(texto, aceptadas))
+    if motivo is not None:
+        descartes.append((clave, motivo))
         return None
     pares = sorted(((ruta, Path(ruta).name)
                     for ruta in entrada.get("files") or {}
                     if ruta.endswith(".onnx") or ruta.endswith(".onnx.json")),
                    key=lambda par: par[1])
     archivos = [preparar_archivo(repo, revision, ruta, metadatos[ruta],
-                                 CACHE, SUBRIR) for ruta, _ in pares]
+                                 CACHE, SUBIR) for ruta, _ in pares]
     calidad = entrada.get("quality")
     familia = str(code or "").split("_")[0]
     muestra = ("https://rhasspy.github.io/piper-samples/samples/"
@@ -238,10 +260,10 @@ def _paquete_piper(clave, entrada, metadatos, repo, revision,
                    f"{code}-{nombre}-{calidad}".lower())
     return _paquete(
         "piper-" + re.sub(r"-+", "-", crudo).strip("-"), "piper",
-        f"Piper {str(nombre).replace('_', ' ').title()}",
+        f"Piper {nombre_piper(nombre)}",
         str(code or "").replace("_", "-"), licencia,
         f"Piper, {repo}, {entrada.get('key')}", repo,
-        [{"nombre": str(nombre).replace("_", " ").title(),
+        [{"nombre": nombre_piper(nombre),
           "idioma": str(code or "").replace("_", "-"), "genero": None,
           "muestra": muestra, "archivo": pares[0][1]}],
         archivos)
@@ -253,32 +275,28 @@ def paquetes_piper(token, descartes) -> list[dict]:
         voices = json.load(respuesta)
     metadatos = _arbol(repo, revision, token)
     entradas = []
+    aceptadas = set()
     for clave, entrada in sorted(_grupos_piper(voices).items()):
         paquete = _paquete_piper(clave, entrada, metadatos, repo, revision,
-                                 descartes)
+                                 descartes, aceptadas)
         if paquete is not None:
+            aceptadas.add(str(clave[1]).lower())
             entradas.append({"paquete": paquete, "repo": repo,
                              "revision": revision})
     return entradas
 
 
 def _muestras(arbol: dict) -> dict:
-    mejores = {}
-    for ruta in arbol:
-        if not ruta.endswith(".ogg"):
-            continue
-        voice_id = ruta.rsplit("/", 1)[0].rsplit("_", 1)[-1]
-        if voice_id not in mejores or ruta < mejores[voice_id]:
-            mejores[voice_id] = ruta
-    return mejores
+    rutas = sorted((ruta for ruta in arbol if ruta.endswith(".ogg")),
+                   reverse=True)
+    return {ruta.rsplit("/", 1)[0].rsplit("_", 1)[-1]: ruta for ruta in rutas}
 
 
 def _paquete_phonon(idioma, datos, voces, metadatos_modelo,
                     metadatos_voces, muestras) -> dict:
     repo, revision, idioma_app, licencia, nombre = datos
-    voces_repo, voces_revision = VOCES_PHONON
     archivos = [preparar_archivo(
-        repo, revision, ruta, metadatos_modelo[ruta], CACHE, SUBRIR,
+        repo, revision, ruta, metadatos_modelo[ruta], CACHE, SUBIR,
         nombre=f"phonon-{idioma}-{Path(ruta).name}")
         for ruta in ARCHIVOS_MODELO]
     voces_paquete = []
@@ -375,6 +393,8 @@ def main(argv) -> int:
         print(f"No se pudo armar el catálogo: {error}", file=sys.stderr)
         return 1
     escribir_catalogo(argv[0], entradas)
+    for (code, nombre), motivo in descartes:
+        print(f"Descartada {code} {nombre}: {motivo}")
     return 0
 
 

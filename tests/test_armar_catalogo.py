@@ -113,6 +113,71 @@ class TestPrepararArchivo(unittest.TestCase):
                       (salida / "catalogo.json").read_text(encoding="utf-8"))
 
 
+class TestAbrir(unittest.TestCase):
+
+    def test_solo_manda_el_token_a_huggingface(self):
+        casos = (
+            ("https://github.com/miguel-cinsfran/guyrapu-contenido", None),
+            ("https://rhasspy.github.io/piper-samples/x.mp3", None),
+            ("https://huggingface.co.otro.com/modelo", None),
+            ("https://huggingface.co/gradium/modelo", "Bearer " + TOKEN),
+        )
+        with mock.patch.object(armar_catalogo.urllib.request,
+                               "urlopen") as abrir:
+            for url, esperado in casos:
+                with self.subTest(url=url):
+                    abrir.reset_mock()
+                    armar_catalogo._abrir(url, token=TOKEN)
+                    peticion = abrir.call_args[0][0]
+                    self.assertEqual(peticion.get_header("Authorization"),
+                                     esperado)
+
+
+class TestBasePiper(unittest.TestCase):
+
+    def _base(self, cuerpo, aceptadas=()):
+        return armar_catalogo.base_piper("## Training\n" + cuerpo + "\n",
+                                         aceptadas)
+
+    def test_acepta_las_bases_libres(self):
+        for cuerpo in (
+                "Trained from scratch on train-clean-360.",
+                "Finetuned from the U.S. English hifi_tts_92 base model.",
+                "Finetuned from the rdh base model (medium quality).",
+                "See: https://brycebeattie.com/files/tts/"):
+            with self.subTest(cuerpo=cuerpo):
+                self.assertIsNone(self._base(cuerpo))
+        self.assertIsNone(self._base(
+            "Finetuned from Spanish davefx voice (medium quality).",
+            {"davefx"}))
+        self.assertEqual(self._base("Finetuned from otra voz voice."),
+                         "base desconocida")
+
+    def test_deja_fuera_lessac_y_ryan(self):
+        casos = (
+            ("Finetuned from U.S. English lessac voice (medium quality).",
+             "base no libre: lessac"),
+            ("Fine-tuned from English lessac medium on train-clean-360.",
+             "base no libre: lessac"),
+            ("Finetuned from U.S. English Ryan voice (low quality).",
+             "base no libre: ryan"),
+        )
+        for cuerpo, motivo in casos:
+            with self.subTest(cuerpo=cuerpo):
+                self.assertEqual(self._base(cuerpo), motivo)
+
+    def test_base_desconocida(self):
+        self.assertEqual(self._base("See URL above"), "base desconocida")
+        self.assertEqual(armar_catalogo.base_piper("sin seccion"),
+                         "base desconocida")
+        self.assertEqual(armar_catalogo.base_piper(None), "base desconocida")
+
+    def test_el_nombre_de_jenny_es_el_pedido(self):
+        self.assertEqual(armar_catalogo.nombre_piper("jenny_dioco"),
+                         "Jenny (Dioco)")
+        self.assertEqual(armar_catalogo.nombre_piper("davefx"), "Davefx")
+
+
 class TestLicenciaPiper(unittest.TestCase):
 
     def test_acepta_las_que_se_pueden_repartir(self):
@@ -126,6 +191,11 @@ class TestLicenciaPiper(unittest.TestCase):
             with self.subTest(licencia=licencia):
                 self.assertIsNotNone(
                     armar_catalogo.licencia_piper("daniela", _tarjeta(licencia)))
+
+    def test_jenny_dioco_entra_aunque_diga_see_url(self):
+        self.assertEqual(
+            armar_catalogo.licencia_piper("jenny_dioco", _tarjeta("See URL")),
+            "See URL")
 
     def test_deja_fuera_nc_see_url_y_lessac(self):
         for licencia in ("CC BY-NC 4.0", "CC BY-NC-SA 4.0",
