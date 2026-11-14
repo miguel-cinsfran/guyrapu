@@ -35,6 +35,8 @@ ATAJOS_PREDETERMINADOS = [
     ("velocidad_mas", "f10"),
     ("volumen_menos", "f11"),
     ("volumen_mas", "f12"),
+    ("tono_menos", "ctrl+f9"),
+    ("tono_mas", "ctrl+f10"),
     ("silenciar_lectura", "f4"),
     ("silenciar_sonidos", "f7"),
     ("anunciar_estado", "f2"),

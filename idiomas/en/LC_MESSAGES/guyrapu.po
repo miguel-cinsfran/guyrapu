@@ -1898,6 +1898,11 @@ msgstr "Voice speed: {valor}"
 msgid "Volumen de la voz: {valor}%"
 msgstr "Voice volume: {valor}%"
 
+#: guyrapu/core/anuncio_ajuste.py
+#, python-brace-format
+msgid "Tono de la voz: {valor}"
+msgstr "Voice pitch: {valor}"
+
 #: guyrapu/core/atajos.py
 msgid "Reproductor (Ctrl)"
 msgstr "Player (Ctrl)"
@@ -6708,6 +6713,11 @@ msgstr "It is at the {lugar}, in front of the other sources."
 msgid "Para moverla, usa Posición y tamaño, en la pestaña Escena del Panel de OBS."
 msgstr "To move it, use Position and size, on the Scene tab of the OBS panel."
 
+#: guyrapu/ui/ajuste_tono.py
+#, python-brace-format
+msgid "{motor} no permite cambiar el tono."
+msgstr "{motor} can't change the pitch."
+
 #: guyrapu/ui/atajos_captura.py
 msgid "Debe ser Ctrl y una tecla (por ejemplo Ctrl+P)."
 msgstr "It must be Ctrl and a key (for example Ctrl+P)."
@@ -6856,6 +6866,14 @@ msgstr "Lower voice volume"
 #: guyrapu/ui/atajos_captura.py
 msgid "Subir volumen de la voz"
 msgstr "Raise voice volume"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Bajar tono de la voz"
+msgstr "Lower voice pitch"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Subir tono de la voz"
+msgstr "Raise voice pitch"
 
 #: guyrapu/ui/atajos_captura.py
 msgid "Silenciar lectura"
@@ -10441,6 +10459,14 @@ msgid "&Subir volumen de la voz"
 msgstr "Raise voice volu&me"
 
 #: guyrapu/ui/gui_menu.py
+msgid "Bajar &tono de la voz"
+msgstr "Lower voice pi&tch"
+
+#: guyrapu/ui/gui_menu.py
+msgid "S&ubir tono de la voz"
+msgstr "Raise voice pitc&h"
+
+#: guyrapu/ui/gui_menu.py
 msgid "S&ilenciar lectura"
 msgstr "Mute &reading"
 
@@ -13616,6 +13642,11 @@ msgstr ""
 msgid "{detalle} Se usa la voz de Windows."
 msgstr "{detalle} The Windows voice is used."
 
+#: guyrapu/voice/caida_motor.py
+#, python-brace-format
+msgid "{nombre} no responde: se usa la voz de Windows."
+msgstr "{nombre} is not responding: the Windows voice is used."
+
 #: guyrapu/voice/elevenlabs.py
 msgid "ElevenLabs no reconoce la clave."
 msgstr "ElevenLabs does not recognize the key."
@@ -13735,6 +13766,11 @@ msgstr "Could not import Prism for the {nombre} engine: {detalle}"
 #, python-brace-format
 msgid "No se pudo iniciar el motor {nombre}: {detalle}"
 msgstr "Could not start the {nombre} engine: {detalle}"
+
+#: guyrapu/voice/voz_secundaria.py
+#, python-brace-format
+msgid "{nombre} no está disponible: la voz secundaria usa la voz de Windows."
+msgstr "{nombre} is not available: the secondary voice uses the Windows voice."
 
 #. Traductores: privacidad del directo; una sola palabra.
 #: guyrapu/youtube/emision.py
@@ -13924,14 +13960,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/voice/caida_motor.py
-#, python-brace-format
-msgid "{nombre} no responde: se usa la voz de Windows."
-msgstr "{nombre} is not responding: the Windows voice is used."
-
-#: guyrapu/voice/voz_secundaria.py
-#, python-brace-format
-msgid "{nombre} no está disponible: la voz secundaria usa la voz de Windows."
-msgstr "{nombre} is not available: the secondary voice uses the Windows voice."
 

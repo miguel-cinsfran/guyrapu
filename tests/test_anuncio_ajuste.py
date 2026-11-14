@@ -127,5 +127,26 @@ class TestAnuncioVolumen(unittest.TestCase):
             self.assertEqual(anuncio_ajuste.anuncio_volumen(50), "50%")
 
 
+class TestAnuncioTono(unittest.TestCase):
+
+    def test_en_el_maximo_dice_maximo_completo_y_corto(self):
+        with mock.patch.object(anuncio_ajuste, "COMPARTIDO", AnuncioAjuste()):
+            self.assertEqual(anuncio_ajuste.anuncio_tono(100),
+                             "Tono de la voz: 100, máximo")
+            self.assertEqual(anuncio_ajuste.anuncio_tono(100), "100, máximo")
+
+    def test_en_el_minimo_dice_minimo_completo_y_corto(self):
+        with mock.patch.object(anuncio_ajuste, "COMPARTIDO", AnuncioAjuste()):
+            self.assertEqual(anuncio_ajuste.anuncio_tono(0),
+                             "Tono de la voz: 0, mínimo")
+            self.assertEqual(anuncio_ajuste.anuncio_tono(0), "0, mínimo")
+
+    def test_fuera_del_tope_no_cambia(self):
+        with mock.patch.object(anuncio_ajuste, "COMPARTIDO", AnuncioAjuste()):
+            self.assertEqual(anuncio_ajuste.anuncio_tono(50),
+                             "Tono de la voz: 50")
+            self.assertEqual(anuncio_ajuste.anuncio_tono(50), "50")
+
+
 if __name__ == "__main__":
     unittest.main()

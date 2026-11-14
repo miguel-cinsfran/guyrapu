@@ -425,6 +425,26 @@ class TestParsearAtajos(unittest.TestCase):
         self.assertIsNone(_AREA_POR_GRUPO[7])
         self.assertEqual(len(titulos), len(_AREA_POR_GRUPO))
 
+    def test_tono_es_editable_en_el_grupo_de_voz_y_no_choca(self):
+        acciones = dict(ATAJOS_GRUPOS)["Voz y lectura (teclas F)"]
+        indice = acciones.index("volumen_mas")
+        self.assertEqual(acciones[indice + 1:indice + 3],
+                         ["tono_menos", "tono_mas"])
+        for accion, tecla in (("tono_menos", "ctrl+f9"),
+                              ("tono_mas", "ctrl+f10")):
+            with self.subTest(accion=accion):
+                self.assertEqual(ATAJOS_DEFAULTS[accion], tecla)
+                self.assertEqual(ATAJOS_AREA[accion], "f")
+                self.assertNotIn(accion, ATAJOS_FIJOS)
+                self.assertTrue(atajo_valido_para_area(accion, tecla))
+        self.assertEqual(detectar_conflictos_atajos({}), [])
+        todos = todos_los_atajos_default()
+        for tecla in ("ctrl+f9", "ctrl+f10"):
+            with self.subTest(tecla=tecla):
+                usan = [accion for accion, valor in todos.items()
+                        if _normalizar_atajo(valor) == tecla]
+                self.assertEqual(len(usan), 1)
+
     def test_las_acciones_de_musica_solo_aceptan_ctrl_alt(self):
         acciones = dict(ATAJOS_GRUPOS)["Música (Ctrl+Alt)"]
         self.assertEqual(len(acciones), 12)

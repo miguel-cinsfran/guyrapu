@@ -22,6 +22,7 @@ from guyrapu.core.config import (
     TIPO_MIEMBRO, TIPO_SUPERCHAT, TIPO_TEXTO, URL_REPOSITORIO)
 from guyrapu.core.idioma import _, N_, idioma_actual
 from guyrapu.core import paths
+from guyrapu.ui import ajuste_tono
 from guyrapu.ui import confirmar
 from guyrapu.ui import menu_obs
 from guyrapu.ui import menu_transmision
@@ -87,10 +88,7 @@ def construir_menu(frame):
     # que pausar/detener/vaciar. Los ajustes de voz de abajo sí quedan libres.
     frame._mi_voz_conexion = [frame.mi_pausa, mi_det, mi_vac]
     m.AppendSeparator()
-    mi_vmenos = m.Append(wx.ID_ANY, _("Bajar ve&locidad de la voz") + frame._accel("velocidad_menos"))
-    mi_vmas   = m.Append(wx.ID_ANY, _("Subi&r velocidad de la voz") + frame._accel("velocidad_mas"))
-    mi_volm   = m.Append(wx.ID_ANY, _("&Bajar volumen de la voz") + frame._accel("volumen_menos"))
-    mi_volM   = m.Append(wx.ID_ANY, _("&Subir volumen de la voz") + frame._accel("volumen_mas"))
+    _agregar_ajustes_de_voz(frame, m)
     m.AppendSeparator()
     frame.mi_sil_lectura = m.AppendCheckItem(
         wx.ID_ANY, _("S&ilenciar lectura") + frame._accel("silenciar_lectura"))
@@ -103,10 +101,6 @@ def construir_menu(frame):
     frame._bind_menu(frame.mi_pausa, frame._on_pausa, None)
     frame._bind_menu(mi_det, frame._on_detener_tts, None)
     frame._bind_menu(mi_vac, frame._on_vaciar, None)
-    frame._bind_menu(mi_vmenos, frame._ajustar_rate, -1)
-    frame._bind_menu(mi_vmas, frame._ajustar_rate, +1)
-    frame._bind_menu(mi_volm, frame._ajustar_volume, -5)
-    frame._bind_menu(mi_volM, frame._ajustar_volume, +5)
     frame._bind_menu(frame.mi_sil_lectura, frame._toggle_silenciar_lectura)
     frame._bind_menu(frame.mi_sil_sonidos, frame._toggle_silenciar_sonidos)
 
@@ -186,6 +180,22 @@ def construir_menu(frame):
         except Exception as error: logger.debug("no se pudo destruir el menú anterior: %s", error)
     frame._sincronizar_pausa()
     _registrar_menus(frame)
+
+
+def _agregar_ajustes_de_voz(frame, menu):
+    """Ajustes de velocidad, volumen y tono, cada uno con sus dos teclas."""
+    mi_vmenos = menu.Append(wx.ID_ANY, _("Bajar ve&locidad de la voz") + frame._accel("velocidad_menos"))
+    mi_vmas   = menu.Append(wx.ID_ANY, _("Subi&r velocidad de la voz") + frame._accel("velocidad_mas"))
+    mi_volm   = menu.Append(wx.ID_ANY, _("&Bajar volumen de la voz") + frame._accel("volumen_menos"))
+    mi_volM   = menu.Append(wx.ID_ANY, _("&Subir volumen de la voz") + frame._accel("volumen_mas"))
+    mi_tonom  = menu.Append(wx.ID_ANY, _("Bajar &tono de la voz") + frame._accel("tono_menos"))
+    mi_tonoM  = menu.Append(wx.ID_ANY, _("S&ubir tono de la voz") + frame._accel("tono_mas"))
+    frame._bind_menu(mi_vmenos, frame._ajustar_rate, -1)
+    frame._bind_menu(mi_vmas, frame._ajustar_rate, +1)
+    frame._bind_menu(mi_volm, frame._ajustar_volume, -5)
+    frame._bind_menu(mi_volM, frame._ajustar_volume, +5)
+    frame._bind_menu(mi_tonom, ajuste_tono.ajustar_tono, frame, -5)
+    frame._bind_menu(mi_tonoM, ajuste_tono.ajustar_tono, frame, +5)
 
 
 def _publicar_menu_voz(frame, menu, barra):

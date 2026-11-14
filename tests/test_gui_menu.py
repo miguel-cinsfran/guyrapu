@@ -148,6 +148,8 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("Vo&z", "Subi&r velocidad de la voz", ANY, "normal"),
             ("Vo&z", "&Bajar volumen de la voz", ANY, "normal"),
             ("Vo&z", "&Subir volumen de la voz", ANY, "normal"),
+            ("Vo&z", "Bajar &tono de la voz", ANY, "normal"),
+            ("Vo&z", "S&ubir tono de la voz", ANY, "normal"),
             ("Vo&z", "---", None, "sep"),
             ("Vo&z", "S&ilenciar lectura", ANY, "check"),
             ("Vo&z", "Silenciar s&onidos", ANY, "check"),
@@ -686,6 +688,24 @@ class TestMenuAdministrarVoces(unittest.TestCase):
         with mock.patch.object(voces_ventana, "abrir") as abrir:
             manejador(None)
         abrir.assert_called_once_with(frame)
+
+
+class TestMenuTono(unittest.TestCase):
+    """El tono de la voz se ajusta desde el menú Voz con su atajo."""
+
+    def test_bajar_y_subir_tono_van_despues_del_volumen_con_su_atajo(self):
+        etiquetas = [fila[1] for fila in _entradas_de("Vo&z")]
+        indice = etiquetas.index("&Subir volumen de la voz\tF12")
+        self.assertEqual(etiquetas[indice + 1:indice + 3], [
+            "Bajar &tono de la voz\tCtrl+F9",
+            "S&ubir tono de la voz\tCtrl+F10",
+        ])
+
+    def test_la_letra_no_se_repite_en_el_menu(self):
+        letras = [texto[texto.index("&") + 1].lower()
+                  for _menu, texto, _dato, _tipo in _entradas_de("Vo&z")
+                  if texto != "---" and "&" in texto]
+        self.assertEqual(len(letras), len(set(letras)))
 
 
 class TestMenuTransmision(unittest.TestCase):

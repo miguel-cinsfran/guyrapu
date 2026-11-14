@@ -88,6 +88,8 @@ ETIQUETAS = {
     "velocidad_mas": N_("Subir velocidad de la voz"),
     "volumen_menos": N_("Bajar volumen de la voz"),
     "volumen_mas": N_("Subir volumen de la voz"),
+    "tono_menos": N_("Bajar tono de la voz"),
+    "tono_mas": N_("Subir tono de la voz"),
     "silenciar_lectura": N_("Silenciar lectura"),
     "silenciar_sonidos": N_("Silenciar sonidos"), "anunciar_estado": N_("Anunciar estado"),
     "anunciar_autor": N_("Anunciar autor del último mensaje"),

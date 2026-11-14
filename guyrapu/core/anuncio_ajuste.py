@@ -23,6 +23,7 @@ from guyrapu.voice import escala_voz
 # Controles para AnuncioAjuste.COMPARTIDO, compartidos con el reproductor.
 _CONTROL_VELOCIDAD = "velocidad_voz"
 _CONTROL_VOLUMEN = "volumen_voz"
+_CONTROL_TONO = "tono_voz"
 
 
 def con_limite(texto: str, valor: int, minimo: int, maximo: int) -> str:
@@ -83,3 +84,10 @@ def anuncio_volumen(v: int) -> str:
     completa = _("Volumen de la voz: {valor}%").format(valor=v)
     dicha = COMPARTIDO.frase(_CONTROL_VOLUMEN, completa, f"{v}%")
     return con_limite(dicha, v, 0, 100)
+
+
+def anuncio_tono(pct: int) -> str:
+    """Frase para anunciar el tono, con el tope si quedó en un extremo."""
+    completa = _("Tono de la voz: {valor}").format(valor=pct)
+    dicha = COMPARTIDO.frase(_CONTROL_TONO, completa, f"{pct}")
+    return con_limite(dicha, pct, 0, 100)
