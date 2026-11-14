@@ -27,9 +27,9 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_siete_reglas_estan_en_la_tabla(self):
+    def test_las_ocho_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
-                         ["R1", "R2", "R3", "R4", "R5", "R6", "R7"])
+                         ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -156,6 +156,20 @@ class TestDetectores(unittest.TestCase):
             boton.Enable(False, False)
             """)
         self.assertEqual([1, 3, 4, 9], _lineas(hallazgos))
+
+    def test_bibliotecas_voz(self):
+        hallazgos = _hallazgos(detectores.detectar_bibliotecas_voz, """\
+            import prism
+            import piper.dsp
+            from ptts import voz
+            from onnxruntime import sesion
+            import sounddevice as sd
+
+            import numpy
+            # import prism
+            texto = "import piper"
+            """)
+        self.assertEqual([1, 2, 3, 4, 5], _lineas(hallazgos))
 
     def test_esperas(self):
         hallazgos = _hallazgos(detectores.detectar_esperas, """\

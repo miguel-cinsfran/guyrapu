@@ -23,7 +23,7 @@ def _wxpython():
 def _prism():
     import prism
     prism.Context()
-    from guyrapu.voice.motores import MotorPrism
+    from guyrapu.voice.proveedores.prism import MotorPrism
     motor = MotorPrism("sapi")
     cerrar = getattr(motor, "cerrar", None)
     if cerrar is not None:

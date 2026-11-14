@@ -25,7 +25,7 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.voice import escala_voz
 from guyrapu.voice import elevenlabs
-from guyrapu.voice.motores import MotorNoDisponible
+from guyrapu.voice.proveedores.base import MotorNoDisponible
 
 logger = diagnostico.obtener_logger(__name__)
 

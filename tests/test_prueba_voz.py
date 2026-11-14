@@ -11,6 +11,7 @@ from guyrapu.ui import prueba_voz
 from guyrapu.voice import escala_voz
 from guyrapu.voice import motor_elevenlabs
 from guyrapu.voice import motores
+from guyrapu.voice.proveedores import prism
 
 
 class _HiloInmediato:
@@ -109,7 +110,7 @@ class _MotorElevenFalso:
 class TestProbarPrism(unittest.TestCase):
 
     def test_no_crea_el_motor_antes_de_que_corra_el_hilo(self):
-        with mock.patch.object(motores, "MotorPrism") as crear, \
+        with mock.patch.object(prism, "MotorPrism") as crear, \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
                     return_value=_HiloQuieto()) as crear_hilo:
@@ -126,7 +127,7 @@ class TestProbarPrism(unittest.TestCase):
 
     def test_el_hilo_configura_habla_y_cierra_el_motor(self):
         motor = _MotorWindowsFalso()
-        with mock.patch.object(motores, "MotorPrism", return_value=motor), \
+        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
                     side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
@@ -147,7 +148,7 @@ class TestProbarPrism(unittest.TestCase):
     def test_no_cierra_el_motor_mientras_no_se_ponga_el_corte(self):
         motor = _MotorWindowsFalso(hablando=False)
         hilos = []
-        with mock.patch.object(motores, "MotorPrism", return_value=motor), \
+        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
                 self._prueba_lanzada(motor, hilos):
             prueba = prueba_voz.PruebaVoz()
             prueba.probar_prism("sapi", 0, 50, 50, 50)
@@ -161,7 +162,7 @@ class TestProbarPrism(unittest.TestCase):
     def test_una_segunda_prueba_cierra_la_primera(self):
         motor = _MotorWindowsFalso(hablando=False)
         hilos = []
-        with mock.patch.object(motores, "MotorPrism", return_value=motor), \
+        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
                 self._prueba_lanzada(motor, hilos):
             prueba = prueba_voz.PruebaVoz()
             prueba.probar_prism("sapi", 0, 50, 50, 50)
@@ -176,7 +177,7 @@ class TestProbarPrism(unittest.TestCase):
     def test_cerrar_cierra_el_motor(self):
         motor = _MotorWindowsFalso(hablando=False)
         hilos = []
-        with mock.patch.object(motores, "MotorPrism", return_value=motor), \
+        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
                 self._prueba_lanzada(motor, hilos):
             prueba = prueba_voz.PruebaVoz()
             prueba.probar_prism("sapi", 0, 50, 50, 50)
@@ -187,7 +188,7 @@ class TestProbarPrism(unittest.TestCase):
 
     def test_se_cierra_al_vencer_la_vida_de_la_prueba(self):
         motor = _MotorWindowsFalso(hablando=False)
-        with mock.patch.object(motores, "MotorPrism", return_value=motor), \
+        with mock.patch.object(prism, "MotorPrism", return_value=motor), \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
                     side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
@@ -200,7 +201,7 @@ class TestProbarPrism(unittest.TestCase):
 
     def test_motor_no_disponible_anuncia_con_call_after(self):
         with mock.patch.object(
-                motores, "MotorPrism",
+                prism, "MotorPrism",
                 side_effect=motores.MotorNoDisponible("no")), \
                 mock.patch.object(
                     prueba_voz.diagnostico, "crear_hilo",
@@ -275,7 +276,7 @@ class TestPseudoTextos(unittest.TestCase):
     def test_prism_habla_y_anuncia_marcado(self):
         motor = _MotorWindowsFalso()
         with con_pseudo():
-            with mock.patch.object(motores, "MotorPrism", return_value=motor), \
+            with mock.patch.object(prism, "MotorPrism", return_value=motor), \
                     mock.patch.object(
                         prueba_voz.diagnostico, "crear_hilo",
                         side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
@@ -287,7 +288,7 @@ class TestPseudoTextos(unittest.TestCase):
     def test_prism_sin_motor_anuncia_marcado(self):
         with con_pseudo():
             with mock.patch.object(
-                    motores, "MotorPrism",
+                    prism, "MotorPrism",
                     side_effect=motores.MotorNoDisponible("no")), \
                     mock.patch.object(
                         prueba_voz.diagnostico, "crear_hilo",

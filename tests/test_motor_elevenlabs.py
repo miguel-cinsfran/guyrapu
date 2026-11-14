@@ -14,7 +14,7 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import _
 from guyrapu.voice import elevenlabs
 from guyrapu.voice.motor_elevenlabs import MotorElevenLabs
-from guyrapu.voice.motores import MotorNoDisponible
+from guyrapu.voice.proveedores.base import MotorNoDisponible
 from tests.rutas_temporales import redirigir_rutas
 
 

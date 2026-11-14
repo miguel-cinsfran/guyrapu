@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Tests del envoltorio de Prism (motores.MotorPrism)."""
+"""Tests del motor de Prism y de la fachada de motores."""
 
 import time
 import unittest
@@ -13,8 +13,9 @@ from tests.pseudo_prueba import con_pseudo
 from guyrapu.core.idioma import _
 from guyrapu.voice import escala_voz
 from guyrapu.voice.motores import (
-    NOMBRES, MotorNoDisponible, MotorPrism, crear_motor, listar_voces,
+    NOMBRES, MotorNoDisponible, crear_motor, listar_voces,
 )
+from guyrapu.voice.proveedores.prism import MotorPrism
 
 
 class _BackendFalso:
@@ -240,8 +241,12 @@ class TestPseudoTextos(unittest.TestCase):
 
 class TestCrearMotor(unittest.TestCase):
 
+    def test_desconocido_lanza_no_disponible(self):
+        with self.assertRaises(MotorNoDisponible):
+            crear_motor("inexistente")
+
     def test_sapi_devuelve_motor_prism(self):
-        with mock.patch("guyrapu.voice.motores.MotorPrism") as prism:
+        with mock.patch("guyrapu.voice.proveedores.prism.MotorPrism") as prism:
             crear_motor("sapi")
         prism.assert_called_once_with("sapi")
 
@@ -274,7 +279,7 @@ class TestListarVocesElevenlabs(unittest.TestCase):
     def test_devuelve_los_nombres_y_cierra_el_motor(self):
         motor = mock.Mock()
         motor.voces.return_value = ["Voz A", "Voz B"]
-        with mock.patch("guyrapu.voice.motores.crear_motor",
+        with mock.patch("guyrapu.voice.proveedores.elevenlabs.crear",
                         return_value=motor):
             self.assertEqual(listar_voces("elevenlabs"), ["Voz A", "Voz B"])
         motor.cerrar.assert_called_once()

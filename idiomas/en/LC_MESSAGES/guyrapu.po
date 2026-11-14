@@ -13340,29 +13340,37 @@ msgstr "The ElevenLabs key is missing."
 msgid "ElevenLabs no devolvió ninguna voz."
 msgstr "ElevenLabs returned no voices."
 
-#: guyrapu/voice/motores.py
-msgid "Windows SAPI 5"
-msgstr "Windows SAPI 5"
+#: guyrapu/voice/proveedores/elevenlabs.py
+msgid "Servicio en la nube, según tu cuenta de ElevenLabs"
+msgstr "Cloud service, according to your ElevenLabs account"
 
-#: guyrapu/voice/motores.py
-msgid "Windows OneCore"
-msgstr "Windows OneCore"
-
-#: guyrapu/voice/motores.py
+#: guyrapu/voice/proveedores/elevenlabs.py
 msgid "ElevenLabs, en la nube"
 msgstr "ElevenLabs, in the cloud"
 
-#: guyrapu/voice/motores.py
+#: guyrapu/voice/proveedores/prism.py
+msgid "Windows SAPI 5"
+msgstr "Windows SAPI 5"
+
+#: guyrapu/voice/proveedores/prism.py
+msgid "Windows OneCore"
+msgstr "Windows OneCore"
+
+#: guyrapu/voice/proveedores/prism.py
+msgid "Voz de Windows"
+msgstr "Windows voice"
+
+#: guyrapu/voice/proveedores/prism.py
 #, python-brace-format
 msgid "Motor de voz desconocido: {motor} (válidos: {validos})"
 msgstr "Unknown voice engine: {motor} (valid: {validos})"
 
-#: guyrapu/voice/motores.py
+#: guyrapu/voice/proveedores/prism.py
 #, python-brace-format
 msgid "No se pudo importar Prism para el motor {nombre}: {detalle}"
 msgstr "Could not import Prism for the {nombre} engine: {detalle}"
 
-#: guyrapu/voice/motores.py
+#: guyrapu/voice/proveedores/prism.py
 #, python-brace-format
 msgid "No se pudo iniciar el motor {nombre}: {detalle}"
 msgstr "Could not start the {nombre} engine: {detalle}"

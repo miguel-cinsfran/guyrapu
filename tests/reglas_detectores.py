@@ -212,6 +212,27 @@ def detectar_esperas(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+BIBLIOTECAS_VOZ = frozenset(
+    ("prism", "ptts", "piper", "onnxruntime", "sounddevice"))
+
+
+def _es_biblioteca_de_voz(nombre: str) -> bool:
+    return nombre.split(".")[0] in BIBLIOTECAS_VOZ
+
+
+def detectar_bibliotecas_voz(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, ast.Import):
+            hallazgos.extend(Hallazgo(archivo, nodo.lineno)
+                             for alias in nodo.names
+                             if _es_biblioteca_de_voz(alias.name))
+        elif (isinstance(nodo, ast.ImportFrom) and nodo.level == 0
+                and _es_biblioteca_de_voz(nodo.module or "")):
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
 def _todo(archivo: str) -> bool:
     return True
 

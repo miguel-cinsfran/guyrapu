@@ -41,12 +41,12 @@ class PruebaVoz:
     def _sonar_prueba_prism(self, motor, indice_voz, velocidad, volumen, tono,
                             corte) -> None:
         # El motor de la prueba se crea, usa y cierra dentro de su hilo.
-        from guyrapu.voice import motores
+        from guyrapu.voice.proveedores import prism
 
         prueba = None
         try:
-            prueba = motores.MotorPrism(motor)
-        except motores.MotorNoDisponible:
+            prueba = prism.MotorPrism(motor)
+        except prism.MotorNoDisponible:
             self._soltar_prueba_prism(corte)
             wx.CallAfter(anunciar, _("No se pudo iniciar el motor de voz elegido."))
             return
