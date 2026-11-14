@@ -12,10 +12,10 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.youtube import credenciales
-from guyrapu.ui import clave_elevenlabs
 from guyrapu.ui import voces_ventana
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc, anunciar
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
+from guyrapu.ui.preferencias_voz_eleven import BloqueElevenLabs
 from guyrapu.ui.preferencias_voz_secundaria import BloqueVozSecundaria
 from guyrapu.ui.prueba_voz import PruebaVoz
 
@@ -42,14 +42,23 @@ class PaginaVoz:
         es_eleven = motores.MOTORES[self._motor_idx] == "elevenlabs"
 
         self._crear_motor(p, vs)
-        lbl_clave = self._crear_clave(p, vs)
+        self._eleven = BloqueElevenLabs(
+            self._ventana, self._config, credenciales,
+            lambda texto: anunciar(texto),
+            self._al_cambiar_voces_eleven)
+        self._eleven.crear_clave(p, vs)
+        # Nombres que usan las pruebas de la página; la clave y su botón son
+        # del bloque de ElevenLabs.
+        self.txt_clave_eleven = self._eleven.txt_clave_eleven
+        self.btn_comprobar_clave = self._eleven.btn_comprobar_clave
         self._crear_voz_lectura(p, vs, es_eleven)
         self._crear_ajustes(p, vs)
-        self._crear_eleven(p, vs, lbl_clave)
+        self._eleven.crear_ajustes(p, vs)
+        self._eleven_ctrls = self._eleven.controles
         self._voz_secundaria = BloqueVozSecundaria(
             self._config, self._probar_voz_secundaria)
         vs.Add(self._voz_secundaria.construir(
-            p, self._voces, self._voces_respaldo), 0, wx.EXPAND | wx.ALL, 10)
+            p, self._voces, self._eleven.voces_respaldo), 0, wx.EXPAND | wx.ALL, 10)
         self._prueba = PruebaVoz()
         # El motor de prueba se cierra al cerrar el diálogo por cualquier camino.
         # Se escucha en el panel: el diálogo llega al evento como un wx.Window
@@ -57,11 +66,10 @@ class PaginaVoz:
         p.Bind(wx.EVT_WINDOW_DESTROY, self._al_destruir)
         p.SetSizer(vs)
         self._mostrar_controles_eleven(es_eleven)
-        if es_eleven and self.txt_clave_eleven.GetValue().strip():
+        if es_eleven:
             # Con clave guardada, las voces se comprueban solas en segundo
             # plano y se llenan; sin clave, todo queda a la espera.
-            self.btn_comprobar_clave.Disable()
-            self._comprobar_clave(anunciar_ok=False)
+            self._eleven.preparar_voces()
         return p
 
     def _crear_motor(self, p, vs):
@@ -75,23 +83,6 @@ class PaginaVoz:
         self.cho_motor.SetSelection(self._motor_idx)
         self.cho_motor.Bind(wx.EVT_CHOICE, self._on_motor_cambiado)
         vs.Add(self.cho_motor, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-    def _crear_clave(self, p, vs):
-        # Clave de ElevenLabs y su comprobación: solo se ven con ese motor.
-        lbl_clave = fila_label(p, _("Cl&ave de ElevenLabs:"))
-        self.txt_clave_eleven = wx.TextCtrl(
-            p, value=credenciales.cargar().get("elevenlabs_clave", "") or "",
-            style=wx.TE_PASSWORD, name=_("Clave de ElevenLabs"))
-        _tc(self.txt_clave_eleven)
-        vs.Add(lbl_clave, 0, wx.LEFT | wx.RIGHT, 10)
-        vs.Add(self.txt_clave_eleven, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self.btn_comprobar_clave = wx.Button(
-            p, label=_("Compro&bar clave"), name=_("Comprobar clave"))
-        self.btn_comprobar_clave.SetBackgroundColour(_T.btn)
-        self.btn_comprobar_clave.SetForegroundColour(_T.btn_t)
-        self.btn_comprobar_clave.Bind(wx.EVT_BUTTON, self._on_comprobar_clave)
-        vs.Add(self.btn_comprobar_clave, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        return lbl_clave
 
     def _crear_voz_lectura(self, p, vs, es_eleven):
         from guyrapu.voice import motores
@@ -156,56 +147,8 @@ class PaginaVoz:
         self.btn_probar_voz.Bind(wx.EVT_BUTTON, self._on_probar_voz)
         vs.Add(self.btn_probar_voz, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
-    def _crear_eleven(self, p, vs, lbl_clave):
-        from guyrapu.voice import escala_voz
-        from guyrapu.voice import motores
-
-        # Tope de caracteres por sesión (0 sin tope), «solo lo importante» y
-        # la voz de Windows de respaldo. Solo se ven con ElevenLabs.
-        lbl_tope = fila_label(p, _("Límite de caracteres p&or sesión (0 sin límite):"))
-        self.sp_tope_eleven = ContadorAccesible(
-            p, min=0, max=1000000, name=_("Límite de caracteres de ElevenLabs"),
-            initial=max(0, int(self._config.get("elevenlabs_tope", 0) or 0)))
-        self.sp_tope_eleven.SetIncrement(1000)
-        _tc(self.sp_tope_eleven)
-        vs.Add(lbl_tope, 0, wx.LEFT | wx.RIGHT, 10)
-        vs.Add(self.sp_tope_eleven, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        self.chk_solo_importantes = wx.CheckBox(
-            p, name=_("Solo lo importante con ElevenLabs"),
-            label=_("U&sar ElevenLabs solo con Super Chats, miembros, cofres, "
-                    "propietario y moderadores"))
-        self.chk_solo_importantes.SetForegroundColour(_T.text)
-        self.chk_solo_importantes.SetValue(
-            bool(self._config.get("elevenlabs_solo_importantes", False)))
-        vs.Add(self.chk_solo_importantes, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        lbl_respaldo = fila_label(p, _("Voz de &Windows de respaldo:"))
-        self._voces_respaldo = motores.listar_voces("sapi")
-        self.cho_voz_respaldo = wx.Choice(
-            p, choices=self._voces_respaldo or [_(_NO_HAY_VOCES)],
-            name=_("Voz de Windows de respaldo"))
-        _tc(self.cho_voz_respaldo)
-        if self._voces_respaldo:
-            idx_respaldo = escala_voz.resolver_voz(
-                self._config.get("voz_respaldo"), self._voces_respaldo)
-            self.cho_voz_respaldo.SetSelection(
-                0 if idx_respaldo is None else idx_respaldo)
-        else:
-            self.cho_voz_respaldo.SetSelection(0)
-            self.cho_voz_respaldo.Disable()
-        vs.Add(lbl_respaldo, 0, wx.LEFT | wx.RIGHT, 10)
-        vs.Add(self.cho_voz_respaldo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        self._eleven_ctrls = [
-            lbl_clave, self.txt_clave_eleven, self.btn_comprobar_clave,
-            lbl_tope, self.sp_tope_eleven, self.chk_solo_importantes,
-            lbl_respaldo, self.cho_voz_respaldo,
-        ]
-
     def _mostrar_controles_eleven(self, visible: bool) -> None:
-        for ctrl in getattr(self, "_eleven_ctrls", ()):
-            ctrl.Show(visible)
+        self._eleven.mostrar(visible)
         bloque = getattr(self, "_voz_secundaria", None)
         if bloque is not None:
             bloque.mostrar_respaldo(visible)
@@ -213,50 +156,19 @@ class PaginaVoz:
         if panel is not None:
             panel.Layout()
 
-    def _preparar_voces_eleven(self, anunciar_ok: bool = False) -> None:
-        self._voces = []
-        self._cargar_voces(self.cho_voz, self._config.get("voz"),
-                           vacio=_SIN_CLAVE_ELEVEN)
+    def _al_cambiar_voces_eleven(self, voces, guardada) -> None:
+        self._voces = list(voces)
+        self._cargar_voces(self.cho_voz, guardada, vacio=_SIN_CLAVE_ELEVEN)
         self._voz_secundaria.recargar_voces(self._voces)
-        if self.txt_clave_eleven.GetValue().strip():
-            self.btn_comprobar_clave.Disable()
-            self._comprobar_clave(anunciar_ok)
-
-    def _on_comprobar_clave(self, event) -> None:
-        if not self.txt_clave_eleven.GetValue().strip():
-            anunciar(_("Escribe la clave de ElevenLabs."))
-            return
-        self.btn_comprobar_clave.Disable()
-        self._comprobar_clave(anunciar_ok=True)
 
     def _comprobar_clave(self, anunciar_ok: bool) -> None:
-        clave = self.txt_clave_eleven.GetValue().strip()
-        clave_elevenlabs.comprobar(
-            clave,
-            lambda pares, usados, limite: self._clave_ok(
-                pares, usados, limite, anunciar_ok),
-            self._clave_fallo)
+        self._eleven.comprobar(anunciar_ok)
 
     def _clave_ok(self, pares, usados, limite, anunciar_ok: bool) -> None:
-        if not self._ventana:   # el diálogo pudo cerrarse mientras se comprobaba
-            return
-        self.btn_comprobar_clave.Enable()
-        self._voces = [nombre for _id, nombre in pares]
-        self._cargar_voces(self.cho_voz, self._config.get("voz"),
-                           vacio=_SIN_CLAVE_ELEVEN)
-        self._voz_secundaria.recargar_voces(self._voces)
-        if anunciar_ok:
-            anunciar(clave_elevenlabs.texto_clave_valida(
-                len(self._voces), usados, limite))
+        self._eleven.clave_ok(pares, usados, limite, anunciar_ok)
 
     def _clave_fallo(self, mensaje) -> None:
-        if not self._ventana:
-            return
-        self.btn_comprobar_clave.Enable()
-        self._voces = []
-        self._cargar_voces(self.cho_voz, None, vacio=_SIN_CLAVE_ELEVEN)
-        self._voz_secundaria.recargar_voces(self._voces)
-        anunciar(mensaje)
+        self._eleven.clave_fallo(mensaje)
 
     def _cargar_voces(self, choice, guardada, vacio=_NO_HAY_VOCES) -> None:
         from guyrapu.voice import escala_voz
@@ -286,7 +198,7 @@ class PaginaVoz:
         motor = self._motor_elegido()
         if motor == "elevenlabs":
             self._mostrar_controles_eleven(True)
-            self._preparar_voces_eleven()
+            self._eleven.preparar_voces()
             return
         self._mostrar_controles_eleven(False)
         self._voces = motores.listar_voces(motor)
@@ -307,7 +219,7 @@ class PaginaVoz:
             anunciar(_("Primero comprueba la clave."))
             return
         self._prueba.probar_elevenlabs(
-            self.txt_clave_eleven.GetValue().strip(),
+            self._eleven.clave(),
             self.cho_voz.GetStringSelection(),
             self.sp_velocidad.GetValue(), self.sp_volumen.GetValue())
 
@@ -321,7 +233,7 @@ class PaginaVoz:
                 anunciar(_("Primero comprueba la clave."))
                 return
             self._prueba.probar_elevenlabs(
-                self.txt_clave_eleven.GetValue().strip(),
+                self._eleven.clave(),
                 voz or self.cho_voz.GetStringSelection(), velocidad, volumen)
             return
         indice = escala_voz.resolver_voz(voz, self._voces) if voz else None
@@ -345,7 +257,7 @@ class PaginaVoz:
         # conservan los anteriores); el resto de las opciones se guarda igual.
         motor_no_disponible = self._guardar_motor_y_voces(fijar, en_memoria)
         self._voz_secundaria.guardar(fijar, en_memoria, bool(self._voces))
-        self._guardar_clave_elevenlabs(fijar, en_memoria)
+        self._eleven.guardar(fijar, en_memoria)
         self._guardar_ajustes_voz(fijar, en_memoria)
         return motor_no_disponible
 
@@ -363,26 +275,6 @@ class PaginaVoz:
         else:
             motor_no_disponible = True
         return motor_no_disponible
-
-    def _guardar_clave_elevenlabs(self, fijar, en_memoria):
-        # Clave de ElevenLabs: es un secreto y va a credenciales.json, nunca al
-        # ini. Solo se escribe si cambió.
-        clave_eleven = self.txt_clave_eleven.GetValue().strip()
-        if clave_eleven != (credenciales.cargar().get("elevenlabs_clave", "") or ""):
-            credenciales.guardar_campo("elevenlabs_clave", clave_eleven)
-        # Tope, «solo lo importante» y voz de respaldo de ElevenLabs se guardan
-        # siempre, haya o no clave comprobada.
-        tope_eleven = self.sp_tope_eleven.GetValue()
-        fijar("voz", "elevenlabs_tope", str(tope_eleven))
-        en_memoria["elevenlabs_tope"] = tope_eleven
-        solo_importantes = self.chk_solo_importantes.GetValue()
-        fijar("voz", "elevenlabs_solo_importantes",
-              "true" if solo_importantes else "false")
-        en_memoria["elevenlabs_solo_importantes"] = solo_importantes
-        voz_respaldo = (self.cho_voz_respaldo.GetStringSelection()
-                        if self._voces_respaldo else "")
-        fijar("voz", "voz_respaldo", voz_respaldo)
-        en_memoria["voz_respaldo"] = voz_respaldo
 
     def _guardar_ajustes_voz(self, fijar, en_memoria):
         self._cerrar_motor_prueba()

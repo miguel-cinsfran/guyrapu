@@ -248,7 +248,7 @@ class TestBloqueVozSecundaria(unittest.TestCase):
         bloque = self._bloque(dialogo)
         hijos = pagina._pag_voz_panel.GetChildren()
         self.assertGreater(hijos.index(bloque.cho_voz.GetParent()),
-                           hijos.index(pagina.cho_voz_respaldo))
+                           hijos.index(pagina._eleven.cho_voz_respaldo))
 
     def test_los_mnemonicos_de_voces_no_se_repiten(self):
         dialogo = self._dialogo()

@@ -436,6 +436,7 @@ def _pares_con_control():
         "guyrapu/ui/preferencias_lectura.py",
         "guyrapu/ui/preferencias_eventos.py", "guyrapu/ui/preferencias_ia.py",
         "guyrapu/ui/preferencias_voz.py",
+        "guyrapu/ui/preferencias_voz_eleven.py",
         "guyrapu/ui/preferencias_voz_secundaria.py",
         "guyrapu/ui/preferencias_transmision.py",
         "guyrapu/ui/preferencias_camara.py")}
@@ -506,6 +507,7 @@ class PruebaConfiguracion(unittest.TestCase):
             "guyrapu/ui/preferencias_lectura.py, "
             "guyrapu/ui/preferencias_eventos.py, guyrapu/ui/preferencias_ia.py, "
             "guyrapu/ui/preferencias_voz.py, "
+            "guyrapu/ui/preferencias_voz_eleven.py, "
             "guyrapu/ui/preferencias_voz_secundaria.py, "
             "guyrapu/ui/preferencias_transmision.py, "
             "guyrapu/ui/preferencias_camara.py): "
