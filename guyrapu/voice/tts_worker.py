@@ -23,13 +23,10 @@ from guyrapu.core import diagnostico
 from guyrapu.core.lectura_eventos import (
     construir_tts, quitar_emojis, sanitizar,  # noqa: F401
 )
-from guyrapu.voice import caida_elevenlabs
+from guyrapu.voice import eleccion_motor
 from guyrapu.voice import escala_voz
-from guyrapu.voice import elevenlabs
 from guyrapu.voice import gestor_motores
 from guyrapu.voice import motores
-from guyrapu.voice import respaldo_windows
-from guyrapu.voice import voz_secundaria
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -70,15 +67,6 @@ class TTSWorker(threading.Thread):
         # Aviso al usuario (lo conecta la GUI con `anunciar`). Con None solo
         # queda el registro en el log.
         self.al_avisar = None
-        # Respaldo de Windows para ElevenLabs: el objeto guarda su voz y sus
-        # ajustes; el motor se crea perezoso, en el hilo del worker.
-        self._respaldo = respaldo_windows.Respaldo(
-            self._fabrica_motor, config.get("voz_respaldo") or "")
-        self._voz_secundaria = voz_secundaria.VozSecundaria(
-            self._fabrica_motor, config, config.get("tono"))
-        self._caida = caida_elevenlabs.CaidaElevenLabs(
-            _entero(config.get("elevenlabs_tope"), 0),
-            config.get("elevenlabs_solo_importantes"))
         # Motor que está sonando ahora (principal o respaldo), para que la
         # pausa, la purga, la velocidad y el volumen lleguen al correcto.
         self._sonando = None
@@ -101,6 +89,9 @@ class TTSWorker(threading.Thread):
         # Motor principal, voces y voz activa. Todo se crea y se usa en el hilo
         # del worker; la interfaz lee `voces()` solo después de `esperar_inicio`.
         self._gestor = gestor_motores.GestorMotores(self._fabrica_motor)
+        self._eleccion = eleccion_motor.EleccionMotor(
+            config, self._fabrica_motor, self._gestor, self._avisar,
+            self._leer_frase, self._ajustes)
 
     def run(self):
         try:
@@ -157,73 +148,21 @@ class TTSWorker(threading.Thread):
 
     def _cerrar_motor(self) -> None:
         self._gestor.cerrar()
-        self._respaldo.cerrar()
-        self._voz_secundaria.cerrar()
+        self._eleccion.cerrar()
+
+    def _ajustes(self):
+        """Velocidad, volumen y tono base del worker."""
+        return self._rate, self._volume, self._tono
 
     # ── Voz y habla ──────────────────────────────────────────────────────────
 
     def _hablar(self, texto: str, voz=None, importante=False, secundaria=False) -> None:
-        # Secundaria con sus ajustes si el mensaje la pide y existe, si no la del mensaje o la base.
-        ajuste = self._voz_secundaria.indice(self._gestor.voces, secundaria)
-        self._gestor.aplicar_voz(self._voz_secundaria.voz if ajuste else voz)
-        self._gestor.fijar_velocidad(ajuste[1] if ajuste else self._rate)
-        self._gestor.fijar_volumen(ajuste[2] if ajuste else self._volume)
-        self._voz_secundaria.sonando = ajuste is not None
         # Una purga pedida con la voz callada (p. ej. detener_actual() al
         # reconectar) quedaba armada y cortaba el SIGUIENTE mensaje: el primer
         # mensaje de cada reconexión se oía a medias. No había nada que cortar,
         # así que se descarta antes de hablar.
         self._purge_pending.clear()
-        if self._gestor.motor.motor == "elevenlabs":
-            self._hablar_elevenlabs(texto, importante, ajuste is not None)
-        else:
-            self._leer_frase(self._gestor.motor, texto)
-        self._voz_secundaria.sonando = False
-
-    def _hablar_elevenlabs(self, texto: str, importante: bool, secundaria: bool = False) -> None:
-        """Lee con ElevenLabs y cae al respaldo según el estado de la sesión."""
-        elegido = self._elegir_motor_elevenlabs(texto, importante, secundaria)
-        if elegido is None:
-            return
-        if elegido is not self._gestor.motor:
-            # Ya se avisó al elegir (tope) o no corresponde aviso (solo
-            # importantes): el mensaje va derecho al respaldo.
-            self._leer_frase(elegido, texto)
-            return
-        try:
-            sono = self._leer_frase(elegido, texto)
-        except elevenlabs.ElevenLabsError as exc:
-            aviso = self._caida.fallo(exc)
-            if aviso:
-                self._avisar(aviso)
-            respaldo = self._conseguir_respaldo(secundaria)
-            if respaldo is not None:
-                self._leer_frase(respaldo, texto)
-            return
-        if sono:
-            # Un mensaje bien leído por ElevenLabs cierra la racha: el próximo
-            # fallo vuelve a avisar.
-            self._caida.exito()
-
-    def _elegir_motor_elevenlabs(self, texto: str, importante: bool, secundaria: bool = False):
-        """Motor para este mensaje: el principal o el respaldo de Windows."""
-        usar, aviso = self._caida.elegir(
-            importante, self._caracteres_elevenlabs(), len(texto))
-        if aviso:
-            self._avisar(aviso)
-        return self._conseguir_respaldo(secundaria) if usar else self._gestor.motor
-
-    def _caracteres_elevenlabs(self) -> int:
-        try:
-            return int(self._gestor.motor.caracteres_usados())
-        except Exception:
-            return 0
-
-    def _conseguir_respaldo(self, secundaria=False):
-        """Crea (una sola vez) la voz de Windows del respaldo, o None si falla."""
-        if secundaria:
-            return self._voz_secundaria.conseguir_respaldo(self._respaldo.voz, self._tono)
-        return self._respaldo.conseguir(self._rate, self._volume, self._tono)
+        self._eleccion.hablar(texto, voz, importante, secundaria)
 
     def _leer_frase(self, motor, texto: str) -> bool:
         """Manda la frase a `motor` y espera a que termine. True si sonó."""
@@ -289,21 +228,6 @@ class TTSWorker(threading.Thread):
         """Motor que recibe los ajustes: el que suena, o el principal si no hay."""
         return self._sonando or self._gestor.motor
 
-    def _configurar_elevenlabs(self, tope, solo_importantes, voz_respaldo) -> None:
-        """Aplica los ajustes de ElevenLabs leídos de Preferencias, ya dentro
-        del hilo del worker (el respaldo y sus ajustes le pertenecen)."""
-        self._caida.configurar(tope, solo_importantes)
-        self._elegir_voz_respaldo(voz_respaldo or "")
-
-    def _elegir_voz_respaldo(self, voz) -> None:
-        """Cambia la voz del respaldo sin recrearlo."""
-        self._respaldo.cambiar_voz(voz)
-        self._voz_secundaria.seguir_respaldo(voz)
-
-    def _configurar_voz_secundaria(self, voz, velocidad, volumen, respaldo) -> None:
-        """Aplica en caliente la voz secundaria y su respaldo."""
-        self._voz_secundaria.configurar(voz, velocidad, volumen, respaldo, self._respaldo.voz, self._tono)
-
     def _procesar_comandos(self):
         while not self._cmds.empty():
             try:    cmd, val = self._cmds.get_nowait()
@@ -315,14 +239,14 @@ class TTSWorker(threading.Thread):
                     self._gestor.cambiar(val[0], val[1], self._rate,
                                          self._volume, self._tono)
                 elif cmd == "elevenlabs":
-                    self._configurar_elevenlabs(*val)
+                    self._eleccion.configurar_elevenlabs(*val)
                 elif cmd == "voz_secundaria":
-                    self._configurar_voz_secundaria(*val)
+                    self._eleccion.configurar_voz_secundaria(*val)
                 elif cmd == "rate":
-                    if not self._voz_secundaria.sonando:
+                    if not self._eleccion.sonando_secundaria:
                         self._motor_de_comandos().fijar_velocidad(val)
                 elif cmd == "volume":
-                    if not self._voz_secundaria.sonando:
+                    if not self._eleccion.sonando_secundaria:
                         self._motor_de_comandos().fijar_volumen(val)
                 elif cmd == "tono":
                     self._motor_de_comandos().fijar_tono(val)

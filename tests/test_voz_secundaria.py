@@ -151,19 +151,19 @@ class TestAjustesPorMensaje(unittest.TestCase):
             ("evento", "Voz B", 20, 30, 50),
             ("mensaje", "Voz A", 50, 100, 50),
         ])
-        self.assertFalse(worker._voz_secundaria.sonando)
+        self.assertFalse(worker._eleccion.voz_secundaria.sonando)
 
     def test_la_velocidad_y_el_volumen_no_cambian_la_secundaria_en_curso(self):
         motor = Motor(("Voz A", "Voz B"))
         worker, _ = _worker(motor, **_config_sapi())
         motor.velocidad = 20
         motor.volumen = 30
-        worker._voz_secundaria.sonando = True
+        worker._eleccion.voz_secundaria.sonando = True
         worker._cmds.put(("rate", 60))
         worker._cmds.put(("volume", 90))
         worker._procesar_comandos()
         self.assertEqual((motor.velocidad, motor.volumen), (20, 30))
-        worker._voz_secundaria.sonando = False
+        worker._eleccion.voz_secundaria.sonando = False
         worker._cmds.put(("rate", 60))
         worker._cmds.put(("volume", 90))
         worker._procesar_comandos()
@@ -249,12 +249,12 @@ class TestConfiguracionEnCaliente(unittest.TestCase):
 
         worker.configurar_voz_secundaria(
             "EL A", 40, 0.6, "Respaldo principal")
-        self.assertEqual(worker._voz_secundaria.voz, "EL B")
+        self.assertEqual(worker._eleccion.voz_secundaria.voz, "EL B")
         worker._procesar_comandos()
 
-        self.assertEqual(worker._voz_secundaria.voz, "EL A")
-        self.assertEqual(worker._voz_secundaria.velocidad, 40)
-        self.assertEqual(worker._voz_secundaria.volumen, 60)
+        self.assertEqual(worker._eleccion.voz_secundaria.voz, "EL A")
+        self.assertEqual(worker._eleccion.voz_secundaria.velocidad, 40)
+        self.assertEqual(worker._eleccion.voz_secundaria.volumen, 60)
         self.assertIs(fabrica.respaldos[-1], respaldo)
         self.assertEqual((respaldo.velocidad, respaldo.volumen), (40, 60))
 
