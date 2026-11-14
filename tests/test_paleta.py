@@ -316,7 +316,7 @@ class TestVentanasPintadas(unittest.TestCase):
     """Cada ventana sale pintada por el único camino: `pintar_ventana`."""
 
     _VENTANAS = (
-        "guyrapu/ui/gui.py",
+        "guyrapu/ui/gui_construccion.py",
         "guyrapu/ui/gui_preferencias.py",
         "guyrapu/ui/gui_descargas.py",
         "guyrapu/ui/gui_microfono.py",
@@ -337,8 +337,9 @@ class TestVentanasPintadas(unittest.TestCase):
             with self.subTest(ventana=relativo):
                 texto = self._texto(relativo)
                 self.assertIn("pintar_ventana", texto)
+                receptor = "frame" if relativo.endswith("gui_construccion.py") else "self"
                 self.assertTrue(
-                    re.search(r"pintar_ventana\s*\(\s*self\s*\)", texto))
+                    re.search(rf"pintar_ventana\s*\(\s*{receptor}\s*\)", texto))
 
     def test_transmitir_en_directo_es_secundario(self):
         texto = self._texto("guyrapu/ui/boton_directo.py")
