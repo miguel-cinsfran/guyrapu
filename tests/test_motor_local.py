@@ -8,6 +8,7 @@ import unittest
 
 import numpy as np
 
+from guyrapu.voice import escala_voz
 from guyrapu.voice import motor_local
 
 TASA = 16000
@@ -26,13 +27,12 @@ def _esperar(condicion, plazo=3.0):
 class SintetizadorFalso:
     """Entrega trozos de silencio y deja ver qué velocidad le pidieron."""
 
-    ganancia_voz = 1.0
-
     def __init__(self, trozos=(), rango_velocidad=(1.0, 1.0),
                  por_velocidad=False, espera=None, error_en=None,
-                 pausa=0.0):
+                 pausa=0.0, ganancia_voz=1.0):
         self.tasa = TASA
         self.rango_velocidad = rango_velocidad
+        self.ganancia_voz = ganancia_voz
         self.velocidades = []
         self.cerrado = False
         self._trozos = list(trozos)
@@ -170,6 +170,56 @@ class TestMotorLocal(unittest.TestCase):
             self.assertLessEqual(abs(total - TASA / 3.0), int(TASA * 0.03))
         finally:
             motor.cerrar()
+
+    def test_la_ganancia_del_sintetizador_y_el_volumen_escalan_la_salida(
+            self):
+        entrada = (0.2 * np.sin(
+            2 * np.pi * 440 * np.arange(TROZO) / TASA)).astype(np.float32)
+        for volumen, factor in ((100, 0.5), (50, 0.25)):
+            with self.subTest(volumen=volumen):
+                sintetizador = SintetizadorFalso(
+                    trozos=[entrada], ganancia_voz=0.5)
+                reproductor = ReproductorFalso()
+                motor = motor_local.MotorLocal(sintetizador, reproductor)
+                try:
+                    motor.fijar_velocidad(50)
+                    motor.fijar_volumen(volumen)
+                    motor.fijar_tono(50)
+                    self.assertTrue(motor.hablar("hola"))
+                    self.assertTrue(_esperar(lambda: not motor.hablando()))
+                    salida = (np.concatenate(reproductor.trozos)
+                              if reproductor.trozos
+                              else np.empty(0, np.float32))
+                    np.testing.assert_allclose(
+                        salida, entrada * factor, rtol=0, atol=1e-6)
+                finally:
+                    motor.cerrar()
+
+    def test_el_tono_y_la_velocidad_conservan_la_duracion_esperada(self):
+        entrada = (0.01 * np.sin(
+            2 * np.pi * 440 * np.arange(int(TASA * 0.5)) / TASA)).astype(
+                np.float32)
+        casos = (
+            (70, 50, len(entrada)),
+            (50, 70, len(entrada) / escala_voz.factor_velocidad_local(70)),
+        )
+        for tono, velocidad, esperado in casos:
+            with self.subTest(tono=tono, velocidad=velocidad):
+                sintetizador = SintetizadorFalso(trozos=[entrada])
+                reproductor = ReproductorFalso()
+                motor = motor_local.MotorLocal(sintetizador, reproductor)
+                try:
+                    motor.fijar_tono(tono)
+                    motor.fijar_velocidad(velocidad)
+                    self.assertTrue(motor.hablar("hola"))
+                    self.assertTrue(_esperar(lambda: not motor.hablando()))
+                    total = sum(len(trozo) for trozo in reproductor.trozos)
+                    self.assertLessEqual(
+                        abs(total - esperado), TROZO,
+                        f"tono {tono}, velocidad {velocidad}: {total} "
+                        f"muestras, se esperaban {esperado}")
+                finally:
+                    motor.cerrar()
 
     def test_hablar_vacio_o_cerrado_devuelve_false(self):
         motor = motor_local.MotorLocal(
