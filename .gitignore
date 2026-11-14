@@ -105,3 +105,7 @@ servicio/**/.dev.vars
 
 # Salida del armado distribuible: se regenera con construir.bat.
 /paquete/
+
+# Caché de los modelos de voz que baja scripts/bajar_voces.py al construir.
+.cache-voces/
+voces/
