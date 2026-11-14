@@ -30,6 +30,7 @@ from urllib.request import Request, urlopen
 from guyrapu.core import paths
 from guyrapu.core.config import APP_NAME, URL_REPOSITORIO, USER_AGENT
 from guyrapu.core.idioma import _
+from guyrapu.core.paquete_release import PaqueteElegido, _es_https, elegir_paquete
 from guyrapu.core.version_legible import version_legible
 from guyrapu.core.versiones import version_como_tupla
 # Se reexportan con el mismo nombre para quien las llama como
@@ -48,16 +49,6 @@ logger = logging.getLogger(f"guyrapu.{__name__}")
 
 class PaqueteInvalido(Exception):
     """El paquete descargado no sirve para instalar."""
-
-
-class PaqueteElegido(NamedTuple):
-    """Lo que `elegir_paquete` saca de la respuesta JSON de la API."""
-
-    version: str
-    notas: str
-    url_zip: str
-    url_firma: str
-    tamanio: int | None
 
 
 class ResultadoDescarga(NamedTuple):
@@ -116,57 +107,6 @@ def notas_legibles(texto: str | None) -> str:
 
 
 # ── Consulta ───────────────────────────────────────────────────────────────
-
-def _es_https(url: object) -> bool:
-    return isinstance(url, str) and url.lower().startswith("https://")
-
-
-def elegir_paquete(release: dict | None) -> PaqueteElegido | None:
-    """Saca versión, notas y URLs del paquete de la respuesta JSON de la API.
-
-    Paquete compatible: un activo cuyo nombre termina en `.zip` y otro
-    activo llamado exactamente igual más `.sha256`. Si hay varios zip
-    con firma, None por ambiguo. No se depende de ningún nombre de
-    archivo en particular. Las URL tienen que ser https.
-    """
-    if not isinstance(release, dict):
-        return None
-    activos = release.get("assets")
-    if not isinstance(activos, list):
-        return None
-    nombres = {}
-    for activo in activos:
-        if not isinstance(activo, dict):
-            continue
-        nombre = activo.get("name")
-        url = activo.get("browser_download_url")
-        if isinstance(nombre, str) and isinstance(url, str):
-            nombres[nombre] = url
-    candidatos = [nombre for nombre in nombres
-                  if nombre.lower().endswith(".zip")
-                  and (nombre + ".sha256") in nombres]
-    if len(candidatos) != 1:
-        return None
-    nombre_zip = candidatos[0]
-    url_zip = nombres[nombre_zip]
-    url_firma = nombres[nombre_zip + ".sha256"]
-    if not _es_https(url_zip) or not _es_https(url_firma):
-        return None
-    version = release.get("tag_name", "")
-    if not isinstance(version, str) or version_como_tupla(version) is None:
-        return None
-    notas = release.get("body") or ""
-    if not isinstance(notas, str):
-        notas = ""
-    tamanio = None
-    for activo in activos:
-        if (isinstance(activo, dict)
-                and activo.get("name") == nombre_zip
-                and isinstance(activo.get("size"), int)):
-            tamanio = activo.get("size")
-    return PaqueteElegido(version=version, notas=notas, url_zip=url_zip,
-                           url_firma=url_firma, tamanio=tamanio)
-
 
 def consultar_ultima_version() -> PaqueteElegido | None:
     """Consulta la última release y devuelve lo de `elegir_paquete`.

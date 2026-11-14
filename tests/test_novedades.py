@@ -12,7 +12,7 @@ import unittest
 from unittest import mock
 from urllib.error import URLError
 
-from guyrapu.core import actualizacion, canal_app, novedades
+from guyrapu.core import actualizacion, canal_app, novedades, paquete_release
 from guyrapu.core.config import APP_VERSION
 
 
@@ -119,7 +119,7 @@ class TestJuntarNovedades(unittest.TestCase):
 class TestConsultarConNovedades(unittest.TestCase):
 
     def _paquete(self, version="v3.1.0"):
-        return actualizacion.PaqueteElegido(
+        return paquete_release.PaqueteElegido(
             version=version, notas="notas de la última",
             url_zip="https://ejemplo.com/App.zip",
             url_firma="https://ejemplo.com/App.zip.sha256",

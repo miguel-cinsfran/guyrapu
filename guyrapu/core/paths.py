@@ -337,10 +337,6 @@ def carpeta_actualizacion_en(instalacion: Path) -> Path:
     return Path(instalacion) / "data" / "actualizacion"
 
 
-def carpeta_actualizacion() -> Path:
-    return carpeta_actualizacion_en(carpeta_instalacion())
-
-
 def paquete_descargado_en(instalacion: Path) -> Path:
     return carpeta_actualizacion_en(instalacion) / "paquete.zip"
 
@@ -361,40 +357,20 @@ def respaldo_actualizacion_en(instalacion: Path) -> Path:
     return carpeta_actualizacion_en(instalacion) / "respaldo"
 
 
-def respaldo_actualizacion() -> Path:
-    return respaldo_actualizacion_en(carpeta_instalacion())
-
-
 def actualizacion_pendiente_en(instalacion: Path) -> Path:
     return carpeta_actualizacion_en(instalacion) / "pendiente.json"
-
-
-def actualizacion_pendiente() -> Path:
-    return actualizacion_pendiente_en(carpeta_instalacion())
 
 
 def arranque_confirmado_en(instalacion: Path) -> Path:
     return carpeta_actualizacion_en(instalacion) / "arranque-ok"
 
 
-def arranque_confirmado() -> Path:
-    return arranque_confirmado_en(carpeta_instalacion())
-
-
 def resultado_actualizacion_en(instalacion: Path) -> Path:
     return carpeta_actualizacion_en(instalacion) / "resultado.json"
 
 
-def resultado_actualizacion() -> Path:
-    return resultado_actualizacion_en(carpeta_instalacion())
-
-
 def registro_actualizacion_en(instalacion: Path) -> Path:
     return carpeta_actualizacion_en(instalacion) / "registro.log"
-
-
-def registro_actualizacion() -> Path:
-    return registro_actualizacion_en(carpeta_instalacion())
 
 
 def marca_migracion_accesos() -> Path:

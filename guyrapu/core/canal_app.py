@@ -16,6 +16,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from guyrapu.core import actualizacion
+from guyrapu.core import paquete_release
 from guyrapu.core import paths
 from guyrapu.core import versiones
 
@@ -55,7 +56,7 @@ def canal_guardado() -> str:
 
 
 def elegir_publicacion(
-        publicaciones) -> actualizacion.PaqueteElegido | None:
+        publicaciones) -> paquete_release.PaqueteElegido | None:
     """La publicación de mayor versión con paquete compatible, o None.
 
     Saltea borradores y las que no tienen un zip con su firma. No filtra
@@ -70,7 +71,7 @@ def elegir_publicacion(
             continue
         if publicacion.get("draft"):
             continue
-        paquete = actualizacion.elegir_paquete(publicacion)
+        paquete = paquete_release.elegir_paquete(publicacion)
         if paquete is None:
             continue
         orden = versiones.orden_version(
@@ -81,7 +82,7 @@ def elegir_publicacion(
     return elegida
 
 
-def consultar_ultima_beta() -> actualizacion.PaqueteElegido | None:
+def consultar_ultima_beta() -> paquete_release.PaqueteElegido | None:
     """La mayor publicación, beta o estable, con paquete compatible.
 
     None ante cualquier error de red o de JSON.

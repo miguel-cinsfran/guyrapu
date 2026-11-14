@@ -17,6 +17,7 @@ from urllib.request import Request, urlopen
 
 from guyrapu.core import actualizacion
 from guyrapu.core import canal_app
+from guyrapu.core import paquete_release
 from guyrapu.core import versiones
 from guyrapu.core.config import APP_VERSION
 from guyrapu.core.idioma import _
@@ -72,7 +73,7 @@ def juntar_novedades(publicaciones, version_actual: str,
                        for _orden, publicacion in elegidas)
 
 
-def consultar_con_novedades() -> actualizacion.PaqueteElegido | None:
+def consultar_con_novedades() -> paquete_release.PaqueteElegido | None:
     """Paquete del canal con las notas de todas las versiones salteadas.
 
     En Beta la publicación sale de la lista y las notas incluyen los

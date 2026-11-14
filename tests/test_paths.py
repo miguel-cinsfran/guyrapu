@@ -74,10 +74,7 @@ TODAS_LAS_FUNCIONES = (
     + [nombre for nombre, _ in RUTAS_DE_INSTALACION]
     + ["pagina_overlay", "datos_a_migrar", "carpeta_musica_windows"]
     + ["ytdlp_actualizado_anterior", "pares_de_nombres_anteriores"]
-    + ["carpeta_actualizacion", "paquete_descargado", "paquete_extraido",
-        "respaldo_actualizacion", "actualizacion_pendiente",
-        "arranque_confirmado", "resultado_actualizacion",
-        "registro_actualizacion"]
+    + ["paquete_descargado", "paquete_extraido"]
     + ["orden_de_la_app"]
 )
 
@@ -401,22 +398,20 @@ class TestActualizacion(unittest.TestCase):
     def test_cuelgan_de_datos_actualizacion(self):
         with tempfile.TemporaryDirectory() as tmp:
             instalacion = Path(tmp) / "app"
-            with mock.patch.object(paths, "carpeta_instalacion",
-                                   return_value=instalacion):
-                self.assertEqual(paths.carpeta_actualizacion(),
-                                 paths.carpeta_datos() / "actualizacion")
-                for nombre, esperado in self.RUTAS[1:]:
-                    with self.subTest(funcion=nombre):
-                        self.assertEqual(
-                            getattr(paths, nombre)(),
-                            paths.carpeta_actualizacion() / esperado)
+            self.assertEqual(paths.carpeta_actualizacion_en(instalacion),
+                             instalacion / "data" / "actualizacion")
+            for nombre, esperado in self.RUTAS[1:]:
+                with self.subTest(funcion=nombre):
+                    self.assertEqual(
+                        getattr(paths, nombre + "_en")(instalacion),
+                        paths.carpeta_actualizacion_en(instalacion) / esperado)
 
     def test_variantes_en_con_instalacion_explicita(self):
         with tempfile.TemporaryDirectory() as tmp:
             instalacion = Path(tmp) / "app"
             with mock.patch.object(paths, "carpeta_instalacion",
                                    return_value=instalacion):
-                for nombre, _ in self.RUTAS:
+                for nombre in ("paquete_descargado", "paquete_extraido"):
                     with self.subTest(funcion=nombre):
                         self.assertEqual(
                             getattr(paths, nombre)(),

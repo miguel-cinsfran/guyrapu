@@ -16,7 +16,7 @@ from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
-from guyrapu.core import actualizacion, novedades
+from guyrapu.core import actualizacion, novedades, paquete_release
 from guyrapu.core.config import APP_NAME, APP_VERSION
 from guyrapu.core.version_legible import version_legible
 from guyrapu.ui import gui_actualizar_app as app
@@ -32,7 +32,7 @@ VERSION_NUEVA = "99.0.0"
 
 
 def _paquete(version=VERSION_NUEVA, notas="novedades"):
-    return actualizacion.PaqueteElegido(
+    return paquete_release.PaqueteElegido(
         version=version, notas=notas,
         url_zip="https://ejemplo.com/bajada/App.zip",
         url_firma="https://ejemplo.com/bajada/App.zip.sha256",

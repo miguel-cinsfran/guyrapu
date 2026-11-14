@@ -16,6 +16,7 @@ import main
 from tests.pseudo_prueba import con_pseudo
 from guyrapu.core import actualizacion
 from guyrapu.core import instalador
+from guyrapu.core import paquete_release
 from guyrapu.core import paths
 from guyrapu.core import versiones
 
@@ -163,7 +164,7 @@ class TestNotasLegibles(unittest.TestCase):
 class TestElegirPaquete(unittest.TestCase):
 
     def test_paquete_valido(self):
-        elegido = actualizacion.elegir_paquete(_release())
+        elegido = paquete_release.elegir_paquete(_release())
         self.assertIsNotNone(elegido)
         self.assertEqual(elegido.version, "2.3.0")
         self.assertEqual(elegido.notas, "novedades")
@@ -173,11 +174,11 @@ class TestElegirPaquete(unittest.TestCase):
     def test_sin_firma_no_hay_paquete(self):
         release = _release()
         release["assets"] = release["assets"][:1]
-        self.assertIsNone(actualizacion.elegir_paquete(release))
+        self.assertIsNone(paquete_release.elegir_paquete(release))
 
     def test_nombre_con_puntos_por_espacios(self):
         # GitHub cambia los espacios de los activos por puntos.
-        elegido = actualizacion.elegir_paquete(_release("Mi.App.2.3.0.zip"))
+        elegido = paquete_release.elegir_paquete(_release("Mi.App.2.3.0.zip"))
         self.assertIsNotNone(elegido)
         self.assertTrue(elegido.url_zip.endswith("Mi.App.2.3.0.zip"))
 
@@ -189,17 +190,17 @@ class TestElegirPaquete(unittest.TestCase):
             {"name": "Otro-2.3.0.zip.sha256",
              "browser_download_url": "https://ejemplo.com/bajada/Otro-2.3.0.zip.sha256"},
         ])
-        self.assertIsNone(actualizacion.elegir_paquete(release))
+        self.assertIsNone(paquete_release.elegir_paquete(release))
 
     def test_url_http_no_vale(self):
         release = _release(base="http://ejemplo.com/bajada")
-        self.assertIsNone(actualizacion.elegir_paquete(release))
+        self.assertIsNone(paquete_release.elegir_paquete(release))
 
     def test_body_vacio_o_ausente(self):
         for cuerpo in ("", None):
             with self.subTest(cuerpo=cuerpo):
                 release = _release(cuerpo=cuerpo)
-                elegido = actualizacion.elegir_paquete(release)
+                elegido = paquete_release.elegir_paquete(release)
                 self.assertIsNotNone(elegido)
                 self.assertEqual(elegido.notas, "")
 
