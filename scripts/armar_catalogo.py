@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sys
 import urllib.error
 import urllib.parse
@@ -34,7 +35,7 @@ URL_SUBIR = URL_CONTENIDO + "/releases/download/modelos-1/"
 BASE_HF = "https://huggingface.co"
 CACHE = RAIZ / ".cache-voces"
 TIEMPO_ESPERA = 60
-SUBRIR = CACHE / "subir"
+SUBIR = CACHE / "subir"
 
 PHONON = {
     "es": ("gradium/phonon-40m-es", "e5e052b26e31abd5918ade71d3135e69d51a66f8",
@@ -67,13 +68,9 @@ def token_huggingface() -> str | None:
         return None
 
 
-def _es_hf(url: str) -> bool:
-    return urllib.parse.urlsplit(url).hostname == "huggingface.co"
-
-
 def _abrir(url: str, token: str | None = None, metodo: str | None = None):
     cabeceras = {"User-Agent": USER_AGENT}
-    if token and _es_hf(url):
+    if token and urllib.parse.urlsplit(url).hostname == "huggingface.co":
         cabeceras["Authorization"] = "Bearer " + token
     peticion = urllib.request.Request(url, headers=cabeceras, method=metodo)
     return urllib.request.urlopen(peticion, timeout=TIEMPO_ESPERA)
@@ -99,11 +96,7 @@ def descargar(url: str, destino: Path, token: str | None = None) -> None:
     destino = Path(destino)
     destino.parent.mkdir(parents=True, exist_ok=True)
     with _abrir(url, token) as respuesta, destino.open("wb") as archivo:
-        while True:
-            bloque = respuesta.read(1024 * 1024)
-            if not bloque:
-                break
-            archivo.write(bloque)
+        shutil.copyfileobj(respuesta, archivo, 1024 * 1024)
 
 
 def sha256(ruta: Path) -> str:
@@ -134,10 +127,9 @@ def preparar_archivo(repo, revision, ruta, metadatos, cache, subir,
     esperado = (lfs.get("sha256") or lfs.get("oid")) if isinstance(lfs, dict) else None  # SHA-256 del LFS
     if pide_cuenta(url):
         destino = Path(subir) / (nombre or Path(ruta).name)
-        if destino.is_file() and (esperado is None
-                                  or sha256(destino) == esperado):
-            return _archivo(URL_SUBIR + destino.name, destino, ruta, esperado)
-        descargar(url, destino, token_huggingface())
+        if not (destino.is_file() and (esperado is None
+                                      or sha256(destino) == esperado)):
+            descargar(url, destino, token_huggingface())
         return _archivo(URL_SUBIR + destino.name, destino, ruta, esperado)
     if esperado is not None:
         return {"url": url, "bytes": int(metadatos["size"]),
@@ -160,12 +152,8 @@ def _arbol(repo: str, revision: str, token: str | None) -> dict:
             if (isinstance(entrada, dict) and entrada.get("type") == "file"
                     and isinstance(entrada.get("path"), str)):
                 entradas[entrada["path"]] = entrada
-        url = None
-        for parte in (enlace or "").split(","):
-            inicio, fin = parte.find("<"), parte.find(">")
-            if 'rel="next"' in parte and inicio != -1 and fin != -1:
-                url = parte[inicio + 1:fin]
-                break
+        siguiente = re.search(r'<([^>]+)>;\s*rel="next"', enlace or "")
+        url = siguiente.group(1) if siguiente else None
     return entradas
 
 
@@ -299,20 +287,17 @@ def _paquete_phonon(idioma, datos, voces, metadatos_modelo,
         if not isinstance(ruta, str) or ruta not in metadatos_voces:
             continue
         archivos.append(preparar_archivo(
-            voces_repo, voces_revision, ruta, metadatos_voces[ruta],
-            CACHE, SUBRIR))
-        locale = voz.get("locale")
-        idioma_voz = (voz.get("language") or "")
-        if isinstance(locale, str) and "-" in locale:
-            partes = locale.split("-")
-            idioma_voz = "-".join([partes[0].lower()]
-                                  + [parte.upper() for parte in partes[1:]])
+            *VOCES_PHONON, ruta, metadatos_voces[ruta], CACHE, SUBIR))
+        partes = str(voz.get("locale") or "").split("-")
+        idioma_voz = ("-".join([partes[0].lower()]
+                               + [parte.upper() for parte in partes[1:]])
+                      if len(partes) > 1 else (voz.get("language") or ""))
         muestra = muestras.get(voz.get("voice_id"))
         voces_paquete.append({
             "nombre": str(voz.get("name") or "Voz"),
             "idioma": idioma_voz,
             "genero": voz.get("gender"),
-            "muestra": (url_origen(voces_repo, voces_revision, muestra)
+            "muestra": (url_origen(*VOCES_PHONON, muestra)
                         if muestra else None),
             "archivo": ruta,
         })
@@ -322,10 +307,8 @@ def _paquete_phonon(idioma, datos, voces, metadatos_modelo,
 
 
 def paquetes_phonon(token) -> list[dict]:
-    voces_repo, voces_revision = VOCES_PHONON
-    arbol_voces = _arbol(voces_repo, voces_revision, token)
-    texto = pedir_texto(url_origen(voces_repo, voces_revision,
-                                   "voices.jsonl"), token)
+    arbol_voces = _arbol(*VOCES_PHONON, token)
+    texto = pedir_texto(url_origen(*VOCES_PHONON, "voices.jsonl"), token)
     voces = []
     for linea in texto.splitlines():
         try:
@@ -335,7 +318,6 @@ def paquetes_phonon(token) -> list[dict]:
         if isinstance(voz, dict) and voz.get("language") in PHONON:
             voces.append(voz)
     muestras = _muestras(arbol_voces)
-    metadatos_voces = arbol_voces
     entradas = []
     for idioma, datos in PHONON.items():
         repo, revision = datos[0], datos[1]
@@ -343,7 +325,7 @@ def paquetes_phonon(token) -> list[dict]:
         paquete = _paquete_phonon(
             idioma, datos, [voz for voz in voces
                             if voz.get("language") == idioma],
-            metadatos_modelo, metadatos_voces, muestras)
+            metadatos_modelo, arbol_voces, muestras)
         entradas.append({"paquete": paquete, "repo": repo,
                          "revision": revision})
     return entradas
