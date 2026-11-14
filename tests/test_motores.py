@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Tests del motor de Prism y de la fachada de motores."""
 
-import time
 import unittest
 from unittest import mock
 
@@ -10,6 +9,7 @@ from prism import PrismError
 from prism.common import PrismAlreadyPausedError, PrismNotPausedError
 
 from tests.pseudo_prueba import con_pseudo
+from tests.voces_reales import elegir_voz_que_suena
 from guyrapu.core.idioma import _
 from guyrapu.voice import escala_voz
 from guyrapu.voice.motores import (
@@ -157,27 +157,7 @@ class TestMotorPrismReal(unittest.TestCase):
             motor.fijar_volumen(0)
             nombres = motor.voces()
             self.assertGreaterEqual(len(nombres), 1)
-            # La voz 0 puede ser un puente al lector (SAPI2SR) que no
-            # produce audio: se prueba cada voz y se sigue con la primera
-            # que de verdad se pone a hablar.
-            frase = ("Prueba de voz con volumen cero, una frase larga para que "
-                     "el motor tenga tiempo de ponerse a hablar.")
-            probadas = []
-            for i, nombre in enumerate(nombres):
-                if not motor.elegir_voz(i):
-                    continue
-                probadas.append(nombre)
-                if not motor.hablar(frase):
-                    continue
-                limite = time.monotonic() + 1.0
-                while not motor.hablando() and time.monotonic() < limite:
-                    time.sleep(0.01)
-                if motor.hablando():
-                    break
-                motor.parar()
-            else:
-                detalle = ", ".join(probadas) if probadas else "sin voces elegibles"
-                self.fail("Ninguna voz SAPI pasó a hablando: " + detalle)
+            elegir_voz_que_suena(motor)
             motor.parar()
             self.assertFalse(motor.hablando())
             for pct in range(0, 101, 5):

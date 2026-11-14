@@ -13,6 +13,7 @@ import unittest
 
 from guyrapu.voice.proveedores import PROVEEDORES
 from guyrapu.voice.proveedores.base import Motor, MotorNoDisponible
+from tests.voces_reales import elegir_voz_que_suena
 
 CON_RED = os.environ.get("GUYRAPU_PRUEBAS_CON_RED") == "1"
 
@@ -82,7 +83,7 @@ class TestMotorReal(unittest.TestCase):
                     self.skipTest(f"{proveedor.id} no está disponible: {exc}")
                 try:
                     motor.fijar_volumen(0)
-                    motor.elegir_voz(0)
+                    elegir_voz_que_suena(motor)
                     self.assertTrue(motor.hablar("prueba"))
                     limite = time.monotonic() + 2.0
                     while not motor.hablando() and time.monotonic() < limite:
