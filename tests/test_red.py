@@ -14,9 +14,11 @@ from guyrapu.core import red
 class Servidor(http.server.BaseHTTPRequestHandler):
     contenido = b""
     con_longitud = True
+    cabecera = None
 
     def do_GET(self):
         cuerpo = type(self).contenido
+        type(self).cabecera = self.headers.get("X-Prueba")
         self.send_response(200)
         if type(self).con_longitud:
             self.send_header("Content-Length", str(len(cuerpo)))
@@ -71,6 +73,15 @@ class TestDescargarArchivo(unittest.TestCase):
             with self.assertRaises(red.DescargaCancelada):
                 red.descargar_archivo(
                     url, Path(tmp) / "x.bin", cancelar=lambda: True)
+
+    def test_agrega_las_cabeceras_a_la_peticion(self):
+        Servidor.contenido = b"datos"
+        Servidor.con_longitud = True
+        url = self._arrancar()
+        with tempfile.TemporaryDirectory() as tmp:
+            red.descargar_archivo(url, Path(tmp) / "x.bin",
+                                  cabeceras={"X-Prueba": "valor"})
+        self.assertEqual(Servidor.cabecera, "valor")
 
 
 class TestPedirTexto(unittest.TestCase):

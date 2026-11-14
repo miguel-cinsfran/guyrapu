@@ -83,6 +83,7 @@ call uv run pyinstaller main.py ^
   --collect-all TikTokLive ^
   --collect-all yt_dlp ^
   --collect-all cv2 ^
+  --collect-all sounddevice ^
   --exclude-module imageio_ffmpeg ^
   --hidden-import vlc ^
   --add-data "!YTDOC!;googleapiclient/discovery_cache/documents"

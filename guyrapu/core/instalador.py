@@ -107,7 +107,7 @@ def _entradas_a_reemplazar(paquete: Path, ejecutable_viejo: str) -> list[str]:
         if nombre and nombre not in entradas:
             entradas.append(nombre)
     return [nombre for nombre in entradas
-            if nombre not in ("data", "Descargas", "sounds")]
+            if nombre not in ("data", "Descargas", "sounds", "voces")]
 
 
 def _borrar_entrada(ruta: Path) -> None:
@@ -369,7 +369,7 @@ def _mover_al_respaldo(instalacion: Path, respaldo: Path,
 def _copiar_raiz(paquete: Path, instalacion: Path,
                  progreso: _Progreso) -> None:
     for hijo in sorted(paquete.iterdir()):
-        if hijo.name == "sounds":
+        if hijo.name in ("sounds", "voces"):
             continue
         destino = instalacion / hijo.name
         _borrar_entrada(destino)

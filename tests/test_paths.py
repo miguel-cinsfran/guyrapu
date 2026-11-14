@@ -66,6 +66,7 @@ RUTAS_DE_INSTALACION = [
     ("ytdlp_empaquetado", paths.NOMBRE_YTDLP),
     ("deno_empaquetado", paths.NOMBRE_DENO),
     ("carpeta_vlc_empaquetada", "vlc"),
+    ("carpeta_voces", "voces"),
     ("carpeta_interna", "_internal"),
 ]
 

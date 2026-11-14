@@ -754,6 +754,38 @@ class TestCaracterizacionFallos(BaseInstalador):
         self.assertFalse(pendiente.exists())
 
 
+class TestVocesNoSeTocan(BaseInstalador):
+    """La carpeta de voces instalada nunca la reemplaza una actualización."""
+
+    def _armar_instalacion(self, exe_viejo=EXE_VIEJO):
+        super()._armar_instalacion(exe_viejo)
+        carpeta = self.instalacion / "voces"
+        (carpeta / "es").mkdir(parents=True)
+        (carpeta / "version.txt").write_bytes(b"1")
+        (carpeta / "es" / "modelo.bin").write_bytes(b"modelo instalado")
+
+    def _instalar(self):
+        return instalador.instalar(
+            self.fuente_paquete, self.instalacion, 1234, EXE_VIEJO, DESDE,
+            esperar_pid=lambda pid, tope: True,
+            lanzar=self._lanzar, matar=self._matar,
+            orden_para=self._orden_para())
+
+    def test_paquete_sin_voces_las_deja_igual(self):
+        antes = _foto(self.instalacion / "voces")
+        self.assertTrue(self._instalar())
+        self.assertEqual(_foto(self.instalacion / "voces"), antes)
+
+    def test_paquete_con_voces_tampoco_las_reemplaza(self):
+        (self.fuente_paquete / "voces" / "es").mkdir(parents=True)
+        (self.fuente_paquete / "voces" / "es" / "modelo.bin").write_bytes(
+            b"modelo nuevo")
+        (self.fuente_paquete / "voces" / "version.txt").write_bytes(b"99")
+        antes = _foto(self.instalacion / "voces")
+        self.assertTrue(self._instalar())
+        self.assertEqual(_foto(self.instalacion / "voces"), antes)
+
+
 class TestTerminoWindows(unittest.TestCase):
     """En Windows, sin ctypes no se toca os.kill: la señal 0 manda
     CTRL_C_EVENT a la consola en vez de comprobar nada."""

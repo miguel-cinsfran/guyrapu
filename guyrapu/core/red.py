@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Cómo la app habla HTTP, en un solo lugar.
 
-Es el único módulo de `guyrapu/` que importa `urllib.request`. El estilo
-copia a `guyrapu.downloads.ytdlp_bin`: descarga por bloques con aviso de
-progreso y función de cancelación.
+Es el único módulo de `guyrapu/` que importa `urllib.request`: descarga
+por bloques con aviso de progreso y función de cancelación.
 """
 
 from __future__ import annotations
@@ -22,8 +21,12 @@ class DescargaCancelada(Exception):
     pass
 
 
-def descargar_archivo(url: str, destino: Path, aviso=None, cancelar=None) -> None:
-    solicitud = Request(url, headers={"User-Agent": USER_AGENT})
+def descargar_archivo(url: str, destino: Path, aviso=None, cancelar=None,
+                      cabeceras=None) -> None:
+    encabezados = {"User-Agent": USER_AGENT}
+    if cabeceras:
+        encabezados.update(cabeceras)
+    solicitud = Request(url, headers=encabezados)
     with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
         total = None
         try:
