@@ -268,6 +268,19 @@ class TestVozPorMensaje(unittest.TestCase):
         self.assertEqual(motor.elegidas, [])
 
 
+class TestCambioDeVozBase(unittest.TestCase):
+
+    def test_el_comando_de_voz_base_la_aplica_al_motor(self):
+        motor = MotorFalso()
+        worker = _worker_con(motor)
+        worker._abrir_motor()
+        motor.elegidas.clear()
+        worker.cambiar_voz(1)
+        worker._procesar_comandos()
+        self.assertEqual(motor.elegidas, [1])
+        self.assertEqual(worker._gestor.voz_base, 1)
+
+
 class TestAjustes(unittest.TestCase):
 
     def test_rate_sube_de_a_cinco_en_porcentaje(self):
