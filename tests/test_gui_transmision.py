@@ -454,7 +454,8 @@ class TestPanelTransmision(unittest.TestCase):
 
         with mock.patch.object(gui_menu, "abrir_documento_paquete") as abrir:
             self.ventana._al_tecla(EventoTecla(wx.WXK_F1))
-        abrir.assert_called_once_with(self.ventana, "MANUAL", "Manual de uso")
+        abrir.assert_called_once_with(
+            self.ventana, "MANUAL", "Manual de uso", "panel-obs")
 
     def _cajas(self, ventana):
         cajas = []

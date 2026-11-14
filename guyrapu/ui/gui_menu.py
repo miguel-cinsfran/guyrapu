@@ -22,7 +22,7 @@ from guyrapu.core.config import (
     TIPO_MIEMBRO, TIPO_SUPERCHAT, TIPO_TEXTO, URL_REPOSITORIO)
 from guyrapu.core.idioma import _, N_, idioma_actual
 from guyrapu.core import paths
-from guyrapu.ui import ajuste_tono
+from guyrapu.ui import ajuste_tono, ayuda_manual
 from guyrapu.ui import confirmar
 from guyrapu.ui import menu_obs
 from guyrapu.ui import menu_transmision
@@ -249,10 +249,10 @@ def abrir_carpeta_registros(frame) -> None:
                          _("Carpeta de registros"), _("Aceptar"), icono=confirmar.ICON_ERROR)
 
 
-def abrir_documento_paquete(frame, nombre: str, titulo: str) -> None:
+def abrir_documento_paquete(frame, nombre: str, titulo: str, ancla: str | None = None) -> None:
     """Abre en el navegador un documento de la instalación."""
     try:
-        os.startfile(str(paths.documento(nombre, idioma_actual())))  # noqa: S606
+        os.startfile(str(ayuda_manual.destino_documento(nombre, idioma_actual(), ancla, titulo)))  # noqa: S606
     except Exception as exc:
         confirmar.avisar(frame, _("No se pudo abrir el documento:\n\n{exc}").format(exc=exc),
                          titulo, _("Aceptar"), icono=confirmar.ICON_ERROR)

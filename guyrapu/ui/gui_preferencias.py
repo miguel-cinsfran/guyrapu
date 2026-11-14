@@ -4,7 +4,6 @@
 
 Cada categoría se construye recién al elegirla. Guardar escribe solo las
 construidas con `config.guardar_opciones` y actualiza la config en memoria.
-La configuración de API/OAuth sigue en su propio diálogo (Herramientas).
 """
 
 from __future__ import annotations
@@ -18,7 +17,7 @@ from guyrapu.core import config as cfg
 from guyrapu.core import paths
 from guyrapu.core.ini_tipado import separar_por_comas
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import atajos_captura, confirmar
+from guyrapu.ui import atajos_captura, ayuda_manual, confirmar
 from guyrapu.capture import estado_sesion
 from guyrapu.voice import sound_player as _snd
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc, nombre_accesible
@@ -93,6 +92,7 @@ class PreferenciasDialog(wx.Dialog):
         self._filas_cargadas = set()
         self.avisos = []
         self._build_ui(perezosa)
+        ayuda_manual.enlazar(self, "preferencias")
         self._ajustar_minimo()
         paleta.pintar_ventana(self)
         self.Centre()

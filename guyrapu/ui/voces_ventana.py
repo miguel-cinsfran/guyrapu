@@ -7,7 +7,7 @@ import wx
 from guyrapu.core import (config, diagnostico, paquetes_catalogo,
                           paquetes_instalacion, red, voces_disponibles)
 from guyrapu.core.idioma import _, ngettext, pgettext
-from guyrapu.ui import confirmar, paleta
+from guyrapu.ui import ayuda_manual, confirmar, paleta
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -39,6 +39,7 @@ class VentanaVoces(wx.Dialog):
         self._catalogo, self._instalados = [], []
         self._entradas, self._filtradas = [], []
         self._crear_controles()
+        ayuda_manual.enlazar(self, "voces")
         paleta.pintar_ventana(self)
         self.Centre()
         self.Bind(wx.EVT_CLOSE, self._al_cerrar)

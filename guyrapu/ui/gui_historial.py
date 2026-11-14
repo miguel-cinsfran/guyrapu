@@ -21,7 +21,7 @@ from guyrapu.voice import sound_player as _snd
 from guyrapu.ui.accesibilidad import (
     anunciar, enlazar_anuncio_de_pestana, entregar_intro, nombre_accesible)
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
-from guyrapu.ui import paleta
+from guyrapu.ui import ayuda_manual, paleta
 from guyrapu.ui.tema import _T, _pintar
 
 logger = diagnostico.obtener_logger(__name__)
@@ -38,6 +38,7 @@ class HistorialDialog(wx.Dialog):
         self._on_conectar = on_conectar
         self._lista = historial.cargar(ruta)
         self._build_ui()
+        ayuda_manual.enlazar(self, "descargas")
         paleta.pintar_ventana(self)
         self.Centre()
         wx.CallAfter(self._listas["youtube"].SetFocus)

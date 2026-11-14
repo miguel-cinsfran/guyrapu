@@ -3355,35 +3355,6 @@ msgstr "{cantidad} songs match"
 msgid "Ninguna canción coincide"
 msgstr "No songs match"
 
-# más
-#: guyrapu/music/anuncios.py
-msgid ""
-"Intro reproduce ahora, Mayús más Intro a continuación, Ctrl más Intro al "
-"final, tecla de aplicaciones para más opciones"
-msgstr ""
-"Enter plays now, Shift plus Enter up next, Ctrl plus Enter at the end, "
-"applications key for more options"
-
-#: guyrapu/music/anuncios.py
-msgid ""
-"Intro reproduce ahora, Mayús más Intro a continuación, Ctrl más Intro al "
-"final, tecla de aplicaciones para más opciones. Supr elimina de la lista"
-msgstr ""
-"Enter plays now, Shift plus Enter up next, Ctrl plus Enter at the end, "
-"applications key for more options, Delete removes from the list"
-
-#: guyrapu/music/anuncios.py
-msgid ""
-"Intro reproduce, Supr elimina, Alt más flechas mueve, tecla de aplicaciones"
-" para más opciones"
-msgstr ""
-"Enter plays, Delete removes, Alt plus arrows moves, applications key for "
-"more options"
-
-#: guyrapu/music/anuncios.py
-msgid "Escribe para filtrar, flecha abajo va a las canciones, Esc vacía la búsqueda"
-msgstr "Type to filter, down arrow goes to the songs, Esc clears the search"
-
 #: guyrapu/music/anuncios.py
 #, python-brace-format
 msgid "¿Eliminar la lista {nombre}?"
@@ -3571,14 +3542,6 @@ msgid "Biblioteca"
 msgstr "Library"
 
 #: guyrapu/music/vista.py
-msgid ""
-"Intro reproduce la colección entera, Supr elimina la lista, tecla de "
-"aplicaciones para más opciones"
-msgstr ""
-"Enter plays the whole collection, Delete removes the playlist, applications"
-" key for more options"
-
-#: guyrapu/music/vista.py
 msgid "Cola oculta"
 msgstr "Queue hidden"
 
@@ -3744,8 +3707,8 @@ msgstr "Testing the computer with {nombre}: {ajustes}…"
 msgid "Creando el perfil {nombre}…"
 msgstr "Creating the profile {nombre}…"
 
-#: guyrapu/obs/detener_obs.py guyrapu/ui/boton_directo.py
-#: guyrapu/ui/directo_panel.py guyrapu/ui/gui_transmitir.py
+#: guyrapu/obs/detener_obs.py guyrapu/ui/comando_directo.py
+#: guyrapu/ui/gui_transmitir.py
 msgid "Deteniendo la transmisión. Esperando a que OBS confirme."
 msgstr "Stopping the broadcast. Waiting for OBS to confirm."
 
@@ -3757,8 +3720,7 @@ msgstr "OBS is still broadcasting. Stop the broadcast in OBS."
 msgid "No se pudo conectar con OBS para detener la transmisión."
 msgstr "Could not connect to OBS to stop the broadcast."
 
-#: guyrapu/obs/detener_obs.py guyrapu/ui/boton_directo.py
-#: guyrapu/ui/directo_panel.py
+#: guyrapu/obs/detener_obs.py guyrapu/ui/comando_directo.py
 msgid "Transmisión detenida."
 msgstr "Broadcast stopped."
 
@@ -5782,8 +5744,8 @@ msgstr "{fuente} - copy {n}"
 msgid "OBS ya está transmitiendo. Con este mismo botón puedes finalizar el directo."
 msgstr "OBS is already broadcasting. This same button can end the live stream."
 
-#: guyrapu/obs/transmision_directa.py guyrapu/ui/boton_directo.py
-#: guyrapu/ui/directo_panel.py guyrapu/ui/inicio_youtube.py
+#: guyrapu/obs/transmision_directa.py guyrapu/ui/comando_directo.py
+#: guyrapu/ui/inicio_youtube.py
 msgid "No se transmitió."
 msgstr "Did not broadcast."
 
@@ -6434,7 +6396,7 @@ msgstr "Preparing Restream for {nombre}."
 msgid "Directo iniciado con Restream. Conecta el chat manualmente."
 msgstr "Live stream started with Restream. Connect the chat manually."
 
-#: guyrapu/restream/ganchos.py guyrapu/ui/directo_panel.py
+#: guyrapu/restream/ganchos.py guyrapu/ui/comando_directo.py
 msgid "Elige primero a dónde transmitir, en Transmitir a."
 msgstr "First choose where to broadcast, in Broadcast to."
 
@@ -6821,7 +6783,7 @@ msgid "Activar o desactivar los avisos de sobrecarga"
 msgstr "Turn overload warnings on or off"
 
 #. Traductores: acción del atajo que conecta el chat.
-#: guyrapu/ui/atajos_captura.py guyrapu/ui/gui.py
+#: guyrapu/ui/atajos_captura.py guyrapu/ui/gui_construccion.py
 #: guyrapu/ui/restream_pagina_cuenta.py
 msgid "Conectar"
 msgstr "Connect"
@@ -7163,20 +7125,17 @@ msgstr "With this keyboard, AltGr+{tecla} types {letra}. Choose another."
 msgid "Capturado: {atajo}. Se aplica al pulsar Guardar."
 msgstr "Captured: {atajo}. It applies when you press Save."
 
-#: guyrapu/ui/aviso_importante.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
-#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py
-#: guyrapu/ui/preferencias_api.py guyrapu/ui/preferencias_atajos.py
-#: guyrapu/ui/preferencias_general.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/aviso_importante.py guyrapu/ui/chat_acciones.py guyrapu/ui/gui.py
+#: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
+#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_api.py
+#: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/voces_ventana.py
 msgid "Aceptar"
 msgstr "OK"
 
-#: guyrapu/ui/boton_directo.py guyrapu/ui/directo_panel.py
-msgid "Revisando OBS antes de transmitir."
-msgstr "Checking OBS before broadcasting."
-
-#: guyrapu/ui/boton_directo.py guyrapu/ui/directo_panel.py
-msgid "Sigues transmitiendo."
-msgstr "Still broadcasting."
+#: guyrapu/ui/ayuda_manual.py guyrapu/ui/gui_menu.py
+msgid "Manual de uso"
+msgstr "User manual"
 
 #: guyrapu/ui/buscador_acciones.py guyrapu/ui/descargas_buscador.py
 msgid "&Agregar a la cola"
@@ -7418,6 +7377,107 @@ msgstr "Camera shortcuts in any application"
 msgid "Atajos de cámara solo en {app}"
 msgstr "Camera shortcuts only in {app}"
 
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Filtro: {filtro}. {n} mensajes"
+msgstr "Filter: {filtro}. {n} messages"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Copiar mensaje"
+msgstr "Copy message"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Copiar todo (autor: mensaje, hora)"
+msgstr "Copy all (author: message, time)"
+
+#: guyrapu/ui/chat_acciones.py guyrapu/ui/gui_comentarios.py
+msgid "Leer en voz alta"
+msgstr "Read aloud"
+
+#: guyrapu/ui/chat_acciones.py guyrapu/ui/musica_dialogo_enlace.py
+#: guyrapu/ui/musica_ventana.py
+msgid "Abrir enlace"
+msgstr "Open link"
+
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Dejar de silenciar a {autor}"
+msgstr "Unmute {autor}"
+
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Silenciar voz de {autor}"
+msgstr "Mute voice of {autor}"
+
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Ocultar y silenciar a {autor}"
+msgstr "Hide and mute {autor}"
+
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Asignar &alias a {autor}…"
+msgstr "Assign &alias to {autor}…"
+
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Cambiar &alias de {autor}…"
+msgstr "Change &alias of {autor}…"
+
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Alias para {autor}. Déjalo vacío para eliminarlo."
+msgstr "Alias for {autor}. Leave it empty to remove it."
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Alias del usuario"
+msgstr "User alias"
+
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "Alias guardado, {nuevo}"
+msgstr "Alias saved, {nuevo}"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Alias eliminado"
+msgstr "Alias removed"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Mensaje copiado"
+msgstr "Message copied"
+
+#: guyrapu/ui/chat_acciones.py guyrapu/ui/gui_comentarios.py
+msgid "Línea copiada"
+msgstr "Line copied"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "No se encontró ningún enlace"
+msgstr "No link found"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "No se encontró ningún enlace en este mensaje."
+msgstr "No link found in this message."
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Sin enlace"
+msgstr "No link"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Abriendo enlace"
+msgstr "Opening link"
+
+#. Traductores: {autor} es el autor del mensaje.
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "{autor} silenciado"
+msgstr "{autor} muted"
+
+#. Traductores: {autor} es el autor del mensaje.
+#: guyrapu/ui/chat_acciones.py
+#, python-brace-format
+msgid "{autor} ya no está silenciado"
+msgstr "{autor} is no longer muted"
+
 #: guyrapu/ui/chat_recientes.py
 msgid "Mensajes recientes del chat en cualquier aplicación"
 msgstr "Recent chat messages in any application"
@@ -7453,6 +7513,18 @@ msgstr "OBS closed."
 #: guyrapu/ui/comando_cerrar_obs.py
 msgid "OBS no se cerró. Ciérralo desde su ventana."
 msgstr "OBS did not close. Close it from its window."
+
+#: guyrapu/ui/comando_directo.py
+msgid "Revisando OBS antes de transmitir."
+msgstr "Checking OBS before broadcasting."
+
+#: guyrapu/ui/comando_directo.py
+msgid "Escribe tu usuario de TikTok en Usuario de TikTok."
+msgstr "Type your TikTok user in TikTok user."
+
+#: guyrapu/ui/comando_directo.py
+msgid "Sigues transmitiendo."
+msgstr "Still broadcasting."
 
 #: guyrapu/ui/comandos_grabacion.py
 msgid "No hay ninguna grabación en curso."
@@ -8289,10 +8361,6 @@ msgstr "(now: {nombre})"
 #: guyrapu/ui/preferencias_general.py guyrapu/ui/restream_dialogos_destino.py
 msgid "&Aceptar"
 msgstr "&Accept"
-
-#: guyrapu/ui/directo_panel.py
-msgid "Escribe tu usuario de TikTok en Usuario de TikTok."
-msgstr "Type your TikTok user in TikTok user."
 
 #: guyrapu/ui/disenos_nombres.py
 msgid "Nombre del diseño:"
@@ -9250,81 +9318,6 @@ msgid "&Pausar lectura"
 msgstr "&Pause reading"
 
 #: guyrapu/ui/gui.py
-msgid "&Enlace o ID:"
-msgstr "&Link or ID:"
-
-#: guyrapu/ui/gui.py guyrapu/ui/recientes_inicio.py
-msgid "Enlace del directo o vídeo"
-msgstr "Live stream or video link"
-
-#: guyrapu/ui/gui.py
-msgid ""
-"Enlace de YouTube (directo o vídeo) o de un directo de TikTok "
-"(tiktok.com/@usuario/live). También vale el ID de 11 caracteres de YouTube."
-" Pulsa Intro para conectar."
-msgstr ""
-"YouTube link (live stream or video) or a TikTok live stream link "
-"(tiktok.com/@user/live). The 11-character YouTube ID also works. Press "
-"Enter to connect."
-
-#. Traductores: nombre accesible del botón para conectar.
-#: guyrapu/ui/gui.py guyrapu/ui/gui_historial.py guyrapu/ui/gui_menu.py
-#: guyrapu/ui/restream_pagina_cuenta.py
-msgid "&Conectar"
-msgstr "&Connect"
-
-#. Traductores: cuaderno con los paneles.
-#: guyrapu/ui/gui.py
-msgid "Paneles"
-msgstr "Panes"
-
-#: guyrapu/ui/gui.py
-msgid "Chat del directo"
-msgstr "Live chat"
-
-#. Traductores: pestaña de comentarios.
-#: guyrapu/ui/gui.py
-msgid "Comentarios"
-msgstr "Comments"
-
-#. Traductores: pestaña con los datos del vídeo.
-#: guyrapu/ui/gui.py
-msgid "Información"
-msgstr "Information"
-
-#: guyrapu/ui/gui.py
-msgid "Mensajes del chat:"
-msgstr "Chat messages:"
-
-#: guyrapu/ui/gui.py
-msgid ""
-"Mensajes del chat. Intro copia el mensaje. La tecla de aplicaciones abre el"
-" menú contextual."
-msgstr ""
-"Chat messages. Enter copies the message. The applications key opens the "
-"context menu."
-
-#: guyrapu/ui/gui.py guyrapu/ui/ia_ventana.py
-msgid "&Mensaje:"
-msgstr "&Message:"
-
-#: guyrapu/ui/gui.py
-msgid "Información del vídeo:"
-msgstr "Video information:"
-
-#: guyrapu/ui/gui.py
-msgid "Información del vídeo"
-msgstr "Video information"
-
-#: guyrapu/ui/gui.py
-msgid ""
-"Datos del vídeo: canal, vistas, descripción. Solo lectura. Para abrir un "
-"enlace, cópialo y pégalo en el navegador."
-msgstr ""
-"Video data: channel, views, description. Read-only. To open a link, copy it"
-" and paste it in the browser."
-
-#: guyrapu/ui/gui.py
 msgid "Conéctate primero para usar los paneles"
 msgstr "Connect first to use the panes"
 
@@ -9421,11 +9414,6 @@ msgid "Voz: {nombre}"
 msgstr "Voice: {nombre}"
 
 #: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Filtro: {filtro}. {n} mensajes"
-msgstr "Filter: {filtro}. {n} messages"
-
-#: guyrapu/ui/gui.py
 msgid "Sonidos silenciados"
 msgstr "Sounds muted"
 
@@ -9440,102 +9428,6 @@ msgstr "Reading unmuted"
 #: guyrapu/ui/gui.py
 msgid "Sin información de la escena."
 msgstr "No scene information."
-
-#: guyrapu/ui/gui.py
-msgid "Copiar mensaje"
-msgstr "Copy message"
-
-#: guyrapu/ui/gui.py
-msgid "Copiar todo (autor: mensaje, hora)"
-msgstr "Copy all (author: message, time)"
-
-#: guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
-msgid "Leer en voz alta"
-msgstr "Read aloud"
-
-#: guyrapu/ui/gui.py guyrapu/ui/musica_dialogo_enlace.py
-#: guyrapu/ui/musica_ventana.py
-msgid "Abrir enlace"
-msgstr "Open link"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Dejar de silenciar a {autor}"
-msgstr "Unmute {autor}"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Silenciar voz de {autor}"
-msgstr "Mute voice of {autor}"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Ocultar y silenciar a {autor}"
-msgstr "Hide and mute {autor}"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Asignar &alias a {autor}…"
-msgstr "Assign &alias to {autor}…"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Cambiar &alias de {autor}…"
-msgstr "Change &alias of {autor}…"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Alias para {autor}. Déjalo vacío para eliminarlo."
-msgstr "Alias for {autor}. Leave it empty to remove it."
-
-#: guyrapu/ui/gui.py
-msgid "Alias del usuario"
-msgstr "User alias"
-
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "Alias guardado, {nuevo}"
-msgstr "Alias saved, {nuevo}"
-
-#: guyrapu/ui/gui.py
-msgid "Alias eliminado"
-msgstr "Alias removed"
-
-#: guyrapu/ui/gui.py
-msgid "Mensaje copiado"
-msgstr "Message copied"
-
-#: guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
-msgid "Línea copiada"
-msgstr "Line copied"
-
-#: guyrapu/ui/gui.py
-msgid "No se encontró ningún enlace"
-msgstr "No link found"
-
-#: guyrapu/ui/gui.py
-msgid "No se encontró ningún enlace en este mensaje."
-msgstr "No link found in this message."
-
-#: guyrapu/ui/gui.py
-msgid "Sin enlace"
-msgstr "No link"
-
-#: guyrapu/ui/gui.py
-msgid "Abriendo enlace"
-msgstr "Opening link"
-
-#. Traductores: {autor} es el autor del mensaje.
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "{autor} silenciado"
-msgstr "{autor} muted"
-
-#. Traductores: {autor} es el autor del mensaje.
-#: guyrapu/ui/gui.py
-#, python-brace-format
-msgid "{autor} ya no está silenciado"
-msgstr "{autor} is no longer muted"
 
 #: guyrapu/ui/gui.py
 msgid "Salir"
@@ -9588,9 +9480,20 @@ msgstr "Comments are not available on TikTok live streams."
 msgid "Directo de TikTok de @{usuario}: leyendo el chat."
 msgstr "TikTok live stream by @{usuario}: reading the chat."
 
+#. Traductores: pestaña con los datos del vídeo.
+#: guyrapu/ui/gui.py guyrapu/ui/gui_construccion.py
+msgid "Información"
+msgstr "Information"
+
 #: guyrapu/ui/gui.py guyrapu/ui/gui_menu.py guyrapu/ui/restream_pagina_cuenta.py
 msgid "&Desconectar"
 msgstr "&Disconnect"
+
+#. Traductores: nombre accesible del botón para conectar.
+#: guyrapu/ui/gui.py guyrapu/ui/gui_construccion.py guyrapu/ui/gui_historial.py
+#: guyrapu/ui/gui_menu.py guyrapu/ui/restream_pagina_cuenta.py
+msgid "&Conectar"
+msgstr "&Connect"
 
 #: guyrapu/ui/gui.py
 msgid " [lectura silenciada]"
@@ -9980,6 +9883,70 @@ msgstr "{mensaje}. Remember that YouTube may take a while or hold it."
 #: guyrapu/ui/gui_comentarios.py
 msgid "No se pudo enviar"
 msgstr "Could not send"
+
+#: guyrapu/ui/gui_construccion.py
+msgid "&Enlace o ID:"
+msgstr "&Link or ID:"
+
+#: guyrapu/ui/gui_construccion.py guyrapu/ui/recientes_inicio.py
+msgid "Enlace del directo o vídeo"
+msgstr "Live stream or video link"
+
+#: guyrapu/ui/gui_construccion.py
+msgid ""
+"Enlace de YouTube (directo o vídeo) o de un directo de TikTok "
+"(tiktok.com/@usuario/live). También vale el ID de 11 caracteres de YouTube."
+" Pulsa Intro para conectar."
+msgstr ""
+"YouTube link (live stream or video) or a TikTok live stream link "
+"(tiktok.com/@user/live). The 11-character YouTube ID also works. Press "
+"Enter to connect."
+
+#. Traductores: cuaderno con los paneles.
+#: guyrapu/ui/gui_construccion.py
+msgid "Paneles"
+msgstr "Panes"
+
+#: guyrapu/ui/gui_construccion.py
+msgid "Chat del directo"
+msgstr "Live chat"
+
+#. Traductores: pestaña de comentarios.
+#: guyrapu/ui/gui_construccion.py
+msgid "Comentarios"
+msgstr "Comments"
+
+#: guyrapu/ui/gui_construccion.py
+msgid "Mensajes del chat:"
+msgstr "Chat messages:"
+
+#: guyrapu/ui/gui_construccion.py
+msgid ""
+"Mensajes del chat. Intro copia el mensaje. La tecla de aplicaciones abre el"
+" menú contextual."
+msgstr ""
+"Chat messages. Enter copies the message. The applications key opens the "
+"context menu."
+
+#: guyrapu/ui/gui_construccion.py guyrapu/ui/ia_ventana.py
+msgid "&Mensaje:"
+msgstr "&Message:"
+
+#: guyrapu/ui/gui_construccion.py
+msgid "Información del vídeo:"
+msgstr "Video information:"
+
+#: guyrapu/ui/gui_construccion.py
+msgid "Información del vídeo"
+msgstr "Video information"
+
+#: guyrapu/ui/gui_construccion.py
+msgid ""
+"Datos del vídeo: canal, vistas, descripción. Solo lectura. Para abrir un "
+"enlace, cópialo y pégalo en el navegador."
+msgstr ""
+"Video data: channel, views, description. Read-only. To open a link, copy it"
+" and paste it in the browser."
 
 #: guyrapu/ui/gui_descargas.py
 msgid "Carpeta de destino de las descargas"
@@ -10605,11 +10572,6 @@ msgstr "&About…"
 #: guyrapu/ui/gui_menu.py
 msgid "A&yuda"
 msgstr "&Help"
-
-#: guyrapu/ui/gui_menu.py guyrapu/ui/obs_ventana.py
-#: guyrapu/ui/restream_ventana.py
-msgid "Manual de uso"
-msgstr "User manual"
 
 #: guyrapu/ui/gui_menu.py
 #, python-brace-format

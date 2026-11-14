@@ -113,7 +113,7 @@ hasta 200 caracteres.
 En un vídeo publicado, la pestaña *Comentarios* lee los comentarios, y con
 la sesión de Google permite comentar y responder.
 
-## Voces y sonidos
+## <a id="voces"></a>Voces y sonidos
 
 Guyrapu lee con tres motores de voz: SAPI 5 y OneCore, que vienen con
 Windows, y ElevenLabs, que requiere una cuenta. El motor, la voz, la
@@ -231,7 +231,7 @@ mismo punto.
 *Reproducir solo el audio, sin imagen*, en *Preferencias*, categoría
 *Reproductor*, viene marcada: sin imagen, los saltos son casi inmediatos.
 
-## Música
+## <a id="musica"></a>Música
 
 Guyrapu reproduce música mientras transmites. Usa la carpeta Música que
 está junto a la aplicación, o la que elijas en *Preferencias*, categoría
@@ -283,7 +283,7 @@ varias plataformas a la vez con Restream.
 
 Si OBS está cerrado, Guyrapu lo abre en el área de notificación.
 
-### Iniciar el directo
+### <a id="transmitir"></a>Iniciar el directo
 
 1. Pulsa *Transmitir en directo*, junto a *Conectar*. Se abre el cuadro
    *Transmitir a*, con el destino de la vez anterior ya elegido.
@@ -314,7 +314,7 @@ codificador o por el dibujo de la escena, y qué cambiar en el perfil para
 el próximo. OBS vuelve al perfil que tenía antes del directo, también si lo
 cancelas antes de empezar.
 
-### Micrófono
+### <a id="microfono"></a>Micrófono
 
 *Silenciar micrófono de OBS*, en el menú *OBS*, silencia o activa el
 micrófono. Al activarlo, Guyrapu dice qué dispositivo usa y avisa si no
@@ -346,7 +346,7 @@ fuente de navegador con este enlace:
 
     http://127.0.0.1:8730/chat
 
-## Panel de OBS
+## <a id="panel-obs"></a>Panel de OBS
 
 El *Panel de OBS* reúne en pestañas lo que se hace con OBS, y se abre desde
 el menú *OBS*. Si OBS está cerrado, el panel lo abre. Todo se puede seguir
@@ -503,7 +503,7 @@ contextual abre el archivo o su carpeta, copia la ruta o lo elimina de la
 lista sin borrar el archivo. Si OBS convierte la grabación a MP4 al
 terminar, la lista muestra el MP4.
 
-## Restream
+## <a id="restream"></a>Restream
 
 Restream envía una sola transmisión a varias plataformas a la vez. La
 ventana de Restream se abre con *Restream…*, en el menú *Transmisión*, y
@@ -606,7 +606,7 @@ sesión de Google iniciada. YouTube suele bloquear los enlaces: escribe el
 nombre de usuario en su lugar. Si YouTube devuelve un error, los mensajes
 se detienen y Guyrapu lo avisa una vez.
 
-## Descargas e historial
+## <a id="descargas"></a>Descargas e historial
 
 El *Administrador de descargas* descarga vídeos, audio o listas de YouTube
 en MP4, WebM, MP3 o M4A, dos a la vez. Lo descargado queda en la carpeta
@@ -625,7 +625,7 @@ YouTube y TikTok a la vez, los espectadores son los de las dos plataformas.
 Qué se incluye se elige en *Preferencias*, categoría *Estado (F2)*. Dos veces
 seguidas, abre la ventana *Estado de la sesión*, con cada dato en una línea.
 
-## Preguntar a la IA
+## <a id="ia"></a>Preguntar a la IA
 
 Una inteligencia artificial mira una captura de OBS y dice qué se ve, por
 ejemplo si una fuente sale en negro. Requiere OBS abierto y la clave de un proveedor.
@@ -660,7 +660,7 @@ aplicación a otro equipo, tendrás que volver a iniciarlas. La cuota diaria de 
 entre quienes usan Guyrapu. Para tener una propia, consulta la [guía de
 configuración de la API](../CONFIGURACION_API.md).
 
-## Preferencias
+## <a id="preferencias"></a>Preferencias
 
 *Preferencias…*, en el menú *Herramientas*, reúne la configuración por
 categorías, y los cambios se aplican al pulsar *Guardar*. En *General* se

@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md ea9abb7c3e902b0296525e8eededc4aea012839c -->
+<!-- original: es/MANUAL.md d124ebe7868364baf958a2446e887516e708fd72 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -76,7 +76,7 @@ The *Message* box comes after the chat list. To write you need the Google sessio
 
 On a published video, the *Comments* tab reads the comments, and with the Google session it lets you comment and reply.
 
-## Voices and sounds
+## <a id="voces"></a>Voices and sounds
 
 Guyrapu reads with three voice engines: SAPI 5 and OneCore, which come with Windows, and ElevenLabs, which requires an account. The engine, the voice, the speed, the volume and the pitch are chosen in *Preferences*, on the *Voices* category, where *Test voice* plays a sample. If ElevenLabs fails because of the network or a lack of balance, Guyrapu reads with the *Backup Windows voice* and warns you once.
 
@@ -112,7 +112,7 @@ The live stream video plays inside Guyrapu, with the commands in the *Player* me
 
 *Play sound only, without the picture*, in *Preferences*, on the *Player* category, is checked: without the picture, jumps are almost immediate.
 
-## Music
+## <a id="musica"></a>Music
 
 Guyrapu plays music while you stream. It uses the Music folder next to the application, or the one you choose in *Preferences*, on the *Music* category. The commands are in the *Music* menu, and *Choose music…* opens the *Music* window:
 
@@ -143,7 +143,7 @@ Guyrapu starts and ends the live stream with OBS Studio, to YouTube or to severa
 
 If OBS is closed, Guyrapu opens it in the notification area.
 
-### Starting the live stream
+### <a id="transmitir"></a>Starting the live stream
 
 1. Press *Broadcast live*, next to *Connect*. The *Broadcast to* dialog opens, with the destination from last time already chosen.
 2. Choose *YouTube* or a Restream profile and press *Continue*.
@@ -164,7 +164,7 @@ If the internet connection is lost, YouTube waits for it to come back without en
 
 During the live stream, the button is called *End live stream* and asks for confirmation, with *Keep broadcasting* chosen by default. When it ends, Guyrapu says how many frames were dropped, whether it was due to the network, the encoder or the drawing of the scene, and what to change in the profile for the next one. OBS goes back to the profile it had before the live stream, also if you cancel it before it starts.
 
-### Microphone
+### <a id="microfono"></a>Microphone
 
 *Mute OBS microphone*, in the *OBS* menu, mutes or turns on the microphone. When you turn it on, Guyrapu says which device it uses and warns if no sound comes in. To set the device, use *Choose a device…* on the *Audio* tab of the *OBS panel*.
 
@@ -182,7 +182,7 @@ The chat on video shows the messages and gifts over the live stream image, for t
 
     http://127.0.0.1:8730/chat
 
-## OBS panel
+## <a id="panel-obs"></a>OBS panel
 
 The *OBS panel* brings together in tabs what is done with OBS, and it is opened from the *OBS* menu. If OBS is closed, the panel opens it. Everything can still be done in OBS, and the OBS plugin for NVDA still works.
 
@@ -275,7 +275,7 @@ The *Audio sources* list shows each source with its status and its filters. If t
 
 *Start recording* and *Stop recording* record without broadcasting, and *Pause recording* pauses the recording in progress. The *Recordings and clips* list brings together the recordings and the clips, from newest to oldest. Its context menu opens the file or its folder, copies the path or removes it from the list without deleting the file. If OBS converts the recording to MP4 at the end, the list shows the MP4.
 
-## Restream
+## <a id="restream"></a>Restream
 
 Restream sends a single broadcast to several platforms at once. The Restream window opens with *Restream…*, in the *Broadcast* menu, and it has four tabs.
 
@@ -327,7 +327,7 @@ In *Preferences*, on the *Camera* category, you choose the OBS camera, the guide
 
 Scheduled messages are sent to the chat every so often, for example your social networks every ten minutes. They are configured in *Preferences*, on the *Scheduled messages* category, and they work on your own YouTube live stream with the Google session started. YouTube usually blocks links: type the user name instead. If YouTube returns an error, the messages stop and Guyrapu warns you once.
 
-## Downloads and history
+## <a id="descargas"></a>Downloads and history
 
 The *Download manager* downloads videos, audio or YouTube playlists in MP4, WebM, MP3 or M4A, two at a time. What is downloaded goes to the Downloads folder, next to the application. On the *Search on YouTube* tab, Space plays a result in the music without downloading it. If downloads fail, use *Update yt-dlp…*, in the *Tools* menu.
 
@@ -337,7 +337,7 @@ The *Live stream history* shows what you watched, with a tab for YouTube and ano
 
 *Announce status*, in the *View* menu, summarizes the connection, the live stream, the viewers, the messages read and the donations. When you broadcast to YouTube and TikTok at the same time, the viewers are those of both platforms. What is included is chosen in *Preferences*, on the *Status (F2)* category. Twice in a row, it opens the *Session status* window, with each piece of data on one line.
 
-## Asking the AI
+## <a id="ia"></a>Asking the AI
 
 An artificial intelligence looks at an OBS screenshot and says what it sees, for example whether a source comes out black. It requires OBS open and a provider key.
 
@@ -353,7 +353,7 @@ The Google session lets you moderate, write in the chat, comment on videos and c
 
 To start it, open *Preferences*, on the *YouTube* category, press *Sign in* and authorize in the browser. The YouTube and Restream sessions are saved encrypted with your Windows account: if you copy the application folder to another computer, you will have to start them again. YouTube's daily quota is shared among those who use Guyrapu. To have your own, see the [API setup guide](../CONFIGURACION_API.md).
 
-## Preferences
+## <a id="preferencias"></a>Preferences
 
 *Preferences…*, in the *Tools* menu, brings together the configuration by categories, and the changes are applied when you press *Save*. In *General* you choose the language and the update channel, and you export, import or reset the preferences. *Show important notices also in a message box* also shows the result of what you do in a box. Each category is prepared the first time you choose it, so the window opens faster.
 

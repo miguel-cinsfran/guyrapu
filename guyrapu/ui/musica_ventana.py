@@ -16,7 +16,8 @@ import wx
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios, vista
-from guyrapu.ui import musica_filtros, musica_menus, musica_teclas, tecla_escape
+from guyrapu.ui import (ayuda_manual, musica_filtros, musica_menus,
+                        musica_teclas, tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui import paleta
@@ -359,6 +360,8 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         evento.Skip()
 
     def _tecla_atajo(self, evento):
+        if ayuda_manual.atender_f1(self, evento, "musica"):
+            return
         if evento.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
             foco = wx.Window.FindFocus()
             if foco is self.lb_colecciones:

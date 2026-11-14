@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 from guyrapu.core.carpetas_windows import carpeta_musica_windows
@@ -274,6 +275,11 @@ def documento(nombre, idioma) -> Path:
         if ruta.is_file():
             return ruta
     return carpeta_instalacion() / "docs" / "es" / f"{nombre}.html"
+
+
+def pagina_redireccion(nombre, ancla) -> Path:
+    """Página temporal que lleva a una sección del documento."""
+    return Path(tempfile.gettempdir()) / f"guyrapu-{nombre.lower()}-{ancla}.html"
 
 
 def pagina_overlay() -> Path:

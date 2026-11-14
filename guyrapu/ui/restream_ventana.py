@@ -19,7 +19,7 @@ from guyrapu.core.config import APP_NAME
 from guyrapu.core.idioma import _
 from guyrapu.restream import canal_youtube, resumen_cuenta
 from guyrapu.restream.api import ErrorApi
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import ayuda_manual, paleta, tecla_escape
 from guyrapu.ui import restream_acciones_destino
 from guyrapu.ui.accesibilidad import anunciar, enlazar_anuncio_de_pestana, nombre_accesible
 from guyrapu.ui.aviso_importante import avisar
@@ -371,12 +371,10 @@ class VentanaRestream(wx.Dialog):
         return super().Destroy()
 
     def _al_tecla_ventana(self, evento):
+        if ayuda_manual.atender_f1(self, evento, "restream"):
+            return
         tecla = evento.GetKeyCode()
-        if tecla == wx.WXK_F1:
-            from guyrapu.ui import gui_menu
-            gui_menu.abrir_documento_paquete(
-                self, "MANUAL", _("Manual de uso"))
-        elif tecla_escape.es_escape(tecla):
+        if tecla_escape.es_escape(tecla):
             self._cerrar()
         else:
             evento.Skip()

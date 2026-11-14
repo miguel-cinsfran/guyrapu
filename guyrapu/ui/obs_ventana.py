@@ -17,7 +17,7 @@ from guyrapu.obs import obs_lanzador
 from guyrapu.obs.obs_destinos import DESTINOS
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.obs.restablecimiento import RegistroRestablecimiento
-from guyrapu.ui import (aviso_importante, comando_cerrar_obs,
+from guyrapu.ui import (aviso_importante, ayuda_manual, comando_cerrar_obs,
                         dialogo_prueba_equipo, gui_microfono, paleta,
                         tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, enlazar_anuncio_de_pestana
@@ -301,10 +301,7 @@ class VentanaObs(wx.Dialog):
         self._operaciones.en_hilo(funcion, al_terminar)
 
     def _al_tecla(self, evento):
-        if evento.GetKeyCode() == wx.WXK_F1:
-            from guyrapu.ui import gui_menu
-            gui_menu.abrir_documento_paquete(self, "MANUAL",
-                                             _("Manual de uso"))
+        if ayuda_manual.atender_f1(self, evento, "panel_obs"):
             return
         if tecla_escape.es_escape(evento.GetKeyCode()):
             if self._pagina_fuentes.en_ajuste:

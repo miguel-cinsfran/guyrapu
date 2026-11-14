@@ -153,5 +153,7 @@ SIN_ESCENARIO: dict[str, str] = {
         "con wx y la prueba contra OBS real."),
     "confirmar.py": "Envuelve los cuadros nativos de Windows; no abre una ventana propia.",
     "tecla_escape.py": "Atiende teclas y no abre ventana propia.",
+    "ayuda_manual.py": (
+        "Atiende F1 y arma la página de redirección; no abre ventana propia."),
     "aviso_importante.py": "Envuelve los cuadros de aviso de Windows; no abre una ventana propia.",
 }

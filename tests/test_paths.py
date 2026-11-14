@@ -287,6 +287,17 @@ class TestDocumento(unittest.TestCase):
                              instalacion / "docs" / "es" / "MANUAL.html")
 
 
+class TestPaginaRedireccion(unittest.TestCase):
+
+    def test_cuelga_de_la_carpeta_temporal(self):
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.object(paths.tempfile, "gettempdir",
+                                  return_value=tmp):
+            self.assertEqual(
+                paths.pagina_redireccion("MANUAL", "panel-obs"),
+                Path(tmp) / "guyrapu-manual-panel-obs.html")
+
+
 class TestNombresAnteriores(unittest.TestCase):
     """Las rutas viejas que la migración de arranque lleva a los nombres nuevos."""
 

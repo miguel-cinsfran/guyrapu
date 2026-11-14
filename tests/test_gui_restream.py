@@ -170,7 +170,7 @@ class PruebaVentanaRestream(unittest.TestCase):
                 "guyrapu.ui.gui_menu.abrir_documento_paquete") as abrir:
             dialogo._al_tecla_ventana(evento)
         abrir.assert_called_once_with(
-            dialogo, "MANUAL", "Manual de uso")
+            dialogo, "MANUAL", "Manual de uso", "restream")
         evento.Skip.assert_not_called()
 
     def test_p2_con_cuenta_tambien_abre_en_cuenta(self):

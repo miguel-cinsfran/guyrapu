@@ -39,7 +39,7 @@ from guyrapu.ui.descargas_listas import _ESTADOS_FINALES, PaginaDescargas
 from guyrapu.ui.buscador_acciones import anunciar_agregados
 from guyrapu.ui.descargas_acciones import ofrecer_carpeta
 from guyrapu.ui.gui import anunciar, nombre_accesible
-from guyrapu.ui import confirmar, paleta
+from guyrapu.ui import ayuda_manual, confirmar, paleta
 from guyrapu.ui.accesibilidad import enlazar_anuncio_de_pestana
 from guyrapu.voice import sound_player as _snd
 
@@ -197,6 +197,7 @@ class GestorDescargasDialog(wx.Dialog):
         self._formato_visto = (self._opciones.get("formato") or "mp4")
         gestor().suscribir_fin(_avisar_fin_descarga)
         self._build_ui()
+        ayuda_manual.enlazar(self, "descargas")
         self.Bind(wx.EVT_CLOSE, self._on_cerrar)
         # Las filas repobladas al reabrir no tienen callbacks (eran cierres del
         # diálogo anterior): un temporizador vuelca el estado del gestor.
