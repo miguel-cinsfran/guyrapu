@@ -15,6 +15,7 @@ try:
 except Exception:
     _HAY_WX = False
 
+from guyrapu.capture import redaccion
 from guyrapu.ui import ia_agregar_captura as agregar
 from guyrapu.obs import obs_captura_ia
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -76,6 +77,19 @@ class TestDialogoAgregarCapturaVentana(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
+    def _dialogo_sin_cargar(self, cliente=None):
+        pendientes = []
+
+        def crear_hilo(target, _nombre, **_kwargs):
+            pendientes.append(target)
+            return mock.Mock()
+
+        parche = mock.patch.object(agregar.diagnostico, "crear_hilo",
+                                   side_effect=crear_hilo)
+        parche.start()
+        self.addCleanup(parche.stop)
+        return self._dialogo(cliente), pendientes
+
     def test_nombres_accesibles(self):
         dialogo = self._dialogo()
         self.assertEqual(dialogo.GetName(), "DialogoAgregarCaptura")
@@ -115,6 +129,100 @@ class TestDialogoAgregarCapturaVentana(unittest.TestCase):
                          "Escena actual: Escena")
         self.assertEqual(dialogo._opciones[0].fuente, "Escena")
         self.assertTrue(dialogo.btn_capturar.IsEnabled())
+
+    def test_capturar_nunca_esta_deshabilitado(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        self.assertTrue(dialogo.btn_capturar.IsEnabled())
+        pendientes.pop(0)()
+        self.assertTrue(dialogo.btn_capturar.IsEnabled())
+        dialogo._al_capturar(mock.Mock())
+        self.assertTrue(dialogo.btn_capturar.IsEnabled())
+
+    def test_etiqueta_dice_el_motivo(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        self.assertEqual(
+            dialogo.btn_capturar.GetLabel(),
+            redaccion.etiqueta_con_motivo(
+                "Captu&rar", "Cargando las fuentes de OBS"))
+        pendientes.pop(0)()
+        self.assertEqual(dialogo.btn_capturar.GetLabel(), "Captu&rar")
+        dialogo._al_capturar(mock.Mock())
+        self.assertEqual(
+            dialogo.btn_capturar.GetLabel(),
+            redaccion.etiqueta_con_motivo("Captu&rar", "Capturando"))
+
+    def test_activarlo_mientras_carga_anuncia_y_no_captura(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        with mock.patch.object(agregar, "anunciar") as anunciar:
+            dialogo.btn_capturar.GetEventHandler().ProcessEvent(
+                wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                dialogo.btn_capturar.GetId()))
+        self.assertEqual(len(pendientes), 1)
+        anunciar.assert_called_once_with("Cargando las fuentes de OBS.")
+
+    def test_activarlo_mientras_captura_anuncia_y_no_lanza_otro_hilo(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        pendientes.pop(0)()
+        with mock.patch.object(agregar, "anunciar") as anunciar:
+            dialogo._al_capturar(mock.Mock())
+            self.assertEqual(len(pendientes), 1)
+            dialogo._al_capturar(mock.Mock())
+        anunciar.assert_called_once_with("Capturando.")
+        self.assertEqual(len(pendientes), 1)
+
+    def test_al_llegar_las_fuentes_vuelve_a_la_base(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        self.assertNotEqual(dialogo.btn_capturar.GetLabel(), "Captu&rar")
+        pendientes.pop(0)()
+        self.assertEqual(dialogo.btn_capturar.GetLabel(), "Captu&rar")
+
+    def test_lista_vacia_lleva_el_motivo_en_la_etiqueta(self):
+        dialogo, _pendientes = self._dialogo_sin_cargar()
+        dialogo._opciones_listas([])
+        self.assertEqual(
+            dialogo.btn_capturar.GetLabel(),
+            redaccion.etiqueta_con_motivo(
+                "Captu&rar", "No hay fuentes para capturar"))
+        self.assertTrue(dialogo.btn_capturar.IsEnabled())
+
+    def test_activarlo_sin_fuentes_anuncia_y_no_captura(self):
+        dialogo, _pendientes = self._dialogo_sin_cargar()
+        dialogo._opciones_listas([])
+        with mock.patch.object(agregar, "anunciar") as anunciar, \
+                mock.patch.object(agregar.obs_captura_ia,
+                                  "capturar") as capturar:
+            dialogo._al_capturar(mock.Mock())
+        anunciar.assert_called_once_with("No hay fuentes para capturar.")
+        capturar.assert_not_called()
+
+    def test_captura_que_falla_vuelve_a_la_base(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        pendientes.pop(0)()
+        with mock.patch.object(
+                agregar.obs_captura_ia, "capturar",
+                side_effect=obs_captura_ia.CapturaFallida("nada")), \
+                mock.patch.object(agregar, "anunciar"), \
+                mock.patch.object(agregar, "reproducir"):
+            dialogo._al_capturar(mock.Mock())
+            self.assertEqual(dialogo.btn_capturar.GetLabel(),
+                             "Captu&rar (capturando)")
+            pendientes.pop(0)()
+        self.assertEqual(dialogo.btn_capturar.GetLabel(), "Captu&rar")
+
+    def test_captura_negra_vuelve_a_la_base(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        pendientes.pop(0)()
+        captura = obs_captura_ia.Captura(b"x", 320, 180, True, "sin_elegir",
+                                         "Cámara")
+        with mock.patch.object(agregar.obs_captura_ia, "capturar",
+                               return_value=captura), \
+                mock.patch.object(agregar, "anunciar"), \
+                mock.patch.object(agregar, "reproducir"):
+            dialogo._al_capturar(mock.Mock())
+            self.assertEqual(dialogo.btn_capturar.GetLabel(),
+                             "Captu&rar (capturando)")
+            pendientes.pop(0)()
+        self.assertEqual(dialogo.btn_capturar.GetLabel(), "Captu&rar")
 
     def test_negra_no_cierra_anuncia_y_vuelve(self):
         dialogo = self._dialogo()

@@ -8,9 +8,13 @@ del módulo, que no crea controles al importarse.
 
 import unittest
 
+from guyrapu.capture import redaccion
 from guyrapu.ui.ia_agregar_captura import (
+    TEXTO_CAPTURANDO,
     TEXTO_CARGANDO,
+    TEXTO_CARGANDO_MOTIVO,
     TEXTO_OBS_CERRADO,
+    TEXTO_SIN_FUENTES,
     texto_negra,
 )
 
@@ -22,6 +26,25 @@ class TestTextosAgregarCaptura(unittest.TestCase):
 
     def test_obs_cerrado(self):
         self.assertEqual(TEXTO_OBS_CERRADO, "OBS no está abierto.")
+
+    def test_motivo_de_carga(self):
+        self.assertEqual(TEXTO_CARGANDO_MOTIVO, "Cargando las fuentes de OBS")
+
+    def test_motivo_de_captura(self):
+        self.assertEqual(TEXTO_CAPTURANDO, "Capturando")
+
+    def test_motivo_sin_fuentes(self):
+        self.assertEqual(TEXTO_SIN_FUENTES, "No hay fuentes para capturar")
+
+    def test_etiqueta_con_el_motivo_de_carga(self):
+        self.assertEqual(
+            redaccion.etiqueta_con_motivo("Captu&rar", TEXTO_CARGANDO_MOTIVO),
+            "Captu&rar (cargando las fuentes de OBS)")
+
+    def test_etiqueta_con_el_motivo_de_captura(self):
+        self.assertEqual(
+            redaccion.etiqueta_con_motivo("Captu&rar", TEXTO_CAPTURANDO),
+            "Captu&rar (capturando)")
 
     def test_negra_nombra_la_fuente(self):
         self.assertEqual(

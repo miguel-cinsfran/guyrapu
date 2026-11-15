@@ -14158,3 +14158,18 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#. Traductores: motivo de Capturar mientras se cargan las fuentes de OBS.
+#: guyrapu/ui/ia_agregar_captura.py
+msgid "Cargando las fuentes de OBS"
+msgstr "Loading OBS sources"
+
+#. Traductores: motivo de Capturar mientras se captura.
+#: guyrapu/ui/ia_agregar_captura.py
+msgid "Capturando"
+msgstr "Capturing"
+
+#. Traductores: motivo de Capturar cuando OBS no ofrece fuentes.
+#: guyrapu/ui/ia_agregar_captura.py
+msgid "No hay fuentes para capturar"
+msgstr "There are no sources to capture"
+

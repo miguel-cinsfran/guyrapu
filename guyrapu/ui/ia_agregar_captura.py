@@ -14,6 +14,7 @@ import threading
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_activacion
@@ -27,6 +28,12 @@ from guyrapu.voice.sound_player import reproducir
 logger = diagnostico.obtener_logger(__name__)
 
 TEXTO_CARGANDO = N_("Cargando las fuentes de OBS…")
+# Traductores: motivo de Capturar mientras se cargan las fuentes de OBS.
+TEXTO_CARGANDO_MOTIVO = N_("Cargando las fuentes de OBS")
+# Traductores: motivo de Capturar mientras se captura.
+TEXTO_CAPTURANDO = N_("Capturando")
+# Traductores: motivo de Capturar cuando OBS no ofrece fuentes.
+TEXTO_SIN_FUENTES = N_("No hay fuentes para capturar")
 TEXTO_OBS_CERRADO = N_("OBS no está abierto.")
 
 ANCHO_VISTA = 320
@@ -85,7 +92,7 @@ class DialogoAgregarCaptura(wx.Dialog):
         fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_capturar = wx.Button(self, wx.ID_OK, _("Captu&rar"), name=_("Capturar"))
         self.btn_capturar.SetDefault()
-        self.btn_capturar.Disable()
+        self._fijar_motivo(TEXTO_CARGANDO_MOTIVO)
         self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("Ca&ncelar"), name=_("Cancelar"))
         fila.Add(self.btn_capturar, 0, wx.RIGHT, 6)
         fila.Add(self.btn_cancelar, 0)
@@ -136,6 +143,11 @@ class DialogoAgregarCaptura(wx.Dialog):
             return self._opciones[indice]
         return None
 
+    def _fijar_motivo(self, motivo) -> None:
+        self._motivo = motivo
+        self.btn_capturar.SetLabel(redaccion.etiqueta_con_motivo(
+            _("Captu&rar"), _(motivo) if motivo else ""))
+
     def _cargar_opciones(self) -> None:
         paleta.pintar_ventana(self)
 
@@ -160,7 +172,7 @@ class DialogoAgregarCaptura(wx.Dialog):
             self.cho_fuente.Append(opcion.etiqueta)
         if self._opciones:
             self.cho_fuente.SetSelection(0)
-        self.btn_capturar.Enable()
+        self._fijar_motivo("" if self._opciones else TEXTO_SIN_FUENTES)
         self._programar_vista_previa()
 
     def _opciones_fallaron(self, error) -> None:
@@ -229,10 +241,13 @@ class DialogoAgregarCaptura(wx.Dialog):
             logger.warning("AgregarCaptura: no se pudo vaciar: %s", error)
 
     def _al_capturar(self, _event) -> None:
+        if self._motivo:
+            anunciar(f"{_(self._motivo)}.")
+            return
         opcion = self._opcion_elegida()
         if opcion is None:
             return
-        self.btn_capturar.Disable()
+        self._fijar_motivo(TEXTO_CAPTURANDO)
 
         def _trabajo():
             try:
@@ -255,7 +270,7 @@ class DialogoAgregarCaptura(wx.Dialog):
             return
         anunciar(mensaje)
         reproducir("ia_error")
-        self.btn_capturar.Enable()
+        self._fijar_motivo("")
         self.cho_fuente.SetFocus()
 
     def _captura_lista(self, opcion, captura) -> None:
@@ -265,7 +280,7 @@ class DialogoAgregarCaptura(wx.Dialog):
             anunciar(texto_negra(opcion.etiqueta, captura.motivo,
                                  captura.fuente_motivo))
             reproducir("ia_imagen_negra")
-            self.btn_capturar.Enable()
+            self._fijar_motivo("")
             self.cho_fuente.SetFocus()
             return
         self._resultado = (opcion.fuente, captura)

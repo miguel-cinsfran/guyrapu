@@ -206,7 +206,7 @@ def _capturar(ctx, ventana, espera):
     fin = time.time() + 30
     while time.time() < fin:
         try:
-            if boton.is_enabled():
+            if combo.texts():
                 break
         except Exception:
             break
