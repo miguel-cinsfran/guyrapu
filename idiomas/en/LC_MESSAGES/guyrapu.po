@@ -14125,3 +14125,19 @@ msgstr "Apply"
 msgid "Cargando la carpeta"
 msgstr "Loading the folder"
 
+#. Traductores: motivo que lleva la etiqueta del botón «Iniciar sesión».
+#: guyrapu/ui/preferencias_api.py
+msgid "Faltan las bibliotecas de Google"
+msgstr "The Google libraries are missing"
+
+#. Traductores: motivo de «Iniciar sesión» mientras el navegador espera la
+#. autorización.
+#: guyrapu/ui/preferencias_api.py
+msgid "Esperando la autorización en el navegador"
+msgstr "Waiting for authorization in the browser"
+
+#. Traductores: motivo que lleva la etiqueta del botón «Cerrar sesión».
+#: guyrapu/ui/preferencias_api.py
+msgid "No hay sesión iniciada"
+msgstr "No active session"
+

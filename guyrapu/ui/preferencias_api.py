@@ -12,6 +12,7 @@ import webbrowser
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.config import URL_REPOSITORIO
 from guyrapu.core.idioma import _
@@ -28,6 +29,23 @@ logger = diagnostico.obtener_logger(__name__)
 
 
 URL_GUIA = f"{URL_REPOSITORIO}/blob/main/docs/CONFIGURACION_API.md"
+
+
+def motivo_iniciar_sesion(hay_bibliotecas, login_en_curso) -> str:
+    if not hay_bibliotecas:
+        # Traductores: motivo que lleva la etiqueta del botón «Iniciar sesión».
+        return _("Faltan las bibliotecas de Google")
+    if login_en_curso:
+        # Traductores: motivo de «Iniciar sesión» mientras el navegador espera la autorización.
+        return _("Esperando la autorización en el navegador")
+    return ""
+
+
+def motivo_cerrar_sesion(hay_sesion) -> str:
+    if not hay_sesion:
+        # Traductores: motivo que lleva la etiqueta del botón «Cerrar sesión».
+        return _("No hay sesión iniciada")
+    return ""
 
 
 class PaginaApi:
@@ -107,15 +125,19 @@ class PaginaApi:
     def _api_refrescar_estado(self):
         if credenciales.hay_sesion():
             texto = _("Estado: sesión iniciada. Moderación y comentarios activos.")
-            self.btn_api_logout.Enable()
         else:
             texto = _("Estado: sin sesión. Solo lectura de comentarios (si hay clave de API).")
-            self.btn_api_logout.Disable()
         if credenciales.usa_cliente_de_la_app():
             texto += _(" Se usa el cliente de Google de la aplicación.")
-        if not youtube_api.google_disponible():
-            self.btn_api_login.Disable()
         self.lbl_estado_api.SetLabel(texto)
+        self._fijar_botones()
+
+    def _fijar_botones(self):
+        self.btn_api_login.SetLabel(redaccion.etiqueta_con_motivo(
+            _("&Iniciar sesión"), motivo_iniciar_sesion(
+                youtube_api.google_disponible(), self._login_en_curso)))
+        self.btn_api_logout.SetLabel(redaccion.etiqueta_con_motivo(
+            _("Cerrar s&esión"), motivo_cerrar_sesion(credenciales.hay_sesion())))
 
     def _api_guardar(self, event):
         credenciales.guardar_campo("api_key", self.txt_api.GetValue().strip())
@@ -125,7 +147,10 @@ class PaginaApi:
         self._api_refrescar_estado()
 
     def _api_login(self, event):
-        if self._login_en_curso:
+        motivo = motivo_iniciar_sesion(youtube_api.google_disponible(),
+                                       self._login_en_curso)
+        if motivo:
+            anunciar(f"{motivo}.")
             return
         cid = self.txt_cid.GetValue().strip()
         secret = self.txt_secret.GetValue().strip()
@@ -145,7 +170,7 @@ class PaginaApi:
         else:
             self._api_guardar(None)
         self._login_en_curso = True
-        self.btn_api_login.Disable()
+        self._fijar_botones()
         anunciar(_("Abriendo el navegador para iniciar sesión. Autoriza y vuelve aquí."))
 
         def _run():
@@ -163,7 +188,6 @@ class PaginaApi:
         if not self._ventana:   # el diálogo pudo cerrarse mientras se autorizaba
             return
         self._login_en_curso = False
-        self.btn_api_login.Enable()
         avisar(_("Sesión iniciada correctamente."), "conectado")
         self._api_refrescar_estado()
 
@@ -171,7 +195,7 @@ class PaginaApi:
         if not self._ventana:
             return
         self._login_en_curso = False
-        self.btn_api_login.Enable()
+        self._fijar_botones()
         _snd.reproducir("error")
         anunciar(_("No se pudo iniciar sesión."))
         confirmar.avisar(self._ventana, _("No se pudo iniciar sesión:\n\n{exc}").format(exc=exc),
@@ -179,6 +203,10 @@ class PaginaApi:
                          icono=confirmar.ICON_ERROR)
 
     def _api_logout(self, event):
+        motivo = motivo_cerrar_sesion(credenciales.hay_sesion())
+        if motivo:
+            anunciar(f"{motivo}.")
+            return
         credenciales.cerrar_sesion()
         avisar(_("Sesión cerrada."), "desconectado")
         self._api_refrescar_estado()

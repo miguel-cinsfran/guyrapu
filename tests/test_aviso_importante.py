@@ -279,7 +279,9 @@ class TestCableado(unittest.TestCase):
     def test_e_sesion_cerrada(self):
         instancia = SimpleNamespace(_api_refrescar_estado=lambda: None)
         with mock.patch.object(preferencias_api.credenciales,
-                               "cerrar_sesion"):
+                               "hay_sesion", return_value=True), \
+                mock.patch.object(preferencias_api.credenciales,
+                                  "cerrar_sesion"):
             cuadro, _anunciar, sonar = self._pedir(
                 lambda: preferencias_api.PaginaApi._api_logout(instancia, None))
         self.assertEqual(self._texto(cuadro), _("Sesión cerrada."))
