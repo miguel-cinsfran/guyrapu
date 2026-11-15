@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 import ast
 import hashlib
+import http.server
 import importlib.util
 import os
 import re
@@ -17,6 +18,7 @@ from unittest.mock import MagicMock, patch
 from guyrapu.downloads import ytdlp_actualizar
 from guyrapu.downloads import ytdlp_bin
 from guyrapu.core import paths
+from guyrapu.core import red
 from guyrapu.core import subprocesos
 from tests.pseudo_prueba import con_pseudo
 
@@ -34,13 +36,6 @@ class PruebasYtdlpBin(unittest.TestCase):
         self.assertTrue(ytdlp_actualizar.resultado_actualizacion_es_fallo("sin_conexion"))
         self.assertTrue(ytdlp_actualizar.resultado_actualizacion_es_fallo("otro_fallo"))
 
-    def test_porcentaje_sin_total_no_inventa_un_valor(self):
-        self.assertIsNone(ytdlp_actualizar.porcentaje_descarga(50, None))
-        self.assertEqual(25, ytdlp_actualizar.porcentaje_descarga(25, 100))
-
-    def test_porcentaje_no_supera_cien(self):
-        self.assertEqual(100, ytdlp_actualizar.porcentaje_descarga(150, 100))
-
     def test_texto_solo_avanza_en_decenas(self):
         self.assertTrue(ytdlp_actualizar.debe_actualizar_texto_progreso(None, 0))
         self.assertFalse(ytdlp_actualizar.debe_actualizar_texto_progreso(0, 9))
@@ -54,14 +49,14 @@ class PruebasYtdlpBin(unittest.TestCase):
         respuesta.read.side_effect = [contenido[:4], contenido[4:], b""]
         avisos = []
         with tempfile.TemporaryDirectory() as carpeta, \
-                patch.object(ytdlp_actualizar, "urlopen", return_value=respuesta):
+                patch.object(red, "urlopen", return_value=respuesta):
             respuesta.__enter__.return_value = respuesta
             destino = Path(carpeta) / "yt-dlp.exe"
             resultado = ytdlp_actualizar.descargar_ytdlp(
                 "https://ejemplo", hashlib.sha256(contenido).hexdigest(), destino,
-                lambda *datos: avisos.append(datos))
+                avisos.append)
         self.assertTrue(resultado.correcta)
-        self.assertEqual([40, 100], [aviso[0] for aviso in avisos])
+        self.assertEqual([40, 100], avisos)
 
     def test_cancelar_borra_temporal_y_no_reemplaza(self):
         contenido = b"binario nuevo"
@@ -70,7 +65,7 @@ class PruebasYtdlpBin(unittest.TestCase):
         respuesta.read.side_effect = [contenido[:4], contenido[4:]]
         llamadas = []
         with tempfile.TemporaryDirectory() as carpeta, \
-                patch.object(ytdlp_actualizar, "urlopen", return_value=respuesta):
+                patch.object(red, "urlopen", return_value=respuesta):
             respuesta.__enter__.return_value = respuesta
             destino = Path(carpeta) / "yt-dlp.exe"
             destino.write_bytes(b"binario anterior")
@@ -90,7 +85,7 @@ class PruebasYtdlpBin(unittest.TestCase):
                 patch.object(ytdlp_actualizar, "ultima_version_ytdlp", return_value=(
                     "2026.08.21", "https://ejemplo/yt-dlp.exe", "https://ejemplo/firmas"
                 )), \
-                patch.object(ytdlp_actualizar, "urlopen", return_value=respuesta), \
+                patch.object(red, "urlopen", return_value=respuesta), \
                 patch.object(ytdlp_actualizar, "firma_sha256", return_value="firma"), \
                 patch.object(ytdlp_actualizar, "descargar_ytdlp", return_value=(
                     ytdlp_actualizar.ResultadoDescarga(False, "descarga cancelada")
@@ -364,7 +359,7 @@ class PruebasYtdlpBin(unittest.TestCase):
     def test_descarga_rechaza_url_que_no_es_https(self):
         with tempfile.TemporaryDirectory() as carpeta:
             destino = Path(carpeta) / "yt-dlp.exe"
-            with patch.object(ytdlp_actualizar, "_descargar_archivo") as descargar:
+            with patch.object(red, "descargar_archivo") as descargar:
                 resultado = ytdlp_actualizar.descargar_ytdlp("http://ejemplo", "a" * 64, destino)
             self.assertFalse(resultado.correcta)
             descargar.assert_not_called()
@@ -377,10 +372,10 @@ class PruebasYtdlpBin(unittest.TestCase):
             destino = carpeta / "yt-dlp.exe"
             destino.write_bytes(b"binario anterior")
 
-            def escribir(_url, temporal):
+            def escribir(_url, temporal, *_):
                 temporal.write_bytes(contenido)
 
-            with patch.object(ytdlp_actualizar, "_descargar_archivo", side_effect=escribir):
+            with patch.object(red, "descargar_archivo", side_effect=escribir):
                 resultado = ytdlp_actualizar.descargar_ytdlp("https://ejemplo", "0" * 64, destino)
 
             self.assertFalse(resultado.correcta)
@@ -396,10 +391,10 @@ class PruebasYtdlpBin(unittest.TestCase):
             destino = carpeta / "yt-dlp.exe"
             destino.write_bytes(b"binario anterior")
 
-            def escribir(_url, temporal):
+            def escribir(_url, temporal, *_):
                 temporal.write_bytes(contenido)
 
-            with patch.object(ytdlp_actualizar, "_descargar_archivo", side_effect=escribir):
+            with patch.object(red, "descargar_archivo", side_effect=escribir):
                 resultado = ytdlp_actualizar.descargar_ytdlp(
                     "https://ejemplo", firma_alterada, destino
                 )
@@ -414,10 +409,10 @@ class PruebasYtdlpBin(unittest.TestCase):
         with tempfile.TemporaryDirectory() as carpeta:
             destino = Path(carpeta) / "yt-dlp.exe"
 
-            def escribir(_url, temporal):
+            def escribir(_url, temporal, *_):
                 temporal.write_bytes(contenido)
 
-            with patch.object(ytdlp_actualizar, "_descargar_archivo", side_effect=escribir):
+            with patch.object(red, "descargar_archivo", side_effect=escribir):
                 resultado = ytdlp_actualizar.descargar_ytdlp("https://ejemplo", firma, destino)
 
             self.assertTrue(resultado.correcta)
@@ -440,7 +435,7 @@ class PruebasYtdlpBin(unittest.TestCase):
                             "https://ejemplo/SHA2-256SUMS",
                         ),
                     ), \
-                    patch.object(ytdlp_actualizar, "urlopen", return_value=respuesta), \
+                    patch.object(red, "urlopen", return_value=respuesta), \
                     patch.object(ytdlp_actualizar, "descargar_ytdlp") as descargar:
                 resultado = ytdlp_actualizar.asegurar_ytdlp(destino)
 
@@ -464,7 +459,7 @@ class PruebasYtdlpBin(unittest.TestCase):
         with patch.object(ytdlp_bin, "ruta_ytdlp", return_value="yt-dlp.exe"), \
                 patch.object(ytdlp_bin, "version_ytdlp", return_value="2026.08.20"), \
                 patch.object(ytdlp_actualizar, "ultima_version_ytdlp", return_value=self._ultima()), \
-                patch.object(ytdlp_actualizar, "urlopen") as abrir, \
+                patch.object(red, "urlopen") as abrir, \
                 patch.object(ytdlp_actualizar, "descargar_ytdlp", return_value=ytdlp_actualizar.ResultadoDescarga(True, "")) as descargar:
             abrir.return_value.__enter__.return_value.read.return_value = b"a" * 64 + b"  yt-dlp.exe\n"
             resultado = ytdlp_actualizar.actualizar_ytdlp()
@@ -474,7 +469,7 @@ class PruebasYtdlpBin(unittest.TestCase):
     def test_actualizar_sin_binario_descarga(self):
         with patch.object(ytdlp_bin, "ruta_ytdlp", return_value=None), \
                 patch.object(ytdlp_actualizar, "ultima_version_ytdlp", return_value=self._ultima()), \
-                patch.object(ytdlp_actualizar, "urlopen") as abrir, \
+                patch.object(red, "urlopen") as abrir, \
                 patch.object(ytdlp_actualizar, "descargar_ytdlp", return_value=ytdlp_actualizar.ResultadoDescarga(True, "")) as descargar:
             abrir.return_value.__enter__.return_value.read.return_value = b"a" * 64 + b"  yt-dlp.exe\n"
             resultado = ytdlp_actualizar.actualizar_ytdlp()
@@ -495,7 +490,7 @@ class PruebasYtdlpBin(unittest.TestCase):
         with patch.object(ytdlp_bin, "ruta_ytdlp", return_value="yt-dlp.exe"), \
                 patch.object(ytdlp_bin, "version_ytdlp", return_value="2026.08.20"), \
                 patch.object(ytdlp_actualizar, "ultima_version_ytdlp", return_value=self._ultima()), \
-                patch.object(ytdlp_actualizar, "urlopen") as abrir, \
+                patch.object(red, "urlopen") as abrir, \
                 patch.object(ytdlp_actualizar, "descargar_ytdlp", side_effect=lambda *a: (orden.append("descarga"), ytdlp_actualizar.ResultadoDescarga(True, ""))[1]):
             abrir.return_value.__enter__.return_value.read.return_value = b"a" * 64 + b"  yt-dlp.exe\n"
             resultado = ytdlp_actualizar.actualizar_ytdlp(lambda version: orden.append(("aviso", version)))
@@ -515,7 +510,7 @@ class PruebasYtdlpBin(unittest.TestCase):
         with patch.object(ytdlp_bin, "ruta_ytdlp", return_value="yt-dlp.exe"), \
                 patch.object(ytdlp_bin, "version_ytdlp", return_value="2026.08.20"), \
                 patch.object(ytdlp_actualizar, "ultima_version_ytdlp", return_value=self._ultima()), \
-                patch.object(ytdlp_actualizar, "urlopen") as abrir, \
+                patch.object(red, "urlopen") as abrir, \
                 patch.object(ytdlp_actualizar, "descargar_ytdlp", return_value=ytdlp_actualizar.ResultadoDescarga(False, "la firma SHA-256 no coincide")):
             abrir.return_value.__enter__.return_value.read.return_value = b"a" * 64 + b"  yt-dlp.exe\n"
             resultado = ytdlp_actualizar.actualizar_ytdlp()
@@ -525,7 +520,7 @@ class PruebasYtdlpBin(unittest.TestCase):
         with patch.object(ytdlp_bin, "ruta_ytdlp", return_value="yt-dlp.exe"), \
                 patch.object(ytdlp_bin, "version_ytdlp", return_value="2026.08.20"), \
                 patch.object(ytdlp_actualizar, "ultima_version_ytdlp", return_value=self._ultima()), \
-                patch.object(ytdlp_actualizar, "urlopen") as abrir, \
+                patch.object(red, "urlopen") as abrir, \
                 patch.object(ytdlp_actualizar, "descargar_ytdlp", return_value=ytdlp_actualizar.ResultadoDescarga(True, "")) as descargar:
             abrir.return_value.__enter__.return_value.read.return_value = b"a" * 64 + b"  yt-dlp.exe\n"
             resultado = ytdlp_actualizar.actualizar_ytdlp()
@@ -905,7 +900,7 @@ class TestUserAgentConVersionDeLaApp(unittest.TestCase):
             pedidos.append(solicitud)
             raise OSError("corte sin red")
 
-        with patch.object(ytdlp_actualizar, "urlopen", side_effect=espia):
+        with patch.object(red, "urlopen", side_effect=espia):
             ytdlp_actualizar.ultima_version_ytdlp()
         self.assertTrue(pedidos, "ultima_version_ytdlp no pidió nada")
         for pedido in pedidos:
@@ -1077,6 +1072,56 @@ class TestPseudoMensajesActualizacion(unittest.TestCase):
         for mensaje in mensajes:
             with self.subTest(mensaje=mensaje):
                 self.assertTrue(mensaje.startswith("[¡"), mensaje)
+
+
+class TestDescargaContraServidorLocal(unittest.TestCase):
+    """`descargar_ytdlp` de verdad contra un servidor HTTP local.
+
+    Solo se parchea la comprobación del esquema: el transporte corre por
+    `red` contra 127.0.0.1, que la suite permite.
+    """
+
+    def _servir(self, contenido):
+        class Manejador(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(contenido)))
+                self.end_headers()
+                self.wfile.write(contenido)
+
+            def log_message(self, *_):
+                pass
+
+        servidor = http.server.HTTPServer(("127.0.0.1", 0), Manejador)
+        hilo = threading.Thread(target=servidor.serve_forever, daemon=True)
+        hilo.start()
+        self.addCleanup(servidor.server_close)
+        self.addCleanup(servidor.shutdown)
+        return f"http://127.0.0.1:{servidor.server_port}/yt-dlp.exe"
+
+    def test_baja_y_queda_en_el_destino_con_la_firma_correcta(self):
+        contenido = b"binario nuevo"
+        url = self._servir(contenido)
+        with tempfile.TemporaryDirectory() as carpeta, \
+                patch.object(ytdlp_actualizar, "_es_https", return_value=True):
+            destino = Path(carpeta) / "yt-dlp.exe"
+            resultado = ytdlp_actualizar.descargar_ytdlp(
+                url, hashlib.sha256(contenido).hexdigest(), destino)
+            self.assertTrue(resultado.correcta)
+            self.assertEqual(contenido, destino.read_bytes())
+
+    def test_con_otra_firma_no_cambia_el_destino_ni_deja_temporal(self):
+        contenido = b"binario nuevo"
+        url = self._servir(contenido)
+        with tempfile.TemporaryDirectory() as carpeta, \
+                patch.object(ytdlp_actualizar, "_es_https", return_value=True):
+            carpeta = Path(carpeta)
+            destino = carpeta / "yt-dlp.exe"
+            destino.write_bytes(b"binario anterior")
+            resultado = ytdlp_actualizar.descargar_ytdlp(url, "0" * 64, destino)
+            self.assertFalse(resultado.correcta)
+            self.assertEqual(b"binario anterior", destino.read_bytes())
+            self.assertEqual([], list(carpeta.glob(".yt-dlp-*.tmp")))
 
 
 if __name__ == "__main__":

@@ -80,7 +80,6 @@ REGLAS = (
         detectar=detectar_red,
         pendientes=_pendientes("pasar al módulo de red común", {
             "guyrapu/ai/catalogo.py": 1, "guyrapu/ai/envio_ia.py": 1,
-            "guyrapu/downloads/ytdlp_actualizar.py": 1,
             "guyrapu/player/flujo_tiktok.py": 1,
             "guyrapu/player/relevo_ffmpeg.py": 1,
             "guyrapu/restream/api.py": 1, "guyrapu/restream/oauth.py": 1,

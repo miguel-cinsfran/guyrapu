@@ -9,10 +9,11 @@ from pathlib import Path
 import tempfile
 from typing import NamedTuple
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
 from guyrapu.core import paths
+from guyrapu.core import red
 from guyrapu.core.idioma import _
+from guyrapu.core.paquete_release import _es_https
 from guyrapu.downloads import ytdlp_bin
 
 
@@ -30,18 +31,12 @@ def _url_api_ytdlp(canal="estable") -> str:
 
 def _canal_configurado() -> str:
     """Canal elegido en Preferencias: estable si falta o no se puede leer."""
-    # Import local por el mismo ciclo que `_user_agent`.
+    # Import local por el ciclo diagnostico, ytdlp_bin, config.
     from guyrapu.core import config
     try:
         return config.obtener_opciones_descarga().get("canal_ytdlp", "estable")
     except Exception:
         return "estable"
-
-
-def _user_agent():
-    # Import local por el ciclo diagnostico, ytdlp_bin, config.
-    from guyrapu.core import config
-    return config.USER_AGENT
 
 
 class ResultadoDescarga(NamedTuple):
@@ -79,10 +74,7 @@ def mensaje_de_actualizacion(estado, version_actual="", version_nueva="",
 def ultima_version_ytdlp(canal="estable") -> tuple[str, str, str] | None:
     """Devuelve versión, descarga del ejecutable y descarga de sus firmas."""
     try:
-        solicitud = Request(_url_api_ytdlp(canal),
-                            headers={"User-Agent": _user_agent()})
-        with urlopen(solicitud, timeout=ytdlp_bin.TIEMPO_ESPERA) as respuesta:
-            datos = json.load(respuesta)
+        datos = red.pedir_json(_url_api_ytdlp(canal))
         activos = {activo["name"]: activo for activo in datos["assets"]}
         ejecutable = activos[NOMBRE_BINARIO]["browser_download_url"]
         firmas = activos[NOMBRE_FIRMAS]["browser_download_url"]
@@ -105,17 +97,6 @@ def firma_sha256(texto: str, nombre: str) -> str:
     return ""
 
 
-class _DescargaCancelada(Exception):
-    pass
-
-
-def porcentaje_descarga(descargado: int, total: int | None) -> int | None:
-    """Calcula un porcentaje entero o None si no hay total conocido."""
-    if total is None or total <= 0:
-        return None
-    return min(100, max(0, int(descargado * 100 / total)))
-
-
 def debe_actualizar_texto_progreso(anterior: int | None, actual: int | None) -> bool:
     """Indica si el texto debe cambiar al avanzar otra decena."""
     if actual is None:
@@ -123,32 +104,10 @@ def debe_actualizar_texto_progreso(anterior: int | None, actual: int | None) -> 
     return anterior is None or actual >= anterior + 10 or actual == 100
 
 
-def _descargar_archivo(url: str, destino: Path, aviso=None, cancelar=None) -> None:
-    solicitud = Request(url, headers={"User-Agent": _user_agent()})
-    with urlopen(solicitud, timeout=ytdlp_bin.TIEMPO_ESPERA) as respuesta:
-        total = None
-        try:
-            total = int(respuesta.headers.get("Content-Length"))
-        except (AttributeError, TypeError, ValueError):
-            pass
-        descargado = 0
-        with destino.open("wb") as archivo:
-            while True:
-                if cancelar is not None and cancelar():
-                    raise _DescargaCancelada
-                bloque = respuesta.read(1024 * 1024)
-                if not bloque:
-                    break
-                archivo.write(bloque)
-                descargado += len(bloque)
-                if aviso is not None:
-                    aviso(porcentaje_descarga(descargado, total), descargado, total)
-
-
 def descargar_ytdlp(url: str, firma: str, destino: str | os.PathLike,
                     aviso_progreso=None, cancelar=None) -> ResultadoDescarga:
     """Descarga, verifica y reemplaza un ejecutable sin ejecutar el temporal."""
-    if not url.lower().startswith("https://"):
+    if not _es_https(url):
         return ResultadoDescarga(False, "la descarga exige un enlace https")
     destino = Path(destino)
     temporal = None
@@ -158,10 +117,7 @@ def descargar_ytdlp(url: str, firma: str, destino: str | os.PathLike,
                 prefix=".yt-dlp-", suffix=".tmp", dir=destino.parent,
                 delete=False) as archivo:
             temporal = Path(archivo.name)
-        if aviso_progreso is None and cancelar is None:
-            _descargar_archivo(url, temporal)
-        else:
-            _descargar_archivo(url, temporal, aviso_progreso, cancelar)
+        red.descargar_archivo(url, temporal, aviso_progreso, cancelar)
         resumen = hashlib.sha256()
         with temporal.open("rb") as archivo:
             for bloque in iter(lambda: archivo.read(1024 * 1024), b""):
@@ -171,7 +127,7 @@ def descargar_ytdlp(url: str, firma: str, destino: str | os.PathLike,
         os.replace(temporal, destino)
         temporal = None
         return ResultadoDescarga(True, "yt-dlp actualizado")
-    except _DescargaCancelada:
+    except red.DescargaCancelada:
         return ResultadoDescarga(False, "descarga cancelada")
     except (OSError, HTTPError, URLError, ValueError) as error:
         return ResultadoDescarga(False, f"no se pudo descargar yt-dlp: {error}")
@@ -195,9 +151,7 @@ def asegurar_ytdlp(destino: str | os.PathLike | None = None) -> ResultadoDescarg
         return ResultadoDescarga(False, "no se pudo consultar la última versión")
     _sin_uso, url_ejecutable, url_firmas = ultima
     try:
-        solicitud = Request(url_firmas, headers={"User-Agent": _user_agent()})
-        with urlopen(solicitud, timeout=ytdlp_bin.TIEMPO_ESPERA) as respuesta:
-            texto_firmas = respuesta.read().decode("utf-8")
+        texto_firmas = red.pedir_texto(url_firmas)
     except (HTTPError, URLError, OSError, UnicodeError):
         return ResultadoDescarga(False, "no se pudieron descargar las firmas")
     firma = firma_sha256(texto_firmas, NOMBRE_BINARIO)
@@ -223,9 +177,7 @@ def actualizar_ytdlp(avisar_antes_descarga=None, aviso_progreso=None,
         return "ya_al_dia", version_instalada, version_nueva
 
     try:
-        solicitud = Request(url_firmas, headers={"User-Agent": _user_agent()})
-        with urlopen(solicitud, timeout=ytdlp_bin.TIEMPO_ESPERA) as respuesta:
-            texto_firmas = respuesta.read().decode("utf-8")
+        texto_firmas = red.pedir_texto(url_firmas)
     except (HTTPError, URLError, OSError, UnicodeError):
         return "sin_conexion", version_instalada, version_nueva
 

@@ -46,7 +46,7 @@ def abrir_ventana_actualizacion(frame) -> None:
                   "Descargando.")
         ventana.estado(texto.format(version=version_nueva))
 
-    def _progreso(porcentaje, _descargado, _total):
+    def _progreso(porcentaje):
         ventana.en_hilo_principal(_actualizar_progreso, porcentaje)
 
     def _actualizar_progreso(porcentaje):

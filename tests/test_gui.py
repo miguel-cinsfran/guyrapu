@@ -4526,7 +4526,7 @@ class TestActualizarYtdlp(unittest.TestCase):
     def test_progreso_con_decenas_no_anuncia_y_no_usa_dialogos_viejos(self):
         def doble(avisar, progreso, cancelar):
             for porcentaje in (10, 20, 40, 100):
-                progreso(porcentaje, 0, 100)
+                progreso(porcentaje)
             return "actualizado", "2026.08.20", "2026.08.21"
 
         _, ventanas, _, dialogo, mensaje = self._ejecutar(doble)

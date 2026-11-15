@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.core import config
+from guyrapu.core import red
 from guyrapu.downloads import ytdlp_actualizar
 from tests.rutas_temporales import redirigir_rutas
 
@@ -134,26 +135,26 @@ class TestCanalYtdlp(unittest.TestCase):
         ruta = self._carpeta()
         (ruta / "config.ini").write_text(
             "[descargas]\ncanal_ytdlp = diario\n", encoding="utf-8")
-        red = _RedFalsa()
+        red_falsa = _RedFalsa()
         with redirigir_rutas(ruta), \
-                mock.patch.object(ytdlp_actualizar, "urlopen", red):
+                mock.patch.object(red, "urlopen", red_falsa):
             estado = ytdlp_actualizar.actualizar_ytdlp()
-        self.assertIn(DIARIO_API, red.pedidos)
-        self.assertNotIn(ESTABLE_API, red.pedidos)
+        self.assertIn(DIARIO_API, red_falsa.pedidos)
+        self.assertNotIn(ESTABLE_API, red_falsa.pedidos)
         self.assertTrue(any("nightly-builds" in pedido
-                            for pedido in red.pedidos
+                            for pedido in red_falsa.pedidos
                             if pedido.endswith("/yt-dlp.exe")))
         self.assertEqual(estado[0], "actualizado")
         self.assertEqual(estado[2], "2026.10.29.232701")
 
     def test_actualizar_sin_clave_pide_estable(self):
         ruta = self._carpeta()
-        red = _RedFalsa()
+        red_falsa = _RedFalsa()
         with redirigir_rutas(ruta), \
-                mock.patch.object(ytdlp_actualizar, "urlopen", red):
+                mock.patch.object(red, "urlopen", red_falsa):
             estado = ytdlp_actualizar.actualizar_ytdlp()
-        self.assertIn(ESTABLE_API, red.pedidos)
-        self.assertNotIn(DIARIO_API, red.pedidos)
+        self.assertIn(ESTABLE_API, red_falsa.pedidos)
+        self.assertNotIn(DIARIO_API, red_falsa.pedidos)
         self.assertEqual(estado[0], "actualizado")
         self.assertEqual(estado[2], "2026.01.01")
 
@@ -162,21 +163,21 @@ class TestCanalYtdlp(unittest.TestCase):
         (ruta / "config.ini").write_text(
             "[descargas]\ncanal_ytdlp = diario\n", encoding="utf-8")
         destino = ruta / "yt-dlp.exe"
-        red = _RedFalsa()
+        red_falsa = _RedFalsa()
         with redirigir_rutas(ruta), \
-                mock.patch.object(ytdlp_actualizar, "urlopen", red):
+                mock.patch.object(red, "urlopen", red_falsa):
             resultado = ytdlp_actualizar.asegurar_ytdlp(destino)
-        self.assertIn(ESTABLE_API, red.pedidos)
-        self.assertNotIn(DIARIO_API, red.pedidos)
+        self.assertIn(ESTABLE_API, red_falsa.pedidos)
+        self.assertNotIn(DIARIO_API, red_falsa.pedidos)
         self.assertTrue(resultado.correcta)
-        self.assertEqual(destino.read_bytes(), red.binario)
+        self.assertEqual(destino.read_bytes(), red_falsa.binario)
 
     def test_cambiar_de_canal_instala_aunque_sea_mas_vieja(self):
         ruta = self._carpeta()
-        red = _RedFalsa()
+        red_falsa = _RedFalsa()
         from guyrapu.downloads import ytdlp_bin
         with redirigir_rutas(ruta), \
-                mock.patch.object(ytdlp_actualizar, "urlopen", red), \
+                mock.patch.object(red, "urlopen", red_falsa), \
                 mock.patch.object(ytdlp_bin, "ruta_ytdlp",
                                   return_value="yt-dlp.exe"), \
                 mock.patch.object(ytdlp_bin, "version_ytdlp",

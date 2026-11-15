@@ -113,7 +113,7 @@ class TestVentanaYtdlp(unittest.TestCase):
     def test_aviso_y_progreso_propios_salen_marcados(self):
         def actualizar(avisar=None, progreso=None, cancelar=None):
             avisar("2.0")
-            progreso(40, 0, 0)
+            progreso(40)
             return ("ya_al_dia", "1.0", "1.0")
 
         with con_pseudo(), \
@@ -167,7 +167,7 @@ class TestPseudoVentanaYtdlp(unittest.TestCase):
 
         def actualizar(avisar=None, progreso=None, cancelar=None):
             avisar("2.0")
-            progreso(40, 0, 0)
+            progreso(40)
             return ("ya_al_dia", "1.0", "1.0")
 
         frame = wx.Frame(None)
