@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
 from guyrapu.music import anuncios, filtros, listas
 from guyrapu.music import pregunta_igualar
@@ -22,6 +23,8 @@ from guyrapu.ui import (musica_dialogo_enlace, musica_editor_lista,
                        musica_menus, musica_ventana,
                        musica_ventana_acciones,
                        musica_ventana_igualando)
+from guyrapu.ui.musica_colecciones import (
+    MOTIVO_CARGANDO, TEXTO_CARGANDO, TEXTO_SIN_CARPETA)
 from guyrapu.ui.tema import ALTO_CONTRASTE, _T
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -359,6 +362,48 @@ class TestVentanaMusica(unittest.TestCase):
         self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
         self.assertTrue(self.ventana.txt_igualando.GetWindowStyle()
                         & wx.TE_NO_VSCROLL)
+
+    # ── Cambiar carpeta mientras carga ─────────────────────────────────────
+
+    def test_cambiar_carpeta_nunca_se_deshabilita(self):
+        self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
+        self.ventana._cambiar_estado(_(TEXTO_CARGANDO))
+        self.assertTrue(self.ventana.btn_carpeta.IsEnabled())
+        self.ventana._estado_listo()
+        self.assertTrue(self.ventana.btn_carpeta.IsEnabled())
+
+    def test_cambiar_carpeta_lleva_el_motivo_mientras_carga(self):
+        self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
+        base = self.ventana.btn_carpeta.GetLabel()
+        self.ventana._cambiar_estado(_(TEXTO_CARGANDO))
+        self.assertEqual(
+            self.ventana.btn_carpeta.GetLabel(),
+            redaccion.etiqueta_con_motivo(base, _(MOTIVO_CARGANDO)))
+
+    def test_cambiar_carpeta_mientras_carga_anuncia_y_no_abre_el_cuadro(self):
+        self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
+        self.ventana._cambiar_estado(_(TEXTO_CARGANDO))
+        del self.anuncios[:]
+        boton = self.ventana.btn_carpeta
+        evento = wx.CommandEvent(wx.EVT_BUTTON.typeId, boton.GetId())
+        evento.SetEventObject(boton)
+        with mock.patch.object(
+                musica_ventana_acciones.wx, "DirDialog") as cuadro:
+            boton.GetEventHandler().ProcessEvent(evento)
+        cuadro.assert_not_called()
+        self.assertEqual(self.anuncios, [f"{_(MOTIVO_CARGANDO)}."])
+
+    def test_cambiar_carpeta_vuelve_a_la_base_al_terminar(self):
+        self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
+        base = self.ventana.btn_carpeta.GetLabel()
+        self.ventana._cambiar_estado(_(TEXTO_CARGANDO))
+        self.assertNotEqual(self.ventana.btn_carpeta.GetLabel(), base)
+        self.ventana._estado_listo()
+        self.assertEqual(self.ventana.btn_carpeta.GetLabel(), base)
+        self.ventana._cambiar_estado(_(TEXTO_CARGANDO))
+        self.assertNotEqual(self.ventana.btn_carpeta.GetLabel(), base)
+        self.ventana._cambiar_estado(_(TEXTO_SIN_CARPETA))
+        self.assertEqual(self.ventana.btn_carpeta.GetLabel(), base)
 
     # ── Teclas de la Biblioteca ────────────────────────────────────────────
 

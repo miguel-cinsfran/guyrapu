@@ -21,6 +21,8 @@ from guyrapu.ui import musica_ventana_acciones as _acciones
 logger = diagnostico.obtener_logger(__name__)
 
 TEXTO_CARGANDO = N_("Cargando la carpeta…")
+# Traductores: motivo del botón «Cambiar carpeta» mientras se carga la carpeta.
+MOTIVO_CARGANDO = N_("Cargando la carpeta")
 TEXTO_SIN_CARPETA = N_("No hay carpeta de música")
 
 

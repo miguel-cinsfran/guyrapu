@@ -14119,3 +14119,9 @@ msgstr "Untitled"
 msgid "Aplicar"
 msgstr "Apply"
 
+#. Traductores: motivo del botón «Cambiar carpeta» mientras se carga la
+#. carpeta.
+#: guyrapu/ui/musica_colecciones.py
+msgid "Cargando la carpeta"
+msgstr "Loading the folder"
+

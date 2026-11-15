@@ -396,9 +396,9 @@ def escenario_reproductor(app: Aplicacion, args, res: Resultado):
 def escenario_musica(app: Aplicacion, args, res: Resultado):
     """La ventana de música, abierta por sus dos entradas del menú.
 
-    Sin carpeta ningún control queda deshabilitado: «Cambiar carpeta» solo
-    se apaga mientras carga y `_al_biblioteca` lo vuelve a habilitar, así
-    que los ocho entran en el orden de Tab. No se pulsa Reproducir ni
+    Sin carpeta ningún control queda deshabilitado: «Cambiar carpeta» queda
+    habilitado y dice que está cargando mientras carga la carpeta, así que
+    los ocho entran en el orden de Tab. No se pulsa Reproducir ni
     ningún atajo de reproducción, y si la configuración trae una carpeta de
     música real no se toca: la ventana solo se abre, se audita y se cierra.
     """

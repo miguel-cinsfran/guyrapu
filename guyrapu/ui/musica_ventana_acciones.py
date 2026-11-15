@@ -219,7 +219,12 @@ class AccionesVentanaMusica:
         if datos is not None:
             self._control.abrir_enlace(*datos)
 
-    def _cambiar_carpeta(self):
+    def _cambiar_carpeta(self, cargando=False):
+        if cargando:
+            from guyrapu.ui.musica_colecciones import (
+                MOTIVO_CARGANDO, _anunciar_ventana)
+            _anunciar_ventana(f"{_(MOTIVO_CARGANDO)}.")
+            return
         with wx.DirDialog(
                 self, _("Elige la carpeta de música"),
                 defaultPath=self._control._carpeta()) as dialogo:

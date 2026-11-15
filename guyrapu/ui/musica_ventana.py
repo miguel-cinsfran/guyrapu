@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios, vista
@@ -22,7 +23,8 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui import paleta
 from guyrapu.ui.musica_colecciones import (
-    TEXTO_CARGANDO, TEXTO_SIN_CARPETA, ColeccionesVentanaMusica)
+    MOTIVO_CARGANDO, TEXTO_CARGANDO, TEXTO_SIN_CARPETA,
+    ColeccionesVentanaMusica)
 from guyrapu.ui.musica_ventana_acciones import AccionesVentanaMusica
 from guyrapu.ui.musica_ventana_igualando import IgualandoVentanaMusica
 
@@ -164,7 +166,7 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         self.btn_enlace.Bind(wx.EVT_BUTTON, lambda e: self._abrir_enlace())
         self.btn_nueva.Bind(wx.EVT_BUTTON, lambda e: self._nueva_lista())
         self.btn_carpeta.Bind(
-            wx.EVT_BUTTON, lambda e: self._cambiar_carpeta())
+            wx.EVT_BUTTON, lambda e: self._cambiar_carpeta(self._cargando))
         self.btn_igualar.Bind(
             wx.EVT_BUTTON, lambda e: self.alternar_igualacion())
         self.btn_examinar.Bind(
@@ -256,11 +258,16 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         if texto == _(TEXTO_CARGANDO):
             self._temas_filtrados = ()
         self.lb_temas.Set([texto])
-        self.btn_carpeta.Enable(not self._cargando)
+        self._rotular_carpeta()
 
     def _estado_listo(self):
         self._cargando = False
-        self.btn_carpeta.Enable(True)
+        self._rotular_carpeta()
+
+    def _rotular_carpeta(self):
+        motivo = _(MOTIVO_CARGANDO) if self._cargando else ""
+        self.btn_carpeta.SetLabel(redaccion.etiqueta_con_motivo(
+            _("Cambiar car&peta…"), motivo))
 
     def _con_tema(self):
         if self._cargando:
