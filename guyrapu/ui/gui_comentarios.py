@@ -306,6 +306,12 @@ class ComentariosPanel(wx.Panel):
             return None
         return self._coms[i]
 
+    def _con_seleccion(self):
+        c = self._seleccionado()
+        if not c:
+            anunciar(_("Sin comentario seleccionado"))
+        return c
+
     def _on_key(self, event):
         k = event.GetKeyCode()
         # La orilla suena sin consumir la tecla: NVDA sigue leyendo la fila.
@@ -361,36 +367,28 @@ class ComentariosPanel(wx.Panel):
         menu.Destroy()
 
     def _leer(self):
-        c = self._seleccionado()
+        c = self._con_seleccion()
         if not c:
-            anunciar(_("Sin comentario seleccionado"))
             return
         from guyrapu.voice.tts_worker import construir_tts
         self._cola.put({"texto_tts": construir_tts(c.autor, c.texto, self._config),
                         "autor": c.autor})
 
-    def _copiar(self):
-        c = self._seleccionado()
+    def _copiar(self, todo=False):
+        c = self._con_seleccion()
         if not c:
-            anunciar(_("Sin comentario seleccionado"))
             return
-        copiar_al_portapapeles(c.texto)
+        texto = f"{c.autor}: {c.texto}" if todo else c.texto
+        copiar_al_portapapeles(texto)
         _snd.reproducir("copiar")
-        anunciar(_("Comentario copiado"))
+        anunciar(_("Línea copiada") if todo else _("Comentario copiado"))
 
     def _copiar_todo(self):
-        c = self._seleccionado()
-        if not c:
-            anunciar(_("Sin comentario seleccionado"))
-            return
-        copiar_al_portapapeles(f"{c.autor}: {c.texto}")
-        _snd.reproducir("copiar")
-        anunciar(_("Línea copiada"))
+        self._copiar(todo=True)
 
     def _responder(self):
-        c = self._seleccionado()
+        c = self._con_seleccion()
         if not c:
-            anunciar(_("Sin comentario seleccionado"))
             return
         dlg = DialogoRedactar(
             self, _("&Comentario para {autor}:").format(autor=c.autor), redaccion.MAXIMO_CHAT,
@@ -414,7 +412,7 @@ class ComentariosPanel(wx.Panel):
             lambda texto: self._enviar_escritura(
                 lambda cli: cli.publicar_comentario(self._video_id, texto),
                 _("Comentario publicado")),
-            titulo=_("Comentar"), motivo=motivo,
+            titulo=_("Comentar"),
             nombre_texto=_("Texto del comentario"), nombre_boton=_("Publicar"))
         dlg.ShowModal()
         dlg.Destroy()
@@ -442,18 +440,16 @@ class ComentariosPanel(wx.Panel):
         avisar(_("{mensaje}. Recuerda que YouTube puede tardar o retenerlo.").format(mensaje=mensaje), "comentario")
 
     def _escritura_err(self, exc):
+        _snd.reproducir("error")
+        msg = youtube_api.mensaje_error_api(exc)
+        anunciar(msg)
         if youtube_api.sesion_caducada(exc):
-            _snd.reproducir("error")
-            anunciar(youtube_api.mensaje_error_api(exc))
             try:
                 from guyrapu.ui.gui_preferencias import ofrecer_iniciar_sesion
                 ofrecer_iniciar_sesion(self, self._config)
             except Exception as exc_:
                 logger.warning("No se pudo ofrecer iniciar sesión: %s", exc_)
             return
-        _snd.reproducir("error")
-        msg = youtube_api.mensaje_error_api(exc)
-        anunciar(msg)
         confirmar.avisar(self, msg, _("No se pudo enviar"), _("Aceptar"), icono=confirmar.ICON_ERROR)
 
 
