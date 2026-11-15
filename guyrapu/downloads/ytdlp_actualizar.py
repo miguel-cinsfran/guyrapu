@@ -3,7 +3,6 @@
 """Actualiza el ejecutable independiente de yt-dlp."""
 
 import hashlib
-import json
 import os
 from pathlib import Path
 import tempfile
@@ -79,8 +78,7 @@ def ultima_version_ytdlp(canal="estable") -> tuple[str, str, str] | None:
         ejecutable = activos[NOMBRE_BINARIO]["browser_download_url"]
         firmas = activos[NOMBRE_FIRMAS]["browser_download_url"]
         return datos["tag_name"], ejecutable, firmas
-    except (HTTPError, URLError, OSError, KeyError, TypeError, ValueError,
-            json.JSONDecodeError):
+    except (HTTPError, URLError, OSError, KeyError, TypeError, ValueError):
         return None
 
 
