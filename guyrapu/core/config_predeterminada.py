@@ -88,6 +88,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
     ("sesion", [
         ("silenciar_lectura", "false"),
         ("version_atajos", "3"),
+        ("version_sonidos", "1"),
     ]),
     ("tiktok", [
         ("usuario", ""),
@@ -191,7 +192,6 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("aleatorio", "false"),
         ("repetir", "false"),
         ("retomar", "true"),
-        ("sonido_tema", "false"),
         ("decir", ""),
         ("decir_titulo", "true"),
         ("incluir_artista", "false"),

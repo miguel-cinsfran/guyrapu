@@ -134,16 +134,13 @@ def _nombre(resultado, incluir_artista: bool, modo: str | None = None) -> str:
             if modo is not None else nombre_tema(tema, incluir_artista))
 
 
-def aviso_automatico(resultado, sonido_tema: bool, modo: str) -> Aviso | None:
+def aviso_automatico(resultado, modo: str) -> Aviso | None:
     """Lo que llega solo por `al_cambiar` del coordinador: «avanzo» respeta el modo;
     «fin_lista» y «tema_fallido» suenan siempre, lo demás no avisa."""
     if resultado.codigo == AVANZO:
         actual = resultado.estado.actual
         texto = musica_decir.texto_tema(actual, modo) if actual is not None else ""
-        sonido = SONIDO_TEMA if sonido_tema else None
-        if not texto and sonido is None:
-            return None
-        return Aviso(texto, sonido)
+        return Aviso(texto, SONIDO_TEMA)
     if resultado.codigo == FIN_LISTA:
         return Aviso(_(TEXTO_FIN_LISTA), SONIDO_FIN)
     if resultado.codigo == TEMA_FALLIDO:

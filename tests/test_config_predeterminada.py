@@ -449,7 +449,7 @@ class TestMusicaFabrica(unittest.TestCase):
     def test_seccion_musica_valores_de_fabrica(self):
         self.assertEqual(pred.seccion("musica"), {
             "carpeta": "Música", "aleatorio": "false", "repetir": "false",
-            "retomar": "true", "sonido_tema": "false", "decir": "",
+            "retomar": "true", "decir": "",
             "decir_titulo": "true", "incluir_artista": "false",
             "decir_pausa": "true", "normalizar": "true",
             "preguntar_igualar": "true", "volumen": "50", "cruce": "6",
@@ -461,7 +461,7 @@ class TestMusicaFabrica(unittest.TestCase):
 
     def test_seccion_musica_respeta_el_orden_de_claves(self):
         self.assertEqual(list(pred.seccion("musica").keys()), [
-            "carpeta", "aleatorio", "repetir", "retomar", "sonido_tema",
+            "carpeta", "aleatorio", "repetir", "retomar",
             "decir", "decir_titulo", "incluir_artista", "decir_pausa",
             "normalizar", "preguntar_igualar", "volumen", "cruce", "salida",
             "salida_nombre", "atajos_globales",

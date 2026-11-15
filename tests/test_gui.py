@@ -2005,7 +2005,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("transmision", "camara_atajos_globales"),
             ("transmision", "escena_atajos_globales"),
             ("musica", "aleatorio"), ("musica", "repetir"),
-            ("musica", "retomar"), ("musica", "sonido_tema"),
+            ("musica", "retomar"),
             ("musica", "decir"), ("musica", "decir_pausa"), ("musica", "normalizar"),
             ("musica", "preguntar_igualar"),
             ("musica", "volumen"), ("musica", "cruce"),
@@ -2174,7 +2174,7 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
         pagina = next(p for p in dialogo._paginas() if p.GetName() == "PagMusica")
         esperados = ["Carpeta de música", "MusicaAleatorio", "Repetir la música",
                      "MusicaRetomar", "Fundido entre canciones, en segundos",
-                     "MusicaSonidoTema", "Qué anunciar al pasar de canción",
+                     "Qué anunciar al pasar de canción",
                      "MusicaDecirPausa", "Volumen de la música",
                      "Preguntar al abrir Música si igualar el volumen",
                      "Salida de audio de la música", "Buscar salidas de audio",
@@ -2196,7 +2196,6 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
             "&Repetir:",
             "Recordar ú&ltima lista al abrir",
             "&Fundido entre canciones, en segundos:",
-            "&Sonido al pasar de canción",
             "Anunciar al pasar &de canción:",
             "A&nunciar pausa, reanudación y vuelta al comienzo",
             "&Volumen de la música:",
@@ -2218,7 +2217,7 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
             etiqueta = control.GetLabel()
             if "&" in etiqueta:
                 letras.append(etiqueta.split("&", 1)[1][:1].lower())
-        self.assertEqual(len(letras), 14)
+        self.assertEqual(len(letras), 13)
         self.assertEqual(len(letras), len(set(letras)), letras)
         self.assertNotIn("g", letras)
         self.assertNotIn("c", letras)
@@ -3627,7 +3626,6 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
         self.assertEqual(opciones.get("musica", "aleatorio"), "true")
         self.assertEqual(opciones.get("musica", "repetir"), "no")
         self.assertEqual(opciones.get("musica", "retomar"), "false")
-        self.assertEqual(opciones.get("musica", "sonido_tema"), "false")
         self.assertEqual(opciones.get("musica", "decir"), "artista")
         self.assertEqual(opciones.get("musica", "decir_pausa"), "false")
         self.assertEqual(opciones.get("musica", "normalizar"), "false")

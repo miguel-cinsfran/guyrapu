@@ -16,6 +16,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.ini_tipado import leer_texto, a_entero, a_decimal, leer_entero, leer_decimal, leer_booleano, separar_por_comas
 from guyrapu.core.eventos_sonido import EVENTOS as _EVENTOS_SONIDO
 from guyrapu.core import paths
+from guyrapu.core import sonidos_fabrica
 from guyrapu.core import sonidos_tema
 from guyrapu.core.atajos import (
     ATAJOS_DEFAULTS, ATAJOS_FIJOS_DEFAULTS, ATAJOS_FIJOS, ATAJOS_GRUPOS,
@@ -123,21 +124,6 @@ logger = diagnostico.obtener_logger(__name__)
 # ── Carga de config.ini ──────────────────────────────────────────────────────
 
 _CONFIG_FALLBACK = config_predeterminada.generar_texto()
-
-_SOUNDS_FALLBACK = """[sonidos]
-volumen = 0.7
-# Tema: carpeta en sounds/themes/ con un WAV por sonido y, si hace falta, uno
-# con el nombre de un evento. Copia default a mi_tema y pon: tema = mi_tema
-tema = default
-# Archivos de fábrica:
-# app_inicio, mensaje_nuevo, mensaje_tiktok, mensaje_propietario, mensaje_moderador, mensaje_verificado
-# mensaje_miembro, superchat, nuevo_miembro, error, pausa, reanudar, copiar, espera, seguir, compartir, cofre, me_gusta
-# regalo_chico, regalo_mediano, regalo_grande, entrada, orilla, fin_directo, descarga_completada, descarga_fallida
-# al_aire, transmision_detenida, transmision_problema, aviso, transmision_recuperada, actualizacion_disponible
-# musica_tema, musica_fin, musica_fallo, musica_igualando, musica_igualada, ia_respuesta, ia_analizando
-# microfono_bien, microfono_revisar, directo_pausado, directo_reanudado, cola_descargas_terminada, microfono_sin_senal
-# encuadre_dentro, encuadre_fuera, descarga_avance, descarga_quieta, encuesta, encuesta_fin, meta, batalla, batalla_fin
-"""
 
 # Carpeta base de temas y tema por defecto.
 _TEMAS_DIR   = "themes"
@@ -354,6 +340,7 @@ def cargar_configuracion() -> dict:
                   if p.has_section("atajos") else {})
     migrar_atajos_config(p, ruta, atajos_raw)
     avisos_tiktok.migrar(p, ruta, guardar_opcion, guardar_opciones)
+    sonidos_fabrica.migrar(p, ruta)
     # Migración genérica: agregar toda sección o clave ausente desde la fuente
     # canónica, preservando valores existentes incluso vacíos y claves desconocidas.
     _faltantes = [(s, c, v) for s, cs in config_predeterminada.datos().items()
@@ -414,7 +401,7 @@ def cargar_sonidos() -> dict:
     ruta = paths.sounds_ini()
     if not ruta.exists():
         logger.warning("sounds.ini no encontrado. Creando con valores por defecto.")
-        try:    ruta.write_text(_SOUNDS_FALLBACK, encoding="utf-8")
+        try:    ruta.write_text(sonidos_fabrica.TEXTO_FABRICA, encoding="utf-8")
         except Exception as exc: logger.error("No se pudo crear sounds.ini: %s", exc)
 
     p = _mk_parser()

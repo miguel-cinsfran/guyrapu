@@ -12659,10 +12659,6 @@ msgid "Fundido entre canciones, en segundos"
 msgstr "Crossfade between songs, in seconds"
 
 #: guyrapu/ui/preferencias_musica.py
-msgid "&Sonido al pasar de canción"
-msgstr "&Play a sound when the song changes"
-
-#: guyrapu/ui/preferencias_musica.py
 msgid "Anunciar al pasar &de canción:"
 msgstr "Announce when the so&ng changes:"
 

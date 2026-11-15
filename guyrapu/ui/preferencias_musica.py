@@ -27,7 +27,6 @@ OPCIONES_MUSICA = (
     ("chk_musica_repetir", "musica", "repetir", "musica_repetir", str, "no"),
     ("chk_musica_retomar", "musica", "retomar", "musica_retomar", bool, True),
     ("sp_musica_cruce", "musica", "cruce", "musica_cruce", int, 6),
-    ("chk_musica_sonido_tema", "musica", "sonido_tema", "musica_sonido_tema", bool, False),
     ("cho_musica_decir", "musica", "decir", "musica_decir", str, "titulo"),
     ("chk_musica_decir_pausa", "musica", "decir_pausa", "musica_decir_pausa", bool, True),
     ("sp_musica_volumen", "musica", "volumen", "musica_volumen", int, 50),
@@ -101,12 +100,6 @@ class PaginaMusica:
         vs.Add(self.sp_musica_cruce, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _musica_anuncios(self, p, vs):
-        self.chk_musica_sonido_tema = wx.CheckBox(
-            p, label=_("&Sonido al pasar de canción"),
-            name="MusicaSonidoTema")
-        self.chk_musica_sonido_tema.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_sonido_tema, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
         vs.Add(fila_label(p, _("Anunciar al pasar &de canción:")), 0, wx.LEFT | wx.RIGHT, 10)
         # Traductores: no decir nada al pasar de canción.
         self.cho_musica_decir = EleccionTexto(

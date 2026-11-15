@@ -261,7 +261,7 @@ class TestCargarConfiguracion(unittest.TestCase):
                                  ruta_uno.read_text(encoding="utf-8"))
 
     def test_migracion_generica_escribe_una_sola_vez(self):
-        # Tope: 3 escrituras previas (1 version_atajos y 2 avisos de tiktok) más una genérica.
+        # Tope: 4 escrituras previas (1 version_atajos, 1 version_sonidos y 2 avisos de tiktok) más una genérica.
         corto = "[cola]\nestrategia = todas\n"
         tmp = Path(self._tmp.name)
         (tmp / "config.ini").write_text(corto, encoding="utf-8")
@@ -269,7 +269,7 @@ class TestCargarConfiguracion(unittest.TestCase):
                         wraps=archivos.escribir_texto_atomico) as escribir:
             with redirigir_rutas(tmp):
                 config.cargar_configuracion()
-        self.assertLessEqual(escribir.call_count, 4)
+        self.assertLessEqual(escribir.call_count, 5)
         with mock.patch("guyrapu.core.archivos.escribir_texto_atomico",
                         wraps=archivos.escribir_texto_atomico) as escribir2:
             with redirigir_rutas(tmp):
@@ -279,6 +279,7 @@ class TestCargarConfiguracion(unittest.TestCase):
     def test_migracion_generica_deja_el_mismo_texto_que_una_por_una(self):
         from guyrapu.core import avisos_tiktok as _avisos
         from guyrapu.core import config_predeterminada as _pred
+        from guyrapu.core import sonidos_fabrica as _sonidos
         from guyrapu.core.atajos import migrar_atajos_config as _migrar_atajos
         corto = "[cola]\nestrategia = todas\n"
         tmp1 = Path(self._tmp.name) / "uno"
@@ -299,6 +300,7 @@ class TestCargarConfiguracion(unittest.TestCase):
                       if p2.has_section("atajos") else {})
             _migrar_atajos(p2, ruta2, crudo2)
             _avisos.migrar(p2, ruta2, config.guardar_opcion)
+            _sonidos.migrar(p2, ruta2)
             for sec, claves in _pred.datos().items():
                 for clave, valor in claves.items():
                     if not p2.has_option(sec, clave):
@@ -1344,7 +1346,6 @@ class TestMusicaCargador(unittest.TestCase):
         self.assertFalse(cfg["musica_aleatorio"])
         self.assertEqual(cfg["musica_repetir"], "no")
         self.assertTrue(cfg["musica_retomar"])
-        self.assertFalse(cfg["musica_sonido_tema"])
         self.assertEqual(cfg["musica_decir"], "titulo")
         self.assertTrue(cfg["musica_decir_pausa"])
         self.assertTrue(cfg["musica_preguntar_igualar"])
@@ -1362,7 +1363,6 @@ class TestMusicaCargador(unittest.TestCase):
             "aleatorio = true\n"
             "repetir = true\n"
             "retomar = false\n"
-            "sonido_tema = false\n"
             "decir = artista\n"
             "decir_titulo = false\n"
             "incluir_artista = false\n"
@@ -1377,7 +1377,6 @@ class TestMusicaCargador(unittest.TestCase):
         self.assertTrue(cfg["musica_aleatorio"])
         self.assertEqual(cfg["musica_repetir"], "todo")
         self.assertFalse(cfg["musica_retomar"])
-        self.assertFalse(cfg["musica_sonido_tema"])
         self.assertEqual(cfg["musica_decir"], "artista")
         self.assertFalse(cfg["musica_decir_pausa"])
         self.assertFalse(cfg["musica_preguntar_igualar"])
@@ -1388,12 +1387,11 @@ class TestMusicaCargador(unittest.TestCase):
         self.assertTrue(cfg["musica_atajos_globales"])
 
     def test_cada_clave_booleana_lee_su_propia_clave(self):
-        # Con las seis invertidas a la vez, una lectura cruzada pasa
+        # Con las cinco invertidas a la vez, una lectura cruzada pasa
         # inadvertida. De a una sola, la clave vecina ya no la tapa.
         casos = [
             ("aleatorio", "musica_aleatorio", False),
             ("retomar", "musica_retomar", True),
-            ("sonido_tema", "musica_sonido_tema", False),
             ("decir_pausa", "musica_decir_pausa", True),
             ("preguntar_igualar", "musica_preguntar_igualar", True),
             ("atajos_globales", "musica_atajos_globales", False),

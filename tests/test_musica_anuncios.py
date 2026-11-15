@@ -67,50 +67,45 @@ class TestAvisoAutomatico(unittest.TestCase):
 
     def test_avanzo_con_titulo_y_sonido(self):
         r = _resultado(AVANZO, cola=[_tema(1), _tema(2)], posicion=1)
-        aviso = anuncios.aviso_automatico(r, True, "titulo")
+        aviso = anuncios.aviso_automatico(r, "titulo")
         self.assertEqual(aviso.texto, "Tema 2")
         self.assertEqual(aviso.sonido, "musica_tema")
 
     def test_avanzo_con_nada_solo_sonido(self):
         r = _resultado(AVANZO, cola=[_tema(1)], posicion=0)
-        aviso = anuncios.aviso_automatico(r, True, "nada")
+        aviso = anuncios.aviso_automatico(r, "nada")
         self.assertEqual(aviso.texto, "")
         self.assertEqual(aviso.sonido, "musica_tema")
 
-    def test_avanzo_solo_titulo(self):
-        r = _resultado(AVANZO, cola=[_tema(1)], posicion=0)
-        aviso = anuncios.aviso_automatico(r, False, "titulo")
-        self.assertEqual(aviso.texto, "Tema 1")
-        self.assertIsNone(aviso.sonido)
-
-    def test_avanzo_con_nada_y_sin_sonido_no_avisa(self):
-        r = _resultado(AVANZO, cola=[_tema(1)], posicion=0)
-        self.assertIsNone(anuncios.aviso_automatico(r, False, "nada"))
+    def test_avanzo_sin_tema_actual_pide_el_sonido_con_texto_vacio(self):
+        aviso = anuncios.aviso_automatico(_resultado(AVANZO), "nada")
+        self.assertEqual(aviso.texto, "")
+        self.assertEqual(aviso.sonido, "musica_tema")
 
     def test_avanzo_con_los_dos_dice_titulo_de_artista(self):
         r = _resultado(AVANZO, cola=[_tema(1, artista="Ana")], posicion=0)
-        aviso = anuncios.aviso_automatico(r, False, "titulo_artista")
+        aviso = anuncios.aviso_automatico(r, "titulo_artista")
         self.assertEqual(aviso.texto, "Tema 1, de Ana")
 
     def test_avanzo_con_artista_dice_solo_el_artista(self):
         r = _resultado(AVANZO, cola=[_tema(1, artista="Ana")], posicion=0)
-        aviso = anuncios.aviso_automatico(r, False, "artista")
+        aviso = anuncios.aviso_automatico(r, "artista")
         self.assertEqual(aviso.texto, "Ana")
 
     def test_avanzo_sin_tema_usa_el_archivo(self):
         r = _resultado(AVANZO, cola=[Tema(r"C:\musica\cancion.mp3", "")], posicion=0)
-        aviso = anuncios.aviso_automatico(r, False, "titulo")
+        aviso = anuncios.aviso_automatico(r, "titulo")
         self.assertEqual(aviso.texto, "cancion")
 
     def test_fin_lista_siempre_avisa(self):
         r = _resultado(FIN_LISTA)
-        aviso = anuncios.aviso_automatico(r, False, "nada")
+        aviso = anuncios.aviso_automatico(r, "nada")
         self.assertEqual(aviso.texto, "Fin de la cola de música")
         self.assertEqual(aviso.sonido, "musica_fin")
 
     def test_tema_fallido_siempre_avisa_sin_artista(self):
         r = _resultado(TEMA_FALLIDO, tema=_tema(3, artista="Ana"))
-        aviso = anuncios.aviso_automatico(r, False, "artista")
+        aviso = anuncios.aviso_automatico(r, "artista")
         self.assertEqual(
             aviso.texto,
             "No se pudo reproducir: Tema 3. Se pasa al siguiente")
@@ -122,7 +117,7 @@ class TestAvisoAutomatico(unittest.TestCase):
             with self.subTest(codigo=codigo):
                 r = _resultado(codigo)
                 self.assertIsNone(
-                    anuncios.aviso_automatico(r, True, "titulo_artista"))
+                    anuncios.aviso_automatico(r, "titulo_artista"))
 
 
 class TestAvisoAccion(unittest.TestCase):
@@ -508,15 +503,13 @@ class TestPropiedad(unittest.TestCase):
     def test_aviso_automatico_nunca_lanza_y_su_sonido_esta_registrado(self):
         registrados = set(config._EVENTOS_SONIDO)
         for codigo in self.CODIGOS:
-            for sonido_tema in (True, False):
-                for modo in ("nada", "titulo", "titulo_artista", "artista"):
-                    with self.subTest(codigo=codigo, sonido_tema=sonido_tema,
-                                      modo=modo):
-                        r = _resultado(codigo, cola=[_tema(1)], posicion=0,
-                                       tema=_tema(1))
-                        aviso = anuncios.aviso_automatico(r, sonido_tema, modo)
-                        if aviso is not None:
-                            self.assertIn(aviso.sonido, (None,) + tuple(registrados))
+            for modo in ("nada", "titulo", "titulo_artista", "artista"):
+                with self.subTest(codigo=codigo, modo=modo):
+                    r = _resultado(codigo, cola=[_tema(1)], posicion=0,
+                                   tema=_tema(1))
+                    aviso = anuncios.aviso_automatico(r, modo)
+                    if aviso is not None:
+                        self.assertIn(aviso.sonido, (None,) + tuple(registrados))
 
     def test_aviso_accion_nunca_lanza_con_los_modos(self):
         for modo in ("nada", "titulo", "titulo_artista", "artista", None):
@@ -643,10 +636,9 @@ class TestPseudoAnuncios(unittest.TestCase):
 
     def test_automatico_marca_fin_y_fallo_con_el_nombre(self):
         with con_pseudo():
-            fin = anuncios.aviso_automatico(_resultado(FIN_LISTA), False,
-                                            "nada")
+            fin = anuncios.aviso_automatico(_resultado(FIN_LISTA), "nada")
             fallo = anuncios.aviso_automatico(
-                _resultado(TEMA_FALLIDO, tema=_tema(3)), False, "nada")
+                _resultado(TEMA_FALLIDO, tema=_tema(3)), "nada")
         self.assertTrue(fin.texto.startswith("[¡"), fin.texto)
         self.assertTrue(fallo.texto.startswith("[¡"), fallo.texto)
         self.assertIn("Tema 3", fallo.texto)

@@ -120,7 +120,6 @@ def cambiar_claves(rec):
         ("musica", "retomar", "false"),
         ("musica", "decir", "titulo"),
         ("musica", "decir_pausa", "true"),
-        ("musica", "sonido_tema", "true"),
         ("musica", "preguntar_igualar", "false"),
         ("musica", "mostrar_cola", "false"),
         ("musica", "atajos_globales", "false"),

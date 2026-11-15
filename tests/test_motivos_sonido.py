@@ -7,7 +7,8 @@ from pathlib import Path
 
 from babel.messages import pofile
 
-from guyrapu.core import eventos_sonido, motivos_sonido
+from guyrapu.core import eventos_sonido, motivos_sonido, sonidos_fabrica
+from guyrapu.core import sonidos_ini
 
 RAIZ = Path(__file__).resolve().parent.parent
 PO_INGLES = RAIZ / "idiomas" / "en" / "LC_MESSAGES" / "guyrapu.po"
@@ -67,6 +68,31 @@ class TestOpcionales(unittest.TestCase):
             {clave for clave, motivo in motivos_sonido.MOTIVO_POR_CLAVE.items()
              if motivo == "opcional"},
             {"musica_tema", "musica_fin"})
+
+
+class TestOpcionalesCallados(unittest.TestCase):
+    """Las dos plantillas de sounds.ini callan los sonidos opcionales."""
+
+    def _plantillas(self):
+        return {
+            "sounds.ini de la raíz": (RAIZ / "sounds.ini").read_text(
+                encoding="utf-8"),
+            "texto de respaldo": sonidos_fabrica.TEXTO_FABRICA,
+        }
+
+    def test_musica_tema_y_musica_fin_vienen_callados(self):
+        for nombre, texto in self._plantillas().items():
+            callados = sonidos_ini.silenciados(texto)
+            for clave in ("musica_tema", "musica_fin"):
+                with self.subTest(plantilla=nombre, clave=clave):
+                    self.assertIn(clave, callados)
+
+    def test_todo_opcional_viene_callado(self):
+        for nombre, texto in self._plantillas().items():
+            callados = sonidos_ini.silenciados(texto)
+            for clave in motivos_sonido.MOTIVOS["opcional"]:
+                with self.subTest(plantilla=nombre, clave=clave):
+                    self.assertIn(clave, callados)
 
 
 class TestNombre(unittest.TestCase):

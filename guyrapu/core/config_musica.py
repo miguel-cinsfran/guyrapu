@@ -28,7 +28,6 @@ def opciones_musica(p) -> dict:
         "musica_aleatorio": leer_booleano(p, "musica", "aleatorio"),
         "musica_repetir": normalizar_repetir(leer_texto(p, "musica", "repetir")),
         "musica_retomar": leer_booleano(p, "musica", "retomar"),
-        "musica_sonido_tema": leer_booleano(p, "musica", "sonido_tema"),
         "musica_decir": musica_decir.desde_ini(leer_texto(p, "musica", "decir"), leer_booleano(p, "musica", "decir_titulo"),
             leer_booleano(p, "musica", "incluir_artista")),
         "musica_decir_pausa": leer_booleano(p, "musica", "decir_pausa"),

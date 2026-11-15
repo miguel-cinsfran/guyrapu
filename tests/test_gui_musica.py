@@ -134,7 +134,7 @@ class _ProgramadorFalso:
 def _frame(**config):
     base = {
         "musica_carpeta": "", "musica_aleatorio": False, "musica_repetir": False,
-        "musica_sonido_tema": True, "musica_decir": "titulo",
+        "musica_decir": "titulo",
         "musica_decir_pausa": True, "musica_volumen": 50,
         "musica_salida": "",
     }
@@ -465,32 +465,29 @@ class TestAvisoAutomatico(unittest.TestCase):
 
     def test_aviso_automatico_respeta_modo_y_sonido(self):
         with _entorno() as env:
-            control = ControlMusica(_frame(
-                musica_sonido_tema=True, musica_decir="titulo_artista"))
+            control = ControlMusica(_frame(musica_decir="titulo_artista"))
             control._aviso_automatico(_aviso(posicion=0))
         env.anunciar.assert_called_once_with("Tema 2, de Ana")
         self.assertEqual(env.snd.sonidos, ["musica_tema"])
 
     def test_aviso_automatico_con_nada_solo_sonido(self):
         with _entorno() as env:
-            control = ControlMusica(_frame(
-                musica_sonido_tema=True, musica_decir="nada"))
+            control = ControlMusica(_frame(musica_decir="nada"))
             control._aviso_automatico(_aviso(posicion=0))
         env.anunciar.assert_not_called()
         self.assertEqual(env.snd.sonidos, ["musica_tema"])
 
-    def test_aviso_automatico_con_nada_y_sin_sonido_no_hace_nada(self):
+    def test_aviso_automatico_ignora_la_clave_vieja(self):
         with _entorno() as env:
             control = ControlMusica(_frame(
                 musica_sonido_tema=False, musica_decir="nada"))
             control._aviso_automatico(_aviso(posicion=0))
         env.anunciar.assert_not_called()
-        self.assertEqual(env.snd.sonidos, [])
+        self.assertEqual(env.snd.sonidos, ["musica_tema"])
 
     def test_aviso_automatico_fin_de_lista_suena_siempre(self):
         with _entorno() as env:
-            control = ControlMusica(_frame(
-                musica_sonido_tema=False, musica_decir="nada"))
+            control = ControlMusica(_frame(musica_decir="nada"))
             control._aviso_automatico(Resultado(
                 True, FIN_LISTA, _estado(actual=False)))
         env.anunciar.assert_called_once_with("Fin de la cola de música")
