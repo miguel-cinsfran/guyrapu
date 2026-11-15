@@ -129,3 +129,35 @@ class TestRedaccion(unittest.TestCase):
         self.assertEqual(redaccion.etiqueta_con_motivo("Comentar", "Inicia sesión"),
                          "Comentar (inicia sesión)")
         self.assertEqual(redaccion.etiqueta_con_motivo("Comentar", ""), "Comentar")
+
+    def test_motivo_cargar_mas_mientras_carga(self):
+        self.assertEqual(redaccion.motivo_cargar_mas(True, True, ""),
+                         "Cargando comentarios")
+
+    def test_motivo_cargar_mas_sin_paginas(self):
+        self.assertEqual(redaccion.motivo_cargar_mas(False, False, ""),
+                         "No hay más comentarios")
+
+    def test_motivo_cargar_mas_prioriza_el_motivo_de_lectura(self):
+        self.assertEqual(
+            redaccion.motivo_cargar_mas(False, False, "Conéctate a un vídeo"),
+            "Conéctate a un vídeo")
+        self.assertEqual(
+            redaccion.motivo_cargar_mas(False, True, "Conéctate a un vídeo."),
+            "Conéctate a un vídeo")
+
+    def test_motivo_cargar_mas_vacio_si_se_puede(self):
+        self.assertEqual(redaccion.motivo_cargar_mas(False, True, ""), "")
+
+    def test_motivo_recargar_mientras_carga(self):
+        self.assertEqual(redaccion.motivo_recargar(True, ""),
+                         "Cargando comentarios")
+
+    def test_motivo_recargar_devuelve_el_motivo_de_lectura(self):
+        self.assertEqual(redaccion.motivo_recargar(False, "Conéctate a un vídeo"),
+                         "Conéctate a un vídeo")
+        self.assertEqual(redaccion.motivo_recargar(False, "Conéctate a un vídeo."),
+                         "Conéctate a un vídeo")
+
+    def test_motivo_recargar_vacio_si_se_puede(self):
+        self.assertEqual(redaccion.motivo_recargar(False, ""), "")

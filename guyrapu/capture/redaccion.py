@@ -93,6 +93,25 @@ def motivo_lectura_comentarios(hay_librerias, hay_api_key, hay_video) -> str:
     return ""
 
 
+def motivo_cargar_mas(cargando, hay_siguiente, motivo_lectura) -> str:
+    # Traductores: motivo del botón «Cargar más» mientras se cargan comentarios.
+    if cargando:
+        return _("Cargando comentarios")
+    if motivo_lectura:
+        return motivo_lectura.rstrip(".")
+    if not hay_siguiente:
+        # Traductores: motivo del botón «Cargar más» cuando no quedan páginas.
+        return _("No hay más comentarios")
+    return ""
+
+
+def motivo_recargar(cargando, motivo_lectura) -> str:
+    # Traductores: motivo del botón «Recargar comentarios» mientras se cargan comentarios.
+    if cargando:
+        return _("Cargando comentarios")
+    return motivo_lectura.rstrip(".")
+
+
 def validar(texto, maximo) -> str:
     texto_limpio = limpiar(texto)
     if not texto_limpio:

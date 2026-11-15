@@ -186,18 +186,18 @@ def escenario_comentarios(app: Aplicacion, args, res: Resultado):
     res.nota("comentarios: la lista arranca con %d entradas"
              % len(lista.get("items", [])))
 
-    # «Cargar más» sin ninguna página cargada tiene que estar apagado: si
-    # figura encendido, invita a pulsar algo que no puede hacer nada.
+    # «Cargar más» se alcanza siempre con Tab: al empezar queda habilitado y
+    # su etiqueta dice el motivo entre paréntesis.
     botones = {(c.get("etiqueta") or "").replace("&", ""): c
                for c in visibles if c["clase"] == "Button"}
-    mas = botones.get("Cargar más")
+    mas = next((c for clave, c in botones.items() if clave.startswith("Cargar más")), None)
     if mas is None:
         res.fallo("comentarios: no está el botón «Cargar más»")
-    elif mas["habilitado"]:
-        res.fallo("comentarios: «Cargar más» está habilitado sin ninguna "
-                  "página cargada")
+    elif not mas["habilitado"] or "(" not in (mas.get("etiqueta") or ""):
+        res.fallo("comentarios: «Cargar más» tiene que estar habilitado y "
+                  "decir el motivo en la etiqueta")
     else:
-        res.nota("comentarios: «Cargar más» correctamente apagado al empezar")
+        res.nota("comentarios: «Cargar más» habilitado y con el motivo")
 
     # Este otro depende de que haya sesión iniciada, que no está en manos del
     # banco. Se anota lo que se encontró, sin juzgarlo.

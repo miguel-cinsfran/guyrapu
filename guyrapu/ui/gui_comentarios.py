@@ -55,6 +55,7 @@ class ComentariosPanel(wx.Panel):
 
         _pintar(self, _T.bg, _T.text)
         self._build_ui()
+        self._actualizar_botones()
 
     # ── UI ───────────────────────────────────────────────────────────────────
 
@@ -110,12 +111,11 @@ class ComentariosPanel(wx.Panel):
         for b in (self.btn_mas, self.btn_comentar):
             _btn(b)
             row.Add(b, 0, wx.RIGHT, 6)
-        self.btn_mas.Disable()
         vs.Add(row, 0, wx.ALL, 8)
 
         self.SetSizer(vs)
 
-        self.btn_mas.Bind(wx.EVT_BUTTON, lambda e: self._cargar_pagina(self._next_token))
+        self.btn_mas.Bind(wx.EVT_BUTTON, lambda e: self._cargar_pagina(self._next_token, desde_boton=True))
         self.btn_comentar.Bind(wx.EVT_BUTTON, lambda e: self._comentar())
         self.lb.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self._leer())
         self._enlazar_eventos_lista()
@@ -124,30 +124,33 @@ class ComentariosPanel(wx.Panel):
         instalar_busqueda_tipo(
             self.lb, lambda: [self.lb.GetString(i) for i in range(self.lb.GetCount())])
 
-        self._actualizar_botones_sesion()
-
     def _enlazar_eventos_lista(self):
         self.lb.Bind(wx.EVT_KEY_DOWN, self._on_key)
         self.lb.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
         self.lb.Bind(wx.EVT_CONTEXT_MENU, self._on_context_menu)
 
-    def _actualizar_botones_sesion(self):
-        self.btn_comentar.Enable()
+    def _actualizar_botones(self):
         motivo = redaccion.motivo_comentario(
             bool(self._video_id), credenciales.hay_sesion() and youtube_api.google_disponible(),
             self._comentarios_cerrados)
-        base = _("Comen&tar en el vídeo")
-        self.btn_comentar.SetLabel(redaccion.etiqueta_con_motivo(base, motivo))
+        self.btn_comentar.SetLabel(
+            redaccion.etiqueta_con_motivo(_("Comen&tar en el vídeo"), motivo))
+        lectura = self._motivo_lectura()
+        self.btn_mas.SetLabel(redaccion.etiqueta_con_motivo(
+            _("Car&gar más"),
+            redaccion.motivo_cargar_mas(self._cargando, bool(self._next_token), lectura)))
+        self.btn_recargar.SetLabel(redaccion.etiqueta_con_motivo(
+            _("&Recargar comentarios"),
+            redaccion.motivo_recargar(self._cargando, lectura)))
 
     def actualizar_estado(self):
-        self._actualizar_botones_sesion()
+        self._actualizar_botones()
 
     # ── API pública (la ventana la llama al conectar) ─────────────────────────
 
     def set_video(self, video_id: str, autocargar: bool = True) -> None:
         """Fija el vídeo objetivo y, por defecto, carga la primera página."""
         self._reiniciar(video_id or "")
-        self._actualizar_botones_sesion()
         if autocargar and self._video_id:
             self._cargar_pagina("")
 
@@ -157,16 +160,15 @@ class ComentariosPanel(wx.Panel):
     def _reiniciar(self, video_id: str) -> None:
         self._generacion += 1
         # Una carga en curso pertenece al vídeo anterior: se descartará al
-        # llegar, así que no debe bloquear la del nuevo ni dejar Recargar apagado.
+        # llegar, así que no debe bloquear la del nuevo.
         self._cargando = False
-        self.btn_recargar.Enable()
         self._video_id = video_id
         self._comentarios_cerrados = False
         self.lb.Clear()
         self._coms.clear()
         self._ids_vistos.clear()
         self._next_token = ""
-        self.btn_mas.Disable()
+        self._actualizar_botones()
 
     def mostrar_no_disponible(self, texto: str) -> None:
         """Deja la lista con un único aviso, para que quien llegue a esta pestaña
@@ -180,8 +182,6 @@ class ComentariosPanel(wx.Panel):
         self.lb.Clear()
         self._coms.clear()
         self.lb.Append(texto)
-        self.btn_mas.Disable()
-        self._actualizar_botones_sesion()
 
     def anclar_foco(self) -> None:
         try:    self.lb.SetFocus()
@@ -192,23 +192,32 @@ class ComentariosPanel(wx.Panel):
     def _cliente(self) -> youtube_api.ClienteYouTube:
         return youtube_api.ClienteYouTube(credenciales.efectivas())
 
-    def _recargar(self):
-        if self._video_id:
-            self.set_video(self._video_id, autocargar=True)
+    def _motivo_lectura(self) -> str:
+        return redaccion.motivo_lectura_comentarios(
+            youtube_api.google_disponible(), credenciales.hay_lectura(), bool(self._video_id))
 
-    def _cargar_pagina(self, page_token):
-        if self._cargando:
+    def _recargar(self):
+        motivo = redaccion.motivo_recargar(self._cargando, self._motivo_lectura())
+        if not motivo:
+            self.set_video(self._video_id, autocargar=True)
             return
-        motivo = redaccion.motivo_lectura_comentarios(
-            youtube_api.google_disponible(), credenciales.hay_lectura(),
-            bool(self._video_id))
-        if motivo:
-            self._mostrar_aviso(motivo)
-            anunciar(motivo)
+        anunciar(f"{motivo}.")
+
+    def _cargar_pagina(self, page_token, desde_boton=False):
+        if self._cargando:
+            anunciar(f"{_('Cargando comentarios')}.")
+            return
+        lectura = self._motivo_lectura()
+        if desde_boton and (motivo := redaccion.motivo_cargar_mas(
+                False, bool(self._next_token), lectura)):
+            anunciar(f"{motivo}.")
+            return
+        if lectura:
+            self._mostrar_aviso(lectura)
+            anunciar(lectura)
             return
         self._cargando = True
-        self.btn_recargar.Disable()
-        self.btn_mas.Disable()
+        self._actualizar_botones()
         # No urgente: al conectar coincide con el anuncio de «conectado» y no
         # debe pisarlo.
         anunciar(_("Cargando comentarios"), urgente=False)
@@ -234,7 +243,6 @@ class ComentariosPanel(wx.Panel):
         if self._es_de_otro_video(generacion):
             return
         self._cargando = False
-        self.btn_recargar.Enable()
         anteriores = self.lb.GetCount()
         # Deduplicar: con orden «relevancia» las páginas se solapan, así que solo
         # añadimos lo que no se haya mostrado ya, y contamos hilos y respuestas
@@ -253,7 +261,7 @@ class ComentariosPanel(wx.Panel):
             else:
                 n_hilos += 1
         self._next_token = nxt or ""
-        self.btn_mas.Enable(bool(self._next_token))
+        self._actualizar_botones()
         _snd.reproducir("conectado")
         nuevos = n_hilos + n_resp
         if nuevos:
@@ -274,13 +282,9 @@ class ComentariosPanel(wx.Panel):
         if self._es_de_otro_video(generacion):
             return
         self._cargando = False
-        self.btn_recargar.Enable()
-        # Si había más páginas pendientes, que un error transitorio no deje
-        # «Cargar más» apagado (obligaba a recargar todo).
-        self.btn_mas.Enable(bool(self._next_token))
-        if youtube_api.comentarios_desactivados(exc):
-            self._comentarios_cerrados = True
-            self._actualizar_botones_sesion()
+        self._comentarios_cerrados = (
+            self._comentarios_cerrados or youtube_api.comentarios_desactivados(exc))
+        self._actualizar_botones()
         _snd.reproducir("error")
         msg = youtube_api.mensaje_error_api(exc)
         anunciar(msg)

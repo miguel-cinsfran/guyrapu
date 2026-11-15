@@ -14057,3 +14057,8 @@ msgstr "Untitled"
 msgid "Todavía no hay resultados"
 msgstr "There are no results yet"
 
+#. Traductores: motivo del botón «Cargar más» cuando no quedan páginas.
+#: guyrapu/capture/redaccion.py
+msgid "No hay más comentarios"
+msgstr "There are no more comments"
+

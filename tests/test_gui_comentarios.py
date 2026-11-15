@@ -8,6 +8,7 @@ from unittest import mock
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.ui import gui_comentarios
 from guyrapu.youtube import youtube_api
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -112,7 +113,7 @@ class TestComentariosPanel(unittest.TestCase):
                               generacion_vieja)
         self.assertEqual(self.panel.lb.GetCount(), 0)
         self.assertEqual(self.panel._next_token, "")
-        self.assertFalse(self.panel.btn_mas.IsEnabled())
+        self.assertTrue(self.panel.btn_mas.IsEnabled())
 
     def test_el_error_de_un_video_anterior_se_ignora(self):
         self.panel.set_video("viejo", autocargar=False)
@@ -133,7 +134,6 @@ class TestComentariosPanel(unittest.TestCase):
     def test_cambiar_de_video_olvida_la_carga_en_curso(self):
         self.panel.set_video("viejo", autocargar=False)
         self.panel._cargando = True
-        self.panel.btn_recargar.Disable()
         self.panel.set_video("nuevo", autocargar=False)
         self.assertFalse(self.panel._cargando)
         self.assertTrue(self.panel.btn_recargar.IsEnabled())
@@ -165,6 +165,143 @@ class TestComentariosPanel(unittest.TestCase):
         evento.SetEventObject(self.panel.btn_aplicar_orden)
         self.panel.btn_aplicar_orden.GetEventHandler().ProcessEvent(evento)
         self.panel._recargar.assert_called_once()
+
+
+class TestBotonesDePagina(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = app_de_prueba()
+        cls.frame = wx.Frame(None)
+
+    @classmethod
+    def tearDownClass(cls):
+        destruir(cls.frame)
+        del cls.frame
+        del cls.app
+
+    def setUp(self):
+        self.parches = [
+            mock.patch.object(gui_comentarios.credenciales, "hay_lectura", return_value=True),
+            mock.patch.object(gui_comentarios.credenciales, "hay_sesion", return_value=True),
+            mock.patch.object(gui_comentarios.youtube_api, "google_disponible", return_value=True),
+            mock.patch.object(gui_comentarios, "anunciar"),
+            mock.patch.object(gui_comentarios._snd, "reproducir"),
+        ]
+        for parche in self.parches:
+            parche.start()
+        self.addCleanup(lambda: [parche.stop() for parche in reversed(self.parches)])
+        self.panel = gui_comentarios.ComentariosPanel(
+            self.frame, queue.Queue(), {"tamanio_fuente_chat": 12})
+        self.addCleanup(destruir, self.panel)
+
+    def _pulsar(self, boton):
+        evento = wx.CommandEvent(wx.EVT_BUTTON.typeId, boton.GetId())
+        evento.SetEventObject(boton)
+        boton.GetEventHandler().ProcessEvent(evento)
+
+    def test_los_dos_botones_nunca_se_deshabilitan(self):
+        self.assertTrue(self.panel.btn_mas.IsEnabled())
+        self.assertTrue(self.panel.btn_recargar.IsEnabled())
+        self.panel.set_video("video", autocargar=False)
+        self.panel._cargando = True
+        self.panel._actualizar_botones()
+        self.assertTrue(self.panel.btn_mas.IsEnabled())
+        self.assertTrue(self.panel.btn_recargar.IsEnabled())
+        self.panel._pagina_ok([], "", self.panel._generacion)
+        self.assertTrue(self.panel.btn_mas.IsEnabled())
+        self.assertTrue(self.panel.btn_recargar.IsEnabled())
+        self.panel._pagina_err(Exception("fallo"), self.panel._generacion)
+        self.assertTrue(self.panel.btn_mas.IsEnabled())
+        self.assertTrue(self.panel.btn_recargar.IsEnabled())
+
+    def test_cargar_mas_mientras_carga_anuncia_y_no_pide(self):
+        self.panel.set_video("video", autocargar=False)
+        self.panel._cargando = True
+        self.panel._next_token = "mas"
+        with mock.patch.object(gui_comentarios.diagnostico, "crear_hilo") as hilo:
+            self._pulsar(self.panel.btn_mas)
+        hilo.assert_not_called()
+        gui_comentarios.anunciar.assert_called_once_with("Cargando comentarios.")
+
+    def test_recargar_mientras_carga_anuncia_y_no_pide(self):
+        self.panel.set_video("video", autocargar=False)
+        self.panel._cargando = True
+        with mock.patch.object(gui_comentarios.diagnostico, "crear_hilo") as hilo:
+            self._pulsar(self.panel.btn_recargar)
+        hilo.assert_not_called()
+        gui_comentarios.anunciar.assert_called_once_with("Cargando comentarios.")
+
+    def test_cargar_mas_sin_paginas_anuncia_y_no_pide(self):
+        self.panel.set_video("video", autocargar=False)
+        self.panel._next_token = ""
+        with mock.patch.object(gui_comentarios.diagnostico, "crear_hilo") as hilo:
+            self._pulsar(self.panel.btn_mas)
+        hilo.assert_not_called()
+        gui_comentarios.anunciar.assert_called_once_with("No hay más comentarios.")
+
+    def test_cargar_mas_anuncia_el_motivo_de_lectura(self):
+        casos = [
+            ("sin vídeo", "", True, True),
+            ("sin google", "video", False, True),
+            ("sin clave", "video", True, False),
+        ]
+        for nombre, video, google, lectura in casos:
+            with self.subTest(nombre):
+                self.panel.set_video(video, autocargar=False)
+                with mock.patch.object(gui_comentarios.youtube_api, "google_disponible",
+                                       return_value=google), \
+                        mock.patch.object(gui_comentarios.credenciales, "hay_lectura",
+                                          return_value=lectura), \
+                        mock.patch.object(gui_comentarios.diagnostico, "crear_hilo") as hilo:
+                    gui_comentarios.anunciar.reset_mock()
+                    self._pulsar(self.panel.btn_mas)
+                hilo.assert_not_called()
+                esperado = redaccion.motivo_lectura_comentarios(
+                    google, lectura, bool(video))
+                gui_comentarios.anunciar.assert_called_once_with(
+                    esperado.rstrip(".") + ".")
+
+    def test_etiqueta_lleva_el_motivo_y_vuelve_a_la_base(self):
+        self.panel.set_video("video", autocargar=False)
+        self.assertEqual(self.panel.btn_mas.GetLabel(),
+                         "Car&gar más (no hay más comentarios)")
+        self.assertEqual(self.panel.btn_recargar.GetLabel(),
+                         "&Recargar comentarios")
+        self.panel._next_token = "mas"
+        self.panel._actualizar_botones()
+        self.assertEqual(self.panel.btn_mas.GetLabel(), "Car&gar más")
+        self.assertEqual(self.panel.btn_recargar.GetLabel(),
+                         "&Recargar comentarios")
+        self.panel._cargando = True
+        self.panel._actualizar_botones()
+        self.assertEqual(self.panel.btn_mas.GetLabel(),
+                         "Car&gar más (cargando comentarios)")
+        self.assertEqual(self.panel.btn_recargar.GetLabel(),
+                         "&Recargar comentarios (cargando comentarios)")
+
+    def test_etiqueta_sin_video_lleva_el_motivo(self):
+        self.panel.limpiar()
+        self.assertEqual(
+            self.panel.btn_mas.GetLabel(),
+            "Car&gar más (conéctate a un vídeo para poder leer los comentarios)")
+        self.assertEqual(
+            self.panel.btn_recargar.GetLabel(),
+            "&Recargar comentarios (conéctate a un vídeo para poder leer los "
+            "comentarios)")
+
+    def test_cargar_mas_con_paginas_pide_la_siguiente(self):
+        self.panel.set_video("video", autocargar=False)
+        self.panel._next_token = "mas"
+        with mock.patch.object(self.panel, "_cargar_pagina") as cargar:
+            self._pulsar(self.panel.btn_mas)
+        cargar.assert_called_once_with("mas", desde_boton=True)
+
+    def test_recargar_con_video_vuelve_a_cargar(self):
+        self.panel.set_video("video", autocargar=False)
+        with mock.patch.object(self.panel, "set_video") as set_video:
+            self._pulsar(self.panel.btn_recargar)
+        set_video.assert_called_once_with("video", autocargar=True)
 
 
 class TestOrillaComentarios(unittest.TestCase):
