@@ -16,6 +16,7 @@ from unittest import mock
 from urllib.error import URLError
 
 from guyrapu.core import canal_app
+from guyrapu.core import red
 from tests.rutas_temporales import redirigir_rutas
 
 
@@ -157,7 +158,7 @@ class TestConsultarUltimaBeta(unittest.TestCase):
         self.assertEqual("3.0.0-beta.4", elegido.version)
 
     def test_error_de_red_da_none(self):
-        with mock.patch.object(canal_app, "urlopen",
+        with mock.patch.object(red, "urlopen",
                                side_effect=URLError("sin red")):
             self.assertIsNone(canal_app.consultar_ultima_beta())
 

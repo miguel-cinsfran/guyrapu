@@ -8,6 +8,7 @@ por bloques con aviso de progreso y función de cancelación.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -54,3 +55,9 @@ def pedir_texto(url: str) -> str:
     solicitud = Request(url, headers={"User-Agent": USER_AGENT})
     with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
         return respuesta.read().decode("utf-8")
+
+
+def pedir_json(url: str):
+    solicitud = Request(url, headers={"User-Agent": USER_AGENT})
+    with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
+        return json.load(respuesta)

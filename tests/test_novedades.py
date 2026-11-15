@@ -12,7 +12,7 @@ import unittest
 from unittest import mock
 from urllib.error import URLError
 
-from guyrapu.core import actualizacion, canal_app, novedades, paquete_release
+from guyrapu.core import actualizacion, canal_app, novedades, paquete_release, red
 from guyrapu.core.config import APP_VERSION
 
 
@@ -137,7 +137,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                 actualizacion, "consultar_ultima_version",
                 return_value=self._paquete()), \
                 mock.patch.object(
-                    novedades, "urlopen",
+                    red, "urlopen",
                     return_value=self._respuesta(publicaciones)):
             paquete = novedades.consultar_con_novedades()
         self.assertIsNotNone(paquete)
@@ -149,7 +149,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                 actualizacion, "consultar_ultima_version",
                 return_value=self._paquete()), \
                 mock.patch.object(
-                    novedades, "urlopen", side_effect=URLError("sin red")):
+                    red, "urlopen", side_effect=URLError("sin red")):
             paquete = novedades.consultar_con_novedades()
         self.assertIsNotNone(paquete)
         self.assertEqual("notas de la última", paquete.notas)
@@ -159,7 +159,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                 actualizacion, "consultar_ultima_version",
                 return_value=self._paquete()), \
                 mock.patch.object(
-                    novedades, "urlopen",
+                    red, "urlopen",
                     return_value=self._respuesta({"no": "es lista"})):
             paquete = novedades.consultar_con_novedades()
         self.assertEqual("notas de la última", paquete.notas)
@@ -168,7 +168,7 @@ class TestConsultarConNovedades(unittest.TestCase):
         with mock.patch.object(
                 actualizacion, "consultar_ultima_version",
                 return_value=None), \
-                mock.patch.object(novedades, "urlopen") as pedir:
+                mock.patch.object(red, "urlopen") as pedir:
             self.assertIsNone(novedades.consultar_con_novedades())
         pedir.assert_not_called()
 
@@ -192,8 +192,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                 raise AssertionError("no debe pedir la lista")
             return respuestas[0]
 
-        with mock.patch.object(actualizacion, "urlopen", side_effect=pedir), \
-                mock.patch.object(novedades, "urlopen", side_effect=pedir):
+        with mock.patch.object(red, "urlopen", side_effect=pedir):
             paquete = novedades.consultar_con_novedades()
         self.assertEqual(1, len(llamadas))
         self.assertEqual("notas de la última", paquete.notas)
@@ -205,7 +204,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                 return_value=self._paquete()), \
                 mock.patch.object(novedades, "APP_VERSION", "2.5.1"), \
                 mock.patch.object(
-                    novedades, "urlopen",
+                    red, "urlopen",
                     return_value=self._respuesta(publicaciones)):
             paquete = novedades.consultar_con_novedades()
         self.assertEqual(["3.0.0"], _versiones(paquete.notas))
@@ -226,7 +225,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                 mock.patch.object(
                     actualizacion, "consultar_ultima_version") as estable, \
                 mock.patch.object(
-                    novedades, "urlopen",
+                    red, "urlopen",
                     return_value=self._respuesta(publicaciones)):
             paquete = novedades.consultar_con_novedades()
         estable.assert_not_called()
@@ -247,7 +246,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                     canal_app, "consultar_ultima_beta",
                     return_value=self._paquete("v3.0.0-beta.2")), \
                 mock.patch.object(
-                    novedades, "urlopen",
+                    red, "urlopen",
                     return_value=self._respuesta(publicaciones)):
             notas_beta = novedades.consultar_con_novedades().notas
         with mock.patch.object(
@@ -256,7 +255,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                     actualizacion, "consultar_ultima_version",
                     return_value=self._paquete("v3.0.0")), \
                 mock.patch.object(
-                    novedades, "urlopen",
+                    red, "urlopen",
                     return_value=self._respuesta(publicaciones)):
             notas_estable = novedades.consultar_con_novedades().notas
         self.assertIn("beta intermedia", notas_beta)
@@ -275,7 +274,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                     actualizacion, "consultar_ultima_version",
                     return_value=self._paquete("v3.0.0")), \
                 mock.patch.object(
-                    novedades, "urlopen",
+                    red, "urlopen",
                     return_value=self._respuesta(publicaciones)):
             paquete = novedades.consultar_con_novedades()
         beta.assert_not_called()
@@ -291,7 +290,7 @@ class TestConsultarConNovedades(unittest.TestCase):
                     actualizacion, "consultar_ultima_version",
                     return_value=self._paquete("v3.0.0")), \
                 mock.patch.object(
-                    novedades, "urlopen", side_effect=URLError("sin red")):
+                    red, "urlopen", side_effect=URLError("sin red")):
             paquete = novedades.consultar_con_novedades()
         beta.assert_not_called()
         self.assertEqual("v3.0.0", paquete.version)

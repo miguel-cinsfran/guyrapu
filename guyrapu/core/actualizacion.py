@@ -25,14 +25,12 @@ import zipfile
 from pathlib import Path
 from typing import NamedTuple
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
 from guyrapu.core import paths
 from guyrapu.core import red
-from guyrapu.core.config import APP_NAME, URL_REPOSITORIO, USER_AGENT
+from guyrapu.core.config import APP_NAME, URL_REPOSITORIO, USER_AGENT as USER_AGENT
 from guyrapu.core.idioma import _
 from guyrapu.core.paquete_release import PaqueteElegido, _es_https, elegir_paquete
-from guyrapu.core.red import TIEMPO_ESPERA
 from guyrapu.core.version_legible import version_legible
 from guyrapu.core.versiones import version_como_tupla
 # Se reexportan con el mismo nombre para quien las llama como
@@ -115,9 +113,7 @@ def consultar_ultima_version() -> PaqueteElegido | None:
     None ante cualquier error de red o de JSON.
     """
     try:
-        solicitud = Request(URL_ULTIMA_VERSION, headers={"User-Agent": USER_AGENT})
-        with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
-            datos = json.load(respuesta)
+        datos = red.pedir_json(URL_ULTIMA_VERSION)
         return elegir_paquete(datos)
     except (HTTPError, URLError, OSError, TypeError, ValueError):
         return None

@@ -11,13 +11,12 @@ publicación en Beta.
 
 from __future__ import annotations
 
-import json
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
 from guyrapu.core import actualizacion
 from guyrapu.core import canal_app
 from guyrapu.core import paquete_release
+from guyrapu.core import red
 from guyrapu.core import versiones
 from guyrapu.core.config import APP_VERSION
 from guyrapu.core.idioma import _
@@ -88,11 +87,7 @@ def consultar_con_novedades() -> paquete_release.PaqueteElegido | None:
     if not actualizacion.hay_version_nueva(APP_VERSION, paquete.version):
         return paquete
     try:
-        solicitud = Request(
-            URL_PUBLICACIONES,
-            headers={"User-Agent": actualizacion.USER_AGENT})
-        with urlopen(solicitud, timeout=actualizacion.TIEMPO_ESPERA) as respuesta:
-            publicaciones = json.load(respuesta)
+        publicaciones = red.pedir_json(URL_PUBLICACIONES)
         notas = juntar_novedades(publicaciones, APP_VERSION, paquete.version,
                                  incluir_betas=incluir_betas)
     except (HTTPError, URLError, OSError, TypeError, ValueError):

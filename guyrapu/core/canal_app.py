@@ -11,13 +11,12 @@ se lee del INI sin la carga completa de `config`.
 from __future__ import annotations
 
 import configparser
-import json
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
 from guyrapu.core import actualizacion
 from guyrapu.core import paquete_release
 from guyrapu.core import paths
+from guyrapu.core import red
 from guyrapu.core import versiones
 
 
@@ -88,11 +87,7 @@ def consultar_ultima_beta() -> paquete_release.PaqueteElegido | None:
     None ante cualquier error de red o de JSON.
     """
     try:
-        solicitud = Request(
-            URL_PUBLICACIONES,
-            headers={"User-Agent": actualizacion.USER_AGENT})
-        with urlopen(solicitud, timeout=actualizacion.TIEMPO_ESPERA) as respuesta:
-            publicaciones = json.load(respuesta)
+        publicaciones = red.pedir_json(URL_PUBLICACIONES)
         return elegir_publicacion(publicaciones)
     except (HTTPError, URLError, OSError, TypeError, ValueError):
         return None

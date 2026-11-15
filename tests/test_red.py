@@ -3,23 +3,29 @@
 """Pruebas del módulo de red común, con un servidor HTTP local."""
 
 import http.server
+import json
 import tempfile
 import threading
 import unittest
 from pathlib import Path
+from urllib.error import HTTPError
 
 from guyrapu.core import red
+from guyrapu.core.config import USER_AGENT
 
 
 class Servidor(http.server.BaseHTTPRequestHandler):
     contenido = b""
     con_longitud = True
     cabecera = None
+    agente = None
+    codigo = 200
 
     def do_GET(self):
         cuerpo = type(self).contenido
         type(self).cabecera = self.headers.get("X-Prueba")
-        self.send_response(200)
+        type(self).agente = self.headers.get("User-Agent")
+        self.send_response(type(self).codigo)
         if type(self).con_longitud:
             self.send_header("Content-Length", str(len(cuerpo)))
         self.end_headers()
@@ -30,6 +36,7 @@ class Servidor(http.server.BaseHTTPRequestHandler):
 
 
 def _servidor():
+    Servidor.codigo = 200
     servidor = http.server.HTTPServer(("127.0.0.1", 0), Servidor)
     hilo = threading.Thread(target=servidor.serve_forever, daemon=True)
     hilo.start()
@@ -94,3 +101,27 @@ class TestPedirTexto(unittest.TestCase):
         self.addCleanup(servidor.shutdown)
         url = f"http://127.0.0.1:{servidor.server_port}/x"
         self.assertEqual(red.pedir_texto(url), "ñandú")
+
+
+class TestPedirJson(unittest.TestCase):
+
+    def _arrancar(self):
+        servidor = _servidor()
+        self.addCleanup(servidor.server_close)
+        self.addCleanup(servidor.shutdown)
+        return f"http://127.0.0.1:{servidor.server_port}/x"
+
+    def test_devuelve_el_json_servido_y_manda_el_user_agent(self):
+        Servidor.contenido = json.dumps({"clave": ["valor"]}).encode("utf-8")
+        Servidor.con_longitud = True
+        url = self._arrancar()
+        self.assertEqual(red.pedir_json(url), {"clave": ["valor"]})
+        self.assertEqual(Servidor.agente, USER_AGENT)
+
+    def test_un_404_sale_como_http_error(self):
+        url = self._arrancar()
+        Servidor.codigo = 404
+        Servidor.contenido = b""
+        Servidor.con_longitud = True
+        with self.assertRaises(HTTPError):
+            red.pedir_json(url)
