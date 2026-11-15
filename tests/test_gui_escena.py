@@ -1230,14 +1230,15 @@ class TestVentanaObs(unittest.TestCase):
         self.assertEqual(pagina.fuente(), "Cámara")
         releer.assert_called_once_with("Principal")
 
-    def test_el_cuadro_de_pantalla_vacio_avisa_y_deshabilita_aceptar(self):
+    def test_el_cuadro_de_pantalla_vacio_avisa_y_deja_habilitado_aceptar(
+            self):
         dialogo = escena_propiedades.DialogoEleccion(
             self.dialogo, "Captura de pantalla", "DialogoPantalla",
             "&Pantalla:", (), "", "No hay pantallas para capturar.")
         self.addCleanup(destruir, dialogo)
         self.assertEqual(dialogo.aviso_vacio.GetLabel(),
                          "No hay pantallas para capturar.")
-        self.assertFalse(dialogo.btn_aceptar.IsEnabled())
+        self.assertTrue(dialogo.btn_aceptar.IsEnabled())
         self.assertIs(dialogo.FindFocus(), dialogo.btn_cancelar)
 
     def test_el_cuadro_de_juego_oculta_la_ventana_y_enfoca_el_modo(self):
@@ -1252,13 +1253,13 @@ class TestVentanaObs(unittest.TestCase):
         self.assertFalse(dialogo.cho_ventana.IsShown())
         self.assertTrue(dialogo.btn_aceptar.IsEnabled())
 
-    def test_el_cuadro_de_juego_sin_ventanas_deshabilita_solo_una_ventana(
+    def test_el_cuadro_de_juego_sin_ventanas_deja_habilitado_aceptar(
             self):
         dialogo = escena_propiedades.DialogoJuego(
             self.dialogo, (), {"modo": "window"})
         self.addCleanup(destruir, dialogo)
         self.assertTrue(dialogo.aviso_vacio.IsShown())
-        self.assertFalse(dialogo.btn_aceptar.IsEnabled())
+        self.assertTrue(dialogo.btn_aceptar.IsEnabled())
         dialogo.cho_modo.SetSelection(0)
         dialogo.cho_modo.GetEventHandler().ProcessEvent(
             wx.CommandEvent(wx.EVT_CHOICE.typeId, dialogo.cho_modo.GetId()))

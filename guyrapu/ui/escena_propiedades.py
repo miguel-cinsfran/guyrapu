@@ -8,6 +8,7 @@ import os
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
 from guyrapu.ui import agregar_camara, escena_captura_ventana, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
@@ -124,7 +125,14 @@ class DialogoEleccion(DialogoBase):
     def _crear_botones(self):
         super()._crear_botones()
         if not self._opciones:
-            self.btn_aceptar.Disable()
+            self.btn_aceptar.SetLabel(redaccion.etiqueta_con_motivo(
+                self._etiqueta_aceptar, self._vacio.rstrip(".")))
+
+    def _al_aceptar(self, _event):
+        if not self._opciones:
+            anunciar(self._vacio)
+            return
+        super()._al_aceptar(_event)
 
     def _leer(self):
         indice = self.lista.GetSelection()
@@ -163,8 +171,9 @@ class DialogoJuego(DialogoBase):
             self.cho_ventana.SetSelection(0)
         self.fila_ventana = fila_campo(
             self.vertical, self.rotulo_ventana, self.cho_ventana)
+        self._vacio = _("No hay ventanas para capturar.")
         self.aviso_vacio = wx.StaticText(
-            self, label=_("No hay ventanas para capturar."))
+            self, label=self._vacio)
         self.vertical.Add(self.aviso_vacio, 0, wx.ALL, 6)
         self._mostrar_ventana(self._modo == "window")
 
@@ -178,7 +187,9 @@ class DialogoJuego(DialogoBase):
         vacia = mostrar and not self._ventanas
         self.aviso_vacio.Show(bool(vacia))
         if hasattr(self, "btn_aceptar"):
-            self.btn_aceptar.Enable(not vacia)
+            motivo = self._vacio.rstrip(".") if vacia else ""
+            self.btn_aceptar.SetLabel(redaccion.etiqueta_con_motivo(
+                self._etiqueta_aceptar, motivo))
         if not mostrar and self.cho_ventana.HasFocus():
             self.cho_modo.SetFocus()
         self.Layout()
@@ -193,6 +204,12 @@ class DialogoJuego(DialogoBase):
 
     def _al_cambiar_modo(self, _event):
         self._mostrar_ventana(self.cho_modo.GetSelection() == 1)
+
+    def _al_aceptar(self, _event):
+        if self.cho_modo.GetSelection() == 1 and not self._ventanas:
+            anunciar(self._vacio)
+            return
+        super()._al_aceptar(_event)
 
     def _leer(self):
         if self.cho_modo.GetSelection() != 1:

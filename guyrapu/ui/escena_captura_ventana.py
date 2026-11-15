@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
 from guyrapu.obs import consultas_transmision
 from guyrapu.ui import paleta, tecla_escape
@@ -34,9 +35,10 @@ class DialogoCapturarVentana(wx.Dialog):
         self.cho_ventana.SetSelection(self._seleccion(actual))
         fila_campo(vertical, self.rotulo_ventana, self.cho_ventana)
         self.aviso_vacio = None
+        self._vacio = _("No hay ventanas para capturar.")
         if not opciones:
             self.aviso_vacio = wx.StaticText(
-                self, label=_("No hay ventanas para capturar."))
+                self, label=self._vacio)
             vertical.Add(self.aviso_vacio, 0, wx.ALL, 6)
         self._crear_botones(vertical)
         self.SetSizerAndFit(vertical)
@@ -59,8 +61,9 @@ class DialogoCapturarVentana(wx.Dialog):
         fila.Add(self.btn_aceptar, 0, wx.RIGHT, 8)
         fila.Add(self.btn_cancelar, 0)
         vertical.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        if not self.cho_ventana.GetCount():
-            self.btn_aceptar.Disable()
+        if not self._valores:
+            self.btn_aceptar.SetLabel(redaccion.etiqueta_con_motivo(
+                _("&Aceptar"), self._vacio.rstrip(".")))
 
     def _enlazar_eventos(self):
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._al_aceptar)
@@ -74,6 +77,9 @@ class DialogoCapturarVentana(wx.Dialog):
         return self._valores[indice]
 
     def _al_aceptar(self, _event):
+        if not self._valores:
+            anunciar(self._vacio)
+            return
         if not self.valor():
             anunciar(_("Elige primero una ventana en Ventana."))
             return
