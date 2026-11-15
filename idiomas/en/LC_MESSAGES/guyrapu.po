@@ -14115,3 +14115,7 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/gui_microfono.py
+msgid "Aplicar"
+msgstr "Apply"
+

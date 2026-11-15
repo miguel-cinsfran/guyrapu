@@ -182,7 +182,6 @@ REGLAS = (
             "darle nombre accesible al control en el constructor o con "
             "nombre_accesible", {
                 "guyrapu/ui/gui_actualizacion.py": 2,
-                "guyrapu/ui/gui_microfono.py": 2,
             }),
         ambito=_paquete,
     ),
