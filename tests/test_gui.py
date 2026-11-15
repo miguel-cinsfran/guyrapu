@@ -3176,7 +3176,7 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
                        "Solo lo importante con ElevenLabs",
                        "Voz de Windows de respaldo"):
             self.assertIsNotNone(self._buscar(dialogo, nombre))
-        self.assertFalse(dialogo.pagina_voz.cho_voz.IsEnabled())
+        self.assertTrue(dialogo.pagina_voz.cho_voz.IsEnabled())
         self.assertEqual(dialogo.pagina_voz.cho_voz.GetStringSelection(),
                          "(comprueba la clave)")
 
@@ -3192,12 +3192,11 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
         self.assertNotIn("g", letras)
         self.assertNotIn("c", letras)
 
-    def test_comprobar_clave_con_error_deja_la_voz_deshabilitada(self):
+    def test_comprobar_clave_con_error_deja_la_voz_habilitada(self):
         from tests.test_clave_elevenlabs import _HiloInmediato
         from guyrapu.ui import clave_elevenlabs
         from guyrapu.voice import elevenlabs
         dialogo = self._dialogo({"motor": "elevenlabs"})
-        dialogo.pagina_voz.btn_comprobar_clave.Disable()
         dialogo.pagina_voz.txt_clave_eleven.SetValue("mala")
         cliente = mock.Mock()
         cliente.voces.side_effect = elevenlabs.ElevenLabsError(
@@ -3211,7 +3210,7 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
                                   side_effect=lambda f, *a: f(*a)), \
                 mock.patch.object(preferencias_voz, "anunciar") as anunciar:
             dialogo.pagina_voz._comprobar_clave(True)
-        self.assertFalse(dialogo.pagina_voz.cho_voz.IsEnabled())
+        self.assertTrue(dialogo.pagina_voz.cho_voz.IsEnabled())
         self.assertEqual(dialogo.pagina_voz.cho_voz.GetStringSelection(),
                          "(comprueba la clave)")
         self.assertTrue(dialogo.pagina_voz.btn_comprobar_clave.IsEnabled())
@@ -3222,7 +3221,6 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
         from guyrapu.ui import clave_elevenlabs
         from guyrapu.voice import elevenlabs
         dialogo = self._dialogo({"motor": "elevenlabs"})
-        dialogo.pagina_voz.btn_comprobar_clave.Disable()
         dialogo.pagina_voz.txt_clave_eleven.SetValue("buena")
         cliente = mock.Mock()
         cliente.voces.return_value = [("id1", "Ana"), ("id2", "Beto")]

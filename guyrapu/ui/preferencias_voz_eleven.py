@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import clave_elevenlabs
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc
@@ -20,6 +21,7 @@ from guyrapu.voice import escala_voz
 from guyrapu.voice import motores
 
 _NO_HAY_VOCES = N_("(no hay voces disponibles)")
+_MOTIVO_COMPROBANDO = N_("Comprobando la clave")
 
 
 class BloqueElevenLabs:
@@ -35,6 +37,7 @@ class BloqueElevenLabs:
         self.controles = []
         self._respaldo_controles = []
         self.voces_respaldo = []
+        self._comprobando = False
 
     def crear_clave(self, p, vs):
         lbl_clave = fila_label(p, _("Cl&ave de ElevenLabs:"))
@@ -89,7 +92,6 @@ class BloqueElevenLabs:
                 0 if idx_respaldo is None else idx_respaldo)
         else:
             self.cho_voz_respaldo.SetSelection(0)
-            self.cho_voz_respaldo.Disable()
         vs.Add(self.lbl_respaldo, 0, wx.LEFT | wx.RIGHT, 10)
         vs.Add(self.cho_voz_respaldo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
@@ -111,14 +113,23 @@ class BloqueElevenLabs:
     def preparar_voces(self, anunciar_ok: bool = False) -> None:
         self._al_cambiar_voces((), self._config.get("voz"))
         if self.clave():
-            self.btn_comprobar_clave.Disable()
+            self._fijar_comprobando(True)
             self.comprobar(anunciar_ok)
 
+    def _fijar_comprobando(self, comprobando: bool) -> None:
+        self._comprobando = comprobando
+        motivo = _(_MOTIVO_COMPROBANDO) if comprobando else ""
+        self.btn_comprobar_clave.SetLabel(
+            redaccion.etiqueta_con_motivo(_("Compro&bar clave"), motivo))
+
     def _on_comprobar_clave(self, event) -> None:
+        if self._comprobando:
+            self._anunciar(f"{_(_MOTIVO_COMPROBANDO)}.")
+            return
         if not self.clave():
             self._anunciar(_("Escribe la clave de ElevenLabs."))
             return
-        self.btn_comprobar_clave.Disable()
+        self._fijar_comprobando(True)
         self.comprobar(anunciar_ok=True)
 
     def comprobar(self, anunciar_ok: bool) -> None:
@@ -131,7 +142,7 @@ class BloqueElevenLabs:
     def clave_ok(self, pares, usados, limite, anunciar_ok: bool) -> None:
         if not self._ventana:   # el diálogo pudo cerrarse mientras se comprobaba
             return
-        self.btn_comprobar_clave.Enable()
+        self._fijar_comprobando(False)
         voces = [nombre for _id, nombre in pares]
         self._al_cambiar_voces(voces, self._config.get("voz"))
         if anunciar_ok:
@@ -141,7 +152,7 @@ class BloqueElevenLabs:
     def clave_fallo(self, mensaje) -> None:
         if not self._ventana:
             return
-        self.btn_comprobar_clave.Enable()
+        self._fijar_comprobando(False)
         self._al_cambiar_voces((), None)
         self._anunciar(mensaje)
 

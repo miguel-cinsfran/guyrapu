@@ -197,11 +197,9 @@ class PaginaVoz:
             choice.SetItems(self._voces)
             idx = escala_voz.resolver_voz(guardada, self._voces)
             choice.SetSelection(0 if idx is None else idx)
-            choice.Enable(True)
         else:
             choice.SetItems([_(vacio)])
             choice.SetSelection(0)
-            choice.Disable()
 
     def _motor_elegido(self) -> str:
         from guyrapu.voice import motores

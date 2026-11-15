@@ -14091,3 +14091,7 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/preferencias_voz_eleven.py
+msgid "Comprobando la clave"
+msgstr "Checking the key"
+

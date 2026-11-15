@@ -227,7 +227,7 @@ class TestBloqueVozSecundaria(unittest.TestCase):
         cho = self._bloque(dialogo).cho_voz
         self.assertEqual([cho.GetString(i) for i in range(cho.GetCount())],
                          ["(no hay voces instaladas: usa Administrar voces)"])
-        self.assertFalse(cho.IsEnabled())
+        self.assertTrue(cho.IsEnabled())
 
     def test_el_orden_de_tab_del_grupo(self):
         bloque = self._bloque(self._dialogo())

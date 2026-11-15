@@ -177,15 +177,12 @@ class BloqueVozSecundaria:
             self.cho_voz.SetItems([_(_IGUAL_PRINCIPAL)] + self._voces)
             indice = escala_voz.resolver_voz(guardada, self._voces)
             self.cho_voz.SetSelection(0 if indice is None else indice + 1)
-            self.cho_voz.Enable(True)
         elif self.motor_efectivo() == "elevenlabs":
             self.cho_voz.SetItems([_(_IGUAL_PRINCIPAL)])
             self.cho_voz.SetSelection(0)
-            self.cho_voz.Enable(True)
         else:
             self.cho_voz.SetItems([_(_NO_HAY_VOCES)])
             self.cho_voz.SetSelection(0)
-            self.cho_voz.Disable()
 
     def motor_efectivo(self) -> str:
         """El motor propio o, con «Igual», el de la voz principal."""

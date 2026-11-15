@@ -408,7 +408,7 @@ class TestPaginaVocesMotor(unittest.TestCase):
         cho = self._dialogo({"motor": "phonon"}, voces=()).pagina_voz.cho_voz
         self.assertEqual([cho.GetString(i) for i in range(cho.GetCount())],
                          ["(no hay voces instaladas: usa Administrar voces)"])
-        self.assertFalse(cho.IsEnabled())
+        self.assertTrue(cho.IsEnabled())
 
 class TestPaginaDescargas(unittest.TestCase):
     def setUp(self):
