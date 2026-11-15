@@ -160,7 +160,7 @@ class TestCuadrosDeP1(unittest.TestCase):
         preguntar.assert_called_once_with(
             None, _("Descargas terminadas. ¿Abrir la carpeta?"),
             _("Administrador de descargas"), _("&Abrir carpeta"),
-            _("Ahora &no"))
+            _("Ahora &no"), predeterminado_si=True)
 
     def test_vaciar_la_lista_de_descargas(self):
         from guyrapu.ui import descargas_acciones
@@ -217,7 +217,8 @@ class TestCuadrosDeP1(unittest.TestCase):
             gui_envio_chat.moderar(frame, "Ana", "CANAL", 300)
         preguntar.assert_called_once_with(
             frame, _("¿Suspender temporalmente a Ana durante 5 minutos?"),
-            _("Confirmar moderación"), _("&Suspender"), _("&Cancelar"))
+            _("Confirmar moderación"), _("&Suspender"), _("&Cancelar"),
+            predeterminado_si=True)
 
     def test_moderar_con_ocultacion(self):
         from guyrapu.ui import gui_envio_chat
@@ -229,7 +230,8 @@ class TestCuadrosDeP1(unittest.TestCase):
         preguntar.assert_called_once_with(
             frame, _("¿Ocultar a Ana en el canal de YouTube? "
                      "Se puede deshacer desde YouTube Studio."),
-            _("Confirmar moderación"), _("&Ocultar"), _("&Cancelar"))
+            _("Confirmar moderación"), _("&Ocultar"), _("&Cancelar"),
+            predeterminado_si=True)
 
     def test_sesion_de_youtube_caducada(self):
         from guyrapu.ui import gui_preferencias
@@ -240,7 +242,8 @@ class TestCuadrosDeP1(unittest.TestCase):
         preguntar.assert_called_once_with(
             None, _("Tu sesión de YouTube caducó. ¿Abrir Preferencias para "
                     "volver a iniciar sesión?"),
-            _("Sesión caducada"), _("&Abrir Preferencias"), _("Ahora &no"))
+            _("Sesión caducada"), _("&Abrir Preferencias"), _("Ahora &no"),
+            predeterminado_si=True)
 
     def test_privacidad_de_la_ia(self):
         from guyrapu.ui import ia_privacidad

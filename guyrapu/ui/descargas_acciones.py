@@ -64,7 +64,7 @@ def _preguntar_carpeta(carpeta, padre) -> None:
             _padre_vigente(padre),
             _("Descargas terminadas. ¿Abrir la carpeta?"),
             _("Administrador de descargas"), _("&Abrir carpeta"),
-            _("Ahora &no")):
+            _("Ahora &no"), predeterminado_si=True):
         return
     if not os.path.exists(carpeta):
         _falta(_("La carpeta ya no está disponible."))

@@ -227,11 +227,12 @@ class TestDetectores(unittest.TestCase):
             preguntar_confirmar(None, "a", "b", "Sí", "No", predeterminado_si=True)
             preguntar_confirmar(None, "a", "b", "Sí", "No")
             confirmar.preguntar(None, "a", "b", "Sí", "No", predeterminado_si=decidir)
+            confirmar.preguntar(None, "a", "b", "Sí", "No", predeterminado_si=not problemas)
             confirmaciones.preguntar(None, "a", "b", "Sí", "No", predeterminado_si=False)
             otro.preguntar(None, "a", "b", "Sí", "No")
             # confirmar.preguntar(None, "a", "b", "Sí", "No")
             """)
-        self.assertEqual([6, 8, 9], _lineas(hallazgos))
+        self.assertEqual([6, 8], _lineas(hallazgos))
 
     def test_control_sin_nombre(self):
         hallazgos = _hallazgos(controles.detectar_nombres_de_control, """\

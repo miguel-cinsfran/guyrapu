@@ -520,6 +520,6 @@ def ofrecer_iniciar_sesion(parent, config) -> bool:
     if not confirmar.preguntar(
             parent, _("Tu sesión de YouTube caducó. ¿Abrir Preferencias para "
                       "volver a iniciar sesión?"),
-            _("Sesión caducada"), _("&Abrir Preferencias"), _("Ahora &no")):
+            _("Sesión caducada"), _("&Abrir Preferencias"), _("Ahora &no"), predeterminado_si=True):
         return False
     return abrir_preferencias(parent, config, pagina=CATEGORIA_YOUTUBE)

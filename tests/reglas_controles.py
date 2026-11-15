@@ -51,11 +51,8 @@ def _es_llamada_preguntar(func: ast.expr, funciones: set[str],
 
 
 def _predeterminado_explicito(llamada: ast.Call) -> bool:
-    for palabra in llamada.keywords:
-        if palabra.arg == "predeterminado_si":
-            return (isinstance(palabra.value, ast.Constant)
-                    and isinstance(palabra.value.value, bool))
-    return False
+    return any(palabra.arg == "predeterminado_si"
+               for palabra in llamada.keywords)
 
 
 def detectar_predeterminado(archivo: str,

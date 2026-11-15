@@ -173,15 +173,9 @@ REGLAS = (
     ),
     Regla(
         id="R11",
-        prohibido="preguntar se llama sin predeterminado_si explícito con True o False literal",
+        prohibido="preguntar se llama sin predeterminado_si explícito",
         detectar=detectar_predeterminado,
-        pendientes=_pendientes(
-            "pasar predeterminado_si explícito con True o False literal", {
-                "guyrapu/ui/confirmar_transmision.py": 1,
-                "guyrapu/ui/descargas_acciones.py": 1,
-                "guyrapu/ui/gui_envio_chat.py": 1,
-                "guyrapu/ui/gui_preferencias.py": 1,
-            }),
+        pendientes={},
     ),
     Regla(
         id="R12",

@@ -2462,7 +2462,8 @@ class TestOfrecerCarpetaAlTerminar(unittest.TestCase):
         self._abrir_la_pregunta()
         self._mensaje.assert_called_once_with(
             None, "Descargas terminadas. ¿Abrir la carpeta?",
-            "Administrador de descargas", "&Abrir carpeta", "Ahora &no")
+            "Administrador de descargas", "&Abrir carpeta", "Ahora &no",
+            predeterminado_si=True)
 
     def test_dos_completadas_preguntan_una_vez_al_final(self):
         self._preguntar = True

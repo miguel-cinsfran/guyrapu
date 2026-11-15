@@ -200,7 +200,7 @@ def moderar(frame, autor: str, canal_id: str, segundos: int | None) -> None:
         ok = _("{autor} oculto en el canal de YouTube")
     if not confirmar.preguntar(frame, pregunta.format(autor=autor),
                                _("Confirmar moderación"), etiqueta_si,
-                               _("&Cancelar")):
+                               _("&Cancelar"), predeterminado_si=True):
         return
     lcid = frame.sesion.live_chat_id
     frame._accion_api(
