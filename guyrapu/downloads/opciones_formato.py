@@ -62,7 +62,9 @@ def etiquetas_de_calidad(formato: str) -> list[str]:
         return [_("Máxima")] + [f"{r}p" for r in RESOLUCIONES if r]
     if clase == "bitrate":
         return [f"{b} kbps" for b in BITRATES]
-    return []
+    # Traductores: único elemento del desplegable Calidad cuando el formato
+    # no tiene calidades para elegir.
+    return [_("Este formato no tiene calidad para elegir")]
 
 
 def argumentos_exactos(selector: str, contenedor: str) -> list[str]:

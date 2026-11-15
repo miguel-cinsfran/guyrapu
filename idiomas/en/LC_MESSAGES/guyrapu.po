@@ -2979,6 +2979,12 @@ msgstr "Date and title"
 msgid "Máxima"
 msgstr "Maximum"
 
+#. Traductores: único elemento del desplegable Calidad cuando el formato
+#. no tiene calidades para elegir.
+#: guyrapu/downloads/opciones_formato.py
+msgid "Este formato no tiene calidad para elegir"
+msgstr "This format has no quality to choose"
+
 #. Traductores: {porcentaje} es el múltiplo de 10 que se alcanzó.
 #: guyrapu/downloads/progreso_anuncio.py
 #, python-brace-format
@@ -7578,9 +7584,10 @@ msgid "&Cerrar"
 msgstr "&Close"
 
 #: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/musica_ventana.py guyrapu/ui/obs_ventana.py
-#: guyrapu/ui/restream_ventana.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_microfono.py
+#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
+#: guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
 msgstr "Close"
 
@@ -10851,6 +10858,10 @@ msgstr "Device"
 msgid "&Aplicar"
 msgstr "&Apply"
 
+#: guyrapu/ui/gui_microfono.py
+msgid "Aplicar"
+msgstr "Apply"
+
 #. Traductores: motivo del botón «Aplicar» mientras OBS aplica el cambio.
 #: guyrapu/ui/gui_microfono.py
 msgid "Aplicando el cambio"
@@ -11612,6 +11623,12 @@ msgstr ". {nombre}"
 msgid "Cargando la carpeta…"
 msgstr "Loading the folder…"
 
+#. Traductores: motivo del botón «Cambiar carpeta» mientras se carga la
+#. carpeta.
+#: guyrapu/ui/musica_colecciones.py
+msgid "Cargando la carpeta"
+msgstr "Loading the folder"
+
 #: guyrapu/ui/musica_colecciones.py
 msgid "No hay carpeta de música"
 msgstr "No music folder"
@@ -11993,6 +12010,22 @@ msgstr "Default output"
 msgid "Consultando OBS"
 msgstr "Asking OBS"
 
+#. Traductores: motivo que lleva la etiqueta del botón «Iniciar sesión».
+#: guyrapu/ui/preferencias_api.py
+msgid "Faltan las bibliotecas de Google"
+msgstr "The Google libraries are missing"
+
+#. Traductores: motivo de «Iniciar sesión» mientras el navegador espera la
+#. autorización.
+#: guyrapu/ui/preferencias_api.py
+msgid "Esperando la autorización en el navegador"
+msgstr "Waiting for authorization in the browser"
+
+#. Traductores: motivo que lleva la etiqueta del botón «Cerrar sesión».
+#: guyrapu/ui/preferencias_api.py
+msgid "No hay sesión iniciada"
+msgstr "No active session"
+
 #: guyrapu/ui/preferencias_api.py
 msgid ""
 "La clave de API permite leer comentarios sin iniciar sesión. Con la sesión "
@@ -12120,6 +12153,11 @@ msgstr "&Reset shortcuts to factory defaults"
 #: guyrapu/ui/preferencias_atajos.py
 msgid "Pulsa para capturar una nueva combinación."
 msgstr "Press to capture a new combination."
+
+#. Traductores: aviso al activar un atajo que no se puede cambiar.
+#: guyrapu/ui/preferencias_atajos.py
+msgid "Este atajo es fijo."
+msgstr "This shortcut is fixed."
 
 #. Traductores: aviso de captura de un atajo; {accion} es su nombre.
 #: guyrapu/ui/preferencias_atajos.py
@@ -13315,6 +13353,11 @@ msgstr "&Restream page…"
 msgid "&Manual, con servidor y clave…"
 msgstr "&Manual, with server and key…"
 
+#. Traductores: motivo de los botones de la cuenta mientras Restream espera.
+#: guyrapu/ui/restream_pagina_cuenta.py
+msgid "Esperando a Restream"
+msgstr "Waiting for Restream"
+
 #: guyrapu/ui/restream_pagina_cuenta.py
 msgid "Estado de la cuenta"
 msgstr "Account status"
@@ -14114,40 +14157,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/gui_microfono.py
-msgid "Aplicar"
-msgstr "Apply"
-
-#. Traductores: motivo del botón «Cambiar carpeta» mientras se carga la
-#. carpeta.
-#: guyrapu/ui/musica_colecciones.py
-msgid "Cargando la carpeta"
-msgstr "Loading the folder"
-
-#. Traductores: motivo que lleva la etiqueta del botón «Iniciar sesión».
-#: guyrapu/ui/preferencias_api.py
-msgid "Faltan las bibliotecas de Google"
-msgstr "The Google libraries are missing"
-
-#. Traductores: motivo de «Iniciar sesión» mientras el navegador espera la
-#. autorización.
-#: guyrapu/ui/preferencias_api.py
-msgid "Esperando la autorización en el navegador"
-msgstr "Waiting for authorization in the browser"
-
-#. Traductores: motivo que lleva la etiqueta del botón «Cerrar sesión».
-#: guyrapu/ui/preferencias_api.py
-msgid "No hay sesión iniciada"
-msgstr "No active session"
-
-#. Traductores: aviso al activar un atajo que no se puede cambiar.
-#: guyrapu/ui/preferencias_atajos.py
-msgid "Este atajo es fijo."
-msgstr "This shortcut is fixed."
-
-#. Traductores: motivo de los botones de la cuenta mientras Restream espera.
-#: guyrapu/ui/restream_pagina_cuenta.py
-msgid "Esperando a Restream"
-msgstr "Waiting for Restream"
 

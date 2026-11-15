@@ -35,7 +35,8 @@ class TestEtiquetasDeCalidad(unittest.TestCase):
         self.assertIn("320 kbps", op.etiquetas_de_calidad("opus"))
         for formato in ("audio_original", "flac", "wav"):
             with self.subTest(formato=formato):
-                self.assertEqual(op.etiquetas_de_calidad(formato), [])
+                self.assertEqual(op.etiquetas_de_calidad(formato),
+                                 ["Este formato no tiene calidad para elegir"])
 
 
 class TestArgumentosDeFormato(unittest.TestCase):

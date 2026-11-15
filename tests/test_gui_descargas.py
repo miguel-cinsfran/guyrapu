@@ -611,12 +611,16 @@ class TestPaginaUnica(unittest.TestCase):
         self.assertEqual(agregados, 1)
         avisar.assert_called_once_with("En cola: Mi vídeo", "descarga_encolada")
 
-    def test_cambiar_formato_llena_calidad_y_deshabilita(self):
+    def test_cambiar_formato_llena_calidad(self):
         dialogo = self._dialogo()
         dialogo.cho_formato.SetSelection(7)
         dialogo._on_formato()
-        self.assertFalse(dialogo.cho_calidad.IsEnabled())
-        self.assertEqual(dialogo.cho_calidad.GetCount(), 0)
+        self.assertTrue(dialogo.cho_calidad.IsEnabled())
+        self.assertEqual(
+            [dialogo.cho_calidad.GetString(i)
+             for i in range(dialogo.cho_calidad.GetCount())],
+            ["Este formato no tiene calidad para elegir"])
+        self.assertEqual(dialogo.cho_calidad.GetSelection(), 0)
         dialogo.cho_formato.SetSelection(4)
         dialogo._on_formato()
         self.assertTrue(dialogo.cho_calidad.IsEnabled())
@@ -650,6 +654,30 @@ class TestPaginaUnica(unittest.TestCase):
         for clave in ("formato", "bitrate", "resolucion", "carpeta",
                       "enumerar"):
             self.assertIn(clave, op)
+
+    def test_flac_no_pisa_la_calidad_recordada(self):
+        dialogo = self._dialogo()
+        dialogo.cho_formato.SetSelection(1)
+        dialogo._on_formato()
+        dialogo.cho_calidad.SetSelection(4)
+        dialogo.cho_formato.SetSelection(4)
+        dialogo._on_formato()
+        dialogo.cho_calidad.SetSelection(3)
+        dialogo.cho_formato.SetSelection(7)
+        dialogo._on_formato()
+        with mock.patch.object(gui_descargas.cfg, "guardar_opciones_descarga"):
+            dialogo._preparar_opciones()
+        op = dialogo._gestor._opciones
+        self.assertEqual((op["formato"], op["resolucion"], op["bitrate"]),
+                         ("flac", 720, 320))
+        dialogo.cho_formato.SetSelection(1)
+        dialogo._on_formato()
+        self.assertEqual(dialogo.cho_calidad.GetStringSelection(), "720p")
+        dialogo.cho_formato.SetSelection(7)
+        dialogo._on_formato()
+        dialogo.cho_formato.SetSelection(4)
+        dialogo._on_formato()
+        self.assertEqual(dialogo.cho_calidad.GetStringSelection(), "320 kbps")
 
     def test_sin_carpeta_ni_enumerar(self):
         dialogo = self._dialogo()

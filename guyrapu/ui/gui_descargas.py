@@ -242,7 +242,7 @@ class GestorDescargasDialog(wx.Dialog):
         fila.Add(lbl_cal, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 6)
         self.cho_calidad = wx.Choice(parent, choices=[], name=_("Calidad"))
         fila.Add(self.cho_calidad, 1, wx.EXPAND)
-        self._on_formato()   # llena la calidad y ajusta su habilitación
+        self._on_formato()   # llena la calidad
         return fila
 
     def _seccion_listas(self, parent):
@@ -295,10 +295,8 @@ class GestorDescargasDialog(wx.Dialog):
             try:    sel = BITRATES.index(self._mem_bitrate)
             except ValueError: sel = 0
         else:
-            sel = -1
-        if sel >= 0:
-            self.cho_calidad.SetSelection(sel)
-        self.cho_calidad.Enable(clase != "")
+            sel = 0
+        self.cho_calidad.SetSelection(sel)
 
     def _opciones_actuales(self) -> dict:
         op = cfg.obtener_opciones_descarga()
