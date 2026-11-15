@@ -18,8 +18,7 @@ import threading
 import time
 from urllib.parse import parse_qs, urlencode, urlsplit
 
-import httpx
-
+from guyrapu.core import red_httpx
 from guyrapu.core.config import APP_NAME
 from guyrapu.core.idioma import _, idioma_actual
 from guyrapu.restream import sesion
@@ -195,7 +194,7 @@ def esperar_codigo(abrir, plazo=PLAZO, parada=None, puertos=PUERTOS):
 def _post(cliente, url, cuerpo):
     try:
         return cliente.post(url, json=cuerpo, timeout=ESPERA)
-    except httpx.HTTPError:
+    except red_httpx.ErrorHTTP:
         logger.warning("no se pudo hablar con el servicio de Restream")
         raise FalloServicio() from None
 
@@ -226,7 +225,7 @@ def canjear(servicio, codigo, redirect_uri, cliente=None):
         "client_id": CLIENT_ID,
     }
     if cliente is None:
-        with httpx.Client() as propio:
+        with red_httpx.cliente() as propio:
             return _tokens(_post(propio, url, cuerpo))
     return _tokens(_post(cliente, url, cuerpo))
 
@@ -255,7 +254,7 @@ def renovar(servicio, token_de_renovacion, cliente=None):
     url = f"{servicio}/refresh"
     cuerpo = {"refresh_token": token_de_renovacion, "client_id": CLIENT_ID}
     if cliente is None:
-        with httpx.Client() as propio:
+        with red_httpx.cliente() as propio:
             return _renovar_con(propio, url, cuerpo)
     return _renovar_con(cliente, url, cuerpo)
 
@@ -272,7 +271,7 @@ def revocar(token_de_renovacion, cliente=None):
     """Pide a Restream que anule el token de renovación; nunca lanza."""
     datos = {"token": token_de_renovacion, "token_type_hint": "refresh_token"}
     if cliente is None:
-        with httpx.Client() as propio:
+        with red_httpx.cliente() as propio:
             _revocar(propio, datos)
     else:
         _revocar(cliente, datos)

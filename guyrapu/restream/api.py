@@ -13,8 +13,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-import httpx
-
+from guyrapu.core import red_httpx
 from guyrapu.core.idioma import _
 from guyrapu.restream import eventos as eventos_restream
 
@@ -118,10 +117,10 @@ def _pedir(cliente, url, cabeceras=None, metodo="GET", cuerpo=None,
         opciones["json"] = cuerpo
     try:
         if cliente is None:
-            with httpx.Client() as propio:
+            with red_httpx.cliente() as propio:
                 return propio.request(metodo, url, **opciones)
         return cliente.request(metodo, url, **opciones)
-    except httpx.HTTPError:
+    except red_httpx.ErrorHTTP:
         logger.warning("no se pudo hablar con la API de Restream")
         raise ErrorApi(mensaje) from None
 
