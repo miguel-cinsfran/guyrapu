@@ -78,10 +78,12 @@ def construir_menu(frame):
         wx.ID_ANY, _("&Buscar en el chat…") + frame._accel("buscar_chat"))
     frame._bind_menu(frame.mi_buscar_chat,
                      lambda: frame._chat_acciones.abrir_busqueda())
+    frame.mi_participacion_chat = m.Append(
+        wx.ID_ANY, _("&Participación en el chat…") + frame._accel("participacion_chat"))
+    frame._bind_menu(frame.mi_participacion_chat, lambda: frame._chat_acciones.abrir_participacion())
     mb.Append(m, _("&Chat"))
     frame.Bind(wx.EVT_MENU, frame._on_enviar_live, frame.mi_enviar_live)
 
-    # Voz (TTS)
     m = wx.Menu()
     frame.mi_pausa = m.Append(wx.ID_ANY, _("&Pausar lectura") + frame._accel("pausa"))
     mi_det = m.Append(wx.ID_ANY, _("&Detener voz") + frame._accel("detener_tts"))
@@ -104,7 +106,6 @@ def construir_menu(frame):
     frame._bind_menu(frame.mi_sil_lectura, frame._toggle_silenciar_lectura)
     frame._bind_menu(frame.mi_sil_sonidos, frame._toggle_silenciar_sonidos)
 
-    # Reproductor
     m = wx.Menu()
     mi_rep_play  = m.Append(wx.ID_ANY, _("&Reproducir o pausar") + frame._accel("rep_play"))
     mi_rep_retro = m.Append(wx.ID_ANY, _("R&etroceder 1 minuto") + frame._accel("rep_retro"))
@@ -146,7 +147,6 @@ def construir_menu(frame):
     frame._bind_menu(mi_rep_volm, frame._rep_accion, "ajustar_volumen", -20)
     frame._bind_menu(mi_rep_volM, frame._rep_accion, "ajustar_volumen", +20)
 
-    # Transmisión
     menu_transmision.construir(frame, mb)
     menu_obs.construir(frame, mb)
 

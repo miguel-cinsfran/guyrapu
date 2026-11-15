@@ -324,19 +324,48 @@ class TestCadaVentana(unittest.TestCase):
         self.addCleanup(destruir, ventana)
         return ventana
 
+    def _acciones_chat(self):
+        from guyrapu.ui import chat_acciones
+        from guyrapu.ui.chat_vivo import ControladorChat
+        padre = wx.Frame(None)
+        self.addCleanup(destruir, padre)
+        lista = wx.ListBox(padre)
+        chat = ControladorChat(
+            lista, 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=lambda *args: "", al_superchat=lambda monto: None)
+        return padre, chat_acciones.AccionesChat(
+            lista, chat, mock.Mock(), {}, lambda: None, padre)
+
+    def _chat_buscar(self, pila):
+        from guyrapu.ui import chat_buscar
+        padre, acciones = self._acciones_chat()
+        ventana = chat_buscar.CuadroBuscarChat(padre, acciones)
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _participacion(self, pila):
+        from guyrapu.ui import chat_participacion
+        padre, acciones = self._acciones_chat()
+        ventana = chat_participacion.VentanaParticipacion(padre, acciones)
+        self.addCleanup(destruir, ventana)
+        return ventana
+
     def test_cada_ventana_abre_su_seccion(self):
-        fabricas = {
-            "panel_obs": self._panel_obs,
-            "restream": self._restream,
-            "musica": self._musica,
-            "descargas": self._descargas,
-            "ia": self._ia,
-            "preferencias": self._preferencias,
-            "transmitir": self._transmitir,
-            "microfono": self._microfono,
-            "voces": self._voces,
-        }
-        for clave, fabrica in fabricas.items():
+        fabricas = [
+            ("panel_obs", self._panel_obs),
+            ("restream", self._restream),
+            ("musica", self._musica),
+            ("descargas", self._descargas),
+            ("ia", self._ia),
+            ("preferencias", self._preferencias),
+            ("transmitir", self._transmitir),
+            ("microfono", self._microfono),
+            ("voces", self._voces),
+            ("chat", self._chat_buscar),
+            ("chat", self._participacion),
+        ]
+        for clave, fabrica in fabricas:
             with self.subTest(ventana=clave):
                 with mock.patch.object(ayuda_manual, "abrir") as abrir:
                     with contextlib.ExitStack() as pila:

@@ -162,6 +162,30 @@ class TestControladorChat(unittest.TestCase):
         control.lista.Delete.assert_called_once_with(0)
         self.assertEqual(len(control.modelo.todos), 2)
 
+    def test_la_participacion_cuenta_todo_aunque_el_historial_recorte(self):
+        control = _controlador(maximo=2)
+        with mock.patch.object(chat_vivo._snd, "reproducir"):
+            for texto in ("uno", "dos", "tres"):
+                control._procesar(_registro(texto=texto))
+        self.assertEqual(len(control.modelo.todos), 2)
+        self.assertEqual(control.participacion.lineas(), ["Ana: 3 mensajes"])
+
+    def test_autor_oculto_no_suma_a_la_participacion(self):
+        control = _controlador(oculto=True)
+        with mock.patch.object(chat_vivo._snd, "reproducir"):
+            control._procesar(_registro(texto="hola"))
+        self.assertTrue(control.participacion.vacia())
+
+    def test_vaciar_limpia_participacion_y_modelo(self):
+        control = _controlador()
+        with mock.patch.object(chat_vivo._snd, "reproducir"):
+            control._procesar(_registro(texto="hola"))
+        control._pendientes = [_registro(texto="pendiente")]
+        control.vaciar()
+        self.assertTrue(control.participacion.vacia())
+        self.assertEqual(control.modelo.todos, [])
+        self.assertEqual(control._pendientes, [])
+
     def test_descartar_para_el_temporizador_y_vacia_la_cola(self):
         control = _controlador()
         temporizador = mock.Mock()

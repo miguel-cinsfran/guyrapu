@@ -803,8 +803,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self.sesion.es_tiktok = False   # esta ruta es la de YouTube
         # Empezar el chat en limpio en cada conexión: el reset al desconectar ya
         # lo hace, pero así garantizamos que nunca quede nada del vídeo anterior.
-        self.chat_vivo.descartar()
-        self.chat_vivo.modelo.limpiar()
+        self.chat_vivo.vaciar()
         self._sc_totales.clear()
         try:    self.lb_chat.Clear()
         except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)
@@ -845,8 +844,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self.sesion.usuario_tiktok = usuario or ""
         self.sesion.url_flujo_tiktok = url_flujo or ""
         if not reconexion:
-            self.chat_vivo.descartar()
-            self.chat_vivo.modelo.limpiar()
+            self.chat_vivo.vaciar()
             self._sc_totales.clear()
             try:    self.lb_chat.Clear()
             except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)

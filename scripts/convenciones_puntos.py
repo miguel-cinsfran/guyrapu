@@ -21,6 +21,7 @@ ABREN_CUADRO = frozenset((
     "Elegir música",
     "Historial de directos",
     "Panel de OBS",
+    "Participación en el chat",
     "Preferencias",
     "Preguntar a la IA sobre la imagen",
     "Restream",

@@ -112,11 +112,9 @@ def reiniciar_datos_sesion(ventana) -> None:
     ventana.sesion = SesionConectada()
     # Chat: datos, lista visible y lo que aún estaba en cola sin volcar (es
     # de la sesión que se cierra; no debe colarse en la siguiente).
-    ventana.chat_vivo.descartar()
-    ventana.chat_vivo.modelo.limpiar()
+    ventana.chat_vivo.vaciar()
     try:    ventana.lb_chat.Clear()
     except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)
-    # Super Chats acumulados de la sesión.
     ventana._sc_totales.clear()
     # Panel de información del vídeo.
     ventana._metadatos = {}

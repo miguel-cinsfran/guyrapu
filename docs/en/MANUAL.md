@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 154b72385d9c6cc1886a7627c63f684f69929df8 -->
+<!-- original: es/MANUAL.md b9f88d98566691070045d73cd7fd34ec066722cf -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -24,7 +24,7 @@ The window has three regions: *Connection*, *Content* and *Player*. In *Content*
 | `Enter` | Open the live stream |
 | `Delete` | Remove it from the history |
 
-## The chat
+## <a id="chat"></a>The chat
 
 Each message is read with the chosen voice and has a sound according to who writes (channel owner, moderator, verified account or member) and according to what it is (Super Chat, membership or TikTok gift).
 
@@ -399,6 +399,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 |---|---|
 | `Alt+Enter` | Go to the writing box |
 | `Alt+B` | Search chat |
+| `Alt+P` | Chat participation |
 
 ### Windows (Ctrl+Shift)
 

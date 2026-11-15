@@ -759,7 +759,7 @@ msgstr "Battle in progress: {lista}"
 msgid "TikTok: "
 msgstr "TikTok: "
 
-#: guyrapu/capture/chat_adicional.py guyrapu/ui/gui.py
+#: guyrapu/capture/chat_adicional.py guyrapu/ui/gui_sesion.py
 msgid "Conectado al directo. Leyendo el chat."
 msgstr "Connected to the live stream. Reading the chat."
 
@@ -1168,7 +1168,7 @@ msgstr "{minutos} min"
 
 #. Traductores: parte del estado F2 (conexión).
 #. Traductores: aviso al desconectar.
-#: guyrapu/capture/estado_sesion.py guyrapu/ui/gui.py
+#: guyrapu/capture/estado_sesion.py guyrapu/ui/gui_sesion.py
 msgid "Desconectado"
 msgstr "Disconnected"
 
@@ -6802,6 +6802,11 @@ msgstr "Send message to the chat"
 msgid "Buscar en el chat"
 msgstr "Search chat"
 
+#. Traductores: título de la ventana con la participación del chat.
+#: guyrapu/ui/atajos_captura.py guyrapu/ui/chat_participacion.py
+msgid "Participación en el chat"
+msgstr "Chat participation"
+
 #: guyrapu/ui/atajos_captura.py
 msgid "Ir a la lista del panel actual"
 msgstr "Go to the current pane list"
@@ -7130,9 +7135,10 @@ msgstr "With this keyboard, AltGr+{tecla} types {letra}. Choose another."
 msgid "Capturado: {atajo}. Se aplica al pulsar Guardar."
 msgstr "Captured: {atajo}. It applies when you press Save."
 
-#: guyrapu/ui/aviso_importante.py guyrapu/ui/chat_acciones.py guyrapu/ui/gui.py
+#: guyrapu/ui/aviso_importante.py guyrapu/ui/chat_acciones.py
+#: guyrapu/ui/chat_participacion.py guyrapu/ui/gui.py
 #: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
-#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_api.py
+#: guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py guyrapu/ui/preferencias_api.py
 #: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
 #: guyrapu/ui/voces_ventana.py
 msgid "Aceptar"
@@ -7523,21 +7529,71 @@ msgstr "Results"
 
 #. Traductores: botón para cerrar la ventana.
 #. Traductores: cierra la ventana; segunda, su nombre accesible.
-#: guyrapu/ui/chat_buscar.py guyrapu/ui/dialogo_asistente_perfiles.py
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/dialogo_prueba_conexion.py
-#: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/gui_actualizacion.py
-#: guyrapu/ui/gui_descargas.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/musica_ventana.py guyrapu/ui/ventana_espera.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
+#: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_estado.py
+#: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
+#: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
+#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
 msgid "&Cerrar"
 msgstr "&Close"
 
-#: guyrapu/ui/chat_buscar.py guyrapu/ui/dialogo_estado.py
-#: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/musica_ventana.py guyrapu/ui/obs_ventana.py
-#: guyrapu/ui/restream_ventana.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
+#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_microfono.py
+#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
+#: guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
 msgstr "Close"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "Todavía no hay mensajes en este directo."
+msgstr "There are no messages in this live stream yet."
+
+#: guyrapu/ui/chat_participacion.py
+msgid "Guardar participación"
+msgstr "Save chat participation"
+
+#. Traductores: traduce solo «Archivos de texto»; no cambies «(*.txt)|*.txt».
+#: guyrapu/ui/chat_participacion.py
+msgid "Archivos de texto (*.txt)|*.txt"
+msgstr "Text files (*.txt)|*.txt"
+
+#: guyrapu/ui/chat_participacion.py
+#, python-brace-format
+msgid "Participación {fecha}.txt"
+msgstr "Chat participation {fecha}.txt"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "Participación guardada."
+msgstr "Chat participation saved."
+
+#: guyrapu/ui/chat_participacion.py
+#, python-brace-format
+msgid ""
+"No se pudo guardar la participación:\n"
+"\n"
+"{exc}"
+msgstr ""
+"Could not save the chat participation:\n"
+"\n"
+"{exc}"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "&Participación:"
+msgstr "&Participation:"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "Participación"
+msgstr "Participation"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "&Guardar…"
+msgstr "&Save…"
+
+#: guyrapu/ui/chat_participacion.py guyrapu/ui/musica_editor_lista.py
+msgid "Guardar"
+msgstr "Save"
 
 #: guyrapu/ui/chat_recientes.py
 msgid "Mensajes recientes del chat en cualquier aplicación"
@@ -9376,39 +9432,6 @@ msgid "Conéctate primero"
 msgstr "Connect first"
 
 #: guyrapu/ui/gui.py
-msgid "Conexión cancelada"
-msgstr "Connection canceled"
-
-#: guyrapu/ui/gui.py
-msgid "Introduce un enlace o un ID de YouTube."
-msgstr "Enter a YouTube link or ID."
-
-#: guyrapu/ui/gui.py
-msgid "Falta el enlace"
-msgstr "Missing link"
-
-#: guyrapu/ui/gui.py
-msgid "&Cancelar conexión"
-msgstr "&Cancel connection"
-
-#. Traductores: aviso mientras se conecta.
-#: guyrapu/ui/gui.py
-msgid "Conectando"
-msgstr "Connecting"
-
-#: guyrapu/ui/gui.py
-msgid "No se reconoce el enlace o el ID de YouTube"
-msgstr "The YouTube link or ID is not recognized"
-
-#: guyrapu/ui/gui.py
-msgid "No se reconoce el enlace o el ID de YouTube. Comprueba el enlace pegado."
-msgstr "The YouTube link or ID is not recognized. Check the pasted link."
-
-#: guyrapu/ui/gui.py
-msgid "Enlace no reconocido"
-msgstr "Link not recognized"
-
-#: guyrapu/ui/gui.py
 #, python-brace-format
 msgid ""
 "No se pudo abrir Preferencias:\n"
@@ -9472,19 +9495,6 @@ msgstr "Reading unmuted"
 #: guyrapu/ui/gui.py
 msgid "Sin información de la escena."
 msgstr "No scene information."
-
-#: guyrapu/ui/gui.py
-msgid "Directo programado. Aún no hay chat; puedes ver los comentarios."
-msgstr "Scheduled live stream. No chat yet; you can read the comments."
-
-#: guyrapu/ui/gui.py
-msgid "Vídeo conectado. Comentarios y reproductor disponibles."
-msgstr "Video connected. Comments and player available."
-
-#. Traductores: aviso genérico al conectar.
-#: guyrapu/ui/gui.py
-msgid "Conectado."
-msgstr "Connected."
 
 #: guyrapu/ui/gui.py
 msgid "Directo: leyendo el chat."
@@ -10466,6 +10476,10 @@ msgid "&Buscar en el chat…"
 msgstr "Search &chat…"
 
 #: guyrapu/ui/gui_menu.py
+msgid "&Participación en el chat…"
+msgstr "Chat &participation…"
+
+#: guyrapu/ui/gui_menu.py
 msgid "&Chat"
 msgstr "&Chat"
 
@@ -11063,6 +11077,52 @@ msgstr "Compose"
 msgid "&{boton}"
 msgstr "&{boton}"
 
+#: guyrapu/ui/gui_sesion.py
+msgid "Conexión cancelada"
+msgstr "Connection canceled"
+
+#: guyrapu/ui/gui_sesion.py
+msgid "Introduce un enlace o un ID de YouTube."
+msgstr "Enter a YouTube link or ID."
+
+#: guyrapu/ui/gui_sesion.py
+msgid "Falta el enlace"
+msgstr "Missing link"
+
+#: guyrapu/ui/gui_sesion.py
+msgid "&Cancelar conexión"
+msgstr "&Cancel connection"
+
+#. Traductores: aviso mientras se conecta.
+#: guyrapu/ui/gui_sesion.py
+msgid "Conectando"
+msgstr "Connecting"
+
+#: guyrapu/ui/gui_sesion.py
+msgid "No se reconoce el enlace o el ID de YouTube"
+msgstr "The YouTube link or ID is not recognized"
+
+#: guyrapu/ui/gui_sesion.py
+msgid "No se reconoce el enlace o el ID de YouTube. Comprueba el enlace pegado."
+msgstr "The YouTube link or ID is not recognized. Check the pasted link."
+
+#: guyrapu/ui/gui_sesion.py
+msgid "Enlace no reconocido"
+msgstr "Link not recognized"
+
+#: guyrapu/ui/gui_sesion.py
+msgid "Directo programado. Aún no hay chat; puedes ver los comentarios."
+msgstr "Scheduled live stream. No chat yet; you can read the comments."
+
+#: guyrapu/ui/gui_sesion.py
+msgid "Vídeo conectado. Comentarios y reproductor disponibles."
+msgstr "Video connected. Comments and player available."
+
+#. Traductores: aviso genérico al conectar.
+#: guyrapu/ui/gui_sesion.py
+msgid "Conectado."
+msgstr "Connected."
+
 #: guyrapu/ui/gui_transmision.py
 msgctxt "pestaña Transmisión"
 msgid "Re&stream…"
@@ -11574,10 +11634,6 @@ msgstr "All songs"
 #: guyrapu/ui/musica_editor_lista.py
 msgid "Canción"
 msgstr "Song"
-
-#: guyrapu/ui/musica_editor_lista.py
-msgid "Guardar"
-msgstr "Save"
 
 #. Traductores: {nombre} es la canción y {n} cuántas hay en total.
 #: guyrapu/ui/musica_editor_lista.py
@@ -12921,6 +12977,14 @@ msgid "Administrar voces…"
 msgstr "Manage voices…"
 
 #: guyrapu/ui/preferencias_voz.py
+msgid "Salida de audio de la voz (P&honon y Piper):"
+msgstr "Voice audio output (Phonon and Pipe&r):"
+
+#: guyrapu/ui/preferencias_voz.py
+msgid "Salida de audio de la voz (Phonon y Piper)"
+msgstr "Voice audio output (Phonon and Piper)"
+
+#: guyrapu/ui/preferencias_voz.py
 msgid "Ve&locidad (0 a 100):"
 msgstr "Spee&d (0 to 100):"
 
@@ -13695,6 +13759,16 @@ msgstr "The ElevenLabs key is missing."
 msgid "ElevenLabs no devolvió ninguna voz."
 msgstr "ElevenLabs returned no voices."
 
+#. Traductores: aviso de la salida de audio de la voz que ya no existe.
+#: guyrapu/voice/motor_local.py
+#, python-brace-format
+msgid ""
+"No se encontró la salida de audio de la voz «{nombre}». La voz suena por la"
+" salida predeterminada."
+msgstr ""
+"The voice audio output “{nombre}” was not found. The voice plays through "
+"the default output."
+
 #: guyrapu/voice/muestra_voz.py
 msgid "libVLC no está disponible"
 msgstr "libVLC is not available"
@@ -13978,22 +14052,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "Salida de audio de la voz (P&honon y Piper):"
-msgstr "Voice audio output (Phonon and Pipe&r):"
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "Salida de audio de la voz (Phonon y Piper)"
-msgstr "Voice audio output (Phonon and Piper)"
-
-#. Traductores: aviso de la salida de audio de la voz que ya no existe.
-#: guyrapu/voice/motor_local.py
-#, python-brace-format
-msgid ""
-"No se encontró la salida de audio de la voz «{nombre}». La voz suena por la"
-" salida predeterminada."
-msgstr ""
-"The voice audio output “{nombre}” was not found. The voice plays through "
-"the default output."
 

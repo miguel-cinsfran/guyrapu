@@ -15,6 +15,7 @@ from guyrapu.ui import gui_cierre
 from guyrapu.ui import gui_construccion
 from guyrapu.ui import gui_sesion
 from guyrapu.ui import chat_acciones
+from guyrapu.ui.chat_vivo import ControladorChat
 from guyrapu.ui import gui_estado
 from guyrapu.ui import accesibilidad
 from guyrapu.ui import tema
@@ -4245,6 +4246,34 @@ class TestLiveChatIdPorSesion(unittest.TestCase):
             pass  # el resto del método toca controles que aquí no existen
         self.assertEqual(frame.sesion.video_id, "abc")
 
+    def test_set_tipo_video_vacia_la_participacion(self):
+        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
+        frame.__dict__.update(_alive=True, _config={}, _sc_totales={})
+        frame.sesion = SesionConectada(
+            video_id="", tipo_video=gui.deteccion.DESCONOCIDO,
+            es_tiktok=False)
+        for nombre in ("lb_chat", "_com_panel",
+                       "_rep_panel", "_actualizar_estado_online",
+                       "_actualizar_titulo"):
+            setattr(frame, nombre, mock.Mock())
+        frame.chat_vivo = ControladorChat(
+            mock.Mock(), 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=lambda *args: "", al_superchat=lambda monto: None)
+        frame.chat_vivo.participacion.sumar(MensajeChat(
+            plataforma="youtube", autor="Ana", identificador="C",
+            texto="hola", hora="12:00", tipo=config.TIPO_TEXTO, monto="", rol=""))
+        frame.chat_vivo.modelo.agregar(MensajeChat(
+            plataforma="youtube", autor="Ana", identificador="C",
+            texto="hola", hora="12:00", tipo=config.TIPO_TEXTO, monto="", rol=""),
+            True)
+        try:
+            frame.set_tipo_video(gui.deteccion.LIVE, "abc")
+        except Exception:
+            pass  # el resto del método toca controles que aquí no existen
+        self.assertTrue(frame.chat_vivo.participacion.vacia())
+        self.assertEqual(frame.chat_vivo.modelo.todos, [])
+
 
 class TestEstadoObsEnF2(unittest.TestCase):
     def setUp(self):
@@ -5358,6 +5387,27 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         frame._actualizar_sb = mock.Mock()
         frame._reiniciar_datos_sesion()
         self.assertEqual(frame.sesion, SesionConectada())
+
+    def test_reiniciar_vacia_la_participacion_del_chat(self):
+        frame = self._frame()
+        frame.chat_vivo = ControladorChat(
+            mock.Mock(), 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=lambda *args: "", al_superchat=lambda monto: None)
+        frame.chat_vivo.participacion.sumar(MensajeChat(
+            plataforma="youtube", autor="Ana", identificador="C",
+            texto="hola", hora="12:00", tipo=config.TIPO_TEXTO, monto="", rol=""))
+        frame.lb_chat = mock.Mock()
+        frame._sc_totales = {}
+        frame._metadatos = {}
+        frame.txt_info = mock.Mock()
+        frame._rep_panel = mock.Mock()
+        frame._com_panel = mock.Mock()
+        frame._worker = mock.Mock()
+        frame._stats = mock.Mock()
+        frame._actualizar_sb = mock.Mock()
+        frame._reiniciar_datos_sesion()
+        self.assertTrue(frame.chat_vivo.participacion.vacia())
 
     def test_item_de_menu_existe_con_su_atajo(self):
         frame = mock.Mock()

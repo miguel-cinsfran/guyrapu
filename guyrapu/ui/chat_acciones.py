@@ -62,6 +62,11 @@ class AccionesChat:
         from guyrapu.ui import chat_buscar
         chat_buscar.abrir(self._padre, self)
 
+    def abrir_participacion(self) -> None:
+        """Abre la ventana con la participación del directo conectado."""
+        from guyrapu.ui import chat_participacion
+        chat_participacion.abrir(self._padre, self)
+
     def enfocar_mensaje(self, mensaje) -> bool:
         """Lleva el foco al mensaje en la lista del chat.
 

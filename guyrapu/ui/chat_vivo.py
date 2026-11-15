@@ -23,6 +23,7 @@ from guyrapu.core.config import (
 )
 from guyrapu.ui import comandos_clips
 from guyrapu.ui.lista_chat import ListaChat, MensajeChat
+from guyrapu.ui.participacion_chat import Participacion
 from guyrapu.voice import sound_player as _snd
 
 
@@ -45,6 +46,7 @@ class ControladorChat:
         self._config = config
         self._varios_chats = varios_chats or (lambda: False)
         self.modelo = ListaChat(maximo)
+        self.participacion = Participacion()
         self.filtro = None
         self._pendientes: list[MensajeChat] = []
         self._timer = None
@@ -99,7 +101,7 @@ class ControladorChat:
         quedó visible (se le hizo Append). Solo lo llama volcar."""
         if self._autor_oculto(registro.autor):
             return False
-
+        self.participacion.sumar(registro)
         # El modelo (lista_chat) recorta el historial y dice cuántas filas viejas
         # borrar al principio, para que fila y mensaje sigan alineados: si no,
         # pasados 500 mensajes, copiar o banear caerían sobre el mensaje
@@ -203,6 +205,12 @@ class ControladorChat:
                 logger.debug("No se pudo parar el temporizador del chat: %s", exc)
             self._timer = None
         self._pendientes.clear()
+
+    def vaciar(self) -> None:
+        """Tira lo pendiente y borra el modelo y la participación."""
+        self.descartar()
+        self.modelo.limpiar()
+        self.participacion.limpiar()
 
     def reconstruir(self) -> None:
         # Que lo que acaba de llegar (aún en cola, sin pasar por el modelo) no

@@ -12,7 +12,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import busqueda_chat, paleta, tecla_escape
+from guyrapu.ui import ayuda_manual, busqueda_chat, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.lista_acciones import ListaConVacio
 
@@ -50,6 +50,7 @@ class CuadroBuscarChat(wx.Dialog):
         self.txt_buscar.SetFocus()
         self.Centre()
         paleta.pintar_ventana(self)
+        ayuda_manual.enlazar(self, "chat")
 
     def _crear_controles(self):
         panel = wx.Panel(self, name="PanelBuscarChat")

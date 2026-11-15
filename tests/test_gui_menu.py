@@ -146,6 +146,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Filtro de mensajes", "Membresías", ANY, "radio"),
             ("&Filtro de mensajes", "Avisos", ANY, "radio"),
             ("&Chat", "&Buscar en el chat…", ANY, "normal"),
+            ("&Chat", "&Participación en el chat…", ANY, "normal"),
             ("Vo&z", "&Pausar lectura", ANY, "normal"),
             ("Vo&z", "&Detener voz", ANY, "normal"),
             ("Vo&z", "&Vaciar cola", ANY, "normal"),
@@ -361,6 +362,28 @@ class TestMenuBuscarChat(unittest.TestCase):
             if llamada.args[0] is frame.mi_buscar_chat)
         with mock.patch.object(frame._chat_acciones,
                                "abrir_busqueda") as abrir:
+            enlace()
+        abrir.assert_called_once_with()
+
+
+class TestMenuParticipacionChat(unittest.TestCase):
+    """El comando Participación en el chat, con su atajo y su manejador."""
+
+    def test_comando_con_alt_p_y_su_manejador(self):
+        from guyrapu.core import config as cfg
+
+        def accel(accion):
+            valor = cfg.ATAJOS_DEFAULTS.get(accion, "")
+            return ("\t" + gui._fmt_accel(valor)) if valor else ""
+
+        _, lista, frame = _construir_lista(accel, con_frame=True)
+        self.assertIn(("&Chat", "&Participación en el chat…\tAlt+P",
+                       gui.wx.ID_ANY, "normal"), lista)
+        enlace = next(
+            llamada.args[1] for llamada in frame._bind_menu.call_args_list
+            if llamada.args[0] is frame.mi_participacion_chat)
+        with mock.patch.object(frame._chat_acciones,
+                               "abrir_participacion") as abrir:
             enlace()
         abrir.assert_called_once_with()
 

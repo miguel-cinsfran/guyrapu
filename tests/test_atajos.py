@@ -387,6 +387,14 @@ class TestParsearAtajos(unittest.TestCase):
         self.assertEqual(etiqueta_de_accion("buscar_chat"),
                          "Buscar en el chat")
 
+    def test_participacion_chat_es_atajo_editable_del_chat(self):
+        self.assertEqual(ATAJOS_DEFAULTS["participacion_chat"], "alt+p")
+        self.assertEqual(ATAJOS_AREA["participacion_chat"], "alt")
+        self.assertIn("participacion_chat", dict(ATAJOS_GRUPOS)["Chat (Alt)"])
+        self.assertNotIn("participacion_chat", ATAJOS_FIJOS)
+        self.assertEqual(etiqueta_de_accion("participacion_chat"),
+                         "Participación en el chat")
+
     def test_guardar_clip_aparece_en_el_menu_obs_con_su_atajo(self):
         from guyrapu.ui import menu_obs
 

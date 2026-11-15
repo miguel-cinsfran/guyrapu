@@ -34,6 +34,7 @@ ANCLAS = {
     "transmitir": "transmitir",
     "microfono": "microfono",
     "voces": "voces",
+    "chat": "chat",
 }
 
 

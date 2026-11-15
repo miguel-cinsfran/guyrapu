@@ -30,7 +30,7 @@ La ventana tiene tres regiones: *Conexión*, *Contenido* y *Reproductor*. En
 | `Intro` | Abrir el directo |
 | `Supr` | Eliminarlo del historial |
 
-## El chat
+## <a id="chat"></a>El chat
 
 Cada mensaje se lee con la voz elegida y lleva un sonido según quién
 escribe (propietario del canal, moderador, cuenta verificada o miembro) y
@@ -719,6 +719,7 @@ al llegar al principio o al final suena un aviso.
 |---|---|
 | `Alt+Intro` | Ir al cuadro de escritura |
 | `Alt+B` | Buscar en el chat |
+| `Alt+P` | Participación en el chat |
 
 ### Ventanas (Ctrl+Mayús)
 
