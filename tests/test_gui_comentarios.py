@@ -280,6 +280,22 @@ class TestBotonesDePagina(unittest.TestCase):
         self.assertEqual(self.panel.btn_recargar.GetLabel(),
                          "&Recargar comentarios (cargando comentarios)")
 
+    def test_la_pagina_actualiza_la_etiqueta_de_cargar_mas(self):
+        self.panel.set_video("video", autocargar=False)
+        self.panel._cargando = True
+        self.panel._actualizar_botones()
+        self.assertEqual(self.panel.btn_mas.GetLabel(),
+                         "Car&gar más (cargando comentarios)")
+        self.panel._pagina_ok([], "mas", self.panel._generacion)
+        self.assertEqual(self.panel.btn_mas.GetLabel(), "Car&gar más")
+        self.panel._cargando = True
+        self.panel._actualizar_botones()
+        self.assertEqual(self.panel.btn_mas.GetLabel(),
+                         "Car&gar más (cargando comentarios)")
+        self.panel._pagina_ok([], "", self.panel._generacion)
+        self.assertEqual(self.panel.btn_mas.GetLabel(),
+                         "Car&gar más (no hay más comentarios)")
+
     def test_etiqueta_sin_video_lleva_el_motivo(self):
         self.panel.limpiar()
         self.assertEqual(
