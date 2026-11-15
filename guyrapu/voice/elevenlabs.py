@@ -3,10 +3,10 @@
 """Cliente HTTP de ElevenLabs para el motor de voz del lector.
 
 Solo biblioteca estándar: la síntesis es un POST, y las voces y el saldo son
-GET, así que `urllib.request` alcanza y no hace falta ninguna dependencia
-nueva. Nunca deja salir un error de red crudo: todo se traduce a
-`ElevenLabsError` con un `motivo` y una frase en español lista para anunciar,
-para que el worker decida el respaldo sin conocer la API.
+GET, así que los pedidos van por el módulo de red común y no hace falta
+ninguna dependencia nueva. Nunca deja salir un error de red crudo: todo se
+traduce a `ElevenLabsError` con un `motivo` y una frase en español lista
+para anunciar, para que el worker decida el respaldo sin conocer la API.
 """
 
 from __future__ import annotations
@@ -14,9 +14,8 @@ from __future__ import annotations
 import json
 import urllib.error
 import urllib.parse
-import urllib.request
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, red
 from guyrapu.core.idioma import N_, _
 from guyrapu.voice import escala_voz
 
@@ -73,23 +72,12 @@ def _error_de_http(exc) -> ElevenLabsError:
 class ClienteElevenLabs:
     """Habla con la API de ElevenLabs. `abrir` se inyecta en las pruebas."""
 
-    def __init__(self, clave: str, abrir=urllib.request.urlopen,
-                 tiempo: float = 15.0):
+    def __init__(self, clave: str, abrir=None, tiempo: float = 15.0):
         self._clave = clave or ""
-        self._abrir = abrir
+        self._abrir = abrir or red.urlopen
         self._tiempo = tiempo
 
-    def _pedir(self, peticion) -> bytes:
-        try:
-            with self._abrir(peticion, timeout=self._tiempo) as respuesta:
-                return respuesta.read()
-        except urllib.error.HTTPError as exc:
-            raise _error_de_http(exc) from exc
-        except (urllib.error.URLError, OSError) as exc:
-            # URLError cubre DNS, tiempo agotado y sin conexión.
-            raise ElevenLabsError(MOTIVO_RED, _(_MSG_RED)) from exc
-
-    def _peticion(self, metodo: str, url: str, cuerpo=None, aceptar=None):
+    def _pedir(self, metodo: str, url: str, cuerpo=None, aceptar=None) -> bytes:
         cabeceras = {"xi-api-key": self._clave}
         datos = None
         if cuerpo is not None:
@@ -97,11 +85,18 @@ class ClienteElevenLabs:
             cabeceras["Content-Type"] = "application/json"
         if aceptar:
             cabeceras["Accept"] = aceptar
-        return urllib.request.Request(url, data=datos, headers=cabeceras,
-                                      method=metodo)
+        try:
+            return red.pedir(url, datos=datos, cabeceras=cabeceras,
+                             metodo=metodo, tiempo=self._tiempo,
+                             abrir=self._abrir)
+        except urllib.error.HTTPError as exc:
+            raise _error_de_http(exc) from exc
+        except (urllib.error.URLError, OSError) as exc:
+            # URLError cubre DNS, tiempo agotado y sin conexión.
+            raise ElevenLabsError(MOTIVO_RED, _(_MSG_RED)) from exc
 
     def _json(self, metodo: str, url: str):
-        bruto = self._pedir(self._peticion(metodo, url))
+        bruto = self._pedir(metodo, url)
         try:
             return json.loads(bruto.decode("utf-8"))
         except Exception as exc:
@@ -143,5 +138,4 @@ class ClienteElevenLabs:
             "language_code": _IDIOMA,
             "voice_settings": {"speed": velocidad},
         }
-        return self._pedir(
-            self._peticion("POST", url, cuerpo, aceptar="audio/wav"))
+        return self._pedir("POST", url, cuerpo, aceptar="audio/wav")

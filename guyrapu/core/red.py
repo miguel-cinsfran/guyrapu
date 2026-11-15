@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Cómo la app habla HTTP, en un solo lugar.
 
-Es el único módulo de `guyrapu/` que importa `urllib.request`: descarga
-por bloques con aviso de progreso y función de cancelación.
+Es el único módulo de `guyrapu/` que importa `urllib.request`: arma los
+pedidos HTTP de la app y descarga por bloques con aviso de progreso y
+función de cancelación.
 """
 
 from __future__ import annotations
@@ -51,13 +52,21 @@ def descargar_archivo(url: str, destino: Path, aviso=None, cancelar=None,
                         aviso(None)
 
 
+def pedir(url: str, datos: bytes | None = None, cabeceras=None,
+          metodo: str | None = None, tiempo: float = TIEMPO_ESPERA,
+          abrir=None) -> bytes:
+    abrir = abrir or urlopen
+    encabezados = {"User-Agent": USER_AGENT}
+    if cabeceras:
+        encabezados.update(cabeceras)
+    solicitud = Request(url, data=datos, headers=encabezados, method=metodo)
+    with abrir(solicitud, timeout=tiempo) as respuesta:
+        return respuesta.read()
+
+
 def pedir_texto(url: str) -> str:
-    solicitud = Request(url, headers={"User-Agent": USER_AGENT})
-    with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
-        return respuesta.read().decode("utf-8")
+    return pedir(url).decode("utf-8")
 
 
 def pedir_json(url: str):
-    solicitud = Request(url, headers={"User-Agent": USER_AGENT})
-    with urlopen(solicitud, timeout=TIEMPO_ESPERA) as respuesta:
-        return json.load(respuesta)
+    return json.loads(pedir(url))

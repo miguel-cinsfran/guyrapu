@@ -20,16 +20,27 @@ class Servidor(http.server.BaseHTTPRequestHandler):
     cabecera = None
     agente = None
     codigo = 200
+    metodo = None
+    cuerpo = None
 
-    def do_GET(self):
+    def _responder(self):
         cuerpo = type(self).contenido
         type(self).cabecera = self.headers.get("X-Prueba")
         type(self).agente = self.headers.get("User-Agent")
+        type(self).metodo = self.command
+        largo = int(self.headers.get("Content-Length") or 0)
+        type(self).cuerpo = self.rfile.read(largo) if largo else b""
         self.send_response(type(self).codigo)
         if type(self).con_longitud:
             self.send_header("Content-Length", str(len(cuerpo)))
         self.end_headers()
         self.wfile.write(cuerpo)
+
+    def do_GET(self):
+        self._responder()
+
+    def do_POST(self):
+        self._responder()
 
     def log_message(self, *args):
         pass
@@ -125,3 +136,33 @@ class TestPedirJson(unittest.TestCase):
         Servidor.con_longitud = True
         with self.assertRaises(HTTPError):
             red.pedir_json(url)
+
+
+class TestPedir(unittest.TestCase):
+
+    def _arrancar(self):
+        servidor = _servidor()
+        self.addCleanup(servidor.server_close)
+        self.addCleanup(servidor.shutdown)
+        return f"http://127.0.0.1:{servidor.server_port}/x"
+
+    def test_un_post_llega_con_cuerpo_y_cabecera_y_vuelve_en_bytes(self):
+        Servidor.contenido = b"respuesta"
+        Servidor.con_longitud = True
+        url = self._arrancar()
+        bruto = red.pedir(url, datos=b'{"texto":"hola"}',
+                          cabeceras={"X-Prueba": "valor"},
+                          metodo="POST", tiempo=5)
+        self.assertEqual(bruto, b"respuesta")
+        self.assertEqual(Servidor.metodo, "POST")
+        self.assertEqual(Servidor.cuerpo, b'{"texto":"hola"}')
+        self.assertEqual(Servidor.cabecera, "valor")
+        self.assertEqual(Servidor.agente, USER_AGENT)
+
+    def test_un_401_sale_como_http_error(self):
+        url = self._arrancar()
+        Servidor.codigo = 401
+        Servidor.contenido = b""
+        Servidor.con_longitud = True
+        with self.assertRaises(HTTPError):
+            red.pedir(url)

@@ -83,7 +83,6 @@ REGLAS = (
             "guyrapu/player/flujo_tiktok.py": 1,
             "guyrapu/player/relevo_ffmpeg.py": 1,
             "guyrapu/restream/api.py": 1, "guyrapu/restream/oauth.py": 1,
-            "guyrapu/voice/elevenlabs.py": 1,
         }),
         duenos=("guyrapu/core/red.py",),
         ambito=_paquete,
