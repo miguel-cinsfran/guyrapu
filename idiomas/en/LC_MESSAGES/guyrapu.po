@@ -14173,3 +14173,8 @@ msgstr "Capturing"
 msgid "No hay fuentes para capturar"
 msgstr "There are no sources to capture"
 
+#. Traductores: nombre del botón de acción; no se oye porque nace oculto.
+#: guyrapu/ui/gui_actualizacion.py
+msgid "Acción"
+msgstr "Action"
+

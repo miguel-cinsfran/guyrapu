@@ -37,8 +37,17 @@ class TestDialogoActualizacion(unittest.TestCase):
         self.assertEqual(dialogo.txt_estado.GetName(), "Estado")
         self.assertEqual(dialogo.gauge.GetName(), "Progreso")
         self.assertEqual(dialogo.txt_notas.GetName(), "Novedades")
+        self.assertEqual(dialogo.btn_accion.GetName(), "Acción")
+        self.assertEqual(dialogo.btn_cerrar.GetName(), "Cerrar")
         self.assertEqual(dialogo.btn_cerrar.GetLabel(), "&Cerrar")
         self.assertEqual(dialogo.btn_cerrar.GetId(), wx.ID_CANCEL)
+
+    def test_el_nombre_de_cada_boton_sigue_a_su_rotulo(self):
+        dialogo = self._dialogo()
+        dialogo.ofrecer_accion("&Instalar", lambda: None)
+        self.assertEqual(dialogo.btn_accion.GetName(), "Instalar")
+        dialogo.etiqueta_cerrar("&Más tarde")
+        self.assertEqual(dialogo.btn_cerrar.GetName(), "Más tarde")
 
     def test_estado_en_una_linea_con_ancho_minimo(self):
         dialogo = self._dialogo()

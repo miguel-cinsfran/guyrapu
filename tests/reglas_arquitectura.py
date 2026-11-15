@@ -174,11 +174,7 @@ REGLAS = (
         id="R12",
         prohibido="un constructor de control interactivo de wx queda sin name= no vacío ni nombre_accesible",
         detectar=detectar_nombres_de_control,
-        pendientes=_pendientes(
-            "darle nombre accesible al control en el constructor o con "
-            "nombre_accesible", {
-                "guyrapu/ui/gui_actualizacion.py": 2,
-            }),
+        pendientes={},
         ambito=_paquete,
     ),
     Regla(

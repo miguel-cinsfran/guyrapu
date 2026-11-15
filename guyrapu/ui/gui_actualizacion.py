@@ -18,6 +18,7 @@ from guyrapu.core.actualizacion import notas_legibles
 from guyrapu.core.idioma import _
 from guyrapu.ui import paleta
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -66,11 +67,12 @@ class DialogoActualizacion(wx.Dialog):
         vs.Add(self.txt_notas, 1, wx.EXPAND | wx.ALL, 10)
         self.txt_notas.Hide()
 
-        self.btn_accion = wx.Button(self, wx.ID_ANY, "")
+        # Traductores: nombre del botón de acción; no se oye porque nace oculto.
+        self.btn_accion = wx.Button(self, wx.ID_ANY, "", name=_("Acción"))
         self.btn_accion.Hide()
 
         # Traductores: botón para cerrar la ventana.
-        self.btn_cerrar = wx.Button(self, wx.ID_CANCEL, _("&Cerrar"))
+        self.btn_cerrar = wx.Button(self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
         fila_botones = wx.BoxSizer(wx.HORIZONTAL)
         fila_botones.Add(self.btn_accion, 0, wx.RIGHT, 10)
         fila_botones.Add(self.btn_cerrar, 0)
@@ -148,11 +150,13 @@ class DialogoActualizacion(wx.Dialog):
 
     def etiqueta_cerrar(self, etiqueta) -> None:
         self.btn_cerrar.SetLabel(etiqueta)
+        self.btn_cerrar.SetName(nombre_de_etiqueta(etiqueta))
         self._reajustar()
 
     def ofrecer_accion(self, etiqueta, al_pulsar) -> None:
         self._accion = al_pulsar
         self.btn_accion.SetLabel(etiqueta)
+        self.btn_accion.SetName(nombre_de_etiqueta(etiqueta))
         try:
             self.btn_accion.Unbind(wx.EVT_BUTTON)
         except Exception as error:
