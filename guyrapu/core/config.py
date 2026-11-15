@@ -318,6 +318,19 @@ _opciones_voz = opciones_voz
 _opciones_transmision = opciones_transmision
 
 
+def _estado_toggles(p) -> set:
+    """Componentes de estado que se anuncian con F2 según config.ini."""
+    from guyrapu.capture.estado_sesion import COMPONENTES as _EST_COMP
+    _estado_defaults = config_predeterminada.seccion("estado")
+    toggles = set()
+    for comp in _EST_COMP:
+        try:    activo = p.getboolean("estado", comp)
+        except Exception: activo = _estado_defaults.get(comp, "false").lower() in ("true", "yes", "1", "on")
+        if activo:
+            toggles.add(comp)
+    return toggles
+
+
 def cargar_configuracion() -> dict:
     ruta = paths.config_ini()
     if not ruta.exists():
@@ -355,14 +368,7 @@ def cargar_configuracion() -> dict:
 
     desc_op = obtener_opciones_descarga()
 
-    from guyrapu.capture.estado_sesion import COMPONENTES as _EST_COMP
-    _estado_defaults = config_predeterminada.seccion("estado")
-    estado_toggles = set()
-    for comp in _EST_COMP:
-        try:    activo = p.getboolean("estado", comp)
-        except Exception: activo = _estado_defaults.get(comp, "false").lower() in ("true", "yes", "1", "on")
-        if activo:
-            estado_toggles.add(comp)
+    estado_toggles = _estado_toggles(p)
 
     return {
         **_opciones_voz(p, ruta), **avisos_tiktok.opciones_eventos(p),
