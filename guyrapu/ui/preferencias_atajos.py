@@ -88,7 +88,7 @@ class PaginaAtajos:
                     label=_etiqueta_boton_atajo(accion, etiqueta, valor))
                 btn.SetBackgroundColour(_T.btn); btn.SetForegroundColour(_T.btn_t)
                 if fija:
-                    btn.Disable()
+                    btn.Bind(wx.EVT_BUTTON, self._atajo_fijo)
                 else:
                     btn.SetToolTip(_("Pulsa para capturar una nueva combinación."))
                     btn.Bind(wx.EVT_BUTTON,
@@ -97,6 +97,10 @@ class PaginaAtajos:
                 self._botones_atajo[accion] = btn
                 box.Add(btn, 0, wx.EXPAND | wx.ALL, 4)
             vs.Add(box, 0, wx.EXPAND | wx.ALL, 8)
+
+    def _atajo_fijo(self, event):
+        # Traductores: aviso al activar un atajo que no se puede cambiar.
+        anunciar(_("Este atajo es fijo."))
 
     def _capturar_atajo(self, accion, etiqueta):
         self._capturando_atajo = (accion, etiqueta)

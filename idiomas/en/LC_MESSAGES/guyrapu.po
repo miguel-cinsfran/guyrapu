@@ -14141,3 +14141,8 @@ msgstr "Waiting for authorization in the browser"
 msgid "No hay sesión iniciada"
 msgstr "No active session"
 
+#. Traductores: aviso al activar un atajo que no se puede cambiar.
+#: guyrapu/ui/preferencias_atajos.py
+msgid "Este atajo es fijo."
+msgstr "This shortcut is fixed."
+
