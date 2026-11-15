@@ -7,6 +7,7 @@ import textwrap
 import unittest
 
 from tests import reglas_arquitectura as reglas
+from tests import reglas_controles as controles
 from tests import reglas_detectores as detectores
 from tests import reglas_sonido as sonido
 
@@ -28,10 +29,10 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_diez_reglas_estan_en_la_tabla(self):
+    def test_las_trece_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
                          ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
-                          "R9", "R10"])
+                          "R9", "R10", "R11", "R12", "R13"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -214,6 +215,73 @@ class TestDetectores(unittest.TestCase):
             boton.Enable(False, False)
             """)
         self.assertEqual([1, 3, 4, 9], _lineas(hallazgos))
+
+    def test_preguntar_pide_el_predeterminado_explicito(self):
+        hallazgos = _hallazgos(controles.detectar_predeterminado, """\
+            from guyrapu.ui import confirmar, confirmar as confirmaciones
+            from guyrapu.ui.confirmar import preguntar as preguntar_confirmar
+
+            confirmar.preguntar(None, "a", "b", "Sí", "No", predeterminado_si=False)
+            confirmar.preguntar(None, "a", "b", "Sí", "No", predeterminado_si=True)
+            confirmar.preguntar(None, "a", "b", "Sí", "No")
+            preguntar_confirmar(None, "a", "b", "Sí", "No", predeterminado_si=True)
+            preguntar_confirmar(None, "a", "b", "Sí", "No")
+            confirmar.preguntar(None, "a", "b", "Sí", "No", predeterminado_si=decidir)
+            confirmaciones.preguntar(None, "a", "b", "Sí", "No", predeterminado_si=False)
+            otro.preguntar(None, "a", "b", "Sí", "No")
+            # confirmar.preguntar(None, "a", "b", "Sí", "No")
+            """)
+        self.assertEqual([6, 8, 9], _lineas(hallazgos))
+
+    def test_control_sin_nombre(self):
+        hallazgos = _hallazgos(controles.detectar_nombres_de_control, """\
+            class Ventana:
+                def armar(self):
+                    self.btn_ok = __WX__.Button(self, label="A", name="Aceptar")
+                    self.btn_no = __WX__.Button(self, label="B")
+                    nombre_accesible(self.btn_no, "No")
+                    self.txt = __WX__.TextCtrl(self, name="")
+                    self.lista = __WX__.ListBox(self, choices=[])
+                    self.otra = __WX__.CheckBox(self, label="C")
+                    nombre_accesible(self.lista, "Lista")
+                    self.cho = __WX__.Choice(self, name=nombre)
+                    self.rad = __WX__.RadioButton(self, label="D", name=_("D"))
+
+                def aparte(self):
+                    self.spin = __WX__.SpinCtrl(self)
+                    nombre_accesible(self.spin, "Cantidad")
+                    self.sld = __WX__.Slider(self)
+
+            def suelto():
+                nombre_accesible(self.otra, "C")
+            """.replace("__WX__", WX))
+        self.assertEqual([6, 8, 16], _lineas(hallazgos))
+
+    def test_reconoce_los_constructores_de_control(self):
+        for constructor in ("Button", "CheckBox", "RadioButton", "TextCtrl",
+                            "Choice", "ComboBox", "ListBox", "ListCtrl",
+                            "CheckListBox", "Slider", "SpinCtrl",
+                            "ToggleButton"):
+            with self.subTest(constructor=constructor):
+                codigo = "self.ctrl = __WX__." + constructor + "(self)\n"
+                hallazgos = _hallazgos(controles.detectar_nombres_de_control,
+                                       codigo.replace("__WX__", WX))
+                self.assertEqual([1], _lineas(hallazgos))
+
+    def test_rotulos_con_un_solo_mnemonico(self):
+        hallazgos = _hallazgos(controles.detectar_mnemonico, """\
+            __WX__.Button(self, label=_("&Aceptar"))
+            __WX__.CheckBox(self, label=_("Aceptar"))
+            __WX__.RadioButton(self, label=_("A&&B"))
+            __WX__.Button(self, label=_("A&B&C"))
+            __WX__.Button(self, label=etiqueta)
+            __WX__.Button(self, label=_(""))
+            __WX__.Button(self, label=f"&{nombre}")
+            __WX__.StaticText(self, label=_("Sin mnemónico"))
+            __WX__.Button(self, label=_("Doble && y uno &"))
+            __WX__.Button(self, __WX__.ID_ANY, _("&Posicional"))
+            """.replace("__WX__", WX))
+        self.assertEqual([2, 3, 4], _lineas(hallazgos))
 
     def test_bibliotecas_voz(self):
         hallazgos = _hallazgos(detectores.detectar_bibliotecas_voz, """\

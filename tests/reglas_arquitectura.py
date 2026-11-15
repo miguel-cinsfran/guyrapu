@@ -13,6 +13,11 @@ import ast
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from tests.reglas_controles import (
+    detectar_mnemonico,
+    detectar_nombres_de_control,
+    detectar_predeterminado,
+)
 from tests.reglas_detectores import (
     Hallazgo,
     _controles,
@@ -165,5 +170,49 @@ REGLAS = (
         prohibido="avisar con error=True no usa un sonido de una familia que no sea error, desconexión o espera",
         detectar=detectar_avisar_error,
         pendientes={},
+    ),
+    Regla(
+        id="R11",
+        prohibido="preguntar se llama sin predeterminado_si explícito con True o False literal",
+        detectar=detectar_predeterminado,
+        pendientes=_pendientes(
+            "pasar predeterminado_si explícito con True o False literal", {
+                "guyrapu/ui/confirmar_transmision.py": 1,
+                "guyrapu/ui/descargas_acciones.py": 1,
+                "guyrapu/ui/gui_envio_chat.py": 1,
+                "guyrapu/ui/gui_preferencias.py": 1,
+            }),
+    ),
+    Regla(
+        id="R12",
+        prohibido="un constructor de control interactivo de wx queda sin name= no vacío ni nombre_accesible",
+        detectar=detectar_nombres_de_control,
+        pendientes=_pendientes(
+            "darle nombre accesible al control en el constructor o con "
+            "nombre_accesible", {
+                "guyrapu/ui/escena_filtros.py": 2,
+                "guyrapu/ui/escena_tamano.py": 2,
+                "guyrapu/ui/gui_actualizacion.py": 2,
+                "guyrapu/ui/gui_directo_youtube.py": 2,
+                "guyrapu/ui/gui_elegir_destino.py": 2,
+                "guyrapu/ui/gui_microfono.py": 2,
+                "guyrapu/ui/ia_agregar_captura.py": 2,
+            }),
+        ambito=_paquete,
+    ),
+    Regla(
+        id="R13",
+        prohibido="un rótulo _() literal de botón, casilla o radio no lleva exactamente un &",
+        detectar=detectar_mnemonico,
+        pendientes=_pendientes(
+            "darle la letra de acceso como al resto de los Cancelar y Cerrar", {
+                "guyrapu/ui/elegir_formato.py": 1,
+                "guyrapu/ui/gui_microfono.py": 1,
+                "guyrapu/ui/musica_dialogo_enlace.py": 1,
+                "guyrapu/ui/musica_editor_lista.py": 1,
+                "guyrapu/ui/restream_dialogos_destino.py": 1,
+                "guyrapu/ui/restream_perfil.py": 1,
+                "guyrapu/ui/restream_ventana.py": 1,
+            }),
     ),
 )
