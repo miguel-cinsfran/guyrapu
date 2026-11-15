@@ -84,19 +84,29 @@ class TestMotorReal(unittest.TestCase):
                 try:
                     motor.fijar_volumen(0)
                     elegir_voz_que_suena(motor)
-                    self.assertTrue(motor.hablar("prueba"))
-                    limite = time.monotonic() + 2.0
+                    dicho = motor.hablar("prueba")
+                    self.assertTrue(dicho, f"hablar devolvió {dicho!r}")
+                    inicio = time.monotonic()
+                    limite = inicio + 2.0
                     while not motor.hablando() and time.monotonic() < limite:
                         time.sleep(0.01)
-                    self.assertTrue(motor.hablando())
+                    espera = time.monotonic() - inicio
+                    self.assertTrue(
+                        motor.hablando(),
+                        f"tras hablar no quedó hablando a los "
+                        f"{espera:.2f} s; voces: {motor.voces()}")
                     motor.parar()
-                    limite = time.monotonic() + 1.0
+                    inicio = time.monotonic()
+                    limite = inicio + 1.0
                     while motor.hablando() and time.monotonic() < limite:
                         time.sleep(0.01)
-                    self.assertFalse(motor.hablando())
+                    espera = time.monotonic() - inicio
+                    self.assertFalse(
+                        motor.hablando(),
+                        f"tras parar siguió hablando a los {espera:.2f} s")
                 finally:
                     motor.cerrar()
-                self.assertFalse(motor.hablando())
+                self.assertFalse(motor.hablando(), "tras cerrar quedó hablando")
 
 
 if __name__ == "__main__":
