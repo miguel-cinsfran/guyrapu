@@ -37,7 +37,7 @@ class TestCostos(unittest.TestCase):
         self.assertEqual(cuota.costo("youtube.comments.insert"), 50)
 
     def test_la_fecha_es_la_de_la_tabla(self):
-        self.assertEqual(cuota.FECHA_COSTOS, "15/10/2026")
+        self.assertEqual(cuota.FECHA_COSTOS, "12/11/2026")
 
 
 class TestDiaPacifico(unittest.TestCase):

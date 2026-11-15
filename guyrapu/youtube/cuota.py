@@ -22,8 +22,8 @@ logger = diagnostico.obtener_logger(__name__)
 
 # Costos oficiales por «recurso.método», en unidades por petición.
 # Fuente: developers.google.com/youtube/v3/determine_quota_cost,
-# «Last updated 2026-10-15», medido el 31/10/2026.
-FECHA_COSTOS = "15/10/2026"
+# «Last updated 2026-11-12», medido el 15/11/2026.
+FECHA_COSTOS = "12/11/2026"
 
 COSTOS: dict[str, int] = {
     "activities.list": 1,
