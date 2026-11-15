@@ -52,15 +52,22 @@ def descargar_archivo(url: str, destino: Path, aviso=None, cancelar=None,
                         aviso(None)
 
 
-def pedir(url: str, datos: bytes | None = None, cabeceras=None,
-          metodo: str | None = None, tiempo: float = TIEMPO_ESPERA,
-          abrir=None) -> bytes:
+def abrir_pedido(url: str, cabeceras=None, tiempo: float = TIEMPO_ESPERA,
+                 abrir=None, datos: bytes | None = None,
+                 metodo: str | None = None):
     abrir = abrir or urlopen
     encabezados = {"User-Agent": USER_AGENT}
     if cabeceras:
         encabezados.update(cabeceras)
     solicitud = Request(url, data=datos, headers=encabezados, method=metodo)
-    with abrir(solicitud, timeout=tiempo) as respuesta:
+    return abrir(solicitud, timeout=tiempo)
+
+
+def pedir(url: str, datos: bytes | None = None, cabeceras=None,
+          metodo: str | None = None, tiempo: float = TIEMPO_ESPERA,
+          abrir=None) -> bytes:
+    with abrir_pedido(url, cabeceras=cabeceras, tiempo=tiempo, abrir=abrir,
+                      datos=datos, metodo=metodo) as respuesta:
         return respuesta.read()
 
 

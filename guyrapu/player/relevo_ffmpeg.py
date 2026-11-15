@@ -25,7 +25,7 @@ import socket
 import subprocess
 import time
 
-from guyrapu.core import diagnostico, esperas
+from guyrapu.core import diagnostico, esperas, red
 from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.downloads import ffmpeg_bin
 
@@ -239,10 +239,8 @@ def leer_ventana_hls(url: str, timeout: float = 8.0) -> tuple[float, int] | None
     Sirve para saber cuánto se puede retroceder en un directo (YouTube deja
     una hora de segmentos de 5 s) sin tener que suponerlo.
     """
-    import urllib.request
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as respuesta:
-            texto = respuesta.read().decode("utf-8", errors="replace")
+        texto = red.pedir(url, tiempo=timeout).decode("utf-8", errors="replace")
     except Exception as exc:
         logger.warning("No se pudo leer la ventana HLS del directo: %s", exc)
         return None

@@ -6,6 +6,7 @@ import subprocess
 import unittest
 from unittest import mock
 
+from guyrapu.core import red
 from guyrapu.player import relevo_ffmpeg
 
 
@@ -140,15 +141,16 @@ class PruebasDesfase(unittest.TestCase):
         self.assertIsNone(relevo_ffmpeg.ventana_hls("no es una lista"))
 
     def test_leer_ventana_hls_tolera_fallos_de_red(self):
-        with mock.patch("urllib.request.urlopen", side_effect=OSError("sin red")):
+        with mock.patch.object(red, "urlopen", side_effect=OSError("sin red")):
             self.assertIsNone(relevo_ffmpeg.leer_ventana_hls("https://x/lista.m3u8"))
 
     def test_leer_ventana_hls_devuelve_la_ventana(self):
         respuesta = mock.MagicMock()
         respuesta.__enter__.return_value.read.return_value = (
             b"#EXTM3U\n#EXT-X-TARGETDURATION:5\n#EXTINF:5.0,\na.ts\n#EXTINF:5.0,\nb.ts\n")
-        with mock.patch("urllib.request.urlopen", return_value=respuesta):
+        with mock.patch.object(red, "urlopen", return_value=respuesta) as abrir:
             self.assertEqual(relevo_ffmpeg.leer_ventana_hls("https://x/lista.m3u8"), (5.0, 2))
+        self.assertEqual(abrir.call_args.kwargs["timeout"], 8.0)
 
 
 class PruebasListener(unittest.TestCase):

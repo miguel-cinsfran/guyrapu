@@ -11,9 +11,8 @@ from __future__ import annotations
 import time
 import urllib.error
 import urllib.parse
-import urllib.request
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, red
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -53,12 +52,11 @@ def mismo_flujo(url_a: str, url_b: str) -> bool:
 
 
 def sondear(url: str, abrir=None, plazo_s: float = 5) -> str:
-    if abrir is None:
-        abrir = urllib.request.urlopen
-    peticion = urllib.request.Request(url, headers={"Range": CABECERA_RANGO})
     respuesta = None
     try:
-        respuesta = abrir(peticion, timeout=plazo_s)
+        respuesta = red.abrir_pedido(
+            url, cabeceras={"Range": CABECERA_RANGO}, tiempo=plazo_s,
+            abrir=abrir)
         return _resumen_http(respuesta, respuesta.read(BYTES_SONDA) or b"")
     except urllib.error.HTTPError as exc:
         return _resumen_http(exc, _leer_cuerpo(exc))

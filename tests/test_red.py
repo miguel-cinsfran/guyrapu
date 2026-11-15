@@ -18,6 +18,7 @@ class Servidor(http.server.BaseHTTPRequestHandler):
     contenido = b""
     con_longitud = True
     cabecera = None
+    rango = None
     agente = None
     codigo = 200
     metodo = None
@@ -26,6 +27,7 @@ class Servidor(http.server.BaseHTTPRequestHandler):
     def _responder(self):
         cuerpo = type(self).contenido
         type(self).cabecera = self.headers.get("X-Prueba")
+        type(self).rango = self.headers.get("Range")
         type(self).agente = self.headers.get("User-Agent")
         type(self).metodo = self.command
         largo = int(self.headers.get("Content-Length") or 0)
@@ -136,6 +138,31 @@ class TestPedirJson(unittest.TestCase):
         Servidor.con_longitud = True
         with self.assertRaises(HTTPError):
             red.pedir_json(url)
+
+
+class TestAbrirPedido(unittest.TestCase):
+
+    def _arrancar(self):
+        servidor = _servidor()
+        self.addCleanup(servidor.server_close)
+        self.addCleanup(servidor.shutdown)
+        return f"http://127.0.0.1:{servidor.server_port}/x"
+
+    def test_devuelve_la_respuesta_abierta_con_su_estado_y_parte_del_cuerpo(self):
+        Servidor.contenido = b"0123456789"
+        Servidor.con_longitud = True
+        url = self._arrancar()
+        respuesta = red.abrir_pedido(
+            url, cabeceras={"Range": "bytes=0-4"}, tiempo=5)
+        try:
+            self.assertEqual(respuesta.status, 200)
+            self.assertEqual(Servidor.rango, "bytes=0-4")
+            self.assertEqual(Servidor.agente, USER_AGENT)
+            self.assertFalse(respuesta.closed)
+            self.assertEqual(respuesta.read(5), b"01234")
+            self.assertFalse(respuesta.closed)
+        finally:
+            respuesta.close()
 
 
 class TestPedir(unittest.TestCase):
