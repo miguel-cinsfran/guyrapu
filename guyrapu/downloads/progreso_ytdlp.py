@@ -7,6 +7,9 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
+from guyrapu.core.idioma import _
+from guyrapu.downloads.motivo_error import motivo_de_error
+
 PREFIJO = "PROG"
 PLANTILLA = (
     "download:PROG %(progress.downloaded_bytes)s "
@@ -177,3 +180,25 @@ def tratar_linea(linea, estado, progreso_cb, al_detalle) -> None:
     datos = analizar_linea_descarga(linea)
     if datos is not None:
         _aplicar_descarga(estado, datos, progreso_cb, al_detalle)
+
+
+def resultado_final(codigo, cancelado, estado) -> tuple[str, str]:
+    """Estado y mensaje con los que termina una descarga, sin interfaz.
+
+    `codigo` es el código de salida de yt-dlp, `cancelado` si el usuario
+    pidió cancelar y `estado`, el diccionario que llenó `tratar_linea`.
+    """
+    if cancelado:
+        return "cancelado", _("Descarga cancelada")
+    if codigo == 0:
+        hechos = len(estado["rutas"])
+        if estado["total"] > 1:
+            return "completado", _("{hechos} vídeos").format(hechos=hechos)
+        return "completado", ""
+    motivo = (motivo_de_error(estado["ultimo_error"])
+              or _("yt-dlp terminó con código {codigo}").format(codigo=codigo))
+    hechos = len(estado["rutas"])
+    if hechos >= 1 and estado["total"] > 1:
+        return "parcial", _("{hechos} de {total} vídeos").format(
+            hechos=hechos, total=estado["total"])
+    return "error", motivo

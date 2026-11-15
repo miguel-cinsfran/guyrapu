@@ -12,6 +12,7 @@ from guyrapu.downloads.progreso_ytdlp import (
     analizar_linea_progreso,
     plantillas_progreso,
     progreso_total,
+    resultado_final,
 )
 
 
@@ -115,6 +116,39 @@ class TestProgresoTotal(unittest.TestCase):
                 self.assertGreaterEqual(valor, 0.0)
                 self.assertLessEqual(valor, 100.0)
                 anterior = valor
+
+
+class TestResultadoFinal(unittest.TestCase):
+    def estado(self, rutas=(), total=0, ultimo_error=""):
+        return {"rutas": list(rutas), "total": total,
+                "ultimo_error": ultimo_error}
+
+    def test_cancelado(self):
+        self.assertEqual(resultado_final(1, True, self.estado()),
+                         ("cancelado", "Descarga cancelada"))
+
+    def test_completado_de_un_video(self):
+        self.assertEqual(resultado_final(0, False, self.estado(["a.mp4"])),
+                         ("completado", ""))
+
+    def test_completado_de_una_lista(self):
+        self.assertEqual(resultado_final(0, False, self.estado(["a", "b"], 2)),
+                         ("completado", "2 vídeos"))
+
+    def test_parcial(self):
+        self.assertEqual(
+            resultado_final(1, False, self.estado(["a"], 2, "ERROR: x")),
+            ("parcial", "1 de 2 vídeos"))
+
+    def test_error_con_motivo_conocido(self):
+        self.assertEqual(
+            resultado_final(1, False, self.estado(
+                ultimo_error="ERROR: [youtube] abc: Private video.")),
+            ("error", "El vídeo es privado."))
+
+    def test_error_con_codigo(self):
+        self.assertEqual(resultado_final(2, False, self.estado()),
+                         ("error", "yt-dlp terminó con código 2"))
 
 
 if __name__ == "__main__":

@@ -31,10 +31,10 @@ from guyrapu.downloads.analisis_enlace import (
 from guyrapu.downloads.opciones_formato import SIMULTANEAS_DEFECTO
 from guyrapu.downloads.argumentos_ytdlp import (
     argumentos_descarga, carpeta_base, construir_outtmpl, recortar_url_registro)
-from guyrapu.downloads.motivo_error import motivo_de_error
 from guyrapu.downloads.proceso_ytdlp import (
     _matar_arbol, _vigilar_cancelacion)
-from guyrapu.downloads.progreso_ytdlp import PREFIJO_RUTA_FINAL, tratar_linea
+from guyrapu.downloads.progreso_ytdlp import (
+    PREFIJO_RUTA_FINAL, resultado_final, tratar_linea)
 from guyrapu.downloads.restos_descarga import limpiar_restos_descarga
 
 logger = diagnostico.obtener_logger(__name__)
@@ -135,29 +135,16 @@ def descargar(url: str, opciones: dict,
                 return
             tratar_linea(linea, estado, progreso_cb, al_detalle)
         proceso.wait()
-        if cancel_event.is_set():
+        cancelado = cancel_event.is_set()
+        if cancelado:
             limpiar_restos_descarga(carpeta, estado["ultimo_archivo"])
-            estado_cb("cancelado", _("Descarga cancelada"))
-        elif proceso.returncode == 0:
-            hechos = len(estado["rutas"])
-            if estado["total"] > 1:
-                estado_cb("completado",
-                          _("{hechos} vídeos").format(hechos=hechos))
-            else:
-                estado_cb("completado", "")
+            codigo = None
         else:
             codigo = proceso.returncode
-            motivo = (motivo_de_error(estado["ultimo_error"])
-                      or _("yt-dlp terminó con código {codigo}").format(codigo=codigo))
-            if estado["ultimo_error"]:
+            if codigo != 0 and estado["ultimo_error"]:
                 logger.warning("yt-dlp terminó con código %s: %s",
                                codigo, estado["ultimo_error"])
-            hechos = len(estado["rutas"])
-            if hechos >= 1 and estado["total"] > 1:
-                estado_cb("parcial", _("{hechos} de {total} vídeos").format(
-                    hechos=hechos, total=estado["total"]))
-            else:
-                estado_cb("error", motivo)
+        estado_cb(*resultado_final(codigo, cancelado, estado))
     except OSError as exc:
         logger.warning("descargar falló: %s", exc)
         estado_cb("error", str(exc) or exc.__class__.__name__)
