@@ -322,6 +322,25 @@ class TestServicio(unittest.TestCase):
             with self.assertRaises(oauth.FalloServicio):
                 oauth.canjear(servicio, CODIGO, VUELTA)
 
+    def test_p7_un_error_de_conexion_es_error_de_servicio(self):
+        def falla(pedido):
+            raise httpx.ConnectError("sin red")
+
+        casos = (
+            ("canjear",
+             lambda cliente: oauth.canjear(
+                 oauth.SERVICIO, CODIGO, VUELTA, cliente=cliente)),
+            ("renovar",
+             lambda cliente: oauth.renovar(
+                 oauth.SERVICIO, TOKEN, cliente=cliente)),
+        )
+        for nombre, llamar in casos:
+            with self.subTest(nombre=nombre):
+                with httpx.Client(
+                        transport=httpx.MockTransport(falla)) as cliente:
+                    with self.assertRaises(oauth.FalloServicio):
+                        llamar(cliente)
+
     def test_p7_renovar_se_enchufa_en_la_sesion(self):
         guardado = []
         with _servicio(200, {"access_token": "acceso-nuevo",
