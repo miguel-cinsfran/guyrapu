@@ -153,7 +153,7 @@ class VentanaRestream(wx.Dialog):
             self._pagina_perfiles.cantidad(),
             canal_youtube.texto(self._destinos, self._id_canal),
             (self._error_cuenta, self._error_destinos, self._error_perfil))
-        self._pagina_cuenta.fijar_botones(not self._trabajo_en_curso)
+        self._pagina_cuenta.fijar_trabajo_en_curso(self._trabajo_en_curso)
 
     def _conectar(self):
         self._iniciar_cuenta(

@@ -14146,3 +14146,8 @@ msgstr "No active session"
 msgid "Este atajo es fijo."
 msgstr "This shortcut is fixed."
 
+#. Traductores: motivo de los botones de la cuenta mientras Restream espera.
+#: guyrapu/ui/restream_pagina_cuenta.py
+msgid "Esperando a Restream"
+msgstr "Waiting for Restream"
+

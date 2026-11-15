@@ -17,6 +17,7 @@ from unittest import mock
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.restream import eventos as eventos_restream
 from guyrapu.restream import perfiles
 from guyrapu.restream.api import Canal, ErrorApi
@@ -189,7 +190,7 @@ class PruebaVentanaRestream(unittest.TestCase):
         self.assertFalse(dialogo._pagina_cuenta.btn_reautorizar.IsShown())
         self.assertFalse(dialogo._pagina_cuenta.btn_desconectar.IsShown())
 
-    def test_p2_p3_conectar_en_hilo_desactiva_y_al_terminar_anuncia(self):
+    def test_p2_p3_conectar_en_hilo_espera_y_al_terminar_anuncia(self):
         cuenta = CuentaFalsa(False)
         llamadas = []
         soltar = threading.Event()
@@ -219,10 +220,15 @@ class PruebaVentanaRestream(unittest.TestCase):
                 "Abriendo el navegador para iniciar sesión en Restream. "
                 "Autoriza y vuelve aquí.",
                 [llamada.args[0] for llamada in anunciar.call_args_list])
-            for boton in (dialogo._pagina_cuenta.btn_conectar,
-                          dialogo._pagina_cuenta.btn_reautorizar,
-                          dialogo._pagina_cuenta.btn_desconectar):
-                self.assertFalse(boton.IsEnabled())
+            for boton, base in zip(
+                    (dialogo._pagina_cuenta.btn_conectar,
+                     dialogo._pagina_cuenta.btn_reautorizar,
+                     dialogo._pagina_cuenta.btn_desconectar),
+                    ("&Conectar", "&Volver a autorizar", "&Desconectar")):
+                self.assertTrue(boton.IsEnabled())
+                self.assertEqual(
+                    redaccion.etiqueta_con_motivo(
+                        base, "Esperando a Restream"), boton.GetLabel())
 
             self.assertTrue(_esperar(lambda: "parada" in hilo))
             self.assertFalse(hilo["principal"])
@@ -251,9 +257,13 @@ class PruebaVentanaRestream(unittest.TestCase):
         self.assertFalse(dialogo._pagina_cuenta.btn_conectar.IsShown())
         self.assertTrue(dialogo._pagina_cuenta.btn_reautorizar.IsShown())
         self.assertTrue(dialogo._pagina_cuenta.btn_desconectar.IsShown())
-        for boton in (dialogo._pagina_cuenta.btn_reautorizar,
-                      dialogo._pagina_cuenta.btn_desconectar):
+        for boton, base in zip(
+                (dialogo._pagina_cuenta.btn_conectar,
+                 dialogo._pagina_cuenta.btn_reautorizar,
+                 dialogo._pagina_cuenta.btn_desconectar),
+                ("&Conectar", "&Volver a autorizar", "&Desconectar")):
             self.assertTrue(boton.IsEnabled())
+            self.assertEqual(base, boton.GetLabel())
 
     def test_p3_conectar_que_falla_suena_error_y_muestra_el_mensaje(self):
         cuenta = CuentaFalsa(False)
@@ -275,10 +285,13 @@ class PruebaVentanaRestream(unittest.TestCase):
                       dialogo._pagina_cuenta.txt_estado.GetValue())
         self.assertFalse(cuenta.conectada())
         self.assertTrue(dialogo._pagina_cuenta.btn_conectar.IsShown())
-        for boton in (dialogo._pagina_cuenta.btn_conectar,
-                      dialogo._pagina_cuenta.btn_reautorizar,
-                      dialogo._pagina_cuenta.btn_desconectar):
+        for boton, base in zip(
+                (dialogo._pagina_cuenta.btn_conectar,
+                 dialogo._pagina_cuenta.btn_reautorizar,
+                 dialogo._pagina_cuenta.btn_desconectar),
+                ("&Conectar", "&Volver a autorizar", "&Desconectar")):
             self.assertTrue(boton.IsEnabled())
+            self.assertEqual(base, boton.GetLabel())
 
     def test_p3_sin_mensaje_anuncia_el_texto_de_respaldo(self):
         dialogo = self._ventana(
