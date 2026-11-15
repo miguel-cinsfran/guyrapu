@@ -264,7 +264,7 @@ class TestMicrofonoObsDialogVentana(unittest.TestCase):
                          "Predeterminado")
         self.assertTrue(dialogo.cho_dispositivo.IsEnabled())
 
-    def test_cambiar_fuente_deshabilita_mientras_consulta(self):
+    def test_cambiar_fuente_no_deshabilita_y_muestra_el_motivo(self):
         dialogo = self._dialogo()
         funciones = []
         with mock.patch.object(gui_microfono, "_conectar"), \
@@ -279,9 +279,129 @@ class TestMicrofonoObsDialogVentana(unittest.TestCase):
             evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
                                      dialogo.cho_fuente.GetId())
             dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
-            self.assertFalse(dialogo.cho_dispositivo.IsEnabled())
+            self.assertTrue(dialogo.cho_dispositivo.IsEnabled())
+            self.assertTrue(dialogo.btn_aplicar.IsEnabled())
+            self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                             "&Aplicar (cargando los dispositivos)")
             funciones[0]()
         self.assertTrue(dialogo.cho_dispositivo.IsEnabled())
+        self.assertEqual(dialogo.btn_aplicar.GetLabel(), "&Aplicar")
+
+    def test_fallo_de_recarga_vuelve_a_la_base(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar",
+                               side_effect=RuntimeError("caído")), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono, "anunciar") as anunciar, \
+                _llamada_directa():
+            dialogo.cho_fuente.SetStringSelection("Audio USB")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                             "&Aplicar (cargando los dispositivos)")
+            funciones[0]()
+        self.assertEqual(dialogo.btn_aplicar.GetLabel(), "&Aplicar")
+        anunciar.assert_called_once_with(SIN_OBS)
+
+    def test_aplicar_con_recarga_en_curso_anuncia_y_no_hace_nada(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar") as conectar, \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono, "anunciar") as anunciar, \
+                _llamada_directa():
+            dialogo.cho_fuente.SetStringSelection("Audio USB")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            self.assertEqual(len(funciones), 1)
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     dialogo.btn_aplicar.GetId())
+            dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
+        anunciar.assert_called_once_with("Cargando los dispositivos.")
+        conectar.assert_not_called()
+        self.assertEqual(len(funciones), 1)
+        self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                         "&Aplicar (cargando los dispositivos)")
+
+    def test_aplicar_con_aplicacion_en_curso_anuncia_y_no_hace_nada(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar") as conectar, \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono, "anunciar") as anunciar, \
+                _llamada_directa():
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     dialogo.btn_aplicar.GetId())
+            dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
+            self.assertEqual(len(funciones), 1)
+            self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                             "&Aplicar (aplicando el cambio)")
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     dialogo.btn_aplicar.GetId())
+            dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
+        anunciar.assert_called_once_with("Aplicando el cambio.")
+        conectar.assert_not_called()
+        self.assertEqual(len(funciones), 1)
+
+    def test_recarga_vieja_no_termina_la_carga_nueva(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "dispositivos",
+                                  return_value=(PARES, "default")), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                _llamada_directa():
+            dialogo.cho_fuente.SetStringSelection("Audio USB")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            dialogo.cho_fuente.SetStringSelection("Mic/Aux")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            funciones[0]()
+            self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                             "&Aplicar (cargando los dispositivos)")
+            funciones[1]()
+        self.assertEqual(dialogo.btn_aplicar.GetLabel(), "&Aplicar")
+
+    def test_recarga_vieja_con_error_no_anuncia_ni_termina_la_nueva(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar",
+                               side_effect=RuntimeError("caído")), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono, "anunciar") as anunciar, \
+                _llamada_directa():
+            dialogo.cho_fuente.SetStringSelection("Audio USB")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            dialogo.cho_fuente.SetStringSelection("Mic/Aux")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            funciones[0]()
+            anunciar.assert_not_called()
+            self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                             "&Aplicar (cargando los dispositivos)")
+            funciones[1]()
+        anunciar.assert_called_once_with(SIN_OBS)
+        self.assertEqual(dialogo.btn_aplicar.GetLabel(), "&Aplicar")
 
     def _aplicar(self, dialogo, senal=None, fallo=None):
         return _aplicar_en(dialogo, senal=senal, fallo=fallo)
@@ -300,7 +420,7 @@ class TestMicrofonoObsDialogVentana(unittest.TestCase):
         self.assertTrue(dialogo.btn_aplicar.IsEnabled())
         self.assertTrue(bool(dialogo))
 
-    def test_aplicar_deshabilita_el_boton_mientras_trabaja(self):
+    def test_aplicar_no_deshabilita_y_muestra_el_motivo(self):
         dialogo = self._dialogo()
         funciones = []
         with mock.patch.object(gui_microfono, "_conectar"), \
@@ -318,9 +438,33 @@ class TestMicrofonoObsDialogVentana(unittest.TestCase):
             evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
                                      dialogo.btn_aplicar.GetId())
             dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
-            self.assertFalse(dialogo.btn_aplicar.IsEnabled())
+            self.assertTrue(dialogo.btn_aplicar.IsEnabled())
+            self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                             "&Aplicar (aplicando el cambio)")
             funciones[0]()
         self.assertTrue(dialogo.btn_aplicar.IsEnabled())
+        self.assertEqual(dialogo.btn_aplicar.GetLabel(), "&Aplicar")
+
+    def test_fallo_al_aplicar_vuelve_a_la_base(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "cambiar_dispositivo",
+                                  side_effect=RuntimeError("caído")), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono, "anunciar") as anunciar, \
+                _llamada_directa():
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     dialogo.btn_aplicar.GetId())
+            dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
+            self.assertEqual(dialogo.btn_aplicar.GetLabel(),
+                             "&Aplicar (aplicando el cambio)")
+            funciones[0]()
+        self.assertEqual(dialogo.btn_aplicar.GetLabel(), "&Aplicar")
+        anunciar.assert_called_once_with(SIN_OBS)
 
     def test_sin_senal_suena_antes_de_la_frase(self):
         dialogo = self._dialogo()

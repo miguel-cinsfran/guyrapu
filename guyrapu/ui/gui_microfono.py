@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.config import guardar_opcion
 from guyrapu.core.idioma import _
@@ -145,6 +146,9 @@ def abrir_microfono_obs(frame, al_cerrar=None) -> None:
 class MicrofonoObsDialog(wx.Dialog):
     """Fuente de OBS y su dispositivo, para transmitir con ese micrófono."""
 
+    _recargando = ""
+    _aplicando = False
+
     def __init__(self, padre, fuentes, fuente, pares, actual):
         super().__init__(padre, title=_("Micrófono de OBS"),
                          name="DialogoMicrofonoObs")
@@ -189,10 +193,31 @@ class MicrofonoObsDialog(wx.Dialog):
         if buscado in self._valores:
             self.cho_dispositivo.SetSelection(self._valores.index(buscado))
 
+    def _motivo_en_curso(self) -> str:
+        if self._aplicando:
+            # Traductores: motivo del botón «Aplicar» mientras OBS aplica el cambio.
+            return _("Aplicando el cambio")
+        if self._recargando:
+            # Traductores: motivo del botón «Aplicar» mientras se cargan los dispositivos.
+            return _("Cargando los dispositivos")
+        return ""
+
+    def _actualizar_boton_aplicar(self) -> None:
+        self.btn_aplicar.SetLabel(redaccion.etiqueta_con_motivo(
+            _("&Aplicar"), self._motivo_en_curso()))
+
+    def _cambiar_recargando(self, fuente) -> None:
+        self._recargando = fuente
+        self._actualizar_boton_aplicar()
+
+    def _cambiar_aplicando(self, aplicando) -> None:
+        self._aplicando = aplicando
+        self._actualizar_boton_aplicar()
+
     def _al_cambiar_fuente(self, event) -> None:
         # La fuente viaja como argumento: los hilos no leen controles.
         fuente = self.cho_fuente.GetStringSelection()
-        self.cho_dispositivo.Enable(False)
+        self._cambiar_recargando(fuente)
 
         def recargar():
             cliente = None
@@ -202,7 +227,7 @@ class MicrofonoObsDialog(wx.Dialog):
                     cliente, fuente)
             except Exception as exc:
                 wx.CallAfter(
-                    self._fallo_recarga,
+                    self._fallo_recarga, fuente,
                     obs_cliente.mensaje_de_fallo_obs(exc))
             else:
                 wx.CallAfter(self._recarga_lista, fuente, pares, actual)
@@ -213,20 +238,22 @@ class MicrofonoObsDialog(wx.Dialog):
         event.Skip()
 
     def _recarga_lista(self, fuente, pares, actual) -> None:
-        if not self:
-            return
-        if self.cho_fuente.GetStringSelection() != fuente:
+        if not self or fuente != self._recargando:
             return
         self._cargar_dispositivos(pares, actual)
-        self.cho_dispositivo.Enable(True)
+        self._cambiar_recargando("")
 
-    def _fallo_recarga(self, mensaje) -> None:
-        if not self:
+    def _fallo_recarga(self, fuente, mensaje) -> None:
+        if not self or fuente != self._recargando:
             return
-        self.cho_dispositivo.Enable(True)
+        self._cambiar_recargando("")
         anunciar(mensaje)
 
     def _al_aplicar(self, event) -> None:
+        motivo = self._motivo_en_curso()
+        if motivo:
+            anunciar(motivo + ".")
+            return
         # Fuente, valor y nombre viajan como argumentos: los hilos no leen
         # controles de wx, eso solo es seguro desde el hilo principal.
         fuente = self.cho_fuente.GetStringSelection()
@@ -236,7 +263,7 @@ class MicrofonoObsDialog(wx.Dialog):
             return
         valor = self._valores[indice]
         nombre = self.cho_dispositivo.GetStringSelection()
-        self.btn_aplicar.Enable(False)
+        self._cambiar_aplicando(True)
 
         def aplicar():
             cliente = None
@@ -262,7 +289,7 @@ class MicrofonoObsDialog(wx.Dialog):
     def _aplicacion_lista(self, fuente, nombre, senal) -> None:
         if not self:
             return
-        self.btn_aplicar.Enable(True)
+        self._cambiar_aplicando(False)
         self._guardar_fuente(fuente)
         # Traductores: {dispositivo} es el nombre del dispositivo elegido.
         anunciar(_("Micrófono cambiado: {dispositivo}.").format(
@@ -279,7 +306,7 @@ class MicrofonoObsDialog(wx.Dialog):
     def _fallo_aplicacion(self, mensaje) -> None:
         if not self:
             return
-        self.btn_aplicar.Enable(True)
+        self._cambiar_aplicando(False)
         anunciar(mensaje)
 
     def _guardar_fuente(self, fuente) -> None:

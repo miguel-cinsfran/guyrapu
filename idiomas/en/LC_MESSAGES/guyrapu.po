@@ -1610,6 +1610,15 @@ msgstr "Missing API key to read comments. Put it in Preferences, YouTube categor
 msgid "Conéctate a un vídeo para poder leer los comentarios"
 msgstr "Connect to a video to read the comments"
 
+#: guyrapu/capture/redaccion.py guyrapu/ui/gui_comentarios.py
+msgid "Cargando comentarios"
+msgstr "Loading comments"
+
+#. Traductores: motivo del botón «Cargar más» cuando no quedan páginas.
+#: guyrapu/capture/redaccion.py
+msgid "No hay más comentarios"
+msgstr "There are no more comments"
+
 #. Traductores: error que se anuncia al validar el texto a enviar.
 #: guyrapu/capture/redaccion.py
 msgid "Escribe un mensaje antes de enviar"
@@ -7245,7 +7254,8 @@ msgstr "No results"
 msgid "{titulo}: {total} vídeos"
 msgstr "{titulo}: {total} videos"
 
-#: guyrapu/ui/buscador_contenido.py guyrapu/ui/descargas_buscador.py
+#: guyrapu/ui/buscador_contenido.py guyrapu/ui/buscador_tandas.py
+#: guyrapu/ui/descargas_buscador.py
 msgid "No hay más resultados"
 msgstr "No more results"
 
@@ -7363,6 +7373,14 @@ msgstr "{cantidad} more results"
 #, python-brace-format
 msgid "{cantidad} resultados"
 msgstr "{cantidad} results"
+
+#: guyrapu/ui/buscador_tandas.py
+msgid "Todavía no hay resultados"
+msgstr "There are no results yet"
+
+#: guyrapu/ui/buscador_tandas.py guyrapu/ui/descargas_buscador.py
+msgid "Mostrar &más"
+msgstr "Show &more"
 
 #. Traductores: aviso de la búsqueda al teclear; {texto} es lo escrito sin
 #. coincidencia.
@@ -7869,10 +7887,6 @@ msgstr "&Back to results"
 #: guyrapu/ui/descargas_buscador.py
 msgid "Agregar l&ista entera"
 msgstr "Add ent&ire playlist"
-
-#: guyrapu/ui/descargas_buscador.py
-msgid "Mostrar &más"
-msgstr "Show &more"
 
 #: guyrapu/ui/descargas_buscador.py
 msgid "Escribe una búsqueda o un enlace."
@@ -9822,10 +9836,6 @@ msgid "Comen&tar en el vídeo"
 msgstr "Commen&t on the video"
 
 #: guyrapu/ui/gui_comentarios.py
-msgid "Cargando comentarios"
-msgstr "Loading comments"
-
-#: guyrapu/ui/gui_comentarios.py
 #, python-brace-format
 msgid "{n} comentario"
 msgid_plural "{n} comentarios"
@@ -9878,6 +9888,10 @@ msgid "{autor}{sufijo}: {texto}"
 msgstr "{autor}{sufijo}: {texto}"
 
 #: guyrapu/ui/gui_comentarios.py
+msgid "Sin comentario seleccionado"
+msgstr "No comment selected"
+
+#: guyrapu/ui/gui_comentarios.py
 msgid "Copiar comentario"
 msgstr "Copy comment"
 
@@ -9889,10 +9903,6 @@ msgstr "Copy all (author: comment)"
 #, python-brace-format
 msgid "Responder a {autor}"
 msgstr "Reply to {autor}"
-
-#: guyrapu/ui/gui_comentarios.py
-msgid "Sin comentario seleccionado"
-msgstr "No comment selected"
 
 #: guyrapu/ui/gui_comentarios.py
 msgid "Comentario copiado"
@@ -10806,6 +10816,16 @@ msgstr "Device"
 #: guyrapu/ui/gui_microfono.py
 msgid "&Aplicar"
 msgstr "&Apply"
+
+#. Traductores: motivo del botón «Aplicar» mientras OBS aplica el cambio.
+#: guyrapu/ui/gui_microfono.py
+msgid "Aplicando el cambio"
+msgstr "Applying the change"
+
+#. Traductores: motivo del botón «Aplicar» mientras se cargan los dispositivos.
+#: guyrapu/ui/gui_microfono.py
+msgid "Cargando los dispositivos"
+msgstr "Loading the devices"
 
 #: guyrapu/ui/gui_microfono.py
 msgid "Elige un dispositivo."
@@ -14052,13 +14072,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/buscador_tandas.py
-msgid "Todavía no hay resultados"
-msgstr "There are no results yet"
-
-#. Traductores: motivo del botón «Cargar más» cuando no quedan páginas.
-#: guyrapu/capture/redaccion.py
-msgid "No hay más comentarios"
-msgstr "There are no more comments"
 
