@@ -9,6 +9,7 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player import reproductor_ciclo
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 class TestCicloPuro(unittest.TestCase):
@@ -92,6 +93,7 @@ class TestCicloPuro(unittest.TestCase):
 
 def _panel_base(player=None, inst=None):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._config = {}
     panel._video_id = ""
     panel._url_flujo = ""

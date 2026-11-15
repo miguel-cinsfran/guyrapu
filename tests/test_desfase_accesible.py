@@ -12,16 +12,18 @@ import wx
 from guyrapu.capture import estado_sesion
 from guyrapu.capture.estado_sesion import SnapshotSesion, formatear_estado
 from guyrapu.player import reproductor
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 def _panel_relevo(desfase=0, ventana=(5.0, 720), url_flujo="", en_directo=True):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._url_flujo = url_flujo
     panel._info = {"is_live": en_directo} if en_directo else {}
-    panel._relevo_fuentes = ("video-hls", "audio-hls")
-    panel._relevo_desfase = desfase
-    panel._relevo_ventana = ventana
-    panel._relevo_ffmpeg = mock.Mock()
+    panel._estado_relevo.fuentes = ("video-hls", "audio-hls")
+    panel._estado_relevo.desfase = desfase
+    panel._estado_relevo.ventana = ventana
+    panel._estado_relevo.ffmpeg = mock.Mock()
     panel._dur_ms = 0
     panel._pos_ms = 0
     return panel
@@ -40,14 +42,14 @@ class TestFrasePosicionDirecto(unittest.TestCase):
 
     def test_sin_relevo_dice_en_directo(self):
         panel = _panel_relevo()
-        panel._relevo_fuentes = None
-        panel._relevo_ffmpeg = None
+        panel._estado_relevo.fuentes = None
+        panel._estado_relevo.ffmpeg = None
         self.assertEqual(panel.frase_posicion_directo(), "En directo")
 
     def test_con_url_flujo_dice_en_directo(self):
         panel = _panel_relevo(url_flujo="https://tiktok/flv")
-        panel._relevo_fuentes = None
-        panel._relevo_ffmpeg = None
+        panel._estado_relevo.fuentes = None
+        panel._estado_relevo.ffmpeg = None
         self.assertEqual(panel.frase_posicion_directo(), "En directo")
 
 

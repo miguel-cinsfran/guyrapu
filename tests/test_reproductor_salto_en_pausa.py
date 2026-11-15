@@ -12,6 +12,7 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import EstadoBusqueda
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 def _info_vod():
@@ -34,6 +35,7 @@ class _Aplazada:
 
 def _panel_pausa(confirmada=41_000):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._listo = True
     panel._video_id = "j906Pf7n7Sg"
     panel._url_flujo = ""
@@ -47,18 +49,18 @@ def _panel_pausa(confirmada=41_000):
     panel._usando_cache_local = False
     panel._intencion_reproducir = False
     panel._orden_transporte = None
-    panel._relevo_ffmpeg = mock.Mock()
-    panel._relevo_fuentes = ("https://video", "https://audio")
-    panel._relevo_desfase = 0
-    panel._relevo_ventana = None
-    panel._relevo_vod_base_ms = 40_000
-    panel._vod_por_relevo = True
-    panel._relevo_vod_reapertura = None
-    panel._relevo_vod_destino_en_pausa = None
-    panel._relevo_vod_recuperaciones = 0
-    panel._relevo_vod_ultima = 41_000
+    panel._estado_relevo.ffmpeg = mock.Mock()
+    panel._estado_relevo.fuentes = ("https://video", "https://audio")
+    panel._estado_relevo.desfase = 0
+    panel._estado_relevo.ventana = None
+    panel._estado_relevo.vod_base_ms = 40_000
+    panel._estado_relevo.vod_por_relevo = True
+    panel._estado_relevo.vod_reapertura = None
+    panel._estado_relevo.vod_destino_en_pausa = None
+    panel._estado_relevo.vod_recuperaciones = 0
+    panel._estado_relevo.vod_ultima = 41_000
     panel._gen = 0
-    panel._relevo_gen = 0
+    panel._estado_relevo.gen = 0
     panel._config = {"cache_video_mb": 1024}
     panel._timer = mock.Mock()
     panel._timer_progreso = mock.Mock()
@@ -95,12 +97,12 @@ class PruebasSaltoEnPausa(unittest.TestCase):
             arrancar.assert_not_called()
             # No se agenda ninguna reapertura con debounce (lo único que
             # puede agendarse es la caducidad propia de _marcar_destino).
-            self.assertIsNone(panel._relevo_vod_reapertura)
+            self.assertIsNone(panel._estado_relevo.vod_reapertura)
             reaperturas = [e for e in agendadas
                            if getattr(e[0], "__name__", "") == "_reabrir_relevo_vod"]
             self.assertEqual(reaperturas, [])
             # El destino se guarda para reanudar desde ahí.
-            self.assertEqual(panel._relevo_vod_destino_en_pausa, 61_000)
+            self.assertEqual(panel._estado_relevo.vod_destino_en_pausa, 61_000)
             # La confirmación va diferida, como pide el diseño.
             self.assertEqual(len(diferidas), 2)
             for fn, args in diferidas:
@@ -109,9 +111,9 @@ class PruebasSaltoEnPausa(unittest.TestCase):
             for fn, args in agendadas:
                 fn(*args)
         arrancar.assert_not_called()
-        self.assertIsNone(panel._relevo_vod_reapertura)
+        self.assertIsNone(panel._estado_relevo.vod_reapertura)
         panel._player.set_time.assert_not_called()
-        self.assertEqual(panel._relevo_vod_destino_en_pausa, 61_000)
+        self.assertEqual(panel._estado_relevo.vod_destino_en_pausa, 61_000)
         self.assertEqual(panel._estado_busqueda.confirmada, 61_000)
         self.assertFalse(panel._estado_busqueda.pendiente)
         frases = [c.args[0] for c in anunciar.call_args_list]
@@ -146,7 +148,7 @@ class PruebasReanudarTrasSaltoEnPausa(unittest.TestCase):
 
     def test_reanudar_reabre_desde_el_destino_sin_cargar_ni_despausar(self):
         panel = _panel_pausa(confirmada=61_000)
-        panel._relevo_vod_destino_en_pausa = 61_000
+        panel._estado_relevo.vod_destino_en_pausa = 61_000
         panel._asegurar_player = mock.Mock(return_value=True)
         with mock.patch.object(reproductor, "anunciar") as anunciar, \
                 mock.patch.object(panel, "_arrancar_relevo") as arrancar, \
@@ -156,7 +158,7 @@ class PruebasReanudarTrasSaltoEnPausa(unittest.TestCase):
             "https://video", "https://audio", True, inicio_ms=61_000)
         cargar.assert_not_called()
         panel._player.set_pause.assert_not_called()
-        self.assertIsNone(panel._relevo_vod_destino_en_pausa)
+        self.assertIsNone(panel._estado_relevo.vod_destino_en_pausa)
         self.assertTrue(panel._intencion_reproducir)
         frases = [c.args[0] for c in anunciar.call_args_list]
         self.assertIn("Reanudando", frases)
@@ -169,7 +171,7 @@ class PruebasSaltoSonandoIgualQueAntes(unittest.TestCase):
     def test_sonando_agenda_reapertura_con_debounce(self):
         panel = _panel_pausa()
         panel._intencion_reproducir = True
-        panel._relevo_vod_destino_en_pausa = None
+        panel._estado_relevo.vod_destino_en_pausa = None
         agendadas = []
 
         def call_later(_ms, fn, *args):
@@ -184,8 +186,8 @@ class PruebasSaltoSonandoIgualQueAntes(unittest.TestCase):
                                   side_effect=lambda fn, *a: mock.Mock()), \
                 mock.patch.object(panel, "_arrancar_relevo") as arrancar:
             panel._buscar_rel(+10_000)
-            self.assertIsNotNone(panel._relevo_vod_reapertura)
-            self.assertIsNone(panel._relevo_vod_destino_en_pausa)
+            self.assertIsNotNone(panel._estado_relevo.vod_reapertura)
+            self.assertIsNone(panel._estado_relevo.vod_destino_en_pausa)
             arrancar.assert_not_called()
             reaperturas = [e for e in agendadas
                            if getattr(e[0], "__name__", "") == "_reabrir_relevo_vod"]
@@ -200,11 +202,11 @@ class PruebasDestinoNoSobreviveAOtroVideo(unittest.TestCase):
 
     def test_set_video_limpia_el_destino(self):
         panel = _panel_pausa()
-        panel._relevo_vod_destino_en_pausa = 61_000
+        panel._estado_relevo.vod_destino_en_pausa = 61_000
         panel._fijar_estado = mock.Mock()
         with mock.patch.object(reproductor, "anunciar"):
             panel.set_video("B" * 11, autoplay=False)
-        self.assertIsNone(panel._relevo_vod_destino_en_pausa)
+        self.assertIsNone(panel._estado_relevo.vod_destino_en_pausa)
 
 
 if __name__ == "__main__":

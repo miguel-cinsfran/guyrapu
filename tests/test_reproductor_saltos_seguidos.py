@@ -14,6 +14,7 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import EstadoBusqueda, EstadoInicioReproduccion
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 class _Aplazada:
@@ -29,6 +30,7 @@ class _Aplazada:
 
 def _panel_directo(desfase=2):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._listo = True
     panel._video_id = "D" * 11
     panel._url_flujo = ""
@@ -41,15 +43,15 @@ def _panel_directo(desfase=2):
     panel._intencion_reproducir = True
     panel._cargando = False
     panel._gen = 0
-    panel._relevo_gen = 0
+    panel._estado_relevo.gen = 0
     # En pleno reinicio: ffmpeg aún no está arriba pero las fuentes sí.
-    panel._relevo_ffmpeg = None
-    panel._relevo_fuentes = ("video-hls", "audio-hls")
-    panel._relevo_desfase = desfase
-    panel._relevo_ventana = (5.0, 720)
-    panel._relevo_vod_reapertura = None
-    panel._relevo_directo_reapertura = None
-    panel._vod_por_relevo = False
+    panel._estado_relevo.ffmpeg = None
+    panel._estado_relevo.fuentes = ("video-hls", "audio-hls")
+    panel._estado_relevo.desfase = desfase
+    panel._estado_relevo.ventana = (5.0, 720)
+    panel._estado_relevo.vod_reapertura = None
+    panel._estado_relevo.directo_reapertura = None
+    panel._estado_relevo.vod_por_relevo = False
     panel._cancelar_busqueda = mock.Mock()
     panel._cancelar_transporte = mock.Mock()
     panel._fijar_estado = mock.Mock()
@@ -89,7 +91,7 @@ class PruebasSaltosSeguidosEnDirecto(unittest.TestCase):
         ])
         self.assertNotIn("No se puede buscar en este momento", frases)
         self.assertNotIn("Cargando vídeo", frases)
-        self.assertEqual(panel._relevo_desfase, 8)
+        self.assertEqual(panel._estado_relevo.desfase, 8)
         panel._player.set_time.assert_not_called()
 
     def test_tres_pulsaciones_dejan_una_sola_reapertura_con_el_ultimo_desfase(self):
@@ -115,7 +117,7 @@ class PruebasSaltosSeguidosEnDirecto(unittest.TestCase):
     def test_sin_fuentes_en_carga_inicial_sigue_diciendo_cargando(self):
         panel = _panel_directo(desfase=0)
         panel._cargando = True
-        panel._relevo_fuentes = None
+        panel._estado_relevo.fuentes = None
         with mock.patch.object(reproductor.relevo_ffmpeg, "RelevoFfmpeg") as clase, \
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._saltar_en_relevo(-10_000)
@@ -133,6 +135,7 @@ class PruebasSaltosSeguidosEnDirecto(unittest.TestCase):
 
 def _panel_vod_relevo(bus):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._listo = True
     panel._video_id = "A" * 11
     panel._url_flujo = ""
@@ -151,16 +154,16 @@ def _panel_vod_relevo(bus):
     panel._intencion_reproducir = True
     panel._cargando = True
     panel._gen = 0
-    panel._relevo_gen = 0
-    panel._relevo_ffmpeg = None
-    panel._relevo_fuentes = ("https://video", "https://audio")
-    panel._relevo_desfase = 0
-    panel._relevo_ventana = None
-    panel._relevo_vod_base_ms = None
-    panel._vod_por_relevo = True
-    panel._relevo_vod_reapertura = None
-    panel._relevo_vod_recuperaciones = 0
-    panel._relevo_vod_ultima = None
+    panel._estado_relevo.gen = 0
+    panel._estado_relevo.ffmpeg = None
+    panel._estado_relevo.fuentes = ("https://video", "https://audio")
+    panel._estado_relevo.desfase = 0
+    panel._estado_relevo.ventana = None
+    panel._estado_relevo.vod_base_ms = None
+    panel._estado_relevo.vod_por_relevo = True
+    panel._estado_relevo.vod_reapertura = None
+    panel._estado_relevo.vod_recuperaciones = 0
+    panel._estado_relevo.vod_ultima = None
     panel._audio_local = None
     panel._vol = 80
     panel._muted = False
@@ -194,7 +197,7 @@ class PruebasSaltoGrabadoSinReproduciendo(unittest.TestCase):
                                   side_effect=lambda _ms, fn, *a: _Aplazada(
                                       lambda: fn(*a))):
             panel._relevo_listo(relevo, "tcp://127.0.0.1:6000",
-                                panel._relevo_gen, panel._gen, panel._video_id,
+                                panel._estado_relevo.gen, panel._gen, panel._video_id,
                                 "https://video", "https://audio", True,
                                 0, None, None, 20_000)
         self.assertFalse(panel._estado_inicio.requiere)
@@ -209,7 +212,7 @@ class PruebasSaltoGrabadoSinReproduciendo(unittest.TestCase):
                                   side_effect=lambda _ms, fn, *a: _Aplazada(
                                       lambda: fn(*a))):
             panel._relevo_listo(relevo, "tcp://127.0.0.1:6000",
-                                panel._relevo_gen, panel._gen, panel._video_id,
+                                panel._estado_relevo.gen, panel._gen, panel._video_id,
                                 "https://video", "https://audio", True,
                                 0, None, None, 0)
         self.assertTrue(panel._estado_inicio.requiere)

@@ -14,10 +14,12 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import busqueda_permitida
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 def _panel(info, url_flujo=""):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._info = info
     panel._url_flujo = url_flujo
     panel._video_id = "D" * 11
@@ -27,10 +29,10 @@ def _panel(info, url_flujo=""):
     panel._timer = mock.Mock()
     panel.lbl_estado = mock.Mock()
     panel._gen = 0
-    panel._relevo_gen = 0
-    panel._relevo_ffmpeg = None
-    panel._relevo_fuentes = None
-    panel._relevo_ventana = None
+    panel._estado_relevo.gen = 0
+    panel._estado_relevo.ffmpeg = None
+    panel._estado_relevo.fuentes = None
+    panel._estado_relevo.ventana = None
     panel._tiene_esclavo = False
     panel._usando_cache_local = False
     panel._asegurar_player = mock.Mock(return_value=True)

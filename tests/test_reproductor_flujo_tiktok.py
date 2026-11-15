@@ -6,10 +6,12 @@ import unittest
 from unittest import mock
 
 from guyrapu.player import reproductor
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 def _panel_timer(estado, sono=False):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._video_id = ""
     panel._url_flujo = ("https://example.com/flujo.flv"
                         "?expire=1700000000&sign=secreto")
@@ -28,10 +30,10 @@ def _panel_timer(estado, sono=False):
     panel._topologia_actual = mock.Mock(return_value="flujo")
     panel._evaluar_transporte = mock.Mock()
     panel._evaluar_busqueda = mock.Mock()
-    panel._vod_por_relevo = False
+    panel._estado_relevo.vod_por_relevo = False
     panel._cargando = False
-    panel._relevo_ffmpeg = None
-    panel._relevo_vod_base_ms = None
+    panel._estado_relevo.ffmpeg = None
+    panel._estado_relevo.vod_base_ms = None
     panel._orden_transporte = None
     panel._estado_busqueda = mock.Mock(pendiente=False)
     panel._timer = mock.Mock()

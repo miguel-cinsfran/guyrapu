@@ -17,12 +17,14 @@ except Exception:
 
 def _panel(desfase=0, ventana=(5.0, 720), url_flujo="", en_directo=True):
     from guyrapu.player import reproductor
+    from guyrapu.player.estado_relevo import EstadoRelevo
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._url_flujo = url_flujo
     panel._info = {"is_live": en_directo} if en_directo else {}
-    panel._relevo_fuentes = ("video-hls", "audio-hls")
-    panel._relevo_desfase = desfase
-    panel._relevo_ventana = ventana
+    panel._estado_relevo.fuentes = ("video-hls", "audio-hls")
+    panel._estado_relevo.desfase = desfase
+    panel._estado_relevo.ventana = ventana
     return panel
 
 
@@ -77,8 +79,8 @@ class TestIrAlDirecto(unittest.TestCase):
     def test_tiktok_anuncia_en_el_borde(self):
         from guyrapu.player import reproductor
         panel = _panel(url_flujo="https://tiktok/flv")
-        panel._relevo_fuentes = None
-        panel._relevo_ffmpeg = None
+        panel._estado_relevo.fuentes = None
+        panel._estado_relevo.ffmpeg = None
         with mock.patch.object(panel, "_saltar_en_relevo") as saltar, \
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel.ir_al_directo()
@@ -88,7 +90,7 @@ class TestIrAlDirecto(unittest.TestCase):
     def test_directo_sin_relevo_anuncia_en_el_borde(self):
         from guyrapu.player import reproductor
         panel = _panel()
-        panel._relevo_fuentes = None
+        panel._estado_relevo.fuentes = None
         with mock.patch.object(panel, "_saltar_en_relevo") as saltar, \
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel.ir_al_directo()
@@ -99,7 +101,7 @@ class TestIrAlDirecto(unittest.TestCase):
         from guyrapu.player import reproductor
         for panel in (_panel(en_directo=False),
                       _panel(url_flujo="", en_directo=False)):
-            panel._relevo_fuentes = None
+            panel._estado_relevo.fuentes = None
             with mock.patch.object(panel, "_saltar_en_relevo") as saltar, \
                     mock.patch.object(reproductor, "anunciar") as anunciar:
                 panel.ir_al_directo()
@@ -108,7 +110,7 @@ class TestIrAlDirecto(unittest.TestCase):
         panel = _panel()
         panel._url_flujo = ""
         panel._info = None
-        panel._relevo_fuentes = None
+        panel._estado_relevo.fuentes = None
         with mock.patch.object(panel, "_saltar_en_relevo") as saltar, \
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel.ir_al_directo()

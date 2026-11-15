@@ -6,12 +6,14 @@ import unittest
 from unittest import mock
 
 from guyrapu.player import reproductor
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 class TestCargaReproductor(unittest.TestCase):
 
     def _panel(self, video_id, cargando):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = video_id
         panel._cargando = cargando

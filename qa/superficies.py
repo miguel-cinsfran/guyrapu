@@ -159,4 +159,5 @@ SIN_ESCENARIO: dict[str, str] = {
     "ayuda_manual.py": (
         "Atiende F1 y arma la página de redirección; no abre ventana propia."),
     "aviso_importante.py": "Envuelve los cuadros de aviso de Windows; no abre una ventana propia.",
+    "estado_relevo.py": "Guarda el estado del relevo en curso; no abre una ventana propia.",
 }

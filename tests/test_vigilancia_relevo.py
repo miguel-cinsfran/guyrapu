@@ -8,6 +8,7 @@ from unittest import mock
 
 from guyrapu.core import idioma
 from guyrapu.player import vigilancia_relevo
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 class Reloj:
@@ -258,12 +259,13 @@ class Panel:
     def __init__(self, directo=True, vod=False, cargando=False,
                  fuentes=("video", "audio")):
         self.directo = directo
-        self._vod_por_relevo = vod
+        self._estado_relevo = EstadoRelevo()
+        self._estado_relevo.vod_por_relevo = vod
         self._cargando = cargando
         self._url_flujo = ""
-        self._relevo_fuentes = fuentes
-        self._relevo_desfase = 4
-        self._relevo_ffmpeg = object()
+        self._estado_relevo.fuentes = fuentes
+        self._estado_relevo.desfase = 4
+        self._estado_relevo.ffmpeg = object()
         self._cancelar_busqueda = mock.Mock()
         self._cancelar_transporte = mock.Mock()
         self._detener_relevo_ffmpeg = mock.Mock()

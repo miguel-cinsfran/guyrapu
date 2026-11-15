@@ -1011,7 +1011,7 @@ class Sonda:
                     "dur_ms": getattr(panel, "_dur_ms", 0),
                     "estado": (estado_fn() if callable(estado_fn)
                                else "desconocido"),
-                    "desfase": getattr(panel, "_relevo_desfase", 0),
+                    "desfase": getattr(getattr(panel, "_estado_relevo", None), "desfase", 0),
                     "cargando": bool(getattr(panel, "_cargando", False)),
                     "directo": (bool(directo_fn()) if callable(directo_fn)
                                 else False),

@@ -12,6 +12,7 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import EstadoBusqueda
+from guyrapu.player.estado_relevo import EstadoRelevo
 from guyrapu.player.tarea_cache_video import TareaCacheVideo
 from tests.rutas_temporales import redirigir_rutas
 
@@ -20,6 +21,7 @@ class TestReproductorCache(unittest.TestCase):
 
     def _panel(self, video_id="VID12345678", gen=0):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._config = {"cache_video_mb": 1024}
         panel._gen = gen
         panel._video_id = video_id
@@ -319,6 +321,7 @@ class TestReproductorCache(unittest.TestCase):
         dest = Path(tempfile.gettempdir()) / "VID_OLD.mp4"
         tarea = TareaCacheVideo("VID_OLD", 0, dest)
         real_panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        real_panel._estado_relevo = EstadoRelevo()
         real_panel._config = {"cache_video_mb": 1024}
         real_panel._gen = 0
         real_panel._video_id = "VID_OLD"

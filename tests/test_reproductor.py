@@ -21,6 +21,7 @@ except Exception:
 
 from guyrapu.player import motor_vlc
 from guyrapu.player import reproductor
+from guyrapu.player.estado_relevo import EstadoRelevo
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -270,6 +271,7 @@ class TestReproducirDirecto(unittest.TestCase):
 
     def _panel(self, info):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._vigilancia = reproductor.vigilancia_relevo.NADA_OBJETO
         panel._info = info
         panel._inst = mock.Mock()
@@ -281,8 +283,8 @@ class TestReproducirDirecto(unittest.TestCase):
         panel.lbl_estado = mock.Mock()
         panel._video_id = "vid"
         panel._gen = 0
-        panel._relevo_gen = 0
-        panel._relevo_ffmpeg = None
+        panel._estado_relevo.gen = 0
+        panel._estado_relevo.ffmpeg = None
         panel._asegurar_player = mock.Mock(return_value=True)
         panel._error_carga = mock.Mock()
         panel._mostrar_pausa = mock.Mock()
@@ -327,7 +329,7 @@ class TestReproducirDirecto(unittest.TestCase):
         panel._inst.media_new.assert_called_once_with("tcp://127.0.0.1:5555")
         opciones = [c.args[0] for c in medio.add_option.call_args_list]
         self.assertFalse(any(o.startswith(":input-slave=") for o in opciones))
-        self.assertIs(panel._relevo_ffmpeg, relevo)
+        self.assertIs(panel._estado_relevo.ffmpeg, relevo)
         self.assertFalse(panel._tiene_esclavo)
         panel._error_carga.assert_not_called()
 
@@ -349,7 +351,7 @@ class TestReproducirDirecto(unittest.TestCase):
 
         panel._inst.media_new.assert_called_once_with("video-solicitado")
         medio.add_option.assert_any_call(":input-slave=audio-solicitado")
-        self.assertIsNone(panel._relevo_ffmpeg)
+        self.assertIsNone(panel._estado_relevo.ffmpeg)
         panel._error_carga.assert_not_called()
 
     def test_directo_descarta_el_relevo_si_ya_no_es_el_ultimo_pedido(self):
@@ -378,7 +380,7 @@ class TestReproducirDirecto(unittest.TestCase):
             callbacks[0]()
 
         relevo.detener.assert_called_once()
-        self.assertIsNone(panel._relevo_ffmpeg)
+        self.assertIsNone(panel._estado_relevo.ffmpeg)
         panel._inst.media_new.assert_not_called()
 
     def test_directo_sin_fuentes_deja_diagnostico(self):
@@ -475,6 +477,7 @@ class TestSoloAudio(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._inst = mock.Mock()
         panel._player = mock.Mock()
         panel._vol = 75
@@ -558,6 +561,7 @@ class TestSoloAudio(unittest.TestCase):
 
     def test_info_listo_con_solo_audio_no_descarga_el_video(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._gen = 0
         panel._video_id = "vid"
         panel._calidad_sel = None
@@ -570,6 +574,7 @@ class TestSoloAudio(unittest.TestCase):
 
     def test_info_listo_sin_solo_audio_sigue_descargando_el_video(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._gen = 0
         panel._video_id = "vid"
         panel._calidad_sel = None
@@ -631,6 +636,7 @@ class TestBufferingVlc(unittest.TestCase):
     def test_el_evento_de_buffer_llega_al_aviso_de_corte(self):
         import vlc
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         gestor = mock.Mock()
         panel._player = mock.Mock()
         panel._player.event_manager.return_value = gestor
@@ -669,11 +675,12 @@ class TestVigilanciaRelevo(unittest.TestCase):
 
     def _panel(self, directo=True, vod=False):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
-        panel._relevo_fuentes = ("video", "audio")
-        panel._relevo_desfase = 2
-        panel._relevo_ffmpeg = mock.Mock()
+        panel._estado_relevo = EstadoRelevo()
+        panel._estado_relevo.fuentes = ("video", "audio")
+        panel._estado_relevo.desfase = 2
+        panel._estado_relevo.ffmpeg = mock.Mock()
         panel._cargando = False
-        panel._vod_por_relevo = vod
+        panel._estado_relevo.vod_por_relevo = vod
         panel._url_flujo = ""
         panel._es_directo_actual = mock.Mock(return_value=directo)
         panel._cancelar_busqueda = mock.Mock()
@@ -711,6 +718,7 @@ class TestCableadoVigilancia(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._info = dict(self.INFO)
         panel._inst = mock.Mock()
         panel._player = mock.Mock()
@@ -721,9 +729,9 @@ class TestCableadoVigilancia(unittest.TestCase):
         panel.lbl_estado = mock.Mock()
         panel._video_id = "vid"
         panel._gen = 0
-        panel._relevo_gen = 0
-        panel._relevo_ffmpeg = None
-        panel._relevo_ventana = None
+        panel._estado_relevo.gen = 0
+        panel._estado_relevo.ffmpeg = None
+        panel._estado_relevo.ventana = None
         panel._asegurar_player = mock.Mock(return_value=True)
         panel._error_carga = mock.Mock()
         panel._mostrar_pausa = mock.Mock()
@@ -732,7 +740,7 @@ class TestCableadoVigilancia(unittest.TestCase):
         panel._cancelar_transporte = mock.Mock()
         panel._detener_relevo_ffmpeg = mock.Mock()
         panel._cargando = False
-        panel._vod_por_relevo = False
+        panel._estado_relevo.vod_por_relevo = False
         panel._listo = True
         return panel
 
@@ -783,9 +791,9 @@ class TestCableadoVigilancia(unittest.TestCase):
     def test_tres_eventos_de_buffer_del_directo_reinician(self):
         panel = self._panel()
         anuncios = []
-        panel._relevo_fuentes = ("video", "audio")
-        panel._relevo_desfase = 3
-        panel._relevo_ffmpeg = object()
+        panel._estado_relevo.fuentes = ("video", "audio")
+        panel._estado_relevo.desfase = 3
+        panel._estado_relevo.ffmpeg = object()
         panel._arrancar_relevo = mock.Mock()
         self._conectar(panel, anuncios)
         nombres = ("MediaPlayerPlaying", "MediaPlayerPaused",
@@ -816,9 +824,9 @@ class TestCableadoVigilancia(unittest.TestCase):
     def test_cargar_otro_video_permite_avisar_otra_vez(self):
         panel = self._panel()
         anuncios = []
-        panel._relevo_fuentes = ("video", "audio")
-        panel._relevo_desfase = 0
-        panel._relevo_ffmpeg = object()
+        panel._estado_relevo.fuentes = ("video", "audio")
+        panel._estado_relevo.desfase = 0
+        panel._estado_relevo.ffmpeg = object()
         panel._arrancar_relevo = mock.Mock()
         self._conectar(panel, anuncios)
         aviso = reproductor.vigilancia_relevo._FRASE_CORTES
@@ -862,6 +870,7 @@ class TestPrecalentamiento(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._precalentamiento_cancelado = False
         return panel
 
@@ -940,6 +949,7 @@ class TestEventosVlc(unittest.TestCase):
 
     def _panel_para_detener(self, gestor=None):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._gen = 0
         panel._cargando = True
         panel._destino_pendiente = object()
@@ -951,12 +961,14 @@ class TestEventosVlc(unittest.TestCase):
 
     def _panel_con_eventos(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._gestor_eventos_vlc = None
         return panel
 
     def test_engancha_eventos_solo_con_registro_detallado(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = None
         panel._inst = mock.Mock()
         panel._asegurar_instancia = mock.Mock(return_value=True)
@@ -1009,6 +1021,7 @@ class TestEventosVlc(unittest.TestCase):
 
     def test_detener_en_segundo_plano_conserva_el_gestor_hasta_liberar(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._gen = 0
         panel._cargando = True
         panel._destino_pendiente = object()
@@ -1093,6 +1106,7 @@ class TestAvisoAlReproducir(unittest.TestCase):
 
     def test_reproducir_sin_medio_anuncia(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = ""
         panel._url_flujo = ""
@@ -1108,6 +1122,7 @@ class TestAvisoAlReproducir(unittest.TestCase):
 
     def _panel_sin_medio(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = ""
         panel._url_flujo = ""
@@ -1134,7 +1149,7 @@ class TestAvisoAlReproducir(unittest.TestCase):
     def test_buscar_con_medio_sin_reproductor_no_toca_el_relevo(self):
         panel = self._panel_sin_medio()
         panel._video_id = "video-cargado"
-        panel._relevo_fuentes = ("https://flujo.example/stream", None)
+        panel._estado_relevo.fuentes = ("https://flujo.example/stream", None)
         panel._es_directo_actual = lambda: True
         panel._saltar_en_relevo = mock.Mock()
         with mock.patch.object(reproductor, "anunciar") as anunciar:
@@ -1256,6 +1271,7 @@ class TestRelevoRobustez(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._vigilancia = reproductor.vigilancia_relevo.NADA_OBJETO
         panel._info = dict(self.INFO)
         panel._inst = mock.Mock()
@@ -1267,8 +1283,8 @@ class TestRelevoRobustez(unittest.TestCase):
         panel.lbl_estado = mock.Mock()
         panel._video_id = "vid"
         panel._gen = 0
-        panel._relevo_gen = 0
-        panel._relevo_ffmpeg = None
+        panel._estado_relevo.gen = 0
+        panel._estado_relevo.ffmpeg = None
         panel._cargando = False
         panel._asegurar_player = mock.Mock(return_value=True)
         panel._error_carga = mock.Mock()
@@ -1302,7 +1318,7 @@ class TestRelevoRobustez(unittest.TestCase):
             panel._reproducir_calidad(None, reproducir=False)
         relevo.detener.assert_called_once()
         panel._inst.media_new.assert_called_once_with("video-solicitado")
-        self.assertIsNone(panel._relevo_ffmpeg)
+        self.assertIsNone(panel._estado_relevo.ffmpeg)
         self.assertTrue(panel._tiene_esclavo)
         self.assertFalse(panel._cargando)
 
@@ -1315,7 +1331,7 @@ class TestRelevoRobustez(unittest.TestCase):
             panel._reproducir_calidad(None, reproducir=False)
         relevo.detener.assert_called_once()
         panel._inst.media_new.assert_called_once_with("video-solicitado")
-        self.assertIsNone(panel._relevo_ffmpeg)
+        self.assertIsNone(panel._estado_relevo.ffmpeg)
 
     def test_la_carga_sigue_en_curso_mientras_el_relevo_se_prepara(self):
         panel = self._panel()
@@ -1331,7 +1347,7 @@ class TestRelevoRobustez(unittest.TestCase):
             self.assertTrue(panel._cargando)   # Reproducir no debe relanzar yt-dlp
             callbacks[0]()
         self.assertFalse(panel._cargando)
-        self.assertIs(panel._relevo_ffmpeg, relevo)
+        self.assertIs(panel._estado_relevo.ffmpeg, relevo)
 
     def test_excepcion_al_abrir_el_medio_detiene_el_relevo(self):
         panel = self._panel()
@@ -1342,24 +1358,24 @@ class TestRelevoRobustez(unittest.TestCase):
                 reproductor.relevo_ffmpeg, "RelevoFfmpeg", return_value=relevo):
             panel._reproducir_calidad(None, reproducir=False)
         relevo.detener.assert_called_once()
-        self.assertIsNone(panel._relevo_ffmpeg)
+        self.assertIsNone(panel._estado_relevo.ffmpeg)
         panel._error_carga.assert_called_once_with()
 
     def test_error_de_vlc_con_relevo_vivo_reintenta_la_conexion(self):
         panel = self._panel()
-        panel._relevo_ffmpeg = self._relevo()
-        panel._relevo_reintentos = 0
+        panel._estado_relevo.ffmpeg = self._relevo()
+        panel._estado_relevo.reintentos = 0
         with mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._fallo_reproduccion()
         panel._player.play.assert_called_once()
         panel._detener.assert_not_called()
         anunciar.assert_not_called()
-        self.assertEqual(panel._relevo_reintentos, 1)
+        self.assertEqual(panel._estado_relevo.reintentos, 1)
 
     def test_error_de_vlc_agotados_los_reintentos_para_y_avisa(self):
         panel = self._panel()
-        panel._relevo_ffmpeg = self._relevo()
-        panel._relevo_reintentos = 3
+        panel._estado_relevo.ffmpeg = self._relevo()
+        panel._estado_relevo.reintentos = 3
         with mock.patch.object(reproductor, "anunciar") as anunciar, \
                 mock.patch("guyrapu.voice.sound_player.reproducir") as sonido:
             panel._fallo_reproduccion()
@@ -1378,7 +1394,7 @@ class TestRelevoRobustez(unittest.TestCase):
 
     def test_porcentaje_y_deslizador_con_relevo_remiten_a_los_botones(self):
         panel = self._panel()
-        panel._relevo_ffmpeg = self._relevo()
+        panel._estado_relevo.ffmpeg = self._relevo()
         panel._busqueda_permitida_actual = mock.Mock(return_value=False)
         panel._player.get_length.return_value = 0  # lo que da VLC con el relevo
         panel.sld_pos = mock.Mock()
@@ -1403,10 +1419,10 @@ class TestSaltoEnRelevo(unittest.TestCase):
 
     def _panel(self, desfase=0, ventana=(5.0, 720)):
         panel = TestRelevoRobustez._panel(TestRelevoRobustez())
-        panel._relevo_ffmpeg = self._relevo()
-        panel._relevo_fuentes = ("video-hls", "audio-hls")
-        panel._relevo_desfase = desfase
-        panel._relevo_ventana = ventana
+        panel._estado_relevo.ffmpeg = self._relevo()
+        panel._estado_relevo.fuentes = ("video-hls", "audio-hls")
+        panel._estado_relevo.desfase = desfase
+        panel._estado_relevo.ventana = ventana
         panel._cancelar_busqueda = mock.Mock()
         panel._cancelar_transporte = mock.Mock()
         panel.lbl_tiempo = mock.Mock()
@@ -1437,7 +1453,7 @@ class TestSaltoEnRelevo(unittest.TestCase):
 
     def test_retroceder_un_minuto_reinicia_ffmpeg_doce_segmentos_atras(self):
         panel = self._panel()
-        viejo = panel._relevo_ffmpeg
+        viejo = panel._estado_relevo.ffmpeg
         nuevo = self._relevo()
         hilo, callafter, ventana, debounce = self._sincrono()
         with hilo, callafter, ventana, debounce, \
@@ -1448,8 +1464,8 @@ class TestSaltoEnRelevo(unittest.TestCase):
         clase.assert_called_once_with(
             "video-hls", "audio-hls", 12, aviso=mock.ANY)
         viejo.detener.assert_called_once()
-        self.assertIs(panel._relevo_ffmpeg, nuevo)
-        self.assertEqual(panel._relevo_desfase, 12)
+        self.assertIs(panel._estado_relevo.ffmpeg, nuevo)
+        self.assertEqual(panel._estado_relevo.desfase, 12)
         panel._inst.media_new.assert_called_once_with("tcp://127.0.0.1:6000")
         panel._player.play.assert_called_once()
         panel._player.set_time.assert_not_called()
@@ -1495,7 +1511,7 @@ class TestSaltoEnRelevo(unittest.TestCase):
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._buscar_rel(+60_000)
         clase.assert_not_called()
-        panel._relevo_ffmpeg.detener.assert_not_called()
+        panel._estado_relevo.ffmpeg.detener.assert_not_called()
         anunciar.assert_called_once_with("Ya estás en el directo")
 
     def test_retroceder_al_final_de_la_ventana_avisa(self):
@@ -1524,7 +1540,7 @@ class TestSaltoEnRelevo(unittest.TestCase):
         # inicial. Con fuentes la pulsación se procesa aunque cargue.
         panel = self._panel()
         panel._cargando = True
-        panel._relevo_fuentes = None
+        panel._estado_relevo.fuentes = None
         with mock.patch.object(reproductor.relevo_ffmpeg, "RelevoFfmpeg") as clase, \
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._saltar_en_relevo(-60_000)
@@ -1543,8 +1559,8 @@ class TestSaltoEnRelevo(unittest.TestCase):
             panel._buscar_rel(-60_000)
         self.assertEqual([c.args[0] for c in anunciar.call_args_list],
                          ["1 minuto por detrás del directo", "No se pudo mover el directo"])
-        self.assertIsNone(panel._relevo_ffmpeg)
-        self.assertEqual(panel._relevo_desfase, 0)
+        self.assertIsNone(panel._estado_relevo.ffmpeg)
+        self.assertEqual(panel._estado_relevo.desfase, 0)
         panel._inst.media_new.assert_called_once_with("video-hls")
 
     def test_la_ventana_se_lee_solo_en_el_primer_arranque(self):
@@ -1570,9 +1586,9 @@ class TestSaltoEnRelevo(unittest.TestCase):
                 panel._detener(silencioso=True)
             except Exception:
                 pass   # el resto del método toca controles que aquí no existen
-        self.assertEqual(panel._relevo_desfase, 0)
-        self.assertIsNone(panel._relevo_fuentes)
-        self.assertIsNone(panel._relevo_ventana)
+        self.assertEqual(panel._estado_relevo.desfase, 0)
+        self.assertIsNone(panel._estado_relevo.fuentes)
+        self.assertIsNone(panel._estado_relevo.ventana)
 
 
 class TestDirectoInterrumpido(unittest.TestCase):
@@ -1582,12 +1598,13 @@ class TestDirectoInterrumpido(unittest.TestCase):
 
     def _panel(self, relevo=None, is_live=True, recargas=0):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._muted = False
         panel._url_flujo = ""
         panel._video_id = "vid"
         panel._info = {"is_live": is_live}
-        panel._relevo_ffmpeg = relevo
+        panel._estado_relevo.ffmpeg = relevo
         panel._recargas_directo = recargas
         panel._estado_inicio = mock.Mock(requiere=False)
         panel._estado_busqueda = mock.Mock(pendiente=False)
@@ -1651,6 +1668,7 @@ class TestAnchoEstado(unittest.TestCase):
 
     def _panel(self, ancho=500):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel.lbl_estado = mock.Mock()
         panel.GetClientSize = mock.Mock(return_value=mock.Mock(Width=ancho))
         return panel
@@ -1862,8 +1880,9 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
             self.assertTrue(frase.startswith("[¡"), frase)
         del self.captados[:]
 
-    def _panel(self, **attrs):
+    def _panel(self, relevo=None, **attrs):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._gen = 0
         panel._video_id = "video-cargado"
@@ -1872,6 +1891,8 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         panel._ic_mute = mock.Mock()
         panel._ic_sound = mock.Mock()
         panel._timer_progreso = mock.Mock()
+        for clave, valor in (relevo or {}).items():
+            setattr(panel._estado_relevo, clave, valor)
         for clave, valor in attrs.items():
             setattr(panel, clave, valor)
         return panel
@@ -2062,23 +2083,23 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         self._exigir_marcados(1)
 
     def test_busqueda_no_permitida_anuncia_marcado(self):
-        panel = self._panel(_cargando=False, _relevo_ffmpeg=mock.Mock())
+        panel = self._panel(relevo={"ffmpeg": mock.Mock()}, _cargando=False)
         panel._es_directo_actual = lambda: True
         panel._estado_vlc_actual = lambda: "playing"
         panel._aviso_busqueda_no_permitida()
         self._exigir_marcados(1)
-        panel = self._panel(_cargando=False, _relevo_ffmpeg=None,
+        panel = self._panel(relevo={"ffmpeg": None}, _cargando=False,
                             _url_flujo="https://flujo.example/stream.flv")
         panel._es_directo_actual = lambda: True
         panel._estado_vlc_actual = lambda: "playing"
         panel._aviso_busqueda_no_permitida()
         self._exigir_marcados(1)
-        panel = self._panel(_cargando=False, _relevo_ffmpeg=None)
+        panel = self._panel(relevo={"ffmpeg": None}, _cargando=False)
         panel._es_directo_actual = lambda: True
         panel._estado_vlc_actual = lambda: "playing"
         panel._aviso_busqueda_no_permitida()
         self._exigir_marcados(1)
-        panel = self._panel(_cargando=False, _relevo_ffmpeg=None)
+        panel = self._panel(relevo={"ffmpeg": None}, _cargando=False)
         panel._es_directo_actual = lambda: False
         panel._estado_vlc_actual = lambda: "playing"
         panel._aviso_busqueda_no_permitida()
@@ -2088,19 +2109,19 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         from guyrapu.player.busqueda_video import (
             MARGEN_VENTANA_SEGMENTOS, EstadoBusqueda)
         tope = 720 - MARGEN_VENTANA_SEGMENTOS
-        panel = self._panel(_relevo_fuentes=None)
+        panel = self._panel(relevo={"fuentes": None})
         panel._saltar_en_relevo(-60_000)
         self._exigir_marcados(1)
-        panel = self._panel(_relevo_fuentes=("video", "audio"),
-                            _relevo_ventana=(5.0, 720), _relevo_desfase=0)
+        panel = self._panel(relevo={"fuentes": ("video", "audio"),
+                                    "ventana": (5.0, 720), "desfase": 0})
         panel._saltar_en_relevo(+60_000)
         self._exigir_marcados(1)
-        panel = self._panel(_relevo_fuentes=("video", "audio"),
-                            _relevo_ventana=(5.0, 720), _relevo_desfase=tope)
+        panel = self._panel(relevo={"fuentes": ("video", "audio"),
+                                    "ventana": (5.0, 720), "desfase": tope})
         panel._saltar_en_relevo(-60_000)
         self._exigir_marcados(1)
-        panel = self._panel(_relevo_fuentes=("video", "audio"),
-                            _relevo_ventana=(5.0, 720), _relevo_desfase=0)
+        panel = self._panel(relevo={"fuentes": ("video", "audio"),
+                                    "ventana": (5.0, 720), "desfase": 0})
         panel._estado_busqueda = EstadoBusqueda(confirmada=0)
         with mock.patch.object(reproductor.wx, "CallLater"):
             panel._saltar_en_relevo(+60_000)
@@ -2111,17 +2132,17 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         panel._es_directo_actual = lambda: False
         panel.ir_al_directo()
         self._exigir_marcados(1)
-        panel = self._panel(_relevo_fuentes=("video", "audio"),
-                            _relevo_desfase=0)
+        panel = self._panel(relevo={"fuentes": ("video", "audio"),
+                                    "desfase": 0})
         panel._es_directo_actual = lambda: True
         panel.ir_al_directo()
         self._exigir_marcados(1)
-        panel = self._panel(_relevo_fuentes=None)
+        panel = self._panel(relevo={"fuentes": None})
         panel._es_directo_actual = lambda: True
         panel.ir_al_directo()
         self._exigir_marcados(1)
-        panel = self._panel(_relevo_fuentes=("video", "audio"),
-                            _relevo_ventana=(5.0, 720), _relevo_desfase=12)
+        panel = self._panel(relevo={"fuentes": ("video", "audio"),
+                                    "ventana": (5.0, 720), "desfase": 12})
         panel._es_directo_actual = lambda: True
         with mock.patch.object(reproductor.wx, "CallLater"):
             panel.ir_al_directo()
@@ -2129,8 +2150,8 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
 
     def test_mover_y_posicion_anuncian_marcado(self):
         from guyrapu.player.busqueda_video import EstadoBusqueda
-        panel = self._panel(_vod_por_relevo=True,
-                            _relevo_vod_base_ms=None)
+        panel = self._panel(relevo={"vod_por_relevo": True,
+                                    "vod_base_ms": None})
         panel._estado_busqueda = EstadoBusqueda(confirmada=0)
         panel._estado_vlc_actual = lambda: "playing"
         panel._duracion_actual = lambda: 600_000
@@ -2159,7 +2180,7 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
 
     def test_deslizador_y_porcentaje_mueven_y_anuncian_marcado(self):
         from guyrapu.player.busqueda_video import EstadoBusqueda
-        panel = self._panel(_vod_por_relevo=False)
+        panel = self._panel(relevo={"vod_por_relevo": False})
         panel._player = mock.Mock()
         panel._estado_busqueda = EstadoBusqueda(confirmada=0)
         panel._busqueda_permitida_actual = lambda: True
@@ -2180,27 +2201,27 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         panel._timer_progreso = mock.Mock()
         panel._duracion_actual = lambda: 600_000
         panel._estado_busqueda = EstadoBusqueda(confirmada=599_000)
-        panel._relevo_vod_ultima = None
-        panel._relevo_vod_base_ms = None
+        panel._estado_relevo.vod_ultima = None
+        panel._estado_relevo.vod_base_ms = None
         panel._pos_ms = 0
-        panel._relevo_vod_recuperaciones = 0
+        panel._estado_relevo.vod_recuperaciones = 0
         panel._fin_flujo_vod()
         self._exigir_marcados(1)
         panel = self._panel()
         panel._timer_progreso = mock.Mock()
         panel._duracion_actual = lambda: 600_000
         panel._estado_busqueda = EstadoBusqueda(confirmada=100_000)
-        panel._relevo_vod_ultima = 100_000
-        panel._relevo_vod_base_ms = 0
-        panel._relevo_fuentes = ("video", "audio")
+        panel._estado_relevo.vod_ultima = 100_000
+        panel._estado_relevo.vod_base_ms = 0
+        panel._estado_relevo.fuentes = ("video", "audio")
         panel._pos_ms = 0
-        panel._relevo_vod_recuperaciones = 2
+        panel._estado_relevo.vod_recuperaciones = 2
         panel._fin_flujo_vod()
         self._exigir_marcados(1)
 
     def test_fallo_de_reproduccion_y_reintento_anuncian_marcado(self):
-        panel = self._panel(_vod_por_relevo=False, _relevo_ffmpeg=None,
-                            _relevo_reintentos=0)
+        panel = self._panel(relevo={"vod_por_relevo": False, "ffmpeg": None,
+                                    "reintentos": 0})
         panel._timer_progreso = mock.Mock()
         panel._fijar_estado = mock.Mock()
         panel._fallo_reproduccion()
@@ -2265,25 +2286,25 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         panel._botones_visibles = False
         with self.subTest(etiqueta="mostrar"):
             self.assertTrue(panel._etiqueta_toggle().startswith("[¡"))
-        panel = self._panel(_relevo_ffmpeg=mock.Mock(),
-                            _relevo_desfase=5, _relevo_ventana=(5.0, 720))
+        panel = self._panel(relevo={"ffmpeg": mock.Mock(), "desfase": 5,
+                                    "ventana": (5.0, 720)})
         panel._es_directo_actual = lambda: True
         with self.subTest(etiqueta="directo"):
             self.assertTrue(panel._etiqueta_directo().startswith("[¡"))
-        panel._relevo_ffmpeg = None
+        panel._estado_relevo.ffmpeg = None
         with self.subTest(etiqueta="en directo"):
             self.assertTrue(panel._etiqueta_directo().startswith("[¡"))
-        panel._relevo_fuentes = ("video", "audio")
-        panel._relevo_desfase = 5
+        panel._estado_relevo.fuentes = ("video", "audio")
+        panel._estado_relevo.desfase = 5
         with self.subTest(frase="desfase"):
             self.assertTrue(panel.frase_posicion_directo().startswith("[¡"))
-        panel._relevo_fuentes = None
+        panel._estado_relevo.fuentes = None
         with self.subTest(frase="en directo"):
             self.assertTrue(panel.frase_posicion_directo().startswith("[¡"))
 
     def test_relevo_listo_refleja_el_anuncio_marcado(self):
         from guyrapu.player.busqueda_video import frase_desfase_directo
-        panel = self._panel(_gen=3, _relevo_gen=5, _video_id="vid")
+        panel = self._panel(relevo={"gen": 5}, _gen=3, _video_id="vid")
         panel._continuar_reproducir_calidad = mock.Mock()
         panel._fijar_estado = mock.Mock()
         panel._fijar_tiempo = mock.Mock()
@@ -2301,8 +2322,9 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         from types import SimpleNamespace
         from guyrapu.player.busqueda_video import (
             EstadoBusqueda, EstadoInicioReproduccion)
-        panel = self._panel(_muted=False, _vol=80, _vod_por_relevo=False,
-                            _relevo_vod_base_ms=None)
+        panel = self._panel(relevo={"vod_por_relevo": False,
+                                    "vod_base_ms": None},
+                            _muted=False, _vol=80)
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="Playing")
         panel._player.audio_get_volume.return_value = 80

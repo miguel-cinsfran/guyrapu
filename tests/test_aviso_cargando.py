@@ -14,10 +14,12 @@ from unittest import mock
 import vlc
 
 from guyrapu.player import reproductor
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 def _panel(info, url_flujo="", cargando=False):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._estado_relevo = EstadoRelevo()
     panel._info = info
     panel._url_flujo = url_flujo
     panel._video_id = "D" * 11
@@ -25,8 +27,8 @@ def _panel(info, url_flujo="", cargando=False):
     panel._cargando = cargando
     panel._ir_a = mock.Mock()
     panel._duracion_actual = mock.Mock(return_value=30000)
-    panel._relevo_ffmpeg = None
-    panel._relevo_fuentes = None
+    panel._estado_relevo.ffmpeg = None
+    panel._estado_relevo.fuentes = None
     panel._usando_cache_local = False
     panel._tiene_esclavo = False
     panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=0)

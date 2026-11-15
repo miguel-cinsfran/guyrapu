@@ -184,13 +184,13 @@ def conectar(panel, anunciar, despachar):
     from guyrapu.voice import sound_player as _snd
 
     def fuentes():
-        return getattr(panel, "_relevo_fuentes", None) or ("", "")
+        return panel._estado_relevo.fuentes or ("", "")
 
     def activo():
         try:
-            return (getattr(panel, "_relevo_ffmpeg", None) is not None
+            return (panel._estado_relevo.ffmpeg is not None
                     and not getattr(panel, "_cargando", False)
-                    and not getattr(panel, "_vod_por_relevo", False)
+                    and not panel._estado_relevo.vod_por_relevo
                     and not getattr(panel, "_url_flujo", "")
                     and panel._es_directo_actual())
         except Exception:
@@ -206,11 +206,11 @@ def conectar(panel, anunciar, despachar):
         if not url:
             return None
         if desfase is None:
-            desfase = int(getattr(panel, "_relevo_desfase", 0) or 0)
+            desfase = int(panel._estado_relevo.desfase or 0)
         panel._cancelar_busqueda()
         panel._cancelar_transporte()
         panel._detener_relevo_ffmpeg()
-        panel._relevo_fuentes = (url, slave)
+        panel._estado_relevo.fuentes = (url, slave)
         panel._arrancar_relevo(url, slave, True, desfase=int(desfase),
                                anuncio=anuncio)
         return int(desfase)

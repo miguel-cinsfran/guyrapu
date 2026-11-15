@@ -40,6 +40,7 @@ from guyrapu.player.traza_transporte import (
 )
 from guyrapu.downloads import ytdlp_bin
 from guyrapu.player import esclavo_audio
+from guyrapu.player.estado_relevo import EstadoRelevo
 from guyrapu.player import flujo_tiktok
 from guyrapu.player import motor_vlc
 from guyrapu.player.pantalla_completa import AccionesPantalla, PantallaCompleta
@@ -261,36 +262,7 @@ class ReproductorPanel(wx.Panel):
         self._fs = None        # ventana de pantalla completa, si está activa
         self._precalentamiento_cancelado = False
         self._ciclo = reproductor_ciclo.CicloReproductor()
-        # Relevo de ffmpeg para directos con vídeo y audio separados (ver
-        # relevo_ffmpeg.py): evita el input-slave de VLC, que pierde la
-        # sincronía entre dos HLS independientemente en vivo cada 60-90 s.
-        self._relevo_ffmpeg = None
-        self._relevo_gen = 0
-        # Búsqueda en directo por relevo: fuentes (vídeo, audio) para poder
-        # reiniciar ffmpeg, segmentos por detrás del borde y ventana HLS
-        # (s por segmento, segmentos) leída al arrancar. Ver _saltar_en_relevo.
-        self._relevo_fuentes = None
-        self._relevo_desfase = 0
-        self._relevo_ventana = None
-        # VOD por relevo en modo grabado (ver _ir_a): base en ms desde la
-        # que arranca el flujo reabierto; None salvo mientras hay relevo.
-        self._relevo_vod_base_ms = None
-        # Dice si este vídeo va en modo relevo grabado. Sobrevive a las
-        # reaperturas: la base se limpia en cada una, esta bandera no.
-        self._vod_por_relevo = False
-        # Reapertura agendada por _ir_a (debounce de 400 ms) y contador de
-        # recuperaciones tras un corte a mitad del vídeo (ver _on_timer).
-        self._relevo_vod_reapertura = None
-        # Destino guardado al mover la posición con el VOD por relevo en
-        # pausa: no se reabre el relevo hasta reanudar (ver _ir_a). None
-        # salvo mientras hay un salto en pausa pendiente de reanudar.
-        self._relevo_vod_destino_en_pausa = None
-        # Reapertura agendada por _saltar_en_relevo con el mismo debounce:
-        # cada pulsación anuncia al instante y el reinicio de ffmpeg espera
-        # 400 ms por si viene otra pulsación encadenada (ver _saltar_en_relevo).
-        self._relevo_directo_reapertura = None
-        self._relevo_vod_recuperaciones = 0
-        self._relevo_vod_ultima = None
+        self._estado_relevo = EstadoRelevo()
         # Recargas automáticas seguidas tras interrumpirse un directo por
         # relevo (ver _directo_interrumpido). Se reinicia al cambiar de vídeo.
         self._recargas_directo = 0
@@ -535,7 +507,7 @@ class ReproductorPanel(wx.Panel):
             es_local=bool(getattr(self, "_usando_cache_local", False)),
             tiene_esclavo=bool(getattr(self, "_tiene_esclavo", False)),
             es_flujo=bool(getattr(self, "_url_flujo", "")),
-            usa_relevo=bool(getattr(self, "_relevo_ffmpeg", None)),
+            usa_relevo=bool(self._estado_relevo.ffmpeg),
         )
 
     def _estado_vlc_actual(self) -> str:
@@ -559,7 +531,7 @@ class ReproductorPanel(wx.Panel):
             self._es_directo_actual(),
             bool(getattr(self, "_usando_cache_local", False)),
             bool(getattr(self, "_tiene_esclavo", False)),
-            usa_relevo=bool(getattr(self, "_relevo_ffmpeg", None)),
+            usa_relevo=bool(self._estado_relevo.ffmpeg),
         )
 
     def _cancelar_busqueda(self, motivo: str = "cancelado") -> None:
@@ -841,7 +813,7 @@ class ReproductorPanel(wx.Panel):
         self._alturas = []
         self._recargas_directo = 0
         self._recargas_apertura = 0
-        self._relevo_vod_destino_en_pausa = None
+        self._estado_relevo.vod_destino_en_pausa = None
         if self._video_id and autoplay:
             self.cargar(reproducir=True)
         else:
@@ -944,10 +916,10 @@ class ReproductorPanel(wx.Panel):
         self._tiene_esclavo = False
         self._usando_cache_local = False
         self._cancelar_transporte()
-        self._vod_por_relevo = False
-        self._relevo_vod_destino_en_pausa = None
-        self._relevo_vod_recuperaciones = 0
-        self._relevo_vod_ultima = None
+        self._estado_relevo.vod_por_relevo = False
+        self._estado_relevo.vod_destino_en_pausa = None
+        self._estado_relevo.vod_recuperaciones = 0
+        self._estado_relevo.vod_ultima = None
         self._intencion_reproducir = reproducir
         self._cargando = True
         self._fijar_estado(_("Cargando vídeo…"))
@@ -1084,7 +1056,7 @@ class ReproductorPanel(wx.Panel):
             self._player.audio_set_mute(self._muted)
             self._usando_cache_local = True
             self._tiene_esclavo = False
-            self._vod_por_relevo = False
+            self._estado_relevo.vod_por_relevo = False
             self._player.play()
             self._player.set_time(posicion)
             if pausado:
@@ -1096,24 +1068,24 @@ class ReproductorPanel(wx.Panel):
             logger.debug("cambio a caché de vídeo: %s", exc)
 
     def _detener_relevo_ffmpeg(self) -> None:
-        pendiente = getattr(self, "_relevo_vod_reapertura", None)
-        self._relevo_vod_reapertura = None
+        pendiente = self._estado_relevo.vod_reapertura
+        self._estado_relevo.vod_reapertura = None
         if pendiente is not None:
             try:
                 pendiente.Stop()
             except Exception as error:
                 logger.debug("no se pudo detener la reapertura pendiente: %s", error)
-        directa = getattr(self, "_relevo_directo_reapertura", None)
-        self._relevo_directo_reapertura = None
+        directa = self._estado_relevo.directo_reapertura
+        self._estado_relevo.directo_reapertura = None
         if directa is not None:
             try:
                 directa.Stop()
             except Exception as error:
                 logger.debug("no se pudo detener la reapertura directa: %s", error)
-        self._relevo_vod_destino_en_pausa = None
-        relevo = getattr(self, "_relevo_ffmpeg", None)
-        self._relevo_ffmpeg = None
-        self._relevo_vod_base_ms = None
+        self._estado_relevo.vod_destino_en_pausa = None
+        relevo = self._estado_relevo.ffmpeg
+        self._estado_relevo.ffmpeg = None
+        self._estado_relevo.vod_base_ms = None
         if relevo is not None:
             relevo.detener()
 
@@ -1123,7 +1095,7 @@ class ReproductorPanel(wx.Panel):
         self._cancelar_busqueda()
         self._tiene_esclavo = False
         self._usando_cache_local = False
-        self._vod_por_relevo = False
+        self._estado_relevo.vod_por_relevo = False
         self._detener_relevo_ffmpeg()
         es_directo = self._info.get("is_live")
         if es_directo:
@@ -1145,7 +1117,7 @@ class ReproductorPanel(wx.Panel):
             # reproduce el HLS directo y las flechas caen en destinos sin
             # sentido con la duración de la ventana. Va por el relevo con
             # una sola entrada (ver relevo_ffmpeg.argumentos_relevo).
-            self._relevo_ventana = None
+            self._estado_relevo.ventana = None
             self._arrancar_relevo(url, "", reproducir)
             return
 
@@ -1156,11 +1128,11 @@ class ReproductorPanel(wx.Panel):
             # real; en el VOD ignora set_pause 10-20 s tras cada salto),
             # un relevo de ffmpeg las remuxa antes en un único flujo. El
             # directo va en modo vivo y el VOD en modo grabado desde 0.
-            self._relevo_ventana = None
+            self._estado_relevo.ventana = None
             if es_directo:
                 self._arrancar_relevo(url, slave, reproducir)
             else:
-                self._vod_por_relevo = True
+                self._estado_relevo.vod_por_relevo = True
                 self._arrancar_relevo(url, slave, reproducir, inicio_ms=0)
             return
 
@@ -1179,8 +1151,8 @@ class ReproductorPanel(wx.Panel):
         desde ese punto y cada salto lo reabre (ver _ir_a); con inicio_ms no
         se lee la ventana HLS.
         """
-        self._relevo_gen = getattr(self, "_relevo_gen", 0) + 1
-        relevo_gen = self._relevo_gen
+        self._estado_relevo.gen = self._estado_relevo.gen + 1
+        relevo_gen = self._estado_relevo.gen
         gen = self._gen
         video_id_actual = self._video_id
         # Mientras el relevo se prepara la carga sigue en curso: sin esto,
@@ -1188,7 +1160,7 @@ class ReproductorPanel(wx.Panel):
         # yt-dlp y mataba el relevo recién arrancado.
         self._cargando = True
         self._fijar_estado(_("Cargando vídeo…"))
-        leer_ventana = getattr(self, "_relevo_ventana", None) is None \
+        leer_ventana = self._estado_relevo.ventana is None \
             and inicio_ms is None
 
         def _preparar_relevo(video_url=url, audio_url=slave):
@@ -1219,13 +1191,13 @@ class ReproductorPanel(wx.Panel):
     def _relevo_listo(self, relevo, direccion, relevo_gen, gen, video_id_actual,
                       url, slave, reproducir, desfase=0, ventana=None,
                       anuncio=None, inicio_ms=None) -> None:
-        if relevo_gen != self._relevo_gen or gen != self._gen \
+        if relevo_gen != self._estado_relevo.gen or gen != self._gen \
                 or video_id_actual != self._video_id:
             relevo.detener()
             return
         self._cargando = False
         if ventana is not None:
-            self._relevo_ventana = ventana
+            self._estado_relevo.ventana = ventana
         if direccion is not None and not relevo.activo():
             # ffmpeg murió entre el listener y este callback (403 de
             # googlevideo, playlist inválida): no darle a VLC una dirección
@@ -1235,24 +1207,24 @@ class ReproductorPanel(wx.Panel):
         if inicio_ms is not None:
             # Modo grabado para VOD dividido: nunca se informa como directo.
             if direccion is None:
-                self._relevo_ffmpeg = None
-                self._relevo_vod_base_ms = None
-                self._vod_por_relevo = False
-                self._relevo_fuentes = None
-                self._relevo_desfase = 0
+                self._estado_relevo.ffmpeg = None
+                self._estado_relevo.vod_base_ms = None
+                self._estado_relevo.vod_por_relevo = False
+                self._estado_relevo.fuentes = None
+                self._estado_relevo.desfase = 0
                 self._tiene_esclavo = bool(slave)
                 bus = getattr(self, "_estado_busqueda", None)
                 if anuncio or (bus is not None and bus.pendiente):
                     anunciar(_("No se pudo mover el vídeo"))
                 self._continuar_reproducir_calidad(url, slave, False, reproducir)
                 return
-            self._relevo_ffmpeg = relevo
-            self._relevo_fuentes = (url, slave)
-            self._relevo_desfase = 0
-            self._relevo_reintentos = 0
+            self._estado_relevo.ffmpeg = relevo
+            self._estado_relevo.fuentes = (url, slave)
+            self._estado_relevo.desfase = 0
+            self._estado_relevo.reintentos = 0
             self._tiene_esclavo = False
-            self._relevo_vod_base_ms = int(inicio_ms)
-            self._relevo_vod_ultima = int(inicio_ms)
+            self._estado_relevo.vod_base_ms = int(inicio_ms)
+            self._estado_relevo.vod_ultima = int(inicio_ms)
             self._continuar_reproducir_calidad(direccion, "", False, reproducir)
             bus = getattr(self, "_estado_busqueda", None)
             if bus is not None and bus.pendiente:
@@ -1260,7 +1232,7 @@ class ReproductorPanel(wx.Panel):
                 # está listo, no desde la pulsación.
                 self._marcar_destino(int(inicio_ms), anunciar_usuario=False)
             if (anuncio or (bus is not None and bus.pendiente)) \
-                    and self._relevo_ffmpeg is relevo:
+                    and self._estado_relevo.ffmpeg is relevo:
                 # Salto en grabado: hay búsqueda pendiente pero no anuncio,
                 # así que solo se cancela el «Reproduciendo» del inicio
                 # normal; la carga inicial, sin búsqueda pendiente, lo
@@ -1274,22 +1246,22 @@ class ReproductorPanel(wx.Panel):
         if direccion is None:
             # No se pudo levantar el relevo (sin ffmpeg, puerto, etc.): se
             # sigue con input-slave directo, como antes de tener el relevo.
-            self._relevo_ffmpeg = None
-            self._relevo_fuentes = None
-            self._relevo_desfase = 0
+            self._estado_relevo.ffmpeg = None
+            self._estado_relevo.fuentes = None
+            self._estado_relevo.desfase = 0
             self._tiene_esclavo = bool(slave)
             if anuncio:
                 anunciar(_("No se pudo mover el directo"))
             self._continuar_reproducir_calidad(url, slave, True, reproducir)
             return
-        self._relevo_ffmpeg = relevo
-        self._relevo_fuentes = (url, slave)
-        self._relevo_desfase = int(desfase or 0)
-        self._relevo_reintentos = 0
+        self._estado_relevo.ffmpeg = relevo
+        self._estado_relevo.fuentes = (url, slave)
+        self._estado_relevo.desfase = int(desfase or 0)
+        self._estado_relevo.reintentos = 0
         self._tiene_esclavo = False
-        self._relevo_vod_base_ms = None
+        self._estado_relevo.vod_base_ms = None
         self._continuar_reproducir_calidad(direccion, "", True, reproducir)
-        if anuncio and self._relevo_ffmpeg is relevo:
+        if anuncio and self._estado_relevo.ffmpeg is relevo:
             # Salto: la frase ya se dijo al pulsar; aquí solo se refleja en
             # pantalla y se evita el «Reproduciendo» del inicio normal.
             if hasattr(self, "_estado_inicio"):
@@ -1520,13 +1492,13 @@ class ReproductorPanel(wx.Panel):
             # volver al momento actual en vez de quedar retrasados.
             if self._url_flujo:
                 self._reproducir_flujo()
-            elif getattr(self, "_relevo_vod_destino_en_pausa", None) is not None \
-                    and getattr(self, "_vod_por_relevo", False):
+            elif self._estado_relevo.vod_destino_en_pausa is not None \
+                    and self._estado_relevo.vod_por_relevo:
                 # Salto en pausa pendiente: se reabre el relevo desde ese
                 # destino reproduciendo, sin pasar por set_pause sobre el
                 # flujo viejo (que volvía al principio).
-                destino = int(self._relevo_vod_destino_en_pausa)
-                self._relevo_vod_destino_en_pausa = None
+                destino = int(self._estado_relevo.vod_destino_en_pausa)
+                self._estado_relevo.vod_destino_en_pausa = None
                 self._intencion_reproducir = True
                 try:
                     self._timer.Start(500)
@@ -1576,13 +1548,13 @@ class ReproductorPanel(wx.Panel):
             tarea.cancelacion.set()
             self._tarea_cache_video = None
         self._detener_relevo_ffmpeg()
-        self._relevo_fuentes = None
-        self._relevo_desfase = 0
-        self._relevo_ventana = None
-        self._vod_por_relevo = False
-        self._relevo_vod_destino_en_pausa = None
-        self._relevo_vod_recuperaciones = 0
-        self._relevo_vod_ultima = None
+        self._estado_relevo.fuentes = None
+        self._estado_relevo.desfase = 0
+        self._estado_relevo.ventana = None
+        self._estado_relevo.vod_por_relevo = False
+        self._estado_relevo.vod_destino_en_pausa = None
+        self._estado_relevo.vod_recuperaciones = 0
+        self._estado_relevo.vod_ultima = None
         self._intencion_reproducir = False
         self._timer_progreso.Stop()
         if self._player is not None:
@@ -1747,7 +1719,7 @@ class ReproductorPanel(wx.Panel):
     def _duracion_actual(self) -> int:
         """Duración en ms: con relevo de VOD sale de la info de yt-dlp
         (get_length en el relevo es 0 o el largo del tramo), si no de VLC."""
-        if getattr(self, "_vod_por_relevo", False):
+        if self._estado_relevo.vod_por_relevo:
             info = getattr(self, "_info", None)
             if isinstance(info, dict) and info.get("duration"):
                 try:
@@ -1760,14 +1732,14 @@ class ReproductorPanel(wx.Panel):
             return 0
 
     def _lectura_cruda(self) -> int:
-        if getattr(self, "_vod_por_relevo", False) \
-                and getattr(self, "_relevo_vod_base_ms", None) is None:
+        if self._estado_relevo.vod_por_relevo \
+                and self._estado_relevo.vod_base_ms is None:
             return -1
         try:
             muestra = int(self._player.get_time())
         except Exception:
             return -1
-        base = getattr(self, "_relevo_vod_base_ms", None)
+        base = self._estado_relevo.vod_base_ms
         if base is None:
             return muestra
         return posicion_efectiva(int(base), muestra)
@@ -1810,7 +1782,7 @@ class ReproductorPanel(wx.Panel):
         bus = getattr(self, "_estado_busqueda", None)
         if bus is None:
             return
-        if getattr(self, "_relevo_vod_destino_en_pausa", None) is not None:
+        if self._estado_relevo.vod_destino_en_pausa is not None:
             # Salto en pausa ya confirmado: las lecturas viejas de VLC no
             # deben ni mover el destino ni anunciar un fallo hasta reanudar.
             return
@@ -1853,33 +1825,33 @@ class ReproductorPanel(wx.Panel):
     def _ir_a(self, destino) -> None:
         """Lleva la reproducción al destino: con relevo de VOD reabre el
         relevo desde ahí (VLC ve el flujo y set_time no salta de verdad)."""
-        if not getattr(self, "_vod_por_relevo", False):
+        if not self._estado_relevo.vod_por_relevo:
             self._player.set_time(destino)
             return
         if not bool(getattr(self, "_intencion_reproducir", True)):
             # En pausa no se reabre el relevo ni se toca VLC: reabrir sin
             # reproducir dejaba a VLC sin muestras y al reanudar el vídeo
             # volvía al principio. Se guarda el destino hasta reanudar.
-            pendiente = getattr(self, "_relevo_vod_reapertura", None)
+            pendiente = self._estado_relevo.vod_reapertura
             if pendiente is not None:
                 try:
                     pendiente.Stop()
                 except Exception as error:
                     logger.debug("no se pudo detener la reapertura pendiente: %s", error)
-            self._relevo_vod_reapertura = None
-            self._relevo_vod_destino_en_pausa = int(destino)
+            self._estado_relevo.vod_reapertura = None
+            self._estado_relevo.vod_destino_en_pausa = int(destino)
             # _marcar_destino se llama después en todos los llamadores y deja
             # la búsqueda pendiente: la confirmación va diferida para que
             # reemplace ese pendiente por el destino ya confirmado.
             wx.CallAfter(self._confirmar_salto_en_pausa, int(destino))
             return
-        pendiente = getattr(self, "_relevo_vod_reapertura", None)
+        pendiente = self._estado_relevo.vod_reapertura
         if pendiente is not None:
             try:
                 pendiente.Stop()
             except Exception as error:
                 logger.debug("no se pudo detener la reapertura pendiente: %s", error)
-        self._relevo_vod_reapertura = wx.CallLater(400, self._reabrir_relevo_vod, int(destino))
+        self._estado_relevo.vod_reapertura = wx.CallLater(400, self._reabrir_relevo_vod, int(destino))
 
     def _confirmar_salto_en_pausa(self, destino) -> None:
         """Confirma un salto hecho en pausa sin tocar VLC ni anunciar.
@@ -1891,7 +1863,7 @@ class ReproductorPanel(wx.Panel):
             destino = int(destino)
         except Exception:
             return
-        if getattr(self, "_relevo_vod_destino_en_pausa", None) != destino:
+        if self._estado_relevo.vod_destino_en_pausa != destino:
             return
         self._estado_busqueda = EstadoBusqueda(confirmada=destino)
         try:
@@ -1905,15 +1877,15 @@ class ReproductorPanel(wx.Panel):
             logger.debug("no se pudo fijar el tiempo tras el salto: %s", error)
 
     def _reabrir_relevo_vod(self, destino) -> None:
-        self._relevo_vod_reapertura = None
-        self._relevo_vod_destino_en_pausa = None
-        fuentes = getattr(self, "_relevo_fuentes", None)
+        self._estado_relevo.vod_reapertura = None
+        self._estado_relevo.vod_destino_en_pausa = None
+        fuentes = self._estado_relevo.fuentes
         if fuentes is None:
             return
         url, slave = fuentes
         self._cancelar_transporte()
         self._detener_relevo_ffmpeg()
-        self._relevo_fuentes = (url, slave)
+        self._estado_relevo.fuentes = (url, slave)
         self._arrancar_relevo(url, slave, self._intencion_reproducir,
                               inicio_ms=int(destino))
 
@@ -2061,16 +2033,16 @@ class ReproductorPanel(wx.Panel):
                     anunciar(_("Reproduciendo"))
         self._evaluar_transporte()
         self._evaluar_busqueda()
-        if getattr(self, "_relevo_vod_base_ms", None) is not None:
+        if self._estado_relevo.vod_base_ms is not None:
             try:
                 muestra_ef = self._lectura_cruda()
             except Exception:
                 muestra_ef = -1
             if isinstance(muestra_ef, int) and muestra_ef >= 0:
-                ultima = getattr(self, "_relevo_vod_ultima", None)
+                ultima = self._estado_relevo.vod_ultima
                 if ultima is None or muestra_ef > int(ultima):
-                    self._relevo_vod_ultima = int(muestra_ef)
-                    self._relevo_vod_recuperaciones = 0
+                    self._estado_relevo.vod_ultima = int(muestra_ef)
+                    self._estado_relevo.vod_recuperaciones = 0
         try:
             estado_final = self._estado_vlc_actual()
         except Exception:
@@ -2083,11 +2055,11 @@ class ReproductorPanel(wx.Panel):
         decision = recuperacion.decidir_al_terminar(
             estado_final,
             vod_cargando=recuperacion.sigue_cargando(
-                getattr(self, "_cargando", False), getattr(self, "_vod_por_relevo", False),
-                getattr(self, "_relevo_ffmpeg", None) is not None,
+                getattr(self, "_cargando", False), self._estado_relevo.vod_por_relevo,
+                self._estado_relevo.ffmpeg is not None,
                 bool(getattr(self, "_url_flujo", ""))),
-            hay_relevo=getattr(self, "_relevo_ffmpeg", None) is not None,
-            relevo_vod=getattr(self, "_relevo_vod_base_ms", None) is not None,
+            hay_relevo=self._estado_relevo.ffmpeg is not None,
+            relevo_vod=self._estado_relevo.vod_base_ms is not None,
             es_flujo=bool(getattr(self, "_url_flujo", "")),
             es_directo=lambda: self._es_directo_actual(),
             fallo_apertura=lambda: self._es_fallo_apertura_vod(),
@@ -2108,8 +2080,8 @@ class ReproductorPanel(wx.Panel):
             self._fallo_reproduccion()
 
     def _relevo_con_reintento(self) -> bool:
-        relevo = getattr(self, "_relevo_ffmpeg", None)
-        reintentos = getattr(self, "_relevo_reintentos", 0)
+        relevo = self._estado_relevo.ffmpeg
+        reintentos = self._estado_relevo.reintentos
         try:
             return bool(relevo is not None and relevo.activo() and reintentos < 3)
         except Exception:
@@ -2182,14 +2154,14 @@ class ReproductorPanel(wx.Panel):
         dur = self._duracion_actual()
         bus = getattr(self, "_estado_busqueda", None)
         ultima = recuperacion.ultima_posicion(
-            getattr(self, "_relevo_vod_ultima", None),
+            self._estado_relevo.vod_ultima,
             bus.confirmada if bus is not None else None,
             getattr(self, "_pos_ms", 0))
-        rec = getattr(self, "_relevo_vod_recuperaciones", 0)
+        rec = self._estado_relevo.vod_recuperaciones
         decision = recuperacion.decidir_fin_vod(
             dur, ultima, rec,
-            getattr(self, "_relevo_vod_base_ms", None),
-            getattr(self, "_relevo_fuentes", None) is not None)
+            self._estado_relevo.vod_base_ms,
+            self._estado_relevo.fuentes is not None)
         if decision == recuperacion.FIN_VIDEO:
             self._detener(silencioso=True)
             anunciar_con_sonido(_("Fin del vídeo"), "reproduccion_terminada")
@@ -2200,23 +2172,23 @@ class ReproductorPanel(wx.Panel):
             self._detener(silencioso=True)
             anunciar_con_sonido(_("Vídeo interrumpido"), "reproduccion_cortada")
             return
-        fuentes = getattr(self, "_relevo_fuentes", None)
+        fuentes = self._estado_relevo.fuentes
         if decision == recuperacion.ESCLAVO:
             url, slave = fuentes
             logger.warning("VOD_RELEVO sin arrancar, sigue con esclavo")
-            self._vod_por_relevo = False
+            self._estado_relevo.vod_por_relevo = False
             self._detener_relevo_ffmpeg()
             self._tiene_esclavo = bool(slave)
             self._continuar_reproducir_calidad(
                 url, slave, False, self._intencion_reproducir)
             return
-        self._relevo_vod_recuperaciones = int(rec) + 1
+        self._estado_relevo.vod_recuperaciones = int(rec) + 1
         logger.warning("VOD_RELEVO recupera=%d ultima=%d dur=%d",
-                       self._relevo_vod_recuperaciones, ultima, dur)
+                       self._estado_relevo.vod_recuperaciones, ultima, dur)
         url, slave = fuentes
         self._cancelar_transporte()
         self._detener_relevo_ffmpeg()
-        self._relevo_fuentes = (url, slave)
+        self._estado_relevo.fuentes = (url, slave)
         self._arrancar_relevo(url, slave, self._intencion_reproducir,
                               inicio_ms=ultima)
 
@@ -2226,15 +2198,15 @@ class ReproductorPanel(wx.Panel):
         Con el relevo de ffmpeg vivo se reintenta unas veces; si no,
         se para y se avisa, para que no quede en «Cargando vídeo» sin
         sonido."""
-        if getattr(self, "_vod_por_relevo", False) \
+        if self._estado_relevo.vod_por_relevo \
                 and getattr(self, "_cargando", False):
             return
-        relevo = getattr(self, "_relevo_ffmpeg", None)
-        reintentos = getattr(self, "_relevo_reintentos", 0)
+        relevo = self._estado_relevo.ffmpeg
+        reintentos = self._estado_relevo.reintentos
         if relevo is not None and relevo.activo() and reintentos < 3:
-            self._relevo_reintentos = reintentos + 1
+            self._estado_relevo.reintentos = reintentos + 1
             logger.warning("REPRODUCCION_ERROR relevo reintento=%d",
-                           self._relevo_reintentos)
+                           self._estado_relevo.reintentos)
             try:
                 self._player.play()
                 return
@@ -2249,7 +2221,7 @@ class ReproductorPanel(wx.Panel):
         motivo = self._aviso_transitorio()
         if motivo:
             pass
-        elif getattr(self, "_relevo_ffmpeg", None) is not None \
+        elif self._estado_relevo.ffmpeg is not None \
                 and self._es_directo_actual():
             motivo = "relevo_sin_barra"
             anunciar(_("En este directo solo se puede retroceder o avanzar "
@@ -2269,19 +2241,19 @@ class ReproductorPanel(wx.Panel):
         logger.debug("%s", traza_salto_rechazado(self._topologia_actual(), origen, motivo))
 
     def _desfase_relevo_segundos(self) -> float:
-        ventana = self._relevo_ventana or VENTANA_HLS_SUPUESTA
-        return self._relevo_desfase * float(ventana[0])
+        ventana = self._estado_relevo.ventana or VENTANA_HLS_SUPUESTA
+        return self._estado_relevo.desfase * float(ventana[0])
 
     def _etiqueta_directo(self) -> str:
-        if getattr(self, "_relevo_ffmpeg", None) is not None \
-                and self._es_directo_actual() and self._relevo_desfase > 0:
+        if self._estado_relevo.ffmpeg is not None \
+                and self._es_directo_actual() and self._estado_relevo.desfase > 0:
             # Traductores: {tiempo} es el atraso, como «1:00» en «Directo, 1:00 atrás».
             return _("Directo, {tiempo} atrás").format(tiempo=_fmt_t(self._desfase_relevo_segundos() * 1000))
         return _("En directo")
 
     def frase_posicion_directo(self) -> str:
         """Valor accesible del deslizador en un directo sin duración."""
-        if getattr(self, "_relevo_fuentes", None) is not None \
+        if self._estado_relevo.fuentes is not None \
                 and self._es_directo_actual():
             return frase_desfase_directo(self._desfase_relevo_segundos())
         return _("En directo")
@@ -2300,16 +2272,16 @@ class ReproductorPanel(wx.Panel):
         con el último desfase.
         """
         topologia = self._topologia_actual()
-        if self._relevo_fuentes is None:
+        if self._estado_relevo.fuentes is None:
             # Carga inicial: todavía no hay fuentes con las que reiniciar.
             # En pleno reinicio las fuentes se conservan y la pulsación se
             # procesa aunque ffmpeg aún no esté arriba.
             logger.debug("%s", traza_salto_rechazado(topologia, "relativo", "cargando"))
             anunciar(_("Cargando vídeo"))
             return
-        segmento_s, ventana_seg = self._relevo_ventana or VENTANA_HLS_SUPUESTA
+        segmento_s, ventana_seg = self._estado_relevo.ventana or VENTANA_HLS_SUPUESTA
         segmento_ms = int(segmento_s * 1000)
-        antes = self._relevo_desfase
+        antes = self._estado_relevo.desfase
         despues = desfase_tras_salto(antes, delta_ms, segmento_ms, ventana_seg)
         if despues == antes:
             motivo = "en_el_directo" if delta_ms > 0 else "fin_de_ventana"
@@ -2321,7 +2293,7 @@ class ReproductorPanel(wx.Panel):
                                                segmento_ms, ventana_seg))
         frase = frase_desfase_directo(despues * segmento_s)
         anunciar(frase)
-        url, slave = self._relevo_fuentes
+        url, slave = self._estado_relevo.fuentes
         self._cancelar_busqueda()
         self._cancelar_transporte()
         self._detener_relevo_ffmpeg()
@@ -2331,18 +2303,18 @@ class ReproductorPanel(wx.Panel):
         # y el nuevo se agenda con debounce: cada pulsación nueva cancela la
         # reapertura anterior (la cancela _detener_relevo_ffmpeg) y agenda
         # otra con el desfase acumulado.
-        self._relevo_desfase = despues
-        self._relevo_fuentes = (url, slave)
-        self._relevo_directo_reapertura = wx.CallLater(
+        self._estado_relevo.desfase = despues
+        self._estado_relevo.fuentes = (url, slave)
+        self._estado_relevo.directo_reapertura = wx.CallLater(
             400, self._reabrir_relevo_directo, int(despues), frase)
 
     def _reabrir_relevo_directo(self, desfase, anuncio) -> None:
-        self._relevo_directo_reapertura = None
-        fuentes = getattr(self, "_relevo_fuentes", None)
+        self._estado_relevo.directo_reapertura = None
+        fuentes = self._estado_relevo.fuentes
         if fuentes is None:
             return
         url, slave = fuentes
-        self._relevo_fuentes = (url, slave)
+        self._estado_relevo.fuentes = (url, slave)
         self._arrancar_relevo(url, slave, True, desfase=int(desfase),
                               anuncio=anuncio)
 
@@ -2356,12 +2328,12 @@ class ReproductorPanel(wx.Panel):
         if not self._es_directo_actual():
             anunciar(_("Este vídeo no es un directo"))
             return
-        if getattr(self, "_relevo_fuentes", None) is not None:
-            desfase = int(getattr(self, "_relevo_desfase", 0) or 0)
+        if self._estado_relevo.fuentes is not None:
+            desfase = int(self._estado_relevo.desfase or 0)
             if desfase == 0:
                 anunciar(_("Ya estás en el directo"))
                 return
-            segmento_s, _ventana = getattr(self, "_relevo_ventana", None) or VENTANA_HLS_SUPUESTA
+            segmento_s, _ventana = self._estado_relevo.ventana or VENTANA_HLS_SUPUESTA
             self._saltar_en_relevo(desfase * int(segmento_s * 1000))
             return
         anunciar(_("Ya estás en el directo"))
@@ -2374,7 +2346,7 @@ class ReproductorPanel(wx.Panel):
             if aviso:
                 anunciar(aviso)
             return
-        if getattr(self, "_relevo_fuentes", None) is not None \
+        if self._estado_relevo.fuentes is not None \
                 and self._es_directo_actual():
             # Camino del directo: las fuentes se conservan en pleno reinicio
             # aunque ffmpeg aún no esté arriba, para que las pulsaciones

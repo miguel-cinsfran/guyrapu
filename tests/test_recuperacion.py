@@ -219,6 +219,7 @@ class TestDespachoAlTerminar(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = reproductor.EstadoRelevo()
         panel._player = mock.Mock()
         panel._muted = True
         panel._estado_vlc_actual = mock.Mock(return_value="ended")
@@ -278,9 +279,10 @@ class TestDespachoFinVod(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = reproductor.EstadoRelevo()
         panel._duracion_actual = mock.Mock(return_value=60000)
         panel._pos_ms = 20000
-        panel._relevo_fuentes = ("http://ejemplo/video", "esclavo")
+        panel._estado_relevo.fuentes = ("http://ejemplo/video", "esclavo")
         panel._intencion_reproducir = True
         panel._detener = mock.Mock()
         panel._detener_relevo_ffmpeg = mock.Mock()
@@ -323,7 +325,7 @@ class TestDespachoFinVod(unittest.TestCase):
                 elif decision == recuperacion.ESCLAVO:
                     aviso.assert_called_once_with(
                         "VOD_RELEVO sin arrancar, sigue con esclavo")
-                    self.assertFalse(panel._vod_por_relevo)
+                    self.assertFalse(panel._estado_relevo.vod_por_relevo)
                     panel._detener_relevo_ffmpeg.assert_called_once_with()
                     self.assertTrue(panel._tiene_esclavo)
                     panel._continuar_reproducir_calidad.assert_called_once_with(
@@ -331,13 +333,13 @@ class TestDespachoFinVod(unittest.TestCase):
                     panel._detener.assert_not_called()
                     anunciar.assert_not_called()
                 elif decision == recuperacion.REABRIR:
-                    self.assertEqual(panel._relevo_vod_recuperaciones, 1)
+                    self.assertEqual(panel._estado_relevo.vod_recuperaciones, 1)
                     aviso.assert_called_once_with(
                         "VOD_RELEVO recupera=%d ultima=%d dur=%d",
                         1, 20000, 60000)
                     panel._cancelar_transporte.assert_called_once_with()
                     panel._detener_relevo_ffmpeg.assert_called_once_with()
-                    self.assertEqual(panel._relevo_fuentes,
+                    self.assertEqual(panel._estado_relevo.fuentes,
                                      ("http://ejemplo/video", "esclavo"))
                     panel._arrancar_relevo.assert_called_once_with(
                         "http://ejemplo/video", "esclavo", True,

@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from tests.pseudo_prueba import con_pseudo
 
 from guyrapu.player import motor_vlc
+from guyrapu.player.estado_relevo import EstadoRelevo
 from guyrapu.player.busqueda_video import (
     CADUCIDAD_DESTINO_MS, EstadoBusqueda, MARGEN_VENTANA_SEGMENTOS,
     PROGRESO_MINIMO_MS, TOLERANCIA_ATRAS_MS, TOLERANCIA_DESTINO_MS,
@@ -334,6 +335,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         from guyrapu.player import reproductor
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 60_000
         panel._player.get_time.return_value = 10_000
@@ -356,6 +358,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         from guyrapu.player import reproductor
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 60_000
         panel._player.get_time.return_value = 0
@@ -374,6 +377,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         from guyrapu.player import reproductor
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 60_000
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=5_000)
@@ -394,6 +398,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         from guyrapu.player import reproductor
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 60_000
         panel._player.get_time.return_value = 10_000
@@ -422,6 +427,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         from guyrapu.player import reproductor
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 60_000
         panel._player.get_time.return_value = 29_000
@@ -454,6 +460,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         from guyrapu.player import reproductor
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 3_600_000
         panel._player.get_time.return_value = 3_615_868
@@ -477,6 +484,7 @@ class TestCableadoBusqueda(unittest.TestCase):
     def test_deslizador_con_busqueda_pendiente_es_absoluto(self):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 100_000
         panel._player.get_time.return_value = 10_000
@@ -497,6 +505,7 @@ class TestCableadoBusqueda(unittest.TestCase):
     def test_porcentaje_con_busqueda_pendiente_es_absoluto(self):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 100_000
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=10_000)
@@ -521,6 +530,7 @@ class TestCableadoPlayPausa(unittest.TestCase):
         from guyrapu.player.busqueda_video import OrdenTransporte
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="playing")
         panel._video_id = "video-cargado"
@@ -544,6 +554,7 @@ class TestCableadoPlayPausa(unittest.TestCase):
         from guyrapu.player import reproductor
 
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="Buffering")
         panel._video_id = "video-cargado"
@@ -567,6 +578,7 @@ class TestPendienteSecuencial(unittest.TestCase):
     def _panel_pausa(self):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="playing")
         panel._player.can_pause.return_value = 1
@@ -586,6 +598,7 @@ class TestPendienteSecuencial(unittest.TestCase):
     def _panel_reanudar(self):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="paused")
         panel._player.can_pause.return_value = 1
@@ -765,6 +778,7 @@ class TestTransporteContratos(unittest.TestCase):
         from guyrapu.player import reproductor
         from guyrapu.player.busqueda_video import EstadoBusqueda, EstadoInicioReproduccion
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name=estado)
         panel._player.get_time.return_value = 0
@@ -1405,6 +1419,7 @@ class TestEstadoBusquedaMuestrasLejanas(unittest.TestCase):
     def test_generacion_no_revive_y_doble_anuncio(self):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "a"
         panel._url_flujo = ""
@@ -1437,6 +1452,7 @@ class TestEstadoBusquedaMuestrasLejanas(unittest.TestCase):
                 self.assertFalse(bus.pendiente)
         # prueba real del callback tardío vía CallLater
         panel2 = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel2._estado_relevo = EstadoRelevo()
         panel2._listo = True
         panel2._video_id = "a"
         panel2._url_flujo = ""
@@ -1555,7 +1571,7 @@ class TestBusquedaPermitida(unittest.TestCase):
         self.assertFalse(busqueda_permitida(True, False, False, usa_relevo=True))
         self.assertFalse(busqueda_permitida(True, True, True, usa_relevo=True))
 
-    def test_vod_por_relevo_si_permitida(self):
+    def test_vod_con_relevo_si_permitida(self):
         # El VOD por relevo en modo grabado reabre ffmpeg desde el destino
         # en cada salto, así que la búsqueda sí está permitida.
         from guyrapu.player.busqueda_video import busqueda_permitida
@@ -1719,6 +1735,7 @@ class TestCableadoSinPausa(unittest.TestCase):
     def _panel(self, flujo=True, atajo_mute="ctrl+u"):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="playing")
         panel._player.can_pause.return_value = 1
@@ -1825,6 +1842,7 @@ class TestPausaConBusquedaPendiente(unittest.TestCase):
         from guyrapu.player.busqueda_video import EstadoBusqueda, OrdenTransporte
         import time as _t
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._orden_transporte = OrdenTransporte(intencion_reproducir=False, instante=_t.monotonic() - 9)
         panel._transporte_pendiente = True
         panel._estado_busqueda = EstadoBusqueda(confirmada=0)
@@ -1841,6 +1859,7 @@ class TestPausaConBusquedaPendiente(unittest.TestCase):
         from guyrapu.player.busqueda_video import EstadoBusqueda, OrdenTransporte
         import time as _t
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._orden_transporte = OrdenTransporte(intencion_reproducir=False, instante=_t.monotonic())
         panel._transporte_pendiente = True
         panel._estado_busqueda = EstadoBusqueda(confirmada=0)
@@ -1860,6 +1879,7 @@ class TestDesenlacesTransporte(unittest.TestCase):
     def _panel_transporte(self, reproductor, intencion_previa, instante, estados):
         from guyrapu.player.busqueda_video import EstadoBusqueda, OrdenTransporte
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._orden_transporte = OrdenTransporte(intencion_reproducir=intencion_previa, instante=instante)
         panel._transporte_pendiente = True
         panel._intencion_reproducir = intencion_previa

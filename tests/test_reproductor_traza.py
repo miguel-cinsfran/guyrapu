@@ -6,12 +6,14 @@ import unittest
 from unittest import mock
 
 from guyrapu.player import reproductor
+from guyrapu.player.estado_relevo import EstadoRelevo
 
 
 class TestTrazaReproductor(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "A" * 11
         panel._url_flujo = None
@@ -153,6 +155,7 @@ class TestBusquedaCableado(unittest.TestCase):
     def _panel_busqueda(self, confirmada=0):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "A" * 11
         panel._url_flujo = ""
@@ -391,6 +394,7 @@ class TestBusquedaBloqueadaVODDividido(unittest.TestCase):
         from guyrapu.player import reproductor
         from guyrapu.player.busqueda_video import EstadoBusqueda
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "VOD12345678"
         panel._url_flujo = ""
@@ -540,6 +544,7 @@ class TestInicioReproduccionCableado(unittest.TestCase):
         from guyrapu.player import reproductor
         from guyrapu.player.busqueda_video import EstadoInicioReproduccion, EstadoBusqueda
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "VID12345678"
         panel._url_flujo = ""
@@ -797,6 +802,7 @@ class TestInicioReproduccionCableado(unittest.TestCase):
         from guyrapu.player.tarea_cache_video import TareaCacheVideo
         # panel VOD remoto dividido bloqueado
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "VID12345678"
         panel._url_flujo = ""

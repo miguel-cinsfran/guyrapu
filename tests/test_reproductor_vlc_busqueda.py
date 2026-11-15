@@ -54,7 +54,9 @@ class TestReproductorVLCBusqueda(unittest.TestCase):
             self.assertGreater(dur, 2000, f"duración inesperada {dur}")
             from guyrapu.player import reproductor
             from guyrapu.player.busqueda_video import EstadoBusqueda
+            from guyrapu.player.estado_relevo import EstadoRelevo
             panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+            panel._estado_relevo = EstadoRelevo()
             panel._listo = True
             panel._video_id = "test"
             panel._url_flujo = ""
