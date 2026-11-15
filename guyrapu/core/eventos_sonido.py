@@ -269,7 +269,7 @@ CATALOGO: tuple[EventoSonido, ...] = (
     EventoSonido("ia_respuesta", nombre=N_("Respuesta de la IA"), familia="ia"),
     # Música: cambio, fin, fallo e igualación al medir muchas canciones:
     EventoSonido("musica_tema", nombre=N_("Canción cambiada"), familia="musica"),
-    EventoSonido("musica_fin", nombre=N_("Canción terminada"), familia="musica"),
+    EventoSonido("musica_fin", nombre=N_("Fin de la cola de música"), familia="musica"),
     EventoSonido("musica_fallo", nombre=N_("Error al reproducir la canción"),
                  familia="musica"),
     EventoSonido("musica_igualando", nombre=N_("Igualación del volumen"),

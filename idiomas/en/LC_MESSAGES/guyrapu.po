@@ -2453,9 +2453,9 @@ msgstr "AI response"
 msgid "Canción cambiada"
 msgstr "Song changed"
 
-#: guyrapu/core/eventos_sonido.py
-msgid "Canción terminada"
-msgstr "Song finished"
+#: guyrapu/core/eventos_sonido.py guyrapu/music/anuncios.py
+msgid "Fin de la cola de música"
+msgstr "End of the music queue"
 
 #: guyrapu/core/eventos_sonido.py
 msgid "Error al reproducir la canción"
@@ -3092,10 +3092,6 @@ msgstr "Could not update yt-dlp: {motivo}."
 #: guyrapu/downloads/ytdlp_actualizar.py
 msgid "No se pudo actualizar yt-dlp."
 msgstr "Could not update yt-dlp."
-
-#: guyrapu/music/anuncios.py
-msgid "Fin de la cola de música"
-msgstr "End of the music queue"
 
 #: guyrapu/music/anuncios.py
 #, python-brace-format
