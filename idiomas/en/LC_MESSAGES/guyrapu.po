@@ -2233,7 +2233,7 @@ msgid "Consulta a la IA cancelada"
 msgstr "AI query canceled"
 
 #: guyrapu/core/eventos_sonido.py guyrapu/downloads/descargas.py
-#: guyrapu/downloads/motivo_error.py
+#: guyrapu/downloads/motivo_error.py guyrapu/downloads/progreso_ytdlp.py
 msgid "Descarga cancelada"
 msgstr "Download canceled"
 
@@ -2803,21 +2803,6 @@ msgstr ""
 "extract audio. Use the packaged build or install ffmpeg. For development, "
 "having ffmpeg in the PATH is enough."
 
-#: guyrapu/downloads/descargas.py
-#, python-brace-format
-msgid "{hechos} vídeos"
-msgstr "{hechos} videos"
-
-#: guyrapu/downloads/descargas.py
-#, python-brace-format
-msgid "yt-dlp terminó con código {codigo}"
-msgstr "yt-dlp finished with code {codigo}"
-
-#: guyrapu/downloads/descargas.py
-#, python-brace-format
-msgid "{hechos} de {total} vídeos"
-msgstr "{hechos} of {total} videos"
-
 #: guyrapu/downloads/descargas.py guyrapu/ui/buscador_acciones.py
 msgid "Un directo en curso no se puede descargar."
 msgstr "A live stream in progress cannot be downloaded."
@@ -2883,6 +2868,10 @@ msgstr "This platform requires signing in."
 #: guyrapu/downloads/motivo_error.py
 msgid "Este enlace no es compatible con la descarga."
 msgstr "This link cannot be downloaded."
+
+#: guyrapu/downloads/motivo_error.py
+msgid "Se perdió la conexión. Vuelve a intentarlo."
+msgstr "Lost connection. Try again."
 
 #: guyrapu/downloads/motivo_error.py
 #, python-brace-format
@@ -2986,6 +2975,25 @@ msgstr "{nombre}: download in progress"
 #: guyrapu/downloads/progreso_anuncio.py
 msgid "Descarga en curso"
 msgstr "Download in progress"
+
+#: guyrapu/downloads/progreso_ytdlp.py
+msgid "La descarga dejó de avanzar."
+msgstr "The download stopped making progress."
+
+#: guyrapu/downloads/progreso_ytdlp.py
+#, python-brace-format
+msgid "{hechos} vídeos"
+msgstr "{hechos} videos"
+
+#: guyrapu/downloads/progreso_ytdlp.py
+#, python-brace-format
+msgid "yt-dlp terminó con código {codigo}"
+msgstr "yt-dlp finished with code {codigo}"
+
+#: guyrapu/downloads/progreso_ytdlp.py
+#, python-brace-format
+msgid "{hechos} de {total} vídeos"
+msgstr "{hechos} of {total} videos"
 
 #. Traductores: valor del deslizador de posición en un directo, que no tiene
 #. duración.

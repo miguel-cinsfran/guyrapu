@@ -5,11 +5,16 @@
 import unittest
 
 from guyrapu.downloads.motivo_error import motivo_de_error
+from guyrapu.downloads.progreso_ytdlp import tratar_linea
 from tests.pseudo_prueba import con_pseudo
 
 
 EDAD = ("ERROR: [youtube] O2yixU7XjGU: Sign in to confirm your age. Use "
         "--cookies-from-browser or --cookies for the authentication.")
+
+LINEA_ERROR = "ERROR:\n"
+LINEA_DETALLE = ("[download] Got error: HTTPConnectionPool(host='127.0.0.1', "
+                 "port=8765): Read timed out.. Giving up after 10 retries\n")
 
 
 class TestMotivoDeError(unittest.TestCase):
@@ -109,6 +114,43 @@ class TestMotivoDeError(unittest.TestCase):
         self.assertIsNone(motivo_de_error(""))
 
 
+class TestErrorDeRed(unittest.TestCase):
+    """El error de yt-dlp partido en dos líneas y la conexión perdida."""
+
+    def _procesar(self, lineas):
+        estado = {"ultimo_error": "", "rutas": [], "indice": 0, "total": 0,
+                  "procesando": False, "ultimo_archivo": "", "ultimo_ts": None}
+        for linea in lineas:
+            tratar_linea(linea, estado, lambda *a: None, lambda *a: None)
+        return estado
+
+    def test_error_solo_junta_la_linea_siguiente_no_vacia(self):
+        estado = self._procesar([LINEA_ERROR, "\n", LINEA_DETALLE])
+        self.assertEqual(
+            estado["ultimo_error"],
+            "ERROR: [download] Got error: "
+            "HTTPConnectionPool(host='127.0.0.1', port=8765): Read timed "
+            "out.. Giving up after 10 retries")
+
+    def test_conexion_perdida_por_tiempo_agotado(self):
+        estado = self._procesar([LINEA_ERROR, LINEA_DETALLE])
+        self.assertEqual(motivo_de_error(estado["ultimo_error"]),
+                         "Se perdió la conexión. Vuelve a intentarlo.")
+
+    def test_giving_up_y_timed_out_sin_mayusculas(self):
+        for linea in ("ERROR: Giving up after 10 retries",
+                      "ERROR: Read TIMED OUT"):
+            with self.subTest(linea=linea):
+                self.assertEqual(
+                    motivo_de_error(linea),
+                    "Se perdió la conexión. Vuelve a intentarlo.")
+
+    def test_las_causas_conocidas_ganan_sobre_la_red(self):
+        self.assertEqual(
+            motivo_de_error("ERROR: Private video. Read timed out"),
+            "El vídeo es privado.")
+
+
 class TestPseudoMotivos(unittest.TestCase):
     """Pseudotraducción: cada motivo conocido sale marcado."""
 
@@ -124,6 +166,7 @@ class TestPseudoMotivos(unittest.TestCase):
             "ERROR: Unsupported URL: https://example.com",
             "ERROR: Postprocessing: WARNING: unable to obtain file audio codec.",
             "ERROR: [tiktok:user] scout2015: Unable to extract secondary user ID.",
+            "ERROR: Read timed out.. Giving up after 10 retries",
         ]
         with con_pseudo():
             motivos = [motivo_de_error(linea) for linea in lineas]

@@ -30,6 +30,9 @@ PLANTILLA_PROCESO = (
 # vídeo o convertir): así se distingue de cualquier otra línea de salida.
 PREFIJO_RUTA_FINAL = "RUTA_FINAL"
 INTERVALO_PROGRESO_S = 0.5
+# Sin una línea de yt-dlp durante este plazo, y fuera del postproceso, la
+# descarga se corta: el proceso puede quedar colgado sin escribir nunca más.
+PLAZO_SIN_AVANCE_S = 120
 
 
 def plantillas_progreso() -> list[str]:
@@ -132,6 +135,19 @@ def debe_emitir_progreso(ultimo_ts, ahora, pct):
             ahora - ultimo_ts >= INTERVALO_PROGRESO_S)
 
 
+def debe_cortar_por_silencio(estado, ahora, plazo) -> bool:
+    """Si la descarga lleva más que el plazo sin una línea de yt-dlp.
+
+    El postproceso calla a propósito: mientras dura no se corta nada.
+    """
+    if estado.get("procesando"):
+        return False
+    ultimo = estado.get("ultimo_avance")
+    if ultimo is None:
+        return False
+    return ahora - ultimo > plazo
+
+
 def _avisar(cb, *args) -> None:
     try:
         cb(*args)
@@ -161,8 +177,16 @@ def _aplicar_descarga(estado, datos, progreso_cb, al_detalle) -> None:
 
 def tratar_linea(linea, estado, progreso_cb, al_detalle) -> None:
     """Aplica una línea de yt-dlp al estado de la descarga en curso."""
-    if linea.startswith("ERROR:"):
-        estado["ultimo_error"] = linea.strip()
+    estado["ultimo_avance"] = time.monotonic()
+    texto = linea.strip()
+    if estado.get("esperando_detalle") and texto:
+        estado["ultimo_error"] = f"{estado['ultimo_error']} {texto}"
+        estado["esperando_detalle"] = False
+    elif texto == "ERROR:":
+        estado["ultimo_error"] = texto
+        estado["esperando_detalle"] = True
+    elif linea.startswith("ERROR:"):
+        estado["ultimo_error"] = texto
     if linea.startswith(PREFIJO_RUTA_FINAL + " "):
         ruta = linea[len(PREFIJO_RUTA_FINAL) + 1:].strip()
         if ruta:
@@ -190,13 +214,17 @@ def resultado_final(codigo, cancelado, estado) -> tuple[str, str]:
     """
     if cancelado:
         return "cancelado", _("Descarga cancelada")
-    if codigo == 0:
+    if estado.get("estancado"):
+        motivo = _("La descarga dejó de avanzar.")
+    elif codigo == 0:
         hechos = len(estado["rutas"])
         if estado["total"] > 1:
             return "completado", _("{hechos} vídeos").format(hechos=hechos)
         return "completado", ""
-    motivo = (motivo_de_error(estado["ultimo_error"])
-              or _("yt-dlp terminó con código {codigo}").format(codigo=codigo))
+    else:
+        motivo = (motivo_de_error(estado["ultimo_error"])
+                  or _("yt-dlp terminó con código {codigo}").format(
+                      codigo=codigo))
     hechos = len(estado["rutas"])
     if hechos >= 1 and estado["total"] > 1:
         return "parcial", _("{hechos} de {total} vídeos").format(

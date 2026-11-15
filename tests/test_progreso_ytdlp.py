@@ -5,11 +5,13 @@ from __future__ import annotations
 import unittest
 
 from guyrapu.downloads.progreso_ytdlp import (
+    PLAZO_SIN_AVANCE_S,
     PLANTILLA_DESCARGA,
     PLANTILLA_PROCESO,
     analizar_linea_descarga,
     analizar_linea_proceso,
     analizar_linea_progreso,
+    debe_cortar_por_silencio,
     plantillas_progreso,
     progreso_total,
     resultado_final,
@@ -119,9 +121,9 @@ class TestProgresoTotal(unittest.TestCase):
 
 
 class TestResultadoFinal(unittest.TestCase):
-    def estado(self, rutas=(), total=0, ultimo_error=""):
+    def estado(self, rutas=(), total=0, ultimo_error="", estancado=False):
         return {"rutas": list(rutas), "total": total,
-                "ultimo_error": ultimo_error}
+                "ultimo_error": ultimo_error, "estancado": estancado}
 
     def test_cancelado(self):
         self.assertEqual(resultado_final(1, True, self.estado()),
@@ -149,6 +151,48 @@ class TestResultadoFinal(unittest.TestCase):
     def test_error_con_codigo(self):
         self.assertEqual(resultado_final(2, False, self.estado()),
                          ("error", "yt-dlp terminó con código 2"))
+
+    def test_estancado_es_error(self):
+        self.assertEqual(
+            resultado_final(1, False, self.estado(estancado=True)),
+            ("error", "La descarga dejó de avanzar."))
+
+    def test_estancado_en_una_lista_es_parcial(self):
+        self.assertEqual(
+            resultado_final(1, False,
+                            self.estado(["a"], 2, estancado=True)),
+            ("parcial", "1 de 2 vídeos"))
+
+
+class TestDebeCortarPorSilencio(unittest.TestCase):
+    def estado(self, procesando=False, ultimo_avance=100.0):
+        return {"procesando": procesando, "ultimo_avance": ultimo_avance}
+
+    def test_el_plazo_es_de_120_segundos(self):
+        self.assertEqual(PLAZO_SIN_AVANCE_S, 120)
+
+    def test_corta_pasado_el_plazo_sin_procesar(self):
+        self.assertTrue(debe_cortar_por_silencio(self.estado(), 220.1, 120))
+
+    def test_no_corta_antes_del_plazo(self):
+        for ahora in (100.0, 150.0, 220.0):
+            with self.subTest(ahora=ahora):
+                self.assertFalse(debe_cortar_por_silencio(
+                    self.estado(), ahora, 120))
+
+    def test_no_corta_procesando_aunque_pase_el_doble_del_plazo(self):
+        self.assertFalse(debe_cortar_por_silencio(
+            self.estado(procesando=True), 340.1, 120))
+
+    def test_si_no_corta_tampoco_corta_antes(self):
+        estado = self.estado()
+        for ahora in range(100, 500, 7):
+            if debe_cortar_por_silencio(estado, ahora, 120):
+                continue
+            for anterior in range(100, ahora + 1, 7):
+                with self.subTest(ahora=ahora, anterior=anterior):
+                    self.assertFalse(debe_cortar_por_silencio(
+                        estado, anterior, 120))
 
 
 if __name__ == "__main__":

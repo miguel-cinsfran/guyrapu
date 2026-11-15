@@ -3,15 +3,17 @@
 """Terminar un proceso de yt-dlp con sus hijos, sin dejar restos.
 
 Razón del módulo: matar el árbol yt-dlp más ffmpeg en Windows y vigilar
-la cancelación hasta que el proceso termina.
+la cancelación y el silencio hasta que el proceso termina.
 """
 
 from __future__ import annotations
 
 import os
 import subprocess
+import time
 
 from guyrapu.core import diagnostico
+from guyrapu.downloads import progreso_ytdlp
 from guyrapu.downloads.analisis_enlace import _sin_ventana
 
 logger = diagnostico.obtener_logger(__name__)
@@ -35,9 +37,17 @@ def _matar_arbol(proceso) -> None:
         logger.debug("kill: %s", exc)
 
 
-def _vigilar_cancelacion(proceso, cancel_event, intervalo=0.2) -> bool:
+def _vigilar_cancelacion(proceso, cancel_event, intervalo=0.2,
+                         estado=None) -> bool:
     while proceso.poll() is None:
         if cancel_event.wait(intervalo):
+            _matar_arbol(proceso)
+            return True
+        if (estado is not None and
+                progreso_ytdlp.debe_cortar_por_silencio(
+                    estado, time.monotonic(),
+                    progreso_ytdlp.PLAZO_SIN_AVANCE_S)):
+            estado["estancado"] = True
             _matar_arbol(proceso)
             return True
     return False

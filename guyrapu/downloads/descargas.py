@@ -99,7 +99,9 @@ def descargar(url: str, opciones: dict,
     carpeta = carpeta_base(opciones)
     al_detalle = al_detalle or (lambda _cambios: None)
     estado = {"ultimo_error": "", "ultimo_archivo": "", "ultimo_ts": None,
-              "rutas": [], "indice": 0, "total": 0, "procesando": False}
+              "rutas": [], "indice": 0, "total": 0, "procesando": False,
+              "ultimo_avance": None, "estancado": False,
+              "esperando_detalle": False}
 
     def cancelar(proceso) -> None:
         _matar_arbol(proceso)
@@ -122,12 +124,13 @@ def descargar(url: str, opciones: dict,
             vincular_a_la_app(proceso)
         except Exception as error:
             logger.debug("no se pudo vincular la descarga a la app: %s", error)
+        estado["ultimo_avance"] = time.monotonic()
         if cancel_event.is_set():
             cancelar(proceso)
             return
         diagnostico.crear_hilo(
             _vigilar_cancelacion, "Vigilante-cancelacion",
-            args=(proceso, cancel_event),
+            args=(proceso, cancel_event, 0.2, estado),
         ).start()
         for linea in iter(proceso.stdout.readline, ""):
             if cancel_event.is_set():

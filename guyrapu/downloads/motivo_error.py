@@ -24,7 +24,7 @@ def motivo_de_error(linea) -> str | None:
     causa = _motivo_youtube(texto)
     if causa is None and "unable to obtain file audio codec" in texto:
         return _("El vídeo no tiene audio.")
-    return causa or _motivo_plataforma(texto)
+    return causa or _motivo_plataforma(texto) or _motivo_red(texto)
 
 
 def _motivo_youtube(texto: str) -> str | None:
@@ -53,6 +53,12 @@ def _motivo_plataforma(texto: str) -> str | None:
         return _("Esta plataforma pide iniciar sesión.")
     if "unsupported url" in texto:
         return _("Este enlace no es compatible con la descarga.")
+    return None
+
+
+def _motivo_red(texto: str) -> str | None:
+    if "timed out" in texto or "giving up after" in texto:
+        return _("Se perdió la conexión. Vuelve a intentarlo.")
     return None
 
 

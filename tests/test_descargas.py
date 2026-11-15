@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import threading
@@ -13,6 +14,7 @@ from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
 from guyrapu.downloads import descargas
+from guyrapu.downloads import progreso_ytdlp
 from guyrapu.downloads.argumentos_ytdlp import (
     argumentos_descarga, construir_outtmpl, recortar_url_registro)
 from guyrapu.downloads.progreso_ytdlp import (
@@ -518,6 +520,109 @@ class TestDescargar(unittest.TestCase):
         with mock.patch.object(descargas.ytdlp_bin, "ruta_ytdlp", return_value=None):
             descargar("url", {}, lambda *a: None, lambda *a: estados.append(a), threading.Event())
         self.assertEqual(estados[-1][0], "error")
+
+
+class TestDescargaEstancada(unittest.TestCase):
+    """El silencio de yt-dlp se corta, salvo durante el postproceso."""
+
+    GUION_ESTANCADO = (
+        "import sys, time\n"
+        "sys.stdout.write('PROGD 5 10 NA 2 3 NA NA V [id].f140.m4a\\n')\n"
+        "sys.stdout.flush()\n"
+        "time.sleep(60)\n"
+    )
+    GUION_PROCESO = (
+        "import sys, time\n"
+        "sys.stdout.write('PROC started ExtractAudio\\n')\n"
+        "sys.stdout.flush()\n"
+        "time.sleep(60)\n"
+    )
+
+    def _lanzar(self, guion, carpeta=None):
+        procesos = []
+        original = subprocess.Popen
+
+        def capturar(*args, **kwargs):
+            proceso = original(*args, **kwargs)
+            if args and args[0] and args[0][0] == sys.executable:
+                procesos.append(proceso)
+            return proceso
+
+        opciones = {"formato": "mp4"}
+        if carpeta is not None:
+            opciones["carpeta"] = carpeta
+        estados = []
+        with mock.patch.object(descargas.ytdlp_bin, "ruta_ytdlp",
+                               return_value=sys.executable), \
+                mock.patch.object(descargas, "tiene_ffmpeg",
+                                  return_value=True), \
+                mock.patch.object(descargas, "argumentos_descarga",
+                                  return_value=["-c", guion]), \
+                mock.patch.object(descargas.subprocess, "Popen", capturar), \
+                mock.patch.object(progreso_ytdlp, "PLAZO_SIN_AVANCE_S", 1):
+            inicio = time.monotonic()
+            descargar("url", opciones, lambda *a: None,
+                      lambda *a: estados.append(a), threading.Event())
+            transcurrido = time.monotonic() - inicio
+        return estados, procesos, transcurrido
+
+    def test_una_descarga_que_deja_de_avanzar_se_corta(self):
+        estados, procesos, transcurrido = self._lanzar(self.GUION_ESTANCADO)
+        self.assertEqual(estados[-1], ("error", "La descarga dejó de avanzar."))
+        self.assertLess(transcurrido, 15)
+        self.assertIsNotNone(procesos[0].poll())
+
+    def test_el_corte_no_se_reintenta_ni_borra_los_restos(self):
+        with tempfile.TemporaryDirectory() as carpeta:
+            resto = Path(carpeta) / "V [id].mp4.part"
+            resto.write_bytes(b"x")
+            _estados, procesos, _transcurrido = self._lanzar(
+                self.GUION_ESTANCADO, carpeta)
+            self.assertEqual(len(procesos), 1)
+            self.assertTrue(resto.exists())
+
+    def test_el_postproceso_no_se_corta_por_silencio(self):
+        procesos = []
+        original = subprocess.Popen
+
+        def capturar(*args, **kwargs):
+            proceso = original(*args, **kwargs)
+            if args and args[0] and args[0][0] == sys.executable:
+                procesos.append(proceso)
+            return proceso
+
+        evento = threading.Event()
+        en_proceso = threading.Event()
+        estados = []
+
+        def detalle(cambios):
+            if cambios.get("procesando"):
+                en_proceso.set()
+
+        with mock.patch.object(descargas.ytdlp_bin, "ruta_ytdlp",
+                               return_value=sys.executable), \
+                mock.patch.object(descargas, "tiene_ffmpeg",
+                                  return_value=True), \
+                mock.patch.object(descargas, "argumentos_descarga",
+                                  return_value=["-c", self.GUION_PROCESO]), \
+                mock.patch.object(descargas.subprocess, "Popen", capturar), \
+                mock.patch.object(progreso_ytdlp, "PLAZO_SIN_AVANCE_S", 1):
+            hilo = threading.Thread(
+                target=descargar,
+                args=("url", {"formato": "mp4"}, lambda *a: None,
+                      lambda *a: estados.append(a), evento),
+                kwargs={"al_detalle": detalle},
+            )
+            hilo.start()
+            self.assertTrue(en_proceso.wait(5))
+            time.sleep(3)
+            self.assertTrue(hilo.is_alive())
+            self.assertIsNone(procesos[0].poll())
+            self.assertEqual(estados, [("descargando", "")])
+            evento.set()
+            hilo.join(10)
+        self.assertFalse(hilo.is_alive())
+        self.assertEqual(estados[-1], ("cancelado", "Descarga cancelada"))
 
 
 class TestMatarArbol(unittest.TestCase):
