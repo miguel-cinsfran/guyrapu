@@ -39,6 +39,7 @@ class _Panel:
 class _Boton:
     def __init__(self):
         self.habilitado = True
+        self.etiqueta = ""
         self._padre = _Panel()
 
     def Bind(self, _evento, _manejador, *_argumentos):
@@ -46,6 +47,9 @@ class _Boton:
 
     def GetParent(self):
         return self._padre
+
+    def SetLabel(self, texto):
+        self.etiqueta = texto
 
     def Disable(self):
         self.habilitado = False

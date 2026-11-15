@@ -49,9 +49,13 @@ TEXTO_CONFIRMAR_BORRADO = N_("Se eliminará la clave guardada de {proveedor} "
                              "del Administrador de credenciales. ¿Deseas "
                              "continuar?")
 TEXTO_PROBANDO = N_("Probando la clave…")
+# Traductores: motivo en la etiqueta de Probar clave mientras prueba.
+MOTIVO_PROBANDO = N_("Probando la clave")
 # Traductores: anuncio de prueba bien; {modelo} es su identificador.
 TEXTO_PRUEBA_BIEN = N_("La clave funciona con {modelo}.")
 TEXTO_ACTUALIZANDO = N_("Actualizando la lista de modelos…")
+# Traductores: motivo en la etiqueta de Actualizar lista mientras sondea.
+MOTIVO_ACTUALIZANDO = N_("Actualizando la lista de modelos")
 # Traductores: anuncio del sondeo; {n} es cuántos modelos se prueban.
 TEXTO_SONDEANDO = N_("Comprobando {n} modelos con tu clave.")
 # Traductores: anuncio de lista nueva; {n} cuántos y {proveedor} su nombre.

@@ -412,6 +412,11 @@ msgstr ""
 msgid "Probando la clave…"
 msgstr "Testing the key…"
 
+#. Traductores: motivo en la etiqueta de Probar clave mientras prueba.
+#: guyrapu/ai/opciones_ia.py
+msgid "Probando la clave"
+msgstr "Testing the key"
+
 #. Traductores: anuncio de prueba bien; {modelo} es su identificador.
 #: guyrapu/ai/opciones_ia.py
 #, python-brace-format
@@ -421,6 +426,11 @@ msgstr "The key works with {modelo}."
 #: guyrapu/ai/opciones_ia.py
 msgid "Actualizando la lista de modelos…"
 msgstr "Updating the model list…"
+
+#. Traductores: motivo en la etiqueta de Actualizar lista mientras sondea.
+#: guyrapu/ai/opciones_ia.py
+msgid "Actualizando la lista de modelos"
+msgstr "Updating the model list"
 
 #. Traductores: anuncio del sondeo; {n} es cuántos modelos se prueban.
 #: guyrapu/ai/opciones_ia.py
@@ -7155,11 +7165,11 @@ msgid "Capturado: {atajo}. Se aplica al pulsar Guardar."
 msgstr "Captured: {atajo}. It applies when you press Save."
 
 #: guyrapu/ui/aviso_importante.py guyrapu/ui/chat_acciones.py
-#: guyrapu/ui/chat_participacion.py guyrapu/ui/gui.py
-#: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
-#: guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py guyrapu/ui/preferencias_api.py
-#: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/chat_participacion.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
+#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
+#: guyrapu/ui/preferencias_api.py guyrapu/ui/preferencias_atajos.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/voces_ventana.py
 msgid "Aceptar"
 msgstr "OK"
 
@@ -8528,7 +8538,9 @@ msgstr "Download"
 msgid "C&ancelar"
 msgstr "C&ancel"
 
-#: guyrapu/ui/elegir_formato.py guyrapu/ui/gui_redactar.py
+#: guyrapu/ui/elegir_formato.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui_directo_youtube.py
+#: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/gui_redactar.py
 #: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/musica_dialogo_enlace.py
 #: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
 #: guyrapu/ui/restream_perfil.py
@@ -10137,6 +10149,10 @@ msgid "Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 msgstr "JPG and PNG images (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 
 #: guyrapu/ui/gui_directo_youtube.py
+msgid "Transmitir"
+msgstr "Broadcast"
+
+#: guyrapu/ui/gui_directo_youtube.py
 msgid "Título:"
 msgstr "Title:"
 
@@ -10309,6 +10325,10 @@ msgstr "TikTok user"
 #: guyrapu/ui/gui_elegir_destino.py
 msgid "&Continuar"
 msgstr "&Continue"
+
+#: guyrapu/ui/gui_elegir_destino.py
+msgid "Continuar"
+msgstr "Continue"
 
 #: guyrapu/ui/gui_envio_chat.py
 msgid "Mensaje enviado al chat"
@@ -12523,7 +12543,7 @@ msgstr "&Model:"
 msgid "Solo gra&tuitos"
 msgstr "&Free only"
 
-#: guyrapu/ui/preferencias_ia.py
+#: guyrapu/ui/preferencias_ia.py guyrapu/ui/preferencias_ia_lista.py
 msgid "&Actualizar lista de modelos"
 msgstr "&Refresh model list"
 
@@ -13057,6 +13077,10 @@ msgstr "Check the key first."
 #: guyrapu/ui/preferencias_voz_eleven.py
 msgid "(no hay voces disponibles)"
 msgstr "(no voices available)"
+
+#: guyrapu/ui/preferencias_voz_eleven.py
+msgid "Comprobando la clave"
+msgstr "Checking the key"
 
 #: guyrapu/ui/preferencias_voz_eleven.py
 msgid "Cl&ave de ElevenLabs:"
@@ -14090,16 +14114,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/preferencias_voz_eleven.py
-msgid "Comprobando la clave"
-msgstr "Checking the key"
-
-#: guyrapu/ui/gui_directo_youtube.py
-msgid "Transmitir"
-msgstr "Broadcast"
-
-#: guyrapu/ui/gui_elegir_destino.py
-msgid "Continuar"
-msgstr "Continue"
 

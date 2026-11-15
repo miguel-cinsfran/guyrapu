@@ -21,8 +21,10 @@ from guyrapu.ai import envio_ia
 from guyrapu.ai import opciones_ia
 from guyrapu.ai import protocolos
 from guyrapu.ai import sondeo_gratis
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core import paths
+from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.voice import sound_player as _snd
 
@@ -49,14 +51,20 @@ class ActualizacionModelosIA:
 
     def _al_pulsar(self, _event):
         if self._en_curso:
+            anunciar(_(opciones_ia.MOTIVO_ACTUALIZANDO) + ".")
             return
         self._en_curso = True
-        self._boton.Disable()
+        self._fijar_actualizando(True)
         self._temporizador.Start(INTERVALO_ANALIZANDO_MS)
         anunciar(opciones_ia.TEXTO_ACTUALIZANDO)
         proveedor = self._proveedor_elegido()
         diagnostico.crear_hilo(
             lambda: self._en_hilo(proveedor), "ActualizarModelosIA").start()
+
+    def _fijar_actualizando(self, actualizando):
+        motivo = _(opciones_ia.MOTIVO_ACTUALIZANDO) if actualizando else ""
+        self._boton.SetLabel(redaccion.etiqueta_con_motivo(
+            _("&Actualizar lista de modelos"), motivo))
 
     def _al_temporizador(self, _event):
         _snd.reproducir("ia_analizando")
@@ -115,7 +123,7 @@ class ActualizacionModelosIA:
         if not self._boton:   # la página pudo cerrarse mientras trabajaba
             return
         self._en_curso = False
-        self._boton.Enable()
+        self._fijar_actualizando(False)
         if muestra is None:
             _snd.reproducir("ia_error")
             anunciar(opciones_ia.TEXTO_LISTA_FALLO)

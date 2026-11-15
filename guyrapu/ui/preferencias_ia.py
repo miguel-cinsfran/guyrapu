@@ -20,6 +20,7 @@ from guyrapu.ai import envio_ia
 from guyrapu.ai import opciones_ia
 from guyrapu.ai import proveedores
 from guyrapu.ai import sondeo_gratis
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
@@ -121,6 +122,7 @@ class PaginaIA:
         self.ia_clave = SeccionClaveIA(
             self._ia_proveedor_actual, self._ia_clave_cambiada)
         self.ia_clave.construir(p, vs)
+        self._ia_probando = False
         self.btn_ia_probar_clave = wx.Button(
             p, label=_("Compro&bar clave"), name=_("Comprobar clave"))
         self.btn_ia_probar_clave.Bind(
@@ -303,16 +305,25 @@ class PaginaIA:
         anunciar(opciones_ia.TEXTO_INSTRUCCION_RESTAURADA)
 
     def _on_ia_probar_clave(self, event):
+        if self._ia_probando:
+            anunciar(_(opciones_ia.MOTIVO_PROBANDO) + ".")
+            return
         clave = self.ia_clave.clave_para_probar()
         if not self.ia_clave.revisar_para_probar(clave):
             return
-        self.btn_ia_probar_clave.Disable()
+        self._ia_fijar_probando(True)
         anunciar(opciones_ia.TEXTO_PROBANDO)
         ajustes = self._ia_ajustes_de_controles()
         muestra = self._ia_muestra
         diagnostico.crear_hilo(
             lambda: self._ia_probar_en_hilo(ajustes, muestra, clave),
             "ProbarClaveIA").start()
+
+    def _ia_fijar_probando(self, probando):
+        self._ia_probando = probando
+        motivo = _(opciones_ia.MOTIVO_PROBANDO) if probando else ""
+        self.btn_ia_probar_clave.SetLabel(
+            redaccion.etiqueta_con_motivo(_("Compro&bar clave"), motivo))
 
     def _ia_probar_en_hilo(self, ajustes, muestra, clave):
         # La red nunca corre en el hilo de la interfaz.
@@ -332,7 +343,7 @@ class PaginaIA:
     def _ia_prueba_lista(self, bien, texto):
         if not self._ventana:   # el diálogo pudo cerrarse mientras se probaba
             return
-        self.btn_ia_probar_clave.Enable()
+        self._ia_fijar_probando(False)
         _snd.reproducir("listo" if bien else "ia_error")
         anunciar(texto)
 
