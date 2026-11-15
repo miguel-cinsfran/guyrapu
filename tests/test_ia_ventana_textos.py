@@ -24,6 +24,8 @@ class TestTextosVentanaIA(unittest.TestCase):
             "Sin mensajes. Agrega una captura y escribe tu pregunta.")
         self.assertEqual(ventana_ia.TEXTO_ANALIZANDO, "Analizando…")
         self.assertEqual(ventana_ia.TEXTO_CANCELADA, "Consulta cancelada.")
+        self.assertEqual(ventana_ia.MOTIVO_ESPERANDO,
+                         "Esperando la respuesta")
         self.assertEqual(ventana_ia.TEXTO_COPIADA, "Respuesta copiada.")
         self.assertEqual(
             ventana_ia.TEXTO_NO_COPIADA,
@@ -84,6 +86,7 @@ class TestTextosMarcados(unittest.TestCase):
         with con_pseudo():
             marcados = [_(ventana_ia.TEXTO_ANALIZANDO),
                         _(ventana_ia.TEXTO_CANCELADA),
+                        _(ventana_ia.MOTIVO_ESPERANDO),
                         _(ventana_ia.TEXTO_COPIADA),
                         _(ventana_ia.TEXTO_NO_COPIADA),
                         _(ventana_ia.TEXTO_SIN_RESPUESTA),

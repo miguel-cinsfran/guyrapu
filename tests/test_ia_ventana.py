@@ -77,6 +77,44 @@ class TestVentanaIAVentana(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
+    def _enviar_en_curso(self, fallo=None):
+        dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
+        dialogo.txt_mensaje.ChangeValue("¿qué se ve?")
+        preparada = consulta.Preparada(object(), "¿qué se ve?", 60)
+        guardadas = []
+
+        def _hilo_guardado(target, nombre, **kwargs):
+            guardadas.append((target, kwargs.get("args", ())))
+            hilo = mock.Mock()
+            hilo.start.return_value = None
+            return hilo
+
+        enviar = (mock.Mock(side_effect=fallo) if fallo is not None
+                  else mock.Mock(return_value=protocolos.Respuesta(
+                      "Se ve bien.", False)))
+        with mock.patch.object(ventana.ajustes_ia, "leer",
+                               return_value=_ajustes_falsos()), \
+                mock.patch.object(ventana.catalogo, "cargar",
+                                   return_value={}), \
+                mock.patch.object(ventana.claves, "leer",
+                                   return_value="clave"), \
+                mock.patch.object(ventana.consulta, "preparar",
+                                   return_value=preparada), \
+                mock.patch.object(ventana.envio_ia, "enviar", enviar), \
+                mock.patch.object(ventana.diagnostico, "crear_hilo",
+                                   side_effect=_hilo_guardado), \
+                mock.patch.object(ventana, "anunciar"), \
+                mock.patch.object(ventana, "reproducir"):
+            dialogo._al_enviar(None)
+        return dialogo, guardadas
+
+    def _completar(self, guardadas):
+        destino, args = guardadas[0]
+        with mock.patch.object(ventana, "anunciar"), \
+                mock.patch.object(ventana, "reproducir"):
+            destino(*args)
+
     def test_nombres(self):
         dialogo = self._ventana()
         self.assertEqual(dialogo.GetTitle(), "Preguntar a la IA")
@@ -420,6 +458,85 @@ class TestVentanaIAVentana(unittest.TestCase):
             dialogo._al_tecla(evento)
         fin.assert_called_once_with(wx.ID_CLOSE)
         sonar.assert_not_called()
+
+    def test_enviar_y_captura_siguen_habilitados_mientras_espera(self):
+        dialogo, _guardadas = self._enviar_en_curso()
+        self.assertTrue(dialogo._en_curso)
+        self.assertTrue(dialogo.btn_enviar.IsEnabled())
+        self.assertTrue(dialogo.btn_captura.IsEnabled())
+
+    def test_etiquetas_llevan_el_motivo_solo_mientras_espera(self):
+        dialogo = self._ventana()
+        self.assertEqual(dialogo.btn_enviar.GetLabel(), "&Enviar")
+        self.assertEqual(dialogo.btn_captura.GetLabel(), "Agregar &captura")
+        dialogo, _guardadas = self._enviar_en_curso()
+        self.assertEqual(dialogo.btn_enviar.GetLabel(),
+                         "&Enviar (esperando la respuesta)")
+        self.assertEqual(dialogo.btn_captura.GetLabel(),
+                         "Agregar &captura (esperando la respuesta)")
+
+    def test_enviar_con_consulta_en_curso_anuncia_y_no_lanza_otra(self):
+        dialogo, _guardadas = self._enviar_en_curso()
+        with mock.patch.object(ventana.diagnostico, "crear_hilo") as hilo, \
+                mock.patch.object(ventana.consulta, "preparar") as preparar, \
+                mock.patch.object(ventana, "anunciar") as anunciar:
+            dialogo._al_enviar(None)
+        preparar.assert_not_called()
+        hilo.assert_not_called()
+        anunciar.assert_called_once_with("Esperando la respuesta.")
+        self.assertEqual(dialogo._n_consulta, 0)
+
+    def test_intro_en_el_mensaje_espera_y_no_lanza_otra(self):
+        dialogo, _guardadas = self._enviar_en_curso()
+        evento = wx.CommandEvent(wx.EVT_TEXT_ENTER.typeId,
+                                 dialogo.txt_mensaje.GetId())
+        with mock.patch.object(ventana.diagnostico, "crear_hilo") as hilo, \
+                mock.patch.object(ventana.consulta, "preparar") as preparar, \
+                mock.patch.object(ventana, "anunciar") as anunciar:
+            dialogo.txt_mensaje.GetEventHandler().ProcessEvent(evento)
+        preparar.assert_not_called()
+        hilo.assert_not_called()
+        anunciar.assert_called_once_with("Esperando la respuesta.")
+
+    def test_captura_con_consulta_en_curso_anuncia_y_no_abre_el_cuadro(self):
+        dialogo, _guardadas = self._enviar_en_curso()
+        with mock.patch.object(ventana, "pedir_captura") as pedir, \
+                mock.patch.object(ventana, "anunciar") as anunciar:
+            dialogo._al_captura(None)
+        pedir.assert_not_called()
+        anunciar.assert_called_once_with("Esperando la respuesta.")
+
+    def test_al_terminar_bien_las_etiquetas_vuelven_a_la_base(self):
+        dialogo, guardadas = self._enviar_en_curso()
+        self.assertEqual(dialogo.btn_enviar.GetLabel(),
+                         "&Enviar (esperando la respuesta)")
+        self._completar(guardadas)
+        self.assertEqual(dialogo.btn_enviar.GetLabel(), "&Enviar")
+        self.assertEqual(dialogo.btn_captura.GetLabel(), "Agregar &captura")
+        self.assertTrue(dialogo.btn_enviar.IsEnabled())
+        self.assertTrue(dialogo.btn_captura.IsEnabled())
+
+    def test_al_fallar_las_etiquetas_vuelven_a_la_base(self):
+        fallo = protocolos.ErrorIA(protocolos.CUOTA, "sin saldo")
+        dialogo, guardadas = self._enviar_en_curso(fallo=fallo)
+        self.assertEqual(dialogo.btn_enviar.GetLabel(),
+                         "&Enviar (esperando la respuesta)")
+        self._completar(guardadas)
+        self.assertEqual(dialogo.btn_enviar.GetLabel(), "&Enviar")
+        self.assertEqual(dialogo.btn_captura.GetLabel(), "Agregar &captura")
+
+    def test_al_cancelar_con_escape_las_etiquetas_vuelven_a_la_base(self):
+        dialogo, _guardadas = self._enviar_en_curso()
+        self.assertEqual(dialogo.btn_enviar.GetLabel(),
+                         "&Enviar (esperando la respuesta)")
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+        with mock.patch.object(dialogo, "EndModal") as fin:
+            dialogo._al_tecla(evento)
+        fin.assert_not_called()
+        self.assertFalse(dialogo._en_curso)
+        self.assertEqual(dialogo.btn_enviar.GetLabel(), "&Enviar")
+        self.assertEqual(dialogo.btn_captura.GetLabel(), "Agregar &captura")
 
     def test_copiar_respuesta_pone_texto_y_avisa(self):
         dialogo = self._ventana()

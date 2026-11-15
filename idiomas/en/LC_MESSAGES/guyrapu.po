@@ -14178,3 +14178,9 @@ msgstr "There are no sources to capture"
 msgid "Acción"
 msgstr "Action"
 
+#. Traductores: motivo que llevan las etiquetas de Enviar y Agregar captura
+#. mientras la ventana espera la respuesta de la IA.
+#: guyrapu/ai/ventana_ia.py
+msgid "Esperando la respuesta"
+msgstr "Waiting for the response"
+

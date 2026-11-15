@@ -22,6 +22,7 @@ from guyrapu.ai import proveedores
 from guyrapu.ai import ventana_ia
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
+from guyrapu.capture import redaccion
 from guyrapu.core import paths
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.ui import ia_privacidad
@@ -158,8 +159,17 @@ class VentanaIA(wx.Dialog):
             return
         event.Skip()
 
+    def _fijar_en_curso(self, en_curso: bool) -> None:
+        self._en_curso = en_curso
+        motivo = _(ventana_ia.MOTIVO_ESPERANDO) if en_curso else ""
+        for boton, base in ((self.btn_enviar, _("&Enviar")),
+                            (self.btn_captura, _("Agregar &captura"))):
+            boton.SetLabel(redaccion.etiqueta_con_motivo(base, motivo))
+
     def _al_enviar(self, _event=None) -> None:
         if self._en_curso or self._cerrada:
+            if self._en_curso:
+                anunciar(f"{_(ventana_ia.MOTIVO_ESPERANDO)}.")
             return
         texto = self.txt_mensaje.GetValue()
         ajustes = ajustes_ia.leer(paths.config_ini())
@@ -188,9 +198,7 @@ class VentanaIA(wx.Dialog):
             self.txt_mensaje.SetFocus()
             return
         reproducir("ia_enviada")
-        self._en_curso = True
-        self.btn_enviar.Disable()
-        self.btn_captura.Disable()
+        self._fijar_en_curso(True)
         self._temporizador.Start(INTERVALO_AVISO_MS)
         self._temporizador_melodia.Start(INTERVALO_MELODIA_MS)
         numero = self._n_consulta
@@ -212,9 +220,7 @@ class VentanaIA(wx.Dialog):
         if self._cerrada or numero != self._n_consulta:
             return
         self._frenar_avisos()
-        self._en_curso = False
-        self.btn_enviar.Enable()
-        self.btn_captura.Enable()
+        self._fijar_en_curso(False)
         try:
             texto = consulta.consultar(
                 self._charla, preparada, clave,
@@ -232,9 +238,7 @@ class VentanaIA(wx.Dialog):
         if self._cerrada or numero != self._n_consulta:
             return
         self._frenar_avisos()
-        self._en_curso = False
-        self.btn_enviar.Enable()
-        self.btn_captura.Enable()
+        self._fijar_en_curso(False)
         self._avisar_fallo(error)
 
     def _avisar_fallo(self, error) -> None:
@@ -267,13 +271,8 @@ class VentanaIA(wx.Dialog):
 
     def _cancelar(self) -> None:
         self._n_consulta += 1
-        self._en_curso = False
+        self._fijar_en_curso(False)
         self._frenar_avisos()
-        try:
-            self.btn_enviar.Enable()
-            self.btn_captura.Enable()
-        except Exception as fallo:
-            logger.warning("VentanaIA: no se pudo habilitar: %s", fallo)
 
     def _cerrar(self) -> None:
         self._cancelar()
@@ -300,6 +299,9 @@ class VentanaIA(wx.Dialog):
         event.Skip()
 
     def _al_captura(self, _event=None) -> None:
+        if self._en_curso:
+            anunciar(f"{_(ventana_ia.MOTIVO_ESPERANDO)}.")
+            return
         pedir_captura(self, self._captura_lista)
 
     def _captura_lista(self, resultado) -> None:

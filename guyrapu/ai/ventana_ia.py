@@ -10,6 +10,9 @@ from guyrapu.core.idioma import N_, _
 FILA_GUIA = N_("Sin mensajes. Agrega una captura y escribe tu pregunta.")
 TEXTO_ANALIZANDO = N_("Analizando…")
 TEXTO_CANCELADA = N_("Consulta cancelada.")
+# Traductores: motivo que llevan las etiquetas de Enviar y Agregar captura
+# mientras la ventana espera la respuesta de la IA.
+MOTIVO_ESPERANDO = N_("Esperando la respuesta")
 TEXTO_COPIADA = N_("Respuesta copiada.")
 TEXTO_NO_COPIADA = N_("No se pudo copiar la respuesta.")
 TEXTO_SIN_RESPUESTA = N_("Todavía no hay ninguna respuesta.")
