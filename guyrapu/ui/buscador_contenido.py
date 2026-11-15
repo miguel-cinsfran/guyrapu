@@ -73,6 +73,10 @@ class VistaContenido:
     def activa(self) -> bool:
         return self._activa
 
+    @property
+    def motivo(self) -> str:
+        return self._tandas.motivo
+
     def mostrar(self, url, guardados, con_retorno=True, es_canal=False) -> None:
         """Entra a ver el contenido de esa URL y trae la primera tanda."""
         pagina = self._pagina

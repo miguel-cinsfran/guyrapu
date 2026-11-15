@@ -710,6 +710,13 @@ class _CorreYa:
         self._destino(*self._argumentos)
 
 
+class _NoCorre:
+    """Hilo que no arranca, para mirar el estado antes de la llegada."""
+
+    def start(self):
+        pass
+
+
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
 class TestBuscador(unittest.TestCase):
 
@@ -800,7 +807,9 @@ class TestBuscador(unittest.TestCase):
         self.assertFalse(pagina.filtros.cho_tipo.IsShown())
         self.assertEqual(pagina.cho_cantidad.GetStringSelection(), "20")
         self.assertEqual(pagina.lista.GetItemCount(), 0)
-        self.assertFalse(pagina.btn_mas.IsEnabled())
+        self.assertTrue(pagina.btn_mas.IsEnabled())
+        self.assertEqual(pagina.btn_mas.GetLabel(),
+                         "Mostrar &más (todavía no hay resultados)")
         self.assertEqual(
             [pagina.lista.GetColumn(i).GetText()
              for i in range(pagina.lista.GetColumnCount())],
@@ -824,6 +833,63 @@ class TestBuscador(unittest.TestCase):
         self.assertIn("Buscando", dichos)
         self.assertIn("2 resultados", dichos)
         self.assertTrue(pagina.btn_mas.IsEnabled())
+        self.assertEqual(pagina.btn_mas.GetLabel(), "Mostrar &más")
+
+    def test_mostrar_mas_sin_busqueda_avisa_y_no_pide(self):
+        buscar = self._con_busqueda(_respuesta_busqueda([]))
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_buscador
+        pagina._on_mas(None)
+        buscar.assert_not_called()
+        descargas_buscador.anunciar.assert_called_once_with(
+            "Todavía no hay resultados.")
+        self.assertTrue(pagina.btn_mas.IsEnabled())
+
+    def test_mostrar_mas_sin_mas_avisa_y_no_pide(self):
+        buscar = self._con_busqueda(_respuesta_busqueda(
+            [_resultado_busqueda("a")], hay_mas=False))
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_buscador
+        pagina.campo.SetValue("cumbia")
+        pagina._on_buscar(None)
+        self.assertTrue(pagina.btn_mas.IsEnabled())
+        self.assertEqual(pagina.btn_mas.GetLabel(),
+                         "Mostrar &más (no hay más resultados)")
+        descargas_buscador.anunciar.reset_mock()
+        pagina._on_mas(None)
+        buscar.assert_called_once()
+        descargas_buscador.anunciar.assert_called_once_with(
+            "No hay más resultados.")
+
+    def test_mostrar_mas_tras_error_avisa_y_no_pide(self):
+        buscar = self._con_busqueda(_respuesta_busqueda(
+            [], error="Falla la red"))
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_buscador
+        pagina.campo.SetValue("cumbia")
+        pagina._on_buscar(None)
+        self.assertTrue(pagina.btn_mas.IsEnabled())
+        self.assertEqual(pagina.btn_mas.GetLabel(),
+                         "Mostrar &más (no hay más resultados)")
+        descargas_buscador.anunciar.reset_mock()
+        pagina._on_mas(None)
+        buscar.assert_called_once()
+        descargas_buscador.anunciar.assert_called_once_with(
+            "No hay más resultados.")
+
+    def test_empezar_busqueda_deja_mostrar_mas_habilitado(self):
+        buscar = self._con_busqueda(_respuesta_busqueda([]))
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_buscador
+        with mock.patch.object(
+                buscador_tandas.diagnostico, "crear_hilo",
+                side_effect=lambda *a, **k: _NoCorre()):
+            pagina.campo.SetValue("cumbia")
+            pagina._on_buscar(None)
+        buscar.assert_not_called()
+        self.assertTrue(pagina.btn_mas.IsEnabled())
+        self.assertEqual(pagina.btn_mas.GetLabel(),
+                         "Mostrar &más (todavía no hay resultados)")
 
     def test_enlace_encola_sin_buscar(self):
         buscar = self._con_busqueda(_respuesta_busqueda([]))
@@ -908,7 +974,7 @@ class TestBuscador(unittest.TestCase):
         self.assertEqual(pagina.lista.GetItemText(2, 0), "Título c")
         self.assertEqual(pagina.lista.GetFirstSelected(), 2)
         self.assertIn("1 resultado más", self._dichos())
-        self.assertFalse(pagina.btn_mas.IsEnabled())
+        self.assertTrue(pagina.btn_mas.IsEnabled())
 
     def test_mostrar_mas_sin_nada_nuevo(self):
         primera = _respuesta_busqueda([_resultado_busqueda("a")], hay_mas=True)
@@ -935,7 +1001,7 @@ class TestBuscador(unittest.TestCase):
         self.assertEqual(pagina.lista.GetItemCount(), 0)
         self.assertEqual(pagina.txt_detalles.GetValue(), "Sin resultados")
         self.assertIn("Sin resultados", self._dichos())
-        self.assertFalse(pagina.btn_mas.IsEnabled())
+        self.assertTrue(pagina.btn_mas.IsEnabled())
 
     def test_error_muestra_texto_y_suena(self):
         self._con_busqueda(_respuesta_busqueda([], error="Falla la red"))
@@ -946,7 +1012,7 @@ class TestBuscador(unittest.TestCase):
         self.assertEqual(pagina.txt_detalles.GetValue(), "Falla la red")
         self.assertIn("Falla la red", self._dichos())
         buscador_tandas._snd.reproducir.assert_called_with("busqueda_fallida")
-        self.assertFalse(pagina.btn_mas.IsEnabled())
+        self.assertTrue(pagina.btn_mas.IsEnabled())
 
     def _sonidos(self):
         return [llamada.args[0]
@@ -1516,6 +1582,36 @@ class TestMenuYVistaBuscador(unittest.TestCase):
         self.assertFalse(pagina.btn_volver.IsShown())
         self.assertFalse(pagina.btn_todo.IsShown())
         dialogo.Hide()
+
+    def test_vista_de_contenido_pide_mas_y_declara_su_motivo(self):
+        items = [_resultado_busqueda("v"), _resultado_lista()]
+        self._buscar(items)
+        dialogo = self._dialogo()
+        pagina = self._pagina_buscada(dialogo, items)
+        url = "https://www.youtube.com/playlist?list=L"
+        primera = busqueda_youtube.RespuestaBusqueda(
+            [_resultado_busqueda("a")], "", True, "Una lista", 2)
+        segunda = busqueda_youtube.RespuestaBusqueda(
+            [_resultado_busqueda("b")], "", False, "Una lista", 2)
+        with mock.patch.object(buscador_contenido, "contenido",
+                               return_value=primera) as contenido, \
+                mock.patch.object(buscador_contenido, "anunciar"):
+            self._seleccionar_solo(pagina, 1)
+            pagina._on_activar(None)
+            self.assertTrue(pagina._vista.activa)
+            self.assertTrue(pagina.btn_mas.IsEnabled())
+            self.assertEqual(pagina.btn_mas.GetLabel(), "Mostrar &más")
+            contenido.return_value = segunda
+            pagina._on_mas(None)
+            self.assertEqual(pagina.btn_mas.GetLabel(),
+                             "Mostrar &más (no hay más resultados)")
+            descargas_buscador.anunciar.reset_mock()
+            pagina._on_mas(None)
+        self.assertEqual(contenido.call_args.args, (url, 21, 20))
+        self.assertEqual(contenido.call_count, 2)
+        descargas_buscador.anunciar.assert_called_once_with(
+            "No hay más resultados.")
+        self.assertTrue(pagina.btn_mas.IsEnabled())
 
     def test_contenido_sin_total_anuncia_solo_el_titulo(self):
         items = [_resultado_lista()]

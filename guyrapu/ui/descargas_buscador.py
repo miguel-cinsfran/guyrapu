@@ -126,7 +126,6 @@ class PaginaBuscador(wx.Panel):
         fila.Add(self.btn_agregar, 0, wx.RIGHT, 8)
         self.btn_mas = wx.Button(self, label=_("Mostrar &más"), name="MostrarMas")
         self.btn_mas.Bind(wx.EVT_BUTTON, self._on_mas)
-        self.btn_mas.Disable()
         fila.Add(self.btn_mas, 0)
         vs.Add(fila, 0, wx.ALL, 8)
 
@@ -253,6 +252,11 @@ class PaginaBuscador(wx.Panel):
         buscador_tandas.anunciar_tanda(len(nuevos), mas=True)
 
     def _on_mas(self, _event):
+        motivo = (self._vista.motivo if self._vista.activa
+                  else self._tandas.motivo)
+        if motivo:
+            anunciar(f"{motivo}.")
+            return
         if self._vista.activa:
             self._vista.mas()
         elif self._texto:
@@ -372,6 +376,7 @@ class PaginaBuscador(wx.Panel):
             if resultado.id in guardados["elegidos"]:
                 self.lista.Select(i)
         buscador_contenido.enfocar_fila(self.lista, self.lista.GetFirstSelected())
+        self._tandas.actualizar_boton()
 
     def _agregar_filas(self, nuevos) -> None:
         buscador_contenido.agregar_filas(self.lista, nuevos)

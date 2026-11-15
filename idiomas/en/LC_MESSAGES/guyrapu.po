@@ -14057,3 +14057,7 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/buscador_tandas.py
+msgid "Todavía no hay resultados"
+msgstr "There are no results yet"
+

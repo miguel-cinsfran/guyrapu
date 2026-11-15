@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar
@@ -44,8 +45,8 @@ class Tandas:
         self._btn_mas = btn_mas
         self._generacion = 0
         self._inicio = 1
-        self._hay_mas = False
         self._acumulado = []
+        self._fijar_estado(False, False)
 
     @property
     def generacion(self) -> int:
@@ -59,6 +60,25 @@ class Tandas:
     def acumulado(self) -> list:
         return list(self._acumulado)
 
+    @property
+    def motivo(self) -> str:
+        """Por qué el botón no puede traer nada: vacío si hay más."""
+        if self._hay_mas:
+            return ""
+        if not self._buscado:
+            return _("Todavía no hay resultados")
+        return _("No hay más resultados")
+
+    def actualizar_boton(self) -> None:
+        """Deja en el botón su etiqueta base con el motivo entre paréntesis."""
+        self._btn_mas.SetLabel(redaccion.etiqueta_con_motivo(
+            _("Mostrar &más"), self.motivo))
+
+    def _fijar_estado(self, hay_mas: bool, buscado: bool) -> None:
+        self._hay_mas = hay_mas
+        self._buscado = buscado
+        self.actualizar_boton()
+
     def pedir(self, traer, cantidad, al_tanda, mas=False, nombre="Tandas") -> None:
         """Pide una tanda con traer(inicio, cantidad) en un hilo.
 
@@ -70,7 +90,7 @@ class Tandas:
             self._inicio = 1
             self._acumulado = []
             self._lista.DeleteAllItems()
-            self._btn_mas.Disable()
+            self._fijar_estado(False, False)
         self._generacion += 1
         hilo = diagnostico.crear_hilo(
             self._pedir_en_hilo, nombre,
@@ -88,14 +108,12 @@ class Tandas:
             return
         foco_en_mas = wx.Window.FindFocus() is self._btn_mas
         if respuesta.error:
-            self._hay_mas = self._hay_mas and mas
-            self._btn_mas.Enable(self._hay_mas)
+            self._fijar_estado(self._hay_mas and mas, True)
             al_tanda([], mas, respuesta, foco_en_mas)
             return
         vistos = {r.id for r in self._acumulado}
         nuevos = [r for r in respuesta.resultados if r.id not in vistos]
         self._acumulado.extend(nuevos)
         self._inicio = inicio + cantidad
-        self._hay_mas = bool(respuesta.hay_mas)
-        self._btn_mas.Enable(self._hay_mas)
+        self._fijar_estado(bool(respuesta.hay_mas), True)
         al_tanda(nuevos, mas, respuesta, foco_en_mas)
