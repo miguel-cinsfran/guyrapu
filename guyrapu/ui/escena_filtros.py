@@ -69,9 +69,9 @@ class FiltrosMicrofonoDialog(wx.Dialog):
 
     def _crear_botones(self, caja):
         fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_aceptar = wx.Button(self, wx.ID_OK, _("&Aceptar"))
+        self.btn_aceptar = wx.Button(self, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_aceptar.SetDefault()
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("&Cancelar"))
+        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
         fila.Add(self.btn_aceptar, 0, wx.RIGHT, 8)
         fila.Add(self.btn_cancelar, 0)
         caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)

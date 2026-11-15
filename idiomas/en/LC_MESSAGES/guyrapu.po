@@ -14095,3 +14095,11 @@ msgstr "Untitled"
 msgid "Comprobando la clave"
 msgstr "Checking the key"
 
+#: guyrapu/ui/gui_directo_youtube.py
+msgid "Transmitir"
+msgstr "Broadcast"
+
+#: guyrapu/ui/gui_elegir_destino.py
+msgid "Continuar"
+msgstr "Continue"
+

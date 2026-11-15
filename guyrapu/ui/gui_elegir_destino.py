@@ -97,10 +97,10 @@ class DialogoElegirDestino(wx.Dialog):
     def _crear_botones(self, vs):
         fila = wx.BoxSizer(wx.HORIZONTAL)
         # Traductores: botón para seguir con la transmisión.
-        self.btn_continuar = wx.Button(self, wx.ID_OK, _("&Continuar"))
+        self.btn_continuar = wx.Button(self, wx.ID_OK, _("&Continuar"), name=_("Continuar"))
         self.btn_continuar.SetDefault()
         # Traductores: botón para volver sin transmitir.
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("C&ancelar"))
+        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
         fila.Add(self.btn_continuar, 0, wx.RIGHT, 6)
         fila.Add(self.btn_cancelar, 0)
         vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)

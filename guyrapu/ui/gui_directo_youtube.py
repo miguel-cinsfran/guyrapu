@@ -82,8 +82,8 @@ class DialogoDirectoYoutube(wx.Dialog):
         vs.Add(zona, 1, wx.EXPAND)
 
         fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_crear = wx.Button(self, wx.ID_OK, _("&Transmitir"))
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("C&ancelar"))
+        self.btn_crear = wx.Button(self, wx.ID_OK, _("&Transmitir"), name=_("Transmitir"))
+        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
         fila.Add(self.btn_crear, 0, wx.RIGHT, 6)
         fila.Add(self.btn_cancelar, 0)
         vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)

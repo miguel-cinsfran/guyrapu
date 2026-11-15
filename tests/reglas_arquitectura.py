@@ -182,13 +182,8 @@ REGLAS = (
         pendientes=_pendientes(
             "darle nombre accesible al control en el constructor o con "
             "nombre_accesible", {
-                "guyrapu/ui/escena_filtros.py": 2,
-                "guyrapu/ui/escena_tamano.py": 2,
                 "guyrapu/ui/gui_actualizacion.py": 2,
-                "guyrapu/ui/gui_directo_youtube.py": 2,
-                "guyrapu/ui/gui_elegir_destino.py": 2,
                 "guyrapu/ui/gui_microfono.py": 2,
-                "guyrapu/ui/ia_agregar_captura.py": 2,
             }),
         ambito=_paquete,
     ),
