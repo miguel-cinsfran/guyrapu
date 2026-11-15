@@ -9,11 +9,8 @@ tests/reglas_arquitectura.py.
 from __future__ import annotations
 
 import ast
-from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
-
-from guyrapu.core.eventos_sonido import EVENTOS as EVENTOS_SONIDO
 
 if TYPE_CHECKING:
     from tests.reglas_arquitectura import Regla
@@ -93,11 +90,6 @@ def detectar_escape(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
-@lru_cache(maxsize=None)
-def eventos_de_sonido() -> frozenset[str]:
-    return frozenset(EVENTOS_SONIDO)
-
-
 def _nombres_avisar(arbol: ast.Module) -> tuple[set[str], set[str]]:
     funciones: set[str] = set()
     modulos: set[str] = set()
@@ -132,27 +124,6 @@ def _sonido_de(llamada: ast.Call) -> ast.expr | None:
         if palabra.arg == "sonido":
             sonido = palabra.value
     return sonido
-
-
-def _sonido_valido(nodo: ast.expr | None, eventos: frozenset[str]) -> bool:
-    if not (isinstance(nodo, ast.Constant) and isinstance(nodo.value, str)):
-        return False
-    return bool(nodo.value) and nodo.value in eventos
-
-
-def detectar_avisar(archivo: str, arbol: ast.Module,
-                    eventos: frozenset[str] | None = None) -> list[Hallazgo]:
-    funciones, modulos = _nombres_avisar(arbol)
-    disponibles = eventos_de_sonido() if eventos is None else eventos
-    hallazgos = []
-    for nodo in ast.walk(arbol):
-        if not isinstance(nodo, ast.Call):
-            continue
-        if not _es_llamada_avisar(nodo.func, funciones, modulos):
-            continue
-        if not _sonido_valido(_sonido_de(nodo), disponibles):
-            hallazgos.append(Hallazgo(archivo, nodo.lineno))
-    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
 def _enable_prohibido(llamada: ast.Call) -> bool:

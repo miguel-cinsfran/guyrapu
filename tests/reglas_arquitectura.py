@@ -20,7 +20,6 @@ from tests.reglas_detectores import (
     _menus_de_la_barra,
     _paquete,
     _todo,
-    detectar_avisar,
     detectar_bibliotecas_voz,
     detectar_capas,
     detectar_controles,
@@ -30,6 +29,7 @@ from tests.reglas_detectores import (
     detectar_red,
     detectar_rotulos_de_menu,
 )
+from tests.reglas_sonido import detectar_avisar, detectar_avisar_error
 
 
 @dataclass(frozen=True)
@@ -94,15 +94,17 @@ REGLAS = (
         id="R5",
         prohibido="avisar recibe como sonido un evento literal de EVENTOS",
         detectar=detectar_avisar,
-        pendientes=_pendientes("elegir un sonido de EVENTOS para este aviso", {
-            "guyrapu/restream/ganchos.py": 1,
-            "guyrapu/ui/comandos_clips.py": 2,
-            "guyrapu/ui/comandos_grabacion.py": 2,
-            "guyrapu/ui/control_grabacion.py": 2,
-            "guyrapu/ui/comando_directo.py": 1,
-            "guyrapu/ui/gui_envio_chat.py": 1, "guyrapu/ui/gui_musica.py": 1,
-            "guyrapu/ui/gui_transmitir.py": 1,
-        }),
+        pendientes={
+            "guyrapu/restream/ganchos.py": Pendiente(
+                1, "el sonido llega por un cierre desde _anunciar_de_frame y "
+                   "no se puede saber leyendo la llamada"),
+            "guyrapu/ui/comando_directo.py": Pendiente(
+                1, "el sonido lo calcula obs_estado.sonido_resultado y no se "
+                   "puede saber leyendo el código"),
+            "guyrapu/ui/gui_musica.py": Pendiente(
+                1, "el sonido es el atributo aviso.sonido de otro módulo y no "
+                   "se sigue entre módulos"),
+        },
     ),
     Regla(
         id="R6",
@@ -158,5 +160,11 @@ REGLAS = (
         detectar=detectar_rotulos_de_menu,
         pendientes={},
         ambito=_menus_de_la_barra,
+    ),
+    Regla(
+        id="R10",
+        prohibido="avisar con error=True no usa un sonido de una familia que no sea error, desconexión o espera",
+        detectar=detectar_avisar_error,
+        pendientes={},
     ),
 )

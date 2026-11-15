@@ -8,6 +8,7 @@ import unittest
 
 from tests import reglas_arquitectura as reglas
 from tests import reglas_detectores as detectores
+from tests import reglas_sonido as sonido
 
 
 EVENTOS = {"aviso", "comentario", "conectado", "error", "copiar"}
@@ -27,10 +28,10 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_nueve_reglas_estan_en_la_tabla(self):
+    def test_las_diez_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
                          ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
-                          "R9"])
+                          "R9", "R10"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -119,7 +120,7 @@ class TestDetectores(unittest.TestCase):
         self.assertEqual([1, 3], _lineas(hallazgos))
 
     def test_avisar(self):
-        hallazgos = _hallazgos(detectores.detectar_avisar, """\
+        hallazgos = _hallazgos(sonido.detectar_avisar, """\
             from guyrapu.ui.aviso_importante import avisar
             from guyrapu.ui import aviso_importante
             from guyrapu.ui.aviso_importante import avisar as chillar
@@ -141,6 +142,62 @@ class TestDetectores(unittest.TestCase):
             """, EVENTOS)
         self.assertEqual([7, 8, 9, 12, 14, 16],
                          _lineas(hallazgos))
+
+    def test_avisar_acepta_el_parametro_que_reenvia(self):
+        hallazgos = _hallazgos(sonido.detectar_avisar, """\
+            from guyrapu.ui.aviso_importante import avisar
+
+            def _decir(frase, sonido, *, clave):
+                avisar(frase, sonido)
+                avisar(frase, clave)
+            """, EVENTOS)
+        self.assertEqual([], _lineas(hallazgos))
+
+    def test_avisar_acepta_una_constante_del_modulo(self):
+        validos = _hallazgos(sonido.detectar_avisar, """\
+            from guyrapu.ui.aviso_importante import avisar
+
+            SONIDO = "error"
+
+            def f():
+                avisar("texto", SONIDO)
+            """, EVENTOS)
+        self.assertEqual([], _lineas(validos))
+        reasignada = _hallazgos(sonido.detectar_avisar, """\
+            from guyrapu.ui.aviso_importante import avisar
+
+            SONIDO = "error"
+            SONIDO = "aviso"
+
+            def f():
+                avisar("texto", SONIDO)
+            """, EVENTOS)
+        self.assertEqual([7], _lineas(reasignada))
+        atributo = _hallazgos(sonido.detectar_avisar, """\
+            from guyrapu.ui.aviso_importante import avisar
+
+            class Aviso:
+                sonido = "error"
+
+            def f(aviso):
+                avisar("texto", aviso.sonido)
+            """, EVENTOS)
+        self.assertEqual([7], _lineas(atributo))
+
+    def test_avisar_error_acepta_las_familias_de_error(self):
+        codigo = """\
+            from guyrapu.ui.aviso_importante import avisar
+
+            avisar("texto", "{clave}", error=True)
+            """
+        for clave in ("error", "transmision_problema", "espera"):
+            with self.subTest(clave=clave):
+                hallazgos = _hallazgos(sonido.detectar_avisar_error,
+                                       codigo.format(clave=clave))
+                self.assertEqual([], _lineas(hallazgos))
+        completado = _hallazgos(sonido.detectar_avisar_error,
+                                codigo.format(clave="comentario"))
+        self.assertEqual([3], _lineas(completado))
 
     def test_controles(self):
         hallazgos = _hallazgos(detectores.detectar_controles, """\
