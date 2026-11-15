@@ -1,14 +1,12 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Envío real de pedidos de IA por httpx, sin reintentos.
+"""Envío real de pedidos de IA, sin reintentos.
 
-Lo llama un hilo, no el de la interfaz. Sin HTTP/2: hay un defecto
-conocido de httpx con h2, comentado en `main.py:552`.
+Lo llama un hilo, no el de la interfaz.
 """
 
-import httpx
-
 from guyrapu.ai import protocolos
+from guyrapu.core import red_httpx
 
 
 def _publicar(cliente, pedido, clave, tiempo_espera):
@@ -16,10 +14,10 @@ def _publicar(cliente, pedido, clave, tiempo_espera):
         respuesta = cliente.post(
             pedido.url, headers=pedido.cabeceras, json=pedido.cuerpo,
             timeout=tiempo_espera)
-    except httpx.TimeoutException as error:
+    except red_httpx.TiempoAgotado as error:
         raise protocolos.ErrorIA(
             protocolos.TIEMPO_AGOTADO, str(error)[:300]) from error
-    except httpx.TransportError as error:
+    except red_httpx.ErrorTransporte as error:
         raise protocolos.ErrorIA(
             protocolos.SIN_RED, str(error)[:300]) from error
     try:
@@ -34,6 +32,6 @@ def _publicar(cliente, pedido, clave, tiempo_espera):
 
 def enviar(pedido, clave, tiempo_espera, cliente=None):
     if cliente is None:
-        with httpx.Client() as propio:
+        with red_httpx.cliente() as propio:
             return _publicar(propio, pedido, clave, tiempo_espera)
     return _publicar(cliente, pedido, clave, tiempo_espera)

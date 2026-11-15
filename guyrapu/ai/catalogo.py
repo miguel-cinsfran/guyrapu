@@ -18,9 +18,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-import httpx
-
 from guyrapu.ai import protocolos
+from guyrapu.core import red_httpx
 
 URL = "https://models.dev/api.json"
 
@@ -297,10 +296,10 @@ def modelos(catalogo, proveedor, solo_gratis=False):
 def _pedir_catalogo(cliente, tiempo_espera):
     try:
         respuesta = cliente.get(URL, timeout=tiempo_espera)
-    except httpx.TimeoutException as error:
+    except red_httpx.TiempoAgotado as error:
         raise protocolos.ErrorIA(
             protocolos.TIEMPO_AGOTADO, str(error)[:300]) from error
-    except httpx.TransportError as error:
+    except red_httpx.ErrorTransporte as error:
         raise protocolos.ErrorIA(
             protocolos.SIN_RED, str(error)[:300]) from error
     if respuesta.status_code != 200:
@@ -324,7 +323,7 @@ def descargar(destino, fecha, cliente=None, tiempo_espera=30):
     """Baja el catálogo, lo reduce y lo guarda con escritura atómica."""
     destino = Path(destino)
     if cliente is None:
-        with httpx.Client(http2=False) as propio:
+        with red_httpx.cliente() as propio:
             completo = _pedir_catalogo(propio, tiempo_espera)
     else:
         completo = _pedir_catalogo(cliente, tiempo_espera)

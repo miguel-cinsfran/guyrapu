@@ -79,10 +79,9 @@ REGLAS = (
         prohibido="urllib.request, httpx y requests no se importan en guyrapu/",
         detectar=detectar_red,
         pendientes=_pendientes("pasar al módulo de red común", {
-            "guyrapu/ai/catalogo.py": 1, "guyrapu/ai/envio_ia.py": 1,
             "guyrapu/restream/api.py": 1, "guyrapu/restream/oauth.py": 1,
         }),
-        duenos=("guyrapu/core/red.py",),
+        duenos=("guyrapu/core/red.py", "guyrapu/core/red_httpx.py"),
         ambito=_paquete,
     ),
     Regla(
