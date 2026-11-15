@@ -59,7 +59,7 @@ class DialogoEnlace(wx.Dialog):
         self.btn_cola = self._boton(
             panel, _("Agregar a la &cola"), _("Agregar a la cola"))
         self.btn_cancelar = wx.Button(
-            panel, wx.ID_CANCEL, _("Cancelar"), name=_("Cancelar"))
+            panel, wx.ID_CANCEL, _("Cance&lar"), name=_("Cancelar"))
         for boton in (self.btn_ahora, self.btn_continuacion,
                       self.btn_cola, self.btn_cancelar):
             botones.Add(boton, 0, wx.RIGHT, 6)

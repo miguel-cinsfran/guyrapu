@@ -28,7 +28,7 @@ class DialogoDestinoBase(wx.Dialog):
         self.btn_aceptar = wx.Button(
             self, wx.ID_OK, etiqueta, name=nombre_de_etiqueta(etiqueta))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("Cancelar"), name=_("Cancelar"))
+            self, wx.ID_CANCEL, _("Cance&lar"), name=_("Cancelar"))
         for boton in (self.btn_aceptar, self.btn_cancelar):
             nombre_accesible(boton, boton.GetName())
         fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)

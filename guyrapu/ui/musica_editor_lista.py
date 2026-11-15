@@ -151,7 +151,7 @@ class DialogoEditorLista(wx.Dialog):
         fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_guardar = wx.Button(panel, wx.ID_OK, _("&Guardar"),
                                       name=_("Guardar"))
-        self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("Cancelar"),
+        self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("Cance&lar"),
                                        name=_("Cancelar"))
         for boton in (self.btn_guardar, self.btn_cancelar):
             fila.Add(boton, 0, wx.RIGHT, 8)

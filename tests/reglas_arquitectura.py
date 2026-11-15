@@ -198,15 +198,6 @@ REGLAS = (
         id="R13",
         prohibido="un rótulo _() literal de botón, casilla o radio no lleva exactamente un &",
         detectar=detectar_mnemonico,
-        pendientes=_pendientes(
-            "darle la letra de acceso como al resto de los Cancelar y Cerrar", {
-                "guyrapu/ui/elegir_formato.py": 1,
-                "guyrapu/ui/gui_microfono.py": 1,
-                "guyrapu/ui/musica_dialogo_enlace.py": 1,
-                "guyrapu/ui/musica_editor_lista.py": 1,
-                "guyrapu/ui/restream_dialogos_destino.py": 1,
-                "guyrapu/ui/restream_perfil.py": 1,
-                "guyrapu/ui/restream_ventana.py": 1,
-            }),
+        pendientes={},
     ),
 )

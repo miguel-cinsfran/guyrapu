@@ -2518,6 +2518,12 @@ msgstr "Update available"
 msgid "{dia}/{mes}/{anio}"
 msgstr "{mes}/{dia}/{anio}"
 
+#. Traductores: motivo que se agrega a la etiqueta de un botón del
+#. historial cuando no hay entradas; va en minúscula y sin punto.
+#: guyrapu/core/historial.py
+msgid "El historial está vacío"
+msgstr "The history is empty"
+
 #. Traductores: fila del historial de un directo; {base} es el canal y
 #. el título y {fecha} la fecha corta.
 #: guyrapu/core/historial.py
@@ -7555,16 +7561,16 @@ msgstr "Results"
 #: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_estado.py
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 #: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
-#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
+#: guyrapu/ui/musica_ventana.py guyrapu/ui/ventana_espera.py
+#: guyrapu/ui/voces_ventana.py
 msgid "&Cerrar"
 msgstr "&Close"
 
 #: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_microfono.py
-#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/dialogo_estado.py guyrapu/ui/ia_ventana.py
+#: guyrapu/ui/musica_ventana.py guyrapu/ui/obs_ventana.py
+#: guyrapu/ui/restream_ventana.py guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
 msgstr "Close"
 
@@ -8516,6 +8522,12 @@ msgstr "&Download"
 msgid "Descargar"
 msgstr "Download"
 
+#. Traductores: botón para volver sin transmitir.
+#: guyrapu/ui/elegir_formato.py guyrapu/ui/gui_directo_youtube.py
+#: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/restream_perfil.py
+msgid "C&ancelar"
+msgstr "C&ancel"
+
 #: guyrapu/ui/elegir_formato.py guyrapu/ui/gui_redactar.py
 #: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/musica_dialogo_enlace.py
 #: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
@@ -8855,7 +8867,8 @@ msgstr "Sa&ve as…"
 msgid "Eli&minar"
 msgstr "&Delete"
 
-#: guyrapu/ui/escena_disenos.py
+#: guyrapu/ui/escena_disenos.py guyrapu/ui/musica_dialogo_enlace.py
+#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
 msgid "Cance&lar"
 msgstr "&Cancel"
 
@@ -10123,11 +10136,6 @@ msgstr ""
 msgid "Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 msgstr "JPG and PNG images (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 
-#. Traductores: botón para volver sin transmitir.
-#: guyrapu/ui/gui_directo_youtube.py guyrapu/ui/gui_elegir_destino.py
-msgid "C&ancelar"
-msgstr "C&ancel"
-
 #: guyrapu/ui/gui_directo_youtube.py
 msgid "Título:"
 msgstr "Title:"
@@ -10415,6 +10423,12 @@ msgstr "Cl&ose"
 #, python-brace-format
 msgid "Historial de {plataforma}"
 msgstr "{plataforma} history"
+
+#. Traductores: aviso al conectar con una entrada del historial que
+#. no tiene enlace guardado.
+#: guyrapu/ui/gui_historial.py
+msgid "Esta entrada no tiene enlace."
+msgstr "This entry has no link."
 
 #: guyrapu/ui/gui_historial.py guyrapu/ui/recientes_inicio.py
 msgid "Entrada eliminada del historial"
@@ -13509,6 +13523,10 @@ msgid "Restream"
 msgstr "Restream"
 
 #: guyrapu/ui/restream_ventana.py
+msgid "Cerra&r"
+msgstr "Cl&ose"
+
+#: guyrapu/ui/restream_ventana.py
 msgid "Cuenta"
 msgstr "Account"
 
@@ -14072,16 +14090,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: motivo que se agrega a la etiqueta de un botón del
-#. historial cuando no hay entradas; va en minúscula y sin punto.
-#: guyrapu/core/historial.py
-msgid "El historial está vacío"
-msgstr "The history is empty"
-
-#. Traductores: aviso al conectar con una entrada del historial que
-#. no tiene enlace guardado.
-#: guyrapu/ui/gui_historial.py
-msgid "Esta entrada no tiene enlace."
-msgstr "This entry has no link."
 

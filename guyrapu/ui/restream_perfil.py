@@ -72,7 +72,7 @@ class DialogoPerfilRestream(wx.Dialog):
             self, wx.ID_OK, etiqueta_guardar,
             name=nombre_de_etiqueta(etiqueta_guardar))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("Cancelar"), name=_("Cancelar"))
+            self, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
         nombre_accesible(self.btn_guardar, self.btn_guardar.GetName())
         nombre_accesible(self.btn_cancelar, self.btn_cancelar.GetName())
         fila.Add(self.btn_guardar, 0, wx.RIGHT, 6)

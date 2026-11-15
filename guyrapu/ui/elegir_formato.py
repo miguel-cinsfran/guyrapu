@@ -61,7 +61,7 @@ class DialogoFormato(wx.Dialog):
         self.btn_descargar.SetDefault()
         fila.Add(self.btn_descargar, 0, wx.RIGHT, 8)
         self.btn_cancelar = wx.Button(
-            panel, wx.ID_CANCEL, _("Cancelar"), name=_("Cancelar"))
+            panel, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
         fila.Add(self.btn_cancelar, 0)
         vs.Add(fila, 0, wx.ALL, 8)
 

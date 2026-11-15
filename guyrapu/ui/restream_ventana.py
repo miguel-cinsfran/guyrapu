@@ -104,7 +104,7 @@ class VentanaRestream(wx.Dialog):
 
     def _crear_cerrar(self, panel, vs):
         self.btn_cerrar = wx.Button(
-            panel, wx.ID_CANCEL, _("Cerrar"), name=_("Cerrar"))
+            panel, wx.ID_CANCEL, _("Cerra&r"), name=_("Cerrar"))
         nombre_accesible(self.btn_cerrar, self.btn_cerrar.GetName())
         vs.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
         self.btn_cerrar.Bind(

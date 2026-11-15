@@ -147,7 +147,7 @@ class PruebaVentanaRestream(unittest.TestCase):
         self.assertEqual(0, dialogo.nb.GetSelection())
         self.assertIs(dialogo._pagina_eventos,
                       dialogo.nb.GetPage(3))
-        self.assertEqual("Cerrar", dialogo.btn_cerrar.GetLabel())
+        self.assertEqual("Cerra&r", dialogo.btn_cerrar.GetLabel())
         self.assertEqual(wx.ID_CANCEL, dialogo.btn_cerrar.GetId())
         self.assertEqual("Cerrar", dialogo.btn_cerrar.GetName())
 

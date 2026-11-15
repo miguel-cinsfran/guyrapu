@@ -174,7 +174,7 @@ class MicrofonoObsDialog(wx.Dialog):
         fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_aplicar = wx.Button(self, wx.ID_ANY, _("&Aplicar"))
         self.btn_aplicar.SetDefault()
-        self.btn_cerrar = wx.Button(self, wx.ID_CANCEL, _("Cerrar"))
+        self.btn_cerrar = wx.Button(self, wx.ID_CANCEL, _("&Cerrar"))
         fila.Add(self.btn_aplicar, 0, wx.RIGHT, 6)
         fila.Add(self.btn_cerrar, 0)
         vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
