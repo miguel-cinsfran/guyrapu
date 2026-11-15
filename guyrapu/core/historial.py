@@ -71,6 +71,15 @@ def fecha_mostrada(texto: str | None) -> str:
         anio=f"{fecha.year:04d}")
 
 
+def motivo_sin_entradas(hay_entradas: bool) -> str:
+    """Motivo del historial vacío para la etiqueta de un botón, o ""."""
+    if hay_entradas:
+        return ""
+    # Traductores: motivo que se agrega a la etiqueta de un botón del
+    # historial cuando no hay entradas; va en minúscula y sin punto.
+    return _("El historial está vacío")
+
+
 def etiqueta(entrada: dict) -> str:
     """Texto legible de una entrada para la lista (canal — título · directo (fecha))."""
     canal = (entrada.get("canal") or "").strip()

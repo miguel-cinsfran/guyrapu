@@ -14,6 +14,7 @@ import logging
 from guyrapu.core import diagnostico
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import historial
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
@@ -113,9 +114,16 @@ class HistorialDialog(wx.Dialog):
                 lb.Append(historial.etiqueta(e))
             if entradas:
                 lb.SetSelection(0)
-        hay = any(self._entradas.values())
-        self.btn_conectar.Enable(hay)
-        self.btn_quitar.Enable(hay)
+        motivo = historial.motivo_sin_entradas(any(self._entradas.values()))
+        self.btn_conectar.SetLabel(
+            redaccion.etiqueta_con_motivo(_("&Conectar"), motivo))
+        self.btn_quitar.SetLabel(
+            redaccion.etiqueta_con_motivo(_("E&liminar"), motivo))
+
+    def _motivo_sin_seleccion(self) -> str:
+        if not any(self._entradas.values()):
+            return f"{historial.motivo_sin_entradas(False)}."
+        return _("Sin selección")
 
     def _seleccionada(self):
         plat = self._plat_actual()
@@ -149,10 +157,13 @@ class HistorialDialog(wx.Dialog):
     def _conectar(self):
         e = self._seleccionada()
         if not e:
-            anunciar(_("Sin selección"))
+            anunciar(self._motivo_sin_seleccion())
             return
         url = e.get("url") or ""
         if not url:
+            # Traductores: aviso al conectar con una entrada del historial que
+            # no tiene enlace guardado.
+            anunciar(_("Esta entrada no tiene enlace."))
             return
         self.EndModal(wx.ID_OK)
         if self._on_conectar:
@@ -161,6 +172,7 @@ class HistorialDialog(wx.Dialog):
     def _quitar(self):
         e = self._seleccionada()
         if not e:
+            anunciar(self._motivo_sin_seleccion())
             return
         self._lista = [x for x in self._lista if x is not e]
         historial.guardar(self._ruta, self._lista)

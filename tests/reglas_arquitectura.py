@@ -116,7 +116,6 @@ REGLAS = (
             "guyrapu/ui/escena_propiedades.py": 2,
             "guyrapu/ui/gui.py": 7,
             "guyrapu/ui/gui_descargas.py": 1, "guyrapu/ui/gui_directo_youtube.py": 2,
-            "guyrapu/ui/gui_historial.py": 2,
             "guyrapu/ui/gui_sesion.py": 2,
             "guyrapu/ui/ia_agregar_captura.py": 2, "guyrapu/ui/ia_ventana.py": 2,
             "guyrapu/ui/lista_acciones.py": 1, "guyrapu/ui/musica_ventana.py": 1,

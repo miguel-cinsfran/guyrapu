@@ -14073,3 +14073,15 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#. Traductores: motivo que se agrega a la etiqueta de un botón del
+#. historial cuando no hay entradas; va en minúscula y sin punto.
+#: guyrapu/core/historial.py
+msgid "El historial está vacío"
+msgstr "The history is empty"
+
+#. Traductores: aviso al conectar con una entrada del historial que
+#. no tiene enlace guardado.
+#: guyrapu/ui/gui_historial.py
+msgid "Esta entrada no tiene enlace."
+msgstr "This entry has no link."
+

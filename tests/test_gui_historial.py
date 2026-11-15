@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from guyrapu.capture import redaccion
 from guyrapu.ui import gui_historial
 from guyrapu.core import historial
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -39,6 +40,15 @@ class PruebasHistorialDialog(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
+    def _tecla_en_la_lista(self, codigo):
+        dialogo = self._dialogo([])
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = codigo
+        evento.GetEventObject.return_value = dialogo._listas["youtube"]
+        with mock.patch.object(gui_historial, "anunciar") as anunciar:
+            dialogo._on_key(evento)
+        return anunciar
+
     def test_poblar_separa_las_entradas_por_plataforma(self):
         youtube = entrada("youtube", "yt", "https://youtube.com/watch?v=yt")
         tiktok = entrada("tiktok", "tk", "https://tiktok.com/@tk/live")
@@ -49,11 +59,92 @@ class PruebasHistorialDialog(unittest.TestCase):
         self.assertEqual([historial.etiqueta(tiktok)],
                          list(dialogo._listas["tiktok"].GetStrings()))
 
-    def test_historial_vacio_deshabilita_los_botones(self):
+    def test_historial_vacio_mantiene_los_botones_habilitados_y_con_el_motivo(self):
         dialogo = self._dialogo([])
 
-        self.assertFalse(dialogo.btn_conectar.IsEnabled())
-        self.assertFalse(dialogo.btn_quitar.IsEnabled())
+        self.assertTrue(dialogo.btn_conectar.IsEnabled())
+        self.assertTrue(dialogo.btn_quitar.IsEnabled())
+        motivo = "El historial está vacío"
+        self.assertEqual(
+            redaccion.etiqueta_con_motivo("&Conectar", motivo),
+            dialogo.btn_conectar.GetLabel())
+        self.assertEqual(
+            redaccion.etiqueta_con_motivo("E&liminar", motivo),
+            dialogo.btn_quitar.GetLabel())
+
+    def test_con_entradas_las_etiquetas_son_la_base_sola(self):
+        dialogo = self._dialogo([
+            entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
+
+        self.assertTrue(dialogo.btn_conectar.IsEnabled())
+        self.assertTrue(dialogo.btn_quitar.IsEnabled())
+        self.assertEqual("&Conectar", dialogo.btn_conectar.GetLabel())
+        self.assertEqual("E&liminar", dialogo.btn_quitar.GetLabel())
+
+    def test_conectar_con_historial_vacio_anuncia_el_motivo(self):
+        dialogo = self._dialogo([])
+
+        with mock.patch.object(gui_historial, "anunciar") as anunciar:
+            dialogo._conectar()
+
+        dialogo._on_conectar.assert_not_called()
+        anunciar.assert_called_once_with("El historial está vacío.")
+
+    def test_quitar_con_historial_vacio_anuncia_el_motivo(self):
+        dialogo = self._dialogo([])
+
+        with mock.patch.object(gui_historial, "anunciar") as anunciar:
+            dialogo._quitar()
+
+        anunciar.assert_called_once_with("El historial está vacío.")
+
+    def test_quitar_sin_seleccion_anuncia_sin_seleccion(self):
+        datos = entrada("youtube", "yt", "https://youtube.com/watch?v=yt")
+        dialogo = self._dialogo([datos])
+        dialogo._listas["youtube"].SetSelection(gui_historial.wx.NOT_FOUND)
+
+        with mock.patch.object(gui_historial, "anunciar") as anunciar:
+            dialogo._quitar()
+
+        anunciar.assert_called_once_with("Sin selección")
+        self.assertEqual([datos], historial.cargar(self.ruta))
+
+    def test_quitar_en_pestana_vacia_con_entradas_en_otra_anuncia_sin_seleccion(self):
+        youtube = entrada("youtube", "yt", "https://youtube.com/watch?v=yt")
+        dialogo = self._dialogo([youtube])
+        with mock.patch.object(gui_historial, "anunciar"):
+            dialogo.nb.SetSelection(1)
+
+        with mock.patch.object(gui_historial, "anunciar") as anunciar:
+            dialogo._quitar()
+
+        anunciar.assert_called_once_with("Sin selección")
+        self.assertEqual([youtube], historial.cargar(self.ruta))
+
+    def test_intro_con_historial_vacio_anuncia_el_motivo(self):
+        anunciar = self._tecla_en_la_lista(gui_historial.wx.WXK_RETURN)
+
+        anunciar.assert_called_once_with("El historial está vacío.")
+
+    def test_suprimir_con_historial_vacio_anuncia_el_motivo(self):
+        anunciar = self._tecla_en_la_lista(gui_historial.wx.WXK_DELETE)
+
+        anunciar.assert_called_once_with("El historial está vacío.")
+
+    def test_quitar_la_ultima_entrada_deja_el_motivo_en_las_etiquetas(self):
+        dialogo = self._dialogo([
+            entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
+
+        with mock.patch.object(gui_historial, "anunciar"):
+            dialogo._quitar()
+
+        motivo = "El historial está vacío"
+        self.assertEqual(
+            redaccion.etiqueta_con_motivo("&Conectar", motivo),
+            dialogo.btn_conectar.GetLabel())
+        self.assertEqual(
+            redaccion.etiqueta_con_motivo("E&liminar", motivo),
+            dialogo.btn_quitar.GetLabel())
 
     def test_seleccionada_devuelve_la_entrada_elegida_o_none(self):
         primera = entrada("youtube", "primera", "https://youtube.com/watch?v=primera")
@@ -152,6 +243,17 @@ class PruebasHistorialDialog(unittest.TestCase):
 
         dialogo._on_conectar.assert_not_called()
         anunciar.assert_called_once_with("Sin selección")
+
+    def test_conectar_entrada_sin_enlace_anuncia_y_no_cierra(self):
+        dialogo = self._dialogo([entrada("youtube", "sin-enlace", "")])
+
+        with mock.patch.object(gui_historial, "anunciar") as anunciar, \
+                mock.patch.object(dialogo, "EndModal") as end_modal:
+            dialogo._conectar()
+
+        anunciar.assert_called_once_with("Esta entrada no tiene enlace.")
+        end_modal.assert_not_called()
+        dialogo._on_conectar.assert_not_called()
 
     def test_intro_por_char_hook_conecta(self):
         dialogo = self._dialogo([

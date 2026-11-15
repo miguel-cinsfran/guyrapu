@@ -76,6 +76,10 @@ class TestConsulta(unittest.TestCase):
         l = h.upsert([], "tiktok", "pepe", "u", "T", "C", directo=True)
         self.assertTrue(l[0]["directo"])
 
+    def test_motivo_sin_entradas_avisa_solo_sin_entradas(self):
+        self.assertEqual(h.motivo_sin_entradas(False), "El historial está vacío")
+        self.assertEqual(h.motivo_sin_entradas(True), "")
+
 
 class TestPersistencia(unittest.TestCase):
 
