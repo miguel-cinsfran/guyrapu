@@ -772,6 +772,20 @@ class TestVentanaReal(unittest.TestCase):
         self.assertEqual(frame.nb.GetPageText(gui.PAG_CHAT), "Chat del directo")
         self.assertEqual(frame.lb_chat.GetName(), "Chat del directo")
 
+    def test_los_menus_de_conexion_se_apagan_y_se_prenden_con_ella(self):
+        frame = self._ventana()
+        frame._conectado = False
+        frame._actualizar_menus_por_conexion()
+        menus = (list(frame._mi_ver_conexion) + list(frame._mi_voz_conexion)
+                 + [frame._mi_filtro_sub])
+        self.assertTrue(menus)
+        self.assertEqual([False] * len(menus),
+                         [item.IsEnabled() for item in menus])
+        frame._conectado = True
+        frame._actualizar_menus_por_conexion()
+        self.assertEqual([True] * len(menus),
+                         [item.IsEnabled() for item in menus])
+
 
 class TestConfigurarTiktokReconexionVentana(unittest.TestCase):
     """configurar_tiktok en una reconexión no vacía el chat ni suena el flujo."""
