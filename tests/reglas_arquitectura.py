@@ -14,6 +14,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from tests.reglas_controles import (
+    detectar_cuadro_sin_escape,
     detectar_mnemonico,
     detectar_nombres_de_control,
     detectar_pestana_sin_anuncio,
@@ -187,6 +188,13 @@ REGLAS = (
         id="R14",
         prohibido="un wx.Notebook no se pasa a enlazar_anuncio_de_pestana en su archivo",
         detectar=detectar_pestana_sin_anuncio,
+        pendientes={},
+        ambito=_paquete,
+    ),
+    Regla(
+        id="R15",
+        prohibido="un cuadro de wx no tiene en su clase ninguna vía para cerrar con Escape",
+        detectar=detectar_cuadro_sin_escape,
         pendientes={},
         ambito=_paquete,
     ),

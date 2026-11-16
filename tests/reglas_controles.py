@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Detectores de las reglas sobre controles y confirmaciones, con ast.
 
-Leen archivos, no importan wx ni la aplicación. R11 a R14.
+Leen archivos, no importan wx ni la aplicación. R11 a R15.
 """
 
 from __future__ import annotations
@@ -232,4 +232,71 @@ def detectar_pestana_sin_anuncio(archivo: str,
         if not destinos or not all(destino in anunciadas
                                    for destino in destinos):
             hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
+BASES_CUADRO = frozenset(("Dialog", "Frame"))
+BOTONES = frozenset(("Button", "boton", "_boton"))
+
+
+def _es_base_de_cuadro(base: ast.expr) -> bool:
+    return (isinstance(base, ast.Attribute)
+            and base.attr in BASES_CUADRO
+            and _termina_en_wx(base.value))
+
+
+def _es_id_cancel(nodo: ast.expr) -> bool:
+    return (isinstance(nodo, ast.Attribute) and nodo.attr == "ID_CANCEL"
+            and _termina_en_wx(nodo.value))
+
+
+def _nombre_de_llamada(func: ast.expr) -> str | None:
+    if isinstance(func, ast.Name):
+        return func.id
+    if isinstance(func, ast.Attribute):
+        return func.attr
+    return None
+
+
+def _tiene_boton_cancelar(llamada: ast.Call) -> bool:
+    return (_nombre_de_llamada(llamada.func) in BOTONES
+            and any(_es_id_cancel(argumento)
+                    for argumento in (*llamada.args,
+                                      *(palabra.value
+                                        for palabra in llamada.keywords))))
+
+
+def _tiene_via_de_escape(clase: ast.ClassDef) -> bool:
+    for nodo in ast.walk(clase):
+        if isinstance(nodo, ast.Name) and nodo.id in (
+                "tecla_escape", "WXK_ESCAPE"):
+            return True
+        if isinstance(nodo, ast.Attribute) and nodo.attr in (
+                "SetEscapeId", "tecla_escape", "WXK_ESCAPE"):
+            return True
+        if isinstance(nodo, ast.Call) and _tiene_boton_cancelar(nodo):
+            return True
+        if isinstance(nodo, ast.Import) and any(
+                alias.name.endswith("tecla_escape") for alias in nodo.names):
+            return True
+        if isinstance(nodo, ast.ImportFrom) and (
+                (nodo.module or "").endswith("tecla_escape")
+                or any(alias.name == "tecla_escape" for alias in nodo.names)):
+            return True
+    return False
+
+
+def detectar_cuadro_sin_escape(archivo: str,
+                               arbol: ast.Module) -> list[Hallazgo]:
+    # La ventana principal no se cierra con Escape a propósito: es la ventana
+    # de la aplicación y Escape no debe apagarla.
+    if archivo == "guyrapu/ui/gui.py":
+        return []
+    hallazgos = [
+        Hallazgo(archivo, nodo.lineno)
+        for nodo in ast.walk(arbol)
+        if isinstance(nodo, ast.ClassDef)
+        and any(_es_base_de_cuadro(base) for base in nodo.bases)
+        and not _tiene_via_de_escape(nodo)
+    ]
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)

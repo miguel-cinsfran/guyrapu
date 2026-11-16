@@ -29,10 +29,10 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_catorce_reglas_estan_en_la_tabla(self):
+    def test_las_quince_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
                          ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
-                          "R9", "R10", "R11", "R12", "R13", "R14"])
+                          "R9", "R10", "R11", "R12", "R13", "R14", "R15"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -227,6 +227,74 @@ class TestDetectores(unittest.TestCase):
         hallazgos = _hallazgos(controles.detectar_pestana_sin_anuncio, """\
             def armar(frame):
                 frame.lb = __WX__.Listbook(frame, name="Otras")
+            """.replace("__WX__", WX))
+        self.assertEqual([], _lineas(hallazgos))
+
+    def test_cuadro_sin_via_de_escape(self):
+        hallazgos = _hallazgos(controles.detectar_cuadro_sin_escape, """\
+            class Cuadro(__WX__.Dialog):
+                pass
+
+            class Ventana(__WX__.Frame):
+                pass
+            """.replace("__WX__", WX))
+        self.assertEqual([1, 4], _lineas(hallazgos))
+
+    def test_un_cierre_sin_escape_no_cuenta_como_via(self):
+        hallazgos = _hallazgos(controles.detectar_cuadro_sin_escape, """\
+            class Cuadro(__WX__.Dialog):
+                def cerrar(self):
+                    self.EndModal(__WX__.ID_CANCEL)
+            """.replace("__WX__", WX))
+        self.assertEqual([1], _lineas(hallazgos))
+
+    def test_cada_via_de_escape_la_exime(self):
+        vias = (
+            "__WX__.Button(self, __WX__.ID_CANCEL, 'Cerrar')",
+            "self.SetEscapeId(__WX__.ID_OK)",
+            "from guyrapu.ui import tecla_escape",
+            "tecla_escape.cancelar_si_escape(self, evento)",
+            "codigo = __WX__.WXK_ESCAPE",
+        )
+        for via in vias:
+            with self.subTest(via=via):
+                codigo = (
+                    "class Cuadro(__WX__.Dialog):\n"
+                    "    def armar(self):\n"
+                    f"        {via}\n").replace("__WX__", WX)
+                hallazgos = _hallazgos(controles.detectar_cuadro_sin_escape,
+                                       codigo)
+                self.assertEqual([], _lineas(hallazgos))
+
+    def test_cada_clase_mira_su_propio_cuerpo(self):
+        hallazgos = _hallazgos(controles.detectar_cuadro_sin_escape, """\
+            class ConCancelar(__WX__.Dialog):
+                def armar(self):
+                    __WX__.Button(self, __WX__.ID_CANCEL, "Cerrar")
+
+            class SinNada(__WX__.Dialog):
+                def armar(self):
+                    __WX__.Button(self, label="Cerrar")
+            """.replace("__WX__", WX))
+        self.assertEqual([5], _lineas(hallazgos))
+
+    def test_la_ventana_principal_no_entra(self):
+        arbol = ast.parse(textwrap.dedent("""\
+            class VentanaPrincipal(__WX__.Frame):
+                pass
+            """.replace("__WX__", WX)))
+        hallazgos = controles.detectar_cuadro_sin_escape(
+            "guyrapu/ui/gui.py", arbol)
+        self.assertEqual([], _lineas(hallazgos))
+
+    def test_una_base_propia_no_se_mira(self):
+        hallazgos = _hallazgos(controles.detectar_cuadro_sin_escape, """\
+            class DialogoBase(__WX__.Dialog):
+                def armar(self):
+                    __WX__.Button(self, __WX__.ID_CANCEL, "Cerrar")
+
+            class Hijo(DialogoBase):
+                pass
             """.replace("__WX__", WX))
         self.assertEqual([], _lineas(hallazgos))
 
