@@ -32,7 +32,6 @@ PENDIENTES = {
     "escena_pagina_escena.py": "todavía no pasó a la pieza común",
     "gui_construccion.py": "todavía no pasó a la pieza común",
     "gui_comentarios.py": "todavía no pasó a la pieza común",
-    "gui_grabaciones.py": "todavía no pasó a la pieza común",
     "gui_historial.py": "todavía no pasó a la pieza común",
     "ia_ventana.py": "todavía no pasó a la pieza común",
     "musica_editor_lista.py": "todavía no pasó a la pieza común",
