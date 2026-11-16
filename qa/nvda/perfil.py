@@ -22,6 +22,8 @@ from pathlib import Path
 NOMBRE_BASE = "guyrapu-qa"
 NOMBRE_PERFIL = "perfil-nvda"
 NOMBRE_VERSION = "version_nvda.txt"
+NOMBRE_REGISTRO = "nvda.log"
+NOMBRE_FIN_LIMPIO = "fin-limpio.txt"
 
 INI = """schemaVersion = 2
 
@@ -80,6 +82,14 @@ def ruta_portatil(version, localappdata=None) -> Path:
 
 def ruta_estado(localappdata=None) -> Path:
     return carpeta_base(localappdata) / "estado-carril.json"
+
+
+def ruta_registro(localappdata=None) -> Path:
+    return ruta_perfil(localappdata) / NOMBRE_REGISTRO
+
+
+def ruta_fin_limpio(localappdata=None) -> Path:
+    return carpeta_base(localappdata) / NOMBRE_FIN_LIMPIO
 
 
 def version_esperada() -> str:

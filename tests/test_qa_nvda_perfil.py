@@ -17,6 +17,16 @@ class TestRutas(unittest.TestCase):
         self.assertEqual(perfil_armado, Path("C:/Local/guyrapu-qa/perfil-nvda"))
         self.assertEqual(copia, Path("C:/Local/guyrapu-qa/nvda-2026.3.1"))
 
+    def test_el_registro_de_nvda_vive_dentro_del_perfil(self):
+        self.assertEqual(
+            perfil.ruta_registro("C:/Local"),
+            Path("C:/Local/guyrapu-qa/perfil-nvda/nvda.log"))
+
+    def test_la_marca_del_fin_limpio_vive_en_la_carpeta_del_carril(self):
+        self.assertEqual(
+            perfil.ruta_fin_limpio("C:/Local"),
+            Path("C:/Local/guyrapu-qa/fin-limpio.txt"))
+
     def test_la_version_fijada_es_la_del_archivo(self):
         self.assertEqual(perfil.version_esperada(), "2026.3.1")
 

@@ -29,6 +29,8 @@ class TestGuardia(unittest.TestCase):
             mock.patch.object(correr.seguridad,
                               "segundos_desde_ultima_entrada",
                               return_value=60),
+            mock.patch.object(correr.seguridad, "leer_fin_limpio",
+                              return_value=None),
             mock.patch.object(
                 correr, "_elegir_copia",
                 return_value=(Path("copia"), INSTALADO, "usar")),
@@ -96,6 +98,7 @@ class TestCortado(unittest.TestCase):
                 return_value=devolucion_ok) as devolver_mock,
             mock.patch.object(correr, "_escribir_informe",
                               return_value=Path("informe")),
+            mock.patch.object(correr.seguridad, "anotar_fin_limpio"),
         ):
             codigo = correr.ejecutar(args)
         return codigo, borrar, devolver_mock
@@ -137,6 +140,7 @@ class TestRespaldo(unittest.TestCase):
             mock.patch.object(correr.seguridad, "borrar_respaldo"),
             mock.patch.object(correr.devolver, "ejecutar_devolucion",
                               return_value=True),
+            mock.patch.object(correr.seguridad, "anotar_fin_limpio"),
         ):
             codigo = correr.ejecutar(args)
         self.assertEqual(codigo, correr.COD_RESPALDO)
@@ -206,6 +210,7 @@ class TestDevolucionFallida(unittest.TestCase):
             mock.patch.object(correr.seguridad,
                               "borrar_respaldo") as borrar,
             mock.patch.object(correr, "_con_canario", return_value=0),
+            mock.patch.object(correr.seguridad, "anotar_fin_limpio"),
         ):
             codigo = correr.ejecutar(
                 SimpleNamespace(sin_espera=False, una_pc=False,
@@ -213,3 +218,139 @@ class TestDevolucionFallida(unittest.TestCase):
         self.assertEqual(codigo, correr.COD_OK)
         self.assertTrue(ruta_corrida.exists())
         borrar.assert_not_called()
+
+
+class TestReglas(unittest.TestCase):
+
+    def _datos(self, ventana):
+        return {"ventana": ventana, "pid": 1, "primero": {}, "pasos": []}
+
+    def _reglas(self, analizar):
+        with (
+            mock.patch.object(correr.reglas, "leer_catalogo_ingles",
+                              return_value=set()),
+            mock.patch.object(correr.reglas, "analizar",
+                              side_effect=analizar),
+            mock.patch.object(
+                correr.recorrido, "recorrer",
+                side_effect=lambda datos, cliente: self._datos(
+                    datos["nombre"])),
+        ):
+            with self.assertRaises(correr.ReglasFallidas) as capturado:
+                correr._reglas(mock.Mock(), mock.Mock(cortado=False))
+        return capturado.exception
+
+    def _hallazgo(self, ventana, regla, paso=0):
+        return {"regla": regla, "nivel": "aviso", "ventana": ventana,
+                "paso": paso, "tecla": "tab", "detalle": "x"}
+
+    def test_una_regla_que_no_salta_en_su_trampa_nombra_la_regla(self):
+        def analizar(datos, catalogo):
+            if datos["ventana"] in ("limpia", "ingles"):
+                return []
+            return [self._hallazgo(datos["ventana"], datos["ventana"])]
+
+        error = self._reglas(analizar)
+        self.assertIn("ingles", str(error))
+        self.assertTrue(any("ingles" in linea for linea in error.lineas))
+
+    def test_una_regla_que_salta_en_la_limpia_nombra_regla_y_paso(self):
+        def analizar(datos, catalogo):
+            if datos["ventana"] == "limpia":
+                return [self._hallazgo("limpia", "sin_nombre", 2)]
+            return []
+
+        error = self._reglas(analizar)
+        self.assertIn("sin_nombre", str(error))
+        self.assertIn("paso 2", str(error))
+
+    def test_un_primer_plano_ajeno_corta_y_el_informe_lo_dice(self):
+        args = SimpleNamespace(canario=True)
+        with (
+            mock.patch.object(
+                correr, "_corrida",
+                side_effect=correr.InstrumentoRoto(
+                    "tomó el primer plano «Otra» (proceso 9)")),
+            mock.patch.object(correr, "_escribir_informe",
+                              return_value=Path("informe")) as escribir,
+        ):
+            codigo = correr._con_canario(
+                args, mock.Mock(cortado=False), Path("copia"), "usar",
+                INSTALADO, None)
+        self.assertEqual(codigo, correr.COD_INSTRUMENTO)
+        lineas = escribir.call_args[0][0]
+        self.assertTrue(any("Otra" in linea for linea in lineas))
+
+
+class TestInformeDeTiempos(unittest.TestCase):
+
+    def test_cada_paso_lleva_sus_milisegundos_y_el_maximo(self):
+        datos = {
+            "ventana": "prueba",
+            "pasos": [
+                {"tecla": "tab", "fase": "ida",
+                 "foco": {"nombre": "Uno", "rol_nombre": "EDIT"},
+                 "habla": [{"texto": "Uno"}], "agotado": False,
+                 "ms_habla": 120},
+                {"tecla": "tab", "fase": "ida",
+                 "foco": {"nombre": "Dos", "rol_nombre": "EDIT"},
+                 "habla": [{"texto": "Dos"}], "agotado": False,
+                 "ms_habla": 80},
+            ],
+        }
+        texto = "\n".join(correr._lineas_de_ventana("prueba", datos, []))
+        self.assertIn("ms_habla=120", texto)
+        self.assertIn("ms_habla=80", texto)
+        self.assertIn("máximo de la última habla: 120 ms", texto)
+
+
+class TestRegistro(unittest.TestCase):
+
+    def test_copiar_registro_usa_el_nombre_del_informe(self):
+        with tempfile.TemporaryDirectory() as base:
+            origen = Path(base) / "nvda.log"
+            origen.write_text("depuración", encoding="utf-8")
+            informe = Path(base) / "informe-1.txt"
+            with mock.patch.object(correr.perfil, "ruta_registro",
+                                   return_value=origen):
+                correr._copiar_registro(informe)
+            destino = Path(base) / "informe-1-nvda.log"
+            self.assertEqual(destino.read_text(encoding="utf-8"),
+                             "depuración")
+
+    def _ejecutar(self, codigo):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
+        args = SimpleNamespace(sin_espera=False, una_pc=False,
+                               respaldo_minutos=45, canario=True,
+                               informe=Path("informe.txt"))
+        with (
+            mock.patch.object(correr, "_guardia", return_value=None),
+            mock.patch.object(
+                correr, "_elegir_copia",
+                return_value=(Path("copia"), INSTALADO, "usar")),
+            mock.patch.object(correr.perfil, "version_esperada",
+                              return_value="2026.3.1"),
+            mock.patch.object(correr.perfil, "ruta_estado",
+                              return_value=Path(carpeta.name) / "estado.json"),
+            mock.patch.object(correr.nvda_local, "nvda_en_marcha",
+                              return_value=None),
+            mock.patch.object(
+                correr.seguridad, "Vigilante",
+                return_value=mock.Mock(cortado=False)),
+            mock.patch.object(correr, "_programar_respaldo",
+                              return_value=True),
+            mock.patch.object(correr, "_con_canario", return_value=codigo),
+            mock.patch.object(correr.devolver, "ejecutar_devolucion",
+                              return_value=True),
+            mock.patch.object(correr.seguridad, "borrar_respaldo"),
+            mock.patch.object(correr.seguridad, "anotar_fin_limpio"),
+            mock.patch.object(correr, "_copiar_registro") as copiar,
+        ):
+            devuelto = correr.ejecutar(args)
+        self.assertEqual(devuelto, codigo)
+        return copiar
+
+    def test_el_registro_se_copia_solo_si_el_codigo_no_es_cero(self):
+        self.assertFalse(self._ejecutar(correr.COD_OK).called)
+        self.assertTrue(self._ejecutar(correr.COD_INSTRUMENTO).called)

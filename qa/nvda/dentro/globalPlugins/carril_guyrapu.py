@@ -78,11 +78,14 @@ def describir_foco(obj) -> dict:
         "nombre": _texto(_atributo(obj, "name")),
         "rol": _texto(role),
         "rol_texto": _texto(getattr(role, "displayString", "")),
+        "rol_nombre": _texto(getattr(role, "name", "")),
         "estados": nombres,
         "estados_texto": texto_estados,
         "valor": _texto(_atributo(obj, "value")),
         "descripcion": _texto(_atributo(obj, "description")),
         "atajo": _texto(_atributo(obj, "keyboardShortcut")),
+        "hwnd": int(_atributo(obj, "windowHandle", 0) or 0),
+        "pid": int(_atributo(obj, "processID", 0) or 0),
     }
     datos["texto"] = ", ".join(
         parte for parte in (datos["nombre"], datos["rol_texto"],
@@ -148,6 +151,10 @@ class LectorEventos:
     def ultima_habla(self) -> float:
         with self._cerrojo:
             return self._ultima_habla
+
+    def ahora(self) -> float:
+        with self._cerrojo:
+            return round(self._reloj() - self._inicio, 3)
 
 
 class ServidorCarril:
@@ -216,6 +223,17 @@ class ServidorCarril:
         self._ruta.unlink(missing_ok=True)
 
 
+def _enviar_gesto(nombre, resultado, listo, eventos) -> None:
+    try:
+        gesto = keyboardHandler.KeyboardInputGesture.fromName(nombre)
+        resultado["hora"] = eventos.ahora()
+        inputCore.manager.emulateGesture(gesto)
+    except Exception as exc:
+        resultado["error"] = str(exc)
+    finally:
+        queueHandler.queueFunction(queueHandler.eventQueue, listo.set)
+
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def __init__(self):
@@ -252,7 +270,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._eventos.marcar_habla()
         texto = texto_de_secuencia(speechSequence)
         if texto:
-            self._eventos.agregar("habla", texto=texto)
+            partes = [str(x) for x in speechSequence
+                      if isinstance(x, str) and x.strip()]
+            self._eventos.agregar("habla", texto=texto, partes=partes)
 
     def _al_cancelar(self, **kwargs) -> None:
         self._eventos.marcar_cancelado()
@@ -291,7 +311,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return {"ok": False, "error": "orden desconocida"}
 
     def _foco_actual(self) -> dict:
-        return {"ok": True, "foco": describir_foco(api.getFocusObject())}
+        plano = api.getForegroundObject()
+        return {
+            "ok": True,
+            "foco": describir_foco(api.getFocusObject()),
+            "primer_plano": {
+                "pid": int(_atributo(plano, "processID", 0) or 0),
+                "nombre": _texto(_atributo(plano, "name")),
+            },
+        }
 
     def _en_principal(self, funcion, tope=5.0) -> dict:
         resultado = {}
@@ -320,18 +348,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         limite = time.monotonic() + tope
         listo = threading.Event()
         resultado = {}
-
-        def enviar():
-            try:
-                gesto = keyboardHandler.KeyboardInputGesture.fromName(nombre)
-                inputCore.manager.emulateGesture(gesto)
-            except Exception as exc:
-                resultado["error"] = str(exc)
-            finally:
-                queueHandler.queueFunction(
-                    queueHandler.eventQueue, listo.set)
-
-        queueHandler.queueFunction(queueHandler.eventQueue, enviar)
+        queueHandler.queueFunction(
+            queueHandler.eventQueue,
+            lambda: _enviar_gesto(nombre, resultado, listo, self._eventos))
         agotado = not listo.wait(tope)
         if "error" in resultado:
             return {"ok": False, "error": resultado["error"]}
@@ -339,7 +358,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             restante = max(0.0, limite - time.monotonic())
             agotado = not self._esperar_quieto(silencio, restante)
         return {"ok": True, "indice": self._eventos.marca(),
-                "agotado": agotado}
+                "agotado": agotado, "hora": resultado.get("hora")}
 
     def _esperar_quieto(self, silencio, tope) -> bool:
         limite = time.monotonic() + tope

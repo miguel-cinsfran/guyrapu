@@ -79,6 +79,10 @@ class Cliente:
     def foco(self) -> dict:
         return self._pedir(orden="foco")["foco"]
 
+    def foco_completo(self) -> dict:
+        """El foco y el proceso y nombre de la ventana en primer plano."""
+        return self._pedir(orden="foco")
+
     def tecla(self, gesto, silencio_ms=400, tope_ms=10000) -> dict:
         return self._pedir(orden="tecla", gesto=gesto,
                            silencio_ms=int(silencio_ms),
@@ -91,6 +95,7 @@ class Cliente:
         return {
             "tecla": gesto,
             "agotado": bool(respuesta.get("agotado")),
+            "hora": respuesta.get("hora"),
             "eventos": self.desde(antes),
             "foco": self.foco(),
         }

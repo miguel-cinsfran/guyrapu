@@ -9,11 +9,13 @@ estaba y borra la tarea de respaldo. Si el guion muere de golpe, la tarea
 programada corre `devolver.py`.
 
     python qa/nvda/correr.py --canario
+    python qa/nvda/correr.py --reglas
 """
 
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
 import time
@@ -24,7 +26,9 @@ if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
 from qa.nvda import cliente as cliente_nvda  # noqa: E402
-from qa.nvda import devolver, nvda_local, perfil, seguridad  # noqa: E402
+from qa.nvda import (devolver, nvda_local, perfil, recorrido, reglas,  # noqa: E402
+                     seguridad, trampas)
+from qa.nvda.recorrido import InstrumentoRoto  # noqa: E402
 
 COD_OK = 0
 COD_INSTRUMENTO = 2
@@ -43,8 +47,12 @@ class Cortado(Exception):
     """Llegó teclado o ratón físico durante la corrida."""
 
 
-class InstrumentoRoto(Exception):
-    """El carril no arrancó o el canario no dijo lo esperado."""
+class ReglasFallidas(InstrumentoRoto):
+    """Alguna regla no saltó en su trampa o saltó en la ventana limpia."""
+
+    def __init__(self, fallos, lineas):
+        super().__init__("; ".join(fallos))
+        self.lineas = lineas
 
 
 def _revisar(vigilante) -> None:
@@ -137,8 +145,14 @@ def _corrida(args, vigilante, ruta_copia, ruta_perfil, accion, instalado,
     if accion == "armar":
         if nvda_local.crear_portatil(instalado, ruta_copia) != 0:
             raise InstrumentoRoto("no se pudo armar la copia portátil")
-    nvda_local.lanzar(ruta_copia / "nvda.exe", ["-c", str(ruta_perfil)])
+    nvda_local.lanzar(
+        ruta_copia / "nvda.exe",
+        ["-c", str(ruta_perfil), "-f", str(perfil.ruta_registro()),
+         "-l", "10"])
     cliente = _conectar(vigilante, ruta_perfil / "carril.json")
+    if getattr(args, "reglas", False):
+        lineas = _canario(cliente, vigilante)
+        return _reglas(cliente, vigilante, lineas)
     if not args.canario:
         return ["NVDA respondió"]
     return _canario(cliente, vigilante)
@@ -152,12 +166,93 @@ def _escribir_informe(lineas) -> Path:
     return destino
 
 
+def _linea_paso(indice, paso) -> str:
+    foco = paso.get("foco") or {}
+    habla = " ".join(str(evento.get("texto") or "")
+                     for evento in paso.get("habla") or [])
+    return (f"paso {indice} {paso.get('tecla')} [{paso.get('fase')}]: "
+            f"habla={habla!r}; foco={foco.get('nombre')!r}, "
+            f"rol={foco.get('rol_nombre')!r}; "
+            f"espera_agotada={paso.get('agotado')}; "
+            f"ms_habla={paso.get('ms_habla')}")
+
+
+def _lineas_de_ventana(nombre, datos, hallazgos) -> list:
+    lineas = [f"--- {nombre}: {datos.get('ventana')} ---"]
+    pasos = datos.get("pasos") or []
+    for indice, paso in enumerate(pasos):
+        lineas.append(_linea_paso(indice, paso))
+    tiempos = [paso["ms_habla"] for paso in pasos
+               if paso.get("ms_habla") is not None]
+    lineas.append(f"máximo de la última habla: "
+                  f"{max(tiempos) if tiempos else None} ms")
+    if not hallazgos:
+        lineas.append("sin hallazgos")
+    for hallazgo in hallazgos:
+        lineas.append(
+            f"hallazgo {hallazgo['regla']} ({hallazgo['nivel']}) "
+            f"ventana={hallazgo['ventana']} paso={hallazgo['paso']} "
+            f"tecla={hallazgo['tecla']}: {hallazgo['detalle']}")
+    return lineas
+
+
+def _fallos_de_reglas(por_ventana) -> list:
+    fallos = []
+    for nombre in reglas.NIVELES:
+        hallazgos = por_ventana.get(nombre) or []
+        if not any(hallazgo["regla"] == nombre for hallazgo in hallazgos):
+            fallos.append(f"la regla «{nombre}» no saltó en su trampa")
+    for hallazgo in por_ventana.get("limpia") or []:
+        fallos.append(
+            f"la regla «{hallazgo['regla']}» saltó en la limpia "
+            f"en el paso {hallazgo['paso']}")
+    return fallos
+
+
+def _reglas(cliente, vigilante, iniciales=()) -> list:
+    catalogo = reglas.leer_catalogo_ingles()
+    nombres = ["limpia"] + [nombre for nombre, datos in trampas.VENTANAS.items()
+                            if datos["regla"]]
+    lineas = list(iniciales)
+    lineas.append("== reglas del carril ==")
+    por_ventana = {}
+    for nombre in nombres:
+        _revisar(vigilante)
+        datos = trampas.VENTANAS[nombre]
+        try:
+            recorrido_datos = recorrido.recorrer(datos, cliente)
+        except (InstrumentoRoto, OSError) as exc:
+            lineas.append(f"{nombre}: instrumento roto: {exc}")
+            raise ReglasFallidas([str(exc)], lineas) from None
+        hallazgos = reglas.analizar(recorrido_datos, catalogo)
+        lineas.extend(_lineas_de_ventana(nombre, recorrido_datos, hallazgos))
+        por_ventana[nombre] = hallazgos
+    _revisar(vigilante)
+    fallos = _fallos_de_reglas(por_ventana)
+    if fallos:
+        lineas.append("instrumento roto: " + "; ".join(fallos))
+        raise ReglasFallidas(fallos, lineas)
+    lineas.append("reglas: instrumento en verde")
+    return lineas
+
+
+def _copiar_registro(ruta_informe) -> None:
+    origen = perfil.ruta_registro()
+    if not origen.is_file():
+        return
+    destino = Path(ruta_informe).with_name(
+        Path(ruta_informe).stem + "-nvda.log")
+    shutil.copyfile(origen, destino)
+    print(f"Registro de NVDA: {destino}")
+
+
 def _guardia(args):
     """El motivo de la negación, o None si se puede empezar."""
     segundos = seguridad.segundos_desde_ultima_entrada()
+    marca = seguridad.leer_fin_limpio(perfil.ruta_fin_limpio())
     try:
         permitido, motivo = seguridad.decidir_guardia(
-            segundos, args.sin_espera, args.una_pc)
+            segundos, args.sin_espera, args.una_pc, marca)
     except seguridad.ModoRequerido as exc:
         return str(exc)
     return None if permitido else motivo
@@ -199,11 +294,31 @@ def _con_canario(args, vigilante, ruta_copia, accion, instalado,
     except Cortado:
         print("Cortado por teclado o ratón físico: se devuelve el NVDA.")
         codigo = COD_CORTE
+    except ReglasFallidas as exc:
+        print(f"Instrumento roto: {exc}")
+        lineas = exc.lineas
+        codigo = COD_INSTRUMENTO
     except InstrumentoRoto as exc:
         print(f"Instrumento roto: {exc}")
+        lineas.append(f"instrumento roto: {exc}")
         codigo = COD_INSTRUMENTO
-    print(f"Informe: {_escribir_informe(lineas)}")
+    ruta = _escribir_informe(lineas)
+    args.informe = ruta
+    print(f"Informe: {ruta}")
     return codigo
+
+
+def _devolver(ruta_estado, ruta_copia, instalado) -> None:
+    try:
+        devuelto = devolver.ejecutar_devolucion(
+            ruta_estado, ruta_copia, instalado)
+    except OSError as exc:
+        print(f"No se pudo devolver el NVDA: {exc}")
+        devuelto = False
+    if devuelto:
+        seguridad.borrar_respaldo(seguridad.NOMBRE_RESPALDO)
+    else:
+        print("No se pudo devolver el NVDA de la PC.")
 
 
 def ejecutar(args) -> int:
@@ -221,23 +336,23 @@ def ejecutar(args) -> int:
     ruta_estado = perfil.ruta_estado()
     seguridad.escribir_estado(ruta_estado, seguridad.estado_inicial(actual))
     vigilante = seguridad.Vigilante()
+    codigo = COD_OK
+    ruta_informe = None
     try:
         if not _programar_respaldo(vigilante, args.respaldo_minutos):
-            return COD_RESPALDO
-        return _con_canario(args, vigilante, ruta_copia, accion,
-                            instalado, actual)
+            codigo = COD_RESPALDO
+            return codigo
+        codigo = _con_canario(args, vigilante, ruta_copia, accion,
+                              instalado, actual)
+        ruta_informe = getattr(args, "informe", None)
+        return codigo
     finally:
         vigilante.detener()
-        try:
-            devuelto = devolver.ejecutar_devolucion(
-                ruta_estado, ruta_copia, instalado)
-        except OSError as exc:
-            print(f"No se pudo devolver el NVDA: {exc}")
-            devuelto = False
-        if devuelto:
-            seguridad.borrar_respaldo(seguridad.NOMBRE_RESPALDO)
-        else:
-            print("No se pudo devolver el NVDA de la PC.")
+        if not vigilante.cortado:
+            seguridad.anotar_fin_limpio(perfil.ruta_fin_limpio())
+        _devolver(ruta_estado, ruta_copia, instalado)
+        if codigo != COD_OK and ruta_informe:
+            _copiar_registro(ruta_informe)
 
 
 def main(argv=None) -> int:
@@ -245,6 +360,8 @@ def main(argv=None) -> int:
         description="Carril de NVDA del banco de QA.")
     analizador.add_argument("--canario", action="store_true",
                             help="recorre la ventana canario")
+    analizador.add_argument("--reglas", action="store_true",
+                            help="recorre el canario, la limpia y las trampas")
     analizador.add_argument("--sin-espera", action="store_true",
                             help="saltea la guardia de diez minutos")
     analizador.add_argument("--una-pc", action="store_true",

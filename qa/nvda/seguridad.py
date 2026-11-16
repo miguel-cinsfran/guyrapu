@@ -98,18 +98,64 @@ def es_fisico(tipo, banderas) -> bool:
     return not (int(banderas) & marca)
 
 
-def decidir_guardia(segundos, sin_espera=False, una_pc=False):
-    """(permitido, motivo) según la última entrada física y el modo."""
+def decidir_guardia(segundos, sin_espera=False, una_pc=False, marca=None,
+                    ahora=None):
+    """(permitido, motivo) según la última entrada física y el modo.
+
+    Con una marca de fin limpio válida alcanza con que la última entrada de
+    Windows sea anterior o igual a ella: lo que inyectó el carril quedó
+    antes. Sin marca, ilegible o en el futuro, vale la espera de siempre.
+    """
     if sin_espera:
         if not una_pc:
             raise ModoRequerido(
                 "--sin-espera exige --una-pc: se saltea la guardia solo en "
                 "la PC donde se trabaja")
         return True, "sin espera, modo de una sola PC"
+    ahora = ahora or datetime.now()
+    if _hay_fin_limpio(segundos, marca, ahora):
+        return True, f"sin entrada física desde el fin limpio ({segundos:.0f} s)"
     if segundos < MINUTOS_GUARDIA * 60:
         return False, (f"hubo teclado o ratón hace {segundos:.0f} s; "
                        f"se esperan {MINUTOS_GUARDIA:.0f} minutos")
     return True, f"sin entrada física hace {segundos:.0f} s"
+
+
+def _hay_fin_limpio(segundos, marca, ahora) -> bool:
+    limpio = _marca_valida(marca, ahora)
+    if limpio is None:
+        return False
+    return ahora - timedelta(seconds=segundos) <= limpio
+
+
+def _marca_valida(marca, ahora):
+    if isinstance(marca, datetime):
+        valor = marca
+    elif isinstance(marca, str):
+        try:
+            valor = datetime.fromisoformat(marca.strip())
+        except ValueError:
+            return None
+    else:
+        return None
+    return None if valor > ahora else valor
+
+
+def anotar_fin_limpio(ruta, momento=None) -> None:
+    """Deja la hora en que se detuvo el vigilante, antes de la devolución."""
+    ruta = Path(ruta)
+    ruta.parent.mkdir(parents=True, exist_ok=True)
+    ruta.write_text((momento or datetime.now()).isoformat(),
+                    encoding="utf-8")
+
+
+def leer_fin_limpio(ruta):
+    """El texto de la marca, o None si no está."""
+    try:
+        texto = Path(ruta).read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    return texto or None
 
 
 def segundos_desde_ultima_entrada() -> float:

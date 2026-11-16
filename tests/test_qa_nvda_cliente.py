@@ -86,9 +86,11 @@ class TestPedidos(unittest.TestCase):
         self.servidor = ServidorFalso({
             "version": {"ok": True, "version": "2026.3.1"},
             "marca": lambda pedido, n: {"ok": True, "indice": 7},
-            "tecla": {"ok": True, "indice": 8, "agotado": False},
+            "tecla": {"ok": True, "indice": 8, "agotado": False,
+                      "hora": 1.5},
             "desde": {"ok": True, "eventos": [{"tipo": "habla"}]},
-            "foco": {"ok": True, "foco": {"nombre": "Aceptar"}},
+            "foco": {"ok": True, "foco": {"nombre": "Aceptar"},
+                     "primer_plano": {"pid": 7, "nombre": "Ventana"}},
         })
         self.estado = EstadoTemporal(self.servidor.puerto)
 
@@ -116,7 +118,14 @@ class TestPedidos(unittest.TestCase):
         self.assertEqual(ordenes, ["marca", "tecla", "desde", "foco"])
         self.assertEqual(resultado["eventos"], [{"tipo": "habla"}])
         self.assertEqual(resultado["foco"], {"nombre": "Aceptar"})
+        self.assertEqual(resultado["hora"], 1.5)
         self.assertEqual(self.servidor.recibidos[2]["indice"], 7)
+
+    def test_foco_completo_trae_el_primer_plano(self):
+        respuesta = cliente.Cliente(self.estado.ruta).foco_completo()
+        self.assertEqual(respuesta["foco"], {"nombre": "Aceptar"})
+        self.assertEqual(respuesta["primer_plano"],
+                         {"pid": 7, "nombre": "Ventana"})
 
     def test_una_respuesta_rechazada_levanta_error(self):
         self.servidor.respuestas["version"] = {

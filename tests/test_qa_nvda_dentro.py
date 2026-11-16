@@ -92,6 +92,7 @@ def _modulos_falsos(carpeta, gestor):
     config.WritePaths = types.SimpleNamespace(configDir=str(carpeta))
     api = types.ModuleType("api")
     api.getFocusObject = lambda: None
+    api.getForegroundObject = lambda: None
     global_plugins = types.ModuleType("globalPluginHandler")
     global_plugins.GlobalPlugin = GlobalPluginFalso
     input_core = types.ModuleType("inputCore")
@@ -174,6 +175,13 @@ class TestComplemento(unittest.TestCase):
         self.assertEqual(evento["tipo"], "habla")
         self.assertEqual(evento["texto"], "Hola mundo")
 
+    def test_guarda_las_partes_del_habla_sin_quitar_el_texto(self):
+        self.plugin._al_hablar(
+            speechSequence=["Hola", IndexCommandFalso(1), "mundo"])
+        evento = self.plugin._eventos.desde(0)[-1]
+        self.assertEqual(evento["texto"], "Hola mundo")
+        self.assertEqual(evento["partes"], ["Hola", "mundo"])
+
     def test_guarda_los_pitidos_y_los_deja_sonar(self):
         self.assertTrue(self.plugin._al_pitar(hz=440, length=10))
         evento = self.plugin._eventos.desde(0)[-1]
@@ -193,9 +201,47 @@ class TestComplemento(unittest.TestCase):
         self.assertEqual(evento["nombre"], "Aceptar")
         self.assertEqual(evento["rol_texto"], "botón")
 
+    def test_el_foco_guarda_rol_nombre_hwnd_y_pid(self):
+        objeto = types.SimpleNamespace(
+            name="Aceptar", role=types.SimpleNamespace(
+                name="PANE", displayString="panel"), states=set(), value="",
+            description="", keyboardShortcut="", windowHandle=42,
+            processID=7)
+        self.plugin.event_gainFocus(objeto, lambda: None)
+        evento = self.plugin._eventos.desde(0)[-1]
+        self.assertEqual(evento["rol_nombre"], "PANE")
+        self.assertEqual(evento["hwnd"], 42)
+        self.assertEqual(evento["pid"], 7)
+
+    def test_la_respuesta_de_foco_trae_el_primer_plano(self):
+        enfocado = types.SimpleNamespace(
+            name="Aceptar", role=types.SimpleNamespace(
+                name="PUSH_BUTTON", displayString="botón"), states=set(),
+            value="", description="", keyboardShortcut="", windowHandle=42,
+            processID=7)
+        primer_plano = types.SimpleNamespace(name="Ventana del carril",
+                                             processID=7)
+        with (
+            mock.patch.object(self.modulo.api, "getFocusObject",
+                              return_value=enfocado),
+            mock.patch.object(self.modulo.api, "getForegroundObject",
+                              return_value=primer_plano),
+        ):
+            respuesta = self.plugin._atender({"orden": "foco"})
+        self.assertEqual(respuesta["foco"]["nombre"], "Aceptar")
+        self.assertEqual(respuesta["primer_plano"],
+                         {"pid": 7, "nombre": "Ventana del carril"})
+
     def test_version_responde_sin_tocar_la_interfaz(self):
         self.assertEqual(self.plugin._atender({"orden": "version"}),
                          {"ok": True, "version": "2026.3.1"})
+
+    def test_la_tecla_dice_la_hora_en_que_se_mando(self):
+        respuesta = self.plugin._atender(
+            {"orden": "tecla", "gesto": "tab", "silencio_ms": 0,
+             "tope_ms": 100})
+        self.assertTrue(respuesta["ok"])
+        self.assertIsInstance(respuesta["hora"], float)
 
     def test_cada_evento_va_al_jsonl_con_indice_hora_y_tipo(self):
         self.plugin._al_hablar(speechSequence=["uno"])

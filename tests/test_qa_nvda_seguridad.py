@@ -7,7 +7,7 @@ import os
 import sys
 import tempfile
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -58,6 +58,56 @@ class TestGuardia(unittest.TestCase):
         permitido, _ = seguridad.decidir_guardia(
             10, sin_espera=True, una_pc=True)
         self.assertTrue(permitido)
+
+
+class TestFinLimpio(unittest.TestCase):
+
+    AHORA = datetime(2026, 11, 16, 12, 0)
+
+    def _guardia(self, segundos, marca=None):
+        return seguridad.decidir_guardia(
+            segundos, marca=marca, ahora=self.AHORA)
+
+    def test_la_entrada_anterior_al_fin_limpio_deja_empezar(self):
+        permitido, _ = self._guardia(
+            60, self.AHORA - timedelta(seconds=30))
+        self.assertTrue(permitido)
+
+    def test_la_entrada_igual_al_fin_limpio_deja_empezar(self):
+        permitido, _ = self._guardia(
+            30, self.AHORA - timedelta(seconds=30))
+        self.assertTrue(permitido)
+
+    def test_la_entrada_posterior_al_fin_limpio_hace_esperar(self):
+        permitido, motivo = self._guardia(
+            10, self.AHORA - timedelta(seconds=30))
+        self.assertFalse(permitido)
+        self.assertIn("10 minutos", motivo)
+
+    def test_sin_marca_hace_esperar(self):
+        permitido, _ = self._guardia(60)
+        self.assertFalse(permitido)
+
+    def test_una_marca_ilegible_hace_esperar(self):
+        permitido, _ = self._guardia(60, "no es una fecha")
+        self.assertFalse(permitido)
+
+    def test_una_marca_en_el_futuro_hace_esperar(self):
+        permitido, _ = self._guardia(
+            60, self.AHORA + timedelta(seconds=60))
+        self.assertFalse(permitido)
+
+    def test_anota_y_lee_la_hora_del_fin_limpio(self):
+        with tempfile.TemporaryDirectory() as base:
+            ruta = Path(base) / "fin-limpio.txt"
+            seguridad.anotar_fin_limpio(ruta, self.AHORA)
+            self.assertEqual(seguridad.leer_fin_limpio(ruta),
+                             self.AHORA.isoformat())
+
+    def test_sin_archivo_no_hay_marca(self):
+        with tempfile.TemporaryDirectory() as base:
+            self.assertIsNone(seguridad.leer_fin_limpio(
+                Path(base) / "fin-limpio.txt"))
 
 
 class TestEstado(unittest.TestCase):
@@ -264,6 +314,7 @@ class TestRespaldoSeConserva(unittest.TestCase):
             mock.patch.object(correr, "_con_canario", return_value=0),
             mock.patch.object(correr.seguridad,
                               "borrar_respaldo") as borrar,
+            mock.patch.object(correr.seguridad, "anotar_fin_limpio"),
         ):
             codigo = correr.ejecutar(args)
         self.assertEqual(codigo, correr.COD_OK)
