@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import subprocess
 import threading
-import time
+import time  # noqa: F401  (reexport para las pruebas)
 import uuid
 from dataclasses import dataclass, field
 from typing import Callable, Optional
@@ -23,6 +23,7 @@ from typing import Callable, Optional
 from guyrapu.core import diagnostico
 from guyrapu.core.config import obtener_opciones_descarga
 from guyrapu.core.idioma import _
+from guyrapu.downloads.avisos_item import AvisosItem
 from guyrapu.downloads import ffmpeg_bin
 from guyrapu.downloads import fila_descargas
 from guyrapu.downloads import proceso_descarga
@@ -132,9 +133,6 @@ def tiene_ffmpeg() -> bool:
 
 # ── Gestor de cola ───────────────────────────────────────────────────────────
 
-# La velocidad y el tiempo restante cambian muy seguido: escribirlos en el
-# ítem cada 500 ms haría hablar al lector sin parar.
-INTERVALO_VELOCIDAD_S = 3.0
 
 class GestorDescargas:
     """Cola de descargas. Cada ítem corre en su propio hilo (daemon).
@@ -218,6 +216,41 @@ class GestorDescargas:
         if estado in ("completado", "parcial", "cancelado", "error"):
             logger.info("descarga %s terminó: %s", it.id, estado)
 
+    def _correr(self, item_id, it, ev, url, opciones, avisos) -> None:
+        # Doble red de seguridad: capturar lo que sea que se escape.
+        tomado = False
+        try:
+            tomado = self._esperar_turno(item_id, ev)
+            if not tomado:
+                avisos.estado("cancelado", _("Descarga cancelada"))
+                return
+            try:
+                info = analizar_url(url)
+                it.tipo = info.get("tipo", "video")
+                it.total = int(info.get("cuenta") or 0)
+                titulo = info.get("titulo") or ""
+                if titulo:
+                    avisos.progreso(it.progreso, "", "", titulo)
+                if ev.is_set():
+                    # Cancelada durante el análisis: no lanzar yt-dlp para nada.
+                    avisos.estado("cancelado", _("Descarga cancelada"))
+                    return
+                if info.get("en_directo"):
+                    avisos.estado("error", _("Un directo en curso no se puede descargar."))
+                    return
+                logger.info("descarga %s: inicio", item_id)
+                opciones_descarga = dict(opciones)
+                opciones_descarga["es_lista"] = (it.tipo == "playlist")
+                descargar(url, opciones_descarga, avisos.progreso, avisos.estado,
+                          ev, avisos.detalle)
+            finally:
+                if tomado:
+                    with self._lock:
+                        self._corriendo -= 1
+        except Exception as exc:
+            logger.warning("hilo descarga: %s", exc)
+            avisos.estado("error", str(exc) or exc.__class__.__name__)
+
     def encolar(self, url: str, progreso_cb: Callable, estado_cb: Callable,
                 creado_cb: Optional[Callable] = None) -> str:
         """Crea un ItemDescarga, lo deja en 'en_cola' y lanza su hilo.
@@ -244,72 +277,10 @@ class GestorDescargas:
         if creado_cb is not None:
             creado_cb(item_id)
 
-        def _cb_estado(estado: str, mensaje: str = "") -> None:
-            self._avisar_estado(it, estado, mensaje, estado_cb)
-
-        ultimo_detalle_ts = [None]
-
-        def _cb_progreso(pct: float, vel, eta, nombre: str) -> None:
-            it.progreso = max(0.0, min(100.0, float(pct)))
-            if nombre and not (it.tipo == "playlist" and it.nombre != it.url):
-                it.nombre = nombre
-            if isinstance(vel, (int, float)) or isinstance(eta, (int, float)):
-                ahora = time.monotonic()
-                if (ultimo_detalle_ts[0] is None
-                        or ahora - ultimo_detalle_ts[0] >= INTERVALO_VELOCIDAD_S):
-                    it.velocidad, it.eta = vel, eta
-                    ultimo_detalle_ts[0] = ahora
-            try:
-                progreso_cb(item_id, it.progreso, vel, eta, it.nombre)
-            except Exception as exc:
-                logger.debug("progreso_cb lanzó: %s", exc)
-
-        def _cb_detalle(cambios: dict) -> None:
-            avisa = cambios.get("procesando") is True and not it.procesando and it.total <= 1
-            if "ruta" in cambios:
-                it.rutas.append(cambios["ruta"])
-            for clave in ("indice", "total", "procesando"):
-                if clave in cambios:
-                    setattr(it, clave, cambios[clave])
-            if avisa:
-                self._avisar_suscriptores("procesando", "", it)
-
-        def _run() -> None:
-            # Doble red de seguridad: capturar lo que sea que se escape.
-            tomado = False
-            try:
-                tomado = self._esperar_turno(item_id, ev)
-                if not tomado:
-                    _cb_estado("cancelado", _("Descarga cancelada"))
-                    return
-                try:
-                    info = analizar_url(url)
-                    it.tipo = info.get("tipo", "video")
-                    it.total = int(info.get("cuenta") or 0)
-                    titulo = info.get("titulo") or ""
-                    if titulo:
-                        _cb_progreso(it.progreso, "", "", titulo)
-                    if ev.is_set():
-                        # Cancelada durante el análisis: no lanzar yt-dlp para nada.
-                        _cb_estado("cancelado", _("Descarga cancelada"))
-                        return
-                    if info.get("en_directo"):
-                        _cb_estado("error", _("Un directo en curso no se puede descargar."))
-                        return
-                    logger.info("descarga %s: inicio", item_id)
-                    opciones_descarga = dict(opciones)
-                    opciones_descarga["es_lista"] = (it.tipo == "playlist")
-                    descargar(url, opciones_descarga, _cb_progreso, _cb_estado, ev,
-                              _cb_detalle)
-                finally:
-                    if tomado:
-                        with self._lock:
-                            self._corriendo -= 1
-            except Exception as exc:
-                logger.warning("hilo descarga: %s", exc)
-                _cb_estado("error", str(exc) or exc.__class__.__name__)
-
-        hilo = diagnostico.crear_hilo(_run, f"Descarga-{item_id}")
+        avisos = AvisosItem(it, item_id, self, progreso_cb, estado_cb)
+        hilo = diagnostico.crear_hilo(
+            self._correr, f"Descarga-{item_id}",
+            args=(item_id, it, ev, url, opciones, avisos))
         hilo.start()
         return item_id
 
