@@ -37,6 +37,12 @@ class BaseCuadro(unittest.TestCase):
         wx.Yield()
         return cuadro
 
+    def _tecla(self, cuadro, codigo):
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = codigo
+        cuadro.GetEventHandler().ProcessEvent(evento)
+        return evento
+
 
 class TestDialogoPruebaConexion(BaseCuadro):
 
@@ -106,6 +112,46 @@ class TestDialogoResultadoPruebaConexion(BaseCuadro):
                     "en YouTube.",))))
         self.assertIn("Quedó pendiente", cuadro.texto())
         self.assertIn("Prueba de conexión de Guyrapu", cuadro.texto())
+
+    def test_escape_cierra_como_el_boton_cerrar(self):
+        cuadro = self._mostrar(
+            dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                None, _resultado(2500, mayor=3800)))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            self._tecla(cuadro, wx.WXK_ESCAPE)
+        fin.assert_called_once_with(wx.ID_CANCEL)
+        self.assertFalse(cuadro.guardar())
+
+    def test_escape_deja_como_estaba_sin_guardar(self):
+        pasos = (prueba_conexion.PasoRed(2500, 5, 100),
+                 prueba_conexion.PasoRed(1300, 0, 100))
+        cuadro = self._mostrar(
+            dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                None, _resultado(1300, pasos=pasos)))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            self._tecla(cuadro, wx.WXK_ESCAPE)
+        fin.assert_called_once_with(wx.ID_CANCEL)
+        self.assertFalse(cuadro.guardar())
+
+    def test_otra_tecla_no_cierra_y_sigue_su_curso(self):
+        cuadro = self._mostrar(
+            dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                None, _resultado(2500, mayor=3800)))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            evento = self._tecla(cuadro, wx.WXK_DOWN)
+        fin.assert_not_called()
+        self.assertTrue(evento.GetSkipped())
+
+    def test_el_boton_de_guardar_sigue_guardando(self):
+        pasos = (prueba_conexion.PasoRed(2500, 5, 100),
+                 prueba_conexion.PasoRed(1300, 0, 100))
+        cuadro = self._mostrar(
+            dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                None, _resultado(1300, pasos=pasos)))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            cuadro._al_guardar(None)
+        fin.assert_called_once_with(wx.ID_OK)
+        self.assertTrue(cuadro.guardar())
 
 
 class TestCoordinador(unittest.TestCase):

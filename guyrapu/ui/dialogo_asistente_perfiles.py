@@ -140,10 +140,17 @@ class DialogoResumenAsistente(wx.Dialog):
         self.SetSizerAndFit(caja)
         self.SetMinSize((540, -1))
         self.Centre()
+        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.txt_resumen.SetFocus()
 
     def _cerrar(self, _evento):
         self.EndModal(wx.ID_OK)
+
+    def _al_tecla(self, evento):
+        if tecla_escape.es_escape(evento.GetKeyCode()):
+            self._cerrar(evento)
+            return
+        evento.Skip()
 
 
 class AsistentePerfilesPanel:

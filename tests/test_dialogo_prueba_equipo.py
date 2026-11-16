@@ -39,6 +39,12 @@ class BaseCuadro(unittest.TestCase):
         wx.Yield()
         return cuadro
 
+    def _tecla(self, cuadro, codigo):
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = codigo
+        cuadro.GetEventHandler().ProcessEvent(evento)
+        return evento
+
 
 class TestDialogoPruebaEquipo(BaseCuadro):
 
@@ -130,6 +136,42 @@ class TestDialogoResultadoPrueba(BaseCuadro):
         self.assertIn("10 %", texto)
         self.assertIn("20 %", texto)
         self.assertTrue(hasattr(cuadro, "btn_cerrar"))
+
+    def test_escape_cierra_como_el_boton_cerrar(self):
+        cuadro = self._mostrar(dialogo_prueba_equipo.DialogoResultadoPrueba(
+            None, _resultado(_ajustes())))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            self._tecla(cuadro, wx.WXK_ESCAPE)
+        fin.assert_called_once_with(wx.ID_CANCEL)
+        self.assertFalse(cuadro.guardar())
+
+    def test_escape_deja_como_estaba_sin_guardar(self):
+        resultado = _resultado(replace(_ajustes(), fps=30,
+                                       ancho_salida=1280, alto_salida=720))
+        cuadro = self._mostrar(dialogo_prueba_equipo.DialogoResultadoPrueba(
+            None, resultado))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            self._tecla(cuadro, wx.WXK_ESCAPE)
+        fin.assert_called_once_with(wx.ID_CANCEL)
+        self.assertFalse(cuadro.guardar())
+
+    def test_otra_tecla_no_cierra_y_sigue_su_curso(self):
+        cuadro = self._mostrar(dialogo_prueba_equipo.DialogoResultadoPrueba(
+            None, _resultado(_ajustes())))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            evento = self._tecla(cuadro, wx.WXK_DOWN)
+        fin.assert_not_called()
+        self.assertTrue(evento.GetSkipped())
+
+    def test_el_boton_de_guardar_sigue_guardando(self):
+        resultado = _resultado(replace(_ajustes(), fps=30,
+                                       ancho_salida=1280, alto_salida=720))
+        cuadro = self._mostrar(dialogo_prueba_equipo.DialogoResultadoPrueba(
+            None, resultado))
+        with mock.patch.object(cuadro, "EndModal") as fin:
+            cuadro._al_guardar(None)
+        fin.assert_called_once_with(wx.ID_OK)
+        self.assertTrue(cuadro.guardar())
 
 
 class TestCoordinador(unittest.TestCase):

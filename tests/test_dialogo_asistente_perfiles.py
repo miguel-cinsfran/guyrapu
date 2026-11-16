@@ -66,6 +66,22 @@ class TestDialogoResumen(unittest.TestCase):
     def setUp(self):
         self.app = app_de_prueba()
 
+    def _dialogo(self):
+        resultado = asistente_perfiles.ResultadoAsistente((
+            _perfil("Guyrapu horizontal", "perfil_horizontal"),
+            _perfil("Guyrapu grabación", "perfil_grabar"),
+        ))
+        texto = "\n".join(asistente_perfiles.lineas_resumen(resultado))
+        dialogo = modulo.DialogoResumenAsistente(None, texto)
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def _tecla(self, dialogo, codigo):
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = codigo
+        dialogo.GetEventHandler().ProcessEvent(evento)
+        return evento
+
     def test_muestra_una_linea_por_perfil_y_recibe_el_foco(self):
         resultado = asistente_perfiles.ResultadoAsistente((
             _perfil("Guyrapu horizontal", "perfil_horizontal"),
@@ -79,6 +95,25 @@ class TestDialogoResumen(unittest.TestCase):
         self.assertEqual(dialogo.btn_cerrar.GetLabel(), _("&Cerrar"))
         self.assertEqual(dialogo.btn_cerrar.GetName(), "Cerrar")
         self.assertIs(wx.Window.FindFocus(), dialogo.txt_resumen)
+
+    def test_escape_cierra_como_el_boton_cerrar(self):
+        dialogo = self._dialogo()
+        with mock.patch.object(dialogo, "EndModal") as fin:
+            self._tecla(dialogo, wx.WXK_ESCAPE)
+        fin.assert_called_once_with(wx.ID_OK)
+
+    def test_otra_tecla_no_cierra_y_sigue_su_curso(self):
+        dialogo = self._dialogo()
+        with mock.patch.object(dialogo, "EndModal") as fin:
+            evento = self._tecla(dialogo, wx.WXK_DOWN)
+        fin.assert_not_called()
+        self.assertTrue(evento.GetSkipped())
+
+    def test_el_boton_de_cerrar_sigue_cerrando(self):
+        dialogo = self._dialogo()
+        with mock.patch.object(dialogo, "EndModal") as fin:
+            dialogo._cerrar(None)
+        fin.assert_called_once_with(wx.ID_OK)
 
 
 class _OperacionesQueEjecuta:

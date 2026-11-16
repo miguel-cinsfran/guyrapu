@@ -15,6 +15,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import perfiles_obs, prueba_conexion
+from guyrapu.ui import tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 from guyrapu.ui.ventana_espera import VentanaEspera
@@ -133,6 +134,7 @@ class DialogoResultadoPruebaConexion(wx.Dialog):
         self.SetSizerAndFit(caja)
         self.SetMinSize((520, -1))
         self.Centre()
+        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.txt_resultado.SetFocus()
 
     def _al_guardar(self, _evento):
@@ -141,6 +143,12 @@ class DialogoResultadoPruebaConexion(wx.Dialog):
 
     def _cerrar(self, _evento):
         self.EndModal(wx.ID_CANCEL)
+
+    def _al_tecla(self, evento):
+        if tecla_escape.es_escape(evento.GetKeyCode()):
+            self._cerrar(evento)
+            return
+        evento.Skip()
 
     def guardar(self) -> bool:
         return self._guardar
