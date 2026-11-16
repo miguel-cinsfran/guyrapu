@@ -8,12 +8,14 @@ y el cliente sustituidos. No se abre ninguna ventana ni se toca una tarea
 programada.
 """
 
+import json
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from qa.nvda import correr, seguridad
+from qa.nvda import correr, devolver, nvda_local, seguridad
 
 INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
 
@@ -157,3 +159,57 @@ class TestPasoCanario(unittest.TestCase):
         cliente.tecla.assert_called_once_with("tab")
         cliente.desde.assert_not_called()
         cliente.foco.assert_not_called()
+
+
+class TestDevolucionFallida(unittest.TestCase):
+
+    def test_si_lanzar_falla_no_borra_el_estado_ni_el_respaldo(self):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
+        ruta_estado = Path(carpeta.name) / "estado-carril.json"
+        ruta_estado.write_text(
+            json.dumps({"habia": True, "ejecutable": INSTALADO}),
+            encoding="utf-8")
+        with (
+            mock.patch.object(nvda_local, "nvda_en_marcha",
+                              return_value=None),
+            mock.patch.object(
+                nvda_local, "lanzar",
+                side_effect=OSError(740, "requiere elevación")),
+        ):
+            self.assertFalse(devolver.ejecutar_devolucion(
+                ruta_estado, Path("copia"), INSTALADO))
+        self.assertTrue(ruta_estado.exists())
+
+        ruta_corrida = Path(carpeta.name) / "estado-corrida.json"
+        with (
+            mock.patch.object(correr, "_guardia", return_value=None),
+            mock.patch.object(
+                correr, "_elegir_copia",
+                return_value=(Path("copia"), INSTALADO, "usar")),
+            mock.patch.object(correr.perfil, "version_esperada",
+                              return_value="2026.3.1"),
+            mock.patch.object(correr.perfil, "ruta_estado",
+                              return_value=ruta_corrida),
+            mock.patch.object(
+                correr.nvda_local, "nvda_en_marcha",
+                side_effect=[
+                    {"pid": 1, "ejecutable": INSTALADO}, None]),
+            mock.patch.object(
+                correr.nvda_local, "lanzar",
+                side_effect=OSError(740, "requiere elevación")),
+            mock.patch.object(
+                correr.seguridad, "Vigilante",
+                return_value=mock.Mock(cortado=False)),
+            mock.patch.object(correr.seguridad, "crear_respaldo",
+                              return_value=(True, "")),
+            mock.patch.object(correr.seguridad,
+                              "borrar_respaldo") as borrar,
+            mock.patch.object(correr, "_con_canario", return_value=0),
+        ):
+            codigo = correr.ejecutar(
+                SimpleNamespace(sin_espera=False, una_pc=False,
+                                respaldo_minutos=45, canario=True))
+        self.assertEqual(codigo, correr.COD_OK)
+        self.assertTrue(ruta_corrida.exists())
+        borrar.assert_not_called()

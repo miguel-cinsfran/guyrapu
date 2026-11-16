@@ -71,19 +71,23 @@ def ejecutar_devolucion(ruta_estado, ruta_portatil, instalado) -> bool:
     Con «nada» ya estaba devuelto, con «lanzar» se arrancó el ejecutable y
     con «cerrar» solo se da por bueno si el portátil terminó de cerrarse.
     """
-    estado = leer_estado(ruta_estado)
-    actual = nvda_local.nvda_en_marcha()
-    accion, destino = decidir_devolucion(
-        estado, actual, ruta_portatil, instalado)
-    if accion == "cerrar":
-        if not nvda_local.cerrar(actual):
-            print("no se pudo cerrar la copia portátil")
-            return False
-    elif accion == "lanzar":
-        nvda_local.lanzar(destino)
-    if estado is not None:
-        Path(ruta_estado).unlink(missing_ok=True)
-    return True
+    try:
+        estado = leer_estado(ruta_estado)
+        actual = nvda_local.nvda_en_marcha()
+        accion, destino = decidir_devolucion(
+            estado, actual, ruta_portatil, instalado)
+        if accion == "cerrar":
+            if not nvda_local.cerrar(actual):
+                print("no se pudo cerrar la copia portátil")
+                return False
+        elif accion == "lanzar":
+            nvda_local.lanzar(destino)
+        if estado is not None:
+            Path(ruta_estado).unlink(missing_ok=True)
+        return True
+    except OSError as exc:
+        print(f"No se pudo devolver el NVDA: {exc}")
+        return False
 
 
 def main() -> int:

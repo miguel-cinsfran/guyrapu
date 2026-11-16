@@ -228,9 +228,16 @@ def ejecutar(args) -> int:
                             instalado, actual)
     finally:
         vigilante.detener()
-        if devolver.ejecutar_devolucion(
-                ruta_estado, ruta_copia, instalado):
+        try:
+            devuelto = devolver.ejecutar_devolucion(
+                ruta_estado, ruta_copia, instalado)
+        except OSError as exc:
+            print(f"No se pudo devolver el NVDA: {exc}")
+            devuelto = False
+        if devuelto:
             seguridad.borrar_respaldo(seguridad.NOMBRE_RESPALDO)
+        else:
+            print("No se pudo devolver el NVDA de la PC.")
 
 
 def main(argv=None) -> int:

@@ -11,13 +11,15 @@ from __future__ import annotations
 
 import ctypes
 import os
-import subprocess
 import time
 from ctypes import wintypes
 from pathlib import Path
 
 WM_QUIT = 0x0012
 WAIT_TIMEOUT = 0x0102
+WAIT_FAILED = 0xFFFFFFFF
+SEE_MASK_NOCLOSEPROCESS = 0x00000040
+SW_SHOWNORMAL = 1
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 SYNCHRONIZE = 0x00100000
 CLASE_VENTANA = "wxWindowClassNR"
@@ -25,6 +27,7 @@ TITULO_VENTANA = "NVDA"
 
 user32 = ctypes.WinDLL("user32", use_last_error=True)
 kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+shell32 = ctypes.WinDLL("shell32", use_last_error=True)
 version = ctypes.WinDLL("version", use_last_error=True)
 
 user32.FindWindowW.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR]
@@ -40,6 +43,9 @@ kernel32.OpenProcess.restype = wintypes.HANDLE
 kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
 kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
 kernel32.WaitForSingleObject.restype = wintypes.DWORD
+kernel32.GetExitCodeProcess.argtypes = [wintypes.HANDLE,
+                                        ctypes.POINTER(wintypes.DWORD)]
+kernel32.GetExitCodeProcess.restype = wintypes.BOOL
 kernel32.QueryFullProcessImageNameW.argtypes = [
     wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR,
     ctypes.POINTER(wintypes.DWORD)]
@@ -76,6 +82,30 @@ class _VersionFija(ctypes.Structure):
         ("fecha_ms", wintypes.DWORD),
         ("fecha_ls", wintypes.DWORD),
     ]
+
+
+class _InfoShell(ctypes.Structure):
+    _fields_ = [
+        ("tamano", wintypes.DWORD),
+        ("mascara", wintypes.DWORD),
+        ("ventana", wintypes.HWND),
+        ("verbo", wintypes.LPCWSTR),
+        ("archivo", wintypes.LPCWSTR),
+        ("parametros", wintypes.LPCWSTR),
+        ("carpeta", wintypes.LPCWSTR),
+        ("mostrar", ctypes.c_int),
+        ("instancia", wintypes.HINSTANCE),
+        ("lista", ctypes.c_void_p),
+        ("clase", wintypes.LPCWSTR),
+        ("clave", wintypes.HANDLE),
+        ("tecla", wintypes.DWORD),
+        ("icono", wintypes.HANDLE),
+        ("proceso", wintypes.HANDLE),
+    ]
+
+
+shell32.ShellExecuteExW.argtypes = [ctypes.POINTER(_InfoShell)]
+shell32.ShellExecuteExW.restype = wintypes.BOOL
 
 
 def normalizar_version(texto) -> str:
@@ -174,6 +204,55 @@ def esperar_salida(pid, segundos) -> bool:
     return not proceso_vivo(pid)
 
 
+def _citar(argumento) -> str:
+    texto = str(argumento)
+    if not texto or any(caracter in texto for caracter in ' \t"'):
+        return '"' + texto.replace('"', '\\"') + '"'
+    return texto
+
+
+def _parametros(argumentos) -> str:
+    return " ".join(_citar(argumento) for argumento in argumentos)
+
+
+def ejecutar_shell(ejecutable, argumentos=(), esperar=False,
+                   tope_s=600.0) -> int:
+    """Arranca un ejecutable con ShellExecuteEx, como un doble clic.
+
+    Windows no deja iniciar el `nvda.exe` instalado con CreateProcess porque
+    declara uiAccess, y falla con el error 740. ShellExecuteEx lo arranca con
+    el token del escritorio, sin elevar y sin pedir `runas`.
+    """
+    info = _InfoShell()
+    info.tamano = ctypes.sizeof(_InfoShell)
+    info.mascara = SEE_MASK_NOCLOSEPROCESS
+    info.verbo = "open"
+    info.archivo = str(ejecutable)
+    info.parametros = _parametros(argumentos) or None
+    info.mostrar = SW_SHOWNORMAL
+    if not shell32.ShellExecuteExW(ctypes.byref(info)):
+        raise ctypes.WinError(ctypes.get_last_error())
+    if not info.proceso:
+        return 0
+    try:
+        if not esperar:
+            return 0
+        resultado = kernel32.WaitForSingleObject(
+            info.proceso, int(tope_s * 1000))
+        if resultado == WAIT_TIMEOUT:
+            raise TimeoutError(
+                f"«{ejecutable}» no terminó en {tope_s:.0f} s")
+        if resultado == WAIT_FAILED:
+            raise ctypes.WinError(ctypes.get_last_error())
+        codigo = wintypes.DWORD()
+        if not kernel32.GetExitCodeProcess(info.proceso,
+                                           ctypes.byref(codigo)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return int(codigo.value)
+    finally:
+        kernel32.CloseHandle(info.proceso)
+
+
 def cerrar(actual, espera_s=20.0) -> bool:
     """`WM_QUIT` y espera a que guarde y salga; `-q` solo como último recurso."""
     if not actual:
@@ -186,20 +265,21 @@ def cerrar(actual, espera_s=20.0) -> bool:
     ejecutable = actual.get("ejecutable")
     if not ejecutable:
         return False
-    subprocess.run([ejecutable, "-q"], timeout=30, check=False)
+    try:
+        ejecutar_shell(ejecutable, ["-q"], esperar=False)
+    except OSError:
+        return False
     return esperar_salida(pid, 10.0)
 
 
-def lanzar(ejecutable, argumentos=()):
-    return subprocess.Popen([str(ejecutable), *map(str, argumentos)],
-                            close_fds=True)
+def lanzar(ejecutable, argumentos=()) -> int:
+    return ejecutar_shell(ejecutable, argumentos, esperar=False)
 
 
 def crear_portatil(instalado, destino) -> int:
     """Arma la copia fija desde la instalada, sin arrancarla."""
     Path(destino).mkdir(parents=True, exist_ok=True)
-    proceso = subprocess.run(
-        [str(instalado), "--create-portable-silent",
-         f"--portable-path={destino}"],
-        timeout=600, check=False)
-    return proceso.returncode
+    return ejecutar_shell(
+        instalado,
+        ["--create-portable-silent", f"--portable-path={destino}"],
+        esperar=True, tope_s=600.0)

@@ -3,6 +3,7 @@
 """Pruebas puras de la seguridad del carril: corte, guardia y devolución."""
 
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -276,3 +277,35 @@ class TestRespaldoSeConserva(unittest.TestCase):
     def test_si_no_habia_nada_borra_el_respaldo(self):
         borrar = self._ejecutar([None, None], False)
         borrar.assert_called_once_with(seguridad.NOMBRE_RESPALDO)
+
+
+class TestArranque(unittest.TestCase):
+
+    def test_lanzar_y_crear_portatil_van_por_shell_execute(self):
+        with tempfile.TemporaryDirectory() as base:
+            with (
+                mock.patch.object(nvda_local, "ejecutar_shell",
+                                  create=True, side_effect=[0, 3]) as shell,
+                mock.patch("subprocess.Popen") as popen,
+                mock.patch("subprocess.run") as run,
+            ):
+                self.assertEqual(
+                    nvda_local.lanzar(INSTALADO, ["-c", r"C:\perfil"]), 0)
+                self.assertEqual(
+                    nvda_local.crear_portatil(INSTALADO, Path(base)), 3)
+        popen.assert_not_called()
+        run.assert_not_called()
+        primera, segunda = shell.call_args_list
+        self.assertEqual(primera.args[0], INSTALADO)
+        self.assertEqual(primera.args[1], ["-c", r"C:\perfil"])
+        self.assertFalse(primera.kwargs.get("esperar", False))
+        self.assertEqual(segunda.args[0], INSTALADO)
+        self.assertTrue(segunda.kwargs["esperar"])
+        self.assertEqual(segunda.kwargs["tope_s"], 600.0)
+
+    def test_shell_execute_de_verdad_devuelve_el_codigo_de_salida(self):
+        comando = os.environ.get("COMSPEC",
+                                 r"C:\Windows\System32\cmd.exe")
+        codigo = nvda_local.ejecutar_shell(
+            comando, ["/c", "exit", "3"], esperar=True, tope_s=30.0)
+        self.assertEqual(codigo, 3)
