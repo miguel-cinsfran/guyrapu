@@ -33,6 +33,21 @@ class DialogoActualizacion(wx.Dialog):
         self._accion = None
 
         vs = wx.BoxSizer(wx.VERTICAL)
+        self._crear_estado_y_progreso(vs)
+        self._crear_novedades(vs)
+        self._crear_botones(vs)
+
+        self.SetSizer(vs)
+        self.Fit()
+        self.Centre()
+        self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
+        self.Bind(wx.EVT_CLOSE, self._al_cerrar)
+        try:
+            self.btn_cerrar.SetFocus()
+        except Exception as error:
+            logger.debug("no se pudo enfocar el cierre: %s", error)
+
+    def _crear_estado_y_progreso(self, vs) -> None:
         self.txt_estado = wx.TextCtrl(
             self, value="", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_NO_VSCROLL,
             # Traductores: nombre del cuadro de estado.
@@ -49,6 +64,7 @@ class DialogoActualizacion(wx.Dialog):
         nombre_accesible(self.gauge, _("Progreso"))
         vs.Add(self.gauge, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
 
+    def _crear_novedades(self, vs) -> None:
         self.txt_notas = wx.TextCtrl(
             self, value="", style=wx.TE_MULTILINE | wx.TE_READONLY,
             # Traductores: nombre del cuadro de novedades.
@@ -67,6 +83,7 @@ class DialogoActualizacion(wx.Dialog):
         vs.Add(self.txt_notas, 1, wx.EXPAND | wx.ALL, 10)
         self.txt_notas.Hide()
 
+    def _crear_botones(self, vs) -> None:
         # Traductores: nombre del botón de acción; no se oye porque nace oculto.
         self.btn_accion = wx.Button(self, wx.ID_ANY, "", name=_("Acción"))
         self.btn_accion.Hide()
@@ -77,16 +94,6 @@ class DialogoActualizacion(wx.Dialog):
         fila_botones.Add(self.btn_accion, 0, wx.RIGHT, 10)
         fila_botones.Add(self.btn_cerrar, 0)
         vs.Add(fila_botones, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-
-        self.SetSizer(vs)
-        self.Fit()
-        self.Centre()
-        self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
-        self.Bind(wx.EVT_CLOSE, self._al_cerrar)
-        try:
-            self.btn_cerrar.SetFocus()
-        except Exception as error:
-            logger.debug("no se pudo enfocar el cierre: %s", error)
 
     @property
     def cerrado(self) -> bool:
