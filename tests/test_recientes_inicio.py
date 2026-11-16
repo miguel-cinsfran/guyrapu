@@ -152,25 +152,24 @@ class TestRecientesVentana(unittest.TestCase):
         recientes.lista.SetSelection(1)
         evento = mock.Mock()
         evento.GetKeyCode.return_value = self.wx.WXK_RETURN
-        recientes.al_tecla(evento)
+        recientes._lista_acciones._al_tecla(evento)
         esperada = recientes.entradas[1]["url"]
         al_conectar.assert_called_once_with(esperada)
         evento.Skip.assert_not_called()
 
     def test_intro_por_char_hook_conecta(self):
-        _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(3))
+        _m, _p, _s, _z, recientes, al_conectar = self._marco(self._entradas(3))
         recientes.lista.SetSelection(1)
         evento = self.wx.KeyEvent(self.wx.wxEVT_CHAR_HOOK)
         evento.KeyCode = self.wx.WXK_RETURN
-        with mock.patch.object(recientes, "_conectar") as conectar:
-            recientes.lista.GetEventHandler().ProcessEvent(evento)
-        conectar.assert_called_once_with()
+        recientes.lista.GetEventHandler().ProcessEvent(evento)
+        al_conectar.assert_called_once_with(recientes.entradas[1]["url"])
 
     def test_otra_tecla_se_deja_pasar(self):
         _m, _p, _s, _z, recientes, al_conectar = self._marco(self._entradas(3))
         evento = mock.Mock()
         evento.GetKeyCode.return_value = ord("a")
-        recientes.al_tecla(evento)
+        recientes._lista_acciones._al_tecla(evento)
         al_conectar.assert_not_called()
         evento.Skip.assert_called_once_with()
 
@@ -180,7 +179,7 @@ class TestRecientesVentana(unittest.TestCase):
         with mock.patch.object(recientes_inicio, "anunciar") as anunciar:
             evento = mock.Mock()
             evento.GetKeyCode.return_value = self.wx.WXK_DELETE
-            recientes.al_tecla(evento)
+            recientes._lista_acciones._al_tecla(evento)
         anunciar.assert_called_once_with("Entrada eliminada del historial")
         evento.Skip.assert_not_called()
         self.assertEqual("clave-00", recientes.entradas[1]["clave"])
@@ -188,73 +187,100 @@ class TestRecientesVentana(unittest.TestCase):
         self.assertNotIn(
             "clave-01", [e["clave"] for e in historial.cargar(self.ruta)])
 
-    def test_teclas_del_menu_lo_abren(self):
+    def test_mayus_f10_abre_el_menu(self):
         _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(3))
-        for tecla, mayusculas in (
-                (self.wx.WXK_WINDOWS_MENU, False),
-                (self.wx.WXK_F10, True)):
-            with self.subTest(tecla=tecla):
-                evento = mock.Mock()
-                evento.GetKeyCode.return_value = tecla
-                evento.ShiftDown.return_value = mayusculas
-                with mock.patch.object(recientes, "_mostrar_menu") as mostrar:
-                    recientes.al_tecla(evento)
-                mostrar.assert_called_once_with()
-
-    def test_clic_derecho_abre_el_menu(self):
-        _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(1))
-        with mock.patch.object(recientes, "_mostrar_menu") as mostrar:
-            recientes._on_context_menu(mock.Mock())
-        mostrar.assert_called_once_with()
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = self.wx.WXK_F10
+        evento.GetModifiers.return_value = self.wx.MOD_SHIFT
+        with mock.patch.object(
+                recientes._lista_acciones, "_abrir_menu") as abrir:
+            recientes._lista_acciones._al_tecla(evento)
+        abrir.assert_called_once_with()
 
     def test_clic_derecho_real_abre_el_menu(self):
         _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(1))
         evento = self.wx.ContextMenuEvent(
             self.wx.wxEVT_CONTEXT_MENU, recientes.lista.GetId())
-        with mock.patch.object(recientes, "_mostrar_menu") as mostrar:
+        with mock.patch.object(
+                recientes._lista_acciones, "_abrir_menu") as abrir:
             recientes.lista.ProcessEvent(evento)
-        mostrar.assert_called_once_with()
+        abrir.assert_called_once_with()
 
-    def test_menu_con_fila_da_las_tres_opciones_y_cada_una_llama(self):
+    def test_la_tecla_de_aplicaciones_abre_el_menu_con_las_tres_acciones(self):
         _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(2))
         recientes.lista.SetSelection(0)
-        etiquetas = []
+        items = []
 
         def falso_popup(menu):
             for item in menu.GetMenuItems():
                 if item.GetKind() != self.wx.ITEM_NORMAL:
                     continue
-                etiquetas.append(item.GetItemLabel())
+                items.append((item.GetItemLabel(), item.IsEnabled()))
                 menu.ProcessEvent(
                     self.wx.CommandEvent(self.wx.EVT_MENU.typeId, item.GetId()))
 
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = self.wx.WXK_WINDOWS_MENU
+        evento.GetModifiers.return_value = self.wx.MOD_NONE
         with mock.patch.object(recientes, "_conectar") as conectar, \
                 mock.patch.object(recientes, "_quitar") as quitar, \
                 mock.patch.object(recientes, "abrir_historial") as abrir, \
                 mock.patch.object(
                     recientes.lista, "PopupMenu", falso_popup):
-            recientes._mostrar_menu()
+            recientes._lista_acciones._al_tecla(evento)
         self.assertEqual(
-            ["&Abrir", "&Eliminar del historial",
-             "Abrir &historial completo"], etiquetas)
+            [("&Abrir\tEnter", True),
+             ("&Eliminar del historial\tDel", True),
+             ("Abrir &historial completo", True)], items)
         conectar.assert_called_once_with()
         quitar.assert_called_once_with()
         abrir.assert_called_once_with()
 
-    def test_menu_sin_fila_solo_da_el_historial_completo(self):
+    def test_menu_sin_fila_muestra_las_acciones_apagadas(self):
         _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(2))
         recientes.lista.SetSelection(self.wx.NOT_FOUND)
-        etiquetas = []
+        items = []
 
         def falso_popup(menu):
-            etiquetas.extend(item.GetItemLabel()
-                             for item in menu.GetMenuItems()
-                             if item.GetKind() == self.wx.ITEM_NORMAL)
+            items.extend((item.GetItemLabel(), item.IsEnabled())
+                         for item in menu.GetMenuItems()
+                         if item.GetKind() == self.wx.ITEM_NORMAL)
 
         with mock.patch.object(
                 recientes.lista, "PopupMenu", falso_popup):
-            recientes._mostrar_menu()
-        self.assertEqual(["Abrir &historial completo"], etiquetas)
+            recientes._lista_acciones._abrir_menu()
+        self.assertEqual(
+            [("&Abrir\tEnter", False),
+             ("&Eliminar del historial\tDel", False),
+             ("Abrir &historial completo", True)], items)
+
+    def test_doble_clic_conecta_con_la_url_de_la_fila(self):
+        _m, _p, _s, _z, recientes, al_conectar = self._marco(self._entradas(3))
+        recientes.lista.SetSelection(1)
+        evento = self.wx.ListEvent(
+            self.wx.wxEVT_LISTBOX_DCLICK, recientes.lista.GetId())
+        recientes.lista.ProcessEvent(evento)
+        al_conectar.assert_called_once_with(recientes.entradas[1]["url"])
+
+    def test_flecha_arriba_en_la_primera_fila_suena_la_orilla(self):
+        _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(3))
+        recientes.lista.SetSelection(0)
+        with mock.patch(
+                "guyrapu.ui.lista_acciones._snd.reproducir") as sonar:
+            evento = self.wx.KeyEvent(self.wx.wxEVT_KEY_DOWN)
+            evento.KeyCode = self.wx.WXK_UP
+            recientes.lista.GetEventHandler().ProcessEvent(evento)
+        sonar.assert_called_once_with("orilla")
+
+    def test_teclear_una_letra_elige_la_fila_que_empieza(self):
+        _m, _p, _s, _z, recientes, _c = self._marco(self._entradas(3))
+        recientes.lista.SetSelection(1)
+        with mock.patch.object(self.wx, "CallLater"), \
+                mock.patch("guyrapu.ui.busqueda_teclado.anunciar"):
+            evento = self.wx.KeyEvent(self.wx.wxEVT_CHAR)
+            evento.SetUnicodeKey(ord("T"))
+            recientes.lista.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(2, recientes.lista.GetSelection())
 
     def test_zona_visible_oculta_y_zona_oculta_muestra(self):
         marco, panel, sizer, zona, recientes, _ = self._marco(self._entradas(3))
@@ -278,7 +304,8 @@ class TestRecientesVentana(unittest.TestCase):
     def test_sin_historial_no_muestra_ni_lista_ni_rotulo(self):
         _m, _p, _s, _z, recientes, _c = self._marco([])
         self.assertFalse(recientes.caja.IsShown())
-        self.assertEqual(0, recientes.lista.GetCount())
+        self.assertEqual("El historial está vacío",
+                         recientes.lista.GetString(0))
 
     def test_al_desconectar_recarga_con_el_historial_al_dia(self):
         marco, panel, sizer, zona, recientes, _ = self._marco(self._entradas(2))
@@ -381,7 +408,7 @@ class TestOrdenTabDesconectada(unittest.TestCase):
             evento = mock.Mock()
             evento.GetKeyCode.return_value = self.wx.WXK_RETURN
             with mock.patch.object(gui.wx, "CallAfter") as diferir:
-                marco._inicio.al_tecla(evento)
+                marco._inicio._lista_acciones._al_tecla(evento)
             self.assertEqual(entrada["url"], marco.txt_url.GetValue())
             diferir.assert_called_once_with(marco._on_conectar, None)
 
@@ -405,7 +432,7 @@ class TestOrdenTabDesconectada(unittest.TestCase):
             evento = mock.Mock()
             evento.GetKeyCode.return_value = self.wx.WXK_DELETE
             with mock.patch.object(recientes_inicio, "anunciar") as anunciar:
-                marco._inicio.al_tecla(evento)
+                marco._inicio._lista_acciones._al_tecla(evento)
             anunciar.assert_called_once_with("Entrada eliminada del historial")
             self.assertEqual([], historial.cargar(ruta))
             self.assertFalse(marco._inicio.caja.IsShown())

@@ -15,8 +15,8 @@ import wx
 from guyrapu.core import historial
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
-from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.tema import _T, _pintar, _tc, _titulo
 
 MAX_RECIENTES = 10
@@ -85,13 +85,7 @@ class RecientesInicio:
             self.caja, style=wx.LB_SINGLE | wx.LB_HSCROLL)
         _tc(self.lista)
         nombre_accesible(self.lista, _("Recientes, Intro para abrir"))
-        instalar_busqueda_tipo(
-            self.lista,
-            lambda: [self.lista.GetString(i) for i in range(self.lista.GetCount())])
-        self.lista.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self._conectar())
-        self.lista.Bind(wx.EVT_KEY_DOWN, self.al_tecla)
-        entregar_intro(self.lista, self.al_tecla)
-        self.lista.Bind(wx.EVT_CONTEXT_MENU, self._on_context_menu)
+        self._crear_lista_acciones()
         vs.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
         self.caja.SetSizer(vs)
         self._sizer.Insert(
@@ -99,6 +93,20 @@ class RecientesInicio:
             wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self._zona.Bind(wx.EVT_SHOW, self._al_cambio_zona)
         self._aplicar_visibilidad()
+
+    def _crear_lista_acciones(self):
+        self._lista_acciones = ListaConAcciones(
+            self.lista,
+            (
+                Accion("abrir", _("&Abrir"), lambda: self._conectar(),
+                       tecla="intro"),
+                Accion("eliminar", _("&Eliminar del historial"),
+                       lambda: self._quitar(), tecla="suprimir"),
+                Accion("historial", _("Abrir &historial completo"),
+                       lambda: self.abrir_historial(),
+                       necesita_elemento=False),
+            ),
+            historial.motivo_sin_entradas(False))
 
     def _indice_zona(self):
         """Posición de la zona en el sizer: la caja va justo antes."""
@@ -125,51 +133,17 @@ class RecientesInicio:
     def _recargar(self, posicion=0):
         """Lee el historial y llena la lista, con `posicion` elegida."""
         self.entradas = entradas_recientes(self._ruta)
-        self.lista.Clear()
-        for entrada in self.entradas:
-            self.lista.Append(texto_reciente(entrada))
+        elegido = min(posicion, len(self.entradas) - 1) if self.entradas else None
+        self._lista_acciones.fijar(
+            [texto_reciente(entrada) for entrada in self.entradas], elegido)
         if self.entradas:
-            self.lista.SetSelection(min(posicion, len(self.entradas) - 1))
             self.caja.Show()
         else:
             self.caja.Hide()
 
-    def al_tecla(self, event):
-        """Intro reconecta; Supr elimina; el menú abre con su tecla."""
-        tecla = event.GetKeyCode()
-        if tecla in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            self._conectar()
-        elif tecla == wx.WXK_DELETE:
-            self._quitar()
-        elif tecla == wx.WXK_WINDOWS_MENU or (
-                tecla == wx.WXK_F10 and event.ShiftDown()):
-            self._mostrar_menu()
-        else:
-            event.Skip()
-
-    def _on_context_menu(self, _event):
-        self._mostrar_menu()
-
-    def _mostrar_menu(self):
-        elegida = self.lista.GetSelection()
-        hay = elegida != wx.NOT_FOUND and elegida < len(self.entradas)
-        menu = wx.Menu()
-        if hay:
-            abrir = wx.NewIdRef()
-            menu.Append(abrir, _("&Abrir"))
-            menu.Bind(wx.EVT_MENU, lambda e: self._conectar(), id=abrir)
-            quitar = wx.NewIdRef()
-            menu.Append(quitar, _("&Eliminar del historial"))
-            menu.Bind(wx.EVT_MENU, lambda e: self._quitar(), id=quitar)
-        completo = wx.NewIdRef()
-        menu.Append(completo, _("Abrir &historial completo"))
-        menu.Bind(wx.EVT_MENU, lambda e: self.abrir_historial(), id=completo)
-        self.lista.PopupMenu(menu)
-        menu.Destroy()
-
     def _quitar(self):
-        elegida = self.lista.GetSelection()
-        if elegida == wx.NOT_FOUND or elegida >= len(self.entradas):
+        elegida = self._lista_acciones.indice()
+        if elegida is None:
             return
         quitar_entrada(self._ruta, self.entradas[elegida])
         anunciar(_("Entrada eliminada del historial"))
@@ -182,8 +156,8 @@ class RecientesInicio:
                 campo.SetFocus()
 
     def _conectar(self):
-        elegida = self.lista.GetSelection()
-        if elegida == wx.NOT_FOUND or elegida >= len(self.entradas):
+        elegida = self._lista_acciones.indice()
+        if elegida is None:
             return
         url = self.entradas[elegida].get("url") or ""
         if url:

@@ -37,7 +37,6 @@ PENDIENTES = {
     "musica_ventana.py": "todavía no pasó a la pieza común",
     "preferencias_programados.py": "todavía no pasó a la pieza común",
     "preferencias_sonidos.py": "todavía no pasó a la pieza común",
-    "recientes_inicio.py": "todavía no pasó a la pieza común",
 }
 
 
