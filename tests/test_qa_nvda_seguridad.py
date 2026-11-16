@@ -309,3 +309,33 @@ class TestArranque(unittest.TestCase):
         codigo = nvda_local.ejecutar_shell(
             comando, ["/c", "exit", "3"], esperar=True, tope_s=30.0)
         self.assertEqual(codigo, 3)
+
+
+class TestDevolverMain(unittest.TestCase):
+
+    def _main(self, devuelto):
+        with (
+            mock.patch.object(devolver.perfil, "version_esperada",
+                              return_value="2026.3.1"),
+            mock.patch.object(devolver.perfil, "ruta_portatil",
+                              return_value=Path(PORTATIL)),
+            mock.patch.object(devolver.perfil, "ruta_estado",
+                              return_value=Path("estado.json")),
+            mock.patch.object(devolver.nvda_local,
+                              "instalado_por_defecto",
+                              return_value=INSTALADO),
+            mock.patch.object(devolver, "ejecutar_devolucion",
+                              return_value=devuelto),
+            mock.patch.object(seguridad, "borrar_respaldo") as borrar,
+        ):
+            codigo = devolver.main()
+        self.assertEqual(codigo, 0)
+        return borrar
+
+    def test_si_devuelve_borra_la_tarea_de_respaldo(self):
+        borrar = self._main(True)
+        borrar.assert_called_once_with(seguridad.NOMBRE_RESPALDO)
+
+    def test_si_no_devuelve_deja_la_tarea_de_respaldo(self):
+        borrar = self._main(False)
+        borrar.assert_not_called()

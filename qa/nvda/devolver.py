@@ -19,7 +19,7 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
-from qa.nvda import nvda_local, perfil  # noqa: E402
+from qa.nvda import nvda_local, perfil, seguridad  # noqa: E402
 
 
 def _misma_ruta(una, otra) -> bool:
@@ -96,6 +96,8 @@ def main() -> int:
     instalado = nvda_local.instalado_por_defecto()
     devuelto = ejecutar_devolucion(
         perfil.ruta_estado(), ruta_portatil, instalado)
+    if devuelto:
+        seguridad.borrar_respaldo(seguridad.NOMBRE_RESPALDO)
     print("devolución del carril: " + ("hecha" if devuelto else "falló"))
     return 0
 
