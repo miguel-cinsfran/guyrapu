@@ -25,6 +25,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.tema import _tc
 from guyrapu.ui.preferencias_comun import EleccionTexto, crear_panel, fila_botones, fila_label
 from guyrapu.ui.preferencias_ia_clave import SeccionClaveIA
@@ -55,6 +56,7 @@ class PaginaIA:
     def __init__(self, ventana, ruta):
         self._ventana = ventana
         self._ruta = ruta
+        self._espera = EsperaSonora(ventana)
 
     def construir(self, parent):
         p = crear_panel(parent, "PagIA")
@@ -321,6 +323,8 @@ class PaginaIA:
 
     def _ia_fijar_probando(self, probando):
         self._ia_probando = probando
+        if probando:
+            self._espera.empezar()
         motivo = _(opciones_ia.MOTIVO_PROBANDO) if probando else ""
         self.btn_ia_probar_clave.SetLabel(
             redaccion.etiqueta_con_motivo(_("Compro&bar clave"), motivo))
@@ -344,6 +348,7 @@ class PaginaIA:
         if not self._ventana:   # el diálogo pudo cerrarse mientras se probaba
             return
         self._ia_fijar_probando(False)
+        self._espera.terminar(None)
         _snd.reproducir("listo" if bien else "ia_error")
         anunciar(texto)
 

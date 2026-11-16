@@ -9,7 +9,7 @@ from unittest import mock
 import wx
 
 from guyrapu.core.idioma import _
-from guyrapu.ui import ventana_espera
+from guyrapu.ui import espera_sonora, ventana_espera
 from guyrapu.ui.ventana_espera import VentanaEspera
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -58,14 +58,15 @@ class TestVentanaEspera(unittest.TestCase):
         cuadro = self._abrir()
         self.assertIsNone(cuadro._btn)
 
-    def test_cancelar_marca_la_parada_sigue_habilitado_y_avisa(self):
+    def test_cancelar_marca_la_parada_detiene_la_espera_sigue_habilitado_y_avisa(
+            self):
         parada = threading.Event()
         cuadro = self._abrir(parada)
         with mock.patch.object(ventana_espera, "anunciar") as anunciar:
             cuadro._cancelar()
             cuadro._cancelar()
         self.assertTrue(parada.is_set())
-        self.assertTrue(cuadro._timer.IsRunning())
+        self.assertFalse(cuadro._espera._timer.IsRunning())
         self.assertTrue(cuadro._btn.IsEnabled())
         self.assertEqual(cuadro.txt_estado.GetValue(), _("Cancelando…"))
         anunciar.assert_called_once_with(_("Cancelando…"))
@@ -78,29 +79,38 @@ class TestVentanaEspera(unittest.TestCase):
         anunciar.assert_called_once_with("La prueba terminó.")
         self.assertEqual(cuadro._btn.GetLabel(), _("&Cerrar"))
         self.assertEqual(cuadro._btn.GetName(), _("Cerrar"))
-        self.assertFalse(cuadro._timer.IsRunning())
+        self.assertFalse(cuadro._espera._timer.IsRunning())
         self.assertIs(wx.Window.FindFocus(), cuadro._btn)
 
     def test_terminar_con_error_reproduce_el_sonido_de_error(self):
         cuadro = self._abrir(threading.Event())
         with mock.patch.object(
-                ventana_espera.sound_player, "reproducir") as sonar:
+                espera_sonora.sound_player, "reproducir") as sonar:
             cuadro.terminar("Falló.", error=True)
         sonar.assert_called_once_with("error")
 
+    def test_terminar_bien_despues_de_un_tic_reproduce_listo(self):
+        cuadro = self._abrir(threading.Event())
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            cuadro._espera._al_tiempo(None)
+            sonar.reset_mock()
+            cuadro.terminar("La prueba terminó.")
+        sonar.assert_called_once_with("listo")
+
     def test_el_temporizador_reproduce_espera(self):
         cuadro = self._abrir(threading.Event())
-        self.assertTrue(cuadro._timer.IsRunning())
+        self.assertTrue(cuadro._espera._timer.IsRunning())
         with mock.patch.object(
-                ventana_espera.sound_player, "reproducir") as sonar:
-            cuadro._al_tiempo(None)
+                espera_sonora.sound_player, "reproducir") as sonar:
+            cuadro._espera._al_tiempo(None)
         sonar.assert_called_once_with("espera")
 
     def test_cerrar_la_ventana_detiene_el_timer(self):
         cuadro = self._abrir(threading.Event())
         evento = _Evento()
         cuadro._al_cerrar(evento)
-        self.assertFalse(cuadro._timer.IsRunning())
+        self.assertFalse(cuadro._espera._timer.IsRunning())
         self.assertTrue(evento.saltado)
 
 

@@ -17,6 +17,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios, listas, vista
 from guyrapu.ui import musica_editor_lista, musica_menus
 from guyrapu.ui import musica_ventana_acciones as _acciones
+from guyrapu.ui.espera_sonora import EsperaSonora
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -103,7 +104,13 @@ class ColeccionesVentanaMusica:
         self._cargar_fuente()
         evento.Skip()
 
+    def _detener_espera_carga(self):
+        espera = getattr(self, "_espera_carga", None)
+        if espera is not None:
+            espera.detener()
+
     def _cargar_fuente(self):
+        self._detener_espera_carga()
         self._generacion += 1
         self.txt_buscar.ChangeValue("")
         self._cancelar_temporizador()
@@ -114,11 +121,20 @@ class ColeccionesVentanaMusica:
             self._biblioteca = None
             self._cargar_lista()
 
+    def _empezar_espera_carga(self):
+        if not hasattr(self, "_espera_carga"):
+            self._espera_carga = EsperaSonora(self)
+        if self._control._carpeta():
+            self._espera_carga.empezar()
+        else:
+            self._espera_carga.detener()
+
     def _cargar_carpeta(self):
         self._biblioteca = None
         self._primera_carga = True
         self.txt_buscar.ChangeValue("")
         self._cambiar_estado(_(TEXTO_CARGANDO))
+        self._empezar_espera_carga()
         generacion = self._generacion
         self._control.biblioteca(
             lambda biblioteca: self._al_biblioteca(biblioteca, generacion))
@@ -142,13 +158,20 @@ class ColeccionesVentanaMusica:
         if indice >= 0:
             self.lb_temas.SetSelection(indice)
 
+    def _sin_biblioteca(self):
+        self._cantidad_biblioteca = None
+        self._temas_fuente = self._temas_filtrados = ()
+        if self._control._carpeta():
+            self._espera_carga.terminar("error")
+        else:
+            self._espera_carga.detener()
+        self._cambiar_estado(_(TEXTO_SIN_CARPETA))
+
     def _al_biblioteca(self, biblioteca, generacion):
         if not self or generacion != self._generacion or self._fuente is not None:
             return
         if biblioteca is None:
-            self._cantidad_biblioteca = None
-            self._temas_fuente = self._temas_filtrados = ()
-            self._cambiar_estado(_(TEXTO_SIN_CARPETA))
+            self._sin_biblioteca()
             return
         self._biblioteca = biblioteca
         self._cantidad_biblioteca = len(biblioteca.temas())
@@ -157,6 +180,7 @@ class ColeccionesVentanaMusica:
         self.filtros.refrescar_artistas(self._temas_fuente)
         self._aplicar_filtro()
         self._estado_listo()
+        self._espera_carga.terminar("listo")
         self._resumir_y_preguntar(biblioteca)
 
     def _resumir_y_preguntar(self, biblioteca):

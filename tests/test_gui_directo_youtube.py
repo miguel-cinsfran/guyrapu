@@ -17,7 +17,7 @@ except Exception:
     _HAY_WX = False
 
 from guyrapu.ui import gui_directo_youtube as directo
-from guyrapu.ui import miniatura_directo
+from guyrapu.ui import espera_sonora, miniatura_directo
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.youtube.emision import (
@@ -453,6 +453,30 @@ class TestDialogoDirectoVentana(unittest.TestCase):
         self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
                          "Ca&rgar listas")
 
+    def test_cargar_listas_suena_espera_y_al_volver_listo(self):
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            self._empezar_carga(dialogo)
+            self.assertTrue(dialogo._espera._timer.IsRunning())
+            dialogo._espera._al_tiempo(None)
+            sonar.assert_called_once_with("espera")
+            with mock.patch.object(directo, "anunciar"):
+                dialogo._listas_ok([("PL1", "Uno")])
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        self.assertIn(mock.call("listo"), sonar.call_args_list)
+
+    def test_listas_fallo_suena_error(self):
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            self._empezar_carga(dialogo)
+            dialogo._espera._al_tiempo(None)
+            sonar.reset_mock()
+            with mock.patch.object(directo, "anunciar"):
+                dialogo._listas_fallo(RuntimeError("sin red"))
+        sonar.assert_called_once_with("error")
+
     def test_listas_ok_rellena_y_anuncia(self):
         dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
         with mock.patch.object(directo, "anunciar") as anunciar:
@@ -655,6 +679,10 @@ class TestPseudoAnunciosDirectoYoutube(unittest.TestCase):
                                    self.captados.append)
         parche.start()
         self.addCleanup(parche.stop)
+        parche_miniatura = mock.patch.object(
+            miniatura_directo, "anunciar", self.captados.append)
+        parche_miniatura.start()
+        self.addCleanup(parche_miniatura.stop)
         pseudo = con_pseudo()
         pseudo.__enter__()
         self.addCleanup(pseudo.__exit__, None, None, None)
@@ -677,6 +705,7 @@ class TestPseudoAnunciosDirectoYoutube(unittest.TestCase):
         dialogo._miniatura = ""
         dialogo._cargar_listas = lambda: []
         dialogo._motivo = ""
+        dialogo._espera = mock.Mock()
         dialogo._opciones_lista = [("", "Ninguna")]
         dialogo.txt_miniatura = mock.Mock()
         dialogo.cho_lista = mock.Mock()
@@ -687,7 +716,7 @@ class TestPseudoAnunciosDirectoYoutube(unittest.TestCase):
     def test_quitar_miniatura_anuncia_marcado(self):
         dialogo = self._dialogo()
         dialogo._miniatura = "C:\\x\\foto.jpg"
-        dialogo._al_quitar_miniatura(mock.Mock())
+        miniatura_directo.quitar_miniatura(dialogo)
         self._exigir_marcados(1)
 
     def test_cargar_listas_anuncia_marcado_sin_hilo(self):
@@ -725,10 +754,10 @@ class TestPseudoAnunciosDirectoYoutube(unittest.TestCase):
             cuadro.GetPath.return_value = "C:\\x\\foto.png"
             return cuadro
 
-        with mock.patch.object(directo.wx, "FileDialog", fabrica), \
-                mock.patch.object(directo, "error_de_miniatura",
+        with mock.patch.object(miniatura_directo.wx, "FileDialog", fabrica), \
+                mock.patch.object(miniatura_directo, "error_de_miniatura",
                                   return_value=None):
-            dialogo._al_elegir_miniatura(mock.Mock())
+            miniatura_directo.elegir_miniatura(dialogo)
         self.assertTrue(captado["titulo"].startswith("[¡"))
         self.assertTrue(captado["filtro"].startswith("[¡"))
         self._exigir_marcados(1)

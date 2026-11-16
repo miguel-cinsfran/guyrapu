@@ -18,6 +18,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import ayuda_manual, miniatura_directo, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.youtube import youtube_api
 from guyrapu.youtube.emision import (
     CATEGORIAS,
@@ -295,11 +296,16 @@ class DialogoDirectoYoutube(wx.Dialog):
             return "", ""
         return self._opciones_lista[indice]
 
+    def _espera_listas(self):
+        if not hasattr(self, "_espera"):
+            self._espera = EsperaSonora(self)
+        return self._espera
 
     def _al_cargar_listas(self, _event) -> None:
         if self._motivo:
             return anunciar(f"{_(self._motivo)}.")
         self._fijar_motivo(_MOTIVO_CARGANDO_LISTAS)
+        self._espera_listas().empezar()
         anunciar(_("Cargando las listas."))
 
         def _traer():
@@ -321,12 +327,14 @@ class DialogoDirectoYoutube(wx.Dialog):
             listas, id_elegido, titulo_elegido)
         self.cho_lista.SetItems([texto for _id, texto in self._opciones_lista])
         self.cho_lista.SetSelection(seleccion)
+        self._espera_listas().terminar("listo")
         anunciar(anuncio_listas(len(listas)))
 
     def _listas_fallo(self, exc) -> None:
         if not self:
             return
         self._fijar_motivo("")
+        self._espera_listas().terminar("error")
         anunciar(_("No se pudieron cargar las listas: {detalle}").format(
             detalle=youtube_api.mensaje_error_api(exc)))
 

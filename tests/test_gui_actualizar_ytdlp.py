@@ -33,6 +33,7 @@ class VentanaFalsa:
         self.estados = []
         self.progresos = []
         self.valores = []
+        self.sonidos_finales = []
         self.txt_estado = mock.Mock()
         self.txt_estado.SetValue.side_effect = self.valores.append
         self.btn_cerrar = mock.Mock()
@@ -53,6 +54,9 @@ class VentanaFalsa:
 
     def estado(self, texto):
         self.estados.append(texto)
+
+    def terminar_espera(self, sonido):
+        self.sonidos_finales.append(sonido)
 
     def progreso(self, porcentaje):
         self.progresos.append(porcentaje)
@@ -155,6 +159,7 @@ class TestVentanaYtdlp(unittest.TestCase):
             "otro_fallo", "No se pudo actualizar yt-dlp.")
         self.assertEqual(ventana.progresos, [0])
         self.assertEqual(ventana.estados, ["No se pudo actualizar yt-dlp."])
+        self.assertEqual(ventana.sonidos_finales, ["error"])
         ventana.btn_cerrar.SetFocus.assert_called_once()
 
         ventana = VentanaFalsa()
@@ -162,6 +167,7 @@ class TestVentanaYtdlp(unittest.TestCase):
             "actualizado", "yt-dlp se actualizó.")
         self.assertEqual(ventana.progresos, [100])
         self.assertEqual(ventana.estados, ["yt-dlp se actualizó."])
+        self.assertEqual(ventana.sonidos_finales, ["listo"])
         ventana.btn_cerrar.SetFocus.assert_called_once()
 
 

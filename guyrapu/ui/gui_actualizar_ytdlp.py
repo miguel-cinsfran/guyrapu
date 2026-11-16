@@ -69,7 +69,9 @@ class _ActualizacionYtdlp:
 
     def _terminar(self, estado, texto):
         from guyrapu.ui.gui import logger
-        if ytdlp_actualizar.resultado_actualizacion_es_fallo(estado):
+        fallo = ytdlp_actualizar.resultado_actualizacion_es_fallo(estado)
+        self.ventana.terminar_espera("error" if fallo else "listo")
+        if fallo:
             self.ventana.progreso(0)
         else:
             self.ventana.progreso(100)

@@ -405,6 +405,7 @@ class TestApiLoginClienteApp(unittest.TestCase):
         pagina = api.PaginaApi.__new__(api.PaginaApi)
         pagina._ventana = mock.Mock()
         pagina._login_en_curso = False
+        pagina._espera = mock.Mock()
         pagina.txt_cid = mock.Mock()
         pagina.txt_cid.GetValue.return_value = cid
         pagina.txt_secret = mock.Mock()

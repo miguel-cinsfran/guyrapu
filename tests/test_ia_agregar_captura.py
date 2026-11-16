@@ -16,6 +16,7 @@ except Exception:
     _HAY_WX = False
 
 from guyrapu.capture import redaccion
+from guyrapu.ui import espera_sonora
 from guyrapu.ui import ia_agregar_captura as agregar
 from guyrapu.obs import obs_captura_ia
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -175,6 +176,67 @@ class TestDialogoAgregarCapturaVentana(unittest.TestCase):
         self.assertNotEqual(dialogo.btn_capturar.GetLabel(), "Captu&rar")
         pendientes.pop(0)()
         self.assertEqual(dialogo.btn_capturar.GetLabel(), "Captu&rar")
+
+    def test_cargar_fuentes_suena_espera_y_listo(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            self.assertTrue(dialogo._espera._timer.IsRunning())
+            dialogo._espera._al_tiempo(None)
+            pendientes.pop(0)()
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "listo"])
+
+    def test_captura_buena_suena_espera_y_listo(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        pendientes.pop(0)()
+        captura = obs_captura_ia.Captura(b"x", 320, 180, False)
+        with mock.patch.object(dialogo, "EndModal"), \
+                mock.patch.object(agregar.obs_captura_ia, "capturar",
+                                  return_value=captura), \
+                mock.patch.object(
+                    espera_sonora.sound_player, "reproducir") as sonar:
+            dialogo._al_capturar(mock.Mock())
+            self.assertTrue(dialogo._espera._timer.IsRunning())
+            dialogo._espera._al_tiempo(None)
+            pendientes.pop(0)()
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "listo"])
+
+    def test_captura_fallida_termina_sin_listo(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        pendientes.pop(0)()
+        with mock.patch.object(
+                agregar.obs_captura_ia, "capturar",
+                side_effect=obs_captura_ia.CapturaFallida("nada")), \
+                mock.patch.object(agregar, "anunciar"), \
+                mock.patch.object(agregar, "reproducir"), \
+                mock.patch.object(
+                    espera_sonora.sound_player, "reproducir") as sonar:
+            dialogo._al_capturar(mock.Mock())
+            dialogo._espera._al_tiempo(None)
+            pendientes.pop(0)()
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera"])
+
+    def test_captura_negra_termina_sin_listo(self):
+        dialogo, pendientes = self._dialogo_sin_cargar()
+        pendientes.pop(0)()
+        captura = obs_captura_ia.Captura(b"x", 320, 180, True, "sin_elegir",
+                                         "Cámara")
+        with mock.patch.object(agregar.obs_captura_ia, "capturar",
+                               return_value=captura), \
+                mock.patch.object(agregar, "anunciar"), \
+                mock.patch.object(agregar, "reproducir"), \
+                mock.patch.object(
+                    espera_sonora.sound_player, "reproducir") as sonar:
+            dialogo._al_capturar(mock.Mock())
+            dialogo._espera._al_tiempo(None)
+            pendientes.pop(0)()
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera"])
 
     def test_lista_vacia_lleva_el_motivo_en_la_etiqueta(self):
         dialogo, _pendientes = self._dialogo_sin_cargar()

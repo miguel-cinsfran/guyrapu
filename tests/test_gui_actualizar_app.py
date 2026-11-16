@@ -61,6 +61,7 @@ class VentanaFalsa:
         self._cancelado = self._Evento()
         self.estados = []
         self.anuncios = []
+        self.sonidos = []
         self.progresos = []
         self.textos_sin_anunciar = []
         self.notas_vistas = []
@@ -85,9 +86,10 @@ class VentanaFalsa:
     def Raise(self):
         self.elevada = True
 
-    def estado(self, texto):
+    def estado(self, texto, sonido=None):
         self.estados.append(texto)
         self.anuncios.append(texto)
+        self.sonidos.append(sonido)
 
     def progreso(self, porcentaje):
         self.progresos.append(porcentaje)
@@ -295,6 +297,16 @@ class TestVentana(unittest.TestCase):
         self.assertIn("Comprobando el paquete.", ventana.anuncios)
         self.assertIn("No se puede usar el paquete: la versión del paquete no "
                       "coincide con la publicada.", ventana.anuncios)
+
+    def test_paquete_invalido_termina_la_espera_con_error(self):
+        def extraer(*args):
+            raise actualizacion.PaqueteInvalido(
+                "la versión del paquete no coincide con la publicada")
+
+        def descargar(*args, **kwargs):
+            return actualizacion.ResultadoDescarga(True, "paquete descargado")
+        _, ventana = self._abrir_descargable(descargar, extraer=extraer)
+        self.assertEqual("error", ventana.sonidos[-1])
 
     def test_validar_invalido_muestra_que_no_sirve(self):
         def validar(*args):

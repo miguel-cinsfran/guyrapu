@@ -18,12 +18,18 @@ from guyrapu.core.actualizacion import notas_legibles
 from guyrapu.core.idioma import _
 from guyrapu.ui import paleta
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 
 logger = diagnostico.obtener_logger(__name__)
 
+_SIN_TERMINAR = object()
+
 
 class DialogoActualizacion(wx.Dialog):
+    _espera_habilitada = True
+    _espera_activa = False
+
     def __init__(self, parent, titulo):
         super().__init__(parent, title=titulo,
                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
@@ -63,6 +69,7 @@ class DialogoActualizacion(wx.Dialog):
         # Traductores: nombre de la barra de progreso.
         nombre_accesible(self.gauge, _("Progreso"))
         vs.Add(self.gauge, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+        self._espera = EsperaSonora(self)
 
     def _crear_novedades(self, vs) -> None:
         self.txt_notas = wx.TextCtrl(
@@ -113,15 +120,33 @@ class DialogoActualizacion(wx.Dialog):
                 logger.debug("no se pudo enfocar el cierre: %s", error)
         return resultado
 
-    def estado(self, texto) -> None:
+    def estado(self, texto, sonido=_SIN_TERMINAR) -> None:
         self.txt_estado.SetValue(texto)
         anunciar(texto)
+        if sonido is _SIN_TERMINAR:
+            self._empezar_espera()
+        else:
+            self.terminar_espera(sonido)
+
+    def _empezar_espera(self) -> None:
+        if not self._espera_habilitada or self._espera_activa:
+            return
+        self._espera.empezar()
+        self._espera_activa = True
+
+    def terminar_espera(self, sonido) -> None:
+        self._espera_habilitada = False
+        self._espera_activa = False
+        self._espera.terminar(sonido)
 
     def progreso(self, porcentaje) -> None:
         if porcentaje is None:
             self.gauge.Pulse()
-        else:
-            self.gauge.SetValue(int(porcentaje))
+            return
+        valor = int(porcentaje)
+        self.gauge.SetValue(valor)
+        if valor in (0, 100):
+            self.terminar_espera(None)
 
     def _reajustar(self) -> None:
         # Reparte el espacio y agranda o achica la ventana a su contenido,
@@ -176,11 +201,13 @@ class DialogoActualizacion(wx.Dialog):
             self.btn_accion.SetFocus()
         except Exception as error:
             logger.debug("no se pudo enfocar la acción: %s", error)
+        self.terminar_espera(None)
 
     def quitar_accion(self) -> None:
         self._accion = None
         self.btn_accion.Hide()
         self._reajustar()
+        self._espera_habilitada = True
         try:
             self.btn_cerrar.SetFocus()
         except Exception as error:
@@ -196,6 +223,7 @@ class DialogoActualizacion(wx.Dialog):
 
     def _al_cerrar(self, event) -> None:
         self._cerrado = True
+        self._espera.detener()
         try:
             self._cancelado.set()
         except Exception as error:

@@ -23,6 +23,7 @@ from guyrapu.ui import ayuda_manual, paleta, tecla_escape
 from guyrapu.ui import restream_acciones_destino
 from guyrapu.ui.accesibilidad import anunciar, enlazar_anuncio_de_pestana, nombre_accesible
 from guyrapu.ui.aviso_importante import avisar
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.voice import sound_player as _snd
 from guyrapu.ui.restream_pagina_cuenta import PaginaCuenta
 from guyrapu.ui.restream_pagina_destinos import PaginaDestinos
@@ -87,6 +88,7 @@ class VentanaRestream(wx.Dialog):
         return list(self._destinos)
 
     def _crear_ui(self):
+        self._espera = EsperaSonora(self)
         panel = wx.Panel(self, name="PanelRestream")
         vs = wx.BoxSizer(wx.VERTICAL)
         self.nb = wx.Notebook(panel, name="PestanasRestream")
@@ -171,6 +173,11 @@ class VentanaRestream(wx.Dialog):
             lambda _parada: self._al_desconectar(),
             self._fin_desconectar, "RestreamDesconectar", False)
 
+    def _anunciar_navegador(self):
+        anunciar(_("Abriendo el navegador para iniciar sesión en "
+                   "Restream. Autoriza y vuelve aquí."))
+        self._espera.empezar()
+
     def _iniciar_cuenta(self, funcion, exito, nombre, abriendo):
         if funcion is None or self._trabajo_en_curso:
             return
@@ -178,8 +185,7 @@ class VentanaRestream(wx.Dialog):
         self._error_cuenta = ""
         self._actualizar_cuenta()
         if abriendo:
-            anunciar(_("Abriendo el navegador para iniciar sesión en "
-                       "Restream. Autoriza y vuelve aquí."))
+            self._anunciar_navegador()
 
         def _correr():
             error = None
@@ -193,6 +199,7 @@ class VentanaRestream(wx.Dialog):
 
     def _terminar_cuenta(self, exito, error):
         self._trabajo_en_curso = False
+        self._espera.terminar(None)
         if error is None:
             exito()
         else:
@@ -358,6 +365,7 @@ class VentanaRestream(wx.Dialog):
     def _marcar_cerrada(self):
         self._vivo = False
         self._parada.set()
+        self._espera.detener()
 
     def _cerrar(self):
         self._marcar_cerrada()

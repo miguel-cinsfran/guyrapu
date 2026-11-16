@@ -12,16 +12,12 @@ from __future__ import annotations
 
 import wx
 
-from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
-from guyrapu.voice import sound_player
-
-logger = diagnostico.obtener_logger(__name__)
 
 _PROPIEDADES_TEXTO = wx.TE_MULTILINE | wx.TE_READONLY
-_INTERVALO_ESPERA_MS = 2000
 
 
 class VentanaEspera(wx.Dialog):
@@ -33,11 +29,10 @@ class VentanaEspera(wx.Dialog):
         self._terminada = False
         self._btn = None
         self._crear_controles(titulo, texto_inicial)
-        self._timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self._al_tiempo, self._timer)
+        self._espera = EsperaSonora(self)
         self.Bind(wx.EVT_CLOSE, self._al_cerrar)
         self.Bind(wx.EVT_WINDOW_DESTROY, self._al_destruir)
-        self._timer.Start(_INTERVALO_ESPERA_MS)
+        self._espera.empezar()
 
     def _crear_controles(self, titulo, texto_inicial):
         caja = wx.BoxSizer(wx.VERTICAL)
@@ -76,20 +71,16 @@ class VentanaEspera(wx.Dialog):
         if self._parada is None or self._parada.is_set():
             return
         self._parada.set()
+        self._espera.detener()
         frase = _("Cancelando…")
         self.txt_estado.SetValue(frase)
         anunciar(frase)
 
-    def _al_tiempo(self, _evento):
-        sound_player.reproducir("espera")
-
     def terminar(self, texto, error=False):
         self._terminada = True
-        self._detener()
+        self._espera.terminar("error" if error else "listo")
         self.txt_estado.SetValue(texto)
         anunciar(texto)
-        if error:
-            sound_player.reproducir("error")
         self._poner_cerrar()
 
     def _poner_cerrar(self):
@@ -104,16 +95,10 @@ class VentanaEspera(wx.Dialog):
             self._btn.Enable()
         self._btn.SetFocus()
 
-    def _detener(self):
-        try:
-            self._timer.Stop()
-        except RuntimeError as error:
-            logger.debug("El temporizador de espera ya no existe: %s", error)
-
     def _al_cerrar(self, evento):
-        self._detener()
+        self._espera.detener()
         evento.Skip()
 
     def _al_destruir(self, evento):
-        self._detener()
+        self._espera.detener()
         evento.Skip()

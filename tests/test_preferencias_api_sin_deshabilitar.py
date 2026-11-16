@@ -16,7 +16,7 @@ from unittest import mock
 import wx
 
 from guyrapu.capture import redaccion
-from guyrapu.ui import preferencias_api
+from guyrapu.ui import espera_sonora, preferencias_api
 from guyrapu.youtube import credenciales
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -177,6 +177,32 @@ class TestAlTerminarElLogin(_PaginaApi):
         self.assertEqual(etiquetas, [ESPERANDO])
         self.assertEqual(pagina.btn_api_login.GetLabel(), BASE_LOGIN)
         self.assertEqual(pagina.btn_api_logout.GetLabel(), BASE_LOGOUT)
+
+    def test_el_login_suena_espera_y_al_terminar_bien_no_suma_sonido(self):
+        pagina = self._pagina()
+        self._con_cliente(pagina)
+        with self._red() as (_crear, _login, _anunciar), \
+                mock.patch.object(preferencias_api, "avisar"):
+            self._disparar(pagina.btn_api_login)
+            self.assertTrue(pagina._espera._timer.IsRunning())
+            pagina._espera._al_tiempo(None)
+            pagina._api_login_ok()
+            self.assertFalse(pagina._espera._timer.IsRunning())
+            sonar = espera_sonora.sound_player.reproducir
+        sonar.assert_called_once_with("espera")
+
+    def test_el_login_que_falla_no_suma_otro_error(self):
+        pagina = self._pagina()
+        self._con_cliente(pagina)
+        with self._red() as (_crear, _login, _anunciar), \
+                mock.patch.object(preferencias_api, "avisar"):
+            self._disparar(pagina.btn_api_login)
+            pagina._espera._al_tiempo(None)
+            pagina._api_login_err(OSError("sin red"))
+            self.assertFalse(pagina._espera._timer.IsRunning())
+            sonar = espera_sonora.sound_player.reproducir
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "error"])
 
     def test_p4_con_error_vuelve_a_la_base_y_refleja_la_sesion(self):
         pagina = self._pagina()

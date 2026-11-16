@@ -15,6 +15,7 @@ try:
 except Exception:
     _HAY_WX = False
 
+from guyrapu.ui import espera_sonora
 from guyrapu.ui import gui_actualizacion as actualizacion
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -71,6 +72,61 @@ class TestDialogoActualizacion(unittest.TestCase):
         self.assertEqual(dialogo.txt_estado.GetValue(),
                          "Buscando la última versión.")
         anunciar.assert_called_once_with("Buscando la última versión.")
+
+    def test_el_primer_estado_arranca_la_espera_y_un_tic_suena(self):
+        dialogo = self._dialogo()
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            dialogo.estado("Buscando la última versión.")
+            self.assertTrue(dialogo._espera._timer.IsRunning())
+            dialogo._espera._al_tiempo(None)
+        sonar.assert_called_once_with("espera")
+
+    def test_progreso_final_termina_la_espera_sin_sumar_sonido(self):
+        dialogo = self._dialogo()
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            dialogo.estado("Buscando la última versión.")
+            dialogo._espera._al_tiempo(None)
+            sonar.reset_mock()
+            dialogo.progreso(100)
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        sonar.assert_not_called()
+
+    def test_ofrecer_accion_termina_la_espera_sin_sumar_sonido(self):
+        dialogo = self._dialogo()
+        dialogo.estado("Buscando la última versión.")
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            dialogo._espera._al_tiempo(None)
+            sonar.reset_mock()
+            dialogo.ofrecer_accion("&Descargar", lambda: None)
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        sonar.assert_not_called()
+
+    def test_quitar_accion_rearma_y_el_estado_vuelve_a_arrancar(self):
+        dialogo = self._dialogo()
+        dialogo.estado("Buscando la última versión.")
+        dialogo.progreso(100)
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        dialogo.quitar_accion()
+        dialogo.estado("Descargando la versión.")
+        self.assertTrue(dialogo._espera._timer.IsRunning())
+
+    def test_estado_con_sonido_termina_la_espera_y_suena_error(self):
+        dialogo = self._dialogo()
+        dialogo.estado("Buscando la última versión.")
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            dialogo.estado("No se puede usar el paquete.", "error")
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        sonar.assert_called_once_with("error")
+
+    def test_cerrar_la_ventana_detiene_la_espera(self):
+        dialogo = self._dialogo()
+        dialogo.estado("Buscando la última versión.")
+        dialogo._al_cerrar(mock.Mock())
+        self.assertFalse(dialogo._espera._timer.IsRunning())
 
     def test_progreso_por_valor_y_por_pulso(self):
         dialogo = self._dialogo()

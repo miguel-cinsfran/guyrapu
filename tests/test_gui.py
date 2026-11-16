@@ -4510,6 +4510,9 @@ class TestActualizarYtdlp(unittest.TestCase):
             self.estados.append(texto)
             self.anuncios.append(texto)
 
+        def terminar_espera(self, sonido):
+            self.sonido_final = sonido
+
         def progreso(self, porcentaje):
             self.progresos.append(porcentaje)
 

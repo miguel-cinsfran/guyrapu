@@ -378,7 +378,7 @@ class _FlujoActualizacion:
         self.ventana.en_hilo_principal(self._mostrar_listo, raiz, ejecutable)
 
     def _mostrar_paquete_invalido(self, motivo):
-        self.ventana.estado(_("No se puede usar el paquete: {motivo}.").format(motivo=motivo))
+        self.ventana.estado(_("No se puede usar el paquete: {motivo}.").format(motivo=motivo), "error")
 
     def _mostrar_listo(self, raiz, ejecutable):
         self.ventana.estado(_("La actualización está preparada. {app} se cierra y vuelve "

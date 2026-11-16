@@ -213,8 +213,13 @@ class PruebaVentanaRestream(unittest.TestCase):
         sonar = mock.Mock()
         with mock.patch.object(restream_ventana, "anunciar") as anunciar, \
                 mock.patch.object(restream_ventana, "avisar",
-                                  _avisar_de(anunciar, sonar)):
+                                  _avisar_de(anunciar, sonar)), \
+                mock.patch.object(
+                    restream_ventana._snd, "reproducir") as pieza:
             dialogo._conectar()
+            self.assertTrue(dialogo._espera._timer.IsRunning())
+            dialogo._espera._al_tiempo(None)
+            pieza.assert_called_once_with("espera")
 
             self.assertIn(
                 "Abriendo el navegador para iniciar sesión en Restream. "
@@ -238,6 +243,8 @@ class PruebaVentanaRestream(unittest.TestCase):
 
             soltar.set()
             self.assertTrue(_esperar(lambda: sonar.called))
+            self.assertFalse(dialogo._espera._timer.IsRunning())
+            pieza.assert_called_once_with("espera")
 
         self.assertEqual([True], llamadas)
         sonar.assert_called_once_with("conectado")
@@ -275,9 +282,14 @@ class PruebaVentanaRestream(unittest.TestCase):
         sonar = mock.Mock()
         with mock.patch.object(restream_ventana, "anunciar") as anunciar, \
                 mock.patch.object(restream_ventana, "avisar",
-                                  _avisar_de(anunciar, sonar)):
+                                  _avisar_de(anunciar, sonar)), \
+                mock.patch.object(
+                    restream_ventana._snd, "reproducir") as pieza:
             dialogo._conectar()
+            dialogo._espera._al_tiempo(None)
             self.assertTrue(_esperar(lambda: sonar.called))
+            self.assertFalse(dialogo._espera._timer.IsRunning())
+            pieza.assert_called_once_with("espera")
 
         sonar.assert_called_once_with("error")
         anunciar.assert_any_call("Credenciales rechazadas")

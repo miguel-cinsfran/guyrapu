@@ -12,7 +12,8 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.core import config
-from guyrapu.ui import clave_elevenlabs, gui_preferencias, preferencias_voz
+from guyrapu.ui import (clave_elevenlabs, espera_sonora, gui_preferencias,
+                       preferencias_voz)
 from guyrapu.ui import preferencias_transmision
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
@@ -127,6 +128,37 @@ class TestListasDeVozSinDeshabilitar(unittest.TestCase):
             pagina._eleven._on_comprobar_clave(None)
         comprobar.assert_called_once()
         anunciar.assert_called_once_with("Comprobando la clave.")
+
+    def test_comprobar_clave_suena_espera_y_listo(self):
+        dialogo = self._dialogo({"motor": "elevenlabs"})
+        pagina = dialogo.pagina_voz
+        pagina.txt_clave_eleven.SetValue("clave")
+        with mock.patch.object(clave_elevenlabs, "comprobar"), \
+                mock.patch.object(
+                    espera_sonora.sound_player, "reproducir") as sonar:
+            pagina._eleven._on_comprobar_clave(None)
+            self.assertTrue(pagina._eleven._espera._timer.IsRunning())
+            pagina._eleven._espera._al_tiempo(None)
+            with mock.patch.object(preferencias_voz, "anunciar"):
+                pagina._eleven.clave_ok([("id1", "Ana")], 0, 0, False)
+        self.assertFalse(pagina._eleven._espera._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "listo"])
+
+    def test_comprobar_clave_que_falla_suena_error(self):
+        dialogo = self._dialogo({"motor": "elevenlabs"})
+        pagina = dialogo.pagina_voz
+        pagina.txt_clave_eleven.SetValue("clave")
+        with mock.patch.object(clave_elevenlabs, "comprobar"), \
+                mock.patch.object(
+                    espera_sonora.sound_player, "reproducir") as sonar:
+            pagina._eleven._on_comprobar_clave(None)
+            pagina._eleven._espera._al_tiempo(None)
+            with mock.patch.object(preferencias_voz, "anunciar"):
+                pagina._eleven.clave_fallo("ElevenLabs no reconoce la clave.")
+        self.assertFalse(pagina._eleven._espera._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "error"])
 
     def test_al_terminar_con_exito_la_etiqueta_vuelve_a_la_base(self):
         dialogo = self._dialogo({"motor": "elevenlabs"})

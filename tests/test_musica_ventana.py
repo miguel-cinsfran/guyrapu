@@ -19,8 +19,8 @@ from guyrapu.music import sonoridad
 from guyrapu.music.biblioteca import Biblioteca
 from guyrapu.music.modelo import EstadoMusica, Tema
 from guyrapu.music.sonoridad import ResultadoIgualacion
-from guyrapu.ui import (musica_dialogo_enlace, musica_editor_lista,
-                       musica_menus, musica_ventana,
+from guyrapu.ui import (espera_sonora, musica_dialogo_enlace,
+                       musica_editor_lista, musica_menus, musica_ventana,
                        musica_ventana_acciones,
                        musica_ventana_igualando)
 from guyrapu.ui.musica_colecciones import (
@@ -379,6 +379,35 @@ class TestVentanaMusica(unittest.TestCase):
         self.assertEqual(
             self.ventana.btn_carpeta.GetLabel(),
             redaccion.etiqueta_con_motivo(base, _(MOTIVO_CARGANDO)))
+
+    def test_cargar_carpeta_suena_espera_y_listo(self):
+        control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
+        self._abrir(control)
+        pendientes = []
+        control.biblioteca = lambda al_lista: pendientes.append(al_lista)
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            self.ventana._cargar_carpeta()
+            self.assertTrue(self.ventana._espera_carga._timer.IsRunning())
+            self.ventana._espera_carga._al_tiempo(None)
+            pendientes[0](_biblioteca_de("Rock"))
+        self.assertFalse(self.ventana._espera_carga._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "listo"])
+
+    def test_cargar_carpeta_sin_biblioteca_suena_error(self):
+        control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
+        self._abrir(control)
+        pendientes = []
+        control.biblioteca = lambda al_lista: pendientes.append(al_lista)
+        with mock.patch.object(
+                espera_sonora.sound_player, "reproducir") as sonar:
+            self.ventana._cargar_carpeta()
+            self.ventana._espera_carga._al_tiempo(None)
+            pendientes[0](None)
+        self.assertFalse(self.ventana._espera_carga._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "error"])
 
     def test_cambiar_carpeta_mientras_carga_anuncia_y_no_abre_el_cuadro(self):
         self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
@@ -1486,6 +1515,7 @@ class TestVentanaBotonIgualar(unittest.TestCase):
 
     def test_pulsar_sin_carpeta_reusa_el_texto_de_sin_carpeta(self):
         self._abrir(ControlFalso(biblioteca=None))
+        del self.sonidos[:]
         self.ventana.alternar_igualacion()
         self.assertEqual(self.anuncios, [anuncios.TEXTO_SIN_CARPETA])
         self.assertNotIn("pedir_pendientes", self.control.nombres())

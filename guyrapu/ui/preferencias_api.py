@@ -19,6 +19,7 @@ from guyrapu.core.idioma import _
 from guyrapu.ui import confirmar
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.tema import _T, _tc
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, crear_panel
 from guyrapu.voice import sound_player as _snd
@@ -54,6 +55,7 @@ class PaginaApi:
     def __init__(self, ventana):
         self._ventana = ventana
         self._login_en_curso = False
+        self._espera = EsperaSonora(ventana)
 
     def construir(self, parent):
         p = crear_panel(parent, "PagApi")
@@ -171,6 +173,7 @@ class PaginaApi:
             self._api_guardar(None)
         self._login_en_curso = True
         self._fijar_botones()
+        self._espera.empezar()
         anunciar(_("Abriendo el navegador para iniciar sesión. Autoriza y vuelve aquí."))
 
         def _run():
@@ -188,6 +191,7 @@ class PaginaApi:
         if not self._ventana:   # el diálogo pudo cerrarse mientras se autorizaba
             return
         self._login_en_curso = False
+        self._espera.terminar(None)
         avisar(_("Sesión iniciada correctamente."), "conectado")
         self._api_refrescar_estado()
 
@@ -195,6 +199,7 @@ class PaginaApi:
         if not self._ventana:
             return
         self._login_en_curso = False
+        self._espera.terminar(None)
         self._fijar_botones()
         _snd.reproducir("error")
         anunciar(_("No se pudo iniciar sesión."))

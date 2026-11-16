@@ -22,6 +22,7 @@ from guyrapu.obs import obs_captura_ia
 from guyrapu.obs import obs_cliente
 from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.voice.sound_player import reproducir
 
 
@@ -115,6 +116,7 @@ class DialogoAgregarCaptura(wx.Dialog):
 
     def _terminar(self, codigo) -> None:
         self._cerrado = True
+        self._espera_del_cuadro().detener()
         try:
             self._temporizador.Stop()
         except Exception as error:
@@ -143,8 +145,15 @@ class DialogoAgregarCaptura(wx.Dialog):
             return self._opciones[indice]
         return None
 
+    def _espera_del_cuadro(self):
+        if not hasattr(self, "_espera"):
+            self._espera = EsperaSonora(self)
+        return self._espera
+
     def _fijar_motivo(self, motivo) -> None:
         self._motivo = motivo
+        if motivo in (TEXTO_CARGANDO_MOTIVO, TEXTO_CAPTURANDO):
+            self._espera_del_cuadro().empezar()
         self.btn_capturar.SetLabel(redaccion.etiqueta_con_motivo(
             _("Captu&rar"), _(motivo) if motivo else ""))
 
@@ -173,6 +182,7 @@ class DialogoAgregarCaptura(wx.Dialog):
         if self._opciones:
             self.cho_fuente.SetSelection(0)
         self._fijar_motivo("" if self._opciones else TEXTO_SIN_FUENTES)
+        self._espera_del_cuadro().terminar("listo")
         self._programar_vista_previa()
 
     def _opciones_fallaron(self, error) -> None:
@@ -180,6 +190,7 @@ class DialogoAgregarCaptura(wx.Dialog):
             return
         anunciar(obs_cliente.mensaje_de_fallo_obs(error))
         reproducir("ia_error")
+        self._espera_del_cuadro().terminar(None)
         self._terminar(wx.ID_CANCEL)
 
     def _al_elegir(self, _event) -> None:
@@ -270,6 +281,7 @@ class DialogoAgregarCaptura(wx.Dialog):
             return
         anunciar(mensaje)
         reproducir("ia_error")
+        self._espera_del_cuadro().terminar(None)
         self._fijar_motivo("")
         self.cho_fuente.SetFocus()
 
@@ -280,10 +292,12 @@ class DialogoAgregarCaptura(wx.Dialog):
             anunciar(texto_negra(opcion.etiqueta, captura.motivo,
                                  captura.fuente_motivo))
             reproducir("ia_imagen_negra")
+            self._espera_del_cuadro().terminar(None)
             self._fijar_motivo("")
             self.cho_fuente.SetFocus()
             return
         self._resultado = (opcion.fuente, captura)
+        self._espera_del_cuadro().terminar("listo")
         self._terminar(wx.ID_OK)
 
 

@@ -323,7 +323,13 @@ class TestSonidoDeLaPruebaDeClave(unittest.TestCase):
         pagina = preferencias_ia.PaginaIA.__new__(preferencias_ia.PaginaIA)
         pagina._ventana = object()
         pagina.btn_ia_probar_clave = mock.Mock()
+        pagina._espera = mock.Mock()
         return pagina
+
+    def test_probando_arranca_la_espera(self):
+        pagina = self._pagina()
+        pagina._ia_fijar_probando(True)
+        pagina._espera.empezar.assert_called_once_with()
 
     def test_clave_probada_bien_suena_listo(self):
         pagina = self._pagina()
@@ -331,6 +337,7 @@ class TestSonidoDeLaPruebaDeClave(unittest.TestCase):
                 mock.patch.object(preferencias_ia, "anunciar"):
             pagina._ia_prueba_lista(True, "La clave funciona.")
         sonar.assert_called_once_with("listo")
+        pagina._espera.terminar.assert_called_once_with(None)
 
     def test_clave_probada_mal_sigue_sonando_error(self):
         pagina = self._pagina()
@@ -338,6 +345,7 @@ class TestSonidoDeLaPruebaDeClave(unittest.TestCase):
                 mock.patch.object(preferencias_ia, "anunciar"):
             pagina._ia_prueba_lista(False, "La clave no funciona.")
         sonar.assert_called_once_with("ia_error")
+        pagina._espera.terminar.assert_called_once_with(None)
 
 
 if __name__ == "__main__":

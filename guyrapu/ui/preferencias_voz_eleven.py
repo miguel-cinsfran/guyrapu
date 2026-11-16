@@ -15,6 +15,7 @@ import wx
 from guyrapu.capture import redaccion
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import clave_elevenlabs
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc
 from guyrapu.ui.preferencias_comun import fila_label
 from guyrapu.voice import escala_voz
@@ -38,6 +39,7 @@ class BloqueElevenLabs:
         self._respaldo_controles = []
         self.voces_respaldo = []
         self._comprobando = False
+        self._espera = EsperaSonora(ventana)
 
     def crear_clave(self, p, vs):
         lbl_clave = fila_label(p, _("Cl&ave de ElevenLabs:"))
@@ -118,6 +120,8 @@ class BloqueElevenLabs:
 
     def _fijar_comprobando(self, comprobando: bool) -> None:
         self._comprobando = comprobando
+        if comprobando:
+            self._espera.empezar()
         motivo = _(_MOTIVO_COMPROBANDO) if comprobando else ""
         self.btn_comprobar_clave.SetLabel(
             redaccion.etiqueta_con_motivo(_("Compro&bar clave"), motivo))
@@ -143,6 +147,7 @@ class BloqueElevenLabs:
         if not self._ventana:   # el diálogo pudo cerrarse mientras se comprobaba
             return
         self._fijar_comprobando(False)
+        self._espera.terminar("listo")
         voces = [nombre for _id, nombre in pares]
         self._al_cambiar_voces(voces, self._config.get("voz"))
         if anunciar_ok:
@@ -153,6 +158,7 @@ class BloqueElevenLabs:
         if not self._ventana:
             return
         self._fijar_comprobando(False)
+        self._espera.terminar("error")
         self._al_cambiar_voces((), None)
         self._anunciar(mensaje)
 

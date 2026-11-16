@@ -494,6 +494,124 @@ class TestMicrofonoObsDialogVentana(unittest.TestCase):
              ("anuncio", "El micrófono no recibe sonido. Revisa cuál está "
               "elegido en Windows o en OBS.")])
 
+    def test_cargar_dispositivos_suena_espera_y_listo(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "dispositivos",
+                                  return_value=(PARES, "default")), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono._snd, "reproducir") as sonar, \
+                _llamada_directa():
+            dialogo.cho_fuente.SetStringSelection("Audio USB")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            self.assertTrue(dialogo._espera._timer.IsRunning())
+            dialogo._espera._al_tiempo(None)
+            funciones[0]()
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "listo"])
+
+    def test_fallo_de_recarga_suena_error(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar",
+                               side_effect=RuntimeError("caído")), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono._snd, "reproducir") as sonar, \
+                mock.patch.object(gui_microfono, "anunciar"), \
+                _llamada_directa():
+            dialogo.cho_fuente.SetStringSelection("Audio USB")
+            evento = wx.CommandEvent(wx.EVT_CHOICE.typeId,
+                                     dialogo.cho_fuente.GetId())
+            dialogo.cho_fuente.GetEventHandler().ProcessEvent(evento)
+            dialogo._espera._al_tiempo(None)
+            funciones[0]()
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "error"])
+
+    def test_aplicar_suena_espera_y_listo(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "cambiar_dispositivo"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "silenciada", return_value=False), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "senal_microfono", return_value=True), \
+                mock.patch.object(gui_microfono, "guardar_opcion"), \
+                mock.patch.object(gui_microfono, "anunciar"), \
+                mock.patch("guyrapu.ui.gui.RUTA_CONFIG", "RUTA"), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono._snd, "reproducir") as sonar, \
+                _llamada_directa():
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     dialogo.btn_aplicar.GetId())
+            dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
+            self.assertTrue(dialogo._espera._timer.IsRunning())
+            dialogo._espera._al_tiempo(None)
+            funciones[0]()
+        self.assertFalse(dialogo._espera._timer.IsRunning())
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "listo"])
+
+    def test_aplicar_sin_senal_termina_sin_listo(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "cambiar_dispositivo"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "silenciada", return_value=False), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "senal_microfono", return_value=False), \
+                mock.patch.object(gui_microfono, "guardar_opcion"), \
+                mock.patch.object(gui_microfono, "anunciar"), \
+                mock.patch("guyrapu.ui.gui.RUTA_CONFIG", "RUTA"), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono._snd, "reproducir") as sonar, \
+                _llamada_directa():
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     dialogo.btn_aplicar.GetId())
+            dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
+            dialogo._espera._al_tiempo(None)
+            funciones[0]()
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "microfono_sin_senal"])
+
+    def test_fallo_al_aplicar_suena_error(self):
+        dialogo = self._dialogo()
+        funciones = []
+        with mock.patch.object(gui_microfono, "_conectar"), \
+                mock.patch.object(gui_microfono.obs_entradas_audio,
+                                  "cambiar_dispositivo",
+                                  side_effect=RuntimeError("caído")), \
+                mock.patch.object(gui_microfono.diagnostico, "crear_hilo",
+                                  side_effect=lambda f, n: funciones.append(f)
+                                  or mock.Mock()), \
+                mock.patch.object(gui_microfono, "anunciar"), \
+                mock.patch.object(gui_microfono._snd, "reproducir") as sonar, \
+                _llamada_directa():
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     dialogo.btn_aplicar.GetId())
+            dialogo.btn_aplicar.GetEventHandler().ProcessEvent(evento)
+            dialogo._espera._al_tiempo(None)
+            funciones[0]()
+        self.assertEqual([llamada.args[0] for llamada in sonar.call_args_list],
+                         ["espera", "error"])
+
     def test_con_senal_avisa_que_recibe_sonido(self):
         dialogo = self._dialogo()
         _cliente, _cambiar, _guardar, anunciar, reproducir = self._aplicar(

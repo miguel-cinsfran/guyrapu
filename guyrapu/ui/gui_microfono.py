@@ -22,6 +22,7 @@ from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_entradas_audio
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui import ayuda_manual, paleta, tecla_escape
+from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
@@ -206,12 +207,21 @@ class MicrofonoObsDialog(wx.Dialog):
         self.btn_aplicar.SetLabel(redaccion.etiqueta_con_motivo(
             _("&Aplicar"), self._motivo_en_curso()))
 
+    def _espera_de_microfono(self):
+        if not hasattr(self, "_espera"):
+            self._espera = EsperaSonora(self)
+        return self._espera
+
     def _cambiar_recargando(self, fuente) -> None:
         self._recargando = fuente
+        if fuente:
+            self._espera_de_microfono().empezar()
         self._actualizar_boton_aplicar()
 
     def _cambiar_aplicando(self, aplicando) -> None:
         self._aplicando = aplicando
+        if aplicando:
+            self._espera_de_microfono().empezar()
         self._actualizar_boton_aplicar()
 
     def _al_cambiar_fuente(self, event) -> None:
@@ -242,11 +252,13 @@ class MicrofonoObsDialog(wx.Dialog):
             return
         self._cargar_dispositivos(pares, actual)
         self._cambiar_recargando("")
+        self._espera_de_microfono().terminar("listo")
 
     def _fallo_recarga(self, fuente, mensaje) -> None:
         if not self or fuente != self._recargando:
             return
         self._cambiar_recargando("")
+        self._espera_de_microfono().terminar("error")
         anunciar(mensaje)
 
     def _al_aplicar(self, event) -> None:
@@ -294,19 +306,23 @@ class MicrofonoObsDialog(wx.Dialog):
         # Traductores: {dispositivo} es el nombre del dispositivo elegido.
         anunciar(_("Micrófono cambiado: {dispositivo}.").format(
             dispositivo=nombre))
+        if senal is False:
+            _snd.reproducir("microfono_sin_senal")
+            anunciar(_(obs_audio.TEXTO_SIN_SENAL))
+            self._espera_de_microfono().terminar(None)
+            return
         if senal == "silenciada":
             # Traductores: el micrófono quedó elegido pero OBS lo silencia.
             anunciar(_("El micrófono está silenciado en OBS."))
-        elif senal is False:
-            _snd.reproducir("microfono_sin_senal")
-            anunciar(_(obs_audio.TEXTO_SIN_SENAL))
         elif senal is True:
             anunciar(_("El micrófono recibe sonido."))
+        self._espera_de_microfono().terminar("listo")
 
     def _fallo_aplicacion(self, mensaje) -> None:
         if not self:
             return
         self._cambiar_aplicando(False)
+        self._espera_de_microfono().terminar("error")
         anunciar(mensaje)
 
     def _guardar_fuente(self, fuente) -> None:
@@ -316,9 +332,13 @@ class MicrofonoObsDialog(wx.Dialog):
         self._padre._config["obs_microfono"] = fuente
 
     def _al_cerrar(self, _event) -> None:
+        self._espera_de_microfono().detener()
         self.EndModal(wx.ID_CANCEL)
 
     def _al_tecla(self, event) -> None:
         if ayuda_manual.atender_f1(self, event, "microfono"):
             return
-        tecla_escape.cancelar_si_escape(self, event)
+        if tecla_escape.es_escape(event.GetKeyCode()):
+            self._al_cerrar(event)
+            return
+        event.Skip()
