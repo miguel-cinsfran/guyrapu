@@ -344,6 +344,58 @@ class TestMenuMusica(unittest.TestCase):
         ], self._entradas())
 
 
+class TestMenuReproductorAcciones(unittest.TestCase):
+    """Cada elemento del menú Reproductor llama a su acción con sus datos."""
+
+    def _enlaces(self):
+        from guyrapu.ui import menu_reproductor
+
+        enlaces = {}
+
+        def crear_menu(*_args, **_kwargs):
+            menu = mock.MagicMock()
+
+            def crear_item(*args):
+                etiqueta = args[1] if len(args) > 1 else args[0]
+                item = mock.Mock()
+                item._etiqueta = etiqueta
+                return item
+
+            menu.Append.side_effect = crear_item
+            menu.AppendCheckItem.side_effect = crear_item
+            menu.AppendRadioItem.side_effect = crear_item
+            return menu
+
+        frame = mock.Mock()
+        frame._accel.return_value = ""
+        frame._config = {"mostrar_botones_reproductor": True}
+        with mock.patch.object(gui.wx, "Menu", side_effect=crear_menu):
+            menu_reproductor.construir(frame, mock.Mock())
+        for llamada in frame._bind_menu.call_args_list:
+            enlaces[llamada.args[0]._etiqueta] = llamada.args[1:]
+        return frame, enlaces
+
+    def test_cada_elemento_llama_a_su_accion_con_sus_argumentos(self):
+        frame, enlaces = self._enlaces()
+        esperados = {
+            "&Reproducir o pausar": (frame._rep_accion, "_toggle_play"),
+            "R&etroceder 1 minuto": (frame._rep_accion, "_buscar_rel", -60_000),
+            "&Avanzar 1 minuto": (frame._rep_accion, "_buscar_rel", +60_000),
+            "&Ir al directo": (frame._rep_accion, "ir_al_directo"),
+            "De&tener reproducción": (frame._rep_accion, "_detener"),
+            "&Silenciar o activar audio": (frame._rep_accion, "_toggle_mute"),
+            "Pantalla &completa": (
+                frame._rep_accion, "alternar_pantalla_completa"),
+            "&Bajar volumen del reproductor": (
+                frame._rep_accion, "ajustar_volumen", -20),
+            "S&ubir volumen del reproductor": (
+                frame._rep_accion, "ajustar_volumen", +20),
+        }
+        self.assertEqual(
+            {etiqueta: enlaces.get(etiqueta) for etiqueta in esperados},
+            esperados)
+
+
 class TestMenuBuscarChat(unittest.TestCase):
     """El comando Buscar en el chat, con su atajo y su manejador."""
 
