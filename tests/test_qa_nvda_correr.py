@@ -23,6 +23,8 @@ INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
 class TestGuardia(unittest.TestCase):
 
     def test_entrada_fisica_reciente_no_toca_nada(self):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
         args = SimpleNamespace(sin_espera=False, una_pc=False,
                                respaldo_minutos=45, canario=True)
         with (
@@ -37,7 +39,7 @@ class TestGuardia(unittest.TestCase):
             mock.patch.object(correr.perfil, "version_esperada",
                               return_value="2026.3.1"),
             mock.patch.object(correr.perfil, "ruta_estado",
-                              return_value=Path("estado.json")),
+                              return_value=Path(carpeta.name) / "estado.json"),
             mock.patch.object(correr.nvda_local, "nvda_en_marcha",
                               return_value=None),
             mock.patch.object(correr.nvda_local, "cerrar") as cerrar,
@@ -65,6 +67,8 @@ class TestGuardia(unittest.TestCase):
 class TestCortado(unittest.TestCase):
 
     def _correr_cortado(self, devolucion_ok):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
         args = SimpleNamespace(sin_espera=False, una_pc=False,
                                respaldo_minutos=45, canario=True)
         vigilante = mock.Mock(cortado=False)
@@ -81,7 +85,7 @@ class TestCortado(unittest.TestCase):
             mock.patch.object(correr.perfil, "version_esperada",
                               return_value="2026.3.1"),
             mock.patch.object(correr.perfil, "ruta_estado",
-                              return_value=Path("estado.json")),
+                              return_value=Path(carpeta.name) / "estado.json"),
             mock.patch.object(correr.nvda_local, "nvda_en_marcha",
                               return_value=None),
             mock.patch.object(correr.nvda_local, "cerrar",
@@ -117,6 +121,8 @@ class TestCortado(unittest.TestCase):
 class TestRespaldo(unittest.TestCase):
 
     def test_sin_respaldo_no_cierra_el_nvda(self):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
         args = SimpleNamespace(sin_espera=False, una_pc=False,
                                respaldo_minutos=45, canario=True)
         with (
@@ -127,7 +133,7 @@ class TestRespaldo(unittest.TestCase):
             mock.patch.object(correr.perfil, "version_esperada",
                               return_value="2026.3.1"),
             mock.patch.object(correr.perfil, "ruta_estado",
-                              return_value=Path("estado.json")),
+                              return_value=Path(carpeta.name) / "estado.json"),
             mock.patch.object(correr.nvda_local, "nvda_en_marcha",
                               return_value=None),
             mock.patch.object(correr.nvda_local, "cerrar") as cerrar,

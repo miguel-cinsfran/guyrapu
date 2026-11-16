@@ -368,13 +368,15 @@ class TestArranque(unittest.TestCase):
 class TestDevolverMain(unittest.TestCase):
 
     def _main(self, devuelto):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
         with (
             mock.patch.object(devolver.perfil, "version_esperada",
                               return_value="2026.3.1"),
             mock.patch.object(devolver.perfil, "ruta_portatil",
                               return_value=Path(PORTATIL)),
             mock.patch.object(devolver.perfil, "ruta_estado",
-                              return_value=Path("estado.json")),
+                              return_value=Path(carpeta.name) / "estado.json"),
             mock.patch.object(devolver.nvda_local,
                               "instalado_por_defecto",
                               return_value=INSTALADO),
