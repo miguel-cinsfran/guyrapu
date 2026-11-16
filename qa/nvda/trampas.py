@@ -13,6 +13,7 @@ ventanas se construyen recién en `construir`.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -241,7 +242,10 @@ def main(argv=None) -> int:
         description="Ventanas de prueba del carril de NVDA.")
     analizador.add_argument("--ventana", required=True,
                             choices=sorted(VENTANAS))
+    analizador.add_argument("--pid-file")
     args = analizador.parse_args(argv)
+    if args.pid_file:
+        Path(args.pid_file).write_text(str(os.getpid()), encoding="utf-8")
     app = wx.App(False)
     marco = construir(args.ventana)
     marco.Show()

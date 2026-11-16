@@ -1,12 +1,18 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Pruebas del recorrido de una ventana con un cliente de mentira.
+"""Pruebas del recorrido de una ventana y del pid que escribe al abrirse.
 
-No abren ventanas ni tocan NVDA: el cliente doble devuelve paradas y habla
-fijas, y se comprueba cómo se conduce la ida, la vuelta y las acciones.
+La conducción usa un cliente de mentira que devuelve paradas y habla fijas.
+La prueba del pid lanza un proceso mínimo de verdad; ninguna abre ventanas ni
+toca NVDA.
 """
 
+import os
+import sys
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from qa.nvda import recorrido
 
@@ -149,6 +155,70 @@ class TestEsperaDeFoco(unittest.TestCase):
             recorrido.conducir(cliente, ventana(["Esperado"]),
                                tope_foco_s=0.01)
         self.assertEqual(cliente.pasos, [])
+
+
+class TestPidDeLaVentana(unittest.TestCase):
+
+    GUION = """import os
+import pathlib
+import sys
+import time
+
+ruta = pathlib.Path(sys.argv[sys.argv.index("--pid-file") + 1])
+ruta.write_text(str(os.getpid()), encoding="utf-8")
+segunda = os.environ.get("GUYRAPU_PID_ESCRITOR")
+if segunda:
+    pathlib.Path(segunda).write_text(str(os.getpid()), encoding="utf-8")
+tercera = os.environ.get("GUYRAPU_PID_PADRE")
+if tercera:
+    pathlib.Path(tercera).write_text(str(os.getppid()), encoding="utf-8")
+time.sleep(0.5)
+"""
+
+    def test_recorrer_usa_el_pid_que_escribio_la_ventana(self):
+        with tempfile.TemporaryDirectory() as base:
+            carpeta = Path(base)
+            guion = carpeta / "escribe_pid.py"
+            guion.write_text(self.GUION, encoding="utf-8")
+            escritor = carpeta / "escritor.pid"
+            padre = carpeta / "padre.pid"
+            datos = {"nombre": "prueba",
+                     "comando": [sys.executable, str(guion)],
+                     "primero": "Uno", "acciones": []}
+            visto = {}
+
+            def conducir_falso(cliente, ventana, *args, **kwargs):
+                visto["pid"] = ventana["pid"]
+                return {"ventana": "prueba", "pid": ventana["pid"],
+                        "primero": {}, "pasos": []}
+
+            with (
+                mock.patch.dict(os.environ, {
+                    "GUYRAPU_PID_ESCRITOR": str(escritor),
+                    "GUYRAPU_PID_PADRE": str(padre)}),
+                mock.patch.object(recorrido, "conducir",
+                                  side_effect=conducir_falso),
+                mock.patch.object(recorrido, "cerrar"),
+            ):
+                recorrido.recorrer(datos, None, tope_pid_s=2.0)
+
+            pid_escritor = int(escritor.read_text(encoding="utf-8"))
+            pid_padre = int(padre.read_text(encoding="utf-8"))
+            self.assertEqual(visto["pid"], pid_escritor)
+            if pid_escritor == pid_padre:
+                print("El venv no interpuso un lanzador: el pid es el del "
+                      "proceso lanzado.")
+
+    def test_si_no_aparece_el_pid_es_instrumento_roto(self):
+        with tempfile.TemporaryDirectory() as base:
+            guion = Path(base) / "no_escribe.py"
+            guion.write_text("import time\ntime.sleep(5)\n",
+                             encoding="utf-8")
+            datos = {"nombre": "prueba",
+                     "comando": [sys.executable, str(guion)],
+                     "primero": "Uno", "acciones": []}
+            with self.assertRaises(recorrido.InstrumentoRoto):
+                recorrido.recorrer(datos, None, tope_pid_s=0.2)
 
 
 if __name__ == "__main__":

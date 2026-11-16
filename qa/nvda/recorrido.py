@@ -15,7 +15,9 @@ de la app.
 from __future__ import annotations
 
 import subprocess
+import tempfile
 import time
+from pathlib import Path
 
 from qa.nvda.reglas import identidad
 
@@ -121,17 +123,34 @@ def _esperar_proceso(proceso) -> None:
         proceso.wait(timeout=5)
 
 
+def _esperar_pid(ruta, tope_s, dormir) -> int:
+    limite = time.monotonic() + tope_s
+    while time.monotonic() < limite:
+        try:
+            texto = Path(ruta).read_text(encoding="utf-8").strip()
+        except OSError:
+            texto = ""
+        if texto.isdigit():
+            return int(texto)
+        dormir(0.05)
+    raise InstrumentoRoto(f"la ventana no escribió su pid en {ruta} a tiempo")
+
+
 def recorrer(ventana, cliente, tope=TOPE_PASOS, tope_foco_s=20.0,
-             dormir=time.sleep) -> dict:
+             tope_pid_s=20.0, dormir=time.sleep) -> dict:
     """Abre la ventana en otro proceso, la conduce y la cierra."""
-    proceso = subprocess.Popen(ventana["comando"])
-    try:
-        datos = conducir(cliente, {**ventana, "pid": proceso.pid},
-                         tope, tope_foco_s, dormir)
-        cerrar(cliente, proceso.pid)
-        _esperar_proceso(proceso)
-        return datos
-    except Exception:
-        proceso.kill()
-        proceso.wait(timeout=5)
-        raise
+    with tempfile.TemporaryDirectory() as base:
+        ruta_pid = Path(base) / "ventana.pid"
+        comando = list(ventana["comando"]) + ["--pid-file", str(ruta_pid)]
+        proceso = subprocess.Popen(comando)
+        try:
+            pid = _esperar_pid(ruta_pid, tope_pid_s, dormir)
+            datos = conducir(cliente, {**ventana, "pid": pid},
+                             tope, tope_foco_s, dormir)
+            cerrar(cliente, pid)
+            _esperar_proceso(proceso)
+            return datos
+        except Exception:
+            proceso.kill()
+            proceso.wait(timeout=5)
+            raise
