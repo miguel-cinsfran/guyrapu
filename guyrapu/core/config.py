@@ -14,7 +14,7 @@ from guyrapu.core import avisos_tiktok
 from guyrapu.core import config_faltantes
 from guyrapu.core import config_predeterminada
 from guyrapu.core import diagnostico
-from guyrapu.core.ini_tipado import leer_texto, a_entero, a_decimal, leer_entero, leer_decimal, leer_booleano, separar_por_comas
+from guyrapu.core.ini_tipado import leer_texto, a_entero, leer_entero, leer_booleano, separar_por_comas
 from guyrapu.core.eventos_sonido import EVENTOS as _EVENTOS_SONIDO
 from guyrapu.core import paths
 from guyrapu.core import sonidos_fabrica
