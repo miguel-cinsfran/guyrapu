@@ -831,6 +831,15 @@ class TestCampoEnlaceSoloLectura(unittest.TestCase):
         self.assertFalse(frame.txt_url.IsEditable())
         self.assertEqual(frame.txt_url.GetName(), self.NOMBRE_CON_MOTIVO)
 
+    def test_al_completarse_la_conexion_queda_solo_lectura_con_el_motivo(self):
+        frame = self._ventana()
+        self._empezar_a_conectar(frame)
+        with mock.patch.object(gui_sesion, "anunciar"), \
+                mock.patch.object(gui.wx, "CallAfter"):
+            frame.set_conectado(True)
+        self.assertFalse(frame.txt_url.IsEditable())
+        self.assertEqual(frame.txt_url.GetName(), self.NOMBRE_CON_MOTIVO)
+
     def test_intro_con_conexion_anuncia_el_motivo_sin_desconectar(self):
         frame = self._ventana()
         self._empezar_a_conectar(frame)
