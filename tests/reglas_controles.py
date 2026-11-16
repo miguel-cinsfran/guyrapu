@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Detectores de las reglas sobre controles y confirmaciones, con ast.
 
-Leen archivos, no importan wx ni la aplicación. R11, R12 y R13.
+Leen archivos, no importan wx ni la aplicación. R11 a R14.
 """
 
 from __future__ import annotations
@@ -192,5 +192,44 @@ def detectar_mnemonico(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
         if texto == "":
             continue
         if _cantidad_mnemonicos(texto) != 1:
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
+def _es_notebook(nodo: ast.Call) -> bool:
+    return (isinstance(nodo.func, ast.Attribute)
+            and nodo.func.attr == "Notebook"
+            and _termina_en_wx(nodo.func.value))
+
+
+def _es_enlace_de_pestana(func: ast.expr) -> bool:
+    return ((isinstance(func, ast.Name)
+             and func.id == "enlazar_anuncio_de_pestana")
+            or (isinstance(func, ast.Attribute)
+                and func.attr == "enlazar_anuncio_de_pestana"))
+
+
+def _pestanas_anunciadas(nodos) -> set[tuple]:
+    anunciadas = set()
+    for nodo in nodos:
+        if (isinstance(nodo, ast.Call) and nodo.args
+                and _es_enlace_de_pestana(nodo.func)):
+            referencia = _referencia(nodo.args[0])
+            if referencia is not None:
+                anunciadas.add(referencia)
+    return anunciadas
+
+
+def detectar_pestana_sin_anuncio(archivo: str,
+                                 arbol: ast.Module) -> list[Hallazgo]:
+    nodos = list(ast.walk(arbol))
+    anunciadas = _pestanas_anunciadas(nodos)
+    hallazgos = []
+    for nodo in nodos:
+        if not (isinstance(nodo, ast.Call) and _es_notebook(nodo)):
+            continue
+        destinos = _destinos(nodo, nodos)
+        if not destinos or not all(destino in anunciadas
+                                   for destino in destinos):
             hallazgos.append(Hallazgo(archivo, nodo.lineno))
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)

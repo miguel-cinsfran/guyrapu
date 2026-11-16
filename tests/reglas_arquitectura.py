@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from tests.reglas_controles import (
     detectar_mnemonico,
     detectar_nombres_de_control,
+    detectar_pestana_sin_anuncio,
     detectar_predeterminado,
 )
 from tests.reglas_detectores import (
@@ -181,5 +182,12 @@ REGLAS = (
         prohibido="un rótulo _() literal de botón, casilla o radio no lleva exactamente un &",
         detectar=detectar_mnemonico,
         pendientes={},
+    ),
+    Regla(
+        id="R14",
+        prohibido="un wx.Notebook no se pasa a enlazar_anuncio_de_pestana en su archivo",
+        detectar=detectar_pestana_sin_anuncio,
+        pendientes={},
+        ambito=_paquete,
     ),
 )
