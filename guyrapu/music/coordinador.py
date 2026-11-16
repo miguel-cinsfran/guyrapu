@@ -646,33 +646,33 @@ class Coordinador(TransporteMusica):
         activo. Cada tema se prueba una sola vez por avance: si todos fallan,
         termina en fin_lista y nunca en un bucle.
         """
+        if self._repetir == "tema" and self._posicion is not None:
+            return self._repetir_el_tema(fallo)
+        return self._buscar_siguiente()
+
+    def _repetir_el_tema(self, fallo: bool) -> list[Resultado]:
+        if fallo:
+            # Repetir un tema que el motor acaba de rechazar sería un
+            # bucle: se detiene en vez de volver a probarlo.
+            return self._terminar_fin_lista([])
+        actual = self._cola[self._posicion]
+        try:
+            self._cargar(actual)
+        except Exception:
+            self._detener_motor()
+            self._pausado = False
+            self._terminado = True
+            avisos = [Resultado(False, TEMA_FALLIDO, self._estado(),
+                                tema=actual)]
+            avisos.append(Resultado(True, FIN_LISTA, self._estado()))
+            return avisos
+        self._pausado = False
+        self._terminado = False
+        return [Resultado(True, AVANZO, self._estado())]
+
+    def _buscar_siguiente(self) -> list[Resultado]:
         avisos = []
         total = len(self._cola)
-        if self._repetir == "tema" and self._posicion is not None:
-            if fallo:
-                # Repetir un tema que el motor acaba de rechazar sería un
-                # bucle: se detiene en vez de volver a probarlo.
-                self._detener_motor()
-                self._pausado = False
-                self._terminado = True
-                self._a_continuacion = 0
-                avisos.append(Resultado(True, FIN_LISTA, self._estado()))
-                return avisos
-            actual = self._cola[self._posicion]
-            try:
-                self._cargar(actual)
-            except Exception:
-                self._detener_motor()
-                self._pausado = False
-                self._terminado = True
-                avisos.append(Resultado(False, TEMA_FALLIDO, self._estado(),
-                                        tema=actual))
-                avisos.append(Resultado(True, FIN_LISTA, self._estado()))
-                return avisos
-            self._pausado = False
-            self._terminado = False
-            return [Resultado(True, AVANZO, self._estado())]
-
         intentados = set()
         ultimo = None
         while len(intentados) < total:
@@ -693,29 +693,29 @@ class Coordinador(TransporteMusica):
                 continue
             intentados.add(indice)
             ultimo = indice
-            try:
-                self._cargar(self._cola[indice])
-            except Exception:
-                self._consumir_continuacion(destino)
-                self._cursor = destino
-                self._posicion = indice
-                avisos.append(Resultado(False, TEMA_FALLIDO, self._estado(),
-                                        tema=self._cola[indice]))
-                continue
             self._consumir_continuacion(destino)
             self._cursor = destino
             self._posicion = indice
+            try:
+                self._cargar(self._cola[indice])
+            except Exception:
+                avisos.append(Resultado(False, TEMA_FALLIDO, self._estado(),
+                                        tema=self._cola[indice]))
+                continue
             self._pausado = False
             self._terminado = False
             avisos.append(Resultado(True, AVANZO, self._estado()))
             return avisos
-        self._detener_motor()
         if ultimo is not None:
             self._posicion = ultimo
             self._cursor = self._orden.index(ultimo)
         elif total:
             self._posicion = total - 1
             self._cursor = self._orden.index(self._posicion)
+        return self._terminar_fin_lista(avisos)
+
+    def _terminar_fin_lista(self, avisos: list[Resultado]) -> list[Resultado]:
+        self._detener_motor()
         self._pausado = False
         self._terminado = True
         self._a_continuacion = 0

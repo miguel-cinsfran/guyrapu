@@ -860,6 +860,32 @@ class TestRepetirTema(unittest.TestCase):
         self.assertEqual([a.codigo for a in avisos], [TEMA_FALLIDO, FIN_LISTA])
         self.assertTrue(c.estado().terminado)
 
+    def test_el_fallo_al_repetir_limpia_lo_pendiente(self):
+        ad = AdaptadorFalso()
+        avisos = []
+        c = Coordinador(ad, al_cambiar=avisos.append)
+        c.fijar_repetir("tema")
+        c.reproducir_lista([tema("a"), tema("b")])
+        c.a_continuacion([tema("x")])
+        c.tema_terminado(ad.ultima_ficha(), True)
+        self.assertEqual([a.codigo for a in avisos], [TEMA_FALLIDO, FIN_LISTA])
+        self.assertTrue(c.estado().terminado)
+        self.assertEqual(c._a_continuacion, 0)
+
+    def test_si_al_repetir_el_tema_no_carga_termina_en_fin_lista(self):
+        ad = AdaptadorFalso()
+        avisos = []
+        c = Coordinador(ad, al_cambiar=avisos.append)
+        c.fijar_repetir("tema")
+        c.reproducir_lista([tema("a"), tema("b")])
+        c.a_continuacion([tema("x")])
+        ad.fallar.add("C:/musica/a.mp3")
+        c.tema_terminado(ad.ultima_ficha(), False)
+        self.assertEqual([a.codigo for a in avisos], [TEMA_FALLIDO, FIN_LISTA])
+        self.assertTrue(c.estado().terminado)
+        self.assertEqual(ad.llamadas[-1][0], "detener")
+        self.assertEqual(c._a_continuacion, 1)
+
 
 class TestAleatorio(unittest.TestCase):
 
