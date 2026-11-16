@@ -20,6 +20,7 @@ WAIT_TIMEOUT = 0x0102
 WAIT_FAILED = 0xFFFFFFFF
 SEE_MASK_NOCLOSEPROCESS = 0x00000040
 SW_SHOWNORMAL = 1
+SW_HIDE = 0
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 SYNCHRONIZE = 0x00100000
 CLASE_VENTANA = "wxWindowClassNR"
@@ -216,7 +217,7 @@ def _parametros(argumentos) -> str:
 
 
 def ejecutar_shell(ejecutable, argumentos=(), esperar=False,
-                   tope_s=600.0) -> int:
+                   tope_s=600.0, mostrar=SW_SHOWNORMAL) -> int:
     """Arranca un ejecutable con ShellExecuteEx, como un doble clic.
 
     Windows no deja iniciar el `nvda.exe` instalado con CreateProcess porque
@@ -229,7 +230,7 @@ def ejecutar_shell(ejecutable, argumentos=(), esperar=False,
     info.verbo = "open"
     info.archivo = str(ejecutable)
     info.parametros = _parametros(argumentos) or None
-    info.mostrar = SW_SHOWNORMAL
+    info.mostrar = mostrar
     if not shell32.ShellExecuteExW(ctypes.byref(info)):
         raise ctypes.WinError(ctypes.get_last_error())
     if not info.proceso:

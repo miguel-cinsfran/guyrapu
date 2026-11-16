@@ -299,15 +299,18 @@ class TestArranque(unittest.TestCase):
         self.assertEqual(primera.args[0], INSTALADO)
         self.assertEqual(primera.args[1], ["-c", r"C:\perfil"])
         self.assertFalse(primera.kwargs.get("esperar", False))
+        self.assertNotIn("mostrar", primera.kwargs)
         self.assertEqual(segunda.args[0], INSTALADO)
         self.assertTrue(segunda.kwargs["esperar"])
         self.assertEqual(segunda.kwargs["tope_s"], 600.0)
+        self.assertNotIn("mostrar", segunda.kwargs)
 
     def test_shell_execute_de_verdad_devuelve_el_codigo_de_salida(self):
         comando = os.environ.get("COMSPEC",
                                  r"C:\Windows\System32\cmd.exe")
         codigo = nvda_local.ejecutar_shell(
-            comando, ["/c", "exit", "3"], esperar=True, tope_s=30.0)
+            comando, ["/c", "exit", "3"], esperar=True, tope_s=30.0,
+            mostrar=nvda_local.SW_HIDE)
         self.assertEqual(codigo, 3)
 
 
