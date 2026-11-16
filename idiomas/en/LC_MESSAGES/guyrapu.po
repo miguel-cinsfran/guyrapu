@@ -14215,3 +14215,10 @@ msgstr "OBS is not connected."
 msgid "No hay mensajes automáticos."
 msgstr "There are no scheduled messages."
 
+#. Traductores: fila que dice que la pestaña del historial no tiene
+#. entradas; {plataforma} es el nombre de la plataforma de la pestaña.
+#: guyrapu/ui/gui_historial.py
+#, python-brace-format
+msgid "No hay entradas de {plataforma}."
+msgstr "No entries for {plataforma}."
+

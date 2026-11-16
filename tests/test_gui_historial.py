@@ -8,6 +8,7 @@ from unittest import mock
 
 from guyrapu.capture import redaccion
 from guyrapu.ui import gui_historial
+from guyrapu.ui import lista_acciones
 from guyrapu.core import historial
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -40,14 +41,23 @@ class PruebasHistorialDialog(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
-    def _tecla_en_la_lista(self, codigo):
-        dialogo = self._dialogo([])
-        evento = mock.Mock()
-        evento.GetKeyCode.return_value = codigo
-        evento.GetEventObject.return_value = dialogo._listas["youtube"]
-        with mock.patch.object(gui_historial, "anunciar") as anunciar:
-            dialogo._on_key(evento)
-        return anunciar
+    def _tecla(self, tipo, codigo, lista, shift=False):
+        evento = gui_historial.wx.KeyEvent(tipo)
+        evento.SetKeyCode(codigo)
+        if shift:
+            evento.SetShiftDown(True)
+        lista.GetEventHandler().ProcessEvent(evento)
+
+    def _elegir_en_menu(self, lista, textos):
+        def popup(menu):
+            for item in menu.GetMenuItems():
+                if item.GetItemLabelText().split("\t")[0] in textos:
+                    menu.ProcessEvent(gui_historial.wx.CommandEvent(
+                        gui_historial.wx.EVT_MENU.typeId, item.GetId()))
+
+        with mock.patch.object(lista, "PopupMenu", side_effect=popup):
+            self._tecla(gui_historial.wx.wxEVT_KEY_DOWN,
+                        gui_historial.wx.WXK_WINDOWS_MENU, lista)
 
     def test_poblar_separa_las_entradas_por_plataforma(self):
         youtube = entrada("youtube", "yt", "https://youtube.com/watch?v=yt")
@@ -80,6 +90,65 @@ class PruebasHistorialDialog(unittest.TestCase):
         self.assertTrue(dialogo.btn_quitar.IsEnabled())
         self.assertEqual("&Conectar", dialogo.btn_conectar.GetLabel())
         self.assertEqual("E&liminar", dialogo.btn_quitar.GetLabel())
+
+    def test_la_tecla_de_aplicaciones_abre_el_menu_con_las_acciones(self):
+        dialogo = self._dialogo([
+            entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
+        etiquetas = []
+
+        def popup(menu):
+            etiquetas.extend(item.GetItemLabel()
+                             for item in menu.GetMenuItems())
+
+        with mock.patch.object(dialogo._listas["youtube"], "PopupMenu",
+                               side_effect=popup):
+            self._tecla(gui_historial.wx.wxEVT_KEY_DOWN,
+                        gui_historial.wx.WXK_WINDOWS_MENU,
+                        dialogo._listas["youtube"])
+
+        self.assertEqual(["&Conectar\tEnter", "E&liminar\tDel"], etiquetas)
+
+    def test_mayus_f10_abre_el_menu(self):
+        dialogo = self._dialogo([])
+        with mock.patch.object(dialogo._listas["youtube"],
+                               "PopupMenu") as mostrar:
+            self._tecla(gui_historial.wx.wxEVT_KEY_DOWN,
+                        gui_historial.wx.WXK_F10,
+                        dialogo._listas["youtube"], shift=True)
+        mostrar.assert_called_once()
+
+    def test_el_clic_derecho_abre_el_menu(self):
+        dialogo = self._dialogo([])
+        lista = dialogo._listas["youtube"]
+        evento = gui_historial.wx.ContextMenuEvent(
+            gui_historial.wx.wxEVT_CONTEXT_MENU, lista.GetId())
+        evento.SetEventObject(lista)
+        with mock.patch.object(lista, "PopupMenu") as mostrar:
+            lista.ProcessEvent(evento)
+        mostrar.assert_called_once()
+
+    def test_el_menu_ejecuta_conectar_y_eliminar(self):
+        dialogo = self._dialogo([
+            entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
+        with mock.patch.object(dialogo, "_conectar") as conectar, \
+                mock.patch.object(dialogo, "_quitar") as quitar:
+            self._elegir_en_menu(
+                dialogo._listas["youtube"], ("Conectar", "Eliminar"))
+        conectar.assert_called_once_with()
+        quitar.assert_called_once_with()
+
+    def test_cada_pestana_vacia_dice_no_hay_entradas_de_su_plataforma(self):
+        solo_youtube = self._dialogo([
+            entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
+        self.assertEqual(
+            ["No hay entradas de TikTok."],
+            list(solo_youtube._listas["tiktok"].GetStrings()))
+
+        solo_tiktok = self._dialogo([
+            entrada("tiktok", "tk", "https://tiktok.com/@tk/live")])
+        self.assertEqual(
+            ["No hay entradas de YouTube."],
+            list(solo_tiktok._listas["youtube"].GetStrings()))
 
     def test_conectar_con_historial_vacio_anuncia_el_motivo(self):
         dialogo = self._dialogo([])
@@ -121,15 +190,17 @@ class PruebasHistorialDialog(unittest.TestCase):
         anunciar.assert_called_once_with("Sin selección")
         self.assertEqual([youtube], historial.cargar(self.ruta))
 
-    def test_intro_con_historial_vacio_anuncia_el_motivo(self):
-        anunciar = self._tecla_en_la_lista(gui_historial.wx.WXK_RETURN)
+    def test_intro_sobre_la_fila_vacia_no_cierra_el_cuadro(self):
+        dialogo = self._dialogo([])
+        lista = dialogo._listas["youtube"]
+        with mock.patch.object(gui_historial, "anunciar"), \
+                mock.patch.object(lista_acciones, "anunciar") as anunciar, \
+                mock.patch.object(dialogo, "EndModal") as end_modal:
+            self._tecla(gui_historial.wx.wxEVT_CHAR_HOOK,
+                        gui_historial.wx.WXK_RETURN, lista)
 
-        anunciar.assert_called_once_with("El historial está vacío.")
-
-    def test_suprimir_con_historial_vacio_anuncia_el_motivo(self):
-        anunciar = self._tecla_en_la_lista(gui_historial.wx.WXK_DELETE)
-
-        anunciar.assert_called_once_with("El historial está vacío.")
+        anunciar.assert_called_once_with("No hay entradas de YouTube.")
+        end_modal.assert_not_called()
 
     def test_quitar_la_ultima_entrada_deja_el_motivo_en_las_etiquetas(self):
         dialogo = self._dialogo([
@@ -145,6 +216,36 @@ class PruebasHistorialDialog(unittest.TestCase):
         self.assertEqual(
             redaccion.etiqueta_con_motivo("E&liminar", motivo),
             dialogo.btn_quitar.GetLabel())
+
+    def test_suprimir_deja_elegida_la_fila_que_ocupa_el_lugar(self):
+        primera = entrada("youtube", "primera", "https://youtube.com/primera")
+        segunda = entrada("youtube", "segunda", "https://youtube.com/segunda")
+        tercera = entrada("youtube", "tercera", "https://youtube.com/tercera")
+        dialogo = self._dialogo([primera, segunda, tercera])
+        lista = dialogo._listas["youtube"]
+        lista.SetSelection(1)
+
+        with mock.patch.object(gui_historial, "anunciar"):
+            self._tecla(gui_historial.wx.wxEVT_KEY_DOWN,
+                        gui_historial.wx.WXK_DELETE, lista)
+
+        self.assertEqual(1, lista.GetSelection())
+        self.assertEqual(tercera, dialogo._seleccionada())
+
+    def test_suprimir_la_ultima_deja_elegida_la_anterior(self):
+        primera = entrada("youtube", "primera", "https://youtube.com/primera")
+        segunda = entrada("youtube", "segunda", "https://youtube.com/segunda")
+        tercera = entrada("youtube", "tercera", "https://youtube.com/tercera")
+        dialogo = self._dialogo([primera, segunda, tercera])
+        lista = dialogo._listas["youtube"]
+        lista.SetSelection(2)
+
+        with mock.patch.object(gui_historial, "anunciar"):
+            self._tecla(gui_historial.wx.wxEVT_KEY_DOWN,
+                        gui_historial.wx.WXK_DELETE, lista)
+
+        self.assertEqual(1, lista.GetSelection())
+        self.assertEqual(segunda, dialogo._seleccionada())
 
     def test_seleccionada_devuelve_la_entrada_elegida_o_none(self):
         primera = entrada("youtube", "primera", "https://youtube.com/watch?v=primera")
@@ -266,6 +367,17 @@ class PruebasHistorialDialog(unittest.TestCase):
             lista.GetEventHandler().ProcessEvent(evento)
         conectar.assert_called_once_with()
 
+    def test_el_doble_clic_conecta(self):
+        dialogo = self._dialogo([
+            entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
+        lista = dialogo._listas["youtube"]
+        evento = gui_historial.wx.CommandEvent(
+            gui_historial.wx.EVT_LISTBOX_DCLICK.typeId, lista.GetId())
+        evento.SetEventObject(lista)
+        with mock.patch.object(dialogo, "_conectar") as conectar:
+            lista.GetEventHandler().ProcessEvent(evento)
+        conectar.assert_called_once_with()
+
     def test_quitar_elimina_guarda_y_anuncia(self):
         youtube = entrada("youtube", "yt", "https://youtube.com/watch?v=yt")
         tiktok = entrada("tiktok", "tk", "https://tiktok.com/@tk/live")
@@ -274,7 +386,8 @@ class PruebasHistorialDialog(unittest.TestCase):
         with mock.patch.object(gui_historial, "anunciar") as anunciar:
             dialogo._quitar()
 
-        self.assertEqual(0, dialogo._listas["youtube"].GetCount())
+        self.assertEqual(["No hay entradas de YouTube."],
+                         list(dialogo._listas["youtube"].GetStrings()))
         self.assertEqual([tiktok], historial.cargar(self.ruta))
         anunciar.assert_called_once_with("Entrada eliminada del historial")
 
@@ -306,7 +419,7 @@ class PruebasHistorialDialog(unittest.TestCase):
     def test_instala_busqueda_por_tecleo_en_cada_lista(self):
         youtube = entrada("youtube", "yt", "https://youtube.com/watch?v=yt")
         tiktok = entrada("tiktok", "tk", "https://tiktok.com/@tk/live")
-        with mock.patch.object(gui_historial, "instalar_busqueda_tipo") as instalar:
+        with mock.patch.object(lista_acciones, "instalar_busqueda_tipo") as instalar:
             dialogo = self._dialogo([youtube, tiktok])
 
         llamadas = {llamada.args[0]: llamada.args[1]
@@ -344,54 +457,44 @@ class PruebasOrillaHistorial(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
-    def _tecla_sobre(self, codigo, lista):
-        evento = mock.Mock()
-        evento.GetKeyCode.return_value = codigo
-        evento.GetEventObject.return_value = lista
-        return evento
+    def _pulsar(self, codigo, lista):
+        evento = gui_historial.wx.KeyEvent(gui_historial.wx.wxEVT_KEY_DOWN)
+        evento.SetKeyCode(codigo)
+        lista.GetEventHandler().ProcessEvent(evento)
 
-    def test_arriba_en_primera_fila_suena_y_se_omite(self):
+    def test_arriba_en_primera_fila_suena(self):
         dialogo = self._dialogo_dos_filas()
         lista = dialogo._listas["youtube"]
         lista.SetSelection(0)
-        evento = self._tecla_sobre(gui_historial.wx.WXK_UP, lista)
-        with mock.patch.object(gui_historial._snd, "reproducir") as reproducir:
-            dialogo._on_key(evento)
+        with mock.patch.object(lista_acciones._snd, "reproducir") as reproducir:
+            self._pulsar(gui_historial.wx.WXK_UP, lista)
         reproducir.assert_called_once_with("orilla")
-        evento.Skip.assert_called_once_with()
 
-    def test_abajo_en_ultima_fila_suena_y_se_omite(self):
+    def test_abajo_en_ultima_fila_suena(self):
         dialogo = self._dialogo_dos_filas()
         lista = dialogo._listas["youtube"]
         lista.SetSelection(1)
-        evento = self._tecla_sobre(gui_historial.wx.WXK_DOWN, lista)
-        with mock.patch.object(gui_historial._snd, "reproducir") as reproducir:
-            dialogo._on_key(evento)
+        with mock.patch.object(lista_acciones._snd, "reproducir") as reproducir:
+            self._pulsar(gui_historial.wx.WXK_DOWN, lista)
         reproducir.assert_called_once_with("orilla")
-        evento.Skip.assert_called_once_with()
 
     def test_arriba_en_segunda_fila_no_suena(self):
         dialogo = self._dialogo_dos_filas()
         lista = dialogo._listas["youtube"]
         lista.SetSelection(1)
-        evento = self._tecla_sobre(gui_historial.wx.WXK_UP, lista)
-        with mock.patch.object(gui_historial._snd, "reproducir") as reproducir:
-            dialogo._on_key(evento)
+        with mock.patch.object(lista_acciones._snd, "reproducir") as reproducir:
+            self._pulsar(gui_historial.wx.WXK_UP, lista)
         reproducir.assert_not_called()
-        evento.Skip.assert_called_once_with()
 
     def test_orilla_aplica_a_la_lista_que_genero_el_evento(self):
         dialogo = self._dialogo_dos_filas()
         youtube = dialogo._listas["youtube"]
         tiktok = dialogo._listas["tiktok"]
         youtube.SetSelection(1)
-        tiktok.SetSelection(gui_historial.wx.NOT_FOUND)
-        evento = self._tecla_sobre(gui_historial.wx.WXK_UP, tiktok)
-        with mock.patch.object(gui_historial._snd, "reproducir") as reproducir:
-            dialogo._on_key(evento)
+        with mock.patch.object(lista_acciones._snd, "reproducir") as reproducir:
+            self._pulsar(gui_historial.wx.WXK_UP, tiktok)
         # La lista de TikTok está vacía: suena aunque YouTube esté en la fila 1.
         reproducir.assert_called_once_with("orilla")
-        evento.Skip.assert_called_once_with()
 
 
 if __name__ == "__main__":

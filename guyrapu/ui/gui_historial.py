@@ -16,13 +16,11 @@ import wx
 
 from guyrapu.capture import redaccion
 from guyrapu.core import historial
-from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
-from guyrapu.voice import sound_player as _snd
 from guyrapu.ui.accesibilidad import (
-    anunciar, enlazar_anuncio_de_pestana, entregar_intro, nombre_accesible)
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+    anunciar, enlazar_anuncio_de_pestana, nombre_accesible)
 from guyrapu.ui import ayuda_manual, paleta
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.tema import _T, _pintar
 
 logger = diagnostico.obtener_logger(__name__)
@@ -59,7 +57,7 @@ class HistorialDialog(wx.Dialog):
 
         self.nb = wx.Notebook(panel, name="PestanasHistorial")
         self._listas: dict[str, wx.ListBox] = {}
-        self._entradas: dict[str, list] = {}
+        self._piezas: dict[str, ListaConAcciones] = {}
         for titulo, plat in _PLATAFORMAS:
             self._listas[plat] = self._crear_pagina(titulo, plat)
         enlazar_anuncio_de_pestana(self.nb)
@@ -88,12 +86,15 @@ class HistorialDialog(wx.Dialog):
         lb = wx.ListBox(pag, style=wx.LB_SINGLE | wx.LB_HSCROLL,
                         name=nombre)
         nombre_accesible(lb, nombre)
-        instalar_busqueda_tipo(
-            lb,
-            lambda lb=lb: [lb.GetString(i) for i in range(lb.GetCount())])
-        lb.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self._conectar())
-        lb.Bind(wx.EVT_KEY_DOWN, self._on_key)
-        entregar_intro(lb, self._on_key)
+        # Traductores: fila que dice que la pestaña del historial no tiene
+        # entradas; {plataforma} es el nombre de la plataforma de la pestaña.
+        vacio = _("No hay entradas de {plataforma}.").format(plataforma=titulo)
+        self._piezas[plat] = ListaConAcciones(lb, (
+            Accion("conectar", _("&Conectar"), lambda: self._conectar(),
+                   tecla="intro"),
+            Accion("eliminar", _("E&liminar"), lambda: self._quitar(),
+                   tecla="suprimir"),
+        ), vacio)
         pvs.Add(lb, 1, wx.EXPAND | wx.ALL, 8)
         pag.SetSizer(pvs)
         self.nb.AddPage(pag, titulo)
@@ -104,16 +105,18 @@ class HistorialDialog(wx.Dialog):
     def _plat_actual(self) -> str:
         return _PLATAFORMAS[max(0, self.nb.GetSelection())][1]
 
-    def _poblar(self):
+    def _poblar(self, elegido=None):
+        actual = self._plat_actual()
+        self._entradas = {
+            plat: historial.de_plataforma(self._lista, plat)
+            for _titulo, plat in _PLATAFORMAS}
         for _titulo, plat in _PLATAFORMAS:
-            lb = self._listas[plat]
-            entradas = historial.de_plataforma(self._lista, plat)
-            self._entradas[plat] = entradas
-            lb.Clear()
-            for e in entradas:
-                lb.Append(historial.etiqueta(e))
-            if entradas:
-                lb.SetSelection(0)
+            entradas = self._entradas[plat]
+            indice = None
+            if plat == actual and elegido is not None:
+                indice = min(elegido, len(entradas) - 1)
+            self._piezas[plat].fijar(
+                [historial.etiqueta(e) for e in entradas], indice)
         motivo = historial.motivo_sin_entradas(any(self._entradas.values()))
         self.btn_conectar.SetLabel(
             redaccion.etiqueta_con_motivo(_("&Conectar"), motivo))
@@ -127,32 +130,12 @@ class HistorialDialog(wx.Dialog):
 
     def _seleccionada(self):
         plat = self._plat_actual()
-        lb = self._listas[plat]
-        i = lb.GetSelection()
-        entradas = self._entradas.get(plat, [])
-        if i == wx.NOT_FOUND or i >= len(entradas):
+        i = self._piezas[plat].indice()
+        if i is None:
             return None
-        return entradas[i]
+        return self._entradas[plat][i]
 
     # ── Acciones ───────────────────────────────────────────────────────────
-
-    def _on_key(self, event):
-        k = event.GetKeyCode()
-        # La orilla aplica a la lista que generó el evento y no consume la
-        # tecla: NVDA sigue leyendo la fila.
-        lb = event.GetEventObject()
-        try:
-            seleccion, total = lb.GetSelection(), lb.GetCount()
-        except Exception:
-            seleccion, total = -1, 0
-        if sonidos_eventos.es_orilla(k, seleccion, total):
-            _snd.reproducir("orilla")
-        if k in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            self._conectar()
-        elif k == wx.WXK_DELETE:
-            self._quitar()
-        else:
-            event.Skip()
 
     def _conectar(self):
         e = self._seleccionada()
@@ -174,10 +157,11 @@ class HistorialDialog(wx.Dialog):
         if not e:
             anunciar(self._motivo_sin_seleccion())
             return
+        indice = self._piezas[self._plat_actual()].indice()
         self._lista = [x for x in self._lista if x is not e]
         historial.guardar(self._ruta, self._lista)
         anunciar(_("Entrada eliminada del historial"))
-        self._poblar()
+        self._poblar(indice)
 
 
 def abrir_historial(parent, ruta, on_conectar) -> None:
