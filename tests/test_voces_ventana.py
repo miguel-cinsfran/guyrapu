@@ -474,7 +474,7 @@ class TestDesdePreferencias(BaseVentana):
                        mock.Mock(return_value={}))
         with mock.patch("guyrapu.voice.motores.listar_voces",
                         return_value=[]):
-            pagina = preferencias_voz.PaginaVoz(None, {})
+            pagina = preferencias_voz.PaginaVoz(frame, {})
             pagina.construir(frame)
         pagina._on_motor_cambiado = mock.Mock()
         with mock.patch.object(voces_ventana, "abrir") as abrir:
