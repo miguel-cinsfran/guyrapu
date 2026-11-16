@@ -569,6 +569,12 @@ msgstr "Analyzing…"
 msgid "Consulta cancelada."
 msgstr "Request canceled."
 
+#. Traductores: motivo que llevan las etiquetas de Enviar y Agregar captura
+#. mientras la ventana espera la respuesta de la IA.
+#: guyrapu/ai/ventana_ia.py
+msgid "Esperando la respuesta"
+msgstr "Waiting for the response"
+
 #: guyrapu/ai/ventana_ia.py
 msgid "Respuesta copiada."
 msgstr "Response copied."
@@ -7584,10 +7590,10 @@ msgid "&Cerrar"
 msgstr "&Close"
 
 #: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_microfono.py
-#: guyrapu/ui/ia_ventana.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_actualizacion.py
+#: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
+#: guyrapu/ui/musica_ventana.py guyrapu/ui/obs_ventana.py
+#: guyrapu/ui/restream_ventana.py guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
 msgstr "Close"
 
@@ -9664,6 +9670,11 @@ msgstr "Super Chats: {n} ({importes})"
 msgid "Novedades"
 msgstr "News"
 
+#. Traductores: nombre del botón de acción; no se oye porque nace oculto.
+#: guyrapu/ui/gui_actualizacion.py
+msgid "Acción"
+msgstr "Action"
+
 #: guyrapu/ui/gui_actualizar_app.py
 msgid "Actualización"
 msgstr "Update"
@@ -10155,6 +10166,16 @@ msgstr ""
 msgid "Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 msgstr "JPG and PNG images (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 
+#. Traductores: motivo de Cargar listas mientras se cargan las listas.
+#: guyrapu/ui/gui_directo_youtube.py
+msgid "Cargando las listas"
+msgstr "Loading the lists"
+
+#. Traductores: motivo de Cargar listas sin sesión de YouTube.
+#: guyrapu/ui/gui_directo_youtube.py
+msgid "Sin sesión de YouTube"
+msgstr "No YouTube session"
+
 #: guyrapu/ui/gui_directo_youtube.py
 msgid "Transmitir"
 msgstr "Broadcast"
@@ -10289,19 +10310,6 @@ msgstr "No thumbnail."
 #: guyrapu/ui/gui_directo_youtube.py
 msgid "Cargando las listas."
 msgstr "Loading the lists."
-
-#: guyrapu/youtube/emision.py
-msgid "El canal no tiene listas."
-msgstr "The channel has no playlists."
-
-#: guyrapu/youtube/emision.py
-msgid "1 lista."
-msgstr "1 playlist."
-
-#: guyrapu/youtube/emision.py
-#, python-brace-format
-msgid "{cuantas} listas."
-msgstr "{cuantas} playlists."
 
 #: guyrapu/ui/gui_directo_youtube.py
 #, python-brace-format
@@ -11255,6 +11263,21 @@ msgstr "Framing guide stopped."
 #: guyrapu/ui/ia_agregar_captura.py
 msgid "Cargando las fuentes de OBS…"
 msgstr "Loading OBS sources…"
+
+#. Traductores: motivo de Capturar mientras se cargan las fuentes de OBS.
+#: guyrapu/ui/ia_agregar_captura.py
+msgid "Cargando las fuentes de OBS"
+msgstr "Loading OBS sources"
+
+#. Traductores: motivo de Capturar mientras se captura.
+#: guyrapu/ui/ia_agregar_captura.py
+msgid "Capturando"
+msgstr "Capturing"
+
+#. Traductores: motivo de Capturar cuando OBS no ofrece fuentes.
+#: guyrapu/ui/ia_agregar_captura.py
+msgid "No hay fuentes para capturar"
+msgstr "There are no sources to capture"
 
 #. Traductores: aviso de captura negra; {etiqueta} es lo elegido en «Capturar
 #. de».
@@ -14063,6 +14086,19 @@ msgid "Lista guardada"
 msgstr "Playlist saved"
 
 #: guyrapu/youtube/emision.py
+msgid "El canal no tiene listas."
+msgstr "The channel has no playlists."
+
+#: guyrapu/youtube/emision.py
+msgid "1 lista."
+msgstr "1 playlist."
+
+#: guyrapu/youtube/emision.py
+#, python-brace-format
+msgid "{cuantas} listas."
+msgstr "{cuantas} playlists."
+
+#: guyrapu/youtube/emision.py
 #, python-brace-format
 msgid "No se pudieron poner la categoría y las etiquetas: {detalle}"
 msgstr "Could not set the category and tags: {detalle}"
@@ -14157,30 +14193,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: motivo de Capturar mientras se cargan las fuentes de OBS.
-#: guyrapu/ui/ia_agregar_captura.py
-msgid "Cargando las fuentes de OBS"
-msgstr "Loading OBS sources"
-
-#. Traductores: motivo de Capturar mientras se captura.
-#: guyrapu/ui/ia_agregar_captura.py
-msgid "Capturando"
-msgstr "Capturing"
-
-#. Traductores: motivo de Capturar cuando OBS no ofrece fuentes.
-#: guyrapu/ui/ia_agregar_captura.py
-msgid "No hay fuentes para capturar"
-msgstr "There are no sources to capture"
-
-#. Traductores: nombre del botón de acción; no se oye porque nace oculto.
-#: guyrapu/ui/gui_actualizacion.py
-msgid "Acción"
-msgstr "Action"
-
-#. Traductores: motivo que llevan las etiquetas de Enviar y Agregar captura
-#. mientras la ventana espera la respuesta de la IA.
-#: guyrapu/ai/ventana_ia.py
-msgid "Esperando la respuesta"
-msgstr "Waiting for the response"
 

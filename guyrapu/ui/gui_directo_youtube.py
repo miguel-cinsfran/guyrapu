@@ -14,6 +14,7 @@ from datetime import datetime
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import ayuda_manual, paleta, tecla_escape
@@ -37,6 +38,10 @@ from guyrapu.youtube.emision import (
 
 _FILTRO_IMAGENES = N_("Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|"
                        "*.jpg;*.jpeg;*.png")
+# Traductores: motivo de Cargar listas mientras se cargan las listas.
+_MOTIVO_CARGANDO_LISTAS = N_("Cargando las listas")
+# Traductores: motivo de Cargar listas sin sesión de YouTube.
+_MOTIVO_SIN_SESION = N_("Sin sesión de YouTube")
 
 
 def ancho_con_barra(ancho, alto_necesario, alto_maximo, ancho_barra):
@@ -264,10 +269,12 @@ class DialogoDirectoYoutube(wx.Dialog):
     def _enlazar_opciones(self):
         self.btn_elegir_miniatura.Bind(wx.EVT_BUTTON, self._al_elegir_miniatura)
         self.btn_quitar_miniatura.Bind(wx.EVT_BUTTON, self._al_quitar_miniatura)
-        if self._cargar_listas is None:
-            self.btn_cargar_listas.Disable()
-        else:
-            self.btn_cargar_listas.Bind(wx.EVT_BUTTON, self._al_cargar_listas)
+        self.btn_cargar_listas.Bind(wx.EVT_BUTTON, self._al_cargar_listas)
+        self._fijar_motivo(_MOTIVO_SIN_SESION if self._cargar_listas is None else "")
+
+    def _fijar_motivo(self, motivo) -> None:
+        self._motivo = motivo
+        self.btn_cargar_listas.SetLabel(redaccion.etiqueta_con_motivo(_("Ca&rgar listas"), _(motivo) if motivo else ""))
 
     @property
     def datos(self):
@@ -316,7 +323,9 @@ class DialogoDirectoYoutube(wx.Dialog):
         anunciar(_("Sin miniatura."))
 
     def _al_cargar_listas(self, _event) -> None:
-        self.btn_cargar_listas.Disable()
+        if self._motivo:
+            return anunciar(f"{_(self._motivo)}.")
+        self._fijar_motivo(_MOTIVO_CARGANDO_LISTAS)
         anunciar(_("Cargando las listas."))
 
         def _traer():
@@ -332,7 +341,7 @@ class DialogoDirectoYoutube(wx.Dialog):
     def _listas_ok(self, listas) -> None:
         if not self:
             return
-        self.btn_cargar_listas.Enable()
+        self._fijar_motivo("")
         id_elegido, titulo_elegido = self._opcion_lista_elegida()
         self._opciones_lista, seleccion = opciones_lista(
             listas, id_elegido, titulo_elegido)
@@ -343,7 +352,7 @@ class DialogoDirectoYoutube(wx.Dialog):
     def _listas_fallo(self, exc) -> None:
         if not self:
             return
-        self.btn_cargar_listas.Enable()
+        self._fijar_motivo("")
         anunciar(_("No se pudieron cargar las listas: {detalle}").format(
             detalle=youtube_api.mensaje_error_api(exc)))
 

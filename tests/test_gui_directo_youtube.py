@@ -113,6 +113,11 @@ class TestDialogoDirectoVentana(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
+    def _empezar_carga(self, dialogo):
+        with mock.patch.object(directo.diagnostico, "crear_hilo"), \
+                mock.patch.object(directo, "anunciar"):
+            dialogo._al_cargar_listas(mock.Mock())
+
     def test_titulo_vacio_usa_el_por_defecto_seleccionado(self):
         from datetime import datetime
         dialogo = self._dialogo(titulo="")
@@ -259,7 +264,7 @@ class TestDialogoDirectoVentana(unittest.TestCase):
                          "El&iminar miniatura")
         self.assertIn("Lista de re&producción:", textos)
         self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
-                         "Ca&rgar listas")
+                         "Ca&rgar listas (sin sesión de YouTube)")
 
     def test_casillas_con_borde_de_arriba_como_los_demas_controles(self):
         dialogo = self._dialogo(titulo="Hola")
@@ -366,13 +371,86 @@ class TestDialogoDirectoVentana(unittest.TestCase):
             ["Ninguna", "Mi lista"])
         self.assertEqual(dialogo.cho_lista.GetSelection(), 1)
 
-    def test_boton_cargar_listas_sin_cargador_deshabilitado(self):
+    def test_boton_cargar_listas_sin_cargador_habilitado_con_motivo(self):
         dialogo = self._dialogo(titulo="Hola")
-        self.assertFalse(dialogo.btn_cargar_listas.IsEnabled())
+        self.assertTrue(dialogo.btn_cargar_listas.IsEnabled())
+        self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas (sin sesión de YouTube)")
 
     def test_boton_cargar_listas_con_cargador_habilitado(self):
         dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
         self.assertTrue(dialogo.btn_cargar_listas.IsEnabled())
+
+    def test_cargar_listas_nunca_se_deshabilita(self):
+        sin_cargador = self._dialogo(titulo="Hola")
+        self.assertTrue(sin_cargador.btn_cargar_listas.IsEnabled())
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        self.assertTrue(dialogo.btn_cargar_listas.IsEnabled())
+        self._empezar_carga(dialogo)
+        self.assertTrue(dialogo.btn_cargar_listas.IsEnabled())
+        with mock.patch.object(directo, "anunciar"):
+            dialogo._listas_ok([])
+        self.assertTrue(dialogo.btn_cargar_listas.IsEnabled())
+        self._empezar_carga(dialogo)
+        with mock.patch.object(directo, "anunciar"):
+            dialogo._listas_fallo(RuntimeError("sin red"))
+        self.assertTrue(dialogo.btn_cargar_listas.IsEnabled())
+
+    def test_cargar_listas_lleva_el_motivo_en_la_etiqueta(self):
+        sin_cargador = self._dialogo(titulo="Hola")
+        self.assertEqual(sin_cargador.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas (sin sesión de YouTube)")
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas")
+        self._empezar_carga(dialogo)
+        self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas (cargando las listas)")
+
+    def test_cargar_listas_con_motivo_de_carga_anuncia_y_no_lanza_hilo(self):
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        self._empezar_carga(dialogo)
+        with mock.patch.object(directo.diagnostico, "crear_hilo") as hilos, \
+                mock.patch.object(directo, "anunciar") as anunciar:
+            dialogo._al_cargar_listas(mock.Mock())
+        hilos.assert_not_called()
+        anunciar.assert_called_once_with("Cargando las listas.")
+
+    def test_cargar_listas_sin_sesion_anuncia_y_no_lanza_hilo(self):
+        dialogo = self._dialogo(titulo="Hola")
+        with mock.patch.object(directo.diagnostico, "crear_hilo") as hilos, \
+                mock.patch.object(directo, "anunciar") as anunciar:
+            dialogo._al_cargar_listas(mock.Mock())
+        hilos.assert_not_called()
+        anunciar.assert_called_once_with("Sin sesión de YouTube.")
+
+    def test_cargar_listas_anuncia_el_arranque(self):
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        with mock.patch.object(directo.diagnostico, "crear_hilo") as hilos, \
+                mock.patch.object(directo, "anunciar") as anunciar:
+            dialogo._al_cargar_listas(mock.Mock())
+        anunciar.assert_called_once_with("Cargando las listas.")
+        hilos.assert_called_once()
+
+    def test_listas_ok_devuelve_la_etiqueta_a_la_base(self):
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        self._empezar_carga(dialogo)
+        self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas (cargando las listas)")
+        with mock.patch.object(directo, "anunciar"):
+            dialogo._listas_ok([("PL1", "Uno")])
+        self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas")
+
+    def test_listas_fallo_devuelve_la_etiqueta_a_la_base(self):
+        dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
+        self._empezar_carga(dialogo)
+        self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas (cargando las listas)")
+        with mock.patch.object(directo, "anunciar"):
+            dialogo._listas_fallo(RuntimeError("sin red"))
+        self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
+                         "Ca&rgar listas")
 
     def test_listas_ok_rellena_y_anuncia(self):
         dialogo = self._dialogo(titulo="Hola", cargar_listas=lambda: [])
@@ -597,6 +675,7 @@ class TestPseudoAnunciosDirectoYoutube(unittest.TestCase):
             directo.DialogoDirectoYoutube)
         dialogo._miniatura = ""
         dialogo._cargar_listas = lambda: []
+        dialogo._motivo = ""
         dialogo._opciones_lista = [("", "Ninguna")]
         dialogo.txt_miniatura = mock.Mock()
         dialogo.cho_lista = mock.Mock()
@@ -614,7 +693,7 @@ class TestPseudoAnunciosDirectoYoutube(unittest.TestCase):
         dialogo = self._dialogo()
         with mock.patch.object(directo.diagnostico, "crear_hilo") as hilos:
             dialogo._al_cargar_listas(mock.Mock())
-        dialogo.btn_cargar_listas.Disable.assert_called_once_with()
+        dialogo.btn_cargar_listas.SetLabel.assert_called_once()
         hilos.assert_called_once()
         self._exigir_marcados(1)
 
