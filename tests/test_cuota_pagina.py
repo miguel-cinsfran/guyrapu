@@ -99,8 +99,10 @@ class TestTocaLeer(unittest.TestCase):
 class _Manejador(http.server.BaseHTTPRequestHandler):
 
     cuerpo = b""
+    cabeceras = {}
 
     def do_GET(self):
+        _Manejador.cabeceras = dict(self.headers)
         self.send_response(200)
         self.send_header("Content-Length", str(len(self.cuerpo)))
         self.end_headers()
@@ -114,6 +116,7 @@ class TestDescargar(unittest.TestCase):
 
     def _servir(self, texto):
         _Manejador.cuerpo = texto.encode("utf-8")
+        _Manejador.cabeceras = {}
         servidor = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _Manejador)
         threading.Thread(target=servidor.serve_forever, daemon=True).start()
         self.addCleanup(servidor.server_close)
@@ -123,6 +126,11 @@ class TestDescargar(unittest.TestCase):
     def test_trae_el_texto_de_un_servidor_local(self):
         url = self._servir(FRAGMENTO)
         self.assertEqual(cuota_pagina.descargar(url, 5), FRAGMENTO)
+
+    def test_manda_el_agente_de_la_app(self):
+        url = self._servir(FRAGMENTO)
+        cuota_pagina.descargar(url, 5)
+        self.assertEqual(_Manejador.cabeceras.get("User-Agent"), "guyrapu")
 
     def test_vence_el_tope_si_el_servidor_no_contesta(self):
         escucha = socket.socket()

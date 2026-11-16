@@ -12,9 +12,8 @@ from __future__ import annotations
 import datetime as dt
 import html
 import re
-import urllib.request
 
-from guyrapu.core import archivos, diagnostico, paths
+from guyrapu.core import archivos, diagnostico, paths, red
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -79,9 +78,8 @@ def leer_guardado():
 
 def descargar(url, segundos=SEGUNDOS_DESCARGA) -> str:
     """El texto de `url`; lanza si no responde dentro de `segundos`."""
-    pedido = urllib.request.Request(url, headers={"User-Agent": "guyrapu"})
-    with urllib.request.urlopen(pedido, timeout=segundos) as respuesta:
-        return respuesta.read().decode("utf-8", "replace")
+    return red.pedir(url, cabeceras={"User-Agent": "guyrapu"},
+                     tiempo=segundos).decode("utf-8", "replace")
 
 
 def actualizar_en_segundo_plano():
