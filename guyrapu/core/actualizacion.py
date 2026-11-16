@@ -137,7 +137,31 @@ def leer_firma(texto: str | None) -> str:
     return encontrado.group(0).lower() if encontrado else ""
 
 
+def _bajar_firma(url_firma: str) -> str | ResultadoDescarga:
+    """Baja y lee la firma, o devuelve el fallo tal como se informa."""
+    try:
+        texto_firma = red.pedir_texto(url_firma)
+    except red.DescargaCancelada:
+        return ResultadoDescarga(False, _("descarga cancelada"), "cancelada")
+    except (OSError, HTTPError, URLError, ValueError, UnicodeError) as error:
+        return ResultadoDescarga(
+            False, _("no se pudo descargar la firma: {detalle}").format(detalle=error))
+    firma = leer_firma(texto_firma)
+    if not firma:
+        return ResultadoDescarga(False, _("el paquete no trae firma"))
+    return firma
+
+
 # ── Descarga ───────────────────────────────────────────────────────────────
+
+def _sha256_de_archivo(ruta: Path) -> str:
+    """Devuelve el SHA-256 en minúsculas del archivo, leído por bloques."""
+    resumen = hashlib.sha256()
+    with ruta.open("rb") as archivo:
+        for bloque in iter(lambda: archivo.read(1024 * 1024), b""):
+            resumen.update(bloque)
+    return resumen.hexdigest().lower()
+
 
 def descargar_paquete(url_zip: str, url_firma: str, destino: str | os.PathLike,
                        aviso_progreso=None, cancelar=None,
@@ -154,27 +178,16 @@ def descargar_paquete(url_zip: str, url_firma: str, destino: str | os.PathLike,
     destino = Path(destino)
     temporal = None
     try:
-        try:
-            texto_firma = red.pedir_texto(url_firma)
-        except red.DescargaCancelada:
-            return ResultadoDescarga(False, _("descarga cancelada"), "cancelada")
-        except (OSError, HTTPError, URLError, ValueError, UnicodeError) as error:
-            return ResultadoDescarga(
-                False, _("no se pudo descargar la firma: {detalle}").format(detalle=error))
-        firma = leer_firma(texto_firma)
-        if not firma:
-            return ResultadoDescarga(False, _("el paquete no trae firma"))
+        firma = _bajar_firma(url_firma)
+        if isinstance(firma, ResultadoDescarga):
+            return firma
         destino.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(
                 prefix=".paquete-", suffix=".tmp", dir=destino.parent,
                 delete=False) as archivo:
             temporal = Path(archivo.name)
         red.descargar_archivo(url_zip, temporal, aviso_progreso, cancelar)
-        resumen = hashlib.sha256()
-        with temporal.open("rb") as archivo:
-            for bloque in iter(lambda: archivo.read(1024 * 1024), b""):
-                resumen.update(bloque)
-        if resumen.hexdigest().lower() != firma:
+        if _sha256_de_archivo(temporal) != firma:
             return ResultadoDescarga(False, _("la firma SHA-256 no coincide"), "firma_distinta")
         os.replace(temporal, destino)
         temporal = None
