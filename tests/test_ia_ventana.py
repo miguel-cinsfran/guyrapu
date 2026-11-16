@@ -275,10 +275,12 @@ class TestVentanaIAVentana(unittest.TestCase):
 
     def test_ctrl_c_copia_el_texto_de_la_fila_elegida(self):
         dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
         dialogo._charla.confirmar("pregunta", "respuesta final")
         dialogo._rehacer_lista()
-        dialogo.lst_conversacion.SetSelection(0)
-        esperado = dialogo.lst_conversacion.GetString(0)
+        self.assertEqual(dialogo.lst_conversacion.GetCount(), 3)
+        dialogo.lst_conversacion.SetSelection(1)
+        esperado = dialogo.lst_conversacion.GetString(1)
         falso = PortapapelesDoble()
         evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
         evento.SetKeyCode(ord("C"))
