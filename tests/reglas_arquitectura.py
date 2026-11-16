@@ -118,8 +118,6 @@ REGLAS = (
         prohibido="no se deshabilita un control con Disable() ni con Enable(False)",
         detectar=detectar_controles,
         pendientes=_pendientes("dejar el control habilitado y anunciar el motivo", {
-            "guyrapu/ui/gui.py": 1,
-            "guyrapu/ui/gui_sesion.py": 1,
             "guyrapu/ui/obs_ventana.py": 1,
         }),
         duenos=("guyrapu/ui/menu_habilitado.py",),

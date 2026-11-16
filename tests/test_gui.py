@@ -787,6 +787,76 @@ class TestVentanaReal(unittest.TestCase):
                          [item.IsEnabled() for item in menus])
 
 
+class TestCampoEnlaceSoloLectura(unittest.TestCase):
+    """Con una conexión activa el campo sigue en el recorrido, de solo lectura."""
+
+    NOMBRE = "Enlace del directo o vídeo"
+    NOMBRE_CON_MOTIVO = "Enlace del directo o vídeo (hay una conexión activa)"
+    MOTIVO_INTRO = "Desconecta para cambiar el enlace."
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def _ventana(self):
+        configuracion = {
+            "atajos_raw": {}, "filtro_activo": "todos",
+            "mostrar_botones_reproductor": False, "mostrar_metadatos": True,
+            "mostrar_total_superchats": True, "overlay_activo": False,
+            "programados_activo": False,
+        }
+        from types import SimpleNamespace
+        stats = SimpleNamespace(leidos=0, superchats=0, descartados=0)
+        worker = SimpleNamespace(get_rate=lambda: 0, get_volume=lambda: 100)
+        with mock.patch.object(gui.diagnostico, "crear_hilo"):
+            frame = gui.VentanaPrincipal(None, configuracion,
+                                    queue.Queue(), stats, worker,
+                                    __import__("threading").Event())
+        self.addCleanup(destruir, frame)
+        frame.ShowWithoutActivating()
+        gui.wx.Yield()
+        return frame
+
+    def _empezar_a_conectar(self, frame):
+        frame.txt_url.SetValue("abcdefghijk")
+        frame.on_conectar_cb = mock.Mock()
+        frame.on_desconectar_cb = mock.Mock()
+        with mock.patch.object(gui._snd, "reproducir"), \
+                mock.patch.object(gui_sesion, "anunciar"):
+            gui_sesion.on_conectar(frame, None)
+
+    def test_al_conectar_sigue_en_el_recorrido_y_solo_lectura(self):
+        frame = self._ventana()
+        self._empezar_a_conectar(frame)
+        self.assertTrue(frame.txt_url.IsEnabled())
+        self.assertFalse(frame.txt_url.IsEditable())
+        self.assertEqual(frame.txt_url.GetName(), self.NOMBRE_CON_MOTIVO)
+
+    def test_intro_con_conexion_anuncia_el_motivo_sin_desconectar(self):
+        frame = self._ventana()
+        self._empezar_a_conectar(frame)
+        for activa, conectando in ((False, True), (True, False)):
+            with self.subTest(conexion_activa=activa):
+                frame._conectado, frame._conectando = activa, conectando
+                with mock.patch.object(gui_sesion, "anunciar") as anunciar:
+                    gui_sesion.on_enlace_enter(frame, None)
+                anunciar.assert_called_once_with(self.MOTIVO_INTRO)
+        frame.on_desconectar_cb.assert_not_called()
+        frame.on_conectar_cb.assert_called_once()
+
+    def test_al_desconectar_vuelve_a_ser_editable_y_sin_motivo(self):
+        frame = self._ventana()
+        self._empezar_a_conectar(frame)
+        frame._conectado, frame._conectando = True, False
+        frame._set_conectado_ui(False)
+        self.assertTrue(frame.txt_url.IsEditable())
+        self.assertEqual(frame.txt_url.GetName(), self.NOMBRE)
+        frame.txt_url.SetValue("abcdefghijk")
+        with mock.patch.object(gui._snd, "reproducir"), \
+                mock.patch.object(gui_sesion, "anunciar"):
+            gui_sesion.on_enlace_enter(frame, None)
+        frame.on_conectar_cb.assert_called_with("abcdefghijk")
+
+
 class TestConfigurarTiktokReconexionVentana(unittest.TestCase):
     """configurar_tiktok en una reconexión no vacía el chat ni suena el flujo."""
 

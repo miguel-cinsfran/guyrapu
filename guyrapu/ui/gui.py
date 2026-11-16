@@ -933,7 +933,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self.btn_conectar.Enable()
         habilitar(self.mi_conectar, not conectado)
         habilitar(self.mi_desconectar, conectado)
-        self.txt_url.Enable(not conectado)
+        gui_sesion.fijar_campo_enlace(self, conectado)
         self._actualizar_menus_por_conexion()
         self._actualizar_boton_directo()
 

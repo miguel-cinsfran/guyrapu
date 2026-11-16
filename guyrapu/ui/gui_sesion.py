@@ -12,16 +12,28 @@ from __future__ import annotations
 import wx
 
 from guyrapu.capture import deteccion
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.ui import confirmar
 from guyrapu.ui import gui_construccion
 from guyrapu.ui import menu_habilitado
-from guyrapu.ui.accesibilidad import anunciar
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.sesion_conectada import SesionConectada
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
+
+
+def fijar_campo_enlace(ventana, conectado: bool) -> None:
+    """Deja el campo del enlace editable o de solo lectura, con su nombre.
+
+    De solo lectura sigue en el recorrido con Tab y se puede leer; cambiarlo
+    exige desconectar, y el nombre lo dice."""
+    motivo = _("Hay una conexión activa") if conectado else ""
+    ventana.txt_url.SetEditable(not conectado)
+    nombre_accesible(ventana.txt_url, redaccion.etiqueta_con_motivo(
+        _("Enlace del directo o vídeo"), motivo))
 
 
 def on_conectar(ventana, event):
@@ -49,13 +61,21 @@ def on_conectar(ventana, event):
         ventana.btn_conectar.Enable()
         menu_habilitado.habilitar(ventana.mi_conectar, False)
         menu_habilitado.habilitar(ventana.mi_desconectar, True)
-        ventana.txt_url.Disable()
+        fijar_campo_enlace(ventana, True)
         _snd.reproducir("conectando")
         # Traductores: aviso mientras se conecta.
         anunciar(_("Conectando"))
         if ventana.on_conectar_cb:
             ventana.on_conectar_cb(url)
         ventana._actualizar_boton_directo()
+
+
+def on_enlace_enter(ventana, event):
+    """Intro en el campo del enlace: conecta, o explica por qué no."""
+    if ventana._conectado or ventana._conectando:
+        anunciar(_("Desconecta para cambiar el enlace."))
+        return
+    on_conectar(ventana, event)
 
 
 def url_invalida(ventana):

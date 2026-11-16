@@ -1829,10 +1829,6 @@ msgstr ""
 "Repository: {url}"
 
 #: guyrapu/core/actualizacion.py
-msgid "la descarga exige un enlace https"
-msgstr "download requires an https link"
-
-#: guyrapu/core/actualizacion.py
 msgid "descarga cancelada"
 msgstr "download canceled"
 
@@ -1844,6 +1840,10 @@ msgstr "could not download the signature: {detalle}"
 #: guyrapu/core/actualizacion.py
 msgid "el paquete no trae firma"
 msgstr "the package has no signature"
+
+#: guyrapu/core/actualizacion.py
+msgid "la descarga exige un enlace https"
+msgstr "download requires an https link"
 
 #: guyrapu/core/actualizacion.py
 msgid "la firma SHA-256 no coincide"
@@ -1959,6 +1959,34 @@ msgstr "Window and navigation (fixed)"
 #: guyrapu/core/atajos.py
 msgid "Mensajes recientes del chat (fijos)"
 msgstr "Recent chat messages (fixed)"
+
+#: guyrapu/core/avisos_preferencias.py
+msgid "Preferencias guardadas."
+msgstr "Preferences saved."
+
+#: guyrapu/core/avisos_preferencias.py
+msgid ""
+"Las preferencias se aplicaron, pero no se pudieron guardar en el disco. Se "
+"perderán al cerrar la aplicación."
+msgstr ""
+"Preferences were applied, but could not be saved to disk. They will be lost"
+" when the application closes."
+
+#: guyrapu/core/avisos_preferencias.py
+msgid "El motor elegido no está disponible, se conserva el anterior."
+msgstr "The chosen engine is not available, keeping the previous one."
+
+#: guyrapu/core/avisos_preferencias.py
+msgid "El cambio del registro detallado se aplica al reiniciar la aplicación."
+msgstr "The detailed logging change applies when the application restarts."
+
+#: guyrapu/core/avisos_preferencias.py
+msgid ""
+"El puerto del chat en el vídeo se aplica al desactivarlo y volver a "
+"activarlo desde el panel de transmisión."
+msgstr ""
+"The chat on video port applies when you turn it off and on again from the "
+"broadcast panel."
 
 #: guyrapu/core/avisos_red.py
 msgid ""
@@ -2258,7 +2286,8 @@ msgid "Consulta a la IA cancelada"
 msgstr "AI query canceled"
 
 #: guyrapu/core/eventos_sonido.py guyrapu/downloads/descargas.py
-#: guyrapu/downloads/motivo_error.py guyrapu/downloads/progreso_ytdlp.py
+#: guyrapu/downloads/motivo_error.py guyrapu/downloads/proceso_descarga.py
+#: guyrapu/downloads/progreso_ytdlp.py
 msgid "Descarga cancelada"
 msgstr "Download canceled"
 
@@ -9999,7 +10028,8 @@ msgstr "Could not send"
 msgid "&Enlace o ID:"
 msgstr "&Link or ID:"
 
-#: guyrapu/ui/gui_construccion.py guyrapu/ui/recientes_inicio.py
+#: guyrapu/ui/gui_construccion.py guyrapu/ui/gui_sesion.py
+#: guyrapu/ui/recientes_inicio.py
 msgid "Enlace del directo o vídeo"
 msgstr "Live stream or video link"
 
@@ -10491,34 +10521,6 @@ msgid "Avisos"
 msgstr "Alerts"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Automática"
-msgstr "Automatic"
-
-#: guyrapu/ui/gui_menu.py
-msgid "1080p"
-msgstr "1080p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "720p"
-msgstr "720p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "480p"
-msgstr "480p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "360p"
-msgstr "360p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "240p"
-msgstr "240p"
-
-#: guyrapu/ui/gui_menu.py
-msgid "144p"
-msgstr "144p"
-
-#: guyrapu/ui/gui_menu.py
 msgid "Copiar &enlace del directo"
 msgstr "Copy live stream lin&k"
 
@@ -10561,58 +10563,6 @@ msgstr "Mute &reading"
 #: guyrapu/ui/gui_menu.py
 msgid "Silenciar s&onidos"
 msgstr "Mute so&unds"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Reproducir o pausar"
-msgstr "&Play or pause"
-
-#: guyrapu/ui/gui_menu.py
-msgid "R&etroceder 1 minuto"
-msgstr "Back 1 &minute"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Avanzar 1 minuto"
-msgstr "&Forward 1 minute"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Ir al directo"
-msgstr "&Go to live"
-
-#: guyrapu/ui/gui_menu.py
-msgid "De&tener reproducción"
-msgstr "S&top playback"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Silenciar o activar audio"
-msgstr "Mute or &unmute audio"
-
-#: guyrapu/ui/gui_menu.py
-msgid "Pantalla &completa"
-msgstr "Full &screen"
-
-#: guyrapu/ui/gui_menu.py
-msgid "Ca&lidad del vídeo"
-msgstr "Video &quality"
-
-#: guyrapu/ui/gui_menu.py
-msgid "Descargar este &vídeo…"
-msgstr "Download this &video…"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Bajar volumen del reproductor"
-msgstr "&Lower player volume"
-
-#: guyrapu/ui/gui_menu.py
-msgid "S&ubir volumen del reproductor"
-msgstr "&Raise player volume"
-
-#: guyrapu/ui/gui_menu.py
-msgid "Mostrar botones en &pantalla"
-msgstr "Show &buttons on screen"
-
-#: guyrapu/ui/gui_menu.py
-msgid "&Reproductor"
-msgstr "&Player"
 
 #: guyrapu/ui/gui_menu.py
 msgid "Administrador de &descargas…"
@@ -11092,34 +11042,6 @@ msgstr ""
 "users. They apply from the next message."
 
 #: guyrapu/ui/gui_preferencias.py
-msgid "Preferencias guardadas."
-msgstr "Preferences saved."
-
-#: guyrapu/ui/gui_preferencias.py
-msgid ""
-"Las preferencias se aplicaron, pero no se pudieron guardar en el disco. Se "
-"perderán al cerrar la aplicación."
-msgstr ""
-"Preferences were applied, but could not be saved to disk. They will be lost"
-" when the application closes."
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "El motor elegido no está disponible, se conserva el anterior."
-msgstr "The chosen engine is not available, keeping the previous one."
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "El cambio del registro detallado se aplica al reiniciar la aplicación."
-msgstr "The detailed logging change applies when the application restarts."
-
-#: guyrapu/ui/gui_preferencias.py
-msgid ""
-"El puerto del chat en el vídeo se aplica al desactivarlo y volver a "
-"activarlo desde el panel de transmisión."
-msgstr ""
-"The chat on video port applies when you turn it off and on again from the "
-"broadcast panel."
-
-#: guyrapu/ui/gui_preferencias.py
 msgid ""
 "Tu sesión de YouTube caducó. ¿Abrir Preferencias para volver a iniciar "
 "sesión?"
@@ -11155,6 +11077,10 @@ msgid "&{boton}"
 msgstr "&{boton}"
 
 #: guyrapu/ui/gui_sesion.py
+msgid "Hay una conexión activa"
+msgstr "There is an active connection"
+
+#: guyrapu/ui/gui_sesion.py
 msgid "Conexión cancelada"
 msgstr "Connection canceled"
 
@@ -11174,6 +11100,10 @@ msgstr "&Cancel connection"
 #: guyrapu/ui/gui_sesion.py
 msgid "Conectando"
 msgstr "Connecting"
+
+#: guyrapu/ui/gui_sesion.py
+msgid "Desconecta para cambiar el enlace."
+msgstr "Disconnect to change the link."
 
 #: guyrapu/ui/gui_sesion.py
 msgid "No se reconoce el enlace o el ID de YouTube"
@@ -11607,6 +11537,86 @@ msgstr "&Warn if OBS is overloaded"
 #: guyrapu/ui/menu_obs.py
 msgid "&OBS"
 msgstr "OB&S"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "Automática"
+msgstr "Automatic"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "1080p"
+msgstr "1080p"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "720p"
+msgstr "720p"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "480p"
+msgstr "480p"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "360p"
+msgstr "360p"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "240p"
+msgstr "240p"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "144p"
+msgstr "144p"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "&Reproducir o pausar"
+msgstr "&Play or pause"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "R&etroceder 1 minuto"
+msgstr "Back 1 &minute"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "&Avanzar 1 minuto"
+msgstr "&Forward 1 minute"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "&Ir al directo"
+msgstr "&Go to live"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "De&tener reproducción"
+msgstr "S&top playback"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "&Silenciar o activar audio"
+msgstr "Mute or &unmute audio"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "Pantalla &completa"
+msgstr "Full &screen"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "Ca&lidad del vídeo"
+msgstr "Video &quality"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "Descargar este &vídeo…"
+msgstr "Download this &video…"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "&Bajar volumen del reproductor"
+msgstr "&Lower player volume"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "S&ubir volumen del reproductor"
+msgstr "&Raise player volume"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "Mostrar botones en &pantalla"
+msgstr "Show &buttons on screen"
+
+#: guyrapu/ui/menu_reproductor.py
+msgid "&Reproductor"
+msgstr "&Player"
 
 #: guyrapu/ui/menu_transmision.py
 msgid "Transm&itir en directo…"

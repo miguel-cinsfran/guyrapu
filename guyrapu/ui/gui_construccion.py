@@ -234,6 +234,7 @@ def on_info_url(frame, event):
 # ── Enlaces de eventos ───────────────────────────────────────────────────────
 
 def enlazar_eventos(frame):
+    from guyrapu.ui import gui_sesion
     frame.Bind(wx.EVT_CLOSE, lambda event: gui_cierre.on_close(frame, event))
     frame.Bind(wx.EVT_ACTIVATE, frame._on_activate)
     # En el panel, no en el frame: cuando el frame recibe EVT_SIZE el panel
@@ -241,7 +242,8 @@ def enlazar_eventos(frame):
     frame._panel_principal.Bind(
         wx.EVT_SIZE, lambda event: on_resize(frame, event))
     frame.btn_conectar.Bind(wx.EVT_BUTTON, frame._on_conectar)
-    frame.txt_url.Bind(wx.EVT_TEXT_ENTER, frame._on_conectar)
+    frame.txt_url.Bind(
+        wx.EVT_TEXT_ENTER, lambda event: gui_sesion.on_enlace_enter(frame, event))
     enlazar_anuncio_de_pestana(frame.nb)
     frame.lb_chat.Bind(wx.EVT_LISTBOX_DCLICK,
                        lambda e: frame._chat_acciones._copiar_mensaje())
