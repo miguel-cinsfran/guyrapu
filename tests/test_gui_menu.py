@@ -222,6 +222,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("A&yuda", "Manual de &uso\tF1", ANY, "normal"),
             ("A&yuda", "&Novedades", ANY, "normal"),
             ("A&yuda", "&Guía de configuración de la API", ANY, "normal"),
+            ("A&yuda", "&Licencias de las voces", ANY, "normal"),
             ("A&yuda", "&Marcar incidencia", ANY, "normal"),
             ("A&yuda", "Abrir carpeta de &registros", ANY, "normal"),
             ("A&yuda", "&Buscar actualizaciones…", ANY, "normal"),
@@ -290,6 +291,16 @@ class TestMenuAyudaDocumentos(unittest.TestCase):
         self.assertEqual([llamada.args[0] for llamada in abrir.call_args_list],
                          [str(Path("C:/app/docs/en/MANUAL.html")),
                           str(Path("C:/app/docs/en/CHANGELOG.html"))])
+
+    def test_licencias_de_las_voces_abre_la_direccion_publicada(self):
+        from guyrapu.core import paquetes_catalogo
+        from guyrapu.ui import gui_menu
+
+        with mock.patch.object(gui_menu.webbrowser, "open") as abrir:
+            frame, _items = self._ayuda()
+            self._manejador(frame, "&Licencias de las voces")(None)
+
+        abrir.assert_called_once_with(paquetes_catalogo.URL_LICENCIAS)
 
     def test_si_no_se_puede_abrir_muestra_el_error_en_un_cuadro(self):
         from guyrapu.ui import gui_menu

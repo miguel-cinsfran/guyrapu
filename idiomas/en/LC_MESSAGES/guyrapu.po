@@ -10620,6 +10620,11 @@ msgstr "&What's new"
 msgid "&Guía de configuración de la API"
 msgstr "API setup &guide"
 
+#. Traductores: entrada del menú Ayuda, abre la licencia de cada paquete de voces.
+#: guyrapu/ui/gui_menu.py
+msgid "&Licencias de las voces"
+msgstr "&Voice licenses"
+
 #: guyrapu/ui/gui_menu.py
 msgid "&Marcar incidencia"
 msgstr "&Mark issue"

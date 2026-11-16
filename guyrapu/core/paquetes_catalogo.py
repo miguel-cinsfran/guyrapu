@@ -16,9 +16,13 @@ from pathlib import PurePosixPath
 from guyrapu.core.versiones import version_como_tupla
 
 
+_REPO_CONTENIDO = "miguel-cinsfran/guyrapu-contenido"
+
 URL_CATALOGO = (
-    "https://raw.githubusercontent.com/miguel-cinsfran/guyrapu-contenido/"
-    "main/catalogo.json"
+    f"https://raw.githubusercontent.com/{_REPO_CONTENIDO}/main/catalogo.json"
+)
+URL_LICENCIAS = (
+    f"https://github.com/{_REPO_CONTENIDO}/blob/main/LICENCIAS.txt"
 )
 FORMATO = 1
 

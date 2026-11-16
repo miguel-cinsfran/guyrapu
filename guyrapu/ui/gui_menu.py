@@ -14,6 +14,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.config import (
     TIPO_MIEMBRO, TIPO_SUPERCHAT, TIPO_TEXTO, URL_REPOSITORIO)
 from guyrapu.core.idioma import _, N_, idioma_actual
+from guyrapu.core import paquetes_catalogo
 from guyrapu.core import paths
 from guyrapu.ui import ajuste_tono, ayuda_manual
 from guyrapu.ui import confirmar
@@ -187,6 +188,8 @@ def _construir_menu_ayuda(frame, mb):
     mi_manual = m.Append(wx.ID_ANY, _("Manual de &uso") + "\tF1")
     mi_novedades = m.Append(wx.ID_ANY, _("&Novedades"))
     mi_guia = m.Append(wx.ID_ANY, _("&Guía de configuración de la API"))
+    # Traductores: entrada del menú Ayuda, abre la licencia de cada paquete de voces.
+    mi_licencias = m.Append(wx.ID_ANY, _("&Licencias de las voces"))
     mi_incidente = m.Append(wx.ID_ANY, _("&Marcar incidencia") + frame._accel("marcar_incidencia"))
     mi_registros = m.Append(wx.ID_ANY, _("Abrir carpeta de &registros"))
     mi_actualizar_app = m.Append(wx.ID_ANY, _("&Buscar actualizaciones…"))
@@ -199,6 +202,8 @@ def _construir_menu_ayuda(frame, mb):
     frame.Bind(wx.EVT_MENU, lambda e: webbrowser.open(
         f"{URL_REPOSITORIO}/blob/main/docs/CONFIGURACION_API.md"),
         mi_guia)
+    frame.Bind(wx.EVT_MENU, lambda e: webbrowser.open(
+        paquetes_catalogo.URL_LICENCIAS), mi_licencias)
     frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(
         frame._on_marcar_incidencia, None), mi_incidente)
     frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(
