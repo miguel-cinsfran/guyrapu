@@ -14,6 +14,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.obs import transmision_directa
+from guyrapu.ui.menu_habilitado import habilitar
 from guyrapu.ui.tema import _T, _pintar
 
 
@@ -57,7 +58,7 @@ class BotonDirecto:
         if comando is not None:
             comando.SetItemLabel(self._etiqueta_del_menu(
                 etiqueta, transmitiendo, deteniendo))
-            comando.Enable(visible)
+            habilitar(comando, visible)
         self.boton.GetParent().Layout()
 
     @staticmethod

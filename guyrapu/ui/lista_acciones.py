@@ -20,6 +20,7 @@ from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.ui.menu_habilitado import habilitar
 from guyrapu.voice import sound_player as _snd
 
 _TECLAS = {
@@ -231,7 +232,7 @@ class ListaConAcciones:
         for accion in self._acciones:
             identificador = wx.NewIdRef()
             item = menu.Append(identificador, etiqueta_de_menu(accion))
-            item.Enable(estados[accion.clave])
+            habilitar(item, estados[accion.clave])
             menu.Bind(
                 wx.EVT_MENU,
                 lambda _evento, clave=accion.clave: self.ejecutar(clave),

@@ -30,6 +30,7 @@ from guyrapu.capture import metadatos
 from guyrapu.capture import estado_sesion
 from guyrapu.core import historial
 from guyrapu.ui.lista_chat import MensajeChat
+from guyrapu.ui.menu_habilitado import habilitar, habilitar_varios
 from guyrapu.ui import atajos_captura, confirmar
 from guyrapu.ui import gui_cierre
 from guyrapu.ui import gui_construccion
@@ -930,8 +931,8 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         self._conectando = False
         self.btn_conectar.SetLabel(_("&Desconectar") if conectado else _("&Conectar"))
         self.btn_conectar.Enable()
-        self.mi_conectar.Enable(not conectado)
-        self.mi_desconectar.Enable(conectado)
+        habilitar(self.mi_conectar, not conectado)
+        habilitar(self.mi_desconectar, conectado)
         self.txt_url.Enable(not conectado)
         self._actualizar_menus_por_conexion()
         self._actualizar_boton_directo()
@@ -947,14 +948,9 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         habilita con conexión YouTube NO-live (TikTok y live están deshabilitados
         en v1). Si la URL no se puede obtener del reproductor, se deshabilita."""
         con = bool(self._conectado)
-        for it in getattr(self, "_mi_ver_conexion", []):
-            try:    it.Enable(con)
-            except Exception as error: logger.debug("no se pudo activar el menú: %s", error)
-        try:    self._mi_filtro_sub.Enable(con)
-        except Exception as error: logger.debug("no se pudo activar el filtro: %s", error)
-        for it in getattr(self, "_mi_voz_conexion", []):
-            try:    it.Enable(con)
-            except Exception as error: logger.debug("no se pudo activar el menú: %s", error)
+        habilitar_varios(getattr(self, "_mi_ver_conexion", []), con)
+        habilitar(self._mi_filtro_sub, con)
+        habilitar_varios(getattr(self, "_mi_voz_conexion", []), con)
 
         # Descargar este vídeo: YouTube + conexión + no live + URL disponible.
         # El panel del reproductor gestiona sus propios avisos, pero afinamos
@@ -971,7 +967,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
                 except Exception:
                     descargar_este_on = False
             if hasattr(self, "mi_descargar_este"):
-                self.mi_descargar_este.Enable(descargar_este_on)
+                habilitar(self.mi_descargar_este, descargar_este_on)
         except Exception as exc:
             logger.debug("enable mi_descargar_este: %s", exc)
 

@@ -16,6 +16,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.ui import confirmar
 from guyrapu.ui import gui_construccion
+from guyrapu.ui import menu_habilitado
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.sesion_conectada import SesionConectada
 from guyrapu.voice import sound_player as _snd
@@ -46,8 +47,8 @@ def on_conectar(ventana, event):
         # conexión que no responde.
         ventana.btn_conectar.SetLabel(_("&Cancelar conexión"))
         ventana.btn_conectar.Enable()
-        ventana.mi_conectar.Enable(False)
-        ventana.mi_desconectar.Enable(True)
+        menu_habilitado.habilitar(ventana.mi_conectar, False)
+        menu_habilitado.habilitar(ventana.mi_desconectar, True)
         ventana.txt_url.Disable()
         _snd.reproducir("conectando")
         # Traductores: aviso mientras se conecta.
