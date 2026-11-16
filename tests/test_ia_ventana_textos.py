@@ -40,12 +40,6 @@ class TestTextosVentanaIA(unittest.TestCase):
             ventana_ia.texto_captura_agregada("Cámara"),
             "Captura agregada: Cámara.")
 
-    def test_filas_visibles_con_guia_si_vacia(self):
-        self.assertEqual(
-            ventana_ia.filas_visibles([]), [ventana_ia.FILA_GUIA])
-        self.assertEqual(
-            ventana_ia.filas_visibles(["a", "b"]), ["a", "b"])
-
     def test_ultima_respuesta_sin_respuesta(self):
         charla = conversacion.Conversacion()
         self.assertIsNone(ventana_ia.ultima_respuesta(charla))
@@ -67,15 +61,10 @@ class TestTextosMarcados(unittest.TestCase):
 
     def test_guia_de_lista_vacia_va_marcada(self):
         with con_pseudo():
-            guia = ventana_ia.filas_visibles([])
+            guia = _(ventana_ia.FILA_GUIA)
         self.assertEqual(
             guia,
-            ["[¡Sin mensajes. Agrega una captura y escribe tu pregunta.!]"])
-
-    def test_filas_con_datos_pasan_sin_marcar(self):
-        fila = "Captura: Cámara, 10:00"
-        with con_pseudo():
-            self.assertEqual(ventana_ia.filas_visibles([fila]), [fila])
+            "[¡Sin mensajes. Agrega una captura y escribe tu pregunta.!]")
 
     def test_captura_agregada_nombra_la_fuente_marcada(self):
         with con_pseudo():

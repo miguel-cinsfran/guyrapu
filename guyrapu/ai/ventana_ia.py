@@ -24,12 +24,6 @@ def texto_captura_agregada(fuente) -> str:
     return _("Captura agregada: {fuente}.").format(fuente=fuente)
 
 
-def filas_visibles(filas):
-    if not filas:
-        return [_(FILA_GUIA)]
-    return list(filas)
-
-
 def ultima_respuesta(charla):
     for mensaje in reversed(charla.mensajes):
         if mensaje.rol == "asistente":
