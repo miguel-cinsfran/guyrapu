@@ -14,9 +14,9 @@ from guyrapu.obs import obs_cliente
 from guyrapu.obs.obs_destinos import Destino
 from guyrapu.youtube import emision
 from guyrapu.youtube.emision import (
-    EmisionError, chat_legible, cuerpo_emision, error_de_miniatura,
-    esperar_en_vivo, etiquetas_de_texto, preparar_en_youtube,
-    titulo_por_defecto, url_video,
+    EmisionError, anuncio_listas, chat_legible, cuerpo_emision,
+    error_de_miniatura, esperar_en_vivo, etiquetas_de_texto,
+    preparar_en_youtube, titulo_por_defecto, url_video,
 )
 
 
@@ -30,6 +30,19 @@ class TestChatLegible(unittest.TestCase):
 
     def test_privado_no_se_lee(self):
         self.assertFalse(chat_legible("private"))
+
+
+class TestAnuncioListas(unittest.TestCase):
+
+    def test_sin_listas(self):
+        self.assertEqual(anuncio_listas(0),
+                         "El canal no tiene listas.")
+
+    def test_una_lista(self):
+        self.assertEqual(anuncio_listas(1), "1 lista.")
+
+    def test_varias_listas(self):
+        self.assertEqual(anuncio_listas(3), "3 listas.")
 
 
 class TestCuerpoEmision(unittest.TestCase):

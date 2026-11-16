@@ -10290,15 +10290,15 @@ msgstr "No thumbnail."
 msgid "Cargando las listas."
 msgstr "Loading the lists."
 
-#: guyrapu/ui/gui_directo_youtube.py
+#: guyrapu/youtube/emision.py
 msgid "El canal no tiene listas."
 msgstr "The channel has no playlists."
 
-#: guyrapu/ui/gui_directo_youtube.py
+#: guyrapu/youtube/emision.py
 msgid "1 lista."
 msgstr "1 playlist."
 
-#: guyrapu/ui/gui_directo_youtube.py
+#: guyrapu/youtube/emision.py
 #, python-brace-format
 msgid "{cuantas} listas."
 msgstr "{cuantas} playlists."

@@ -208,6 +208,15 @@ def opciones_lista(listas, id_recordado, titulo_recordado
     return opciones, 0
 
 
+def anuncio_listas(cuantas: int) -> str:
+    """Anuncio de cuántas listas trajo el canal."""
+    if not cuantas:
+        return _("El canal no tiene listas.")
+    if cuantas == 1:
+        return _("1 lista.")
+    return _("{cuantas} listas.").format(cuantas=cuantas)
+
+
 def cargador_listas(cliente_yt, guardar_token=None):
     """Devuelve una función sin argumentos que carga las listas del canal.
 

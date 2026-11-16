@@ -28,6 +28,7 @@ from guyrapu.youtube.emision import (
     PRIVACIDAD_INICIAL,
     PRIVACIDADES,
     EmisionError,
+    anuncio_listas,
     error_de_miniatura,
     opciones_lista,
     resultado_directo,
@@ -337,12 +338,7 @@ class DialogoDirectoYoutube(wx.Dialog):
             listas, id_elegido, titulo_elegido)
         self.cho_lista.SetItems([texto for _id, texto in self._opciones_lista])
         self.cho_lista.SetSelection(seleccion)
-        if not listas:
-            anunciar(_("El canal no tiene listas."))
-        elif len(listas) == 1:
-            anunciar(_("1 lista."))
-        else:
-            anunciar(_("{cuantas} listas.").format(cuantas=len(listas)))
+        anunciar(anuncio_listas(len(listas)))
 
     def _listas_fallo(self, exc) -> None:
         if not self:
