@@ -293,14 +293,15 @@ class TestMenuAyudaDocumentos(unittest.TestCase):
                           str(Path("C:/app/docs/en/CHANGELOG.html"))])
 
     def test_licencias_de_las_voces_abre_la_direccion_publicada(self):
-        from guyrapu.core import paquetes_catalogo
         from guyrapu.ui import gui_menu
 
         with mock.patch.object(gui_menu.webbrowser, "open") as abrir:
             frame, _items = self._ayuda()
             self._manejador(frame, "&Licencias de las voces")(None)
 
-        abrir.assert_called_once_with(paquetes_catalogo.URL_LICENCIAS)
+        abrir.assert_called_once_with(
+            "https://github.com/miguel-cinsfran/guyrapu-contenido/"
+            "blob/main/LICENCIAS.txt")
 
     def test_si_no_se_puede_abrir_muestra_el_error_en_un_cuadro(self):
         from guyrapu.ui import gui_menu
