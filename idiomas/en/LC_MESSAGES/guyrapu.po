@@ -14211,3 +14211,7 @@ msgstr "Asking OBS."
 msgid "OBS no está conectado."
 msgstr "OBS is not connected."
 
+#: guyrapu/ui/preferencias_programados.py
+msgid "No hay mensajes automáticos."
+msgstr "There are no scheduled messages."
+

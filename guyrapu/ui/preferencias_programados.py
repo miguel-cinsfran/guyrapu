@@ -14,7 +14,7 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import _
 from guyrapu.capture import programados
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.tema import _T
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, crear_panel, fila_label
 
@@ -58,14 +58,16 @@ class PaginaProgramados:
 
     def _programados_lista(self, p, vs):
         vs.Add(fila_label(p, _("Me&nsajes:")), 0, wx.LEFT | wx.RIGHT, 10)
-        self.lista_programados = wx.ListBox(p, choices=[
-            programados.describir_mensaje(m) for m in self._mensajes_programados
-        ], name="ListaProgramados")
+        self.lista_programados = wx.ListBox(p, name="ListaProgramados")
         nombre_accesible(self.lista_programados, _("Mensajes automáticos guardados"))
-        instalar_busqueda_tipo(
+        self._lista_programados_acciones = ListaConAcciones(
             self.lista_programados,
-            lambda: [self.lista_programados.GetString(i)
-                     for i in range(self.lista_programados.GetCount())])
+            (Accion("eliminar", _("E&liminar"),
+                    self._quitar_programado, tecla="suprimir"),),
+            _("No hay mensajes automáticos."))
+        self._lista_programados_acciones.fijar(
+            [programados.describir_mensaje(m)
+             for m in self._mensajes_programados])
         vs.Add(self.lista_programados, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
 
     def _programados_datos(self, p, vs):
@@ -104,8 +106,8 @@ class PaginaProgramados:
         vs.Add(fila, 0, wx.ALL, 10)
 
     def _programado_elegido(self, event):
-        indice = self.lista_programados.GetSelection()
-        if indice != wx.NOT_FOUND:
+        indice = self._lista_programados_acciones.indice()
+        if indice is not None:
             mensaje = self._mensajes_programados[indice]
             self.txt_programado.SetValue(mensaje.get("texto", ""))
             self.sp_min_programado.SetValue(mensaje.get("minutos_min", 10))
@@ -140,10 +142,9 @@ class PaginaProgramados:
         return True
 
     def _refrescar_programados(self, indice=-1):
-        self.lista_programados.Set([programados.describir_mensaje(m)
-                                    for m in self._mensajes_programados])
-        if indice >= 0:
-            self.lista_programados.SetSelection(indice)
+        self._lista_programados_acciones.fijar(
+            [programados.describir_mensaje(m)
+             for m in self._mensajes_programados], indice)
 
     def _agregar_programado(self, event):
         mensaje = self._datos_programado()
@@ -155,8 +156,8 @@ class PaginaProgramados:
         anunciar(_("Mensaje agregado"))
 
     def _guardar_programado(self, event):
-        indice = self.lista_programados.GetSelection()
-        if indice == wx.NOT_FOUND:
+        indice = self._lista_programados_acciones.indice()
+        if indice is None:
             anunciar(_("Elige primero un mensaje de la lista"))
             return
         mensaje = self._datos_programado()
@@ -168,9 +169,9 @@ class PaginaProgramados:
         self._refrescar_programados(indice)
         anunciar(_("Mensaje guardado"))
 
-    def _quitar_programado(self, event):
-        indice = self.lista_programados.GetSelection()
-        if indice == wx.NOT_FOUND:
+    def _quitar_programado(self, event=None):
+        indice = self._lista_programados_acciones.indice()
+        if indice is None:
             anunciar(_("Elige primero un mensaje de la lista"))
             return
         self._mensajes_programados.pop(indice)
