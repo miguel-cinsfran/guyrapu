@@ -34,45 +34,56 @@ def abrir_ventana_actualizacion(frame) -> None:
     frame._ventana_actualizar_ytdlp = ventana
     ventana.Show()
     ventana.estado(_("Buscando la última versión de yt-dlp."))
-    ultimo_texto = None
+    actualizacion = _ActualizacionYtdlp(ventana)
+    diagnostico.crear_hilo(actualizacion._run, "ActualizarYtdlp").start()
 
-    def _avisar(version_nueva):
-        ventana.en_hilo_principal(
-            _mostrar_descarga, version_nueva)
 
-    def _mostrar_descarga(version_nueva):
+class _ActualizacionYtdlp:
+    """Lleva el avance de la actualización a la ventana."""
+
+    def __init__(self, ventana):
+        self.ventana = ventana
+        self.ultimo_texto = None
+
+    def _avisar(self, version_nueva):
+        self.ventana.en_hilo_principal(
+            self._mostrar_descarga, version_nueva)
+
+    def _mostrar_descarga(self, version_nueva):
         # Traductores: {version} es la versión nueva de yt-dlp.
         texto = _("Hay una versión nueva de yt-dlp, la {version}. "
                   "Descargando.")
-        ventana.estado(texto.format(version=version_nueva))
+        self.ventana.estado(texto.format(version=version_nueva))
 
-    def _progreso(porcentaje):
-        ventana.en_hilo_principal(_actualizar_progreso, porcentaje)
+    def _progreso(self, porcentaje):
+        self.ventana.en_hilo_principal(self._actualizar_progreso, porcentaje)
 
-    def _actualizar_progreso(porcentaje):
-        nonlocal ultimo_texto
-        ventana.progreso(porcentaje)
-        if ytdlp_actualizar.debe_actualizar_texto_progreso(ultimo_texto, porcentaje):
-            ultimo_texto = porcentaje
+    def _actualizar_progreso(self, porcentaje):
+        self.ventana.progreso(porcentaje)
+        if ytdlp_actualizar.debe_actualizar_texto_progreso(
+                self.ultimo_texto, porcentaje):
+            self.ultimo_texto = porcentaje
             # Traductores: {porcentaje} es el avance de 0 a 100.
             texto = _("Descargando yt-dlp: {porcentaje} por ciento")
-            ventana.txt_estado.SetValue(texto.format(porcentaje=porcentaje))
+            self.ventana.txt_estado.SetValue(texto.format(porcentaje=porcentaje))
 
-    def _terminar(estado, texto):
+    def _terminar(self, estado, texto):
+        from guyrapu.ui.gui import logger
         if ytdlp_actualizar.resultado_actualizacion_es_fallo(estado):
-            ventana.progreso(0)
+            self.ventana.progreso(0)
         else:
-            ventana.progreso(100)
-        ventana.estado(texto)
+            self.ventana.progreso(100)
+        self.ventana.estado(texto)
         try:
-            ventana.btn_cerrar.SetFocus()
+            self.ventana.btn_cerrar.SetFocus()
         except Exception as error:
             logger.debug("no se pudo enfocar el cierre: %s", error)
 
-    def _run():
+    def _run(self):
+        from guyrapu.ui.gui import logger
         try:
             estado, version_actual, version_nueva = ytdlp_actualizar.actualizar_ytdlp(
-                _avisar, _progreso, ventana.cancelado.is_set)
+                self._avisar, self._progreso, self.ventana.cancelado.is_set)
             texto = ytdlp_actualizar.mensaje_de_actualizacion(
                 estado, version_actual, version_nueva)
         except Exception as exc:
@@ -80,6 +91,4 @@ def abrir_ventana_actualizacion(frame) -> None:
             estado = "otro_fallo"
             texto = ytdlp_actualizar.mensaje_de_actualizacion(
                 "otro_fallo", motivo=str(exc))
-        ventana.en_hilo_principal(_terminar, estado, texto)
-
-    diagnostico.crear_hilo(_run, "ActualizarYtdlp").start()
+        self.ventana.en_hilo_principal(self._terminar, estado, texto)
