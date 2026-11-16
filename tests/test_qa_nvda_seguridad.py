@@ -8,9 +8,10 @@ import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
-from qa.nvda import devolver, nvda_local, seguridad
+from qa.nvda import correr, devolver, nvda_local, seguridad
 
 INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
 PORTATIL = r"C:\Local\guyrapu-qa\nvda-2026.3.1"
@@ -180,3 +181,98 @@ class TestDevolucion(unittest.TestCase):
             devolver.decidir_devolucion(
                 estado, actual, PORTATIL, INSTALADO),
             ("nada", None))
+
+
+class TestEjecutarDevolucion(unittest.TestCase):
+
+    def _estado(self, datos):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
+        ruta = Path(carpeta.name) / "estado-carril.json"
+        ruta.write_text(json.dumps(datos), encoding="utf-8")
+        return ruta
+
+    def test_cerrar_fallido_devuelve_falso_y_conserva_el_estado(self):
+        ruta = self._estado({"habia": False, "ejecutable": None})
+        actual = {"pid": 4, "ejecutable": PORTATIL_EXE}
+        with (
+            mock.patch.object(nvda_local, "nvda_en_marcha",
+                              return_value=actual),
+            mock.patch.object(nvda_local, "cerrar", return_value=False),
+        ):
+            self.assertFalse(
+                devolver.ejecutar_devolucion(ruta, PORTATIL, INSTALADO))
+        self.assertTrue(ruta.exists())
+
+    def test_cerrar_logrado_devuelve_verdadero_y_borra_el_estado(self):
+        ruta = self._estado({"habia": False, "ejecutable": None})
+        actual = {"pid": 4, "ejecutable": PORTATIL_EXE}
+        with (
+            mock.patch.object(nvda_local, "nvda_en_marcha",
+                              return_value=actual),
+            mock.patch.object(nvda_local, "cerrar", return_value=True),
+        ):
+            self.assertTrue(
+                devolver.ejecutar_devolucion(ruta, PORTATIL, INSTALADO))
+        self.assertFalse(ruta.exists())
+
+    def test_nada_devuelve_verdadero(self):
+        ruta = self._estado({"habia": False, "ejecutable": None})
+        with mock.patch.object(nvda_local, "nvda_en_marcha",
+                               return_value=None):
+            self.assertTrue(
+                devolver.ejecutar_devolucion(ruta, PORTATIL, INSTALADO))
+        self.assertFalse(ruta.exists())
+
+    def test_lanzar_devuelve_verdadero(self):
+        ruta = self._estado({"habia": True, "ejecutable": INSTALADO})
+        with (
+            mock.patch.object(nvda_local, "nvda_en_marcha",
+                              return_value=None),
+            mock.patch.object(nvda_local, "lanzar") as lanzar,
+        ):
+            self.assertTrue(
+                devolver.ejecutar_devolucion(ruta, PORTATIL, INSTALADO))
+        lanzar.assert_called_once_with(INSTALADO)
+        self.assertFalse(ruta.exists())
+
+
+class TestRespaldoSeConserva(unittest.TestCase):
+
+    def _ejecutar(self, actuales, cerrar_ok):
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
+        ruta_estado = Path(carpeta.name) / "estado-carril.json"
+        args = SimpleNamespace(sin_espera=True, una_pc=True,
+                               respaldo_minutos=45, canario=False)
+        with (
+            mock.patch.object(correr, "_guardia", return_value=None),
+            mock.patch.object(
+                correr, "_elegir_copia",
+                return_value=(Path(PORTATIL), INSTALADO, "usar")),
+            mock.patch.object(correr.perfil, "ruta_estado",
+                              return_value=ruta_estado),
+            mock.patch.object(correr.nvda_local, "nvda_en_marcha",
+                              side_effect=actuales),
+            mock.patch.object(correr.nvda_local, "cerrar",
+                              return_value=cerrar_ok),
+            mock.patch.object(correr.seguridad, "Vigilante",
+                              return_value=mock.Mock(cortado=False)),
+            mock.patch.object(correr, "_programar_respaldo",
+                              return_value=True),
+            mock.patch.object(correr, "_con_canario", return_value=0),
+            mock.patch.object(correr.seguridad,
+                              "borrar_respaldo") as borrar,
+        ):
+            codigo = correr.ejecutar(args)
+        self.assertEqual(codigo, correr.COD_OK)
+        return borrar
+
+    def test_si_no_se_pudo_cerrar_el_portatil_no_borra_el_respaldo(self):
+        borrar = self._ejecutar(
+            [None, {"pid": 4, "ejecutable": PORTATIL_EXE}], False)
+        borrar.assert_not_called()
+
+    def test_si_no_habia_nada_borra_el_respaldo(self):
+        borrar = self._ejecutar([None, None], False)
+        borrar.assert_called_once_with(seguridad.NOMBRE_RESPALDO)

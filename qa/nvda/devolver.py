@@ -65,7 +65,12 @@ def leer_estado(ruta):
         return None
 
 
-def ejecutar_devolucion(ruta_estado, ruta_portatil, instalado):
+def ejecutar_devolucion(ruta_estado, ruta_portatil, instalado) -> bool:
+    """Deja el NVDA como estaba y dice si lo logró.
+
+    Con «nada» ya estaba devuelto, con «lanzar» se arrancó el ejecutable y
+    con «cerrar» solo se da por bueno si el portátil terminó de cerrarse.
+    """
     estado = leer_estado(ruta_estado)
     actual = nvda_local.nvda_en_marcha()
     accion, destino = decidir_devolucion(
@@ -73,21 +78,21 @@ def ejecutar_devolucion(ruta_estado, ruta_portatil, instalado):
     if accion == "cerrar":
         if not nvda_local.cerrar(actual):
             print("no se pudo cerrar la copia portátil")
-            return accion
+            return False
     elif accion == "lanzar":
         nvda_local.lanzar(destino)
     if estado is not None:
         Path(ruta_estado).unlink(missing_ok=True)
-    return accion
+    return True
 
 
 def main() -> int:
     version = perfil.version_esperada()
     ruta_portatil = perfil.ruta_portatil(version)
     instalado = nvda_local.instalado_por_defecto()
-    accion = ejecutar_devolucion(
+    devuelto = ejecutar_devolucion(
         perfil.ruta_estado(), ruta_portatil, instalado)
-    print(f"devolución del carril: {accion}")
+    print("devolución del carril: " + ("hecha" if devuelto else "falló"))
     return 0
 
 

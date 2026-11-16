@@ -228,9 +228,8 @@ def ejecutar(args) -> int:
                             instalado, actual)
     finally:
         vigilante.detener()
-        devuelta = devolver.ejecutar_devolucion(
-            ruta_estado, ruta_copia, instalado)
-        if devuelta:
+        if devolver.ejecutar_devolucion(
+                ruta_estado, ruta_copia, instalado):
             seguridad.borrar_respaldo(seguridad.NOMBRE_RESPALDO)
 
 
