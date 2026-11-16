@@ -795,6 +795,21 @@ class TestVentanaReal(unittest.TestCase):
                          [item.IsEnabled() for item in menus])
 
 
+class TestArranqueDeCostosPublicados(unittest.TestCase):
+    """La ventana arranca la lectura semanal de la tabla de costos."""
+
+    def test_iniciar_temporizadores_arranca_la_lectura(self):
+        app_de_prueba()
+        frame = gui.wx.Frame(None)
+        self.addCleanup(destruir, frame)
+        frame._on_timer = lambda evento: None
+        frame._on_diagnostico_timer = lambda evento: None
+        with mock.patch.object(gui_construccion.cuota_pagina,
+                               "actualizar_en_segundo_plano") as actualizar:
+            gui_construccion.iniciar_temporizadores(frame)
+        actualizar.assert_called_once_with()
+
+
 class TestCampoEnlaceSoloLectura(unittest.TestCase):
     """Con una conexión activa el campo sigue en el recorrido, de solo lectura."""
 

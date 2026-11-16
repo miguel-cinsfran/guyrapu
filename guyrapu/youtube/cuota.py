@@ -17,6 +17,7 @@ import json
 import threading
 
 from guyrapu.core import archivos, diagnostico, paths
+from guyrapu.youtube import cuota_pagina
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -65,7 +66,6 @@ COSTOS: dict[str, int] = {
     "playlists.insert": 50,
     "playlists.update": 50,
     "playlists.delete": 50,
-    "search.list": 1,
     "superChatEvents.list": 1,
     "thumbnails.set": 50,
     "videoCategories.list": 1,
@@ -80,12 +80,21 @@ _LOCK = threading.Lock()
 
 _CLASE_CONTADORA = None
 
+# Los costos publicados se leen una sola vez por sesión; None es «sin leer».
+_COSTOS_GUARDADOS = None
+
 
 def costo(metodo: str) -> int:
     """Unidades que cuesta una petición; toda petición válida o inválida
     cuesta al menos 1 según la página de Google."""
+    global _COSTOS_GUARDADOS
     nombre = (metodo or "").removeprefix("youtube.")
-    return COSTOS.get(nombre, 1)
+    with _LOCK:
+        if _COSTOS_GUARDADOS is None:
+            guardado = cuota_pagina.leer_guardado()
+            _COSTOS_GUARDADOS = guardado["costos"] if guardado else {}
+        guardados = _COSTOS_GUARDADOS
+    return guardados.get(nombre, COSTOS.get(nombre, 1))
 
 
 def dia_pacifico(ahora_utc: dt.datetime) -> dt.date:

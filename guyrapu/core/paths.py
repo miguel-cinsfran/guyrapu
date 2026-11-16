@@ -105,6 +105,12 @@ def cuota_youtube() -> Path:
     return carpeta_datos() / "cuota_youtube.json"
 
 
+def cuota_youtube_pagina() -> Path:
+    # Tabla de costos que publica Google, leída una vez por semana. Nace ya
+    # dentro de data/, así que no entra en datos_a_migrar().
+    return carpeta_datos() / "cuota_youtube_pagina.json"
+
+
 def catalogo_ia() -> Path:
     # Copia del catálogo de modelos que la app renueva sola: no entra en
     # datos_a_migrar(), se vuelve a bajar.

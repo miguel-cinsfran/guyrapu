@@ -26,6 +26,7 @@ from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.chat_vivo import ControladorChat
 from guyrapu.ui.gui_redactar import PanelRedactar
 from guyrapu.ui.tema import _T, _pintar, _tc, _titulo
+from guyrapu.youtube import cuota_pagina
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -322,3 +323,4 @@ def iniciar_temporizadores(frame):
     frame._diagnostico_timer = wx.Timer(frame)
     frame.Bind(wx.EVT_TIMER, frame._on_diagnostico_timer, frame._diagnostico_timer)
     frame._diagnostico_timer.Start(_gui.TIMER_DIAGNOSTICO_MS)
+    cuota_pagina.actualizar_en_segundo_plano()

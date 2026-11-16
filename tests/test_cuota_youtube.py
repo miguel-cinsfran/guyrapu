@@ -40,6 +40,27 @@ class TestCostos(unittest.TestCase):
         self.assertEqual(cuota.FECHA_COSTOS, "12/11/2026")
 
 
+class TestCostosGuardados(unittest.TestCase):
+
+    def setUp(self):
+        cuota._COSTOS_GUARDADOS = None
+        self.addCleanup(setattr, cuota, "_COSTOS_GUARDADOS", None)
+
+    def test_usa_los_costos_guardados(self):
+        with tempfile.TemporaryDirectory() as tmp, redirigir_rutas(tmp):
+            paths.cuota_youtube_pagina().write_text(
+                json.dumps({"fecha": "12/11/2026", "leida": "2026-11-12",
+                            "costos": {"videos.list": 7}}),
+                encoding="utf-8")
+            self.assertEqual(cuota.costo("videos.list"), 7)
+
+    def test_archivo_roto_usa_la_tabla_del_codigo(self):
+        with tempfile.TemporaryDirectory() as tmp, redirigir_rutas(tmp):
+            paths.cuota_youtube_pagina().write_text(
+                "esto no es JSON", encoding="utf-8")
+            self.assertEqual(cuota.costo("videos.update"), 50)
+
+
 class TestDiaPacifico(unittest.TestCase):
 
     def test_medianoche_del_pacifico_en_horario_de_verano(self):
