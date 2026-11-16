@@ -74,6 +74,7 @@ ACTUAN_DIRECTO = frozenset((
     "Leer el mensaje 8 desde el final del chat",
     "Leer el mensaje 9 desde el final del chat",
     "Leer el último mensaje del chat",
+    "Licencias de las voces",
     "Manual de uso",
     "Marcar incidencia",
     "Mostrar OBS",
