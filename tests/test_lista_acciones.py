@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la pieza común de listas con acciones."""
 
+import ctypes
 import unittest
 from unittest import mock
 
@@ -9,6 +10,7 @@ import wx
 
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.ui import lista_acciones
+from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 
 
 def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
@@ -330,6 +332,301 @@ class PruebaConLista(unittest.TestCase):
                 with mock.patch.object(lista_acciones, "anunciar") as anunciar:
                     self._tecla(tipo, codigo)
                 anunciar.assert_called_once_with("Sin elementos.")
+
+
+class PruebaEnvoltorioListaCtrl(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.control = wx.ListCtrl(
+            self.marco, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.control.InsertColumn(0, "Nombre", width=150)
+        self.control.InsertColumn(1, "Familia", width=150)
+        self.lista = ListaCtrlEnvuelta(self.control)
+
+    def test_append_acepta_texto_y_tuplas_y_los_cuenta(self):
+        self.lista.Append("Solo")
+        self.lista.Append(("Con", "Dos"))
+        self.assertEqual(self.lista.GetCount(), 2)
+        self.assertEqual(self.control.GetItemText(0, 0), "Solo")
+        self.assertEqual(self.control.GetItemText(0, 1), "")
+        self.assertEqual(self.control.GetItemText(1, 0), "Con")
+        self.assertEqual(self.control.GetItemText(1, 1), "Dos")
+
+    def test_sin_fila_elegida_da_not_found_y_set_selection_enfoca(self):
+        self.lista.Append("Solo")
+        self.assertEqual(self.lista.GetSelection(), wx.NOT_FOUND)
+        self.lista.SetSelection(0)
+        self.assertEqual(self.lista.GetSelection(), 0)
+        self.assertEqual(self.control.GetFocusedItem(), 0)
+        self.lista.Clear()
+        self.assertEqual(self.lista.GetCount(), 0)
+
+
+class PruebaListaConVacioCtrl(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.lista = self._lista_ctrl()
+        self.vacio = lista_acciones.ListaConVacio(
+            self.lista, "Sin elementos.")
+
+    def _lista_ctrl(self):
+        lista = wx.ListCtrl(
+            self.marco, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        lista.InsertColumn(0, "Nombre", width=150)
+        lista.InsertColumn(1, "Familia", width=150)
+        return lista
+
+    def _tecla(self, tipo, codigo):
+        evento = wx.KeyEvent(tipo)
+        evento.KeyCode = codigo
+        self.lista.GetEventHandler().ProcessEvent(evento)
+
+    def test_vacia_deja_la_linea_elegida_y_sin_indice(self):
+        self.vacio.fijar([])
+        self.assertTrue(self.vacio.vacia())
+        self.assertEqual(self.lista.GetItemCount(), 1)
+        self.assertEqual(self.lista.GetItemText(0, 0), "Sin elementos.")
+        self.assertEqual(self.lista.GetItemText(0, 1), "")
+        self.assertEqual(self.lista.GetFirstSelected(), 0)
+        self.assertIsNone(self.vacio.indice())
+
+    def test_sin_elemento_con_la_lista_vacia_anuncia_el_texto(self):
+        self.vacio.fijar([])
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.vacio.sin_elemento()
+        anunciar.assert_called_once_with("Sin elementos.")
+
+    def test_con_elementos_sin_elegir_anuncia_sin_seleccion(self):
+        self.vacio.fijar(["a", "b"])
+        self.assertFalse(self.vacio.vacia())
+        self.lista.Select(0, False)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.vacio.sin_elemento()
+        anunciar.assert_called_once_with("Sin selección")
+
+    def test_flecha_arriba_en_el_primero_reproduce_orilla(self):
+        with mock.patch.object(lista_acciones._snd, "reproducir") as sonar:
+            self.vacio.fijar(["a", "b"])
+            self.lista.Select(0)
+            self._tecla(wx.wxEVT_KEY_DOWN, wx.WXK_UP)
+            sonar.assert_called_once_with("orilla")
+
+    def test_flecha_en_la_lista_vacia_tambien_reproduce_orilla(self):
+        with mock.patch.object(lista_acciones._snd, "reproducir") as sonar:
+            self.vacio.fijar([])
+            self._tecla(wx.wxEVT_KEY_DOWN, wx.WXK_DOWN)
+            sonar.assert_called_once_with("orilla")
+
+    def test_escribir_una_letra_elige_el_primero_que_empieza(self):
+        self.vacio.fijar([("Ana", "A"), ("Beto", "B"), ("Bruno", "C")])
+        self.lista.Select(0)
+        with mock.patch.object(wx, "CallLater"), \
+                mock.patch("guyrapu.ui.busqueda_teclado.anunciar"):
+            evento = wx.KeyEvent(wx.wxEVT_CHAR)
+            evento.SetUnicodeKey(ord("B"))
+            self.lista.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(self.lista.GetFirstSelected(), 1)
+
+    def test_busca_por_la_primera_columna(self):
+        self.vacio.fijar([("Ana", "Zeta"), ("Beto", "Ana")])
+        self.lista.Select(0)
+        with mock.patch.object(wx, "CallLater"), \
+                mock.patch("guyrapu.ui.busqueda_teclado.anunciar") as anunciar:
+            evento = wx.KeyEvent(wx.wxEVT_CHAR)
+            evento.SetUnicodeKey(ord("B"))
+            self.lista.GetEventHandler().ProcessEvent(evento)
+        anunciar.assert_any_call("Beto")
+        self.assertEqual(self.lista.GetFirstSelected(), 1)
+
+    def test_fijar_acepta_texto_y_tuplas(self):
+        self.vacio.fijar(["Solo", ("Con", "Dos")])
+        self.assertEqual(self.lista.GetItemText(0, 0), "Solo")
+        self.assertEqual(self.lista.GetItemText(0, 1), "")
+        self.assertEqual(self.lista.GetItemText(1, 0), "Con")
+        self.assertEqual(self.lista.GetItemText(1, 1), "Dos")
+
+    def test_fijar_con_vacio_cambia_el_texto_de_esa_carga(self):
+        self.vacio.fijar([], vacio="x")
+        self.assertEqual(self.lista.GetItemText(0, 0), "x")
+        self.vacio.fijar([])
+        self.assertEqual(self.lista.GetItemText(0, 0), "Sin elementos.")
+
+
+class PruebaConListaCtrl(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.lista = self._lista_ctrl()
+        self.llamadas = []
+        self.acciones = (
+            _accion("editar", "intro",
+                    manejador=lambda: self.llamadas.append("editar")),
+            _accion("renombrar", "f2",
+                    manejador=lambda: self.llamadas.append("renombrar")),
+            _accion("eliminar", "suprimir",
+                    manejador=lambda: self.llamadas.append("eliminar")),
+            _accion("nuevo", necesita_elemento=False,
+                    manejador=lambda: self.llamadas.append("nuevo")),
+        )
+        self.pieza = lista_acciones.ListaConAcciones(
+            self.lista, self.acciones, "Sin elementos.")
+
+    def _lista_ctrl(self):
+        lista = wx.ListCtrl(
+            self.marco, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        lista.InsertColumn(0, "Nombre", width=150)
+        lista.InsertColumn(1, "Familia", width=150)
+        return lista
+
+    def _menu(self):
+        menu = self.pieza._construir_menu()
+        self.addCleanup(menu.Destroy)
+        return menu
+
+    def _tecla(self, tipo, codigo):
+        evento = wx.KeyEvent(tipo)
+        evento.KeyCode = codigo
+        self.lista.GetEventHandler().ProcessEvent(evento)
+
+    def test_fijar_vacio_deja_la_linea_elegida_y_sin_indice(self):
+        self.pieza.fijar([])
+        self.assertEqual(self.lista.GetItemCount(), 1)
+        self.assertEqual(self.lista.GetItemText(0, 0), "Sin elementos.")
+        self.assertEqual(self.lista.GetFirstSelected(), 0)
+        self.assertIsNone(self.pieza.indice())
+
+    def test_ejecutar_con_la_lista_vacia_anuncia_el_vacio_y_no_llama(self):
+        self.pieza.fijar([])
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.pieza.ejecutar("editar")
+        anunciar.assert_called_once_with("Sin elementos.")
+        self.assertEqual(self.llamadas, [])
+
+    def test_ejecutar_sin_seleccion_anuncia_y_no_llama(self):
+        self.pieza.fijar(["a", "b"])
+        self.lista.Select(0, False)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.pieza.ejecutar("editar")
+        anunciar.assert_called_once_with("Sin selección")
+        self.assertEqual(self.llamadas, [])
+
+    def test_el_menu_tiene_las_etiquetas_en_orden_y_con_su_tecla(self):
+        self.pieza.fijar([])
+        items = self._menu().GetMenuItems()
+        self.assertEqual(
+            [item.GetItemLabel() for item in items],
+            ["&Editar\tEnter", "&Renombrar\tF2", "&Eliminar\tDel", "&Nuevo"])
+        self.assertEqual(
+            [item.IsEnabled() for item in items],
+            [False, False, False, True])
+        self.pieza.fijar(["a"])
+        items = self._menu().GetMenuItems()
+        self.assertTrue(all(item.IsEnabled() for item in items))
+
+    def test_suprimir_f2_e_intro_hacen_la_accion_de_su_tecla(self):
+        casos = (
+            (wx.wxEVT_KEY_DOWN, wx.WXK_DELETE, "eliminar"),
+            (wx.wxEVT_KEY_DOWN, wx.WXK_F2, "renombrar"),
+            (wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN, "editar"),
+        )
+        for tipo, codigo, esperado in casos:
+            with self.subTest(codigo=codigo):
+                self.llamadas.clear()
+                self.pieza.fijar(["a"])
+                self._tecla(tipo, codigo)
+                self.assertEqual(self.llamadas, [esperado])
+
+    def test_intro_corre_la_accion_una_sola_vez(self):
+        self.pieza.fijar(["a"])
+        self._tecla(wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN)
+        self.assertEqual(self.llamadas, ["editar"])
+
+    def test_el_clic_derecho_abre_el_menu(self):
+        self.pieza.fijar(["a"])
+        with mock.patch.object(self.lista, "PopupMenu") as popup:
+            self.lista.ProcessEvent(
+                wx.ContextMenuEvent(wx.wxEVT_CONTEXT_MENU))
+        popup.assert_called_once()
+
+    def test_la_tecla_y_el_contexto_abren_el_menu_una_sola_vez(self):
+        self.pieza.fijar(["a"])
+        with mock.patch.object(self.lista, "PopupMenu") as popup:
+            self._tecla(wx.wxEVT_KEY_DOWN, wx.WXK_WINDOWS_MENU)
+            self.lista.ProcessEvent(
+                wx.ContextMenuEvent(wx.wxEVT_CONTEXT_MENU))
+        self.assertEqual(popup.call_count, 1)
+
+    def test_con_la_lista_vacia_suprimir_f2_e_intro_anuncian_el_vacio(self):
+        self.pieza.fijar([])
+        casos = (
+            (wx.wxEVT_KEY_DOWN, wx.WXK_DELETE),
+            (wx.wxEVT_KEY_DOWN, wx.WXK_F2),
+            (wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN),
+        )
+        for tipo, codigo in casos:
+            with self.subTest(codigo=codigo):
+                with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+                    self._tecla(tipo, codigo)
+                anunciar.assert_called_once_with("Sin elementos.")
+
+    def test_el_doble_clic_corre_la_accion(self):
+        self.pieza.fijar(["a"])
+        evento = wx.ListEvent(
+            wx.wxEVT_LIST_ITEM_ACTIVATED, self.lista.GetId())
+        self.lista.ProcessEvent(evento)
+        self.assertEqual(self.llamadas, ["editar"])
+
+    def test_el_doble_clic_de_listbox_no_corre_la_accion(self):
+        self.pieza.fijar(["a"])
+        evento = wx.ListEvent(wx.wxEVT_LISTBOX_DCLICK, self.lista.GetId())
+        self.lista.ProcessEvent(evento)
+        self.assertEqual(self.llamadas, [])
+
+    def test_fijar_deja_la_fila_elegida_y_enfocada(self):
+        self.pieza.fijar(["a", "b"], elegido=1)
+        self.assertEqual(self.lista.GetFirstSelected(), 1)
+        self.assertEqual(self.lista.GetFocusedItem(), 1)
+
+
+class PruebaCasillasConPieza(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.lista = wx.ListCtrl(
+            self.marco, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.lista.InsertColumn(0, "Nombre", width=150)
+        self.lista.InsertColumn(1, "Familia", width=150)
+        self.lista.EnableCheckBoxes(True)
+        self.pieza = lista_acciones.ListaConAcciones(
+            self.lista, (_accion("oir"),), "Sin elementos.")
+
+    def _espacio(self):
+        enviar = ctypes.windll.user32.SendMessageW
+        enviar.argtypes = (ctypes.c_void_p, ctypes.c_uint, ctypes.c_size_t,
+                           ctypes.c_ssize_t)
+        enviar.restype = ctypes.c_ssize_t
+        for mensaje in (0x0100, 0x0101):   # WM_KEYDOWN, WM_KEYUP
+            enviar(self.lista.GetHandle(), mensaje, 0x20, 0)   # VK_SPACE
+        wx.Yield()
+
+    def test_espacio_con_la_busqueda_vacia_alterna_la_casilla(self):
+        self.pieza.fijar([("Uno", "A"), ("Dos", "B")])
+        self.lista.CheckItem(0, True)
+        self.assertTrue(self.lista.IsItemChecked(0))
+        self._espacio()
+        self.assertFalse(self.lista.IsItemChecked(0))
+        self._espacio()
+        self.assertTrue(self.lista.IsItemChecked(0))
 
 
 if __name__ == "__main__":

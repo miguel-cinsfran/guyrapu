@@ -294,6 +294,27 @@ class TestPaginaSonidos(unittest.TestCase):
 
         self.assertEqual([], sin_marcar)
 
+    def test_accion_del_menu_pide_el_mismo_archivo_que_el_boton(self):
+        indice = self.pagina._eventos_visibles.index("chat_cortado")
+        self.pagina._lista.Select(indice)
+
+        def hacer_clic(menu):
+            items = menu.GetMenuItems()
+            self.assertEqual([item.GetItemLabel() for item in items],
+                             ["&Reproducir sonido"])
+            menu.ProcessEvent(wx.CommandEvent(
+                wx.wxEVT_MENU, items[0].GetId()))
+
+        with mock.patch.object(preferencias_sonidos._snd,
+                               "reproducir_archivo") as oir:
+            self.pagina._on_oir(None)
+            del_boton = oir.call_args.args[0]
+            oir.reset_mock()
+            with mock.patch.object(self.pagina._pieza._lista, "PopupMenu",
+                                   side_effect=hacer_clic):
+                self.pagina._pieza._abrir_menu()
+            oir.assert_called_once_with(del_boton)
+
 
 if __name__ == "__main__":
     unittest.main()

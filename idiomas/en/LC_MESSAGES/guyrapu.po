@@ -4669,7 +4669,8 @@ msgstr "Position: {texto}"
 msgid "OBS: conectado"
 msgstr "OBS: connected"
 
-#: guyrapu/obs/obs_disposicion.py
+#: guyrapu/obs/obs_disposicion.py guyrapu/ui/escena_agregar_fuente.py
+#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/obs_ventana.py
 msgid "Sin conexión con OBS"
 msgstr "No connection to OBS"
 
@@ -7476,7 +7477,7 @@ msgstr "Filter: {filtro}. {n} messages"
 msgid "Ese mensaje ya no está en el chat."
 msgstr "That message is no longer in the chat."
 
-#: guyrapu/ui/chat_acciones.py
+#: guyrapu/ui/chat_acciones.py guyrapu/ui/ia_ventana.py
 msgid "Copiar mensaje"
 msgstr "Copy message"
 
@@ -8691,12 +8692,11 @@ msgstr "There's nothing to undo."
 msgid "Deshecho: {accion} de {fuente}."
 msgstr "Undone: {accion} of {fuente}."
 
-#: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_pagina_escena.py
-#: guyrapu/ui/escena_pagina_fuentes.py guyrapu/ui/gui_historial.py
-#: guyrapu/ui/lista_acciones.py guyrapu/ui/mover_con_flechas.py
-#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_destinos.py
-#: guyrapu/ui/restream_pagina_eventos.py guyrapu/ui/restream_pagina_perfiles.py
-#: guyrapu/ui/restream_ventana.py
+#: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_pagina_fuentes.py
+#: guyrapu/ui/gui_historial.py guyrapu/ui/lista_acciones.py
+#: guyrapu/ui/mover_con_flechas.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_eventos.py
+#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_ventana.py
 msgid "Sin selección"
 msgstr "Nothing selected"
 
@@ -9042,10 +9042,6 @@ msgid "&Ganancia:"
 msgstr "&Gain:"
 
 #: guyrapu/ui/escena_menu_escena.py
-msgid "&Guardar imagen…"
-msgstr "&Save image…"
-
-#: guyrapu/ui/escena_menu_escena.py
 msgid "&Cambiar escena"
 msgstr "&Change scene"
 
@@ -9067,6 +9063,10 @@ msgstr "Create &vertical version"
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "E&liminar"
 msgstr "De&lete"
+
+#: guyrapu/ui/escena_menu_escena.py
+msgid "&Guardar imagen…"
+msgstr "&Save image…"
 
 #: guyrapu/ui/escena_menu_fuente.py
 msgid "&Transformar"
@@ -9213,6 +9213,10 @@ msgstr "Chan&ge scene"
 #: guyrapu/ui/escena_pagina_escena.py
 msgid "A&gregar escena…"
 msgstr "Add sc&ene…"
+
+#: guyrapu/ui/escena_pagina_escena.py
+msgid "No hay escenas."
+msgstr "There are no scenes."
 
 #: guyrapu/ui/escena_pagina_escena.py
 #, python-brace-format
@@ -9908,6 +9912,27 @@ msgid "Comen&tar en el vídeo"
 msgstr "Commen&t on the video"
 
 #: guyrapu/ui/gui_comentarios.py
+msgid "Copiar comentario"
+msgstr "Copy comment"
+
+#: guyrapu/ui/gui_comentarios.py
+msgid "Copiar todo (autor: comentario)"
+msgstr "Copy all (author: comment)"
+
+#: guyrapu/ui/gui_comentarios.py
+msgid "Responder…"
+msgstr "Reply…"
+
+#: guyrapu/ui/gui_comentarios.py
+msgid "No hay comentarios para mostrar."
+msgstr "No comments to show."
+
+#. Traductores: motivo de Cargar listas sin sesión de YouTube.
+#: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_directo_youtube.py
+msgid "Sin sesión de YouTube"
+msgstr "No YouTube session"
+
+#: guyrapu/ui/gui_comentarios.py
 #, python-brace-format
 msgid "{n} comentario"
 msgid_plural "{n} comentarios"
@@ -9929,10 +9954,6 @@ msgstr "{partes}. {total} in total."
 #: guyrapu/ui/gui_comentarios.py
 msgid "No hay comentarios nuevos."
 msgstr "No new comments."
-
-#: guyrapu/ui/gui_comentarios.py
-msgid "No hay comentarios para mostrar."
-msgstr "No comments to show."
 
 #: guyrapu/ui/gui_comentarios.py
 #, python-brace-format
@@ -9962,14 +9983,6 @@ msgstr "{autor}{sufijo}: {texto}"
 #: guyrapu/ui/gui_comentarios.py
 msgid "Sin comentario seleccionado"
 msgstr "No comment selected"
-
-#: guyrapu/ui/gui_comentarios.py
-msgid "Copiar comentario"
-msgstr "Copy comment"
-
-#: guyrapu/ui/gui_comentarios.py
-msgid "Copiar todo (autor: comentario)"
-msgstr "Copy all (author: comment)"
 
 #: guyrapu/ui/gui_comentarios.py
 msgid "Comentario copiado"
@@ -10187,19 +10200,10 @@ msgstr ""
 "YouTube did not confirm the end of the live stream. It will be retried for "
 "10 minutes."
 
-#: guyrapu/ui/gui_directo_youtube.py
-msgid "Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
-msgstr "JPG and PNG images (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
-
 #. Traductores: motivo de Cargar listas mientras se cargan las listas.
 #: guyrapu/ui/gui_directo_youtube.py
 msgid "Cargando las listas"
 msgstr "Loading the lists"
-
-#. Traductores: motivo de Cargar listas sin sesión de YouTube.
-#: guyrapu/ui/gui_directo_youtube.py
-msgid "Sin sesión de YouTube"
-msgstr "No YouTube session"
 
 #: guyrapu/ui/gui_directo_youtube.py
 msgid "Transmitir"
@@ -10282,7 +10286,7 @@ msgstr "Thumbnail"
 msgid "Elegir &miniatura…"
 msgstr "&Choose thumbnail…"
 
-#: guyrapu/ui/gui_directo_youtube.py
+#: guyrapu/ui/gui_directo_youtube.py guyrapu/ui/miniatura_directo.py
 msgid "Elegir miniatura"
 msgstr "Choose thumbnail"
 
@@ -10317,20 +10321,6 @@ msgstr "OBS check:"
 #: guyrapu/ui/gui_directo_youtube.py
 msgid "Revisión de OBS"
 msgstr "OBS check"
-
-#. Traductores: primera opción de la lista; ninguna elegida.
-#: guyrapu/ui/gui_directo_youtube.py guyrapu/youtube/emision.py
-msgid "Ninguna"
-msgstr "None"
-
-#: guyrapu/ui/gui_directo_youtube.py
-#, python-brace-format
-msgid "Miniatura: {nombre}"
-msgstr "Thumbnail: {nombre}"
-
-#: guyrapu/ui/gui_directo_youtube.py
-msgid "Sin miniatura."
-msgstr "No thumbnail."
 
 #: guyrapu/ui/gui_directo_youtube.py
 msgid "Cargando las listas."
@@ -10483,6 +10473,13 @@ msgstr "Cl&ose"
 #, python-brace-format
 msgid "Historial de {plataforma}"
 msgstr "{plataforma} history"
+
+#. Traductores: fila que dice que la pestaña del historial no tiene
+#. entradas; {plataforma} es el nombre de la plataforma de la pestaña.
+#: guyrapu/ui/gui_historial.py
+#, python-brace-format
+msgid "No hay entradas de {plataforma}."
+msgstr "No entries for {plataforma}."
 
 #. Traductores: aviso al conectar con una entrada del historial que
 #. no tiene enlace guardado.
@@ -11311,6 +11308,10 @@ msgid "Conversación"
 msgstr "Conversation"
 
 #: guyrapu/ui/ia_ventana.py
+msgid "Ver mensaje completo…"
+msgstr "View full message…"
+
+#: guyrapu/ui/ia_ventana.py
 msgid "Enviar"
 msgstr "Send"
 
@@ -11628,6 +11629,24 @@ msgstr "&Record while broadcasting"
 #: guyrapu/ui/menu_transmision.py
 msgid "&Transmisión"
 msgstr "&Broadcast"
+
+#: guyrapu/ui/miniatura_directo.py
+msgid "Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
+msgstr "JPG and PNG images (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
+
+#. Traductores: primera opción de la lista; ninguna elegida.
+#: guyrapu/ui/miniatura_directo.py guyrapu/youtube/emision.py
+msgid "Ninguna"
+msgstr "None"
+
+#: guyrapu/ui/miniatura_directo.py
+#, python-brace-format
+msgid "Miniatura: {nombre}"
+msgstr "Thumbnail: {nombre}"
+
+#: guyrapu/ui/miniatura_directo.py
+msgid "Sin miniatura."
+msgstr "No thumbnail."
 
 #: guyrapu/ui/mover_con_flechas.py
 msgid "Posición confirmada"
@@ -12033,6 +12052,14 @@ msgstr "Profiles"
 #: guyrapu/ui/opciones_musica.py
 msgid "Salida predeterminada"
 msgstr "Default output"
+
+#: guyrapu/ui/operaciones_obs.py
+msgid "Consultando OBS."
+msgstr "Asking OBS."
+
+#: guyrapu/ui/operaciones_obs.py
+msgid "OBS no está conectado."
+msgstr "OBS is not connected."
 
 #: guyrapu/ui/operaciones_obs.py
 msgid "Consultando OBS"
@@ -12894,6 +12921,10 @@ msgid "Mensajes automáticos guardados"
 msgstr "Scheduled messages saved"
 
 #: guyrapu/ui/preferencias_programados.py
+msgid "No hay mensajes automáticos."
+msgstr "There are no scheduled messages."
+
+#: guyrapu/ui/preferencias_programados.py
 msgid "&Texto del mensaje:"
 msgstr "Message &text:"
 
@@ -12968,6 +12999,11 @@ msgstr "Sound"
 #: guyrapu/ui/preferencias_sonidos.py
 msgid "Familia"
 msgstr "Family"
+
+#. Traductores: acción del menú contextual de la lista de sonidos.
+#: guyrapu/ui/preferencias_sonidos.py
+msgid "&Reproducir sonido"
+msgstr "&Play sound"
 
 #: guyrapu/ui/preferencias_transmision.py
 msgid "Desactivados"
@@ -14198,35 +14234,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/gui_comentarios.py
-msgid "Responder…"
-msgstr "Reply…"
-
-#: guyrapu/ui/operaciones_obs.py
-msgid "Consultando OBS."
-msgstr "Asking OBS."
-
-#: guyrapu/ui/operaciones_obs.py
-msgid "OBS no está conectado."
-msgstr "OBS is not connected."
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "No hay mensajes automáticos."
-msgstr "There are no scheduled messages."
-
-#. Traductores: fila que dice que la pestaña del historial no tiene
-#. entradas; {plataforma} es el nombre de la plataforma de la pestaña.
-#: guyrapu/ui/gui_historial.py
-#, python-brace-format
-msgid "No hay entradas de {plataforma}."
-msgstr "No entries for {plataforma}."
-
-#: guyrapu/ui/escena_pagina_escena.py
-msgid "No hay escenas."
-msgstr "There are no scenes."
-
-#: guyrapu/ui/ia_ventana.py
-msgid "Ver mensaje completo…"
-msgstr "View full message…"
 

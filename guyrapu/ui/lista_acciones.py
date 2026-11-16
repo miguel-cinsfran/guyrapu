@@ -4,8 +4,8 @@
 
 La parte pura no abre ventanas: `clave_de_tecla`, `acciones_encendidas` y
 `etiqueta_de_menu` se prueban con códigos y acciones. `ListaConVacio` deja
-el caso vacío elegido en una `wx.ListBox` y `ListaConAcciones` ata esas
-reglas a una lista.
+el caso vacío elegido en una lista y `ListaConAcciones` ata esas reglas a
+una lista.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 from guyrapu.ui.menu_habilitado import habilitar
 from guyrapu.voice import sound_player as _snd
 
@@ -101,16 +102,29 @@ def etiqueta_de_menu(accion: Accion) -> str:
     return etiqueta + _SUFIJOS.get(accion.tecla, "")
 
 
+def _envuelta(lista):
+    """El control con la conducta de `wx.ListBox` si es un `wx.ListCtrl`."""
+    if isinstance(lista, wx.ListCtrl):
+        return ListaCtrlEnvuelta(lista)
+    return lista
+
+
+def _texto_de(fila):
+    """El texto que se busca y se anuncia: el de la primera columna."""
+    return fila[0] if isinstance(fila, tuple) else fila
+
+
 class ListaConVacio:
-    """Deja el caso vacío elegido en una `wx.ListBox` y da el índice real."""
+    """Deja el caso vacío elegido en una lista y da el índice real."""
 
     def __init__(self, lista, texto_vacio):
-        self._lista = lista
+        self._lista = _envuelta(lista)
         self._texto_vacio = texto_vacio
         self._texto_vacio_inicial = texto_vacio
         self._textos = []
         self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
-        instalar_busqueda_tipo(self._lista, lambda: list(self._textos))
+        instalar_busqueda_tipo(
+            self._lista, lambda: [_texto_de(fila) for fila in self._textos])
 
     def _al_tecla(self, evento):
         try:
@@ -161,16 +175,18 @@ class ListaConVacio:
 
 
 class ListaConAcciones:
-    """Da teclas, menú contextual y caso vacío a una `wx.ListBox`."""
+    """Da teclas, menú contextual y caso vacío a una lista."""
 
     def __init__(self, lista, acciones, texto_vacio):
-        self._lista = lista
+        self._lista = _envuelta(lista)
         self._acciones = tuple(acciones)
-        self._vacio = ListaConVacio(lista, texto_vacio)
+        self._vacio = ListaConVacio(self._lista, texto_vacio)
         self._ultimo_menu = None
         self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
         self._lista.Bind(wx.EVT_CONTEXT_MENU, self._al_contexto)
-        self._lista.Bind(wx.EVT_LISTBOX_DCLICK, self._al_doble_clic)
+        evento = (wx.EVT_LIST_ITEM_ACTIVATED
+                  if isinstance(lista, wx.ListCtrl) else wx.EVT_LISTBOX_DCLICK)
+        self._lista.Bind(evento, self._al_doble_clic)
         entregar_intro(self._lista, self._al_intro)
 
     def fijar(self, textos, elegido=None, vacio=None):

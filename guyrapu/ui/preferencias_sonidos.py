@@ -24,6 +24,7 @@ from guyrapu.core.eventos_sonido import CATALOGO, FAMILIAS, NOMBRES
 from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_ini import con_silenciados, silenciados
 from guyrapu.ui.accesibilidad import nombre_accesible
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
 from guyrapu.ui.tema import _T, _pintar, _tc
 from guyrapu.voice import sound_player as _snd
@@ -81,6 +82,7 @@ class PaginaSonidos:
     def __init__(self):
         self._panel = None
         self._lista = None
+        self._pieza = None
         self._btn_oir = None
         self.cho_tema = None
         self._temas = []
@@ -159,6 +161,11 @@ class PaginaSonidos:
         self._lista.EnableCheckBoxes(True)
         self._lista.SetMinSize((460, 300))
         self._lista.Bind(wx.EVT_SIZE, self._on_tamanio_lista)
+        # Traductores: acción del menú contextual de la lista de sonidos.
+        etiqueta_oir = _("&Reproducir sonido")
+        self._pieza = ListaConAcciones(self._lista, (
+            Accion("oir", etiqueta_oir, self._on_oir),
+        ), "")
         vs.Add(self._lista, 1, wx.EXPAND | wx.ALL, 10)
 
     def _on_tamanio_lista(self, event):
@@ -173,19 +180,16 @@ class PaginaSonidos:
     def _cargar_filas(self):
         texto = _leer_texto(paths.sounds_ini())
         self._inicial = silenciados(texto)
-        self._lista.DeleteAllItems()
         self._eventos_visibles = []
         nombres_familia = dict(FAMILIAS)
+        filas = []
         for evento in CATALOGO:
-            indice = self._lista.InsertItem(
-                self._lista.GetItemCount(), _(NOMBRES[evento.clave]))
-            self._lista.SetItem(
-                indice, 1, _(nombres_familia[evento.familia]))
-            self._lista.CheckItem(indice, evento.clave not in self._inicial)
+            filas.append((_(NOMBRES[evento.clave]),
+                          _(nombres_familia[evento.familia])))
             self._eventos_visibles.append(evento.clave)
-        if self._lista.GetItemCount():
-            self._lista.Select(0)
-            self._lista.Focus(0)
+        self._pieza.fijar(filas)
+        for indice, evento in enumerate(CATALOGO):
+            self._lista.CheckItem(indice, evento.clave not in self._inicial)
 
     def _marcados(self) -> set:
         """Eventos destildados, o sea callados, según la lista."""
