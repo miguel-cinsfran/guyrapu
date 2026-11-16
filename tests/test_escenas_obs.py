@@ -4,12 +4,9 @@
 
 import unittest
 
-import wx
-
 from guyrapu.obs import escenas_obs, obs_cliente
 from guyrapu.ui import escena_menu_escena
 from tests.letras_acceso import _letra_de_acceso
-from tests.ventanas_prueba import app_de_prueba
 
 
 class PedirFalso:
@@ -167,122 +164,55 @@ class TestDuplicar(unittest.TestCase):
             ["CreateScene", "GetSceneItemList"])
 
 
-class TestMenuDeEscena(unittest.TestCase):
+class TestAccionesDeEscena(unittest.TestCase):
 
-    def setUp(self):
-        self.app = app_de_prueba()
-
-    def _menu(self, llamadas):
-        return escena_menu_escena.menu_de_escena(
+    def _acciones(self, llamadas, motivo=None, version_vertical=True):
+        return escena_menu_escena.acciones_de_escena(
             lambda: llamadas.append("cambiar"),
             lambda: llamadas.append("renombrar"),
             lambda: llamadas.append("duplicar"),
             lambda: llamadas.append("eliminar"),
             lambda: llamadas.append("guardar"),
-            lambda: llamadas.append("vertical"))
+            (lambda: llamadas.append("vertical")) if version_vertical else None,
+            motivo)
 
-    def _items(self, menu):
-        return [item for item in menu.GetMenuItems()
-                if item.GetItemLabelText()]
-
-    def test_las_acciones_van_en_su_orden(self):
-        llamadas = []
-        menu = self._menu(llamadas)
-        self.addCleanup(menu.Destroy)
+    def test_las_acciones_van_en_su_orden_y_con_su_tecla(self):
+        acciones = self._acciones([])
         self.assertEqual(
-            [item.GetItemLabelText() for item in self._items(menu)],
-            ["Cambiar escena", "Cambiar nombre…", "Duplicar",
-             "Crear la versión vertical", "Eliminar", "Guardar imagen…"])
-
-    def test_cada_elemento_muestra_su_tecla_tras_un_tabulador(self):
-        llamadas = []
-        menu = self._menu(llamadas)
-        self.addCleanup(menu.Destroy)
-        items = self._items(menu)
+            [accion.etiqueta for accion in acciones],
+            ["&Cambiar escena", "Cambiar &nombre…", "&Duplicar",
+             "Crear la versión &vertical", "E&liminar", "&Guardar imagen…"])
         self.assertEqual(
-            [item.GetItemLabel().split("\t")[-1] for item in items[:3]],
-            ["Enter", "F2", "Ctrl+D"])
-        self.assertEqual(items[3].GetItemLabel(), "Crear la versión &vertical")
-        self.assertEqual(items[4].GetItemLabel().split("\t")[-1], "Del")
-        self.assertEqual(items[5].GetItemLabel(), "&Guardar imagen…")
+            [accion.tecla for accion in acciones],
+            ["intro", "f2", "ctrl+d", None, "suprimir", None])
+
+    def test_sin_version_vertical_no_aparece(self):
+        self.assertEqual(
+            [accion.clave for accion in self._acciones(
+                [], version_vertical=False)],
+            ["cambiar", "renombrar", "duplicar", "eliminar", "guardar"])
 
     def test_las_letras_de_acceso_no_se_repiten(self):
-        llamadas = []
-        menu = self._menu(llamadas)
-        self.addCleanup(menu.Destroy)
         letras = {}
-        for item in self._items(menu):
-            letra = _letra_de_acceso(item.GetItemLabel())
-            self.assertIsNotNone(letra, item.GetItemLabel())
-            self.assertNotIn(letra, letras, item.GetItemLabel())
-            letras[letra] = item.GetItemLabel()
+        for accion in self._acciones([]):
+            letra = _letra_de_acceso(accion.etiqueta)
+            self.assertIsNotNone(letra, accion.etiqueta)
+            self.assertNotIn(letra, letras, accion.etiqueta)
+            letras[letra] = accion.etiqueta
 
-    def test_cada_entrada_llama_a_su_accion(self):
-        for indice, accion in enumerate(
+    def test_cada_accion_lleva_el_motivo(self):
+        acciones = self._acciones([], motivo=lambda: "Sin conexión con OBS")
+        self.assertEqual(
+            {accion.motivo() for accion in acciones},
+            {"Sin conexión con OBS"})
+
+    def test_cada_accion_llama_a_la_suya(self):
+        for indice, esperada in enumerate(
                 ("cambiar", "renombrar", "duplicar", "vertical", "eliminar",
                  "guardar")):
             llamadas = []
-            menu = self._menu(llamadas)
-            self.addCleanup(menu.Destroy)
-            item = self._items(menu)[indice]
-            item.GetMenu().ProcessEvent(
-                wx.CommandEvent(wx.EVT_MENU.typeId, item.GetId()))
-            self.assertEqual(llamadas, [accion])
-
-
-class _Evento:
-
-    def __init__(self, codigo, ctrl=False, shift=False):
-        self._codigo = codigo
-        self._ctrl = ctrl
-        self._shift = shift
-
-    def GetKeyCode(self):
-        return self._codigo
-
-    def ControlDown(self):
-        return self._ctrl
-
-    def ShiftDown(self):
-        return self._shift
-
-
-class TestTeclasDeLaLista(unittest.TestCase):
-
-    def test_intro_cambia_la_escena(self):
-        self.assertEqual(
-            escena_menu_escena.accion_de_tecla(_Evento(wx.WXK_RETURN)),
-            "cambiar")
-        self.assertEqual(
-            escena_menu_escena.accion_de_tecla(_Evento(wx.WXK_NUMPAD_ENTER)),
-            "cambiar")
-
-    def test_f2_cambia_el_nombre(self):
-        self.assertEqual(
-            escena_menu_escena.accion_de_tecla(_Evento(wx.WXK_F2)),
-            "renombrar")
-
-    def test_ctrl_d_duplica(self):
-        self.assertEqual(
-            escena_menu_escena.accion_de_tecla(_Evento(ord("D"), ctrl=True)),
-            "duplicar")
-
-    def test_supr_elimina(self):
-        self.assertEqual(
-            escena_menu_escena.accion_de_tecla(_Evento(wx.WXK_DELETE)),
-            "eliminar")
-
-    def test_la_tecla_aplicaciones_y_mayus_f10_abren_el_menu(self):
-        self.assertEqual(
-            escena_menu_escena.accion_de_tecla(
-                _Evento(wx.WXK_WINDOWS_MENU)), "menu")
-        self.assertEqual(
-            escena_menu_escena.accion_de_tecla(
-                _Evento(wx.WXK_F10, shift=True)), "menu")
-
-    def test_otra_tecla_no_hace_nada(self):
-        self.assertIsNone(
-            escena_menu_escena.accion_de_tecla(_Evento(wx.WXK_F3)))
+            self._acciones(llamadas)[indice].manejador()
+            self.assertEqual(llamadas, [esperada])
 
 
 if __name__ == "__main__":

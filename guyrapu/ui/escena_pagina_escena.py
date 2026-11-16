@@ -12,8 +12,9 @@ from guyrapu.obs import escenas_obs
 from guyrapu.obs import nombres_escena
 from guyrapu.obs import obs_estado
 from guyrapu.ui import confirmar, escena_menu_escena, escena_version_vertical
-from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.escena_pagina_fuentes import PaginaFuentes
+from guyrapu.ui.lista_acciones import ListaConAcciones
 from guyrapu.ui.preferencias_comun import (
     boton, fila_campo, nombre_de_etiqueta)
 
@@ -29,12 +30,6 @@ class PaginaEscena(wx.Panel):
         self._escenas = ()
         self._al_aire = ""
         self._crear_controles(ventana, registro, escena_elegida)
-        self._acciones = {
-            "cambiar": self._cambiar_al_aire,
-            "renombrar": self._cambiar_nombre,
-            "duplicar": self._duplicar,
-            "eliminar": self._eliminar,
-        }
         self.acciones = (self.lst_escenas, self.btn_cambiar, self.btn_agregar)
         self._enlazar_eventos()
 
@@ -69,10 +64,14 @@ class PaginaEscena(wx.Panel):
         caja.Add(self.btn_agregar, 0, wx.ALL, 8)
 
     def _enlazar_eventos(self):
+        self._lista = ListaConAcciones(
+            self.lst_escenas,
+            escena_menu_escena.acciones_de_escena(
+                self._cambiar_al_aire, self._cambiar_nombre, self._duplicar,
+                self._eliminar, self._guardar_imagen,
+                self._crear_version_vertical, self._motivo),
+            _("No hay escenas."))
         self.lst_escenas.Bind(wx.EVT_LISTBOX, self._elegir_escena)
-        self.lst_escenas.Bind(wx.EVT_KEY_DOWN, self._tecla_escena)
-        entregar_intro(self.lst_escenas, self._tecla_escena)
-        self.lst_escenas.Bind(wx.EVT_CONTEXT_MENU, self._menu_contextual)
         self.btn_cambiar.Bind(wx.EVT_BUTTON, self._cambiar_al_aire)
         self.btn_agregar.Bind(wx.EVT_BUTTON, self._agregar)
 
@@ -84,30 +83,36 @@ class PaginaEscena(wx.Panel):
         self.pagina_fuentes.cargar(filas, fuente)
 
     def _poner_textos(self):
-        self.lst_escenas.Set([
+        self._lista.fijar(self._textos())
+
+    def _textos(self):
+        return [
             nombres_escena.texto_de_fila(nombre, cantidad,
                                          nombre == self._al_aire)
-            for nombre, cantidad in self._escenas])
+            for nombre, cantidad in self._escenas]
 
     def _seleccionar(self, escena):
         indice = next(
             (i for i, (nombre, _cantidad) in enumerate(self._escenas)
-             if nombre == escena), wx.NOT_FOUND)
-        if indice == wx.NOT_FOUND and self._escenas:
-            indice = 0
-        self.lst_escenas.SetSelection(indice)
+             if nombre == escena), None)
+        self._lista.fijar(self._textos(), indice)
 
     def escena(self):
-        indice = self.lst_escenas.GetSelection()
-        if 0 <= indice < len(self._escenas):
-            return self._escenas[indice][0]
-        return ""
+        indice = self._lista.indice()
+        if indice is None:
+            return ""
+        return self._escenas[indice][0]
 
     def _nombres(self):
         return tuple(nombre for nombre, _cantidad in self._escenas)
 
+    def _motivo(self):
+        if self._operaciones.sin_conexion():
+            return _("Sin conexión con OBS")
+        return ""
+
     def _elegir_escena(self, event):
-        if not self._operaciones.puede_correr():
+        if self._operaciones.motivo_para_no_correr():
             return
         self._al_elegir(self.escena())
         event.Skip()
@@ -165,32 +170,6 @@ class PaginaEscena(wx.Panel):
         inventario = escenas_obs.inventario(self._gestor, escenas)
         leida = consultas_transmision.leer_escena(self._gestor, escena)
         return inventario, escena, al_aire, leida
-
-    def _menu_contextual(self, _event):
-        self._mostrar_menu(self.lst_escenas)
-
-    def _mostrar_menu(self, ancla):
-        if not self._operaciones.puede_correr():
-            return
-        if not self.escena():
-            anunciar(_("Sin selección"))
-            return
-        menu = escena_menu_escena.menu_de_escena(
-            self._cambiar_al_aire, self._cambiar_nombre, self._duplicar,
-            self._eliminar, self._guardar_imagen,
-            self._crear_version_vertical)
-        ancla.PopupMenu(menu)
-        menu.Destroy()
-
-    def _tecla_escena(self, event):
-        accion = escena_menu_escena.accion_de_tecla(event)
-        if accion is None:
-            event.Skip()
-            return
-        if accion == "menu":
-            self._mostrar_menu(self.lst_escenas)
-            return
-        self._acciones[accion]()
 
     def _pedir_nombre(self, titulo, inicial, excepto=""):
         while True:

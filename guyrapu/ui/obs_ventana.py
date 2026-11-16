@@ -185,13 +185,15 @@ class VentanaObs(wx.Dialog):
         return self._pagina_escena.escena()
 
     def _elegir_escena(self, escena):
-        if not self._operaciones.puede_correr():
+        if self._operaciones.motivo_para_no_correr():
             return
         self._en_hilo(
             lambda: consultas_transmision.leer_escena(self._gestor, escena),
-            self._escena_leida)
+            lambda leida: self._escena_leida(escena, leida))
 
-    def _escena_leida(self, leida):
+    def _escena_leida(self, escena, leida):
+        if self._pagina_escena.escena() not in ("", escena):
+            return self._elegir_escena(self._pagina_escena.escena())
         self._pagina_fuentes.cargar(leida.filas, leida.fuente)
         if leida.descripcion:
             anunciar(leida.descripcion.splitlines()[0])

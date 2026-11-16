@@ -214,6 +214,7 @@ class TestVentanaObs(unittest.TestCase):
             mock.patch.object(escena_captura_ventana, "anunciar", anunciar),
             mock.patch.object(gui_microfono, "anunciar", anunciar),
             mock.patch.object(mover_con_flechas, "anunciar", anunciar),
+            mock.patch.object(operaciones_obs, "anunciar", anunciar),
             mock.patch.object(operaciones_obs, "avisar", avisar),
             mock.patch.object(gui_grabaciones.grabaciones, "existentes",
                               return_value=[]),
@@ -285,17 +286,16 @@ class TestVentanaObs(unittest.TestCase):
     def _menu_de_escena(self, pagina, al_elegir=None):
         etiquetas = []
         textos = []
-
-        def falso_popup(menu):
+        menu = pagina._lista._construir_menu()
+        try:
             for item in _items_del_menu(menu):
                 etiquetas.append(item.GetItemLabelText())
                 textos.append(item.GetItemLabel())
                 if item.GetItemLabelText() == al_elegir:
                     item.GetMenu().ProcessEvent(
                         wx.CommandEvent(wx.EVT_MENU.typeId, item.GetId()))
-
-        with mock.patch.object(pagina.lst_escenas, "PopupMenu", falso_popup):
-            pagina._mostrar_menu(pagina.lst_escenas)
+        finally:
+            menu.Destroy()
         return etiquetas, textos
 
     def _dialogo_de_nombre(self, valores):
@@ -573,60 +573,131 @@ class TestVentanaObs(unittest.TestCase):
         self.assertEqual(textos[4].split("\t")[-1], "Del")
         self.assertEqual(textos[5], "&Guardar imagen…")
 
-    def test_cada_entrada_del_menu_de_la_escena_llama_a_su_accion(self):
+    def test_cada_accion_de_la_lista_llama_a_su_metodo(self):
         pagina = self.dialogo._pagina_escena
-        self._elegir_escena(pagina, "Principal")
-        for etiqueta, accion in (
-                ("Cambiar escena", "_cambiar_al_aire"),
-                ("Cambiar nombre…", "_cambiar_nombre"),
-                ("Duplicar", "_duplicar"),
-                ("Crear la versión vertical", "_crear_version_vertical"),
-                ("Eliminar", "_eliminar"),
-                ("Guardar imagen…", "_guardar_imagen")):
-            with mock.patch.object(pagina, accion) as llamada:
-                self._menu_de_escena(pagina, etiqueta)
-            llamada.assert_called_once_with()
+        metodos = {
+            "cambiar": pagina._cambiar_al_aire,
+            "renombrar": pagina._cambiar_nombre,
+            "duplicar": pagina._duplicar,
+            "vertical": pagina._crear_version_vertical,
+            "eliminar": pagina._eliminar,
+            "guardar": pagina._guardar_imagen,
+        }
+        for accion in pagina._lista._acciones:
+            self.assertEqual(accion.manejador, metodos[accion.clave])
 
-    def test_las_teclas_de_la_lista_ejecutan_las_acciones(self):
+    def test_las_teclas_de_la_lista_dan_sus_acciones(self):
         pagina = self.dialogo._pagina_escena
-        for tecla, accion, control in (
-                (wx.WXK_RETURN, "cambiar", False),
-                (wx.WXK_F2, "renombrar", False),
-                (ord("D"), "duplicar", True),
-                (wx.WXK_DELETE, "eliminar", False)):
-            llamada = mock.Mock()
-            with mock.patch.dict(pagina._acciones, {accion: llamada}):
-                evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
-                evento.KeyCode = tecla
-                evento.SetControlDown(control)
-                pagina.lst_escenas.ProcessEvent(evento)
-            llamada.assert_called_once_with()
+        for tecla, control, accion in (
+                (wx.WXK_RETURN, False, "cambiar"),
+                (wx.WXK_F2, False, "renombrar"),
+                (ord("D"), True, "duplicar"),
+                (wx.WXK_DELETE, False, "eliminar")):
+            modificadores = wx.MOD_CONTROL if control else wx.MOD_NONE
+            with self.subTest(tecla=tecla):
+                self.assertEqual(
+                    lista_acciones.clave_de_tecla(
+                        tecla, modificadores, pagina._lista._acciones),
+                    accion)
 
     def test_intro_por_char_hook_cambia_la_escena(self):
         pagina = self.dialogo._pagina_escena
-        llamada = mock.Mock()
+        self._elegir_escena(pagina, "Juego")
         evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
         evento.KeyCode = wx.WXK_RETURN
-        with mock.patch.dict(pagina._acciones, {"cambiar": llamada}):
-            pagina.lst_escenas.GetEventHandler().ProcessEvent(evento)
-        llamada.assert_called_once_with()
+        pagina.lst_escenas.GetEventHandler().ProcessEvent(evento)
+        self.assertIn(("poner_escena_al_aire", "Juego"), self.gestor.llamadas)
 
     def test_la_tecla_aplicaciones_abre_el_menu_de_la_escena(self):
         pagina = self.dialogo._pagina_escena
         evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
         evento.KeyCode = wx.WXK_WINDOWS_MENU
-        with mock.patch.object(pagina, "_mostrar_menu") as mostrar:
+        with mock.patch.object(pagina.lst_escenas, "PopupMenu") as popup:
             pagina.lst_escenas.ProcessEvent(evento)
-        mostrar.assert_called_once_with(pagina.lst_escenas)
+        popup.assert_called_once()
 
     def test_mayus_f10_abre_el_mismo_menu_de_la_escena(self):
         pagina = self.dialogo._pagina_escena
         evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
         evento.KeyCode = wx.WXK_F10
         evento.SetShiftDown(True)
-        with mock.patch.object(pagina, "_mostrar_menu") as mostrar:
+        with mock.patch.object(pagina.lst_escenas, "PopupMenu") as popup:
             pagina.lst_escenas.ProcessEvent(evento)
-        mostrar.assert_called_once_with(pagina.lst_escenas)
+        popup.assert_called_once()
+
+    def test_cambiar_la_escena_con_una_lectura_en_vuelo_no_anuncia(self):
+        pagina = self.dialogo._pagina_escena
+        for estado in ("en_vuelo", "sin_conexion"):
+            with self.subTest(estado=estado):
+                self.anuncios.clear()
+                self.gestor.fallo = estado == "sin_conexion"
+                self.dialogo._operaciones.en_vuelo = estado == "en_vuelo"
+                self._elegir_escena(pagina, "Juego")
+                self.assertEqual(self.anuncios, [])
+        self.dialogo._operaciones.en_vuelo = False
+        self.gestor.fallo = False
+
+    def test_al_terminar_una_lectura_con_otra_elegida_se_lee_la_elegida(self):
+        pagina = self.dialogo._pagina_escena
+        pendientes = []
+
+        def en_hilo(funcion, al_terminar=None):
+            pendientes.append((funcion, al_terminar))
+
+        with mock.patch.object(
+                self.dialogo._operaciones, "en_hilo", side_effect=en_hilo):
+            self.dialogo._elegir_escena("Principal")
+            self.dialogo._operaciones.en_vuelo = True
+            self._elegir_escena(pagina, "Juego")
+            self.dialogo._operaciones.en_vuelo = False
+            funcion, al_terminar = pendientes.pop(0)
+            al_terminar(funcion())
+            self.assertEqual(len(pendientes), 1)
+            funcion, al_terminar = pendientes.pop(0)
+            al_terminar(funcion())
+        self.assertEqual(
+            self.dialogo._pagina_fuentes.lst_fuentes.GetStrings(),
+            ["Captura"])
+
+    def test_sin_conexion_el_menu_de_la_escena_muestra_el_motivo(self):
+        pagina = self.dialogo._pagina_escena
+        self.gestor.fallo = True
+        etiquetas, _textos = self._menu_de_escena(pagina)
+        self.assertEqual(
+            len([etiqueta for etiqueta in etiquetas
+                 if etiqueta.endswith("(sin conexión con OBS)")]),
+            len(etiquetas))
+        self.anuncios.clear()
+        self._menu_de_escena(
+            pagina, "Cambiar escena (sin conexión con OBS)")
+        self.assertEqual(self.anuncios, ["Sin conexión con OBS."])
+
+    def test_sin_escenas_la_lista_muestra_la_fila_de_vacio(self):
+        self.gestor.escenas_por_nombre = {}
+        self.gestor.escena_resultante = ""
+        dialogo = self._crear()
+        pagina = dialogo._pagina_escena
+        self.assertEqual(pagina.lst_escenas.GetStrings(), ["No hay escenas."])
+        self.assertEqual(pagina.lst_escenas.GetSelection(), 0)
+        self.assertEqual(pagina.escena(), "")
+
+    def test_sin_escenas_aplicaciones_abre_el_menu_apagado(self):
+        self.gestor.escenas_por_nombre = {}
+        self.gestor.escena_resultante = ""
+        dialogo = self._crear()
+        pagina = dialogo._pagina_escena
+        campos = []
+
+        def falso_popup(menu):
+            campos.extend(item.IsEnabled() for item in _items_del_menu(menu))
+
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = wx.WXK_WINDOWS_MENU
+        with mock.patch.object(
+                pagina.lst_escenas, "PopupMenu", falso_popup):
+            pagina.lst_escenas.ProcessEvent(evento)
+        self.assertTrue(campos)
+        self.assertFalse(any(campos))
 
     def test_guardar_imagen_sale_de_la_pestana_y_usa_la_escena_elegida(self):
         pagina = self.dialogo._pagina_escena

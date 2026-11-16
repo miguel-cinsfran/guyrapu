@@ -14222,3 +14222,7 @@ msgstr "There are no scheduled messages."
 msgid "No hay entradas de {plataforma}."
 msgstr "No entries for {plataforma}."
 
+#: guyrapu/ui/escena_pagina_escena.py
+msgid "No hay escenas."
+msgstr "There are no scenes."
+

@@ -1,53 +1,28 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Menú contextual y teclas de la lista de escenas del Panel de OBS."""
+"""Acciones de la lista de escenas del Panel de OBS."""
 
 from __future__ import annotations
 
-import wx
+from guyrapu.core.idioma import N_, _
+from guyrapu.ui.lista_acciones import Accion
 
-from guyrapu.core.idioma import _
-
-ACCIONES = {
-    wx.WXK_RETURN: "cambiar",
-    wx.WXK_NUMPAD_ENTER: "cambiar",
-    wx.WXK_F2: "renombrar",
-    wx.WXK_DELETE: "eliminar",
-    wx.WXK_NUMPAD_DELETE: "eliminar",
-}
-
-
-def menu_de_escena(cambiar, renombrar, duplicar, eliminar, guardar,
-                   version_vertical=None):
-    """Arma el menú de la escena elegida, con la tecla a la vista."""
-    menu = wx.Menu()
-    _acciones(menu, cambiar, renombrar, duplicar, eliminar, version_vertical)
-    menu.AppendSeparator()
-    _accion(menu, _("&Guardar imagen…"), guardar)
-    return menu
+_ACCIONES = (
+    ("cambiar", N_("&Cambiar escena"), "intro"),
+    ("renombrar", N_("Cambiar &nombre…"), "f2"),
+    ("duplicar", N_("&Duplicar"), "ctrl+d"),
+    ("vertical", N_("Crear la versión &vertical"), None),
+    ("eliminar", N_("E&liminar"), "suprimir"),
+    ("guardar", N_("&Guardar imagen…"), None),
+)
 
 
-def _acciones(menu, cambiar, renombrar, duplicar, eliminar, version_vertical):
-    _accion(menu, _("&Cambiar escena") + "\tEnter", cambiar)
-    _accion(menu, _("Cambiar &nombre…") + "\tF2", renombrar)
-    _accion(menu, _("&Duplicar") + "\tCtrl+D", duplicar)
-    if version_vertical is not None:
-        _accion(menu, _("Crear la versión &vertical"), version_vertical)
-    _accion(menu, _("E&liminar") + "\tDel", eliminar)
-
-
-def accion_de_tecla(evento):
-    """La acción de la lista para esa tecla, o None si no le toca."""
-    codigo = evento.GetKeyCode()
-    if codigo == ord("D") and evento.ControlDown():
-        return "duplicar"
-    if (codigo == wx.WXK_WINDOWS_MENU
-            or (codigo == wx.WXK_F10 and evento.ShiftDown())):
-        return "menu"
-    return ACCIONES.get(codigo)
-
-
-def _accion(menu, etiqueta, funcion):
-    identificador = wx.NewIdRef()
-    menu.Append(identificador, etiqueta)
-    menu.Bind(wx.EVT_MENU, lambda _evento: funcion(), id=identificador)
+def acciones_de_escena(cambiar, renombrar, duplicar, eliminar, guardar,
+                       version_vertical=None, motivo=None):
+    """Las acciones de la escena elegida, en el orden del menú."""
+    manejadores = (cambiar, renombrar, duplicar, version_vertical, eliminar,
+                   guardar)
+    return tuple(
+        Accion(clave, _(etiqueta), manejador, tecla=tecla, motivo=motivo)
+        for (clave, etiqueta, tecla), manejador in zip(_ACCIONES, manejadores)
+        if clave != "vertical" or version_vertical is not None)
