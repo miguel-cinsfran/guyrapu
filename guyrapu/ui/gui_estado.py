@@ -82,63 +82,82 @@ def _tipo_sesion(frame):
     return ""
 
 
+def _campos_directo(frame, meta):
+    from guyrapu.ui import gui as _gui
+
+    def _texto_atajo_directo():
+        at = (frame._atajos or {}).get("rep_directo")
+        return at.texto if at is not None else ""
+    return {
+        "titulo": frame._titulo_stream,
+        "canal": (meta.get("canal") or "").strip(),
+        "espectadores": _entero_en(meta, "vistas"),
+        "espectadores_total": _entero_en(meta, "vistas_total"),
+        "segundos_directo": _seguro(lambda: int(_gui.time.time() - datetime.fromisoformat(
+            meta["comienzo_directo"].replace("Z", "+00:00")).timestamp()), None),
+        "desfase_directo": _seguro(lambda: frame._rep_panel.frase_posicion_directo() if frame._rep_panel._desfase_relevo_segundos() > 0 else "", ""),
+        "atajo_directo": _seguro(
+            lambda: _gui.atajos_captura.atajo_legible(_texto_atajo_directo()), ""),
+    }
+
+
+def _campos_lectura(frame):
+    from guyrapu.ui import gui as _gui
+    return {
+        "mensajes_leidos": _seguro(lambda: frame._stats.leidos, 0),
+        "aportes": _seguro(lambda: frame._stats.superchats, 0),
+        "total_aportes": frame._total_aportes_texto(),
+        "encuesta": _seguro(lambda: encuestas.registro.en_curso(), ""),
+        "batalla": _seguro(lambda: batallas.registro.en_curso(), ""),
+        "meta": _seguro(lambda: metas.registro.en_curso(), ""),
+        "en_cola": _seguro(lambda: frame._cola.qsize(), 0),
+        "voz_velocidad": _seguro(lambda: frame._worker.get_rate(), 0),
+        "voz_volumen": _seguro(lambda: frame._worker.get_volume(), 0),
+        "lectura_silenciada": bool(frame._config.get("silenciar_lectura", False)),
+        "programados_proximo": (
+            _gui.programados.describir_proximo(frame.programador.mensajes, _gui.time.time())
+            if frame._config.get("programados_activo", False) else ""),
+        "descartados": _gui.descartes.frase_estado(
+            _seguro(lambda: frame._stats.descartados, 0)),
+    }
+
+
+def _campos_obs(frame):
+    from guyrapu.ui import gui as _gui
+    estado_obs = _seguro(lambda: frame._obs_vigilante.estado(), None)
+    transmision = estado_obs.transmision if estado_obs else None
+    grabacion = estado_obs.grabacion if estado_obs else None
+    return {
+        "obs_transmision": (_gui.obs_estado.frase_transmision(
+            transmision["outputActive"], transmision["outputDuration"],
+            transmision["outputSkippedFrames"], transmision["outputTotalFrames"])
+            if transmision else ""),
+        "obs_grabacion": (_gui.obs_estado.frase_grabacion(
+            grabacion["outputActive"], grabacion["outputPaused"],
+            grabacion["outputTimecode"]) if grabacion else ""),
+        "obs_escena": (_gui.obs_estado.frase_escena_al_aire(estado_obs.escena)
+                       if estado_obs else ""),
+        "transmision_supervisada": _supervisada(frame),
+    }
+
+
 def snapshot_sesion(frame):
     """Reúne el estado actual para F2. Los datos del vídeo salen de los
     metadatos capturados al conectar (título, canal, espectadores)."""
     from guyrapu.ui import gui as _gui
-    tipo = _tipo_sesion(frame)
     meta = frame._metadatos or {}
-    espectadores = _entero_en(meta, "vistas")
-    espectadores_total = _entero_en(meta, "vistas_total")
-    def _texto_atajo_directo():
-        at = (frame._atajos or {}).get("rep_directo")
-        return at.texto if at is not None else ""
-    estado_obs = _seguro(lambda: frame._obs_vigilante.estado(), None)
-    transmision = estado_obs.transmision if estado_obs else None
-    grabacion = estado_obs.grabacion if estado_obs else None
-    supervisada = _supervisada(frame)
     return _gui.estado_sesion.SnapshotSesion(
         conectado=frame._conectado,
-        tipo=tipo,
-        titulo=frame._titulo_stream,
-        canal=(meta.get("canal") or "").strip(),
-        espectadores=espectadores,
-        espectadores_total=espectadores_total,
+        tipo=_tipo_sesion(frame),
+        **_campos_directo(frame, meta),
         **_seguro(chat_adicional.campos_de_estado, {}),
-        segundos_directo=_seguro(lambda: int(_gui.time.time() - datetime.fromisoformat(
-            meta["comienzo_directo"].replace("Z", "+00:00")).timestamp()), None),
-        desfase_directo=_seguro(lambda: frame._rep_panel.frase_posicion_directo() if frame._rep_panel._desfase_relevo_segundos() > 0 else "", ""),
-        atajo_directo=_seguro(
-            lambda: _gui.atajos_captura.atajo_legible(_texto_atajo_directo()), ""),
-        mensajes_leidos=_seguro(lambda: frame._stats.leidos, 0),
-        aportes=_seguro(lambda: frame._stats.superchats, 0),
-        total_aportes=frame._total_aportes_texto(),
-        encuesta=_seguro(lambda: encuestas.registro.en_curso(), ""),
-        batalla=_seguro(lambda: batallas.registro.en_curso(), ""),
-        meta=_seguro(lambda: metas.registro.en_curso(), ""),
-        en_cola=_seguro(lambda: frame._cola.qsize(), 0),
-        voz_velocidad=_seguro(lambda: frame._worker.get_rate(), 0),
-        voz_volumen=_seguro(lambda: frame._worker.get_volume(), 0),
-        lectura_silenciada=bool(frame._config.get("silenciar_lectura", False)),
+        **_campos_lectura(frame),
         overlay_puerto=_gui.overlay_servidor.puerto_actual(),
         overlay_clientes=_gui.overlay_servidor.cuantos_miran(),
-        programados_proximo=(
-            _gui.programados.describir_proximo(frame.programador.mensajes, _gui.time.time())
-            if frame._config.get("programados_activo", False) else ""),
-        descartados=_gui.descartes.frase_estado(
-            _seguro(lambda: frame._stats.descartados, 0)),
-        musica=_seguro(lambda: frame._musica.texto_estado(), ""), igualando=_seguro(lambda: frame._musica.texto_igualando(), ""),
+        musica=_seguro(lambda: frame._musica.texto_estado(), ""),
+        igualando=_seguro(lambda: frame._musica.texto_igualando(), ""),
         camara=_seguro(lambda: _texto_camara(frame), ""),
-        obs_transmision=(_gui.obs_estado.frase_transmision(
-            transmision["outputActive"], transmision["outputDuration"],
-            transmision["outputSkippedFrames"], transmision["outputTotalFrames"])
-            if transmision else ""),
-        obs_grabacion=(_gui.obs_estado.frase_grabacion(
-            grabacion["outputActive"], grabacion["outputPaused"],
-            grabacion["outputTimecode"]) if grabacion else ""),
-        obs_escena=(_gui.obs_estado.frase_escena_al_aire(estado_obs.escena)
-                    if estado_obs else ""),
-        transmision_supervisada=supervisada,
+        **_campos_obs(frame),
         cuota_youtube=_seguro(_cuota_youtube, None),
     )
 
