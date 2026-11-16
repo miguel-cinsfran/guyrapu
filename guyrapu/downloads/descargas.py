@@ -25,17 +25,14 @@ from guyrapu.core.config import obtener_opciones_descarga
 from guyrapu.core.idioma import _
 from guyrapu.downloads import ffmpeg_bin
 from guyrapu.downloads import fila_descargas
+from guyrapu.downloads import proceso_descarga
 from guyrapu.downloads import ytdlp_bin
 from guyrapu.downloads.analisis_enlace import (
-    TIEMPO_ESPERA_ANALISIS, analizar_url, _sin_ventana)
+    TIEMPO_ESPERA_ANALISIS, analizar_url)
 from guyrapu.downloads.opciones_formato import SIMULTANEAS_DEFECTO
 from guyrapu.downloads.argumentos_ytdlp import (
-    argumentos_descarga, carpeta_base, construir_outtmpl, recortar_url_registro)
-from guyrapu.downloads.proceso_ytdlp import (
-    _matar_arbol, _vigilar_cancelacion)
-from guyrapu.downloads.progreso_ytdlp import (
-    PREFIJO_RUTA_FINAL, resultado_final, tratar_linea)
-from guyrapu.downloads.restos_descarga import limpiar_restos_descarga
+    argumentos_descarga, carpeta_base, recortar_url_registro)
+from guyrapu.downloads.progreso_ytdlp import PREFIJO_RUTA_FINAL
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -61,6 +58,31 @@ class ItemDescarga:
 # ── Helpers puros (testeables en Linux) ──────────────────────────────────────
 
 
+def _comprobar_herramientas(estado_cb: Callable) -> Optional[str]:
+    ruta = ytdlp_bin.ruta_ytdlp()
+    if ruta is None:
+        estado_cb("error", _("yt-dlp no está instalado"))
+        return None
+
+    if not tiene_ffmpeg():
+        # Error CLARO (no el genérico de yt-dlp) para que el usuario ciego
+        # sepa exactamente qué falta. La GUI ya hace 3-vías con este mensaje.
+        estado_cb("error",
+                   _("ffmpeg no encontrado. La descarga necesita ffmpeg para "
+                     "unir audio y vídeo o extraer audio. Usa la versión "
+                     "empaquetada o instala ffmpeg. En desarrollo, basta "
+                     "con tener ffmpeg en el PATH."))
+        return None
+    return ruta
+
+
+def _estado_inicial() -> dict:
+    return {"ultimo_error": "", "ultimo_archivo": "", "ultimo_ts": None,
+            "rutas": [], "indice": 0, "total": 0, "procesando": False,
+            "ultimo_avance": None, "estancado": False,
+            "esperando_detalle": False}
+
+
 def descargar(url: str, opciones: dict,
               progreso_cb: Callable, estado_cb: Callable,
               cancel_event: threading.Event, al_detalle=None) -> None:
@@ -80,74 +102,21 @@ def descargar(url: str, opciones: dict,
       - al_detalle(cambios: dict): opcional; avisa la ruta de cada archivo
         terminado, el índice y el total de la lista, y si yt-dlp procesa.
     """
-    ruta = ytdlp_bin.ruta_ytdlp()
+    ruta = _comprobar_herramientas(estado_cb)
     if ruta is None:
-        estado_cb("error", _("yt-dlp no está instalado"))
-        return
-
-    if not tiene_ffmpeg():
-        # Error CLARO (no el genérico de yt-dlp) para que el usuario ciego
-        # sepa exactamente qué falta. La GUI ya hace 3-vías con este mensaje.
-        estado_cb("error",
-                   _("ffmpeg no encontrado. La descarga necesita ffmpeg para "
-                     "unir audio y vídeo o extraer audio. Usa la versión "
-                     "empaquetada o instala ffmpeg. En desarrollo, basta "
-                     "con tener ffmpeg en el PATH."))
         return
 
     enumerar = bool(opciones.get("enumerar", False))
     carpeta = carpeta_base(opciones)
     al_detalle = al_detalle or (lambda _cambios: None)
-    estado = {"ultimo_error": "", "ultimo_archivo": "", "ultimo_ts": None,
-              "rutas": [], "indice": 0, "total": 0, "procesando": False,
-              "ultimo_avance": None, "estancado": False,
-              "esperando_detalle": False}
-
-    def cancelar(proceso) -> None:
-        _matar_arbol(proceso)
-        proceso.wait()
-        borrados = limpiar_restos_descarga(carpeta, estado["ultimo_archivo"])
-        if borrados:
-            logger.info("descarga cancelada: borrados %d restos", len(borrados))
-        estado_cb("cancelado", _("Descarga cancelada"))
+    estado = _estado_inicial()
 
     estado_cb("descargando", "")
     try:
-        proceso = subprocess.Popen(
-            [ruta, *argumentos_descarga(url, opciones, enumerar)],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            encoding="utf-8", errors="replace",
-            creationflags=_sin_ventana(),
-        )
-        try:
-            from guyrapu.core.subprocesos import vincular_a_la_app
-            vincular_a_la_app(proceso)
-        except Exception as error:
-            logger.debug("no se pudo vincular la descarga a la app: %s", error)
-        estado["ultimo_avance"] = time.monotonic()
-        if cancel_event.is_set():
-            cancelar(proceso)
-            return
-        diagnostico.crear_hilo(
-            _vigilar_cancelacion, "Vigilante-cancelacion",
-            args=(proceso, cancel_event, 0.2, estado),
-        ).start()
-        for linea in iter(proceso.stdout.readline, ""):
-            if cancel_event.is_set():
-                cancelar(proceso)
-                return
-            tratar_linea(linea, estado, progreso_cb, al_detalle)
-        proceso.wait()
-        cancelado = cancel_event.is_set()
-        if cancelado:
-            limpiar_restos_descarga(carpeta, estado["ultimo_archivo"])
-            codigo = None
-        else:
-            codigo = proceso.returncode
-            if codigo != 0 and estado["ultimo_error"]:
-                logger.warning("yt-dlp terminó con código %s: %s",
-                               codigo, estado["ultimo_error"])
-        estado_cb(*resultado_final(codigo, cancelado, estado))
+        proceso = proceso_descarga.lanzar_proceso(
+            ruta, argumentos_descarga(url, opciones, enumerar))
+        proceso_descarga.leer_salida(proceso, cancel_event, carpeta, estado,
+                                     progreso_cb, estado_cb, al_detalle)
     except OSError as exc:
         logger.warning("descargar falló: %s", exc)
         estado_cb("error", str(exc) or exc.__class__.__name__)

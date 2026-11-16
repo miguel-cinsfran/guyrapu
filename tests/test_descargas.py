@@ -451,7 +451,7 @@ class TestDescargar(unittest.TestCase):
                                        return_value=True), \
                     mock.patch.object(descargas, "argumentos_descarga",
                                        return_value=[str(falso)]), \
-                    self.assertLogs(descargas.logger,
+                    self.assertLogs(descargas.proceso_descarga.logger,
                                      level="WARNING") as registro:
                 descargar("url", {"formato": "mp4", "carpeta": tmp},
                           lambda *a: None, lambda *a: estados.append(a),
@@ -1436,7 +1436,8 @@ class TestDescargarCarpetaBase(unittest.TestCase):
                 mock.patch.object(descargas, "tiene_ffmpeg", return_value=True), \
                 mock.patch.object(descargas.subprocess, "Popen",
                                    return_value=proceso) as popen, \
-                mock.patch.object(descargas, "limpiar_restos_descarga",
+                mock.patch.object(descargas.proceso_descarga,
+                                   "limpiar_restos_descarga",
                                    return_value=[]) as limpiar:
             descargas.descargar("url", opciones, lambda *a: None,
                                 lambda *a: None, evento)
