@@ -43,6 +43,9 @@ class ControlFalso:
     def carpeta_listas(self):
         return None
 
+    def _carpeta(self):
+        return ""
+
     def temas_de_lista(self, nombre):
         return ()
 
