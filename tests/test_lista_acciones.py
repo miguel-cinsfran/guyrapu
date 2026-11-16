@@ -11,13 +11,15 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.ui import lista_acciones
 
 
-def _accion(clave, tecla=None, necesita_elemento=True, manejador=None):
+def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
+            motivo=None):
     return lista_acciones.Accion(
         clave=clave,
         etiqueta="&" + clave.capitalize(),
         manejador=manejador or (lambda: None),
         tecla=tecla,
-        necesita_elemento=necesita_elemento)
+        necesita_elemento=necesita_elemento,
+        motivo=motivo)
 
 
 ACCIONES = (
@@ -83,6 +85,62 @@ class PruebaPartePura(unittest.TestCase):
         self.assertEqual(
             lista_acciones.etiqueta_de_menu(acciones[0]),
             "&Duplicar\tCtrl+D")
+
+    def test_ctrl_c_da_su_accion_solo_si_una_la_declara(self):
+        acciones = (_accion("copiar", "ctrl+c"),)
+        self.assertEqual(
+            lista_acciones.clave_de_tecla(
+                ord("C"), wx.MOD_CONTROL, acciones),
+            "copiar")
+        self.assertEqual(
+            lista_acciones.clave_de_tecla(
+                ord("c"), wx.MOD_CONTROL, acciones),
+            "copiar")
+        self.assertIsNone(lista_acciones.clave_de_tecla(
+            ord("C"), wx.MOD_CONTROL | wx.MOD_ALT, acciones))
+        self.assertIsNone(lista_acciones.clave_de_tecla(
+            ord("C"), wx.MOD_NONE, ACCIONES))
+        self.assertEqual(
+            lista_acciones.etiqueta_de_menu(acciones[0]),
+            "&Copiar\tCtrl+C")
+
+    def test_la_etiqueta_del_menu_lleva_el_motivo(self):
+        con_motivo = _accion(
+            "responder", tecla="intro",
+            motivo=lambda: "Sin sesión de YouTube")
+        self.assertEqual(
+            lista_acciones.etiqueta_de_menu(con_motivo),
+            "&Responder (sin sesión de YouTube)\tEnter")
+        sin_motivo = _accion("responder", motivo=lambda: "")
+        self.assertEqual(
+            lista_acciones.etiqueta_de_menu(sin_motivo),
+            "&Responder")
+
+    def test_una_accion_con_motivo_anuncia_el_motivo_y_no_corre(self):
+        llamadas = []
+        acciones = (_accion(
+            "responder", necesita_elemento=False,
+            manejador=lambda: llamadas.append("responder"),
+            motivo=lambda: "Sin sesión de YouTube"),)
+        pieza = lista_acciones.ListaConAcciones(
+            mock.Mock(), acciones, "Sin elementos.")
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.assertTrue(pieza.ejecutar("responder"))
+        anunciar.assert_called_once_with("Sin sesión de YouTube.")
+        self.assertEqual(llamadas, [])
+
+    def test_una_accion_con_motivo_vacio_corre_como_siempre(self):
+        llamadas = []
+        acciones = (_accion(
+            "responder", necesita_elemento=False,
+            manejador=lambda: llamadas.append("responder"),
+            motivo=lambda: ""),)
+        pieza = lista_acciones.ListaConAcciones(
+            mock.Mock(), acciones, "Sin elementos.")
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.assertTrue(pieza.ejecutar("responder"))
+        anunciar.assert_not_called()
+        self.assertEqual(llamadas, ["responder"])
 
 
 class PruebaListaConVacio(unittest.TestCase):

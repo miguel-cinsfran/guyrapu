@@ -14,7 +14,6 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core import diagnostico
-from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.youtube import credenciales
 from guyrapu.youtube import youtube_api
@@ -24,8 +23,8 @@ from guyrapu.ui import confirmar
 from guyrapu.ui.gui_redactar import DialogoRedactar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.aviso_importante import avisar
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.gui import copiar_al_portapapeles
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.tema import _T, _tc, _pintar
 
 logger = diagnostico.obtener_logger(__name__)
@@ -117,17 +116,22 @@ class ComentariosPanel(wx.Panel):
 
         self.btn_mas.Bind(wx.EVT_BUTTON, lambda e: self._cargar_pagina(self._next_token, desde_boton=True))
         self.btn_comentar.Bind(wx.EVT_BUTTON, lambda e: self._comentar())
-        self.lb.Bind(wx.EVT_LISTBOX_DCLICK, lambda e: self._leer())
-        self._enlazar_eventos_lista()
-        # Type-ahead: escribir letras seguidas salta al comentario que empiece
-        # así (mismo helper que el chat en vivo; ver gui.instalar_busqueda_tipo).
-        instalar_busqueda_tipo(
-            self.lb, lambda: [self.lb.GetString(i) for i in range(self.lb.GetCount())])
+        self._crear_lista_acciones()
 
-    def _enlazar_eventos_lista(self):
-        self.lb.Bind(wx.EVT_KEY_DOWN, self._on_key)
-        self.lb.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
-        self.lb.Bind(wx.EVT_CONTEXT_MENU, self._on_context_menu)
+    def _crear_lista_acciones(self):
+        self._lista_acciones = ListaConAcciones(
+            self.lb,
+            (
+                Accion("leer", _("Leer en voz alta"), self._leer,
+                       tecla="intro"),
+                Accion("copiar", _("Copiar comentario"), self._copiar,
+                       tecla="ctrl+c"),
+                Accion("copiar_todo", _("Copiar todo (autor: comentario)"),
+                       self._copiar_todo),
+                Accion("responder", _("Responder…"), self._responder,
+                       motivo=self._motivo_responder),
+            ),
+            _("No hay comentarios para mostrar."))
 
     def _actualizar_botones(self):
         motivo = redaccion.motivo_comentario(
@@ -164,7 +168,7 @@ class ComentariosPanel(wx.Panel):
         self._cargando = False
         self._video_id = video_id
         self._comentarios_cerrados = False
-        self.lb.Clear()
+        self._lista_acciones.fijar([])
         self._coms.clear()
         self._ids_vistos.clear()
         self._next_token = ""
@@ -179,9 +183,8 @@ class ComentariosPanel(wx.Panel):
         self._mostrar_aviso(texto)
 
     def _mostrar_aviso(self, texto: str) -> None:
-        self.lb.Clear()
         self._coms.clear()
-        self.lb.Append(texto)
+        self._lista_acciones.fijar([], vacio=texto)
 
     def anclar_foco(self) -> None:
         try:    self.lb.SetFocus()
@@ -195,6 +198,11 @@ class ComentariosPanel(wx.Panel):
     def _motivo_lectura(self) -> str:
         return redaccion.motivo_lectura_comentarios(
             youtube_api.google_disponible(), credenciales.hay_lectura(), bool(self._video_id))
+
+    def _motivo_responder(self) -> str:
+        if credenciales.hay_sesion() and youtube_api.google_disponible():
+            return ""
+        return _("Sin sesión de YouTube")
 
     def _recargar(self):
         motivo = redaccion.motivo_recargar(self._cargando, self._motivo_lectura())
@@ -243,7 +251,7 @@ class ComentariosPanel(wx.Panel):
         if self._es_de_otro_video(generacion):
             return
         self._cargando = False
-        anteriores = self.lb.GetCount()
+        anteriores = len(self._coms)
         # Deduplicar: con orden «relevancia» las páginas se solapan, así que solo
         # añadimos lo que no se haya mostrado ya, y contamos hilos y respuestas
         # por separado (el total por página varía mucho porque cada hilo arrastra
@@ -255,7 +263,6 @@ class ComentariosPanel(wx.Panel):
             if c.comment_id:
                 self._ids_vistos.add(c.comment_id)
             self._coms.append(c)
-            self.lb.Append(self._formato(c))
             if c.es_respuesta:
                 n_resp += 1
             else:
@@ -271,12 +278,16 @@ class ComentariosPanel(wx.Panel):
             if n_resp:
                 partes.append(ngettext("{n} respuesta", "{n} respuestas", n_resp).format(n=n_resp))
             anunciar(_("{partes}. {total} en total.").format(partes=" y ".join(partes), total=len(self._coms)))
-            self.lb.SetSelection(min(anteriores, self.lb.GetCount() - 1))
+            self._lista_acciones.fijar(
+                [self._formato(c) for c in self._coms],
+                elegido=min(anteriores, len(self._coms) - 1))
         elif coms:
             # La página solo traía repetidos (típico con orden «relevancia»).
             anunciar(_("No hay comentarios nuevos."))
         else:
             anunciar(_("No hay comentarios para mostrar."))
+            if not self._coms:
+                self._lista_acciones.fijar([])
 
     def _pagina_err(self, exc, generacion=None):
         if self._es_de_otro_video(generacion):
@@ -288,7 +299,7 @@ class ComentariosPanel(wx.Panel):
         _snd.reproducir("error")
         msg = youtube_api.mensaje_error_api(exc)
         anunciar(msg)
-        if not self.lb.GetCount():
+        if not self._coms:
             self._mostrar_aviso(msg)
 
     def _formato(self, c: youtube_api.Comentario) -> str:
@@ -315,60 +326,6 @@ class ComentariosPanel(wx.Panel):
         if not c:
             anunciar(_("Sin comentario seleccionado"))
         return c
-
-    def _on_key(self, event):
-        k = event.GetKeyCode()
-        # La orilla suena sin consumir la tecla: NVDA sigue leyendo la fila.
-        if sonidos_eventos.es_orilla(k, self.lb.GetSelection(),
-                                     self.lb.GetCount()):
-            _snd.reproducir("orilla")
-        if k == ord('C') and event.ControlDown():
-            self._copiar()
-        elif k == wx.WXK_WINDOWS_MENU:
-            self._mostrar_menu()
-        else:
-            # Enter se atiende en EVT_CHAR_HOOK porque wx no lo entrega aquí.
-            event.Skip()
-
-    def _on_char_hook(self, event):
-        if (event.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER)
-                and event.GetModifiers() == wx.MOD_NONE):
-            # Solo Enter a secas: Alt+Enter es un acelerador del menú.
-            self._leer()
-        else:
-            event.Skip()
-
-    def _on_context_menu(self, event):
-        self._mostrar_menu()
-
-    def _mostrar_menu(self):
-        """Menú contextual sobre el comentario seleccionado (tecla Aplicaciones o
-        clic derecho), igual que el chat del live: Leer, Copiar y, con sesión
-        iniciada, Responder a ese comentario en concreto."""
-        c = self._seleccionado()
-        if not c:
-            return
-        menu = wx.Menu()
-        id_leer    = wx.NewIdRef()
-        id_copiar  = wx.NewIdRef()
-        id_copiar2 = wx.NewIdRef()
-        menu.Append(id_leer,    _("Leer en voz alta"))
-        menu.Append(id_copiar,  _("Copiar comentario"))
-        menu.Append(id_copiar2, _("Copiar todo (autor: comentario)"))
-        # Handlers sobre el propio menú: mueren con él y no se acumulan
-        # bindings en el panel con cada apertura.
-        menu.Bind(wx.EVT_MENU, lambda e: self._leer(),       id=id_leer)
-        menu.Bind(wx.EVT_MENU, lambda e: self._copiar(),     id=id_copiar)
-        menu.Bind(wx.EVT_MENU, lambda e: self._copiar_todo(), id=id_copiar2)
-
-        if credenciales.hay_sesion() and youtube_api.google_disponible():
-            menu.AppendSeparator()
-            id_resp = wx.NewIdRef()
-            menu.Append(id_resp, _("Responder a {autor}").format(autor=c.autor))
-            menu.Bind(wx.EVT_MENU, lambda e: self._responder(), id=id_resp)
-
-        self.lb.PopupMenu(menu)
-        menu.Destroy()
 
     def _leer(self):
         c = self._con_seleccion()

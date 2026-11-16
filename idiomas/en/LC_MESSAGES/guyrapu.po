@@ -9972,11 +9972,6 @@ msgid "Copiar todo (autor: comentario)"
 msgstr "Copy all (author: comment)"
 
 #: guyrapu/ui/gui_comentarios.py
-#, python-brace-format
-msgid "Responder a {autor}"
-msgstr "Reply to {autor}"
-
-#: guyrapu/ui/gui_comentarios.py
 msgid "Comentario copiado"
 msgstr "Comment copied"
 
@@ -14203,4 +14198,8 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
+
+#: guyrapu/ui/gui_comentarios.py
+msgid "Responder…"
+msgstr "Reply…"
 

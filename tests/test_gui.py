@@ -334,6 +334,21 @@ class EventoTecladoFalso:
 
 class TestEnterEnListas(unittest.TestCase):
 
+    def _pieza_de_comentarios(self, manejador):
+        lista = mock.Mock()
+        lista.GetSelection.return_value = 0
+        pieza = gui_comentarios.ListaConAcciones(
+            lista,
+            (gui_comentarios.Accion("leer", "Leer en voz alta", manejador,
+                                    tecla="intro"),),
+            "No hay comentarios para mostrar.")
+        pieza.fijar(["x"])
+        enlaces = [llamada.args[0] for llamada in lista.Bind.call_args_list]
+        self.assertIn(gui_comentarios.wx.EVT_CHAR_HOOK, enlaces)
+        ganchos = [llamada.args[1] for llamada in lista.Bind.call_args_list
+                   if llamada.args[0] == gui_comentarios.wx.EVT_CHAR_HOOK]
+        return ganchos[-1]
+
     def test_chat_alt_enter_se_deja_pasar_al_acelerador(self):
         # Alt+Enter es el acelerador de «Enviar mensaje»: no debe copiar.
         acciones = chat_acciones.AccionesChat.__new__(chat_acciones.AccionesChat)
@@ -344,12 +359,11 @@ class TestEnterEnListas(unittest.TestCase):
         self.assertTrue(evento.omitido)
 
     def test_comentarios_alt_enter_se_deja_pasar_al_acelerador(self):
-        panel = gui_comentarios.ComentariosPanel.__new__(
-            gui_comentarios.ComentariosPanel)
-        panel._leer = mock.Mock()
+        manejador = mock.Mock()
+        gancho = self._pieza_de_comentarios(manejador)
         evento = EventoTecladoFalso(gui_comentarios.wx.WXK_RETURN, gui_comentarios.wx.MOD_ALT)
-        panel._on_char_hook(evento)
-        panel._leer.assert_not_called()
+        gancho(evento)
+        manejador.assert_not_called()
         self.assertTrue(evento.omitido)
 
     def test_chat_enlaza_el_gancho_de_caracteres(self):
@@ -377,29 +391,23 @@ class TestEnterEnListas(unittest.TestCase):
         self.assertTrue(evento.omitido)
 
     def test_comentarios_enlaza_el_gancho_de_caracteres(self):
-        panel = gui_comentarios.ComentariosPanel.__new__(
-            gui_comentarios.ComentariosPanel)
-        panel.lb = mock.Mock()
-        panel._enlazar_eventos_lista()
-        enlaces = [llamada.args[0] for llamada in panel.lb.Bind.call_args_list]
-        self.assertIn(gui_comentarios.wx.EVT_CHAR_HOOK, enlaces)
+        # El propio helper comprueba que la pieza enlaza EVT_CHAR_HOOK.
+        self._pieza_de_comentarios(mock.Mock())
 
     def test_comentarios_enter_lee_sin_omitirlo(self):
-        panel = gui_comentarios.ComentariosPanel.__new__(
-            gui_comentarios.ComentariosPanel)
-        panel._leer = mock.Mock()
+        manejador = mock.Mock()
+        gancho = self._pieza_de_comentarios(manejador)
         evento = EventoTecladoFalso(gui_comentarios.wx.WXK_RETURN)
-        panel._on_char_hook(evento)
-        panel._leer.assert_called_once_with()
+        gancho(evento)
+        manejador.assert_called_once_with()
         self.assertFalse(evento.omitido)
 
     def test_comentarios_otra_tecla_se_deja_pasar(self):
-        panel = gui_comentarios.ComentariosPanel.__new__(
-            gui_comentarios.ComentariosPanel)
-        panel._leer = mock.Mock()
+        manejador = mock.Mock()
+        gancho = self._pieza_de_comentarios(manejador)
         evento = EventoTecladoFalso(ord("a"))
-        panel._on_char_hook(evento)
-        panel._leer.assert_not_called()
+        gancho(evento)
+        manejador.assert_not_called()
         self.assertTrue(evento.omitido)
 
 

@@ -16,6 +16,7 @@ from typing import Callable
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro
@@ -32,6 +33,8 @@ _TECLAS = {
 }
 
 _TECLAS_CON_CONTROL = {
+    ord("C"): "ctrl+c",
+    ord("c"): "ctrl+c",
     ord("D"): "ctrl+d",
     ord("d"): "ctrl+d",
 }
@@ -40,6 +43,7 @@ _SUFIJOS = {
     "intro": "\tEnter",
     "f2": "\tF2",
     "suprimir": "\tDel",
+    "ctrl+c": "\tCtrl+C",
     "ctrl+d": "\tCtrl+D",
 }
 
@@ -56,6 +60,7 @@ class Accion:
     manejador: Callable[[], None]
     tecla: str | None = None
     necesita_elemento: bool = True
+    motivo: Callable[[], str] | None = None
 
 
 def _tecla_nombrada(codigo, modificadores) -> str | None:
@@ -90,7 +95,10 @@ def acciones_encendidas(acciones, hay_elemento: bool) -> dict[str, bool]:
 
 def etiqueta_de_menu(accion: Accion) -> str:
     """La etiqueta del botón, con su tecla a la vista si la tiene."""
-    return accion.etiqueta + _SUFIJOS.get(accion.tecla, "")
+    etiqueta = accion.etiqueta
+    if accion.motivo is not None:
+        etiqueta = redaccion.etiqueta_con_motivo(etiqueta, accion.motivo())
+    return etiqueta + _SUFIJOS.get(accion.tecla, "")
 
 
 class ListaConVacio:
@@ -187,7 +195,17 @@ class ListaConAcciones:
         if accion.necesita_elemento and self.indice() is None:
             self._vacio.sin_elemento()
             return True
+        if self._avisar_motivo(accion):
+            return True
         accion.manejador()
+        return True
+
+    def _avisar_motivo(self, accion) -> bool:
+        """Anuncia el motivo de una acción que no se puede usar ahora."""
+        motivo = accion.motivo() if accion.motivo is not None else ""
+        if not motivo:
+            return False
+        anunciar(f"{motivo}.")
         return True
 
     def _al_tecla(self, evento):

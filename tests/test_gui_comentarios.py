@@ -10,6 +10,7 @@ import wx
 
 from guyrapu.capture import redaccion
 from guyrapu.ui import gui_comentarios
+from guyrapu.ui import lista_acciones
 from guyrapu.youtube import youtube_api
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -86,6 +87,77 @@ class TestComentariosPanel(unittest.TestCase):
         accion(cliente)
         cliente.responder_comentario.assert_called_once_with("comentario", "texto")
 
+    def _con_comentario(self):
+        self.panel._coms = [youtube_api.Comentario(
+            "Ana", "hola", 0, "", 0, "comentario", "canal")]
+        self.panel._lista_acciones.fijar(["Ana: hola"])
+
+    def _etiquetas_del_menu(self):
+        menu = self.panel._lista_acciones._construir_menu()
+        try:
+            return [item.GetItemLabel() for item in menu.GetMenuItems()]
+        finally:
+            menu.Destroy()
+
+    def test_el_menu_lleva_las_acciones_en_orden_y_con_su_tecla(self):
+        self._con_comentario()
+        self.assertEqual(self._etiquetas_del_menu(), [
+            "Leer en voz alta\tEnter",
+            "Copiar comentario\tCtrl+C",
+            "Copiar todo (autor: comentario)",
+            "Responder…",
+        ])
+
+    def test_ctrl_c_copia_el_comentario_elegido(self):
+        self._con_comentario()
+        with mock.patch.object(gui_comentarios,
+                               "copiar_al_portapapeles") as copiar:
+            evento = mock.Mock()
+            evento.GetKeyCode.return_value = ord("C")
+            evento.GetModifiers.return_value = wx.MOD_CONTROL
+            self.panel._lista_acciones._al_tecla(evento)
+        copiar.assert_called_once_with("hola")
+
+    def test_responder_sin_sesion_anuncia_el_motivo_y_no_abre(self):
+        self._con_comentario()
+        with mock.patch.object(gui_comentarios.credenciales, "hay_sesion",
+                               return_value=False), \
+                mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            etiquetas = self._etiquetas_del_menu()
+            self.assertTrue(self.panel._lista_acciones.ejecutar("responder"))
+        self.assertEqual(etiquetas[3],
+                         "Responder… (sin sesión de YouTube)")
+        self.assertEqual(DialogoFalso.instancias, [])
+        anunciar.assert_called_once_with("Sin sesión de YouTube.")
+
+    def test_responder_con_sesion_llama_a_responder(self):
+        comentario = youtube_api.Comentario(
+            "Ana", "hola", 0, "", 0, "comentario", "canal")
+        with mock.patch.object(gui_comentarios.ComentariosPanel,
+                               "_responder") as responder:
+            panel = gui_comentarios.ComentariosPanel(
+                self.frame, queue.Queue(), {"tamanio_fuente_chat": 12})
+            self.addCleanup(destruir, panel)
+            panel._coms = [comentario]
+            panel._lista_acciones.fijar(["Ana: hola"])
+            self.assertTrue(panel._lista_acciones.ejecutar("responder"))
+        responder.assert_called_once_with()
+
+    def test_sin_comentarios_deja_y_anuncia_la_fila_vacia(self):
+        self.panel.set_video("video", autocargar=False)
+        gui_comentarios.anunciar.reset_mock()
+        self.panel._pagina_ok([], "", self.panel._generacion)
+        self.assertEqual(self.panel.lb.GetCount(), 1)
+        self.assertEqual(self.panel.lb.GetString(0),
+                         "No hay comentarios para mostrar.")
+        gui_comentarios.anunciar.assert_called_once_with(
+            "No hay comentarios para mostrar.")
+
+    def test_una_accion_sin_comentario_anuncia_la_fila_vacia(self):
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.assertTrue(self.panel._lista_acciones.ejecutar("leer"))
+        anunciar.assert_called_once_with("No hay comentarios para mostrar.")
+
     def test_comentar_cerrado_no_abre_dialogo_y_anuncia(self):
         self.panel.set_video("video", autocargar=False)
         self.panel._comentarios_cerrados = True
@@ -111,7 +183,9 @@ class TestComentariosPanel(unittest.TestCase):
         self.panel.set_video("nuevo", autocargar=False)
         self.panel._pagina_ok([self._comentario("del viejo", "c1")], "token-viejo",
                               generacion_vieja)
-        self.assertEqual(self.panel.lb.GetCount(), 0)
+        self.assertEqual(self.panel.lb.GetCount(), 1)
+        self.assertEqual(self.panel.lb.GetString(0),
+                         "No hay comentarios para mostrar.")
         self.assertEqual(self.panel._next_token, "")
         self.assertTrue(self.panel.btn_mas.IsEnabled())
 
@@ -337,8 +411,7 @@ class TestOrillaComentarios(unittest.TestCase):
         self.panel = gui_comentarios.ComentariosPanel(
             self.frame, queue.Queue(), {"tamanio_fuente_chat": 12})
         self.addCleanup(destruir, self.panel)
-        self.panel.lb.Append("Ana: hola")
-        self.panel.lb.Append("Luis: chau")
+        self.panel._lista_acciones.fijar(["Ana: hola", "Luis: chau"])
         self.parche_sonido = mock.patch.object(
             gui_comentarios._snd, "reproducir")
         self.reproducir = self.parche_sonido.start()
@@ -348,26 +421,24 @@ class TestOrillaComentarios(unittest.TestCase):
         evento = mock.Mock()
         evento.GetKeyCode.return_value = codigo
         evento.ControlDown.return_value = False
+        self.panel._lista_acciones._vacio._al_tecla(evento)
         return evento
 
     def test_arriba_en_primera_fila_suena_y_se_omite(self):
         self.panel.lb.SetSelection(0)
         evento = self._tecla(wx.WXK_UP)
-        self.panel._on_key(evento)
         self.reproducir.assert_called_once_with("orilla")
         evento.Skip.assert_called_once_with()
 
     def test_abajo_en_ultima_fila_suena_y_se_omite(self):
         self.panel.lb.SetSelection(1)
         evento = self._tecla(wx.WXK_DOWN)
-        self.panel._on_key(evento)
         self.reproducir.assert_called_once_with("orilla")
         evento.Skip.assert_called_once_with()
 
     def test_arriba_en_segunda_fila_no_suena(self):
         self.panel.lb.SetSelection(1)
         evento = self._tecla(wx.WXK_UP)
-        self.panel._on_key(evento)
         self.reproducir.assert_not_called()
         evento.Skip.assert_called_once_with()
 
