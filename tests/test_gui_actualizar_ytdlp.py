@@ -149,6 +149,21 @@ class TestVentanaYtdlp(unittest.TestCase):
         self.assertIsNot(ventana, ventana2)
         self.assertTrue(ventana2.mostrada)
 
+    def test_terminar_deja_la_barra_en_cero_si_falla_y_en_cien_si_no(self):
+        ventana = VentanaFalsa()
+        ventana_ytdlp._ActualizacionYtdlp(ventana)._terminar(
+            "otro_fallo", "No se pudo actualizar yt-dlp.")
+        self.assertEqual(ventana.progresos, [0])
+        self.assertEqual(ventana.estados, ["No se pudo actualizar yt-dlp."])
+        ventana.btn_cerrar.SetFocus.assert_called_once()
+
+        ventana = VentanaFalsa()
+        ventana_ytdlp._ActualizacionYtdlp(ventana)._terminar(
+            "actualizado", "yt-dlp se actualizó.")
+        self.assertEqual(ventana.progresos, [100])
+        self.assertEqual(ventana.estados, ["yt-dlp se actualizó."])
+        ventana.btn_cerrar.SetFocus.assert_called_once()
+
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
 class TestPseudoVentanaYtdlp(unittest.TestCase):
