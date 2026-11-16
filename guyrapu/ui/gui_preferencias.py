@@ -12,6 +12,7 @@ from functools import partial
 
 import wx
 
+from guyrapu.core import avisos_preferencias
 from guyrapu.core import diagnostico
 from guyrapu.core import config as cfg
 from guyrapu.core import paths
@@ -383,15 +384,10 @@ class PreferenciasDialog(wx.Dialog):
         self._pendientes.append((seccion, clave, valor))
         self._cambios = True
 
-    def _on_guardar(self, event):
-        c = self._config
-        self._pendientes = []
-        self._fallo_guardado = False
-        registro_detallado_inicial = bool(c.get("registro_detallado", True))
-        puerto_anterior = int(c.get("overlay_puerto", 8730))
-        # Los atajos ya vienen validados desde la captura (área + conflicto), así
-        # que aquí solo se guardan; no hace falta revalidar por escritura.
+    def _volcar_controles(self, c):
+        """Vuelca los controles y las páginas en la config y en los pendientes.
 
+        Devuelve si el motor de voz elegido no está disponible."""
         for atributo, seccion, clave, en_memoria, tipo, _por_defecto in _OPCIONES_SIMPLES:
             if not hasattr(self, atributo):
                 continue
@@ -424,6 +420,19 @@ class PreferenciasDialog(wx.Dialog):
         if hasattr(self, "pagina_descargas"):
             self.pagina_descargas.guardar()
 
+        self._volcar_controles_manuales(c)
+
+        # Los atajos ya vienen validados desde la captura (área + conflicto), así
+        # que aquí solo se guardan; no hace falta revalidar por escritura.
+        if hasattr(self, "pagina_atajos"):
+            self.pagina_atajos.guardar(self._set, c)
+        if hasattr(self, "pagina_ia"):
+            self._pendientes.extend(self.pagina_ia._cambios_ia())
+        if hasattr(self, "pagina_general"):
+            self._pendientes.extend(self.pagina_general.cambios_canal())
+        return motor_no_disponible
+
+    def _volcar_controles_manuales(self, c):
         if hasattr(self, "_chk_estado"):
             activos = set()
             for comp, chk in self._chk_estado.items():
@@ -441,12 +450,14 @@ class PreferenciasDialog(wx.Dialog):
             self._set("filtros", "usuarios_silenciados", usuarios)
             c["usuarios_silenciados"] = separar_por_comas(usuarios)
 
-        if hasattr(self, "pagina_atajos"):
-            self.pagina_atajos.guardar(self._set, c)
-        if hasattr(self, "pagina_ia"):
-            self._pendientes.extend(self.pagina_ia._cambios_ia())
-        if hasattr(self, "pagina_general"):
-            self._pendientes.extend(self.pagina_general.cambios_canal())
+    def _on_guardar(self, event):
+        c = self._config
+        self._pendientes = []
+        self._fallo_guardado = False
+        registro_detallado_inicial = bool(c.get("registro_detallado", True))
+        puerto_anterior = int(c.get("overlay_puerto", 8730))
+        motor_no_disponible = self._volcar_controles(c)
+
         if hasattr(self, "pagina_sonidos") and not self.pagina_sonidos.guardar():
             self._fallo_guardado = True
         if not cfg.guardar_opciones(self._ruta, self._pendientes):
@@ -454,24 +465,12 @@ class PreferenciasDialog(wx.Dialog):
 
         _snd.reproducir("error" if self._fallo_guardado else "copiar")
 
-        # Los avisos se juntan acá y los dice la ventana principal una sola vez,
-        # ya con el foco de vuelta en ella: anunciarlos antes de cerrar hacía que
-        # el cambio de foco los cortara entre sí.
-        guardado = _("Preferencias guardadas.")
-        fallo = _("Las preferencias se aplicaron, pero no se pudieron guardar "
-                  "en el disco. Se perderán al cerrar la aplicación.")
-        self.avisos = [guardado if not self._fallo_guardado else fallo]
-        if motor_no_disponible:
-            self.avisos.append(_("El motor elegido no está disponible, se conserva el anterior."))
-        if c.get("registro_detallado", True) != registro_detallado_inicial:
-            self.avisos.append(_("El cambio del registro detallado se aplica al reiniciar "
-                                 "la aplicación."))
-        # El servidor del panel ya escucha en el puerto viejo; no se reinicia
-        # solo, así que se avisa dónde se aplica.
-        if (c.get("overlay_puerto", 8730) != puerto_anterior
-                and c.get("overlay_activo", False)):
-            self.avisos.append(_("El puerto del chat en el vídeo se aplica al desactivarlo y "
-                                 "volver a activarlo desde el panel de transmisión."))
+        self.avisos = avisos_preferencias.avisos_al_guardar(
+            self._fallo_guardado,
+            motor_no_disponible,
+            c.get("registro_detallado", True) != registro_detallado_inicial,
+            (c.get("overlay_puerto", 8730) != puerto_anterior
+             and c.get("overlay_activo", False)))
         self.EndModal(wx.ID_OK)
 
     def hubo_cambios(self) -> bool:
