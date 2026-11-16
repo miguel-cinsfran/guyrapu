@@ -37,6 +37,7 @@ SUPERFICIES = {
     "aviso_progreso.py": "descargas",
     "gui_directo_huerfano.py": "directo_sin_imagen",
     "gui_directo_youtube.py": "transmitir_destino",
+    "miniatura_directo.py": "transmitir_destino",
     "gui_elegir_destino.py": "transmitir_destino",
     "gui_envio_chat.py": "redactar",
     "gui_estado.py": "principal",

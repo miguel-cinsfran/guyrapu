@@ -17,6 +17,7 @@ except Exception:
     _HAY_WX = False
 
 from guyrapu.ui import gui_directo_youtube as directo
+from guyrapu.ui import miniatura_directo
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.youtube.emision import (
@@ -325,34 +326,34 @@ class TestDialogoDirectoVentana(unittest.TestCase):
 
     def test_elegir_miniatura_valida(self):
         dialogo = self._dialogo(titulo="Hola")
-        with mock.patch.object(directo.wx, "FileDialog") as fd, \
-                mock.patch.object(directo, "error_de_miniatura",
+        with mock.patch.object(miniatura_directo.wx, "FileDialog") as fd, \
+                mock.patch.object(miniatura_directo, "error_de_miniatura",
                                   return_value=None), \
-                mock.patch.object(directo, "anunciar") as anunciar:
+                mock.patch.object(miniatura_directo, "anunciar") as anunciar:
             cuadro = fd.return_value.__enter__.return_value
             cuadro.ShowModal.return_value = wx.ID_OK
             cuadro.GetPath.return_value = "C:\\x\\foto.png"
-            dialogo._al_elegir_miniatura(mock.Mock())
+            miniatura_directo.elegir_miniatura(dialogo)
         self.assertEqual(dialogo.txt_miniatura.GetValue(), "foto.png")
         anunciar.assert_called_once_with("Miniatura: foto.png")
 
     def test_elegir_miniatura_invalida_no_cambia(self):
         dialogo = self._dialogo(titulo="Hola")
-        with mock.patch.object(directo.wx, "FileDialog") as fd, \
-                mock.patch.object(directo, "error_de_miniatura",
+        with mock.patch.object(miniatura_directo.wx, "FileDialog") as fd, \
+                mock.patch.object(miniatura_directo, "error_de_miniatura",
                                   return_value="La miniatura pasa de 2 MB."), \
-                mock.patch.object(directo, "anunciar") as anunciar:
+                mock.patch.object(miniatura_directo, "anunciar") as anunciar:
             cuadro = fd.return_value.__enter__.return_value
             cuadro.ShowModal.return_value = wx.ID_OK
             cuadro.GetPath.return_value = "C:\\x\\grande.jpg"
-            dialogo._al_elegir_miniatura(mock.Mock())
+            miniatura_directo.elegir_miniatura(dialogo)
         self.assertEqual(dialogo.txt_miniatura.GetValue(), "Ninguna")
         anunciar.assert_called_once_with("La miniatura pasa de 2 MB.")
 
     def test_quitar_miniatura(self):
         dialogo = self._dialogo(titulo="Hola", miniatura="C:\\x\\foto.jpg")
-        with mock.patch.object(directo, "anunciar") as anunciar:
-            dialogo._al_quitar_miniatura(mock.Mock())
+        with mock.patch.object(miniatura_directo, "anunciar") as anunciar:
+            miniatura_directo.quitar_miniatura(dialogo)
         self.assertEqual(dialogo.txt_miniatura.GetValue(), "Ninguna")
         anunciar.assert_called_once_with("Sin miniatura.")
 

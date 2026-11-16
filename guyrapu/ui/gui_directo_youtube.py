@@ -9,7 +9,6 @@ etiquetas y miniatura), que se recuerdan para la próxima vez. Pura salvo wx.
 
 from __future__ import annotations
 
-import os
 from datetime import datetime
 
 import wx
@@ -17,7 +16,7 @@ import wx
 from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import ayuda_manual, paleta, tecla_escape
+from guyrapu.ui import ayuda_manual, miniatura_directo, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.youtube import youtube_api
 from guyrapu.youtube.emision import (
@@ -30,14 +29,11 @@ from guyrapu.youtube.emision import (
     PRIVACIDADES,
     EmisionError,
     anuncio_listas,
-    error_de_miniatura,
     opciones_lista,
     resultado_directo,
     titulo_por_defecto,
 )
 
-_FILTRO_IMAGENES = N_("Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|"
-                       "*.jpg;*.jpeg;*.png")
 # Traductores: motivo de Cargar listas mientras se cargan las listas.
 _MOTIVO_CARGANDO_LISTAS = N_("Cargando las listas")
 # Traductores: motivo de Cargar listas sin sesión de YouTube.
@@ -221,7 +217,7 @@ class DialogoDirectoYoutube(wx.Dialog):
         rotulo_miniatura = wx.StaticText(zona, label=_("Miniatura:"))
         contenido.Add(rotulo_miniatura, 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_miniatura = wx.TextCtrl(
-            zona, value=self._texto_miniatura(),
+            zona, value=miniatura_directo.texto_miniatura(self._miniatura),
             style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_NO_VSCROLL,
             name=_("Miniatura"))
         self.txt_miniatura.SetMinSize(
@@ -267,8 +263,12 @@ class DialogoDirectoYoutube(wx.Dialog):
         contenido.Add(self.txt_revision, 0, wx.EXPAND | wx.ALL, 10)
 
     def _enlazar_opciones(self):
-        self.btn_elegir_miniatura.Bind(wx.EVT_BUTTON, self._al_elegir_miniatura)
-        self.btn_quitar_miniatura.Bind(wx.EVT_BUTTON, self._al_quitar_miniatura)
+        self.btn_elegir_miniatura.Bind(
+            wx.EVT_BUTTON,
+            lambda _event: miniatura_directo.elegir_miniatura(self))
+        self.btn_quitar_miniatura.Bind(
+            wx.EVT_BUTTON,
+            lambda _event: miniatura_directo.quitar_miniatura(self))
         self.btn_cargar_listas.Bind(wx.EVT_BUTTON, self._al_cargar_listas)
         self._fijar_motivo(_MOTIVO_SIN_SESION if self._cargar_listas is None else "")
 
@@ -279,11 +279,6 @@ class DialogoDirectoYoutube(wx.Dialog):
     @property
     def datos(self):
         return self._datos
-
-    def _texto_miniatura(self) -> str:
-        if not self._miniatura:
-            return _("Ninguna")
-        return os.path.basename(self._miniatura)
 
     def _privacidad_elegida(self) -> str:
         return PRIVACIDADES[self.cho_privacidad.GetSelection()]
@@ -300,27 +295,6 @@ class DialogoDirectoYoutube(wx.Dialog):
             return "", ""
         return self._opciones_lista[indice]
 
-    def _al_elegir_miniatura(self, _event) -> None:
-        # Traductores: traduce solo «Imágenes JPG y PNG»; no cambies «(*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png».
-        with wx.FileDialog(
-                self, _("Elegir miniatura"), wildcard=_(_FILTRO_IMAGENES),
-                style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as cuadro:
-            if cuadro.ShowModal() != wx.ID_OK:
-                return
-            ruta = cuadro.GetPath()
-        error = error_de_miniatura(ruta)
-        if error:
-            anunciar(error)
-            return
-        self._miniatura = ruta
-        nombre = os.path.basename(ruta)
-        self.txt_miniatura.SetValue(nombre)
-        anunciar(_("Miniatura: {nombre}").format(nombre=nombre))
-
-    def _al_quitar_miniatura(self, _event) -> None:
-        self._miniatura = ""
-        self.txt_miniatura.SetValue(_("Ninguna"))
-        anunciar(_("Sin miniatura."))
 
     def _al_cargar_listas(self, _event) -> None:
         if self._motivo:
