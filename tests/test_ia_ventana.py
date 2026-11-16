@@ -20,6 +20,7 @@ from guyrapu.ai import conversacion
 from guyrapu.ai import protocolos
 from guyrapu.ai import ventana_ia
 from guyrapu.ui import ia_ventana as ventana
+from guyrapu.ui import lista_acciones
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -127,15 +128,18 @@ class TestVentanaIAVentana(unittest.TestCase):
         self.assertEqual(dialogo.btn_nueva.GetName(), "Nueva conversación")
         self.assertEqual(dialogo.btn_cerrar.GetName(), "Cerrar")
 
-    def test_instala_busqueda_por_tecleo_en_la_conversacion(self):
-        with mock.patch.object(ventana, "instalar_busqueda_tipo") as instalar:
-            dialogo = self._ventana()
-
-        instalar.assert_called_once()
-        lista, obtener_textos = instalar.call_args.args
-        self.assertIs(lista, dialogo.lst_conversacion)
-        self.assertEqual(obtener_textos(),
-                         list(dialogo.lst_conversacion.GetStrings()))
+    def test_busqueda_por_tecleo_sigue_en_la_conversacion(self):
+        dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
+        dialogo._charla.confirmar("pregunta", "respuesta")
+        dialogo._rehacer_lista()
+        dialogo.lst_conversacion.SetSelection(0)
+        with mock.patch.object(wx, "CallLater"), \
+                mock.patch("guyrapu.ui.busqueda_teclado.anunciar"):
+            evento = wx.KeyEvent(wx.wxEVT_CHAR)
+            evento.SetUnicodeKey(ord("R"))
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(dialogo.lst_conversacion.GetSelection(), 2)
 
     def test_orden_de_tab(self):
         dialogo = self._ventana()
@@ -192,11 +196,100 @@ class TestVentanaIAVentana(unittest.TestCase):
 
     def test_intro_por_char_hook_muestra_el_mensaje(self):
         dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
+        dialogo._rehacer_lista()
+        esperado = dialogo.lst_conversacion.GetString(0)
         evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
         evento.KeyCode = wx.WXK_RETURN
-        with mock.patch.object(dialogo, "_mostrar_mensaje") as mostrar:
+        with mock.patch.object(ventana, "DialogoMensaje") as mostrar:
+            mostrar.return_value.ShowModal.return_value = wx.ID_OK
             dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
-        mostrar.assert_called_once_with()
+        self.assertEqual(mostrar.call_args.args, (dialogo, esperado))
+
+    def test_doble_clic_muestra_el_mensaje(self):
+        dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
+        dialogo._rehacer_lista()
+        with mock.patch.object(ventana, "DialogoMensaje") as mostrar:
+            mostrar.return_value.ShowModal.return_value = wx.ID_OK
+            dialogo.lst_conversacion.ProcessEvent(wx.CommandEvent(
+                wx.wxEVT_LISTBOX_DCLICK, dialogo.lst_conversacion.GetId()))
+        mostrar.assert_called_once()
+
+    def test_sin_mensajes_intro_y_ctrl_c_anuncian_la_guia(self):
+        dialogo = self._ventana()
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar, \
+                mock.patch.object(dialogo, "_copiar_texto") as copiar, \
+                mock.patch.object(ventana, "DialogoMensaje") as mensaje:
+            intro = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+            intro.SetKeyCode(wx.WXK_RETURN)
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(intro)
+            ctrl_c = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+            ctrl_c.SetKeyCode(ord("C"))
+            ctrl_c.SetControlDown(True)
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(ctrl_c)
+        self.assertEqual([llamada.args[0]
+                          for llamada in anunciar.call_args_list],
+                         [ventana_ia.FILA_GUIA, ventana_ia.FILA_GUIA])
+        copiar.assert_not_called()
+        mensaje.assert_not_called()
+
+    def test_la_orilla_suena_en_la_conversacion(self):
+        dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
+        dialogo._rehacer_lista()
+        dialogo.lst_conversacion.SetSelection(0)
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.SetKeyCode(wx.WXK_UP)
+        with mock.patch.object(lista_acciones._snd, "reproducir") as sonar:
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
+        sonar.assert_called_once_with("orilla")
+
+    def test_tecla_aplicaciones_abre_el_menu_con_las_dos_acciones(self):
+        dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
+        dialogo._rehacer_lista()
+        vistos = []
+
+        def _popup(menu):
+            vistos.extend((item.GetItemLabel(), item.IsEnabled())
+                          for item in menu.GetMenuItems())
+
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.SetKeyCode(wx.WXK_WINDOWS_MENU)
+        with mock.patch.object(dialogo.lst_conversacion, "PopupMenu",
+                               side_effect=_popup) as popup:
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
+        popup.assert_called_once()
+        self.assertEqual(vistos, [("Ver mensaje completo…\tEnter", True),
+                                  ("Copiar mensaje\tCtrl+C", True)])
+
+    def test_rehacer_lista_elige_la_ultima_fila(self):
+        dialogo = self._ventana()
+        dialogo._charla.confirmar("pregunta", "respuesta")
+        dialogo._rehacer_lista()
+        self.assertEqual(dialogo.lst_conversacion.GetCount(), 2)
+        self.assertEqual(dialogo.lst_conversacion.GetSelection(), 1)
+        self.assertEqual(dialogo.lst_conversacion.GetString(1),
+                         "Respuesta: respuesta")
+
+    def test_ctrl_c_copia_el_texto_de_la_fila_elegida(self):
+        dialogo = self._ventana()
+        dialogo._charla.confirmar("pregunta", "respuesta final")
+        dialogo._rehacer_lista()
+        dialogo.lst_conversacion.SetSelection(0)
+        esperado = dialogo.lst_conversacion.GetString(0)
+        falso = PortapapelesDoble()
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.SetKeyCode(ord("C"))
+        evento.SetControlDown(True)
+        with mock.patch.object(ventana.wx, "TheClipboard", falso), \
+                mock.patch.object(ventana, "anunciar") as anunciar, \
+                mock.patch.object(ventana, "reproducir") as sonar:
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(falso.texto, esperado)
+        sonar.assert_called_once_with("copiar")
+        anunciar.assert_called_once_with("Respuesta copiada.")
 
     def test_dialogo_mensaje_accesible_y_escape_cierra(self):
         dialogo = self._ventana()

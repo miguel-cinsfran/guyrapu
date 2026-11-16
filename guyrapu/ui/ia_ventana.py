@@ -27,9 +27,9 @@ from guyrapu.core import paths
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.ui import ia_privacidad
 from guyrapu.ui import ayuda_manual, paleta, tecla_escape
-from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
-from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.ia_agregar_captura import pedir_captura
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.voice.sound_player import reproducir
 
 logger = diagnostico.obtener_logger(__name__)
@@ -87,10 +87,13 @@ class VentanaIA(wx.Dialog):
         self.lst_conversacion = wx.ListBox(
             self, style=wx.LB_SINGLE, name=_("Conversación"))
         nombre_accesible(self.lst_conversacion, _("Conversación"))
-        instalar_busqueda_tipo(
+        self._lista_acciones = ListaConAcciones(
             self.lst_conversacion,
-            lambda: [self.lst_conversacion.GetString(i)
-                     for i in range(self.lst_conversacion.GetCount())])
+            (Accion("ver", _("Ver mensaje completo…"),
+                    self._mostrar_mensaje, tecla="intro"),
+             Accion("copiar", _("Copiar mensaje"), self._copiar_mensaje,
+                    tecla="ctrl+c")),
+            _(ventana_ia.FILA_GUIA))
         vs.Add(self.lst_conversacion, 1, wx.EXPAND | wx.ALL, 10)
 
     def _crear_controles(self) -> None:
@@ -119,9 +122,6 @@ class VentanaIA(wx.Dialog):
         vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
         self.SetSizerAndFit(vs)
         self._temporizador = wx.Timer(self)
-        self.lst_conversacion.Bind(wx.EVT_LISTBOX_DCLICK, self._al_doble_clic)
-        self.lst_conversacion.Bind(wx.EVT_KEY_DOWN, self._al_tecla_lista)
-        entregar_intro(self.lst_conversacion, self._al_tecla_lista)
         self.txt_mensaje.Bind(wx.EVT_TEXT_ENTER, self._al_enviar)
         self.btn_enviar.Bind(wx.EVT_BUTTON, self._al_enviar)
         self.btn_captura.Bind(wx.EVT_BUTTON, self._al_captura)
@@ -133,9 +133,9 @@ class VentanaIA(wx.Dialog):
         self.Bind(wx.EVT_CLOSE, self._al_cerrar)
 
     def _rehacer_lista(self) -> None:
-        visibles = ventana_ia.filas_visibles(self._charla.filas)
-        self.lst_conversacion.Set(visibles)
-        self.lst_conversacion.SetSelection(len(visibles) - 1)
+        filas = list(self._charla.filas)
+        self._lista_acciones.fijar(
+            filas, elegido=len(filas) - 1 if filas else None)
 
     def _mostrar_mensaje(self) -> None:
         if not self._charla.filas:
@@ -149,15 +149,6 @@ class VentanaIA(wx.Dialog):
             dialogo.ShowModal()
         finally:
             dialogo.Destroy()
-
-    def _al_doble_clic(self, _event) -> None:
-        self._mostrar_mensaje()
-
-    def _al_tecla_lista(self, event) -> None:
-        if event.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            self._mostrar_mensaje()
-            return
-        event.Skip()
 
     def _fijar_en_curso(self, en_curso: bool) -> None:
         self._en_curso = en_curso
@@ -343,11 +334,11 @@ class VentanaIA(wx.Dialog):
             return
         self._descripcion = descripcion or ""
 
-    def _al_copiar(self, _event=None) -> None:
-        texto = ventana_ia.ultima_respuesta(self._charla)
-        if texto is None:
-            anunciar(_(ventana_ia.TEXTO_SIN_RESPUESTA))
-            return
+    def _copiar_mensaje(self) -> None:
+        indice = self._lista_acciones.indice()
+        self._copiar_texto(self.lst_conversacion.GetString(indice))
+
+    def _copiar_texto(self, texto: str) -> None:
         try:
             if not wx.TheClipboard.Open():
                 reproducir("ia_error")
@@ -365,6 +356,13 @@ class VentanaIA(wx.Dialog):
             return
         reproducir("copiar")
         anunciar(_(ventana_ia.TEXTO_COPIADA))
+
+    def _al_copiar(self, _event=None) -> None:
+        texto = ventana_ia.ultima_respuesta(self._charla)
+        if texto is None:
+            anunciar(_(ventana_ia.TEXTO_SIN_RESPUESTA))
+            return
+        self._copiar_texto(texto)
 
     def _al_nueva(self, _event=None) -> None:
         self._cancelar()

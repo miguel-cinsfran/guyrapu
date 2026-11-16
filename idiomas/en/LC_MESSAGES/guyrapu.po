@@ -14226,3 +14226,7 @@ msgstr "No entries for {plataforma}."
 msgid "No hay escenas."
 msgstr "There are no scenes."
 
+#: guyrapu/ui/ia_ventana.py
+msgid "Ver mensaje completo…"
+msgstr "View full message…"
+
