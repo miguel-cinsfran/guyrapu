@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import consultas_transmision
@@ -28,7 +29,7 @@ from guyrapu.ui.obs_pagina_grabacion import PaginaGrabacion
 from guyrapu.ui.obs_pagina_general import PaginaGeneral
 from guyrapu.ui.obs_pagina_perfiles import PaginaPerfiles
 from guyrapu.ui.operaciones_obs import OperacionesObs
-from guyrapu.ui.preferencias_comun import boton
+from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -52,8 +53,9 @@ class VentanaObs(wx.Dialog):
         self._restablecimiento = RegistroRestablecimiento()
         self._asegurar = obs_lanzador.asegurar_obs
         self._operaciones = OperacionesObs(
-            self, self._activar, self._escribir_fallo, self._enfocar_tras_fallo,
-            self._tras_operacion, lambda: self._gestor.conectado)
+            self, self._fijar_motivos, self._escribir_fallo,
+            self._enfocar_tras_fallo, self._tras_operacion,
+            lambda: self._gestor.conectado)
         self._pestana_inicial = (
             pestana if 0 <= pestana < 6 else PESTANA_ESCENA)
         self._crear_controles()
@@ -183,7 +185,7 @@ class VentanaObs(wx.Dialog):
         return self._pagina_escena.escena()
 
     def _elegir_escena(self, escena):
-        if self._operaciones.en_vuelo:
+        if not self._operaciones.puede_correr():
             return
         self._en_hilo(
             lambda: consultas_transmision.leer_escena(self._gestor, escena),
@@ -220,6 +222,8 @@ class VentanaObs(wx.Dialog):
         self._en_hilo(lambda: self._leer_general(destino), self._general_leida)
 
     def _actualizar_general(self):
+        if not self._operaciones.puede_correr():
+            return
         destino = self._pagina_transmision.destino_actual()
         self._en_hilo(lambda: self._leer_general(destino),
                       self._general_actualizada)
@@ -254,7 +258,7 @@ class VentanaObs(wx.Dialog):
         return cliente
 
     def _probar_equipo(self):
-        if self._operaciones.en_vuelo or self._operaciones.cerrando:
+        if not self._operaciones.puede_correr(necesita_conexion=False):
             return
         dialogo_prueba_equipo.PruebaEquipoPanel(
             self, self._en_hilo, self._cliente_obs(), self._refrescar_general,
@@ -268,7 +272,7 @@ class VentanaObs(wx.Dialog):
             anunciar(texto)
 
     def _probar_conexion(self):
-        if self._operaciones.en_vuelo or self._operaciones.cerrando:
+        if not self._operaciones.puede_correr(necesita_conexion=False):
             return
         from guyrapu.ui import dialogo_prueba_conexion
         from guyrapu.youtube import credenciales, youtube_api
@@ -278,14 +282,21 @@ class VentanaObs(wx.Dialog):
             credenciales.hay_sesion(), self._refrescar_general,
             self._anunciar_equipo, self._escribir_fallo).empezar()
 
-    def _activar(self, activo):
+    def _fijar_motivos(self):
+        motivo = "" if self._gestor.conectado else _("Sin conexión con OBS")
         paginas = (self._pagina_transmision, self._pagina_escena,
                    self._pagina_audio, self._pagina_grabacion,
                    self._pagina_perfiles, self._pagina_fuentes,
                    self._pagina_general)
         for pagina in paginas:
             for control in pagina.acciones:
-                control.Enable(activo)
+                base = getattr(control, "_etiqueta_base", None)
+                if base is None:
+                    continue
+                control._motivo = motivo
+                etiqueta = redaccion.etiqueta_con_motivo(base, motivo)
+                control.SetLabel(etiqueta)
+                control.SetName(nombre_de_etiqueta(etiqueta))
 
     def _tras_operacion(self, resultado):
         """La lista de fuentes se refresca en el callback de cada acción."""

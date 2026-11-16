@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
 from guyrapu.obs import (
     filtros_microfono, nivel_microfono, prueba_microfono)
@@ -78,10 +79,14 @@ class PaginaAudio(wx.Panel):
         self.btn_microfono, self.btn_probar, self.btn_filtros = (
             boton(self, etiqueta, nombre_de_etiqueta(etiqueta))
             for etiqueta in etiquetas)
+        self.btn_probar._etiqueta_base = etiquetas[1]
+        self.btn_filtros._etiqueta_base = etiquetas[2]
 
     def _crear_casilla(self, etiqueta):
-        return wx.CheckBox(
+        casilla = wx.CheckBox(
             self, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+        casilla._etiqueta_base = etiqueta
+        return casilla
 
     def _crear_fila(self):
         fila = wx.BoxSizer(wx.HORIZONTAL)
@@ -236,6 +241,8 @@ class PaginaAudio(wx.Panel):
         self._silencio.alternar()
 
     def _al_probar(self, evento=None):
+        if not self._operaciones.puede_correr():
+            return
         if self._prueba is not None:
             self._prueba.detener()
             return
@@ -302,10 +309,15 @@ class PaginaAudio(wx.Panel):
                 fuente=fuente))
 
     def _cambiar_rotulo(self, texto):
-        self.btn_probar.SetLabel(texto)
-        self.btn_probar.SetName(nombre_de_etiqueta(texto))
+        self.btn_probar._etiqueta_base = texto
+        etiqueta = redaccion.etiqueta_con_motivo(
+            texto, getattr(self.btn_probar, "_motivo", ""))
+        self.btn_probar.SetLabel(etiqueta)
+        self.btn_probar.SetName(nombre_de_etiqueta(etiqueta))
 
     def _al_filtros(self, evento=None):
+        if not self._operaciones.puede_correr():
+            return
         fuente = self.fuente()
         if not fuente:
             self._sin_fuente()

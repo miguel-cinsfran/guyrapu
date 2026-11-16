@@ -37,13 +37,17 @@ class ControlEscucha:
     def alternar(self, event=None):
         querer = self._casilla.GetValue()
         self._casilla.SetValue(self.activa)
+        if not self._operaciones.puede_correr():
+            return
         if not querer:
             self._operaciones.en_hilo(self._restaurar, self._desactivada)
             return
+        self._empezar()
+
+    def _empezar(self):
         fuente = self._fuente_elegida()
         if not fuente:
-            self._sin_fuente()
-            return
+            return self._sin_fuente()
         self._operaciones.en_hilo(
             lambda: self._preparar(fuente), self._activada)
 

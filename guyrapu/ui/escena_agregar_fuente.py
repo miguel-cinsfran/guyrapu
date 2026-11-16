@@ -8,6 +8,7 @@ import time
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
 from guyrapu.obs import (
     chat_en_video, consultas_transmision, fuente_chat, fuente_nueva,
@@ -22,10 +23,13 @@ def etiquetas_menu() -> tuple:
 
 
 def mostrar_menu(pagina, ancla):
+    motivo = (_("Sin conexión con OBS")
+              if pagina._operaciones.sin_conexion() else "")
     menu = wx.Menu()
     for tipo in tipos_fuente.CATALOGO:
         identificador = wx.NewIdRef()
-        menu.Append(identificador, _(tipo.etiqueta))
+        menu.Append(identificador, redaccion.etiqueta_con_motivo(
+            _(tipo.etiqueta), motivo))
         menu.Bind(
             wx.EVT_MENU,
             lambda _evento, clave=tipo.clave: agregar(pagina, clave),
@@ -67,7 +71,7 @@ def _enfocar(pagina):
 
 def _agregar_con_propiedades(pagina, tipo):
     escena = _escena(pagina)
-    if not escena or _en_vuelo(pagina):
+    if not escena or not pagina._operaciones.puede_correr():
         return
     pagina._operaciones.en_hilo(
         lambda: _leer_para(pagina, escena, tipo),
@@ -168,7 +172,7 @@ def _pedir_nombre(pagina, tipo, ocupados):
 
 def _agregar_camara(pagina):
     escena = _escena(pagina)
-    if not escena or _en_vuelo(pagina):
+    if not escena or not pagina._operaciones.puede_correr():
         return
     tipo = tipos_fuente.por_clave("camara")
     agregar_camara.agregar(
@@ -185,7 +189,7 @@ def _camara_agregada(pagina, escena):
 
 def _capturar_ventana(pagina):
     escena = _escena(pagina)
-    if not escena or _en_vuelo(pagina):
+    if not escena or not pagina._operaciones.puede_correr():
         return
     pagina._operaciones.en_hilo(
         lambda: (pagina._gestor.ventanas(escena),
@@ -231,7 +235,7 @@ def _ventana_aplicada(pagina, datos):
 
 def _agregar_chat(pagina):
     escena = _escena(pagina)
-    if not escena or _en_vuelo(pagina):
+    if not escena or not pagina._operaciones.puede_correr():
         return
     if fuente_chat.NOMBRE_FUENTE in pagina._gestor.fuentes(escena):
         anunciar(_("Chat en el vídeo ya está en la escena {escena}.").format(
@@ -273,7 +277,7 @@ def _chat_agregado(pagina, escena, filas):
 
 def _agregar_de_otra(pagina):
     escena = _escena(pagina)
-    if not escena or _en_vuelo(pagina):
+    if not escena or not pagina._operaciones.puede_correr():
         return
     pagina._operaciones.en_hilo(
         lambda: fuente_nueva.fuentes_de_otras(pagina._gestor._pedir, escena),
@@ -302,11 +306,11 @@ def _agregar_de_otra_y_leer(pagina, escena, fuente):
 
 
 def abrir_propiedades(pagina):
+    if not pagina._operaciones.puede_correr():
+        return
     _escena, fuente = pagina._destino()
     if not fuente:
         anunciar(_("Sin selección"))
-        return
-    if _en_vuelo(pagina):
         return
     pagina._operaciones.en_hilo(
         lambda: _leer_propiedades(pagina, fuente),

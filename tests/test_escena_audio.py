@@ -58,6 +58,12 @@ def _filtro(tipo, activo=True, **ajustes):
 
 
 class OperacionesFalsas:
+    def puede_correr(self, necesita_conexion=True):
+        return True
+
+    def sin_conexion(self):
+        return False
+
     def en_hilo(self, funcion, al_terminar=None):
         resultado = funcion()
         if al_terminar is not None:

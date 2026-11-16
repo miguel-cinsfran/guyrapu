@@ -175,8 +175,8 @@ class GestorSinConexion:
         pass
 
 
-class TestCerrarSiempreActivo(unittest.TestCase):
-    """El panel nunca queda sin un control activo fuera de las pestañas."""
+class TestVentanaSinDeshabilitar(unittest.TestCase):
+    """Sin conexión o en vuelo, todo control sigue en el recorrido con Tab."""
 
     @classmethod
     def setUpClass(cls):
@@ -186,32 +186,139 @@ class TestCerrarSiempreActivo(unittest.TestCase):
     def tearDownClass(cls):
         del cls.app
 
-    def _crear(self):
+    def _crear(self, gestor=None):
         principal = SimpleNamespace(_config={})
         with mock.patch.object(panel_obs.VentanaObs, "_en_hilo"), \
                 mock.patch.object(gui_grabaciones.grabaciones, "existentes",
                                   return_value=[]):
             dialogo = panel_obs.VentanaObs(
-                None, principal, gestor=GestorSinConexion())
+                None, principal, gestor=gestor or GestorSinConexion())
         self.addCleanup(destruir, dialogo)
         return dialogo
 
-    def test_activar_false_no_desactiva_cerrar(self):
-        dialogo = self._crear()
-        dialogo._activar(False)
-        self.assertTrue(dialogo.btn_cerrar.IsEnabled())
-        self.assertFalse(dialogo._pagina_escena.btn_cambiar.IsEnabled())
-        dialogo._activar(True)
-        self.assertTrue(dialogo._pagina_escena.btn_cambiar.IsEnabled())
-        self.assertTrue(dialogo.btn_cerrar.IsEnabled())
-
-    def test_un_fallo_con_obs_desconectado_deja_cerrar_activo(self):
-        dialogo = self._crear()
+    def _fallar(self, dialogo):
         with mock.patch.object(operaciones_obs, "avisar"):
-            dialogo._operaciones.fallo(
-                "OBS está abierto pero no responde")
-        self.assertTrue(dialogo.btn_cerrar.IsEnabled())
-        self.assertFalse(dialogo._pagina_escena.btn_cambiar.IsEnabled())
+            dialogo._operaciones.fallo("OBS está abierto pero no responde")
+        return dialogo
+
+    def _paginas(self, dialogo):
+        return (dialogo._pagina_transmision, dialogo._pagina_escena,
+                dialogo._pagina_audio, dialogo._pagina_grabacion,
+                dialogo._pagina_perfiles, dialogo._pagina_fuentes,
+                dialogo._pagina_general)
+
+    def _pulsar(self, control):
+        control.GetEventHandler().ProcessEvent(
+            wx.CommandEvent(wx.EVT_BUTTON.typeId, control.GetId()))
+
+    def _pulsar_casilla(self, control):
+        control.GetEventHandler().ProcessEvent(
+            wx.CommandEvent(wx.EVT_CHECKBOX.typeId, control.GetId()))
+
+    def _en_vuelo(self, dialogo):
+        with mock.patch.object(operaciones_obs.diagnostico, "crear_hilo",
+                               return_value=mock.Mock()):
+            dialogo._en_hilo(lambda: None)
+
+    def test_sin_conexion_y_en_vuelo_ningun_control_se_deshabilita(self):
+        dialogo = self._fallar(self._crear())
+        for pagina in self._paginas(dialogo):
+            for control in pagina.acciones:
+                self.assertTrue(control.IsEnabled(), control.GetName())
+        self._en_vuelo(dialogo)
+        self.assertTrue(dialogo._operaciones.en_vuelo)
+        for pagina in self._paginas(dialogo):
+            for control in pagina.acciones:
+                self.assertTrue(control.IsEnabled(), control.GetName())
+
+    def test_sin_conexion_btn_cambiar_dice_el_motivo_y_avisa_al_pulsar(self):
+        dialogo = self._fallar(self._crear())
+        boton = dialogo._pagina_escena.btn_cambiar
+        self.assertIn("(sin conexión con OBS)", boton.GetLabel())
+        with mock.patch.object(operaciones_obs, "anunciar") as anunciar, \
+                mock.patch.object(dialogo._operaciones,
+                                  "en_hilo") as en_hilo:
+            self._pulsar(boton)
+        anunciar.assert_called_once_with("OBS no está conectado.")
+        en_hilo.assert_not_called()
+
+    def test_sin_conexion_cada_accion_que_necesita_obs_dice_el_motivo(self):
+        dialogo = self._fallar(self._crear())
+        controles = (
+            dialogo._pagina_escena.btn_cambiar,
+            dialogo._pagina_escena.btn_agregar,
+            dialogo._pagina_audio.chk_silenciar,
+            dialogo._pagina_audio.btn_probar,
+            dialogo._pagina_audio.btn_filtros,
+            dialogo._pagina_audio.chk_escuchar,
+            dialogo._pagina_grabacion._grabacion.boton,
+            dialogo._pagina_grabacion._grabacion.pausar,
+            dialogo._pagina_perfiles.btn_usar,
+            dialogo._pagina_fuentes.btn_diseno,
+            dialogo._pagina_fuentes.btn_restaurar,
+            dialogo._pagina_general.btn_actualizar,
+        )
+        for control in controles:
+            with self.subTest(control=control.GetName()):
+                self.assertIn("(sin conexión con OBS)", control.GetLabel())
+
+    def test_en_vuelo_una_accion_avisa_y_no_cambia_su_etiqueta(self):
+        dialogo = self._crear()
+        boton = dialogo._pagina_escena.btn_cambiar
+        etiqueta = boton.GetLabel()
+        self._en_vuelo(dialogo)
+        with mock.patch.object(operaciones_obs, "anunciar") as anunciar, \
+                mock.patch.object(dialogo._operaciones,
+                                  "en_hilo") as en_hilo:
+            self._pulsar(boton)
+        anunciar.assert_called_once_with("Consultando OBS.")
+        en_hilo.assert_not_called()
+        self.assertEqual(boton.GetLabel(), etiqueta)
+
+    def test_en_vuelo_probar_el_equipo_avisa_y_no_abre_el_cuadro(self):
+        dialogo = self._crear()
+        self._en_vuelo(dialogo)
+        with mock.patch.object(operaciones_obs, "anunciar") as anunciar, \
+                mock.patch.object(
+                    panel_obs.dialogo_prueba_equipo,
+                    "PruebaEquipoPanel") as panel:
+            self._pulsar(dialogo._pagina_general.btn_probar_equipo)
+        anunciar.assert_called_once_with("Consultando OBS.")
+        panel.assert_not_called()
+
+    def test_sin_conexion_la_casilla_de_silenciar_vuelve_a_su_valor(self):
+        dialogo = self._fallar(self._crear())
+        pagina = dialogo._pagina_audio
+        pagina._poner_filas((("Mic/Aux", False, ()),), "Mic/Aux")
+        casilla = pagina.chk_silenciar
+        casilla.SetValue(True)
+        with mock.patch.object(operaciones_obs, "anunciar") as anunciar, \
+                mock.patch.object(dialogo._operaciones,
+                                  "en_hilo") as en_hilo:
+            self._pulsar_casilla(casilla)
+        self.assertFalse(casilla.GetValue())
+        anunciar.assert_called_once_with("OBS no está conectado.")
+        en_hilo.assert_not_called()
+
+    def test_al_conectar_las_etiquetas_vuelven_a_su_texto_sin_motivo(self):
+        dialogo = self._fallar(self._crear())
+        boton = dialogo._pagina_escena.btn_cambiar
+        self.assertIn("(sin conexión con OBS)", boton.GetLabel())
+        dialogo._gestor.conectado = True
+        dialogo._operaciones._terminar(None, None)
+        self.assertEqual(boton.GetLabel(), _("Cambiar e&scena"))
+        self.assertNotIn(
+            "sin conexión", dialogo._pagina_general.btn_actualizar.GetLabel())
+
+    def test_sin_conexion_probar_el_equipo_sigue_abriendo_el_cuadro(self):
+        dialogo = self._fallar(self._crear())
+        with mock.patch.object(
+                dialogo, "_cliente_obs", return_value=object()), \
+                mock.patch.object(
+                    panel_obs.dialogo_prueba_equipo,
+                    "PruebaEquipoPanel") as panel:
+            self._pulsar(dialogo._pagina_general.btn_probar_equipo)
+        panel.assert_called_once()
 
 
 if __name__ == "__main__":

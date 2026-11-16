@@ -38,6 +38,12 @@ class Operaciones:
         self.en_vuelo = False
         self.cerrando = False
 
+    def puede_correr(self, necesita_conexion=True):
+        return True
+
+    def sin_conexion(self):
+        return False
+
     def en_hilo(self, tarea, al_terminar):
         al_terminar(tarea())
 

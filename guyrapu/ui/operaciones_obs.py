@@ -14,12 +14,15 @@ from guyrapu.ui.aviso_importante import avisar
 
 logger = diagnostico.obtener_logger(__name__)
 
+EN_VUELO = "en_vuelo"
+SIN_CONEXION = "sin_conexion"
+
 
 class OperacionesObs:
 
-    def __init__(self, ventana, activar, escribir_fallo, enfocar_tras_fallo,
-                 tras_operacion=None, conectado=None):
-        self._activar = activar
+    def __init__(self, ventana, al_cambiar_conexion, escribir_fallo,
+                 enfocar_tras_fallo, tras_operacion=None, conectado=None):
+        self._al_cambiar_conexion = al_cambiar_conexion
         self._escribir_fallo = escribir_fallo
         self._enfocar_tras_fallo = enfocar_tras_fallo
         self._tras_operacion = tras_operacion or (lambda resultado: None)
@@ -31,8 +34,27 @@ class OperacionesObs:
                      self._temporizador_consulta)
         ventana.Bind(wx.EVT_WINDOW_DESTROY, self._al_destruir)
 
+    def motivo_para_no_correr(self, necesita_conexion=True):
+        if self.en_vuelo or self.cerrando:
+            return EN_VUELO
+        if necesita_conexion and not bool(self._conectado()):
+            return SIN_CONEXION
+        return None
+
+    def puede_correr(self, necesita_conexion=True):
+        motivo = self.motivo_para_no_correr(necesita_conexion)
+        if motivo == EN_VUELO:
+            anunciar(_("Consultando OBS."))
+            return False
+        if motivo == SIN_CONEXION:
+            anunciar(_("OBS no está conectado."))
+            return False
+        return True
+
+    def sin_conexion(self):
+        return not bool(self._conectado())
+
     def en_hilo(self, funcion, al_terminar=None):
-        self._activar(False)
         self.en_vuelo = True
         self._temporizador_consulta.StartOnce(400)
         def ejecutar():
@@ -55,7 +77,7 @@ class OperacionesObs:
         self.en_vuelo = False
         if self.cerrando:
             return
-        self._activar(True)
+        self._al_cambiar_conexion()
         self._tras_operacion(resultado)
         if al_terminar:
             al_terminar(resultado)
@@ -65,8 +87,7 @@ class OperacionesObs:
         self.en_vuelo = False
         if self.cerrando:
             return
-        conectado = getattr(self, "_conectado", None)
-        self._activar(True if conectado is None else bool(conectado()))
+        self._al_cambiar_conexion()
         self._escribir_fallo(mensaje)
         avisar(mensaje, "error", error=True)
         self._enfocar_tras_fallo()

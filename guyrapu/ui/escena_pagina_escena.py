@@ -60,10 +60,12 @@ class PaginaEscena(wx.Panel):
         self.btn_cambiar = boton(
             self, _("Cambiar e&scena"),
             nombre_de_etiqueta(_("Cambiar e&scena")))
+        self.btn_cambiar._etiqueta_base = _("Cambiar e&scena")
         caja.Add(self.btn_cambiar, 0, wx.ALL, 8)
         self.btn_agregar = boton(
             self, _("A&gregar escena…"),
             nombre_de_etiqueta(_("A&gregar escena…")))
+        self.btn_agregar._etiqueta_base = _("A&gregar escena…")
         caja.Add(self.btn_agregar, 0, wx.ALL, 8)
 
     def _enlazar_eventos(self):
@@ -105,14 +107,16 @@ class PaginaEscena(wx.Panel):
         return tuple(nombre for nombre, _cantidad in self._escenas)
 
     def _elegir_escena(self, event):
-        if self._operaciones.en_vuelo:
+        if not self._operaciones.puede_correr():
             return
         self._al_elegir(self.escena())
         event.Skip()
 
     def _cambiar_al_aire(self, _event=None):
+        if not self._operaciones.puede_correr():
+            return
         escena = self.escena()
-        if not escena or self._operaciones.en_vuelo:
+        if not escena:
             return
         if escena == self._al_aire:
             anunciar(_("{escena} ya es la escena actual.").format(
@@ -130,7 +134,7 @@ class PaginaEscena(wx.Panel):
         anunciar(obs_estado.frase_escena_al_aire(self._al_aire))
 
     def _agregar(self, _event=None):
-        if self._operaciones.en_vuelo:
+        if not self._operaciones.puede_correr():
             return
         nombre = self._pedir_nombre(
             _("Agregar escena"),
@@ -166,7 +170,7 @@ class PaginaEscena(wx.Panel):
         self._mostrar_menu(self.lst_escenas)
 
     def _mostrar_menu(self, ancla):
-        if self._operaciones.en_vuelo:
+        if not self._operaciones.puede_correr():
             return
         if not self.escena():
             anunciar(_("Sin selección"))
@@ -214,8 +218,10 @@ class PaginaEscena(wx.Panel):
             dialogo.Destroy()
 
     def _cambiar_nombre(self, _event=None):
+        if not self._operaciones.puede_correr():
+            return
         antes = self.escena()
-        if not antes or self._operaciones.en_vuelo:
+        if not antes:
             return
         nombre = self._pedir_nombre(_("Cambiar nombre"), antes, excepto=antes)
         if not nombre or nombre == antes:
@@ -238,8 +244,10 @@ class PaginaEscena(wx.Panel):
         escena_version_vertical.crear(self)
 
     def _duplicar(self, _event=None):
+        if not self._operaciones.puede_correr():
+            return
         origen = self.escena()
-        if not origen or self._operaciones.en_vuelo:
+        if not origen:
             return
         nombre = nombres_escena.nombre_de_copia(origen, self._nombres())
         self._operaciones.en_hilo(
@@ -251,8 +259,10 @@ class PaginaEscena(wx.Panel):
         return self._leer_escenas(nombre)
 
     def _eliminar(self, _event=None):
+        if not self._operaciones.puede_correr():
+            return
         escena = self.escena()
-        if not escena or self._operaciones.en_vuelo:
+        if not escena:
             return
         if len(self._escenas) <= 1:
             anunciar(_("No se puede eliminar la única escena."))
@@ -287,6 +297,8 @@ class PaginaEscena(wx.Panel):
         anunciar(_("Escena {escena} eliminada.").format(escena=escena))
 
     def _guardar_imagen(self, _event=None):
+        if not self._operaciones.puede_correr():
+            return
         # Traductores: traduce solo «Imagen PNG»; no cambies «(*.png)|*.png».
         with wx.FileDialog(self, _("Guardar imagen de la escena"),
                            wildcard=_("Imagen PNG (*.png)|*.png"),

@@ -47,6 +47,7 @@ class PaginaGeneral(wx.Panel):
         self.btn_actualizar = boton(
             self, _("Ac&tualizar estado"), nombre_de_etiqueta(
                 _("Ac&tualizar estado")))
+        self.btn_actualizar._etiqueta_base = _("Ac&tualizar estado")
         self.btn_mostrar = boton(
             self, _("Mostrar &OBS"), nombre_de_etiqueta(_("Mostrar &OBS")))
         self.btn_cerrar = boton(

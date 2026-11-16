@@ -77,6 +77,9 @@ class ControlSilencio:
         self._casilla.SetValue(self.silenciado)
 
     def alternar(self, event=None):
+        if not self._operaciones.puede_correr():
+            self._casilla.SetValue(self.silenciado)
+            return
         fuente = self._fuente()
         if not fuente:
             self._casilla.SetValue(self.silenciado)

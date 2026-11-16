@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import comandos_grabacion
 from guyrapu.ui.aviso_importante import avisar
@@ -27,6 +28,8 @@ def _crear_botones(padre):
                       name=nombre_de_etiqueta(_(_INICIAR_GRABACION)))
     pausar = wx.Button(padre, label=_(_PAUSAR_GRABACION),
                        name=nombre_de_etiqueta(_(_PAUSAR_GRABACION)))
+    boton._etiqueta_base = _(_INICIAR_GRABACION)
+    pausar._etiqueta_base = _(_PAUSAR_GRABACION)
     return boton, pausar
 
 
@@ -49,15 +52,23 @@ class ControlGrabacion:
         self.grabando = bool(grabando)
         self.en_pausa = bool(en_pausa)
         etiqueta = (_DETENER_GRABACION if self.grabando else _INICIAR_GRABACION)
-        self.boton.SetLabel(_(etiqueta))
-        self.boton.SetName(nombre_de_etiqueta(_(etiqueta)))
+        self._fijar_boton(self.boton, etiqueta)
         etiqueta = (_REANUDAR_GRABACION if self.en_pausa
                     else _PAUSAR_GRABACION)
-        self.pausar.SetLabel(_(etiqueta))
-        self.pausar.SetName(nombre_de_etiqueta(_(etiqueta)))
+        self._fijar_boton(self.pausar, etiqueta)
         mostrar_control(self.pausar, self.grabando, self._foco)
 
+    @staticmethod
+    def _fijar_boton(control, etiqueta):
+        control._etiqueta_base = _(etiqueta)
+        texto = redaccion.etiqueta_con_motivo(
+            _(etiqueta), getattr(control, "_motivo", ""))
+        control.SetLabel(texto)
+        control.SetName(nombre_de_etiqueta(texto))
+
     def _alternar(self, event):
+        if not self._operaciones.puede_correr():
+            return
         self._operaciones.en_hilo(
             lambda: comandos_grabacion.alternar_grabacion_obs(
                 self._gestor, self._perfil()),
@@ -70,6 +81,8 @@ class ControlGrabacion:
         self._al_cambiar()
 
     def _alternar_pausa(self, event):
+        if not self._operaciones.puede_correr():
+            return
         self._operaciones.en_hilo(
             lambda: comandos_grabacion.alternar_pausa_obs(self._gestor),
             self._pausa_alternada)

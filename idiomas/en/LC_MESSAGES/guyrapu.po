@@ -14203,3 +14203,11 @@ msgstr "Untitled"
 msgid "Responder…"
 msgstr "Reply…"
 
+#: guyrapu/ui/operaciones_obs.py
+msgid "Consultando OBS."
+msgstr "Asking OBS."
+
+#: guyrapu/ui/operaciones_obs.py
+msgid "OBS no está conectado."
+msgstr "OBS is not connected."
+

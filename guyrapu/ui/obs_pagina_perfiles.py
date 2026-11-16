@@ -112,6 +112,7 @@ class PaginaPerfiles(wx.Panel):
     def _boton(self, etiqueta, nombre, clave):
         control = wx.Button(self, label=etiqueta,
                             name=nombre_de_etiqueta(nombre))
+        control._etiqueta_base = etiqueta
         nombre_accesible(control, control.GetName())
         control.Bind(
             wx.EVT_BUTTON,
@@ -174,6 +175,8 @@ class PaginaPerfiles(wx.Panel):
         self._recargar(foco)
 
     def usar(self):
+        if not self._operaciones.puede_correr():
+            return
         nombre = self._elegido()
         if not nombre:
             return self._sin_seleccion()
@@ -183,6 +186,8 @@ class PaginaPerfiles(wx.Panel):
                 _("Perfil en uso: {nombre}.").format(nombre=nombre), nombre))
 
     def usar_para(self):
+        if not self._operaciones.puede_correr():
+            return
         nombre = self._elegido()
         if not nombre:
             return self._sin_seleccion()
@@ -222,6 +227,8 @@ class PaginaPerfiles(wx.Panel):
             nombre=nombre, usos=usos_perfil.texto_para(usos))
 
     def nuevo(self):
+        if not self._operaciones.puede_correr():
+            return
         datos = self._pedir_nombre(
             _("Nuevo perfil"), _("C&rear"), con_orientacion=True)
         if datos is None:
@@ -239,6 +246,8 @@ class PaginaPerfiles(wx.Panel):
             lambda datos: self._abrir_ajustes(datos, foco=nombre))
 
     def duplicar(self):
+        if not self._operaciones.puede_correr():
+            return
         origen = self._elegido()
         if not origen:
             return self._sin_seleccion()
@@ -265,6 +274,8 @@ class PaginaPerfiles(wx.Panel):
             dialogo.Destroy()
 
     def eliminar(self):
+        if not self._operaciones.puede_correr():
+            return
         nombre = self._elegido()
         if not nombre:
             return self._sin_seleccion()
@@ -306,6 +317,8 @@ class PaginaPerfiles(wx.Panel):
         return None
 
     def editar(self):
+        if not self._operaciones.puede_correr():
+            return
         nombre = self._elegido()
         if not nombre:
             return self._sin_seleccion()
@@ -355,6 +368,8 @@ class PaginaPerfiles(wx.Panel):
                     nombre=nombre), nombre))
 
     def preparar_perfiles(self):
+        if not self._operaciones.puede_correr():
+            return
         AsistentePerfilesPanel(
             self, self._operaciones, self._cliente, self._config,
             self._asistente_terminado).empezar()

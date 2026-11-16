@@ -42,6 +42,12 @@ class OperacionesFalsas:
         self.cerrando = False
         self.en_vuelo = False
 
+    def puede_correr(self, necesita_conexion=True):
+        return True
+
+    def sin_conexion(self):
+        return False
+
     def en_hilo(self, funcion, al_terminar=None):
         try:
             resultado = funcion()

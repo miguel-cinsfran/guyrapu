@@ -545,13 +545,15 @@ class TestPanelTransmision(unittest.TestCase):
         cerrar.assert_not_called()
         estado.assert_not_called()
 
-    def test_fallo_al_abrir_desactiva_controles_y_muestra_error(self):
+    def test_fallo_al_abrir_deja_los_controles_habilitados_y_muestra_error(self):
         gestor = GestorFalso(fallo=True)
         ventana = self._crear(gestor=gestor, asegurar=_asegurar_conecta)
         pagina = ventana._pagina_transmision
         self.assertEqual(ventana._pagina_general.texto(),
                          "OBS no está disponible")
-        self.assertFalse(pagina.btn_restream.IsEnabled())
+        self.assertTrue(pagina.btn_restream.IsEnabled())
+        self.assertIn("(sin conexión con OBS)",
+                      ventana._pagina_escena.btn_cambiar.GetLabel())
 
     def test_una_excepcion_no_prevista_libera_el_dialogo_y_avisa(self):
         def falla():

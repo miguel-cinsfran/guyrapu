@@ -313,7 +313,7 @@ class TestCableado(unittest.TestCase):
         instancia = SimpleNamespace(
             cerrando=False, en_vuelo=False,
             _temporizador_consulta=mock.Mock(),
-            _activar=lambda activo: None,
+            _al_cambiar_conexion=lambda: None,
             _escribir_fallo=lambda mensaje: None,
             _enfocar_tras_fallo=lambda: None)
         cuadro, _anunciar, sonar = self._pedir(
@@ -323,24 +323,21 @@ class TestCableado(unittest.TestCase):
                          confirmar.ICON_ERROR)
         sonar.assert_any_call("error")
 
-    def test_i_fallo_reactiva_el_panel_solo_si_obs_sigue_conectado(self):
-        for conectado, esperado in ((True, True), (False, False)):
-            with self.subTest(conectado=conectado):
-                activaciones = []
-                escribir = mock.Mock()
-                enfocar = mock.Mock()
-                instancia = SimpleNamespace(
-                    cerrando=False, en_vuelo=False,
-                    _temporizador_consulta=mock.Mock(),
-                    _activar=activaciones.append,
-                    _escribir_fallo=escribir,
-                    _enfocar_tras_fallo=enfocar,
-                    _conectado=lambda: conectado)
-                with mock.patch.object(operaciones_obs, "avisar"):
-                    operaciones_obs.OperacionesObs.fallo(instancia, "Falló.")
-                self.assertEqual(activaciones[-1], esperado)
-                escribir.assert_called_once_with("Falló.")
-                enfocar.assert_called_once_with()
+    def test_i_fallo_revisa_las_etiquetas_y_escribe_el_mensaje(self):
+        etiquetas = mock.Mock()
+        escribir = mock.Mock()
+        enfocar = mock.Mock()
+        instancia = SimpleNamespace(
+            cerrando=False, en_vuelo=False,
+            _temporizador_consulta=mock.Mock(),
+            _al_cambiar_conexion=etiquetas,
+            _escribir_fallo=escribir,
+            _enfocar_tras_fallo=enfocar)
+        with mock.patch.object(operaciones_obs, "avisar"):
+            operaciones_obs.OperacionesObs.fallo(instancia, "Falló.")
+        etiquetas.assert_called_once_with()
+        escribir.assert_called_once_with("Falló.")
+        enfocar.assert_called_once_with()
 
     def test_no_revisando_obs_no_pide_cuadro(self):
         marco = SimpleNamespace(

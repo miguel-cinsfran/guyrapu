@@ -17,6 +17,12 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, fila_campo, nombre_de_etiqueta
 
 
+def _boton_obs(pagina, etiqueta):
+    control = boton(pagina, etiqueta, nombre_de_etiqueta(etiqueta))
+    control._etiqueta_base = etiqueta
+    return control
+
+
 class PaginaFuentes(wx.Panel):
 
     def __init__(self, parent, ventana, gestor, operaciones, registro,
@@ -57,17 +63,13 @@ class PaginaFuentes(wx.Panel):
         fila_campo(caja, rotulo_fuentes, self.lst_fuentes)
 
     def _crear_botones(self, caja):
-        self.btn_diseno = boton(
-            self, _("&Aplicar diseño…"),
-            nombre_de_etiqueta(_("&Aplicar diseño…")))
+        self.btn_diseno = _boton_obs(self, _("&Aplicar diseño…"))
         caja.Add(self.btn_diseno, 0, wx.ALL, 8)
         self.btn_agregar = boton(
             self, _("Agregar f&uente…"),
             nombre_de_etiqueta(_("Agregar f&uente…")))
         caja.Add(self.btn_agregar, 0, wx.ALL, 8)
-        self.btn_restaurar = boton(
-            self, _("Deshacer todos los cambi&os"),
-            nombre_de_etiqueta(_("Deshacer todos los cambi&os")))
+        self.btn_restaurar = _boton_obs(self, _("Deshacer todos los cambi&os"))
         caja.Add(self.btn_restaurar, 0, wx.ALL, 8)
 
     def _enlazar_eventos(self):
@@ -144,11 +146,11 @@ class PaginaFuentes(wx.Panel):
             self.fuente(), snap, obs_disposicion.ACTIVOS_DEFECTO)
 
     def _aplicar_diseno(self, event):
+        if not self._operaciones.puede_correr():
+            return
         escena = self._escena()
         if not escena:
             anunciar(_("Sin selección"))
-            return
-        if self._operaciones.en_vuelo:
             return
         if (escena_version_vertical.es_gemela_con_original(self, escena)
                 and escena_version_vertical.perfil_vertical(self)):
@@ -204,9 +206,9 @@ class PaginaFuentes(wx.Panel):
             self.cargar(filas, nombres[0] if nombres else "")
 
     def _restaurar(self, event):
-        escena, fuente = self._destino()
-        if self._operaciones.en_vuelo:
+        if not self._operaciones.puede_correr():
             return
+        escena, fuente = self._destino()
         self._operaciones.en_hilo(
             lambda: self._restaurar_y_leer(escena, fuente),
             lambda datos: self._restaurado(datos, fuente))
