@@ -262,6 +262,7 @@ def detectar_rotulos_de_menu(archivo: str,
 MENUS_DE_LA_BARRA = (
     "guyrapu/ui/gui_menu.py",
     "guyrapu/ui/menu_obs.py",
+    "guyrapu/ui/menu_reproductor.py",
     "guyrapu/ui/menu_transmision.py",
 )
 

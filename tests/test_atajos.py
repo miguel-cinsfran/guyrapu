@@ -477,15 +477,12 @@ class TestParsearAtajos(unittest.TestCase):
 
     def test_menus_usan_el_sistema_para_los_nuevos_atajos(self):
         from guyrapu.ui import menu_obs
+        from guyrapu.ui import menu_reproductor
         from guyrapu.ui import menu_transmision
-        fuente = inspect.getsource(gui_menu.construir_menu)
-        fuente += inspect.getsource(menu_transmision.construir)
-        fuente += inspect.getsource(menu_obs._agregar_encuadre)
-        fuente += inspect.getsource(menu_obs.construir)
-        fuente += inspect.getsource(menu_obs._agregar_comandos)
-        fuente += inspect.getsource(gui_menu._construir_menu_ver)
-        fuente += inspect.getsource(gui_menu._construir_menu_musica)
-        fuente += inspect.getsource(gui_menu._construir_menu_ayuda)
+        fuente = inspect.getsource(gui_menu)
+        fuente += inspect.getsource(menu_reproductor)
+        fuente += inspect.getsource(menu_transmision)
+        fuente += inspect.getsource(menu_obs)
         self.assertIn('._accel("ir_lista")', fuente)
         self.assertIn('._accel("pantalla_completa")', fuente)
         self.assertIn('._accel("abrir_historial")', fuente)

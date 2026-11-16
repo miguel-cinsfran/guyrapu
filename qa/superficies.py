@@ -63,6 +63,7 @@ SUPERFICIES = {
     "recientes_inicio.py": "principal",
     "gui_menu.py": "menus",
     "menu_obs.py": "menus",
+    "menu_reproductor.py": "menus",
     "menu_transmision.py": "menus",
     "menu_moderacion.py": "menu_chat",
     "gui_microfono.py": "microfono",

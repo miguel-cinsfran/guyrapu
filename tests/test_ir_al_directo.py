@@ -148,7 +148,9 @@ class TestRepDirectoWx(unittest.TestCase):
 
     def test_menu_usa_acelerador_y_enlace(self):
         from guyrapu.ui import gui_menu
-        fuente = inspect.getsource(gui_menu.construir_menu)
+        from guyrapu.ui import menu_reproductor
+        fuente = inspect.getsource(gui_menu)
+        fuente += inspect.getsource(menu_reproductor)
         self.assertIn('"&Ir al directo"', fuente)
         self.assertIn('._accel("rep_directo")', fuente)
         self.assertIn('"ir_al_directo"', fuente)

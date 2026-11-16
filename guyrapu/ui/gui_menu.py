@@ -18,6 +18,7 @@ from guyrapu.core import paths
 from guyrapu.ui import ajuste_tono, ayuda_manual
 from guyrapu.ui import confirmar
 from guyrapu.ui import menu_obs
+from guyrapu.ui import menu_reproductor
 from guyrapu.ui import menu_transmision
 from guyrapu.ui import voces_ventana
 from guyrapu.ui.atajos_captura import ETIQUETAS
@@ -33,22 +34,45 @@ FILTROS = [
     (N_("Avisos"),       avisos_tiktok.TIPOS_AVISO),
 ]
 
-CALIDADES = (
-    (N_("Automática"), None),
-    (N_("1080p"), 1080),
-    (N_("720p"), 720),
-    (N_("480p"), 480),
-    (N_("360p"), 360),
-    (N_("240p"), 240),
-    (N_("144p"), 144),
-)
-
 
 def construir_menu(frame):
     anterior = frame.GetMenuBar()
     mb = wx.MenuBar()
 
     # Archivo
+    _construir_menu_archivo(frame, mb)
+    # Ver
+    _construir_menu_ver(frame, mb)
+
+    # Chat
+    _construir_menu_chat(frame, mb)
+
+    _construir_menu_voz(frame, mb)
+
+    menu_reproductor.construir(frame, mb)
+    menu_transmision.construir(frame, mb)
+    menu_obs.construir(frame, mb)
+
+    # Música
+    _construir_menu_musica(frame, mb)
+
+    # Herramientas
+    _construir_menu_herramientas(frame, mb)
+
+    _construir_menu_ayuda(frame, mb)
+
+    frame.SetMenuBar(mb)
+    # Al reconstruir (Preferencias), la barra vieja solo se desengancha: hay
+    # que destruirla, y el item de pausa nace como «Pausar» aunque la
+    # lectura siga pausada.
+    if anterior is not None:
+        try:    anterior.Destroy()
+        except Exception as error: logger.debug("no se pudo destruir el menú anterior: %s", error)
+    frame._sincronizar_pausa()
+    _registrar_menus(frame)
+
+
+def _construir_menu_archivo(frame, mb):
     m = wx.Menu()
     frame.mi_conectar = m.Append(wx.ID_ANY, _("&Conectar") + frame._accel("conectar"))
     frame.mi_desconectar = m.Append(wx.ID_ANY, _("&Desconectar") + frame._accel("desconectar"))
@@ -64,10 +88,9 @@ def construir_menu(frame):
                      frame._chat_acciones._copiar_enlace_directo)
     frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(frame._on_historial), mi_historial)
     frame.Bind(wx.EVT_MENU, lambda e: frame.Close(), mi_salir)
-    # Ver
-    _construir_menu_ver(frame, mb)
 
-    # Chat
+
+def _construir_menu_chat(frame, mb):
     m = wx.Menu()
     frame.mi_enviar_live = m.Append(
         wx.ID_ANY,
@@ -84,6 +107,8 @@ def construir_menu(frame):
     mb.Append(m, _("&Chat"))
     frame.Bind(wx.EVT_MENU, frame._on_enviar_live, frame.mi_enviar_live)
 
+
+def _construir_menu_voz(frame, mb):
     m = wx.Menu()
     frame.mi_pausa = m.Append(wx.ID_ANY, _("&Pausar lectura") + frame._accel("pausa"))
     mi_det = m.Append(wx.ID_ANY, _("&Detener voz") + frame._accel("detener_tts"))
@@ -106,54 +131,8 @@ def construir_menu(frame):
     frame._bind_menu(frame.mi_sil_lectura, frame._toggle_silenciar_lectura)
     frame._bind_menu(frame.mi_sil_sonidos, frame._toggle_silenciar_sonidos)
 
-    m = wx.Menu()
-    mi_rep_play  = m.Append(wx.ID_ANY, _("&Reproducir o pausar") + frame._accel("rep_play"))
-    mi_rep_retro = m.Append(wx.ID_ANY, _("R&etroceder 1 minuto") + frame._accel("rep_retro"))
-    mi_rep_avanz = m.Append(wx.ID_ANY, _("&Avanzar 1 minuto") + frame._accel("rep_avanz"))
-    mi_rep_directo = m.Append(wx.ID_ANY, _("&Ir al directo") + frame._accel("rep_directo"))
-    mi_rep_stop  = m.Append(wx.ID_ANY, _("De&tener reproducción") + frame._accel("rep_detener"))
-    mi_rep_mute  = m.Append(wx.ID_ANY, _("&Silenciar o activar audio") + frame._accel("rep_mute"))
-    mi_rep_fs    = m.Append(wx.ID_ANY, _("Pantalla &completa") + frame._accel("pantalla_completa"))
-    # Submenú de calidad (radio). Se elige la disponible más cercana.
-    sub_cal = wx.Menu()
-    for etiqueta, altura in CALIDADES:
-        it = sub_cal.AppendRadioItem(wx.ID_ANY, _(etiqueta))
-        frame._bind_menu(it, frame._rep_accion, "set_calidad", altura)
-    m.AppendSubMenu(sub_cal, _("Ca&lidad del vídeo"))
-    m.AppendSeparator()
-    # Descargar este vídeo (solo YouTube, no live). Se habilita en
-    # `_actualizar_menus_por_conexion` cuando hay URL reproducible.
-    frame.mi_descargar_este = m.Append(
-        wx.ID_ANY, _("Descargar este &vídeo…"))
-    m.AppendSeparator()
-    mi_rep_volm  = m.Append(wx.ID_ANY, _("&Bajar volumen del reproductor") + frame._accel("rep_vol_menos"))
-    mi_rep_volM  = m.Append(wx.ID_ANY, _("S&ubir volumen del reproductor") + frame._accel("rep_vol_mas"))
-    m.AppendSeparator()
-    frame.mi_rep_botones = m.AppendCheckItem(wx.ID_ANY, _("Mostrar botones en &pantalla"))
-    frame.mi_rep_botones.Check(bool(frame._config.get("mostrar_botones_reproductor", True)))
-    frame._bind_menu(frame.mi_rep_botones, frame._toggle_botones_rep)
-    mb.Append(m, _("&Reproductor"))
-    frame._bind_menu(mi_rep_play, frame._rep_accion, "_toggle_play")
-    frame._bind_menu(mi_rep_retro, frame._rep_accion, "_buscar_rel", -60_000)
-    frame._bind_menu(mi_rep_avanz, frame._rep_accion, "_buscar_rel", +60_000)
-    frame._bind_menu(mi_rep_directo, frame._rep_accion, "ir_al_directo")
-    frame._bind_menu(mi_rep_stop, frame._rep_accion, "_detener")
-    frame._bind_menu(mi_rep_mute, frame._rep_accion, "_toggle_mute")
-    frame._bind_menu(mi_rep_fs, frame._rep_accion, "alternar_pantalla_completa")
-    frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(
-        frame._abrir_descargas,
-        url=frame._rep_panel.get_url_para_descarga() if frame._rep_panel else None),
-        frame.mi_descargar_este)
-    frame._bind_menu(mi_rep_volm, frame._rep_accion, "ajustar_volumen", -20)
-    frame._bind_menu(mi_rep_volM, frame._rep_accion, "ajustar_volumen", +20)
 
-    menu_transmision.construir(frame, mb)
-    menu_obs.construir(frame, mb)
-
-    # Música
-    _construir_menu_musica(frame, mb)
-
-    # Herramientas
+def _construir_menu_herramientas(frame, mb):
     m = wx.Menu()
     # Gestor de descargas: SIEMPRE habilitado (funciona sin conexión de
     # chat, abriendo una URL pegada a mano). Ctrl+S es el atajo.
@@ -167,18 +146,6 @@ def construir_menu(frame):
     frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(frame._on_actualizar_ytdlp, None),
               frame.mi_actualizar_ytdlp)
     frame.Bind(wx.EVT_MENU, lambda e: wx.CallAfter(frame._on_preferencias, None), mi_pref)
-
-    _construir_menu_ayuda(frame, mb)
-
-    frame.SetMenuBar(mb)
-    # Al reconstruir (Preferencias), la barra vieja solo se desengancha: hay
-    # que destruirla, y el item de pausa nace como «Pausar» aunque la
-    # lectura siga pausada.
-    if anterior is not None:
-        try:    anterior.Destroy()
-        except Exception as error: logger.debug("no se pudo destruir el menú anterior: %s", error)
-    frame._sincronizar_pausa()
-    _registrar_menus(frame)
 
 
 def _construir_submenu_filtro_chat(frame, menu):
