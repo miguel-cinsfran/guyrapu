@@ -7,6 +7,7 @@ ventana visible: solo se construyen los controles y se inspeccionan.
 """
 
 import unittest
+from unittest import mock
 
 import wx
 
@@ -92,6 +93,43 @@ class TestTabla(Base):
                 self.assertFalse(marco.IsShown())
                 self.assertTrue(
                     _con_nombre(marco, trampas.VENTANAS[nombre]["primero"]))
+
+
+class TestNombreAccesible(Base):
+
+    ESPERADOS = {
+        "limpia": ["Nombre completo", "Imagen", "Audio", "Nivel",
+                   "Activar", "Mostrar", "Anunciar", "Mover foco",
+                   "Destino", "Campo libre"],
+        "sin_nombre": ["Antes"],
+        "rol_contenedor": ["Zona de prueba", "Siguiente"],
+        "nombre_repetido": ["Volumen", "Volumen"],
+        "ingles": ["Cancel"],
+        "atajo_repetido": ["Activar", "Aplicar"],
+        "paso_mudo": ["Mudo"],
+        "foco_perdido": ["Deshabilitar"],
+        "recorrido": ["Entrada", "Campo con Tab"],
+    }
+
+    def test_cada_control_nombrado_pasa_por_nombre_accesible(self):
+        for nombre, esperados in self.ESPERADOS.items():
+            with self.subTest(ventana=nombre):
+                with mock.patch.object(
+                        trampas, "nombre_accesible") as nombrar:
+                    self.construir(nombre)
+                    llamados = [llamada.args[1]
+                                for llamada in nombrar.call_args_list]
+                self.assertEqual(llamados, esperados)
+
+    def test_el_boton_sin_nombre_no_se_nombra(self):
+        with mock.patch.object(trampas, "nombre_accesible") as nombrar:
+            marco = self.construir("sin_nombre")
+            botones = [control for control in _controles(marco)
+                       if isinstance(control, wx.BitmapButton)]
+            llamados = [llamada.args[0]
+                        for llamada in nombrar.call_args_list]
+        self.assertTrue(botones)
+        self.assertFalse(any(boton in llamados for boton in botones))
 
 
 class TestSinNombre(Base):

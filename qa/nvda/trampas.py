@@ -16,6 +16,10 @@ import argparse
 import sys
 from pathlib import Path
 
+RAIZ = Path(__file__).resolve().parent.parent.parent
+if str(RAIZ) not in sys.path:
+    sys.path.insert(0, str(RAIZ))
+
 
 def _comando(nombre):
     return [sys.executable, str(Path(__file__).resolve()),
@@ -63,9 +67,16 @@ def _anunciar() -> None:
     Lector().speak("Anuncio de prueba")
 
 
+def nombre_accesible(control, nombre) -> None:
+    """El nombre accesible de la app, con su anotación MSAA."""
+    from guyrapu.ui.accesibilidad import nombre_accesible as poner
+
+    poner(control, nombre)
+
+
 def _construir_sin_nombre(wx, panel, caja, marco):
     campo = wx.TextCtrl(panel)
-    campo.SetName("Antes")
+    nombre_accesible(campo, "Antes")
     caja.Add(campo, 0, wx.EXPAND | wx.ALL, 6)
     boton = wx.BitmapButton(panel, bitmap=wx.Bitmap(16, 16))
     boton.SetName("")
@@ -83,21 +94,21 @@ def _construir_rol_contenedor(wx, panel, caja, marco):
             return True
 
     zona = PanelConFoco(panel, size=(200, 40))
-    zona.SetName("Zona de prueba")
+    nombre_accesible(zona, "Zona de prueba")
     zona.SetCanFocus(True)
     caja.Add(zona, 0, wx.EXPAND | wx.ALL, 6)
     boton = wx.Button(panel, label="Siguiente")
-    boton.SetName("Siguiente")
+    nombre_accesible(boton, "Siguiente")
     caja.Add(boton, 0, wx.ALL, 6)
     return zona
 
 
 def _construir_nombre_repetido(wx, panel, caja, marco):
-    grupo = wx.StaticBoxSizer(wx.StaticBox(panel, label="Volumen"),
-                              wx.VERTICAL)
-    deslizador = wx.Slider(grupo.GetStaticBox(), value=50,
-                           minValue=0, maxValue=100)
-    deslizador.SetName("Volumen")
+    cuadro = wx.StaticBox(panel, label="Volumen")
+    nombre_accesible(cuadro, "Volumen")
+    grupo = wx.StaticBoxSizer(cuadro, wx.VERTICAL)
+    deslizador = wx.Slider(cuadro, value=50, minValue=0, maxValue=100)
+    nombre_accesible(deslizador, "Volumen")
     grupo.Add(deslizador, 0, wx.EXPAND | wx.ALL, 6)
     caja.Add(grupo, 0, wx.EXPAND | wx.ALL, 6)
     return deslizador
@@ -105,24 +116,24 @@ def _construir_nombre_repetido(wx, panel, caja, marco):
 
 def _construir_ingles(wx, panel, caja, marco):
     boton = wx.Button(panel, label="Cancel")
-    boton.SetName("Cancel")
+    nombre_accesible(boton, "Cancel")
     caja.Add(boton, 0, wx.ALL, 6)
     return boton
 
 
 def _construir_atajo_repetido(wx, panel, caja, marco):
     activar = wx.CheckBox(panel, label="&Activar")
-    activar.SetName("Activar")
+    nombre_accesible(activar, "Activar")
     caja.Add(activar, 0, wx.ALL, 6)
     aplicar = wx.CheckBox(panel, label="&Aplicar")
-    aplicar.SetName("Aplicar")
+    nombre_accesible(aplicar, "Aplicar")
     caja.Add(aplicar, 0, wx.ALL, 6)
     return activar
 
 
 def _construir_paso_mudo(wx, panel, caja, marco):
     boton = wx.Button(panel, label="Mudo")
-    boton.SetName("Mudo")
+    nombre_accesible(boton, "Mudo")
     boton.Bind(wx.EVT_BUTTON, lambda evento: None)
     caja.Add(boton, 0, wx.ALL, 6)
     return boton
@@ -130,7 +141,7 @@ def _construir_paso_mudo(wx, panel, caja, marco):
 
 def _construir_foco_perdido(wx, panel, caja, marco):
     boton = wx.Button(panel, label="Deshabilitar")
-    boton.SetName("Deshabilitar")
+    nombre_accesible(boton, "Deshabilitar")
     boton.Bind(wx.EVT_BUTTON, lambda evento: boton.Disable())
     caja.Add(boton, 0, wx.ALL, 6)
     return boton
@@ -138,42 +149,42 @@ def _construir_foco_perdido(wx, panel, caja, marco):
 
 def _construir_recorrido(wx, panel, caja, marco):
     entrada = wx.Button(panel, label="Entrada")
-    entrada.SetName("Entrada")
+    nombre_accesible(entrada, "Entrada")
     caja.Add(entrada, 0, wx.ALL, 6)
     campo = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_PROCESS_TAB)
-    campo.SetName("Campo con Tab")
+    nombre_accesible(campo, "Campo con Tab")
     caja.Add(campo, 1, wx.EXPAND | wx.ALL, 6)
     return entrada
 
 
 def _construir_limpia(wx, panel, caja, marco):
     nombre = wx.TextCtrl(panel)
-    nombre.SetName("Nombre completo")
+    nombre_accesible(nombre, "Nombre completo")
     caja.Add(nombre, 0, wx.EXPAND | wx.ALL, 6)
     imagen = wx.BitmapButton(panel, bitmap=wx.Bitmap(16, 16))
-    imagen.SetName("Imagen")
+    nombre_accesible(imagen, "Imagen")
     caja.Add(imagen, 0, wx.ALL, 6)
-    grupo = wx.StaticBoxSizer(wx.StaticBox(panel, label="Audio"),
-                              wx.VERTICAL)
-    nivel = wx.Slider(grupo.GetStaticBox(), value=50,
-                      minValue=0, maxValue=100)
-    nivel.SetName("Nivel")
+    cuadro = wx.StaticBox(panel, label="Audio")
+    nombre_accesible(cuadro, "Audio")
+    grupo = wx.StaticBoxSizer(cuadro, wx.VERTICAL)
+    nivel = wx.Slider(cuadro, value=50, minValue=0, maxValue=100)
+    nombre_accesible(nivel, "Nivel")
     grupo.Add(nivel, 0, wx.EXPAND | wx.ALL, 6)
     caja.Add(grupo, 0, wx.EXPAND | wx.ALL, 6)
     activar = wx.CheckBox(panel, label="&Activar")
-    activar.SetName("Activar")
+    nombre_accesible(activar, "Activar")
     caja.Add(activar, 0, wx.ALL, 6)
     mostrar = wx.CheckBox(panel, label="&Mostrar")
-    mostrar.SetName("Mostrar")
+    nombre_accesible(mostrar, "Mostrar")
     caja.Add(mostrar, 0, wx.ALL, 6)
     anunciar = wx.Button(panel, label="Anunciar")
-    anunciar.SetName("Anunciar")
+    nombre_accesible(anunciar, "Anunciar")
     anunciar.Bind(wx.EVT_BUTTON, lambda evento: _anunciar())
     caja.Add(anunciar, 0, wx.ALL, 6)
     mover = wx.Button(panel, label="Mover foco")
-    mover.SetName("Mover foco")
+    nombre_accesible(mover, "Mover foco")
     destino = wx.TextCtrl(panel)
-    destino.SetName("Destino")
+    nombre_accesible(destino, "Destino")
     caja.Add(destino, 0, wx.EXPAND | wx.ALL, 6)
 
     def mover_foco(evento):
@@ -183,7 +194,7 @@ def _construir_limpia(wx, panel, caja, marco):
     mover.Bind(wx.EVT_BUTTON, mover_foco)
     caja.Add(mover, 0, wx.ALL, 6)
     libre = wx.TextCtrl(panel, style=wx.TE_MULTILINE)
-    libre.SetName("Campo libre")
+    nombre_accesible(libre, "Campo libre")
     caja.Add(libre, 1, wx.EXPAND | wx.ALL, 6)
     return nombre
 
