@@ -311,6 +311,24 @@ class TestCargarConfiguracion(unittest.TestCase):
         self.assertEqual(texto1, texto2)
         self.assertEqual(cfg1["atajos_raw"], crudo2)
 
+    def test_completar_faltantes_agrega_claves_y_suma_atajos(self):
+        from guyrapu.core import config_faltantes
+        from guyrapu.core import config_predeterminada as _pred
+        p = config._mk_parser()
+        p.read_string("[atajos]\npausa = f6\n")
+        atajos_raw = {"pausa": "f6"}
+        escritas = []
+        with self.assertLogs("guyrapu.config_faltantes", level="INFO"):
+            config_faltantes.completar_faltantes(
+                p, Path(self._tmp.name) / "config.ini", atajos_raw,
+                lambda ruta, cambios: escritas.extend(cambios))
+        faltantes = [(s, c, v) for s, cs in _pred.datos().items()
+                     for c, v in cs.items() if not p.has_option(s, c)]
+        self.assertEqual(escritas, faltantes)
+        self.assertEqual(atajos_raw["pausa"], "f6")
+        self.assertEqual(atajos_raw["musica_siguiente"],
+                         _pred.datos()["atajos"]["musica_siguiente"])
+
     def test_regenera_si_falta(self):
         tmp = Path(self._tmp.name)
         with redirigir_rutas(tmp):

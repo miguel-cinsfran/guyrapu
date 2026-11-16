@@ -11,6 +11,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from guyrapu.core import avisos_tiktok
+from guyrapu.core import config_faltantes
 from guyrapu.core import config_predeterminada
 from guyrapu.core import diagnostico
 from guyrapu.core.ini_tipado import leer_texto, a_entero, a_decimal, leer_entero, leer_decimal, leer_booleano, separar_por_comas
@@ -317,8 +318,7 @@ def _estado_toggles(p) -> set:
     return toggles
 
 
-def cargar_configuracion() -> dict:
-    ruta = paths.config_ini()
+def _leer_config_ini(ruta: Path) -> configparser.ConfigParser:
     if not ruta.exists():
         logger.warning("config.ini no encontrado. Creando con valores por defecto.")
         try:    ruta.write_text(_CONFIG_FALLBACK, encoding="utf-8")
@@ -332,44 +332,44 @@ def cargar_configuracion() -> dict:
         logger.error("Error de sintaxis en config.ini: %s", exc)
         logger.error("Borra config.ini y vuelve a abrir la aplicación para regenerarlo.")
         sys.exit(1)
+    return p
 
+
+def _opciones_cola_texto(p) -> dict:
+    """Las opciones de la cola, la reconexión, los filtros y el texto."""
     estrategia = leer_texto(p, "cola", "estrategia").lower()
     if estrategia not in ("todas", "limite"): estrategia = "limite"
+    return {
+        "estrategia": estrategia, "tamanio_maximo": leer_entero(p, "cola", "tamanio_maximo", lo=1),
+        "umbral_solo_nombre": leer_entero(p, "cola", "umbral_solo_nombre"),
+        "reconectar": leer_booleano(p, "reconexion", "reconectar"),
+        "espera_entre_intentos": leer_entero(p, "reconexion", "espera_entre_intentos", lo=1),
+        "max_intentos": leer_entero(p, "reconexion", "max_intentos"),
+        "palabras_silenciadas": separar_por_comas(leer_texto(p, "filtros", "palabras_silenciadas")),
+        "usuarios_silenciados": separar_por_comas(leer_texto(p, "filtros", "usuarios_silenciados")),
+        "limpiar_emojis": leer_booleano(p, "texto", "limpiar_emojis"),
+        "eliminar_urls": leer_booleano(p, "texto", "eliminar_urls"),
+        "max_longitud_mensaje": leer_entero(p, "texto", "max_longitud_mensaje"),
+    }
+
+
+def cargar_configuracion() -> dict:
+    ruta = paths.config_ini()
+    p = _leer_config_ini(ruta)
 
     atajos_raw = ({k.strip().lower(): (v or "").strip() for k, v in p.items("atajos")}
                   if p.has_section("atajos") else {})
     migrar_atajos_config(p, ruta, atajos_raw)
     avisos_tiktok.migrar(p, ruta, guardar_opcion, guardar_opciones)
     sonidos_fabrica.migrar(p, ruta)
-    # Migración genérica: agregar toda sección o clave ausente desde la fuente
-    # canónica, preservando valores existentes incluso vacíos y claves desconocidas.
-    _faltantes = [(s, c, v) for s, cs in config_predeterminada.datos().items()
-                  for c, v in cs.items() if not p.has_option(s, c)]
-    guardar_opciones(ruta, _faltantes)
-    _atajos_faltantes = [c for s, c, _v in _faltantes if s == "atajos"]
-    for _sec, _clave, _valor_def in _faltantes:
-        if _sec == "atajos":
-            atajos_raw[_clave] = _valor_def
-    if _atajos_faltantes:
-        logger.info("Atajos nuevos añadidos a config.ini: %s", ", ".join(_atajos_faltantes))
+    config_faltantes.completar_faltantes(p, ruta, atajos_raw, guardar_opciones)
 
     desc_op = obtener_opciones_descarga()
 
-    estado_toggles = _estado_toggles(p)
-
     return {
         **_opciones_voz(p, ruta), **avisos_tiktok.opciones_eventos(p),
-        "estrategia": estrategia, "tamanio_maximo": leer_entero(p, "cola", "tamanio_maximo", lo=1),
-        "umbral_solo_nombre": leer_entero(p, "cola", "umbral_solo_nombre"),
-        "reconectar": leer_booleano(p, "reconexion", "reconectar"),
-        "espera_entre_intentos": leer_entero(p, "reconexion", "espera_entre_intentos", lo=1),
-        "max_intentos": leer_entero(p, "reconexion", "max_intentos"),
+        **_opciones_cola_texto(p),
         **_opciones_lectura(p),
-        "palabras_silenciadas": separar_por_comas(leer_texto(p, "filtros", "palabras_silenciadas")),
-        "usuarios_silenciados": separar_por_comas(leer_texto(p, "filtros", "usuarios_silenciados")),
-        "limpiar_emojis": leer_booleano(p, "texto", "limpiar_emojis"),
-        "eliminar_urls": leer_booleano(p, "texto", "eliminar_urls"),
-        "max_longitud_mensaje": leer_entero(p, "texto", "max_longitud_mensaje"),
         **opciones_ui(p), **opciones_ui_booleans(p),
         "silenciar_lectura": leer_booleano(p, "sesion", "silenciar_lectura"),
         **opciones_tiktok(p),
@@ -382,7 +382,7 @@ def cargar_configuracion() -> dict:
         "obs_microfono": leer_texto(p, "obs", "microfono"),
         # [musica]: biblioteca local y reproducción. La carpeta va como texto libre, igual que en [transmision].
         **_opciones_musica(p),
-        "estado_toggles": estado_toggles,
+        "estado_toggles": _estado_toggles(p),
         "atajos_raw": atajos_raw,
         "ruta_config": ruta,
         # Gestor de descargas (GestorDescargas / gui_descargas). Las opciones
