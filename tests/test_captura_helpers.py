@@ -12,6 +12,7 @@ from unittest import mock
 
 from guyrapu.capture import alias
 from guyrapu.capture.filtro_autores import entra_en_grupo
+from guyrapu.core.sonidos_eventos import ROL_MODERADOR
 import main
 from main import (
     _mensaje_error_amigable, _es_error_permanente,
@@ -428,6 +429,30 @@ class TestFiltros(unittest.TestCase):
                 if umbral:
                     cola.get_nowait()
                 self.assertEqual(cola.get_nowait()["texto_tts"], esperado)
+
+    def test_el_moderador_queda_como_importante_en_el_item(self):
+        cola = queue.Queue()
+        config = self._cfg(
+            limpiar_emojis=True, eliminar_urls=False,
+            max_longitud_mensaje=200, umbral_solo_nombre=0,
+            formato_prefijo="nombre_mensaje", estrategia="todas",
+            tamanio_maximo=10,
+        )
+        procesar_entrante("Ana", "hola", main.TIPO_TEXTO, "", "canal", cola,
+                          config, Stats(), rol=ROL_MODERADOR)
+        self.assertTrue(cola.get_nowait().get("importante"))
+
+    def test_el_super_chat_queda_como_importante_en_el_item(self):
+        cola = queue.Queue()
+        config = self._cfg(
+            limpiar_emojis=True, eliminar_urls=False,
+            max_longitud_mensaje=200, umbral_solo_nombre=0,
+            formato_prefijo="nombre_mensaje", estrategia="todas",
+            tamanio_maximo=10,
+        )
+        procesar_entrante("Ana", "hola", main.TIPO_SUPERCHAT, "$2", "canal",
+                          cola, config, Stats())
+        self.assertTrue(cola.get_nowait().get("importante"))
 
 
 if __name__ == "__main__":
