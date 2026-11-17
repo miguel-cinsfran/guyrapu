@@ -36,15 +36,27 @@ def _sonido_plataformas(p) -> str:
     return sonido
 
 
+def _con_traduccion(p, opciones) -> dict:
+    """Suma las claves de la traducción del chat a las opciones de lectura."""
+    opciones.update({
+        "traducir_chat": leer_booleano(p, "lectura", "traducir_chat"),
+        "traducir_que": leer_texto(p, "lectura", "traducir_que"),
+        "traducir_idioma_original": leer_texto(
+            p, "lectura", "traducir_idioma_original"),
+        "traducir_destino": leer_texto(p, "lectura", "traducir_destino"),
+    })
+    return opciones
+
+
 def opciones_lectura(p) -> dict:
     """La sección [lectura] como claves en memoria, en el mismo orden."""
-    return {
+    return _con_traduccion(p, {
         "formato_prefijo": _formato(p),
         "lectura_recientes": _recientes(p),
         "lectura_atajos_globales": leer_booleano(p, "lectura", "atajos_globales"),
         "sonido_plataformas": _sonido_plataformas(p),
         "decir_plataforma": leer_booleano(p, "lectura", "decir_plataforma"),
-    }
+    })
 
 
 def opciones_tiktok(p) -> dict:

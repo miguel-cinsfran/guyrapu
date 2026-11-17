@@ -59,6 +59,10 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("atajos_globales", "false"),
         ("sonido_plataformas", "varios"),
         ("decir_plataforma", "false"),
+        ("traducir_chat", "false"),
+        ("traducir_que", "voz_lista"),
+        ("traducir_idioma_original", "completo"),
+        ("traducir_destino", "interfaz"),
     ]),
     ("filtros", [
         ("palabras_silenciadas", ""),

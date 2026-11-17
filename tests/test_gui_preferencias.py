@@ -18,6 +18,7 @@ import wx
 from guyrapu.ai import catalogo
 from guyrapu.core import config
 from guyrapu.core import idioma
+from guyrapu.translation import idiomas as idiomas_traduccion
 from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_descargas
 from guyrapu.ui import preferencias_ia
@@ -92,7 +93,10 @@ class TestDialogoSinTextosSinEnvolver(unittest.TestCase):
                      + PENDIENTES_VOZ + PENDIENTES_PROPIOS
                      + tuple(nombre for _valor, nombre
                              in idioma.idiomas_disponibles()
-                             if nombre in idioma.NOMBRES_IDIOMA.values()))
+                             if nombre in idioma.NOMBRES_IDIOMA.values())
+                     + tuple(nombre for codigo, nombre
+                             in idiomas_traduccion.opciones()
+                             if codigo != "interfaz"))
 
         self.assertEqual(sorted(map(_normalizar, sin_marcar)),
                          sorted(map(_normalizar, esperados)))

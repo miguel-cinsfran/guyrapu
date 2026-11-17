@@ -11,6 +11,7 @@ from guyrapu.core.config import (
 )
 from guyrapu.core.avisos_tiktok import TIPOS_AVISO
 from guyrapu.ui import chat_vivo
+from guyrapu.translation.proveedores.base import Traduccion
 from guyrapu.ui.chat_vivo import ControladorChat
 from guyrapu.ui.lista_chat import MensajeChat
 
@@ -350,6 +351,111 @@ class TestClipDelChat(unittest.TestCase):
         control = self._control(activo=False, guardar=guardar)
         self._encolar(control, "!clip")
         guardar.assert_not_called()
+
+
+class PedidoLista:
+    def __init__(self):
+        self.destino = "es"
+        self.resultado = None
+        self._callbacks = []
+
+    def al_terminar(self, funcion):
+        self._callbacks.append(funcion)
+
+    def terminar(self, resultado):
+        self.resultado = resultado
+        for funcion in self._callbacks:
+            funcion()
+
+
+class TestTraduccionEnLaLista(unittest.TestCase):
+
+    def _control(self, **config):
+        base = {"traducir_chat": True, "traducir_que": "voz_lista",
+                "traducir_idioma_original": "completo",
+                "limpiar_emojis": True}
+        base.update(config)
+        return _controlador(config=base)
+
+    def _encolar(self, control, texto="hola"):
+        with mock.patch.object(chat_vivo.traduccion_chat, "traduce_lista",
+                               return_value=True), \
+                mock.patch.object(chat_vivo.traduccion_chat, "pedir",
+                                  return_value=self.pedido), \
+                mock.patch.object(chat_vivo.wx, "CallLater",
+                                  return_value=mock.Mock()), \
+                mock.patch.object(chat_vivo.wx.Window, "FindFocus",
+                                  return_value=None), \
+                mock.patch.object(chat_vivo._snd, "reproducir"):
+            control.encolar(_registro(texto=texto))
+            control.volcar()
+
+    def _terminar(self, control, resultado):
+        with mock.patch.object(chat_vivo.wx, "CallAfter",
+                               side_effect=lambda funcion, *args: funcion(*args)):
+            self.pedido.terminar(resultado)
+
+    def test_la_fila_sale_con_el_original_y_cambia_al_llegar(self):
+        control = self._control()
+        self.pedido = PedidoLista()
+        self._encolar(control)
+        control.lista.Append.assert_called_once_with("Ana: hola, 12:00")
+        control.lista.SetString.assert_not_called()
+        self._terminar(control, Traduccion("HELLO", "en"))
+        control.lista.SetString.assert_called_once_with(
+            0, "Ana: HELLO (del inglés), 12:00")
+
+    def test_la_fila_que_cambia_no_mueve_el_foco_ni_la_seleccion(self):
+        control = self._control()
+        self.pedido = PedidoLista()
+        self._encolar(control)
+        control.lista.SetFirstItem.reset_mock()
+        self._terminar(control, Traduccion("HELLO", "en"))
+        control.lista.SetSelection.assert_not_called()
+        control.lista.SetFocus.assert_not_called()
+        control.lista.SetFirstItem.assert_not_called()
+
+    def test_abreviado_y_no_decirlo(self):
+        esperados = {"abreviado": "Ana: HELLO (EN), 12:00",
+                     "no": "Ana: HELLO, 12:00"}
+        for forma, esperado in esperados.items():
+            with self.subTest(forma=forma):
+                control = self._control(traducir_idioma_original=forma)
+                self.pedido = PedidoLista()
+                self._encolar(control)
+                self._terminar(control, Traduccion("HELLO", "en"))
+                control.lista.SetString.assert_called_once_with(0, esperado)
+
+    def test_un_codigo_desconocido_se_dice_abreviado(self):
+        control = self._control()
+        self.pedido = PedidoLista()
+        self._encolar(control)
+        self._terminar(control, Traduccion("HELLO", "xx"))
+        control.lista.SetString.assert_called_once_with(
+            0, "Ana: HELLO (XX), 12:00")
+
+    def test_si_el_origen_es_el_destino_no_cambia_la_fila(self):
+        control = self._control()
+        self.pedido = PedidoLista()
+        self._encolar(control)
+        self._terminar(control, Traduccion("hola", "es"))
+        control.lista.SetString.assert_not_called()
+
+    def test_con_solo_voz_la_lista_no_pide_traduccion(self):
+        control = self._control(traducir_que="solo_voz")
+        self.pedido = PedidoLista()
+        with mock.patch.object(chat_vivo.traduccion_chat, "traduce_lista",
+                               return_value=False), \
+                mock.patch.object(chat_vivo.traduccion_chat, "pedir") as pedir, \
+                mock.patch.object(chat_vivo.wx, "CallLater",
+                                  return_value=mock.Mock()), \
+                mock.patch.object(chat_vivo.wx.Window, "FindFocus",
+                                  return_value=None), \
+                mock.patch.object(chat_vivo._snd, "reproducir"):
+            control.encolar(_registro(texto="hola"))
+            control.volcar()
+        pedir.assert_not_called()
+        control.lista.Append.assert_called_once_with("Ana: hola, 12:00")
 
 
 if __name__ == "__main__":

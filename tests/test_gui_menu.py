@@ -148,6 +148,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Filtro de mensajes", "Avisos", ANY, "radio"),
             ("&Chat", "&Buscar en el chat…", ANY, "normal"),
             ("&Chat", "&Participación en el chat…", ANY, "normal"),
+            ("&Chat", "&Traducir chat", ANY, "check"),
             ("Vo&z", "&Pausar lectura", ANY, "normal"),
             ("Vo&z", "&Detener voz", ANY, "normal"),
             ("Vo&z", "&Vaciar cola", ANY, "normal"),
@@ -233,6 +234,10 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("A&yuda", "&Buscar actualizaciones…", ANY, "normal"),
             ("A&yuda", "&Acerca de…", gui.wx.ID_ABOUT, "normal"),
         ], lista)
+
+    def test_la_casilla_de_traduccion_nace_apagada(self):
+        _titulos, _lista, frame = _construir_lista(con_frame=True)
+        frame.mi_traducir_chat.Check.assert_called_once_with(False)
 
     def test_transmision_sin_letras_de_acceso_repetidas(self):
         _, lista = _construir_lista()

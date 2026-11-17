@@ -20,6 +20,7 @@ from guyrapu.ui import gui_estado
 from guyrapu.ui import accesibilidad
 from guyrapu.ui import tema
 from guyrapu.ui import gui_comentarios
+from guyrapu.ui import gui_menu
 from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_api
 from guyrapu.ui import preferencias_general
@@ -47,6 +48,7 @@ from guyrapu.core import apagado
 from guyrapu.capture import alias
 from guyrapu.capture import programados
 from guyrapu.downloads import ytdlp_actualizar
+from guyrapu.translation.proveedores.base import Traduccion
 from guyrapu.ui.lista_chat import MensajeChat, ListaChat
 from guyrapu.ui.sesion_conectada import SesionConectada
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -1890,6 +1892,10 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("lectura", "atajos_globales"),
             ("lectura", "sonido_plataformas"),
             ("lectura", "decir_plataforma"),
+            ("lectura", "traducir_chat"),
+            ("lectura", "traducir_que"),
+            ("lectura", "traducir_idioma_original"),
+            ("lectura", "traducir_destino"),
             ("texto", "limpiar_emojis"), ("texto", "eliminar_urls"),
             ("eventos", "superchat"), ("eventos", "miembro"),
             ("eventos", "entrada"), ("eventos", "me_gusta"),
@@ -6543,6 +6549,121 @@ class TestPseudoIrRegion(unittest.TestCase):
         self.assertEqual(len(captados), 2)
         for frase in captados:
             self.assertTrue(frase.startswith("[¡"), frase)
+
+
+class TestTraduccionDelChatEnLaGui(unittest.TestCase):
+
+    def test_la_casilla_del_menu_guarda_y_anuncia(self):
+        frame = mock.Mock()
+        frame._config = {"traducir_chat": False}
+        frame.mi_traducir_chat = mock.Mock()
+        with mock.patch.object(gui_menu, "guardar_opcion") as guardar, \
+                mock.patch.object(gui_menu, "anunciar") as anunciar, \
+                mock.patch.object(gui_menu.traduccion_chat,
+                                  "configurar") as configurar:
+            gui_menu.alternar_traduccion(frame)
+        self.assertTrue(frame._config["traducir_chat"])
+        frame.mi_traducir_chat.Check.assert_called_once_with(True)
+        guardar.assert_called_once_with(
+            gui.RUTA_CONFIG, "lectura", "traducir_chat", "true")
+        anunciar.assert_called_once_with("Traducción del chat activada")
+        configurar.assert_called_once_with(frame._config)
+
+    def test_la_casilla_se_apaga_y_anuncia(self):
+        frame = mock.Mock()
+        frame._config = {"traducir_chat": True}
+        frame.mi_traducir_chat = mock.Mock()
+        with mock.patch.object(gui_menu, "guardar_opcion"), \
+                mock.patch.object(gui_menu, "anunciar") as anunciar, \
+                mock.patch.object(gui_menu.traduccion_chat, "configurar"):
+            gui_menu.alternar_traduccion(frame)
+        self.assertFalse(frame._config["traducir_chat"])
+        frame.mi_traducir_chat.Check.assert_called_once_with(False)
+        anunciar.assert_called_once_with("Traducción del chat desactivada")
+
+    def _frame_con_traduccion(self):
+        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
+        frame._config = {"limpiar_emojis": True,
+                         "formato_prefijo": "nombre_mensaje",
+                         "traducir_chat": True,
+                         "traducir_que": "voz_lista",
+                         "traducir_idioma_original": "completo",
+                         "silenciados_runtime": set(),
+                         "silenciados_ocultar": set()}
+        frame.lb_chat = mock.Mock()
+        for nombre in ("Freeze", "Thaw", "Delete", "Append", "Clear",
+                       "SetString"):
+            setattr(frame.lb_chat, nombre, mock.Mock())
+        frame.lb_chat.GetSelection.return_value = 0
+        frame.lb_chat.GetCount.return_value = 1
+        frame._cola = queue.Queue()
+        frame.sesion = SesionConectada()
+        frame._chat_acciones = chat_acciones.AccionesChat(
+            frame.lb_chat, None, frame._cola, frame._config,
+            lambda: frame.sesion, frame)
+        frame._chat_acciones._autor_esta_oculto = lambda autor: False
+        frame.chat_vivo = ControladorChat(
+            frame.lb_chat, 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=frame._chat_acciones._format_display,
+            al_superchat=mock.Mock(), config=frame._config)
+        frame._chat_acciones.chat_vivo = frame.chat_vivo
+        registro = MensajeChat(plataforma="youtube", autor="Ana",
+                               identificador="", texto="hola",
+                               hora="12:00", tipo="text", monto="")
+        with mock.patch("guyrapu.ui.chat_vivo._snd.reproducir"):
+            frame.chat_vivo._procesar(registro)
+        frame.registro = frame.chat_vivo.modelo.todos[0]
+        frame.chat_vivo._traducciones[frame.registro] = (
+            Traduccion("HOLA", "en"))
+        return frame
+
+    def _menu(self, frame):
+        menu = MenuChatFalso()
+        with mock.patch.object(gui.wx, "Menu", return_value=menu), \
+                mock.patch.object(gui.wx, "NewIdRef",
+                                  side_effect=range(1, 40)):
+            frame._chat_acciones._mostrar_menu_chat()
+        return menu
+
+    def test_el_menu_suma_leer_y_copiar_el_original(self):
+        frame = self._frame_con_traduccion()
+        menu = self._menu(frame)
+        self.assertIn("Leer mensaje original", menu.etiquetas.values())
+        self.assertIn("Copiar mensaje original", menu.etiquetas.values())
+
+    def test_copiar_copia_la_traduccion_y_copiar_original_el_original(self):
+        frame = self._frame_con_traduccion()
+        menu = self._menu(frame)
+        frame._chat_acciones._clipboard_set = mock.Mock()
+        identificador = next(i for i, texto in menu.etiquetas.items()
+                             if texto == "Copiar mensaje original")
+        with mock.patch.object(gui.wx, "CallAfter",
+                               side_effect=lambda fn, *a: fn(*a)), \
+                mock.patch.object(chat_acciones, "anunciar"), \
+                mock.patch.object(chat_acciones._snd, "reproducir"):
+            menu.handlers[identificador](None)
+        frame._chat_acciones._clipboard_set.assert_called_once_with("hola")
+        frame._chat_acciones._clipboard_set.reset_mock()
+        with mock.patch.object(chat_acciones, "anunciar"), \
+                mock.patch.object(chat_acciones._snd, "reproducir"):
+            frame._chat_acciones._copiar_mensaje()
+        frame._chat_acciones._clipboard_set.assert_called_once_with("HOLA")
+
+    def test_releer_lee_la_traduccion_y_leer_original_el_original(self):
+        frame = self._frame_con_traduccion()
+        menu = self._menu(frame)
+        with mock.patch.object(chat_acciones, "anunciar"):
+            frame._chat_acciones._releer_mensaje()
+        self.assertIn("HOLA", frame._cola.get_nowait()["texto_tts"])
+        identificador = next(i for i, texto in menu.etiquetas.items()
+                             if texto == "Leer mensaje original")
+        with mock.patch.object(gui.wx, "CallAfter",
+                               side_effect=lambda fn, *a: fn(*a)):
+            menu.handlers[identificador](None)
+        texto_original = frame._cola.get_nowait()["texto_tts"]
+        self.assertIn("hola", texto_original)
+        self.assertNotIn("HOLA", texto_original)
 
 
 if __name__ == "__main__":

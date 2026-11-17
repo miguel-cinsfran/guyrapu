@@ -9,10 +9,11 @@ import webbrowser
 
 import wx
 
+from guyrapu.capture import traduccion_chat
 from guyrapu.core import avisos_tiktok
 from guyrapu.core import diagnostico
 from guyrapu.core.config import (
-    TIPO_MIEMBRO, TIPO_SUPERCHAT, TIPO_TEXTO, URL_REPOSITORIO)
+    TIPO_MIEMBRO, TIPO_SUPERCHAT, TIPO_TEXTO, URL_REPOSITORIO, guardar_opcion)
 from guyrapu.core.idioma import _, N_, idioma_actual
 from guyrapu.core import paquetes_catalogo
 from guyrapu.core import paths
@@ -23,6 +24,7 @@ from guyrapu.ui import menu_obs
 from guyrapu.ui import menu_reproductor
 from guyrapu.ui import menu_transmision
 from guyrapu.ui import voces_ventana
+from guyrapu.ui.accesibilidad import anunciar, anunciar_con_sonido
 from guyrapu.ui.atajos_captura import ETIQUETAS
 
 logger = diagnostico.obtener_logger(__name__)
@@ -94,6 +96,7 @@ def _construir_menu_archivo(frame, mb):
 
 
 def _construir_menu_chat(frame, mb):
+    traduccion_chat.configurar(frame._config, al_avisar=anunciar_con_sonido)
     m = wx.Menu()
     frame.mi_enviar_live = m.Append(
         wx.ID_ANY,
@@ -107,8 +110,26 @@ def _construir_menu_chat(frame, mb):
     frame.mi_participacion_chat = m.Append(
         wx.ID_ANY, _("&Participación en el chat…") + frame._accel("participacion_chat"))
     frame._bind_menu(frame.mi_participacion_chat, lambda: frame._chat_acciones.abrir_participacion())
+    frame.mi_traducir_chat = m.AppendCheckItem(
+        wx.ID_ANY, _("&Traducir chat"))
+    frame.mi_traducir_chat.Check(
+        bool(frame._config.get("traducir_chat", False)))
+    frame._bind_menu(frame.mi_traducir_chat, alternar_traduccion, frame)
     mb.Append(m, _("&Chat"))
     frame.Bind(wx.EVT_MENU, frame._on_enviar_live, frame.mi_enviar_live)
+
+
+def alternar_traduccion(frame):
+    """Cambia la casilla del menú, la guarda y anuncia el estado nuevo."""
+    nuevo = not frame._config.get("traducir_chat", False)
+    frame._config["traducir_chat"] = nuevo
+    frame.mi_traducir_chat.Check(nuevo)
+    from guyrapu.ui import gui as _gui
+    guardar_opcion(_gui.RUTA_CONFIG, "lectura", "traducir_chat",
+                   "true" if nuevo else "false")
+    traduccion_chat.configurar(frame._config)
+    anunciar(_("Traducción del chat activada") if nuevo
+             else _("Traducción del chat desactivada"))
 
 
 def _construir_menu_voz(frame, mb):

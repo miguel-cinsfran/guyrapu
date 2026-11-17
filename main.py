@@ -388,7 +388,7 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
         return  # en la lista, sin leer
 
     if debe_leer_tts(autor, config) and (sesion_activa is None or sesion_activa()):
-        encolar(cola, item_lectura.armar(tts_text, autor_visible, tipo, rol, modo),
+        encolar(cola, item_lectura.armar(tts_text, autor_visible, tipo, rol, modo, mensaje, ml),
                 config, stats)
         stats.inc("leidos")
 

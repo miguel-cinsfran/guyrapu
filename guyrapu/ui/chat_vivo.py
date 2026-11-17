@@ -12,6 +12,7 @@ import time
 
 import wx
 
+from guyrapu.capture import traduccion_chat
 from guyrapu.capture.tiktok_captura import debe_pasar_me_gusta
 from guyrapu.core import comando_clip
 from guyrapu.core import diagnostico
@@ -21,6 +22,7 @@ from guyrapu.core.avisos_tiktok import con_sonido, modo_evento, pasa_filtro
 from guyrapu.core.config import (
     TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
+from guyrapu.translation import idiomas
 from guyrapu.ui import comandos_clips
 from guyrapu.ui.lista_chat import ListaChat, MensajeChat
 from guyrapu.ui.participacion_chat import Participacion
@@ -60,12 +62,14 @@ class ControladorChat:
         self._reloj = reloj
         self._ultimo_clip_chat = None
         self._clip_en_curso = False
+        self._traducciones = {}
         self.recibidos = 0
 
     def encolar(self, registro: MensajeChat) -> None:
         self._quizas_clip(registro)
         self.recibidos += 1 if registro.tipo == TIPO_TEXTO else 0
         self._pendientes.append(registro)
+        self._pedir_traduccion(registro)
         # Si el temporizador ya corre, NO reiniciarlo: con un chat activo
         # (mensajes cada menos de MS_VOLCADO_CHAT) reiniciar pospondría el
         # volcado indefinidamente y no aparecería nada hasta una pausa.
@@ -98,6 +102,42 @@ class ControladorChat:
         if guardado:
             self._ultimo_clip_chat = self._reloj()
 
+    def _pedir_traduccion(self, registro: MensajeChat) -> None:
+        """Pide la traducción de la fila, si la lista se traduce."""
+        if registro.tipo != TIPO_TEXTO or not traduccion_chat.traduce_lista():
+            return
+        pedido = traduccion_chat.pedir(registro.texto)
+        if pedido is None:
+            return
+        pedido.al_terminar(lambda: self._traduccion_lista(registro, pedido))
+
+    def _traduccion_lista(self, registro, pedido) -> None:
+        resultado = pedido.resultado
+        if resultado is None or not resultado.origen:
+            return
+        if idiomas.sigla(resultado.origen) == idiomas.sigla(pedido.destino):
+            return
+        wx.CallAfter(self._actualizar_fila, registro, resultado)
+
+    def _actualizar_fila(self, registro: MensajeChat, traduccion) -> None:
+        """Guarda la traducción y cambia la fila sin mover foco ni selección."""
+        self._traducciones[registro] = traduccion
+        self._podar_traducciones()
+        try:
+            indice = next(indice for indice, actual
+                          in enumerate(self.modelo.todos) if actual is registro)
+        except StopIteration:
+            return
+        if indice not in self.modelo.visibles:
+            return
+        fila = self.modelo.visibles.index(indice)
+        if fila < self.lista.GetCount():
+            self.lista.SetString(fila, self._texto_fila(registro))
+
+    def traduccion(self, registro: MensajeChat):
+        """La traducción guardada de ese registro, o None."""
+        return self._traducciones.get(registro)
+
     def _procesar(self, registro: MensajeChat) -> bool:
         """Aplica UN mensaje ya desencolado al modelo y a la lista. Devuelve si
         quedó visible (se le hizo Append). Solo lo llama volcar."""
@@ -124,13 +164,32 @@ class ControladorChat:
             self.lista.Append(self._texto_fila(registro))
         return visible
 
+    def _podar_traducciones(self) -> None:
+        """Olvida las traducciones de los mensajes que ya salieron del historial."""
+        vivos = set(self.modelo.todos)
+        vivos.update(self._pendientes)
+        self._traducciones = {registro: traduccion
+                              for registro, traduccion
+                              in self._traducciones.items()
+                              if registro in vivos}
+
     def _texto_fila(self, registro: MensajeChat) -> str:
         texto = self._formatear(
-            registro.autor, registro.texto, registro.hora, registro.tipo,
-            registro.monto)
+            registro.autor, self._texto_mensaje(registro), registro.hora,
+            registro.tipo, registro.monto)
         if self._varios_chats():
             texto += plataformas.sufijo(registro.plataforma)
         return texto
+
+    def _texto_mensaje(self, registro: MensajeChat) -> str:
+        """El mensaje que se ve: la traducción con su idioma, o el original."""
+        traduccion = self._traducciones.get(registro)
+        if (traduccion is None or self._config is None
+                or not self._config.get("traducir_chat", False)
+                or self._config.get("traducir_que", "voz_lista") != "voz_lista"):
+            return registro.texto
+        forma = self._config.get("traducir_idioma_original", "completo")
+        return traduccion.texto + idiomas.mencion(traduccion.origen, forma)
 
     def _reproducir(self, registro: MensajeChat) -> None:
         """Suena el registro según su tipo, con el mismo aviso de siempre."""
@@ -213,6 +272,7 @@ class ControladorChat:
         self.descartar()
         self.modelo.limpiar()
         self.participacion.limpiar()
+        self._traducciones.clear()
 
     def reconstruir(self) -> None:
         # Que lo que acaba de llegar (aún en cola, sin pasar por el modelo) no
@@ -224,5 +284,4 @@ class ControladorChat:
             lambda it: not self._autor_oculto(it.autor)
             and pasa_filtro(self.filtro, it.tipo))
         for registro in visibles:
-            self.lista.Append(self._formatear(
-                registro.autor, registro.texto, registro.hora, registro.tipo, registro.monto))
+            self.lista.Append(self._texto_fila(registro))

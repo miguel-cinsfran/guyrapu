@@ -15,7 +15,8 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui.accesibilidad import ContadorAccesible
+from guyrapu.translation import idiomas
+from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar
 from guyrapu.ui.tema import _T, _tc
 from guyrapu.ui.preferencias_comun import EleccionTexto
 
@@ -36,6 +37,11 @@ OPCIONES_LECTURA = (
     ("sp_long", "texto", "max_longitud_mensaje", "max_longitud_mensaje", int, 200),
     ("cho_lectura_recientes", "lectura", "recientes", "lectura_recientes", str, "lector"),
     ("chk_lectura_atajos_globales", "lectura", "atajos_globales", "lectura_atajos_globales", bool, False),
+    ("chk_traducir", "lectura", "traducir_chat", "traducir_chat", bool, False),
+    ("cho_traducir_que", "lectura", "traducir_que", "traducir_que", str, "voz_lista"),
+    ("cho_traducir_idioma", "lectura", "traducir_idioma_original",
+     "traducir_idioma_original", str, "completo"),
+    ("cho_traducir_destino", "lectura", "traducir_destino", "traducir_destino", str, "interfaz"),
 )
 
 
@@ -79,12 +85,12 @@ class PaginaLectura:
         _tc(self.sp_long)
         vs.Add(self.sp_long, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
-        self._construir_recientes(p, vs)
+        self._construir_lecturas(p, vs)
 
         p.SetSizer(vs)
         return p
 
-    def _construir_recientes(self, p, vs):
+    def _construir_lecturas(self, p, vs):
         vs.Add(self._fila_label(p, _("Leer los mensajes &recientes con:")),
                0, wx.LEFT | wx.RIGHT, 10)
         self.cho_lectura_recientes = EleccionTexto(
@@ -101,6 +107,48 @@ class PaginaLectura:
         self.chk_lectura_atajos_globales.SetForegroundColour(_T.text)
         vs.Add(self.chk_lectura_atajos_globales, 0,
                wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self._construir_traduccion(p, vs)
+
+    def _construir_traduccion(self, p, vs):
+        self.chk_traducir = wx.CheckBox(
+            p, label=_("&Traducir chat"), name=_("Traducir chat"))
+        self.chk_traducir.SetForegroundColour(_T.text)
+        self.chk_traducir.Bind(wx.EVT_CHECKBOX, self._al_cambiar_traduccion)
+        vs.Add(self.chk_traducir, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+
+        vs.Add(self._fila_label(p, _("Qué se tra&duce:")),
+               0, wx.LEFT | wx.RIGHT, 10)
+        self.cho_traducir_que = EleccionTexto(
+            p, (("voz_lista", _("La voz y la lista")),
+                ("solo_voz", _("Solo la voz"))),
+            name=_("Qué se traduce"))
+        _tc(self.cho_traducir_que)
+        vs.Add(self.cho_traducir_que, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+        vs.Add(self._fila_label(p, _("&Idioma original:")),
+               0, wx.LEFT | wx.RIGHT, 10)
+        self.cho_traducir_idioma = EleccionTexto(
+            p, (("completo", _("Completo")),
+                ("abreviado", _("Abreviado")),
+                ("no", _("No decirlo"))),
+            name=_("Idioma original"))
+        _tc(self.cho_traducir_idioma)
+        vs.Add(self.cho_traducir_idioma, 0,
+               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+        vs.Add(self._fila_label(p, _("Traducir &al:")),
+               0, wx.LEFT | wx.RIGHT, 10)
+        self.cho_traducir_destino = EleccionTexto(
+            p, idiomas.opciones(), name=_("Traducir al"))
+        _tc(self.cho_traducir_destino)
+        vs.Add(self.cho_traducir_destino, 0,
+               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+    def _al_cambiar_traduccion(self, evento):
+        evento.Skip()
+        anunciar(_("Traducción del chat activada")
+                 if self.chk_traducir.GetValue()
+                 else _("Traducción del chat desactivada"))
 
     def cambios(self):
         """Lo que esta página guarda fuera de la tabla: (sección, clave, valor)."""

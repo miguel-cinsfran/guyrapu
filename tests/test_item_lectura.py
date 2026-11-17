@@ -9,6 +9,7 @@ from unittest import mock
 from guyrapu.capture import item_lectura
 from guyrapu.core.config import (
     TIPO_TEXTO, TIPO_SUPERCHAT, TIPO_STICKER, TIPO_MIEMBRO, TIPO_COFRE,
+    TIPO_ENTRADA,
 )
 from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO, ROL_MODERADOR
 from main import Stats, procesar_entrante
@@ -41,6 +42,23 @@ class TestArmar(unittest.TestCase):
         self.assertEqual(
             item_lectura.armar("texto", "Ana", TIPO_TEXTO, "", "secundaria"),
             {"texto_tts": "texto", "autor": "Ana", "secundaria": True})
+
+    def test_con_pedido_suma_el_pedido_y_el_texto_limpio(self):
+        pedido = object()
+        with mock.patch.object(item_lectura.traduccion_chat, "pedir",
+                               return_value=pedido) as pedir:
+            item = item_lectura.armar("texto", "Ana", TIPO_TEXTO, "", None,
+                                      "hola", "limpio")
+        pedir.assert_called_once_with("hola")
+        self.assertEqual(item, {"texto_tts": "texto", "autor": "Ana",
+                                "pedido": pedido, "ml": "limpio"})
+
+    def test_un_evento_no_pide_traduccion(self):
+        with mock.patch.object(item_lectura.traduccion_chat, "pedir") as pedir:
+            item = item_lectura.armar("texto", "Ana", TIPO_ENTRADA, "",
+                                      None, "hola", "limpio")
+        pedir.assert_not_called()
+        self.assertEqual(item, {"texto_tts": "texto", "autor": "Ana"})
 
 
 class TestProcesarEntranteUsaItemLectura(unittest.TestCase):

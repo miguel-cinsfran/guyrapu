@@ -758,5 +758,26 @@ class TestPseudoTextos(unittest.TestCase):
                 self.assertTrue(texto.startswith("[¡"), texto)
 
 
+class TestTextoTraducido(unittest.TestCase):
+
+    def test_lee_el_texto_que_arma_la_traduccion(self):
+        motor = MotorFalso()
+        motor.duracion = 0.02
+        cola = queue.Queue()
+        worker = tts_worker.TTSWorker(
+            cola, {}, fabrica_motor=FabricaFalsa({"sapi": motor}))
+        worker.start()
+        self.assertTrue(worker.esperar_inicio(timeout=5))
+        self.addCleanup(worker.detener)
+        with mock.patch.object(tts_worker.lectura_traducida, "texto",
+                               return_value="Ana: HELLO, del inglés"):
+            cola.put({"texto_tts": "Ana: hola", "autor": "Ana"})
+            fin = time.monotonic() + 5.0
+            while not motor.hablados and time.monotonic() < fin:
+                time.sleep(0.02)
+        self.assertEqual([texto for texto, _cuando in motor.hablados],
+                         ["Ana: HELLO, del inglés"])
+
+
 if __name__ == "__main__":
     unittest.main()

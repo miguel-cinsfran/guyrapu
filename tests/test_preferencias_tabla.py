@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la tabla de opciones simples de Preferencias.
 
-La lista de 52 va literal en este módulo, no se lee de la tabla nueva:
+La lista de 56 va literal en este módulo, no se lee de la tabla nueva:
 así protege la tabla en vez de repetirla.
 """
 
@@ -74,6 +74,10 @@ OPCIONES_ESPERADAS = [
     ("chk_musica_atajos_globales", "musica", "atajos_globales", "musica_atajos_globales", bool),
     ("cho_sonido_plataformas", "lectura", "sonido_plataformas", "sonido_plataformas", str),
     ("chk_decir_plataforma", "lectura", "decir_plataforma", "decir_plataforma", bool),
+    ("chk_traducir", "lectura", "traducir_chat", "traducir_chat", bool),
+    ("cho_traducir_que", "lectura", "traducir_que", "traducir_que", str),
+    ("cho_traducir_idioma", "lectura", "traducir_idioma_original", "traducir_idioma_original", str),
+    ("cho_traducir_destino", "lectura", "traducir_destino", "traducir_destino", str),
 ]
 
 VALORES_SPIN = {
@@ -128,17 +132,20 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                                       "evento_encuesta": "secundaria",
                                       "evento_meta": "secundaria",
                                       "evento_batalla": "secundaria",
-                                      "sonido_plataformas": "siempre"}.get(
+                                      "sonido_plataformas": "siempre",
+                                      "traducir_que": "solo_voz",
+                                      "traducir_idioma_original": "abreviado",
+                                      "traducir_destino": "en"}.get(
                                           en_memoria, "tema")
             else:
                 config[en_memoria] = por_defecto + 1
         return config
 
-    def test_tabla_tiene_52_filas_sin_repetir_y_cada_atributo_existe(self):
+    def test_tabla_tiene_56_filas_sin_repetir_y_cada_atributo_existe(self):
         tabla = gui_preferencias._OPCIONES_SIMPLES
-        self.assertEqual(len(tabla), 52)
+        self.assertEqual(len(tabla), 56)
         atributos = [fila[0] for fila in tabla]
-        self.assertEqual(len(set(atributos)), 52)
+        self.assertEqual(len(set(atributos)), 56)
         dialogo = self._dialogo()
         for atributo in atributos:
             with self.subTest(atributo=atributo):
@@ -193,7 +200,10 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                                   "evento_cofre": "secundaria",
                                   "evento_encuesta": "secundaria",
                                   "evento_meta": "secundaria",
-                                  "evento_batalla": "secundaria"}.get(
+                                  "evento_batalla": "secundaria",
+                                  "traducir_que": "solo_voz",
+                                  "traducir_idioma_original": "abreviado",
+                                  "traducir_destino": "en"}.get(
                                       en_memoria, "tema"))
                 valor = control.GetValue()
                 esperados[(seccion, clave)] = (valor, en_memoria, valor)
@@ -327,6 +337,9 @@ class TestPorDefectoContraFabrica(unittest.TestCase):
                 return texto
             if clave == "sonido_plataformas":
                 return texto if texto in ("varios", "siempre", "nunca") else "varios"
+            if clave in ("traducir_que", "traducir_idioma_original",
+                         "traducir_destino"):
+                return texto
             if clave in ("superchat", "miembro", "entrada", "me_gusta",
                          "seguir", "compartir", "cofre", "encuesta",
                          "meta", "batalla"):

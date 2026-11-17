@@ -342,6 +342,32 @@ class TestGitignore(unittest.TestCase):
             self.assertNotIn("config.predeterminado.ini", txt)
 
 
+class TestTraduccionDelChat(unittest.TestCase):
+
+    def test_fabrica_trae_la_traduccion_apagada(self):
+        self.assertEqual(pred.obtener("lectura", "traducir_chat"), "false")
+
+    def test_fabrica_traduce_la_voz_y_la_lista(self):
+        self.assertEqual(pred.obtener("lectura", "traducir_que"), "voz_lista")
+
+    def test_fabrica_dice_el_idioma_original_completo(self):
+        self.assertEqual(
+            pred.obtener("lectura", "traducir_idioma_original"), "completo")
+
+    def test_fabrica_traduce_al_idioma_de_la_interfaz(self):
+        self.assertEqual(pred.obtener("lectura", "traducir_destino"),
+                         "interfaz")
+
+    def test_primera_ejecucion_carga_las_claves(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with redirigir_rutas(Path(tmp)):
+                cfg = config.cargar_configuracion()
+        self.assertIs(cfg["traducir_chat"], False)
+        self.assertEqual(cfg["traducir_que"], "voz_lista")
+        self.assertEqual(cfg["traducir_idioma_original"], "completo")
+        self.assertEqual(cfg["traducir_destino"], "interfaz")
+
+
 class TestLecturaRecientes(unittest.TestCase):
 
     def test_fabrica_usa_el_lector_de_pantalla(self):

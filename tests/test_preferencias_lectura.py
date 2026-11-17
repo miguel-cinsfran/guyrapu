@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.core import config
+from guyrapu.translation import idiomas
 from guyrapu.ui import gui, gui_preferencias
 from guyrapu.ui import preferencias_transmision
 from guyrapu.ui.preferencias_lectura import PaginaLectura
@@ -82,8 +83,11 @@ class TestCambiosDeLectura(unittest.TestCase):
         with con_pseudo():
             dialogo = self._dialogo()
             pagina = dialogo.rb_formato.GetParent()
+            nombres_idiomas = tuple(nombre for codigo, nombre
+                                    in idiomas.opciones()
+                                    if codigo != "interfaz")
             sin_marcar = textos_sin_marcar(
-                pagina, propios=("YouTube", "TikTok"))
+                pagina, propios=("YouTube", "TikTok") + nombres_idiomas)
 
         self.assertEqual([], sin_marcar)
 

@@ -15276,3 +15276,87 @@ msgstr "Quick question in progress."
 msgid "sin medir, no está al aire"
 msgstr "not measured, not on air"
 
+#: guyrapu/capture/traduccion_chat.py
+msgid "La traducción no responde. Se leen los mensajes originales."
+msgstr "The translation is not responding. Original messages will be read."
+
+#: guyrapu/capture/traduccion_chat.py
+msgid "La traducción volvió."
+msgstr "Translation is back."
+
+#: guyrapu/translation/idiomas.py
+msgid "Idioma de la interfaz"
+msgstr "Interface language"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Leer mensaje original"
+msgstr "Read original message"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Copiar mensaje original"
+msgstr "Copy original message"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Mensaje original copiado"
+msgstr "Original message copied"
+
+#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
+msgid "&Traducir chat"
+msgstr "&Translate chat"
+
+#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
+msgid "Traducción del chat activada"
+msgstr "Chat translation on"
+
+#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
+msgid "Traducción del chat desactivada"
+msgstr "Chat translation off"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Traducir chat"
+msgstr "Translate chat"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Qué se tra&duce:"
+msgstr "What &gets translated:"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "La voz y la lista"
+msgstr "The voice and the list"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Solo la voz"
+msgstr "Voice only"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Qué se traduce"
+msgstr "What gets translated"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "&Idioma original:"
+msgstr "&Original language:"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Completo"
+msgstr "Full"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Abreviado"
+msgstr "Abbreviated"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "No decirlo"
+msgstr "Do not say it"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Idioma original"
+msgstr "Original language"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Traducir &al:"
+msgstr "Translate &into:"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Traducir al"
+msgstr "Translate to"
+

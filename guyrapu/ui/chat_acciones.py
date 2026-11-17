@@ -18,6 +18,7 @@ from guyrapu.capture import alias, chat_adicional
 from guyrapu.core import paths, sonidos_eventos
 from guyrapu.core.config import guardar_opcion
 from guyrapu.core.idioma import _
+from guyrapu.translation.proveedores.base import Traduccion
 from guyrapu.ui import confirmar, menu_moderacion
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.gui_menu import FILTROS
@@ -114,8 +115,8 @@ class AccionesChat:
         self._mostrar_menu_chat()
 
     def _mostrar_menu_chat(self):
-        idx = self.lb_chat.GetSelection()
-        if idx == wx.NOT_FOUND:
+        registro_sel = self._get_selected_data()
+        if registro_sel is None:
             return
         menu = wx.Menu()
 
@@ -131,11 +132,11 @@ class AccionesChat:
         menu.Append(id_copiar,  _("Copiar mensaje"))
         menu.Append(id_copiar2, _("Copiar todo (autor: mensaje, hora)"))
         menu.Append(id_releer,  _("Leer en voz alta"))
+        self._agregar_entradas_traduccion(menu, registro_sel)
         menu.AppendSeparator()
         menu.Append(id_link,    _("Abrir enlace"))
         menu.AppendSeparator()
 
-        registro_sel = self._get_selected_data()
         autor = registro_sel.autor if registro_sel else ""
         autor_mostrado = alias.visible(autor) if autor else ""
         if autor:
@@ -158,6 +159,17 @@ class AccionesChat:
 
         self.lb_chat.PopupMenu(menu)
         menu.Destroy()
+
+    def _agregar_entradas_traduccion(self, menu, registro) -> None:
+        """Suma al menú leer y copiar el original si el mensaje se tradujo."""
+        if self._traduccion(registro) is None:
+            return
+        id_leer = wx.NewIdRef()
+        id_copiar = wx.NewIdRef()
+        menu.Append(id_leer, _("Leer mensaje original"))
+        menu.Append(id_copiar, _("Copiar mensaje original"))
+        self._bind_menu((menu, id_leer), self._leer_original)
+        self._bind_menu((menu, id_copiar), self._copiar_original)
 
     def _agregar_entradas_autor(self, menu, autor, autor_mostrado,
                                 id_rehab, id_sil_tts, id_sil_full, id_alias):
@@ -192,14 +204,32 @@ class AccionesChat:
         anunciar(_("Alias guardado, {nuevo}").format(nuevo=actualizado[alias.clave(autor)])
                   if nuevo.strip() else _("Alias eliminado"))
 
+    def _traduccion(self, registro):
+        """La traducción guardada de ese registro, o None."""
+        if registro is None or self.chat_vivo is None:
+            return None
+        resultado = self.chat_vivo.traduccion(registro)
+        return resultado if isinstance(resultado, Traduccion) else None
+
+    def _texto_visible(self, registro) -> str:
+        traduccion = self._traduccion(registro)
+        return traduccion.texto if traduccion is not None else registro.texto
+
     def _copiar_mensaje(self):
         data = self._get_selected_data()
         if data is None:
             return
-        mensaje = data.texto
-        self._clipboard_set(mensaje)
+        self._clipboard_set(self._texto_visible(data))
         _snd.reproducir("copiar")
         anunciar(_("Mensaje copiado"))
+
+    def _copiar_original(self):
+        data = self._get_selected_data()
+        if data is None:
+            return
+        self._clipboard_set(data.texto)
+        _snd.reproducir("copiar")
+        anunciar(_("Mensaje original copiado"))
 
     def _copiar_enlace_directo(self):
         texto, frase = chat_adicional.texto_enlace_directo(
@@ -213,7 +243,7 @@ class AccionesChat:
         data = self._get_selected_data()
         if data is None:
             return
-        linea = f"{data.autor}: {data.texto}, {data.hora}"
+        linea = f"{data.autor}: {self._texto_visible(data)}, {data.hora}"
         if data.monto:
             linea += f" [{data.monto}]"
         self._clipboard_set(linea)
@@ -225,7 +255,17 @@ class AccionesChat:
         if data is None:
             return
         from guyrapu.voice.tts_worker import construir_tts
-        self._cola.put({"texto_tts": construir_tts(data.autor, data.texto, self._config),
+        self._cola.put({"texto_tts": construir_tts(
+                            data.autor, self._texto_visible(data), self._config),
+                        "autor": data.autor})
+
+    def _leer_original(self):
+        data = self._get_selected_data()
+        if data is None:
+            return
+        from guyrapu.voice.tts_worker import construir_tts
+        self._cola.put({"texto_tts": construir_tts(
+                            data.autor, data.texto, self._config),
                         "autor": data.autor})
 
     def _abrir_enlace(self):

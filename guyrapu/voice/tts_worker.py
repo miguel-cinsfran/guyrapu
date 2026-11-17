@@ -26,6 +26,7 @@ from guyrapu.core.lectura_eventos import (
 from guyrapu.voice import eleccion_motor
 from guyrapu.voice import escala_voz
 from guyrapu.voice import gestor_motores
+from guyrapu.voice import lectura_traducida
 from guyrapu.voice import motores
 from guyrapu.voice import proveedores
 
@@ -118,7 +119,7 @@ class TTSWorker(threading.Thread):
                     continue
                 if item is _STOP:
                     break
-                texto = (item.get("texto_tts") or "").strip()
+                texto = (lectura_traducida.texto(item, self.config) or "").strip()
                 if not texto:
                     continue
                 self._active.wait()
