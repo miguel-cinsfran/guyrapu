@@ -3159,6 +3159,56 @@ msgstr "Could not update yt-dlp: {motivo}."
 msgid "No se pudo actualizar yt-dlp."
 msgstr "Could not update yt-dlp."
 
+#: guyrapu/interaction/animacion.py
+msgid "Fundido al subir"
+msgstr "Fade up"
+
+#: guyrapu/interaction/animacion.py
+msgid "Fundido"
+msgstr "Fade"
+
+#: guyrapu/interaction/animacion.py
+msgid "Desde la derecha"
+msgstr "From the right"
+
+#: guyrapu/interaction/animacion.py
+msgid "Desde la izquierda"
+msgstr "From the left"
+
+#: guyrapu/interaction/animacion.py
+msgid "Desde arriba"
+msgstr "From the top"
+
+#: guyrapu/interaction/animacion.py
+msgid "Desde abajo"
+msgstr "From the bottom"
+
+#. Traductores: primera opción de la lista; ninguna elegida.
+#: guyrapu/interaction/animacion.py guyrapu/ui/miniatura_directo.py
+#: guyrapu/youtube/emision.py
+msgid "Ninguna"
+msgstr "None"
+
+#: guyrapu/interaction/animacion.py
+msgid "Fundido al bajar"
+msgstr "Fade down"
+
+#: guyrapu/interaction/animacion.py
+msgid "Hacia la derecha"
+msgstr "To the right"
+
+#: guyrapu/interaction/animacion.py
+msgid "Hacia la izquierda"
+msgstr "To the left"
+
+#: guyrapu/interaction/animacion.py
+msgid "Hacia arriba"
+msgstr "To the top"
+
+#: guyrapu/interaction/animacion.py
+msgid "Hacia abajo"
+msgstr "To the bottom"
+
 #. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
 msgid "El comando necesita un nombre."
@@ -4069,6 +4119,161 @@ msgstr "Recording: in progress, {tiempo}"
 msgid "Grabación: detenida"
 msgstr "Recording: stopped"
 
+#: guyrapu/obs/estilos_aviso.py
+msgid "Según la orientación del vídeo"
+msgstr "Based on the video orientation"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Arriba a la izquierda"
+msgstr "Top left"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Arriba al centro"
+msgstr "Top center"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Arriba a la derecha"
+msgstr "Top right"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Centro a la izquierda"
+msgstr "Center left"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Centro"
+msgstr "Middle"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Centro a la derecha"
+msgstr "Center right"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Abajo a la izquierda"
+msgstr "Bottom left"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Abajo al centro"
+msgstr "Bottom center"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+msgid "Abajo a la derecha"
+msgstr "Bottom right"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Blanco"
+msgstr "White"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Negro"
+msgstr "Black"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Amarillo"
+msgstr "Yellow"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Naranja"
+msgstr "Orange"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Rojo"
+msgstr "Red"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Rosa"
+msgstr "Pink"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Violeta"
+msgstr "Violet"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Azul"
+msgstr "Blue"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Celeste"
+msgstr "Light blue"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Verde"
+msgstr "Green"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Gris claro"
+msgstr "Light gray"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Gris oscuro"
+msgstr "Dark gray"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Clásico"
+msgstr "Classic"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Banda"
+msgstr "Band"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Tarjeta"
+msgstr "Card"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Alto contraste"
+msgstr "High contrast"
+
+#. Traductores: aviso de un estilo de aviso sin fondo ni contorno.
+#: guyrapu/obs/estilos_aviso.py
+msgid "El texto no tiene fondo ni contorno y puede perderse sobre la imagen."
+msgstr "The text has no background or outline and may be lost over the picture."
+
+#. Traductores: aviso de contraste insuficiente. {relacion} es la relación
+#. medida y 4,5 el mínimo.
+#: guyrapu/obs/estilos_aviso.py
+#, python-brace-format
+msgid "El contraste es de {relacion} a 1 y debería ser de al menos 4,5 a 1."
+msgstr "The contrast is {relacion} to 1 and should be at least 4.5 to 1."
+
+#. Traductores: aviso cuando la fuente elegida no está instalada. {fuente} es
+#. su nombre.
+#: guyrapu/obs/estilos_aviso.py
+#, python-brace-format
+msgid "La fuente {fuente} no está instalada. Se usa Segoe UI."
+msgstr "The font {fuente} is not installed. Segoe UI will be used."
+
+#. Traductores: validación de un estilo de aviso (error).
+#: guyrapu/obs/estilos_aviso.py
+msgid "El estilo necesita un nombre."
+msgstr "The style needs a name."
+
+#. Traductores: validación de un estilo de aviso repetido. {nombre} es el
+#. nombre.
+#: guyrapu/obs/estilos_aviso.py
+#, python-brace-format
+msgid "Ya hay un estilo llamado {nombre}."
+msgstr "A style named {nombre} already exists."
+
+#. Traductores: validación del tamaño de un estilo de aviso (error).
+#: guyrapu/obs/estilos_aviso.py
+msgid "El tamaño debe estar entre 2 y 15."
+msgstr "The size must be between 2 and 15."
+
+#. Traductores: validación de un color de un estilo de aviso (error).
+#: guyrapu/obs/estilos_aviso.py
+msgid "Los colores deben ser códigos como #RRGGBB."
+msgstr "Colors must be codes such as #RRGGBB."
+
+#. Traductores: validación de la opacidad de un estilo de aviso (error).
+#: guyrapu/obs/estilos_aviso.py
+msgid "La opacidad del fondo debe estar entre 0 y 100."
+msgstr "The background opacity must be between 0 and 100."
+
+#. Traductores: validación de la duración de una animación de aviso (error).
+#: guyrapu/obs/estilos_aviso.py
+msgid "La duración de la animación debe estar entre 100 y 1000 milisegundos."
+msgstr "The animation duration must be between 100 and 1000 milliseconds."
+
 #: guyrapu/obs/filtros_microfono.py
 msgid "Sin cambio"
 msgstr "No change"
@@ -4601,42 +4806,6 @@ msgid "Escena al aire: {escena} vertical."
 msgstr "Live scene: {escena} vertical."
 
 #: guyrapu/obs/obs_disposicion.py
-msgid "Arriba a la izquierda"
-msgstr "Top left"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Arriba al centro"
-msgstr "Top center"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Arriba a la derecha"
-msgstr "Top right"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Centro a la izquierda"
-msgstr "Center left"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Centro"
-msgstr "Middle"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Centro a la derecha"
-msgstr "Center right"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Abajo a la izquierda"
-msgstr "Bottom left"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Abajo al centro"
-msgstr "Bottom center"
-
-#: guyrapu/obs/obs_disposicion.py
-msgid "Abajo a la derecha"
-msgstr "Bottom right"
-
-#: guyrapu/obs/obs_disposicion.py
 msgid "arriba a la izquierda"
 msgstr "top left"
 
@@ -5135,6 +5304,17 @@ msgstr "scene"
 #: guyrapu/obs/obs_prevuelo.py
 msgid "chat en el vídeo de la app"
 msgstr "chat on video from the app"
+
+#: guyrapu/obs/obs_prevuelo.py
+#, python-brace-format
+msgid ""
+"La cortina de pantalla de NVDA deja en negro la captura de pantalla "
+"{nombre}. En sus propiedades, cambia el método de captura a Windows 10, o "
+"desactiva la cortina con NVDA+Control+Esc."
+msgstr ""
+"The NVDA screen curtain turns the {nombre} screenshot black. In its "
+"properties, change the capture method to Windows 10, or turn off the "
+"curtain with NVDA+Control+Esc."
 
 #: guyrapu/obs/obs_prevuelo.py
 #, python-brace-format
@@ -11716,11 +11896,6 @@ msgstr "&Broadcast"
 msgid "Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 msgstr "JPG and PNG images (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
 
-#. Traductores: primera opción de la lista; ninguna elegida.
-#: guyrapu/ui/miniatura_directo.py guyrapu/youtube/emision.py
-msgid "Ninguna"
-msgstr "None"
-
 #: guyrapu/ui/miniatura_directo.py
 #, python-brace-format
 msgid "Miniatura: {nombre}"
@@ -14316,125 +14491,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/obs/obs_prevuelo.py
-#, python-brace-format
-msgid ""
-"La cortina de pantalla de NVDA deja en negro la captura de pantalla "
-"{nombre}. En sus propiedades, cambia el método de captura a Windows 10, o "
-"desactiva la cortina con NVDA+Control+Esc."
-msgstr ""
-"The NVDA screen curtain turns the {nombre} screenshot black. In its "
-"properties, change the capture method to Windows 10, or turn off the "
-"curtain with NVDA+Control+Esc."
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Blanco"
-msgstr "White"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Negro"
-msgstr "Black"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Amarillo"
-msgstr "Yellow"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Naranja"
-msgstr "Orange"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Rojo"
-msgstr "Red"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Rosa"
-msgstr "Pink"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Violeta"
-msgstr "Violet"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Azul"
-msgstr "Blue"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Celeste"
-msgstr "Light blue"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Verde"
-msgstr "Green"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Gris claro"
-msgstr "Light gray"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Gris oscuro"
-msgstr "Dark gray"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Clásico"
-msgstr "Classic"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Banda"
-msgstr "Band"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Tarjeta"
-msgstr "Card"
-
-#: guyrapu/obs/estilos_aviso.py
-msgid "Alto contraste"
-msgstr "High contrast"
-
-#. Traductores: aviso de un estilo de aviso sin fondo ni contorno.
-#: guyrapu/obs/estilos_aviso.py
-msgid "El texto no tiene fondo ni contorno y puede perderse sobre la imagen."
-msgstr "The text has no background or outline and may be lost over the picture."
-
-#. Traductores: aviso de contraste insuficiente. {relacion} es la relación
-#. medida y 4,5 el mínimo.
-#: guyrapu/obs/estilos_aviso.py
-#, python-brace-format
-msgid "El contraste es de {relacion} a 1 y debería ser de al menos 4,5 a 1."
-msgstr "The contrast is {relacion} to 1 and should be at least 4.5 to 1."
-
-#. Traductores: aviso cuando la fuente elegida no está instalada. {fuente} es
-#. su nombre.
-#: guyrapu/obs/estilos_aviso.py
-#, python-brace-format
-msgid "La fuente {fuente} no está instalada. Se usa Segoe UI."
-msgstr "The font {fuente} is not installed. Segoe UI will be used."
-
-#. Traductores: validación de un estilo de aviso (error).
-#: guyrapu/obs/estilos_aviso.py
-msgid "El estilo necesita un nombre."
-msgstr "The style needs a name."
-
-#. Traductores: validación de un estilo de aviso repetido. {nombre} es el
-#. nombre.
-#: guyrapu/obs/estilos_aviso.py
-#, python-brace-format
-msgid "Ya hay un estilo llamado {nombre}."
-msgstr "A style named {nombre} already exists."
-
-#. Traductores: validación del tamaño de un estilo de aviso (error).
-#: guyrapu/obs/estilos_aviso.py
-msgid "El tamaño debe estar entre 2 y 15."
-msgstr "The size must be between 2 and 15."
-
-#. Traductores: validación de un color de un estilo de aviso (error).
-#: guyrapu/obs/estilos_aviso.py
-msgid "Los colores deben ser códigos como #RRGGBB."
-msgstr "Colors must be codes such as #RRGGBB."
-
-#. Traductores: validación de la opacidad de un estilo de aviso (error).
-#: guyrapu/obs/estilos_aviso.py
-msgid "La opacidad del fondo debe estar entre 0 y 100."
-msgstr "The background opacity must be between 0 and 100."
 

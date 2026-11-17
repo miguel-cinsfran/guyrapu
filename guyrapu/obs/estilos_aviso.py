@@ -14,12 +14,16 @@ import re
 
 from guyrapu.core import archivos
 from guyrapu.core.idioma import _, N_
+from guyrapu.interaction.animacion import ENTRADAS, SALIDAS
 from guyrapu.obs.overlay_datos import relacion_de_contraste
 
 _COLOR_RE = re.compile(r"#[0-9A-Fa-f]{6}")
+_CLAVES_ENTRADA = {clave for clave, _nombre in ENTRADAS}
+_CLAVES_SALIDA = {clave for clave, _nombre in SALIDAS}
 
 # Traductores: zonas de la pantalla donde se puede ubicar un aviso.
 ZONAS = (
+    ("automatica", N_("Según la orientación del vídeo")),
     ("arriba_izquierda", N_("Arriba a la izquierda")),
     ("arriba_centro", N_("Arriba al centro")),
     ("arriba_derecha", N_("Arriba a la derecha")),
@@ -30,6 +34,8 @@ ZONAS = (
     ("abajo_centro", N_("Abajo al centro")),
     ("abajo_derecha", N_("Abajo a la derecha")),
 )
+
+_CLAVES_ZONA = {clave for clave, _nombre in ZONAS}
 
 # Traductores: nombres de los colores disponibles para un estilo de aviso.
 COLORES = (
@@ -62,7 +68,13 @@ FABRICA = (
         "color_fondo": "#000000",
         "opacidad_fondo": 0,
         "alineacion": "izquierda",
-        "zona": "abajo_izquierda",
+        "zona": "automatica",
+        "entrada": "suave",
+        "salida": "fundido",
+        "ms_entrada": 350,
+        "ms_salida": 250,
+        "esquinas": "rectas",
+        "sombra": False,
     },
     {
         "clave": "banda",
@@ -74,9 +86,15 @@ FABRICA = (
         "color_contorno": "#000000",
         "ancho_contorno": 0,
         "color_fondo": "#1E1E1E",
-        "opacidad_fondo": 75,
+        "opacidad_fondo": 85,
         "alineacion": "izquierda",
-        "zona": "abajo_izquierda",
+        "zona": "automatica",
+        "entrada": "suave",
+        "salida": "fundido",
+        "ms_entrada": 350,
+        "ms_salida": 250,
+        "esquinas": "rectas",
+        "sombra": False,
     },
     {
         "clave": "tarjeta",
@@ -90,7 +108,13 @@ FABRICA = (
         "color_fondo": "#FFFFFF",
         "opacidad_fondo": 90,
         "alineacion": "centro",
-        "zona": "abajo_centro",
+        "zona": "automatica",
+        "entrada": "suave",
+        "salida": "fundido",
+        "ms_entrada": 350,
+        "ms_salida": 250,
+        "esquinas": "redondeadas",
+        "sombra": True,
     },
     {
         "clave": "alto_contraste",
@@ -104,7 +128,13 @@ FABRICA = (
         "color_fondo": "#000000",
         "opacidad_fondo": 100,
         "alineacion": "centro",
-        "zona": "abajo_centro",
+        "zona": "automatica",
+        "entrada": "suave",
+        "salida": "fundido",
+        "ms_entrada": 350,
+        "ms_salida": 250,
+        "esquinas": "rectas",
+        "sombra": False,
     },
 )
 
@@ -120,7 +150,13 @@ _DEFECTOS = {
     "color_fondo": "#000000",
     "opacidad_fondo": 0,
     "alineacion": "izquierda",
-    "zona": "abajo_izquierda",
+    "zona": "automatica",
+    "entrada": "suave",
+    "salida": "fundido",
+    "ms_entrada": 350,
+    "ms_salida": 250,
+    "esquinas": "redondeadas",
+    "sombra": False,
 }
 
 
@@ -180,6 +216,15 @@ def fuente_para(estilo: dict, instaladas) -> tuple[str, str]:
                          "UI.").format(fuente=fuente)
 
 
+def _fuera_de_rango(estilo: dict, clave, minimo, maximo,
+                    conversion=int) -> bool:
+    try:
+        valor = conversion(float(estilo.get(clave)))
+    except (TypeError, ValueError):
+        return True
+    return not minimo <= valor <= maximo
+
+
 def validar_estilo(estilo: dict, otros) -> str:
     """El error que impide guardar el estilo, o vacío si se puede guardar."""
     nombre = str(estilo.get("nombre", "")).strip()
@@ -193,24 +238,21 @@ def validar_estilo(estilo: dict, otros) -> str:
         if existente.casefold() == nombre.casefold():
             # Traductores: validación de un estilo de aviso repetido. {nombre} es el nombre.
             return _("Ya hay un estilo llamado {nombre}.").format(nombre=nombre)
-    try:
-        tamano = float(estilo.get("tamano"))
-    except (TypeError, ValueError):
-        tamano = None
-    if tamano is None or not 2 <= tamano <= 15:
+    if _fuera_de_rango(estilo, "tamano", 2, 15, float):
         # Traductores: validación del tamaño de un estilo de aviso (error).
         return _("El tamaño debe estar entre 2 y 15.")
     for clave in ("color_texto", "color_contorno", "color_fondo"):
         if not _COLOR_RE.fullmatch(str(estilo.get(clave, ""))):
             # Traductores: validación de un color de un estilo de aviso (error).
             return _("Los colores deben ser códigos como #RRGGBB.")
-    try:
-        opacidad = int(float(estilo.get("opacidad_fondo")))
-    except (TypeError, ValueError):
-        opacidad = None
-    if opacidad is None or not 0 <= opacidad <= 100:
+    if _fuera_de_rango(estilo, "opacidad_fondo", 0, 100):
         # Traductores: validación de la opacidad de un estilo de aviso (error).
         return _("La opacidad del fondo debe estar entre 0 y 100.")
+    for clave in ("ms_entrada", "ms_salida"):
+        if _fuera_de_rango(estilo, clave, 100, 1000):
+            # Traductores: validación de la duración de una animación de aviso (error).
+            return _("La duración de la animación debe estar entre 100 y 1000 "
+                     "milisegundos.")
     return ""
 
 
@@ -238,6 +280,14 @@ def _normalizar_estilo(estilo: dict) -> dict:
                 resultado[clave] = "" if valor is None else str(valor)
         except (TypeError, ValueError):
             resultado[clave] = defecto
+    for clave in ("ms_entrada", "ms_salida"):
+        resultado[clave] = min(1000, max(100, resultado[clave]))
+    if resultado["entrada"] not in _CLAVES_ENTRADA:
+        resultado["entrada"] = _DEFECTOS["entrada"]
+    if resultado["salida"] not in _CLAVES_SALIDA:
+        resultado["salida"] = _DEFECTOS["salida"]
+    if resultado["zona"] not in _CLAVES_ZONA:
+        resultado["zona"] = "automatica"
     return resultado
 
 

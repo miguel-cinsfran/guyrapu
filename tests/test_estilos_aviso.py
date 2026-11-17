@@ -12,7 +12,8 @@ from guyrapu.obs.overlay_datos import relacion_de_contraste
 CLAVES_DEL_ESTILO = {
     "clave", "nombre", "fuente", "tamano", "negrita", "color_texto",
     "color_contorno", "ancho_contorno", "color_fondo", "opacidad_fondo",
-    "alineacion", "zona",
+    "alineacion", "zona", "entrada", "salida", "ms_entrada", "ms_salida",
+    "esquinas", "sombra",
 }
 
 
@@ -37,27 +38,27 @@ class TestFabrica(unittest.TestCase):
              clasico["ancho_contorno"], clasico["color_fondo"],
              clasico["opacidad_fondo"], clasico["alineacion"], clasico["zona"]),
             ("Segoe UI", 5, True, "#FFFFFF", "#000000", 4, "#000000", 0,
-             "izquierda", "abajo_izquierda"))
+             "izquierda", "automatica"))
         self.assertEqual(
             (banda["fuente"], banda["tamano"], banda["negrita"],
              banda["ancho_contorno"], banda["color_fondo"],
              banda["opacidad_fondo"], banda["alineacion"], banda["zona"]),
-            ("Segoe UI", 4.5, False, 0, "#1E1E1E", 75, "izquierda",
-             "abajo_izquierda"))
+            ("Segoe UI", 4.5, False, 0, "#1E1E1E", 85, "izquierda",
+             "automatica"))
         self.assertEqual(
             (tarjeta["fuente"], tarjeta["tamano"], tarjeta["negrita"],
              tarjeta["color_texto"], tarjeta["ancho_contorno"],
              tarjeta["color_fondo"], tarjeta["opacidad_fondo"],
              tarjeta["alineacion"], tarjeta["zona"]),
             ("Segoe UI", 4, False, "#1A1A1A", 0, "#FFFFFF", 90, "centro",
-             "abajo_centro"))
+             "automatica"))
         self.assertEqual(
             (contraste["fuente"], contraste["tamano"], contraste["negrita"],
              contraste["color_texto"], contraste["ancho_contorno"],
              contraste["color_fondo"], contraste["opacidad_fondo"],
              contraste["alineacion"], contraste["zona"]),
             ("Arial", 5.5, True, "#FFFF00", 0, "#000000", 100, "centro",
-             "abajo_centro"))
+             "automatica"))
 
     def test_la_tupla_de_fabrica_no_se_modifica(self):
         original = dict(estilos_aviso.FABRICA[0])
@@ -80,13 +81,122 @@ class TestFabrica(unittest.TestCase):
 
 
 class TestZonas(unittest.TestCase):
-    def test_nueve_zonas_en_orden(self):
+    def test_diez_zonas_con_automatica_primero(self):
         self.assertEqual(
             [clave for clave, _nombre in estilos_aviso.ZONAS],
-            ["arriba_izquierda", "arriba_centro", "arriba_derecha",
-             "medio_izquierda", "medio_centro", "medio_derecha",
-             "abajo_izquierda", "abajo_centro", "abajo_derecha"])
+            ["automatica", "arriba_izquierda", "arriba_centro",
+             "arriba_derecha", "medio_izquierda", "medio_centro",
+             "medio_derecha", "abajo_izquierda", "abajo_centro",
+             "abajo_derecha"])
+        self.assertEqual(estilos_aviso.ZONAS[0],
+                         ("automatica", "Según la orientación del vídeo"))
         self.assertTrue(all(nombre for _clave, nombre in estilos_aviso.ZONAS))
+
+
+class TestZonaAutomatica(unittest.TestCase):
+    def setUp(self):
+        self.temporal = tempfile.TemporaryDirectory()
+        self.ruta = Path(self.temporal.name) / "estilos_avisos.json"
+        self.addCleanup(self.temporal.cleanup)
+
+    def test_la_fabrica_usa_la_zona_automatica(self):
+        for estilo in estilos_aviso.todos([]):
+            with self.subTest(clave=estilo["clave"]):
+                self.assertEqual(estilo["zona"], "automatica")
+
+    def test_un_estilo_nuevo_usa_la_zona_automatica(self):
+        self.ruta.write_text(
+            json.dumps([{"clave": "mio", "nombre": "Mío"}]), encoding="utf-8")
+        self.assertEqual(
+            estilos_aviso.cargar_estilos(self.ruta)[0]["zona"], "automatica")
+
+    def test_una_zona_desconocida_queda_en_automatica(self):
+        self.ruta.write_text(
+            json.dumps([{"clave": "mio", "nombre": "Mío",
+                         "zona": "inventada"}]), encoding="utf-8")
+        self.assertEqual(
+            estilos_aviso.cargar_estilos(self.ruta)[0]["zona"], "automatica")
+
+
+class TestAnimaciones(unittest.TestCase):
+    def setUp(self):
+        self.temporal = tempfile.TemporaryDirectory()
+        self.ruta = Path(self.temporal.name) / "estilos_avisos.json"
+        self.addCleanup(self.temporal.cleanup)
+
+    def _base(self):
+        return dict(estilos_aviso.FABRICA[0], clave="mio", nombre="Mi estilo")
+
+    def test_la_fabrica_entra_suave_y_sale_con_fundido(self):
+        for estilo in estilos_aviso.todos([]):
+            with self.subTest(clave=estilo["clave"]):
+                self.assertEqual(estilo["entrada"], "suave")
+                self.assertEqual(estilo["salida"], "fundido")
+                self.assertEqual(estilo["ms_entrada"], 350)
+                self.assertEqual(estilo["ms_salida"], 250)
+
+    def test_validar_rechaza_duraciones_fuera_de_rango(self):
+        for clave in ("ms_entrada", "ms_salida"):
+            for valor in (99, 1001):
+                with self.subTest(clave=clave, valor=valor):
+                    self.assertTrue(estilos_aviso.validar_estilo(
+                        dict(self._base(), **{clave: valor}), []))
+
+    def test_validar_acepta_los_extremos_del_rango(self):
+        for clave in ("ms_entrada", "ms_salida"):
+            for valor in (100, 1000):
+                with self.subTest(clave=clave, valor=valor):
+                    self.assertEqual(estilos_aviso.validar_estilo(
+                        dict(self._base(), **{clave: valor}), []), "")
+
+    def test_un_archivo_fuera_de_rango_se_acota_al_extremo(self):
+        self.ruta.write_text(
+            json.dumps([{"clave": "mio", "nombre": "Mío",
+                         "ms_entrada": 50, "ms_salida": 5000}]),
+            encoding="utf-8")
+        estilo = estilos_aviso.cargar_estilos(self.ruta)[0]
+        self.assertEqual(estilo["ms_entrada"], 100)
+        self.assertEqual(estilo["ms_salida"], 1000)
+
+    def test_una_animacion_desconocida_se_lee_como_la_de_fabrica(self):
+        self.ruta.write_text(
+            json.dumps([{"clave": "mio", "nombre": "Mío",
+                         "entrada": "inventada", "salida": "otra"}]),
+            encoding="utf-8")
+        estilo = estilos_aviso.cargar_estilos(self.ruta)[0]
+        self.assertEqual(estilo["entrada"], "suave")
+        self.assertEqual(estilo["salida"], "fundido")
+
+
+class TestFondo(unittest.TestCase):
+    def setUp(self):
+        self.temporal = tempfile.TemporaryDirectory()
+        self.ruta = Path(self.temporal.name) / "estilos_avisos.json"
+        self.addCleanup(self.temporal.cleanup)
+
+    def test_esquinas_y_sombra_de_fabrica(self):
+        estilos = {estilo["clave"]: estilo
+                   for estilo in estilos_aviso.todos([])}
+        self.assertEqual(
+            (estilos["tarjeta"]["esquinas"], estilos["tarjeta"]["sombra"]),
+            ("redondeadas", True))
+        for clave in ("clasico", "banda", "alto_contraste"):
+            with self.subTest(clave=clave):
+                self.assertEqual(
+                    (estilos[clave]["esquinas"], estilos[clave]["sombra"]),
+                    ("rectas", False))
+
+    def test_un_estilo_nuevo_es_redondeado_y_sin_sombra(self):
+        self.ruta.write_text(
+            json.dumps([{"clave": "mio", "nombre": "Mío"}]), encoding="utf-8")
+        estilo = estilos_aviso.cargar_estilos(self.ruta)[0]
+        self.assertEqual(
+            (estilo["esquinas"], estilo["sombra"]), ("redondeadas", False))
+
+    def test_la_banda_tiene_ochenta_y_cinco_de_opacidad(self):
+        banda = next(estilo for estilo in estilos_aviso.todos([])
+                     if estilo["clave"] == "banda")
+        self.assertEqual(banda["opacidad_fondo"], 85)
 
 
 class TestColores(unittest.TestCase):
