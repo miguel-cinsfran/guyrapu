@@ -10,7 +10,8 @@ import os
 import time
 from collections import namedtuple
 
-from guyrapu.core import paths
+from guyrapu.core import esperas, paths
+from guyrapu.core.tiempo import resolver_tiempo
 from guyrapu.interaction import zonas
 from guyrapu.obs import estilos_aviso, fondo_tarjeta, fuentes_windows
 from guyrapu.obs import luz_imagen
@@ -229,19 +230,18 @@ class EscenaGuyrapu:
         entero = _color_obs(str(estilo.get("color_fondo", "#000000")))
         alfa = int(round(255 * float(estilo.get("opacidad_fondo", 0) or 0) / 100))
         objetivo = (entero & 255, entero >> 8 & 255, entero >> 16 & 255, alfa)
-        limite = time.monotonic() + 2
-        while time.monotonic() < limite:
-            try:
-                datos = self._pedir("GetSourceScreenshot", {
-                    "sourceName": FONDO, "imageFormat": "bmp",
-                    "imageWidth": 16}, parada)
-            except obs_cliente.ObsError:
-                datos = {}
-            pixel = _pixel_bmp(base64.b64decode(
+
+        def consultar():
+            datos = self._pedir("GetSourceScreenshot", {
+                "sourceName": FONDO, "imageFormat": "bmp",
+                "imageWidth": 16}, parada)
+            return _pixel_bmp(base64.b64decode(
                 str(datos.get("imageData", "")).split(",")[-1]))
-            if pixel is not None and _parecido(pixel, objetivo):
-                return
-            esperar(0.03)
+
+        esperas.esperar(
+            consultar, lambda pixel: pixel is not None and _parecido(pixel, objetivo),
+            cadencia=esperas.Fija(0.03), plazo=2,
+            tolerar=(obs_cliente.ObsError,), tiempo=resolver_tiempo(None, esperar))
 
     def mostrar(self, texto, estilo, parada=None, esperar=time.sleep) -> Tarjeta:
         """Arma la tarjeta con el estilo y la pone encima de lo que está al aire."""
@@ -314,22 +314,22 @@ class EscenaGuyrapu:
 
     def _medir_texto(self, parada) -> tuple:
         item = self._item(TARJETA, TEXTO, parada)
-        anterior = None
-        limite = time.monotonic() + 2
-        while True:
+        anterior = [None]
+
+        def consultar():
             datos = self._pedir("GetSceneItemTransform", {
                 "sceneName": TARJETA,
                 "sceneItemId": item["sceneItemId"]}, parada)
             transformacion = datos.get("sceneItemTransform", {})
-            medida = (
-                int(round(float(transformacion.get("sourceWidth") or 0))),
-                int(round(float(transformacion.get("sourceHeight") or 0))))
-            if medida == anterior and all(medida):
-                return medida
-            anterior = medida
-            if time.monotonic() >= limite:
-                return medida
-            time.sleep(0.05)
+            medida = (int(round(float(transformacion.get("sourceWidth") or 0))),
+                      int(round(float(transformacion.get("sourceHeight") or 0))))
+            estable = medida == anterior[0] and all(medida)
+            anterior[0] = medida
+            return medida, estable
+
+        return esperas.esperar(
+            consultar, lambda resultado: resultado[1], cadencia=esperas.Fija(0.05),
+            plazo=2, tiempo=resolver_tiempo(None, time.sleep)).valor[0]
 
     def _habilitar(self, fuente, visible, parada) -> None:
         item = self._item(TARJETA, fuente, parada)

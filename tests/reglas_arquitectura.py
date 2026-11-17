@@ -151,7 +151,9 @@ REGLAS = (
                 1, "repite esperar_salida, que ya usa guyrapu.core.esperas"),
         },
         duenos=("guyrapu/core/tiempo.py", "guyrapu/core/esperas.py",
-                "guyrapu/core/vigilancia.py"),
+                "guyrapu/core/vigilancia.py",
+                # No espera a un servicio: reproduce cuadros a su hora.
+                "guyrapu/obs/animador.py"),
         ambito=_esperas,
     ),
     Regla(

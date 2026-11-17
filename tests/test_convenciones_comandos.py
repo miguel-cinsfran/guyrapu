@@ -201,6 +201,7 @@ FALTAS_CONOCIDAS = [
     "«Shift» en la tecla de «Administrador de descargas…»",
     "«Shift» en la tecla de «Preferencias…»",
     "«Shift» en la tecla de «Marcar incidencia»",
+    "«Shift» en la tecla de «Mensajes automáticos…»",
     "«Enter» en la tecla de "
     "«Enviar mensaje al chat del directo (solo YouTube)»",
     "«Left» en la tecla de «Retroceder 1 minuto»",
