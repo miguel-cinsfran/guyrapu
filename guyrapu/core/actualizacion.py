@@ -28,6 +28,7 @@ from urllib.error import HTTPError, URLError
 
 from guyrapu.core import paths
 from guyrapu.core import red
+from guyrapu.core import rutas_actualizacion
 from guyrapu.core.config import APP_NAME, URL_REPOSITORIO, USER_AGENT as USER_AGENT
 from guyrapu.core.idioma import _
 from guyrapu.core.paquete_release import PaqueteElegido, _es_https, elegir_paquete
@@ -302,12 +303,12 @@ def confirmar_arranque(version_actual: str,
     """Si hay `pendiente.json` hacia esta versión, escribe `arranque-ok`. Nunca lanza."""
     try:
         base = Path(instalacion) if instalacion is not None else paths.carpeta_instalacion()
-        pendiente = paths.actualizacion_pendiente_en(base)
+        pendiente = rutas_actualizacion.actualizacion_pendiente_en(base)
         if not pendiente.is_file():
             return
         datos = json.loads(pendiente.read_text(encoding="utf-8"))
         if isinstance(datos, dict) and datos.get("hacia") == version_actual:
-            paths.arranque_confirmado_en(base).write_text("ok", encoding="utf-8")
+            rutas_actualizacion.arranque_confirmado_en(base).write_text("ok", encoding="utf-8")
     except (OSError, ValueError) as error:
         logger.warning("no se pudo confirmar el arranque: %s", error)
 
@@ -322,7 +323,7 @@ def tomar_resultado(instalacion: str | os.PathLike | None = None) -> dict | None
     """
     try:
         base = Path(instalacion) if instalacion is not None else paths.carpeta_instalacion()
-        archivo = paths.resultado_actualizacion_en(base)
+        archivo = rutas_actualizacion.resultado_actualizacion_en(base)
         if not archivo.is_file():
             return None
         try:
@@ -351,18 +352,18 @@ def limpiar_restos(instalacion: str | os.PathLike | None = None) -> None:
     """
     try:
         base = Path(instalacion) if instalacion is not None else paths.carpeta_instalacion()
-        if paths.actualizacion_pendiente_en(base).is_file():
+        if rutas_actualizacion.actualizacion_pendiente_en(base).is_file():
             return
-        if paths.resultado_actualizacion_en(base).is_file():
+        if rutas_actualizacion.resultado_actualizacion_en(base).is_file():
             return
         try:
-            nueva = paths.paquete_extraido_en(base)
+            nueva = rutas_actualizacion.paquete_extraido_en(base)
             if nueva.exists():
                 _borrar_arbol(nueva)
         except OSError:
             pass
         try:
-            zip_paquete = paths.paquete_descargado_en(base)
+            zip_paquete = rutas_actualizacion.paquete_descargado_en(base)
             if zip_paquete.is_file():
                 zip_paquete.unlink()
         except OSError:

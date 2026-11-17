@@ -21,7 +21,7 @@ from pathlib import Path
 
 import wx
 
-from guyrapu.core import actualizacion, diagnostico, novedades, paths
+from guyrapu.core import actualizacion, diagnostico, novedades, paths, rutas_actualizacion
 from guyrapu.core.config import APP_NAME, APP_VERSION, guardar_opcion
 from guyrapu.core.idioma import _
 from guyrapu.core.version_legible import version_legible as _v
@@ -306,7 +306,7 @@ class _FlujoActualizacion:
         try:
             resultado = actualizacion.descargar_paquete(
                 self.paquete_elegido.url_zip, self.paquete_elegido.url_firma,
-                paths.paquete_descargado(),
+                rutas_actualizacion.paquete_descargado(),
                 aviso_progreso=self._aviso_progreso,
                 cancelar=self.ventana.cancelado.is_set)
         except Exception as exc:
@@ -349,7 +349,7 @@ class _FlujoActualizacion:
     def _run_extraer(self):
         try:
             raiz = actualizacion.extraer_paquete(
-                paths.paquete_descargado(), paths.paquete_extraido())
+                rutas_actualizacion.paquete_descargado(), rutas_actualizacion.paquete_extraido())
         except actualizacion.PaqueteInvalido as exc:
             self.ventana.en_hilo_principal(
                 self._mostrar_paquete_invalido, str(exc))
@@ -360,9 +360,9 @@ class _FlujoActualizacion:
                 self._mostrar_paquete_invalido, str(exc))
             return
         try:
-            Path(paths.paquete_descargado()).unlink(missing_ok=True)
+            Path(rutas_actualizacion.paquete_descargado()).unlink(missing_ok=True)
         except OSError as error:
-            logger.debug("no se pudo borrar el paquete descargado %s: %s", paths.paquete_descargado(), error)
+            logger.debug("no se pudo borrar el paquete descargado %s: %s", rutas_actualizacion.paquete_descargado(), error)
         try:
             ejecutable = actualizacion.validar_paquete(
                 raiz, self.paquete_elegido.version)

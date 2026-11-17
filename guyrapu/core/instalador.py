@@ -27,6 +27,7 @@ from pathlib import Path
 from guyrapu.core import actualizacion
 from guyrapu.core import espera_proceso
 from guyrapu.core import paths
+from guyrapu.core import rutas_actualizacion
 
 
 ARGUMENTO_INSTALADOR = "--instalar-actualizacion"
@@ -43,7 +44,7 @@ def _preparar_registro(instalacion: Path) -> None:
             manejador.close()
         except Exception as error:
             logger.debug("no se pudo cerrar el manejador del registro: %s", error)
-    registro = paths.registro_actualizacion_en(instalacion)
+    registro = rutas_actualizacion.registro_actualizacion_en(instalacion)
     try:
         registro.parent.mkdir(parents=True, exist_ok=True)
     except OSError:
@@ -235,10 +236,7 @@ def _agregar_sonido_faltante(origen: Path, destino: Path, base_sonidos: Path,
             shutil.copytree(origen, destino)
             agregados.append(str(destino.relative_to(base_sonidos)))
             return
-        try:
-            hijos = sorted(origen.iterdir())
-        except OSError:
-            raise
+        hijos = sorted(origen.iterdir())
         for hijo in hijos:
             _agregar_sonido_faltante(hijo, destino / hijo.name,
                                      base_sonidos, agregados)
@@ -528,10 +526,10 @@ def instalar(paquete: str | os.PathLike, instalacion: str | os.PathLike,
     """
     paquete, instalacion = Path(paquete), Path(instalacion)
     _preparar_registro(instalacion)
-    respaldo = paths.respaldo_actualizacion_en(instalacion)
-    pendiente = paths.actualizacion_pendiente_en(instalacion)
-    arranque = paths.arranque_confirmado_en(instalacion)
-    resultado = paths.resultado_actualizacion_en(instalacion)
+    respaldo = rutas_actualizacion.respaldo_actualizacion_en(instalacion)
+    pendiente = rutas_actualizacion.actualizacion_pendiente_en(instalacion)
+    arranque = rutas_actualizacion.arranque_confirmado_en(instalacion)
+    resultado = rutas_actualizacion.resultado_actualizacion_en(instalacion)
     progreso = _Progreso()
     if not _esperar_cierre(esperar_pid, pid, tope_cierre):
         return False

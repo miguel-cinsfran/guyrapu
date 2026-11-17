@@ -12,6 +12,7 @@ from unittest import mock
 from guyrapu.core import config
 from guyrapu.core import carpetas_windows
 from guyrapu.core import paths
+from guyrapu.core import rutas_actualizacion
 from tests.rutas_temporales import redirigir_rutas
 
 
@@ -77,7 +78,6 @@ TODAS_LAS_FUNCIONES = (
     + [nombre for nombre, _ in RUTAS_DE_INSTALACION]
     + ["pagina_overlay", "datos_a_migrar", "carpeta_musica_windows"]
     + ["ytdlp_actualizado_anterior", "pares_de_nombres_anteriores"]
-    + ["paquete_descargado", "paquete_extraido"]
     + ["orden_de_la_app"]
 )
 
@@ -157,6 +157,9 @@ class TestFunciones(unittest.TestCase):
                 for nombre in TODAS_LAS_FUNCIONES:
                     with self.subTest(funcion=nombre):
                         getattr(paths, nombre)()
+                for nombre in ("paquete_descargado", "paquete_extraido"):
+                    with self.subTest(funcion=nombre):
+                        getattr(rutas_actualizacion, nombre)()
             self.assertFalse(destino.exists())
 
 
@@ -412,13 +415,13 @@ class TestActualizacion(unittest.TestCase):
     def test_cuelgan_de_datos_actualizacion(self):
         with tempfile.TemporaryDirectory() as tmp:
             instalacion = Path(tmp) / "app"
-            self.assertEqual(paths.carpeta_actualizacion_en(instalacion),
+            self.assertEqual(rutas_actualizacion.carpeta_actualizacion_en(instalacion),
                              instalacion / "data" / "actualizacion")
             for nombre, esperado in self.RUTAS[1:]:
                 with self.subTest(funcion=nombre):
                     self.assertEqual(
-                        getattr(paths, nombre + "_en")(instalacion),
-                        paths.carpeta_actualizacion_en(instalacion) / esperado)
+                        getattr(rutas_actualizacion, nombre + "_en")(instalacion),
+                        rutas_actualizacion.carpeta_actualizacion_en(instalacion) / esperado)
 
     def test_variantes_en_con_instalacion_explicita(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -428,11 +431,11 @@ class TestActualizacion(unittest.TestCase):
                 for nombre in ("paquete_descargado", "paquete_extraido"):
                     with self.subTest(funcion=nombre):
                         self.assertEqual(
-                            getattr(paths, nombre)(),
-                            getattr(paths, nombre + "_en")(instalacion))
+                            getattr(rutas_actualizacion, nombre)(),
+                            getattr(rutas_actualizacion, nombre + "_en")(instalacion))
                 # La variante _en no usa las raíces globales.
                 otra = Path(tmp) / "otra"
-                self.assertEqual(paths.paquete_descargado_en(otra),
+                self.assertEqual(rutas_actualizacion.paquete_descargado_en(otra),
                                  otra / "data" / "actualizacion" / "paquete.zip")
 
     def test_nombre_de_deno(self):

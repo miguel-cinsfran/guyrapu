@@ -19,6 +19,7 @@ from guyrapu.core import instalador
 from guyrapu.core import paquete_release
 from guyrapu.core import paths
 from guyrapu.core import red
+from guyrapu.core import rutas_actualizacion
 from guyrapu.core import versiones
 
 
@@ -529,74 +530,74 @@ class TestEstado(unittest.TestCase):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            (paths.carpeta_actualizacion_en(base)).mkdir(parents=True)
-            paths.actualizacion_pendiente_en(base).write_text(
+            (rutas_actualizacion.carpeta_actualizacion_en(base)).mkdir(parents=True)
+            rutas_actualizacion.actualizacion_pendiente_en(base).write_text(
                 json.dumps({"desde": "2.2.0", "hacia": "2.3.0"}),
                 encoding="utf-8")
             actualizacion.confirmar_arranque("2.3.0", base)
-            self.assertTrue(paths.arranque_confirmado_en(base).is_file())
-            paths.arranque_confirmado_en(base).unlink()
+            self.assertTrue(rutas_actualizacion.arranque_confirmado_en(base).is_file())
+            rutas_actualizacion.arranque_confirmado_en(base).unlink()
             # Hacia otra versión: no hace nada.
             actualizacion.confirmar_arranque("9.9.9", base)
-            self.assertFalse(paths.arranque_confirmado_en(base).exists())
+            self.assertFalse(rutas_actualizacion.arranque_confirmado_en(base).exists())
 
     def test_confirmar_sin_pendiente_no_hace_nada(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             actualizacion.confirmar_arranque("2.3.0", Path(tmp))
             self.assertFalse(
-                paths.arranque_confirmado_en(Path(tmp)).exists())
+                rutas_actualizacion.arranque_confirmado_en(Path(tmp)).exists())
 
     def test_confirmar_nunca_lanza(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
             # Pendiente corrupto: no debe levantar ni confirmar.
-            paths.actualizacion_pendiente_en(base).write_text(
+            rutas_actualizacion.actualizacion_pendiente_en(base).write_text(
                 "{basura", encoding="utf-8")
             actualizacion.confirmar_arranque("2.3.0", base)
-            self.assertFalse(paths.arranque_confirmado_en(base).exists())
+            self.assertFalse(rutas_actualizacion.arranque_confirmado_en(base).exists())
 
     def test_tomar_resultado(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
-            paths.resultado_actualizacion_en(base).write_text(
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
+            rutas_actualizacion.resultado_actualizacion_en(base).write_text(
                 json.dumps({"resultado": "ok", "desde": "2.2.0",
                             "hacia": "2.3.0"}), encoding="utf-8")
-            paths.paquete_extraido_en(base).mkdir(parents=True)
-            (paths.paquete_extraido_en(base) / "resto.txt").write_text(
+            rutas_actualizacion.paquete_extraido_en(base).mkdir(parents=True)
+            (rutas_actualizacion.paquete_extraido_en(base) / "resto.txt").write_text(
                 "x", encoding="utf-8")
             datos = actualizacion.tomar_resultado(base)
             self.assertEqual(datos["resultado"], "ok")
             self.assertFalse(
-                paths.resultado_actualizacion_en(base).exists())
+                rutas_actualizacion.resultado_actualizacion_en(base).exists())
             # No toca `nueva`: el instalador corre desde ahí y puede
             # seguir vivo. Los restos los borra `limpiar_restos`.
             self.assertTrue(
-                (paths.paquete_extraido_en(base) / "resto.txt").is_file())
+                (rutas_actualizacion.paquete_extraido_en(base) / "resto.txt").is_file())
 
     def test_limpiar_restos_borra_nueva_y_zip_sin_estado(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
-            paths.paquete_extraido_en(base).mkdir(parents=True)
-            (paths.paquete_extraido_en(base) / "resto.txt").write_text(
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
+            rutas_actualizacion.paquete_extraido_en(base).mkdir(parents=True)
+            (rutas_actualizacion.paquete_extraido_en(base) / "resto.txt").write_text(
                 "x", encoding="utf-8")
-            paths.paquete_descargado_en(base).write_bytes(b"zip")
+            rutas_actualizacion.paquete_descargado_en(base).write_bytes(b"zip")
             actualizacion.limpiar_restos(base)
-            self.assertFalse(paths.paquete_extraido_en(base).exists())
-            self.assertFalse(paths.paquete_descargado_en(base).exists())
+            self.assertFalse(rutas_actualizacion.paquete_extraido_en(base).exists())
+            self.assertFalse(rutas_actualizacion.paquete_descargado_en(base).exists())
 
     def test_limpiar_restos_con_anidadas_borra_entera(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
-            nueva = paths.paquete_extraido_en(base)
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
+            nueva = rutas_actualizacion.paquete_extraido_en(base)
             (nueva / "raiz" / "_internal" / "sub").mkdir(parents=True)
             (nueva / "raiz" / "_internal" / "sub" / "x.txt").write_text(
                 "x", encoding="utf-8")
@@ -608,35 +609,35 @@ class TestEstado(unittest.TestCase):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
-            paths.actualizacion_pendiente_en(base).write_text(
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
+            rutas_actualizacion.actualizacion_pendiente_en(base).write_text(
                 json.dumps({"desde": "2.2.0", "hacia": "2.3.0"}),
                 encoding="utf-8")
-            paths.paquete_extraido_en(base).mkdir(parents=True)
-            (paths.paquete_extraido_en(base) / "resto.txt").write_text(
+            rutas_actualizacion.paquete_extraido_en(base).mkdir(parents=True)
+            (rutas_actualizacion.paquete_extraido_en(base) / "resto.txt").write_text(
                 "x", encoding="utf-8")
-            paths.paquete_descargado_en(base).write_bytes(b"zip")
+            rutas_actualizacion.paquete_descargado_en(base).write_bytes(b"zip")
             actualizacion.limpiar_restos(base)
             self.assertTrue(
-                (paths.paquete_extraido_en(base) / "resto.txt").is_file())
-            self.assertTrue(paths.paquete_descargado_en(base).is_file())
+                (rutas_actualizacion.paquete_extraido_en(base) / "resto.txt").is_file())
+            self.assertTrue(rutas_actualizacion.paquete_descargado_en(base).is_file())
 
     def test_limpiar_restos_no_borra_con_resultado(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
-            paths.resultado_actualizacion_en(base).write_text(
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
+            rutas_actualizacion.resultado_actualizacion_en(base).write_text(
                 json.dumps({"resultado": "ok", "hacia": "2.3.0"}),
                 encoding="utf-8")
-            paths.paquete_extraido_en(base).mkdir(parents=True)
-            (paths.paquete_extraido_en(base) / "resto.txt").write_text(
+            rutas_actualizacion.paquete_extraido_en(base).mkdir(parents=True)
+            (rutas_actualizacion.paquete_extraido_en(base) / "resto.txt").write_text(
                 "x", encoding="utf-8")
-            paths.paquete_descargado_en(base).write_bytes(b"zip")
+            rutas_actualizacion.paquete_descargado_en(base).write_bytes(b"zip")
             actualizacion.limpiar_restos(base)
             self.assertTrue(
-                (paths.paquete_extraido_en(base) / "resto.txt").is_file())
-            self.assertTrue(paths.paquete_descargado_en(base).is_file())
+                (rutas_actualizacion.paquete_extraido_en(base) / "resto.txt").is_file())
+            self.assertTrue(rutas_actualizacion.paquete_descargado_en(base).is_file())
 
     def test_limpiar_restos_nunca_lanza(self):
         import tempfile
@@ -649,12 +650,12 @@ class TestEstado(unittest.TestCase):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
-            paths.resultado_actualizacion_en(base).write_text(
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
+            rutas_actualizacion.resultado_actualizacion_en(base).write_text(
                 "{esto no es json", encoding="utf-8")
             self.assertIsNone(actualizacion.tomar_resultado(base))
             self.assertFalse(
-                paths.resultado_actualizacion_en(base).exists())
+                rutas_actualizacion.resultado_actualizacion_en(base).exists())
 
     def test_carpeta_admite_escritura(self):
         import tempfile
@@ -788,8 +789,8 @@ class TestRegistraLoQueFalla(unittest.TestCase):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            paths.carpeta_actualizacion_en(base).mkdir(parents=True)
-            paths.resultado_actualizacion_en(base).write_text(
+            rutas_actualizacion.carpeta_actualizacion_en(base).mkdir(parents=True)
+            rutas_actualizacion.resultado_actualizacion_en(base).write_text(
                 json.dumps({"resultado": "ok", "hacia": "2.3.0"}),
                 encoding="utf-8")
             with mock.patch.object(Path, "unlink",

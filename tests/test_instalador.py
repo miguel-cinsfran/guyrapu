@@ -15,6 +15,7 @@ from pathlib import Path
 from guyrapu.core import espera_proceso
 from guyrapu.core import instalador
 from guyrapu.core import paths
+from guyrapu.core import rutas_actualizacion
 
 
 DESDE = "2.1.0"
@@ -114,7 +115,7 @@ class BaseInstalador(unittest.TestCase):
             encoding="utf-8")
 
     def _orden_para(self, guion_nuevo=None):
-        arranque = str(paths.arranque_confirmado_en(self.instalacion))
+        arranque = str(rutas_actualizacion.arranque_confirmado_en(self.instalacion))
 
         def traducir(ruta):
             self.lanzados.append(Path(ruta).name)
@@ -182,24 +183,24 @@ class BaseInstalador(unittest.TestCase):
         self.assertEqual((self.instalacion / "sounds" / "agregado.wav").read_bytes(),
                          b"sonido agregado")
         # Limpieza y resultado.
-        self.assertFalse(paths.respaldo_actualizacion_en(self.instalacion).exists())
-        self.assertFalse(paths.actualizacion_pendiente_en(self.instalacion).exists())
+        self.assertFalse(rutas_actualizacion.respaldo_actualizacion_en(self.instalacion).exists())
+        self.assertFalse(rutas_actualizacion.actualizacion_pendiente_en(self.instalacion).exists())
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(resultado,
                          {"resultado": "ok", "desde": DESDE, "hacia": HACIA})
-        self.assertTrue(paths.registro_actualizacion_en(self.instalacion).is_file())
+        self.assertTrue(rutas_actualizacion.registro_actualizacion_en(self.instalacion).is_file())
 
     def test_exito_escribe_resultado_antes_de_borrar_respaldo(self):
         import shutil as shutil_real
         import unittest.mock as mock
         real_rmtree = shutil_real.rmtree
-        respaldo = paths.respaldo_actualizacion_en(self.instalacion)
+        respaldo = rutas_actualizacion.respaldo_actualizacion_en(self.instalacion)
         visto = {}
         def _espiar(ruta, *args, **kwargs):
             if Path(ruta) == respaldo:
-                visto["resultado_existe"] = paths.resultado_actualizacion_en(
+                visto["resultado_existe"] = rutas_actualizacion.resultado_actualizacion_en(
                     self.instalacion).is_file()
             return real_rmtree(ruta, *args, **kwargs)
         with mock.patch.object(shutil_real, "rmtree", side_effect=_espiar):
@@ -218,7 +219,7 @@ class BaseInstalador(unittest.TestCase):
         vistos = []
         def _lanzar_orden(orden):
             if len(orden) > 1 and Path(orden[1]).name == self.guion_sale.name:
-                vistos.append(paths.resultado_actualizacion_en(
+                vistos.append(rutas_actualizacion.resultado_actualizacion_en(
                     self.instalacion).is_file())
             return self._lanzar(orden)
         ok = instalador.instalar(
@@ -237,7 +238,7 @@ class BaseInstalador(unittest.TestCase):
         vistos = []
         def _lanzar_orden(orden):
             if len(orden) > 1 and Path(orden[1]).name == self.guion_sale.name:
-                vistos.append(paths.resultado_actualizacion_en(
+                vistos.append(rutas_actualizacion.resultado_actualizacion_en(
                     self.instalacion).is_file())
             return self._lanzar(orden)
         def traducir(ruta):
@@ -271,9 +272,9 @@ class BaseInstalador(unittest.TestCase):
         self.assertEqual(ahora, foto_programa)
         self.assertEqual((self.instalacion / EXE_VIEJO).read_bytes(), b"viejo-exe")
         self.assertIn(EXE_VIEJO, self.lanzados)
-        self.assertFalse(paths.actualizacion_pendiente_en(self.instalacion).exists())
+        self.assertFalse(rutas_actualizacion.actualizacion_pendiente_en(self.instalacion).exists())
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(resultado["resultado"], "fallo")
         self.assertTrue(resultado["motivo"])
@@ -281,7 +282,7 @@ class BaseInstalador(unittest.TestCase):
     def test_archivo_que_no_se_puede_mover(self):
         import os
         real_replace = os.replace
-        respaldo = paths.respaldo_actualizacion_en(self.instalacion)
+        respaldo = rutas_actualizacion.respaldo_actualizacion_en(self.instalacion)
         llamadas = {"n": 0}
 
         def _falla_una(origen, destino):
@@ -308,7 +309,7 @@ class BaseInstalador(unittest.TestCase):
                              f"cambió {clave}")
         self.assertIn(EXE_VIEJO, self.lanzados)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(resultado["resultado"], "fallo")
         self.assertIn("como OBS", resultado["motivo"])
@@ -332,7 +333,7 @@ class BaseInstalador(unittest.TestCase):
                 orden_para=self._orden_para())
         self.assertFalse(ok)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(resultado["resultado"], "fallo")
         self.assertEqual(
@@ -353,7 +354,7 @@ class BaseInstalador(unittest.TestCase):
         self.assertEqual(ahora, foto_antes)
         self.assertEqual(self.lanzados, [])
         self.assertFalse(
-            paths.resultado_actualizacion_en(self.instalacion).exists())
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).exists())
 
     def test_renombre_de_app_el_viejo_desaparece(self):
         ok = instalador.instalar(
@@ -476,7 +477,7 @@ class TestTemasSonido(BaseInstalador):
             lanzar=self._lanzar, matar=self._matar,
             orden_para=self._orden_para())
         self.assertTrue(ok)
-        registro = paths.registro_actualizacion_en(
+        registro = rutas_actualizacion.registro_actualizacion_en(
             self.instalacion).read_text(encoding="utf-8")
         self.assertIn("themes/default/b.wav", registro)
         self.assertIn("themes/default/Bot.wav", registro)
@@ -533,12 +534,12 @@ class TestTemasSonido(BaseInstalador):
             orden_para=traducir)
         self.assertFalse(ok)
         self.assertEqual(_sin_estado(_foto(self.instalacion)), foto_programa)
-        respaldo = paths.respaldo_actualizacion_en(self.instalacion)
+        respaldo = rutas_actualizacion.respaldo_actualizacion_en(self.instalacion)
         self.assertTrue(not respaldo.exists()
                         or not any(respaldo.rglob("*")))
         self.assertIn(EXE_VIEJO, self.lanzados)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(resultado["resultado"], "fallo")
         self.assertTrue(resultado["motivo"])
@@ -582,7 +583,7 @@ class TestTemasSinManifiestoViejo(BaseInstalador):
         self.assertEqual((tema / "Bot.wav").read_bytes(),
                          b"agregado por el usuario")
         self.assertEqual((tema / "nuevo.wav").read_bytes(), b"tema nuevo")
-        registro = paths.registro_actualizacion_en(
+        registro = rutas_actualizacion.registro_actualizacion_en(
             self.instalacion).read_text(encoding="utf-8")
         self.assertIn("sin manifiesto viejo", registro)
 
@@ -607,7 +608,7 @@ class TestCaracterizacionFallos(BaseInstalador):
             orden_para=self._orden_para())
         self.assertFalse(ok)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(
             resultado,
@@ -620,7 +621,7 @@ class TestCaracterizacionFallos(BaseInstalador):
     def test_respaldo_previo_que_no_se_puede_vaciar(self):
         import shutil as shutil_real
         import unittest.mock as mock
-        respaldo = paths.respaldo_actualizacion_en(self.instalacion)
+        respaldo = rutas_actualizacion.respaldo_actualizacion_en(self.instalacion)
         respaldo.mkdir(parents=True, exist_ok=True)
         (respaldo / "viejo.txt").write_bytes(b"viejo")
         real_rmtree = shutil_real.rmtree
@@ -641,7 +642,7 @@ class TestCaracterizacionFallos(BaseInstalador):
                 orden_para=self._orden_para())
         self.assertFalse(ok)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(
             resultado,
@@ -679,7 +680,7 @@ class TestCaracterizacionFallos(BaseInstalador):
                 orden_para=self._orden_para())
         self.assertFalse(ok)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(
             resultado,
@@ -711,7 +712,7 @@ class TestCaracterizacionFallos(BaseInstalador):
                 orden_para=self._orden_para())
         self.assertFalse(ok)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(
             resultado,
@@ -720,12 +721,12 @@ class TestCaracterizacionFallos(BaseInstalador):
         self.assertEqual(_sin_estado(_foto(self.instalacion)), foto_antes)
         self.assertIn(EXE_VIEJO, self.lanzados)
         self.assertFalse(
-            paths.actualizacion_pendiente_en(self.instalacion).exists())
+            rutas_actualizacion.actualizacion_pendiente_en(self.instalacion).exists())
 
     def test_fallo_al_marcar_pendiente_vuelve_atras(self):
         import unittest.mock as mock
         foto_antes = _sin_estado(_foto(self.instalacion))
-        pendiente = paths.actualizacion_pendiente_en(self.instalacion)
+        pendiente = rutas_actualizacion.actualizacion_pendiente_en(self.instalacion)
         real_write = Path.write_text
 
         def _falla_escritura(uno_mismo, *args, **kwargs):
@@ -742,7 +743,7 @@ class TestCaracterizacionFallos(BaseInstalador):
                 orden_para=self._orden_para())
         self.assertFalse(ok)
         resultado = json.loads(
-            paths.resultado_actualizacion_en(self.instalacion).read_text(
+            rutas_actualizacion.resultado_actualizacion_en(self.instalacion).read_text(
                 encoding="utf-8"))
         self.assertEqual(
             resultado,
