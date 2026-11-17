@@ -17,11 +17,14 @@ import time
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.downloads import ytdlp_bin
+from guyrapu.music.cache_enlaces import CacheEnlaces
 from guyrapu.music.modelo import Tema
 from guyrapu.player import formatos
 
 
 TOPE_PROGRAMA = 60
+
+CACHE = CacheEnlaces()
 
 _DOMINIOS_YOUTUBE = ("youtube.com", "youtu.be")
 
@@ -190,14 +193,22 @@ def _info_video(video_id: str) -> dict:
 
 
 def url_audio(origen: str) -> str:
-    """Dirección del audio para reproducir ese vídeo ahora. Vence: no se
-    guarda. Bloqueante (usar en hilo). Lanza `ErrorEnlace` si no hay audio."""
+    """Dirección del audio para reproducir ese vídeo ahora. Se guarda en
+    memoria hasta que esté por vencer. Bloqueante (usar en hilo). Lanza
+    `ErrorEnlace` si no hay audio."""
     video_id = id_de_url(origen)
     if not video_id:
         raise ErrorEnlace(_(TEXTO_NO_SE_PUDO_LEER))
+    url = CACHE.buscar(video_id, time.time())
+    if url:
+        return url
     info = _info_video(video_id)
     url = formatos.mejor_audio(info)
     if not url:
         raise ErrorEnlace(_(TEXTO_NO_SE_PUDO_LEER))
     time.sleep(formatos.segundos_hasta_disponible(info, (url,), time.time()))
+    directo = (info.get("is_live")
+               or info.get("live_status") in ("is_live", "is_upcoming"))
+    if not directo:
+        CACHE.guardar(video_id, url, info.get("duration"))
     return url

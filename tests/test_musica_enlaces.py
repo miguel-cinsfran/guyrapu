@@ -215,6 +215,9 @@ class TestPseudoTextos(unittest.TestCase):
 
 class TestUrlAudio(unittest.TestCase):
 
+    def setUp(self):
+        enlaces.CACHE.olvidar("abc123")
+
     def test_con_programa(self):
         info = {"formats": [
             {"vcodec": "none", "acodec": "mp4a", "url": "audio-https",
@@ -273,6 +276,45 @@ class TestUrlAudio(unittest.TestCase):
                                   return_value=None):
             with self.assertRaises(ErrorEnlace):
                 enlaces.url_audio("https://youtu.be/abc123")
+
+    def test_el_mismo_video_abierto_dos_veces_pide_la_info_una_sola_vez(self):
+        url = (f"https://r1.googlevideo.com/videoplayback"
+               f"?expire={int(time.time()) + 6 * 3600}")
+        info = {"duration": 240, "formats": [
+            {"vcodec": "none", "acodec": "mp4a", "url": url,
+             "language_preference": 10},
+        ]}
+        with mock.patch.object(enlaces.ytdlp_bin, "ruta_ytdlp",
+                               return_value=r"C:\yt-dlp.exe"), \
+                mock.patch.object(enlaces.ytdlp_bin, "info_video",
+                                  return_value=info) as pedir:
+            primera = enlaces.url_audio(
+                "https://www.youtube.com/watch?v=abc123")
+            segunda = enlaces.url_audio(
+                "https://www.youtube.com/watch?v=abc123")
+        self.assertEqual(primera, url)
+        self.assertEqual(segunda, url)
+        pedir.assert_called_once_with("abc123")
+
+    def test_un_directo_no_se_guarda(self):
+        url = (f"https://r1.googlevideo.com/videoplayback"
+               f"?expire={int(time.time()) + 6 * 3600}")
+        for directo in ({"is_live": True}, {"live_status": "is_live"},
+                        {"live_status": "is_upcoming"}):
+            with self.subTest(directo=directo):
+                info = {"duration": 240,
+                        "formats": [{"vcodec": "none", "acodec": "mp4a",
+                                     "url": url,
+                                     "language_preference": 10}], **directo}
+                with mock.patch.object(enlaces.ytdlp_bin, "ruta_ytdlp",
+                                       return_value=r"C:\yt-dlp.exe"), \
+                        mock.patch.object(enlaces.ytdlp_bin, "info_video",
+                                          return_value=info) as pedir:
+                    enlaces.url_audio(
+                        "https://www.youtube.com/watch?v=abc123")
+                    enlaces.url_audio(
+                        "https://www.youtube.com/watch?v=abc123")
+                self.assertEqual(pedir.call_count, 2)
 
 
 _MARCAS_LISTA_FALTANTE = (
