@@ -45,42 +45,36 @@ def abrir(padre, al_cerrar=None):
         al_cerrar()
 
 
-def _acciones(ventana):
+def _acciones(panel):
     return (
-        Accion("agregar", _("A&gregar"), ventana._agregar,
+        Accion("agregar", _("A&gregar"), panel._agregar,
                necesita_elemento=False),
-        Accion("editar", _("&Editar"), ventana._editar, tecla="intro"),
-        Accion("renombrar", _("Cambiar n&ombre"), ventana._renombrar,
+        Accion("editar", _("&Editar"), panel._editar, tecla="intro"),
+        Accion("renombrar", _("Cambiar n&ombre"), panel._renombrar,
                tecla="f2"),
-        Accion("duplicar", _("&Duplicar"), ventana._duplicar, tecla="ctrl+d"),
-        Accion("subir", _("&Subir"), lambda: ventana._mover(-1)),
-        Accion("bajar", _("Ba&jar"), lambda: ventana._mover(1)),
-        Accion("pausar", _("&Pausar o reanudar"), ventana._pausar),
-        Accion("escuchar", _("Escuc&har"), ventana._escuchar),
-        Accion("eliminar", _("E&liminar"), ventana._eliminar,
+        Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d"),
+        Accion("subir", _("&Subir"), lambda: panel._mover(-1)),
+        Accion("bajar", _("Ba&jar"), lambda: panel._mover(1)),
+        Accion("pausar", _("&Pausar o reanudar"), panel._pausar),
+        Accion("escuchar", _("Escuc&har"), panel._escuchar),
+        Accion("eliminar", _("E&liminar"), panel._eliminar,
                tecla="suprimir"),
-        Accion("exportar", _("Expo&rtar"), ventana._exportar,
+        Accion("exportar", _("Expo&rtar"), panel._exportar,
                necesita_elemento=False),
-        Accion("importar", _("&Importar"), ventana._importar,
+        Accion("importar", _("&Importar"), panel._importar,
                necesita_elemento=False),
     )
 
 
-class VentanaMensajesAutomaticos(wx.Dialog):
+class PanelMensajesAutomaticos(wx.Panel):
+    """La lista de mensajes automáticos con sus acciones, fuera de cualquier ventana."""
 
-    def __init__(self, padre):
-        super().__init__(
-            padre, title=_("Mensajes automáticos"),
-            name="VentanaMensajesAutomaticos", size=(760, 640),
-            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-        self._padre = padre
+    def __init__(self, padre, principal):
+        super().__init__(padre, name="PanelMensajesAutomaticos")
+        self._padre = principal
         self._ruta = paths.mensajes_programados()
         self._mensajes = programados.cargar(self._ruta)
         self._crear_controles()
-        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
-        self.Bind(wx.EVT_CLOSE, self._al_cerrar)
-        paleta.pintar_ventana(self)
-        self.Centre()
         self.lista.SetFocus()
 
     def _crear_controles(self):
@@ -109,11 +103,6 @@ class VentanaMensajesAutomaticos(wx.Dialog):
         vs.Add(self.lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         vs.Add(self._fila_de_botones(), 0,
                wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self.btn_cerrar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
-        self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
-        vs.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.LEFT | wx.RIGHT
-               | wx.BOTTOM, 10)
         self.SetSizer(vs)
 
     def _fila_de_botones(self):
@@ -337,6 +326,30 @@ class VentanaMensajesAutomaticos(wx.Dialog):
             return dialogo.GetPath()
         finally:
             dialogo.Destroy()
+
+
+class VentanaMensajesAutomaticos(wx.Dialog):
+    """La ventana que contiene el panel de mensajes y el botón Cerrar."""
+
+    def __init__(self, padre):
+        super().__init__(
+            padre, title=_("Mensajes automáticos"),
+            name="VentanaMensajesAutomaticos", size=(760, 640),
+            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        vs = wx.BoxSizer(wx.VERTICAL)
+        self.panel = PanelMensajesAutomaticos(self, padre)
+        vs.Add(self.panel, 1, wx.EXPAND)
+        self.btn_cerrar = wx.Button(
+            self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
+        self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
+        vs.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.LEFT | wx.RIGHT
+               | wx.BOTTOM, 10)
+        self.SetSizer(vs)
+        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
+        self.Bind(wx.EVT_CLOSE, self._al_cerrar)
+        paleta.pintar_ventana(self)
+        self.Centre()
+        self.panel.lista.SetFocus()
 
     def _al_tecla(self, evento):
         tecla_escape.cancelar_si_escape(self, evento)
