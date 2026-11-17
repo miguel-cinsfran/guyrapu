@@ -12,6 +12,7 @@ lectura del chat.
 
 from __future__ import annotations
 
+from guyrapu.capture.estado_espectadores import _fmt_num
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
@@ -50,6 +51,8 @@ class ComandosEnVivo:
         self._cargado = False
         self._mtime = None
         self._avisado_cuota = False
+        self._respondidos = 0
+        self._ultimo = ("", "")
 
     def atender(self, registro, ahora) -> None:
         if registro.tipo != TIPO_TEXTO:
@@ -63,12 +66,27 @@ class ComandosEnVivo:
             cuota_baja=cuota.usadas_hoy() > CUOTA_BAJA)
         if respuesta is None:
             return
+        self._respondidos += 1
+        palabra = respuesta.nombre
+        if not palabra.startswith("!"):
+            palabra = "!" + palabra
+        self._ultimo = (palabra, registro.autor)
         if respuesta.al_video and self._frame._conectado:
             gui_envio_chat.capa_de_video(self._frame).agregar_comando(respuesta)
         if respuesta.al_chat:
             gui_envio_chat.enviar_respuesta_chat(self._frame, respuesta.texto)
         if respuesta.freno_cuota:
             self._avisar_cuota()
+
+    def frase_estado(self) -> str:
+        """La frase para F2, o "" si la app no respondió ningún comando."""
+        if not self._respondidos:
+            return ""
+        palabra, autor = self._ultimo
+        # Traductores: parte del estado F2 (comandos). {n} es el nº de comandos
+        # respondidos, {palabra} el último comando y {autor} quien lo pidió.
+        return _("Comandos respondidos: {n}, el último {palabra} de {autor}").format(
+            n=_fmt_num(self._respondidos), palabra=palabra, autor=autor)
 
     def _recargar(self) -> None:
         """Vuelve a leer los comandos si el archivo cambió."""

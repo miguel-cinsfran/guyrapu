@@ -190,6 +190,23 @@ class TestSnapshotCuotaYoutube(unittest.TestCase):
         self.assertIsNone(snap.cuota_youtube)
 
 
+class TestSnapshotComandos(unittest.TestCase):
+
+    def test_sin_instancia_queda_vacio(self):
+        self.assertEqual(gui_estado.snapshot_sesion(
+            _marco_falso({})).comandos, "")
+
+    def test_con_instancia_lleva_su_frase(self):
+        frame = _marco_falso({})
+        frame._comandos_en_vivo = mock.Mock(
+            frase_estado=mock.Mock(
+                return_value="Comandos respondidos: 2, el último !discord "
+                             "de Ana"))
+        self.assertEqual(
+            gui_estado.snapshot_sesion(frame).comandos,
+            "Comandos respondidos: 2, el último !discord de Ana")
+
+
 class TestTotalAportesTexto(unittest.TestCase):
 
     def test_una_divisa(self):

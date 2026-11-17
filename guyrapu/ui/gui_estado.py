@@ -127,6 +127,13 @@ def _frase_del_video(frame):
     return capa.describir() if capa is not None else ""
 
 
+def _frase_comandos(frame):
+    en_vivo = getattr(frame, "_comandos_en_vivo", None)
+    if en_vivo is None:
+        return ""
+    return _seguro(en_vivo.frase_estado, "")
+
+
 def _campos_obs(frame):
     from guyrapu.ui import gui as _gui
     estado_obs = _seguro(lambda: frame._obs_vigilante.estado(), None)
@@ -160,6 +167,7 @@ def snapshot_sesion(frame):
         overlay_puerto=_gui.overlay_servidor.puerto_actual(),
         overlay_clientes=_gui.overlay_servidor.cuantos_miran(),
         video=_frase_del_video(frame),
+        comandos=_frase_comandos(frame),
         musica=_seguro(lambda: frame._musica.texto_estado(), ""),
         igualando=_seguro(lambda: frame._musica.texto_igualando(), ""),
         camara=_seguro(lambda: _texto_camara(frame), ""),

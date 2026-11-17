@@ -885,10 +885,14 @@ msgid "Lo que se ve en el vídeo"
 msgstr "What is shown on the video"
 
 #. Traductores: rótulo en Preferencias del componente de F2.
-#: guyrapu/capture/componentes_estado.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/capture/componentes_estado.py guyrapu/ui/interaccion_ventana.py
 msgid "Mensajes automáticos"
 msgstr "Scheduled messages"
+
+#. Traductores: rótulo en Preferencias del componente de F2.
+#: guyrapu/capture/componentes_estado.py
+msgid "Comandos respondidos"
+msgstr "Commands answered"
 
 #. Traductores: rótulo en Preferencias del componente de F2.
 #: guyrapu/capture/componentes_estado.py
@@ -1026,6 +1030,18 @@ msgstr "No votes"
 msgid "{cabecera} {resultado}"
 msgstr "{cabecera} {resultado}"
 
+#. Traductores: {titulo} es la pregunta y {opciones} la lista de opciones.
+#: guyrapu/capture/encuestas.py
+#, python-brace-format
+msgid "Encuesta en curso: {titulo}. Opciones: {opciones}"
+msgstr "Poll in progress: {titulo}. Options: {opciones}"
+
+#. Traductores: {opciones} es la lista de opciones de la encuesta.
+#: guyrapu/capture/encuestas.py
+#, python-brace-format
+msgid "Encuesta en curso. Opciones: {opciones}"
+msgstr "Poll in progress. Options: {opciones}"
+
 #. Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora
 #. y {total} el total.
 #: guyrapu/capture/estado_espectadores.py
@@ -1103,6 +1119,15 @@ msgid_plural "Espectadores en TikTok: {n} ahora, {total} en total"
 msgstr[0] "Viewer on TikTok: {n} now, {total} in total"
 msgstr[1] "Viewers on TikTok: {n} now, {total} in total"
 
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} son
+#. los de ahora y {total} el total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "En TikTok, {n} espectador ahora, {total} en total"
+msgid_plural "En TikTok, {n} espectadores ahora, {total} en total"
+msgstr[0] "On TikTok, {n} viewer now, {total} in total"
+msgstr[1] "On TikTok, {n} viewers now, {total} in total"
+
 #. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
 #. el nº actual.
 #: guyrapu/capture/estado_espectadores.py
@@ -1111,6 +1136,15 @@ msgid "Espectador en TikTok: {n}"
 msgid_plural "Espectadores en TikTok: {n}"
 msgstr[0] "Viewer on TikTok: {n}"
 msgstr[1] "Viewers on TikTok: {n}"
+
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
+#. el nº actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "En TikTok, {n} espectador"
+msgid_plural "En TikTok, {n} espectadores"
+msgstr[0] "On TikTok, {n} viewer"
+msgstr[1] "On TikTok, {n} viewers"
 
 #. Traductores: parte del estado F2 (tipo de conexión).
 #: guyrapu/capture/estado_sesion.py guyrapu/ui/gui_directo_youtube.py
@@ -1189,6 +1223,12 @@ msgstr "Channel: {canal}"
 #, python-brace-format
 msgid "Tiempo del directo: {texto}"
 msgstr "Live stream time: {texto}"
+
+#. Traductores: parte del estado F2 (tiempo). {texto} es la duración.
+#: guyrapu/capture/estado_sesion.py
+#, python-brace-format
+msgid "{texto} de directo"
+msgstr "{texto} of live stream"
 
 #. Traductores: parte del estado F2 del desfase. {texto} es el desfase.
 #: guyrapu/capture/estado_sesion.py
@@ -1295,6 +1335,12 @@ msgstr[1] "{n} Super Chats"
 #. Traductores: parte del estado F2 (cola). {n} es el nº en cola.
 #: guyrapu/capture/estado_sesion.py
 #, python-brace-format
+msgid "Mensajes en cola: {n}"
+msgstr "Messages in queue: {n}"
+
+#. Traductores: parte del estado F2 (cola). {n} es el nº en cola.
+#: guyrapu/capture/estado_sesion.py
+#, python-brace-format
 msgid "{n} en cola"
 msgid_plural "{n} en cola"
 msgstr[0] "{n} in queue"
@@ -1308,15 +1354,32 @@ msgid "Voz: velocidad {velocidad}, volumen {volumen}%"
 msgstr "Voice: speed {velocidad}, volume {volumen}%"
 
 #. Traductores: parte del estado F2 (lectura silenciada).
-#: guyrapu/capture/estado_sesion.py guyrapu/ui/gui.py
-msgid "Lectura silenciada"
-msgstr "Reading muted"
+#: guyrapu/capture/estado_sesion.py
+msgid "Lectura: silenciada"
+msgstr "Reading: muted"
+
+#. Traductores: componente del estado F2.
+#: guyrapu/capture/estado_sesion.py
+msgid "Chat en el vídeo: se muestra en OBS"
+msgstr "Chat on video: shown in OBS"
+
+#. Traductores: componente del estado F2.
+#: guyrapu/capture/estado_sesion.py
+msgid "Chat en el vídeo: activado, no se muestra en OBS"
+msgstr "Chat on video: enabled, not shown in OBS"
 
 #. Traductores: componente del estado F2. {texto} es el encuadre actual.
 #: guyrapu/capture/estado_sesion.py
 #, python-brace-format
 msgid "Cámara: {texto}"
 msgstr "Camera: {texto}"
+
+#. Traductores: parte del estado F2 (cuota de YouTube). {usadas} son las
+#. unidades.
+#: guyrapu/capture/estado_sesion.py
+#, python-brace-format
+msgid "Cuota de YouTube estimada hoy en este equipo: {usadas} de 10.000 unidades"
+msgstr "YouTube quota estimated today on this computer: {usadas} of 10,000 units"
 
 #. Traductores: parte del estado F2 (transmisión). {texto} es el estado.
 #: guyrapu/capture/estado_sesion.py
@@ -1436,15 +1499,16 @@ msgid "Ya hay un mensaje llamado {nombre}."
 msgstr "A message named {nombre} already exists."
 
 #. Traductores: estado en la lista de mensajes programados.
-#: guyrapu/capture/programados.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/capture/programados.py guyrapu/ui/comandos_ventana.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Activo"
 msgstr "Active"
 
 #. Traductores: estado en la lista de mensajes programados.
 #. Traductores: lectura en pausa o reanudada.
-#: guyrapu/capture/programados.py guyrapu/ui/gui.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/capture/programados.py guyrapu/ui/comandos_ventana.py
+#: guyrapu/ui/gui.py guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Pausado"
 msgstr "Paused"
 
@@ -1494,6 +1558,21 @@ msgstr "{nombre}: {estado}, {destino}, {intervalo}"
 #: guyrapu/capture/programados.py
 msgid "Próximo mensaje automático: pendiente de programar"
 msgstr "Next automatic message: pending"
+
+#. Traductores: estado F2 de los mensajes automáticos cuando falta menos de un
+#. minuto.
+#: guyrapu/capture/programados.py
+msgid "Próximo mensaje automático: en menos de un minuto"
+msgstr "Next automatic message: in less than a minute"
+
+#. Traductores: estado F2 de los mensajes automáticos. {minutos} es en cuántos
+#. minutos se envía.
+#: guyrapu/capture/programados.py
+#, python-brace-format
+msgid "Próximo mensaje automático: en {minutos} minuto"
+msgid_plural "Próximo mensaje automático: en {minutos} minutos"
+msgstr[0] "Next automatic message: in {minutos} minute"
+msgstr[1] "Next automatic message: in {minutos} minutes"
 
 #. Traductores: motivo de botón desactivado para escribir en el chat.
 #: guyrapu/capture/redaccion.py
@@ -1758,6 +1837,14 @@ msgstr ""
 #: guyrapu/capture/tiktok_vivo.py
 msgid "OBS está transmitiendo, pero TikTok todavía no muestra el directo."
 msgstr "OBS is broadcasting, but TikTok still shows no live stream."
+
+#: guyrapu/capture/traduccion_chat.py
+msgid "La traducción no responde. Se leen los mensajes originales."
+msgstr "The translation is not responding. Original messages will be read."
+
+#: guyrapu/capture/traduccion_chat.py
+msgid "La traducción volvió."
+msgstr "Translation is back."
 
 #: guyrapu/core/acerca_de.py
 #, python-brace-format
@@ -2725,7 +2812,8 @@ msgid_plural "{n} voces"
 msgstr[0] "{n} voice"
 msgstr[1] "{n} voices"
 
-#: guyrapu/core/voces_disponibles.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/core/voces_disponibles.py guyrapu/ui/estilo_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Nombre:"
 msgstr "Name:"
 
@@ -3168,6 +3256,13 @@ msgstr "To the top"
 msgid "Hacia abajo"
 msgstr "To the bottom"
 
+#. Traductores: respuesta de la app al comando !comandos. {lista} son los
+#. nombres de los comandos activos.
+#: guyrapu/interaction/atencion.py
+#, python-brace-format
+msgid "Comandos: {lista}."
+msgstr "Commands: {lista}."
+
 #. Traductores: estado de F2 con el pánico activado.
 #: guyrapu/interaction/cola_pantalla.py
 msgid "Pánico activado: no se muestra nada en el vídeo."
@@ -3223,6 +3318,12 @@ msgstr "A command cannot be named with numbers only."
 msgid "El nombre de un comando no puede tener espacios."
 msgstr "A command name cannot contain spaces."
 
+#. Traductores: validación de comandos del chat (error). «comandos» es la
+#. palabra que usa la app.
+#: guyrapu/interaction/comandos.py
+msgid "«comandos» es de la app y no se puede usar como palabra ni alias."
+msgstr "«commands» belongs to the app and cannot be used as a word or alias."
+
 #. Traductores: validación de comandos del chat (error). {nombre} es el comando
 #. que ya existe.
 #: guyrapu/interaction/comandos.py
@@ -3234,6 +3335,103 @@ msgstr "The command {nombre} already exists."
 #: guyrapu/interaction/comandos.py
 msgid "El comando necesita una respuesta."
 msgstr "The command needs a response."
+
+#. Traductores: validación de comandos del chat (error). {variable} es la
+#. variable desconocida y las demás son las que se pueden usar.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid ""
+"La variable {variable} no existe. Puedes usar {usuario}, {contador} y "
+"{texto}."
+msgstr ""
+"The variable {variable} does not exist. You can use {usuario}, {contador} "
+"and {texto}."
+
+#. Traductores: validación de comandos del chat (error). {actual} es el largo y
+#. {maximo} el tope del chat.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "La respuesta tiene {actual} caracteres y el máximo para el chat es {maximo}."
+msgstr "The response has {actual} characters and the maximum for chat is {maximo}."
+
+#. Traductores: validación de comandos del chat (error).
+#: guyrapu/interaction/comandos.py
+msgid "La lista de nombres no puede estar vacía."
+msgstr "The list of names cannot be empty."
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "en el vídeo"
+msgstr "on the video"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "en el chat"
+msgstr "in the chat"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "en el vídeo y en el chat"
+msgstr "on the video and in the chat"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "solo moderadores"
+msgstr "moderators only"
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "una lista de nombres: {nombres}"
+msgstr "a list of names: {nombres}"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "una lista de nombres"
+msgstr "a list of names"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "todos"
+msgstr "everyone"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "pausado"
+msgstr "paused"
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Comando {palabra}, con los alias {alias}."
+msgstr "Command {palabra}, with aliases {alias}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Comando {palabra}."
+msgstr "Command {palabra}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Responde: {respuesta}."
+msgstr "It replies: {respuesta}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Sale {destino}, con el estilo {estilo} y {segundos} segundos en pantalla."
+msgstr ""
+"It appears {destino}, with the {estilo} style and {segundos} seconds on "
+"screen."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Sale {destino}."
+msgstr "It appears {destino}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Puede usarlo: {quien}."
+msgstr "Who can use it: {quien}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Espera {general} segundos entre usos y {persona} segundos por persona."
+msgstr "It waits {general} seconds between uses and {persona} seconds per person."
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "Pausado."
+msgstr "Paused."
 
 #. Traductores: resumen de una encuesta; {pregunta} es su pregunta.
 #: guyrapu/interaction/encuestas.py
@@ -3942,6 +4140,36 @@ msgstr "Testing the computer with {nombre}: {ajustes}…"
 msgid "Creando el perfil {nombre}…"
 msgstr "Creating the profile {nombre}…"
 
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format, python-format
+msgid "{nombre}. Fuente {fuente}, tamaño {tamano} % del lado menor del vídeo."
+msgstr "{nombre}. Font {fuente}, size {tamano} % of the video's shorter side."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Texto {texto} con contorno {contorno} de ancho {ancho}."
+msgstr "Text {texto} with a {contorno} outline of width {ancho}."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Fondo {fondo} con una opacidad de {opacidad} %."
+msgstr "Background {fondo} with an opacity of {opacidad} %."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Zona: {zona}."
+msgstr "Zone: {zona}."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Entrada: {entrada}, {ms} milisegundos."
+msgstr "Entrance: {entrada}, {ms} milliseconds."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Salida: {salida}, {ms} milisegundos."
+msgstr "Exit: {salida}, {ms} milliseconds."
+
 #: guyrapu/obs/detener_obs.py guyrapu/ui/comando_directo.py
 #: guyrapu/ui/gui_transmitir.py
 msgid "Deteniendo la transmisión. Esperando a que OBS confirme."
@@ -4098,6 +4326,16 @@ msgstr "Audio monitoring disabled."
 msgid "Monitorización restablecida como estaba en OBS."
 msgstr "Audio monitoring restored to how it was in OBS."
 
+#: guyrapu/obs/estado_panel.py guyrapu/obs/obs_estado.py
+#, python-brace-format
+msgid "Transmisión activa desde hace {duracion}"
+msgstr "Broadcast active for {duracion}"
+
+#: guyrapu/obs/estado_panel.py
+#, python-brace-format
+msgid "Transmisión a {destino} activa desde hace {duracion}"
+msgstr "Broadcast to {destino} active for {duracion}"
+
 #: guyrapu/obs/estado_panel.py
 msgid "Elige a dónde transmitir"
 msgstr "Choose where to broadcast"
@@ -4169,6 +4407,7 @@ msgid "Centro a la izquierda"
 msgstr "Center left"
 
 #: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
+#: guyrapu/ui/estilo_opciones.py
 msgid "Centro"
 msgstr "Middle"
 
@@ -5085,9 +5324,73 @@ msgstr "window capture"
 msgid "captura de juego"
 msgstr "game capture"
 
+#: guyrapu/obs/obs_escena.py
+msgid "oculta"
+msgstr "hidden"
+
+#: guyrapu/obs/obs_escena.py
+msgid "sin medir, no está al aire"
+msgstr "not measured, not on air"
+
+#: guyrapu/obs/obs_escena.py
+msgid "sin imagen"
+msgstr "no image"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "tapada entera por {tapa}"
+msgstr "fully covered by {tapa}"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "tapada en parte por {nombre}, {porcentaje} por ciento"
+msgstr "partly covered by {nombre}, {porcentaje} percent"
+
+#. Traductores: {p} es un porcentaje.
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid " y fuera del vídeo: {p} por ciento"
+msgstr " and off the video: {p} percent"
+
+#. Traductores: {p} es un porcentaje.
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "fuera del vídeo: {p} por ciento"
+msgstr "off the video: {p} percent"
+
 #: guyrapu/obs/obs_escena.py guyrapu/obs/revision_escena.py
 msgid "sin nombre"
 msgstr "unnamed"
+
+#: guyrapu/obs/obs_escena.py
+msgid "sin posición"
+msgstr "no position"
+
+#: guyrapu/obs/obs_escena.py
+msgid "en todo el vídeo"
+msgstr "over the whole video"
+
+#: guyrapu/obs/obs_escena.py
+msgid "posición libre"
+msgstr "free position"
+
+#: guyrapu/obs/obs_escena.py
+msgid "visible"
+msgstr "visible"
+
+#: guyrapu/obs/obs_escena.py
+msgid "posición bloqueada"
+msgstr "position locked"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena actual: {escena}. Sin fuentes."
+msgstr "Current scene: {escena}. No sources."
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena: {escena}. Sin fuentes."
+msgstr "Scene: {escena}. No sources."
 
 #. Traductores: {n} es la cantidad de fuentes de la escena.
 #: guyrapu/obs/obs_escena.py
@@ -5096,6 +5399,16 @@ msgid "1 fuente"
 msgid_plural "{n} fuentes"
 msgstr[0] "1 source"
 msgstr[1] "{n} sources"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena actual: {escena}. {palabra}, del frente al fondo."
+msgstr "Current scene: {escena}. {palabra}, from front to back."
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena: {escena}. {palabra}, del frente al fondo."
+msgstr "Scene: {escena}. {palabra}, from front to back."
 
 #: guyrapu/obs/obs_estado.py
 msgid "No se pudo obtener la escena actual"
@@ -6914,6 +7227,10 @@ msgstr "Restream: {nombre}"
 msgid "YouTube de Guyrapu"
 msgstr "Guyrapu's YouTube"
 
+#: guyrapu/translation/idiomas.py
+msgid "Idioma de la interfaz"
+msgstr "Interface language"
+
 #: guyrapu/translation/proveedores/google.py
 msgid "No se pudo traducir. Se lee el mensaje original."
 msgstr "Could not translate. The original message will be read."
@@ -7031,6 +7348,10 @@ msgstr "Open Restream"
 #: guyrapu/ui/atajos_captura.py
 msgid "Abrir panel de OBS"
 msgstr "Open OBS panel"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Abrir la ventana Interacción"
+msgstr "Open the Interaction window"
 
 #: guyrapu/ui/atajos_captura.py
 msgid "Mostrar OBS"
@@ -7414,8 +7735,10 @@ msgid "Capturado: {atajo}. Se aplica al pulsar Guardar."
 msgstr "Captured: {atajo}. It applies when you press Save."
 
 #: guyrapu/ui/aviso_importante.py guyrapu/ui/chat_acciones.py
-#: guyrapu/ui/chat_participacion.py guyrapu/ui/escena_filtros.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
+#: guyrapu/ui/chat_participacion.py guyrapu/ui/comando_cuadro.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
 #: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/preferencias_api.py
@@ -7715,6 +8038,14 @@ msgid "Abrir enlace"
 msgstr "Open link"
 
 #: guyrapu/ui/chat_acciones.py
+msgid "Leer mensaje original"
+msgstr "Read original message"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Copiar mensaje original"
+msgstr "Copy original message"
+
+#: guyrapu/ui/chat_acciones.py
 #, python-brace-format
 msgid "Dejar de silenciar a {autor}"
 msgstr "Unmute {autor}"
@@ -7760,6 +8091,10 @@ msgstr "Alias removed"
 #: guyrapu/ui/chat_acciones.py
 msgid "Mensaje copiado"
 msgstr "Message copied"
+
+#: guyrapu/ui/chat_acciones.py
+msgid "Mensaje original copiado"
+msgstr "Original message copied"
 
 #: guyrapu/ui/chat_acciones.py guyrapu/ui/gui_comentarios.py
 msgid "Línea copiada"
@@ -7834,7 +8169,7 @@ msgstr "Results"
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 #: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
 #: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/interaccion_ventana.py guyrapu/ui/musica_ventana.py
 #: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
 msgid "&Cerrar"
 msgstr "&Close"
@@ -7842,7 +8177,7 @@ msgstr "&Close"
 #: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
 #: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_actualizacion.py
 #: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/interaccion_ventana.py guyrapu/ui/musica_ventana.py
 #: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
 #: guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
@@ -7933,6 +8268,142 @@ msgstr "OBS closed."
 msgid "OBS no se cerró. Ciérralo desde su ventana."
 msgstr "OBS did not close. Close it from its window."
 
+#: guyrapu/ui/comando_comandos_chat.py
+msgid "&Comandos del chat…"
+msgstr "&Chat commands…"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Agregar comando"
+msgstr "Add command"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Editar comando"
+msgstr "Edit command"
+
+#: guyrapu/ui/comando_cuadro.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador} y {texto}."
+msgstr "You can use {usuario}, {contador} and {texto}."
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "En el vídeo"
+msgstr "On the video"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "En el chat"
+msgstr "In the chat"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "En el vídeo y en el chat"
+msgstr "On the video and in the chat"
+
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/gui_menu.py
+msgid "Todos"
+msgstr "All"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Solo moderadores"
+msgstr "Moderators only"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Una lista de nombres"
+msgstr "A list of names"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Palabra:"
+msgstr "&Word:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "A&lias:"
+msgstr "A&lias:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Respuesta:"
+msgstr "&Response:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Dónde &sale:"
+msgstr "Where it &shows:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Quién puede usarlo:"
+msgstr "W&ho can use it:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Nombres:"
+msgstr "&Names:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Espera entre &usos (segundos):"
+msgstr "Wait between &uses (seconds):"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Espera por pers&ona (segundos):"
+msgstr "Wait per pers&on (seconds):"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Se&gundos en pantalla:"
+msgstr "S&econds on screen:"
+
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "&Estilo:"
+msgstr "&Style:"
+
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "nombre"
+msgstr "name"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Acti&vado"
+msgstr "Acti&vated"
+
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/dialogo_usos_perfil.py
+#: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_disenos.py
+#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_propiedades.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/restream_dialogos_destino.py
+msgid "&Aceptar"
+msgstr "&Accept"
+
+#. Traductores: botón para cerrar sin publicar.
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/comandos_ventana.py
+#: guyrapu/ui/confirmar_transmision.py guyrapu/ui/descargas_acciones.py
+#: guyrapu/ui/dialogo_asistente_perfiles.py
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/dialogo_prueba_conexion.py
+#: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/dialogo_usos_perfil.py
+#: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_captura_ventana.py
+#: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_propiedades.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui_cierre.py
+#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
+#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
+#: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
+#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
+msgid "&Cancelar"
+msgstr "&Cancel"
+
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/elegir_formato.py
+#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_tamano.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/gui_directo_youtube.py
+#: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/gui_redactar.py
+#: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/musica_dialogo_enlace.py guyrapu/ui/musica_editor_lista.py
+#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
+msgid "Cancelar"
+msgstr "Cancel"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Cambiar palabra"
+msgstr "Change word"
+
 #: guyrapu/ui/comando_directo.py
 msgid "Revisando OBS antes de transmitir."
 msgstr "Checking OBS before broadcasting."
@@ -7953,9 +8424,172 @@ msgstr "Scheduled messages enabled"
 msgid "Mensajes automáticos desactivados"
 msgstr "Scheduled messages disabled"
 
+#. Traductores: parte del estado F2 (comandos). {n} es el nº de comandos
+#. respondidos, {palabra} el último comando y {autor} quien lo pidió.
+#: guyrapu/ui/comandos_en_vivo.py
+#, python-brace-format
+msgid "Comandos respondidos: {n}, el último {palabra} de {autor}"
+msgstr "Commands answered: {n}, the last {palabra} from {autor}"
+
+#: guyrapu/ui/comandos_en_vivo.py
+msgid ""
+"Las respuestas de los comandos ya no salen en el chat porque queda poca "
+"cuota de YouTube. Siguen saliendo en el vídeo."
+msgstr ""
+"Command replies no longer go to the chat because little YouTube quota is "
+"left. They still appear in the video."
+
 #: guyrapu/ui/comandos_grabacion.py
 msgid "No hay ninguna grabación en curso."
 msgstr "No recording is in progress."
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "No hay comandos. Usa Agregar para crear uno."
+msgstr "There are no commands. Use Add to create one."
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Paquete de Guyrapu (*.zip)|*.zip"
+msgstr "Guyrapu package (*.zip)|*.zip"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "A&gregar"
+msgstr "A&dd"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Editar"
+msgstr "&Edit"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Cambiar p&alabra"
+msgstr "Change &word"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_menu_escena.py
+#: guyrapu/ui/escena_menu_fuente.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_pagina_perfiles.py
+msgid "&Duplicar"
+msgstr "&Duplicate"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Pausar o reanudar"
+msgstr "&Pause or resume"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Escuc&har"
+msgstr "&Listen"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_menu_escena.py
+#: guyrapu/ui/escena_menu_fuente.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/gui_historial.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/restream_pagina_perfiles.py
+msgid "E&liminar"
+msgstr "De&lete"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Expo&rtar"
+msgstr "Exp&ort"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Importar"
+msgstr "&Import"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Lista de c&omandos:"
+msgstr "&Saved commands:"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comandos del chat guardados"
+msgstr "Saved chat commands"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando agregado"
+msgstr "Command added"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando guardado"
+msgstr "Command saved"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Palabra cambiada"
+msgstr "Word changed"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando duplicado"
+msgstr "Command duplicated"
+
+#: guyrapu/ui/comandos_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar el comando «{nombre}»?"
+msgstr "Delete the command «{nombre}»?"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Eliminar comando"
+msgstr "Delete command"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_edicion_fuente.py
+#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_menus.py guyrapu/ui/restream_pagina_destinos.py
+#: guyrapu/ui/restream_pagina_perfiles.py
+msgid "&Eliminar"
+msgstr "&Delete"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando eliminado"
+msgstr "Command deleted"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "No hay comandos para exportar."
+msgstr "There are no commands to export."
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#, python-brace-format
+msgid ""
+"No se pudo escribir el paquete:\n"
+"\n"
+"{exc}"
+msgstr ""
+"The package could not be written:\n"
+"\n"
+"{exc}"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Exportar comandos"
+msgstr "Export commands"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Importar comandos"
+msgstr "Import commands"
+
+#: guyrapu/ui/comandos_ventana.py
+#, python-brace-format
+msgid "Se importó un comando."
+msgid_plural "Se importaron {n} comandos."
+msgstr[0] "One command imported."
+msgstr[1] "{n} commands imported."
+
+#: guyrapu/ui/comandos_ventana.py
+#, python-brace-format
+msgid "Ya hay comandos llamados {nombres}. ¿Quieres reemplazarlos?"
+msgstr "Commands named {nombres} already exist. Replace them?"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilo_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Sí"
+msgstr "&Yes"
+
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilo_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&No"
+msgstr "&No"
 
 #: guyrapu/ui/confirmar_salida.py
 msgid "¿Salir de la aplicación? Hay un chat conectado y una transmisión en curso."
@@ -8002,27 +8636,6 @@ msgstr "&Keep broadcasting"
 #: guyrapu/ui/confirmar_transmision.py
 msgid "Antes de transmitir"
 msgstr "Before broadcasting"
-
-#. Traductores: botón para cerrar sin publicar.
-#: guyrapu/ui/confirmar_transmision.py guyrapu/ui/descargas_acciones.py
-#: guyrapu/ui/dialogo_asistente_perfiles.py
-#: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/dialogo_prueba_conexion.py
-#: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/dialogo_usos_perfil.py
-#: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_captura_ventana.py
-#: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
-#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_propiedades.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui_cierre.py
-#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
-#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
-#: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
-#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_perfil.py
-#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
-msgid "&Cancelar"
-msgstr "&Cancel"
 
 #: guyrapu/ui/control_grabacion.py
 msgid "Iniciar &grabación"
@@ -8537,7 +9150,7 @@ msgstr "No status information."
 msgid "Nombre del perfil"
 msgstr "Profile name"
 
-#: guyrapu/ui/dialogo_nombre_perfil_obs.py
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/musica_editor_lista.py
 #: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
 msgid "&Nombre:"
@@ -8764,14 +9377,6 @@ msgstr "Use {nombre} for"
 msgid "(ahora: {nombre})"
 msgstr "(now: {nombre})"
 
-#: guyrapu/ui/dialogo_usos_perfil.py guyrapu/ui/escena_captura_ventana.py
-#: guyrapu/ui/escena_disenos.py guyrapu/ui/escena_filtros.py
-#: guyrapu/ui/escena_propiedades.py guyrapu/ui/escena_tamano.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/preferencias_general.py
-#: guyrapu/ui/restream_dialogos_destino.py
-msgid "&Aceptar"
-msgstr "&Accept"
-
 #: guyrapu/ui/disenos_nombres.py
 msgid "Nombre del diseño:"
 msgstr "Layout name:"
@@ -8813,15 +9418,6 @@ msgstr "Download"
 #: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/restream_perfil.py
 msgid "C&ancelar"
 msgstr "C&ancel"
-
-#: guyrapu/ui/elegir_formato.py guyrapu/ui/escena_filtros.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/gui_directo_youtube.py
-#: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/gui_redactar.py
-#: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/mensaje_automatico_cuadro.py
-#: guyrapu/ui/musica_dialogo_enlace.py guyrapu/ui/musica_editor_lista.py
-#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
-msgid "Cancelar"
-msgstr "Cancel"
 
 #. Traductores: aviso cuando el detector de rostros no está instalado.
 #: guyrapu/ui/encuadre_camara.py guyrapu/ui/guia_encuadre.py
@@ -9209,7 +9805,8 @@ msgid "Nombre nuevo:"
 msgstr "New name:"
 
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_escena.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/restream_perfil.py
 msgid "Cambiar nombre"
 msgstr "Rename"
 
@@ -9233,14 +9830,6 @@ msgstr "Delete {fuente} from this scene?"
 #: guyrapu/ui/escena_edicion_fuente.py
 msgid "Eliminar fuente"
 msgstr "Delete source"
-
-#: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_escena.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/restream_menus.py guyrapu/ui/restream_pagina_destinos.py
-#: guyrapu/ui/restream_pagina_perfiles.py
-msgid "&Eliminar"
-msgstr "&Delete"
 
 #: guyrapu/ui/escena_edicion_fuente.py
 #, python-brace-format
@@ -9283,21 +9872,9 @@ msgstr "&Change scene"
 msgid "Cambiar &nombre…"
 msgstr "Change &name…"
 
-#: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/restream_pagina_perfiles.py
-msgid "&Duplicar"
-msgstr "&Duplicate"
-
 #: guyrapu/ui/escena_menu_escena.py
 msgid "Crear la versión &vertical"
 msgstr "Create &vertical version"
-
-#: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
-#: guyrapu/ui/gui_historial.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/restream_pagina_perfiles.py
-msgid "E&liminar"
-msgstr "De&lete"
 
 #: guyrapu/ui/escena_menu_escena.py
 msgid "&Guardar imagen…"
@@ -9595,7 +10172,7 @@ msgstr "There are no displays to capture."
 msgid "Fuente de otra escena"
 msgstr "Source from another scene"
 
-#: guyrapu/ui/escena_propiedades.py
+#: guyrapu/ui/escena_propiedades.py guyrapu/ui/estilo_cuadro.py
 msgid "&Fuente:"
 msgstr "&Source:"
 
@@ -9662,6 +10239,186 @@ msgstr "Vertical version canceled."
 #, python-brace-format
 msgid "Versión vertical creada: {escena} vertical. Diseño: {diseño}."
 msgstr "Vertical version created: {escena} vertical. Layout: {diseño}."
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Agregar estilo del vídeo"
+msgstr "Add video style"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Editar estilo del vídeo"
+msgstr "Edit video style"
+
+#: guyrapu/ui/estilo_cuadro.py
+#, python-format
+msgid "&Tamaño (% del lado menor del vídeo):"
+msgstr "&Size (% of the video's shorter side):"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Ne&grita"
+msgstr "&Bold"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Negrita"
+msgstr "Bold"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Color del te&xto:"
+msgstr "Te&xt color:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Color del c&ontorno:"
+msgstr "Outline c&olor:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Anc&ho del contorno:"
+msgstr "Outline widt&h:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Color del fon&do:"
+msgstr "Backgroun&d color:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "O&pacidad del fondo:"
+msgstr "O&pacity of the background:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "A&lineación:"
+msgstr "A&lignment:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "&Zona:"
+msgstr "&Zone:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Animación de &entrada:"
+msgstr "&Entrance animation:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Du&ración de la entrada:"
+msgstr "Entry dura&tion:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Animación de &salida:"
+msgstr "&Exit animation:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "D&uración de la salida:"
+msgstr "Exit dur&ation:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Es&quinas redondeadas"
+msgstr "Rounded &corners"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Esquinas redondeadas"
+msgstr "Rounded corners"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "So&mbra"
+msgstr "Shado&w"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Sombra"
+msgstr "Shadow"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "¿Quieres guardar el estilo igual?"
+msgstr "Do you want to save the style anyway?"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Guardar estilo del vídeo"
+msgstr "Save video style"
+
+#: guyrapu/ui/estilo_opciones.py
+msgid "Izquierda"
+msgstr "Left"
+
+#: guyrapu/ui/estilo_opciones.py
+msgid "Derecha"
+msgstr "Right"
+
+#: guyrapu/ui/estilo_opciones.py
+#, python-brace-format
+msgid "Personalizado ({codigo})"
+msgstr "Custom ({codigo})"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "No hay estilos. Usa Agregar para crear uno."
+msgstr "There are no styles. Use Add to create one."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Los estilos de fábrica no se cambian. Usa Duplicar para crear uno propio."
+msgstr "Factory styles can't be changed. Use Duplicate to create your own."
+
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Cambiar n&ombre"
+msgstr "Re&name"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilos del &vídeo:"
+msgstr "&Video styles:"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilos del vídeo guardados"
+msgstr "Saved video styles"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "{nombre} (de fábrica)"
+msgstr "{nombre} (factory)"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo agregado"
+msgstr "Style added"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo guardado"
+msgstr "Style saved"
+
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Nombre cambiado"
+msgstr "Name changed"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo duplicado"
+msgstr "Style duplicated"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar el estilo «{nombre}»?"
+msgstr "Do you want to delete the style «{nombre}»?"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "Lo usan {cantidad} mensajes automáticos. Esos mensajes pasan a usar Clásico."
+msgstr "Used by {cantidad} scheduled messages. Those messages will use Classic."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Eliminar estilo del vídeo"
+msgstr "Delete video style"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo eliminado"
+msgstr "Style deleted"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "No hay estilos propios para exportar."
+msgstr "There are no custom styles to export."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Exportar estilos del vídeo"
+msgstr "Export video styles"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Importar estilos del vídeo"
+msgstr "Import video styles"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "Se importó un estilo."
+msgid_plural "Se importaron {n} estilos."
+msgstr[0] "One style imported."
+msgstr[1] "{n} styles imported."
 
 #: guyrapu/ui/fila_audio.py guyrapu/ui/gui_microfono.py
 msgid "silenciada"
@@ -9811,6 +10568,10 @@ msgstr "Sounds muted"
 #: guyrapu/ui/gui.py
 msgid "Sonidos activados"
 msgstr "Sounds on"
+
+#: guyrapu/ui/gui.py
+msgid "Lectura silenciada"
+msgstr "Reading muted"
 
 #: guyrapu/ui/gui.py
 msgid "Lectura activada"
@@ -10727,10 +11488,6 @@ msgid "Entrada eliminada del historial"
 msgstr "History entry deleted"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Todos"
-msgstr "All"
-
-#: guyrapu/ui/gui_menu.py
 msgid "Solo texto"
 msgstr "Text only"
 
@@ -10771,9 +11528,21 @@ msgstr "Search &chat…"
 msgid "&Participación en el chat…"
 msgstr "Chat &participation…"
 
+#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
+msgid "&Traducir chat"
+msgstr "&Translate chat"
+
 #: guyrapu/ui/gui_menu.py
 msgid "&Chat"
 msgstr "&Chat"
+
+#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
+msgid "Traducción del chat activada"
+msgstr "Chat translation on"
+
+#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
+msgid "Traducción del chat desactivada"
+msgstr "Chat translation off"
 
 #: guyrapu/ui/gui_menu.py
 msgid "&Detener voz"
@@ -11507,6 +12276,12 @@ msgstr "Capture"
 msgid "Ca&ncelar"
 msgstr "Ca&ncel"
 
+#. Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia
+#. sin abrir nada.
+#: guyrapu/ui/ia_consulta_rapida.py
+msgid "Consulta rápida en curso."
+msgstr "Quick question in progress."
+
 #. Traductores: aviso antes de enviar la captura a la IA; {proveedor} es el
 #. nombre del proveedor.
 #: guyrapu/ui/ia_privacidad.py
@@ -11598,6 +12373,22 @@ msgid ""
 msgstr ""
 "The live stream is private and YouTube does not allow reading its chat. To "
 "read it, broadcast as public or unlisted."
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Comandos"
+msgstr "Commands"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Estilos"
+msgstr "Styles"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Interacción"
+msgstr "Interaction"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Páginas de interacción"
+msgstr "Interaction pages"
 
 #. Traductores: fila de me gusta agrupados; {autor} es quien los dio, {n}
 #. cuántos dio y {hora} la hora.
@@ -11734,14 +12525,6 @@ msgid "Dónde se muestra:"
 msgstr "Where it is shown:"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "&Estilo:"
-msgstr "&Style:"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "nombre"
-msgstr "name"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Estilo:"
 msgstr "Style:"
 
@@ -11805,44 +12588,12 @@ msgid "No hay mensajes automáticos. Usa Agregar para crear uno."
 msgstr "There are no scheduled messages. Use Add to create one."
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "Paquete de Guyrapu (*.zip)|*.zip"
-msgstr "Guyrapu package (*.zip)|*.zip"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "A&gregar"
-msgstr "A&dd"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "&Editar"
-msgstr "&Edit"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "Cambiar n&ombre"
-msgstr "Re&name"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "&Subir"
 msgstr "Move &up"
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Ba&jar"
 msgstr "Move &down"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "&Pausar o reanudar"
-msgstr "&Pause or resume"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "Escuc&har"
-msgstr "&Listen"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "Expo&rtar"
-msgstr "Exp&ort"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "&Importar"
-msgstr "&Import"
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/menu_interaccion.py
 msgid "Acti&var mensajes automáticos"
@@ -11863,10 +12614,6 @@ msgstr "Message added"
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Mensaje guardado"
 msgstr "Message saved"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "Nombre cambiado"
-msgstr "Name changed"
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Mensaje duplicado"
@@ -11900,17 +12647,6 @@ msgid "No hay mensajes automáticos para exportar."
 msgstr "There are no scheduled messages to export."
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
-#, python-brace-format
-msgid ""
-"No se pudo escribir el paquete:\n"
-"\n"
-"{exc}"
-msgstr ""
-"The package could not be written:\n"
-"\n"
-"{exc}"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Exportar mensajes automáticos"
 msgstr "Export scheduled messages"
 
@@ -11930,17 +12666,17 @@ msgstr[1] "{n} messages imported."
 msgid "Ya hay mensajes llamados {nombres}. ¿Quieres reemplazarlos?"
 msgstr "Messages named {nombres} already exist. Replace them?"
 
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "&Sí"
-msgstr "&Yes"
-
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "&No"
-msgstr "&No"
+#: guyrapu/ui/menu_interaccion.py
+msgid "&Abrir Interacción…"
+msgstr "&Open Interaction…"
 
 #: guyrapu/ui/menu_interaccion.py
 msgid "&Mensajes automáticos…"
 msgstr "&Scheduled messages…"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Es&tilos del vídeo…"
+msgstr "V&ideo styles…"
 
 #: guyrapu/ui/menu_interaccion.py
 msgid "&Interacción"
@@ -13235,6 +13971,54 @@ msgstr "Read recent messages with"
 #: guyrapu/ui/preferencias_lectura.py
 msgid "Leer mensajes recientes en cual&quier aplicación"
 msgstr "Read recent messages in any a&pplication"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Traducir chat"
+msgstr "Translate chat"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Qué se tra&duce:"
+msgstr "What &gets translated:"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "La voz y la lista"
+msgstr "The voice and the list"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Solo la voz"
+msgstr "Voice only"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Qué se traduce"
+msgstr "What gets translated"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "&Idioma original:"
+msgstr "&Original language:"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Completo"
+msgstr "Full"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Abreviado"
+msgstr "Abbreviated"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "No decirlo"
+msgstr "Do not say it"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Idioma original"
+msgstr "Original language"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Traducir &al:"
+msgstr "Translate &into:"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Traducir al"
+msgstr "Translate to"
 
 #: guyrapu/ui/preferencias_musica.py
 msgid "Carpeta de &música:"
@@ -14635,755 +15419,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/obs/descripcion_estilo.py
-#, python-brace-format, python-format
-msgid "{nombre}. Fuente {fuente}, tamaño {tamano} % del lado menor del vídeo."
-msgstr "{nombre}. Font {fuente}, size {tamano} % of the video's shorter side."
-
-#: guyrapu/obs/descripcion_estilo.py
-#, python-brace-format
-msgid "Texto {texto} con contorno {contorno} de ancho {ancho}."
-msgstr "Text {texto} with a {contorno} outline of width {ancho}."
-
-#: guyrapu/obs/descripcion_estilo.py
-#, python-brace-format
-msgid "Fondo {fondo} con una opacidad de {opacidad} %."
-msgstr "Background {fondo} with an opacity of {opacidad} %."
-
-#: guyrapu/obs/descripcion_estilo.py
-#, python-brace-format
-msgid "Zona: {zona}."
-msgstr "Zone: {zona}."
-
-#: guyrapu/obs/descripcion_estilo.py
-#, python-brace-format
-msgid "Entrada: {entrada}, {ms} milisegundos."
-msgstr "Entrance: {entrada}, {ms} milliseconds."
-
-#: guyrapu/obs/descripcion_estilo.py
-#, python-brace-format
-msgid "Salida: {salida}, {ms} milisegundos."
-msgstr "Exit: {salida}, {ms} milliseconds."
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Agregar estilo del vídeo"
-msgstr "Add video style"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Editar estilo del vídeo"
-msgstr "Edit video style"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Izquierda"
-msgstr "Left"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Derecha"
-msgstr "Right"
-
-#: guyrapu/ui/estilo_cuadro.py
-#, python-brace-format
-msgid "Personalizado ({codigo})"
-msgstr "Custom ({codigo})"
-
-#: guyrapu/ui/estilo_cuadro.py
-#, python-format
-msgid "&Tamaño (% del lado menor del vídeo):"
-msgstr "&Size (% of the video's shorter side):"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Ne&grita"
-msgstr "&Bold"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Negrita"
-msgstr "Bold"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Color del te&xto:"
-msgstr "Te&xt color:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Color del c&ontorno:"
-msgstr "Outline c&olor:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Anc&ho del contorno:"
-msgstr "Outline widt&h:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Color del fon&do:"
-msgstr "Backgroun&d color:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "O&pacidad del fondo:"
-msgstr "O&pacity of the background:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "A&lineación:"
-msgstr "A&lignment:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "&Zona:"
-msgstr "&Zone:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Animación de &entrada:"
-msgstr "&Entrance animation:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Du&ración de la entrada:"
-msgstr "Entry dura&tion:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Animación de &salida:"
-msgstr "&Exit animation:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "D&uración de la salida:"
-msgstr "Exit dur&ation:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Es&quinas redondeadas"
-msgstr "Rounded &corners"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Esquinas redondeadas"
-msgstr "Rounded corners"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "So&mbra"
-msgstr "Shado&w"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Sombra"
-msgstr "Shadow"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "¿Quieres guardar el estilo igual?"
-msgstr "Do you want to save the style anyway?"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "Guardar estilo del vídeo"
-msgstr "Save video style"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "No hay estilos. Usa Agregar para crear uno."
-msgstr "There are no styles. Use Add to create one."
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Los estilos de fábrica no se cambian. Usa Duplicar para crear uno propio."
-msgstr "Factory styles can't be changed. Use Duplicate to create your own."
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Estilos del &vídeo:"
-msgstr "&Video styles:"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Estilos del vídeo guardados"
-msgstr "Saved video styles"
-
-#: guyrapu/ui/estilos_ventana.py
-#, python-brace-format
-msgid "{nombre} (de fábrica)"
-msgstr "{nombre} (factory)"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Estilo agregado"
-msgstr "Style added"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Estilo guardado"
-msgstr "Style saved"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Estilo duplicado"
-msgstr "Style duplicated"
-
-#: guyrapu/ui/estilos_ventana.py
-#, python-brace-format
-msgid "¿Quieres eliminar el estilo «{nombre}»?"
-msgstr "Do you want to delete the style «{nombre}»?"
-
-#: guyrapu/ui/estilos_ventana.py
-#, python-brace-format
-msgid "Lo usan {cantidad} mensajes automáticos. Esos mensajes pasan a usar Clásico."
-msgstr "Used by {cantidad} scheduled messages. Those messages will use Classic."
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Eliminar estilo del vídeo"
-msgstr "Delete video style"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Estilo eliminado"
-msgstr "Style deleted"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "No hay estilos propios para exportar."
-msgstr "There are no custom styles to export."
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Exportar estilos del vídeo"
-msgstr "Export video styles"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Importar estilos del vídeo"
-msgstr "Import video styles"
-
-#: guyrapu/ui/estilos_ventana.py
-#, python-brace-format
-msgid "Se importó un estilo."
-msgid_plural "Se importaron {n} estilos."
-msgstr[0] "One style imported."
-msgstr[1] "{n} styles imported."
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "Es&tilos del vídeo…"
-msgstr "V&ideo styles…"
-
-#. Traductores: validación de comandos del chat (error). «comandos» es la
-#. palabra que usa la app.
-#: guyrapu/interaction/comandos.py
-msgid "«comandos» es de la app y no se puede usar como palabra ni alias."
-msgstr "«commands» belongs to the app and cannot be used as a word or alias."
-
-#. Traductores: validación de comandos del chat (error). {variable} es la
-#. variable desconocida y las demás son las que se pueden usar.
-#: guyrapu/interaction/comandos.py
-#, python-brace-format
-msgid ""
-"La variable {variable} no existe. Puedes usar {usuario}, {contador} y "
-"{texto}."
-msgstr ""
-"The variable {variable} does not exist. You can use {usuario}, {contador} "
-"and {texto}."
-
-#. Traductores: validación de comandos del chat (error). {actual} es el largo y
-#. {maximo} el tope del chat.
-#: guyrapu/interaction/comandos.py
-#, python-brace-format
-msgid "La respuesta tiene {actual} caracteres y el máximo para el chat es {maximo}."
-msgstr "The response has {actual} characters and the maximum for chat is {maximo}."
-
-#. Traductores: validación de comandos del chat (error).
-#: guyrapu/interaction/comandos.py
-msgid "La lista de nombres no puede estar vacía."
-msgstr "The list of names cannot be empty."
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "en el vídeo"
-msgstr "on the video"
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "en el chat"
-msgstr "in the chat"
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "en el vídeo y en el chat"
-msgstr "on the video and in the chat"
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "solo moderadores"
-msgstr "moderators only"
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "una lista de nombres: {nombres}"
-msgstr "a list of names: {nombres}"
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "una lista de nombres"
-msgstr "a list of names"
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "todos"
-msgstr "everyone"
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "pausado"
-msgstr "paused"
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Comando {palabra}, con los alias {alias}."
-msgstr "Command {palabra}, with aliases {alias}."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Comando {palabra}."
-msgstr "Command {palabra}."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Responde: {respuesta}."
-msgstr "It replies: {respuesta}."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Sale {destino}, con el estilo {estilo} y {segundos} segundos en pantalla."
-msgstr ""
-"It appears {destino}, with the {estilo} style and {segundos} seconds on "
-"screen."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Sale {destino}."
-msgstr "It appears {destino}."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Puede usarlo: {quien}."
-msgstr "Who can use it: {quien}."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Espera {general} segundos entre usos y {persona} segundos por persona."
-msgstr "It waits {general} seconds between uses and {persona} seconds per person."
-
-#: guyrapu/interaction/descripcion_comando.py
-msgid "Pausado."
-msgstr "Paused."
-
-#: guyrapu/ui/comando_comandos_chat.py
-msgid "&Comandos del chat…"
-msgstr "&Chat commands…"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Agregar comando"
-msgstr "Add command"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Editar comando"
-msgstr "Edit command"
-
-#: guyrapu/ui/comando_cuadro.py
-#, python-brace-format
-msgid "Puedes usar {usuario}, {contador} y {texto}."
-msgstr "You can use {usuario}, {contador} and {texto}."
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "En el vídeo"
-msgstr "On the video"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "En el chat"
-msgstr "In the chat"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "En el vídeo y en el chat"
-msgstr "On the video and in the chat"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Solo moderadores"
-msgstr "Moderators only"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Una lista de nombres"
-msgstr "A list of names"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "&Palabra:"
-msgstr "&Word:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "A&lias:"
-msgstr "A&lias:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "&Respuesta:"
-msgstr "&Response:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Dónde &sale:"
-msgstr "Where it &shows:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "&Quién puede usarlo:"
-msgstr "W&ho can use it:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "&Nombres:"
-msgstr "&Names:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Espera entre &usos (segundos):"
-msgstr "Wait between &uses (seconds):"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Espera por pers&ona (segundos):"
-msgstr "Wait per pers&on (seconds):"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Se&gundos en pantalla:"
-msgstr "S&econds on screen:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Acti&vado"
-msgstr "Acti&vated"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Cambiar palabra"
-msgstr "Change word"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "No hay comandos. Usa Agregar para crear uno."
-msgstr "There are no commands. Use Add to create one."
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Cambiar p&alabra"
-msgstr "Change &word"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Lista de c&omandos:"
-msgstr "&Saved commands:"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Comandos del chat guardados"
-msgstr "Saved chat commands"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Comando agregado"
-msgstr "Command added"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Comando guardado"
-msgstr "Command saved"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Palabra cambiada"
-msgstr "Word changed"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Comando duplicado"
-msgstr "Command duplicated"
-
-#: guyrapu/ui/comandos_ventana.py
-#, python-brace-format
-msgid "¿Quieres eliminar el comando «{nombre}»?"
-msgstr "Delete the command «{nombre}»?"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Eliminar comando"
-msgstr "Delete command"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Comando eliminado"
-msgstr "Command deleted"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "No hay comandos para exportar."
-msgstr "There are no commands to export."
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Exportar comandos"
-msgstr "Export commands"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "Importar comandos"
-msgstr "Import commands"
-
-#: guyrapu/ui/comandos_ventana.py
-#, python-brace-format
-msgid "Se importó un comando."
-msgid_plural "Se importaron {n} comandos."
-msgstr[0] "One command imported."
-msgstr[1] "{n} commands imported."
-
-#: guyrapu/ui/comandos_ventana.py
-#, python-brace-format
-msgid "Ya hay comandos llamados {nombres}. ¿Quieres reemplazarlos?"
-msgstr "Commands named {nombres} already exist. Replace them?"
-
-#. Traductores: {titulo} es la pregunta y {opciones} la lista de opciones.
-#: guyrapu/capture/encuestas.py
-#, python-brace-format
-msgid "Encuesta en curso: {titulo}. Opciones: {opciones}"
-msgstr "Poll in progress: {titulo}. Options: {opciones}"
-
-#. Traductores: {opciones} es la lista de opciones de la encuesta.
-#: guyrapu/capture/encuestas.py
-#, python-brace-format
-msgid "Encuesta en curso. Opciones: {opciones}"
-msgstr "Poll in progress. Options: {opciones}"
-
-#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} son
-#. los de ahora y {total} el total.
-#: guyrapu/capture/estado_espectadores.py
-#, python-brace-format
-msgid "En TikTok, {n} espectador ahora, {total} en total"
-msgid_plural "En TikTok, {n} espectadores ahora, {total} en total"
-msgstr[0] "On TikTok, {n} viewer now, {total} in total"
-msgstr[1] "On TikTok, {n} viewers now, {total} in total"
-
-#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
-#. el nº actual.
-#: guyrapu/capture/estado_espectadores.py
-#, python-brace-format
-msgid "En TikTok, {n} espectador"
-msgid_plural "En TikTok, {n} espectadores"
-msgstr[0] "On TikTok, {n} viewer"
-msgstr[1] "On TikTok, {n} viewers"
-
-#. Traductores: parte del estado F2 (tiempo). {texto} es la duración.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "{texto} de directo"
-msgstr "{texto} of live stream"
-
-#. Traductores: parte del estado F2 (cola). {n} es el nº en cola.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "Mensajes en cola: {n}"
-msgstr "Messages in queue: {n}"
-
-#. Traductores: parte del estado F2 (lectura silenciada).
-#: guyrapu/capture/estado_sesion.py
-msgid "Lectura: silenciada"
-msgstr "Reading: muted"
-
-#. Traductores: componente del estado F2.
-#: guyrapu/capture/estado_sesion.py
-msgid "Chat en el vídeo: se muestra en OBS"
-msgstr "Chat on video: shown in OBS"
-
-#. Traductores: componente del estado F2.
-#: guyrapu/capture/estado_sesion.py
-msgid "Chat en el vídeo: activado, no se muestra en OBS"
-msgstr "Chat on video: enabled, not shown in OBS"
-
-#. Traductores: parte del estado F2 (cuota de YouTube). {usadas} son las
-#. unidades.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "Cuota de YouTube estimada hoy en este equipo: {usadas} de 10.000 unidades"
-msgstr "YouTube quota estimated today on this computer: {usadas} of 10,000 units"
-
-#. Traductores: estado F2 de los mensajes automáticos cuando falta menos de un
-#. minuto.
-#: guyrapu/capture/programados.py
-msgid "Próximo mensaje automático: en menos de un minuto"
-msgstr "Next automatic message: in less than a minute"
-
-#. Traductores: estado F2 de los mensajes automáticos. {minutos} es en cuántos
-#. minutos se envía.
-#: guyrapu/capture/programados.py
-#, python-brace-format
-msgid "Próximo mensaje automático: en {minutos} minuto"
-msgid_plural "Próximo mensaje automático: en {minutos} minutos"
-msgstr[0] "Next automatic message: in {minutos} minute"
-msgstr[1] "Next automatic message: in {minutos} minutes"
-
-#: guyrapu/obs/estado_panel.py guyrapu/obs/obs_estado.py
-#, python-brace-format
-msgid "Transmisión activa desde hace {duracion}"
-msgstr "Broadcast active for {duracion}"
-
-#: guyrapu/obs/estado_panel.py
-#, python-brace-format
-msgid "Transmisión a {destino} activa desde hace {duracion}"
-msgstr "Broadcast to {destino} active for {duracion}"
-
-#: guyrapu/obs/obs_escena.py
-msgid "oculta"
-msgstr "hidden"
-
-#: guyrapu/obs/obs_escena.py
-msgid "sin imagen"
-msgstr "no image"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "tapada entera por {tapa}"
-msgstr "fully covered by {tapa}"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "tapada en parte por {nombre}, {porcentaje} por ciento"
-msgstr "partly covered by {nombre}, {porcentaje} percent"
-
-#. Traductores: {p} es un porcentaje.
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid " y fuera del vídeo: {p} por ciento"
-msgstr " and off the video: {p} percent"
-
-#. Traductores: {p} es un porcentaje.
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "fuera del vídeo: {p} por ciento"
-msgstr "off the video: {p} percent"
-
-#: guyrapu/obs/obs_escena.py
-msgid "sin posición"
-msgstr "no position"
-
-#: guyrapu/obs/obs_escena.py
-msgid "en todo el vídeo"
-msgstr "over the whole video"
-
-#: guyrapu/obs/obs_escena.py
-msgid "posición libre"
-msgstr "free position"
-
-#: guyrapu/obs/obs_escena.py
-msgid "visible"
-msgstr "visible"
-
-#: guyrapu/obs/obs_escena.py
-msgid "posición bloqueada"
-msgstr "position locked"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena actual: {escena}. Sin fuentes."
-msgstr "Current scene: {escena}. No sources."
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena: {escena}. Sin fuentes."
-msgstr "Scene: {escena}. No sources."
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena actual: {escena}. {palabra}, del frente al fondo."
-msgstr "Current scene: {escena}. {palabra}, from front to back."
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena: {escena}. {palabra}, del frente al fondo."
-msgstr "Scene: {escena}. {palabra}, from front to back."
-
-#. Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia
-#. sin abrir nada.
-#: guyrapu/ui/ia_consulta_rapida.py
-msgid "Consulta rápida en curso."
-msgstr "Quick question in progress."
-
-#: guyrapu/obs/obs_escena.py
-msgid "sin medir, no está al aire"
-msgstr "not measured, not on air"
-
-#: guyrapu/capture/traduccion_chat.py
-msgid "La traducción no responde. Se leen los mensajes originales."
-msgstr "The translation is not responding. Original messages will be read."
-
-#: guyrapu/capture/traduccion_chat.py
-msgid "La traducción volvió."
-msgstr "Translation is back."
-
-#: guyrapu/translation/idiomas.py
-msgid "Idioma de la interfaz"
-msgstr "Interface language"
-
-#: guyrapu/ui/chat_acciones.py
-msgid "Leer mensaje original"
-msgstr "Read original message"
-
-#: guyrapu/ui/chat_acciones.py
-msgid "Copiar mensaje original"
-msgstr "Copy original message"
-
-#: guyrapu/ui/chat_acciones.py
-msgid "Mensaje original copiado"
-msgstr "Original message copied"
-
-#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
-msgid "&Traducir chat"
-msgstr "&Translate chat"
-
-#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
-msgid "Traducción del chat activada"
-msgstr "Chat translation on"
-
-#: guyrapu/ui/gui_menu.py guyrapu/ui/preferencias_lectura.py
-msgid "Traducción del chat desactivada"
-msgstr "Chat translation off"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Traducir chat"
-msgstr "Translate chat"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Qué se tra&duce:"
-msgstr "What &gets translated:"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "La voz y la lista"
-msgstr "The voice and the list"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Solo la voz"
-msgstr "Voice only"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Qué se traduce"
-msgstr "What gets translated"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "&Idioma original:"
-msgstr "&Original language:"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Completo"
-msgstr "Full"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Abreviado"
-msgstr "Abbreviated"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "No decirlo"
-msgstr "Do not say it"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Idioma original"
-msgstr "Original language"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Traducir &al:"
-msgstr "Translate &into:"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Traducir al"
-msgstr "Translate to"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir la ventana Interacción"
-msgstr "Open the Interaction window"
-
-#: guyrapu/ui/interaccion_ventana.py
-msgid "Comandos"
-msgstr "Commands"
-
-#: guyrapu/ui/interaccion_ventana.py
-msgid "Estilos"
-msgstr "Styles"
-
-#: guyrapu/ui/interaccion_ventana.py
-msgid "Interacción"
-msgstr "Interaction"
-
-#: guyrapu/ui/interaccion_ventana.py
-msgid "Páginas de interacción"
-msgstr "Interaction pages"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "&Abrir Interacción…"
-msgstr "&Open Interaction…"
-
-#. Traductores: respuesta de la app al comando !comandos. {lista} son los
-#. nombres de los comandos activos.
-#: guyrapu/interaction/atencion.py
-#, python-brace-format
-msgid "Comandos: {lista}."
-msgstr "Commands: {lista}."
-
-#: guyrapu/ui/comandos_en_vivo.py
-msgid ""
-"Las respuestas de los comandos ya no salen en el chat porque queda poca "
-"cuota de YouTube. Siguen saliendo en el vídeo."
-msgstr ""
-"Command replies no longer go to the chat because little YouTube quota is "
-"left. They still appear in the video."
 

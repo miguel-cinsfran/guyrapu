@@ -73,13 +73,14 @@ class Base(unittest.TestCase):
     def _guardar(self, *comandos):
         comandos_guardados.guardar(paths.comandos(), list(comandos))
 
-    def _encolar(self, texto, plataforma="youtube"):
+    def _encolar(self, texto, plataforma="youtube", autor="Ana"):
         with mock.patch.object(chat_vivo.wx, "CallLater",
                                return_value=mock.Mock()), \
                 mock.patch(
                     "guyrapu.capture.traduccion_chat.traduce_lista",
                     return_value=False):
-            self.control.encolar(_registro(texto, plataforma=plataforma))
+            self.control.encolar(_registro(texto, autor=autor,
+                                           plataforma=plataforma))
 
 
 class TestRespuestaEnElVideo(Base):
@@ -138,6 +139,51 @@ class TestFrenoDeCuota(Base):
         self.assertIn("poca cuota de YouTube", avisos[0][0])
         self.assertEqual(
             self.frame._capa_video.agregar_comando.call_count, 2)
+
+
+class TestComandosRespondidos(Base):
+
+    def test_cuenta_las_respuestas_y_recuerda_la_ultima(self):
+        self._guardar(
+            _datos(nombre="uno", respuesta="Uno", espera_general=0,
+                   espera_persona=0),
+            _datos(nombre="discord", respuesta="Hola"))
+        self._encolar("!uno", autor="Beto")
+        self._encolar("!discord", autor="Ana")
+        self._encolar("!discord", autor="Beto")
+        self.assertEqual(
+            self.frame._comandos_en_vivo.frase_estado(),
+            "Comandos respondidos: 2, el último !discord de Ana")
+
+    def test_sin_respuestas_no_dice_nada(self):
+        self.assertEqual(
+            comandos_en_vivo.ComandosEnVivo(self.frame).frase_estado(), "")
+
+    def test_sin_permiso_o_pausado_no_cuenta_ni_cambia_la_ultima(self):
+        self._guardar(
+            _datos(respuesta="Hola", espera_general=0, espera_persona=0),
+            _datos(nombre="privado", respuesta="Privado",
+                   permiso="moderadores", espera_general=0,
+                   espera_persona=0),
+            _datos(nombre="pausado", respuesta="Pausado", activo=False,
+                   espera_general=0, espera_persona=0))
+        self._encolar("!discord", autor="Ana")
+        for texto, caso in (("!privado", "sin permiso"),
+                            ("!pausado", "pausado")):
+            with self.subTest(caso=caso):
+                self._encolar(texto, autor="Beto")
+                self.assertEqual(
+                    self.frame._comandos_en_vivo.frase_estado(),
+                    "Comandos respondidos: 1, el último !discord de Ana")
+
+    def test_cada_sesion_empieza_en_cero(self):
+        self._guardar(_datos(respuesta="Hola", espera_general=0,
+                             espera_persona=0))
+        self._encolar("!discord")
+        self.assertNotEqual(
+            self.frame._comandos_en_vivo.frase_estado(), "")
+        self.assertEqual(
+            comandos_en_vivo.ComandosEnVivo(self.frame).frase_estado(), "")
 
 
 class TestRecargaDeComandos(Base):

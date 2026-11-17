@@ -31,6 +31,7 @@ COMPONENTES: tuple[str, ...] = (
     "overlay",
     "video",
     "programados",
+    "comandos",
     "descartados",
     "obs_transmision",
     "obs_grabacion",
@@ -87,6 +88,8 @@ ETIQUETAS = {
     "video": N_("Lo que se ve en el vídeo"),
     # Traductores: rótulo en Preferencias del componente de F2.
     "programados": N_("Mensajes automáticos"),
+    # Traductores: rótulo en Preferencias del componente de F2.
+    "comandos": N_("Comandos respondidos"),
     # Traductores: rótulo en Preferencias del componente de F2.
     "descartados": N_("Mensajes descartados"),
     # Traductores: rótulo en Preferencias del componente de F2.

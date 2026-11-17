@@ -63,6 +63,7 @@ class SnapshotSesion:
     overlay_clientes: int = 0
     video: str = ""             # frase de la capa del vídeo, "" si no hay
     programados_proximo: str = ""
+    comandos: str = ""          # frase de los comandos respondidos, "" si no hay
     descartados: str = ""
     obs_transmision: str = ""
     obs_grabacion: str = ""
@@ -257,6 +258,10 @@ def _render_programados(s: SnapshotSesion, largo: bool) -> str:
     return s.programados_proximo or ""
 
 
+def _render_comandos(s: SnapshotSesion, largo: bool) -> str:
+    return s.comandos or ""
+
+
 def _render_descartados(s: SnapshotSesion, largo: bool) -> str:
     return s.descartados or ""
 
@@ -316,6 +321,7 @@ _RENDERERS = {
     "overlay": _render_overlay,
     "video": _render_video,
     "programados": _render_programados,
+    "comandos": _render_comandos,
     "descartados": _render_descartados,
     "obs_transmision": _render_obs_transmision,
     "obs_grabacion": _render_obs_grabacion,

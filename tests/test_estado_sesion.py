@@ -214,6 +214,23 @@ class TestCoherencia(unittest.TestCase):
     def test_mensajes_programados_vacios_se_omiten(self):
         self.assertEqual(formatear_estado(SnapshotSesion(), {"programados"}), "")
 
+    def test_comandos_respondidos_se_anuncian_si_hay_dato(self):
+        s = SnapshotSesion(
+            comandos="Comandos respondidos: 2, el último !discord de Ana")
+        self.assertEqual(
+            formatear_estado(s, {"comandos"}),
+            "Comandos respondidos: 2, el último !discord de Ana.")
+
+    def test_comandos_vacios_se_omiten(self):
+        self.assertEqual(
+            formatear_estado(SnapshotSesion(), {"comandos"}), "")
+
+    def test_comandos_es_un_componente_activo_con_su_rotulo(self):
+        self.assertIn("comandos", COMPONENTES)
+        self.assertIn("comandos", ACTIVOS_DEFECTO)
+        self.assertEqual(estado_sesion.etiqueta("comandos"),
+                         "Comandos respondidos")
+
     def test_descartados_se_anuncian_si_hay_dato(self):
         s = SnapshotSesion(descartados="Mensajes descartados: 3")
         self.assertEqual(formatear_estado(s, {"descartados"}),
