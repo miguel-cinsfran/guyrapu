@@ -194,7 +194,8 @@ class TestAlmacenamiento(unittest.TestCase):
         self.ruta.write_text('[{"texto": "Hola"}, "basura"]', encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
             "texto": "Hola", "minutos_min": 10, "minutos_max": 10,
-            "activo": False, "proximo": 0.0,
+            "activo": False, "proximo": 0.0, "destino": "chat",
+            "estilo": "clasico", "segundos_pantalla": 10, "mensajes_entre": 0,
         }])
 
     def test_cargar_fuerza_los_tipos_de_un_json_editado_a_mano(self):
@@ -204,7 +205,8 @@ class TestAlmacenamiento(unittest.TestCase):
             ' "activo": "true", "proximo": "0"}]', encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
             "texto": "5", "minutos_min": 10, "minutos_max": 15,
-            "activo": True, "proximo": 0.0,
+            "activo": True, "proximo": 0.0, "destino": "chat",
+            "estilo": "clasico", "segundos_pantalla": 10, "mensajes_entre": 0,
         }])
 
     def test_cargar_repone_el_valor_por_defecto_si_no_se_puede_convertir(self):
@@ -213,12 +215,15 @@ class TestAlmacenamiento(unittest.TestCase):
             encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
             "texto": "", "minutos_min": 10, "minutos_max": 10,
-            "activo": False, "proximo": 0.0,
+            "activo": False, "proximo": 0.0, "destino": "chat",
+            "estilo": "clasico", "segundos_pantalla": 10, "mensajes_entre": 0,
         }])
 
     def test_guardar_y_cargar_conserva_los_mensajes(self):
         mensajes = [{"texto": "Redes", "minutos_min": 10, "minutos_max": 12,
-                     "activo": True, "proximo": 600.0}]
+                     "activo": True, "proximo": 600.0, "destino": "chat",
+                     "estilo": "clasico", "segundos_pantalla": 10,
+                     "mensajes_entre": 0}]
         programados.guardar(self.ruta, mensajes)
         self.assertEqual(programados.cargar(self.ruta), mensajes)
 
@@ -278,6 +283,109 @@ class TestProgramadorMensajes(unittest.TestCase):
         programador.en_curso = True
         programador.envio_fallido()
         self.assertFalse(programador.en_curso)
+
+
+class TestDestinoYEstilo(unittest.TestCase):
+    def setUp(self):
+        self.temporal = tempfile.TemporaryDirectory()
+        self.ruta = Path(self.temporal.name) / "mensajes_programados.json"
+        self.addCleanup(self.temporal.cleanup)
+
+    def test_un_archivo_viejo_se_lee_con_los_valores_nuevos(self):
+        self.ruta.write_text(
+            '[{"texto": "Hola", "minutos_min": 10, "minutos_max": 10,'
+            ' "activo": true, "proximo": 0.0}]', encoding="utf-8")
+        mensaje = programados.cargar(self.ruta)[0]
+        self.assertEqual(
+            (mensaje["destino"], mensaje["estilo"],
+             mensaje["segundos_pantalla"], mensaje["mensajes_entre"]),
+            ("chat", "clasico", 10, 0))
+
+    def test_guardar_y_cargar_conserva_las_claves_nuevas(self):
+        mensaje = {
+            "texto": "Hola", "minutos_min": 10, "minutos_max": 10,
+            "activo": True, "proximo": 600.0, "destino": "ambos",
+            "estilo": "banda", "segundos_pantalla": 25, "mensajes_entre": 7,
+        }
+        programados.guardar(self.ruta, [mensaje])
+        self.assertEqual(programados.cargar(self.ruta), [mensaje])
+
+    def test_un_destino_desconocido_pasa_a_chat(self):
+        self.ruta.write_text('[{"texto": "Hola", "destino": "tele"}]',
+                             encoding="utf-8")
+        self.assertEqual(programados.cargar(self.ruta)[0]["destino"], "chat")
+
+    def test_acota_los_segundos_y_los_mensajes_entre(self):
+        self.ruta.write_text(
+            '[{"texto": "Corto", "segundos_pantalla": 1, "mensajes_entre": -5},'
+            ' {"texto": "Largo", "segundos_pantalla": 999, "mensajes_entre": 500}]',
+            encoding="utf-8")
+        corto, largo = programados.cargar(self.ruta)
+        self.assertEqual((corto["segundos_pantalla"], corto["mensajes_entre"]),
+                         (3, 0))
+        self.assertEqual((largo["segundos_pantalla"], largo["mensajes_entre"]),
+                         (60, 100))
+
+
+class TestDestinoDelEnvio(unittest.TestCase):
+    def setUp(self):
+        self.mensajes = [
+            {"texto": "solo video", "activo": True, "proximo": 10,
+             "destino": "video"},
+            {"texto": "solo chat", "activo": True, "proximo": 20,
+             "destino": "chat"},
+            {"texto": "ambos", "activo": True, "proximo": 30,
+             "destino": "ambos"},
+        ]
+
+    def test_el_chat_no_elige_uno_solo_video(self):
+        elegido = programados.elegir_envio(self.mensajes, 100, None)
+        self.assertEqual(elegido["texto"], "solo chat")
+
+    def test_el_video_no_elige_uno_solo_chat(self):
+        elegido = programados.elegir_envio(self.mensajes, 100, None, "video")
+        self.assertEqual(elegido["texto"], "solo video")
+
+    def test_ambos_sale_para_los_dos_destinos(self):
+        ambos = [self.mensajes[2]]
+        self.assertIs(programados.elegir_envio(ambos, 100, None), ambos[0])
+        self.assertIs(programados.elegir_envio(ambos, 100, None, "video"),
+                      ambos[0])
+
+    def test_un_mensaje_solo_video_no_sale_para_el_chat(self):
+        self.assertIsNone(
+            programados.elegir_envio([self.mensajes[0]], 100, None))
+
+
+class TestMensajesEntre(unittest.TestCase):
+    def _programador(self):
+        mensaje = {
+            "texto": "Hola", "activo": True, "proximo": 0.0,
+            "minutos_min": 10, "minutos_max": 10, "mensajes_entre": 3,
+        }
+        return programados.ProgramadorMensajes([mensaje]), mensaje
+
+    def test_espera_los_mensajes_del_chat_pedidos_despues_de_un_envio(self):
+        programador, mensaje = self._programador()
+        programador.envio_hecho(mensaje, 0.0, lambda minimo, maximo: 600)
+        mensaje["proximo"] = 0.0
+        programador.contar_mensaje_chat()
+        programador.contar_mensaje_chat()
+        self.assertIsNone(programador.siguiente(1000.0))
+        programador.contar_mensaje_chat()
+        self.assertIs(programador.siguiente(1000.0), mensaje)
+
+    def test_un_mensaje_nunca_enviado_cuenta_desde_el_arranque(self):
+        mensaje = {
+            "texto": "Hola", "activo": True, "proximo": 0.0,
+            "minutos_min": 10, "minutos_max": 10, "mensajes_entre": 1,
+        }
+        programador = programados.ProgramadorMensajes([mensaje])
+        programador.iniciar_reloj_si_falta(0.0, lambda minimo, maximo: 0)
+        mensaje["proximo"] = 0.0
+        self.assertIsNone(programador.siguiente(1000.0))
+        programador.contar_mensaje_chat()
+        self.assertIs(programador.siguiente(1000.0), mensaje)
 
 
 class TestValidacionPseudo(unittest.TestCase):

@@ -22,6 +22,10 @@ VALORES_POR_DEFECTO = {
     "minutos_max": 10,
     "activo": False,
     "proximo": 0.0,
+    "destino": "chat",
+    "estilo": "clasico",
+    "segundos_pantalla": 10,
+    "mensajes_entre": 0,
 }
 
 _URL_RE = re.compile(r"(?:https?://|www\.)", re.IGNORECASE)
@@ -69,14 +73,20 @@ def iniciar_reloj(mensajes: list[dict], ahora: float, aleatorio) -> None:
                 ahora, aleatorio)
 
 
+def _va_a(mensaje: dict, destino: str) -> bool:
+    propio = mensaje.get("destino", "chat")
+    return propio == "ambos" or propio == destino
+
+
 def elegir_envio(mensajes: list[dict], ahora: float,
-                 ultimo_envio: float | None) -> dict | None:
-    """Devuelve el mensaje activo vencido más antiguo que puede enviarse."""
+                 ultimo_envio: float | None, destino: str = "chat") -> dict | None:
+    """Devuelve el mensaje activo vencido más antiguo que va a ese destino."""
     if ultimo_envio is not None and ahora - ultimo_envio < SEGUNDOS_ENTRE_ENVIOS:
         return None
     vencidos = [
         mensaje for mensaje in mensajes
         if mensaje.get("activo", False) and mensaje.get("proximo", float("inf")) <= ahora
+        and _va_a(mensaje, destino)
     ]
     return min(vencidos, key=lambda mensaje: mensaje["proximo"]) if vencidos else None
 
@@ -168,7 +178,15 @@ def _normalizar_mensaje(mensaje: dict) -> dict:
                 resultado[clave] = "" if valor is None else str(valor)
         except (TypeError, ValueError):
             resultado[clave] = defecto
-    return resultado
+    return _acotar_mensaje(resultado)
+
+
+def _acotar_mensaje(mensaje: dict) -> dict:
+    if mensaje["destino"] not in ("video", "chat", "ambos"):
+        mensaje["destino"] = "chat"
+    mensaje["segundos_pantalla"] = max(3, min(60, mensaje["segundos_pantalla"]))
+    mensaje["mensajes_entre"] = max(0, min(100, mensaje["mensajes_entre"]))
+    return mensaje
 
 
 def cargar(ruta) -> list[dict]:
@@ -197,10 +215,14 @@ class ProgramadorMensajes:
         self.reloj_iniciado = False
         self.ultimo_envio = None
         self.en_curso = False
+        self.mensajes_chat = 0
+        self._base_chat = 0
+        self._envios = {}
 
     def recargar(self, mensajes):
         self.mensajes = mensajes
         self.reloj_iniciado = False
+        self._envios.clear()
 
     def detener_reloj(self):
         self.reloj_iniciado = False
@@ -210,11 +232,22 @@ class ProgramadorMensajes:
             return
         iniciar_reloj(self.mensajes, ahora, aleatorio)
         self.reloj_iniciado = True
+        self._base_chat = self.mensajes_chat
+
+    def contar_mensaje_chat(self):
+        self.mensajes_chat += 1
+
+    def _tiene_sus_mensajes(self, mensaje) -> bool:
+        minimo = mensaje.get("mensajes_entre", 0)
+        desde = self._envios.get(id(mensaje), self._base_chat)
+        return self.mensajes_chat - desde >= minimo
 
     def siguiente(self, ahora) -> dict | None:
         if self.en_curso:
             return None
-        return elegir_envio(self.mensajes, ahora, self.ultimo_envio)
+        disponibles = [mensaje for mensaje in self.mensajes
+                       if self._tiene_sus_mensajes(mensaje)]
+        return elegir_envio(disponibles, ahora, self.ultimo_envio)
 
     def empezar_envio(self):
         self.en_curso = True
@@ -226,6 +259,7 @@ class ProgramadorMensajes:
             mensaje.get("minutos_max", mensaje.get("minutos_min", 10)),
             ahora, aleatorio)
         self.ultimo_envio = ahora
+        self._envios[id(mensaje)] = self.mensajes_chat
 
     def envio_fallido(self):
         self.en_curso = False
