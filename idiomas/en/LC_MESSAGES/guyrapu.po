@@ -880,7 +880,8 @@ msgid "Chat en el vídeo para transmitir"
 msgstr "Show chat on video"
 
 #. Traductores: rótulo en Preferencias del componente de F2.
-#: guyrapu/capture/componentes_estado.py guyrapu/ui/gui_preferencias.py
+#: guyrapu/capture/componentes_estado.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Mensajes automáticos"
 msgstr "Scheduled messages"
 
@@ -1147,7 +1148,7 @@ msgstr "TikTok live stream"
 #. Traductores: parte del estado F2 (tipo de conexión).
 #. Traductores: superficie donde se ve el vídeo.
 #: guyrapu/capture/estado_sesion.py guyrapu/player/reproductor.py
-#: guyrapu/ui/dialogo_ajustes_perfil.py
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Vídeo"
 msgstr "Video"
 
@@ -1477,14 +1478,25 @@ msgstr ""
 "YouTube usually blocks links in the live stream chat. Write your username "
 "instead of the full link."
 
-#. Traductores: estado en la lista de mensajes programados.
 #: guyrapu/capture/programados.py
+msgid "El mensaje necesita un nombre."
+msgstr "The message needs a name."
+
+#: guyrapu/capture/programados.py
+#, python-brace-format
+msgid "Ya hay un mensaje llamado {nombre}."
+msgstr "A message named {nombre} already exists."
+
+#. Traductores: estado en la lista de mensajes programados.
+#: guyrapu/capture/programados.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Activo"
 msgstr "Active"
 
 #. Traductores: estado en la lista de mensajes programados.
 #. Traductores: lectura en pausa o reanudada.
 #: guyrapu/capture/programados.py guyrapu/ui/gui.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Pausado"
 msgstr "Paused"
 
@@ -1509,12 +1521,26 @@ msgstr "every {minimo} minutes"
 msgid "entre {minimo} y {maximo} minutos"
 msgstr "between {minimo} and {maximo} minutes"
 
-#. Traductores: línea de la lista de mensajes programados. {estado} es activo o
-#. pausado, {intervalo} la frecuencia y {texto} el contenido.
+#. Traductores: destino en la lista de mensajes programados.
+#: guyrapu/capture/programados.py guyrapu/obs/obs_prevuelo.py
+msgid "vídeo"
+msgstr "video"
+
+#: guyrapu/capture/programados.py
+msgid "chat y vídeo"
+msgstr "chat and video"
+
+#: guyrapu/capture/programados.py
+msgid "chat"
+msgstr "chat"
+
+#. Traductores: línea de la lista de mensajes programados. {nombre} es el
+#. nombre, {estado} es activo o pausado, {destino} es chat, vídeo o chat y
+#. vídeo, e {intervalo} la frecuencia.
 #: guyrapu/capture/programados.py
 #, python-brace-format
-msgid "{estado}, {intervalo}: {texto}"
-msgstr "{estado}, {intervalo}: {texto}"
+msgid "{nombre}: {estado}, {destino}, {intervalo}"
+msgstr "{nombre}: {estado}, {destino}, {intervalo}"
 
 #. Traductores: estado F2 de los mensajes automáticos cuando aún no hay hora.
 #: guyrapu/capture/programados.py
@@ -2115,7 +2141,7 @@ msgid "Transmisión y directo"
 msgstr "Broadcast and live stream"
 
 #. Traductores: familia de los sonidos del chat.
-#: guyrapu/core/eventos_sonido.py
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Chat"
 msgstr "Chat"
 
@@ -2766,7 +2792,7 @@ msgid_plural "{n} voces"
 msgstr[0] "{n} voice"
 msgstr[1] "{n} voices"
 
-#: guyrapu/core/voces_disponibles.py
+#: guyrapu/core/voces_disponibles.py guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Nombre:"
 msgstr "Name:"
 
@@ -3209,6 +3235,45 @@ msgstr "To the top"
 msgid "Hacia abajo"
 msgstr "To the bottom"
 
+#. Traductores: estado de F2 con el pánico activado.
+#: guyrapu/interaction/cola_pantalla.py
+msgid "Pánico activado: no se muestra nada en el vídeo."
+msgstr "Panic on: nothing is shown on the video."
+
+#: guyrapu/interaction/cola_pantalla.py
+#, python-brace-format
+msgid "Encuesta en el vídeo: {texto}."
+msgstr "Poll on the video: {texto}."
+
+#. Traductores: estado de F2; {texto} es lo que se está viendo.
+#: guyrapu/interaction/cola_pantalla.py
+#, python-brace-format
+msgid "En el vídeo: {texto}."
+msgstr "On the video: {texto}."
+
+#. Traductores: estado de F2 sin piezas en el vídeo.
+#: guyrapu/interaction/cola_pantalla.py
+msgid "Nada en el vídeo."
+msgstr "Nothing on the video."
+
+#. Traductores: estado de F2; {n} son las piezas en cola.
+#: guyrapu/interaction/cola_pantalla.py
+#, python-brace-format
+msgid "{n} en cola."
+msgid_plural "{n} en cola."
+msgstr[0] "{n} in queue."
+msgstr[1] "{n} in queue."
+
+#. Traductores: estado de F2 con la cola en pausa.
+#: guyrapu/interaction/cola_pantalla.py
+msgid "La cola está en pausa."
+msgstr "The queue is paused."
+
+#. Traductores: estado de F2 con el sonido de los medios apagado.
+#: guyrapu/interaction/cola_pantalla.py
+msgid "Sonido de los medios silenciado."
+msgstr "Media sound is muted."
+
 #. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
 msgid "El comando necesita un nombre."
@@ -3284,6 +3349,47 @@ msgstr "The poll needs between {minimo} and {maximo} options."
 #: guyrapu/interaction/encuestas.py
 msgid "Ninguna opción de la encuesta puede estar vacía."
 msgstr "No poll option can be empty."
+
+#: guyrapu/interaction/paquetes.py
+msgid "estilos"
+msgstr "styles"
+
+#: guyrapu/interaction/paquetes.py
+msgid "avisos"
+msgstr "notices"
+
+#: guyrapu/interaction/paquetes.py
+msgid "comandos"
+msgstr "commands"
+
+#: guyrapu/interaction/paquetes.py
+msgid "El paquete está dañado y no se puede leer."
+msgstr "The package is damaged and cannot be read."
+
+#: guyrapu/interaction/paquetes.py
+msgid "El archivo no es un paquete de Guyrapu."
+msgstr "The file is not a Guyrapu package."
+
+#: guyrapu/interaction/paquetes.py
+#, python-brace-format
+msgid "El paquete contiene un archivo que Guyrapu no importa: {nombre}."
+msgstr "The package contains a file that Guyrapu does not import: {nombre}."
+
+#: guyrapu/interaction/paquetes.py
+#, python-brace-format
+msgid "El paquete supera el tamaño máximo de {megas} MB."
+msgstr "The package exceeds the maximum size of {megas} MB."
+
+#: guyrapu/interaction/paquetes.py
+msgid ""
+"El paquete es de una versión más nueva de Guyrapu. Actualiza Guyrapu para "
+"importarlo."
+msgstr "The package is from a newer version of Guyrapu. Update Guyrapu to import it."
+
+#: guyrapu/interaction/paquetes.py
+#, python-brace-format
+msgid "El paquete contiene {contiene}, no {esperado}."
+msgstr "The package contains {contiene}, not {esperado}."
 
 #: guyrapu/music/anuncios.py
 #, python-brace-format
@@ -5290,10 +5396,6 @@ msgid "imagen"
 msgstr "image"
 
 #: guyrapu/obs/obs_prevuelo.py
-msgid "vídeo"
-msgstr "video"
-
-#: guyrapu/obs/obs_prevuelo.py
 msgid "texto"
 msgstr "text"
 
@@ -7082,6 +7184,10 @@ msgid "Abrir panel de OBS"
 msgstr "Open OBS panel"
 
 #: guyrapu/ui/atajos_captura.py
+msgid "Abrir los mensajes automáticos"
+msgstr "Open scheduled messages"
+
+#: guyrapu/ui/atajos_captura.py
 msgid "Mostrar OBS"
 msgstr "Show OBS"
 
@@ -7466,8 +7572,10 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 #: guyrapu/ui/chat_participacion.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
 #: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
-#: guyrapu/ui/preferencias_api.py guyrapu/ui/preferencias_atajos.py
-#: guyrapu/ui/preferencias_general.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/preferencias_api.py
+#: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/voces_ventana.py
 msgid "Aceptar"
 msgstr "OK"
 
@@ -7980,6 +8088,14 @@ msgstr "Type your TikTok user in TikTok user."
 msgid "Sigues transmitiendo."
 msgstr "Still broadcasting."
 
+#: guyrapu/ui/comando_mensajes_automaticos.py
+msgid "Mensajes automáticos activados"
+msgstr "Scheduled messages enabled"
+
+#: guyrapu/ui/comando_mensajes_automaticos.py
+msgid "Mensajes automáticos desactivados"
+msgstr "Scheduled messages disabled"
+
 #: guyrapu/ui/comandos_grabacion.py
 msgid "No hay ninguna grabación en curso."
 msgstr "No recording is in progress."
@@ -8041,6 +8157,8 @@ msgstr "Before broadcasting"
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/gui_cierre.py
 #: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
 #: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
 #: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
 #: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
@@ -8562,7 +8680,8 @@ msgstr "No status information."
 msgid "Nombre del perfil"
 msgstr "Profile name"
 
-#: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/musica_editor_lista.py
+#: guyrapu/ui/dialogo_nombre_perfil_obs.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/musica_editor_lista.py
 #: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
 msgid "&Nombre:"
 msgstr "&Name:"
@@ -8791,7 +8910,8 @@ msgstr "(now: {nombre})"
 #: guyrapu/ui/dialogo_usos_perfil.py guyrapu/ui/escena_captura_ventana.py
 #: guyrapu/ui/escena_disenos.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_propiedades.py guyrapu/ui/escena_tamano.py
-#: guyrapu/ui/preferencias_general.py guyrapu/ui/restream_dialogos_destino.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/restream_dialogos_destino.py
 msgid "&Aceptar"
 msgstr "&Accept"
 
@@ -8840,9 +8960,9 @@ msgstr "C&ancel"
 #: guyrapu/ui/elegir_formato.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/gui_directo_youtube.py
 #: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/gui_redactar.py
-#: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/musica_dialogo_enlace.py
-#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
-#: guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/musica_dialogo_enlace.py guyrapu/ui/musica_editor_lista.py
+#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
 msgid "Cancelar"
 msgstr "Cancel"
 
@@ -9232,7 +9352,7 @@ msgid "Nombre nuevo:"
 msgstr "New name:"
 
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_escena.py
-#: guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/restream_perfil.py
 msgid "Cambiar nombre"
 msgstr "Rename"
 
@@ -9258,6 +9378,7 @@ msgid "Eliminar fuente"
 msgstr "Delete source"
 
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_escena.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
 #: guyrapu/ui/restream_menus.py guyrapu/ui/restream_pagina_destinos.py
 #: guyrapu/ui/restream_pagina_perfiles.py
@@ -9306,7 +9427,8 @@ msgid "Cambiar &nombre…"
 msgstr "Change &name…"
 
 #: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
-#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Duplicar"
 msgstr "&Duplicate"
 
@@ -9315,7 +9437,7 @@ msgid "Crear la versión &vertical"
 msgstr "Create &vertical version"
 
 #: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
-#: guyrapu/ui/gui_historial.py guyrapu/ui/preferencias_programados.py
+#: guyrapu/ui/gui_historial.py guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "E&liminar"
 msgstr "De&lete"
@@ -11728,6 +11850,251 @@ msgid_plural "El chat tiene {n} mensajes."
 msgstr[0] "The chat has {n} message."
 msgstr[1] "The chat has {n} messages."
 
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Agregar mensaje automático"
+msgstr "Add scheduled message"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Editar mensaje automático"
+msgstr "Edit scheduled message"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Chat y vídeo"
+msgstr "Chat and video"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Nombre del mensaje"
+msgstr "Message name"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "&Texto del mensaje:"
+msgstr "Message &text:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Texto del mensaje"
+msgstr "Message text"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Dónde se &muestra:"
+msgstr "Where it is &shown:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Dónde se muestra:"
+msgstr "Where it is shown:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "&Estilo:"
+msgstr "&Style:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "nombre"
+msgstr "name"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Estilo:"
+msgstr "Style:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Segundos en pantalla"
+msgstr "Seconds on screen"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Intervalo mínimo, en minutos"
+msgstr "Minimum interval, in minutes"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Intervalo máximo, en minutos"
+msgstr "Maximum interval, in minutes"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Mensajes del chat entre uno y otro"
+msgstr "Chat messages in between"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "&Segundos en pantalla:"
+msgstr "&Seconds on screen:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Intervalo m&ínimo, en minutos:"
+msgstr "M&inimum interval, in minutes:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Intervalo má&ximo, en minutos:"
+msgstr "Interval ma&ximum, in minutes:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Mensajes del c&hat entre uno y otro:"
+msgstr "Chat messa&ges in between:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Acti&vo"
+msgstr "Acti&ve"
+
+# Necesita
+# intervalo
+# suele
+# nombre
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid ""
+"Los mensajes automáticos salen cada cierto tiempo en el chat de tu directo,"
+" en el vídeo o en los dos. En el chat necesitan sesión de Google iniciada y"
+" un directo de YouTube conectado. El intervalo mínimo son 5 minutos y cada "
+"mensaje admite 200 caracteres. YouTube suele bloquear los enlaces en el "
+"chat del directo: conviene escribir el nombre de usuario en vez del enlace "
+"completo."
+msgstr ""
+"Scheduled messages are sent at regular intervals to your live chat, to the "
+"video or to both. In the chat they need a Google session started and a "
+"YouTube live stream connected. The minimum interval is 5 minutes and each "
+"message allows 200 characters. YouTube often blocks links in the live chat:"
+" write the user name instead of the full link."
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "No hay mensajes automáticos. Usa Agregar para crear uno."
+msgstr "There are no scheduled messages. Use Add to create one."
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Paquete de Guyrapu (*.zip)|*.zip"
+msgstr "Guyrapu package (*.zip)|*.zip"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "A&gregar"
+msgstr "A&dd"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Editar"
+msgstr "&Edit"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Cambiar n&ombre"
+msgstr "Re&name"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Subir"
+msgstr "Move &up"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Ba&jar"
+msgstr "Move &down"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Pausar o reanudar"
+msgstr "&Pause or resume"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Escuc&har"
+msgstr "&Listen"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Expo&rtar"
+msgstr "Exp&ort"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Importar"
+msgstr "&Import"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/menu_interaccion.py
+msgid "Acti&var mensajes automáticos"
+msgstr "&Enable scheduled messages"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Lista de &mensajes:"
+msgstr "&List of messages:"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Mensajes automáticos guardados"
+msgstr "Scheduled messages saved"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Mensaje agregado"
+msgstr "Message added"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Mensaje guardado"
+msgstr "Message saved"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Nombre cambiado"
+msgstr "Name changed"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Mensaje duplicado"
+msgstr "Message duplicated"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#, python-brace-format
+msgid "Posición {n} de {total}"
+msgstr "Position {n} of {total}"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#, python-brace-format
+msgid "{texto}. Estilo: {estilo}."
+msgstr "{texto}. Style: {estilo}."
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar el mensaje «{nombre}»?"
+msgstr "Delete the message «{nombre}»?"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Eliminar mensaje automático"
+msgstr "Delete scheduled message"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Mensaje eliminado"
+msgstr "Message deleted"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "No hay mensajes automáticos para exportar."
+msgstr "There are no scheduled messages to export."
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#, python-brace-format
+msgid ""
+"No se pudo escribir el paquete:\n"
+"\n"
+"{exc}"
+msgstr ""
+"The package could not be written:\n"
+"\n"
+"{exc}"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Exportar mensajes automáticos"
+msgstr "Export scheduled messages"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Importar mensajes automáticos"
+msgstr "Import scheduled messages"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#, python-brace-format
+msgid "Se importó un mensaje."
+msgid_plural "Se importaron {n} mensajes."
+msgstr[0] "One message imported."
+msgstr[1] "{n} messages imported."
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+#, python-brace-format
+msgid "Ya hay mensajes llamados {nombres}. ¿Quieres reemplazarlos?"
+msgstr "Messages named {nombres} already exist. Replace them?"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&Sí"
+msgstr "&Yes"
+
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "&No"
+msgstr "&No"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "&Mensajes automáticos…"
+msgstr "&Scheduled messages…"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "&Interacción"
+msgstr "&Interaction"
+
 #: guyrapu/ui/menu_moderacion.py
 #, python-brace-format
 msgid "Suspender temporalmente a {autor} en {plataforma} (5 minutos)"
@@ -13147,80 +13514,6 @@ msgstr "Found {cantidad} audio outputs"
 msgid "No se encontraron salidas de audio"
 msgstr "No audio outputs found"
 
-# Necesita
-# intervalo
-# suele
-# nombre
-#: guyrapu/ui/preferencias_programados.py
-msgid ""
-"Envía mensajes al chat de tu directo cada cierto tiempo. Necesita sesión de"
-" Google iniciada y un directo de YouTube conectado. El intervalo mínimo son"
-" 5 minutos y cada mensaje admite 200 caracteres. YouTube suele bloquear los"
-" enlaces en el chat del directo: conviene escribir el nombre de usuario en "
-"vez del enlace completo."
-msgstr ""
-"Sends messages to your live stream chat every so often. It needs a signed-"
-"in Google session and a connected YouTube live stream. The minimum interval"
-" is 5 minutes and each message allows 200 characters. YouTube often blocks "
-"links in live chat: it is better to write the username instead of the full "
-"link."
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Acti&var mensajes automáticos"
-msgstr "&Enable scheduled messages"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Me&nsajes:"
-msgstr "Messa&ges:"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Mensajes automáticos guardados"
-msgstr "Scheduled messages saved"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "No hay mensajes automáticos."
-msgstr "There are no scheduled messages."
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "&Texto del mensaje:"
-msgstr "Message &text:"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Intervalo &mínimo, en minutos:"
-msgstr "Interval &minimum, in minutes:"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Intervalo má&ximo, en minutos:"
-msgstr "Interval ma&ximum, in minutes:"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "&Enviar este mensaje"
-msgstr "Se&nd this message"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Ag&regar"
-msgstr "&Add"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Gu&ardar cambios"
-msgstr "Sa&ve changes"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Mensaje agregado"
-msgstr "Message added"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Elige primero un mensaje de la lista"
-msgstr "First choose a message from the list"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Mensaje guardado"
-msgstr "Message saved"
-
-#: guyrapu/ui/preferencias_programados.py
-msgid "Mensaje eliminado"
-msgstr "Message deleted"
-
 #. Traductores: nombre visible del tema de sonido predeterminado.
 #: guyrapu/ui/preferencias_sonidos.py
 msgid "Predeterminado"
@@ -14491,84 +14784,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: estado de F2 con el pánico activado.
-#: guyrapu/interaction/cola_pantalla.py
-msgid "Pánico activado: no se muestra nada en el vídeo."
-msgstr "Panic on: nothing is shown on the video."
-
-#: guyrapu/interaction/cola_pantalla.py
-#, python-brace-format
-msgid "Encuesta en el vídeo: {texto}."
-msgstr "Poll on the video: {texto}."
-
-#. Traductores: estado de F2; {texto} es lo que se está viendo.
-#: guyrapu/interaction/cola_pantalla.py
-#, python-brace-format
-msgid "En el vídeo: {texto}."
-msgstr "On the video: {texto}."
-
-#. Traductores: estado de F2 sin piezas en el vídeo.
-#: guyrapu/interaction/cola_pantalla.py
-msgid "Nada en el vídeo."
-msgstr "Nothing on the video."
-
-#. Traductores: estado de F2; {n} son las piezas en cola.
-#: guyrapu/interaction/cola_pantalla.py
-#, python-brace-format
-msgid "{n} en cola."
-msgid_plural "{n} en cola."
-msgstr[0] "{n} in queue."
-msgstr[1] "{n} in queue."
-
-#. Traductores: estado de F2 con la cola en pausa.
-#: guyrapu/interaction/cola_pantalla.py
-msgid "La cola está en pausa."
-msgstr "The queue is paused."
-
-#. Traductores: estado de F2 con el sonido de los medios apagado.
-#: guyrapu/interaction/cola_pantalla.py
-msgid "Sonido de los medios silenciado."
-msgstr "Media sound is muted."
-
-#: guyrapu/interaction/paquetes.py
-msgid "estilos"
-msgstr "styles"
-
-#: guyrapu/interaction/paquetes.py
-msgid "avisos"
-msgstr "notices"
-
-#: guyrapu/interaction/paquetes.py
-msgid "comandos"
-msgstr "commands"
-
-#: guyrapu/interaction/paquetes.py
-msgid "El paquete está dañado y no se puede leer."
-msgstr "The package is damaged and cannot be read."
-
-#: guyrapu/interaction/paquetes.py
-msgid "El archivo no es un paquete de Guyrapu."
-msgstr "The file is not a Guyrapu package."
-
-#: guyrapu/interaction/paquetes.py
-#, python-brace-format
-msgid "El paquete contiene un archivo que Guyrapu no importa: {nombre}."
-msgstr "The package contains a file that Guyrapu does not import: {nombre}."
-
-#: guyrapu/interaction/paquetes.py
-#, python-brace-format
-msgid "El paquete supera el tamaño máximo de {megas} MB."
-msgstr "The package exceeds the maximum size of {megas} MB."
-
-#: guyrapu/interaction/paquetes.py
-msgid ""
-"El paquete es de una versión más nueva de Guyrapu. Actualiza Guyrapu para "
-"importarlo."
-msgstr "The package is from a newer version of Guyrapu. Update Guyrapu to import it."
-
-#: guyrapu/interaction/paquetes.py
-#, python-brace-format
-msgid "El paquete contiene {contiene}, no {esperado}."
-msgstr "The package contains {contiene}, not {esperado}."
 

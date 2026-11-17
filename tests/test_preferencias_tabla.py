@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la tabla de opciones simples de Preferencias.
 
-La lista de 53 va literal en este módulo, no se lee de la tabla nueva:
+La lista de 52 va literal en este módulo, no se lee de la tabla nueva:
 así protege la tabla en vez de repetirla.
 """
 
@@ -23,7 +23,6 @@ from pathlib import Path
 
 # (atributo del control, sección, clave ini, clave en memoria, tipo).
 OPCIONES_ESPERADAS = [
-    ("chk_programados", "programados", "activo", "programados_activo", bool),
     ("sp_fuente", "ui", "tamanio_fuente_chat", "tamanio_fuente_chat", int),
     ("chk_total_sc", "ui", "mostrar_total_superchats", "mostrar_total_superchats", bool),
     ("chk_autoplay", "ui", "autoplay_reproductor", "autoplay_reproductor", bool),
@@ -135,11 +134,11 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                 config[en_memoria] = por_defecto + 1
         return config
 
-    def test_tabla_tiene_53_filas_sin_repetir_y_cada_atributo_existe(self):
+    def test_tabla_tiene_52_filas_sin_repetir_y_cada_atributo_existe(self):
         tabla = gui_preferencias._OPCIONES_SIMPLES
-        self.assertEqual(len(tabla), 53)
+        self.assertEqual(len(tabla), 52)
         atributos = [fila[0] for fila in tabla]
-        self.assertEqual(len(set(atributos)), 53)
+        self.assertEqual(len(set(atributos)), 52)
         dialogo = self._dialogo()
         for atributo in atributos:
             with self.subTest(atributo=atributo):
@@ -212,7 +211,7 @@ class TestTablaOpcionesSimples(unittest.TestCase):
         self.assertEqual(guardar.call_count, 1)
         llamada = guardar.call_args.args[1]
         secciones = {seccion for seccion, _clave, _valor in llamada}
-        self.assertTrue({"ia", "programados"}.issubset(secciones))
+        self.assertIn("ia", secciones)
         anunciar.assert_not_called()
         escritos = {(seccion, clave): valor
                     for seccion, clave, valor in llamada}

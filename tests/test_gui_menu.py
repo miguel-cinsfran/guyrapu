@@ -97,7 +97,8 @@ class TestEquivalenciaMenu(unittest.TestCase):
         titulos, _ = _construir_lista()
         self.assertEqual(
             ["&Archivo", "&Ver", "&Chat", "Vo&z", "&Reproductor",
-             "&Transmisión", "&OBS", "&Música", "&Herramientas", "A&yuda"],
+             "&Transmisión", "&OBS", "&Interacción", "&Música",
+             "&Herramientas", "A&yuda"],
             titulos)
 
     def test_contenido_completo_en_orden(self):
@@ -200,6 +201,8 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&OBS", "Mos&trar OBS", ANY, "normal"),
             ("&OBS", "C&errar OBS", ANY, "normal"),
             ("&OBS", "&Avisar si OBS se sobrecarga", ANY, "check"),
+            ("&Interacción", "&Mensajes automáticos…", ANY, "normal"),
+            ("&Interacción", "Acti&var mensajes automáticos", ANY, "check"),
             ("&Música", "&Elegir música…", ANY, "normal"),
             ("&Música", "---", None, "sep"),
             ("&Música", "Reproducir o &pausar", ANY, "normal"),

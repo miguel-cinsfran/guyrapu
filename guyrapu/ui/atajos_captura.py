@@ -69,6 +69,7 @@ ETIQUETAS = {
     "marcar_incidencia": N_("Marcar incidencia"),
     "abrir_restream": N_("Abrir Restream"),
     "abrir_obs": N_("Abrir panel de OBS"),
+    "mensajes_automaticos": N_("Abrir los mensajes automáticos"),
     "mostrar_obs": N_("Mostrar OBS"),
     "copiar_enlace": N_("Copiar enlace del directo"),
     "obs_micro": N_("Silenciar el micrófono de OBS"),

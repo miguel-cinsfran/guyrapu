@@ -18,6 +18,7 @@ ATAJOS_PREDETERMINADOS = [
     ("marcar_incidencia", "alt+shift+i"),
     ("abrir_restream", "ctrl+shift+r"),
     ("abrir_obs", "ctrl+shift+o"),
+    ("mensajes_automaticos", "ctrl+shift+a"),
     ("mostrar_obs", "alt+shift+o"),
     ("copiar_enlace", "alt+shift+e"),
     ("obs_micro", "alt+shift+m"),

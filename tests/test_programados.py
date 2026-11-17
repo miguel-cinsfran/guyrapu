@@ -1,5 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
+import json
 import unittest
 from pathlib import Path
 import tempfile
@@ -146,27 +147,77 @@ class TestDescribirProximo(unittest.TestCase):
                          "Próximo mensaje automático en 2 minutos")
 
 
+class TestNombreDelMensaje(unittest.TestCase):
+    def setUp(self):
+        self.temporal = tempfile.TemporaryDirectory()
+        self.ruta = Path(self.temporal.name) / "mensajes_programados.json"
+        self.addCleanup(self.temporal.cleanup)
+
+    def test_sin_nombre_toma_el_comienzo_del_texto(self):
+        self.ruta.write_text('[{"texto": "Sígueme en Instagram"}]',
+                             encoding="utf-8")
+        self.assertEqual(programados.cargar(self.ruta)[0]["nombre"],
+                         "Sígueme en Instagram")
+
+    def test_el_nombre_largo_se_corta_en_el_ultimo_espacio(self):
+        texto = "Uno dos tres cuatro cinco seis siete ocho nueve"
+        self.ruta.write_text(json.dumps([{"texto": texto}]), encoding="utf-8")
+        self.assertEqual(programados.cargar(self.ruta)[0]["nombre"],
+                         "Uno dos tres cuatro cinco seis siete")
+
+    def test_el_nombre_largo_sin_espacios_se_corta_a_cuarenta(self):
+        self.ruta.write_text(json.dumps([{"texto": "x" * 60}]),
+                             encoding="utf-8")
+        self.assertEqual(programados.cargar(self.ruta)[0]["nombre"], "x" * 40)
+
+    def test_un_nombre_guardado_se_respeta(self):
+        self.ruta.write_text('[{"texto": "Hola", "nombre": "Redes"}]',
+                             encoding="utf-8")
+        self.assertEqual(programados.cargar(self.ruta)[0]["nombre"], "Redes")
+
+
+class TestValidarNombre(unittest.TestCase):
+    def test_exige_un_nombre(self):
+        self.assertEqual(programados.validar_nombre("   ", []),
+                         "El mensaje necesita un nombre.")
+
+    def test_rechaza_un_nombre_repetido(self):
+        otros = [{"nombre": "Redes"}, {"nombre": "Horario"}]
+        self.assertEqual(programados.validar_nombre("Redes", otros),
+                         "Ya hay un mensaje llamado Redes.")
+
+    def test_compara_sin_mayusculas_ni_espacios_en_los_extremos(self):
+        otros = [{"nombre": "Redes"}]
+        self.assertEqual(programados.validar_nombre("  redes ", otros),
+                         "Ya hay un mensaje llamado redes.")
+
+    def test_acepta_un_nombre_libre(self):
+        self.assertEqual(programados.validar_nombre("Saludo", [{"nombre": "Redes"}]),
+                         "")
+
+
 class TestDescribirMensaje(unittest.TestCase):
     def test_intervalo_fijo_y_estado(self):
         self.assertEqual(programados.describir_mensaje({
             "activo": True, "minutos_min": 10, "minutos_max": 10,
+            "nombre": "Instagram", "destino": "chat",
             "texto": "Seguime en Instagram, arroba loquesea",
-        }), "Activo, cada 10 minutos: Seguime en Instagram, arroba loquesea")
+        }), "Instagram: Activo, chat, cada 10 minutos")
 
     def test_intervalo_variable_y_singular(self):
         self.assertEqual(programados.describir_mensaje({
             "activo": False, "minutos_min": 8, "minutos_max": 10,
-            "texto": "Hoy jugamos",
-        }), "Pausado, entre 8 y 10 minutos: Hoy jugamos")
+            "nombre": "Juego", "destino": "video", "texto": "Hoy jugamos",
+        }), "Juego: Pausado, vídeo, entre 8 y 10 minutos")
         self.assertEqual(programados.describir_mensaje({
             "activo": False, "minutos_min": 1, "minutos_max": 1,
-            "texto": "Ahora",
-        }), "Pausado, cada 1 minuto: Ahora")
+            "nombre": "Ahora", "destino": "ambos", "texto": "Ahora",
+        }), "Ahora: Pausado, chat y vídeo, cada 1 minuto")
 
-    def test_recorta_el_texto_largo(self):
+    def test_sin_nombre_usa_el_comienzo_del_texto(self):
         self.assertEqual(programados.describir_mensaje({
             "minutos_min": 10, "minutos_max": 10, "texto": "x" * 61,
-        }), "Pausado, cada 10 minutos: " + "x" * 57 + "...")
+        }), "x" * 40 + ": Pausado, chat, cada 10 minutos")
 
 
 class TestAlmacenamiento(unittest.TestCase):
@@ -193,9 +244,10 @@ class TestAlmacenamiento(unittest.TestCase):
     def test_cargar_filtra_y_completa_elementos(self):
         self.ruta.write_text('[{"texto": "Hola"}, "basura"]', encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
-            "texto": "Hola", "minutos_min": 10, "minutos_max": 10,
-            "activo": False, "proximo": 0.0, "destino": "chat",
-            "estilo": "clasico", "segundos_pantalla": 10, "mensajes_entre": 0,
+            "nombre": "Hola", "texto": "Hola", "minutos_min": 10,
+            "minutos_max": 10, "activo": False, "proximo": 0.0,
+            "destino": "chat", "estilo": "clasico", "segundos_pantalla": 10,
+            "mensajes_entre": 0,
         }])
 
     def test_cargar_fuerza_los_tipos_de_un_json_editado_a_mano(self):
@@ -204,9 +256,10 @@ class TestAlmacenamiento(unittest.TestCase):
             '[{"texto": 5, "minutos_min": "10", "minutos_max": "15.0",'
             ' "activo": "true", "proximo": "0"}]', encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
-            "texto": "5", "minutos_min": 10, "minutos_max": 15,
-            "activo": True, "proximo": 0.0, "destino": "chat",
-            "estilo": "clasico", "segundos_pantalla": 10, "mensajes_entre": 0,
+            "nombre": "5", "texto": "5", "minutos_min": 10,
+            "minutos_max": 15, "activo": True, "proximo": 0.0,
+            "destino": "chat", "estilo": "clasico", "segundos_pantalla": 10,
+            "mensajes_entre": 0,
         }])
 
     def test_cargar_repone_el_valor_por_defecto_si_no_se_puede_convertir(self):
@@ -214,13 +267,14 @@ class TestAlmacenamiento(unittest.TestCase):
             '[{"texto": null, "minutos_min": "muchos", "activo": null, "proximo": []}]',
             encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
-            "texto": "", "minutos_min": 10, "minutos_max": 10,
+            "nombre": "", "texto": "", "minutos_min": 10, "minutos_max": 10,
             "activo": False, "proximo": 0.0, "destino": "chat",
             "estilo": "clasico", "segundos_pantalla": 10, "mensajes_entre": 0,
         }])
 
     def test_guardar_y_cargar_conserva_los_mensajes(self):
-        mensajes = [{"texto": "Redes", "minutos_min": 10, "minutos_max": 12,
+        mensajes = [{"nombre": "Redes", "texto": "Redes",
+                     "minutos_min": 10, "minutos_max": 12,
                      "activo": True, "proximo": 600.0, "destino": "chat",
                      "estilo": "clasico", "segundos_pantalla": 10,
                      "mensajes_entre": 0}]
@@ -297,15 +351,16 @@ class TestDestinoYEstilo(unittest.TestCase):
             ' "activo": true, "proximo": 0.0}]', encoding="utf-8")
         mensaje = programados.cargar(self.ruta)[0]
         self.assertEqual(
-            (mensaje["destino"], mensaje["estilo"],
+            (mensaje["nombre"], mensaje["destino"], mensaje["estilo"],
              mensaje["segundos_pantalla"], mensaje["mensajes_entre"]),
-            ("chat", "clasico", 10, 0))
+            ("Hola", "chat", "clasico", 10, 0))
 
     def test_guardar_y_cargar_conserva_las_claves_nuevas(self):
         mensaje = {
-            "texto": "Hola", "minutos_min": 10, "minutos_max": 10,
-            "activo": True, "proximo": 600.0, "destino": "ambos",
-            "estilo": "banda", "segundos_pantalla": 25, "mensajes_entre": 7,
+            "nombre": "Hola", "texto": "Hola", "minutos_min": 10,
+            "minutos_max": 10, "activo": True, "proximo": 600.0,
+            "destino": "ambos", "estilo": "banda",
+            "segundos_pantalla": 25, "mensajes_entre": 7,
         }
         programados.guardar(self.ruta, [mensaje])
         self.assertEqual(programados.cargar(self.ruta), [mensaje])

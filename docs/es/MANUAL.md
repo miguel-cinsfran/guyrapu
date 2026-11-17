@@ -726,6 +726,7 @@ al llegar al principio o al final suena un aviso.
 | Atajo | Acción |
 |---|---|
 | `Ctrl+Mayús+P` | Preferencias |
+| `Ctrl+Mayús+A` | Mensajes automáticos |
 | `Ctrl+Mayús+H` | Historial de directos |
 | `Ctrl+Mayús+R` | Restream |
 | `Ctrl+Mayús+D` | Administrador de descargas |

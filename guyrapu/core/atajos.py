@@ -63,7 +63,7 @@ ATAJOS_GRUPOS = [
      ["enviar_chat", "buscar_chat", "participacion_chat"]),
     (N_("Ventanas (Ctrl+Mayús)"),
       ["abrir_preferencias", "abrir_historial",
-       "abrir_restream", "abrir_obs",
+       "abrir_restream", "abrir_obs", "mensajes_automaticos",
        "descargas_abrir", "musica_ventana", "preguntar_ia"]),
     (N_("Directo y OBS (Alt+Mayús)"),
      ["conectar", "desconectar", "ir_lista", "copiar_enlace",

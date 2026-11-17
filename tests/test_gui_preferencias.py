@@ -569,7 +569,7 @@ class TestPaginaDescargas(unittest.TestCase):
 CATEGORIAS = [
     "General", "Interfaz", "Sonidos", "Atajos", "Voces", "Lectura",
     "Cola de lectura", "Eventos del directo", "Filtros", "Estado (F2)",
-    "Mensajes automáticos", "Conexión", "YouTube", "Reproductor",
+    "Conexión", "YouTube", "Reproductor",
     "Música", "Descargas", "Inteligencia artificial", "OBS", "Cámara"]
 
 # Lo único que puede quedar pendiente cuando solo General está construida.
@@ -627,7 +627,7 @@ class TestPreferenciasPerezosas(unittest.TestCase):
         self.assertEqual(textos, CATEGORIAS)
         libro = dialogo._libro_perezoso
         self.assertTrue(libro.construida(0))
-        for i in range(1, 19):
+        for i in range(1, 18):
             self.assertFalse(libro.construida(i))
 
     def test_guardar_solo_escribe_lo_construido(self):

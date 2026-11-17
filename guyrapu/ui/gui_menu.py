@@ -18,6 +18,7 @@ from guyrapu.core import paquetes_catalogo
 from guyrapu.core import paths
 from guyrapu.ui import ajuste_tono, ayuda_manual
 from guyrapu.ui import confirmar
+from guyrapu.ui import menu_interaccion
 from guyrapu.ui import menu_obs
 from guyrapu.ui import menu_reproductor
 from guyrapu.ui import menu_transmision
@@ -53,6 +54,7 @@ def construir_menu(frame):
     menu_reproductor.construir(frame, mb)
     menu_transmision.construir(frame, mb)
     menu_obs.construir(frame, mb)
+    menu_interaccion.construir(frame, mb)
 
     # Música
     _construir_menu_musica(frame, mb)

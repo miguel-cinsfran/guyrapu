@@ -91,8 +91,8 @@ from escenarios_obs import (  # noqa: E402
 )
 from escenarios_preferencias import (  # noqa: E402
     escenario_preferencias, escenario_preferencias_categorias,
-    escenario_preferencias_persisten, escenario_programados,
-)
+    escenario_preferencias_persisten)
+from escenarios_mensajes_automaticos import escenario_mensajes_automaticos  # noqa: E402
 # Cada modulo de interfaz con el escenario que lo recorre. Los `gui*.py` NO se
 # listan aca: se descubren del disco en `superficies_sin_escenario`, y esa es
 # toda la gracia. Una lista escrita a mano solo caza lo que alguien se acordo
@@ -222,7 +222,7 @@ ESCENARIOS = {
     "directo_tiktok": escenario_directo_tiktok,
     "reproductor_en_marcha": escenario_reproductor_en_marcha,
     "overlay": escenario_overlay,
-    "programados": escenario_programados,
+    "mensajes_automaticos": escenario_mensajes_automaticos,
     "enviar_live": escenario_enviar_live,
 }
 
@@ -321,7 +321,7 @@ def correr_escenario(nombre: str, app: Aplicacion, args, res: Resultado,
 EN_TODOS = ["arranque_frio", "reproductor",
             "menus", "principal", "descargas", "preferencias",
             "preferencias_categorias", "preferencias_persisten",
-            "programados", "historial", "restream",
+            "mensajes_automaticos", "historial", "restream",
             "transmision", "escena", "grabacion",
             # `microfono` va justo después de `transmision`: los dos
             # necesitan OBS y auditan cuadros del menú OBS.

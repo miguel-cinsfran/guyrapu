@@ -17,6 +17,7 @@ MINUTOS_MINIMOS = 5  # Piso de prudencia contra el antispam.
 SEGUNDOS_ENTRE_ENVIOS = 60  # Si dos vencen a la vez, el segundo espera.
 
 VALORES_POR_DEFECTO = {
+    "nombre": "",
     "texto": "",
     "minutos_min": 10,
     "minutos_max": 10,
@@ -102,6 +103,28 @@ def puede_enviar(activo: bool, conectado: bool, es_tiktok: bool,
                 and propio and sesion)
 
 
+def _nombre_del_texto(texto: str) -> str:
+    """El comienzo del texto, para los mensajes guardados sin nombre."""
+    recorte = texto[:40]
+    if len(texto) > 40 and " " in recorte:
+        recorte = recorte.rsplit(" ", 1)[0]
+    return recorte.strip()
+
+
+def validar_nombre(nombre: str, otros) -> str:
+    """Valida el nombre contra los otros mensajes y devuelve el error o ""."""
+    limpio = str(nombre or "").strip()
+    if not limpio:
+        return _("El mensaje necesita un nombre.")
+    clave = limpio.casefold()
+    for otro in otros:
+        existente = (otro.get("nombre", "") if isinstance(otro, dict)
+                     else otro)
+        if str(existente).strip().casefold() == clave:
+            return _("Ya hay un mensaje llamado {nombre}.").format(nombre=limpio)
+    return ""
+
+
 def describir_mensaje(mensaje: dict) -> str:
     """Devuelve la línea accesible que representa un mensaje."""
     if mensaje.get("activo", False):
@@ -121,11 +144,14 @@ def describir_mensaje(mensaje: dict) -> str:
     else:
         # Traductores: intervalo en la lista de mensajes programados. {minimo} es el mínimo y {maximo} el máximo.
         intervalo = _("entre {minimo} y {maximo} minutos").format(minimo=minimo, maximo=maximo)
-    texto = str(mensaje.get("texto", ""))
-    if len(texto) > 60:
-        texto = texto[:57] + "..."
-    # Traductores: línea de la lista de mensajes programados. {estado} es activo o pausado, {intervalo} la frecuencia y {texto} el contenido.
-    return _("{estado}, {intervalo}: {texto}").format(estado=estado, intervalo=intervalo, texto=texto)
+    # Traductores: destino en la lista de mensajes programados.
+    destino = {"video": _("vídeo"), "ambos": _("chat y vídeo")}.get(
+        mensaje.get("destino", "chat"), _("chat"))
+    nombre = str(mensaje.get("nombre", "")).strip() or _nombre_del_texto(
+        str(mensaje.get("texto", "")))
+    # Traductores: línea de la lista de mensajes programados. {nombre} es el nombre, {estado} es activo o pausado, {destino} es chat, vídeo o chat y vídeo, e {intervalo} la frecuencia.
+    return _("{nombre}: {estado}, {destino}, {intervalo}").format(
+        nombre=nombre, estado=estado, destino=destino, intervalo=intervalo)
 
 
 def describir_proximo(mensajes: list[dict], ahora: float) -> str:
@@ -163,8 +189,7 @@ def _normalizar_mensaje(mensaje: dict) -> dict:
     resultado = dict(VALORES_POR_DEFECTO)
     resultado.update(mensaje)
     # Un JSON editado a mano puede traer "10" o "true": se fuerzan los tipos
-    # de los campos conocidos para que el temporizador de la GUI no reviente
-    # con un TypeError al comparar u operar con ellos.
+    # conocidos para que el temporizador de la GUI no reviente con un TypeError.
     for clave, defecto in VALORES_POR_DEFECTO.items():
         valor = resultado[clave]
         try:
@@ -178,6 +203,7 @@ def _normalizar_mensaje(mensaje: dict) -> dict:
                 resultado[clave] = "" if valor is None else str(valor)
         except (TypeError, ValueError):
             resultado[clave] = defecto
+    resultado["nombre"] = resultado["nombre"].strip() or _nombre_del_texto(resultado["texto"])
     return _acotar_mensaje(resultado)
 
 

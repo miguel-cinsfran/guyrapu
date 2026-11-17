@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md b9f88d98566691070045d73cd7fd34ec066722cf -->
+<!-- original: es/MANUAL.md 351614b28f4d1695c6bb715d8deb78ce1d4f845a -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -406,6 +406,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | Shortcut | Action |
 |---|---|
 | `Ctrl+Shift+P` | Preferences |
+| `Ctrl+Shift+A` | Scheduled messages |
 | `Ctrl+Shift+H` | Live stream history |
 | `Ctrl+Shift+R` | Restream |
 | `Ctrl+Shift+D` | Download manager |

@@ -64,6 +64,8 @@ SUPERFICIES = {
     "recientes_inicio.py": "principal",
     "gui_menu.py": "menus",
     "menu_obs.py": "menus",
+    "menu_interaccion.py": "menus",
+    "mensajes_automaticos_ventana.py": "mensajes_automaticos",
     "menu_reproductor.py": "menus",
     "menu_transmision.py": "menus",
     "menu_moderacion.py": "menu_chat",
@@ -126,7 +128,6 @@ SUPERFICIES = {
     "preferencias_ia_lista.py": "preferencias",
     "preferencias_lectura.py": "preferencias",
     "preferencias_eventos.py": "preferencias",
-    "preferencias_programados.py": "preferencias",
     "preferencias_transmision.py": "preferencias",
     "preferencias_camara.py": "preferencias",
     "preferencias_voz.py": "preferencias",
@@ -161,6 +162,9 @@ SIN_ESCENARIO: dict[str, str] = {
         "con wx y la prueba contra OBS real."),
     "confirmar.py": "Envuelve los cuadros nativos de Windows; no abre una ventana propia.",
     "tecla_escape.py": "Atiende teclas y no abre ventana propia.",
+    "mensaje_automatico_cuadro.py": (
+        "el cuadro lo cubren las pruebas con wx; el banco audita la "
+        "ventana que lo abre."),
     "menu_habilitado.py": "Prende y apaga elementos de menú y no abre ventana propia.",
     "ayuda_manual.py": (
         "Atiende F1 y arma la página de redirección; no abre ventana propia."),

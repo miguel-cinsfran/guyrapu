@@ -471,9 +471,6 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
             from guyrapu.ui.gui_preferencias import abrir_preferencias
             avisos = []
             acepto = abrir_preferencias(self, self._config, avisos=avisos)
-            # La lista ya se guardó en disco al tocar sus botones: se relee
-            # haya aceptado o no, y el reloj se arma de nuevo con la lista nueva.
-            self.programador.recargar(programados.cargar(paths.mensajes_programados()))
             if acepto:
                 # El anuncio se difiere para que NVDA termine de decir el foco
                 # de la ventana principal antes de hablar, y sin interrumpir lo

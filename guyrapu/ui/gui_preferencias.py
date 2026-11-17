@@ -36,7 +36,6 @@ from guyrapu.ui.preferencias_descargas import PaginaDescargasPreferencias
 from guyrapu.ui.preferencias_lectura import OPCIONES_LECTURA, PaginaLectura
 from guyrapu.ui.preferencias_eventos import OPCIONES_EVENTOS, PaginaEventos
 from guyrapu.ui.preferencias_ia import PaginaIA
-from guyrapu.ui.preferencias_programados import PaginaProgramados
 from guyrapu.ui.preferencias_sonidos import PaginaSonidos
 from guyrapu.ui.preferencias_voz import PaginaVoz
 
@@ -54,7 +53,6 @@ CATEGORIA_YOUTUBE = N_("YouTube")
 # `tests/test_preferencias_tabla.py` lo compara con el de fábrica para que no
 # se separen.
 _OPCIONES_SIMPLES = (
-    ("chk_programados", "programados", "activo", "programados_activo", bool, False),
     ("sp_fuente", "ui", "tamanio_fuente_chat", "tamanio_fuente_chat", int, 12),
     ("chk_total_sc", "ui", "mostrar_total_superchats", "mostrar_total_superchats", bool, True),
     ("chk_autoplay", "ui", "autoplay_reproductor", "autoplay_reproductor", bool, True),
@@ -148,7 +146,6 @@ class PreferenciasDialog(wx.Dialog):
                                                 (self._config, fila_label, crear_panel))),
             (_("Filtros"), self._envolver(self._pag_filtros)),
             (_("Estado (F2)"), self._envolver(self._pag_estado)),
-            (_("Mensajes automáticos"), externa("pagina_programados", PaginaProgramados)),
             (_("Conexión"), self._envolver(self._pag_conexion)),
             (_(CATEGORIA_YOUTUBE), externa("pagina_api", PaginaApi, (self,))),
             (_("Reproductor"), self._envolver(self._pag_reproductor)),
