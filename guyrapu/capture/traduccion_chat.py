@@ -38,9 +38,10 @@ CADENCIA = esperas.Creciente(5.0, 60.0)
 class Pedido:
     """Una traducción pedida, con su espera y su resultado."""
 
-    def __init__(self, texto, destino):
+    def __init__(self, texto, destino, en_falla=None):
         self.texto = texto
         self.destino = destino
+        self._en_falla = en_falla
         self._evento = threading.Event()
         self._lock = threading.Lock()
         self._resultado = None
@@ -51,7 +52,15 @@ class Pedido:
         return self._resultado
 
     def esperar(self, segundos):
-        """Espera a que llegue el resultado, sin red ni trabajo propio."""
+        """Espera a que llegue el resultado, sin red ni trabajo propio.
+
+        Mientras el servicio está en falla no espera: devuelve lo que haya,
+        que la voz lea el original al instante.
+        """
+        if self._evento.is_set():
+            return self._resultado
+        if self._en_falla is not None and self._en_falla():
+            return None
         self._evento.wait(segundos)
         return self._resultado
 
@@ -136,7 +145,7 @@ class _Servicio:
             if pedido is not None:
                 return pedido
             cacheada = self._memoria.obtener(texto, self._destino)
-            pedido = Pedido(texto, self._destino)
+            pedido = Pedido(texto, self._destino, self._en_falla)
             if cacheada is not None:
                 pedido._terminar(cacheada)
                 return pedido
@@ -145,6 +154,9 @@ class _Servicio:
             self._cola.agregar(texto, time.monotonic())
             self._asegurar_hilo()
             return pedido
+
+    def _en_falla(self):
+        return self._vigilancia.caido
 
     def detener(self):
         """Para el hilo del traductor y suelta lo que esperaba."""

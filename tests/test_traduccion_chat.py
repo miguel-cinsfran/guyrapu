@@ -36,6 +36,12 @@ def _proveedor(manejar):
     return SimpleNamespace(traducir=manejar)
 
 
+def _config_lectura():
+    return {"limpiar_emojis": True, "eliminar_urls": True,
+            "max_longitud_mensaje": 200,
+            "traducir_idioma_original": "completo"}
+
+
 def _esperar(condicion, timeout=5.0):
     fin = time.monotonic() + timeout
     while time.monotonic() < fin:
@@ -175,11 +181,72 @@ class TestServicio(unittest.TestCase):
             self.assertTrue(_esperar(lambda: len(llamadas) >= 2))
 
             tercero = servicio.pedir("buen dia")
-            self.assertEqual(tercero.esperar(5), Traduccion("HELLO", "en"))
+            self.assertIsNone(tercero.esperar(2))
+            self.assertTrue(_esperar(
+                lambda: tercero.resultado == Traduccion("HELLO", "en")))
+            self.assertTrue(_esperar(lambda: not servicio._vigilancia.caido))
             self.assertTrue(_esperar(lambda: TEXTO_VUELTA in avisos))
 
         self.assertEqual(avisos.count(TEXTO_CAIDA), 1)
         self.assertEqual(avisos.count(TEXTO_VUELTA), 1)
+
+
+class TestFallaSinEspera(unittest.TestCase):
+
+    def _servicio(self, proveedor):
+        servicio = traduccion_chat._Servicio(proveedor)
+        self.addCleanup(servicio.detener)
+        servicio.configurar(_config())
+        return servicio
+
+    def test_en_falla_la_voz_lee_el_original_sin_esperar(self):
+        def traducir(textos, destino, plazo):
+            raise ErrorTraduccion("sin red")
+
+        with mock.patch.object(traduccion_chat, "CADENCIA",
+                               esperas.Creciente(0.01, 0.02)):
+            servicio = self._servicio(_proveedor(traducir))
+            primero = servicio.pedir("hola mundo")
+            self.assertIsNone(primero.esperar(2))
+            self.assertTrue(servicio._vigilancia.caido)
+            item = {"texto_tts": "Ana: otro mensaje",
+                    "ml": "otro mensaje",
+                    "pedido": servicio.pedir("otro mensaje")}
+            inicio = time.monotonic()
+            texto = lectura_traducida.texto(item, _config_lectura())
+            self.assertLess(time.monotonic() - inicio, 0.2)
+            self.assertEqual(texto, "Ana: otro mensaje")
+
+    def test_despues_de_un_lote_bueno_la_voz_vuelve_a_esperar(self):
+        listo = threading.Event()
+        llamadas = []
+
+        def traducir(textos, destino, plazo):
+            llamadas.append(list(textos))
+            if len(llamadas) == 1:
+                raise ErrorTraduccion("sin red")
+            if len(llamadas) == 2:
+                return [Traduccion("HOLA", "en") for _texto in textos]
+            listo.wait(5)
+            return [Traduccion("HOLA", "en") for _texto in textos]
+
+        with mock.patch.object(traduccion_chat, "CADENCIA",
+                               esperas.Creciente(0.01, 0.02)):
+            servicio = self._servicio(_proveedor(traducir))
+            primero = servicio.pedir("hola mundo")
+            self.assertIsNone(primero.esperar(2))
+            segundo = servicio.pedir("otro mensaje")
+            self.assertTrue(_esperar(
+                lambda: segundo.resultado == Traduccion("HOLA", "en")))
+            self.assertFalse(servicio._vigilancia.caido)
+            item = {"texto_tts": "Ana: tercer mensaje",
+                    "ml": "tercer mensaje",
+                    "pedido": servicio.pedir("tercer mensaje")}
+            inicio = time.monotonic()
+            texto = lectura_traducida.texto(item, _config_lectura())
+            self.assertGreaterEqual(time.monotonic() - inicio, 1.8)
+            self.assertEqual(texto, "Ana: tercer mensaje")
+            listo.set()
 
 
 class TestModoDeLaLista(unittest.TestCase):
