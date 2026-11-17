@@ -1,0 +1,100 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
+"""Atiende los comandos del chat y manda sus respuestas.
+
+Une la decisión pura de `atencion` con la app: carga los comandos del
+archivo, arma el evento desde el mensaje, agrega la tarjeta al vídeo, manda
+la respuesta al chat de YouTube y avisa una sola vez si la cuota la corta.
+
+La atiende `chat_vivo.encolar`, que registra cualquier error sin cortar la
+lectura del chat.
+"""
+
+from __future__ import annotations
+
+from guyrapu.core import diagnostico, paths
+from guyrapu.core.config import TIPO_TEXTO
+from guyrapu.core.idioma import _
+from guyrapu.interaction import atencion, comandos, comandos_guardados
+from guyrapu.interaction.evento import desde_entrante
+from guyrapu.ui import gui_envio_chat
+from guyrapu.youtube import cuota
+
+# Con más de 8000 unidades usadas quedan menos de 2000 de las 10 000.
+CUOTA_BAJA = 8000
+
+logger = diagnostico.obtener_logger(__name__)
+
+
+def atender(frame, registro, ahora) -> None:
+    """Atiende el mensaje con la instancia de comandos de esa ventana."""
+    en_vivo = getattr(frame, "_comandos_en_vivo", None)
+    if en_vivo is None:
+        en_vivo = ComandosEnVivo(frame)
+        frame._comandos_en_vivo = en_vivo
+    en_vivo.atender(registro, ahora)
+
+
+def _evento(registro):
+    return desde_entrante(
+        registro.autor, registro.texto, registro.tipo, registro.monto,
+        registro.identificador, registro.rol, registro.plataforma)
+
+
+class ComandosEnVivo:
+    """Los comandos de una sesión, con sus respuestas y su freno de cuota."""
+
+    def __init__(self, frame):
+        self._frame = frame
+        self._atencion = atencion.Atencion()
+        self._cargado = False
+        self._mtime = None
+        self._avisado_cuota = False
+
+    def atender(self, registro, ahora) -> None:
+        if registro.tipo != TIPO_TEXTO:
+            return
+        if comandos.leer(registro.texto) is None:
+            return
+        self._recargar()
+        respuesta = self._atencion.atender(
+            _evento(registro), ahora,
+            chat_disponible=self._chat_disponible(),
+            cuota_baja=cuota.usadas_hoy() > CUOTA_BAJA)
+        if respuesta is None:
+            return
+        if respuesta.al_video and self._frame._conectado:
+            gui_envio_chat.capa_de_video(self._frame).agregar_comando(respuesta)
+        if respuesta.al_chat:
+            gui_envio_chat.enviar_respuesta_chat(self._frame, respuesta.texto)
+        if respuesta.freno_cuota:
+            self._avisar_cuota()
+
+    def _recargar(self) -> None:
+        """Vuelve a leer los comandos si el archivo cambió."""
+        ruta = paths.comandos()
+        try:
+            mtime = ruta.stat().st_mtime_ns
+        except OSError:
+            mtime = None
+        if self._cargado and mtime == self._mtime:
+            return
+        self._cargado = True
+        self._mtime = mtime
+        self._atencion.fijar_comandos([
+            comandos_guardados.a_comando(datos)
+            for datos in comandos_guardados.cargar(ruta)])
+
+    def _chat_disponible(self) -> bool:
+        return "chat" in gui_envio_chat.destinos_disponibles(self._frame)
+
+    def _avisar_cuota(self) -> None:
+        if self._avisado_cuota:
+            return
+        self._avisado_cuota = True
+        from guyrapu.ui import gui as _gui
+        # Traductores: aviso único de la sesión cuando la poca cuota de YouTube corta las respuestas al chat.
+        _gui.anunciar_con_sonido(
+            _("Las respuestas de los comandos ya no salen en el chat porque "
+              "queda poca cuota de YouTube. Siguen saliendo en el vídeo."),
+            "aviso")

@@ -292,6 +292,20 @@ class TestControladorChat(unittest.TestCase):
         self.assertEqual(len(control.modelo.visibles), 1)
 
 
+class TestComandosDelChat(unittest.TestCase):
+
+    def test_un_fallo_al_atender_los_comandos_no_corta_la_lectura(self):
+        control = _controlador()
+        with mock.patch.object(chat_vivo.comandos_en_vivo, "atender",
+                               side_effect=RuntimeError("x")), \
+                mock.patch.object(chat_vivo.logger, "debug") as debug, \
+                mock.patch.object(chat_vivo.wx, "CallLater",
+                                  return_value=mock.Mock()):
+            control.encolar(_registro(texto="!hola"))
+        self.assertEqual(len(control._pendientes), 1)
+        debug.assert_called_once()
+
+
 class TestClipDelChat(unittest.TestCase):
     def _control(self, *, activo=True, minutos=1, guardar=None, reloj=None):
         lista = mock.Mock()

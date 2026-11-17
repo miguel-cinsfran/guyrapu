@@ -143,6 +143,27 @@ def enviar_programado(frame, mensaje: dict, ahora: float) -> None:
     _gui.diagnostico.crear_hilo(_run, "MensajeProgramado").start()
 
 
+def enviar_respuesta_chat(frame, texto: str) -> None:
+    """Manda la respuesta al chat en un hilo; un fallo solo se registra."""
+    from guyrapu.ui import gui as _gui
+    lcid = frame.sesion.live_chat_id
+
+    def _run():
+        try:
+            cli = _gui.youtube_api.ClienteYouTube(_gui.credenciales.efectivas())
+            cli.enviar_mensaje_live(lcid, texto)
+            if cli.token_actualizado():
+                _gui.credenciales.guardar_campo("token", cli.token_actualizado())
+        except Exception as exc:
+            _gui.logger.warning(
+                "respuesta de comando: error del servicio: %s",
+                type(exc).__name__)
+            if _gui.youtube_api.sesion_caducada(exc):
+                _gui.credenciales.cerrar_sesion()
+
+    _gui.diagnostico.crear_hilo(_run, "ComandoChat").start()
+
+
 def programado_enviado(frame, mensaje: dict) -> None:
     from guyrapu.ui import gui as _gui
     frame.programador.envio_hecho(mensaje, _gui.time.time(), _gui.random.randint)

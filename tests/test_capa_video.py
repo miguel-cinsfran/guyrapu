@@ -216,6 +216,30 @@ class TestMostrarYOcultar(Base):
         self.assertAlmostEqual(segunda, 3.35)
 
 
+class TestRespuestaDeComando(Base):
+
+    def _respuesta(self, estilo="banda", segundos=5):
+        return types.SimpleNamespace(
+            texto="Nuestro Discord: Ana", estilo=estilo,
+            segundos=segundos, nombre="discord")
+
+    def test_agrega_una_pieza_de_comando_con_su_estilo_y_segundos(self):
+        self.assertTrue(self.capa.agregar_comando(self._respuesta()))
+        pieza = self.capa.cola.ordenes(0)[0].pieza
+        self.assertEqual((pieza.tipo, pieza.texto, pieza.segundos),
+                         ("comando", "Nuestro Discord: Ana", 5))
+        self.assertEqual(pieza.datos,
+                         {"estilo": "banda", "nombre": "discord"})
+
+    def test_no_anuncia_la_respuesta_de_un_comando(self):
+        self.capa.agregar_comando(self._respuesta(estilo="clasico"))
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "En el vídeo: Nuestro Discord: Ana.")
+        self.assertEqual(self.anuncios, [])
+        self.assertEqual(self.anuncios_simples, [])
+
+
 class TestFallas(Base):
 
     def test_una_falla_llega_a_la_cola_y_se_anuncia_una_vez(self):

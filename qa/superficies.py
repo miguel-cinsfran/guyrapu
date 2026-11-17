@@ -154,6 +154,8 @@ SIN_ESCENARIO: dict[str, str] = {
     "operaciones_obs.py": "opera sobre OBS en un hilo para las ventanas; no abre una propia.",
     "comandos_grabacion.py": "comandos del menú OBS que actúan sobre OBS; no abren ventana.",
     "comandos_clips.py": "comanda el búfer de clips del menú OBS; no abre ventana.",
+    "comandos_en_vivo.py": (
+        "atiende los comandos del chat y no abre ventana propia."),
     "comando_cerrar_obs.py": (
         "comando del menú OBS y del panel que cierra OBS; no abre ventana."),
     "comando_directo.py": (

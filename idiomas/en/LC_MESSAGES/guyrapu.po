@@ -15372,3 +15372,18 @@ msgstr "Interaction pages"
 msgid "&Abrir Interacción…"
 msgstr "&Open Interaction…"
 
+#. Traductores: respuesta de la app al comando !comandos. {lista} son los
+#. nombres de los comandos activos.
+#: guyrapu/interaction/atencion.py
+#, python-brace-format
+msgid "Comandos: {lista}."
+msgstr "Commands: {lista}."
+
+#: guyrapu/ui/comandos_en_vivo.py
+msgid ""
+"Las respuestas de los comandos ya no salen en el chat porque queda poca "
+"cuota de YouTube. Siguen saliendo en el vídeo."
+msgstr ""
+"Command replies no longer go to the chat because little YouTube quota is "
+"left. They still appear in the video."
+

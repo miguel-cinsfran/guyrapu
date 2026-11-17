@@ -138,5 +138,43 @@ class TestPseudoEnvioChat(unittest.TestCase):
         frame._accion_api.assert_not_called()
 
 
+class TestRespuestaDeComando(unittest.TestCase):
+    """La respuesta de un comando al chat, en un hilo y sin avisos."""
+
+    def _frame(self):
+        frame = mock.Mock()
+        frame.sesion.live_chat_id = "LCID"
+        return frame
+
+    def test_manda_el_texto_en_un_hilo(self):
+        frame = self._frame()
+        cliente = mock.Mock()
+        cliente.token_actualizado.return_value = None
+        with mock.patch.object(gui, "diagnostico") as diagnostico, \
+                mock.patch.object(gui, "youtube_api") as api, \
+                mock.patch.object(gui, "credenciales"):
+            api.ClienteYouTube.return_value = cliente
+            diagnostico.crear_hilo.side_effect = _hilo_inmediato
+            envio.enviar_respuesta_chat(frame, "Hola")
+        cliente.enviar_mensaje_live.assert_called_once_with("LCID", "Hola")
+        diagnostico.crear_hilo.assert_called_once()
+
+    def test_un_fallo_se_registra_y_no_se_anuncia(self):
+        frame = self._frame()
+        with mock.patch.object(gui, "diagnostico") as diagnostico, \
+                mock.patch.object(gui, "youtube_api") as api, \
+                mock.patch.object(gui, "credenciales"), \
+                mock.patch.object(gui, "anunciar") as anunciar, \
+                mock.patch.object(gui, "anunciar_con_sonido") as con_sonido, \
+                mock.patch.object(gui, "logger") as logger:
+            api.ClienteYouTube.side_effect = RuntimeError("x")
+            api.sesion_caducada.return_value = False
+            diagnostico.crear_hilo.side_effect = _hilo_inmediato
+            envio.enviar_respuesta_chat(frame, "Hola")
+        logger.warning.assert_called_once()
+        anunciar.assert_not_called()
+        con_sonido.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

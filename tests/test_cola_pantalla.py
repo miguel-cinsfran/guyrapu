@@ -245,6 +245,24 @@ class TestColaPantalla(unittest.TestCase):
         cola.oculta(segunda, 2)
         self.assertEqual(cola.describir(), "Nada en el vídeo.")
 
+    def test_un_comando_va_delante_de_los_mensajes_y_detras_de_otro_comando(self):
+        cola = ColaPantalla()
+        cola.agregar(_pieza("Mensaje 1", 0, tipo="mensaje"))
+        cola.agregar(_pieza("Mensaje 2", 0, tipo="mensaje"))
+        cola.agregar(_pieza("Comando 1", 0, tipo="comando"))
+        cola.agregar(_pieza("Comando 2", 0, tipo="comando"))
+        vistos = []
+        for instante in range(4):
+            mostrar = cola.ordenes(instante)[0]
+            self.assertEqual(mostrar.accion, "mostrar")
+            vistos.append(mostrar.pieza.texto)
+            cola.mostrada(mostrar.pieza, instante)
+            ocultar = cola.ordenes(instante)[0]
+            self.assertEqual(ocultar.accion, "ocultar")
+            cola.oculta(ocultar.pieza, instante)
+        self.assertEqual(vistos, ["Comando 1", "Comando 2",
+                                  "Mensaje 1", "Mensaje 2"])
+
     def test_la_pieza_veintiuno_se_rechaza(self):
         cola = ColaPantalla()
         for numero in range(20):

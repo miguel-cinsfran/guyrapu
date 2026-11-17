@@ -64,6 +64,16 @@ class CapaVideo:
         )
         return self.cola.agregar(pieza)
 
+    def agregar_comando(self, respuesta):
+        """Suma la respuesta de un comando a la cola como pieza propia."""
+        pieza = Pieza(
+            tipo="comando",
+            texto=respuesta.texto,
+            segundos=respuesta.segundos,
+            datos={"estilo": respuesta.estilo, "nombre": respuesta.nombre},
+        )
+        return self.cola.agregar(pieza)
+
     def describir(self) -> str:
         """La frase de F2 sobre lo que hay en el vídeo."""
         return self.cola.describir()
@@ -154,6 +164,9 @@ class CapaVideo:
         self.cola.mostrada(pieza, self._reloj())
         self._ocupado = False
         self._falla_avisada = False
+        # La respuesta de un comando no se anuncia: el chat ya se lee como hoy.
+        if pieza.tipo == "comando":
+            return
         nombre = str(pieza.datos.get("nombre") or pieza.texto)
         # Traductores: aviso al confirmarse una tarjeta en el vídeo. {nombre} es el nombre del mensaje automático.
         frase = _("En el vídeo: {nombre}.").format(nombre=nombre)

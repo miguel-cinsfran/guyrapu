@@ -57,10 +57,21 @@ class ColaPantalla:
         self._panico = False
 
     def agregar(self, pieza):
-        """Suma una pieza al final, salvo con la cola llena o el pánico."""
+        """Suma una pieza, salvo con la cola llena o el pánico.
+
+        Las respuestas de los comandos pasan delante de los mensajes
+        automáticos que esperan, pero detrás de otras respuestas.
+        """
         if self._panico or len(self._pendientes) >= self.TOPE:
             return False
-        self._pendientes.append(pieza)
+        if pieza.tipo == "comando":
+            indice = next(
+                (posicion for posicion, actual
+                 in enumerate(self._pendientes) if actual.tipo == "mensaje"),
+                len(self._pendientes))
+            self._pendientes.insert(indice, pieza)
+        else:
+            self._pendientes.append(pieza)
         return True
 
     def ordenes(self, ahora):
