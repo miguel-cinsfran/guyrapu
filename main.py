@@ -32,6 +32,7 @@ from guyrapu.core.config import (
 )
 from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core import paths
+from guyrapu.core import modos_de_arranque
 from guyrapu.core import migracion_datos
 from guyrapu.core import migracion_nombre
 from guyrapu.core.lectura_eventos import sanitizar, texto_para_leer
@@ -677,16 +678,10 @@ def iniciar_interfaz(config, cola, stats, worker, parada, iniciar_gui_fn=None):
 
 
 def main():
-    # Autocomprobación del paquete: la corre construir.bat sobre el exe armado.
-    # Va antes que todo, sin logging, sin mutex ni ventanas.
-    if len(sys.argv) > 1 and sys.argv[1] == "--autocomprobar":
-        from guyrapu.core import autocomprobacion
-        sys.exit(autocomprobacion.principal(sys.argv[2:]))
-    # Modo instalador: corre dentro del exe nuevo mientras la app vieja
-    # se cierra. Va primero que todo, sin logging, sin mutex ni ventanas.
-    if len(sys.argv) > 1 and sys.argv[1] == "--instalar-actualizacion":
-        from guyrapu.core import instalador
-        sys.exit(instalador.principal_instalador())
+    # Las salidas tempranas van antes que todo y viven en su módulo.
+    codigo = modos_de_arranque.correr(sys.argv[1:])
+    if codigo is not None:
+        sys.exit(codigo)
     # Aquí y no al importar el módulo: así los tests y el smoke test pueden
     # importar main sin crear el handler del registro (contaminaba el log real).
     try:
