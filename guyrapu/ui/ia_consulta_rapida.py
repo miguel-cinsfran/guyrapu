@@ -39,7 +39,7 @@ from guyrapu.voice.sound_player import reproducir
 logger = diagnostico.obtener_logger(__name__)
 
 # Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia sin abrir nada.
-TEXTO_EN_CURSO = N_("Ya hay una consulta rápida en curso.")
+TEXTO_EN_CURSO = N_("Consulta rápida en curso.")
 
 
 class ConsultaRapida:
@@ -148,6 +148,11 @@ class ConsultaRapida:
             opcion.etiqueta, captura.motivo, captura.fuente_motivo))
         reproducir("ia_imagen_negra")
 
+    def _avisar_cancelada(self) -> None:
+        self._en_curso = False
+        anunciar(_(ventana_ia.TEXTO_CANCELADA))
+        reproducir("ia_error")
+
     def _vuelta_captura(self, opcion, captura, descripcion) -> None:
         marco = self._frame
         if not marco:
@@ -180,7 +185,7 @@ class ConsultaRapida:
         if proveedor is None:
             proveedor = proveedores.PROVEEDORES[0]
         if not ia_privacidad.confirmar(marco, ajustes, proveedor.nombre):
-            self._en_curso = False
+            self._avisar_cancelada()
             return
         reproducir("ia_enviada")
         self._temporizador.Start(ia_ventana.INTERVALO_AVISO_MS)
@@ -203,6 +208,7 @@ class ConsultaRapida:
     def _vuelta_envio(self, charla, preparada, clave, descripcion,
                       respuesta) -> None:
         if not self._frame:
+            logger.warning("ConsultaRapida: sin ventana para la respuesta")
             return
         self._frenar_avisos()
         self._en_curso = False

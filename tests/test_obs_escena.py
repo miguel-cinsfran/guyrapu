@@ -27,13 +27,13 @@ class DescribirEscenaTest(unittest.TestCase):
     def test_escena_vacia(self):
         self.assertEqual(
             obs_escena.describir_escena("Juego", [], *LIENZO, {}),
-            "Escena actual: Juego. No tiene fuentes.")
+            "Escena actual: Juego. Sin fuentes.")
 
     def test_escena_pedida_no_dice_actual(self):
         self.assertEqual(
             obs_escena.describir_escena("Juego", [], *LIENZO, {},
                                         actual=False),
-            "Escena: Juego. No tiene fuentes.")
+            "Escena: Juego. Sin fuentes.")
 
     def test_escena_pedida_con_fuentes_no_dice_actual(self):
         frase = obs_escena.describir_escena(
@@ -41,7 +41,7 @@ class DescribirEscenaTest(unittest.TestCase):
             *LIENZO, {"Fondo": "imagen"}, actual=False)
         self.assertEqual(
             frase.splitlines()[0],
-            "Escena: Juego. 1 fuente, de adelante hacia atrás.")
+            "Escena: Juego. 1 fuente, del frente al fondo.")
 
     def test_una_sola_fuente_en_singular(self):
         frase = obs_escena.describir_escena(
@@ -49,8 +49,8 @@ class DescribirEscenaTest(unittest.TestCase):
             *LIENZO, {"Fondo": "imagen"})
         self.assertEqual(
             frase,
-            "Escena actual: Juego. 1 fuente, de adelante hacia atrás.\n"
-            "1: Fondo, imagen, ocupa todo el vídeo, se ve.")
+            "Escena actual: Juego. 1 fuente, del frente al fondo.\n"
+            "1: Fondo, imagen, en todo el vídeo, visible.")
 
     def test_varias_fuentes_en_plural(self):
         frase = obs_escena.describir_escena(
@@ -58,7 +58,7 @@ class DescribirEscenaTest(unittest.TestCase):
             [elemento(1, "Panel", 0, 32, 882, 460, 620, 9),
              elemento(2, "Juego", 1, 800, 450, 1600, 900, 0)],
             *LIENZO, {"Panel": "navegador", "Juego": "captura de juego"})
-        self.assertIn("2 fuentes, de adelante hacia atrás.", frase.splitlines()[0])
+        self.assertIn("2 fuentes, del frente al fondo.", frase.splitlines()[0])
 
     def test_ordena_de_adelante_hacia_atras_aunque_venga_al_reves(self):
         frase = obs_escena.describir_escena(
@@ -78,14 +78,14 @@ class DescribirEscenaTest(unittest.TestCase):
             *LIENZO, {"Panel": "navegador", "Captura": "captura de pantalla"})
         self.assertEqual(
             frase,
-            "Escena actual: Principal. 2 fuentes, de adelante hacia atrás.\n"
-            "1: Captura, captura de pantalla, ocupa todo el vídeo, se ve.\n"
-            "2: Panel, navegador, no aparece en el vídeo, la tapa entera "
-            "Captura, abajo a la izquierda, 29 por ciento del ancho.")
+            "Escena actual: Principal. 2 fuentes, del frente al fondo.\n"
+            "1: Captura, captura de pantalla, en todo el vídeo, visible.\n"
+            "2: Panel, navegador, tapada entera por Captura, abajo a la "
+            "izquierda, 29 por ciento del ancho.")
 
     def test_ocultas_no_dicen_tapada(self):
-        casos = ((False, "oculta en OBS, abajo a la izquierda, 29 por ciento del ancho"),
-                 (True, "abajo a la izquierda, 29 por ciento del ancho, se ve"))
+        casos = ((False, "oculta, abajo a la izquierda, 29 por ciento del ancho"),
+                 (True, "abajo a la izquierda, 29 por ciento del ancho, visible"))
         for panel_visible, final in casos:
             with self.subTest(final=final):
                 frase = obs_escena.describir_escena(
@@ -106,7 +106,7 @@ class DescribirEscenaTest(unittest.TestCase):
              elemento(2, "Aviso", 1, 32, 262, 200, 100, 5)],
             *LIENZO, {"Panel": "navegador", "Aviso": "texto"})
         self.assertIn("2: Panel, navegador, abajo a la izquierda, "
-                      "29 por ciento del ancho, se ve.", frase)
+                      "29 por ciento del ancho, visible.", frase)
 
     def test_nombra_a_la_que_mas_tapa(self):
         # A cubre la mitad izquierda (50 %), B una franja de arriba (30 %).
@@ -116,7 +116,7 @@ class DescribirEscenaTest(unittest.TestCase):
              elemento(2, "B", 1, 32, 262, 460, 186, 5),
              elemento(3, "A", 2, 32, 262, 230, 620, 5)],
             *LIENZO, {"Panel": "navegador", "A": "imagen", "B": "texto"})
-        self.assertIn("se ve en parte: A tapa el 50 por ciento", frase)
+        self.assertIn("tapada en parte por A, 50 por ciento", frase)
 
     def test_tapada_entera_en_el_borde_95(self):
         # El frente cubre 460 por 589 de 460 por 620: 95 % justo.
@@ -125,7 +125,7 @@ class DescribirEscenaTest(unittest.TestCase):
             [elemento(1, "Panel", 0, 32, 882, 460, 620, 9),
              elemento(2, "Aviso", 1, 32, 262, 460, 589, 5)],
             *LIENZO, {"Panel": "navegador", "Aviso": "texto"})
-        self.assertIn("no aparece en el vídeo, la tapa entera Aviso", frase)
+        self.assertIn("tapada entera por Aviso", frase)
 
     def test_tapada_en_parte_en_los_bordes_94_y_10(self):
         # El frente cubre 460 por 581 y 460 por 62 de 460 por 620.
@@ -136,7 +136,7 @@ class DescribirEscenaTest(unittest.TestCase):
                     [elemento(1, "Panel", 0, 32, 882, 460, 620, 9),
                      elemento(2, "Aviso", 1, 32, 262, 460, alto, 5)],
                     *LIENZO, {"Panel": "navegador", "Aviso": "texto"})
-                self.assertIn(f"se ve en parte: Aviso tapa el {porcentaje} "
+                self.assertIn(f"tapada en parte por Aviso, {porcentaje} "
                               "por ciento", frase)
 
     def test_tapada_en_parte_y_fuera_del_video(self):
@@ -147,8 +147,8 @@ class DescribirEscenaTest(unittest.TestCase):
             *LIENZO, {"Panel": "navegador", "A": "imagen"})
         self.assertEqual(
             filas[1].texto,
-            "Panel, navegador, se ve en parte: A tapa el 50 por ciento y un "
-            "16 por ciento queda fuera del vídeo, abajo a la izquierda, "
+            "Panel, navegador, tapada en parte por A, 50 por ciento y fuera "
+            "del vídeo: 16 por ciento, abajo a la izquierda, "
             "29 por ciento del ancho")
 
     def test_parcialmente_fuera_de_la_imagen(self):
@@ -158,9 +158,9 @@ class DescribirEscenaTest(unittest.TestCase):
             *LIENZO, {"Juego": "captura de juego"})
         self.assertEqual(
             frase,
-            "Escena actual: Principal. 1 fuente, de adelante hacia atrás.\n"
-            "1: Juego, captura de juego, un 25 por ciento queda fuera del "
-            "vídeo, centro a la derecha, la mitad del vídeo.")
+            "Escena actual: Principal. 1 fuente, del frente al fondo.\n"
+            "1: Juego, captura de juego, fuera del vídeo: 25 por ciento, "
+            "centro a la derecha, la mitad del vídeo.")
 
     def test_sin_transformacion_no_rompe_el_resto(self):
         frase = obs_escena.describir_escena(
@@ -170,15 +170,15 @@ class DescribirEscenaTest(unittest.TestCase):
             *LIENZO, {"Rota": "imagen", "Captura": "captura de pantalla"})
         self.assertEqual(
             frase,
-            "Escena actual: Principal. 2 fuentes, de adelante hacia atrás.\n"
-            "1: Captura, captura de pantalla, ocupa todo el vídeo, se ve.\n"
-            "2: Rota, imagen, posición desconocida, se ve.")
+            "Escena actual: Principal. 2 fuentes, del frente al fondo.\n"
+            "1: Captura, captura de pantalla, en todo el vídeo, visible.\n"
+            "2: Rota, imagen, sin posición, visible.")
 
     def test_sin_tipo_no_deja_hueco(self):
         frase = obs_escena.describir_escena(
             "Principal", [elemento(1, "Rara", 0, 800, 450, 1600, 900, 0)],
             *LIENZO, {})
-        self.assertIn("1: Rara, ocupa todo el vídeo, se ve.", frase)
+        self.assertIn("1: Rara, en todo el vídeo, visible.", frase)
 
     def test_con_bounds_activos_el_tamano_sale_de_ahi(self):
         frase = obs_escena.describir_escena(
@@ -187,7 +187,7 @@ class DescribirEscenaTest(unittest.TestCase):
                       bounds={"boundsType": "OBS_BOUNDS_SCALE_INNER",
                               "boundsWidth": 1600, "boundsHeight": 900})],
             *LIENZO, {"Foto": "imagen"})
-        self.assertIn("1: Foto, imagen, ocupa todo el vídeo, se ve.", frase)
+        self.assertIn("1: Foto, imagen, en todo el vídeo, visible.", frase)
 
     def test_una_oracion_por_linea(self):
         frase = obs_escena.describir_escena(
@@ -218,8 +218,8 @@ class SinImagenTest(unittest.TestCase):
             *LIENZO, {"Captura de ventana": "captura de ventana"})
         self.assertEqual(
             frase,
-            "Escena actual: Principal. 1 fuente, de adelante hacia atrás.\n"
-            "1: Captura de ventana, no muestra imagen.")
+            "Escena actual: Principal. 1 fuente, del frente al fondo.\n"
+            "1: Captura de ventana, sin imagen.")
 
     def test_el_tamano_sale_del_rectangulo_que_dibuja_obs(self):
         transformacion = {
@@ -236,7 +236,7 @@ class SinImagenTest(unittest.TestCase):
               "sceneItemEnabled": True,
               "sceneItemTransform": transformacion}],
             *LIENZO, {"Juego": "captura de juego"})
-        self.assertNotIn("ocupa todo el vídeo", frase)
+        self.assertNotIn("en todo el vídeo", frase)
         self.assertIn("75 por ciento del ancho", frase)
 
 
@@ -263,7 +263,7 @@ class CapturaFueraDelAireTest(unittest.TestCase):
                     al_aire=False)
                 self.assertEqual(
                     filas[0].texto,
-                    f"Captura, {tipo}, se mide al ponerla al aire")
+                    f"Captura, {tipo}, sin medida hasta la escena actual")
 
     def test_una_captura_sin_tamano_al_aire_sigue_sin_mostrar_imagen(self):
         filas = obs_escena.filas_de_escena(
@@ -271,14 +271,14 @@ class CapturaFueraDelAireTest(unittest.TestCase):
             {"Captura": "captura de pantalla"}, al_aire=True)
         self.assertEqual(
             filas[0].texto,
-            "Captura, captura de pantalla, no muestra imagen")
+            "Captura, captura de pantalla, sin imagen")
 
     def test_una_imagen_sin_tamano_fuera_del_aire_sigue_como_hoy(self):
         filas = obs_escena.filas_de_escena(
             [self._sin_tamano()], *LIENZO, {"Captura": "imagen"},
             al_aire=False)
         self.assertEqual(filas[0].texto,
-                         "Captura, imagen, no muestra imagen")
+                         "Captura, imagen, sin imagen")
 
     def test_una_fuente_oculta_sin_tamano_sigue_diciendo_oculta(self):
         filas = obs_escena.filas_de_escena(
@@ -286,7 +286,7 @@ class CapturaFueraDelAireTest(unittest.TestCase):
             {"Captura": "captura de pantalla"})
         self.assertEqual(
             filas[0].texto,
-            "Captura, captura de pantalla, oculta en OBS")
+            "Captura, captura de pantalla, oculta")
 
 
 class FilasDeEscenaTest(unittest.TestCase):
@@ -302,9 +302,9 @@ class FilasDeEscenaTest(unittest.TestCase):
         self.assertEqual(
             [fila.texto for fila in filas],
             ["Chat en el vídeo, navegador, abajo a la derecha, "
-             "29 por ciento del ancho, se ve, bloqueada",
-             "Cámara, se ve en parte: "
-             "Chat en el vídeo tapa el 20 por ciento, ocupa todo el vídeo"])
+             "29 por ciento del ancho, visible, posición bloqueada",
+             "Cámara, tapada en parte por "
+             "Chat en el vídeo, 20 por ciento, en todo el vídeo"])
         self.assertEqual([fila.nombre for fila in filas],
                          ["Chat en el vídeo", "Cámara"])
 
@@ -314,7 +314,7 @@ class FilasDeEscenaTest(unittest.TestCase):
             *LIENZO, {"Panel": "navegador"})
         self.assertEqual(
             filas[0].texto,
-            "Panel, navegador, oculta en OBS, abajo a la izquierda, "
+            "Panel, navegador, oculta, abajo a la izquierda, "
             "29 por ciento del ancho")
         self.assertFalse(filas[0].visible)
 
@@ -353,7 +353,7 @@ class FilasDeEscenaTest(unittest.TestCase):
         filas = obs_escena.filas_de_escena(
             [elemento(1, "Panel", 0, 32, 882, 460, 620, 9, bloqueada=True)],
             *LIENZO, {"Panel": "navegador"})
-        self.assertTrue(filas[0].texto.endswith(", bloqueada"))
+        self.assertTrue(filas[0].texto.endswith(", posición bloqueada"))
         self.assertTrue(filas[0].bloqueada)
 
     def test_cada_linea_de_la_descripcion_es_la_fila_sin_bloqueo(self):
@@ -398,7 +398,7 @@ class ZonaCercanaTest(unittest.TestCase):
             1360, 768, {})
         self.assertIn(
             "1: Panel, arriba a la izquierda, "
-            "un tercio del vídeo, se ve.", frase)
+            "un tercio del vídeo, visible.", frase)
 
     def test_la_esquina_no_decide_la_zona_sino_el_centro(self):
         # La esquina (200, 350) cae a la izquierda, el centro (300, 400)

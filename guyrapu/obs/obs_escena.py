@@ -154,11 +154,11 @@ class FilaFuente:
 def _texto_sin_imagen(nombre, tipo, visible, al_aire) -> tuple:
     """La fuente no muestra imagen: no se le inventa posición ni tamaño."""
     if not visible:
-        estado = _("oculta en OBS")
+        estado = _("oculta")
     elif not al_aire and tipo in {_(texto) for texto in _TIPOS_SIN_DIBUJO}:
-        estado = _("se mide al ponerla al aire")
+        estado = _("sin medida hasta la escena actual")
     else:
-        estado = _("no muestra imagen")
+        estado = _("sin imagen")
     partes = [nombre]
     if tipo and str(tipo).casefold() != nombre.casefold():
         partes.append(str(tipo))
@@ -169,14 +169,13 @@ def _texto_sin_imagen(nombre, tipo, visible, al_aire) -> tuple:
 def _problema_de(elemento, rect, delanteros, lienzo_ancho, lienzo_alto) -> str:
     """Lo que falla en la fuente: oculta, tapada o fuera del vídeo."""
     if not _visible(elemento):
-        problema = _("oculta en OBS")
+        problema = _("oculta")
     else:
         tapa, porcentaje = _quien_mas_tapa(rect, delanteros) if rect is not None else (None, 0.0)
         if tapa is not None and porcentaje >= _UMBRAL_TAPA_ENTERA:
-            problema = _("no aparece en el vídeo, la tapa entera {tapa}").format(
-                tapa=tapa)
+            problema = _("tapada entera por {tapa}").format(tapa=tapa)
         elif tapa is not None and porcentaje >= _UMBRAL_AVISO:
-            problema = _("se ve en parte: {nombre} tapa el {porcentaje} por ciento").format(
+            problema = _("tapada en parte por {nombre}, {porcentaje} por ciento").format(
                 nombre=tapa, porcentaje=int(round(porcentaje)))
         else:
             problema = ""
@@ -185,11 +184,11 @@ def _problema_de(elemento, rect, delanteros, lienzo_ancho, lienzo_alto) -> str:
         if fuera >= _UMBRAL_AVISO:
             if problema:
                 # Traductores: {p} es un porcentaje.
-                problema += _(" y un {p} por ciento queda fuera del vídeo").format(
+                problema += _(" y fuera del vídeo: {p} por ciento").format(
                     p=int(round(fuera)))
             else:
                 # Traductores: {p} es un porcentaje.
-                problema = _("un {p} por ciento queda fuera del vídeo").format(
+                problema = _("fuera del vídeo: {p} por ciento").format(
                     p=int(round(fuera)))
     return problema
 
@@ -199,11 +198,11 @@ def _texto_fuente(elemento, rect, delanteros, lienzo_ancho,
     nombre = str(elemento.get("sourceName") or _("sin nombre"))
     tipo = (tipos or {}).get(nombre, "")
     if rect is None or not lienzo_ancho or not lienzo_alto:
-        posicion, tamano = _("posición desconocida"), ""
+        posicion, tamano = _("sin posición"), ""
     elif rect[2] * rect[3] / (lienzo_ancho * lienzo_alto) * 100 >= _UMBRAL_TODO:
-        posicion, tamano = _("ocupa todo el vídeo"), ""
+        posicion, tamano = _("en todo el vídeo"), ""
     else:
-        posicion = _texto_anclaje(rect, lienzo_ancho, lienzo_alto) or _("en una posición libre")
+        posicion = _texto_anclaje(rect, lienzo_ancho, lienzo_alto) or _("posición libre")
         tamano = transformar_fuente.texto_de_tamano(rect[2], lienzo_ancho)
     problema = _problema_de(elemento, rect, delanteros, lienzo_ancho, lienzo_alto)
     partes = [nombre]
@@ -215,7 +214,7 @@ def _texto_fuente(elemento, rect, delanteros, lienzo_ancho,
     if tamano:
         partes.append(tamano)
     if not problema:
-        partes.append(_("se ve"))
+        partes.append(_("visible"))
     return ", ".join(partes), posicion, tamano
 
 
@@ -251,13 +250,13 @@ def filas_de_escena(elementos, lienzo_ancho, lienzo_alto, tipos,
     """Una fila por fuente, de adelante hacia atrás, con todo lo que se dice.
 
     El texto es el de la descripción sin número ni punto; si la fuente está
-    bloqueada, se agrega «bloqueada» al final. Fuera del aire, una captura
-    que OBS no dibuja se mide al poner la escena al aire.
+    bloqueada, se agrega «posición bloqueada» al final. Fuera del aire, una
+    captura que OBS no dibuja queda sin medida hasta la escena actual.
     """
     return tuple(
         FilaFuente(
             nombre=nombre,
-            texto=texto + (f", {_('bloqueada')}" if bloqueada else ""),
+            texto=texto + (f", {_('posición bloqueada')}" if bloqueada else ""),
             visible=visible, bloqueada=bloqueada, tipo=tipo,
             posicion=posicion, tamano=tamano)
         for nombre, texto, visible, bloqueada, tipo, posicion, tamano
@@ -276,19 +275,19 @@ def describir_escena(escena, elementos, lienzo_ancho, lienzo_alto, tipos,
     filas = _filas_base(elementos, lienzo_ancho, lienzo_alto, tipos)
     if not filas:
         if actual:
-            return _("Escena actual: {escena}. No tiene fuentes.").format(
+            return _("Escena actual: {escena}. Sin fuentes.").format(
                 escena=escena)
-        return _("Escena: {escena}. No tiene fuentes.").format(escena=escena)
+        return _("Escena: {escena}. Sin fuentes.").format(escena=escena)
     # Traductores: {n} es la cantidad de fuentes de la escena.
     palabra = ngettext("1 fuente", "{n} fuentes", len(filas)).format(
         n=len(filas))
     if actual:
         primera = _("Escena actual: {escena}. {palabra}, "
-                    "de adelante hacia atrás.").format(
+                    "del frente al fondo.").format(
                         escena=escena, palabra=palabra)
     else:
         primera = _("Escena: {escena}. {palabra}, "
-                    "de adelante hacia atrás.").format(
+                    "del frente al fondo.").format(
                         escena=escena, palabra=palabra)
     lineas = [primera]
     for numero, fila in enumerate(filas, 1):

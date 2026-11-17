@@ -5085,73 +5085,9 @@ msgstr "window capture"
 msgid "captura de juego"
 msgstr "game capture"
 
-#: guyrapu/obs/obs_escena.py
-msgid "oculta en OBS"
-msgstr "hidden in OBS"
-
-#: guyrapu/obs/obs_escena.py
-msgid "se mide al ponerla al aire"
-msgstr "measured once it is on air"
-
-#: guyrapu/obs/obs_escena.py
-msgid "no muestra imagen"
-msgstr "shows no image"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "no aparece en el vídeo, la tapa entera {tapa}"
-msgstr "it does not appear in the video, {tapa} covers it entirely"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "se ve en parte: {nombre} tapa el {porcentaje} por ciento"
-msgstr "partly visible: {nombre} covers {porcentaje} percent"
-
-#. Traductores: {p} es un porcentaje.
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid " y un {p} por ciento queda fuera del vídeo"
-msgstr " and {p} percent is off the video"
-
-#. Traductores: {p} es un porcentaje.
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "un {p} por ciento queda fuera del vídeo"
-msgstr "{p} percent is off the video"
-
 #: guyrapu/obs/obs_escena.py guyrapu/obs/revision_escena.py
 msgid "sin nombre"
 msgstr "unnamed"
-
-#: guyrapu/obs/obs_escena.py
-msgid "posición desconocida"
-msgstr "unknown position"
-
-#: guyrapu/obs/obs_escena.py
-msgid "ocupa todo el vídeo"
-msgstr "fills the whole video"
-
-#: guyrapu/obs/obs_escena.py
-msgid "en una posición libre"
-msgstr "in a free position"
-
-#: guyrapu/obs/obs_escena.py
-msgid "se ve"
-msgstr "visible"
-
-#: guyrapu/obs/obs_escena.py
-msgid "bloqueada"
-msgstr "locked"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena actual: {escena}. No tiene fuentes."
-msgstr "Current scene: {escena}. It has no sources."
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena: {escena}. No tiene fuentes."
-msgstr "Scene: {escena}. It has no sources."
 
 #. Traductores: {n} es la cantidad de fuentes de la escena.
 #: guyrapu/obs/obs_escena.py
@@ -5160,16 +5096,6 @@ msgid "1 fuente"
 msgid_plural "{n} fuentes"
 msgstr[0] "1 source"
 msgstr[1] "{n} sources"
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena actual: {escena}. {palabra}, de adelante hacia atrás."
-msgstr "Current scene: {escena}. {palabra}, from front to back."
-
-#: guyrapu/obs/obs_escena.py
-#, python-brace-format
-msgid "Escena: {escena}. {palabra}, de adelante hacia atrás."
-msgstr "Scene: {escena}. {palabra}, from front to back."
 
 #: guyrapu/obs/obs_estado.py
 msgid "No se pudo obtener la escena actual"
@@ -11585,12 +11511,6 @@ msgstr "Capture"
 msgid "Ca&ncelar"
 msgstr "Ca&ncel"
 
-#. Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia
-#. sin abrir nada.
-#: guyrapu/ui/ia_consulta_rapida.py
-msgid "Ya hay una consulta rápida en curso."
-msgstr "A quick question is already in progress."
-
 #. Traductores: aviso antes de enviar la captura a la IA; {proveedor} es el
 #. nombre del proveedor.
 #: guyrapu/ui/ia_privacidad.py
@@ -15275,4 +15195,84 @@ msgstr "Broadcast active for {duracion}"
 #, python-brace-format
 msgid "Transmisión a {destino} activa desde hace {duracion}"
 msgstr "Broadcast to {destino} active for {duracion}"
+
+#: guyrapu/obs/obs_escena.py
+msgid "oculta"
+msgstr "hidden"
+
+#: guyrapu/obs/obs_escena.py
+msgid "sin medida hasta la escena actual"
+msgstr "not measured until it is the current scene"
+
+#: guyrapu/obs/obs_escena.py
+msgid "sin imagen"
+msgstr "no image"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "tapada entera por {tapa}"
+msgstr "fully covered by {tapa}"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "tapada en parte por {nombre}, {porcentaje} por ciento"
+msgstr "partly covered by {nombre}, {porcentaje} percent"
+
+#. Traductores: {p} es un porcentaje.
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid " y fuera del vídeo: {p} por ciento"
+msgstr " and off the video: {p} percent"
+
+#. Traductores: {p} es un porcentaje.
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "fuera del vídeo: {p} por ciento"
+msgstr "off the video: {p} percent"
+
+#: guyrapu/obs/obs_escena.py
+msgid "sin posición"
+msgstr "no position"
+
+#: guyrapu/obs/obs_escena.py
+msgid "en todo el vídeo"
+msgstr "over the whole video"
+
+#: guyrapu/obs/obs_escena.py
+msgid "posición libre"
+msgstr "free position"
+
+#: guyrapu/obs/obs_escena.py
+msgid "visible"
+msgstr "visible"
+
+#: guyrapu/obs/obs_escena.py
+msgid "posición bloqueada"
+msgstr "position locked"
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena actual: {escena}. Sin fuentes."
+msgstr "Current scene: {escena}. No sources."
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena: {escena}. Sin fuentes."
+msgstr "Scene: {escena}. No sources."
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena actual: {escena}. {palabra}, del frente al fondo."
+msgstr "Current scene: {escena}. {palabra}, from front to back."
+
+#: guyrapu/obs/obs_escena.py
+#, python-brace-format
+msgid "Escena: {escena}. {palabra}, del frente al fondo."
+msgstr "Scene: {escena}. {palabra}, from front to back."
+
+#. Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia
+#. sin abrir nada.
+#: guyrapu/ui/ia_consulta_rapida.py
+msgid "Consulta rápida en curso."
+msgstr "Quick question in progress."
 

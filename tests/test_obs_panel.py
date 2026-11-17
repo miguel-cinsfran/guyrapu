@@ -297,8 +297,8 @@ class GestorPanelObsTest(unittest.TestCase):
                          ["Juego", obs_panel.NOMBRE_FUENTE])
         self.assertEqual(
             filas[0].texto,
-            "Juego, captura de juego, ocupa todo el vídeo, se ve")
-        self.assertTrue(filas[1].texto.endswith(", bloqueada"))
+            "Juego, captura de juego, en todo el vídeo, visible")
+        self.assertTrue(filas[1].texto.endswith(", posición bloqueada"))
         self.assertTrue(filas[1].bloqueada)
 
     def test_filas_escena_fuera_del_aire_mide_la_captura_al_pasar_al_aire(self):
@@ -311,7 +311,7 @@ class GestorPanelObsTest(unittest.TestCase):
         filas = self.gestor(doble).filas_escena("Otra")
         self.assertEqual(
             filas[0].texto,
-            "Pantalla, captura de pantalla, se mide al ponerla al aire")
+            "Pantalla, captura de pantalla, sin medida hasta la escena actual")
 
     def test_filas_escena_al_aire_mantiene_no_muestra_imagen(self):
         doble = DobleObs(
@@ -323,7 +323,7 @@ class GestorPanelObsTest(unittest.TestCase):
         filas = self.gestor(doble).filas_escena("Escena")
         self.assertEqual(
             filas[0].texto,
-            "Pantalla, captura de pantalla, no muestra imagen")
+            "Pantalla, captura de pantalla, sin imagen")
 
     def test_descripcion_escena_pide_escena_elementos_lienzo_y_entradas(self):
         doble = DobleObs(
@@ -340,11 +340,10 @@ class GestorPanelObsTest(unittest.TestCase):
             self.assertIn(pedido, tipos)
         self.assertEqual(
             frase,
-            "Escena actual: Escena. 2 fuentes, de adelante hacia atrás.\n"
-            "1: Juego, captura de juego, ocupa todo el vídeo, se ve.\n"
-            "2: Chat en el vídeo, navegador, no aparece en el vídeo, "
-            "la tapa entera Juego, abajo a la izquierda, "
-            "29 por ciento del ancho.")
+            "Escena actual: Escena. 2 fuentes, del frente al fondo.\n"
+            "1: Juego, captura de juego, en todo el vídeo, visible.\n"
+            "2: Chat en el vídeo, navegador, tapada entera por Juego, "
+            "abajo a la izquierda, 29 por ciento del ancho.")
 
     def test_descripcion_de_una_escena_pedida_usa_su_nombre(self):
         doble = DobleObs(
@@ -363,7 +362,7 @@ class GestorPanelObsTest(unittest.TestCase):
                       alineacion=0)],
             entradas=[{"inputName": "Rara", "inputKind": "clase_nueva"}])
         frase = self.gestor(doble).descripcion_escena()
-        self.assertIn("1: Rara, ocupa todo el vídeo, se ve.", frase)
+        self.assertIn("1: Rara, en todo el vídeo, visible.", frase)
         self.assertNotIn("clase_nueva", frase)
 
     def test_fuentes_devuelve_vacio_sin_fuentes_o_escena(self):

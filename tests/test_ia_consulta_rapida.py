@@ -228,16 +228,31 @@ class TestConsultaRapida(unittest.TestCase):
         confirmar.assert_not_called()
         envio.assert_not_called()
 
-    def test_sin_confirmar_no_envia_ni_suena(self):
+    def test_sin_confirmar_avisa_la_cancelacion(self):
         with mock.patch.object(rapida.ia_privacidad, "confirmar",
                                return_value=False), \
                 mock.patch.object(rapida.envio_ia, "enviar") as envio:
             rapida.consultar(self.marco)
         envio.assert_not_called()
-        self.m_sonar.assert_not_called()
-        self.m_anunciar.assert_not_called()
+        self.assertEqual(self.m_anunciar.mock_calls,
+                         [mock.call("Consulta cancelada.")])
+        self.assertEqual(self.m_sonar.mock_calls, [mock.call("ia_error")])
         self.assertFalse(self._instancia()._en_curso)
         self.assertIsNone(rapida.tomar_conversacion(self.marco))
+
+    def test_respuesta_sin_ventana_registra_y_no_anuncia(self):
+        rapida.consultar(self.marco)
+        instancia = self._instancia()
+        self.m_anunciar.reset_mock()
+        self.m_sonar.reset_mock()
+        self.marco.IsBeingDeleted.return_value = True
+        with mock.patch.object(rapida.logger, "warning") as registro:
+            instancia._vuelta_envio(
+                None, self.preparada, "clave", "Escena con una cámara.",
+                protocolos.Respuesta("Se ve bien.", False))
+        registro.assert_called_once()
+        self.m_anunciar.assert_not_called()
+        self.m_sonar.assert_not_called()
 
     def test_fallo_de_envio_avisa_y_frena_los_dos(self):
         fallo = protocolos.ErrorIA(protocolos.CUOTA, "sin saldo")
