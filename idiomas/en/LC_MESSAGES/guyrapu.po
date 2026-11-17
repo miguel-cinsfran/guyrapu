@@ -15020,3 +15020,260 @@ msgstr[1] "{n} styles imported."
 msgid "Es&tilos del vídeo…"
 msgstr "V&ideo styles…"
 
+#. Traductores: validación de comandos del chat (error). «comandos» es la
+#. palabra que usa la app.
+#: guyrapu/interaction/comandos.py
+msgid "«comandos» es de la app y no se puede usar como palabra ni alias."
+msgstr "«commands» belongs to the app and cannot be used as a word or alias."
+
+#. Traductores: validación de comandos del chat (error). {variable} es la
+#. variable desconocida y las demás son las que se pueden usar.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid ""
+"La variable {variable} no existe. Puedes usar {usuario}, {contador} y "
+"{texto}."
+msgstr ""
+"The variable {variable} does not exist. You can use {usuario}, {contador} "
+"and {texto}."
+
+#. Traductores: validación de comandos del chat (error). {actual} es el largo y
+#. {maximo} el tope del chat.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "La respuesta tiene {actual} caracteres y el máximo para el chat es {maximo}."
+msgstr "The response has {actual} characters and the maximum for chat is {maximo}."
+
+#. Traductores: validación de comandos del chat (error).
+#: guyrapu/interaction/comandos.py
+msgid "La lista de nombres no puede estar vacía."
+msgstr "The list of names cannot be empty."
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "en el vídeo"
+msgstr "on the video"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "en el chat"
+msgstr "in the chat"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "en el vídeo y en el chat"
+msgstr "on the video and in the chat"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "solo moderadores"
+msgstr "moderators only"
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "una lista de nombres: {nombres}"
+msgstr "a list of names: {nombres}"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "una lista de nombres"
+msgstr "a list of names"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "todos"
+msgstr "everyone"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "pausado"
+msgstr "paused"
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Comando {palabra}, con los alias {alias}."
+msgstr "Command {palabra}, with aliases {alias}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Comando {palabra}."
+msgstr "Command {palabra}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Responde: {respuesta}."
+msgstr "It replies: {respuesta}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Sale {destino}, con el estilo {estilo} y {segundos} segundos en pantalla."
+msgstr ""
+"It appears {destino}, with the {estilo} style and {segundos} seconds on "
+"screen."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Sale {destino}."
+msgstr "It appears {destino}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Puede usarlo: {quien}."
+msgstr "Who can use it: {quien}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Espera {general} segundos entre usos y {persona} segundos por persona."
+msgstr "It waits {general} seconds between uses and {persona} seconds per person."
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "Pausado."
+msgstr "Paused."
+
+#: guyrapu/ui/comando_comandos_chat.py
+msgid "&Comandos del chat…"
+msgstr "&Chat commands…"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Agregar comando"
+msgstr "Add command"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Editar comando"
+msgstr "Edit command"
+
+#: guyrapu/ui/comando_cuadro.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador} y {texto}."
+msgstr "You can use {usuario}, {contador} and {texto}."
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "En el vídeo"
+msgstr "On the video"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "En el chat"
+msgstr "In the chat"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "En el vídeo y en el chat"
+msgstr "On the video and in the chat"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Solo moderadores"
+msgstr "Moderators only"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Una lista de nombres"
+msgstr "A list of names"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Palabra:"
+msgstr "&Word:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "A&lias:"
+msgstr "A&lias:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Respuesta:"
+msgstr "&Response:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Dónde &sale:"
+msgstr "Where it &shows:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Quién puede usarlo:"
+msgstr "W&ho can use it:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Nombres:"
+msgstr "&Names:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Espera entre &usos (segundos):"
+msgstr "Wait between &uses (seconds):"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Espera por pers&ona (segundos):"
+msgstr "Wait per pers&on (seconds):"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Se&gundos en pantalla:"
+msgstr "S&econds on screen:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Acti&vado"
+msgstr "Acti&vated"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Cambiar palabra"
+msgstr "Change word"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "No hay comandos. Usa Agregar para crear uno."
+msgstr "There are no commands. Use Add to create one."
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Cambiar p&alabra"
+msgstr "Change &word"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Lista de c&omandos:"
+msgstr "&Saved commands:"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comandos del chat guardados"
+msgstr "Saved chat commands"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando agregado"
+msgstr "Command added"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando guardado"
+msgstr "Command saved"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Palabra cambiada"
+msgstr "Word changed"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando duplicado"
+msgstr "Command duplicated"
+
+#: guyrapu/ui/comandos_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar el comando «{nombre}»?"
+msgstr "Delete the command «{nombre}»?"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Eliminar comando"
+msgstr "Delete command"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comando eliminado"
+msgstr "Command deleted"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "No hay comandos para exportar."
+msgstr "There are no commands to export."
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Exportar comandos"
+msgstr "Export commands"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Importar comandos"
+msgstr "Import commands"
+
+#: guyrapu/ui/comandos_ventana.py
+#, python-brace-format
+msgid "Se importó un comando."
+msgid_plural "Se importaron {n} comandos."
+msgstr[0] "One command imported."
+msgstr[1] "{n} commands imported."
+
+#: guyrapu/ui/comandos_ventana.py
+#, python-brace-format
+msgid "Ya hay comandos llamados {nombres}. ¿Quieres reemplazarlos?"
+msgstr "Commands named {nombres} already exist. Replace them?"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "Comandos del chat"
+msgstr "Chat commands"
+

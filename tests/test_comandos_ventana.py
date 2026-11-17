@@ -1,0 +1,397 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
+"""Ventana de comandos del chat: lista, acciones, cuadro y cableado.
+
+Abre ventanas.
+"""
+
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+import wx
+
+from guyrapu.core import paths
+from guyrapu.interaction import comandos_guardados, paquetes
+from guyrapu.ui import comando_comandos_chat, comando_cuadro
+from guyrapu.ui import comandos_ventana, menu_interaccion
+from tests.letras_acceso import letras_repetidas
+from tests.rutas_temporales import redirigir_rutas
+from tests.ventanas_prueba import app_de_prueba, destruir
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "qa"))
+from qa import escenarios_comandos  # noqa: E402
+
+
+def _datos(nombre="discord", **cambios):
+    datos = {
+        "nombre": nombre, "alias": ["dc"], "respuesta": "Hola",
+        "destino": "video", "permiso": "todos", "nombres": [],
+        "espera_general": 5.0, "espera_persona": 30.0, "activo": True,
+        "estilo": "clasico", "segundos": 8,
+    }
+    datos.update(cambios)
+    return datos
+
+
+class FrameDoble:
+    def __init__(self):
+        self._config = {}
+        self.mi_programados_activo = mock.Mock()
+        self._bind_menu = mock.Mock()
+
+    def _accel(self, _accion):
+        return ""
+
+
+class BaseVentana(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        parche = redirigir_rutas(self.tmp.name)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+
+    def _ventana(self, lista=None):
+        if lista is not None:
+            comandos_guardados.guardar(paths.comandos(), lista)
+        ventana = comandos_ventana.VentanaComandos(None)
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _panel(self, lista=None):
+        return self._ventana(lista).panel
+
+    def _nombres_en_disco(self):
+        return [c["nombre"] for c in comandos_guardados.cargar(paths.comandos())]
+
+    def _cuadro(self, datos=None, otros=()):
+        cuadro = comando_cuadro.DialogoComando(None, datos or {}, otros)
+        self.addCleanup(destruir, cuadro)
+        return cuadro
+
+    def _paquete(self, elementos):
+        ruta = Path(self.tmp.name) / "paquete.zip"
+        paquetes.exportar(ruta, "comandos", elementos)
+        return ruta
+
+
+class TestContratos(BaseVentana):
+
+    def test_la_ventana_lee_los_comandos_al_abrir(self):
+        ventana = self._ventana([_datos("discord"), _datos(
+            "hola", alias=[], destino="chat", permiso="lista",
+            nombres=["Ana"])])
+        self.assertEqual(ventana.GetTitle(), "Comandos del chat")
+        self.assertEqual(ventana.panel.lista.GetCount(), 2)
+        self.assertEqual(ventana.panel.lista.GetString(0),
+                         "!discord, en el vídeo, todos")
+        self.assertEqual(
+            ventana.panel.lista.GetString(1),
+            "!hola, en el chat, una lista de nombres: Ana")
+
+    def test_la_lista_vacia_y_el_archivo_danado_dicen_que_hacer(self):
+        panel = self._panel([])
+        self.assertEqual(panel.lista.GetString(0),
+                         "No hay comandos. Usa Agregar para crear uno.")
+        paths.comandos().write_text("{roto", encoding="utf-8")
+        panel = self._panel()
+        self.assertEqual(panel.lista.GetString(0),
+                         "No hay comandos. Usa Agregar para crear uno.")
+
+    def test_la_lista_tiene_nombre_accesible_y_foco_al_abrir(self):
+        ventana = self._ventana([])
+        self.assertEqual(ventana.panel.lista.GetName(),
+                         "Comandos del chat guardados")
+        ventana.Show()
+        try:
+            self.assertIs(wx.Window.FindFocus(), ventana.panel.lista)
+        finally:
+            ventana.Hide()
+
+    def test_las_letras_no_se_repiten_y_los_botones_estan_encendidos(self):
+        ventana = self._ventana([])
+        self.assertEqual(letras_repetidas(ventana), {})
+        botones = [hijo for hijo in ventana.panel.GetChildren()
+                   if isinstance(hijo, wx.Button)]
+        self.assertTrue(botones)
+        self.assertTrue(all(boton.IsEnabled() for boton in botones))
+
+    def test_el_boton_cerrar_va_ultimo_y_cierra(self):
+        ventana = self._ventana([])
+        botones = [hijo for hijo in ventana.GetChildren()
+                   if isinstance(hijo, wx.Button)]
+        self.assertIs(botones[-1], ventana.btn_cerrar)
+        self.assertEqual(ventana.btn_cerrar.GetLabel(), "&Cerrar")
+        evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                 ventana.btn_cerrar.GetId())
+        with mock.patch.object(ventana, "EndModal") as cerrar:
+            ventana.btn_cerrar.GetEventHandler().ProcessEvent(evento)
+        cerrar.assert_called_once_with(wx.ID_CANCEL)
+
+    def test_sin_comandos_las_acciones_dicen_por_que(self):
+        panel = self._panel([])
+        with mock.patch("guyrapu.ui.lista_acciones.anunciar") as decir:
+            panel._lista.ejecutar("editar")
+        decir.assert_called_once_with(
+            "No hay comandos. Usa Agregar para crear uno.")
+
+    def test_escape_cierra_la_ventana_y_el_cuadro(self):
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+        ventana = self._ventana([])
+        with mock.patch.object(ventana, "EndModal") as cerrar:
+            ventana._al_tecla(evento)
+        cerrar.assert_called_once_with(wx.ID_CANCEL)
+        cuadro = self._cuadro()
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._al_tecla(evento)
+        cerrar.assert_called_once_with(wx.ID_CANCEL)
+
+
+class TestCuadro(BaseVentana):
+
+    def test_tiene_todos_los_campos(self):
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_destino.GetStrings(),
+                         ["En el vídeo", "En el chat",
+                          "En el vídeo y en el chat"])
+        self.assertEqual(cuadro.cho_permiso.GetStrings(),
+                         ["Todos", "Solo moderadores",
+                          "Una lista de nombres"])
+        self.assertEqual((cuadro.sp_segundos.GetMin(),
+                          cuadro.sp_segundos.GetMax()), (3, 60))
+        self.assertEqual((cuadro.sp_espera.GetMin(),
+                          cuadro.sp_espera.GetMax()), (0, 3600))
+        self.assertEqual((cuadro.sp_persona.GetMin(),
+                          cuadro.sp_persona.GetMax()), (0, 3600))
+        self.assertTrue(cuadro.chk_activo.GetValue())
+        self.assertEqual(cuadro.cho_estilo.GetCount(), 4)
+        self.assertEqual(cuadro.ayuda.GetLabel(),
+                         "Puedes usar {usuario}, {contador} y {texto}.")
+
+    def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
+        self.assertEqual(letras_repetidas(self._cuadro()), {})
+
+    def test_el_foco_nace_en_palabra(self):
+        cuadro = self._cuadro()
+        cuadro.Show()
+        try:
+            self.assertIs(wx.Window.FindFocus(), cuadro.txt_palabra)
+        finally:
+            cuadro.Hide()
+
+    def test_guarda_cada_campo(self):
+        cuadro = self._cuadro()
+        cuadro.txt_palabra.SetValue("!sorteo")
+        cuadro.txt_alias.SetValue("sorteo, sort")
+        cuadro.txt_respuesta.SetValue("Hola {usuario}")
+        cuadro.cho_destino.SetSelection(2)
+        cuadro.cho_permiso.SetSelection(2)
+        cuadro.txt_nombres.SetValue("Ana María, Beto")
+        cuadro.sp_espera.SetValue(10)
+        cuadro.sp_persona.SetValue(40)
+        cuadro._elegir_estilo("banda")
+        cuadro.sp_segundos.SetValue(15)
+        cuadro.chk_activo.SetValue(False)
+        self.assertEqual(cuadro.datos(), {
+            "nombre": "sorteo", "alias": ["sorteo", "sort"],
+            "respuesta": "Hola {usuario}", "destino": "ambos",
+            "permiso": "lista", "nombres": ["Ana María", "Beto"],
+            "espera_general": 10.0, "espera_persona": 40.0,
+            "activo": False, "estilo": "banda", "segundos": 15})
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_called_once_with(wx.ID_OK)
+
+    def _aceptar_con_error(self, cuadro):
+        with mock.patch.object(comando_cuadro, "anunciar") as decir, \
+                mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_not_called()
+        return decir
+
+    def test_la_palabra_de_la_app_manda_el_foco_a_la_palabra(self):
+        cuadro = self._cuadro()
+        cuadro.txt_palabra.SetValue("comandos")
+        cuadro.txt_respuesta.SetValue("Hola")
+        with mock.patch.object(cuadro.txt_palabra, "SetFocus") as foco:
+            decir = self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+        self.assertIn("comandos", decir.call_args.args[0])
+
+    def test_una_variable_desconocida_manda_el_foco_a_la_respuesta(self):
+        cuadro = self._cuadro()
+        cuadro.txt_palabra.SetValue("hola")
+        cuadro.txt_respuesta.SetValue("Hola {quien}")
+        with mock.patch.object(cuadro.txt_respuesta, "SetFocus") as foco:
+            decir = self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+        self.assertIn("{usuario}", decir.call_args.args[0])
+
+    def test_el_chat_largo_manda_el_foco_a_la_respuesta(self):
+        cuadro = self._cuadro()
+        cuadro.txt_palabra.SetValue("hola")
+        cuadro.txt_respuesta.SetValue("a" * 201)
+        cuadro.cho_destino.SetSelection(1)
+        with mock.patch.object(cuadro.txt_respuesta, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+    def test_la_lista_vacia_manda_el_foco_a_los_nombres(self):
+        cuadro = self._cuadro()
+        cuadro.txt_palabra.SetValue("hola")
+        cuadro.txt_respuesta.SetValue("Hola")
+        cuadro.cho_permiso.SetSelection(2)
+        with mock.patch.object(cuadro.txt_nombres, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+class TestAcciones(BaseVentana):
+
+    def test_tiene_las_acciones_con_sus_teclas(self):
+        panel = self._panel([])
+        self.assertEqual([(a.clave, a.tecla) for a in panel._acciones], [
+            ("agregar", None), ("editar", "intro"), ("renombrar", "f2"),
+            ("duplicar", "ctrl+d"), ("pausar", None), ("escuchar", None),
+            ("eliminar", "suprimir"), ("exportar", None), ("importar", None)])
+        sin_elemento = {a.clave for a in panel._acciones
+                        if not a.necesita_elemento}
+        self.assertEqual(sin_elemento, {"agregar", "exportar", "importar"})
+
+    def test_cada_tecla_llega_a_su_accion(self):
+        from guyrapu.ui import lista_acciones
+        acciones = self._panel([])._acciones
+        for codigo, modificadores, esperada in (
+                (wx.WXK_RETURN, wx.MOD_NONE, "editar"),
+                (wx.WXK_F2, wx.MOD_NONE, "renombrar"),
+                (ord("D"), wx.MOD_CONTROL, "duplicar"),
+                (wx.WXK_DELETE, wx.MOD_NONE, "eliminar")):
+            with self.subTest(esperada=esperada):
+                self.assertEqual(
+                    lista_acciones.clave_de_tecla(
+                        codigo, modificadores, acciones), esperada)
+
+    def test_duplicar_deja_la_copia_debajo(self):
+        panel = self._panel([_datos("A"), _datos("B")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._duplicar()
+        self.assertEqual(self._nombres_en_disco(), ["A", "A (copia)", "B"])
+        self.assertEqual(panel.lista.GetSelection(), 1)
+        decir.assert_called_once_with("Comando duplicado")
+
+    def test_pausar_cambia_el_estado_y_la_fila(self):
+        panel = self._panel([_datos("A")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._pausar()
+        self.assertFalse(comandos_guardados.cargar(paths.comandos())[0]["activo"])
+        self.assertEqual(panel.lista.GetString(0),
+                         "!A, en el vídeo, todos, pausado")
+        decir.assert_called_once_with("Pausado")
+
+    def test_renombrar_repite_la_validacion(self):
+        panel = self._panel([_datos("A")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(comando_cuadro, "pedir_palabra",
+                               side_effect=["comandos", "nuevo"]), \
+                mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._renombrar()
+        self.assertEqual(self._nombres_en_disco(), ["nuevo"])
+        self.assertIn("comandos", decir.call_args_list[0].args[0])
+
+    def test_escuchar_cuenta_el_comando(self):
+        panel = self._panel([_datos("A", alias=[], respuesta="Hola")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(
+                comandos_ventana.estilos_aviso, "buscar",
+                return_value={"nombre": "Clásico"}), \
+                mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._escuchar()
+        self.assertIn("Comando !A.", decir.call_args.args[0])
+        self.assertIn("estilo Clásico", decir.call_args.args[0])
+
+    def test_eliminar_pide_confirmacion_con_no_predeterminado(self):
+        panel = self._panel([_datos("A"), _datos("B")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(comandos_ventana.confirmar, "preguntar",
+                               return_value=True) as preguntar, \
+                mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._eliminar()
+        self.assertFalse(preguntar.call_args.kwargs["predeterminado_si"])
+        self.assertEqual(self._nombres_en_disco(), ["B"])
+        decir.assert_called_once_with("Comando eliminado")
+
+    def test_exportar_con_la_lista_vacia_no_abre_nada(self):
+        panel = self._panel([])
+        with mock.patch.object(panel, "_pedir_ruta") as pedir, \
+                mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._exportar()
+        pedir.assert_not_called()
+        decir.assert_called_once_with("No hay comandos para exportar.")
+
+    def test_exportar_e_importar_pausan_lo_importado(self):
+        panel = self._panel([_datos("A")])
+        ruta = Path(self.tmp.name) / "salida.zip"
+        with mock.patch.object(panel, "_pedir_ruta", return_value=ruta):
+            panel._exportar()
+        panel = self._panel([_datos("A")])
+        with mock.patch.object(panel, "_pedir_ruta", return_value=ruta), \
+                mock.patch.object(panel, "_preguntar_reemplazo",
+                                  return_value=False), \
+                mock.patch.object(comandos_ventana, "anunciar"):
+            panel._importar()
+        importados = [c for c in comandos_guardados.cargar(paths.comandos())
+                      if c["nombre"] != "A"]
+        self.assertEqual([c["activo"] for c in importados], [False])
+
+
+class TestPanelSuelto(BaseVentana):
+
+    def test_el_panel_funciona_dentro_de_un_frame_cualquiera(self):
+        comandos_guardados.guardar(paths.comandos(), [_datos("A")])
+        marco = wx.Frame(None)
+        self.addCleanup(destruir, marco)
+        panel = comandos_ventana.PanelComandos(marco)
+        self.assertIs(panel.GetParent(), marco)
+        panel.lista.SetSelection(0)
+        with mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._duplicar()
+        self.assertEqual(self._nombres_en_disco(), ["A", "A (copia)"])
+        decir.assert_called_once_with("Comando duplicado")
+
+
+class TestEscenarioDelBanco(BaseVentana):
+
+    def test_el_escenario_conoce_las_acciones_del_panel(self):
+        panel = self._panel([])
+        etiquetas = {accion.etiqueta.replace("&", "")
+                     for accion in panel._acciones}
+        self.assertEqual(set(escenarios_comandos.ACCIONES), etiquetas)
+
+
+class TestCableado(BaseVentana):
+
+    def test_el_menu_enlaza_y_abre_la_ventana(self):
+        frame = FrameDoble()
+        with mock.patch.object(menu_interaccion.wx, "Menu",
+                               return_value=mock.Mock()):
+            menu_interaccion.construir(frame, mock.Mock())
+        llamadas = [(llamada.args[1], llamada.args[2])
+                    for llamada in frame._bind_menu.call_args_list]
+        self.assertEqual(llamadas, [
+            (mock.ANY, frame), (comando_comandos_chat.abrir, frame),
+            (mock.ANY, frame), (mock.ANY, frame)])
+        with mock.patch.object(comandos_ventana, "VentanaComandos") as clase:
+            comando_comandos_chat.abrir(FrameDoble())
+        clase.assert_called_once()
+        clase.return_value.ShowModal.assert_called_once()
+        clase.return_value.Destroy.assert_called_once()
+
+
+if __name__ == "__main__":
+    unittest.main()

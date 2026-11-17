@@ -179,6 +179,32 @@ class TestEsperas(unittest.TestCase):
         self.assertTrue(esperas.libre(comando, normal, 0))
 
 
+class TestCampos(unittest.TestCase):
+
+    def test_los_campos_nuevos_tienen_su_valor_de_fabrica(self):
+        comando = comandos.Comando("hola", (), "Hola")
+        self.assertEqual(comando.estilo, "clasico")
+        self.assertEqual(comando.segundos, 8)
+        self.assertEqual(comando.destino, "video")
+        self.assertEqual((comando.espera_general, comando.espera_persona),
+                         (5, 30))
+        self.assertEqual(comando.permiso, "todos")
+
+    def test_los_segundos_quedan_entre_tres_y_sesenta(self):
+        self.assertEqual(comandos.Comando("hola", (), "Hola", segundos=1).segundos,
+                         3)
+        self.assertEqual(comandos.Comando("hola", (), "Hola", segundos=90).segundos,
+                         60)
+
+    def test_los_alias_se_separan_con_espacios_o_comas(self):
+        self.assertEqual(comandos.separar_alias("uno dos,tres, cuatro"),
+                         ("uno", "dos", "tres", "cuatro"))
+
+    def test_los_nombres_conservan_los_espacios_y_separan_por_comas(self):
+        self.assertEqual(comandos.separar_nombres("Ana María, Beto"),
+                         ("Ana María", "Beto"))
+
+
 class TestValidar(unittest.TestCase):
 
     def _comando(self, nombre="hola", alias=(), respuesta="Hola"):
@@ -223,6 +249,52 @@ class TestValidar(unittest.TestCase):
             self._comando(nombre="mi comando"), []))
         self.assertTrue(comandos.validar(
             self._comando(alias=("mi alias",)), []))
+
+    def test_la_palabra_de_la_app_no_sirve_de_nombre_ni_de_alias(self):
+        for comando in (self._comando(nombre="comandos"),
+                        self._comando(nombre="COMANDOS"),
+                        self._comando(alias=("comandos",))):
+            with self.subTest(comando=comando):
+                self.assertIn("comandos", comandos.validar(comando, []))
+
+    def test_una_variable_desconocida_nombra_las_validas(self):
+        error = comandos.validar(
+            self._comando(respuesta="Hola {nombre}"), [])
+        self.assertIn("{nombre}", error)
+        self.assertIn("{usuario}", error)
+        self.assertIn("{contador}", error)
+        self.assertIn("{texto}", error)
+
+    def test_las_tres_variables_conocidas_pasan(self):
+        self.assertEqual("", comandos.validar(
+            self._comando(respuesta="{usuario}, {contador}: {texto}"), []))
+
+    def test_en_el_chat_la_respuesta_no_pasa_de_doscientos(self):
+        self.assertEqual("", comandos.validar(
+            comandos.Comando("hola", (), "a" * 200, destino="chat"), []))
+        error = comandos.validar(
+            comandos.Comando("hola", (), "a" * 201, destino="chat"), [])
+        self.assertIn("201", error)
+        self.assertIn("200", error)
+
+    def test_en_el_video_no_hay_limite_de_doscientos(self):
+        self.assertEqual("", comandos.validar(
+            comandos.Comando("hola", (), "a" * 201, destino="video"), []))
+
+    def test_el_destino_ambos_tambien_cuenta_como_chat(self):
+        self.assertTrue(comandos.validar(
+            comandos.Comando("hola", (), "a" * 201, destino="ambos"), []))
+
+    def test_con_una_lista_de_nombres_la_lista_no_puede_estar_vacia(self):
+        error = comandos.validar(
+            self._comando(), [])
+        self.assertEqual("", error)
+        error = comandos.validar(
+            comandos.Comando("hola", (), "Hola", permiso="lista"), [])
+        self.assertIn("lista", error)
+        self.assertEqual("", comandos.validar(
+            comandos.Comando("hola", (), "Hola", permiso="lista",
+                             nombres=("Ana",)), []))
 
 
 if __name__ == "__main__":

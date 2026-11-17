@@ -17,6 +17,7 @@ ABREN_CUADRO = frozenset((
     "Administrar voces",
     "Buscar actualizaciones",
     "Buscar en el chat",
+    "Comandos del chat",
     "Descargar este vídeo",
     "Elegir música",
     "Estilos del vídeo",

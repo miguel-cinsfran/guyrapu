@@ -1,11 +1,12 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Menú Interacción de la barra principal: los mensajes automáticos."""
+"""Menú Interacción de la barra principal: mensajes y comandos del chat."""
 
 import wx
 
 from guyrapu.core.idioma import _
-from guyrapu.ui import comando_estilos, comando_mensajes_automaticos
+from guyrapu.ui import (
+    comando_comandos_chat, comando_estilos, comando_mensajes_automaticos)
 
 
 def _programados(frame, m):
@@ -29,6 +30,7 @@ def construir(frame, mb):
         _("&Mensajes automáticos…") + frame._accel("mensajes_automaticos"))
     frame._bind_menu(frame.mi_mensajes_automaticos,
                      comando_mensajes_automaticos.abrir, frame)
+    comando_comandos_chat.agregar_al_menu(frame, m)
     _programados(frame, m)
     _estilos(frame, m)
     mb.Append(m, _("&Interacción"))

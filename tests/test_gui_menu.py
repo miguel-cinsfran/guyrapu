@@ -202,6 +202,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&OBS", "C&errar OBS", ANY, "normal"),
             ("&OBS", "&Avisar si OBS se sobrecarga", ANY, "check"),
             ("&Interacción", "&Mensajes automáticos…", ANY, "normal"),
+            ("&Interacción", "&Comandos del chat…", ANY, "normal"),
             ("&Interacción", "Acti&var mensajes automáticos", ANY, "check"),
             ("&Interacción", "Es&tilos del vídeo…", ANY, "normal"),
             ("&Música", "&Elegir música…", ANY, "normal"),

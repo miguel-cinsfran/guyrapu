@@ -16,6 +16,7 @@ from guyrapu.capture import programados
 from guyrapu.ui import atajos_captura
 from guyrapu.core import paths
 from guyrapu.interaction import paquetes
+from guyrapu.ui import comando_comandos_chat
 from guyrapu.ui import comando_mensajes_automaticos
 from guyrapu.ui import comando_estilos
 from guyrapu.ui import gui
@@ -423,6 +424,7 @@ class TestCableado(BaseVentana):
                     for llamada in frame._bind_menu.call_args_list]
         self.assertEqual(llamadas, [
             (comando_mensajes_automaticos.abrir, frame),
+            (comando_comandos_chat.abrir, frame),
             (comando_mensajes_automaticos.alternar, frame),
             (comando_estilos.abrir, frame)])
 

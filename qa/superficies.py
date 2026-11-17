@@ -68,6 +68,7 @@ SUPERFICIES = {
     "menu_interaccion.py": "menus",
     "mensajes_automaticos_ventana.py": "mensajes_automaticos",
     "estilos_ventana.py": "estilos",
+    "comandos_ventana.py": "comandos",
     "menu_reproductor.py": "menus",
     "menu_transmision.py": "menus",
     "menu_moderacion.py": "menu_chat",
@@ -173,6 +174,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "estilo_opciones.py": (
         "arma los desplegables de un estilo; los recorren las pruebas y el "
         "escenario de la ventana que los usa."),
+    "comando_cuadro.py": (
+        "el cuadro lo cubren las pruebas con wx; el banco audita la "
+        "ventana que lo abre."),
     "menu_habilitado.py": "Prende y apaga elementos de menú y no abre ventana propia.",
     "ayuda_manual.py": (
         "Atiende F1 y arma la página de redirección; no abre ventana propia."),

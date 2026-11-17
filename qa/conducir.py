@@ -94,6 +94,7 @@ from escenarios_preferencias import (  # noqa: E402
     escenario_preferencias_persisten)
 from escenarios_mensajes_automaticos import escenario_mensajes_automaticos  # noqa: E402
 from escenarios_estilos import escenario_estilos  # noqa: E402
+from escenarios_comandos import escenario_comandos  # noqa: E402
 # Cada modulo de interfaz con el escenario que lo recorre. Los `gui*.py` NO se
 # listan aca: se descubren del disco en `superficies_sin_escenario`, y esa es
 # toda la gracia. Una lista escrita a mano solo caza lo que alguien se acordo
@@ -221,6 +222,7 @@ ESCENARIOS = {
     "overlay": escenario_overlay,
     "mensajes_automaticos": escenario_mensajes_automaticos,
     "estilos": escenario_estilos,
+    "comandos": escenario_comandos,
     "enviar_live": escenario_enviar_live,
 }
 
@@ -319,8 +321,8 @@ def correr_escenario(nombre: str, app: Aplicacion, args, res: Resultado,
 EN_TODOS = ["arranque_frio", "reproductor",
             "menus", "principal", "descargas", "preferencias",
             "preferencias_categorias", "preferencias_persisten",
-            "mensajes_automaticos", "estilos", "historial", "restream",
-            "transmision", "escena", "grabacion",
+            "mensajes_automaticos", "comandos", "estilos", "historial",
+            "restream", "transmision", "escena", "grabacion",
             # `microfono` va justo después de `transmision`: los dos
             # necesitan OBS y auditan cuadros del menú OBS.
             "microfono",
