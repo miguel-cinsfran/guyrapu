@@ -693,6 +693,25 @@ class _ChatUnLote:
         return None
 
 
+class PruebasTraduccionDelChat(unittest.TestCase):
+    def test_un_mensaje_de_texto_lleva_su_pedido_al_item(self):
+        mensaje = "good morning https://ejemplo.test"
+        config = _config_marcado(
+            traducir_chat=True, traducir_que="solo_voz",
+            traducir_destino="es", eliminar_urls=True)
+        cola = queue.Queue()
+        pedido = object()
+        with patch.object(main.item_lectura.traduccion_chat, "pedir",
+                          return_value=pedido) as pedir:
+            main.procesar_entrante(
+                "Ana", mensaje, main.TIPO_TEXTO, "", "canal", cola,
+                config, main.Stats(), on_message=lambda *a, **k: None)
+        pedir.assert_called_once_with(mensaje)
+        item = cola.get_nowait()
+        self.assertIs(item["pedido"], pedido)
+        self.assertEqual(item["ml"], "good morning")
+
+
 def _item(ident, mensaje):
     futuro = int(
         (datetime.now(timezone.utc) + timedelta(hours=1)).timestamp() * 1_000)
