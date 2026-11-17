@@ -37,6 +37,8 @@ COD_VERSION = 4
 COD_CORTE = 5
 COD_RESPALDO = 6
 
+NEGATIVAS_SEGUIDAS = 10
+
 ESPERADOS = (
     ("tab", "Opción de prueba", "casilla"),
     ("tab", "Aceptar", "botón"),
@@ -247,15 +249,27 @@ def _copiar_registro(ruta_informe) -> None:
 
 
 def _guardia(args):
-    """El motivo de la negación, o None si se puede empezar."""
-    segundos = seguridad.segundos_desde_ultima_entrada()
+    """El motivo de la negación, o None si se puede empezar.
+
+    Si la entrada física es reciente espera lo que falta para los 30 s y
+    vuelve a mirar. A las diez negativas seguidas se rinde.
+    """
     marca = seguridad.leer_fin_limpio(perfil.ruta_fin_limpio())
-    try:
-        permitido, motivo = seguridad.decidir_guardia(
-            segundos, args.sin_espera, args.una_pc, marca)
-    except seguridad.ModoRequerido as exc:
-        return str(exc)
-    return None if permitido else motivo
+    negativas = 0
+    while True:
+        actuales = seguridad.segundos_desde_ultima_entrada()
+        try:
+            permitido, _motivo = seguridad.decidir_guardia(
+                actuales, args.sin_espera, args.una_pc, marca)
+        except seguridad.ModoRequerido as exc:
+            return str(exc)
+        if permitido:
+            return None
+        negativas += 1
+        if negativas >= NEGATIVAS_SEGUIDAS:
+            return (f"hubo entrada física {NEGATIVAS_SEGUIDAS} veces "
+                    "seguidas: preguntá qué pasa")
+        time.sleep(max(0.0, seguridad.SEGUNDOS_GUARDIA - actuales))
 
 
 def _elegir_copia(version):
@@ -363,7 +377,7 @@ def main(argv=None) -> int:
     analizador.add_argument("--reglas", action="store_true",
                             help="recorre el canario, la limpia y las trampas")
     analizador.add_argument("--sin-espera", action="store_true",
-                            help="saltea la guardia de diez minutos")
+                            help="saltea la guardia de 30 segundos")
     analizador.add_argument("--una-pc", action="store_true",
                             help="modo de una sola PC")
     analizador.add_argument("--respaldo-minutos", type=int,

@@ -3,7 +3,7 @@
 """La seguridad del carril: presencia física, corte y respaldo.
 
 El carril deja a una persona ciega sin voz si queda a medias. Por eso antes
-de tocar nada se niega si hubo teclado o ratón en los últimos diez minutos,
+de tocar nada se niega si hubo teclado o ratón en los últimos 30 segundos,
 durante la corrida corta ante el primer evento que no venga inyectado, y
 deja una tarea programada que devuelve el NVDA de la PC si el guion muere.
 
@@ -22,7 +22,7 @@ from ctypes import wintypes
 from datetime import datetime, timedelta
 from pathlib import Path
 
-MINUTOS_GUARDIA = 10.0
+SEGUNDOS_GUARDIA = 30.0
 LLKHF_INJECTED = 0x10
 LLMHF_INJECTED = 0x01
 WH_KEYBOARD_LL = 13
@@ -115,9 +115,9 @@ def decidir_guardia(segundos, sin_espera=False, una_pc=False, marca=None,
     ahora = ahora or datetime.now()
     if _hay_fin_limpio(segundos, marca, ahora):
         return True, f"sin entrada física desde el fin limpio ({segundos:.0f} s)"
-    if segundos < MINUTOS_GUARDIA * 60:
+    if segundos < SEGUNDOS_GUARDIA:
         return False, (f"hubo teclado o ratón hace {segundos:.0f} s; "
-                       f"se esperan {MINUTOS_GUARDIA:.0f} minutos")
+                       f"se esperan {SEGUNDOS_GUARDIA:.0f} segundos")
     return True, f"sin entrada física hace {segundos:.0f} s"
 
 

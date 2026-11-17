@@ -42,14 +42,14 @@ class TestCorte(unittest.TestCase):
 
 class TestGuardia(unittest.TestCase):
 
-    def test_con_entrada_hace_nueve_minutos_se_niega(self):
-        permitido, motivo = seguridad.decidir_guardia(9 * 60)
+    def test_con_entrada_hace_29_segundos_se_niega(self):
+        permitido, motivo = seguridad.decidir_guardia(29)
         self.assertFalse(permitido)
-        self.assertIn("540", motivo)
-        self.assertIn("10 minutos", motivo)
+        self.assertIn("29", motivo)
+        self.assertIn("30 segundos", motivo)
 
-    def test_sin_entrada_hace_once_minutos_permite(self):
-        permitido, _ = seguridad.decidir_guardia(11 * 60)
+    def test_sin_entrada_hace_31_segundos_permite(self):
+        permitido, _ = seguridad.decidir_guardia(31)
         self.assertTrue(permitido)
 
     def test_sin_espera_exige_el_modo_de_una_sola_pc(self):
@@ -70,31 +70,31 @@ class TestFinLimpio(unittest.TestCase):
 
     def test_la_entrada_anterior_al_fin_limpio_deja_empezar(self):
         permitido, _ = self._guardia(
-            60, self.AHORA - timedelta(seconds=30))
+            10, self.AHORA - timedelta(seconds=5))
         self.assertTrue(permitido)
 
     def test_la_entrada_igual_al_fin_limpio_deja_empezar(self):
         permitido, _ = self._guardia(
-            30, self.AHORA - timedelta(seconds=30))
+            10, self.AHORA - timedelta(seconds=10))
         self.assertTrue(permitido)
 
     def test_la_entrada_posterior_al_fin_limpio_hace_esperar(self):
         permitido, motivo = self._guardia(
             10, self.AHORA - timedelta(seconds=30))
         self.assertFalse(permitido)
-        self.assertIn("10 minutos", motivo)
+        self.assertIn("30 segundos", motivo)
 
     def test_sin_marca_hace_esperar(self):
-        permitido, _ = self._guardia(60)
+        permitido, _ = self._guardia(10)
         self.assertFalse(permitido)
 
     def test_una_marca_ilegible_hace_esperar(self):
-        permitido, _ = self._guardia(60, "no es una fecha")
+        permitido, _ = self._guardia(10, "no es una fecha")
         self.assertFalse(permitido)
 
     def test_una_marca_en_el_futuro_hace_esperar(self):
         permitido, _ = self._guardia(
-            60, self.AHORA + timedelta(seconds=60))
+            10, self.AHORA + timedelta(seconds=60))
         self.assertFalse(permitido)
 
     def test_anota_y_lee_la_hora_del_fin_limpio(self):

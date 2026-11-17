@@ -22,7 +22,7 @@ INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
 
 class TestGuardia(unittest.TestCase):
 
-    def test_entrada_fisica_reciente_no_toca_nada(self):
+    def _ejecutar(self, decisiones, segundos):
         carpeta = tempfile.TemporaryDirectory()
         self.addCleanup(carpeta.cleanup)
         args = SimpleNamespace(sin_espera=False, una_pc=False,
@@ -30,9 +30,12 @@ class TestGuardia(unittest.TestCase):
         with (
             mock.patch.object(correr.seguridad,
                               "segundos_desde_ultima_entrada",
-                              return_value=60),
+                              side_effect=segundos) as reloj,
+            mock.patch.object(correr.seguridad, "decidir_guardia",
+                              side_effect=decisiones) as decidir,
             mock.patch.object(correr.seguridad, "leer_fin_limpio",
                               return_value=None),
+            mock.patch.object(correr.time, "sleep") as esperar,
             mock.patch.object(
                 correr, "_elegir_copia",
                 return_value=(Path("copia"), INSTALADO, "usar")),
@@ -55,13 +58,40 @@ class TestGuardia(unittest.TestCase):
                 correr.devolver, "ejecutar_devolucion",
                 return_value=True) as devolver_mock,
             mock.patch.object(correr, "_con_canario", return_value=0),
+            mock.patch.object(correr.seguridad, "anotar_fin_limpio"),
+            mock.patch("builtins.print") as imprimir,
         ):
             codigo = correr.ejecutar(args)
-        self.assertEqual(codigo, correr.COD_PRESENCIA)
-        escribir.assert_not_called()
-        cerrar.assert_not_called()
-        crear.assert_not_called()
-        devolver_mock.assert_not_called()
+        return SimpleNamespace(
+            codigo=codigo, reloj=reloj, decidir=decidir, esperar=esperar,
+            imprimir=imprimir, escribir=escribir, cerrar=cerrar,
+            crear=crear, devolver=devolver_mock)
+
+    def test_una_guardia_que_se_niega_siempre_sale_a_la_decima(self):
+        resultado = self._ejecutar([(False, "rechazo")] * 10, [10] * 10)
+        self.assertEqual(resultado.codigo, correr.COD_PRESENCIA)
+        self.assertEqual(resultado.decidir.call_count, 10)
+        self.assertEqual(resultado.reloj.call_count, 10)
+        self.assertEqual(resultado.esperar.call_args_list,
+                         [mock.call(20.0)] * 9)
+        mensaje = resultado.imprimir.call_args.args[0]
+        self.assertIn("entrada física", mensaje)
+        self.assertIn("10 veces seguidas", mensaje)
+        self.assertIn("preguntá qué pasa", mensaje)
+        resultado.escribir.assert_not_called()
+        resultado.cerrar.assert_not_called()
+        resultado.crear.assert_not_called()
+        resultado.devolver.assert_not_called()
+
+    def test_si_se_niega_dos_veces_y_despues_permite_sigue(self):
+        resultado = self._ejecutar(
+            [(False, "rechazo"), (False, "rechazo"), (True, "libre")],
+            [10, 20, 31])
+        self.assertEqual(resultado.codigo, correr.COD_OK)
+        self.assertEqual(resultado.decidir.call_count, 3)
+        self.assertEqual(resultado.esperar.call_args_list,
+                         [mock.call(20.0), mock.call(10.0)])
+        resultado.escribir.assert_called_once()
 
 
 class TestCortado(unittest.TestCase):
