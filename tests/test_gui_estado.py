@@ -110,7 +110,7 @@ class TestEspectadoresDelAdicional(unittest.TestCase):
             _marco_falso({"vistas": 12}, es_tiktok=False))
         self.assertEqual(
             gui.estado_sesion.formatear_estado(snap, {"espectadores"}),
-            "En YouTube, 12 espectadores; en TikTok, 30 espectadores ahora, "
+            "En YouTube, 12 espectadores; En TikTok, 30 espectadores ahora, "
             "120 en total.")
 
 
@@ -128,8 +128,8 @@ class TestSnapshotEncuesta(unittest.TestCase):
             "1", "¿Qué almorzamos?", [("Pizza", 5), ("sushi", 0)])
         self.assertEqual(
             gui_estado.snapshot_sesion(_marco_falso({})).encuesta,
-            "Encuesta en curso: ¿Qué almorzamos? Pizza con 5 votos y sushi "
-            "sin votos")
+            "Encuesta en curso: ¿Qué almorzamos?. Opciones: Pizza con 5 votos y "
+            "sushi sin votos")
 
 
 class TestSnapshotBatallaYMeta(unittest.TestCase):

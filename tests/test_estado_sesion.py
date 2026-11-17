@@ -67,7 +67,7 @@ class TestTiempoDirecto(unittest.TestCase):
     def test_corto(self):
         self.assertEqual(formatear_estado(
             SnapshotSesion(segundos_directo=83 * 60), {"tiempo_directo"}),
-            "Lleva 1 h 23 min.")
+            "1 h 23 min de directo.")
 
     def test_largo(self):
         self.assertEqual(formatear_estado(
@@ -127,7 +127,7 @@ class TestOmisiones(unittest.TestCase):
         s = SnapshotSesion(conectado=True, tipo="vod", lectura_silenciada=False)
         self.assertNotIn("silenciada", formatear_estado(s, {"lectura_silenciada"}))
         s2 = SnapshotSesion(conectado=True, tipo="vod", lectura_silenciada=True)
-        self.assertIn("Lectura silenciada", formatear_estado(s2, {"lectura_silenciada"}))
+        self.assertIn("Lectura: silenciada", formatear_estado(s2, {"lectura_silenciada"}))
 
 
 class TestAportes(unittest.TestCase):
@@ -153,7 +153,7 @@ class TestEncuesta(unittest.TestCase):
         self.assertEqual(ETIQUETAS["encuesta"], "Encuesta en curso")
 
     def test_se_dice_con_una_encuesta_abierta(self):
-        frase = ("Encuesta en curso: ¿Qué almorzamos? Pizza con 5 votos, "
+        frase = ("Encuesta en curso: ¿Qué almorzamos?. Opciones: Pizza con 5 votos, "
                  "empanadas con 3 votos y sushi sin votos")
         self.assertEqual(
             formatear_estado(SnapshotSesion(encuesta=frase), {"encuesta"}),
@@ -207,9 +207,9 @@ class TestCoherencia(unittest.TestCase):
 
     def test_mensajes_programados_se_anuncian_si_hay_dato(self):
         s = SnapshotSesion(programados_proximo=
-                           "Próximo mensaje automático en 4 minutos")
+                           "Próximo mensaje automático: en 4 minutos")
         self.assertEqual(formatear_estado(s, {"programados"}),
-                         "Próximo mensaje automático en 4 minutos.")
+                         "Próximo mensaje automático: en 4 minutos.")
 
     def test_mensajes_programados_vacios_se_omiten(self):
         self.assertEqual(formatear_estado(SnapshotSesion(), {"programados"}), "")
@@ -236,11 +236,11 @@ class TestCoherencia(unittest.TestCase):
         s = SnapshotSesion(overlay_puerto=9000, overlay_clientes=1)
         self.assertEqual(
             formatear_estado(s, {"overlay"}),
-            "Chat en el vídeo activado, mostrándose.")
+            "Chat en el vídeo: se muestra en OBS.")
         s = SnapshotSesion(overlay_puerto=9000, overlay_clientes=0)
         self.assertEqual(
             formatear_estado(s, {"overlay"}),
-            "Chat en el vídeo activado, pero nadie lo está mostrando.")
+            "Chat en el vídeo: activado, no se muestra en OBS.")
 
 
 class TestTransmisionSupervisada(unittest.TestCase):
@@ -254,13 +254,13 @@ class TestTransmisionSupervisada(unittest.TestCase):
 
     def test_supervisada_va_primero_y_tapa_a_obs(self):
         s = SnapshotSesion(
-            titulo="Charla", obs_transmision="Transmitiendo desde hace 1 min",
-            transmision_supervisada="Directo a TikTok: Transmitiendo desde hace 3 min")
+            titulo="Charla", obs_transmision="Transmisión activa desde hace 1 min",
+            transmision_supervisada="Directo a TikTok: Transmisión activa desde hace 3 min")
         out = formatear_estado(s, {"titulo", "obs_transmision"})
         self.assertTrue(out.startswith(
-            "Directo a TikTok: Transmitiendo desde hace 3 min"))
+            "Directo a TikTok: Transmisión activa desde hace 3 min"))
         self.assertIn("Charla", out)
-        self.assertNotIn("Transmitiendo desde hace 1 min", out)
+        self.assertNotIn("Transmisión activa desde hace 1 min", out)
 
     def test_modo_largo_con_etiqueta_propia(self):
         s = SnapshotSesion(
@@ -270,9 +270,9 @@ class TestTransmisionSupervisada(unittest.TestCase):
         self.assertIn("Esperando a que TikTok muestre el directo", out)
 
     def test_sin_supervisada_obs_sigue_igual(self):
-        s = SnapshotSesion(obs_transmision="Transmitiendo desde hace 1 min")
+        s = SnapshotSesion(obs_transmision="Transmisión activa desde hace 1 min")
         self.assertEqual(formatear_estado(s, {"obs_transmision"}),
-                         "Transmitiendo desde hace 1 min.")
+                         "Transmisión activa desde hace 1 min.")
 
 
 class TestDesfaseConVuelta(unittest.TestCase):
@@ -372,7 +372,7 @@ class TestCuotaYoutube(unittest.TestCase):
         self.assertEqual(
             formatear_estado(SnapshotSesion(cuota_youtube=1234),
                              {"cuota_youtube"}),
-            "Cuota de YouTube usada hoy en este equipo: unas 1.234 de 10.000.")
+            "Cuota de YouTube estimada hoy en este equipo: 1.234 de 10.000 unidades.")
 
     def test_apagado_de_fabrica(self):
         self.assertNotIn("cuota_youtube", ACTIVOS_DEFECTO)
@@ -464,7 +464,7 @@ class TestRamasSinCubrir(unittest.TestCase):
         s = SnapshotSesion(en_cola=3)
         self.assertEqual(formatear_estado(s, {"en_cola"}), "3 en cola.")
         self.assertEqual(formatear_estado(s, {"en_cola"}, "largo"),
-                         "En cola: 3")
+                         "Mensajes en cola: 3")
 
     def test_voz_muestra_velocidad_y_volumen(self):
         s = SnapshotSesion(voz_velocidad=0, voz_volumen=0)
@@ -645,7 +645,7 @@ class TestPluralesTanda2(unittest.TestCase):
                         formatear_estado(
                             SnapshotSesion(segundos_directo=2 * 24 * 3600),
                             {"tiempo_directo"}),
-                        "Lleva 2 días.")
+                        "2 días de directo.")
                     self.assertEqual(
                         formatear_estado(
                             SnapshotSesion(segundos_directo=2 * 24 * 3600),

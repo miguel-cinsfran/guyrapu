@@ -15,7 +15,7 @@ class TestDosPlataformas(unittest.TestCase):
                            espectadores_adicional_total=120)
         self.assertEqual(
             formatear_estado(s, {"espectadores"}),
-            "En YouTube, 12 espectadores; en TikTok, 30 espectadores ahora, "
+            "En YouTube, 12 espectadores; En TikTok, 30 espectadores ahora, "
             "120 en total.")
 
     def test_largo_nombra_las_dos_con_varios_espectadores(self):
@@ -33,7 +33,7 @@ class TestDosPlataformas(unittest.TestCase):
                            espectadores_adicional_total=120)
         self.assertEqual(
             formatear_estado(s, {"espectadores"}),
-            "En YouTube, 1 espectador; en TikTok, 1 espectador ahora, "
+            "En YouTube, 1 espectador; En TikTok, 1 espectador ahora, "
             "120 en total.")
 
     def test_largo_usa_el_singular_en_cada_plataforma(self):
@@ -50,7 +50,7 @@ class TestDosPlataformas(unittest.TestCase):
                            espectadores=12, espectadores_adicional=30)
         self.assertEqual(
             formatear_estado(s, {"espectadores"}),
-            "En YouTube, 12 espectadores; en TikTok, 30 espectadores.")
+            "En YouTube, 12 espectadores; En TikTok, 30 espectadores.")
 
     def test_largo_con_el_adicional_sin_total(self):
         s = SnapshotSesion(conectado=True, tipo="live_youtube",

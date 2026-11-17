@@ -10,23 +10,23 @@ from guyrapu.obs import obs_estado
 class FrasesObsTest(unittest.TestCase):
     def test_transmision_inactiva(self):
         self.assertEqual(obs_estado.frase_transmision(False, 0, 0, 0),
-                         "No estás transmitiendo")
+                         "Transmisión detenida")
 
     def test_transmision_activa_sin_fotogramas_perdidos(self):
         self.assertEqual(obs_estado.frase_transmision(True, 61, 0, 100),
-                         "Transmitiendo desde hace 1 min")
+                         "Transmisión activa desde hace 1 min")
 
     def test_transmision_activa_con_fotogramas_perdidos(self):
         self.assertEqual(obs_estado.frase_transmision(True, 3_600, 4, 100),
-                         "Transmitiendo desde hace 1 h 0 min, 4 de 100 fotogramas perdidos")
+                         "Transmisión activa desde hace 1 h 0 min, 4 de 100 fotogramas perdidos")
 
     def test_fotogramas_perdidos_sin_total_omite_la_proporcion(self):
         self.assertEqual(obs_estado.frase_transmision(True, 3_600, 4, 0),
-                         "Transmitiendo desde hace 1 h 0 min, 4 fotogramas perdidos")
+                         "Transmisión activa desde hace 1 h 0 min, 4 fotogramas perdidos")
 
     def test_grabacion_inactiva(self):
         self.assertEqual(obs_estado.frase_grabacion(False, False, "00:00:00.000"),
-                         "No estás grabando")
+                         "Grabación detenida")
 
     def test_grabacion_en_pausa_recorta_las_milesimas(self):
         self.assertEqual(obs_estado.frase_grabacion(True, True, "01:02:03.456"),

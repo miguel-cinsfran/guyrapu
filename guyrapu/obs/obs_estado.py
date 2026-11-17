@@ -11,8 +11,8 @@ _TEXTO_SIN_ESCENA = N_("No se pudo obtener la escena actual")
 def frase_transmision(activa, segundos, perdidos, totales) -> str:
     """Describe el estado de la transmisión sin ruido innecesario."""
     if not activa:
-        return _("No estás transmitiendo")
-    frase = _("Transmitiendo desde hace {duracion}").format(duracion=_duracion(int(segundos)))
+        return _("Transmisión detenida")
+    frase = _("Transmisión activa desde hace {duracion}").format(duracion=_duracion(int(segundos)))
     if perdidos:
         # El total da la medida: 4 fotogramas de 100 es un problema; de
         # 100 000, no.
@@ -24,7 +24,7 @@ def frase_transmision(activa, segundos, perdidos, totales) -> str:
 def frase_grabacion(activa, en_pausa, codigo_tiempo) -> str:
     """Describe el estado de la grabación con el tiempo útil de OBS."""
     if not activa:
-        return _("No estás grabando")
+        return _("Grabación detenida")
     tiempo = str(codigo_tiempo).split(".", 1)[0]
     return (_("Grabación en pausa, {tiempo}") if en_pausa
             else _("Grabando, {tiempo}")).format(tiempo=tiempo)

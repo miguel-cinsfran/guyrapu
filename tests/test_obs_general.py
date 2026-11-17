@@ -97,7 +97,7 @@ class TestResumenDeGeneral(unittest.TestCase):
         estado = _estado(transmision={"outputActive": True,
                                       "outputDuration": 61})
         resultado = obs_general.resumen(estado, "TikTok", TODAS)
-        self.assertEqual(resultado[0], "Transmitiendo a TikTok desde hace 1 min")
+        self.assertEqual(resultado[0], "Transmisión a TikTok activa desde hace 1 min")
         self.assertIn("Escena actual: Principal", resultado)
         self.assertIn("Micrófono Mic/Aux: activado", resultado)
         self.assertIn("Grabación: detenida", resultado)

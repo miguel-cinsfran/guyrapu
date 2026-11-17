@@ -1026,16 +1026,6 @@ msgstr "No votes"
 msgid "{cabecera} {resultado}"
 msgstr "{cabecera} {resultado}"
 
-#: guyrapu/capture/encuestas.py
-#, python-brace-format
-msgid "Encuesta en curso: {titulo} {opciones}"
-msgstr "Poll in progress: {titulo} {opciones}"
-
-#: guyrapu/capture/encuestas.py
-#, python-brace-format
-msgid "Encuesta en curso. {opciones}"
-msgstr "Poll in progress. {opciones}"
-
 #. Traductores: parte del estado F2 (espectadores TikTok). {n} son los de ahora
 #. y {total} el total.
 #: guyrapu/capture/estado_espectadores.py
@@ -1113,15 +1103,6 @@ msgid_plural "Espectadores en TikTok: {n} ahora, {total} en total"
 msgstr[0] "Viewer on TikTok: {n} now, {total} in total"
 msgstr[1] "Viewers on TikTok: {n} now, {total} in total"
 
-#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} son
-#. los de ahora y {total} el total.
-#: guyrapu/capture/estado_espectadores.py
-#, python-brace-format
-msgid "en TikTok, {n} espectador ahora, {total} en total"
-msgid_plural "en TikTok, {n} espectadores ahora, {total} en total"
-msgstr[0] "on TikTok, {n} viewer now, {total} in total"
-msgstr[1] "on TikTok, {n} viewers now, {total} in total"
-
 #. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
 #. el nº actual.
 #: guyrapu/capture/estado_espectadores.py
@@ -1130,15 +1111,6 @@ msgid "Espectador en TikTok: {n}"
 msgid_plural "Espectadores en TikTok: {n}"
 msgstr[0] "Viewer on TikTok: {n}"
 msgstr[1] "Viewers on TikTok: {n}"
-
-#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
-#. el nº actual.
-#: guyrapu/capture/estado_espectadores.py
-#, python-brace-format
-msgid "en TikTok, {n} espectador"
-msgid_plural "en TikTok, {n} espectadores"
-msgstr[0] "on TikTok, {n} viewer"
-msgstr[1] "on TikTok, {n} viewers"
 
 #. Traductores: parte del estado F2 (tipo de conexión).
 #: guyrapu/capture/estado_sesion.py guyrapu/ui/gui_directo_youtube.py
@@ -1217,12 +1189,6 @@ msgstr "Channel: {canal}"
 #, python-brace-format
 msgid "Tiempo del directo: {texto}"
 msgstr "Live stream time: {texto}"
-
-#. Traductores: parte del estado F2 (tiempo). {texto} es la duración.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "Lleva {texto}"
-msgstr "Running for {texto}"
 
 #. Traductores: parte del estado F2 del desfase. {texto} es el desfase.
 #: guyrapu/capture/estado_sesion.py
@@ -1329,12 +1295,6 @@ msgstr[1] "{n} Super Chats"
 #. Traductores: parte del estado F2 (cola). {n} es el nº en cola.
 #: guyrapu/capture/estado_sesion.py
 #, python-brace-format
-msgid "En cola: {n}"
-msgstr "In queue: {n}"
-
-#. Traductores: parte del estado F2 (cola). {n} es el nº en cola.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
 msgid "{n} en cola"
 msgid_plural "{n} en cola"
 msgstr[0] "{n} in queue"
@@ -1352,28 +1312,11 @@ msgstr "Voice: speed {velocidad}, volume {volumen}%"
 msgid "Lectura silenciada"
 msgstr "Reading muted"
 
-#. Traductores: componente del estado F2.
-#: guyrapu/capture/estado_sesion.py
-msgid "Chat en el vídeo activado, mostrándose"
-msgstr "Chat on video enabled, showing"
-
-#. Traductores: componente del estado F2.
-#: guyrapu/capture/estado_sesion.py
-msgid "Chat en el vídeo activado, pero nadie lo está mostrando"
-msgstr "Chat on video enabled, but nobody is showing it"
-
 #. Traductores: componente del estado F2. {texto} es el encuadre actual.
 #: guyrapu/capture/estado_sesion.py
 #, python-brace-format
 msgid "Cámara: {texto}"
 msgstr "Camera: {texto}"
-
-#. Traductores: parte del estado F2 (cuota de YouTube). {usadas} son las
-#. unidades.
-#: guyrapu/capture/estado_sesion.py
-#, python-brace-format
-msgid "Cuota de YouTube usada hoy en este equipo: unas {usadas} de 10.000"
-msgstr "YouTube quota used today on this computer: about {usadas} of 10,000"
 
 #. Traductores: parte del estado F2 (transmisión). {texto} es el estado.
 #: guyrapu/capture/estado_sesion.py
@@ -1551,21 +1494,6 @@ msgstr "{nombre}: {estado}, {destino}, {intervalo}"
 #: guyrapu/capture/programados.py
 msgid "Próximo mensaje automático: pendiente de programar"
 msgstr "Next automatic message: pending"
-
-#. Traductores: estado F2 de los mensajes automáticos cuando falta menos de un
-#. minuto.
-#: guyrapu/capture/programados.py
-msgid "Próximo mensaje automático en menos de un minuto"
-msgstr "Next automatic message in less than a minute"
-
-#. Traductores: estado F2 de los mensajes automáticos. {minutos} es en cuántos
-#. minutos se envía.
-#: guyrapu/capture/programados.py
-#, python-brace-format
-msgid "Próximo mensaje automático en {minutos} minuto"
-msgid_plural "Próximo mensaje automático en {minutos} minutos"
-msgstr[0] "Next automatic message in {minutos} minute"
-msgstr[1] "Next automatic message in {minutos} minutes"
 
 #. Traductores: motivo de botón desactivado para escribir en el chat.
 #: guyrapu/capture/redaccion.py
@@ -4170,16 +4098,6 @@ msgstr "Audio monitoring disabled."
 msgid "Monitorización restablecida como estaba en OBS."
 msgstr "Audio monitoring restored to how it was in OBS."
 
-#: guyrapu/obs/estado_panel.py guyrapu/obs/obs_estado.py
-#, python-brace-format
-msgid "Transmitiendo desde hace {duracion}"
-msgstr "Broadcasting for {duracion}"
-
-#: guyrapu/obs/estado_panel.py
-#, python-brace-format
-msgid "Transmitiendo a {destino} desde hace {duracion}"
-msgstr "Broadcasting to {destino} for {duracion}"
-
 #: guyrapu/obs/estado_panel.py
 msgid "Elige a dónde transmitir"
 msgstr "Choose where to broadcast"
@@ -5258,10 +5176,6 @@ msgid "No se pudo obtener la escena actual"
 msgstr "Could not get the current scene"
 
 #: guyrapu/obs/obs_estado.py
-msgid "No estás transmitiendo"
-msgstr "You are not broadcasting"
-
-#: guyrapu/obs/obs_estado.py
 #, python-brace-format
 msgid " de {t}"
 msgstr " of {t}"
@@ -5270,10 +5184,6 @@ msgstr " of {t}"
 #, python-brace-format
 msgid ", {n}{de} fotogramas perdidos"
 msgstr ", {n}{de} frames dropped"
-
-#: guyrapu/obs/obs_estado.py
-msgid "No estás grabando"
-msgstr "You are not recording"
 
 #: guyrapu/obs/obs_estado.py
 #, python-brace-format
@@ -15276,4 +15186,93 @@ msgstr "Commands named {nombres} already exist. Replace them?"
 #: guyrapu/ui/comandos_ventana.py
 msgid "Comandos del chat"
 msgstr "Chat commands"
+
+#. Traductores: {titulo} es la pregunta y {opciones} la lista de opciones.
+#: guyrapu/capture/encuestas.py
+#, python-brace-format
+msgid "Encuesta en curso: {titulo}. Opciones: {opciones}"
+msgstr "Poll in progress: {titulo}. Options: {opciones}"
+
+#. Traductores: {opciones} es la lista de opciones de la encuesta.
+#: guyrapu/capture/encuestas.py
+#, python-brace-format
+msgid "Encuesta en curso. Opciones: {opciones}"
+msgstr "Poll in progress. Options: {opciones}"
+
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} son
+#. los de ahora y {total} el total.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "En TikTok, {n} espectador ahora, {total} en total"
+msgid_plural "En TikTok, {n} espectadores ahora, {total} en total"
+msgstr[0] "On TikTok, {n} viewer now, {total} in total"
+msgstr[1] "On TikTok, {n} viewers now, {total} in total"
+
+#. Traductores: parte del estado F2 (espectadores del chat adicional). {n} es
+#. el nº actual.
+#: guyrapu/capture/estado_espectadores.py
+#, python-brace-format
+msgid "En TikTok, {n} espectador"
+msgid_plural "En TikTok, {n} espectadores"
+msgstr[0] "On TikTok, {n} viewer"
+msgstr[1] "On TikTok, {n} viewers"
+
+#. Traductores: parte del estado F2 (tiempo). {texto} es la duración.
+#: guyrapu/capture/estado_sesion.py
+#, python-brace-format
+msgid "{texto} de directo"
+msgstr "{texto} of live stream"
+
+#. Traductores: parte del estado F2 (cola). {n} es el nº en cola.
+#: guyrapu/capture/estado_sesion.py
+#, python-brace-format
+msgid "Mensajes en cola: {n}"
+msgstr "Messages in queue: {n}"
+
+#. Traductores: parte del estado F2 (lectura silenciada).
+#: guyrapu/capture/estado_sesion.py
+msgid "Lectura: silenciada"
+msgstr "Reading: muted"
+
+#. Traductores: componente del estado F2.
+#: guyrapu/capture/estado_sesion.py
+msgid "Chat en el vídeo: se muestra en OBS"
+msgstr "Chat on video: shown in OBS"
+
+#. Traductores: componente del estado F2.
+#: guyrapu/capture/estado_sesion.py
+msgid "Chat en el vídeo: activado, no se muestra en OBS"
+msgstr "Chat on video: enabled, not shown in OBS"
+
+#. Traductores: parte del estado F2 (cuota de YouTube). {usadas} son las
+#. unidades.
+#: guyrapu/capture/estado_sesion.py
+#, python-brace-format
+msgid "Cuota de YouTube estimada hoy en este equipo: {usadas} de 10.000 unidades"
+msgstr "YouTube quota estimated today on this computer: {usadas} of 10,000 units"
+
+#. Traductores: estado F2 de los mensajes automáticos cuando falta menos de un
+#. minuto.
+#: guyrapu/capture/programados.py
+msgid "Próximo mensaje automático: en menos de un minuto"
+msgstr "Next automatic message: in less than a minute"
+
+#. Traductores: estado F2 de los mensajes automáticos. {minutos} es en cuántos
+#. minutos se envía.
+#: guyrapu/capture/programados.py
+#, python-brace-format
+msgid "Próximo mensaje automático: en {minutos} minuto"
+msgid_plural "Próximo mensaje automático: en {minutos} minutos"
+msgstr[0] "Next automatic message: in {minutos} minute"
+msgstr[1] "Next automatic message: in {minutos} minutes"
+
+#: guyrapu/obs/estado_panel.py guyrapu/obs/obs_estado.py
+#, python-brace-format
+msgid "Transmisión activa desde hace {duracion}"
+msgstr "Broadcast active for {duracion}"
+
+#: guyrapu/obs/estado_panel.py
+#, python-brace-format
+msgid "Transmisión a {destino} activa desde hace {duracion}"
+msgstr "Broadcast to {destino} active for {duracion}"
 

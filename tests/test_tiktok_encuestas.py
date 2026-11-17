@@ -90,7 +90,7 @@ class TestProcesar(unittest.TestCase):
         self.assertEqual(self._procesar(evento), [])
         self.assertEqual(
             encuestas.registro.en_curso(),
-            "Encuesta en curso: ¿Qué almorzamos? pizza con 5 votos, "
+            "Encuesta en curso: ¿Qué almorzamos?. Opciones: pizza con 5 votos, "
             "empanadas con 3 votos y sushi sin votos")
 
     def test_titulo_desde_poll_basic_info(self):

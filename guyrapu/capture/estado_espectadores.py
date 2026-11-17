@@ -65,16 +65,16 @@ def _espectadores_adicional(n_actual, total, largo: bool) -> str:
                             "Espectadores en TikTok: {n} ahora, {total} en total",
                             cuenta).format(n=n, total=total_txt)
         # Traductores: parte del estado F2 (espectadores del chat adicional). {n} son los de ahora y {total} el total.
-        return ngettext("en TikTok, {n} espectador ahora, {total} en total",
-                        "en TikTok, {n} espectadores ahora, {total} en total",
+        return ngettext("En TikTok, {n} espectador ahora, {total} en total",
+                        "En TikTok, {n} espectadores ahora, {total} en total",
                         cuenta).format(n=n, total=total_txt)
     if largo:
         # Traductores: parte del estado F2 (espectadores del chat adicional). {n} es el nº actual.
         return ngettext("Espectador en TikTok: {n}",
                         "Espectadores en TikTok: {n}", cuenta).format(n=n)
     # Traductores: parte del estado F2 (espectadores del chat adicional). {n} es el nº actual.
-    return ngettext("en TikTok, {n} espectador",
-                    "en TikTok, {n} espectadores", cuenta).format(n=n)
+    return ngettext("En TikTok, {n} espectador",
+                    "En TikTok, {n} espectadores", cuenta).format(n=n)
 
 
 def _render_espectadores(s, largo: bool) -> str:
@@ -82,11 +82,8 @@ def _render_espectadores(s, largo: bool) -> str:
         partes = []
         if s.espectadores is not None:
             partes.append(_espectadores_youtube(s, largo))
-        adicional = _espectadores_adicional(
-            s.espectadores_adicional, s.espectadores_adicional_total, largo)
-        if s.espectadores is None:
-            adicional = adicional[0].upper() + adicional[1:]
-        partes.append(adicional)
+        partes.append(_espectadores_adicional(
+            s.espectadores_adicional, s.espectadores_adicional_total, largo))
         return "\n".join(partes) if largo else "; ".join(partes)
     if s.espectadores is None:
         return ""

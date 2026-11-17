@@ -90,9 +90,11 @@ def frase_en_curso(titulo: str, opciones) -> str:
     lista = _unir([_con_votos(texto, votos) for texto, votos in opciones])
     titulo = (titulo or "").strip()
     if titulo:
-        return _("Encuesta en curso: {titulo} {opciones}").format(
+        # Traductores: {titulo} es la pregunta y {opciones} la lista de opciones.
+        return _("Encuesta en curso: {titulo}. Opciones: {opciones}").format(
             titulo=titulo, opciones=lista)
-    return _("Encuesta en curso. {opciones}").format(opciones=lista)
+    # Traductores: {opciones} es la lista de opciones de la encuesta.
+    return _("Encuesta en curso. Opciones: {opciones}").format(opciones=lista)
 
 
 class RegistroEncuestas:

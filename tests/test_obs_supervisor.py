@@ -1093,7 +1093,7 @@ class FraseEstadoTest(BaseSupervisor):
                     "Directo a TikTok:")))
             frase = supervisor.frase_estado()
             self.assertTrue(frase.startswith(
-                "Directo a TikTok: Transmitiendo desde hace"))
+                "Directo a TikTok: Transmisión activa desde hace"))
             # _duracion(180) se lee «3 min».
             self.assertIn("3 min", frase)
         finally:

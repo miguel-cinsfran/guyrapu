@@ -24,9 +24,9 @@ def _titular(destino, transmision, problemas) -> tuple:
     if bool(transmision.get("outputActive", False)):
         duracion = _duracion(int(transmision.get("outputDuration", 0) or 0))
         if not destino:
-            return _("Transmitiendo desde hace {duracion}").format(
+            return _("Transmisión activa desde hace {duracion}").format(
                 duracion=duracion), "activo"
-        return (_("Transmitiendo a {destino} desde hace {duracion}").format(
+        return (_("Transmisión a {destino} activa desde hace {duracion}").format(
             destino=destino, duracion=duracion), "activo")
     if not destino:
         return _("Elige a dónde transmitir"), "listo"

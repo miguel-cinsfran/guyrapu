@@ -40,21 +40,21 @@ class TestTitular(unittest.TestCase):
             transmision={"outputActive": True, "outputDuration": 30})
         self.assertEqual(
             estado.titular,
-            "Transmitiendo a TikTok desde hace menos de un minuto")
+            "Transmisión a TikTok activa desde hace menos de un minuto")
         self.assertEqual(estado.tono, "activo")
 
     def test_transmitiendo_sin_destino_no_deja_un_hueco(self):
         estado = _resumir(
             destino="",
             transmision={"outputActive": True, "outputDuration": 61})
-        self.assertEqual(estado.titular, "Transmitiendo desde hace 1 min")
+        self.assertEqual(estado.titular, "Transmisión activa desde hace 1 min")
 
     def test_transmitiendo_reutiliza_la_duracion_de_obs_estado(self):
         estado = _resumir(
             transmision={"outputActive": True, "outputDuration": 61})
         self.assertEqual(
             estado.titular,
-            "Transmitiendo a YouTube desde hace 1 min")
+            "Transmisión a YouTube activa desde hace 1 min")
 
     def test_con_problemas_muestra_el_primero_con_tono_aviso(self):
         estado = _resumir(problemas=("El micrófono Mic/Aux está silenciado.",
@@ -69,7 +69,7 @@ class TestTitular(unittest.TestCase):
             transmision={"outputActive": True, "outputDuration": 0},
             problemas=("Un problema.",))
         self.assertEqual(estado.tono, "activo")
-        self.assertTrue(estado.titular.startswith("Transmitiendo a YouTube"))
+        self.assertTrue(estado.titular.startswith("Transmisión a YouTube activa"))
 
     def test_sin_destino_no_hay_problemas(self):
         estado = _resumir(destino="", problemas=("Un problema.",))

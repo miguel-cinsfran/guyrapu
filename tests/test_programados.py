@@ -122,18 +122,18 @@ class TestDescribirProximo(unittest.TestCase):
     def test_menos_de_un_minuto(self):
         mensajes = [{"activo": True, "proximo": 30}]
         self.assertEqual(programados.describir_proximo(mensajes, 0),
-                         "Próximo mensaje automático en menos de un minuto")
+                         "Próximo mensaje automático: en menos de un minuto")
 
     def test_singular(self):
         mensajes = [{"activo": True, "proximo": 60}]
         self.assertEqual(programados.describir_proximo(mensajes, 0),
-                         "Próximo mensaje automático en 1 minuto")
+                         "Próximo mensaje automático: en 1 minuto")
 
     def test_elige_el_mas_cercano_y_redondea(self):
         mensajes = [{"activo": True, "proximo": 301},
                     {"activo": True, "proximo": 500}]
         self.assertEqual(programados.describir_proximo(mensajes, 0),
-                         "Próximo mensaje automático en 6 minutos")
+                         "Próximo mensaje automático: en 6 minutos")
 
     def test_recien_cargado_sin_cuerda_no_dice_menos_de_un_minuto(self):
         mensajes = [{"activo": True, "proximo": 0.0}]
@@ -144,7 +144,7 @@ class TestDescribirProximo(unittest.TestCase):
         mensajes = [{"activo": True, "proximo": 0.0},
                     {"activo": True, "proximo": 120.0}]
         self.assertEqual(programados.describir_proximo(mensajes, 0),
-                         "Próximo mensaje automático en 2 minutos")
+                         "Próximo mensaje automático: en 2 minutos")
 
 
 class TestNombreDelMensaje(unittest.TestCase):

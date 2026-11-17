@@ -4213,7 +4213,7 @@ class TestEstadoObsEnF2(unittest.TestCase):
         with mock.patch.object(gui, "anunciar") as anunciar:
             frame._anunciar_estado()
         texto = anunciar.call_args.args[0]
-        self.assertTrue(all(x in texto for x in ("Transmitiendo desde hace 1 min, 2 de 10 fotogramas perdidos",
+        self.assertTrue(all(x in texto for x in ("Transmisión activa desde hace 1 min, 2 de 10 fotogramas perdidos",
                                                    "Grabando, 00:01:00", "Escena actual: Principal")))
     def test_f2_omite_dato_pasado_y_sin_vigilante(self):
         for toggles, vigilante in (({"estado", *gui._OBS_COMPONENTES}, mock.Mock(estado=lambda: None)),

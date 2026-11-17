@@ -174,11 +174,11 @@ def describir_proximo(mensajes: list[dict], ahora: float) -> str:
     restante = min(con_hora) - ahora
     if restante < 60:
         # Traductores: estado F2 de los mensajes automáticos cuando falta menos de un minuto.
-        return _("Próximo mensaje automático en menos de un minuto")
+        return _("Próximo mensaje automático: en menos de un minuto")
     minutos = math.ceil(restante / 60)
     # Traductores: estado F2 de los mensajes automáticos. {minutos} es en cuántos minutos se envía.
-    return ngettext("Próximo mensaje automático en {minutos} minuto",
-                    "Próximo mensaje automático en {minutos} minutos",
+    return ngettext("Próximo mensaje automático: en {minutos} minuto",
+                    "Próximo mensaje automático: en {minutos} minutos",
                     minutos).format(minutos=minutos)
 
 

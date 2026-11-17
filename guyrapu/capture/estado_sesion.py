@@ -132,7 +132,7 @@ def _render_tiempo_directo(s: SnapshotSesion, largo: bool) -> str:
         # Traductores: parte del estado F2 (tiempo). {texto} es la duración.
         return _("Tiempo del directo: {texto}").format(texto=texto)
     # Traductores: parte del estado F2 (tiempo). {texto} es la duración.
-    return _("Lleva {texto}").format(texto=texto)
+    return _("{texto} de directo").format(texto=texto)
 
 
 def _render_desfase_directo(s: SnapshotSesion, largo: bool) -> str:
@@ -221,7 +221,7 @@ def _render_en_cola(s: SnapshotSesion, largo: bool) -> str:
     n = _fmt_num(s.en_cola)
     if largo:
         # Traductores: parte del estado F2 (cola). {n} es el nº en cola.
-        return _("En cola: {n}").format(n=n)
+        return _("Mensajes en cola: {n}").format(n=n)
     # Traductores: parte del estado F2 (cola). {n} es el nº en cola.
     return ngettext("{n} en cola", "{n} en cola", s.en_cola).format(n=n)
 
@@ -236,7 +236,7 @@ def _render_lectura_silenciada(s: SnapshotSesion, largo: bool) -> str:
     if not s.lectura_silenciada:
         return ""
     # Traductores: parte del estado F2 (lectura silenciada).
-    return _("Lectura silenciada")
+    return _("Lectura: silenciada")
 
 
 def _render_overlay(s: SnapshotSesion, largo: bool) -> str:
@@ -244,9 +244,9 @@ def _render_overlay(s: SnapshotSesion, largo: bool) -> str:
         return ""
     if s.overlay_clientes:
         # Traductores: componente del estado F2.
-        return _("Chat en el vídeo activado, mostrándose")
+        return _("Chat en el vídeo: se muestra en OBS")
     # Traductores: componente del estado F2.
-    return _("Chat en el vídeo activado, pero nadie lo está mostrando")
+    return _("Chat en el vídeo: activado, no se muestra en OBS")
 
 
 def _render_video(s: SnapshotSesion, largo: bool) -> str:
@@ -294,7 +294,7 @@ def _render_cuota_youtube(s: SnapshotSesion, largo: bool) -> str:
         return ""
     # Traductores: parte del estado F2 (cuota de YouTube). {usadas} son las
     # unidades.
-    return _("Cuota de YouTube usada hoy en este equipo: unas {usadas} de 10.000").format(
+    return _("Cuota de YouTube estimada hoy en este equipo: {usadas} de 10.000 unidades").format(
         usadas=_fmt_num(s.cuota_youtube))
 
 

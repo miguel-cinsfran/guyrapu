@@ -83,13 +83,13 @@ class TestFraseEnCurso(unittest.TestCase):
             encuestas.frase_en_curso(
                 "¿Qué almorzamos?",
                 [("Pizza", 5), ("empanadas", 3), ("sushi", 0)]),
-            "Encuesta en curso: ¿Qué almorzamos? Pizza con 5 votos, "
+            "Encuesta en curso: ¿Qué almorzamos?. Opciones: Pizza con 5 votos, "
             "empanadas con 3 votos y sushi sin votos")
 
     def test_sin_titulo(self):
         self.assertEqual(
             encuestas.frase_en_curso("", [("pizza", 2), ("sushi", 0)]),
-            "Encuesta en curso. pizza con 2 votos y sushi sin votos")
+            "Encuesta en curso. Opciones: pizza con 2 votos y sushi sin votos")
 
 
 class TestRegistroEncuestas(unittest.TestCase):
@@ -120,13 +120,13 @@ class TestRegistroEncuestas(unittest.TestCase):
             "1", "¿Qué almorzamos?", [("Pizza", 1), ("sushi", 0)])
         self.assertEqual(
             self.registro.en_curso(),
-            "Encuesta en curso: ¿Qué almorzamos? Pizza con 1 voto y sushi "
-            "sin votos")
+            "Encuesta en curso: ¿Qué almorzamos?. Opciones: Pizza con 1 voto y "
+            "sushi sin votos")
         self.registro.votos("1", [("Pizza", 5), ("sushi", 2)])
         self.assertEqual(
             self.registro.en_curso(),
-            "Encuesta en curso: ¿Qué almorzamos? Pizza con 5 votos y sushi "
-            "con 2 votos")
+            "Encuesta en curso: ¿Qué almorzamos?. Opciones: Pizza con 5 votos y "
+            "sushi con 2 votos")
 
     def test_cerrar_la_saca_de_en_curso(self):
         opciones = [("pizza", 3)]
@@ -138,7 +138,7 @@ class TestRegistroEncuestas(unittest.TestCase):
         self.registro.votos("7", [("Pizza", 5), ("sushi", 0)])
         self.assertEqual(
             self.registro.en_curso(),
-            "Encuesta en curso. Pizza con 5 votos y sushi sin votos")
+            "Encuesta en curso. Opciones: Pizza con 5 votos y sushi sin votos")
 
     def test_votos_despues_de_cerrar_no_la_reabren(self):
         self.registro.cerrar("7", "Título", [("Pizza", 3)])
