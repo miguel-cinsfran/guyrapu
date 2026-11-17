@@ -72,20 +72,25 @@ def _iguales(una, otra) -> bool:
     return bytes(primera.GetData()) == bytes(segunda.GetData())
 
 
-def _bombear(app, segundos) -> None:
+def _paso(bucle) -> None:
+    while bucle.Pending():
+        bucle.Dispatch()
+    bucle.ProcessIdle()
+    time.sleep(0.02)
+
+
+def _bombear(bucle, segundos) -> None:
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
-        app.Yield()
-        time.sleep(0.02)
+        _paso(bucle)
 
 
-def _esperar(app, condicion, segundos) -> bool:
+def _esperar(bucle, condicion, segundos) -> bool:
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
         if condicion():
             return True
-        app.Yield()
-        time.sleep(0.02)
+        _paso(bucle)
     return condicion()
 
 
@@ -109,36 +114,41 @@ def _limpiar(capa) -> None:
             print(f"Aviso: no se pudo {que}: {error}")
 
 
-def _probar(app, marco, cliente, fallos) -> None:
+def _probar(marco, cliente, fallos) -> None:
     capa = CapaVideo(marco)
+    bucle = wx.GUIEventLoop()
     try:
-        antes = _captura(cliente, "antes")
-        capa.agregar({"texto": "Mensaje de prueba en Tarjeta",
-                      "nombre": "Tarjeta", "estilo": "tarjeta",
-                      "segundos_pantalla": 3})
-        capa.agregar({"texto": "Mensaje de prueba en Banda",
-                      "nombre": "Banda", "estilo": "banda",
-                      "segundos_pantalla": 3})
-        previa = _captura(cliente, "previa")
-        _comprobar("antes de la entrada no se ve nada de la tarjeta",
-                   _iguales(antes, previa), fallos)
-        _esperar(app, lambda: "En el vídeo:" in capa.describir(), TOPE_VIDEO)
-        _bombear(app, 0.5)
-        medio = _captura(cliente, "medio")
-        _comprobar("a mitad de los segundos se ve la tarjeta",
-                   not _iguales(antes, medio), fallos)
-        _esperar(app, lambda: capa.describir() == "Nada en el vídeo.",
-                 TOPE_VIDEO)
-        programa = _programa(cliente)
-        _comprobar("al final no queda la escena Guyrapu al aire",
-                   escena_guyrapu.ESCENA not in _fuentes_de(cliente, programa),
-                   fallos)
+        with wx.EventLoopActivator(bucle):
+            antes = _captura(cliente, "antes")
+            capa.agregar({"texto": "Mensaje de prueba en Tarjeta",
+                          "nombre": "Tarjeta", "estilo": "tarjeta",
+                          "segundos_pantalla": 3})
+            capa.agregar({"texto": "Mensaje de prueba en Banda",
+                          "nombre": "Banda", "estilo": "banda",
+                          "segundos_pantalla": 3})
+            previa = _captura(cliente, "previa")
+            _comprobar("antes de la entrada no se ve nada de la tarjeta",
+                       _iguales(antes, previa), fallos)
+            _esperar(bucle, lambda: "En el vídeo:" in capa.describir(),
+                     TOPE_VIDEO)
+            _bombear(bucle, 0.5)
+            medio = _captura(cliente, "medio")
+            _comprobar("a mitad de los segundos se ve la tarjeta",
+                       not _iguales(antes, medio), fallos)
+            _esperar(bucle, lambda: capa.describir()
+                     == "En el vídeo: Mensaje de prueba en Banda.", TOPE_VIDEO)
+            _esperar(bucle, lambda: capa.describir() == "Nada en el vídeo.",
+                     TOPE_VIDEO)
+            programa = _programa(cliente)
+            al_aire = escena_guyrapu.ESCENA in _fuentes_de(cliente, programa)
+            _comprobar("al final no queda la escena Guyrapu al aire",
+                       not al_aire, fallos)
     finally:
         _limpiar(capa)
 
 
 def principal():
-    app = wx.App(False)
+    _app = wx.App(False)
     marco = wx.Frame(None, title="Capa de vídeo de prueba")
     marco.Hide()
     estaba_abierto = obs_activacion.obs_esta_en_ejecucion()
@@ -150,7 +160,7 @@ def principal():
             time.sleep(ESPERA_TRAS_ABRIR)
         if not cliente.conectado:
             cliente.conectar()
-        _probar(app, marco, cliente, fallos)
+        _probar(marco, cliente, fallos)
     except Exception as error:
         print(f"Falla: {error}")
         fallos.append(str(error))
