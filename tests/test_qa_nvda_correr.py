@@ -116,6 +116,8 @@ class TestCortado(unittest.TestCase):
                               return_value="2026.3.1"),
             mock.patch.object(correr.perfil, "ruta_estado",
                               return_value=Path(carpeta.name) / "estado.json"),
+            mock.patch.object(correr.perfil, "ruta_registro",
+                              return_value=Path(carpeta.name) / "nvda.log"),
             mock.patch.object(correr.nvda_local, "nvda_en_marcha",
                               return_value=None),
             mock.patch.object(correr.nvda_local, "cerrar",
@@ -131,7 +133,7 @@ class TestCortado(unittest.TestCase):
                 correr.devolver, "ejecutar_devolucion",
                 return_value=devolucion_ok) as devolver_mock,
             mock.patch.object(correr, "_escribir_informe",
-                              return_value=Path("informe")),
+                              return_value=Path(carpeta.name) / "informe.txt"),
             mock.patch.object(correr.seguridad, "anotar_fin_limpio"),
         ):
             codigo = correr.ejecutar(args)
@@ -146,6 +148,13 @@ class TestCortado(unittest.TestCase):
         self.assertEqual(codigo, correr.COD_CORTE)
         devolver_mock.assert_called_once()
         borrar.assert_not_called()
+
+    def test_la_raiz_no_queda_con_informes_de_nvda(self):
+        self._correr_cortado(True)
+        raiz = Path.cwd()
+        restos = sorted(raiz.glob("informe-nvda.log"))
+        restos += sorted(raiz.glob("informe-*-nvda.log"))
+        self.assertEqual(restos, [])
 
 
 class TestRespaldo(unittest.TestCase):
