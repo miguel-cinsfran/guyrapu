@@ -15,8 +15,9 @@ from guyrapu.ui.chat_vivo import ControladorChat
 from guyrapu.ui.lista_chat import MensajeChat
 
 
-def _registro(tipo=TIPO_TEXTO, autor="Ana", texto="hola", monto=""):
-    return MensajeChat(plataforma="youtube", autor=autor, identificador="C",
+def _registro(tipo=TIPO_TEXTO, autor="Ana", texto="hola", monto="",
+              plataforma="youtube"):
+    return MensajeChat(plataforma=plataforma, autor=autor, identificador="C",
                        texto=texto, hora="12:00", tipo=tipo, monto=monto,
                        rol="")
 
@@ -35,6 +36,29 @@ def _controlador(lista=None, maximo=500, activo=True, filtro="__filtro__",
     if filtro != "__filtro__":
         control.filtro = filtro
     return control
+
+
+class TestRecibidos(unittest.TestCase):
+    """Cuentan los de texto de cualquier plataforma, aunque se oculten."""
+
+    def test_cuenta_los_de_texto_aunque_el_filtro_los_oculte(self):
+        control = _controlador(filtro=TIPO_SUPERCHAT)
+        with mock.patch.object(chat_vivo.wx, "CallLater",
+                               return_value=mock.Mock()),                 mock.patch.object(chat_vivo.wx.Window, "FindFocus",
+                                  return_value=None),                 mock.patch.object(chat_vivo._snd, "reproducir"):
+            control.encolar(_registro(plataforma="tiktok"))
+            control.encolar(_registro(tipo=TIPO_SUPERCHAT))
+            control.volcar()
+        self.assertEqual(control.recibidos, 1)
+
+    def test_cuenta_al_autor_oculto_si_es_de_texto(self):
+        control = _controlador(oculto=True)
+        with mock.patch.object(chat_vivo.wx, "CallLater",
+                               return_value=mock.Mock()):
+            control.encolar(_registro(texto="tapado"))
+            control.encolar(_registro(tipo=TIPO_ME_GUSTA, monto="3"))
+            control.volcar()
+        self.assertEqual(control.recibidos, 1)
 
 
 class TestControladorChat(unittest.TestCase):

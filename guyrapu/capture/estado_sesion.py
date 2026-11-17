@@ -61,6 +61,7 @@ class SnapshotSesion:
     lectura_silenciada: bool = False
     overlay_puerto: int | None = None
     overlay_clientes: int = 0
+    video: str = ""             # frase de la capa del vídeo, "" si no hay
     programados_proximo: str = ""
     descartados: str = ""
     obs_transmision: str = ""
@@ -248,6 +249,10 @@ def _render_overlay(s: SnapshotSesion, largo: bool) -> str:
     return _("Chat en el vídeo activado, pero nadie lo está mostrando")
 
 
+def _render_video(s: SnapshotSesion, largo: bool) -> str:
+    return (s.video or "").strip().removesuffix(".")
+
+
 def _render_programados(s: SnapshotSesion, largo: bool) -> str:
     return s.programados_proximo or ""
 
@@ -309,6 +314,7 @@ _RENDERERS = {
     "voz": _render_voz,
     "lectura_silenciada": _render_lectura_silenciada,
     "overlay": _render_overlay,
+    "video": _render_video,
     "programados": _render_programados,
     "descartados": _render_descartados,
     "obs_transmision": _render_obs_transmision,

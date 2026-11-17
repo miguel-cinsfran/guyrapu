@@ -74,20 +74,23 @@ def iniciar_reloj(mensajes: list[dict], ahora: float, aleatorio) -> None:
                 ahora, aleatorio)
 
 
-def _va_a(mensaje: dict, destino: str) -> bool:
+def _va_a(mensaje: dict, destinos) -> bool:
     propio = mensaje.get("destino", "chat")
-    return propio == "ambos" or propio == destino
+    if propio == "ambos":
+        return bool(destinos)
+    return propio in destinos
 
 
 def elegir_envio(mensajes: list[dict], ahora: float,
-                 ultimo_envio: float | None, destino: str = "chat") -> dict | None:
-    """Devuelve el mensaje activo vencido más antiguo que va a ese destino."""
+                 ultimo_envio: float | None,
+                 destinos=("chat",)) -> dict | None:
+    """Devuelve el mensaje activo vencido más antiguo que va a esos destinos."""
     if ultimo_envio is not None and ahora - ultimo_envio < SEGUNDOS_ENTRE_ENVIOS:
         return None
     vencidos = [
         mensaje for mensaje in mensajes
         if mensaje.get("activo", False) and mensaje.get("proximo", float("inf")) <= ahora
-        and _va_a(mensaje, destino)
+        and _va_a(mensaje, destinos)
     ]
     return min(vencidos, key=lambda mensaje: mensaje["proximo"]) if vencidos else None
 
@@ -260,20 +263,21 @@ class ProgramadorMensajes:
         self.reloj_iniciado = True
         self._base_chat = self.mensajes_chat
 
-    def contar_mensaje_chat(self):
-        self.mensajes_chat += 1
+    def fijar_mensajes_chat(self, total):
+        self.mensajes_chat = int(total)
 
     def _tiene_sus_mensajes(self, mensaje) -> bool:
         minimo = mensaje.get("mensajes_entre", 0)
         desde = self._envios.get(id(mensaje), self._base_chat)
         return self.mensajes_chat - desde >= minimo
 
-    def siguiente(self, ahora) -> dict | None:
+    def siguiente(self, ahora, destinos=("chat",)) -> dict | None:
         if self.en_curso:
             return None
         disponibles = [mensaje for mensaje in self.mensajes
-                       if self._tiene_sus_mensajes(mensaje)]
-        return elegir_envio(disponibles, ahora, self.ultimo_envio)
+                       if self._tiene_sus_mensajes(mensaje)
+                       and _va_a(mensaje, destinos)]
+        return elegir_envio(disponibles, ahora, self.ultimo_envio, destinos)
 
     def empezar_envio(self):
         self.en_curso = True

@@ -180,6 +180,9 @@ class TestEstadoDefecto(unittest.TestCase):
     def test_cuota_youtube_desmarcada_de_fabrica(self):
         self.assertEqual(pred.obtener("estado", "cuota_youtube"), "false")
 
+    def test_video_activo_de_fabrica(self):
+        self.assertEqual(pred.obtener("estado", "video"), "true")
+
     def test_encuesta_activa_de_fabrica_y_en_voz_principal(self):
         self.assertEqual(pred.obtener("estado", "encuesta"), "true")
         self.assertEqual(pred.obtener("eventos", "encuesta"), "principal")

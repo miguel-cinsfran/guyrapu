@@ -156,6 +156,24 @@ class TestSnapshotBatallaYMeta(unittest.TestCase):
                          "Meta: 100 rosas para el viaje, 340 de 500")
 
 
+class TestSnapshotVideo(unittest.TestCase):
+
+    def test_sin_capa_queda_vacio(self):
+        self.assertEqual(gui_estado.snapshot_sesion(
+            _marco_falso({})).video, "")
+
+    def test_con_capa_lleva_la_frase_de_la_cola(self):
+        frame = _marco_falso({})
+        frame._capa_video = mock.Mock(
+            describir=mock.Mock(
+                return_value="En el vídeo: Saludo. 2 en cola."))
+        snap = gui_estado.snapshot_sesion(frame)
+        self.assertEqual(snap.video, "En el vídeo: Saludo. 2 en cola.")
+        self.assertEqual(
+            gui.estado_sesion.formatear_estado(snap, {"video"}),
+            "En el vídeo: Saludo. 2 en cola.")
+
+
 class TestSnapshotCuotaYoutube(unittest.TestCase):
     def test_con_sesion_lleva_las_unidades_usadas(self):
         with mock.patch("guyrapu.youtube.credenciales.hay_sesion",

@@ -122,6 +122,11 @@ def _campos_lectura(frame):
     }
 
 
+def _frase_del_video(frame):
+    capa = getattr(frame, "_capa_video", None)
+    return capa.describir() if capa is not None else ""
+
+
 def _campos_obs(frame):
     from guyrapu.ui import gui as _gui
     estado_obs = _seguro(lambda: frame._obs_vigilante.estado(), None)
@@ -154,6 +159,7 @@ def snapshot_sesion(frame):
         **_campos_lectura(frame),
         overlay_puerto=_gui.overlay_servidor.puerto_actual(),
         overlay_clientes=_gui.overlay_servidor.cuantos_miran(),
+        video=_frase_del_video(frame),
         musica=_seguro(lambda: frame._musica.texto_estado(), ""),
         igualando=_seguro(lambda: frame._musica.texto_igualando(), ""),
         camara=_seguro(lambda: _texto_camara(frame), ""),

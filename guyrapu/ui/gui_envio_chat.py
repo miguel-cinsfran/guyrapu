@@ -164,24 +164,67 @@ def programado_fallo(frame, exc) -> None:
               "servicio."), "aviso")
 
 
-def procesar_programado(frame) -> None:
+def _capa_de_video(frame):
+    """La capa del vídeo, creada la primera vez que un mensaje la necesita."""
+    capa = getattr(frame, "_capa_video", None)
+    if capa is None:
+        from guyrapu.ui.capa_video import CapaVideo
+        capa = CapaVideo(frame)
+        frame._capa_video = capa
+    return capa
+
+
+def _destinos_disponibles(frame) -> set:
+    """El chat y el vídeo que se pueden usar ahora mismo."""
     from guyrapu.ui import gui as _gui
     propio = bool(frame.sesion.chat_propio or frame.sesion.conexion_propia)
+    destinos = set()
+    puede_chat = _gui.programados.puede_enviar(
+        True, frame._conectado, frame.sesion.es_tiktok,
+        frame.sesion.live_chat_id, propio, True)
+    if puede_chat and _gui.programados.puede_enviar(
+            True, frame._conectado, frame.sesion.es_tiktok,
+            frame.sesion.live_chat_id, propio,
+            frame._sesion_api_disponible()):
+        destinos.add("chat")
+    if frame._conectado:
+        destinos.add("video")
+    return destinos
+
+
+def _repartir_programado(frame, mensaje, ahora, destinos) -> None:
+    """Manda el mensaje elegido a cada destino que le toca y se puede usar."""
+    destino = mensaje.get("destino", "chat")
+    va_al_chat = destino in ("chat", "ambos")
+    va_al_video = destino in ("video", "ambos")
+    if va_al_video and "video" in destinos:
+        _capa_de_video(frame).agregar(mensaje)
+    if va_al_chat and "chat" in destinos:
+        frame._enviar_programado(mensaje, ahora)
+    elif va_al_video and "video" in destinos:
+        frame._programado_enviado(mensaje)
+
+
+def procesar_programado(frame) -> None:
+    from guyrapu.ui import gui as _gui
     activo = bool(frame._config.get("programados_activo", False))
-    if not _gui.programados.puede_enviar(
-            activo, frame._conectado, frame.sesion.es_tiktok,
-            frame.sesion.live_chat_id, propio, True) or not _gui.programados.puede_enviar(
-            activo, frame._conectado, frame.sesion.es_tiktok,
-            frame.sesion.live_chat_id, propio, frame._sesion_api_disponible()):
+    if not activo:
+        frame.programador.detener_reloj()
+        return
+    chat_vivo = getattr(frame, "chat_vivo", None)
+    if chat_vivo is not None:
+        frame.programador.fijar_mensajes_chat(chat_vivo.recibidos)
+    destinos = _destinos_disponibles(frame)
+    if not destinos:
         # Sin las condiciones para mandar, el reloj no corre: al
         # reconectar arranca de nuevo en vez de salir todo de golpe.
         frame.programador.detener_reloj()
         return
     ahora = _gui.time.time()
     frame._iniciar_programados_si_corresponde(ahora)
-    mensaje = frame.programador.siguiente(ahora)
+    mensaje = frame.programador.siguiente(ahora, destinos)
     if mensaje is not None:
-        frame._enviar_programado(mensaje, ahora)
+        _repartir_programado(frame, mensaje, ahora, destinos)
 
 
 def moderar(frame, autor: str, canal_id: str, segundos: int | None) -> None:

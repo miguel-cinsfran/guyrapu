@@ -398,14 +398,27 @@ class TestDestinoDelEnvio(unittest.TestCase):
         self.assertEqual(elegido["texto"], "solo chat")
 
     def test_el_video_no_elige_uno_solo_chat(self):
-        elegido = programados.elegir_envio(self.mensajes, 100, None, "video")
+        elegido = programados.elegir_envio(self.mensajes, 100, None,
+                                           {"video"})
         self.assertEqual(elegido["texto"], "solo video")
+
+    def test_con_los_dos_destinos_disponibles_entra_el_mas_antiguo(self):
+        elegido = programados.elegir_envio(self.mensajes, 100, None,
+                                           {"chat", "video"})
+        self.assertEqual(elegido["texto"], "solo video")
+
+    def test_ambos_entra_con_cualquiera_de_los_dos_solo(self):
+        ambos = self.mensajes[2]
+        self.assertIs(programados.elegir_envio(
+            [ambos], 100, None, {"chat"}), ambos)
+        self.assertIs(programados.elegir_envio(
+            [ambos], 100, None, {"video"}), ambos)
 
     def test_ambos_sale_para_los_dos_destinos(self):
         ambos = [self.mensajes[2]]
         self.assertIs(programados.elegir_envio(ambos, 100, None), ambos[0])
-        self.assertIs(programados.elegir_envio(ambos, 100, None, "video"),
-                      ambos[0])
+        self.assertIs(programados.elegir_envio(ambos, 100, None,
+                                               {"video"}), ambos[0])
 
     def test_un_mensaje_solo_video_no_sale_para_el_chat(self):
         self.assertIsNone(
@@ -424,11 +437,17 @@ class TestMensajesEntre(unittest.TestCase):
         programador, mensaje = self._programador()
         programador.envio_hecho(mensaje, 0.0, lambda minimo, maximo: 600)
         mensaje["proximo"] = 0.0
-        programador.contar_mensaje_chat()
-        programador.contar_mensaje_chat()
+        programador.fijar_mensajes_chat(2)
         self.assertIsNone(programador.siguiente(1000.0))
-        programador.contar_mensaje_chat()
+        programador.fijar_mensajes_chat(3)
         self.assertIs(programador.siguiente(1000.0), mensaje)
+
+    def test_siguiente_recibe_los_destinos_disponibles(self):
+        video = {"texto": "Video", "activo": True, "proximo": 0.0,
+                 "minutos_min": 10, "minutos_max": 10, "destino": "video"}
+        programador = programados.ProgramadorMensajes([video])
+        self.assertIs(programador.siguiente(1000.0, {"video"}), video)
+        self.assertIsNone(programador.siguiente(1000.0))
 
     def test_un_mensaje_nunca_enviado_cuenta_desde_el_arranque(self):
         mensaje = {
@@ -439,7 +458,7 @@ class TestMensajesEntre(unittest.TestCase):
         programador.iniciar_reloj_si_falta(0.0, lambda minimo, maximo: 0)
         mensaje["proximo"] = 0.0
         self.assertIsNone(programador.siguiente(1000.0))
-        programador.contar_mensaje_chat()
+        programador.fijar_mensajes_chat(1)
         self.assertIs(programador.siguiente(1000.0), mensaje)
 
     def test_recuerda_la_cuenta_del_chat_al_ultimo_envio(self):
@@ -448,14 +467,12 @@ class TestMensajesEntre(unittest.TestCase):
             "minutos_min": 10, "minutos_max": 10, "mensajes_entre": 3,
         }
         programador = programados.ProgramadorMensajes([mensaje])
-        for _ in range(5):
-            programador.contar_mensaje_chat()
+        programador.fijar_mensajes_chat(5)
         programador.envio_hecho(mensaje, 0.0, lambda minimo, maximo: 600)
         mensaje["proximo"] = 0.0
-        programador.contar_mensaje_chat()
-        programador.contar_mensaje_chat()
+        programador.fijar_mensajes_chat(7)
         self.assertIsNone(programador.siguiente(1000.0))
-        programador.contar_mensaje_chat()
+        programador.fijar_mensajes_chat(8)
         self.assertIs(programador.siguiente(1000.0), mensaje)
 
 

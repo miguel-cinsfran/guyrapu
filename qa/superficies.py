@@ -13,6 +13,7 @@ SUPERFICIES = {
     "gui_cierre.py": "principal",
     "gui_construccion.py": "principal",
     "gui_sesion.py": "principal",
+    "capa_video.py": "principal",
     "chat_acciones.py": "principal",
     "chat_buscar.py": "menu_chat",
     "chat_participacion.py": "menu_chat",

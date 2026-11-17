@@ -29,6 +29,7 @@ COMPONENTES: tuple[str, ...] = (
     "voz",
     "lectura_silenciada",
     "overlay",
+    "video",
     "programados",
     "descartados",
     "obs_transmision",
@@ -82,6 +83,8 @@ ETIQUETAS = {
     "lectura_silenciada": N_("Aviso de lectura silenciada"),
     # Traductores: rótulo en Preferencias del componente de F2.
     "overlay": N_("Chat en el vídeo para transmitir"),
+    # Traductores: rótulo en Preferencias del componente de F2.
+    "video": N_("Lo que se ve en el vídeo"),
     # Traductores: rótulo en Preferencias del componente de F2.
     "programados": N_("Mensajes automáticos"),
     # Traductores: rótulo en Preferencias del componente de F2.

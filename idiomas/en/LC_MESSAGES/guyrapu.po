@@ -881,6 +881,11 @@ msgstr "Show chat on video"
 
 #. Traductores: rótulo en Preferencias del componente de F2.
 #: guyrapu/capture/componentes_estado.py
+msgid "Lo que se ve en el vídeo"
+msgstr "What is shown on the video"
+
+#. Traductores: rótulo en Preferencias del componente de F2.
+#: guyrapu/capture/componentes_estado.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Mensajes automáticos"
 msgstr "Scheduled messages"
@@ -7832,6 +7837,15 @@ msgstr "Camera shortcuts in any application"
 msgid "Atajos de cámara solo en {app}"
 msgstr "Camera shortcuts only in {app}"
 
+#: guyrapu/ui/capa_video.py
+#, python-brace-format
+msgid "En el vídeo: {nombre}."
+msgstr "On the video: {nombre}."
+
+#: guyrapu/ui/capa_video.py
+msgid "No se pudo mostrar en el vídeo. Se vuelve a intentar en unos segundos."
+msgstr "Could not show it on the video. Trying again in a few seconds."
+
 #: guyrapu/ui/chat_acciones.py
 #, python-brace-format
 msgid "Filtro: {filtro}. {n} mensajes"
@@ -7978,16 +7992,17 @@ msgstr "Results"
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
 #: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
 #: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/musica_ventana.py guyrapu/ui/ventana_espera.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
 msgid "&Cerrar"
 msgstr "&Close"
 
 #: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
 #: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_actualizacion.py
 #: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/musica_ventana.py guyrapu/ui/obs_ventana.py
-#: guyrapu/ui/restream_ventana.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/obs_ventana.py guyrapu/ui/restream_ventana.py
+#: guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
 msgstr "Close"
 

@@ -19,7 +19,7 @@ from guyrapu.core import plataformas
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.avisos_tiktok import con_sonido, modo_evento, pasa_filtro
 from guyrapu.core.config import (
-    TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT,
+    TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
 from guyrapu.ui import comandos_clips
 from guyrapu.ui.lista_chat import ListaChat, MensajeChat
@@ -60,9 +60,11 @@ class ControladorChat:
         self._reloj = reloj
         self._ultimo_clip_chat = None
         self._clip_en_curso = False
+        self.recibidos = 0
 
     def encolar(self, registro: MensajeChat) -> None:
         self._quizas_clip(registro)
+        self.recibidos += 1 if registro.tipo == TIPO_TEXTO else 0
         self._pendientes.append(registro)
         # Si el temporizador ya corre, NO reiniciarlo: con un chat activo
         # (mensajes cada menos de MS_VOLCADO_CHAT) reiniciar pospondría el
