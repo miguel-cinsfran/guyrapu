@@ -103,7 +103,7 @@ class TestNombreAccesible(Base):
                    "Destino", "Campo libre"],
         "sin_nombre": ["Antes"],
         "rol_contenedor": ["Zona de prueba", "Siguiente"],
-        "nombre_repetido": ["Volumen", "Volumen"],
+        "nombre_repetido": ["Siguiente", "Volumen", "Volumen"],
         "ingles": ["Cancel"],
         "atajo_repetido": ["Activar", "Aplicar"],
         "paso_mudo": ["Mudo"],
@@ -172,6 +172,14 @@ class TestNombreRepetido(Base):
         deslizador = [control for control in _controles(marco)
                       if isinstance(control, wx.Slider)]
         return grupo, deslizador
+
+    def test_la_trampa_tiene_al_menos_dos_paradas_de_tab(self):
+        marco = self.construir("nombre_repetido")
+        paradas = [control for control in _controles(marco)
+                   if isinstance(control, wx.Control)
+                   and not isinstance(control, wx.StaticBox)
+                   and control.AcceptsFocusFromKeyboard()]
+        self.assertGreaterEqual(len(paradas), 2)
 
     def test_la_trampa_repite_el_nombre_del_grupo_y_del_deslizador(self):
         grupo, deslizador = self._grupo_y_deslizador(

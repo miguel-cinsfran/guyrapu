@@ -48,7 +48,7 @@ VENTANAS = {
     "rol_contenedor": _datos(
         "rol_contenedor", "rol_contenedor", "Zona de prueba"),
     "nombre_repetido": _datos(
-        "nombre_repetido", "nombre_repetido", "Volumen"),
+        "nombre_repetido", "nombre_repetido", "Siguiente"),
     "ingles": _datos("ingles", "ingles", "Cancel"),
     "atajo_repetido": _datos(
         "atajo_repetido", "atajo_repetido", "Activar"),
@@ -105,6 +105,9 @@ def _construir_rol_contenedor(wx, panel, caja, marco):
 
 
 def _construir_nombre_repetido(wx, panel, caja, marco):
+    boton = wx.Button(panel, label="Siguiente")
+    nombre_accesible(boton, "Siguiente")
+    caja.Add(boton, 0, wx.ALL, 6)
     cuadro = wx.StaticBox(panel, label="Volumen")
     nombre_accesible(cuadro, "Volumen")
     grupo = wx.StaticBoxSizer(cuadro, wx.VERTICAL)
@@ -112,7 +115,7 @@ def _construir_nombre_repetido(wx, panel, caja, marco):
     nombre_accesible(deslizador, "Volumen")
     grupo.Add(deslizador, 0, wx.EXPAND | wx.ALL, 6)
     caja.Add(grupo, 0, wx.EXPAND | wx.ALL, 6)
-    return deslizador
+    return boton
 
 
 def _construir_ingles(wx, panel, caja, marco):
