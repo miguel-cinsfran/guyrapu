@@ -27,6 +27,7 @@ RUTAS_DE_DATOS = [
     ("alias", "alias.json"),
     ("perfiles_restream", "perfiles_restream.json"),
     ("mensajes_programados", "mensajes_programados.json"),
+    ("estilos_avisos", "estilos_avisos.json"),
     ("fin_pendiente", "fin_pendiente.json"),
     ("cuota_youtube", "cuota_youtube.json"),
     ("cuota_youtube_pagina", "cuota_youtube_pagina.json"),

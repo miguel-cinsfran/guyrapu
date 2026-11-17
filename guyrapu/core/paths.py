@@ -123,6 +123,12 @@ def disenos_escena() -> Path:
     return carpeta_datos() / "disenos_escena.json"
 
 
+def estilos_avisos() -> Path:
+    # Estilos de aviso propios del usuario: nacen ya dentro de data/, así
+    # que no entran en datos_a_migrar().
+    return carpeta_datos() / "estilos_avisos.json"
+
+
 def gratis_ia() -> Path:
     # Marcas de qué modelos responde la clave gratuita de un proveedor: se
     # rehacen al actualizar la lista, así que no entra en datos_a_migrar().
