@@ -510,6 +510,25 @@ class TestPaquetes(BaseVentana):
             ventana.panel._importar()
         self.assertEqual(self._nombres_en_disco(), ["Mío", "Mío (copia)"])
 
+    def test_p7_un_estilo_importado_recibe_una_clave_distinta(self):
+        ventana = self._ventana([_estilo("Mío", clave="mio")])
+        ruta = Path(self.tmp.name) / "misma.zip"
+        with mock.patch.object(ventana.panel, "_pedir_ruta",
+                               return_value=ruta):
+            ventana.panel._exportar()
+        with mock.patch.object(ventana.panel, "_pedir_ruta",
+                               return_value=ruta), \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            ventana.panel._importar()
+        estilos = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        self.assertEqual([e["nombre"] for e in estilos],
+                         ["Mío", "Mío (copia)"])
+        claves = [e["clave"] for e in estilos]
+        self.assertEqual(len(set(claves)), 2)
+        self.assertNotIn(estilos[1]["clave"],
+                         {e["clave"] for e in estilos_aviso.FABRICA}
+                         | {claves[0]})
+
     def test_p7_un_paquete_de_otro_tipo_se_informa(self):
         ruta = self._paquete([_estilo("Mío")], tipo="avisos")
         ventana = self._ventana([])
