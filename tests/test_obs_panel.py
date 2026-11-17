@@ -311,7 +311,7 @@ class GestorPanelObsTest(unittest.TestCase):
         filas = self.gestor(doble).filas_escena("Otra")
         self.assertEqual(
             filas[0].texto,
-            "Pantalla, captura de pantalla, sin medida hasta la escena actual")
+            "Pantalla, captura de pantalla, sin medir, no está al aire")
 
     def test_filas_escena_al_aire_mantiene_no_muestra_imagen(self):
         doble = DobleObs(

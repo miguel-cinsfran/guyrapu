@@ -15201,10 +15201,6 @@ msgid "oculta"
 msgstr "hidden"
 
 #: guyrapu/obs/obs_escena.py
-msgid "sin medida hasta la escena actual"
-msgstr "not measured until it is the current scene"
-
-#: guyrapu/obs/obs_escena.py
 msgid "sin imagen"
 msgstr "no image"
 
@@ -15275,4 +15271,8 @@ msgstr "Scene: {escena}. {palabra}, from front to back."
 #: guyrapu/ui/ia_consulta_rapida.py
 msgid "Consulta rápida en curso."
 msgstr "Quick question in progress."
+
+#: guyrapu/obs/obs_escena.py
+msgid "sin medir, no está al aire"
+msgstr "not measured, not on air"
 

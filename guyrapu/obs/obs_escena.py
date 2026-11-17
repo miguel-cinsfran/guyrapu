@@ -156,7 +156,7 @@ def _texto_sin_imagen(nombre, tipo, visible, al_aire) -> tuple:
     if not visible:
         estado = _("oculta")
     elif not al_aire and tipo in {_(texto) for texto in _TIPOS_SIN_DIBUJO}:
-        estado = _("sin medida hasta la escena actual")
+        estado = _("sin medir, no está al aire")
     else:
         estado = _("sin imagen")
     partes = [nombre]
@@ -251,7 +251,7 @@ def filas_de_escena(elementos, lienzo_ancho, lienzo_alto, tipos,
 
     El texto es el de la descripción sin número ni punto; si la fuente está
     bloqueada, se agrega «posición bloqueada» al final. Fuera del aire, una
-    captura que OBS no dibuja queda sin medida hasta la escena actual.
+    captura que OBS no dibuja queda sin medir porque no está al aire.
     """
     return tuple(
         FilaFuente(

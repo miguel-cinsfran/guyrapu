@@ -263,7 +263,7 @@ class CapturaFueraDelAireTest(unittest.TestCase):
                     al_aire=False)
                 self.assertEqual(
                     filas[0].texto,
-                    f"Captura, {tipo}, sin medida hasta la escena actual")
+                    f"Captura, {tipo}, sin medir, no está al aire")
 
     def test_una_captura_sin_tamano_al_aire_sigue_sin_mostrar_imagen(self):
         filas = obs_escena.filas_de_escena(
