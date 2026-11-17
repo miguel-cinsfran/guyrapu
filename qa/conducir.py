@@ -93,16 +93,13 @@ from escenarios_preferencias import (  # noqa: E402
     escenario_preferencias, escenario_preferencias_categorias,
     escenario_preferencias_persisten)
 from escenarios_mensajes_automaticos import escenario_mensajes_automaticos  # noqa: E402
+from escenarios_estilos import escenario_estilos  # noqa: E402
 # Cada modulo de interfaz con el escenario que lo recorre. Los `gui*.py` NO se
 # listan aca: se descubren del disco en `superficies_sin_escenario`, y esa es
 # toda la gracia. Una lista escrita a mano solo caza lo que alguien se acordo
 # de anotar, y el 25/08/2026 eso ya dejo dos escenarios registrados fuera de la
 # corrida completa sin que nadie avisara. Descubriendo, un `gui_algo.py` nuevo
 # sin escenario detiene la corrida y queda nombrado.
-#
-# La idea es de `miguel-cinsfran/tesis-orquestacion`, donde el barrido de
-# accesibilidad descubre las pantallas del sistema de archivos por el mismo
-# motivo.
 #
 # `reproductor.py` e `iconos.py` van a mano porque dibujan interfaz y no se
 # llaman `gui*`: sin ellos el descubrimiento miraria para otro lado.
@@ -223,6 +220,7 @@ ESCENARIOS = {
     "reproductor_en_marcha": escenario_reproductor_en_marcha,
     "overlay": escenario_overlay,
     "mensajes_automaticos": escenario_mensajes_automaticos,
+    "estilos": escenario_estilos,
     "enviar_live": escenario_enviar_live,
 }
 
@@ -321,7 +319,7 @@ def correr_escenario(nombre: str, app: Aplicacion, args, res: Resultado,
 EN_TODOS = ["arranque_frio", "reproductor",
             "menus", "principal", "descargas", "preferencias",
             "preferencias_categorias", "preferencias_persisten",
-            "mensajes_automaticos", "historial", "restream",
+            "mensajes_automaticos", "estilos", "historial", "restream",
             "transmision", "escena", "grabacion",
             # `microfono` va justo después de `transmision`: los dos
             # necesitan OBS y auditan cuadros del menú OBS.

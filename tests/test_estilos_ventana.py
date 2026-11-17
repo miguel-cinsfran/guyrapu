@@ -1,0 +1,533 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
+"""Ventana Estilos del vídeo: lista, acciones, cuadro y paquetes.
+
+Abre ventanas.
+"""
+
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+import wx
+
+from guyrapu.capture import programados
+from guyrapu.core import paths
+from guyrapu.interaction import animacion, paquetes
+from guyrapu.obs import descripcion_estilo, estilos_aviso
+from guyrapu.ui import (comando_estilos, estilo_cuadro, estilos_ventana,
+                        menu_interaccion)
+from guyrapu.ui.lista_acciones import clave_de_tecla
+from tests.letras_acceso import letras_repetidas
+from tests.rutas_temporales import redirigir_rutas
+from tests.ventanas_prueba import app_de_prueba, destruir
+
+MOTIVO_FABRICA = ("Los estilos de fábrica no se cambian. Usa Duplicar para "
+                  "crear uno propio.")
+
+
+def _estilo(nombre="Mío", clave="mio", **cambios):
+    return dict(estilos_aviso.FABRICA[0], clave=clave, nombre=nombre, **cambios)
+
+
+def _mensaje(nombre, estilo):
+    return {"nombre": nombre, "texto": nombre, "estilo": estilo}
+
+
+def _letra(rotulo):
+    indice = rotulo.find("&")
+    if indice < 0 or indice + 1 >= len(rotulo):
+        return None
+    return rotulo[indice + 1].lower()
+
+
+class FrameDoble:
+    def __init__(self):
+        self._bind_menu = mock.Mock()
+        self._config = {}
+
+    def _accel(self, _accion):
+        return ""
+
+
+class BaseVentana(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        parche = redirigir_rutas(self.tmp.name)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+
+    def _padre(self):
+        padre = wx.Frame(None)
+        self.addCleanup(destruir, padre)
+        return padre
+
+    def _ventana(self, estilos=None):
+        if estilos is not None:
+            estilos_aviso.guardar_estilos(paths.estilos_avisos(), estilos)
+        ventana = estilos_ventana.VentanaEstilos(self._padre())
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def _cuadro(self, estilo=None, otros=()):
+        cuadro = estilo_cuadro.DialogoEstilo(None, estilo, otros)
+        self.addCleanup(destruir, cuadro)
+        return cuadro
+
+    def _nombres_en_disco(self):
+        return [estilo["nombre"] for estilo in estilos_aviso.cargar_estilos(
+            paths.estilos_avisos())]
+
+    def _textos(self, ventana):
+        return [ventana.panel.lista.GetString(indice)
+                for indice in range(ventana.panel.lista.GetCount())]
+
+    def _paquete(self, elementos, tipo="estilos"):
+        ruta = Path(self.tmp.name) / "paquete.zip"
+        paquetes.exportar(ruta, tipo, elementos)
+        return ruta
+
+
+class TestVentana(BaseVentana):
+
+    def test_p1_lista_la_fabrica_primero_y_despues_el_usuario(self):
+        ventana = self._ventana([_estilo("Mío")])
+        self.assertEqual(self._textos(ventana), [
+            "Clásico (de fábrica)", "Banda (de fábrica)",
+            "Tarjeta (de fábrica)", "Alto contraste (de fábrica)", "Mío"])
+
+    def test_p1_el_menu_tiene_el_comando_y_lo_enlaza(self):
+        etiquetas = []
+
+        def crear_menu(*_args, **_kwargs):
+            menu = mock.MagicMock()
+            menu.Append.side_effect = (
+                lambda *args: etiquetas.append(args[1]) or mock.Mock())
+            menu.AppendCheckItem.side_effect = (
+                lambda *args: etiquetas.append(args[1]) or mock.Mock())
+            return menu
+
+        frame = FrameDoble()
+        barra = mock.Mock()
+        with mock.patch.object(menu_interaccion.wx, "Menu",
+                               side_effect=crear_menu):
+            menu_interaccion.construir(frame, barra)
+        self.assertIn("Es&tilos del vídeo…", etiquetas)
+        llamadas = [(llamada.args[1], llamada.args[2])
+                    for llamada in frame._bind_menu.call_args_list]
+        self.assertIn((comando_estilos.abrir, frame), llamadas)
+
+    def test_p1_el_comando_abre_la_ventana(self):
+        with mock.patch.object(comando_estilos.estilos_ventana,
+                               "abrir") as abrir:
+            comando_estilos.abrir("frame")
+        abrir.assert_called_once_with("frame")
+
+    def test_el_panel_funciona_dentro_de_un_frame(self):
+        frame = wx.Frame(None)
+        self.addCleanup(destruir, frame)
+        panel = estilos_ventana.PanelEstilos(frame)
+        self.addCleanup(destruir, panel)
+        self.assertEqual(panel.lista.GetCount(), 4)
+        panel.lista.SetSelection(0)
+        with mock.patch.object(estilos_ventana, "anunciar") as decir:
+            panel._escuchar()
+        decir.assert_called_once_with(descripcion_estilo.describir(
+            estilos_aviso.FABRICA[0]))
+
+    def test_foco_en_la_lista_sobre_el_primer_estilo(self):
+        ventana = self._ventana([])
+        ventana.Show()
+        try:
+            self.assertIs(wx.Window.FindFocus(), ventana.panel.lista)
+            self.assertEqual(ventana.panel.lista.GetSelection(), 0)
+        finally:
+            ventana.Hide()
+
+    def test_las_letras_de_acceso_no_se_repiten_en_la_ventana(self):
+        self.assertEqual(letras_repetidas(self._ventana([])), {})
+
+    def test_cerrar_es_el_ultimo_boton_y_cierra(self):
+        ventana = self._ventana([])
+        botones = [hijo for hijo in ventana.GetChildren()
+                   if isinstance(hijo, wx.Button)]
+        self.assertIs(botones[-1], ventana.btn_cerrar)
+        self.assertEqual(ventana.btn_cerrar.GetLabel(), "&Cerrar")
+        evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                 ventana.btn_cerrar.GetId())
+        with mock.patch.object(ventana, "EndModal") as cerrar:
+            ventana.btn_cerrar.GetEventHandler().ProcessEvent(evento)
+        cerrar.assert_called_once_with(wx.ID_CANCEL)
+
+    def test_escape_cierra_la_ventana(self):
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+        ventana = self._ventana([])
+        with mock.patch.object(ventana, "EndModal") as cerrar:
+            ventana._al_tecla(evento)
+        cerrar.assert_called_once_with(wx.ID_CANCEL)
+
+
+class TestAcciones(BaseVentana):
+
+    def test_p2_las_acciones_con_sus_teclas(self):
+        ventana = self._ventana([])
+        claves = [(accion.clave, accion.tecla) for accion in ventana.panel._acciones]
+        self.assertEqual(claves, [
+            ("agregar", None), ("editar", "intro"), ("renombrar", "f2"),
+            ("duplicar", "ctrl+d"), ("escuchar", None),
+            ("eliminar", "suprimir"), ("exportar", None), ("importar", None)])
+        sin_elemento = {accion.clave for accion in ventana.panel._acciones
+                        if not accion.necesita_elemento}
+        self.assertEqual(sin_elemento, {"agregar", "exportar", "importar"})
+
+    def test_p2_cada_tecla_llega_a_su_accion(self):
+        ventana = self._ventana([])
+        for (codigo, modificadores), esperado in (
+                ((wx.WXK_RETURN, wx.MOD_NONE), "editar"),
+                ((wx.WXK_F2, wx.MOD_NONE), "renombrar"),
+                ((ord("D"), wx.MOD_CONTROL), "duplicar"),
+                ((wx.WXK_DELETE, wx.MOD_NONE), "eliminar")):
+            with self.subTest(tecla=esperado):
+                self.assertEqual(clave_de_tecla(
+                    codigo, modificadores, ventana.panel._acciones), esperado)
+
+    def test_p2_los_botones_y_el_menu_tienen_las_acciones(self):
+        ventana = self._ventana([])
+        etiquetas = [hijo.GetLabel() for hijo in ventana.panel.GetChildren()
+                     if isinstance(hijo, wx.Button)]
+        self.assertEqual(etiquetas, [
+            "A&gregar", "&Editar", "Cambiar n&ombre", "&Duplicar",
+            "Escuc&har", "E&liminar", "Expo&rtar", "&Importar"])
+        menu = ventana.panel._lista._construir_menu()
+        try:
+            self.assertEqual(
+                [item.GetItemLabel() for item in menu.GetMenuItems()],
+                ["A&gregar", "&Editar\tEnter", "Cambiar n&ombre\tF2",
+                 "&Duplicar\tCtrl+D", "Escuc&har", "E&liminar\tDel",
+                 "Expo&rtar", "&Importar"])
+        finally:
+            menu.Destroy()
+
+    def test_los_botones_nunca_se_deshabilitan(self):
+        botones = [hijo for hijo in self._ventana([]).panel.GetChildren()
+                   if isinstance(hijo, wx.Button)]
+        self.assertTrue(botones)
+        self.assertTrue(all(boton.IsEnabled() for boton in botones))
+
+    def test_p3_la_fabrica_no_se_edita_ni_cambia_ni_elimina(self):
+        for metodo in ("_editar", "_renombrar", "_eliminar"):
+            with self.subTest(accion=metodo):
+                ventana = self._ventana([])
+                ventana.panel.lista.SetSelection(0)
+                with mock.patch.object(estilos_ventana, "anunciar") as decir:
+                    getattr(ventana.panel, metodo)()
+                decir.assert_called_once_with(MOTIVO_FABRICA)
+                self.assertEqual(self._nombres_en_disco(), [])
+
+    def test_p3_duplicar_la_fabrica_crea_un_estilo_del_usuario(self):
+        ventana = self._ventana([])
+        ventana.panel.lista.SetSelection(0)
+        with mock.patch.object(estilos_ventana, "anunciar") as decir:
+            ventana.panel._duplicar()
+        estilos = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        self.assertEqual([estilo["nombre"] for estilo in estilos],
+                         ["Clásico (copia)"])
+        self.assertNotEqual(estilos[0]["clave"], "clasico")
+        self.assertEqual(ventana.panel.lista.GetSelection(), 4)
+        decir.assert_called_once_with("Estilo duplicado")
+
+    def test_duplicar_un_estilo_del_usuario_lo_deja_debajo(self):
+        ventana = self._ventana([_estilo("A", clave="a"),
+                                 _estilo("B", clave="b")])
+        ventana.panel.lista.SetSelection(4)
+        with mock.patch.object(estilos_ventana, "anunciar"):
+            ventana.panel._duplicar()
+        self.assertEqual(self._nombres_en_disco(), ["A", "A (copia)", "B"])
+        self.assertEqual(ventana.panel.lista.GetSelection(), 5)
+
+    def test_p6_escuchar_anuncia_la_descripcion(self):
+        ventana = self._ventana([])
+        ventana.panel.lista.SetSelection(0)
+        with mock.patch.object(estilos_ventana, "anunciar") as decir:
+            ventana.panel._escuchar()
+        decir.assert_called_once_with(descripcion_estilo.describir(
+            estilos_aviso.FABRICA[0]))
+
+    def test_p8_eliminar_dice_cuantos_lo_usan_y_deja_clasico(self):
+        programados.guardar(paths.mensajes_programados(), [
+            _mensaje("Uno", "mio"), _mensaje("Dos", "mio"),
+            _mensaje("Tres", "banda")])
+        ventana = self._ventana([_estilo("Mío", clave="mio")])
+        ventana.panel.lista.SetSelection(4)
+        with mock.patch.object(estilos_ventana.confirmar, "preguntar",
+                               return_value=True) as preguntar, \
+                mock.patch.object(estilos_ventana, "anunciar") as decir:
+            ventana.panel._eliminar()
+        pregunta = preguntar.call_args
+        self.assertIn("Lo usan 2 mensajes automáticos. Esos mensajes pasan "
+                      "a usar Clásico.", pregunta.args[1])
+        self.assertFalse(pregunta.kwargs["predeterminado_si"])
+        self.assertEqual(self._nombres_en_disco(), [])
+        self.assertEqual(
+            [m["estilo"] for m in programados.cargar(
+                paths.mensajes_programados())],
+            ["clasico", "clasico", "banda"])
+        decir.assert_called_once_with("Estilo eliminado")
+
+    def test_p8_cancelar_no_elimina_ni_cambia_los_mensajes(self):
+        programados.guardar(paths.mensajes_programados(),
+                            [_mensaje("Uno", "mio")])
+        ventana = self._ventana([_estilo("Mío", clave="mio")])
+        ventana.panel.lista.SetSelection(4)
+        with mock.patch.object(estilos_ventana.confirmar, "preguntar",
+                               return_value=False):
+            ventana.panel._eliminar()
+        self.assertEqual(self._nombres_en_disco(), ["Mío"])
+        self.assertEqual(
+            [m["estilo"] for m in programados.cargar(
+                paths.mensajes_programados())], ["mio"])
+
+    def test_eliminar_un_estilo_sin_uso_no_menciona_mensajes(self):
+        ventana = self._ventana([_estilo("Mío", clave="mio")])
+        ventana.panel.lista.SetSelection(4)
+        with mock.patch.object(estilos_ventana.confirmar, "preguntar",
+                               return_value=False) as preguntar, \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            ventana.panel._eliminar()
+        self.assertNotIn("Lo usan", preguntar.call_args.args[1])
+
+
+class TestCuadro(BaseVentana):
+
+    def test_p4_el_cuadro_tiene_todos_los_campos_en_su_rango(self):
+        cuadro = self._cuadro(_estilo("Mío"))
+        self.assertEqual(
+            (cuadro.sp_tamano.GetMin(), cuadro.sp_tamano.GetMax()), (2, 15))
+        self.assertAlmostEqual(cuadro.sp_tamano.GetIncrement(), 0.5)
+        self.assertEqual(
+            (cuadro.sp_ancho.GetMin(), cuadro.sp_ancho.GetMax()), (0, 12))
+        self.assertEqual(
+            (cuadro.sp_opacidad.GetMin(), cuadro.sp_opacidad.GetMax()),
+            (0, 100))
+        for control in (cuadro.sp_ms_entrada, cuadro.sp_ms_salida):
+            self.assertEqual((control.GetMin(), control.GetMax()), (100, 1000))
+            self.assertAlmostEqual(control.GetIncrement(), 50)
+        self.assertEqual(cuadro.cho_alineacion.GetStrings(),
+                         ["Izquierda", "Centro", "Derecha"])
+        self.assertEqual(cuadro.cho_zona.GetCount(),
+                         len(estilos_aviso.ZONAS))
+        self.assertEqual(cuadro.cho_entrada.GetStrings(),
+                         [("Fundido al subir"), "Fundido", "Desde la derecha",
+                          "Desde la izquierda", "Desde arriba", "Desde abajo",
+                          "Ninguna"])
+        self.assertEqual(cuadro.cho_salida.GetCount(),
+                         len(animacion.SALIDAS))
+        self.assertEqual(cuadro.cho_color_texto.GetCount(),
+                         len(estilos_aviso.COLORES))
+        self.assertEqual(cuadro.chk_esquinas.GetLabel(),
+                         "Es&quinas redondeadas")
+        self.assertEqual(cuadro.chk_sombra.GetLabel(), "So&mbra")
+
+    def test_cada_control_tiene_el_nombre_de_su_rotulo(self):
+        cuadro = self._cuadro(_estilo("Mío"))
+        nombres = {
+            "Nombre": cuadro.txt_nombre,
+            "Fuente": cuadro.cho_fuente,
+            "Tamaño (% del lado menor del vídeo)": cuadro.sp_tamano,
+            "Negrita": cuadro.chk_negrita,
+            "Color del texto": cuadro.cho_color_texto,
+            "Color del contorno": cuadro.cho_color_contorno,
+            "Ancho del contorno": cuadro.sp_ancho,
+            "Color del fondo": cuadro.cho_color_fondo,
+            "Opacidad del fondo": cuadro.sp_opacidad,
+            "Alineación": cuadro.cho_alineacion,
+            "Zona": cuadro.cho_zona,
+            "Animación de entrada": cuadro.cho_entrada,
+            "Duración de la entrada": cuadro.sp_ms_entrada,
+            "Animación de salida": cuadro.cho_salida,
+            "Duración de la salida": cuadro.sp_ms_salida,
+            "Esquinas redondeadas": cuadro.chk_esquinas,
+            "Sombra": cuadro.chk_sombra,
+        }
+        for esperado, control in nombres.items():
+            with self.subTest(rotulo=esperado):
+                self.assertEqual(control.GetName(), esperado)
+
+    def test_p4_aceptar_guarda_cada_campo(self):
+        cuadro = self._cuadro(_estilo("Mío"))
+        cuadro.txt_nombre.SetValue("Nuevo")
+        cuadro.cho_fuente.SetSelection(0)
+        fuente = cuadro.cho_fuente.GetString(0)
+        cuadro.sp_tamano.SetValue(6.5)
+        cuadro.chk_negrita.SetValue(True)
+        cuadro.cho_color_texto.SetSelection(
+            [valor for _nombre, valor in estilos_aviso.COLORES].index("#E53935"))
+        cuadro.cho_color_contorno.SetSelection(
+            [valor for _nombre, valor in estilos_aviso.COLORES].index("#1E64C8"))
+        cuadro.sp_ancho.SetValue(5)
+        cuadro.cho_color_fondo.SetSelection(
+            [valor for _nombre, valor in estilos_aviso.COLORES].index("#2E9E44"))
+        cuadro.sp_opacidad.SetValue(70)
+        cuadro.cho_alineacion.SetSelection(1)
+        cuadro.cho_zona.SetSelection(1)
+        cuadro.cho_entrada.SetSelection(2)
+        cuadro.sp_ms_entrada.SetValue(500)
+        cuadro.cho_salida.SetSelection(3)
+        cuadro.sp_ms_salida.SetValue(600)
+        cuadro.chk_esquinas.SetValue(False)
+        cuadro.chk_sombra.SetValue(True)
+        datos = cuadro.datos()
+        self.assertEqual(datos["nombre"], "Nuevo")
+        self.assertEqual(datos["fuente"], fuente)
+        self.assertEqual(datos["tamano"], 6.5)
+        self.assertTrue(datos["negrita"])
+        self.assertEqual(datos["color_texto"], "#E53935")
+        self.assertEqual(datos["color_contorno"], "#1E64C8")
+        self.assertEqual(datos["ancho_contorno"], 5)
+        self.assertEqual(datos["color_fondo"], "#2E9E44")
+        self.assertEqual(datos["opacidad_fondo"], 70)
+        self.assertEqual(datos["alineacion"], "centro")
+        self.assertEqual(datos["zona"], "arriba_izquierda")
+        self.assertEqual(datos["entrada"], "derecha")
+        self.assertEqual(datos["ms_entrada"], 500)
+        self.assertEqual(datos["salida"], "izquierda")
+        self.assertEqual(datos["ms_salida"], 600)
+        self.assertEqual(datos["esquinas"], "rectas")
+        self.assertTrue(datos["sombra"])
+
+    def test_p4_un_color_personalizado_se_conserva(self):
+        cuadro = self._cuadro(_estilo("Mío", color_texto="#123456"))
+        self.assertEqual(cuadro.cho_color_texto.GetSelection(), 0)
+        self.assertIn("Personalizado (#123456)",
+                      cuadro.cho_color_texto.GetString(0))
+        self.assertEqual(cuadro.datos()["color_texto"], "#123456")
+
+    def test_p4_una_fuente_no_instalada_se_muestra_arriba(self):
+        cuadro = self._cuadro(_estilo("Mío", fuente="Fuente Inexistente 967"))
+        self.assertEqual(cuadro.cho_fuente.GetSelection(), 0)
+        self.assertIn("(no instalada)", cuadro.cho_fuente.GetString(0))
+        self.assertEqual(cuadro.datos()["fuente"], "Fuente Inexistente 967")
+
+    def test_p4_agregar_y_editar_abren_el_cuadro(self):
+        ventana = self._ventana([_estilo("Mío")])
+        with mock.patch.object(estilo_cuadro, "abrir",
+                               return_value=_estilo("Nuevo", clave="nuevo")
+                               ) as abrir, \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            ventana.panel._agregar()
+        abrir.assert_called_once()
+        self.assertEqual(self._nombres_en_disco(), ["Mío", "Nuevo"])
+        ventana.panel.lista.SetSelection(4)
+        editado = _estilo("Mío", clave="mio", tamano=7)
+        with mock.patch.object(estilo_cuadro, "abrir",
+                               return_value=editado) as abrir, \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            ventana.panel._editar()
+        abrir.assert_called_once()
+        self.assertEqual(estilos_aviso.cargar_estilos(
+            paths.estilos_avisos())[0]["tamano"], 7)
+
+    def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
+        self.assertEqual(letras_repetidas(self._cuadro(_estilo("Mío"))), {})
+
+    def test_al_abrir_el_cuadro_el_foco_queda_en_nombre(self):
+        cuadro = self._cuadro()
+        cuadro.Show()
+        try:
+            self.assertIs(wx.Window.FindFocus(), cuadro.txt_nombre)
+        finally:
+            cuadro.Hide()
+
+    def test_p5_un_error_dice_y_devuelve_el_foco_al_nombre(self):
+        cuadro = self._cuadro()
+        with mock.patch.object(estilo_cuadro, "anunciar") as decir, \
+                mock.patch.object(cuadro, "EndModal") as cerrar, \
+                mock.patch.object(cuadro.txt_nombre, "SetFocus") as foco:
+            cuadro._aceptar(None)
+        cerrar.assert_not_called()
+        decir.assert_called_once_with("El estilo necesita un nombre.")
+        foco.assert_called_once()
+
+    def test_p5_el_contraste_bajo_pregunta_con_no_predeterminado(self):
+        cuadro = self._cuadro(_estilo(
+            "Bajo", color_texto="#FFFF00", color_fondo="#FFFFFF",
+            opacidad_fondo=100, ancho_contorno=0))
+        with mock.patch.object(estilo_cuadro.confirmar, "preguntar",
+                               return_value=False) as preguntar, \
+                mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_not_called()
+        self.assertFalse(preguntar.call_args.kwargs["predeterminado_si"])
+        self.assertIn(estilos_aviso.aviso_contraste(cuadro.datos()),
+                      preguntar.call_args.args[1])
+
+    def test_p5_si_acepta_el_contraste_bajo_guarda(self):
+        cuadro = self._cuadro(_estilo(
+            "Bajo", color_texto="#FFFF00", color_fondo="#FFFFFF",
+            opacidad_fondo=100, ancho_contorno=0))
+        with mock.patch.object(estilo_cuadro.confirmar, "preguntar",
+                               return_value=True), \
+                mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_called_once_with(wx.ID_OK)
+
+    def test_escape_cierra_el_cuadro(self):
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+        cuadro = self._cuadro()
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._al_tecla(evento)
+        cerrar.assert_called_once_with(wx.ID_CANCEL)
+
+
+class TestPaquetes(BaseVentana):
+
+    def test_p7_exportar_e_importar_ida_y_vuelta(self):
+        ventana = self._ventana([_estilo("Mío", clave="mio", tamano=6.5)])
+        ruta = Path(self.tmp.name) / "ida.zip"
+        with mock.patch.object(ventana.panel, "_pedir_ruta", return_value=ruta):
+            ventana.panel._exportar()
+        self.assertEqual([e["nombre"] for e in paquetes.leer(
+            ruta, "estilos").elementos], ["Mío"])
+        otra = self._ventana([])
+        with mock.patch.object(otra.panel, "_pedir_ruta", return_value=ruta), \
+                mock.patch.object(estilos_ventana, "anunciar") as decir:
+            otra.panel._importar()
+        importados = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        self.assertEqual([e["nombre"] for e in importados], ["Mío"])
+        self.assertEqual(importados[0]["tamano"], 6.5)
+        decir.assert_called_once_with("Se importó un estilo.")
+
+    def test_p7_importar_un_nombre_repetido_agrega_copia(self):
+        ruta = self._paquete([_estilo("Mío", clave="otro", tamano=7)])
+        ventana = self._ventana([_estilo("Mío", clave="mio")])
+        with mock.patch.object(ventana.panel, "_pedir_ruta", return_value=ruta), \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            ventana.panel._importar()
+        self.assertEqual(self._nombres_en_disco(), ["Mío", "Mío (copia)"])
+
+    def test_p7_un_paquete_de_otro_tipo_se_informa(self):
+        ruta = self._paquete([_estilo("Mío")], tipo="avisos")
+        ventana = self._ventana([])
+        with mock.patch.object(ventana.panel, "_pedir_ruta", return_value=ruta), \
+                mock.patch.object(estilos_ventana.confirmar,
+                                  "avisar") as avisar:
+            ventana.panel._importar()
+        avisar.assert_called_once()
+        self.assertIn("avisos", avisar.call_args.args[1])
+
+    def test_exportar_sin_estilos_propios_no_abre_nada(self):
+        ventana = self._ventana([])
+        with mock.patch.object(ventana.panel, "_pedir_ruta") as pedir, \
+                mock.patch.object(estilos_ventana, "anunciar") as decir:
+            ventana.panel._exportar()
+        pedir.assert_not_called()
+        decir.assert_called_once_with("No hay estilos propios para exportar.")
+
+
+if __name__ == "__main__":
+    unittest.main()

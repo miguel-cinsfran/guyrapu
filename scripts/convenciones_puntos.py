@@ -19,6 +19,7 @@ ABREN_CUADRO = frozenset((
     "Buscar en el chat",
     "Descargar este vídeo",
     "Elegir música",
+    "Estilos del vídeo",
     "Historial de directos",
     "Mensajes automáticos",
     "Panel de OBS",

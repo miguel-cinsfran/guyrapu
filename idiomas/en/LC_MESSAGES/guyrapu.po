@@ -14810,3 +14810,213 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format, python-format
+msgid "{nombre}. Fuente {fuente}, tamaño {tamano} % del lado menor del vídeo."
+msgstr "{nombre}. Font {fuente}, size {tamano} % of the video's shorter side."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Texto {texto} con contorno {contorno} de ancho {ancho}."
+msgstr "Text {texto} with a {contorno} outline of width {ancho}."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Fondo {fondo} con una opacidad de {opacidad} %."
+msgstr "Background {fondo} with an opacity of {opacidad} %."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Zona: {zona}."
+msgstr "Zone: {zona}."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Entrada: {entrada}, {ms} milisegundos."
+msgstr "Entrance: {entrada}, {ms} milliseconds."
+
+#: guyrapu/obs/descripcion_estilo.py
+#, python-brace-format
+msgid "Salida: {salida}, {ms} milisegundos."
+msgstr "Exit: {salida}, {ms} milliseconds."
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Agregar estilo del vídeo"
+msgstr "Add video style"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Editar estilo del vídeo"
+msgstr "Edit video style"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Izquierda"
+msgstr "Left"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Derecha"
+msgstr "Right"
+
+#: guyrapu/ui/estilo_cuadro.py
+#, python-brace-format
+msgid "Personalizado ({codigo})"
+msgstr "Custom ({codigo})"
+
+#: guyrapu/ui/estilo_cuadro.py
+#, python-format
+msgid "&Tamaño (% del lado menor del vídeo):"
+msgstr "&Size (% of the video's shorter side):"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Ne&grita"
+msgstr "&Bold"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Negrita"
+msgstr "Bold"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Color del te&xto:"
+msgstr "Te&xt color:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Color del c&ontorno:"
+msgstr "Outline c&olor:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Anc&ho del contorno:"
+msgstr "Outline widt&h:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Color del fon&do:"
+msgstr "Backgroun&d color:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "O&pacidad del fondo:"
+msgstr "O&pacity of the background:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "A&lineación:"
+msgstr "A&lignment:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "&Zona:"
+msgstr "&Zone:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Animación de &entrada:"
+msgstr "&Entrance animation:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Du&ración de la entrada:"
+msgstr "Entry dura&tion:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Animación de &salida:"
+msgstr "&Exit animation:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "D&uración de la salida:"
+msgstr "Exit dur&ation:"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Es&quinas redondeadas"
+msgstr "Rounded &corners"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Esquinas redondeadas"
+msgstr "Rounded corners"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "So&mbra"
+msgstr "Shado&w"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Sombra"
+msgstr "Shadow"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "¿Quieres guardar el estilo igual?"
+msgstr "Do you want to save the style anyway?"
+
+#: guyrapu/ui/estilo_cuadro.py
+msgid "Guardar estilo del vídeo"
+msgstr "Save video style"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "No hay estilos. Usa Agregar para crear uno."
+msgstr "There are no styles. Use Add to create one."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Los estilos de fábrica no se cambian. Usa Duplicar para crear uno propio."
+msgstr "Factory styles can't be changed. Use Duplicate to create your own."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilos del vídeo"
+msgstr "Video styles"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilos del &vídeo:"
+msgstr "&Video styles:"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilos del vídeo guardados"
+msgstr "Saved video styles"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "{nombre} (de fábrica)"
+msgstr "{nombre} (factory)"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo agregado"
+msgstr "Style added"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo guardado"
+msgstr "Style saved"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo duplicado"
+msgstr "Style duplicated"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar el estilo «{nombre}»?"
+msgstr "Do you want to delete the style «{nombre}»?"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "Lo usan {cantidad} mensajes automáticos. Esos mensajes pasan a usar Clásico."
+msgstr "Used by {cantidad} scheduled messages. Those messages will use Classic."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Eliminar estilo del vídeo"
+msgstr "Delete video style"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Estilo eliminado"
+msgstr "Style deleted"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "No hay estilos propios para exportar."
+msgstr "There are no custom styles to export."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Exportar estilos del vídeo"
+msgstr "Export video styles"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Importar estilos del vídeo"
+msgstr "Import video styles"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid "Se importó un estilo."
+msgid_plural "Se importaron {n} estilos."
+msgstr[0] "One style imported."
+msgstr[1] "{n} styles imported."
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Es&tilos del vídeo…"
+msgstr "V&ideo styles…"
+
