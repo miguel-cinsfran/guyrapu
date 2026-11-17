@@ -129,6 +129,12 @@ def estilos_avisos() -> Path:
     return carpeta_datos() / "estilos_avisos.json"
 
 
+def fondos_de_avisos() -> Path:
+    # PNG de las tarjetas de aviso que se arman en OBS: nacen ya dentro de
+    # data/, así que no entran en datos_a_migrar().
+    return carpeta_datos() / "fondos-avisos"
+
+
 def gratis_ia() -> Path:
     # Marcas de qué modelos responde la clave gratuita de un proveedor: se
     # rehacen al actualizar la lista, así que no entra en datos_a_migrar().
