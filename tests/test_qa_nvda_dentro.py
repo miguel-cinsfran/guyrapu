@@ -76,6 +76,32 @@ class GestorFalso:
         self.gestos.append(gesto)
 
 
+class RelojFalso:
+
+    def __init__(self, ahora=0.0):
+        self.ahora = ahora
+        self._programados = []
+
+    def monotonic(self):
+        return self.ahora
+
+    def sleep(self, segundos):
+        self.ahora += segundos
+        self._disparar()
+
+    def programar(self, cuando, funcion):
+        self._programados.append((cuando, funcion))
+
+    def _disparar(self):
+        pendientes = sorted(self._programados, key=lambda par: par[0])
+        self._programados = []
+        for cuando, funcion in pendientes:
+            if cuando <= self.ahora:
+                funcion()
+            else:
+                self._programados.append((cuando, funcion))
+
+
 def _modulos_falsos(carpeta, gestor):
     speech = types.ModuleType("speech")
     extensions = types.ModuleType("speech.extensions")
@@ -262,6 +288,40 @@ class TestComplemento(unittest.TestCase):
         self.plugin._al_hablar(speechSequence=["dos"])
         posteriores = self.plugin._eventos.desde(marca)
         self.assertEqual([e["texto"] for e in posteriores], ["dos"])
+
+    def _usar_reloj(self, ahora, ultima_habla):
+        reloj = RelojFalso(ahora)
+        self.plugin._eventos._reloj = reloj.monotonic
+        self.plugin._eventos._inicio = 0.0
+        self.plugin._eventos._ultima_habla = ultima_habla
+        return reloj
+
+    def test_la_espera_no_vuelve_antes_de_la_frase_de_la_tecla(self):
+        reloj = self._usar_reloj(0.468, 0.0)
+        oido = []
+
+        def al_mandar():
+            oido.append(True)
+            self.plugin._al_hablar(speechSequence=["Aceptar, botón"])
+
+        reloj.programar(0.499, al_mandar)
+        with mock.patch.object(self.modulo, "time", reloj):
+            respuesta = self.plugin._atender(
+                {"orden": "tecla", "gesto": "tab", "tope_ms": 5000})
+        self.assertTrue(respuesta["ok"])
+        self.assertFalse(respuesta["agotado"])
+        self.assertEqual(oido, [True])
+        self.assertGreaterEqual(reloj.ahora, 0.898)
+
+    def test_sin_habla_despues_de_la_tecla_espera_1500_ms(self):
+        reloj = self._usar_reloj(0.1, 0.0)
+        with mock.patch.object(self.modulo, "time", reloj):
+            respuesta = self.plugin._atender(
+                {"orden": "tecla", "gesto": "tab", "tope_ms": 5000})
+        self.assertTrue(respuesta["ok"])
+        self.assertFalse(respuesta["agotado"])
+        self.assertGreaterEqual(reloj.ahora, 1.599)
+        self.assertLessEqual(reloj.ahora, 1.7)
 
 
 class TestEspia(unittest.TestCase):

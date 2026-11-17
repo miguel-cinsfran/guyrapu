@@ -35,6 +35,7 @@ import watchdog
 from speech.extensions import pre_speech, speechCanceled
 
 TOPE_ESPERA_MS = 10000.0
+ESPERA_SIN_HABLA_MS = 1500.0
 
 
 def clave_valida(pedido, clave) -> bool:
@@ -227,6 +228,7 @@ def _enviar_gesto(nombre, resultado, listo, eventos) -> None:
     try:
         gesto = keyboardHandler.KeyboardInputGesture.fromName(nombre)
         resultado["hora"] = eventos.ahora()
+        resultado["monotono"] = time.monotonic()
         inputCore.manager.emulateGesture(gesto)
     except Exception as exc:
         resultado["error"] = str(exc)
@@ -356,15 +358,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return {"ok": False, "error": resultado["error"]}
         if not agotado:
             restante = max(0.0, limite - time.monotonic())
-            agotado = not self._esperar_quieto(silencio, restante)
+            agotado = not self._esperar_quieto(
+                silencio, restante, resultado["monotono"])
         return {"ok": True, "indice": self._eventos.marca(),
                 "agotado": agotado, "hora": resultado.get("hora")}
 
-    def _esperar_quieto(self, silencio, tope) -> bool:
+    def _esperar_quieto(self, silencio, tope, hora_tecla) -> bool:
+        espera_sin_habla = ESPERA_SIN_HABLA_MS / 1000.0
         limite = time.monotonic() + tope
         while time.monotonic() < limite:
-            callado = (time.monotonic()
-                       - self._eventos.ultima_habla()) >= silencio
+            ultima = self._eventos.ultima_habla()
+            if ultima >= hora_tecla:
+                base, plazo = ultima, silencio
+            else:
+                base, plazo = hora_tecla, espera_sin_habla
+            callado = (time.monotonic() - base) >= plazo
             if watchdog.isCoreAsleep() and callado:
                 return True
             time.sleep(0.02)
