@@ -3,8 +3,8 @@
 """Reglas de arquitectura declaradas como tabla.
 
 Cada regla dice qué está prohibido, quién es su único dueño y qué archivos
-quedan pendientes con su motivo. Los detectores y la revisión viven en
-tests/reglas_detectores.py.
+quedan pendientes con su motivo. Los detectores de la mayoría de las
+reglas y la revisión viven en tests/reglas_detectores.py.
 """
 
 from __future__ import annotations
@@ -60,6 +60,23 @@ class Regla:
 def _pendientes(motivo: str, casos: dict[str, int]) -> dict[str, Pendiente]:
     return {archivo: Pendiente(cantidad, motivo)
             for archivo, cantidad in casos.items()}
+
+
+def _importa_zipfile(nombre: str) -> bool:
+    return nombre == "zipfile" or nombre.startswith("zipfile.")
+
+
+def detectar_zipfile(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, ast.Import):
+            hallazgos.extend(Hallazgo(archivo, nodo.lineno)
+                             for alias in nodo.names
+                             if _importa_zipfile(alias.name))
+        elif (isinstance(nodo, ast.ImportFrom) and nodo.level == 0
+                and _importa_zipfile(nodo.module or "")):
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
 REGLAS = (
@@ -200,5 +217,14 @@ REGLAS = (
         detectar=detectar_interaccion,
         pendientes={},
         ambito=_interaccion,
+    ),
+    Regla(
+        id="R17",
+        prohibido="zipfile se importa solo en guyrapu/interaction/paquetes.py y guyrapu/core/actualizacion.py",
+        detectar=detectar_zipfile,
+        pendientes={},
+        duenos=("guyrapu/interaction/paquetes.py",
+                "guyrapu/core/actualizacion.py"),
+        ambito=_paquete,
     ),
 )

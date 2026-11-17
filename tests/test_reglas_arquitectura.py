@@ -29,11 +29,11 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_dieciseis_reglas_estan_en_la_tabla(self):
+    def test_las_diecisiete_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
                          ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
                           "R9", "R10", "R11", "R12", "R13", "R14", "R15",
-                          "R16"])
+                          "R16", "R17"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -114,6 +114,27 @@ class TestDetectores(unittest.TestCase):
         regla = next(regla for regla in reglas.REGLAS if regla.id == "R16")
         self.assertTrue(regla.ambito("guyrapu/interaction/evento.py"))
         self.assertFalse(regla.ambito("guyrapu/otro/evento.py"))
+
+    def test_zipfile(self):
+        hallazgos = _hallazgos(reglas.detectar_zipfile, """\
+            import zipfile
+            from zipfile import ZipFile
+            import zipfile.extra
+
+            def f():
+                import zipfile as z
+                from zipfile import BadZipFile as error
+
+            # import zipfile
+            texto = "import zipfile"
+            import os
+            """)
+        self.assertEqual([1, 2, 3, 6, 7], _lineas(hallazgos))
+
+    def test_ambito_de_paquetes(self):
+        regla = next(regla for regla in reglas.REGLAS if regla.id == "R17")
+        self.assertTrue(regla.ambito("guyrapu/core/actualizacion.py"))
+        self.assertFalse(regla.ambito("main.py"))
 
     def test_red(self):
         hallazgos = _hallazgos(detectores.detectar_red, """\

@@ -14531,3 +14531,44 @@ msgstr "The queue is paused."
 msgid "Sonido de los medios silenciado."
 msgstr "Media sound is muted."
 
+#: guyrapu/interaction/paquetes.py
+msgid "estilos"
+msgstr "styles"
+
+#: guyrapu/interaction/paquetes.py
+msgid "avisos"
+msgstr "notices"
+
+#: guyrapu/interaction/paquetes.py
+msgid "comandos"
+msgstr "commands"
+
+#: guyrapu/interaction/paquetes.py
+msgid "El paquete está dañado y no se puede leer."
+msgstr "The package is damaged and cannot be read."
+
+#: guyrapu/interaction/paquetes.py
+msgid "El archivo no es un paquete de Guyrapu."
+msgstr "The file is not a Guyrapu package."
+
+#: guyrapu/interaction/paquetes.py
+#, python-brace-format
+msgid "El paquete contiene un archivo que Guyrapu no importa: {nombre}."
+msgstr "The package contains a file that Guyrapu does not import: {nombre}."
+
+#: guyrapu/interaction/paquetes.py
+#, python-brace-format
+msgid "El paquete supera el tamaño máximo de {megas} MB."
+msgstr "The package exceeds the maximum size of {megas} MB."
+
+#: guyrapu/interaction/paquetes.py
+msgid ""
+"El paquete es de una versión más nueva de Guyrapu. Actualiza Guyrapu para "
+"importarlo."
+msgstr "The package is from a newer version of Guyrapu. Update Guyrapu to import it."
+
+#: guyrapu/interaction/paquetes.py
+#, python-brace-format
+msgid "El paquete contiene {contiene}, no {esperado}."
+msgstr "The package contains {contiene}, not {esperado}."
+
