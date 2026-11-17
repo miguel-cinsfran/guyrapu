@@ -59,6 +59,26 @@ def detectar_capas(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+def _modulo_interaccion_prohibido(nombre: str) -> bool:
+    raices = ("guyrapu.capture", "guyrapu.youtube", "guyrapu.ui", "wx")
+    return any(nombre == raiz or nombre.startswith(raiz + ".")
+               for raiz in raices)
+
+
+def detectar_interaccion(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, ast.Import):
+            hallazgos.extend(
+                Hallazgo(archivo, nodo.lineno)
+                for alias in nodo.names
+                if _modulo_interaccion_prohibido(alias.name))
+        elif (isinstance(nodo, ast.ImportFrom)
+              and _modulo_interaccion_prohibido(nodo.module or "")):
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
 def _modulo_red(nombre: str) -> bool:
     raices = ("urllib.request", "httpx", "requests")
     return any(nombre == raiz or nombre.startswith(raiz + ".") for raiz in raices)
@@ -277,6 +297,10 @@ def _todo(archivo: str) -> bool:
 
 def _paquete(archivo: str) -> bool:
     return archivo.startswith("guyrapu/")
+
+
+def _interaccion(archivo: str) -> bool:
+    return archivo.startswith("guyrapu/interaction/")
 
 
 def _controles(archivo: str) -> bool:

@@ -968,7 +968,7 @@ msgstr "{opcion} without votes"
 msgid "{opcion} con {votos}"
 msgstr "{opcion} with {votos}"
 
-#: guyrapu/capture/encuestas.py
+#: guyrapu/capture/encuestas.py guyrapu/interaction/encuestas.py
 #, python-brace-format
 msgid "{n} voto"
 msgid_plural "{n} votos"
@@ -3158,6 +3158,77 @@ msgstr "Could not update yt-dlp: {motivo}."
 #: guyrapu/downloads/ytdlp_actualizar.py
 msgid "No se pudo actualizar yt-dlp."
 msgstr "Could not update yt-dlp."
+
+#. Traductores: validación de comandos del chat (error).
+#: guyrapu/interaction/comandos.py
+msgid "El comando necesita un nombre."
+msgstr "The command needs a name."
+
+#. Traductores: validación de comandos del chat (error). Las cifras son las de
+#. votar encuestas.
+#: guyrapu/interaction/comandos.py
+msgid "Un comando no puede llamarse solo con números."
+msgstr "A command cannot be named with numbers only."
+
+#. Traductores: validación de comandos del chat (error). {nombre} es el comando
+#. que ya existe.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "El comando {nombre} ya existe."
+msgstr "The command {nombre} already exists."
+
+#. Traductores: validación de comandos del chat (error).
+#: guyrapu/interaction/comandos.py
+msgid "El comando necesita una respuesta."
+msgstr "The command needs a response."
+
+#. Traductores: resumen de una encuesta; {pregunta} es su pregunta.
+#: guyrapu/interaction/encuestas.py
+#, python-brace-format
+msgid "Encuesta: {pregunta}."
+msgstr "Poll: {pregunta}."
+
+#. Traductores: una opción de la encuesta; {numero} es su número, {opcion} su
+#. texto y {votos} cuántos votos tiene.
+#: guyrapu/interaction/encuestas.py
+#, python-brace-format
+msgid "{numero}, {opcion}: {votos}."
+msgstr "{numero}, {opcion}: {votos}."
+
+#. Traductores: total de votos de una encuesta.
+#: guyrapu/interaction/encuestas.py
+#, python-brace-format
+msgid "Total: {votos}."
+msgstr "Total: {votos}."
+
+#. Traductores: una encuesta que ya no acepta votos.
+#: guyrapu/interaction/encuestas.py
+msgid "Cerrada."
+msgstr "Closed."
+
+#. Traductores: tiempo que le queda a una encuesta; {n} son los segundos.
+#: guyrapu/interaction/encuestas.py
+#, python-brace-format
+msgid "Queda {n} segundo."
+msgid_plural "Quedan {n} segundos."
+msgstr[0] "{n} second left."
+msgstr[1] "{n} seconds left."
+
+#. Traductores: validación de una encuesta del chat (error).
+#: guyrapu/interaction/encuestas.py
+msgid "La encuesta necesita una pregunta."
+msgstr "The poll needs a question."
+
+#. Traductores: validación de una encuesta del chat (error).
+#: guyrapu/interaction/encuestas.py
+#, python-brace-format
+msgid "La encuesta necesita entre {minimo} y {maximo} opciones."
+msgstr "The poll needs between {minimo} and {maximo} options."
+
+#. Traductores: validación de una encuesta del chat (error).
+#: guyrapu/interaction/encuestas.py
+msgid "Ninguna opción de la encuesta puede estar vacía."
+msgstr "No poll option can be empty."
 
 #: guyrapu/music/anuncios.py
 #, python-brace-format
@@ -10620,7 +10691,8 @@ msgstr "&What's new"
 msgid "&Guía de configuración de la API"
 msgstr "API setup &guide"
 
-#. Traductores: entrada del menú Ayuda, abre la licencia de cada paquete de voces.
+#. Traductores: entrada del menú Ayuda, abre la licencia de cada paquete de
+#. voces.
 #: guyrapu/ui/gui_menu.py
 msgid "&Licencias de las voces"
 msgstr "&Voice licenses"

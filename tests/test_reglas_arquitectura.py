@@ -29,10 +29,11 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_quince_reglas_estan_en_la_tabla(self):
+    def test_las_dieciseis_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
                          ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
-                          "R9", "R10", "R11", "R12", "R13", "R14", "R15"])
+                          "R9", "R10", "R11", "R12", "R13", "R14", "R15",
+                          "R16"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -91,6 +92,28 @@ class TestDetectores(unittest.TestCase):
             import guyrapu.util
             """)
         self.assertEqual([1, 4], _lineas(hallazgos))
+
+    def test_interaccion(self):
+        codigo = """\
+            import __WX__
+            from guyrapu.capture import x
+
+            def f():
+                from guyrapu.ui.y import z
+                import guyrapu.youtube
+                import guyrapu.interaction.evento
+                import guyrapu.capturex
+
+            # import __WX__
+            texto = "from guyrapu.capture import x"
+            """.replace("__WX__", WX)
+        hallazgos = _hallazgos(detectores.detectar_interaccion, codigo)
+        self.assertEqual([1, 2, 5, 6], _lineas(hallazgos))
+
+    def test_ambito_de_interaccion(self):
+        regla = next(regla for regla in reglas.REGLAS if regla.id == "R16")
+        self.assertTrue(regla.ambito("guyrapu/interaction/evento.py"))
+        self.assertFalse(regla.ambito("guyrapu/otro/evento.py"))
 
     def test_red(self):
         hallazgos = _hallazgos(detectores.detectar_red, """\

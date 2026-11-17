@@ -24,6 +24,7 @@ from tests.reglas_detectores import (
     Hallazgo,
     _controles,
     _esperas,
+    _interaccion,
     _menus_de_la_barra,
     _paquete,
     _todo,
@@ -33,6 +34,7 @@ from tests.reglas_detectores import (
     detectar_cuadros,
     detectar_escape,
     detectar_esperas,
+    detectar_interaccion,
     detectar_red,
     detectar_rotulos_de_menu,
 )
@@ -191,5 +193,12 @@ REGLAS = (
         detectar=detectar_cuadro_sin_escape,
         pendientes={},
         ambito=_paquete,
+    ),
+    Regla(
+        id="R16",
+        prohibido="guyrapu/interaction/ no importa guyrapu.capture, guyrapu.youtube, guyrapu.ui ni wx",
+        detectar=detectar_interaccion,
+        pendientes={},
+        ambito=_interaccion,
     ),
 )
