@@ -47,11 +47,11 @@ from guyrapu.capture.sonido_reconexion import SonidoReconexion
 from guyrapu.core import diagnostico
 from guyrapu.core import avisos_red
 from guyrapu.downloads import ytdlp_bin
-from guyrapu.capture import chat_adicional, conexion
+from guyrapu.capture import chat_adicional, conexion, item_lectura
 from guyrapu.capture.filtro_autores import permitido
 from guyrapu.ui.vista_captura import VistaGui
 from guyrapu.capture import alias
-from guyrapu.core.sonidos_eventos import rol_de_autor, ROL_PROPIETARIO, ROL_MODERADOR
+from guyrapu.core.sonidos_eventos import rol_de_autor
 from guyrapu.core.idioma import N_, _
 
 logger = diagnostico.obtener_logger(__name__)
@@ -388,17 +388,8 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
         return  # en la lista, sin leer
 
     if debe_leer_tts(autor, config) and (sesion_activa is None or sesion_activa()):
-        item = {"texto_tts": tts_text, "autor": autor_visible}
-        # Importante: con ElevenLabs y «solo importantes» activado, esto decide
-        # qué sale por la nube. Son los eventos con aporte y los roles de peso.
-        if (tipo in (TIPO_SUPERCHAT, TIPO_STICKER, TIPO_MIEMBRO, TIPO_COFRE)
-                or rol in (ROL_PROPIETARIO, ROL_MODERADOR)):
-            item["importante"] = True
-        # Los eventos con voz secundaria llevan la marca; el worker conoce la
-        # voz, la velocidad y el volumen.
-        if avisos_tiktok.con_secundaria(modo):
-            item["secundaria"] = True
-        encolar(cola, item, config, stats)
+        encolar(cola, item_lectura.armar(tts_text, autor_visible, tipo, rol, modo),
+                config, stats)
         stats.inc("leidos")
 
 
