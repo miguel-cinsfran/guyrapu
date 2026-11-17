@@ -17,4 +17,9 @@ def correr(argv):
     if argv and argv[0] == "--instalar-actualizacion":
         from guyrapu.core import instalador
         return instalador.principal_instalador()
+    # Modo animador: reproduce los cuadros de OBS en su propio proceso,
+    # también antes que todo, sin logging, sin mutex ni ventanas.
+    if argv and argv[0] == "--animador":
+        from guyrapu.obs import animador
+        return animador.principal(argv[1:])
     return None

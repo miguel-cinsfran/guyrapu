@@ -7,6 +7,7 @@ from unittest import mock
 
 import main
 from guyrapu.core import autocomprobacion, instalador, modos_de_arranque
+from guyrapu.obs import animador
 
 
 class TestCorrer(unittest.TestCase):
@@ -30,6 +31,14 @@ class TestCorrer(unittest.TestCase):
                 ["--instalar-actualizacion", "otro"])
         self.assertEqual(codigo, 5)
         principal.assert_called_once_with()
+
+    def test_animador_recibe_la_direccion_del_canal(self):
+        with mock.patch.object(animador, "principal",
+                               return_value=6) as principal:
+            codigo = modos_de_arranque.correr(
+                ["--animador", "direccion"])
+        self.assertEqual(codigo, 6)
+        principal.assert_called_once_with(["direccion"])
 
 
 class TestMainUsaLosModos(unittest.TestCase):
