@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from guyrapu.interaction.texto import normalizar
+
 
 @dataclass(frozen=True, slots=True)
 class EventoDirecto:
@@ -33,8 +35,6 @@ def persona(evento: EventoDirecto) -> tuple[str, str]:
     """
     if evento.autor_id:
         return (evento.plataforma, evento.autor_id)
-    # Se importa acá para no cerrar el ciclo comandos -> evento.
-    from guyrapu.interaction.comandos import normalizar
     return (evento.plataforma, normalizar(evento.autor))
 
 

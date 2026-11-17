@@ -8,29 +8,12 @@ encuentran, quién puede usarlos y cuánto esperan entre usos.
 
 from __future__ import annotations
 
-import unicodedata
 from dataclasses import dataclass
 
 from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR, ROL_PROPIETARIO
 from guyrapu.interaction.evento import EventoDirecto, persona
-
-
-def _sin_tildes(caracter: str) -> str:
-    if caracter == "ñ":
-        return caracter
-    descompuesto = unicodedata.normalize("NFD", caracter)
-    return "".join(parte for parte in descompuesto
-                   if not unicodedata.combining(parte))
-
-
-def normalizar(texto: str) -> str:
-    """Minúsculas, sin tildes y sin espacios en los extremos.
-
-    La eñe se conserva: `año` y `ano` son nombres distintos.
-    """
-    return "".join(_sin_tildes(caracter)
-                   for caracter in (texto or "").strip().lower())
+from guyrapu.interaction.texto import normalizar
 
 
 @dataclass(frozen=True, slots=True)
