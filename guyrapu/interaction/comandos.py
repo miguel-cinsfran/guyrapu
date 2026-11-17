@@ -37,6 +37,13 @@ def leer(texto: str) -> Invocacion | None:
                       partes[1].strip() if len(partes) > 1 else "")
 
 
+def _sin_signo(texto: str) -> str:
+    limpio = (texto or "").strip()
+    if limpio.startswith("!"):
+        limpio = limpio[1:].strip()
+    return limpio
+
+
 @dataclass(frozen=True, slots=True)
 class Comando:
     """Un comando del chat con su respuesta, su permiso y sus esperas."""
@@ -50,6 +57,11 @@ class Comando:
     espera_general: float = 5
     espera_persona: float = 30
     activo: bool = True
+
+    def __post_init__(self):
+        object.__setattr__(self, "nombre", _sin_signo(self.nombre))
+        object.__setattr__(self, "alias",
+                           tuple(_sin_signo(alias) for alias in self.alias))
 
 
 def buscar(comandos, invocacion: Invocacion | None) -> Comando | None:
@@ -128,6 +140,9 @@ def validar(comando: Comando, otros) -> str:
     if any(_solo_cifras(nombre) for nombre in _nombres_de(comando)):
         # Traductores: validación de comandos del chat (error). Las cifras son las de votar encuestas.
         return _("Un comando no puede llamarse solo con números.")
+    if any(len(nombre.split()) > 1 for nombre in _nombres_de(comando)):
+        # Traductores: validación de comandos del chat (error).
+        return _("El nombre de un comando no puede tener espacios.")
     propios = {normalizar(nombre) for nombre in _nombres_de(comando)}
     for otro in otros:
         repetidos = propios & {

@@ -3170,6 +3170,11 @@ msgstr "The command needs a name."
 msgid "Un comando no puede llamarse solo con números."
 msgstr "A command cannot be named with numbers only."
 
+#. Traductores: validación de comandos del chat (error).
+#: guyrapu/interaction/comandos.py
+msgid "El nombre de un comando no puede tener espacios."
+msgstr "A command name cannot contain spaces."
+
 #. Traductores: validación de comandos del chat (error). {nombre} es el comando
 #. que ya existe.
 #: guyrapu/interaction/comandos.py

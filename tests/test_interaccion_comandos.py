@@ -78,6 +78,15 @@ class TestBuscar(unittest.TestCase):
         self.assertIs(primero,
                       comandos.buscar([primero, segundo], comandos.leer("!hola")))
 
+    def test_encuentra_un_comando_guardado_con_el_signo(self):
+        comando = comandos.Comando("!hola", ("!hi",), "Hola")
+        self.assertEqual("hola", comando.nombre)
+        self.assertEqual(("hi",), comando.alias)
+        self.assertIs(comando,
+                      comandos.buscar([comando], comandos.leer("!hola")))
+        self.assertIs(comando,
+                      comandos.buscar([comando], comandos.leer("!HI")))
+
 
 class TestPermisos(unittest.TestCase):
 
@@ -153,6 +162,14 @@ class TestEsperas(unittest.TestCase):
                 esperas.anotar(comando, persona_rol, 0)
                 self.assertTrue(esperas.libre(comando, persona_rol, 0))
 
+    def test_un_moderador_usa_aunque_otro_haya_usado(self):
+        esperas = comandos.Esperas()
+        comando = self._comando(espera_general=60, espera_persona=60)
+        comun = _evento(autor_id="1")
+        moderador = _evento(autor_id="2", roles=frozenset((ROL_MODERADOR,)))
+        esperas.anotar(comando, comun, 0)
+        self.assertTrue(esperas.libre(comando, moderador, 1))
+
     def test_el_uso_del_moderador_no_hace_esperar_a_los_demas(self):
         esperas = comandos.Esperas()
         comando = self._comando(espera_general=60, espera_persona=60)
@@ -191,6 +208,21 @@ class TestValidar(unittest.TestCase):
     def test_respuesta_vacia(self):
         self.assertTrue(comandos.validar(
             self._comando(respuesta="   "), []))
+
+    def test_un_nombre_con_el_signo_es_valido(self):
+        self.assertEqual("", comandos.validar(
+            self._comando(nombre="!hola", alias=("!hi",)), []))
+
+    def test_el_signo_no_esconde_un_nombre_repetido(self):
+        self.assertTrue(comandos.validar(
+            self._comando(nombre="!hola"),
+            [self._comando(nombre="hola")]))
+
+    def test_rechaza_espacios_adentro_del_nombre_o_alias(self):
+        self.assertTrue(comandos.validar(
+            self._comando(nombre="mi comando"), []))
+        self.assertTrue(comandos.validar(
+            self._comando(alias=("mi alias",)), []))
 
 
 if __name__ == "__main__":
