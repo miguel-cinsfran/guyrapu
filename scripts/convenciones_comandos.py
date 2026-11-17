@@ -43,7 +43,7 @@ class Entrada(NamedTuple):
 # «Chats» deja pasar «Super Chats»: la regla mira palabra por palabra.
 PERMITIDAS = ("YouTube", "TikTok", "OBS", "IA", "API", "VLC", "NVDA",
               "Guyrapu", "ElevenLabs", "SAPI5", "yt-dlp", "Windows",
-              "TTS", "Chats")
+              "TTS", "Chats", "Interacción")
 
 TECLAS_INGLES = ("Left", "Right", "Up", "Down", "Home", "End", "PageUp",
                  "PageDown", "Delete", "Del", "Insert", "Space", "Back",

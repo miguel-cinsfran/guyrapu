@@ -1,10 +1,9 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Ventana Mensajes automáticos: la lista y todas sus acciones.
+"""Mensajes automáticos: la lista y todas sus acciones.
 
-Cada cambio se guarda al momento. La ventana se abre desde el menú
-Interacción y desde su atajo, y al cerrarla la ventana principal relee la
-lista del disco.
+Cada cambio se guarda al momento. El panel vive en la ventana Interacción y,
+al cerrarla, la ventana principal relee la lista del disco.
 """
 
 from __future__ import annotations
@@ -16,7 +15,7 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.capture import programados
 from guyrapu.interaction import coleccion, paquetes
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import confirmar, paleta, tecla_escape
+from guyrapu.ui import confirmar
 from guyrapu.ui import mensaje_automatico_cuadro
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
@@ -32,17 +31,6 @@ EXPLICACION = N_(
     "vez del enlace completo.")
 VACIO = N_("No hay mensajes automáticos. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
-
-
-def abrir(padre, al_cerrar=None):
-    """Muestra la ventana y, al cerrarla, avisa a quien la abrió."""
-    dialogo = VentanaMensajesAutomaticos(padre)
-    try:
-        dialogo.ShowModal()
-    finally:
-        dialogo.Destroy()
-    if al_cerrar is not None:
-        al_cerrar()
 
 
 def _acciones(panel):
@@ -326,33 +314,3 @@ class PanelMensajesAutomaticos(wx.Panel):
             return dialogo.GetPath()
         finally:
             dialogo.Destroy()
-
-
-class VentanaMensajesAutomaticos(wx.Dialog):
-    """La ventana que contiene el panel de mensajes y el botón Cerrar."""
-
-    def __init__(self, padre):
-        super().__init__(
-            padre, title=_("Mensajes automáticos"),
-            name="VentanaMensajesAutomaticos", size=(760, 640),
-            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-        vs = wx.BoxSizer(wx.VERTICAL)
-        self.panel = PanelMensajesAutomaticos(self, padre)
-        vs.Add(self.panel, 1, wx.EXPAND)
-        self.btn_cerrar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
-        self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
-        vs.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.LEFT | wx.RIGHT
-               | wx.BOTTOM, 10)
-        self.SetSizer(vs)
-        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
-        self.Bind(wx.EVT_CLOSE, self._al_cerrar)
-        paleta.pintar_ventana(self)
-        self.Centre()
-        self.panel.lista.SetFocus()
-
-    def _al_tecla(self, evento):
-        tecla_escape.cancelar_si_escape(self, evento)
-
-    def _al_cerrar(self, _evento):
-        self.EndModal(wx.ID_CANCEL)

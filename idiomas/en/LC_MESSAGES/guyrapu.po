@@ -7033,10 +7033,6 @@ msgid "Abrir panel de OBS"
 msgstr "Open OBS panel"
 
 #: guyrapu/ui/atajos_captura.py
-msgid "Abrir los mensajes automáticos"
-msgstr "Open scheduled messages"
-
-#: guyrapu/ui/atajos_captura.py
 msgid "Mostrar OBS"
 msgstr "Show OBS"
 
@@ -14781,10 +14777,6 @@ msgid "Los estilos de fábrica no se cambian. Usa Duplicar para crear uno propio
 msgstr "Factory styles can't be changed. Use Duplicate to create your own."
 
 #: guyrapu/ui/estilos_ventana.py
-msgid "Estilos del vídeo"
-msgstr "Video styles"
-
-#: guyrapu/ui/estilos_ventana.py
 msgid "Estilos del &vídeo:"
 msgstr "&Video styles:"
 
@@ -15103,10 +15095,6 @@ msgstr[1] "{n} commands imported."
 msgid "Ya hay comandos llamados {nombres}. ¿Quieres reemplazarlos?"
 msgstr "Commands named {nombres} already exist. Replace them?"
 
-#: guyrapu/ui/comandos_ventana.py
-msgid "Comandos del chat"
-msgstr "Chat commands"
-
 #. Traductores: {titulo} es la pregunta y {opciones} la lista de opciones.
 #: guyrapu/capture/encuestas.py
 #, python-brace-format
@@ -15359,4 +15347,28 @@ msgstr "Translate &into:"
 #: guyrapu/ui/preferencias_lectura.py
 msgid "Traducir al"
 msgstr "Translate to"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Abrir la ventana Interacción"
+msgstr "Open the Interaction window"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Comandos"
+msgstr "Commands"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Estilos"
+msgstr "Styles"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Interacción"
+msgstr "Interaction"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Páginas de interacción"
+msgstr "Interaction pages"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "&Abrir Interacción…"
+msgstr "&Open Interaction…"
 

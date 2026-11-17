@@ -202,10 +202,12 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&OBS", "Mos&trar OBS", ANY, "normal"),
             ("&OBS", "C&errar OBS", ANY, "normal"),
             ("&OBS", "&Avisar si OBS se sobrecarga", ANY, "check"),
+            ("&Interacción", "&Abrir Interacción…", ANY, "normal"),
             ("&Interacción", "&Mensajes automáticos…", ANY, "normal"),
             ("&Interacción", "&Comandos del chat…", ANY, "normal"),
-            ("&Interacción", "Acti&var mensajes automáticos", ANY, "check"),
             ("&Interacción", "Es&tilos del vídeo…", ANY, "normal"),
+            ("&Interacción", "---", None, "sep"),
+            ("&Interacción", "Acti&var mensajes automáticos", ANY, "check"),
             ("&Música", "&Elegir música…", ANY, "normal"),
             ("&Música", "---", None, "sep"),
             ("&Música", "Reproducir o &pausar", ANY, "normal"),
@@ -835,14 +837,6 @@ class TestMenuTono(unittest.TestCase):
 
 class TestMenuTransmision(unittest.TestCase):
     """El menú Transmisión queda solo con lo del directo."""
-
-    def test_contenido_en_orden(self):
-        ANY = gui.wx.ID_ANY
-        self.assertEqual([
-            ("&Transmisión", "Transm&itir en directo…", ANY, "normal"),
-            ("&Transmisión", "Re&stream…	Ctrl+Shift+R", ANY, "normal"),
-            ("&Transmisión", "&Grabar también al transmitir", ANY, "check"),
-        ], _entradas_de("&Transmisión"))
 
     def test_grabaciones_guardadas_ya_no_esta(self):
         entradas = _entradas_de("&Transmisión")

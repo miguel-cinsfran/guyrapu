@@ -36,4 +36,5 @@ INTERNAS = {
     ("transmision", "youtube_lista_titulo"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
     ("ui", "filtro_activo"): "lo cambia el menú de filtros (gui.py:1309)",
     ("ui", "silenciar_sonidos"): "lo cambia F7 en la ventana principal (gui.py:1332)",
+    ("ui", "interaccion_pagina"): "la recuerda la ventana Interacción al cerrar (comando_interaccion.abrir)",
 }

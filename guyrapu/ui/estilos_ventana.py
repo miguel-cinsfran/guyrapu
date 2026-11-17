@@ -15,7 +15,7 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, paquetes
 from guyrapu.obs import descripcion_estilo, estilos_aviso
-from guyrapu.ui import confirmar, estilo_cuadro, paleta, tecla_escape
+from guyrapu.ui import confirmar, estilo_cuadro
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -24,15 +24,6 @@ VACIO = N_("No hay estilos. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 MOTIVO_FABRICA = N_("Los estilos de fábrica no se cambian. Usa Duplicar para "
                     "crear uno propio.")
-
-
-def abrir(padre):
-    """Muestra la ventana."""
-    dialogo = VentanaEstilos(padre)
-    try:
-        dialogo.ShowModal()
-    finally:
-        dialogo.Destroy()
 
 
 def _acciones(panel):
@@ -298,36 +289,6 @@ class PanelEstilos(wx.Panel):
             return dialogo.GetPath()
         finally:
             dialogo.Destroy()
-
-class VentanaEstilos(wx.Dialog):
-    """La ventana que contiene el panel de estilos y el botón Cerrar."""
-
-    def __init__(self, padre):
-        super().__init__(
-            padre, title=_("Estilos del vídeo"), name="VentanaEstilosVideo",
-            size=(760, 640),
-            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-        vs = wx.BoxSizer(wx.VERTICAL)
-        self.panel = PanelEstilos(self)
-        vs.Add(self.panel, 1, wx.EXPAND | wx.ALL, 10)
-        self.btn_cerrar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
-        self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
-        vs.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.LEFT | wx.RIGHT
-               | wx.BOTTOM, 10)
-        self.SetSizer(vs)
-        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
-        self.Bind(wx.EVT_CLOSE, self._al_cerrar)
-        paleta.pintar_ventana(self)
-        self.Centre()
-        self.panel.lista.SetFocus()
-
-    def _al_tecla(self, evento):
-        tecla_escape.cancelar_si_escape(self, evento)
-
-    def _al_cerrar(self, _evento):
-        self.EndModal(wx.ID_CANCEL)
-
 
 def _mismo_nombre(nombre, estilo) -> bool:
     return (str(estilo.get("nombre", "")).strip().casefold()

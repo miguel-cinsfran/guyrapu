@@ -88,6 +88,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("sonido_inicio", "true"),
         ("idioma", "windows"),
         ("avisos_cuadro", "false"),
+        ("interaccion_pagina", "mensajes"),
     ]),
     ("sesion", [
         ("silenciar_lectura", "false"),

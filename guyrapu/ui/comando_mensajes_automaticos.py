@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Abrir la ventana de mensajes automáticos y activarlos o desactivarlos.
+"""Abrir la ventana Interacción en mensajes y activarlos o desactivarlos.
 
 Un solo camino por acción, como pide la skill de interfaz accesible: el menú,
 su casilla y la casilla de la ventana llaman acá.
@@ -8,20 +8,13 @@ su casilla y la casilla de la ventana llaman acá.
 
 from __future__ import annotations
 
-from guyrapu.core import paths
 from guyrapu.core.idioma import _
-from guyrapu.capture import programados
-from guyrapu.ui import mensajes_automaticos_ventana
+from guyrapu.ui import comando_interaccion
 
 
 def abrir(frame):
-    """Abre la ventana y, al cerrarla, recarga la lista del disco."""
-    mensajes_automaticos_ventana.abrir(frame, lambda: _recargar(frame))
-
-
-def _recargar(frame):
-    frame.programador.recargar(
-        programados.cargar(paths.mensajes_programados()))
+    """Abre la ventana Interacción en la página de mensajes automáticos."""
+    comando_interaccion.abrir(frame, "mensajes")
 
 
 def alternar(frame):

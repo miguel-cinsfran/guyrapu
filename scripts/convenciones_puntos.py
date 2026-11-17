@@ -11,6 +11,7 @@ no esté en ninguno de los dos conjuntos es una falta.
 from __future__ import annotations
 
 ABREN_CUADRO = frozenset((
+    "Abrir Interacción",
     "Acerca de",
     "Actualizar yt-dlp",
     "Administrador de descargas",

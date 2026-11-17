@@ -13,8 +13,8 @@ ACCIONES = ("Agregar", "Editar", "Cambiar palabra", "Duplicar",
 
 
 def escenario_comandos(app: Aplicacion, args, res: Resultado):
-    """Abre la ventana desde el menú y audita controles, textos y acciones."""
+    """Abre la ventana Interacción en comandos y audita controles y acciones."""
     auditar_dialogo(
-        app, res, "Comandos del chat", "Comandos del chat", vueltas_tab=14,
+        app, res, "&Comandos del chat…", "Interacción", vueltas_tab=14,
         esperados=("Comandos del chat guardados",) + ACCIONES,
         esperados_en_tab=("Comandos del chat guardados",) + ACCIONES)

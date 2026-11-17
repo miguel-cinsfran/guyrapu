@@ -60,6 +60,7 @@ class TestPrimeraEjecucion(unittest.TestCase):
         self.assertEqual(cfg["estrategia"], "limite")
         self.assertEqual(cfg["formato_prefijo"], "nombre_mensaje")
         self.assertEqual(cfg["mostrar_metadatos"], True)
+        self.assertEqual(cfg["interaccion_pagina"], "mensajes")
         self.assertEqual(cfg["descargas_formato"], "mp4")
         self.assertEqual(cfg["escena_atajos_globales"], True)
 

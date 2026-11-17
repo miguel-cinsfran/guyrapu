@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Escenario del banco para la ventana de mensajes automáticos."""
+"""Escenario del banco para la página de mensajes automáticos."""
 
 from __future__ import annotations
 
@@ -12,33 +12,22 @@ ACCIONES = ("Agregar", "Editar", "Cambiar nombre", "Duplicar", "Subir",
             "Exportar", "Importar")
 
 
-def _paso_del_atajo():
-    from guyrapu.core import config_predeterminada
-    texto = config_predeterminada.obtener(
-        "atajos", "mensajes_automaticos", "ctrl+shift+a")
-    partes = (texto or "").strip().lower().replace(" ", "").split("+")
-    tecla = partes[-1] if partes and partes[-1] else "a"
-    mods = [parte for parte in partes[:-1] if parte] or ["ctrl", "shift"]
-    return tecla, mods
-
-
 def escenario_mensajes_automaticos(app: Aplicacion, args, res: Resultado):
-    """Abre la ventana con su atajo y audita controles, textos y acciones."""
-    tecla, mods = _paso_del_atajo()
+    """Abre la ventana Interacción en mensajes y audita controles y acciones."""
     app.pedir("frente")
     try:
-        app.pedir("foco", nombre="Enlace del directo o vídeo")
+        app.abrir_por_menu("&Mensajes automáticos…")
     except Exception as exc:
-        res.nota(f"mensajes_automaticos: no se pudo poner el foco, {exc}")
-    app.teclas((tecla, mods))
-    dlg = app.esperar_ventana("Mensajes automáticos", segundos=15)
-    if dlg is None:
-        res.fallo("mensajes_automaticos: el atajo no abrió la ventana")
+        res.fallo(f"mensajes_automaticos: no se pudo abrir por el menú, {exc}")
         return
-    res.nota(f"mensajes_automaticos: el atajo abre «{dlg['titulo']}», "
+    dlg = app.esperar_ventana("Interacción", segundos=15)
+    if dlg is None:
+        res.fallo("mensajes_automaticos: el menú no abrió la ventana")
+        return
+    res.nota(f"mensajes_automaticos: el menú abre «{dlg['titulo']}», "
              f"clase {dlg['clase']}")
     try:
-        controles = app.arbol("Mensajes automáticos")
+        controles = app.arbol("Interacción")
         revisar_nombres(controles, res, "mensajes_automaticos")
         textos = " ".join((c.get("etiqueta") or "") + " "
                           + (c.get("nombre") or "") for c in controles)
@@ -61,4 +50,4 @@ def escenario_mensajes_automaticos(app: Aplicacion, args, res: Resultado):
         else:
             res.nota(f"mensajes_automaticos: las {len(ACCIONES)} acciones están")
     finally:
-        app.pedir("cerrar_ventana", ventana="Mensajes automáticos")
+        app.pedir("cerrar_ventana", ventana="Interacción")

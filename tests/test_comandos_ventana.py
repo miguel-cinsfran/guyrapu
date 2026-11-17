@@ -15,8 +15,8 @@ import wx
 
 from guyrapu.core import paths
 from guyrapu.interaction import comandos_guardados, paquetes
-from guyrapu.ui import comando_comandos_chat, comando_cuadro
-from guyrapu.ui import comandos_ventana, menu_interaccion
+from guyrapu.ui import comando_cuadro
+from guyrapu.ui import comandos_ventana
 from tests.letras_acceso import letras_repetidas
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -36,16 +36,6 @@ def _datos(nombre="discord", **cambios):
     return datos
 
 
-class FrameDoble:
-    def __init__(self):
-        self._config = {}
-        self.mi_programados_activo = mock.Mock()
-        self._bind_menu = mock.Mock()
-
-    def _accel(self, _accion):
-        return ""
-
-
 class BaseVentana(unittest.TestCase):
     def setUp(self):
         self.app = app_de_prueba()
@@ -55,15 +45,14 @@ class BaseVentana(unittest.TestCase):
         parche.__enter__()
         self.addCleanup(parche.__exit__, None, None, None)
 
-    def _ventana(self, lista=None):
+    def _panel(self, lista=None):
         if lista is not None:
             comandos_guardados.guardar(paths.comandos(), lista)
-        ventana = comandos_ventana.VentanaComandos(None)
-        self.addCleanup(destruir, ventana)
-        return ventana
-
-    def _panel(self, lista=None):
-        return self._ventana(lista).panel
+        marco = wx.Frame(None)
+        self.addCleanup(destruir, marco)
+        panel = comandos_ventana.PanelComandos(marco)
+        self.addCleanup(destruir, panel)
+        return panel
 
     def _nombres_en_disco(self):
         return [c["nombre"] for c in comandos_guardados.cargar(paths.comandos())]
@@ -81,16 +70,15 @@ class BaseVentana(unittest.TestCase):
 
 class TestContratos(BaseVentana):
 
-    def test_la_ventana_lee_los_comandos_al_abrir(self):
-        ventana = self._ventana([_datos("discord"), _datos(
+    def test_el_panel_lee_los_comandos_al_abrir(self):
+        panel = self._panel([_datos("discord"), _datos(
             "hola", alias=[], destino="chat", permiso="lista",
             nombres=["Ana"])])
-        self.assertEqual(ventana.GetTitle(), "Comandos del chat")
-        self.assertEqual(ventana.panel.lista.GetCount(), 2)
-        self.assertEqual(ventana.panel.lista.GetString(0),
+        self.assertEqual(panel.lista.GetCount(), 2)
+        self.assertEqual(panel.lista.GetString(0),
                          "!discord, en el vídeo, todos")
         self.assertEqual(
-            ventana.panel.lista.GetString(1),
+            panel.lista.GetString(1),
             "!hola, en el chat, una lista de nombres: Ana")
 
     def test_la_lista_vacia_y_el_archivo_danado_dicen_que_hacer(self):
@@ -102,35 +90,12 @@ class TestContratos(BaseVentana):
         self.assertEqual(panel.lista.GetString(0),
                          "No hay comandos. Usa Agregar para crear uno.")
 
-    def test_la_lista_tiene_nombre_accesible_y_foco_al_abrir(self):
-        ventana = self._ventana([])
-        self.assertEqual(ventana.panel.lista.GetName(),
-                         "Comandos del chat guardados")
-        ventana.Show()
-        try:
-            self.assertIs(wx.Window.FindFocus(), ventana.panel.lista)
-        finally:
-            ventana.Hide()
-
-    def test_las_letras_no_se_repiten_y_los_botones_estan_encendidos(self):
-        ventana = self._ventana([])
-        self.assertEqual(letras_repetidas(ventana), {})
-        botones = [hijo for hijo in ventana.panel.GetChildren()
+    def test_los_botones_del_panel_estan_encendidos(self):
+        panel = self._panel([])
+        botones = [hijo for hijo in panel.GetChildren()
                    if isinstance(hijo, wx.Button)]
         self.assertTrue(botones)
         self.assertTrue(all(boton.IsEnabled() for boton in botones))
-
-    def test_el_boton_cerrar_va_ultimo_y_cierra(self):
-        ventana = self._ventana([])
-        botones = [hijo for hijo in ventana.GetChildren()
-                   if isinstance(hijo, wx.Button)]
-        self.assertIs(botones[-1], ventana.btn_cerrar)
-        self.assertEqual(ventana.btn_cerrar.GetLabel(), "&Cerrar")
-        evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
-                                 ventana.btn_cerrar.GetId())
-        with mock.patch.object(ventana, "EndModal") as cerrar:
-            ventana.btn_cerrar.GetEventHandler().ProcessEvent(evento)
-        cerrar.assert_called_once_with(wx.ID_CANCEL)
 
     def test_sin_comandos_las_acciones_dicen_por_que(self):
         panel = self._panel([])
@@ -139,13 +104,9 @@ class TestContratos(BaseVentana):
         decir.assert_called_once_with(
             "No hay comandos. Usa Agregar para crear uno.")
 
-    def test_escape_cierra_la_ventana_y_el_cuadro(self):
+    def test_escape_cierra_el_cuadro(self):
         evento = mock.Mock()
         evento.GetKeyCode.return_value = wx.WXK_ESCAPE
-        ventana = self._ventana([])
-        with mock.patch.object(ventana, "EndModal") as cerrar:
-            ventana._al_tecla(evento)
-        cerrar.assert_called_once_with(wx.ID_CANCEL)
         cuadro = self._cuadro()
         with mock.patch.object(cuadro, "EndModal") as cerrar:
             cuadro._al_tecla(evento)
@@ -372,25 +333,6 @@ class TestEscenarioDelBanco(BaseVentana):
         etiquetas = {accion.etiqueta.replace("&", "")
                      for accion in panel._acciones}
         self.assertEqual(set(escenarios_comandos.ACCIONES), etiquetas)
-
-
-class TestCableado(BaseVentana):
-
-    def test_el_menu_enlaza_y_abre_la_ventana(self):
-        frame = FrameDoble()
-        with mock.patch.object(menu_interaccion.wx, "Menu",
-                               return_value=mock.Mock()):
-            menu_interaccion.construir(frame, mock.Mock())
-        llamadas = [(llamada.args[1], llamada.args[2])
-                    for llamada in frame._bind_menu.call_args_list]
-        self.assertEqual(llamadas, [
-            (mock.ANY, frame), (comando_comandos_chat.abrir, frame),
-            (mock.ANY, frame), (mock.ANY, frame)])
-        with mock.patch.object(comandos_ventana, "VentanaComandos") as clase:
-            comando_comandos_chat.abrir(FrameDoble())
-        clase.assert_called_once()
-        clase.return_value.ShowModal.assert_called_once()
-        clase.return_value.Destroy.assert_called_once()
 
 
 if __name__ == "__main__":

@@ -20,21 +20,21 @@ ACCIONES = (
 
 
 def escenario_estilos(app: Aplicacion, args, res: Resultado):
-    """Abre la ventana desde el menú y audita controles, textos y acciones."""
+    """Abre la ventana Interacción en estilos y audita controles y acciones."""
     app.pedir("frente")
     try:
         app.abrir_por_menu("Es&tilos del vídeo…")
     except Exception as exc:
         res.fallo(f"estilos: no se pudo abrir por el menú, {exc}")
         return
-    dlg = app.esperar_ventana("Estilos del vídeo", segundos=15)
+    dlg = app.esperar_ventana("Interacción", segundos=15)
     if dlg is None:
         res.fallo("estilos: el menú no abrió la ventana")
         return
     res.nota(f"estilos: el menú abre «{dlg['titulo']}», "
              f"clase {dlg['clase']}")
     try:
-        controles = app.arbol("Estilos del vídeo")
+        controles = app.arbol("Interacción")
         revisar_nombres(controles, res, "estilos")
         esperados = ("ListaEstilosVideo", "Estilos del vídeo guardados")
         nombres = {c.get("nombre") or "" for c in controles}
@@ -50,4 +50,4 @@ def escenario_estilos(app: Aplicacion, args, res: Resultado):
         else:
             res.nota(f"estilos: las {len(ACCIONES)} acciones están")
     finally:
-        app.pedir("cerrar_ventana", ventana="Estilos del vídeo")
+        app.pedir("cerrar_ventana", ventana="Interacción")

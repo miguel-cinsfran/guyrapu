@@ -15,22 +15,13 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, comandos, comandos_guardados
 from guyrapu.interaction import descripcion_comando, paquetes
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import comando_cuadro, confirmar, paleta, tecla_escape
+from guyrapu.ui import comando_cuadro, confirmar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 VACIO = N_("No hay comandos. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
-
-
-def abrir(padre):
-    """Muestra la ventana de comandos del chat."""
-    dialogo = VentanaComandos(padre)
-    try:
-        dialogo.ShowModal()
-    finally:
-        dialogo.Destroy()
 
 
 def _acciones(panel):
@@ -275,32 +266,3 @@ class PanelComandos(wx.Panel):
             return dialogo.GetPath()
         finally:
             dialogo.Destroy()
-
-
-class VentanaComandos(wx.Dialog):
-    """La ventana que contiene el panel de comandos y el botón Cerrar."""
-
-    def __init__(self, padre):
-        super().__init__(
-            padre, title=_("Comandos del chat"),
-            name="VentanaComandos", size=(760, 560),
-            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-        self.panel = PanelComandos(self)
-        vs = wx.BoxSizer(wx.VERTICAL)
-        vs.Add(self.panel, 1, wx.EXPAND)
-        self.btn_cerrar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
-        self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
-        vs.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizer(vs)
-        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
-        self.Bind(wx.EVT_CLOSE, self._al_cerrar)
-        paleta.pintar_ventana(self)
-        self.Centre()
-        self.panel.lista.SetFocus()
-
-    def _al_tecla(self, evento):
-        tecla_escape.cancelar_si_escape(self, evento)
-
-    def _al_cerrar(self, _evento):
-        self.EndModal(wx.ID_CANCEL)

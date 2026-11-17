@@ -93,6 +93,7 @@ def opciones_ui(p) -> dict:
         "autoplay_reproductor": leer_booleano(p, "ui", "autoplay_reproductor"),
         "reproductor_solo_audio": leer_booleano(p, "ui", "reproductor_solo_audio"),
         "mostrar_botones_reproductor": leer_booleano(p, "ui", "mostrar_botones_reproductor"),
+        "interaccion_pagina": leer_texto(p, "ui", "interaccion_pagina"),
     }
 
 
