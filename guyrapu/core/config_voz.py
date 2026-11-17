@@ -18,7 +18,7 @@ from guyrapu.core.ini_tipado import (
 
 def _velocidad_voz(p, ruta):
     """La velocidad en porcentaje propio, migrando una sola vez la clave vieja."""
-    from guyrapu.core.config import guardar_opcion, a_entero
+    from guyrapu.core.config import guardar_opcion
 
     # La velocidad se guarda como porcentaje propio (0..100); la clave vieja
     # en palabras por minuto se convierte una sola vez y se fija en el archivo,
