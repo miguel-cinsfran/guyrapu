@@ -7078,6 +7078,14 @@ msgstr "Restream: {nombre}"
 msgid "YouTube de Guyrapu"
 msgstr "Guyrapu's YouTube"
 
+#: guyrapu/translation/proveedores/google.py
+msgid "No se pudo traducir. Se lee el mensaje original."
+msgstr "Could not translate. The original message will be read."
+
+#: guyrapu/translation/proveedores/google.py
+msgid "Google, sin clave"
+msgstr "Google, without a key"
+
 #: guyrapu/ui/agregar_camara.py
 msgid "Windows no tiene ninguna cámara disponible para OBS."
 msgstr "Windows has no camera available for OBS."
@@ -7837,6 +7845,8 @@ msgstr "Camera shortcuts in any application"
 msgid "Atajos de cámara solo en {app}"
 msgstr "Camera shortcuts only in {app}"
 
+#. Traductores: aviso al confirmarse una tarjeta en el vídeo. {nombre} es el
+#. nombre del mensaje automático.
 #: guyrapu/ui/capa_video.py
 #, python-brace-format
 msgid "En el vídeo: {nombre}."

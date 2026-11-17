@@ -66,6 +66,30 @@ def _importa_zipfile(nombre: str) -> bool:
     return nombre == "zipfile" or nombre.startswith("zipfile.")
 
 
+def _modulo_traduccion_prohibido(nombre: str) -> bool:
+    raices = ("wx", "guyrapu.ui", "guyrapu.capture")
+    return any(nombre == raiz or nombre.startswith(raiz + ".")
+               for raiz in raices)
+
+
+def detectar_traduccion(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, ast.Import):
+            hallazgos.extend(
+                Hallazgo(archivo, nodo.lineno)
+                for alias in nodo.names
+                if _modulo_traduccion_prohibido(alias.name))
+        elif (isinstance(nodo, ast.ImportFrom)
+              and _modulo_traduccion_prohibido(nodo.module or "")):
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
+def _traduccion(archivo: str) -> bool:
+    return archivo.startswith("guyrapu/translation/")
+
+
 def detectar_zipfile(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     hallazgos = []
     for nodo in ast.walk(arbol):
@@ -105,7 +129,8 @@ REGLAS = (
         prohibido="urllib.request, httpx y requests no se importan en guyrapu/",
         detectar=detectar_red,
         pendientes={},
-        duenos=("guyrapu/core/red.py", "guyrapu/core/red_httpx.py"),
+        duenos=("guyrapu/core/red.py", "guyrapu/core/red_httpx.py",
+                "guyrapu/translation/proveedores/google.py"),
         ambito=_paquete,
     ),
     Regla(
@@ -228,5 +253,12 @@ REGLAS = (
         duenos=("guyrapu/interaction/paquetes.py",
                 "guyrapu/core/actualizacion.py"),
         ambito=_paquete,
+    ),
+    Regla(
+        id="R18",
+        prohibido="guyrapu/translation/ no importa guyrapu.capture, guyrapu.ui ni wx",
+        detectar=detectar_traduccion,
+        pendientes={},
+        ambito=_traduccion,
     ),
 )
