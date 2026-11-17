@@ -12,7 +12,7 @@ from __future__ import annotations
 import base64
 from dataclasses import dataclass
 
-from guyrapu.core import diagnostico
+from guyrapu.core import cortina_nvda, diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs.obs_png import imagen_vacia_png
 from guyrapu.obs import escena_gemela, obs_grabacion, revision_escena
@@ -214,7 +214,38 @@ def _audio_obs(cliente, entradas, parada) -> list:
     return audio
 
 
-def _problemas_revision(audio, fuentes, imagen) -> list:
+def _problemas_cortina(cliente, elementos, por_nombre, parada) -> list:
+    """Capturas de pantalla que la cortina de NVDA deja en negro."""
+    if not cortina_nvda.cortina_puesta():
+        return []
+    problemas = []
+    for elemento in elementos:
+        nombre = elemento.get("sourceName", "") or ""
+        if not elemento.get("sceneItemEnabled", True):
+            continue
+        clase = por_nombre.get(nombre, {}).get("inputKind", "") or ""
+        if clase != "monitor_capture":
+            continue
+        try:
+            ajustes = _datos(cliente, "GetInputSettings",
+                             {"inputName": nombre}, parada).get(
+                "inputSettings", {}) or {}
+        except Exception as error:
+            logger.debug("no se pudieron leer los ajustes de %s: %s",
+                         nombre, error)
+            continue
+        if ajustes.get("method", 0) in (0, 1):
+            problemas.append(_(
+                # Traductores: aviso de captura negra por la cortina de NVDA;
+                # {nombre} es la fuente de OBS.
+                "La cortina de pantalla de NVDA deja en negro la captura "
+                "de pantalla {nombre}. En sus propiedades, cambia el método "
+                "de captura a Windows 10, o desactiva la cortina con "
+                "NVDA+Control+Esc.").format(nombre=nombre))
+    return problemas
+
+
+def _problemas_revision(audio, fuentes, imagen, omitir_vacia=False) -> list:
     problemas = []
     for entrada in audio:
         if not entrada.escritorio and entrada.silenciada:
@@ -228,7 +259,7 @@ def _problemas_revision(audio, fuentes, imagen) -> list:
         problemas.append(_("La escena no tiene ninguna fuente visible. "
                            "Agrégala con Agregar fuente, en la pestaña Escena "
                            "del Panel de OBS."))
-    if imagen is True:
+    if imagen is True and not omitir_vacia:
         problemas.append(_("La imagen está vacía: la escena se ve en negro. "
                            "Comprueba que la ventana capturada esté abierta y no minimizada."))
     return problemas
@@ -267,7 +298,9 @@ def revisar(cliente, destino, parada=None, grabar=False,
     fuentes = _fuentes_obs(cliente, elementos, por_nombre, escenas, parada)
     audio = _audio_obs(cliente, entradas, parada)
     imagen = _leer_imagen_vacia(cliente, escena, parada)
-    problemas = _problemas_revision(audio, fuentes, imagen)
+    cortina = _problemas_cortina(cliente, elementos, por_nombre, parada)
+    problemas = _problemas_revision(audio, fuentes, imagen, bool(cortina))
+    problemas.extend(cortina)
     if servicio_propio:
         problemas.extend(_problemas_servicio(cliente, perfil, parada))
     hallazgos = revision_escena.revisar(

@@ -4,8 +4,10 @@
 
 import base64
 import unittest
+from unittest import mock
 
 from tests.pseudo_prueba import con_pseudo
+from guyrapu.core import cortina_nvda
 from guyrapu.core import idioma
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_prevuelo
@@ -730,6 +732,64 @@ class TestPseudoFraseRevision(unittest.TestCase):
             frase = frase_revision(revisar(doble, "TikTok", grabar=True))
         self.assertTrue(frase.startswith("[¡"), frase)
         self.assertIn(AVISO_CODIFICADOR, frase)
+
+
+class CortinaNvdaTest(unittest.TestCase):
+    """La cortina de pantalla de NVDA deja en negro la captura por DXGI."""
+
+    _PROBLEMA = (
+        "La cortina de pantalla de NVDA deja en negro la captura de pantalla "
+        "Captura de pantalla. En sus propiedades, cambia el método de captura "
+        "a Windows 10, o desactiva la cortina con NVDA+Control+Esc.")
+    _VACIA = "La imagen está vacía"
+
+    def _doble(self, method=None, visible=True):
+        ajustes = {} if method is None else {"method": method}
+        return DoblePrevuelo(
+            elementos=[{"sourceName": "Captura de pantalla",
+                        "sceneItemEnabled": visible}],
+            entradas=[{"inputName": "Captura de pantalla",
+                       "inputKind": "monitor_capture"}],
+            ajustes={"Captura de pantalla": ajustes}, silencios={},
+            imagen=imagen_dato(png_plano(2, 2, (0, 0, 0, 0))))
+
+    def _revisar(self, doble, cortina):
+        with mock.patch.object(cortina_nvda, "cortina_puesta",
+                               return_value=cortina):
+            return revisar(doble, "TikTok")
+
+    def test_automatica_o_dxgi_con_cortina_nombra_la_captura(self):
+        for method in (0, 1):
+            with self.subTest(method=method):
+                revision = self._revisar(self._doble(method), True)
+                self.assertIn(self._PROBLEMA, revision.problemas)
+                self.assertFalse(any(self._VACIA in problema
+                                     for problema in revision.problemas))
+
+    def test_windows_10_con_cortina_no_da_el_problema(self):
+        revision = self._revisar(self._doble(2), True)
+        self.assertFalse(any("cortina" in problema
+                             for problema in revision.problemas))
+        self.assertTrue(any(self._VACIA in problema
+                            for problema in revision.problemas))
+
+    def test_captura_oculta_con_cortina_no_da_el_problema(self):
+        revision = self._revisar(self._doble(0, visible=False), True)
+        self.assertFalse(any("cortina" in problema
+                             for problema in revision.problemas))
+
+    def test_sin_cortina_la_revision_es_igual_y_no_pide_ajustes(self):
+        for cortina in (False, None):
+            with self.subTest(cortina=cortina):
+                doble = self._doble(0)
+                revision = self._revisar(doble, cortina)
+                self.assertIs(revision.imagen_vacia, True)
+                self.assertTrue(any(self._VACIA in problema
+                                    for problema in revision.problemas))
+                self.assertFalse(any("cortina" in problema
+                                     for problema in revision.problemas))
+                self.assertFalse(any(tipo == "GetInputSettings"
+                                     for tipo, _datos in doble.llamadas))
 
 
 if __name__ == "__main__":

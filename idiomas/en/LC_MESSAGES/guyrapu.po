@@ -14317,3 +14317,14 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/obs/obs_prevuelo.py
+#, python-brace-format
+msgid ""
+"La cortina de pantalla de NVDA deja en negro la captura de pantalla "
+"{nombre}. En sus propiedades, cambia el método de captura a Windows 10, o "
+"desactiva la cortina con NVDA+Control+Esc."
+msgstr ""
+"The NVDA screen curtain turns the {nombre} screenshot black. In its "
+"properties, change the capture method to Windows 10, or turn off the "
+"curtain with NVDA+Control+Esc."
+
