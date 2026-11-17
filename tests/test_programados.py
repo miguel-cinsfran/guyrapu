@@ -387,6 +387,22 @@ class TestMensajesEntre(unittest.TestCase):
         programador.contar_mensaje_chat()
         self.assertIs(programador.siguiente(1000.0), mensaje)
 
+    def test_recuerda_la_cuenta_del_chat_al_ultimo_envio(self):
+        mensaje = {
+            "texto": "Hola", "activo": True, "proximo": 0.0,
+            "minutos_min": 10, "minutos_max": 10, "mensajes_entre": 3,
+        }
+        programador = programados.ProgramadorMensajes([mensaje])
+        for _ in range(5):
+            programador.contar_mensaje_chat()
+        programador.envio_hecho(mensaje, 0.0, lambda minimo, maximo: 600)
+        mensaje["proximo"] = 0.0
+        programador.contar_mensaje_chat()
+        programador.contar_mensaje_chat()
+        self.assertIsNone(programador.siguiente(1000.0))
+        programador.contar_mensaje_chat()
+        self.assertIs(programador.siguiente(1000.0), mensaje)
+
 
 class TestValidacionPseudo(unittest.TestCase):
     """Los cuatro mensajes de validación pasan por gettext."""
