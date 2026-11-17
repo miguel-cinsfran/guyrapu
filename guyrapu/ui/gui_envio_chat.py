@@ -164,7 +164,7 @@ def programado_fallo(frame, exc) -> None:
               "servicio."), "aviso")
 
 
-def _capa_de_video(frame):
+def capa_de_video(frame):
     """La capa del vídeo, creada la primera vez que un mensaje la necesita."""
     capa = getattr(frame, "_capa_video", None)
     if capa is None:
@@ -174,7 +174,7 @@ def _capa_de_video(frame):
     return capa
 
 
-def _destinos_disponibles(frame) -> set:
+def destinos_disponibles(frame) -> set:
     """El chat y el vídeo que se pueden usar ahora mismo."""
     from guyrapu.ui import gui as _gui
     propio = bool(frame.sesion.chat_propio or frame.sesion.conexion_propia)
@@ -198,7 +198,7 @@ def _repartir_programado(frame, mensaje, ahora, destinos) -> None:
     va_al_chat = destino in ("chat", "ambos")
     va_al_video = destino in ("video", "ambos")
     if va_al_video and "video" in destinos:
-        _capa_de_video(frame).agregar(mensaje)
+        capa_de_video(frame).agregar(mensaje)
     if va_al_chat and "chat" in destinos:
         frame._enviar_programado(mensaje, ahora)
     elif va_al_video and "video" in destinos:
@@ -214,7 +214,7 @@ def procesar_programado(frame) -> None:
     chat_vivo = getattr(frame, "chat_vivo", None)
     if chat_vivo is not None:
         frame.programador.fijar_mensajes_chat(chat_vivo.recibidos)
-    destinos = _destinos_disponibles(frame)
+    destinos = destinos_disponibles(frame)
     if not destinos:
         # Sin las condiciones para mandar, el reloj no corre: al
         # reconectar arranca de nuevo en vez de salir todo de golpe.
