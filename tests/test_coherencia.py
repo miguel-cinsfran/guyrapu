@@ -17,6 +17,7 @@ from guyrapu.core import config as cfg
 from guyrapu.core import config_predeterminada as fabrica
 from guyrapu.core import eventos_sonido
 from guyrapu.ui import atajos_captura
+from tests.coherencia_internas import INTERNAS
 
 RAIZ = Path(__file__).resolve().parent.parent
 
@@ -287,43 +288,6 @@ class PruebaNombresSonido(unittest.TestCase):
 # Secciones que Preferencias arma recorriendo una lista: [estado] sale de
 # COMPONENTES (regla 1) y [atajos] se edita en su página propia (regla 4).
 _SECCIONES_CON_REGLA_PROPIA = {"estado", "atajos"}
-
-# Claves sin control a propósito: dónde se escribe cada una.
-INTERNAS = {
-    ("descargas", "bitrate"): "gestor de descargas (config.py:436, desde gui_descargas.py:353)",
-    ("descargas", "carpeta"): "gestor de descargas (config.py:436, desde gui_descargas.py:353)",
-    ("descargas", "enumerar"): "gestor de descargas (config.py:436, desde gui_descargas.py:353)",
-    ("descargas", "formato"): "gestor de descargas (config.py:436, desde gui_descargas.py:353)",
-    ("ia", "privacidad_aceptada"): "la escribe el aviso de privacidad de la IA, no lleva control",
-    ("musica", "mostrar_cola"): "la recuerda la ventana Música (musica_memoria.py:19, guarda en gui_musica.py:465)",
-    ("musica", "mostrar_filtros"): "la recuerdan los filtros de la ventana Música (musica_memoria.py, musica_filtros.py)",
-    ("musica", "orden"): "la recuerdan los filtros de la ventana Música (musica_memoria.py, musica_filtros.py)",
-    ("musica", "artista"): "la recuerdan los filtros de la ventana Música (musica_memoria.py, musica_filtros.py)",
-    ("obs", "microfono"): "lo elige el cuadro Elegir micrófono del Panel de OBS (gui_microfono._guardar_fuente)",
-    ("programados", "activo"): "lo cambia el menú Interacción y la ventana de mensajes automáticos (comando_mensajes_automaticos.alternar)",
-    ("overlay", "activo"): "la enciende la ventana Transmisión (gui_transmitir.py:32 y 37)",
-    ("sesion", "silenciar_lectura"): "la cambia F4 en la ventana principal (gui.py:1340)",
-    ("sesion", "version_atajos"): "la escribe la migración de atajos (atajos.py:303)",
-    ("sesion", "version_sonidos"): "la escribe la migración de sonidos (sonidos_fabrica.py)",
-    ("sesion", "version_escena_global"): "la escribe la migración de escena fuera de la app (migracion_escena_global.py)",
-    ("tiktok", "usuario"): "lo guarda la ventana Transmisión (gui_transmitir.py:42)",
-    ("transmision", "destino"): "lo guarda la ventana Transmisión (gui_transmitir.py:51)",
-    ("transmision", "avisar_sobrecarga"): "lo cambia su menú (gui_transmitir.py:60)",
-    ("transmision", "grabar_al_transmitir"): "lo cambia su menú (gui_transmitir.py, alternar_grabar_al_transmitir)",
-    ("transmision", "youtube_titulo"): "lo guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_descripcion"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_privacidad"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_latencia"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_ninos"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_dvr"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_categoria"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_etiquetas"): "las guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_miniatura"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_lista"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("transmision", "youtube_lista_titulo"): "la guarda la ventana Transmisión (gui_transmitir.py:79)",
-    ("ui", "filtro_activo"): "lo cambia el menú de filtros (gui.py:1309)",
-    ("ui", "silenciar_sonidos"): "lo cambia F7 en la ventana principal (gui.py:1332)",
-}
 
 # Pares que se leen fuera de `config.py`: dónde se lee cada uno.
 LEIDAS_FUERA = {
