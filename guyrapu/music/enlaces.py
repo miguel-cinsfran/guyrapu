@@ -26,8 +26,6 @@ TOPE_PROGRAMA = 60
 
 CACHE = CacheEnlaces()
 
-_DOMINIOS_YOUTUBE = ("youtube.com", "youtu.be")
-
 _ID_EN_URL = (
     re.compile(r"[?&]v=([A-Za-z0-9_-]+)"),
     re.compile(r"youtu\.be/([A-Za-z0-9_-]+)"),
