@@ -305,6 +305,7 @@ INTERNAS = {
     ("sesion", "silenciar_lectura"): "la cambia F4 en la ventana principal (gui.py:1340)",
     ("sesion", "version_atajos"): "la escribe la migración de atajos (atajos.py:303)",
     ("sesion", "version_sonidos"): "la escribe la migración de sonidos (sonidos_fabrica.py)",
+    ("sesion", "version_escena_global"): "la escribe la migración de escena fuera de la app (migracion_escena_global.py)",
     ("tiktok", "usuario"): "lo guarda la ventana Transmisión (gui_transmitir.py:42)",
     ("transmision", "destino"): "lo guarda la ventana Transmisión (gui_transmitir.py:51)",
     ("transmision", "avisar_sobrecarga"): "lo cambia su menú (gui_transmitir.py:60)",
@@ -348,6 +349,7 @@ LEIDAS_FUERA = {
     ("ia", "decir_analizando"): "la lee ajustes_ia.leer (ajustes_ia.py:101)",
     ("sesion", "version_atajos"): "la lee y la escribe la migración de atajos (atajos.py:294 y 303)",
     ("sesion", "version_sonidos"): "la lee y la escribe la migración de sonidos (sonidos_fabrica.py)",
+    ("sesion", "version_escena_global"): "la lee y la escribe la migración de escena fuera de la app (migracion_escena_global.py)",
 }
 
 # Pares sin control a propósito que solo migran configuraciones viejas.

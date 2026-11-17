@@ -89,6 +89,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("silenciar_lectura", "false"),
         ("version_atajos", "3"),
         ("version_sonidos", "1"),
+        ("version_escena_global", "1"),
     ]),
     ("tiktok", [
         ("usuario", ""),
@@ -138,7 +139,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("camara_invertir", "false"),
         ("guia_timbre", "normal"),
         ("camara_atajos_globales", "false"),
-        ("escena_atajos_globales", "false"),
+        ("escena_atajos_globales", "true"),
         ("youtube_titulo", ""),
         ("youtube_descripcion", ""),
         ("youtube_privacidad", "unlisted"),

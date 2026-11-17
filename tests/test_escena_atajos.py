@@ -6,13 +6,17 @@ Todo sin ventanas: el marco es un doble que anota los atajos registrados y
 `wx.CallAfter` corre en el acto.
 """
 
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import wx
 
+from guyrapu.core import config
 from guyrapu.core.atajos import Atajo
 from guyrapu.ui import escena_atajos
+from tests.rutas_temporales import redirigir_rutas
 
 
 class MarcoFalso:
@@ -80,6 +84,18 @@ class TestRegistroDeAtajos(unittest.TestCase):
             {(wx.MOD_CONTROL, 0x76),
              (wx.MOD_CONTROL | wx.MOD_SHIFT, 0x76)})
         self.assertTrue(atajos._globales.activos)
+
+    def test_de_fabrica_arranca_con_los_dos_globales(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with redirigir_rutas(Path(tmp)):
+                configuracion = config.cargar_configuracion()
+        marco = MarcoFalso(configuracion, _atajos())
+        with mock.patch.object(escena_atajos.wx, "CallAfter",
+                               side_effect=lambda fn, *a: fn(*a)), \
+                mock.patch.object(escena_atajos, "anunciar"), \
+                mock.patch.object(escena_atajos._snd, "reproducir"):
+            escena_atajos.EscenaAtajos(marco)
+        self.assertEqual(len(marco.registrados), 2)
 
     def test_arranque_callado_sin_fallos(self):
         marco = MarcoFalso({"escena_atajos_globales": True}, _atajos())

@@ -13,7 +13,7 @@ from pathlib import Path
 from guyrapu.core import avisos_tiktok
 from guyrapu.core import config_faltantes
 from guyrapu.core import config_predeterminada
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, migracion_escena_global
 from guyrapu.core.ini_tipado import leer_texto, a_entero, leer_entero, leer_booleano, separar_por_comas
 from guyrapu.core.eventos_sonido import EVENTOS as _EVENTOS_SONIDO
 from guyrapu.core import paths
@@ -126,7 +126,6 @@ logger = diagnostico.obtener_logger(__name__)
 
 _CONFIG_FALLBACK = config_predeterminada.generar_texto()
 
-# Carpeta base de temas y tema por defecto.
 _TEMAS_DIR   = "themes"
 _TEMA_DEFECTO = "default"
 
@@ -361,6 +360,7 @@ def cargar_configuracion() -> dict:
                   if p.has_section("atajos") else {})
     migrar_atajos_config(p, ruta, atajos_raw)
     avisos_tiktok.migrar(p, ruta, guardar_opcion, guardar_opciones)
+    migracion_escena_global.migrar(p, ruta, guardar_opcion, guardar_opciones)
     sonidos_fabrica.migrar(p, ruta)
     config_faltantes.completar_faltantes(p, ruta, atajos_raw, guardar_opciones)
 
