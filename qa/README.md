@@ -13,6 +13,7 @@ mira qué pasa.
     python qa/conducir.py                          # todos los escenarios
     python qa/conducir.py --escenario descargas    # solo uno
     python qa/conducir.py --escenario directo_youtube --url-youtube URL
+    python qa/conducir.py --escenario reproductor_directo --url-youtube URL
     python qa/conducir.py --escenario dos_conexiones
 
 Arranca la aplicación de verdad, así que hace falta Windows con wxPython. La
@@ -225,8 +226,10 @@ rompió. Ojo con eso: la primera versión leía mal el sobre de la sonda, contab
 cero hilos siempre y habría pasado en verde para siempre.
 
 Los escenarios que terminan en `directo_` tocan la red, y `reproductor_en_marcha`
-también: pide un vídeo grabado y un directo reales. No entran en la corrida
-completa: gastan minutos y dependen de que haya alguien emitiendo en ese momento.
+también: pide un vídeo grabado y un directo reales. `reproductor_directo` pide un
+directo real y le corta el ffmpeg del relevo a propósito para medir que vuelve
+solo. No entran en la corrida completa: gastan minutos y dependen de que haya
+alguien emitiendo en ese momento.
 
 ## Seis trampas que costaron una tarde
 

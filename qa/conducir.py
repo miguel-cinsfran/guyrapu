@@ -25,11 +25,6 @@ corresponde cuando corresponde.
 
 Lo que NO prueba, y no hay que declararlo probado: que NVDA lo lea, cómo suena,
 la línea braille, y si la ventana se ve bien.
-
-Uso:
-
-    .venv\\Scripts\\python.exe qa/conducir.py
-    .venv\\Scripts\\python.exe qa/conducir.py --escenario descargas
 """
 
 from __future__ import annotations
@@ -81,6 +76,7 @@ from escenarios_musica import (  # noqa: E402
     escenario_musica, escenario_musica_real,
     escenario_reproductor, escenario_reproductor_en_marcha,
 )
+from escenarios_reproductor_directo import escenario_reproductor_directo  # noqa: E402
 from musica_real import aguja_grupo, agujas_unicas  # noqa: E402, F401
 from escenarios_obs import (  # noqa: E402
     cerrar_obs_del_banco, debe_cerrar_obs_al_final, escenario_encuadre,
@@ -175,6 +171,7 @@ FUERA_DE_TODOS = frozenset({
     "directo_youtube",   # pide un directo de YouTube vivo
     "directo_tiktok",    # pide un directo de TikTok vivo
     "reproductor_en_marcha",  # pide un vídeo y un directo reales
+    "reproductor_directo",  # pide un directo real de YouTube y lo corta
     "dos_conexiones",    # conecta dos veces a un directo vivo
     "enviar_live",       # escribe de verdad en un chat: pide directo y sesion
     "musica_real",       # suena de verdad, usa la red y cambia la
@@ -219,6 +216,7 @@ ESCENARIOS = {
     "dos_conexiones": escenario_dos_conexiones,
     "directo_tiktok": escenario_directo_tiktok,
     "reproductor_en_marcha": escenario_reproductor_en_marcha,
+    "reproductor_directo": escenario_reproductor_directo,
     "overlay": escenario_overlay,
     "mensajes_automaticos": escenario_mensajes_automaticos,
     "estilos": escenario_estilos,
@@ -442,7 +440,6 @@ def main() -> int:
         else:
             carpeta_cap = Path(args.capturas)
         captor = Captor(carpeta_cap)
-        args.captor = captor
         _CAPTURA_EN_CURSO["captor"] = captor
         _esperar_original = _instalar_capturas(captor)
     if args.tope_minutos > 0:

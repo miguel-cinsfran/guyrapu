@@ -130,6 +130,10 @@ class TestTodosCubreLosEscenarios(unittest.TestCase):
         self.assertEqual(set(conducir.ESCENARIOS),
                          set(conducir.EN_TODOS) | set(conducir.FUERA_DE_TODOS))
 
+    def test_el_directo_del_reproductor_queda_fuera_de_la_corrida(self):
+        self.assertIn("reproductor_directo", conducir.ESCENARIOS)
+        self.assertIn("reproductor_directo", conducir.FUERA_DE_TODOS)
+
 
 class TestEsVentanaDeLaApp(unittest.TestCase):
 
