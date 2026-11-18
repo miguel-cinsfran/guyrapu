@@ -1374,6 +1374,7 @@ class TestMusicaCargador(unittest.TestCase):
         self.assertEqual(cfg["musica_salida"], "")
         self.assertEqual(cfg["musica_salida_nombre"], "")
         self.assertFalse(cfg["musica_atajos_globales"])
+        self.assertTrue(cfg["musica_teclas_multimedia"])
         self.assertFalse(cfg["musica_mostrar_cola"])
 
     def test_lee_valores_puestos_a_mano(self):
@@ -1392,7 +1393,8 @@ class TestMusicaCargador(unittest.TestCase):
             "cruce = 3\n"
             "salida = altavoces\n"
             "salida_nombre = Altavoces del sistema\n"
-            "atajos_globales = true\n")
+            "atajos_globales = true\n"
+            "teclas_multimedia = false\n")
         self.assertEqual(cfg["musica_carpeta"], "C:/Mi Música/Grandes Éxitos")
         self.assertTrue(cfg["musica_aleatorio"])
         self.assertEqual(cfg["musica_repetir"], "todo")
@@ -1405,9 +1407,10 @@ class TestMusicaCargador(unittest.TestCase):
         self.assertEqual(cfg["musica_salida"], "altavoces")
         self.assertEqual(cfg["musica_salida_nombre"], "Altavoces del sistema")
         self.assertTrue(cfg["musica_atajos_globales"])
+        self.assertFalse(cfg["musica_teclas_multimedia"])
 
     def test_cada_clave_booleana_lee_su_propia_clave(self):
-        # Con las cinco invertidas a la vez, una lectura cruzada pasa
+        # Con las seis invertidas a la vez, una lectura cruzada pasa
         # inadvertida. De a una sola, la clave vecina ya no la tapa.
         casos = [
             ("aleatorio", "musica_aleatorio", False),
@@ -1415,6 +1418,7 @@ class TestMusicaCargador(unittest.TestCase):
             ("decir_pausa", "musica_decir_pausa", True),
             ("preguntar_igualar", "musica_preguntar_igualar", True),
             ("atajos_globales", "musica_atajos_globales", False),
+            ("teclas_multimedia", "musica_teclas_multimedia", True),
         ]
         for clave_ini, clave_memoria, valor_fabrica in casos:
             with self.subTest(clave=clave_ini):

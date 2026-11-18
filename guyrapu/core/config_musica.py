@@ -36,8 +36,15 @@ def opciones_musica(p) -> dict:
         "musica_volumen": leer_entero(p, "musica", "volumen", lo=0, hi=100), "musica_cruce": leer_entero(p, "musica", "cruce", lo=0, hi=12),
         "musica_salida": leer_texto(p, "musica", "salida"),
         "musica_salida_nombre": decodificar_texto_ini(leer_texto(p, "musica", "salida_nombre")),
+    } | _atajos_musica(p) | _filtros_musica(p)
+
+
+def _atajos_musica(p) -> dict:
+    """Las opciones que manejan la música desde fuera de la ventana."""
+    return {
         "musica_atajos_globales": leer_booleano(p, "musica", "atajos_globales"),
-    } | _filtros_musica(p)
+        "musica_teclas_multimedia": leer_booleano(p, "musica", "teclas_multimedia"),
+    }
 
 
 def _filtros_musica(p) -> dict:

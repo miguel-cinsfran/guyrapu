@@ -16122,3 +16122,11 @@ msgstr "This is how a message looks with this style."
 msgid "Iría al chat: {texto}"
 msgstr "Would go to chat: {texto}"
 
+#: guyrapu/ui/preferencias_musica.py
+msgid "Usar &teclas multimedia del teclado"
+msgstr "Use &keyboard media keys"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Usar teclas multimedia del teclado"
+msgstr "Use keyboard media keys"
+

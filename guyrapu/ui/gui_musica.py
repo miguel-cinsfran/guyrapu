@@ -41,9 +41,6 @@ from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
 
-def _resultado_sin_tema() -> Resultado:
-    return Resultado(False, SIN_TEMA, EstadoMusica(
-        (), None, False, False, VOLUMEN_MAX, False))
 
 class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
                     ListasPropiasMusica, MemoriaMusica, TeclasMusica):
@@ -65,7 +62,8 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
         self._guardado_memoria = GuardadoDiferido(wx.CallLater)
         self._guardado_volumen = GuardadoDiferido(wx.CallLater)
         self._desde_fuera = DesdeFueraMusica(
-            frame, self._config, self.acciones_musica(), self._avisar)
+            frame, self._config, self.acciones_musica(), self._avisar,
+            self.estado, self.ejecutar_atajo)
         self._globales = self._desde_fuera.globales
 
     # ── Acciones del menú y los atajos ───────────────────────────────────────
@@ -329,12 +327,12 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
         self._refrescar_ventana_abierta()
 
     def _refrescar_ventana_abierta(self) -> None:
-        """Pone al día la cola de la ventana de música si está abierta."""
+        """Pone al día la cola de la ventana y los controles de medios."""
+        self._desde_fuera.poner_al_dia()
         ventana = self._ventanas.get("musica")
-        if ventana is None:
-            return
         try:
-            ventana.refrescar_cola()
+            if ventana is not None:
+                ventana.refrescar_cola()
         except Exception:
             logger.debug("No se pudo refrescar la cola de la ventana de música")
 
@@ -352,8 +350,10 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
 
     def _accion_coordinador(self, accion) -> None:
         if self._coordinador is None:
+            resultado = Resultado(False, SIN_TEMA, EstadoMusica(
+                (), None, False, False, VOLUMEN_MAX, False))
             self._avisar(anuncios.aviso_accion(
-                accion, _resultado_sin_tema(), self._incluir_artista()))
+                accion, resultado, self._incluir_artista()))
             self._refrescar_ventana_abierta()
             return
         operacion = getattr(self._coordinador, accion)

@@ -1940,7 +1940,8 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("musica", "decir"), ("musica", "decir_pausa"), ("musica", "normalizar"),
             ("musica", "preguntar_igualar"),
             ("musica", "volumen"), ("musica", "cruce"),
-            ("musica", "atajos_globales"), ("musica", "carpeta"),
+            ("musica", "atajos_globales"),
+            ("musica", "teclas_multimedia"), ("musica", "carpeta"),
             ("musica", "salida"), ("musica", "salida_nombre"),
         ]
         esperadas.extend(("estado", componente)
@@ -2129,6 +2130,7 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
             "Salida de a&udio de la música:",
             "&Buscar salidas de audio",
             "Usar atajos de música en cualquier a&plicación",
+            "Usar &teclas multimedia del teclado",
         ])
 
     def test_los_mnemonicos_de_musica_no_se_repiten_ni_chocan_con_guardar(self):
@@ -2142,7 +2144,7 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
             etiqueta = control.GetLabel()
             if "&" in etiqueta:
                 letras.append(etiqueta.split("&", 1)[1][:1].lower())
-        self.assertEqual(len(letras), 13)
+        self.assertEqual(len(letras), 14)
         self.assertEqual(len(letras), len(set(letras)), letras)
         self.assertNotIn("g", letras)
         self.assertNotIn("c", letras)

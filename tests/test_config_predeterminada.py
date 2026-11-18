@@ -486,6 +486,7 @@ class TestMusicaFabrica(unittest.TestCase):
             "preguntar_igualar": "true", "volumen": "50", "cruce": "6",
             "salida": "",
             "salida_nombre": "", "atajos_globales": "false",
+            "teclas_multimedia": "true",
             "mostrar_cola": "false", "mostrar_filtros": "false",
             "orden": "coleccion", "artista": "",
         })
@@ -495,6 +496,6 @@ class TestMusicaFabrica(unittest.TestCase):
             "carpeta", "aleatorio", "repetir", "retomar",
             "decir", "decir_titulo", "incluir_artista", "decir_pausa",
             "normalizar", "preguntar_igualar", "volumen", "cruce", "salida",
-            "salida_nombre", "atajos_globales",
+            "salida_nombre", "atajos_globales", "teclas_multimedia",
             "mostrar_cola", "mostrar_filtros", "orden", "artista",
         ])

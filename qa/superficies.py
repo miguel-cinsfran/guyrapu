@@ -79,6 +79,7 @@ SUPERFICIES = {
     "gui_microfono.py": "microfono",
     "guia_encuadre.py": "encuadre",
     "gui_musica.py": "musica",
+    "controles_medios.py": "musica",
     "musica_desde_fuera.py": "musica",
     "musica_dialogo_enlace.py": "musica",
     "musica_colecciones.py": "musica",

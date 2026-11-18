@@ -696,5 +696,43 @@ class TestPreferenciasPerezosas(unittest.TestCase):
         self.assertEqual(dialogo.elegida, ("YouTube", True))
 
 
+class TestCasillaTeclasMultimedia(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ruta = Path(self.tmp.name)
+        (self.ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                              encoding="utf-8")
+        parche = redirigir_rutas(self.ruta)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+
+    def _dialogo(self, configuracion=None):
+        with mock.patch.object(motores, "listar_voces", return_value=[]), \
+                mock.patch.object(reproductor_pcm, "listar_salidas",
+                                  return_value=[]):
+            dialogo = gui_preferencias.PreferenciasDialog(
+                None, configuracion or {})
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def test_existe_y_viene_marcada_de_fabrica(self):
+        casilla = self._dialogo().chk_musica_teclas_multimedia
+        self.assertEqual(casilla.GetName(),
+                         "Usar teclas multimedia del teclado")
+        self.assertTrue(casilla.GetValue())
+
+    def test_se_guarda_desmarcada(self):
+        dialogo = self._dialogo()
+        dialogo.chk_musica_teclas_multimedia.SetValue(False)
+        en_memoria = {}
+        dialogo._volcar_controles(en_memoria)
+        self.assertIn(("musica", "teclas_multimedia", "false"),
+                      dialogo._pendientes)
+        self.assertFalse(en_memoria["musica_teclas_multimedia"])
+
+
 if __name__ == "__main__":
     unittest.main()

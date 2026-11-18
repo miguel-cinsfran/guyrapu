@@ -62,6 +62,13 @@ websockets>=13
 yt-dlp>=2025.1.1
 python-vlc>=3.0.20
 
+# ── Teclas multimedia (OPCIONAL): controles de medios de Windows ─────────────
+# Dejan que las teclas multimedia del teclado manejen la música de Guyrapu y
+# que el panel de medios muestre qué suena, como Spotify o mpv. Si faltan, la
+# app funciona igual y no toma esas teclas.
+winrt-Windows.Media.Interop==4.0.0
+winrt-Windows.Media==4!10.0.28000.2957
+
 # ── Detector de rostros de la cámara (OPCIONAL) ─────────────────────────────
 # Para el encuadre de cámara: OpenCV con su detector YuNet encuentra los
 # rostros en la imagen y numpy mide la luz. Sin estas dependencias, el

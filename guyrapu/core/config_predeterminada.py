@@ -212,6 +212,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("salida", ""),
         ("salida_nombre", ""),
         ("atajos_globales", "false"),
+        ("teclas_multimedia", "true"),
         ("mostrar_cola", "false"),
         ("mostrar_filtros", "false"),
         ("orden", "coleccion"),

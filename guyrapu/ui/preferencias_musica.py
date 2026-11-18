@@ -33,6 +33,8 @@ OPCIONES_MUSICA = (
     ("chk_musica_normalizar", "musica", "normalizar", "musica_normalizar", bool, True),
     ("chk_musica_preguntar_igualar", "musica", "preguntar_igualar", "musica_preguntar_igualar", bool, True),
     ("chk_musica_atajos_globales", "musica", "atajos_globales", "musica_atajos_globales", bool, False),
+    ("chk_musica_teclas_multimedia", "musica", "teclas_multimedia",
+     "musica_teclas_multimedia", bool, True),
 )
 
 
@@ -163,6 +165,13 @@ class PaginaMusica:
             name="MusicaAtajosGlobales")
         self.chk_musica_atajos_globales.SetForegroundColour(_T.text)
         vs.Add(self.chk_musica_atajos_globales, 0,
+               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+        self.chk_musica_teclas_multimedia = wx.CheckBox(
+            p, label=_("Usar &teclas multimedia del teclado"),
+            name=_("Usar teclas multimedia del teclado"))
+        self.chk_musica_teclas_multimedia.SetForegroundColour(_T.text)
+        vs.Add(self.chk_musica_teclas_multimedia, 0,
                wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _buscar_salidas(self, event):
