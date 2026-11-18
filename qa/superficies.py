@@ -155,6 +155,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "lista_ctrl.py": (
         "traduce a un wx.ListCtrl lo que pide la pieza de listas; la "
         "recorren los escenarios de las ventanas que la usen."),
+    "probar_aviso.py": (
+        "es el comando Probar de las páginas de estilos y mensajes "
+        "automáticos; no abre ventana propia."),
     "operaciones_obs.py": "opera sobre OBS en un hilo para las ventanas; no abre una propia.",
     "comandos_grabacion.py": "comandos del menú OBS que actúan sobre OBS; no abren ventana.",
     "comandos_clips.py": "comanda el búfer de clips del menú OBS; no abre ventana.",

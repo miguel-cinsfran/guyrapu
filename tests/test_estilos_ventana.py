@@ -99,7 +99,7 @@ class TestAcciones(BaseVentana):
         claves = [(accion.clave, accion.tecla) for accion in panel._acciones]
         self.assertEqual(claves, [
             ("agregar", None), ("editar", "intro"), ("renombrar", "f2"),
-            ("duplicar", "ctrl+d"), ("escuchar", None),
+            ("duplicar", "ctrl+d"), ("escuchar", None), ("probar", None),
             ("eliminar", "suprimir"), ("exportar", None), ("importar", None)])
         sin_elemento = {accion.clave for accion in panel._acciones
                         if not accion.necesita_elemento}
@@ -122,14 +122,14 @@ class TestAcciones(BaseVentana):
                      if isinstance(hijo, wx.Button)]
         self.assertEqual(etiquetas, [
             "A&gregar", "&Editar", "Cambiar n&ombre", "&Duplicar",
-            "Escuc&har", "E&liminar", "Expo&rtar", "&Importar"])
+            "Escuc&har", "Pro&bar", "E&liminar", "Expo&rtar", "&Importar"])
         menu = panel._lista._construir_menu()
         try:
             self.assertEqual(
                 [item.GetItemLabel() for item in menu.GetMenuItems()],
                 ["A&gregar", "&Editar\tEnter", "Cambiar n&ombre\tF2",
-                 "&Duplicar\tCtrl+D", "Escuc&har", "E&liminar\tDel",
-                 "Expo&rtar", "&Importar"])
+                 "&Duplicar\tCtrl+D", "Escuc&har", "Pro&bar",
+                 "E&liminar\tDel", "Expo&rtar", "&Importar"])
         finally:
             menu.Destroy()
 
@@ -177,6 +177,26 @@ class TestAcciones(BaseVentana):
             panel._escuchar()
         decir.assert_called_once_with(descripcion_estilo.describir(
             estilos_aviso.FABRICA[0]))
+
+    def test_p1_probar_arma_el_texto_de_ejemplo_con_el_estilo_elegido(self):
+        panel = self._panel([_estilo("Mío", clave="mio")])
+        panel.lista.SetSelection(4)
+        with mock.patch.object(estilos_ventana.probar_aviso,
+                               "probar") as probar:
+            panel._probar()
+        probar.assert_called_once_with(
+            "Así se ve un mensaje con este estilo.",
+            estilos_aviso.todos(panel._usuario)[4])
+
+    def test_p1_probar_es_un_boton_con_su_nombre_accesible(self):
+        panel = self._panel([])
+        accion = next(accion for accion in panel._acciones
+                      if accion.clave == "probar")
+        self.assertEqual(accion.etiqueta, "Pro&bar")
+        boton = next(hijo for hijo in panel.GetChildren()
+                     if isinstance(hijo, wx.Button)
+                     and hijo.GetLabel() == "Pro&bar")
+        self.assertEqual(boton.GetName(), "Probar")
 
     def test_p8_eliminar_dice_cuantos_lo_usan_y_deja_clasico(self):
         programados.guardar(paths.mensajes_programados(), [

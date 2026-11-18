@@ -18,7 +18,7 @@ from guyrapu.core.idioma import _
 from guyrapu.interaction.cola_pantalla import ColaPantalla, Pieza
 from guyrapu.obs import animador as animador_obs
 from guyrapu.obs import escena_guyrapu, estilos_aviso, obs_cliente
-from guyrapu.obs import ordenes_animador
+from guyrapu.obs import ordenes_animador, revision_tarjeta
 from guyrapu.ui.accesibilidad import anunciar, anunciar_con_sonido
 
 
@@ -142,6 +142,52 @@ class CapaVideo:
         self._panico = bool(activo)
         if activo:
             self._en_cola = 0
+
+    def probar(self, texto, estilo, al_terminar):
+        """Arma la tarjeta en la escena propia y devuelve la revisión.
+
+        No la saca al aire. `al_terminar` recibe la frase y si es un error,
+        en el hilo de la interfaz.
+        """
+        if self._ocupado:
+            wx.CallAfter(al_terminar, _("La cola del vídeo está ocupada. "
+                                        "Prueba en unos segundos."), True)
+            return
+        if not self.cola.libre():
+            wx.CallAfter(al_terminar, _("Hay algo en el vídeo. Prueba cuando "
+                                        "termine."), True)
+            return
+        self._ocupado = True
+        diagnostico.crear_hilo(
+            self._trabajo_probar, "CapaVideoPrueba",
+            args=(texto, estilo, al_terminar)).start()
+
+    def _trabajo_probar(self, texto, estilo, al_terminar):
+        try:
+            frase, error = self._revisar(texto, estilo)
+        except Exception as fallo:
+            logger.debug("no se pudo probar la tarjeta: %s", fallo)
+            frase, error = obs_cliente.mensaje_de_fallo_obs(fallo), True
+        wx.CallAfter(self._termino_probar, al_terminar, frase, error)
+
+    def _revisar(self, texto, estilo):
+        if not self._cliente.conectado:
+            try:
+                self._cliente.conectar()
+            except obs_cliente.ObsError as fallo:
+                return obs_cliente.mensaje_de_fallo_obs(fallo), True
+        if self._escena.en_el_programa():
+            return _("La escena de Guyrapu está en la escena que sale al "
+                     "aire. Quítala de esa escena en OBS y vuelve a "
+                     "probar."), True
+        self._asegurar()
+        tarjeta = self._escena.armar(texto, estilo)
+        return revision_tarjeta.revisar(
+            tarjeta, self._ancho, self._alto, estilo), False
+
+    def _termino_probar(self, al_terminar, frase, error):
+        self._ocupado = False
+        al_terminar(frase, error)
 
     def _atender(self, event):
         if self._ocupado:

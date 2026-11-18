@@ -239,6 +239,10 @@ class ColaPantalla:
         self._encuesta_al_dia = pieza
         return True
 
+    def libre(self) -> bool:
+        """Si no hay nada en el vídeo, ni tarjeta ni encuesta visibles."""
+        return self._visible is None and self._encuesta_visible is None
+
     def describir(self):
         """La frase que F2 dice del estado del vídeo."""
         partes = []

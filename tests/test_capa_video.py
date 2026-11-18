@@ -7,6 +7,7 @@ import unittest
 from unittest import mock
 
 from guyrapu.capture import programados
+from guyrapu.obs import estilos_aviso, obs_cliente
 from guyrapu.obs.escena_guyrapu import Tarjeta
 from guyrapu.ui import capa_video, gui_envio_chat
 
@@ -28,8 +29,12 @@ class _ClienteFalso:
         self.conexiones = 0
         self.ancho = 1000
         self.alto = 1000
+        self.llamadas = []
+        self.falla_conexion = None
 
     def conectar(self, parada=None):
+        if self.falla_conexion is not None:
+            raise self.falla_conexion
         self.conectado = True
         self.conexiones += 1
 
@@ -37,6 +42,7 @@ class _ClienteFalso:
         self.conectado = False
 
     def pedir(self, tipo, datos=None, parada=None):
+        self.llamadas.append(tipo)
         if tipo == "GetSceneItemId":
             return {"responseData": {"sceneItemId": 7}}
         if tipo == "GetVideoSettings":
@@ -44,17 +50,32 @@ class _ClienteFalso:
                                      "baseHeight": self.alto}}
         raise AssertionError("pedido inesperado: " + tipo)
 
+    def pedidos(self, tipo):
+        return [llamado for llamado in self.llamadas if llamado == tipo]
+
 
 class _EscenaFalsa:
     def __init__(self, eventos):
         self.eventos = eventos
         self.estilos = []
+        self.textos = []
         self.preparaciones = 0
         self.ocultaciones = 0
+        self.en_programa = False
+        self.tarjeta = Tarjeta(0, 0, 100, 50, "", "")
 
     def preparar(self):
         self.preparaciones += 1
         self.eventos.append("preparar")
+
+    def armar(self, texto, estilo):
+        self.eventos.append("armar")
+        self.textos.append(texto)
+        self.estilos.append(estilo)
+        return self.tarjeta
+
+    def en_el_programa(self):
+        return self.en_programa
 
     def mostrar(self, texto, estilo):
         self.eventos.append("mostrar")
@@ -238,6 +259,90 @@ class TestRespuestaDeComando(Base):
                          "En el vídeo: Nuestro Discord: Ana.")
         self.assertEqual(self.anuncios, [])
         self.assertEqual(self.anuncios_simples, [])
+
+
+class TestProbar(Base):
+
+    def setUp(self):
+        super().setUp()
+        self.revisiones = []
+
+    def _probar(self, texto="Hola"):
+        self.capa.probar(texto, dict(estilos_aviso.FABRICA[0]),
+                         lambda frase, error: self.revisiones.append(
+                             (frase, error)))
+        self._esperar()
+
+    def test_p1_arma_la_tarjeta_sin_poner_la_escena_al_frente(self):
+        self._probar("Así se ve un mensaje con este estilo.")
+        self.assertEqual(self.eventos, ["preparar", "armar"])
+        self.assertEqual(self.escena.textos,
+                         ["Así se ve un mensaje con este estilo."])
+        for tipo in ("CreateSceneItem", "SetSceneItemIndex",
+                     "GetCurrentProgramScene"):
+            self.assertEqual(self.cliente.pedidos(tipo), [])
+        self.assertEqual(len(self.revisiones), 1)
+        self.assertIn("Zona:", self.revisiones[0][0])
+        self.assertFalse(self.revisiones[0][1])
+
+    def test_p3_con_una_tarjeta_visible_se_niega_sin_tocar_obs(self):
+        self.capa.agregar(self._mensaje())
+        self._atender()
+        antes = (list(self.eventos), list(self.cliente.llamadas))
+        self._probar()
+        self.assertEqual(self.revisiones, [
+            ("Hay algo en el vídeo. Prueba cuando termine.", True)])
+        self.assertEqual(self.eventos, antes[0])
+        self.assertEqual(self.cliente.llamadas, antes[1])
+
+    def test_p3_con_la_escena_en_el_programa_se_niega_sin_tocar_obs(self):
+        self.escena.en_programa = True
+        self._probar()
+        self.assertEqual(self.revisiones, [
+            ("La escena de Guyrapu está en la escena que sale al aire. "
+             "Quítala de esa escena en OBS y vuelve a probar.", True)])
+        self.assertEqual(self.eventos, [])
+        self.assertEqual(self.cliente.llamadas, [])
+
+    def test_p3_con_la_cola_trabajando_se_niega_sin_tocar_obs(self):
+        self.capa._ocupado = True
+        try:
+            self.capa.probar("Hola", dict(estilos_aviso.FABRICA[0]),
+                             lambda frase, error: self.revisiones.append(
+                                 (frase, error)))
+        finally:
+            self.capa._ocupado = False
+        self.assertEqual(self.revisiones, [
+            ("La cola del vídeo está ocupada. Prueba en unos segundos.",
+             True)])
+        self.assertEqual(self.eventos, [])
+        self.assertEqual(self.cliente.llamadas, [])
+
+    def test_p3_sin_conexion_usa_el_mensaje_de_fallo_de_obs(self):
+        fallo = obs_cliente.ObsError("falla técnica")
+        self.cliente.falla_conexion = fallo
+        with mock.patch.object(
+                obs_cliente, "mensaje_de_fallo_obs",
+                return_value="Sin conexión con OBS.") as traducir:
+            self._probar()
+        traducir.assert_called_once_with(fallo)
+        self.assertEqual(self.revisiones,
+                         [("Sin conexión con OBS.", True)])
+        self.assertEqual(self.eventos, [])
+        self.assertEqual(self.cliente.llamadas, [])
+
+    def test_p3_sin_conexion_traduce_el_error_que_no_es_de_obs(self):
+        fallo = OSError("falla técnica")
+        self.cliente.falla_conexion = fallo
+        with mock.patch.object(
+                obs_cliente, "mensaje_de_fallo_obs",
+                return_value="Sin conexión con OBS.") as traducir:
+            self._probar()
+        traducir.assert_called_once_with(fallo)
+        self.assertEqual(self.revisiones,
+                         [("Sin conexión con OBS.", True)])
+        self.assertEqual(self.eventos, [])
+        self.assertEqual(self.cliente.llamadas, [])
 
 
 class TestEncuestaFija(Base):

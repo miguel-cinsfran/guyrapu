@@ -16,7 +16,7 @@ from guyrapu.capture import programados
 from guyrapu.interaction import coleccion, paquetes
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import confirmar
-from guyrapu.ui import mensaje_automatico_cuadro
+from guyrapu.ui import mensaje_automatico_cuadro, probar_aviso
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, fila_label, nombre_de_etiqueta
@@ -45,6 +45,7 @@ def _acciones(panel):
         Accion("bajar", _("Ba&jar"), lambda: panel._mover(1)),
         Accion("pausar", _("&Pausar o reanudar"), panel._pausar),
         Accion("escuchar", _("Escuc&har"), panel._escuchar),
+        Accion("probar", _("Pro&bar"), panel._probar),
         Accion("eliminar", _("E&liminar"), panel._eliminar,
                tecla="suprimir"),
         Accion("exportar", _("Expo&rtar"), panel._exportar,
@@ -226,6 +227,23 @@ class PanelMensajesAutomaticos(wx.Panel):
         estilo = estilos_aviso.buscar(mensaje.get("estilo", "clasico"), usuario)
         anunciar(_("{texto}. Estilo: {estilo}.").format(
             texto=texto, estilo=_(estilo.get("nombre", ""))))
+
+    def _probar(self):
+        indice = self._elegido()
+        if indice is None:
+            return
+        mensaje = self._mensajes[indice]
+        texto = mensaje.get("texto", "")
+        if mensaje.get("destino") not in ("video", "ambos"):
+            probar_aviso.probar(None, None, al_chat=texto)
+            return
+        usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        estilo = estilos_aviso.buscar(mensaje.get("estilo", "clasico"),
+                                      usuario)
+        if mensaje.get("destino") == "ambos":
+            probar_aviso.probar(texto, estilo, al_chat=texto)
+        else:
+            probar_aviso.probar(texto, estilo)
 
     def _eliminar(self):
         indice = self._elegido()

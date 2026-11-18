@@ -309,6 +309,15 @@ class EscenaGuyrapu:
                 "positionX": int(x), "positionY": int(y),
                 "alignment": 5, "scaleX": 1, "scaleY": 1}}, parada)
 
+    def en_el_programa(self, parada=None) -> bool:
+        """Si la escena de Guyrapu está puesta en la que sale al aire."""
+        programa = self._pedir("GetSceneList", parada=parada).get(
+            "currentProgramSceneName", "") or ""
+        if programa in (ESCENA, TARJETA):
+            return True
+        return any(item.get("sourceName") == ESCENA
+                   for item in self._items(programa, parada))
+
     def _al_frente(self, parada) -> str:
         programa = self._pedir("GetCurrentProgramScene", parada=parada).get(
             "currentProgramSceneName", "") or ""

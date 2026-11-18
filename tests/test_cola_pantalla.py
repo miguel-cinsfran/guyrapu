@@ -313,5 +313,27 @@ class TestColaPantalla(unittest.TestCase):
                          "Nada en el vídeo. Sonido de los medios silenciado.")
 
 
+class TestVideoLibre(unittest.TestCase):
+
+    def test_p3_sin_nada_visible_el_video_esta_libre(self):
+        self.assertTrue(ColaPantalla().libre())
+
+    def test_p3_con_una_tarjeta_visible_no_esta_libre(self):
+        cola = ColaPantalla()
+        pieza = _pieza("Aviso")
+        cola.agregar(pieza)
+        cola.ordenes(0)
+        cola.mostrada(pieza, 0)
+        self.assertFalse(cola.libre())
+
+    def test_p3_con_una_encuesta_visible_no_esta_libre(self):
+        cola = ColaPantalla()
+        encuesta = _pieza("¿Sí o no?", 0, "encuesta")
+        cola.fijar_encuesta(encuesta)
+        cola.ordenes(0)
+        cola.mostrada(encuesta, 0)
+        self.assertFalse(cola.libre())
+
+
 if __name__ == "__main__":
     unittest.main()

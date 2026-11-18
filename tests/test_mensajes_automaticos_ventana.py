@@ -15,6 +15,7 @@ import wx
 from guyrapu.capture import programados
 from guyrapu.core import paths
 from guyrapu.interaction import paquetes
+from guyrapu.obs import estilos_aviso
 from guyrapu.ui import comando_mensajes_automaticos
 from guyrapu.ui import gui
 from guyrapu.ui import mensaje_automatico_cuadro
@@ -174,8 +175,8 @@ class TestAcciones(BaseVentana):
         self.assertEqual(claves, [
             ("agregar", None), ("editar", "intro"), ("renombrar", "f2"),
             ("duplicar", "ctrl+d"), ("subir", None), ("bajar", None),
-            ("pausar", None), ("escuchar", None), ("eliminar", "suprimir"),
-            ("exportar", None), ("importar", None)])
+            ("pausar", None), ("escuchar", None), ("probar", None),
+            ("eliminar", "suprimir"), ("exportar", None), ("importar", None)])
         sin_elemento = {accion.clave for accion in panel._acciones
                         if not accion.necesita_elemento}
         self.assertEqual(sin_elemento, {"agregar", "exportar", "importar"})
@@ -215,6 +216,43 @@ class TestAcciones(BaseVentana):
         with mock.patch.object(mensajes_automaticos_ventana, "anunciar") as decir:
             panel._escuchar()
         decir.assert_called_once_with("Hola")
+
+    def test_p2_probar_un_mensaje_solo_de_chat_no_toca_la_capa(self):
+        panel = self._panel([_mensaje("A", texto="Hola", destino="chat")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(mensajes_automaticos_ventana.probar_aviso,
+                               "probar") as probar:
+            panel._probar()
+        probar.assert_called_once_with(None, None, al_chat="Hola")
+
+    def test_p2_probar_arma_el_texto_con_el_estilo_elegido(self):
+        panel = self._panel([_mensaje("A", texto="Hola", destino="video",
+                                      estilo="tarjeta")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(mensajes_automaticos_ventana.probar_aviso,
+                               "probar") as probar:
+            panel._probar()
+        probar.assert_called_once_with(
+            "Hola", estilos_aviso.buscar("tarjeta", []))
+
+    def test_p2_probar_lo_que_va_al_video_y_al_chat_dice_la_frase(self):
+        panel = self._panel([_mensaje("A", texto="Hola", destino="ambos")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(mensajes_automaticos_ventana.probar_aviso,
+                               "probar") as probar:
+            panel._probar()
+        probar.assert_called_once_with(
+            "Hola", estilos_aviso.buscar("clasico", []), al_chat="Hola")
+
+    def test_p2_probar_es_un_boton_con_su_nombre_accesible(self):
+        panel = self._panel([])
+        accion = next(accion for accion in panel._acciones
+                      if accion.clave == "probar")
+        self.assertEqual(accion.etiqueta, "Pro&bar")
+        boton = next(hijo for hijo in panel.GetChildren()
+                     if isinstance(hijo, wx.Button)
+                     and hijo.GetLabel() == "Pro&bar")
+        self.assertEqual(boton.GetName(), "Probar")
 
     def test_los_botones_nunca_se_deshabilitan(self):
         panel = self._panel([])

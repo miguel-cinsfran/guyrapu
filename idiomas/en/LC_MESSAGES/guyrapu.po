@@ -16080,3 +16080,45 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/obs/revision_tarjeta.py
+#, python-brace-format
+msgid ""
+"Ocupa el {ancho} por ciento del ancho y el {alto} por ciento del alto del "
+"vídeo."
+msgstr ""
+"It takes up {ancho} percent of the width and {alto} percent of the height "
+"of the video."
+
+#: guyrapu/obs/revision_tarjeta.py
+msgid "La tarjeta se sale del 80 por ciento central del vídeo."
+msgstr "The card goes outside the central 80 percent of the video."
+
+#: guyrapu/ui/capa_video.py
+msgid "La cola del vídeo está ocupada. Prueba en unos segundos."
+msgstr "The video queue is busy. Try again in a few seconds."
+
+#: guyrapu/ui/capa_video.py
+msgid "Hay algo en el vídeo. Prueba cuando termine."
+msgstr "There is something on the video. Try again when it finishes."
+
+#: guyrapu/ui/capa_video.py
+msgid ""
+"La escena de Guyrapu está en la escena que sale al aire. Quítala de esa "
+"escena en OBS y vuelve a probar."
+msgstr ""
+"The Guyrapu scene is in the live scene. Remove it from that scene in OBS "
+"and try again."
+
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+msgid "Pro&bar"
+msgstr "Te&st"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Así se ve un mensaje con este estilo."
+msgstr "This is how a message looks with this style."
+
+#: guyrapu/ui/probar_aviso.py
+#, python-brace-format
+msgid "Iría al chat: {texto}"
+msgstr "Would go to chat: {texto}"
+

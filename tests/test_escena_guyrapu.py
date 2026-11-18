@@ -517,6 +517,18 @@ class TestArmar(Base):
         self.assertEqual(self.cliente.llamadas[:len(armado)], armado)
 
 
+class TestEnElPrograma(Base):
+    def test_p3_dice_si_la_escena_esta_en_la_del_programa(self):
+        self.capa.preparar()
+        self.assertFalse(self.capa.en_el_programa())
+        self.cliente.agregar_item("Juego", ESCENA)
+        self.assertTrue(self.capa.en_el_programa())
+
+    def test_p3_la_propia_escena_al_aire_cuenta(self):
+        self.cliente.programa = ESCENA
+        self.assertTrue(self.capa.en_el_programa())
+
+
 class TestOcultarYQuitar(Base):
     def test_p8_quita_la_escena_de_donde_la_puso(self):
         self.capa.preparar()

@@ -15,7 +15,7 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, paquetes
 from guyrapu.obs import descripcion_estilo, estilos_aviso
-from guyrapu.ui import confirmar, estilo_cuadro
+from guyrapu.ui import confirmar, estilo_cuadro, probar_aviso
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -35,6 +35,7 @@ def _acciones(panel):
                tecla="f2"),
         Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d"),
         Accion("escuchar", _("Escuc&har"), panel._escuchar),
+        Accion("probar", _("Pro&bar"), panel._probar),
         Accion("eliminar", _("E&liminar"), panel._eliminar,
                tecla="suprimir"),
         Accion("exportar", _("Expo&rtar"), panel._exportar,
@@ -188,6 +189,14 @@ class PanelEstilos(wx.Panel):
             return
         estilo = estilos_aviso.todos(self._usuario)[indice]
         anunciar(descripcion_estilo.describir(estilo))
+
+    def _probar(self):
+        indice = self._elegido()
+        if indice is None:
+            return
+        estilo = estilos_aviso.todos(self._usuario)[indice]
+        probar_aviso.probar(
+            _("Así se ve un mensaje con este estilo."), estilo)
 
     def _eliminar(self):
         indice = self._elegido()
