@@ -590,6 +590,14 @@ class PruebasVodRelevoCaidaAEsclavo(unittest.TestCase):
         frases = [c.args[0] for c in anunciar.call_args_list]
         self.assertNotIn("Vídeo interrumpido", frases)
 
+    def test_reabre_el_relevo_desde_la_ultima_posicion(self):
+        panel = self._panel_bucle()
+        panel._estado_relevo.vod_ultima = 60_000
+        with mock.patch.object(reproductor, "anunciar"):
+            panel._fin_flujo_vod()
+        panel._arrancar_relevo.assert_called_once_with(
+            "https://video", "https://audio251", True, inicio_ms=60_000)
+
     def test_con_lectura_que_avanzo_agotar_el_tope_corta(self):
         panel = self._panel_bucle()
         panel._estado_relevo.vod_base_ms = 0
