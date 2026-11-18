@@ -61,12 +61,20 @@ def _paso(cliente, tecla, fase, pid) -> dict:
 
 def _esperar_foco(cliente, nombre, tope_s, dormir) -> dict:
     limite = time.monotonic() + tope_s
+    foco = {}
     while time.monotonic() < limite:
         foco = cliente.foco_completo().get("foco") or {}
         if foco.get("nombre") == nombre:
             return foco
         dormir(0.05)
-    raise InstrumentoRoto(f"la ventana no puso el foco en «{nombre}»")
+    nombre_visto = foco.get("nombre") or "sin nombre"
+    rol_visto = foco.get("rol_nombre") or foco.get("rol") or "sin rol"
+    visto = f"«{nombre_visto}», rol {rol_visto}"
+    if foco.get("padre"):
+        visto += f", padre «{foco['padre']}»"
+    raise InstrumentoRoto(
+        f"la ventana no puso el foco en «{nombre}»: "
+        f"el último foco fue {visto}")
 
 
 def _ir_a(cliente, nombre, pid, tope) -> None:

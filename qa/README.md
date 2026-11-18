@@ -26,6 +26,39 @@ viendo.
 Una corrida con comprobaciones sin probar no dice «Sin fallos» y sale con
 código 2; con fallos sale con código 1.
 
+## Carril de NVDA
+
+`qa/nvda/correr.py` arranca una copia portátil de NVDA con un perfil de
+prueba, comprueba con un canario que el lector responde y recorre ventanas
+con teclas de verdad. Lo que NVDA dice lo lee el complemento del carril, sin
+pasar por los altavoces.
+
+    python qa/nvda/correr.py --canario
+    python qa/nvda/correr.py --reglas
+    python qa/nvda/correr.py --app
+
+`--reglas` recorre la ventana limpia y una trampa por regla. `--app` hace la
+misma guardia, el mismo canario y la misma devolución, y en lugar de las
+trampas abre ventanas de la aplicación por el menú, las recorre y les aplica
+las ocho reglas. La lista vive en `qa/nvda/ventanas_app.py`: sumar otra
+ventana es agregar una entrada.
+
+La aplicación arranca con la sonda del banco, así que los anuncios quedan en
+`qa-anuncios.jsonl`, y con un doble del lector que además se los pasa al NVDA
+portátil. Cada ventana se abre con `menu_click`, se espera con la orden
+`ventanas`, se recorre con el complemento y se cierra con `cerrar_ventana`.
+
+Cada ventana deja una transcripción en
+`qa/nvda/transcripciones/<nombre>.txt` con una línea por paso: la tecla, la
+fase, lo que dijo NVDA y el nombre, el rol, los estados, el valor y el atajo
+del foco. No lleva horas, hwnd ni pid, así que dos corridas iguales dan el
+mismo archivo. Si la nueva difiere de la aprobada, el informe trae el diff y
+la corrida sale con código 7. Con `--aprobar` la nueva reemplaza a la
+aprobada y no cuenta como diferencia. `--ventana NOMBRE` recorre solo esa.
+
+El carril nunca toca el NVDA de la PC: usa la copia portátil y la deja como
+estaba al terminar. La corrida real se hace en la PC donde no hay nadie.
+
 ## Tiempos y ventanas que quedan abiertas
 
 Cada orden que el banco manda a la sonda queda anotada con su escenario, su
@@ -337,6 +370,8 @@ coinciden, mirar primero el instrumento.
 
 ## Lo que esto no prueba
 
-No prueba que NVDA lo lea, ni cómo suena, ni la línea braille. Que un control
-tenga nombre no quiere decir que se anuncie bien. Eso lo comprueba una persona
+El banco no prueba que NVDA lo lea, ni cómo suena, ni la línea braille. Que
+un control tenga nombre no quiere decir que se anuncie bien. El carril de
+NVDA comprueba qué texto produce un NVDA portátil al recorrer una ventana,
+no cómo suena ni lo que va a la línea braille. Eso lo comprueba una persona
 con el lector puesto, y no hay forma de automatizarlo desde acá.

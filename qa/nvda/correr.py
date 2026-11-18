@@ -26,8 +26,8 @@ if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
 from qa.nvda import cliente as cliente_nvda  # noqa: E402
-from qa.nvda import (devolver, nvda_local, perfil, recorrido, reglas,  # noqa: E402
-                     seguridad, trampas)
+from qa.nvda import (app, devolver, nvda_local, perfil, recorrido,  # noqa: E402
+                     reglas, seguridad, trampas)
 from qa.nvda.recorrido import InstrumentoRoto  # noqa: E402
 
 COD_OK = 0
@@ -152,6 +152,10 @@ def _corrida(args, vigilante, ruta_copia, ruta_perfil, accion, instalado,
         ["-c", str(ruta_perfil), "-f", str(perfil.ruta_registro()),
          "-l", "10"])
     cliente = _conectar(vigilante, ruta_perfil / "carril.json")
+    if getattr(args, "app", False):
+        return app.recorrer(cliente, args,
+                            _canario(cliente, vigilante),
+                            lambda: _revisar(vigilante))
     if getattr(args, "reglas", False):
         lineas = _canario(cliente, vigilante)
         return _reglas(cliente, vigilante, lineas)
@@ -312,6 +316,10 @@ def _con_canario(args, vigilante, ruta_copia, accion, instalado,
         print(f"Instrumento roto: {exc}")
         lineas = exc.lineas
         codigo = COD_INSTRUMENTO
+    except app.TranscripcionCambiada as exc:
+        print(exc)
+        lineas = exc.lineas
+        codigo = app.COD_TRANSCRIPCION
     except InstrumentoRoto as exc:
         print(f"Instrumento roto: {exc}")
         lineas.append(f"instrumento roto: {exc}")
@@ -376,6 +384,9 @@ def main(argv=None) -> int:
                             help="recorre la ventana canario")
     analizador.add_argument("--reglas", action="store_true",
                             help="recorre el canario, la limpia y las trampas")
+    analizador.add_argument("--app", action="store_true",
+                            help="recorre las ventanas de la aplicación")
+    app.agregar_argumentos(analizador)
     analizador.add_argument("--sin-espera", action="store_true",
                             help="saltea la guardia de 30 segundos")
     analizador.add_argument("--una-pc", action="store_true",

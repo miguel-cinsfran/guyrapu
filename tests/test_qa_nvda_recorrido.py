@@ -31,7 +31,8 @@ class ClienteFalso:
         nombre = self.nombres[self.pos]
         return {"nombre": nombre, "rol_nombre": "PUSH_BUTTON",
                 "hwnd": self.pos + 1, "pid": self.pid, "estados": [],
-                "atajo": "", "texto": nombre}
+                "atajo": "", "texto": nombre,
+                "padre": "Lista de categorías"}
 
     def foco_completo(self):
         plano = {
@@ -151,9 +152,13 @@ class TestEsperaDeFoco(unittest.TestCase):
 
     def test_si_el_primer_control_no_toma_el_foco_es_instrumento_roto(self):
         cliente = ClienteFalso(["Otro"])
-        with self.assertRaises(recorrido.InstrumentoRoto):
+        with self.assertRaises(recorrido.InstrumentoRoto) as capturado:
             recorrido.conducir(cliente, ventana(["Esperado"]),
                                tope_foco_s=0.01)
+        mensaje = str(capturado.exception)
+        self.assertIn("«Otro»", mensaje)
+        self.assertIn("PUSH_BUTTON", mensaje)
+        self.assertIn("Lista de categorías", mensaje)
         self.assertEqual(cliente.pasos, [])
 
 

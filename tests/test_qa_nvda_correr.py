@@ -15,7 +15,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from qa.nvda import correr, devolver, nvda_local, seguridad
+from qa.nvda import correr, devolver, nvda_local, seguridad, ventanas_app
 
 INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
 
@@ -399,3 +399,154 @@ class TestRegistro(unittest.TestCase):
     def test_el_registro_se_copia_solo_si_el_codigo_no_es_cero(self):
         self.assertFalse(self._ejecutar(correr.COD_OK).called)
         self.assertTrue(self._ejecutar(correr.COD_INSTRUMENTO).called)
+
+
+class AplicacionFalsa:
+    """Una aplicación de mentira que anota las órdenes de la sonda."""
+
+    instancias = []
+
+    def __init__(self, carpeta):
+        self.carpeta = Path(carpeta)
+        self.ordenes = []
+        self.arrancada = False
+        self.cerrada = False
+        AplicacionFalsa.instancias.append(self)
+
+    def arrancar(self):
+        self.arrancada = True
+
+    def esperar_lista(self, segundos=60.0):
+        return True
+
+    def pedir(self, op, **extra):
+        self.ordenes.append((op, extra))
+        if op == "pid":
+            return {"ok": True, "datos": {"pid": 4321}}
+        return {"ok": True, "datos": {}}
+
+    def esperar_ventana(self, titulo, segundos=15.0):
+        self.pedir("ventanas", titulo=titulo)
+        return {"titulo": titulo, "visible": True}
+
+    def cerrar(self):
+        self.cerrada = True
+
+
+class TestApp(unittest.TestCase):
+
+    def _correr(self, aprobar=False, ventana=None, previo=None):
+        base = tempfile.TemporaryDirectory()
+        self.addCleanup(base.cleanup)
+        AplicacionFalsa.instancias = []
+        conducidos = []
+        analisis = []
+        canario = mock.Mock(return_value=["canario"])
+        informe = mock.Mock(return_value=Path(base.name) / "informe.txt")
+
+        def conducir(cliente, datos):
+            conducidos.append(datos)
+            return {"ventana": datos["nombre"], "pid": datos["pid"],
+                    "primero": {}, "pasos": []}
+
+        def analizar(datos, catalogo):
+            analisis.append(datos)
+            return [{"regla": "sin_nombre", "nivel": "aviso",
+                     "ventana": datos["ventana"], "paso": 0,
+                     "tecla": "tab", "detalle": "x"}]
+
+        for nombre, texto in (previo or {}).items():
+            correr.app.transcripcion.escribir(nombre, texto, Path(base.name))
+
+        args = SimpleNamespace(app=True, reglas=False, canario=False,
+                               aprobar=aprobar, ventana=ventana,
+                               informe=None)
+        with (
+            mock.patch.object(correr, "_canario", canario),
+            mock.patch.object(correr, "_conectar", return_value=mock.Mock()),
+            mock.patch.object(correr.nvda_local, "cerrar", return_value=True),
+            mock.patch.object(correr.nvda_local, "lanzar"),
+            mock.patch.object(correr.perfil, "armar_perfil"),
+            mock.patch.object(correr.app, "Aplicacion", AplicacionFalsa),
+            mock.patch.object(correr.app.recorrido, "conducir",
+                              side_effect=conducir),
+            mock.patch.object(correr.app.reglas, "leer_catalogo_ingles",
+                              return_value=set()),
+            mock.patch.object(correr.app.reglas, "analizar",
+                              side_effect=analizar),
+            mock.patch.object(correr.app.transcripcion, "CARPETA",
+                              Path(base.name)),
+            mock.patch.object(correr, "_escribir_informe", informe),
+            mock.patch.object(correr, "_copiar_registro"),
+            mock.patch("builtins.print"),
+        ):
+            codigo = correr._con_canario(
+                args, mock.Mock(cortado=False), Path("copia"), "usar",
+                INSTALADO, None)
+        return SimpleNamespace(
+            codigo=codigo, app=AplicacionFalsa.instancias[-1],
+            conducidos=conducidos, analisis=analisis, canario=canario,
+            informe=informe, carpeta=Path(base.name))
+
+    def test_abre_recorre_y_cierra_cada_ventana_de_la_lista(self):
+        resultado = self._correr()
+        self.assertEqual(resultado.codigo, correr.COD_OK)
+        self.assertTrue(resultado.canario.called)
+        self.assertTrue(resultado.app.arrancada)
+        self.assertTrue(resultado.app.cerrada)
+        for entrada in ventanas_app.VENTANAS:
+            self.assertIn(("menu_click", {"etiqueta": entrada["menu"],
+                                          "tiempo": 10.0}),
+                          resultado.app.ordenes)
+            self.assertIn(("ventanas", {"titulo": entrada["titulo"]}),
+                          resultado.app.ordenes)
+            self.assertIn(("cerrar_ventana", {"ventana": entrada["titulo"],
+                                              "tiempo": 10.0}),
+                          resultado.app.ordenes)
+        self.assertEqual(
+            [datos["nombre"] for datos in resultado.conducidos],
+            [entrada["nombre"] for entrada in ventanas_app.VENTANAS])
+        self.assertTrue(all(datos["pid"] == 4321
+                            for datos in resultado.conducidos))
+
+    def test_aplica_las_reglas_y_sus_hallazgos_salen_en_el_informe(self):
+        resultado = self._correr()
+        self.assertEqual(len(resultado.analisis), len(ventanas_app.VENTANAS))
+        lineas = resultado.informe.call_args.args[0]
+        self.assertTrue(any("hallazgo sin_nombre" in linea
+                            for linea in lineas))
+
+    def test_una_transcripcion_distinta_sale_con_el_codigo_propio(self):
+        resultado = self._correr(previo={"preferencias": "vieja\n"})
+        self.assertEqual(resultado.codigo, correr.app.COD_TRANSCRIPCION)
+        lineas = resultado.informe.call_args.args[0]
+        self.assertTrue(any("transcripción distinta" in linea
+                            for linea in lineas))
+        self.assertTrue(any("vieja" in linea for linea in lineas))
+        self.assertTrue(resultado.app.cerrada)
+
+    def test_aprobar_reemplaza_la_aprobada_y_no_es_diferencia(self):
+        resultado = self._correr(aprobar=True,
+                                 previo={"preferencias": "vieja\n"})
+        self.assertEqual(resultado.codigo, correr.COD_OK)
+        self.assertNotEqual(
+            correr.app.transcripcion.leer("preferencias", resultado.carpeta),
+            "vieja\n")
+
+    def test_ventana_recorre_solo_la_elegida(self):
+        resultado = self._correr(ventana="interaccion")
+        self.assertEqual([datos["nombre"] for datos in resultado.conducidos],
+                         ["interaccion"])
+        self.assertFalse(any(
+            extra.get("etiqueta") == ventanas_app.VENTANAS[0]["menu"]
+            for op, extra in resultado.app.ordenes if op == "menu_click"))
+
+    def test_las_opciones_de_la_app_llegan_a_los_argumentos(self):
+        with mock.patch.object(correr, "ejecutar", return_value=0) as ejecutar:
+            codigo = correr.main(["--app", "--aprobar",
+                                  "--ventana", "interaccion"])
+        self.assertEqual(codigo, 0)
+        args = ejecutar.call_args.args[0]
+        self.assertTrue(args.app)
+        self.assertTrue(args.aprobar)
+        self.assertEqual(args.ventana, "interaccion")
