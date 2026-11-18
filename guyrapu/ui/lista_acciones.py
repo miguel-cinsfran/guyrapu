@@ -16,14 +16,14 @@ from typing import Callable
 
 import wx
 
-from guyrapu.capture import redaccion
 from guyrapu.core import pasos_lista
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
-from guyrapu.ui.menu_habilitado import habilitar
+from guyrapu.ui.menu_lista import (
+    construir_menu, etiqueta_de_menu as etiqueta_de_menu)
 from guyrapu.voice import sound_player as _snd
 
 _TECLAS = {
@@ -49,18 +49,6 @@ _TECLAS_CON_CONTROL = {
     ord("c"): "ctrl+c",
     ord("D"): "ctrl+d",
     ord("d"): "ctrl+d",
-}
-
-_SUFIJOS = {
-    "intro": "\tEnter",
-    "mayus+intro": "\tShift+Enter",
-    "ctrl+intro": "\tCtrl+Enter",
-    "alt+flecha_arriba": "\tAlt+Up",
-    "alt+flecha_abajo": "\tAlt+Down",
-    "f2": "\tF2",
-    "suprimir": "\tDel",
-    "ctrl+c": "\tCtrl+C",
-    "ctrl+d": "\tCtrl+D",
 }
 
 # La tecla y el menú contextual pueden llegar los dos en la misma pulsación.
@@ -110,14 +98,6 @@ def acciones_encendidas(acciones, hay_elemento: bool) -> dict[str, bool]:
     """Qué acciones van encendidas: las que piden elemento solo con uno."""
     return {accion.clave: hay_elemento or not accion.necesita_elemento
             for accion in acciones}
-
-
-def etiqueta_de_menu(accion: Accion) -> str:
-    """La etiqueta del botón, con su tecla a la vista si la tiene."""
-    etiqueta = accion.etiqueta
-    if accion.motivo is not None:
-        etiqueta = redaccion.etiqueta_con_motivo(etiqueta, accion.motivo())
-    return etiqueta + _SUFIJOS.get(accion.tecla, "")
 
 
 def _envuelta(lista):
@@ -358,14 +338,6 @@ class ListaConAcciones:
             menu.Destroy()
 
     def _construir_menu(self):
-        menu = wx.Menu()
-        estados = acciones_encendidas(self._acciones, self.indice() is not None)
-        for accion in self._acciones:
-            identificador = wx.NewIdRef()
-            item = menu.Append(identificador, etiqueta_de_menu(accion))
-            habilitar(item, estados[accion.clave])
-            menu.Bind(
-                wx.EVT_MENU,
-                lambda _evento, clave=accion.clave: self.ejecutar(clave),
-                id=identificador)
-        return menu
+        estados = acciones_encendidas(
+            self._acciones, self.indice() is not None)
+        return construir_menu(self._acciones, estados, self.ejecutar)

@@ -110,19 +110,6 @@ class PruebaPartePura(unittest.TestCase):
                         codigo, modificadores, ACCIONES),
                     esperado)
 
-    def test_el_menu_muestra_las_teclas_con_modificador(self):
-        casos = (
-            ("mayus+intro", "\tShift+Enter"),
-            ("ctrl+intro", "\tCtrl+Enter"),
-            ("alt+flecha_arriba", "\tAlt+Up"),
-            ("alt+flecha_abajo", "\tAlt+Down"),
-        )
-        for tecla, sufijo in casos:
-            with self.subTest(tecla=tecla):
-                self.assertEqual(
-                    lista_acciones.etiqueta_de_menu(_accion("hacer", tecla)),
-                    "&Hacer" + sufijo)
-
     def test_alt_flecha_sin_accion_deja_pasar_el_evento(self):
         pieza = lista_acciones.ListaConAcciones(
             mock.Mock(), ACCIONES, "Sin elementos.")
@@ -190,18 +177,6 @@ class PruebaPartePura(unittest.TestCase):
         self.assertEqual(
             lista_acciones.etiqueta_de_menu(acciones[0]),
             "&Copiar\tCtrl+C")
-
-    def test_la_etiqueta_del_menu_lleva_el_motivo(self):
-        con_motivo = _accion(
-            "responder", tecla="intro",
-            motivo=lambda: "Sin sesión de YouTube")
-        self.assertEqual(
-            lista_acciones.etiqueta_de_menu(con_motivo),
-            "&Responder (sin sesión de YouTube)\tEnter")
-        sin_motivo = _accion("responder", motivo=lambda: "")
-        self.assertEqual(
-            lista_acciones.etiqueta_de_menu(sin_motivo),
-            "&Responder")
 
     def test_una_accion_con_motivo_anuncia_el_motivo_y_no_corre(self):
         llamadas = []
