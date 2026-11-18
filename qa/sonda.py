@@ -33,6 +33,7 @@ import os
 import threading
 import time
 from pathlib import Path
+from foco_ventanas import primer_foco
 
 VAR_DESTINO = "GUYRAPU_QA_ANUNCIOS"
 VAR_ORDENES = "GUYRAPU_QA_ORDENES"
@@ -750,11 +751,10 @@ class Sonda:
                 if despues is not None and isinstance(despues, wx.Notebook):
                     pagina = despues.GetCurrentPage()
                     if pagina is not None:
-                        for hijo in pagina.GetChildren():
-                            if hijo.IsShownOnScreen() and hijo.IsEnabled() and                                     hijo.AcceptsFocus():
-                                hijo.SetFocus()
-                                movido = True
-                                break
+                        primero = primer_foco(pagina)
+                        if primero is not None:
+                            primero.SetFocus()
+                            movido = True
                 self.responder(id_orden, True, {"movido": movido})
 
             elif op == "quien_tiene_foco":

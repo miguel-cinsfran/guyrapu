@@ -8,11 +8,13 @@ con el suyo: importarla no arranca nada ni abre ventanas. La barra y sus
 """
 
 import importlib.util
+import sys
 import unittest
 from pathlib import Path
 from unittest import mock
 
 _RUTA = Path(__file__).resolve().parent.parent / "qa" / "sonda.py"
+sys.path.insert(0, str(_RUTA.parent))
 _paquete = importlib.util.spec_from_file_location("sonda_qa", _RUTA)
 sonda = importlib.util.module_from_spec(_paquete)
 _paquete.loader.exec_module(sonda)
@@ -89,6 +91,38 @@ def _barra_repetida():
         MenuFalso("Reproductor", [ItemFalso(11, "&Reproducir o pausar")]),
         MenuFalso("Música", [ItemFalso(21, "Reproducir o &pausar")]),
     ])
+
+
+class ControlFalso:
+    """Un control con la forma mínima que mira `primer_foco`."""
+
+    def __init__(self, hijos=(), visible=True, habilitado=True, acepta=False):
+        self._hijos = tuple(hijos)
+        self._visible = visible
+        self._habilitado = habilitado
+        self._acepta = acepta
+
+    def GetChildren(self):
+        return list(self._hijos)
+
+    def IsShownOnScreen(self):
+        return self._visible
+
+    def IsEnabled(self):
+        return self._habilitado
+
+    def AcceptsFocus(self):
+        return self._acepta
+
+
+class PrimerFocoTest(unittest.TestCase):
+
+    def test_baja_al_boton_dentro_de_un_staticbox(self):
+        adentro = ControlFalso(acepta=True)
+        caja = ControlFalso([adentro])
+        suelto = ControlFalso(acepta=True)
+        pagina = ControlFalso([caja, suelto])
+        self.assertIs(sonda.primer_foco(pagina), adentro)
 
 
 class HilosVivosTest(unittest.TestCase):

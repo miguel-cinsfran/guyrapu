@@ -1,10 +1,11 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Llevar al frente una ventana y saber qué proceso la tiene al frente.
+"""Ayudantes de foco de las ventanas y los controles del banco.
 
 Windows no deja pasar al frente una ventana lanzada desde una tarea
 programada solo con `Raise`. El banco usa estos ayudantes: una pulsación
-suelta de Alt y `SetForegroundWindow` con reintentos.
+suelta de Alt, `SetForegroundWindow` con reintentos y el primer control que
+puede tomar foco dentro de un contenedor.
 """
 
 from __future__ import annotations
@@ -17,6 +18,21 @@ logger = logging.getLogger(__name__)
 
 VK_MENU = 0x12
 TECLA_ARRIBA = 0x0002
+
+
+def primer_foco(ventana):
+    """El primer descendiente que puede tomar foco, en el orden de wx."""
+    if ventana is None:
+        return None
+    for hijo in ventana.GetChildren():
+        if not hijo.IsShownOnScreen() or not hijo.IsEnabled():
+            continue
+        if hijo.AcceptsFocus():
+            return hijo
+        encontrado = primer_foco(hijo)
+        if encontrado is not None:
+            return encontrado
+    return None
 
 
 def pid_al_frente():
