@@ -720,7 +720,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
                 _snd.reproducir("aviso")
             except Exception as error:
                 logger.debug("no se pudo reproducir el aviso de descartes: %s", error)
-            anunciar(descartes.frase_aviso(self._config.get("umbral_solo_nombre", 0)))
+            anunciar(descartes.frase_aviso())
             self.sesion.descartes_avisado = True
 
     def _on_diagnostico_timer(self, event):

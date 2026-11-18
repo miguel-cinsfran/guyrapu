@@ -22,17 +22,15 @@ class TestAviso(unittest.TestCase):
 
 class TestFrases(unittest.TestCase):
 
-    def test_aviso_invita_a_activar_solo_el_nombre_si_esta_apagado(self):
-        texto = descartes.frase_aviso(0)
-        self.assertIn("retraso", texto)
-        self.assertIn("descartando mensajes", texto)
-        self.assertIn("lista del chat", texto)
-        self.assertIn("Preferencias", texto)
-
-    def test_aviso_no_repite_la_opcion_si_ya_esta_activa(self):
-        texto = descartes.frase_aviso(5)
-        self.assertIn("lista del chat", texto)
+    def test_aviso_explica_donde_estan_y_como_seguir_el_ritmo(self):
+        texto = descartes.frase_aviso()
+        self.assertEqual(
+            texto,
+            "La lectura va con retraso y se están descartando mensajes. "
+            "Están en la lista del chat. Para seguir el ritmo, sube la "
+            "velocidad de la voz con F10.")
         self.assertNotIn("Preferencias", texto)
+        self.assertNotIn("nombre", texto)
 
     def test_estado_vacio_si_no_hubo_descartes(self):
         self.assertEqual(descartes.frase_estado(0), "")

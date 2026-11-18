@@ -952,25 +952,15 @@ msgstr "YouTube quota used today"
 msgid "TikTok de @{usuario}"
 msgstr "TikTok by @{usuario}"
 
-#. Traductores: aviso que se anuncia cuando se descartan mensajes.
+#. Traductores: aviso que se anuncia cuando se descartan mensajes. F10 es un
+#. atajo de teclado fijo y no se traduce.
 #: guyrapu/capture/descartes.py
 msgid ""
-"La lectura va con retraso y se están descartando mensajes. Puedes buscarlos"
-" en la lista del chat."
+"La lectura va con retraso y se están descartando mensajes. Están en la "
+"lista del chat. Para seguir el ritmo, sube la velocidad de la voz con F10."
 msgstr ""
-"Reading is lagging and messages are being discarded. You can find them in "
-"the chat list."
-
-#. Traductores: aviso que se anuncia cuando se descartan mensajes.
-#: guyrapu/capture/descartes.py
-msgid ""
-"La lectura va con retraso y se están descartando mensajes. Puedes buscarlos"
-" en la lista del chat. Activa en Preferencias la lectura solo del nombre "
-"cuando haya muchos mensajes."
-msgstr ""
-"Reading is lagging and messages are being discarded. You can find them in "
-"the chat list. In Preferences, turn on reading only the name when there are"
-" many messages."
+"Reading is lagging and messages are being discarded. They are in the chat "
+"list. To keep up, raise the voice speed with F10."
 
 #. Traductores: componente del estado F2. {descartados} es cuántos mensajes se
 #. descartaron.
@@ -8218,6 +8208,14 @@ msgstr "OK"
 msgid "Manual de uso"
 msgstr "User manual"
 
+#: guyrapu/ui/buscador_acciones.py
+msgid "No disponible para este tipo de resultado"
+msgstr "Not available for this type of result"
+
+#: guyrapu/ui/buscador_acciones.py
+msgid "Algún resultado elegido no se puede descargar"
+msgstr "A selected result cannot be downloaded"
+
 #: guyrapu/ui/buscador_acciones.py guyrapu/ui/descargas_buscador.py
 msgid "&Agregar a la cola"
 msgstr "Add to q&ueue"
@@ -13322,10 +13320,6 @@ msgstr "Interaction"
 msgid "Páginas de interacción"
 msgstr "Interaction pages"
 
-#: guyrapu/ui/lista_acciones.py
-msgid "Elige un solo elemento para esta acción"
-msgstr "Choose only one item for this action"
-
 #. Traductores: fila de me gusta agrupados; {autor} es quien los dio, {n}
 #. cuántos dio y {hora} la hora.
 #: guyrapu/ui/lista_chat.py
@@ -13427,6 +13421,10 @@ msgid "El chat tiene {n} mensaje."
 msgid_plural "El chat tiene {n} mensajes."
 msgstr[0] "The chat has {n} message."
 msgstr[1] "The chat has {n} messages."
+
+#: guyrapu/ui/lista_pura.py
+msgid "Elige un solo elemento para esta acción"
+msgstr "Choose only one item for this action"
 
 #: guyrapu/ui/medio_cuadro.py guyrapu/ui/medios_ventana.py
 msgid "Agregar medio"
@@ -16761,12 +16759,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/buscador_acciones.py
-msgid "No disponible para este tipo de resultado"
-msgstr "Not available for this type of result"
-
-#: guyrapu/ui/buscador_acciones.py
-msgid "Algún resultado elegido no se puede descargar"
-msgstr "A selected result cannot be downloaded"
 

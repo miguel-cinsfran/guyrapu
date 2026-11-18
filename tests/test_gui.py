@@ -4051,7 +4051,7 @@ class TestDescartesGui(unittest.TestCase):
                 mock.patch.object(gui._snd, "reproducir") as sonido:
             frame._on_timer(None)
             frame._on_timer(None)
-        anunciar.assert_called_once_with(gui.descartes.frase_aviso(0))
+        anunciar.assert_called_once_with(gui.descartes.frase_aviso())
         sonido.assert_called_once_with("aviso")
         self.assertTrue(frame.sesion.descartes_avisado)
 
@@ -4105,7 +4105,7 @@ class TestDescartesGui(unittest.TestCase):
             frame._on_timer(None)
 
         avisos = [llamada.args[0] for llamada in anunciar.call_args_list]
-        self.assertEqual(avisos.count(gui.descartes.frase_aviso(0)), 2)
+        self.assertEqual(avisos.count(gui.descartes.frase_aviso()), 2)
 
 
 class TestLiveChatIdPorSesion(unittest.TestCase):

@@ -14,16 +14,13 @@ def hay_que_avisar(descartados: int, ya_avisado: bool,
     return descartados >= umbral and not ya_avisado
 
 
-def frase_aviso(umbral_solo_nombre: int) -> str:
+def frase_aviso() -> str:
     """Devuelve el aviso que se interrumpe para no ocultar los descartes."""
-    if umbral_solo_nombre > 0:
-        # Traductores: aviso que se anuncia cuando se descartan mensajes.
-        return _("La lectura va con retraso y se están descartando mensajes. "
-                 "Puedes buscarlos en la lista del chat.")
-    # Traductores: aviso que se anuncia cuando se descartan mensajes.
+    # Traductores: aviso que se anuncia cuando se descartan mensajes. F10 es un
+    # atajo de teclado fijo y no se traduce.
     return _("La lectura va con retraso y se están descartando mensajes. "
-             "Puedes buscarlos en la lista del chat. Activa en Preferencias "
-             "la lectura solo del nombre cuando haya muchos mensajes.")
+             "Están en la lista del chat. Para seguir el ritmo, sube la "
+             "velocidad de la voz con F10.")
 
 
 def frase_estado(descartados: int) -> str:
