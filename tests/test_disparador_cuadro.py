@@ -22,15 +22,18 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 
 NOMBRES_ACCESIBLES = (
     "Nombre", "Cuándo", "Comandos del chat", "Evento", "Cantidad mínima",
+    "Nombre del regalo. Vacío para cualquier regalo. Escribe el nombre "
+    "como lo lee Guyrapu",
     "Medio", "Texto de la tarjeta", "Estilo", "Segundos en pantalla",
     "Permiso", "Nombres permitidos", "Espera general (segundos)",
     "Espera por persona (segundos)", "Aceptar", "Cancelar")
 
 ETIQUETAS = (
     "&Nombre:", "C&uándo:", "Co&mandos del chat:", "&Evento:",
-    "Cantidad mín&ima:", "Me&dio:", "&Texto de la tarjeta:", "Esti&lo:",
-    "&Segundos en pantalla:", "Pe&rmiso:", "Nombres &permitidos:",
-    "Espera &general (segundos):", "Espera por pers&ona (segundos):")
+    "Cantidad mín&ima:", "Nom&bre del regalo:", "Me&dio:",
+    "&Texto de la tarjeta:", "Esti&lo:", "&Segundos en pantalla:",
+    "Pe&rmiso:", "Nombres &permitidos:", "Espera &general (segundos):",
+    "Espera por pers&ona (segundos):")
 
 
 class BaseCuadro(unittest.TestCase):
@@ -72,13 +75,27 @@ class TestCampos(BaseCuadro):
         cuadro = self._cuadro()
         controles = (
             cuadro.txt_nombre, cuadro.cho_cuando, cuadro.txt_comandos,
-            cuadro.cho_evento, cuadro.txt_minimo, cuadro.cho_medio,
-            cuadro.txt_tarjeta, cuadro.cho_estilo, cuadro.sp_segundos,
-            cuadro.cho_permiso, cuadro.txt_nombres, cuadro.sp_espera,
-            cuadro.sp_persona, cuadro.btn_aceptar, cuadro.btn_cancelar)
+            cuadro.cho_evento, cuadro.txt_minimo, cuadro.txt_regalo,
+            cuadro.cho_medio, cuadro.txt_tarjeta, cuadro.cho_estilo,
+            cuadro.sp_segundos, cuadro.cho_permiso, cuadro.txt_nombres,
+            cuadro.sp_espera, cuadro.sp_persona, cuadro.btn_aceptar,
+            cuadro.btn_cancelar)
         self.assertEqual(
             tuple(control.GetName() for control in controles),
             NOMBRES_ACCESIBLES)
+
+    def test_p3_el_regalo_va_despues_del_minimo_en_el_tab(self):
+        cuadro = self._cuadro()
+        hijos = cuadro.GetChildren()[0].GetChildren()
+        self.assertEqual(hijos.index(cuadro.txt_regalo),
+                         hijos.index(cuadro.txt_minimo) + 2)
+
+    def test_p3_el_regalo_nunca_se_deshabilita(self):
+        cuadro = self._cuadro()
+        cuadro.cho_cuando.SetSelection(1)
+        cuadro.cho_evento.SetSelection(
+            disparadores.EVENTOS_DEL_DIRECTO.index("cofre"))
+        self.assertTrue(cuadro.txt_regalo.IsEnabled())
 
     def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
         cuadro = self._cuadro()
@@ -167,11 +184,28 @@ class TestDatos(BaseCuadro):
         cuadro.sp_persona.SetValue(40)
         self.assertEqual(cuadro.datos(), {
             "nombre": "regalo", "cuando": "evento",
-            "comandos": [], "evento": "superchat",
-            "minimo": 5.0, "medio": "aplauso.gif", "tarjeta": "Gracias",
+            "comandos": [], "evento": "superchat", "minimo": 5.0,
+            "regalo": "", "medio": "aplauso.gif", "tarjeta": "Gracias",
             "estilo": "banda", "segundos": 15, "permiso": "lista",
             "nombres": ["Ana", "Beto"], "espera_general": 10.0,
             "espera_persona": 40.0, "activo": True})
+
+    def test_p3_el_cuadro_carga_y_guarda_el_regalo(self):
+        cuadro = self._cuadro({
+            "nombre": "leon", "cuando": "evento", "evento": "superchat",
+            "regalo": "Lion", "medio": "aplauso.gif"})
+        self.assertEqual(cuadro.txt_regalo.GetValue(), "Lion")
+        self.assertEqual(cuadro.datos()["regalo"], "Lion")
+
+    def test_p3_con_otro_evento_guarda_el_regalo_vacio(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("regalo")
+        cuadro.cho_cuando.SetSelection(1)
+        cuadro.cho_evento.SetSelection(
+            disparadores.EVENTOS_DEL_DIRECTO.index("cofre"))
+        cuadro.txt_regalo.SetValue("Lion")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        self.assertEqual(cuadro.datos()["regalo"], "")
 
     def test_una_cantidad_vacia_es_sin_minimo(self):
         cuadro = self._cuadro()

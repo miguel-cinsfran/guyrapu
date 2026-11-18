@@ -12,7 +12,8 @@ from guyrapu.interaction import disparadores, disparadores_guardados
 def _datos(**cambios):
     datos = {
         "nombre": "aplauso", "cuando": "comando", "comandos": ["aplauso"],
-        "evento": "", "minimo": None, "medio": "fuegos", "tarjeta": "",
+        "evento": "", "minimo": None, "regalo": "", "medio": "fuegos",
+        "tarjeta": "",
         "estilo": "clasico", "segundos": 8, "permiso": "todos",
         "nombres": [], "espera_general": 5.0, "espera_persona": 30.0,
         "activo": True,
@@ -103,6 +104,19 @@ class TestArchivo(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.ruta = Path(self.tmp.name) / "disparadores.json"
+
+    def test_p4_el_regalo_se_guarda_y_se_lee_del_archivo(self):
+        datos = _datos(nombre="leon", cuando="evento", comandos=[],
+                       evento="superchat", regalo="León", medio="")
+        disparadores_guardados.guardar(
+            self.ruta, [disparadores_guardados.a_disparador(datos)])
+        self.assertEqual(disparadores_guardados.cargar(self.ruta), [datos])
+
+    def test_p4_un_archivo_sin_regalo_lo_lee_vacio(self):
+        sin_regalo = _datos()
+        del sin_regalo["regalo"]
+        self.assertEqual(
+            disparadores_guardados.a_disparador(sin_regalo).regalo, "")
 
     def test_ida_y_vuelta_por_el_archivo(self):
         disparadores_guardados.guardar(self.ruta, [_datos()])

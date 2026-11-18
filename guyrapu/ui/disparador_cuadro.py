@@ -102,6 +102,15 @@ class DialogoDisparador(wx.Dialog):
         self.txt_minimo = self._campo(panel, _("Cantidad mín&ima:"))
         vs.Add(self.txt_minimo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
+        vs.Add(fila_label(panel, _("Nom&bre del regalo:")), 0,
+               wx.LEFT | wx.RIGHT, 8)
+        self.txt_regalo = self._campo(
+            panel, _("Nom&bre del regalo:"),
+            _("Vacío para cualquier regalo. Escribe el nombre como lo lee "
+              "Guyrapu"))
+        vs.Add(self.txt_regalo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
+               8)
+
     def _crear_que(self, panel, vs):
         vs.Add(fila_label(panel, _("Me&dio:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.cho_medio = self._eleccion(
@@ -151,9 +160,10 @@ class DialogoDisparador(wx.Dialog):
     def _nombres_de_medios(self):
         return [str(medio.get("nombre", "")) for medio in self._medios]
 
-    def _campo(self, panel, etiqueta):
-        campo = wx.TextCtrl(panel, name=nombre_de_etiqueta(etiqueta))
-        nombre_accesible(campo, nombre_de_etiqueta(etiqueta))
+    def _campo(self, panel, etiqueta, ayuda=""):
+        nombre = nombre_de_etiqueta(etiqueta)
+        campo = wx.TextCtrl(panel, name=nombre)
+        nombre_accesible(campo, f"{nombre}. {ayuda}" if ayuda else nombre)
         return campo
 
     def _eleccion(self, panel, etiqueta, opciones):
@@ -194,6 +204,7 @@ class DialogoDisparador(wx.Dialog):
         self.txt_minimo.SetValue(
             "" if disparador.minimo is None
             else _numero(disparador.minimo))
+        self.txt_regalo.SetValue(disparador.regalo)
         self._elegir_medio(disparador.medio)
         self.txt_tarjeta.SetValue(disparador.tarjeta)
         self._elegir_estilo(disparador.estilo if datos else "")
@@ -240,16 +251,19 @@ class DialogoDisparador(wx.Dialog):
 
     def _disparador_de_campos(self):
         cuando = disparadores.CUANDOS[self.cho_cuando.GetSelection()]
+        evento = (disparadores.EVENTOS_DEL_DIRECTO[
+            self.cho_evento.GetSelection()]
+            if cuando == "evento" else "")
         return disparadores.Disparador(
             nombre=self.txt_nombre.GetValue(),
             cuando=cuando,
             comandos=(comandos.separar_alias(self.txt_comandos.GetValue())
                       if cuando == "comando" else ()),
-            evento=(disparadores.EVENTOS_DEL_DIRECTO[
-                self.cho_evento.GetSelection()]
-                if cuando == "evento" else ""),
+            evento=evento,
             minimo=(self._minimo_de_campo()
                     if cuando == "evento" else None),
+            regalo=(self.txt_regalo.GetValue().strip()
+                    if evento == "superchat" else ""),
             medio=self._medio_elegido(),
             tarjeta=self.txt_tarjeta.GetValue(),
             estilo=estilo_elegido.clave_de(

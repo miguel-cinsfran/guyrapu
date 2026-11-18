@@ -38,6 +38,11 @@ class TestFila(unittest.TestCase):
                 _evento(minimo=5)),
             "regalo, cuando llega Super Chats y regalos desde 5")
 
+    def test_p5_la_fila_dice_el_regalo_con_su_minimo(self):
+        self.assertEqual(
+            descripcion_disparador.fila(_evento(regalo="Lion", minimo=5)),
+            "regalo, cuando llega el regalo Lion desde 5")
+
 
 class TestEscuchar(unittest.TestCase):
 
@@ -55,6 +60,13 @@ class TestEscuchar(unittest.TestCase):
             descripcion_disparador.escuchar(disparador),
             "regalo: cuando llega Super Chats y regalos desde 5, muestra el "
             "medio fuegos.gif.")
+
+    def test_p5_escuchar_dice_el_regalo(self):
+        disparador = _evento(regalo="León", medio="fuegos.gif")
+        self.assertEqual(
+            descripcion_disparador.escuchar(disparador),
+            "regalo: cuando llega el regalo León, muestra el medio "
+            "fuegos.gif.")
 
     def test_cuenta_un_disparador_de_evento_sin_minimo(self):
         disparador = _evento(evento="cofre", tarjeta="Gracias")

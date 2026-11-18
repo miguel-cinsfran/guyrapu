@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from guyrapu.core import avisos_tiktok
+from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos
 from guyrapu.interaction.texto import normalizar
@@ -34,6 +34,7 @@ NOMBRES_EVENTOS = {
 
 _NUMERO_RE = re.compile(r"\d+(?:[.,]\d+)*")
 _DECIMAL_RE = re.compile(r"[.,]\d{2}$")
+_RACHA_RE = re.compile(r"\s+x\d+$")
 
 
 def _sin_signo(texto: str) -> str:
@@ -52,6 +53,7 @@ class Disparador:
     comandos: tuple[str, ...] = ()
     evento: str = ""
     minimo: float | None = None
+    regalo: str = ""
     medio: str = ""
     tarjeta: str = ""
     estilo: str = ""
@@ -90,8 +92,18 @@ def _cumple_comando(disparador: Disparador, evento) -> bool:
                for nombre in disparador.comandos)
 
 
+def _es_el_regalo(disparador: Disparador, evento) -> bool:
+    if evento.plataforma != plataformas.TIKTOK:
+        return False
+    nombre = _RACHA_RE.sub("", evento.texto or "")
+    return normalizar(disparador.regalo) == normalizar(nombre)
+
+
 def _cumple_evento(disparador: Disparador, evento) -> bool:
     if avisos_tiktok.evento_de(evento.tipo) != disparador.evento:
+        return False
+    if disparador.regalo and disparador.evento == "superchat" \
+            and not _es_el_regalo(disparador, evento):
         return False
     if disparador.minimo is None:
         return True

@@ -191,6 +191,80 @@ class TestCumplidos(unittest.TestCase):
             disparadores.cumplidos([disparador], _evento(),
                                    comandos.Esperas(), 0))
 
+    def test_p1_el_regalo_nace_vacio(self):
+        self.assertEqual(disparadores.Disparador("aplauso").regalo, "")
+
+    def test_p1_un_regalo_de_tiktok_con_ese_nombre_se_cumple(self):
+        disparador = _de_evento(regalo="Lion")
+        self.assertEqual(
+            [disparador],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(tipo="superchat", texto="Lion",
+                        plataforma=plataformas.TIKTOK),
+                comandos.Esperas(), 0))
+
+    def test_p1_la_racha_se_compara_sin_su_cantidad(self):
+        disparador = _de_evento(regalo="Lion")
+        self.assertEqual(
+            [disparador],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(tipo="superchat", texto="lion x5",
+                        plataforma=plataformas.TIKTOK),
+                comandos.Esperas(), 0))
+
+    def test_p1_otro_regalo_no_cumple(self):
+        disparador = _de_evento(regalo="Lion")
+        self.assertEqual(
+            [],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(tipo="superchat", texto="Rose",
+                        plataforma=plataformas.TIKTOK),
+                comandos.Esperas(), 0))
+
+    def test_p1_un_super_chat_de_youtube_no_cumple(self):
+        disparador = _de_evento(regalo="Lion")
+        self.assertEqual(
+            [],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(tipo="superchat", texto="Lion",
+                        plataforma=plataformas.YOUTUBE),
+                comandos.Esperas(), 0))
+
+    def test_p1_el_nombre_se_compara_sin_tildes(self):
+        disparador = _de_evento(regalo="León")
+        self.assertEqual(
+            [disparador],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(tipo="superchat", texto="leon x3",
+                        plataforma=plataformas.TIKTOK),
+                comandos.Esperas(), 0))
+
+    def test_p2_hacen_falta_el_minimo_y_el_regalo(self):
+        disparador = _de_evento(regalo="Lion", minimo=5)
+        de_tiktok = {"tipo": "superchat", "plataforma": plataformas.TIKTOK}
+        self.assertEqual(
+            [],
+            disparadores.cumplidos(
+                [disparador], _evento(texto="Lion", monto="", **de_tiktok),
+                comandos.Esperas(), 0))
+        self.assertEqual(
+            [],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(texto="Rose", monto="100 diamantes", **de_tiktok),
+                comandos.Esperas(), 0))
+        self.assertEqual(
+            [disparador],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(texto="Lion x2", monto="100 diamantes", **de_tiktok),
+                comandos.Esperas(), 0))
+
 
 class TestCantidad(unittest.TestCase):
 

@@ -25,7 +25,10 @@ def _numero(valor) -> str:
 
 def _cuando(disparador: Disparador) -> str:
     if disparador.cuando == "evento":
-        nombre = _(NOMBRES_EVENTOS.get(disparador.evento, ""))
+        if disparador.evento == "superchat" and disparador.regalo:
+            nombre = _("el regalo {regalo}").format(regalo=disparador.regalo)
+        else:
+            nombre = _(NOMBRES_EVENTOS.get(disparador.evento, ""))
         if disparador.minimo is None:
             return _("cuando llega {evento}").format(evento=nombre)
         return _("cuando llega {evento} desde {minimo}").format(

@@ -3536,6 +3536,11 @@ msgstr "Paused."
 
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
+msgid "el regalo {regalo}"
+msgstr "the gift {regalo}"
+
+#: guyrapu/interaction/descripcion_disparador.py
+#, python-brace-format
 msgid "cuando llega {evento}"
 msgstr "when {evento} arrives"
 
@@ -9980,6 +9985,14 @@ msgstr "&Event:"
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Cantidad mín&ima:"
 msgstr "M&inimum amount:"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Nom&bre del regalo:"
+msgstr "Gift &name:"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Vacío para cualquier regalo. Escribe el nombre como lo lee Guyrapu"
+msgstr "Empty for any gift. Enter the name as Guyrapu reads it"
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Me&dio:"
