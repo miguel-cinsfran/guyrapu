@@ -236,7 +236,8 @@ class CapaVideo:
         self._asegurar()
         medio = pieza.datos.get("medio")
         if medio:
-            self._medio.armar(medio["ruta"], medio["tipo"])
+            self._medio.armar(medio["ruta"], medio["tipo"],
+                              medio.get("ganancia_db"))
         if medio and not (pieza.texto or "").strip():
             self._escena.mostrar_sin_tarjeta()
             return

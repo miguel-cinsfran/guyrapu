@@ -120,9 +120,9 @@ class _MedioFalso:
         self.armados = []
         self.soltados = 0
 
-    def armar(self, ruta, tipo):
+    def armar(self, ruta, tipo, ganancia_db=None):
         self.eventos.append("armar_medio")
-        self.armados.append((ruta, tipo))
+        self.armados.append((ruta, tipo, ganancia_db))
 
     def soltar(self):
         self.eventos.append("soltar_medio")
@@ -316,15 +316,23 @@ class TestDisparadorConMedio(Base):
             datos["medio"] = medio
         return Pieza(tipo="disparador", texto=texto, segundos=8, datos=datos)
 
-    def _medio(self, tipo="sonido"):
-        return {"ruta": "C:/medios/tono.wav", "tipo": tipo, "duracion": 4}
+    def _medio(self, tipo="sonido", ganancia_db=None):
+        return {"ruta": "C:/medios/tono.wav", "tipo": tipo, "duracion": 4,
+                "ganancia_db": ganancia_db}
+
+    def test_p2_arma_el_medio_con_la_ganancia_de_la_pieza(self):
+        self.assertTrue(self.capa.agregar_pieza(
+            self._pieza(medio=self._medio(ganancia_db=-6.0))))
+        self._atender()
+        self.assertEqual(self.medio.armados,
+                         [("C:/medios/tono.wav", "sonido", -6.0)])
 
     def test_p3_con_tarjeta_arma_el_medio_y_despues_la_muestra(self):
         self.assertTrue(self.capa.agregar_pieza(
             self._pieza(medio=self._medio())))
         self._atender()
         self.assertEqual(self.medio.armados,
-                         [("C:/medios/tono.wav", "sonido")])
+                         [("C:/medios/tono.wav", "sonido", None)])
         self.assertEqual(self.eventos,
                          ["preparar", "armar_medio", "animar", "mostrar",
                           "animar"])
@@ -334,7 +342,7 @@ class TestDisparadorConMedio(Base):
             self._pieza(texto="", medio=self._medio("imagen"))))
         self._atender()
         self.assertEqual(self.medio.armados,
-                         [("C:/medios/tono.wav", "imagen")])
+                         [("C:/medios/tono.wav", "imagen", None)])
         self.assertEqual(self.eventos,
                          ["preparar", "armar_medio", "mostrar_sin_tarjeta"])
 

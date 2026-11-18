@@ -30,9 +30,10 @@ def _datos(nombre="risa", cuando="comando", comandos=("risa",), evento="",
     }
 
 
-def _medio(nombre="fuegos", tipo="video", archivo="fuegos.mp4", duracion=12):
+def _medio(nombre="fuegos", tipo="video", archivo="fuegos.mp4", duracion=12,
+           ganancia_db=None):
     return {"nombre": nombre, "tipo": tipo, "archivo": archivo,
-            "duracion": duracion}
+            "duracion": duracion, "ganancia_db": ganancia_db}
 
 
 def _registro(texto="!risa", autor="Ana", plataforma="youtube",
@@ -149,7 +150,21 @@ class TestPiezaConMedio(Base):
         self.assertEqual((pieza.tipo, pieza.texto), ("disparador", ""))
         self.assertEqual(pieza.datos["medio"], {
             "ruta": str(paths.carpeta_medios() / "fuegos.mp4"),
-            "tipo": "video", "duracion": 12})
+            "tipo": "video", "duracion": 12, "ganancia_db": None})
+
+    def test_p1_el_medio_lleva_su_ganancia_guardada(self):
+        self._guardar_medios(_medio(ganancia_db=-6.0))
+        self._guardar(_datos(tarjeta="", medio="fuegos", espera_general=0,
+                             espera_persona=0))
+        self._atender()
+        self.assertEqual(self._pieza().datos["medio"]["ganancia_db"], -6.0)
+
+    def test_p1_un_medio_sin_ganancia_lleva_none(self):
+        self._guardar_medios(_medio())
+        self._guardar(_datos(tarjeta="", medio="fuegos", espera_general=0,
+                             espera_persona=0))
+        self._atender()
+        self.assertIsNone(self._pieza().datos["medio"]["ganancia_db"])
 
     def test_p1_con_tarjeta_la_misma_pieza_lleva_el_medio_y_el_texto(self):
         self._guardar_medios(_medio(tipo="imagen", archivo="fuegos.gif",

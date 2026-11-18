@@ -98,6 +98,7 @@ class DisparadoresEnVivo:
                         paths.carpeta_medios(), guardado)),
                     "tipo": guardado.get("tipo", ""),
                     "duracion": guardado.get("duracion", 0),
+                    "ganancia_db": guardado.get("ganancia_db"),
                 }
         return None
 

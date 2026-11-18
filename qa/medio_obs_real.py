@@ -4,9 +4,11 @@
 
 Abre OBS si está cerrado, arma un PNG de un color sólido y comprueba con una
 captura de la escena que el centro tiene ese color. Después arma un WAV de
-tres segundos, comprueba que reproduce, lo arma otra vez y comprueba que el
-cursor volvió cerca de cero. Al final suelta el medio, quita las dos entradas
-y comprueba que no quedó ninguna.
+tres segundos con una ganancia, comprueba que reproduce y que su volumen es
+esa ganancia, lo arma otra vez y comprueba que el cursor volvió cerca de cero.
+También comprueba que sin tarjeta el elemento queda apagado y que mostrarla
+lo vuelve a encender. Al final suelta el medio, quita las dos entradas y
+comprueba que no quedó ninguna.
 
 Se corre a mano, porque abre OBS:
 
@@ -121,6 +123,11 @@ def _estado(cliente):
                   {"inputName": medio_obs.MEDIO})
 
 
+def _volumen(cliente):
+    return float(_pedir(cliente, "GetInputVolume", {
+        "inputName": medio_obs.MEDIO}).get("inputVolumeDb") or 0)
+
+
 def _reproduciendo(estado):
     return "PLAYING" in str(estado.get("mediaState", "")).upper()
 
@@ -183,12 +190,19 @@ def _probar(cliente, capa, fallos):
         pixel = _esperar_color(cliente, COLOR)
         _comprobar("imagen: el centro de la escena tiene el color",
                    _parecido(pixel, COLOR), fallos)
+        capa.mostrar_sin_tarjeta()
+        _comprobar("escena: sin tarjeta el elemento queda apagado",
+                   not _habilitada(cliente, escena_guyrapu.TARJETA), fallos)
         capa.mostrar("prueba", estilos_aviso.FABRICA[0])
-        medio.armar(wav, "sonido")
+        _comprobar("escena: mostrar vuelve a encender la tarjeta",
+                   _habilitada(cliente, escena_guyrapu.TARJETA), fallos)
+        medio.armar(wav, "sonido", -6.0)
         cursor = _esperar_cursor(cliente, 250)
         _comprobar("sonido: reproduce desde el principio", cursor >= 250,
                    fallos)
-        medio.armar(wav, "sonido")
+        _comprobar("sonido: el volumen es la ganancia del medio",
+                   abs(_volumen(cliente) + 6.0) <= 0.1, fallos)
+        medio.armar(wav, "sonido", -6.0)
         estado = _estado(cliente)
         cursor = float(estado.get("mediaCursor") or 0)
         _comprobar("sonido: al armarlo otra vez volvió cerca de cero",
