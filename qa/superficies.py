@@ -70,6 +70,7 @@ SUPERFICIES = {
     "mensajes_automaticos_ventana.py": "mensajes_automaticos",
     "estilos_ventana.py": "estilos",
     "comandos_ventana.py": "comandos",
+    "palabras_bloqueadas_ventana.py": "mensajes_automaticos",
     "menu_reproductor.py": "menus",
     "menu_transmision.py": "menus",
     "menu_moderacion.py": "menu_chat",

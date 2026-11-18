@@ -16,7 +16,8 @@ from guyrapu.capture.estado_espectadores import _fmt_num
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
-from guyrapu.interaction import atencion, comandos, comandos_guardados
+from guyrapu.interaction import (
+    atencion, comandos, comandos_guardados, filtro_publico)
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
 from guyrapu.youtube import cuota
@@ -50,6 +51,8 @@ class ComandosEnVivo:
         self._atencion = atencion.Atencion()
         self._cargado = False
         self._mtime = None
+        self._cargado_palabras = False
+        self._mtime_palabras = None
         self._avisado_cuota = False
         self._respondidos = 0
         self._ultimo = ("", "")
@@ -89,7 +92,11 @@ class ComandosEnVivo:
             n=_fmt_num(self._respondidos), palabra=palabra, autor=autor)
 
     def _recargar(self) -> None:
-        """Vuelve a leer los comandos si el archivo cambió."""
+        """Vuelve a leer los comandos y las palabras si cambiaron."""
+        self._recargar_comandos()
+        self._recargar_palabras()
+
+    def _recargar_comandos(self) -> None:
         ruta = paths.comandos()
         try:
             mtime = ruta.stat().st_mtime_ns
@@ -102,6 +109,19 @@ class ComandosEnVivo:
         self._atencion.fijar_comandos([
             comandos_guardados.a_comando(datos)
             for datos in comandos_guardados.cargar(ruta)])
+
+    def _recargar_palabras(self) -> None:
+        ruta = paths.palabras_bloqueadas()
+        try:
+            mtime = ruta.stat().st_mtime_ns
+        except OSError:
+            mtime = None
+        if self._cargado_palabras and mtime == self._mtime_palabras:
+            return
+        self._cargado_palabras = True
+        self._mtime_palabras = mtime
+        self._atencion.fijar_palabras_bloqueadas(
+            filtro_publico.cargar(ruta))
 
     def _chat_disponible(self) -> bool:
         return "chat" in gui_envio_chat.destinos_disponibles(self._frame)

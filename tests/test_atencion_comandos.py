@@ -157,5 +157,30 @@ class TestEco(unittest.TestCase):
             _evento("  !OTRO  "), 121))
 
 
+class TestFiltroDelPublico(unittest.TestCase):
+
+    def test_tapa_el_autor_y_el_texto_bloqueados(self):
+        atencion_ = atencion.Atencion([
+            _comando(respuesta="Hola {usuario}: {texto}")])
+        atencion_.fijar_palabras_bloqueadas(["tonto"])
+        respuesta = atencion_.atender(
+            _evento("!saludo eres tonto", autor="Tonto"), 0)
+        self.assertEqual(respuesta.texto, "Hola ***: eres ***")
+
+    def test_un_texto_casi_todo_simbolos_no_sale(self):
+        atencion_ = atencion.Atencion([
+            _comando(respuesta="Hola {usuario}: {texto}")])
+        respuesta = atencion_.atender(
+            _evento("!saludo !!!!!!!!", autor="Ana"), 0)
+        self.assertEqual(respuesta.texto, "Hola Ana: ")
+
+    def test_la_respuesta_escrita_por_el_streamer_no_se_filtra(self):
+        atencion_ = atencion.Atencion([
+            _comando(respuesta="Hola tonto {usuario}")])
+        atencion_.fijar_palabras_bloqueadas(["tonto"])
+        respuesta = atencion_.atender(_evento("!saludo", autor="Ana"), 0)
+        self.assertEqual(respuesta.texto, "Hola tonto Ana")
+
+
 if __name__ == "__main__":
     unittest.main()

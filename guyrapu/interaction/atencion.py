@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from guyrapu.core import plataformas
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
-from guyrapu.interaction import comandos
+from guyrapu.interaction import comandos, filtro_publico
 from guyrapu.interaction.texto import normalizar
 
 ESPERA_CHAT = 30
@@ -45,6 +45,7 @@ class Atencion:
 
     def __init__(self, disponibles=()):
         self._comandos = list(disponibles)
+        self._palabras_bloqueadas = []
         self._esperas = comandos.Esperas()
         self._contadores: dict[str, int] = {}
         self._al_chat: list[tuple[float, str]] = []
@@ -52,6 +53,9 @@ class Atencion:
 
     def fijar_comandos(self, disponibles) -> None:
         self._comandos = list(disponibles)
+
+    def fijar_palabras_bloqueadas(self, palabras) -> None:
+        self._palabras_bloqueadas = list(palabras)
 
     def atender(self, evento, ahora, *, chat_disponible=False,
                 cuota_baja=False):
@@ -91,9 +95,16 @@ class Atencion:
         contador = self._contadores.get(comando.nombre, 0) + 1
         self._contadores[comando.nombre] = contador
         texto = (comando.respuesta or "")
-        texto = texto.replace("{usuario}", evento.autor or "")
+        texto = texto.replace(
+            "{usuario}",
+            filtro_publico.tapar(evento.autor or "",
+                                 self._palabras_bloqueadas))
         texto = texto.replace("{contador}", str(contador))
-        texto = texto.replace("{texto}", invocacion.argumentos[:100])
+        publico = invocacion.argumentos
+        if filtro_publico.es_casi_todo_simbolos(publico):
+            publico = ""
+        publico = filtro_publico.tapar(publico, self._palabras_bloqueadas)
+        texto = texto.replace("{texto}", publico[:100])
         al_video, al_chat, freno = self._destinos(
             comando.destino, evento, ahora, chat_disponible, cuota_baja)
         if al_chat:

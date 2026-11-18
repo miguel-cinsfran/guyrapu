@@ -10,7 +10,7 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_TEXTO
-from guyrapu.interaction import comandos_guardados
+from guyrapu.interaction import comandos_guardados, filtro_publico
 from guyrapu.ui import chat_vivo, comandos_en_vivo, gui_envio_chat
 from guyrapu.ui import gui
 from guyrapu.ui.lista_chat import MensajeChat
@@ -201,6 +201,28 @@ class TestRecargaDeComandos(Base):
         textos = [llamada.args[0].texto for llamada in
                   self.frame._capa_video.agregar_comando.call_args_list]
         self.assertEqual(textos, ["Uno", "Dos"])
+
+
+class TestRecargaDePalabrasBloqueadas(Base):
+
+    def _guardar_palabras(self, palabras):
+        filtro_publico.guardar(paths.palabras_bloqueadas(), palabras)
+
+    def _adelantar(self, ruta):
+        futuro = ruta.stat().st_mtime + 10
+        os.utime(ruta, (futuro, futuro))
+
+    def test_cambiar_el_archivo_entre_dos_mensajes_cambia_la_respuesta(self):
+        self._guardar(_datos(
+            respuesta="Hola {texto}", espera_general=0, espera_persona=0))
+        self._guardar_palabras(["tonto"])
+        self._encolar("!discord tonto")
+        self._guardar_palabras([])
+        self._adelantar(paths.palabras_bloqueadas())
+        self._encolar("!discord tonto")
+        textos = [llamada.args[0].texto for llamada in
+                  self.frame._capa_video.agregar_comando.call_args_list]
+        self.assertEqual(textos, ["Hola ***", "Hola tonto"])
 
 
 if __name__ == "__main__":

@@ -7738,8 +7738,9 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 #: guyrapu/ui/chat_participacion.py guyrapu/ui/comando_cuadro.py
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui.py guyrapu/ui/gui_comentarios.py
-#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui.py guyrapu/ui/gui_cierre.py
+#: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
+#: guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/preferencias_api.py
 #: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
@@ -8383,10 +8384,11 @@ msgstr "&Accept"
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
-#: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
-#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_perfil.py
-#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/palabras_bloqueadas_ventana.py guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/preferencias_ia_clave.py guyrapu/ui/restream_pagina_cuenta.py
+#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/restream_perfil.py guyrapu/ui/ventana_espera.py
+#: guyrapu/ui/voces_ventana.py
 msgid "&Cancelar"
 msgstr "&Cancel"
 
@@ -8454,11 +8456,13 @@ msgstr "Guyrapu package (*.zip)|*.zip"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "A&gregar"
 msgstr "A&dd"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "&Editar"
 msgstr "&Edit"
 
@@ -8485,6 +8489,7 @@ msgstr "&Listen"
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_menu_escena.py
 #: guyrapu/ui/escena_menu_fuente.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/gui_historial.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "E&liminar"
 msgstr "De&lete"
@@ -8536,8 +8541,8 @@ msgstr "Delete command"
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/restream_menus.py guyrapu/ui/restream_pagina_destinos.py
-#: guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/palabras_bloqueadas_ventana.py guyrapu/ui/restream_menus.py
+#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Eliminar"
 msgstr "&Delete"
 
@@ -10847,6 +10852,20 @@ msgid "Motor de voz: {nombre}"
 msgstr "Voice engine: {nombre}"
 
 #: guyrapu/ui/gui_cierre.py
+msgid ""
+"El directo de YouTube sigue abierto porque no hay conexión. Guyrapu lo "
+"finalizará solo cuando vuelva la conexión, aunque la aplicación esté "
+"cerrada."
+msgstr ""
+"The YouTube live stream is still open because there is no connection. "
+"Guyrapu will end it automatically when the connection returns, even if the "
+"application is closed."
+
+#: guyrapu/ui/gui_cierre.py
+msgid "Directo sin finalizar"
+msgstr "Live stream not ended"
+
+#: guyrapu/ui/gui_cierre.py
 msgid "Salir"
 msgstr "Exit"
 
@@ -12382,6 +12401,10 @@ msgstr "Commands"
 msgid "Estilos"
 msgstr "Styles"
 
+#: guyrapu/ui/interaccion_ventana.py guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Palabras bloqueadas"
+msgstr "Blocked words"
+
 #: guyrapu/ui/interaccion_ventana.py
 msgid "Interacción"
 msgstr "Interaction"
@@ -13275,6 +13298,47 @@ msgstr "OBS is not connected."
 #: guyrapu/ui/operaciones_obs.py
 msgid "Consultando OBS"
 msgstr "Asking OBS"
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "No hay palabras bloqueadas. Usa Agregar para escribir una."
+msgstr "There are no blocked words. Use Add to type one."
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Esa palabra ya está en la lista."
+msgstr "That word is already in the list."
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Escribe una palabra o frase."
+msgstr "Type a word or phrase."
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Palabra o frase:"
+msgstr "Word or phrase:"
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Palabras &bloqueadas:"
+msgstr "&Blocked words:"
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Palabra agregada"
+msgstr "Word added"
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Palabra guardada"
+msgstr "Word saved"
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+#, python-brace-format
+msgid "¿Eliminar «{palabra}» de las palabras bloqueadas?"
+msgstr "Delete «{palabra}» from the blocked words?"
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Eliminar palabra bloqueada"
+msgstr "Delete blocked word"
+
+#: guyrapu/ui/palabras_bloqueadas_ventana.py
+msgid "Palabra eliminada"
+msgstr "Word deleted"
 
 #. Traductores: motivo que lleva la etiqueta del botón «Iniciar sesión».
 #: guyrapu/ui/preferencias_api.py
@@ -15342,6 +15406,22 @@ msgstr ""
 "The YouTube account has no reusable stream key. Create one in YouTube "
 "Studio, under Go live."
 
+#: guyrapu/youtube/finalizar_aparte.py
+msgid "Sin directos pendientes."
+msgstr "No pending live streams."
+
+#. Traductores: {cuantos} es la cantidad de directos sin finalizar.
+#: guyrapu/youtube/finalizar_aparte.py
+#, python-brace-format
+msgid "Sin sesión de YouTube: quedan {cuantos} directos pendientes."
+msgstr "No YouTube session: {cuantos} live streams pending."
+
+#. Traductores: {finalizados} y {quedan} son cantidades de directos.
+#: guyrapu/youtube/finalizar_aparte.py
+#, python-brace-format
+msgid "Resultado: {finalizados} finalizados, {quedan} pendientes."
+msgstr "Result: {finalizados} ended, {quedan} pending."
+
 #: guyrapu/youtube/youtube_api.py
 msgid ""
 "Tu sesión de YouTube caducó. Vuelve a iniciar sesión en Preferencias, "
@@ -15419,34 +15499,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/gui_cierre.py
-msgid ""
-"El directo de YouTube sigue abierto porque no hay conexión. Guyrapu lo "
-"finalizará solo cuando vuelva la conexión, aunque la aplicación esté "
-"cerrada."
-msgstr ""
-"The YouTube live stream is still open because there is no connection. "
-"Guyrapu will end it automatically when the connection returns, even if the "
-"application is closed."
-
-#: guyrapu/ui/gui_cierre.py
-msgid "Directo sin finalizar"
-msgstr "Live stream not ended"
-
-#: guyrapu/youtube/finalizar_aparte.py
-msgid "Sin directos pendientes."
-msgstr "No pending live streams."
-
-#. Traductores: {cuantos} es la cantidad de directos sin finalizar.
-#: guyrapu/youtube/finalizar_aparte.py
-#, python-brace-format
-msgid "Sin sesión de YouTube: quedan {cuantos} directos pendientes."
-msgstr "No YouTube session: {cuantos} live streams pending."
-
-#. Traductores: {finalizados} y {quedan} son cantidades de directos.
-#: guyrapu/youtube/finalizar_aparte.py
-#, python-brace-format
-msgid "Resultado: {finalizados} finalizados, {quedan} pendientes."
-msgstr "Result: {finalizados} ended, {quedan} pending."
 

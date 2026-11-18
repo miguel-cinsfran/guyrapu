@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Ventana Interacción: mensajes automáticos, comandos del chat y estilos.
+"""Ventana Interacción: mensajes, comandos, estilos y palabras bloqueadas.
 
 Una sola ventana con una lista de páginas, como Preferencias. La página se
 elige por su identificador y se recuerda al cerrar.
@@ -16,12 +16,14 @@ from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.comandos_ventana import PanelComandos
 from guyrapu.ui.estilos_ventana import PanelEstilos
 from guyrapu.ui.mensajes_automaticos_ventana import PanelMensajesAutomaticos
+from guyrapu.ui.palabras_bloqueadas_ventana import PanelPalabrasBloqueadas
 from guyrapu.ui.preferencias_comun import ajustar_ancho_categorias
 
 PAGINAS = (
     ("mensajes", N_("Mensajes automáticos")),
     ("comandos", N_("Comandos")),
     ("estilos", N_("Estilos")),
+    ("palabras", N_("Palabras bloqueadas")),
 )
 
 
@@ -31,7 +33,7 @@ def _indice_de(pagina):
 
 
 class VentanaInteraccion(wx.Dialog):
-    """Las tres páginas de interacción con una lista para elegirlas."""
+    """Las páginas de interacción con una lista para elegirlas."""
 
     def __init__(self, padre, pagina=None):
         super().__init__(
@@ -47,6 +49,7 @@ class VentanaInteraccion(wx.Dialog):
             self.libro, padre)
         self._paginas["comandos"] = PanelComandos(self.libro)
         self._paginas["estilos"] = PanelEstilos(self.libro)
+        self._paginas["palabras"] = PanelPalabrasBloqueadas(self.libro)
         for clave, etiqueta in PAGINAS:
             self.libro.AddPage(self._paginas[clave], _(etiqueta))
         self.libro.SetSelection(self._pagina_inicial(padre, pagina))

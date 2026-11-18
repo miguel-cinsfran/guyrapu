@@ -97,6 +97,10 @@ def comandos() -> Path:
     return carpeta_datos() / "comandos.json"
 
 
+def palabras_bloqueadas() -> Path:
+    return carpeta_datos() / "palabras_bloqueadas.json"
+
+
 def fin_pendiente() -> Path:
     # Fines de directo pedidos a YouTube y todavía sin confirmar: se
     # reintentan al abrir la app. Es un dato del usuario, no una preferencia.
