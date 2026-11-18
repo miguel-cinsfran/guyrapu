@@ -24,6 +24,7 @@ import banco_app  # noqa: E402
 import banco_auditoria  # noqa: E402
 import escenarios_app  # noqa: E402
 import escenarios_obs  # noqa: E402
+from guyrapu.core import idioma  # noqa: E402
 
 
 class TestDebeCerrarObsAlFinal(unittest.TestCase):
@@ -453,6 +454,138 @@ class TestPestanaDeRestream(unittest.TestCase):
         self.assertEqual(llamadas[1].get("esperados_en_tab"),
                          ("Destinos", "Agregar destino", "Actualizar",
                           "Cerrar"))
+
+
+class _DialogoNativo:
+
+    def __init__(self, texto):
+        self.texto = texto
+        self.cerrado = False
+
+
+class _AppDeTransmitirDestino:
+
+    def __init__(self):
+        self.anuncios = []
+        self.pedidos = []
+        self.teclas_escritas = []
+        self.confirmacion = idioma._("Antes de transmitir")
+        self.ventanas_actuales = [
+            {"titulo": "Guyrapu 3.0.0 beta 2", "visible": True},
+            {"titulo": "Ventana oculta", "visible": False},
+        ]
+
+    def menus(self):
+        return []
+
+    def arbol(self, ventana=None):
+        if ventana == "Transmitir a":
+            return [
+                {"clase": "Choice", "nombre": "Transmitir a",
+                 "etiqueta": "", "visible": True},
+                {"clase": "Button", "nombre": "Continuar",
+                 "etiqueta": "", "visible": True},
+                {"clase": "Button", "nombre": "Cancelar",
+                 "etiqueta": "", "visible": True},
+            ]
+        return [{"clase": "Button", "nombre": "Transmitir en directo",
+                 "etiqueta": "", "visible": True, "habilitado": True}]
+
+    def ventanas(self):
+        return list(self.ventanas_actuales)
+
+    def esperar_ventana(self, titulo, segundos=15):
+        return next((v for v in self.ventanas_actuales
+                     if v["titulo"] == titulo and v["visible"]), None)
+
+    def dijo(self, fragmento, desde=0):
+        buscado = fragmento.lower()
+        return any(buscado in a["texto"].lower()
+                   for a in self.anuncios[desde:])
+
+    def pedir(self, op, **kwargs):
+        self.pedidos.append((op, kwargs))
+        nombre = kwargs.get("nombre")
+        if op == "pulsar" and nombre == "Transmitir en directo":
+            self.ventanas_actuales.append(
+                {"titulo": "Transmitir a", "visible": True})
+        elif op == "pulsar" and nombre == "Cancelar":
+            self._quitar("Transmitir a")
+            self.anuncios.append({"texto": "No se transmitió"})
+        elif op == "pulsar" and nombre == "Continuar":
+            self._quitar("Transmitir a")
+            self.anuncios.append({
+                "texto": "Revisando OBS antes de transmitir. "
+                         "Abriendo OBS en segundo plano."})
+        return {"ok": True, "datos": {}}
+
+    def _quitar(self, titulo):
+        self.ventanas_actuales = [
+            v for v in self.ventanas_actuales if v["titulo"] != titulo]
+
+    def teclas(self, teclas):
+        self.teclas_escritas.append(teclas)
+
+    def foco(self):
+        return {"clase": "Button", "nombre": "Continuar", "etiqueta": ""}
+
+    def navegar(self, ventana=None):
+        pass
+
+
+class TestFinalesDeTransmitirDestino(unittest.TestCase):
+
+    def _correr(self, final):
+        app = _AppDeTransmitirDestino()
+        res = conducir.Resultado()
+        nativo = _DialogoNativo("OBS tiene algo que avisar.")
+        buscados = []
+
+        def buscar(titulo, segundos=8.0):
+            buscados.append(titulo)
+            if final == "confirmacion" and not nativo.cerrado:
+                return nativo
+            return None
+
+        def pulsar(dlg, nombre):
+            if nombre != "Cancelar":
+                return False
+            dlg.cerrado = True
+            return True
+
+        with mock.patch.object(escenarios_obs, "_destino_guardado_en_disco",
+                               return_value=""), \
+                mock.patch.object(escenarios_obs, "obs_abierto",
+                                  return_value=False), \
+                mock.patch("guyrapu.core.config.guardar_opcion"), \
+                mock.patch.object(escenarios_obs.time, "time",
+                                  side_effect=[0, 0, 200]), \
+                mock.patch.object(escenarios_obs, "dialogo_nativo",
+                                  side_effect=buscar), \
+                mock.patch.object(escenarios_obs, "_textos_de",
+                                  side_effect=lambda dlg: [dlg.texto]), \
+                mock.patch.object(escenarios_obs, "pulsar_boton_nativo",
+                                  side_effect=pulsar):
+            escenarios_obs.escenario_transmitir_destino(app, None, res)
+        return app, res, nativo, buscados
+
+    def test_la_confirmacion_antes_de_transmitir_cancela_y_no_falla(self):
+        app, res, nativo, buscados = self._correr("confirmacion")
+
+        self.assertEqual(res.fallos, [])
+        self.assertTrue(any("OBS tiene algo que avisar" in n
+                            for n in res.notas))
+        self.assertIn(app.confirmacion, buscados)
+        self.assertTrue(nativo.cerrado)
+
+    def test_sin_final_el_fallo_nombra_las_ventanas_visibles(self):
+        app, res, _nativo, _buscados = self._correr("ninguno")
+
+        fallo = next(f for f in res.fallos
+                     if "«Directo de YouTube» no apareció" in f)
+        self.assertIn("Guyrapu 3.0.0 beta 2", fallo)
+        self.assertNotIn("Ventana oculta", fallo)
+        self.assertIn("Revisando OBS", fallo)
 
 
 class _AppConDialogo:

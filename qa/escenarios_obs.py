@@ -11,7 +11,10 @@ import tempfile
 import time
 from pathlib import Path
 
-from banco_app import Aplicacion, Resultado, VentanaNoActiva
+from banco_app import (
+    Aplicacion, Resultado, VentanaNoActiva, _textos_de, dialogo_nativo,
+    pulsar_boton_nativo,
+)
 from banco_auditoria import (
     VUELTAS_TAB_TRANSMISION, auditar_dialogo, faltan_habilitados,
     recorrer_tab, revisar_nombres,
@@ -502,7 +505,6 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
                   "oculto o deshabilitado")
         return
 
-    # 1. Abrir, auditar y cancelar: no se abre nada más.
     try:
         app.pedir("pulsar", nombre="Transmitir en directo", tiempo=3.0,
                   responder_ya=True)
@@ -574,21 +576,29 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
             res.nota("transmitir_destino: «Continuar» pasa a revisar OBS")
 
         # La revisión de OBS corre en un hilo: el diálogo tarda lo que tarde.
-        # Se espera a cualquiera de los tres finales: el diálogo de YouTube,
-        # el de confirmación de TikTok (la lista no era YouTube), o un anuncio
-        # que explique por qué no hay diálogo (sin sesión, sin OBS, o ya al
-        # aire, que también vale: no se interfiere con lo que ya emite).
+        # Se espera a cualquiera de los finales: el diálogo de YouTube, el de
+        # confirmación de TikTok (la lista no era YouTube), la confirmación
+        # «Antes de transmitir» cuando la revisión tiene algo que avisar, o un
+        # anuncio que explique por qué no hay diálogo (sin sesión, sin OBS, o
+        # ya al aire, que también vale: no se interfiere con lo que ya emite).
+        from guyrapu.core.idioma import _
+        confirmacion = _("Antes de transmitir")
         motivo = ""
+        visibles = []
         limite = time.time() + 120
         while time.time() < limite:
             try:
-                visibles = [v.get("titulo") or "" for v in app.ventanas()]
+                visibles = [v.get("titulo") or "" for v in app.ventanas()
+                            if v.get("visible")]
             except Exception:
                 visibles = []
             if any("Directo de YouTube" in t for t in visibles):
                 break
             if any(t.strip() == "Panel de OBS" for t in visibles):
                 motivo = "tiktok"
+                break
+            if dialogo_nativo(confirmacion, segundos=0.5) is not None:
+                motivo = "confirmacion"
                 break
             dichos = " ".join(a.get("texto", "") for a in app.anuncios[n:])
             dichos = dichos.lower()
@@ -605,6 +615,17 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
                 break
             time.sleep(1.0)
 
+        if motivo == "confirmacion":
+            dlg = dialogo_nativo(confirmacion, segundos=2.0)
+            texto = " ".join(_textos_de(dlg)) if dlg is not None else ""
+            res.nota(f"transmitir_destino: «{confirmacion}» avisa: {texto}")
+            if dlg is None or not pulsar_boton_nativo(dlg, "Cancelar"):
+                res.fallo("transmitir_destino: no se pudo pulsar «Cancelar» "
+                          f"en «{confirmacion}»")
+            elif dialogo_nativo(confirmacion, segundos=4.0) is not None:
+                res.fallo(f"transmitir_destino: «{confirmacion}» no cerró "
+                          "con «Cancelar»")
+            return
         if motivo == "tiktok":
             res.fallo("transmitir_destino: «Continuar» llevó al Panel de OBS, "
                       "o sea que el destino no era YouTube")
@@ -621,8 +642,10 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
             return
         if app.esperar_ventana("Directo de YouTube", segundos=2) is None:
             dichos = " ".join(a.get("texto", "") for a in app.anuncios[n:])
+            listado = ", ".join(f"«{t}»" for t in visibles if t) or "ninguna"
             res.fallo("transmitir_destino: «Directo de YouTube» no apareció "
-                      f"en 120 s; dijo «{dichos[:120]}»")
+                      f"en 120 s; dijo «{dichos[:120]}»; ventanas visibles: "
+                      + listado)
             return
 
         _auditar_ventana(
