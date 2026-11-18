@@ -57,15 +57,23 @@ class PruebasSoundGen(unittest.TestCase):
     def test_la_espera_son_dos_notas_iguales_en_g5_en_los_dos_temas(self):
         for tema in ("default", "suave"):
             ruta = sound_gen.THEMES_DIR / tema / "espera.wav"
+            generador = sound_gen.TEMAS[tema]["espera.wav"]
             with self.subTest(tema=tema):
-                muestras, frecuencia = _canal_izquierdo(ruta)
-                primera, segunda = _notas_de_espera(muestras, frecuencia)
-                self.assertTrue(primera and segunda, ruta.name)
-                f1 = _frecuencia_de_nota(primera, frecuencia)
-                f2 = _frecuencia_de_nota(segunda, frecuencia)
-                self.assertGreaterEqual(f2, f1, ruta.name)
-                self.assertAlmostEqual(f1, sound_gen.G5, delta=sound_gen.G5 * 0.05)
-                self.assertAlmostEqual(f2, sound_gen.G5, delta=sound_gen.G5 * 0.05)
+                fuentes = (
+                    ("wav", _canal_izquierdo(ruta)),
+                    ("generador", (generador(), sound_gen.SR)),
+                )
+                for origen, (muestras, frecuencia) in fuentes:
+                    with self.subTest(origen=origen):
+                        primera, segunda = _notas_de_espera(muestras, frecuencia)
+                        self.assertTrue(primera and segunda, ruta.name)
+                        f1 = _frecuencia_de_nota(primera, frecuencia)
+                        f2 = _frecuencia_de_nota(segunda, frecuencia)
+                        self.assertGreaterEqual(f2, f1, ruta.name)
+                        self.assertAlmostEqual(f1, sound_gen.G5,
+                                               delta=sound_gen.G5 * 0.05)
+                        self.assertAlmostEqual(f2, sound_gen.G5,
+                                               delta=sound_gen.G5 * 0.05)
 
     def test_la_espera_no_supera_la_duracion_ni_el_pico_de_antes(self):
         for tema in ("default", "suave"):
