@@ -125,14 +125,14 @@ class TestComandoDirecto(unittest.TestCase):
 class TestDirectoHuerfano(unittest.TestCase):
 
     def test_guardar_token_falla_avisa_y_no_lanza(self):
-        from guyrapu.ui import gui_directo_huerfano
+        from guyrapu.youtube import finalizar_aparte
         cliente = mock.Mock()
         cliente.token_actualizado.return_value = "nuevo-token"
-        with mock.patch.object(gui_directo_huerfano.credenciales, "guardar_campo",
+        with mock.patch.object(finalizar_aparte.credenciales, "guardar_campo",
                                side_effect=RuntimeError("disco lleno")):
-            with self.assertLogs("guyrapu.gui_directo_huerfano",
+            with self.assertLogs("guyrapu.finalizar_aparte",
                                  level="WARNING") as logs:
-                gui_directo_huerfano._guardar_token_si_hay(cliente)
+                finalizar_aparte._guardar_token_si_hay(cliente)
         self.assertTrue(any("token" in mensaje for mensaje in logs.output))
 
 

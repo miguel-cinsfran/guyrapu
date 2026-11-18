@@ -27,6 +27,7 @@ from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.voice import sound_player as _snd
 from guyrapu.youtube import credenciales, emision, fin_pendiente, youtube_api
+from guyrapu.youtube.finalizar_aparte import _guardar_token_si_hay
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -86,18 +87,6 @@ def _obs_transmite() -> tuple[bool, str]:
     if activo:
         return True, "OBS está transmitiendo"
     return False, "OBS está abierto y no transmite"
-
-
-def _guardar_token_si_hay(cliente) -> None:
-    try:
-        nuevo = cliente.token_actualizado()
-    except Exception:
-        nuevo = None
-    if nuevo:
-        try:
-            credenciales.guardar_campo("token", nuevo)
-        except Exception as error:
-            logger.warning("no se pudo guardar el token actualizado: %s", error)
 
 
 def _quitar_pendiente(ruta, id_video) -> None:
