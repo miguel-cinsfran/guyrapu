@@ -323,6 +323,15 @@ msgstr "Question: {texto}"
 msgid "Respuesta: {texto}"
 msgstr "Answer: {texto}"
 
+#. Traductores: pregunta que recibe la IA con la imagen o el GIF de un medio.
+#: guyrapu/ai/descripcion_medio.py
+msgid ""
+"Describe en una frase corta, en el idioma de la aplicación, qué muestra la "
+"imagen a quien no la ve."
+msgstr ""
+"Describe in a short sentence, in the application language, what the image "
+"shows to someone who cannot see it."
+
 #: guyrapu/ai/opciones_ia.py
 msgid "Responde solo con la palabra OK."
 msgstr "Reply with only the word OK."
@@ -2133,6 +2142,7 @@ msgstr "Completed"
 #. Traductores: familia de los sonidos de error.
 #. Traductores: título de un cuadro de error.
 #: guyrapu/core/eventos_sonido.py guyrapu/ui/gui.py
+#: guyrapu/ui/medio_descripcion_ia.py
 msgid "Error"
 msgstr "Error"
 
@@ -2333,6 +2343,10 @@ msgstr "Panic mode on"
 msgid "Mensajes automáticos activados"
 msgstr "Scheduled messages enabled"
 
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Comandos reanudados"
+msgstr "Commands resumed"
+
 #: guyrapu/core/eventos_sonido.py
 msgid "Lectura en pausa"
 msgstr "Reading paused"
@@ -2364,6 +2378,11 @@ msgstr "Panic mode off"
 #: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_mensajes_automaticos.py
 msgid "Mensajes automáticos desactivados"
 msgstr "Scheduled messages disabled"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+#: guyrapu/ui/comandos_en_vivo.py
+msgid "Comandos en pausa"
+msgstr "Commands paused"
 
 #: guyrapu/core/eventos_sonido.py
 msgid "Consulta a la IA cancelada"
@@ -3474,6 +3493,52 @@ msgstr "It waits {general} seconds between uses and {persona} seconds per person
 #: guyrapu/interaction/descripcion_comando.py
 msgid "Pausado."
 msgstr "Paused."
+
+#. Traductores: validación de disparadores del directo (error).
+#: guyrapu/interaction/disparadores.py
+msgid "El disparador necesita un nombre."
+msgstr "The trigger needs a name."
+
+#. Traductores: validación de disparadores del directo (error). {nombre} es el
+#. disparador que ya existe.
+#: guyrapu/interaction/disparadores.py
+#, python-brace-format
+msgid "El disparador {nombre} ya existe."
+msgstr "The trigger {nombre} already exists."
+
+#. Traductores: validación de disparadores del directo (error).
+#: guyrapu/interaction/disparadores.py
+msgid "Ese tipo de disparador todavía no existe."
+msgstr "That type of trigger does not exist yet."
+
+#. Traductores: validación de disparadores del directo (error).
+#: guyrapu/interaction/disparadores.py
+msgid "El disparador de comando necesita al menos un nombre."
+msgstr "The command trigger needs at least one name."
+
+#. Traductores: validación de disparadores del directo (error). {nombre} es el
+#. comando del chat que ya usa otro disparador.
+#: guyrapu/interaction/disparadores.py
+#, python-brace-format
+msgid "El comando {nombre} ya lo usa otro disparador."
+msgstr "The command {nombre} is already used by another trigger."
+
+#. Traductores: validación de disparadores del directo (error). {evento} es el
+#. nombre del evento desconocido.
+#: guyrapu/interaction/disparadores.py
+#, python-brace-format
+msgid "El evento {evento} no existe."
+msgstr "The event {evento} does not exist."
+
+#. Traductores: validación de disparadores del directo (error).
+#: guyrapu/interaction/disparadores.py
+msgid "El mínimo no puede ser negativo."
+msgstr "The minimum cannot be negative."
+
+#. Traductores: validación de disparadores del directo (error).
+#: guyrapu/interaction/disparadores.py
+msgid "El disparador necesita un medio o una tarjeta de texto."
+msgstr "The trigger needs a media item or a text card."
 
 #. Traductores: resumen de una encuesta; {pregunta} es su pregunta.
 #: guyrapu/interaction/encuestas.py
@@ -6386,6 +6451,7 @@ msgid "&Imagen…"
 msgstr "&Image…"
 
 #: guyrapu/obs/tipos_fuente.py guyrapu/ui/escena_propiedades.py
+#: guyrapu/ui/medio_descripcion_ia.py
 msgid "Imagen"
 msgstr "Image"
 
@@ -7682,6 +7748,10 @@ msgid "Activar o desactivar los mensajes automáticos"
 msgstr "Turn scheduled messages on or off"
 
 #: guyrapu/ui/atajos_captura.py
+msgid "Pausar los comandos del chat"
+msgstr "Pause chat commands"
+
+#: guyrapu/ui/atajos_captura.py
 msgid "Cerrar la encuesta"
 msgstr "Close the poll"
 
@@ -7887,7 +7957,8 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 #: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui.py guyrapu/ui/gui_cierre.py
 #: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
 #: guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py guyrapu/ui/medio_cuadro.py
-#: guyrapu/ui/medios_ventana.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/medio_descripcion_ia.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/preferencias_api.py
 #: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
 #: guyrapu/ui/voces_ventana.py
@@ -12881,9 +12952,24 @@ msgstr "Edit media"
 msgid "Dura más de 15 segundos: al dispararlo se detiene a los 15"
 msgstr "Longer than 15 seconds: when triggered, it stops at 15."
 
+#: guyrapu/ui/medio_cuadro.py
+msgid "Solo se propone la descripción de una imagen o un GIF"
+msgstr "Only an image or a GIF can be described"
+
+#. Traductores: anuncio de la descripción que propone la IA; {texto} es la
+#. frase.
+#: guyrapu/ui/medio_cuadro.py
+#, python-brace-format
+msgid "Descripción propuesta: {texto}"
+msgstr "Proposed description: {texto}"
+
 #: guyrapu/ui/medio_cuadro.py guyrapu/ui/restream_dialogos_destino.py
 msgid "&Descripción:"
 msgstr "&Description:"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Describir &imagen"
+msgstr "Describe &image"
 
 #: guyrapu/ui/medio_cuadro.py
 msgid "&Tipo:"
@@ -12900,6 +12986,17 @@ msgstr "Not applicable"
 #: guyrapu/ui/medio_cuadro.py
 msgid "Duración desconocida"
 msgstr "Unknown duration"
+
+#. Traductores: título de la espera mientras la IA propone la descripción.
+#: guyrapu/ui/medio_descripcion_ia.py
+msgid "Describir imagen"
+msgstr "Describe image"
+
+#. Traductores: texto inicial de la espera mientras la IA propone la
+#. descripción.
+#: guyrapu/ui/medio_descripcion_ia.py
+msgid "Pidiendo la descripción a la IA…"
+msgstr "Asking the AI for the description…"
 
 #: guyrapu/ui/medios_ventana.py
 msgid "No hay medios. Usa Agregar para crear uno."
@@ -13175,6 +13272,10 @@ msgstr "&Mute media"
 #: guyrapu/ui/menu_interaccion.py
 msgid "Modo pánic&o"
 msgstr "Pa&nic mode"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Pa&usar comandos"
+msgstr "P&ause commands"
 
 #: guyrapu/ui/menu_interaccion.py
 msgid "Cerrar e&ncuesta"
@@ -14118,6 +14219,10 @@ msgstr "&New followers:"
 #: guyrapu/ui/preferencias_eventos.py
 msgid "&Directo compartido:"
 msgstr "Shared l&ive streams:"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Comandos del c&hat:"
+msgstr "Chat co&mmands:"
 
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Agrupar ent&radas"
@@ -15974,60 +16079,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-msgid "Comandos reanudados"
-msgstr "Commands resumed"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-#: guyrapu/ui/comandos_en_vivo.py
-msgid "Comandos en pausa"
-msgstr "Commands paused"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Pausar los comandos del chat"
-msgstr "Pause chat commands"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "Pa&usar comandos"
-msgstr "P&ause commands"
-
-#. Traductores: pregunta que recibe la IA con la imagen o el GIF de un medio.
-#: guyrapu/ai/descripcion_medio.py
-msgid ""
-"Describe en una frase corta, en el idioma de la aplicación, qué muestra la "
-"imagen a quien no la ve."
-msgstr ""
-"Describe in a short sentence, in the application language, what the image "
-"shows to someone who cannot see it."
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "Solo se propone la descripción de una imagen o un GIF"
-msgstr "Only an image or a GIF can be described"
-
-#. Traductores: anuncio de la descripción que propone la IA; {texto} es la
-#. frase.
-#: guyrapu/ui/medio_cuadro.py
-#, python-brace-format
-msgid "Descripción propuesta: {texto}"
-msgstr "Proposed description: {texto}"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "Describir &imagen"
-msgstr "Describe &image"
-
-#. Traductores: título de la espera mientras la IA propone la descripción.
-#: guyrapu/ui/medio_descripcion_ia.py
-msgid "Describir imagen"
-msgstr "Describe image"
-
-#. Traductores: texto inicial de la espera mientras la IA propone la
-#. descripción.
-#: guyrapu/ui/medio_descripcion_ia.py
-msgid "Pidiendo la descripción a la IA…"
-msgstr "Asking the AI for the description…"
-
-#: guyrapu/ui/preferencias_eventos.py
-msgid "Comandos del c&hat:"
-msgstr "Chat co&mmands:"
 

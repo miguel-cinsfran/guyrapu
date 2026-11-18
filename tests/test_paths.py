@@ -29,6 +29,7 @@ RUTAS_DE_DATOS = [
     ("perfiles_restream", "perfiles_restream.json"),
     ("mensajes_programados", "mensajes_programados.json"),
     ("comandos", "comandos.json"),
+    ("disparadores", "disparadores.json"),
     ("encuestas", "encuestas.json"),
     ("medios", "medios.json"),
     ("carpeta_medios", "medios"),

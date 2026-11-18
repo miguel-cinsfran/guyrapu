@@ -97,6 +97,12 @@ def comandos() -> Path:
     return carpeta_datos() / "comandos.json"
 
 
+def disparadores() -> Path:
+    # Disparadores propios del usuario: nacen ya dentro de data/, así que
+    # no entran en datos_a_migrar().
+    return carpeta_datos() / "disparadores.json"
+
+
 def encuestas() -> Path:
     return carpeta_datos() / "encuestas.json"
 
