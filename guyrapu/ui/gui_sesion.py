@@ -3,8 +3,8 @@
 """Qué hace la ventana principal al conectar y al desconectar.
 
 Única razón para cambiar: validar la dirección, conectar, poner la ventana
-en conectada o desconectada, reiniciar los datos de la sesión y anunciarlo.
-Las funciones reciben la ventana, como `gui_cierre`.
+en conectada o desconectada, guardar el resumen de la sesión, reiniciar los
+datos y anunciarlo. Las funciones reciben la ventana, como `gui_cierre`.
 """
 
 from __future__ import annotations
@@ -13,12 +13,13 @@ import wx
 
 from guyrapu.capture import deteccion
 from guyrapu.capture import redaccion
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, paths, resumen_sesion
 from guyrapu.core.idioma import _
 from guyrapu.ui import confirmar
 from guyrapu.ui import gui_construccion
 from guyrapu.ui import menu_habilitado
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.participacion_chat import ORDEN_REGALOS
 from guyrapu.ui.sesion_conectada import SesionConectada
 from guyrapu.voice import sound_player as _snd
 
@@ -125,6 +126,18 @@ def set_conectado(ventana, conectado: bool,
     ventana._actualizar_estado_online()
 
 
+def guardar_resumen_sesion(ventana) -> None:
+    """Guarda el resumen del directo; un fallo se registra y no corta."""
+    try:
+        participacion = ventana.chat_vivo.participacion
+        if participacion.vacia():
+            return
+        resumen_sesion.guardar(
+            participacion.lineas(ORDEN_REGALOS), paths.resumenes_sesion())
+    except Exception as error:
+        logger.debug("no se pudo guardar el resumen de la sesión: %s", error)
+
+
 def reiniciar_datos_sesion(ventana) -> None:
     """Borra TODO el estado de la sesión para que volver a conectar sea como
     recién abierta la app y nada del directo anterior se solape: chat,
@@ -133,6 +146,7 @@ def reiniciar_datos_sesion(ventana) -> None:
     ventana.sesion = SesionConectada()
     # Chat: datos, lista visible y lo que aún estaba en cola sin volcar (es
     # de la sesión que se cierra; no debe colarse en la siguiente).
+    guardar_resumen_sesion(ventana)
     ventana.chat_vivo.vaciar()
     try:    ventana.lb_chat.Clear()
     except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)

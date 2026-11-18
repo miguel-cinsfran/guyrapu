@@ -5333,6 +5333,32 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         frame._reiniciar_datos_sesion()
         self.assertTrue(frame.chat_vivo.participacion.vacia())
 
+    def test_reiniciar_guarda_el_resumen_en_la_carpeta_de_datos(self):
+        frame = self._frame()
+        frame.chat_vivo = ControladorChat(
+            mock.Mock(), 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=lambda *args: "", al_superchat=lambda monto: None)
+        frame.chat_vivo.participacion.sumar(MensajeChat(
+            plataforma="youtube", autor="Ana", identificador="C",
+            texto="hola", hora="12:00", tipo=config.TIPO_TEXTO, monto="",
+            rol=""))
+        frame.lb_chat = mock.Mock()
+        frame._sc_totales = {}
+        frame._metadatos = {}
+        frame.txt_info = mock.Mock()
+        frame._rep_panel = mock.Mock()
+        frame._com_panel = mock.Mock()
+        frame._worker = mock.Mock()
+        frame._stats = mock.Mock()
+        frame._actualizar_sb = mock.Mock()
+        with tempfile.TemporaryDirectory() as tmp, redirigir_rutas(tmp):
+            frame._reiniciar_datos_sesion()
+            archivos = list((Path(tmp) / "resumenes_sesion").glob("*.txt"))
+            self.assertEqual(len(archivos), 1)
+            contenido = archivos[0].read_text(encoding="utf-8")
+        self.assertEqual(contenido, "Ana: 1 mensaje\n")
+
     def test_item_de_menu_existe_con_su_atajo(self):
         frame = mock.Mock()
         frame._accel.side_effect = (

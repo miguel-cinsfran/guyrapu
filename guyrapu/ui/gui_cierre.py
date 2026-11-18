@@ -96,6 +96,8 @@ def apagar(frame):
     except Exception as error: logger.debug("no se pudo detener el temporizador: %s", error)
     try:    frame._diagnostico_timer.Stop()
     except Exception as error: logger.debug("no se pudo detener el diagnóstico: %s", error)
+    from guyrapu.ui import gui_sesion
+    gui_sesion.guardar_resumen_sesion(frame)
     frame.chat_vivo.descartar()
     hilos_previos = diagnostico.hilos_vivos_de_la_aplicacion()
     if apagado.hilos_captura_vivos(hilos_previos):

@@ -10,14 +10,14 @@ from guyrapu.core.config import (
     TIPO_TEXTO,
 )
 from guyrapu.ui.lista_chat import MensajeChat
-from guyrapu.ui.participacion_chat import Participacion
+from guyrapu.ui.participacion_chat import ORDEN_REGALOS, Participacion
 
 
 def _registro(autor="Ana", identificador="C", plataforma="youtube",
-              tipo=TIPO_TEXTO):
+              tipo=TIPO_TEXTO, monto=""):
     return MensajeChat(plataforma=plataforma, autor=autor,
                        identificador=identificador, texto="hola",
-                       hora="12:00", tipo=tipo, monto="", rol="")
+                       hora="12:00", tipo=tipo, monto=monto, rol="")
 
 
 class TestParticipacion(unittest.TestCase):
@@ -73,6 +73,62 @@ class TestParticipacion(unittest.TestCase):
         participacion.sumar(_registro(autor="Beto", identificador=""))
         self.assertEqual(participacion.lineas(),
                          ["Ana: 2 mensajes", "Beto: 1 mensaje"])
+
+    def test_suma_los_diamantes_de_los_regalos(self):
+        participacion = Participacion()
+        participacion.sumar(_registro(tipo=TIPO_SUPERCHAT,
+                                      monto="200 diamantes"))
+        participacion.sumar(_registro(tipo=TIPO_SUPERCHAT,
+                                      monto="40 diamantes"))
+        self.assertEqual(participacion.lineas(),
+                         ["Ana: 2 mensajes, 240 diamantes"])
+
+    def test_los_superchats_se_suman_por_moneda(self):
+        participacion = Participacion()
+        for monto in ("US$10.00", "US$5.00", "€7.50"):
+            participacion.sumar(_registro(tipo=TIPO_SUPERCHAT, monto=monto))
+        self.assertEqual(participacion.lineas(),
+                         ["Ana: 3 mensajes, 15,00 US$, 7,50 €"])
+
+    def test_un_sticker_con_importe_cuenta_como_superchat(self):
+        participacion = Participacion()
+        participacion.sumar(_registro(tipo=TIPO_STICKER, monto="US$5.00"))
+        self.assertEqual(participacion.lineas(),
+                         ["Ana: 1 mensaje, 5,00 US$"])
+
+    def test_un_monto_ilegible_cuenta_solo_el_mensaje(self):
+        participacion = Participacion()
+        participacion.sumar(_registro(tipo=TIPO_SUPERCHAT, monto="gracias"))
+        self.assertEqual(participacion.lineas(), ["Ana: 1 mensaje"])
+
+    def test_el_orden_por_regalos_deja_primero_los_diamantes_y_los_superchats(self):
+        participacion = Participacion()
+        participacion.sumar(_registro(autor="Ana", identificador="A"))
+        participacion.sumar(_registro(autor="Beto", identificador="B",
+                                      tipo=TIPO_SUPERCHAT,
+                                      monto="US$50.00"))
+        for _ in range(5):
+            participacion.sumar(_registro(autor="Carla", identificador="C"))
+        participacion.sumar(_registro(autor="Dani", identificador="D",
+                                      tipo=TIPO_SUPERCHAT,
+                                      monto="100 diamantes"))
+        participacion.sumar(_registro(autor="Eva", identificador="E",
+                                      tipo=TIPO_SUPERCHAT,
+                                      monto="200 diamantes"))
+        self.assertEqual(
+            participacion.lineas(ORDEN_REGALOS),
+            ["Eva: 1 mensaje, 200 diamantes",
+             "Dani: 1 mensaje, 100 diamantes",
+             "Beto: 1 mensaje, 50,00 US$",
+             "Carla: 5 mensajes",
+             "Ana: 1 mensaje"])
+        self.assertEqual(
+            participacion.lineas(),
+            ["Carla: 5 mensajes",
+             "Ana: 1 mensaje",
+             "Beto: 1 mensaje, 50,00 US$",
+             "Dani: 1 mensaje, 100 diamantes",
+             "Eva: 1 mensaje, 200 diamantes"])
 
     def test_limpiar_deja_el_conteo_vacio(self):
         participacion = Participacion()

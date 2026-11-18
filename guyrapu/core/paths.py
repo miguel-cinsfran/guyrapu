@@ -227,6 +227,12 @@ def cache_video() -> Path:
     return carpeta_datos() / "cache-video"
 
 
+def resumenes_sesion() -> Path:
+    # Resúmenes de participación de cada directo, para agradecer al cerrar.
+    # Nacen ya dentro de data/, así que no entran en datos_a_migrar().
+    return carpeta_datos() / "resumenes_sesion"
+
+
 def audio_temporal() -> Path:
     """Carpeta donde ElevenLabs deja el WAV de cada frase, creada si falta."""
     carpeta = carpeta_datos() / "audio_temporal"

@@ -15654,3 +15654,38 @@ msgstr "Polls named {nombres} already exist. Replace them?"
 msgid "Encuestas"
 msgstr "Polls"
 
+#: guyrapu/ui/chat_participacion.py
+msgid "Carpeta de resúmenes"
+msgstr "Summaries folder"
+
+#: guyrapu/ui/chat_participacion.py
+#, python-brace-format
+msgid ""
+"No se pudo abrir la carpeta de resúmenes:\n"
+"\n"
+"{exc}"
+msgstr ""
+"Could not open the summaries folder:\n"
+"\n"
+"{exc}"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "&Abrir carpeta de resúmenes"
+msgstr "&Open summaries folder"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "Abrir carpeta de resúmenes"
+msgstr "Open summaries folder"
+
+#. Traductores: una línea de participación; {nombre} es la persona y {n} la
+#. cantidad de mensajes.
+#. Traductores: regalo de TikTok; {n} es la cantidad de diamantes.
+#. Traductores: criterios del cuadro «Ordenar por» de Participación.
+#: guyrapu/ui/participacion_chat.py
+msgid "Mensajes"
+msgstr "Messages"
+
+#: guyrapu/ui/participacion_chat.py
+msgid "Regalos"
+msgstr "Gifts"
+

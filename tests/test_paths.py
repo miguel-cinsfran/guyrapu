@@ -52,6 +52,7 @@ RUTAS_DE_DATOS = [
     ("ytdlp_actualizado", "yt-dlp.exe"),
     ("cache_audio", "cache-audio"),
     ("cache_video", "cache-video"),
+    ("resumenes_sesion", "resumenes_sesion"),
     ("audio_temporal", "audio_temporal"),
 ]
 

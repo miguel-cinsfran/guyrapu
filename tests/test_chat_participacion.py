@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from guyrapu.core.config import TIPO_TEXTO
+from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
 from guyrapu.ui import chat_acciones, chat_participacion
 from guyrapu.ui.chat_vivo import ControladorChat
 from guyrapu.ui.lista_chat import MensajeChat
@@ -38,10 +38,10 @@ class Evento:
         self.skipped = True
 
 
-def _mensaje(autor="Ana", identificador="C"):
+def _mensaje(autor="Ana", identificador="C", tipo=TIPO_TEXTO, monto=""):
     return MensajeChat(plataforma="youtube", autor=autor,
                        identificador=identificador, texto="hola",
-                       hora="12:00", tipo=TIPO_TEXTO, monto="", rol="")
+                       hora="12:00", tipo=tipo, monto=monto, rol="")
 
 
 @unittest.skipUnless(_HAY_WX, "wx no está instalado")
@@ -61,6 +61,10 @@ class TestVentanaParticipacion(unittest.TestCase):
 
     def _sumar(self, autor="Ana", identificador="C"):
         self.chat.participacion.sumar(_mensaje(autor, identificador))
+
+    def _sumar_regalo(self, autor, identificador, monto):
+        self.chat.participacion.sumar(_mensaje(
+            autor, identificador, TIPO_SUPERCHAT, monto))
 
     def _abrir(self):
         dialogo = chat_participacion.VentanaParticipacion(
@@ -101,6 +105,47 @@ class TestVentanaParticipacion(unittest.TestCase):
         dialogo = self._abrir()
         self.assertEqual(list(dialogo.lb_participacion.GetStrings()),
                          ["Ana: 2 mensajes", "Beto: 1 mensaje"])
+
+    def test_el_cuadro_de_orden_existe_con_su_nombre(self):
+        dialogo = self._abrir()
+        self.assertEqual(dialogo.cb_orden.GetName(), "Ordenar por")
+        self.assertEqual(list(dialogo.cb_orden.GetStrings()),
+                         ["Mensajes", "Regalos"])
+
+    def test_el_boton_de_resumenes_existe_con_su_nombre(self):
+        dialogo = self._abrir()
+        self.assertEqual(dialogo.btn_resumenes.GetName(),
+                         "Abrir carpeta de resúmenes")
+
+    def test_cambiar_el_orden_reordena_y_deja_el_foco_en_la_lista(self):
+        self._sumar("Ana", "A")
+        self._sumar_regalo("Beto", "B", "200 diamantes")
+        self._sumar_regalo("Carla", "C", "US$50.00")
+        dialogo = self._abrir()
+        self.assertEqual(list(dialogo.lb_participacion.GetStrings()),
+                         ["Ana: 1 mensaje",
+                          "Beto: 1 mensaje, 200 diamantes",
+                          "Carla: 1 mensaje, 50,00 US$"])
+        dialogo.cb_orden.SetSelection(1)
+        dialogo._cambiar_orden()
+        self.assertEqual(list(dialogo.lb_participacion.GetStrings()),
+                         ["Beto: 1 mensaje, 200 diamantes",
+                          "Carla: 1 mensaje, 50,00 US$",
+                          "Ana: 1 mensaje"])
+        self.assertIs(dialogo.FindFocus(), dialogo.lb_participacion)
+        self.assertEqual(dialogo.lb_participacion.GetSelection(), 0)
+
+    def test_abrir_resumenes_usa_el_explorador(self):
+        temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(temporal.cleanup)
+        carpeta = Path(temporal.name) / "resumenes_sesion"
+        dialogo = self._abrir()
+        with mock.patch.object(chat_participacion.paths, "resumenes_sesion",
+                               return_value=carpeta), \
+                mock.patch.object(chat_participacion.os, "startfile") as abrir:
+            dialogo._abrir_resumenes()
+        abrir.assert_called_once_with(str(carpeta))
+        self.assertTrue(carpeta.is_dir())
 
     def test_guarda_las_lineas_y_anuncia(self):
         self._sumar("Ana", "A")
@@ -162,9 +207,10 @@ class TestVentanaParticipacion(unittest.TestCase):
         dialogo = self._abrir()
         controles = [
             control for control in dialogo._panel.GetChildren()
-            if isinstance(control, (wx.ListBox, wx.Button))]
+            if isinstance(control, (wx.ListBox, wx.Choice, wx.Button))]
         self.assertEqual([control.GetName() for control in controles],
-                         ["Participación", "Guardar", "Cerrar"])
+                         ["Participación", "Ordenar por", "Guardar",
+                          "Abrir carpeta de resúmenes", "Cerrar"])
 
     def test_letras_de_acceso_sin_repetir(self):
         dialogo = self._abrir()
@@ -174,7 +220,7 @@ class TestVentanaParticipacion(unittest.TestCase):
         letras = [etiqueta[etiqueta.index("&") + 1].lower()
                   for etiqueta in etiquetas if "&" in etiqueta]
         self.assertEqual(len(letras), len(set(letras)))
-        self.assertEqual(letras, ["p", "g", "c"])
+        self.assertEqual(letras, ["p", "d", "g", "a", "c"])
 
     def test_letras_de_acceso_sin_repetir_en_ingles(self):
         from tests.letras_acceso import ingles
@@ -187,7 +233,7 @@ class TestVentanaParticipacion(unittest.TestCase):
             letras = [etiqueta[etiqueta.index("&") + 1].lower()
                       for etiqueta in etiquetas if "&" in etiqueta]
         self.assertEqual(len(letras), len(set(letras)))
-        self.assertEqual(letras, ["p", "s", "c"])
+        self.assertEqual(letras, ["p", "t", "s", "o", "c"])
 
 
 if __name__ == "__main__":

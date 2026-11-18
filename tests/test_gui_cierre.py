@@ -2,10 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del aviso y del lanzamiento al salir con un fin pendiente."""
 
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
+from guyrapu.core import config
 from guyrapu.ui import gui_cierre
+from guyrapu.ui.lista_chat import MensajeChat
+from guyrapu.ui.participacion_chat import Participacion
+from tests.rutas_temporales import redirigir_rutas
 
 TEXTO = ("El directo de YouTube sigue abierto porque no hay conexión. "
          "Guyrapu lo finalizará solo cuando vuelva la conexión, aunque "
@@ -87,6 +93,20 @@ class TestCierreConFinPendiente(unittest.TestCase):
         avisar.assert_not_called()
         lanzar.assert_called_once_with()
         self.assertTrue(frame._apagando)
+
+    def test_apagar_guarda_el_resumen_de_participacion(self):
+        frame = self._frame()
+        frame.chat_vivo.participacion = Participacion()
+        frame.chat_vivo.participacion.sumar(MensajeChat(
+            plataforma="youtube", autor="Ana", identificador="C",
+            texto="hola", hora="12:00", tipo=config.TIPO_TEXTO, monto="",
+            rol=""))
+        with tempfile.TemporaryDirectory() as tmp, redirigir_rutas(tmp):
+            self._cerrar(frame, self._evento(), [])
+            archivos = list((Path(tmp) / "resumenes_sesion").glob("*.txt"))
+            self.assertEqual(len(archivos), 1)
+            contenido = archivos[0].read_text(encoding="utf-8")
+        self.assertEqual(contenido, "Ana: 1 mensaje\n")
 
 
 if __name__ == "__main__":
