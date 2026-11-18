@@ -101,6 +101,16 @@ def encuestas() -> Path:
     return carpeta_datos() / "encuestas.json"
 
 
+def medios() -> Path:
+    return carpeta_datos() / "medios.json"
+
+
+def carpeta_medios() -> Path:
+    # Las copias de los archivos de la biblioteca de medios, para que sigan
+    # andando si el original se mueve o se borra.
+    return carpeta_datos() / "medios"
+
+
 def palabras_bloqueadas() -> Path:
     return carpeta_datos() / "palabras_bloqueadas.json"
 

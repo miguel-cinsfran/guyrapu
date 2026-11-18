@@ -28,6 +28,7 @@ TIPOS = (
     ("avisos", N_("avisos")),
     ("comandos", N_("comandos")),
     ("encuestas", N_("encuestas")),
+    ("medios", N_("medios")),
 )
 
 _MANIFIESTO = "manifiesto.json"

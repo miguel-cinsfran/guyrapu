@@ -15821,3 +15821,142 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/interaction/medios.py
+msgid "sonido"
+msgstr "sound"
+
+#: guyrapu/interaction/medios.py
+msgid "Archivos de medios"
+msgstr "Media files"
+
+#. Traductores: una fila de la lista de medios; {nombre} es el nombre
+#. y {tipo} la clase de archivo.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}, {tipo}"
+msgstr "{nombre}, {tipo}"
+
+#. Traductores: una fila de la lista de medios sin duración conocida.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}, {tipo}, duración desconocida"
+msgstr "{nombre}, {tipo}, unknown duration"
+
+#. Traductores: una fila de la lista de medios; {duracion} está en palabras.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}, {tipo}, {duracion}"
+msgstr "{nombre}, {tipo}, {duracion}"
+
+#. Traductores: lo que se oye al escuchar un medio; {nombre} y
+#. {descripcion} son los dos datos del medio.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}. {descripcion}"
+msgstr "{nombre}. {descripcion}"
+
+#: guyrapu/interaction/paquetes.py
+msgid "medios"
+msgstr "media"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Medios"
+msgstr "Media"
+
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/medios_ventana.py
+msgid "Agregar medio"
+msgstr "Add media"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Editar medio"
+msgstr "Edit media"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Dura más de 15 segundos: al dispararlo se detiene a los 15"
+msgstr "Longer than 15 seconds: when triggered, it stops at 15."
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "&Tipo:"
+msgstr "&Type:"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "D&uración:"
+msgstr "D&uration:"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "No se aplica"
+msgstr "Not applicable"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Duración desconocida"
+msgstr "Unknown duration"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "No hay medios. Usa Agregar para crear uno."
+msgstr "There are no media items. Use Add to create one."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Lista de &medios:"
+msgstr "List of &media:"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medios guardados"
+msgstr "Saved media"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio agregado"
+msgstr "Media added"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio guardado"
+msgstr "Media saved"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio duplicado"
+msgstr "Media duplicated"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "No se pudo reproducir el medio."
+msgstr "Could not play the media."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Escuchar medio"
+msgstr "Listen to media"
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar el medio «{nombre}»?"
+msgstr "Do you want to delete the media item «{nombre}»?"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Eliminar medio"
+msgstr "Delete media"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio eliminado"
+msgstr "Media deleted"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "No hay medios para exportar."
+msgstr "There are no media items to export."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Exportar medios"
+msgstr "Export media"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Importar medios"
+msgstr "Import media"
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid "Se importó un medio."
+msgid_plural "Se importaron {n} medios."
+msgstr[0] "One media item imported."
+msgstr[1] "{n} media items imported."
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid "Ya hay medios llamados {nombres}. ¿Quieres reemplazarlos?"
+msgstr "Media items named {nombres} already exist. Replace them?"
+

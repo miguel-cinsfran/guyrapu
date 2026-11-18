@@ -16,7 +16,7 @@ from guyrapu.ui import (
     atajos_captura, comando_comandos_chat, comando_estilos,
     comando_interaccion, comando_mensajes_automaticos, comandos_ventana,
     encuestas_ventana, estilos_ventana, gui, interaccion_ventana,
-    mensajes_automaticos_ventana, menu_interaccion,
+    medios_ventana, mensajes_automaticos_ventana, menu_interaccion,
     palabras_bloqueadas_ventana)
 from tests.letras_acceso import letras_repetidas, repetidas_con_lo_de_fuera
 from tests.rutas_temporales import redirigir_rutas
@@ -89,8 +89,8 @@ class TestPaginas(BaseVentana):
         self.assertEqual(
             [ventana.libro.GetPageText(indice)
              for indice in range(ventana.libro.GetPageCount())],
-            ["Mensajes automáticos", "Comandos", "Encuestas", "Estilos",
-             "Palabras bloqueadas"])
+            ["Mensajes automáticos", "Comandos", "Encuestas", "Medios",
+             "Estilos", "Palabras bloqueadas"])
         self.assertIsInstance(
             ventana.libro.GetPage(0),
             mensajes_automaticos_ventana.PanelMensajesAutomaticos)
@@ -99,9 +99,11 @@ class TestPaginas(BaseVentana):
         self.assertIsInstance(ventana.libro.GetPage(2),
                               encuestas_ventana.PanelEncuestas)
         self.assertIsInstance(ventana.libro.GetPage(3),
+                              medios_ventana.PanelMedios)
+        self.assertIsInstance(ventana.libro.GetPage(4),
                               estilos_ventana.PanelEstilos)
         self.assertIsInstance(
-            ventana.libro.GetPage(4),
+            ventana.libro.GetPage(5),
             palabras_bloqueadas_ventana.PanelPalabrasBloqueadas)
 
     def test_p1_cerrar_es_el_unico_boton_y_cierra(self):
@@ -124,6 +126,24 @@ class TestPaginas(BaseVentana):
             ventana._al_tecla(evento)
         cerrar.assert_called_once_with(wx.ID_CANCEL)
 
+    def test_escape_detiene_la_escucha_antes_de_cerrar(self):
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+        ventana = self._ventana("medios")
+        with mock.patch.object(ventana._paginas["medios"],
+                               "detener_escucha", return_value=True), \
+                mock.patch.object(ventana, "EndModal") as cerrar:
+            ventana._al_tecla(evento)
+        cerrar.assert_not_called()
+
+    def test_cerrar_suelta_la_escucha_previa(self):
+        ventana = self._ventana()
+        with mock.patch.object(ventana._paginas["medios"],
+                               "soltar") as soltar, \
+                mock.patch.object(ventana, "EndModal"):
+            ventana._al_cerrar(None)
+        soltar.assert_called_once_with()
+
     def test_la_lista_de_paginas_tiene_su_nombre_accesible(self):
         ventana = self._ventana()
         self.assertEqual(ventana.lista_paginas.GetName(),
@@ -135,8 +155,8 @@ class TestPaginas(BaseVentana):
             [ventana.libro.GetPage(indice).lista.GetName()
              for indice in range(ventana.libro.GetPageCount())],
             ["Mensajes automáticos guardados", "Comandos del chat guardados",
-             "Encuestas guardadas", "Estilos del vídeo guardados",
-             "Palabras bloqueadas"])
+             "Encuestas guardadas", "Medios guardados",
+             "Estilos del vídeo guardados", "Palabras bloqueadas"])
 
     def test_las_letras_no_se_repiten_en_el_dialogo_ni_en_sus_paginas(self):
         ventana = self._ventana()
@@ -144,7 +164,7 @@ class TestPaginas(BaseVentana):
         self.assertEqual(
             repetidas_con_lo_de_fuera(ventana, ventana.libro),
             {"Mensajes automáticos": {}, "Comandos": {}, "Encuestas": {},
-             "Estilos": {}, "Palabras bloqueadas": {}})
+             "Medios": {}, "Estilos": {}, "Palabras bloqueadas": {}})
 
 
 class TestPaginaRecordada(BaseVentana):
@@ -176,8 +196,8 @@ class TestPaginaRecordada(BaseVentana):
         self.assertEqual(ventana.pagina_actual(), "estilos")
 
     def test_p3_el_foco_queda_en_la_lista_de_la_pagina(self):
-        for pagina in ("mensajes", "comandos", "encuestas", "estilos",
-                       "palabras"):
+        for pagina in ("mensajes", "comandos", "encuestas", "medios",
+                       "estilos", "palabras"):
             with self.subTest(pagina=pagina):
                 ventana = self._ventana(pagina)
                 ventana.Show()

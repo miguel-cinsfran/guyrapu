@@ -13,7 +13,7 @@ import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 
-from guyrapu.interaction import paquetes
+from guyrapu.interaction import medios, paquetes
 
 from tests.letras_acceso import ingles
 
@@ -257,6 +257,28 @@ class PaquetesTest(unittest.TestCase):
         leido = paquetes.leer(self.ruta, "encuestas")
         self.assertEqual("encuestas", leido.tipo)
         self.assertEqual(elementos, leido.elementos)
+
+    def test_un_paquete_de_medios_lleva_sus_archivos(self):
+        elementos = [{"nombre": "Risa", "descripcion": "Una risa",
+                      "tipo": "sonido", "archivo": "risa.wav",
+                      "duracion": 3}]
+        archivo = self._archivo("risa.wav", b"AAA")
+        paquetes.exportar(self.ruta, "medios", elementos, (archivo,))
+        leido = paquetes.leer(self.ruta, "medios",
+                              extensiones=medios.EXTENSIONES)
+        self.assertEqual("medios", leido.tipo)
+        self.assertEqual(elementos, leido.elementos)
+        self.assertEqual(("risa.wav",), leido.archivos)
+
+    def test_un_paquete_de_medios_rechaza_un_exe(self):
+        self._paquete(tipo="medios", archivos=[("virus.exe", b"x")])
+        self.assertEqual(
+            "El paquete contiene un archivo que Guyrapu no importa: "
+            "archivos/virus.exe.",
+            self._rechazo(tipo="medios", extensiones=medios.EXTENSIONES))
+
+    def test_los_tipos_incluyen_medios(self):
+        self.assertIn(("medios", "medios"), paquetes.TIPOS)
 
     def test_el_aviso_de_otro_tipo_nombra_las_encuestas(self):
         paquetes.exportar(self.ruta, "encuestas", self._encuestas())

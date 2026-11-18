@@ -30,6 +30,8 @@ RUTAS_DE_DATOS = [
     ("mensajes_programados", "mensajes_programados.json"),
     ("comandos", "comandos.json"),
     ("encuestas", "encuestas.json"),
+    ("medios", "medios.json"),
+    ("carpeta_medios", "medios"),
     ("palabras_bloqueadas", "palabras_bloqueadas.json"),
     ("estilos_avisos", "estilos_avisos.json"),
     ("fondos_de_avisos", "fondos-avisos"),
