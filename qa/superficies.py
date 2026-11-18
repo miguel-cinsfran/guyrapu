@@ -196,6 +196,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "estilo_cuadro.py": (
         "el cuadro lo cubren las pruebas con wx; el banco audita la "
         "ventana que lo abre."),
+    "estilo_tipos_cuadro.py": (
+        "el cuadro lo cubren las pruebas con wx; el banco audita la "
+        "ventana que lo abre."),
     "estilo_opciones.py": (
         "arma los desplegables de un estilo; los recorren las pruebas y el "
         "escenario de la ventana que los usa."),

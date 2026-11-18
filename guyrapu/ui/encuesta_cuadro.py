@@ -13,6 +13,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import encuestas, encuestas_guardadas
+from guyrapu.interaction import estilo_elegido
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
@@ -39,11 +40,6 @@ DESTINOS = (
 )
 
 
-def _estilos():
-    return estilos_aviso.todos(
-        estilos_aviso.cargar_estilos(paths.estilos_avisos()))
-
-
 class DialogoEncuesta(wx.Dialog):
     """Pregunta, respuestas, duración, destino y estilo de una encuesta."""
 
@@ -52,7 +48,9 @@ class DialogoEncuesta(wx.Dialog):
             padre,
             title=_(TITULO_EDITAR if datos else TITULO_AGREGAR),
             name="DialogoEncuesta")
-        self._estilos = _estilos()
+        self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        self._estilos = estilos_aviso.todos(self._usuario)
         self._crear_controles(datos)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Fit()
@@ -98,7 +96,8 @@ class DialogoEncuesta(wx.Dialog):
 
         vs.Add(fila_label(panel, _("&Estilo:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.cho_estilo = wx.Choice(
-            panel, choices=[_(estilo["nombre"]) for estilo in self._estilos],
+            panel, choices=estilo_elegido.opciones(
+                self._usuario, self._por_tipo, "encuesta"),
             name=nombre_de_etiqueta(_("&Estilo:")))
         nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
         vs.Add(self.cho_estilo, 0,
@@ -137,14 +136,11 @@ class DialogoEncuesta(wx.Dialog):
         self.cho_destino.SetSelection(
             next((indice for indice, (clave, _texto) in enumerate(DESTINOS)
                   if clave == encuesta["destino"]), 0))
-        self._elegir_estilo(encuesta["estilo"])
+        self._elegir_estilo(encuesta["estilo"] if datos else "")
 
     def _elegir_estilo(self, clave):
-        for indice, estilo in enumerate(self._estilos):
-            if estilo["clave"] == clave:
-                self.cho_estilo.SetSelection(indice)
-                return
-        self.cho_estilo.SetSelection(0)
+        self.cho_estilo.SetSelection(
+            estilo_elegido.indice_de(clave, self._estilos))
 
     def _datos_de_campos(self):
         return {
@@ -154,7 +150,8 @@ class DialogoEncuesta(wx.Dialog):
                          if linea.strip()],
             "segundos": DURACIONES[self.cho_duracion.GetSelection()][0],
             "destino": DESTINOS[self.cho_destino.GetSelection()][0],
-            "estilo": self._estilos[self.cho_estilo.GetSelection()]["clave"],
+            "estilo": estilo_elegido.clave_de(
+                self.cho_estilo.GetSelection(), self._estilos),
         }
 
     def _aceptar(self, _evento):

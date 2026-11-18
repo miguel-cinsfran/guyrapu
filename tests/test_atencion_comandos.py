@@ -84,7 +84,7 @@ class TestComandosDeLaApp(unittest.TestCase):
         self.assertEqual(
             (respuesta.texto, respuesta.al_video, respuesta.al_chat,
              respuesta.estilo, respuesta.segundos),
-            ("Comandos: !discord, !redes.", True, False, "clasico", 8))
+            ("Comandos: !discord, !redes.", True, False, "", 8))
 
     def test_sin_comandos_activos_no_responde(self):
         atencion_ = atencion.Atencion([_comando(activo=False)])

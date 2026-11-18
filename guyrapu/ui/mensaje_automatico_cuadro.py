@@ -13,6 +13,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.capture import programados
+from guyrapu.interaction import estilo_elegido
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
@@ -28,11 +29,6 @@ def _destinos():
     return [_("Chat"), _("Vídeo"), _("Chat y vídeo")]
 
 
-def _estilos():
-    return estilos_aviso.todos(
-        estilos_aviso.cargar_estilos(paths.estilos_avisos()))
-
-
 class DialogoMensaje(wx.Dialog):
     """Nombre, texto, destino, estilo, tiempos y actividad de un mensaje."""
 
@@ -42,7 +38,11 @@ class DialogoMensaje(wx.Dialog):
             title=_(TITULO_EDITAR if mensaje else TITULO_AGREGAR),
             name="DialogoMensajeAutomatico")
         self._otros = list(otros)
-        self._estilos = _estilos()
+        self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        self._estilos = estilos_aviso.todos(self._usuario)
+        self._opciones = estilo_elegido.opciones(
+            self._usuario, self._por_tipo, "mensaje")
         self._crear_controles(mensaje)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Fit()
@@ -70,7 +70,7 @@ class DialogoMensaje(wx.Dialog):
 
         vs.Add(fila_label(panel, _("&Estilo:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.cho_estilo = wx.Choice(
-            panel, choices=[_(estilo["nombre"]) for estilo in self._estilos],
+            panel, choices=self._opciones,
             name=nombre_de_etiqueta(_("Estilo:")))
         nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
         vs.Add(self.cho_estilo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
@@ -127,7 +127,8 @@ class DialogoMensaje(wx.Dialog):
         self.txt_texto.SetValue(mensaje.get("texto", ""))
         self.cho_destino.SetSelection(
             _DESTINOS.index(mensaje.get("destino", "chat")))
-        self._elegir_estilo(mensaje.get("estilo", "clasico"))
+        self._elegir_estilo(
+            mensaje.get("estilo", "clasico") if mensaje else "")
         self.sp_segundos.SetValue(mensaje.get("segundos_pantalla", 10))
         self.sp_min.SetValue(mensaje.get("minutos_min", 10))
         self.sp_max.SetValue(mensaje.get(
@@ -136,11 +137,8 @@ class DialogoMensaje(wx.Dialog):
         self.chk_activo.SetValue(mensaje.get("activo", True))
 
     def _elegir_estilo(self, clave):
-        for indice, estilo in enumerate(self._estilos):
-            if estilo["clave"] == clave:
-                self.cho_estilo.SetSelection(indice)
-                return
-        self.cho_estilo.SetSelection(0)
+        self.cho_estilo.SetSelection(
+            estilo_elegido.indice_de(clave, self._estilos))
 
     def _aceptar(self, _evento):
         nombre = self.txt_nombre.GetValue()
@@ -175,7 +173,8 @@ class DialogoMensaje(wx.Dialog):
             "nombre": self.txt_nombre.GetValue().strip(),
             "texto": self.txt_texto.GetValue(),
             "destino": _DESTINOS[self.cho_destino.GetSelection()],
-            "estilo": self._estilos[self.cho_estilo.GetSelection()]["clave"],
+            "estilo": estilo_elegido.clave_de(
+                self.cho_estilo.GetSelection(), self._estilos),
             "segundos_pantalla": self.sp_segundos.GetValue(),
             "minutos_min": self.sp_min.GetValue(),
             "minutos_max": self.sp_max.GetValue(),

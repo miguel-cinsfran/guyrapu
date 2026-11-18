@@ -183,7 +183,7 @@ class TestCampos(unittest.TestCase):
 
     def test_los_campos_nuevos_tienen_su_valor_de_fabrica(self):
         comando = comandos.Comando("hola", (), "Hola")
-        self.assertEqual(comando.estilo, "clasico")
+        self.assertEqual(comando.estilo, "")
         self.assertEqual(comando.segundos, 8)
         self.assertEqual(comando.destino, "video")
         self.assertEqual((comando.espera_general, comando.espera_persona),

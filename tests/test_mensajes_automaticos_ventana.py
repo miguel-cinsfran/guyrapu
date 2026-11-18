@@ -113,7 +113,7 @@ class TestContratos(BaseVentana):
         self.addCleanup(destruir, cuadro)
         self.assertEqual(cuadro.cho_destino.GetStrings(),
                          ["Chat", "Vídeo", "Chat y vídeo"])
-        self.assertEqual(cuadro.cho_estilo.GetCount(), 4)
+        self.assertEqual(cuadro.cho_estilo.GetCount(), 5)
         self.assertEqual((cuadro.sp_segundos.GetMin(), cuadro.sp_segundos.GetMax()),
                          (3, 60))
         self.assertEqual((cuadro.sp_min.GetMin(), cuadro.sp_min.GetMax()),
@@ -160,6 +160,29 @@ class TestContratos(BaseVentana):
         decir.assert_called_once_with(
             "El intervalo máximo no puede ser menor que el mínimo.")
         foco.assert_called_once()
+
+    def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
+        cuadro = mensaje_automatico_cuadro.DialogoMensaje(None, {}, [])
+        self.addCleanup(destruir, cuadro)
+        self.assertEqual(cuadro.cho_estilo.GetString(0),
+                         "Predeterminado (Clásico)")
+        self.assertEqual(cuadro.cho_estilo.GetSelection(), 0)
+        self.assertEqual(cuadro.datos()["estilo"], "")
+
+    def test_p3_el_predeterminado_lleva_el_nombre_del_estilo_del_tipo(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"mensaje": "banda"})
+        cuadro = mensaje_automatico_cuadro.DialogoMensaje(None, {}, [])
+        self.addCleanup(destruir, cuadro)
+        self.assertEqual(cuadro.cho_estilo.GetString(0),
+                         "Predeterminado (Banda)")
+
+    def test_p3_elegir_predeterminado_guarda_el_estilo_vacio(self):
+        cuadro = self._cuadro(
+            _mensaje("A", texto="Hola", destino="video", estilo="tarjeta"))
+        self.assertEqual(cuadro.cho_estilo.GetSelection(), 3)
+        cuadro.cho_estilo.SetSelection(0)
+        self.assertEqual(cuadro.datos()["estilo"], "")
 
     def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
         cuadro = mensaje_automatico_cuadro.DialogoMensaje(None, {}, [])
@@ -210,6 +233,16 @@ class TestAcciones(BaseVentana):
             panel._escuchar()
         decir.assert_called_once_with("Hola. Estilo: Clásico.")
 
+    def test_p4_escuchar_usa_el_predeterminado_del_tipo(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"mensaje": "banda"})
+        panel = self._panel([
+            _mensaje("A", texto="Hola", destino="video", estilo="")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(mensajes_automaticos_ventana, "anunciar") as decir:
+            panel._escuchar()
+        decir.assert_called_once_with("Hola. Estilo: Banda.")
+
     def test_escuchar_solo_el_texto_si_no_sale_en_el_video(self):
         panel = self._panel([_mensaje("A", texto="Hola", destino="chat")])
         panel.lista.SetSelection(0)
@@ -234,6 +267,18 @@ class TestAcciones(BaseVentana):
             panel._probar()
         probar.assert_called_once_with(
             "Hola", estilos_aviso.buscar("tarjeta", []))
+
+    def test_p4_probar_usa_el_predeterminado_del_tipo(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"mensaje": "banda"})
+        panel = self._panel([
+            _mensaje("A", texto="Hola", destino="video", estilo="")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(mensajes_automaticos_ventana.probar_aviso,
+                               "probar") as probar:
+            panel._probar()
+        probar.assert_called_once_with(
+            "Hola", estilos_aviso.buscar("banda", []))
 
     def test_p2_probar_lo_que_va_al_video_y_al_chat_dice_la_frase(self):
         panel = self._panel([_mensaje("A", texto="Hola", destino="ambos")])

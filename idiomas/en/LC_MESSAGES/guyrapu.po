@@ -16405,3 +16405,27 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#. Traductores: primera opción de la elección de estilo de un cuadro. {estilo}
+#. es el estilo predeterminado del tipo.
+#: guyrapu/interaction/estilo_elegido.py
+#, python-brace-format
+msgid "Predeterminado ({estilo})"
+msgstr "Default ({estilo})"
+
+#: guyrapu/ui/estilo_tipos_cuadro.py
+msgid "Establecer como predeterminado"
+msgstr "Set as default"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Establecer como &predeterminado…"
+msgstr "Set as &default…"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid ", predeterminado de {tipos}"
+msgstr ", default for {tipos}"
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Predeterminados guardados"
+msgstr "Defaults saved"
+

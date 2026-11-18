@@ -76,8 +76,22 @@ class TestVentana(BaseVentana):
     def test_p1_lista_la_fabrica_primero_y_despues_el_usuario(self):
         panel = self._panel([_estilo("Mío")])
         self.assertEqual(self._textos(panel), [
-            "Clásico (de fábrica)", "Banda (de fábrica)",
-            "Tarjeta (de fábrica)", "Alto contraste (de fábrica)", "Mío"])
+            "Clásico (de fábrica), predeterminado de mensajes automáticos, "
+            "comandos, disparadores y encuestas",
+            "Banda (de fábrica)", "Tarjeta (de fábrica)",
+            "Alto contraste (de fábrica)", "Mío"])
+
+    def test_p2_la_fila_dice_los_tipos_que_lo_usan(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"comando": "banda", "encuesta": "banda"})
+        panel = self._panel([])
+        self.assertEqual(
+            self._textos(panel)[1],
+            "Banda (de fábrica), predeterminado de comandos y encuestas")
+
+    def test_p2_sin_tipos_la_fila_queda_como_hoy(self):
+        panel = self._panel([_estilo("Mío")])
+        self.assertEqual(self._textos(panel)[4], "Mío")
 
     def test_el_panel_funciona_dentro_de_un_frame(self):
         frame = wx.Frame(None)
@@ -100,7 +114,8 @@ class TestAcciones(BaseVentana):
         self.assertEqual(claves, [
             ("agregar", None), ("editar", "intro"), ("renombrar", "f2"),
             ("duplicar", "ctrl+d"), ("escuchar", None), ("probar", None),
-            ("eliminar", "suprimir"), ("exportar", None), ("importar", None)])
+            ("predeterminado", None), ("eliminar", "suprimir"),
+            ("exportar", None), ("importar", None)])
         sin_elemento = {accion.clave for accion in panel._acciones
                         if not accion.necesita_elemento}
         self.assertEqual(sin_elemento, {"agregar", "exportar", "importar"})
@@ -122,13 +137,15 @@ class TestAcciones(BaseVentana):
                      if isinstance(hijo, wx.Button)]
         self.assertEqual(etiquetas, [
             "A&gregar", "&Editar", "Cambiar n&ombre", "&Duplicar",
-            "Escuc&har", "Pro&bar", "E&liminar", "Expo&rtar", "&Importar"])
+            "Escuc&har", "Pro&bar", "Establecer como &predeterminado…",
+            "E&liminar", "Expo&rtar", "&Importar"])
         menu = panel._lista._construir_menu()
         try:
             self.assertEqual(
                 [item.GetItemLabel() for item in menu.GetMenuItems()],
                 ["A&gregar", "&Editar\tEnter", "Cambiar n&ombre\tF2",
                  "&Duplicar\tCtrl+D", "Escuc&har", "Pro&bar",
+                 "Establecer como &predeterminado…",
                  "E&liminar\tDel", "Expo&rtar", "&Importar"])
         finally:
             menu.Destroy()
@@ -197,6 +214,65 @@ class TestAcciones(BaseVentana):
                      if isinstance(hijo, wx.Button)
                      and hijo.GetLabel() == "Pro&bar")
         self.assertEqual(boton.GetName(), "Probar")
+
+    def test_p1_predeterminado_marca_los_tipos_elegidos(self):
+        panel = self._panel([_estilo("Mío", clave="mio")])
+        panel.lista.SetSelection(4)
+        with mock.patch.object(
+                estilos_ventana.estilo_tipos_cuadro, "abrir",
+                return_value={"comando", "encuesta"}) as abrir, \
+                mock.patch.object(estilos_ventana, "anunciar") as decir:
+            panel._predeterminado()
+        abrir.assert_called_once_with(panel, set())
+        self.assertEqual(
+            estilos_aviso.cargar_por_tipo(paths.estilos_avisos()),
+            {"mensaje": "clasico", "comando": "mio",
+             "disparador": "clasico", "encuesta": "mio"})
+        self.assertEqual(self._textos(panel)[4],
+                         "Mío, predeterminado de comandos y encuestas")
+        decir.assert_called_once_with("Predeterminados guardados")
+
+    def test_p1_un_tipo_desmarcado_vuelve_a_clasico(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"comando": "mio", "disparador": "mio"})
+        panel = self._panel([_estilo("Mío", clave="mio")])
+        panel.lista.SetSelection(4)
+        with mock.patch.object(
+                estilos_ventana.estilo_tipos_cuadro, "abrir",
+                return_value={"comando"}), \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            panel._predeterminado()
+        self.assertEqual(
+            estilos_aviso.cargar_por_tipo(paths.estilos_avisos()),
+            {"mensaje": "clasico", "comando": "mio",
+             "disparador": "clasico", "encuesta": "clasico"})
+
+    def test_p1_el_cuadro_abre_marcado_lo_que_ya_usa_el_estilo(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"encuesta": "mio"})
+        panel = self._panel([_estilo("Mío", clave="mio")])
+        panel.lista.SetSelection(4)
+        with mock.patch.object(
+                estilos_ventana.estilo_tipos_cuadro, "abrir",
+                return_value=None) as abrir, \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            panel._predeterminado()
+        abrir.assert_called_once_with(panel, {"encuesta"})
+
+    def test_p5_eliminar_un_predeterminado_lo_deja_en_clasico(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(),
+            {"comando": "mio", "encuesta": "banda"})
+        panel = self._panel([_estilo("Mío", clave="mio")])
+        panel.lista.SetSelection(4)
+        with mock.patch.object(estilos_ventana.confirmar, "preguntar",
+                               return_value=True), \
+                mock.patch.object(estilos_ventana, "anunciar"):
+            panel._eliminar()
+        self.assertEqual(
+            estilos_aviso.cargar_por_tipo(paths.estilos_avisos()),
+            {"mensaje": "clasico", "comando": "clasico",
+             "disparador": "clasico", "encuesta": "banda"})
 
     def test_p8_eliminar_dice_cuantos_lo_usan_y_deja_clasico(self):
         programados.guardar(paths.mensajes_programados(), [

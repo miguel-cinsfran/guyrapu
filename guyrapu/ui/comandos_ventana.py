@@ -176,7 +176,9 @@ class PanelComandos(wx.Panel):
         estilo = ""
         if comando.destino in ("video", "ambos"):
             estilos = estilos_aviso.cargar_estilos(paths.estilos_avisos())
-            elegido = estilos_aviso.buscar(comando.estilo, estilos)
+            por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+            elegido = estilos_aviso.buscar_para(
+                comando.estilo, "comando", estilos, por_tipo)
             estilo = _(elegido.get("nombre", ""))
         anunciar(descripcion_comando.escuchar(comando, estilo))
 

@@ -365,6 +365,14 @@ class TestDestinoYEstilo(unittest.TestCase):
         programados.guardar(self.ruta, [mensaje])
         self.assertEqual(programados.cargar(self.ruta), [mensaje])
 
+    def test_el_estilo_vacio_se_conserva_y_el_que_falta_es_clasico(self):
+        self.ruta.write_text(
+            '[{"texto": "Vacio", "estilo": ""}, {"texto": "Viejo"}]',
+            encoding="utf-8")
+        vacio, viejo = programados.cargar(self.ruta)
+        self.assertEqual(vacio["estilo"], "")
+        self.assertEqual(viejo["estilo"], "clasico")
+
     def test_un_destino_desconocido_pasa_a_chat(self):
         self.ruta.write_text('[{"texto": "Hola", "destino": "tele"}]',
                              encoding="utf-8")

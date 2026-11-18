@@ -75,6 +75,28 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(disparador.segundos, 60)
 
 
+class TestEstilo(unittest.TestCase):
+
+    def test_un_estilo_explicito_no_cambia(self):
+        self.assertEqual(
+            disparadores_guardados.a_disparador(
+                {"estilo": "clasico"}).estilo, "clasico")
+        self.assertEqual(
+            disparadores_guardados.a_disparador({"estilo": "mio"}).estilo,
+            "mio")
+
+    def test_el_estilo_vacio_se_conserva(self):
+        self.assertEqual(
+            disparadores_guardados.a_disparador({"estilo": ""}).estilo, "")
+
+    def test_sin_el_dato_el_estilo_es_clasico(self):
+        self.assertEqual(
+            disparadores_guardados.a_disparador({}).estilo, "clasico")
+
+    def test_un_disparador_nuevo_nace_con_el_estilo_vacio(self):
+        self.assertEqual(disparadores.Disparador("aplauso").estilo, "")
+
+
 class TestArchivo(unittest.TestCase):
 
     def setUp(self):

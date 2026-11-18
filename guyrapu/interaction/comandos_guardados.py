@@ -58,6 +58,13 @@ def _elegido(valor, validos, defecto) -> str:
     return texto if texto in validos else defecto
 
 
+def _estilo(datos: dict) -> str:
+    """El estilo elegido, que puede ser el vacío, o Clásico si falta el dato."""
+    if "estilo" not in datos:
+        return "clasico"
+    return _texto(datos.get("estilo")).strip()
+
+
 def a_comando(datos: dict) -> Comando:
     """Convierte los datos guardados en un `Comando` seguro de usar."""
     datos = datos if isinstance(datos, dict) else {}
@@ -71,7 +78,7 @@ def a_comando(datos: dict) -> Comando:
         espera_general=_numero(datos.get("espera_general"), 5.0, float),
         espera_persona=_numero(datos.get("espera_persona"), 30.0, float),
         activo=_a_bool(datos.get("activo", True)),
-        estilo=_texto(datos.get("estilo")).strip() or "clasico",
+        estilo=_estilo(datos),
         segundos=_numero(datos.get("segundos"), 8, int),
     )
 

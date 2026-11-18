@@ -15,7 +15,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos
-from guyrapu.interaction import comandos_guardados
+from guyrapu.interaction import comandos_guardados, estilo_elegido
 from guyrapu.interaction.texto import normalizar
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import paleta, tecla_escape
@@ -38,11 +38,6 @@ def _permisos():
     return [_("Todos"), _("Solo moderadores"), _("Una lista de nombres")]
 
 
-def _estilos():
-    return estilos_aviso.todos(
-        estilos_aviso.cargar_estilos(paths.estilos_avisos()))
-
-
 def _nombre_invalido(nombre: str) -> bool:
     limpio = normalizar(nombre)
     return (not limpio or limpio == comandos.PALABRA_RESERVADA
@@ -58,7 +53,9 @@ class DialogoComando(wx.Dialog):
             title=_(TITULO_EDITAR if datos else TITULO_AGREGAR),
             name="DialogoComando")
         self._otros = [comandos_guardados.a_comando(otro) for otro in otros]
-        self._estilos = _estilos()
+        self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        self._estilos = estilos_aviso.todos(self._usuario)
         self._crear_controles(datos)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Fit()
@@ -122,7 +119,8 @@ class DialogoComando(wx.Dialog):
 
         vs.Add(fila_label(panel, _("&Estilo:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.cho_estilo = wx.Choice(
-            panel, choices=[_(estilo["nombre"]) for estilo in self._estilos],
+            panel, choices=estilo_elegido.opciones(
+                self._usuario, self._por_tipo, "comando"),
             name=nombre_de_etiqueta(_("&Estilo:")))
         nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
         vs.Add(self.cho_estilo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
@@ -166,16 +164,13 @@ class DialogoComando(wx.Dialog):
         self.txt_nombres.SetValue(", ".join(comando.nombres))
         self.sp_espera.SetValue(int(comando.espera_general))
         self.sp_persona.SetValue(int(comando.espera_persona))
-        self._elegir_estilo(comando.estilo)
+        self._elegir_estilo(comando.estilo if datos else "")
         self.sp_segundos.SetValue(comando.segundos)
         self.chk_activo.SetValue(comando.activo)
 
     def _elegir_estilo(self, clave):
-        for indice, estilo in enumerate(self._estilos):
-            if estilo["clave"] == clave:
-                self.cho_estilo.SetSelection(indice)
-                return
-        self.cho_estilo.SetSelection(0)
+        self.cho_estilo.SetSelection(
+            estilo_elegido.indice_de(clave, self._estilos))
 
     def _comando_de_campos(self):
         return comandos.Comando(
@@ -188,7 +183,8 @@ class DialogoComando(wx.Dialog):
             espera_general=float(self.sp_espera.GetValue()),
             espera_persona=float(self.sp_persona.GetValue()),
             activo=self.chk_activo.GetValue(),
-            estilo=self._estilos[self.cho_estilo.GetSelection()]["clave"],
+            estilo=estilo_elegido.clave_de(
+                self.cho_estilo.GetSelection(), self._estilos),
             segundos=self.sp_segundos.GetValue(),
         )
 

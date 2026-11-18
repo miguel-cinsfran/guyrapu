@@ -51,8 +51,9 @@ def _destino(valor) -> str:
 
 
 def _estilo(valor) -> str:
-    texto = _texto(valor)
-    return texto or ESTILO_POR_DEFECTO
+    if valor is None:
+        return ESTILO_POR_DEFECTO
+    return _texto(valor)
 
 
 def normalizar(datos: dict) -> dict:

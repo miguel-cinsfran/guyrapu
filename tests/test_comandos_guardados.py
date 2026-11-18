@@ -57,6 +57,26 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(comando.segundos, 60)
 
 
+class TestEstilo(unittest.TestCase):
+
+    def test_un_estilo_explicito_no_cambia(self):
+        self.assertEqual(
+            comandos_guardados.a_comando({"estilo": "clasico"}).estilo,
+            "clasico")
+        self.assertEqual(
+            comandos_guardados.a_comando({"estilo": "mio"}).estilo, "mio")
+
+    def test_el_estilo_vacio_se_conserva(self):
+        self.assertEqual(
+            comandos_guardados.a_comando({"estilo": ""}).estilo, "")
+
+    def test_sin_el_dato_el_estilo_es_clasico(self):
+        self.assertEqual(comandos_guardados.a_comando({}).estilo, "clasico")
+
+    def test_un_comando_nuevo_nace_con_el_estilo_vacio(self):
+        self.assertEqual(comandos.Comando("hola", (), "Hola").estilo, "")
+
+
 class TestArchivo(unittest.TestCase):
 
     def setUp(self):

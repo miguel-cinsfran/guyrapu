@@ -2,14 +2,17 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """La capa que ejecuta en OBS lo que la cola ordena, y su cableado."""
 
+import tempfile
 import types
 import unittest
 from unittest import mock
 
 from guyrapu.capture import programados
+from guyrapu.core import paths
 from guyrapu.obs import estilos_aviso, obs_cliente
 from guyrapu.obs.escena_guyrapu import Tarjeta
 from guyrapu.ui import capa_video, gui_envio_chat
+from tests.rutas_temporales import redirigir_rutas
 
 
 class _TimerFalso:
@@ -251,6 +254,15 @@ class TestRespuestaDeComando(Base):
                          ("comando", "Nuestro Discord: Ana", 5))
         self.assertEqual(pieza.datos,
                          {"estilo": "banda", "nombre": "discord"})
+
+    def test_una_pieza_con_estilo_vacio_usa_el_predeterminado_de_comandos(self):
+        with tempfile.TemporaryDirectory() as carpeta, \
+                redirigir_rutas(carpeta):
+            estilos_aviso.guardar_por_tipo(
+                paths.estilos_avisos(), {"comando": "banda"})
+            self.capa.agregar_comando(self._respuesta(estilo=""))
+            self._atender()
+        self.assertEqual(self.escena.estilos[0]["clave"], "banda")
 
     def test_no_anuncia_la_respuesta_de_un_comando(self):
         self.capa.agregar_comando(self._respuesta(estilo="clasico"))

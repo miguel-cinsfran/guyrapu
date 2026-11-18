@@ -228,9 +228,10 @@ class CapaVideo:
                 wx.CallAfter(self._oculta, orden.pieza)
 
     def _mostrar(self, pieza):
-        estilo = estilos_aviso.buscar(
-            pieza.datos.get("estilo", ""),
-            estilos_aviso.cargar_estilos(paths.estilos_avisos()))
+        usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        estilo = estilos_aviso.buscar_para(
+            pieza.datos.get("estilo", ""), pieza.tipo, usuario, por_tipo)
         self._asegurar()
         if not self._animar(ordenes_animador.ocultar_antes(
                 self._elemento, self._ancho)):
@@ -241,9 +242,10 @@ class CapaVideo:
             raise RuntimeError("OBS no terminó la entrada de la tarjeta")
 
     def _actualizar(self, pieza):
-        estilo = estilos_aviso.buscar(
-            pieza.datos.get("estilo", ""),
-            estilos_aviso.cargar_estilos(paths.estilos_avisos()))
+        usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        estilo = estilos_aviso.buscar_para(
+            pieza.datos.get("estilo", ""), pieza.tipo, usuario, por_tipo)
         self._asegurar()
         self._escena.mostrar(pieza.texto, estilo)
 
@@ -252,9 +254,10 @@ class CapaVideo:
             self._cliente.conectar()
             self._escena.ocultar()
             return
-        estilo = estilos_aviso.buscar(
-            pieza.datos.get("estilo", ""),
-            estilos_aviso.cargar_estilos(paths.estilos_avisos()))
+        usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        estilo = estilos_aviso.buscar_para(
+            pieza.datos.get("estilo", ""), pieza.tipo, usuario, por_tipo)
         if not self._animar(ordenes_animador.salida(
                 self._elemento, estilo, self._ancho, self._alto)):
             raise RuntimeError("OBS no terminó la salida de la tarjeta")

@@ -48,7 +48,7 @@ class TestCampos(unittest.TestCase):
                          (5, 30))
         self.assertEqual(disparador.permiso, "todos")
         self.assertTrue(disparador.activo)
-        self.assertEqual(disparador.estilo, "clasico")
+        self.assertEqual(disparador.estilo, "")
         self.assertEqual(disparador.segundos, 8)
 
     def test_un_disparador_de_comando_tiene_sus_nombres(self):

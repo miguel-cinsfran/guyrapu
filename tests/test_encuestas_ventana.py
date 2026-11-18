@@ -12,7 +12,7 @@ from unittest import mock
 import wx
 
 from guyrapu.core import paths
-from guyrapu.interaction import encuestas_guardadas
+from guyrapu.interaction import encuestas_guardadas, estilo_elegido
 from guyrapu.interaction.encuestas import validar_encuesta
 from guyrapu.ui import encuesta_cuadro, encuestas_ventana
 from tests.letras_acceso import letras_repetidas
@@ -231,7 +231,7 @@ class TestCuadro(BaseVentana):
         self.assertEqual(cuadro.cho_destino.GetStrings(), [
             "Vídeo", "Chat de YouTube", "Vídeo y chat de YouTube"])
         self.assertEqual(cuadro.cho_destino.GetSelection(), 0)
-        self.assertEqual(cuadro.cho_estilo.GetCount(), 4)
+        self.assertEqual(cuadro.cho_estilo.GetCount(), 5)
         self.assertTrue(cuadro.txt_respuestas.GetWindowStyle()
                         & wx.TE_MULTILINE)
 
@@ -252,7 +252,8 @@ class TestCuadro(BaseVentana):
         self.assertEqual(cuadro.cho_duracion.GetSelection(), 4)
         self.assertEqual(cuadro.cho_destino.GetSelection(), 1)
         self.assertEqual(
-            cuadro._estilos[cuadro.cho_estilo.GetSelection()]["clave"],
+            estilo_elegido.clave_de(
+                cuadro.cho_estilo.GetSelection(), cuadro._estilos),
             "banda")
 
     def test_guarda_cada_campo_y_descarta_las_lineas_vacias(self):

@@ -80,6 +80,80 @@ class TestFabrica(unittest.TestCase):
                          "clasico")
 
 
+class TestPorTipo(unittest.TestCase):
+    def setUp(self):
+        self.temporal = tempfile.TemporaryDirectory()
+        self.ruta = Path(self.temporal.name) / "estilos_avisos.json"
+        self.addCleanup(self.temporal.cleanup)
+
+    def test_cargar_lee_el_archivo_viejo_que_es_una_lista(self):
+        self.ruta.write_text(
+            json.dumps([{"clave": "mio", "nombre": "Mío"}]), encoding="utf-8")
+        self.assertEqual(
+            [estilo["clave"] for estilo in estilos_aviso.cargar_estilos(
+                self.ruta)], ["mio"])
+
+    def test_cargar_lee_el_archivo_nuevo_con_estilos_y_por_tipo(self):
+        self.ruta.write_text(json.dumps({
+            "estilos": [{"clave": "mio", "nombre": "Mío"}],
+            "por_tipo": {"comando": "mio"},
+        }), encoding="utf-8")
+        self.assertEqual(
+            [estilo["clave"] for estilo in estilos_aviso.cargar_estilos(
+                self.ruta)], ["mio"])
+        self.assertEqual(
+            estilos_aviso.cargar_por_tipo(self.ruta)["comando"], "mio")
+
+    def test_sin_archivo_los_cuatro_tipos_son_clasico(self):
+        self.assertEqual(estilos_aviso.cargar_por_tipo(self.ruta), {
+            "mensaje": "clasico", "comando": "clasico",
+            "disparador": "clasico", "encuesta": "clasico"})
+
+    def test_guardar_estilos_conserva_por_tipo(self):
+        self.ruta.write_text(json.dumps({
+            "estilos": [], "por_tipo": {"comando": "banda"}}),
+            encoding="utf-8")
+        estilo = dict(estilos_aviso.FABRICA[0], clave="mio", nombre="Mío")
+        estilos_aviso.guardar_estilos(self.ruta, [estilo])
+        self.assertEqual(
+            estilos_aviso.cargar_por_tipo(self.ruta)["comando"], "banda")
+        self.assertEqual(
+            [e["clave"] for e in estilos_aviso.cargar_estilos(self.ruta)],
+            ["mio"])
+
+    def test_guardar_por_tipo_conserva_los_estilos(self):
+        estilo = dict(estilos_aviso.FABRICA[0], clave="mio", nombre="Mío")
+        estilos_aviso.guardar_estilos(self.ruta, [estilo])
+        estilos_aviso.guardar_por_tipo(self.ruta, {"comando": "mio"})
+        self.assertEqual(
+            [e["clave"] for e in estilos_aviso.cargar_estilos(self.ruta)],
+            ["mio"])
+        self.assertEqual(
+            estilos_aviso.cargar_por_tipo(self.ruta)["comando"], "mio")
+
+    def test_buscar_para_con_clave_vacia_usa_el_predeterminado_del_tipo(self):
+        self.assertEqual(
+            estilos_aviso.buscar_para(
+                "", "comando", [], {"comando": "banda"})["clave"], "banda")
+
+    def test_buscar_para_con_clave_propia_la_usa(self):
+        self.assertEqual(
+            estilos_aviso.buscar_para(
+                "tarjeta", "comando", [], {"comando": "banda"})["clave"],
+            "tarjeta")
+
+    def test_buscar_para_con_un_predeterminado_que_ya_no_existe(self):
+        self.assertEqual(
+            estilos_aviso.buscar_para(
+                "", "comando", [], {"comando": "borrado"})["clave"],
+            "clasico")
+
+    def test_los_cuatro_tipos_son_las_claves_de_la_pieza(self):
+        self.assertEqual(
+            [clave for clave, _nombre in estilos_aviso.TIPOS],
+            ["mensaje", "comando", "disparador", "encuesta"])
+
+
 class TestZonas(unittest.TestCase):
     def test_diez_zonas_con_automatica_primero(self):
         self.assertEqual(

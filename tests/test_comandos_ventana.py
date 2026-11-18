@@ -15,6 +15,7 @@ import wx
 
 from guyrapu.core import paths
 from guyrapu.interaction import comandos_guardados, paquetes
+from guyrapu.obs import estilos_aviso
 from guyrapu.ui import comando_cuadro
 from guyrapu.ui import comandos_ventana
 from tests.letras_acceso import letras_repetidas
@@ -130,9 +131,29 @@ class TestCuadro(BaseVentana):
         self.assertEqual((cuadro.sp_persona.GetMin(),
                           cuadro.sp_persona.GetMax()), (0, 3600))
         self.assertTrue(cuadro.chk_activo.GetValue())
-        self.assertEqual(cuadro.cho_estilo.GetCount(), 4)
+        self.assertEqual(cuadro.cho_estilo.GetCount(), 5)
         self.assertEqual(cuadro.ayuda.GetLabel(),
                          "Puedes usar {usuario}, {contador} y {texto}.")
+
+    def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_estilo.GetString(0),
+                         "Predeterminado (Clásico)")
+        self.assertEqual(cuadro.cho_estilo.GetSelection(), 0)
+        self.assertEqual(cuadro.datos()["estilo"], "")
+
+    def test_p3_el_predeterminado_lleva_el_nombre_del_estilo_del_tipo(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"comando": "banda"})
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_estilo.GetString(0),
+                         "Predeterminado (Banda)")
+
+    def test_p3_elegir_predeterminado_guarda_el_estilo_vacio(self):
+        cuadro = self._cuadro(_datos(estilo="banda"))
+        self.assertEqual(cuadro.cho_estilo.GetSelection(), 2)
+        cuadro.cho_estilo.SetSelection(0)
+        self.assertEqual(cuadro.datos()["estilo"], "")
 
     def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
         self.assertEqual(letras_repetidas(self._cuadro()), {})
@@ -275,6 +296,16 @@ class TestAcciones(BaseVentana):
             panel._escuchar()
         self.assertIn("Comando !A.", decir.call_args.args[0])
         self.assertIn("estilo Clásico", decir.call_args.args[0])
+
+    def test_p4_escuchar_usa_el_predeterminado_del_tipo(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"comando": "banda"})
+        panel = self._panel([_datos(
+            "A", alias=[], respuesta="Hola", estilo="")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel._escuchar()
+        self.assertIn("estilo Banda", decir.call_args.args[0])
 
     def test_eliminar_pide_confirmacion_con_no_predeterminado(self):
         panel = self._panel([_datos("A"), _datos("B")])

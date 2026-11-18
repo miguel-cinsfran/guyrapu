@@ -13,7 +13,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos, disparadores, disparadores_guardados
-from guyrapu.interaction import medios_guardados
+from guyrapu.interaction import estilo_elegido, medios_guardados
 from guyrapu.interaction.texto import normalizar
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import paleta, tecla_escape
@@ -37,11 +37,6 @@ def _permisos():
     return [_("Todos"), _("Solo moderadores"), _("Una lista de nombres")]
 
 
-def _estilos():
-    return estilos_aviso.todos(
-        estilos_aviso.cargar_estilos(paths.estilos_avisos()))
-
-
 def _medios():
     return medios_guardados.cargar(paths.medios())
 
@@ -63,7 +58,9 @@ class DialogoDisparador(wx.Dialog):
             name="DialogoDisparador")
         self._otros = [disparadores_guardados.a_disparador(otro)
                        for otro in otros]
-        self._estilos = _estilos()
+        self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
+        self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        self._estilos = estilos_aviso.todos(self._usuario)
         self._medios = _medios()
         self._crear_controles(datos)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
@@ -118,8 +115,8 @@ class DialogoDisparador(wx.Dialog):
 
         vs.Add(fila_label(panel, _("Esti&lo:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.cho_estilo = self._eleccion(
-            panel, _("Esti&lo:"), [_(estilo["nombre"])
-                                   for estilo in self._estilos])
+            panel, _("Esti&lo:"), estilo_elegido.opciones(
+                self._usuario, self._por_tipo, "disparador"))
         vs.Add(self.cho_estilo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
         self.sp_segundos = self._contador(
@@ -199,7 +196,7 @@ class DialogoDisparador(wx.Dialog):
             else _numero(disparador.minimo))
         self._elegir_medio(disparador.medio)
         self.txt_tarjeta.SetValue(disparador.tarjeta)
-        self._elegir_estilo(disparador.estilo)
+        self._elegir_estilo(disparador.estilo if datos else "")
         self.sp_segundos.SetValue(disparador.segundos)
         self.cho_permiso.SetSelection(
             comandos.PERMISOS.index(disparador.permiso))
@@ -223,11 +220,8 @@ class DialogoDisparador(wx.Dialog):
         self.cho_medio.SetSelection(indice)
 
     def _elegir_estilo(self, clave):
-        for indice, estilo in enumerate(self._estilos):
-            if estilo["clave"] == clave:
-                self.cho_estilo.SetSelection(indice)
-                return
-        self.cho_estilo.SetSelection(0)
+        self.cho_estilo.SetSelection(
+            estilo_elegido.indice_de(clave, self._estilos))
 
     def _minimo_de_campo(self):
         texto = self.txt_minimo.GetValue().strip()
@@ -258,7 +252,8 @@ class DialogoDisparador(wx.Dialog):
                     if cuando == "evento" else None),
             medio=self._medio_elegido(),
             tarjeta=self.txt_tarjeta.GetValue(),
-            estilo=self._estilos[self.cho_estilo.GetSelection()]["clave"],
+            estilo=estilo_elegido.clave_de(
+                self.cho_estilo.GetSelection(), self._estilos),
             segundos=self.sp_segundos.GetValue(),
             permiso=comandos.PERMISOS[self.cho_permiso.GetSelection()],
             nombres=comandos.separar_nombres(self.txt_nombres.GetValue()),

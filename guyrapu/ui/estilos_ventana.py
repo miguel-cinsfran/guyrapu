@@ -15,7 +15,7 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, paquetes
 from guyrapu.obs import descripcion_estilo, estilos_aviso
-from guyrapu.ui import confirmar, estilo_cuadro, probar_aviso
+from guyrapu.ui import confirmar, estilo_cuadro, estilo_tipos_cuadro, probar_aviso
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -36,6 +36,8 @@ def _acciones(panel):
         Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d"),
         Accion("escuchar", _("Escuc&har"), panel._escuchar),
         Accion("probar", _("Pro&bar"), panel._probar),
+        Accion("predeterminado", _("Establecer como &predeterminado…"),
+               panel._predeterminado),
         Accion("eliminar", _("E&liminar"), panel._eliminar,
                tecla="suprimir"),
         Accion("exportar", _("Expo&rtar"), panel._exportar,
@@ -52,6 +54,7 @@ class PanelEstilos(wx.Panel):
         super().__init__(padre, name="PanelEstilos")
         self._ruta = paths.estilos_avisos()
         self._usuario = estilos_aviso.cargar_estilos(self._ruta)
+        self._por_tipo = estilos_aviso.cargar_por_tipo(self._ruta)
         self._crear_controles()
         self.lista.SetFocus()
 
@@ -82,11 +85,20 @@ class PanelEstilos(wx.Panel):
         return fila
 
     def _textos(self):
-        textos = [
-            _("{nombre} (de fábrica)").format(nombre=_(estilo["nombre"]))
-            for estilo in estilos_aviso.FABRICA]
-        textos.extend(_(estilo["nombre"]) for estilo in self._usuario)
+        textos = [self._fila(estilo, True)
+                  for estilo in estilos_aviso.FABRICA]
+        textos.extend(self._fila(estilo, False) for estilo in self._usuario)
         return textos
+
+    def _fila(self, estilo, de_fabrica):
+        texto = (_("{nombre} (de fábrica)").format(nombre=_(estilo["nombre"]))
+                 if de_fabrica else _(estilo["nombre"]))
+        tipos = _unir([_(nombre).lower()
+                       for tipo, nombre in estilos_aviso.TIPOS
+                       if self._por_tipo.get(tipo) == estilo["clave"]])
+        if tipos:
+            texto += _(", predeterminado de {tipos}").format(tipos=tipos)
+        return texto
 
     def _fijar(self, indice=-1):
         self._lista.fijar(self._textos(), indice)
@@ -198,6 +210,25 @@ class PanelEstilos(wx.Panel):
         probar_aviso.probar(
             _("Así se ve un mensaje con este estilo."), estilo)
 
+    def _predeterminado(self):
+        indice = self._elegido()
+        if indice is None:
+            return
+        estilo = estilos_aviso.todos(self._usuario)[indice]
+        marcados = estilo_tipos_cuadro.abrir(self, {
+            tipo for tipo, _nombre in estilos_aviso.TIPOS
+            if self._por_tipo.get(tipo) == estilo["clave"]})
+        if marcados is None:
+            return
+        for tipo, _nombre in estilos_aviso.TIPOS:
+            if tipo in marcados:
+                self._por_tipo[tipo] = estilo["clave"]
+            elif self._por_tipo.get(tipo) == estilo["clave"]:
+                self._por_tipo[tipo] = "clasico"
+        estilos_aviso.guardar_por_tipo(self._ruta, self._por_tipo)
+        self._fijar(indice)
+        anunciar(_("Predeterminados guardados"))
+
     def _eliminar(self):
         indice = self._elegido()
         if indice is None:
@@ -222,7 +253,11 @@ class PanelEstilos(wx.Panel):
                 _("&Eliminar"), _("&Cancelar"), predeterminado_si=False):
             return
         self._usuario.pop(posicion)
+        for tipo, predeterminado in self._por_tipo.items():
+            if predeterminado == estilo["clave"]:
+                self._por_tipo[tipo] = "clasico"
         self._guardar()
+        estilos_aviso.guardar_por_tipo(self._ruta, self._por_tipo)
         if usados:
             for mensaje in mensajes:
                 if mensaje.get("estilo") == estilo["clave"]:
@@ -298,6 +333,18 @@ class PanelEstilos(wx.Panel):
             return dialogo.GetPath()
         finally:
             dialogo.Destroy()
+
+def _unir(textos) -> str:
+    """Lista con comas y «y» final, en formatos completos traducibles."""
+    if not textos:
+        return ""
+    if len(textos) == 1:
+        return textos[0]
+    if len(textos) == 2:
+        return _("{a} y {b}").format(a=textos[0], b=textos[1])
+    return _("{primeros} y {ultimo}").format(
+        primeros=", ".join(textos[:-1]), ultimo=textos[-1])
+
 
 def _mismo_nombre(nombre, estilo) -> bool:
     return (str(estilo.get("nombre", "")).strip().casefold()

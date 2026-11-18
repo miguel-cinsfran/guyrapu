@@ -37,6 +37,14 @@ ZONAS = (
 
 _CLAVES_ZONA = {clave for clave, _nombre in ZONAS}
 
+# Traductores: tipos de elemento que pueden usar un estilo predeterminado.
+TIPOS = (
+    ("mensaje", N_("Mensajes automáticos")),
+    ("comando", N_("Comandos")),
+    ("disparador", N_("Disparadores")),
+    ("encuesta", N_("Encuestas")),
+)
+
 # Traductores: nombres de los colores disponibles para un estilo de aviso.
 COLORES = (
     (N_("Blanco"), "#FFFFFF"),
@@ -291,30 +299,64 @@ def _normalizar_estilo(estilo: dict) -> dict:
     return resultado
 
 
-def cargar_estilos(ruta) -> list[dict]:
-    """Carga los estilos del usuario sin romperse con un archivo roto."""
+def _leer_datos(ruta) -> tuple[list, dict]:
+    """Lee el archivo en sus dos formas: la vieja lista o el diccionario nuevo."""
     try:
         with open(ruta, "r", encoding="utf-8") as archivo:
             datos = json.load(archivo)
-        if not isinstance(datos, list):
-            return []
-        claves = {estilo["clave"] for estilo in FABRICA}
-        estilos = []
-        for entrada in datos:
-            if not isinstance(entrada, dict):
-                continue
-            estilo = _normalizar_estilo(entrada)
-            if estilo["clave"] in claves:
-                continue
-            estilos.append(estilo)
-        return estilos
     except Exception:
-        return []
+        return [], {}
+    if isinstance(datos, list):
+        return datos, {}
+    if isinstance(datos, dict):
+        estilos = datos.get("estilos")
+        por_tipo = datos.get("por_tipo")
+        return (estilos if isinstance(estilos, list) else [],
+                por_tipo if isinstance(por_tipo, dict) else {})
+    return [], {}
+
+
+def cargar_estilos(ruta) -> list[dict]:
+    """Carga los estilos del usuario sin romperse con un archivo roto."""
+    datos, _por_tipo = _leer_datos(ruta)
+    claves = {estilo["clave"] for estilo in FABRICA}
+    estilos = []
+    for entrada in datos:
+        if not isinstance(entrada, dict):
+            continue
+        estilo = _normalizar_estilo(entrada)
+        if estilo["clave"] in claves:
+            continue
+        estilos.append(estilo)
+    return estilos
+
+
+def cargar_por_tipo(ruta) -> dict:
+    """El estilo predeterminado de cada tipo; Clásico si no hay otro."""
+    _estilos, por_tipo = _leer_datos(ruta)
+    resultado = {}
+    for tipo, _nombre in TIPOS:
+        valor = por_tipo.get(tipo)
+        resultado[tipo] = (valor if isinstance(valor, str) and valor
+                           else "clasico")
+    return resultado
+
+
+def _guardar(ruta, estilos: list[dict], por_tipo: dict) -> None:
+    archivos.escribir_json_atomico(
+        ruta, {"estilos": estilos, "por_tipo": por_tipo}, indent=2)
 
 
 def guardar_estilos(ruta, estilos: list[dict]) -> None:
-    """Guarda los estilos mediante un temporal para conservar los anteriores."""
-    archivos.escribir_json_atomico(ruta, estilos, indent=2)
+    """Guarda los estilos mediante un temporal y conserva los predeterminados."""
+    _guardar(ruta, estilos, cargar_por_tipo(ruta))
+
+
+def guardar_por_tipo(ruta, por_tipo: dict) -> None:
+    """Guarda los predeterminados mediante un temporal y conserva los estilos."""
+    actuales = cargar_por_tipo(ruta)
+    actuales.update(por_tipo or {})
+    _guardar(ruta, cargar_estilos(ruta), actuales)
 
 
 def todos(usuario) -> list[dict]:
@@ -329,3 +371,10 @@ def buscar(clave, usuario) -> dict:
         if estilo["clave"] == clave:
             return estilo
     return dict(FABRICA[0])
+
+
+def buscar_para(clave, tipo, usuario, por_tipo) -> dict:
+    """El estilo elegido o, con la clave vacía, el predeterminado de su tipo."""
+    if not clave:
+        clave = (por_tipo or {}).get(tipo) or "clasico"
+    return buscar(clave, usuario)

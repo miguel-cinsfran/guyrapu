@@ -51,6 +51,13 @@ def _elegido(valor, validos, defecto) -> str:
     return texto if texto in validos else defecto
 
 
+def _estilo(datos: dict) -> str:
+    """El estilo elegido, que puede ser el vacío, o Clásico si falta el dato."""
+    if "estilo" not in datos:
+        return "clasico"
+    return _texto(datos.get("estilo")).strip()
+
+
 def a_disparador(datos: dict) -> Disparador:
     """Convierte los datos guardados en un `Disparador` seguro de usar."""
     datos = datos if isinstance(datos, dict) else {}
@@ -62,7 +69,7 @@ def a_disparador(datos: dict) -> Disparador:
         minimo=_opcional(datos.get("minimo")),
         medio=_texto(datos.get("medio")),
         tarjeta=_texto(datos.get("tarjeta")),
-        estilo=_texto(datos.get("estilo")).strip() or "clasico",
+        estilo=_estilo(datos),
         segundos=_numero(datos.get("segundos"), 8, int),
         permiso=_elegido(datos.get("permiso"), PERMISOS, "todos"),
         nombres=_lista(datos.get("nombres"), separar_nombres),

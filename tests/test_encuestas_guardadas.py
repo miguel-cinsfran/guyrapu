@@ -45,7 +45,19 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(normalizada["opciones"], ["uno", "dos"])
         self.assertEqual(normalizada["segundos"], 300)
         self.assertEqual(normalizada["destino"], "video")
-        self.assertEqual(normalizada["estilo"], "clasico")
+        self.assertEqual(normalizada["estilo"], "")
+
+    def test_un_estilo_explicito_no_cambia(self):
+        self.assertEqual(
+            encuestas_guardadas.normalizar({"estilo": "clasico"})["estilo"],
+            "clasico")
+        self.assertEqual(
+            encuestas_guardadas.normalizar({"estilo": "mio"})["estilo"],
+            "mio")
+
+    def test_el_estilo_vacio_se_conserva(self):
+        self.assertEqual(
+            encuestas_guardadas.normalizar({"estilo": ""})["estilo"], "")
 
     def test_el_nombre_sigue_a_la_pregunta(self):
         self.assertEqual(

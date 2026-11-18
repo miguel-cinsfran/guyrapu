@@ -66,7 +66,7 @@ class Comando:
     espera_general: float = 5
     espera_persona: float = 30
     activo: bool = True
-    estilo: str = "clasico"
+    estilo: str = ""
     segundos: int = 8
 
     def __post_init__(self):

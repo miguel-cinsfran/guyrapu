@@ -54,7 +54,7 @@ class Disparador:
     minimo: float | None = None
     medio: str = ""
     tarjeta: str = ""
-    estilo: str = "clasico"
+    estilo: str = ""
     segundos: int = 8
     permiso: str = "todos"
     nombres: tuple[str, ...] = ()

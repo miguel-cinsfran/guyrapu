@@ -224,7 +224,9 @@ class PanelMensajesAutomaticos(wx.Panel):
             anunciar(texto)
             return
         usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
-        estilo = estilos_aviso.buscar(mensaje.get("estilo", "clasico"), usuario)
+        por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        estilo = estilos_aviso.buscar_para(
+            mensaje.get("estilo", ""), "mensaje", usuario, por_tipo)
         anunciar(_("{texto}. Estilo: {estilo}.").format(
             texto=texto, estilo=_(estilo.get("nombre", ""))))
 
@@ -238,8 +240,9 @@ class PanelMensajesAutomaticos(wx.Panel):
             probar_aviso.probar(None, None, al_chat=texto)
             return
         usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
-        estilo = estilos_aviso.buscar(mensaje.get("estilo", "clasico"),
-                                      usuario)
+        por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
+        estilo = estilos_aviso.buscar_para(
+            mensaje.get("estilo", ""), "mensaje", usuario, por_tipo)
         if mensaje.get("destino") == "ambos":
             probar_aviso.probar(texto, estilo, al_chat=texto)
         else:

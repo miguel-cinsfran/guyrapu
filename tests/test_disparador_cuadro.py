@@ -14,6 +14,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction import disparadores, medios_guardados
+from guyrapu.obs import estilos_aviso
 from guyrapu.ui import disparador_cuadro
 from tests.letras_acceso import letras_repetidas
 from tests.rutas_temporales import redirigir_rutas
@@ -78,6 +79,27 @@ class TestCampos(BaseCuadro):
         self.assertEqual(
             tuple(control.GetName() for control in controles),
             NOMBRES_ACCESIBLES)
+
+    def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_estilo.GetString(0),
+                         "Predeterminado (Clásico)")
+        self.assertEqual(cuadro.cho_estilo.GetSelection(), 0)
+        self.assertEqual(cuadro.datos()["estilo"], "")
+
+    def test_p3_el_predeterminado_lleva_el_nombre_del_estilo_del_tipo(self):
+        estilos_aviso.guardar_por_tipo(
+            paths.estilos_avisos(), {"disparador": "banda"})
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_estilo.GetString(0),
+                         "Predeterminado (Banda)")
+
+    def test_p3_elegir_predeterminado_guarda_el_estilo_vacio(self):
+        cuadro = self._cuadro(
+            {"nombre": "regalo", "estilo": "banda", "tarjeta": "Gracias"})
+        self.assertEqual(cuadro.cho_estilo.GetSelection(), 2)
+        cuadro.cho_estilo.SetSelection(0)
+        self.assertEqual(cuadro.datos()["estilo"], "")
 
     def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
         self.assertEqual(letras_repetidas(self._cuadro()), {})
