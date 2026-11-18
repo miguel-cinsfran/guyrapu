@@ -13,7 +13,7 @@ import wx
 
 from guyrapu.core import config_predeterminada
 from guyrapu.ui import (
-    atajos_captura, comando_comandos_chat, comando_estilos,
+    atajos_captura, botonera_atajos, comando_comandos_chat, comando_estilos,
     comando_interaccion, comando_mensajes_automaticos, comandos_ventana,
     disparadores_ventana, encuestas_ventana, estilos_ventana, gui,
     interaccion_ventana, medios_ventana, mensajes_automaticos_ventana,
@@ -232,6 +232,18 @@ class TestPaginaRecordada(BaseVentana):
 
 
 class TestCableado(BaseVentana):
+
+    def test_construir_deja_la_botonera_de_atajos_y_no_la_repite(self):
+        frame = FrameDoble()
+        self.addCleanup(destruir, frame)
+        with mock.patch.object(menu_interaccion.wx, "Menu",
+                               return_value=mock.MagicMock()), \
+                mock.patch.object(botonera_atajos.wx, "CallAfter"):
+            menu_interaccion.construir(frame, mock.Mock())
+            primera = frame._botonera_atajos
+            menu_interaccion.construir(frame, mock.Mock())
+        self.assertIsInstance(primera, botonera_atajos.BotoneraAtajos)
+        self.assertIs(frame._botonera_atajos, primera)
 
     def test_p5_los_tres_comandos_abren_su_pagina(self):
         frame = mock.Mock()
