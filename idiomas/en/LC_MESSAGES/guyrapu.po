@@ -16644,3 +16644,67 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/musica_menus.py
+msgid "Reproducir a &continuación"
+msgstr "Play ne&xt"
+
+#: guyrapu/ui/musica_menus.py
+msgid "A&gregar a la cola"
+msgstr "A&dd to queue"
+
+#: guyrapu/ui/musica_menus.py
+msgid "Reproducir &todo desde aquí"
+msgstr "Play &all from here"
+
+#: guyrapu/ui/musica_menus.py
+msgid "Agregar a una &lista"
+msgstr "Add to a &playlist"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Eliminar de esta lista"
+msgstr "&Remove from this list"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Reproducir"
+msgstr "&Play"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Editar la lista…"
+msgstr "&Edit playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Cambiar nombre de la lista…"
+msgstr "&Rename playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Borrar la lista…"
+msgstr "Delete play&list…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Bajar"
+msgstr "Move do&wn"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Ir al que suena"
+msgstr "&Go to the one playing"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Mezclar la cola"
+msgstr "&Shuffle the queue"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Vaciar la cola"
+msgstr "&Clear the queue"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Guardar la cola como lista…"
+msgstr "Sa&ve the queue as a playlist…"
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "No hay canciones. Cambia la búsqueda, los filtros o la carpeta."
+msgstr "No songs. Change the search, the filters, or the folder."
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "Solo en una lista propia"
+msgstr "Only in one of your lists"
+

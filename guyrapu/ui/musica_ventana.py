@@ -17,7 +17,7 @@ from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios, vista
-from guyrapu.ui import (ayuda_manual, musica_filtros, musica_menus,
+from guyrapu.ui import (ayuda_manual, musica_filtros,
                         musica_teclas, tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
@@ -72,6 +72,7 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
             recordar=self._recordar_filtros, avisar=anunciar)
         # Traductores: nombre accesible de la lista de canciones; una palabra.
         self.lb_temas = self._lista(panel, _("Canciones"), 190)
+        self._armar_canciones()
         self.btn_cola = self._boton(
             panel, _("Mostrar c&ola"), _("Mostrar cola"))
         self.lb_cola = self._lista(panel, _("Cola de reproducción"), 160)
@@ -158,8 +159,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         self.lb_colecciones.Bind(wx.EVT_KEY_DOWN, self._tecla_colecciones)
         self.lb_colecciones.Bind(
             wx.EVT_CONTEXT_MENU, lambda e: self._menu_colecciones())
-        self.lb_temas.Bind(wx.EVT_KEY_DOWN, self._tecla_temas)
-        self.lb_temas.Bind(wx.EVT_CONTEXT_MENU, lambda e: self._menu_temas())
         self.Bind(wx.EVT_LISTBOX_DCLICK, self._doble_clic_lista)
         self.btn_cola.Bind(wx.EVT_BUTTON, lambda e: self._alternar_cola())
         self.btn_enlace.Bind(wx.EVT_BUTTON, lambda e: self._abrir_enlace())
@@ -189,8 +188,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         foco = evento.GetEventObject()
         if foco is self.lb_colecciones:
             self._reproducir_coleccion()
-        elif foco is self.lb_temas:
-            self._accion_biblioteca(musica_menus.ACCION_AHORA)
 
     def _cola_guardada_visible(self):
         lee = getattr(self._control, "cola_visible", None)
@@ -241,20 +238,21 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         self._temas_filtrados = vista.filtrar_fuente(
             self._temas_fuente, texto, biblioteca)
         self._temas_filtrados = self.filtros.aplicar(self._temas_filtrados)
-        anterior = self.lb_temas.GetSelection()
-        self.lb_temas.Set(vista.filas_temas(self._temas_filtrados))
-        if self._temas_filtrados:
-            indice = vista.indice_seleccion_tras_refrescar(
-                anterior, len(self._temas_filtrados))
-            self.lb_temas.SetSelection(0 if indice < 0 else indice)
-        else:
-            self.lb_temas.SetSelection(wx.NOT_FOUND)
+        filas = vista.filas_temas(self._temas_filtrados)
+        if not filas:
+            self._canciones.fijar([])
+            return
+        anterior = self._canciones.indice()
+        indice = vista.indice_seleccion_tras_refrescar(anterior, len(filas))
+        self._canciones.poner_al_dia(
+            [tema.origen for tema in self._temas_filtrados], filas,
+            indice if indice >= 0 else None)
 
     def _cambiar_estado(self, texto):
         self._cargando = texto == _(TEXTO_CARGANDO)
         if texto == _(TEXTO_CARGANDO):
             self._temas_filtrados = ()
-        self.lb_temas.Set([texto])
+        self._canciones.fijar([], vacio=texto)
         self._rotular_carpeta()
 
     def _estado_listo(self):
@@ -269,8 +267,8 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
     def _con_tema(self):
         if self._cargando:
             return None, -1
-        indice = self.lb_temas.GetSelection()
-        if indice == wx.NOT_FOUND or indice >= len(self._temas_filtrados):
+        indice = self._canciones.indice()
+        if indice is None or indice >= len(self._temas_filtrados):
             return None, -1
         return self._temas_filtrados[indice], indice
 
@@ -313,32 +311,8 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
             return
         if codigo == wx.WXK_DOWN:
             self.lb_temas.SetFocus()
-            if self.lb_temas.GetCount() and \
-                    self.lb_temas.GetSelection() == wx.NOT_FOUND:
+            if self._canciones.indice() is None and self._temas_filtrados:
                 self.lb_temas.SetSelection(0)
-            return
-        evento.Skip()
-
-    def _tecla_temas(self, evento):
-        codigo = evento.GetKeyCode()
-        modificadores = evento.GetModifiers()
-        if codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            if modificadores & wx.MOD_SHIFT:
-                self._accion_biblioteca(musica_menus.ACCION_CONTINUACION)
-            elif modificadores & wx.MOD_CONTROL:
-                self._accion_biblioteca(musica_menus.ACCION_AGREGAR)
-            else:
-                self._accion_biblioteca(musica_menus.ACCION_AHORA)
-            return
-        if codigo in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
-            if self._fuente is not None:
-                tema, _indice = self._con_tema()
-                if tema is not None:
-                    self._quitar_lista(tema)
-            return
-        if codigo == wx.WXK_WINDOWS_MENU or (
-                codigo == wx.WXK_F10 and modificadores & wx.MOD_SHIFT):
-            self._menu_temas()
             return
         evento.Skip()
 
@@ -349,8 +323,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
             foco = wx.Window.FindFocus()
             if foco is self.lb_colecciones:
                 return self._tecla_colecciones(evento)
-            if foco is self.lb_temas:
-                return self._tecla_temas(evento)
         if musica_teclas.manejar_atajo_de_tecla(
                 self._control, self._combos, evento):
             self.refrescar_cola()

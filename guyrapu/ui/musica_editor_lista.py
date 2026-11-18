@@ -127,7 +127,7 @@ class DialogoEditorLista(wx.Dialog):
             musica_menus.ACCION_BAJAR: lambda: self._mover_actual(1),
         }
         return tuple(
-            Accion(clave, etiqueta, manejadores[clave],
+            Accion(clave, _(etiqueta), manejadores[clave],
                    tecla=_TECLAS_EDITADA[clave])
             for etiqueta, clave in musica_menus.entradas_lista_editada())
 

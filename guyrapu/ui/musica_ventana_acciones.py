@@ -26,8 +26,11 @@ TITULO_RENOMBRAR = N_("Cambiar nombre de la lista")
 TEXTO_NOMBRE = N_("Nombre de la lista:")
 TEXTO_COLA_VACIA = N_(
     "La cola está vacía. Elige un tema y pulsa Ctrl+Intro para agregarlo.")
+TEXTO_SIN_CANCIONES = N_(
+    "No hay canciones. Cambia la búsqueda, los filtros o la carpeta.")
 MOTIVO_NO_SUENA = N_("No suena ningún tema")
 MOTIVO_COLA_VACIA = N_("La cola está vacía")
+MOTIVO_SOLO_EN_LISTA_PROPIA = N_("Solo en una lista propia")
 
 
 def _validar_nombre(nombre):
@@ -55,37 +58,96 @@ def _confirmar_borrar(parent, nombre):
 class AccionesVentanaMusica:
     """Acciones de la Biblioteca, la Cola y las listas propias."""
 
-    def _accion_biblioteca(self, accion):
-        tema, indice = self._con_tema()
+    def _armar_canciones(self):
+        """Ata «Canciones» a la pieza común, con sus acciones y su caso vacío."""
+        self._canciones = ListaConAcciones(
+            self.lb_temas, self._acciones_de_canciones(),
+            _(TEXTO_SIN_CANCIONES))
+
+    def _acciones_de_canciones(self):
+        """Las acciones de «Canciones», con sus teclas y sus motivos."""
+        etiquetas = {accion: _(etiqueta)
+                     for etiqueta, accion in musica_menus.entradas_canciones()}
+        return (self._acciones_de_reproducir_cancion(etiquetas)
+                + self._acciones_de_lista_de_canciones(etiquetas))
+
+    def _acciones_de_reproducir_cancion(self, etiquetas):
+        """Las que empiezan a sonar o agregan a la cola la fila elegida."""
+        return (
+            Accion(musica_menus.ACCION_AHORA,
+                   etiquetas[musica_menus.ACCION_AHORA],
+                   self._reproducir_cancion_ahora,
+                   tecla="intro"),
+            Accion(musica_menus.ACCION_CONTINUACION,
+                   etiquetas[musica_menus.ACCION_CONTINUACION],
+                   self._poner_cancion_a_continuacion,
+                   tecla="mayus+intro"),
+            Accion(musica_menus.ACCION_AGREGAR,
+                   etiquetas[musica_menus.ACCION_AGREGAR],
+                   self._agregar_cancion_a_la_cola,
+                   tecla="ctrl+intro"),
+        )
+
+    def _acciones_de_lista_de_canciones(self, etiquetas):
+        """Las que actúan sobre la lista o sobre las listas guardadas."""
+        return (
+            Accion(musica_menus.ACCION_TODO_DESDE_AQUI,
+                   etiquetas[musica_menus.ACCION_TODO_DESDE_AQUI],
+                   self._reproducir_todo_desde_aqui),
+            Accion(musica_menus.ACCION_AGREGAR_A_LISTA,
+                   etiquetas[musica_menus.ACCION_AGREGAR_A_LISTA],
+                   lambda: None,
+                   opciones=self._opciones_agregar_a_lista),
+            Accion(musica_menus.ACCION_QUITAR_DE_LISTA,
+                   etiquetas[musica_menus.ACCION_QUITAR_DE_LISTA],
+                   self._quitar_cancion_de_la_lista,
+                   tecla="suprimir",
+                   motivo=self._motivo_quitar_lista),
+        )
+
+    def _reproducir_cancion_ahora(self):
+        tema, _indice = self._con_tema()
+        self._control.reproducir_ahora([tema])
+
+    def _poner_cancion_a_continuacion(self):
+        tema, _indice = self._con_tema()
+        self._control.poner_a_continuacion([tema])
+
+    def _agregar_cancion_a_la_cola(self):
+        tema, _indice = self._con_tema()
+        self._control.agregar_al_final([tema])
+
+    def _reproducir_todo_desde_aqui(self):
+        _tema, indice = self._con_tema()
+        self._control.reproducir_desde_aqui(self._temas_filtrados, indice)
+
+    def _opciones_agregar_a_lista(self):
+        """Una opción por lista guardada, leídas al abrir, y la de crear una."""
+        opciones = [
+            (str(nombre),
+             lambda nombre=nombre: self._agregar_a_una_lista(nombre))
+            for nombre in self._leer_nombres()
+        ]
+        opciones.append((
+            _("&Nueva lista…"),
+            lambda: self._nueva_lista(self._con_tema()[0])))
+        return opciones
+
+    def _agregar_a_una_lista(self, nombre):
+        tema, _indice = self._con_tema()
         if tema is None:
             return
-        if isinstance(accion, tuple):
-            self._control.agregar_a_lista(accion[1], [tema])
-            self._refrescar_cantidades_colecciones()
-            return
-        funcion = self._acciones_biblioteca(tema, indice).get(accion)
-        if funcion is not None:
-            funcion()
+        self._control.agregar_a_lista(nombre, [tema])
+        self._refrescar_cantidades_colecciones()
 
-    def _acciones_biblioteca(self, tema, indice):
-        control = self._control
-        return {
-            musica_menus.ACCION_AHORA:
-                lambda: control.reproducir_ahora([tema]),
-            musica_menus.ACCION_CONTINUACION:
-                lambda: control.poner_a_continuacion([tema]),
-            musica_menus.ACCION_AGREGAR:
-                lambda: control.agregar_al_final([tema]),
-            musica_menus.ACCION_TODO_DESDE_AQUI:
-                lambda: control.reproducir_desde_aqui(
-                    self._temas_filtrados, indice),
-            musica_menus.ACCION_NUEVA_LISTA_CON_TEMA:
-                lambda: self._nueva_lista(tema),
-            musica_menus.ACCION_QUITAR_DE_LISTA:
-                lambda: self._quitar_lista(tema),
-            musica_menus.ACCION_RENOMBRAR_LISTA: self._renombrar_lista,
-            musica_menus.ACCION_BORRAR_LISTA: self._borrar_lista,
-        }
+    def _quitar_cancion_de_la_lista(self):
+        tema, _indice = self._con_tema()
+        self._quitar_lista(tema)
+
+    def _motivo_quitar_lista(self):
+        if self._fuente is None:
+            return _(MOTIVO_SOLO_EN_LISTA_PROPIA)
+        return ""
 
     def _leer_nombres(self):
         try:
@@ -119,7 +181,7 @@ class AccionesVentanaMusica:
 
     def _acciones_de_la_cola(self):
         """Las acciones de la Cola, con sus teclas y sus motivos."""
-        etiquetas = {accion: etiqueta
+        etiquetas = {accion: _(etiqueta)
                      for etiqueta, accion in musica_menus.entradas_cola()}
         control = self._control
         return (self._acciones_con_fila(control, etiquetas)
@@ -214,24 +276,12 @@ class AccionesVentanaMusica:
             mapa.get(tema.origen, tema) for tema in self._temas_fuente)
         self._temas_filtrados = tuple(
             mapa.get(tema.origen, tema) for tema in self._temas_filtrados)
-        filas = vista.filas_temas(self._temas_filtrados)
-        for indice, tema in enumerate(self._temas_filtrados):
-            if tema.origen in mapa:
-                try:
-                    self.lb_temas.SetString(indice, filas[indice])
-                except Exception:
-                    logger.debug("No se pudo actualizar la fila de un tema")
+        self._canciones.poner_al_dia(
+            [tema.origen for tema in self._temas_filtrados],
+            vista.filas_temas(self._temas_filtrados))
         if self._control.estado() is None:
             return
         self.refrescar_cola()
-
-    def _menu_temas(self):
-        if self._con_tema()[0] is not None:
-            musica_menus.mostrar_menu(
-                self.lb_temas,
-                musica_menus.entradas_biblioteca(
-                    self._fuente is not None, self._leer_nombres()),
-                self._accion_biblioteca)
 
     def _guardar_cola(self):
         if not (self._control.cola_actual() or ()):

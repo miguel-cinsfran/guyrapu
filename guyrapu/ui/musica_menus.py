@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.core.idioma import N_
+
 ACCION_AHORA = "ahora"
 ACCION_CONTINUACION = "continuacion"
 ACCION_AGREGAR = "agregar"
@@ -24,7 +26,6 @@ ACCION_EDITAR_LISTA = "editar_lista"
 ACCION_REPRODUCIR_COLECCION = "reproducir_coleccion"
 ACCION_AGREGAR_COLECCION = "agregar_coleccion"
 ACCION_NUEVA_LISTA = "nueva_lista"
-ACCION_NUEVA_LISTA_CON_TEMA = "nueva_lista_con_tema"
 
 ACCION_REPRODUCIR = "reproducir"
 ACCION_QUITAR = "quitar"
@@ -36,69 +37,55 @@ ACCION_VACIAR = "vaciar"
 ACCION_GUARDAR_COLA = "guardar_cola"
 
 
-def entradas_agregar_a_lista(nombres) -> list:
-    """Una entrada por lista propia y, al final, la de crear una nueva."""
-    entradas = [
-        (str(nombre), (ACCION_AGREGAR_A_LISTA, str(nombre)))
-        for nombre in (nombres or ())
+def entradas_canciones() -> list:
+    """Las entradas del menú de la lista de canciones de la biblioteca."""
+    return [
+        (N_("Reproducir &ahora"), ACCION_AHORA),
+        (N_("Reproducir a &continuación"), ACCION_CONTINUACION),
+        (N_("A&gregar a la cola"), ACCION_AGREGAR),
+        (N_("Reproducir &todo desde aquí"), ACCION_TODO_DESDE_AQUI),
+        (N_("Agregar a una &lista"), ACCION_AGREGAR_A_LISTA),
+        (N_("&Eliminar de esta lista"), ACCION_QUITAR_DE_LISTA),
     ]
-    entradas.append(("&Nueva lista…", ACCION_NUEVA_LISTA_CON_TEMA))
-    return entradas
-
-
-def entradas_biblioteca(es_lista_propia: bool, nombres_listas=()) -> list:
-    """Las entradas del menú de la Biblioteca, según la fuente elegida."""
-    entradas = [
-        ("Reproducir &ahora", ACCION_AHORA),
-        ("Reproducir a &continuación", ACCION_CONTINUACION),
-        ("A&gregar a la cola", ACCION_AGREGAR),
-        ("Reproducir &todo desde aquí", ACCION_TODO_DESDE_AQUI),
-        ("Agregar a una &lista", entradas_agregar_a_lista(nombres_listas)),
-    ]
-    if es_lista_propia:
-        entradas += [
-            ("&Eliminar de esta lista", ACCION_QUITAR_DE_LISTA),
-        ]
-    return entradas
 
 
 def entradas_colecciones(es_lista: bool) -> list:
     """Las entradas del menú de «Colecciones», según lo elegido."""
     entradas = [
-        ("&Reproducir", ACCION_REPRODUCIR_COLECCION),
-        ("A&gregar a la cola", ACCION_AGREGAR_COLECCION),
+        (N_("&Reproducir"), ACCION_REPRODUCIR_COLECCION),
+        (N_("A&gregar a la cola"), ACCION_AGREGAR_COLECCION),
     ]
     if es_lista:
         entradas += [
-            ("&Editar la lista…", ACCION_EDITAR_LISTA),
-            ("Re&nombrar la lista…", ACCION_RENOMBRAR_LISTA),
-            ("&Borrar la lista…", ACCION_BORRAR_LISTA),
+            (N_("&Editar la lista…"), ACCION_EDITAR_LISTA),
+            (N_("&Cambiar nombre de la lista…"), ACCION_RENOMBRAR_LISTA),
+            (N_("&Borrar la lista…"), ACCION_BORRAR_LISTA),
         ]
-    entradas.append(("&Nueva lista…", ACCION_NUEVA_LISTA))
+    entradas.append((N_("&Nueva lista…"), ACCION_NUEVA_LISTA))
     return entradas
 
 
 def entradas_cola() -> list:
     """Las entradas del menú de la Cola."""
     return [
-        ("&Reproducir", ACCION_REPRODUCIR),
-        ("&Eliminar", ACCION_QUITAR),
-        ("&Subir", ACCION_SUBIR),
-        ("&Bajar", ACCION_BAJAR),
-        ("&Ir al que suena", ACCION_IR_AL_QUE_SUENA),
-        ("&Mezclar la cola", ACCION_MEZCLAR),
-        ("&Vaciar la cola", ACCION_VACIAR),
-        ("&Guardar la cola como lista…", ACCION_GUARDAR_COLA),
+        (N_("&Reproducir"), ACCION_REPRODUCIR),
+        (N_("&Eliminar"), ACCION_QUITAR),
+        (N_("&Subir"), ACCION_SUBIR),
+        (N_("&Bajar"), ACCION_BAJAR),
+        (N_("&Ir al que suena"), ACCION_IR_AL_QUE_SUENA),
+        (N_("&Mezclar la cola"), ACCION_MEZCLAR),
+        (N_("&Vaciar la cola"), ACCION_VACIAR),
+        (N_("&Guardar la cola como lista…"), ACCION_GUARDAR_COLA),
     ]
 
 
 def entradas_lista_editada() -> list:
     """Las entradas del menú de las canciones de la lista que se edita."""
     return [
-        ("&Reproducir", ACCION_REPRODUCIR),
-        ("&Eliminar", ACCION_QUITAR),
-        ("&Subir", ACCION_SUBIR),
-        ("&Bajar", ACCION_BAJAR),
+        (N_("&Reproducir"), ACCION_REPRODUCIR),
+        (N_("&Eliminar"), ACCION_QUITAR),
+        (N_("&Subir"), ACCION_SUBIR),
+        (N_("&Bajar"), ACCION_BAJAR),
     ]
 
 

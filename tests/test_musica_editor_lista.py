@@ -1,9 +1,9 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Pruebas puras del editor de listas, el submenú y `guardar_lista`.
+"""Pruebas puras del editor de listas y `guardar_lista`.
 
-No abren ventanas: comprueban la validación del nombre, qué hace cada tecla,
-la forma del submenú y el guardado en un directorio temporal.
+No abren ventanas: comprueban la validación del nombre, qué hace cada tecla
+y el guardado en un directorio temporal.
 """
 
 import tempfile
@@ -83,23 +83,6 @@ class TestAccionTecla(unittest.TestCase):
     def test_otra_tecla_sigue_su_camino(self):
         self.assertIsNone(
             musica_editor_lista.accion_tecla(wx.WXK_DOWN, "lista"))
-
-
-class TestSubmenu(unittest.TestCase):
-
-    def test_una_entrada_por_lista_y_la_nueva_al_final(self):
-        entradas = musica_menus.entradas_agregar_a_lista(("Mía", "Otra"))
-        self.assertEqual([e for e, _a in entradas],
-                         ["Mía", "Otra", "&Nueva lista…"])
-        self.assertEqual(
-            entradas[0][1],
-            (musica_menus.ACCION_AGREGAR_A_LISTA, "Mía"))
-        self.assertEqual(entradas[-1][1],
-                         musica_menus.ACCION_NUEVA_LISTA_CON_TEMA)
-
-    def test_sin_listas_solo_la_nueva(self):
-        entradas = musica_menus.entradas_agregar_a_lista(())
-        self.assertEqual([e for e, _a in entradas], ["&Nueva lista…"])
 
 
 class _ControlGuardar(ListasPropiasMusica):

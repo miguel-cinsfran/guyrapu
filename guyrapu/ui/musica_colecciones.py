@@ -338,8 +338,9 @@ class ColeccionesVentanaMusica:
     def _menu_colecciones(self):
         musica_menus.mostrar_menu(
             self.lb_colecciones,
-            musica_menus.entradas_colecciones(
-                self._coleccion_elegida() is not None),
+            [(_(etiqueta), accion) for etiqueta, accion
+             in musica_menus.entradas_colecciones(
+                 self._coleccion_elegida() is not None)],
             self._accion_coleccion)
 
     def _renombrar_lista(self):
