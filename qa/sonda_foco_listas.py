@@ -21,8 +21,11 @@ import os
 import sys
 import time
 from ctypes import wintypes
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+RAIZ = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(RAIZ))
+sys.path.insert(0, str(RAIZ / "qa"))
 from foco_ventanas import traer_al_frente
 
 EVENTOS = {
@@ -256,13 +259,16 @@ class Secuencia:
     PASOS = ("tab", "shift", "tab", "tab", "shift", "tab", "tab", "shift",
              "tab")
 
-    def __init__(self, marco, al_terminar):
+    def __init__(self, marco, al_terminar, boton):
         self._marco = marco
         self._al_terminar = al_terminar
+        self._boton = boton
         self._usuario = ctypes.WinDLL("user32")
         self._paso = 0
 
     def empezar(self):
+        traer_al_frente(self._marco.GetHandle(), os.getpid())
+        self._boton.SetFocus()
         self._siguiente()
 
     def _siguiente(self):
@@ -383,15 +389,9 @@ def main(argv=None):
         marco.Destroy()
         app.ExitMainLoop()
 
-    secuencia = Secuencia(marco, terminar)
-
-    def preparar():
-        traer_al_frente(marco.GetHandle(), os.getpid())
-        boton.SetFocus()
-        wx.CallLater(800, secuencia.empezar)
-
+    secuencia = Secuencia(marco, terminar, boton)
     marco.Show()
-    wx.CallLater(100, preparar)
+    wx.CallLater(800, secuencia.empezar)
     app.MainLoop()
     return 0
 
