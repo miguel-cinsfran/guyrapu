@@ -9,7 +9,7 @@ Sin wx: recibe los invocables que usa y no lee atributos del supervisor.
 
 from __future__ import annotations
 
-from guyrapu.core import diagnostico, vigilancia
+from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_salida
 from guyrapu.obs import obs_vigilante
@@ -150,14 +150,7 @@ class LectorDeEstado:
         self._gestor = gestor
         self._parada = parada
         self._en_ejecucion = en_ejecucion
-        self._vigilancia = vigilancia.Vigilancia(
-            anunciar,
-            caida=vigilancia.Aviso(_(obs_vigilante.MENSAJE_SIN_RESPUESTA),
-                                   "obs_sin_respuesta"),
-            vuelta=vigilancia.Aviso(_(obs_vigilante.MENSAJE_RESPONDE),
-                                    "obs_responde"),
-            rendicion=vigilancia.Aviso(
-                _(obs_vigilante.MENSAJE_SIN_RESPUESTA), "obs_sin_respuesta"))
+        self._vigilancia = obs_vigilante.crear_vigilancia(anunciar)
 
     def leer(self):
         """Devuelve `(estado, obs_apagado)`; el estado es None si no contestó."""
@@ -174,15 +167,7 @@ class LectorDeEstado:
     def _fallo(self):
         if self._parada is not None and self._parada.is_set():
             return None, False
-        if not self._sigue_en_ejecucion():
+        if not obs_vigilante.sigue_en_ejecucion(self._en_ejecucion, logger):
             return None, True
         self._vigilancia.leida(False)
         return None, False
-
-    def _sigue_en_ejecucion(self) -> bool:
-        try:
-            return bool(self._en_ejecucion())
-        except Exception:
-            # Un fallo al comprobar la ejecución no puede callar una falla
-            # real de OBS.
-            return True

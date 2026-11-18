@@ -10,7 +10,7 @@ import time
 
 from guyrapu.core import diagnostico, esperas, vigilancia
 from guyrapu.core.idioma import N_, _
-from guyrapu.core.tiempo import TiempoDeFunciones
+from guyrapu.core.tiempo import TIEMPO_REAL, TiempoDeFunciones
 from guyrapu.obs import obs_activacion
 from guyrapu.obs.obs_panel import GestorPanelObs
 
@@ -120,7 +120,7 @@ class VigilanteObs:
 
     def _fallo_visto(self, logger, gestor, vigia):
         """Registra un sondeo fallido y cierra el gestor."""
-        if self._sigue_en_ejecucion(logger):
+        if sigue_en_ejecucion(self._en_ejecucion, logger):
             vigia.leida(False)
             if not vigia.caido:
                 logger.debug(
@@ -133,25 +133,10 @@ class VigilanteObs:
         except Exception as error:
             logger.debug("no se pudo cerrar el gestor de OBS: %s", error)
 
-    def _sigue_en_ejecucion(self, logger):
-        try:
-            return bool(self._en_ejecucion())
-        except Exception as error:
-            # Un fallo al comprobar la ejecución no puede callar una falla
-            # real de OBS.
-            logger.debug("no se pudo comprobar si OBS está en ejecución: %s",
-                         error)
-            return True
-
     def _vigilancia(self, logger):
-        return vigilancia.Vigilancia(
+        return crear_vigilancia(
             lambda frase, sonido: self._anuncio_de_vigilancia(
                 logger, frase, sonido),
-            caida=vigilancia.Aviso(_(MENSAJE_SIN_RESPUESTA),
-                                   "obs_sin_respuesta"),
-            vuelta=vigilancia.Aviso(_(MENSAJE_RESPONDE), "obs_responde"),
-            rendicion=vigilancia.Aviso(_(MENSAJE_SIN_RESPUESTA),
-                                      "obs_sin_respuesta"),
             gracia=PLAZO_ARRANQUE,
             tiempo=TiempoDeFunciones(self._reloj, lambda segundos: None))
 
@@ -167,6 +152,30 @@ class VigilanteObs:
             self._al_anunciar(frase, sonido)
         except Exception as error:
             logger.debug("no se pudo anunciar el estado de OBS: %s", error)
+
+
+def crear_vigilancia(anunciar, *, gracia=None, tiempo=TIEMPO_REAL):
+    """Arma la vigilancia de OBS con sus avisos de caída, vuelta y rendición."""
+    return vigilancia.Vigilancia(
+        anunciar,
+        caida=vigilancia.Aviso(_(MENSAJE_SIN_RESPUESTA), "obs_sin_respuesta"),
+        vuelta=vigilancia.Aviso(_(MENSAJE_RESPONDE), "obs_responde"),
+        rendicion=vigilancia.Aviso(_(MENSAJE_SIN_RESPUESTA),
+                                  "obs_sin_respuesta"),
+        gracia=gracia,
+        tiempo=tiempo)
+
+
+def sigue_en_ejecucion(comprobar, logger) -> bool:
+    """Indica si OBS sigue en ejecución; si no se puede saber, sigue."""
+    try:
+        return bool(comprobar())
+    except Exception as error:
+        # Un fallo al comprobar la ejecución no puede callar una falla
+        # real de OBS.
+        logger.debug("no se pudo comprobar si OBS está en ejecución: %s",
+                     error)
+        return True
 
 
 def dato_fresco(ultimo_sondeo: float | None, ahora: float) -> bool:

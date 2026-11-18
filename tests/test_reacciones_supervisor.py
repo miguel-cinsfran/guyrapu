@@ -87,6 +87,21 @@ class LectorDeEstadoTest(unittest.TestCase):
         self.assertTrue(apagado)
         self.assertEqual(anuncios, [])
 
+    def test_si_no_se_puede_comprobar_la_ejecucion_avisa_la_falla(self):
+        def en_ejecucion():
+            raise OSError("tasklist")
+
+        anuncios = []
+        gestor = self.Gestor(fallos=1)
+        lector = reacciones_supervisor.LectorDeEstado(
+            gestor, threading.Event(), lambda *args: anuncios.append(args),
+            en_ejecucion=en_ejecucion)
+        estado, apagado = lector.leer()
+        self.assertIsNone(estado)
+        self.assertFalse(apagado)
+        self.assertEqual(anuncios, [
+            ("OBS no responde. Se sigue intentando.", "obs_sin_respuesta")])
+
 
 class MarcarImportanteTest(unittest.TestCase):
     def test_despues_de_enviar_no_abre_cuadro(self):
