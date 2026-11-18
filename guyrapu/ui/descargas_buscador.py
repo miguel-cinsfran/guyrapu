@@ -59,7 +59,7 @@ class PaginaBuscador(wx.Panel):
         self._inicio = 1
         self._generacion = 0
         self._crear_controles()
-        self._tandas = buscador_tandas.Tandas(self.lista, self.btn_mas)
+        self._tandas = buscador_tandas.Tandas(self.btn_mas)
         self._vista = buscador_contenido.VistaContenido(
             self, self._sincronizar_contenido, self._restaurar_vista,
             self._agregar_urls, self._cantidad_actual)
@@ -200,6 +200,7 @@ class PaginaBuscador(wx.Panel):
         if not mas:
             self.txt_detalles.SetValue("")
             self._lista_acciones.fijar([])
+            self.lista.DeleteAllItems()
         self._tandas.pedir(
             lambda inicio, cantidad: busqueda_youtube.buscar(
                 self._texto, self._filtros, inicio, cantidad),

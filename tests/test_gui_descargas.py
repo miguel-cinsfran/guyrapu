@@ -1810,6 +1810,25 @@ class TestMenuYVistaBuscador(unittest.TestCase):
         self.assertFalse(pagina.btn_todo.IsShown())
         dialogo.Hide()
 
+    def test_entrar_al_contenido_vacia_lista_y_pieza_antes_de_la_tanda(self):
+        items = [_resultado_busqueda("v"), _resultado_lista()]
+        self._buscar(items)
+        dialogo = self._dialogo()
+        pagina = self._pagina_buscada(dialogo, items)
+        self.assertEqual(pagina._lista_acciones.indices(), [0])
+        with mock.patch.object(
+                buscador_tandas.diagnostico, "crear_hilo",
+                side_effect=lambda *args, **kwargs: _NoCorre()):
+            pagina._entrar_en_contenido(
+                "https://www.youtube.com/playlist?list=L")
+        self.assertEqual(pagina.lista.GetItemCount(), 0)
+        self.assertEqual(pagina._lista_acciones.indices(), [])
+        menu = pagina._lista_acciones._construir_menu()
+        self.addCleanup(menu.Destroy)
+        items_menu = list(menu.GetMenuItems())
+        self.assertFalse(any(item.IsEnabled() for item in items_menu[:-1]))
+        self.assertTrue(items_menu[-1].IsEnabled())
+
     def test_vista_de_contenido_pide_mas_y_declara_su_motivo(self):
         items = [_resultado_busqueda("v"), _resultado_lista()]
         self._buscar(items)

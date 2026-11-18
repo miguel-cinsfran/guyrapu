@@ -60,7 +60,7 @@ class VistaContenido:
         self._al_restaurar = al_restaurar
         self._al_agregar = al_agregar
         self._leer_cantidad = leer_cantidad
-        self._tandas = buscador_tandas.Tandas(pagina.lista, pagina.btn_mas)
+        self._tandas = buscador_tandas.Tandas(pagina.btn_mas)
         self._activa = False
         self._url = ""
         self._titulo = ""
@@ -91,7 +91,6 @@ class VistaContenido:
         pagina.btn_volver.Show(con_retorno)
         pagina.btn_todo.Show(not es_canal)
         pagina.Layout()
-        self._al_sincronizar([], [], False)
         buscador_tandas.sonar("busqueda_iniciada")
         anunciar(_("Buscando"))
         self._pedir(mas=False)
@@ -102,6 +101,8 @@ class VistaContenido:
             self._pedir(mas=True)
 
     def _pedir(self, mas: bool) -> None:
+        if not mas:
+            self._al_sincronizar([], [], False)
         self._tandas.pedir(
             lambda inicio, cantidad: contenido(self._url, inicio, cantidad),
             self._leer_cantidad(), self._al_tanda, mas=mas,

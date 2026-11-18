@@ -40,8 +40,7 @@ def anunciar_tanda(cuantos: int, mas: bool) -> None:
 class Tandas:
     """Tandas pedidas en un hilo, con lo acumulado sin repetir id."""
 
-    def __init__(self, lista, btn_mas):
-        self._lista = lista
+    def __init__(self, btn_mas):
         self._btn_mas = btn_mas
         self._generacion = 0
         self._inicio = 1
@@ -89,7 +88,6 @@ class Tandas:
         if not mas:
             self._inicio = 1
             self._acumulado = []
-            self._lista.DeleteAllItems()
             self._fijar_estado(False, False)
         self._generacion += 1
         hilo = diagnostico.crear_hilo(
