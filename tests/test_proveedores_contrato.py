@@ -86,8 +86,10 @@ class TestMotorReal(unittest.TestCase):
                     elegir_voz_que_suena(motor)
                     dicho = motor.hablar("prueba")
                     self.assertTrue(dicho, f"hablar devolvió {dicho!r}")
+                    # Medido el 18/11/2026 en la oficina: con la PC ocupada
+                    # SAPI tardó más de 2 s en empezar a hablar.
                     inicio = time.monotonic()
-                    limite = inicio + 2.0
+                    limite = inicio + 5.0
                     while not motor.hablando() and time.monotonic() < limite:
                         time.sleep(0.01)
                     espera = time.monotonic() - inicio
