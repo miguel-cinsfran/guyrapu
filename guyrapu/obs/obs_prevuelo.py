@@ -87,6 +87,7 @@ class Revision:
     imagen_vacia: bool | None
     problemas: tuple
     avisos: tuple = ()
+    cortina: tuple = ()
 
 
 def _datos(cliente, tipo, datos=None, parada=None):
@@ -214,11 +215,11 @@ def _audio_obs(cliente, entradas, parada) -> list:
     return audio
 
 
-def _problemas_cortina(cliente, elementos, por_nombre, parada) -> list:
+def _capturas_cortina(cliente, elementos, por_nombre, parada) -> list:
     """Capturas de pantalla que la cortina de NVDA deja en negro."""
     if not cortina_nvda.cortina_puesta():
         return []
-    problemas = []
+    nombres = []
     for elemento in elementos:
         nombre = elemento.get("sourceName", "") or ""
         if not elemento.get("sceneItemEnabled", True):
@@ -235,14 +236,18 @@ def _problemas_cortina(cliente, elementos, por_nombre, parada) -> list:
                          nombre, error)
             continue
         if ajustes.get("method", 0) in (0, 1):
-            problemas.append(_(
-                # Traductores: aviso de captura negra por la cortina de NVDA;
-                # {nombre} es la fuente de OBS.
-                "La cortina de pantalla de NVDA deja en negro la captura "
-                "de pantalla {nombre}. En sus propiedades, cambia el método "
-                "de captura a Windows 10, o desactiva la cortina con "
-                "NVDA+Control+Esc.").format(nombre=nombre))
-    return problemas
+            nombres.append(nombre)
+    return nombres
+
+
+def _frase_cortina(nombre) -> str:
+    return _(
+        # Traductores: aviso de captura negra por la cortina de NVDA;
+        # {nombre} es la fuente de OBS.
+        "La cortina de pantalla de NVDA deja en negro la captura "
+        "de pantalla {nombre}. En sus propiedades, cambia el método "
+        "de captura a Windows 10, o desactiva la cortina con "
+        "NVDA+Control+Esc.").format(nombre=nombre)
 
 
 def _problemas_revision(audio, fuentes, imagen, omitir_vacia=False) -> list:
@@ -298,9 +303,8 @@ def revisar(cliente, destino, parada=None, grabar=False,
     fuentes = _fuentes_obs(cliente, elementos, por_nombre, escenas, parada)
     audio = _audio_obs(cliente, entradas, parada)
     imagen = _leer_imagen_vacia(cliente, escena, parada)
-    cortina = _problemas_cortina(cliente, elementos, por_nombre, parada)
+    cortina = _capturas_cortina(cliente, elementos, por_nombre, parada)
     problemas = _problemas_revision(audio, fuentes, imagen, bool(cortina))
-    problemas.extend(cortina)
     if servicio_propio:
         problemas.extend(_problemas_servicio(cliente, perfil, parada))
     hallazgos = revision_escena.revisar(
@@ -321,15 +325,32 @@ def revisar(cliente, destino, parada=None, grabar=False,
     avisos.extend(hallazgos.avisos)
     return Revision(destino, perfil, coleccion, lienzo.get("baseWidth"),
                     lienzo.get("baseHeight"), escena, tuple(fuentes),
-                    tuple(audio), imagen, tuple(problemas), tuple(avisos))
+                    tuple(audio), imagen, tuple(problemas), tuple(avisos),
+                    tuple(cortina))
+
+
+def problemas_de(revision) -> tuple:
+    """Los problemas de la revisión y la frase de cada captura de la cortina."""
+    problemas = list(getattr(revision, "problemas", ()) or ())
+    problemas.extend(_frase_cortina(nombre)
+                     for nombre in getattr(revision, "cortina", ()) or ())
+    return tuple(problemas)
+
+
+def _atencion(revision) -> str:
+    """El bloque de atención: problemas y capturas que la cortina deja negras."""
+    problemas = problemas_de(revision)
+    if not problemas:
+        return ""
+    return _("Atención: {problemas}").format(problemas=" ".join(problemas))
 
 
 def frase_revision(revision) -> str:
     """Resume la revisión en frases para leer antes de confirmar."""
     partes = []
-    if revision.problemas:
-        partes.append(_("Atención: {problemas}").format(
-            problemas=" ".join(revision.problemas)))
+    atencion = _atencion(revision)
+    if atencion:
+        partes.append(atencion)
     partes.append(_("Destino {destino}.").format(destino=revision.destino))
     if isinstance(revision.ancho, int) and isinstance(revision.alto, int):
         partes.append(_("Formato {formato}, {ancho} por {alto}.").format(

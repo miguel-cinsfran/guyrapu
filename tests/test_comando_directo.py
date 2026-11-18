@@ -7,10 +7,11 @@ corren acá.
 """
 
 import unittest
+from dataclasses import replace
 from types import SimpleNamespace
 from unittest import mock
 
-from guyrapu.obs import obs_estado
+from guyrapu.obs import obs_estado, obs_prevuelo
 from guyrapu.ui import boton_directo
 from guyrapu.ui import comando_directo
 from guyrapu.ui import directo_panel
@@ -340,6 +341,51 @@ class TestRevisionListaSinVentana(unittest.TestCase):
             marco, preparacion.revision, ())
         marco._supervisar_transmision.assert_called_once_with(
             "iniciar", "TikTok", "usuario")
+
+
+class TestCortinaAntesDeResolver(unittest.TestCase):
+    # Sin ventana: la oferta de cambiar el método va con dobles.
+
+    def _revisar(self, destino, destino_obs):
+        comando = comando_directo.ComandoDirecto(mock.Mock())
+        marco = comando._marco
+        marco._alive = True
+        orden = []
+
+        def supervisar(accion, opcion, usuario, **kwargs):
+            orden.append("supervisar")
+            return False
+
+        marco._supervisar_transmision = mock.Mock(side_effect=supervisar)
+        comando._supervisar = marco._supervisar_transmision
+        marco._actualizar_boton_directo = mock.Mock()
+        comando._boton = mock.Mock()
+        revision = obs_prevuelo.Revision(
+            destino, destino, destino, 720, 1280, "Escena",
+            (), (), False, (), cortina=("Pantalla",))
+        preparacion = SimpleNamespace(ya_transmitiendo=False,
+                                      revision=revision)
+
+        def ofrecer(padre, actual, continuar):
+            orden.append("pregunta")
+            continuar(replace(actual, cortina=()))
+
+        with mock.patch.object(comando_directo.cortina_captura, "ofrecer",
+                               side_effect=ofrecer) as preguntar:
+            comando._revision_lista(marco, preparacion, destino,
+                                    destino_obs, "")
+        preguntar.assert_called_once_with(marco, revision, mock.ANY)
+        return orden
+
+    def test_restream_pasa_por_la_pregunta_antes_de_supervisar(self):
+        self.assertEqual(
+            self._revisar("restream:Vertical", "TikTok"),
+            ["pregunta", "supervisar"])
+
+    def test_youtube_pasa_por_la_pregunta_antes_de_supervisar(self):
+        self.assertEqual(
+            self._revisar("YouTube", "YouTube"),
+            ["pregunta", "supervisar"])
 
 
 class TestPulsarSinVentana(unittest.TestCase):

@@ -16130,3 +16130,36 @@ msgstr "Use &keyboard media keys"
 msgid "Usar teclas multimedia del teclado"
 msgstr "Use keyboard media keys"
 
+#: guyrapu/ui/cortina_captura.py
+#, python-brace-format
+msgid ""
+"La cortina de pantalla de NVDA deja en negro la captura de pantalla "
+"{nombres}. ¿Cambiar su método de captura a Windows 10? Se puede volver a "
+"cambiar en las propiedades de la fuente, en OBS."
+msgstr ""
+"The NVDA screen curtain turns the {nombres} screenshot black. Change its "
+"capture method to Windows 10? You can change it again in the source "
+"properties in OBS."
+
+#: guyrapu/ui/cortina_captura.py
+msgid "&Cambiar a Windows 10"
+msgstr "&Change to Windows 10"
+
+#: guyrapu/ui/cortina_captura.py
+msgid "&Dejar como está"
+msgstr "&Leave as it is"
+
+#: guyrapu/ui/cortina_captura.py
+#, python-brace-format
+msgid "Método de captura cambiado a Windows 10: {nombres}."
+msgstr "Capture method changed to Windows 10: {nombres}."
+
+#: guyrapu/ui/cortina_captura.py
+#, python-brace-format
+msgid ""
+"No se pudo cambiar el método de captura a Windows 10. {motivo} Se puede "
+"cambiar a mano en las propiedades de la fuente, en OBS."
+msgstr ""
+"The capture method could not be changed to Windows 10. {motivo} You can "
+"change it manually in the source properties in OBS."
+

@@ -21,6 +21,7 @@ from guyrapu.obs import obs_lanzador
 from guyrapu.obs import transmision_directa
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.restream import ganchos, transmitir
+from guyrapu.ui import cortina_captura
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.confirmar_transmision import (
@@ -216,31 +217,43 @@ class ComandoDirecto:
     def _revision_lista(self, padre, preparacion, destino, destino_obs, usuario):
         marco = self._marco
         if not marco._alive:
+            self._revisando = False
             return
-        self._revisando = False
+        self._revisando = True
 
-        def _ya_transmitiendo():
-            marco._obs_transmitiendo = True
-            self._mostrar_transmision(True)
+        def _seguir(revision):
+            self._revisando = False
+            if not marco._alive:
+                return
+            actual = transmision_directa.Preparacion(
+                preparacion.ya_transmitiendo, revision,
+                getattr(preparacion, "destinos_de_mas", ()))
 
-        def _confirmar(revision):
-            return confirmar_transmision(
-                padre, revision, getattr(preparacion, "destinos_de_mas", ()))
+            def _ya_transmitiendo():
+                marco._obs_transmitiendo = True
+                self._mostrar_transmision(True)
 
-        def _iniciar():
-            self._mostrar_transmision(True)
-            marco._actualizar_boton_directo()
+            def _confirmar(revision_actual):
+                return confirmar_transmision(
+                    padre, revision_actual,
+                    getattr(actual, "destinos_de_mas", ()))
 
-        transmision_directa.resolver_revision(
-            preparacion, destino, destino_obs, usuario,
-            confirmar=_confirmar,
-            supervisar=self._supervisar,
-            anunciar=anunciar,
-            ya_transmitiendo=_ya_transmitiendo,
-            iniciar=_iniciar,
-            recordar_destino=lambda: None,
-            guardar_usuario=lambda: None,
-            tras_anunciar=marco._actualizar_boton_directo)
+            def _iniciar():
+                self._mostrar_transmision(True)
+                marco._actualizar_boton_directo()
+
+            transmision_directa.resolver_revision(
+                actual, destino, destino_obs, usuario,
+                confirmar=_confirmar,
+                supervisar=self._supervisar,
+                anunciar=anunciar,
+                ya_transmitiendo=_ya_transmitiendo,
+                iniciar=_iniciar,
+                recordar_destino=lambda: None,
+                guardar_usuario=lambda: None,
+                tras_anunciar=marco._actualizar_boton_directo)
+
+        cortina_captura.ofrecer(padre, preparacion.revision, _seguir)
 
     def _finalizar(self, padre):
         if not confirmar_finalizar(padre):

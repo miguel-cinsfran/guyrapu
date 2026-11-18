@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from guyrapu.core.idioma import N_, _
+from guyrapu.obs import obs_prevuelo
 from guyrapu.restream import destinos_de_mas
 from guyrapu.ui import confirmar
 from guyrapu.voice import sound_player
@@ -24,7 +25,6 @@ def confirmar_finalizar(padre) -> bool:
 
 def _frase_con_destinos(revision, destinos):
     """La frase de la revisión, con el aviso de destinos de más primero."""
-    from guyrapu.obs import obs_prevuelo
     frase = obs_prevuelo.frase_revision(revision)
     if not destinos:
         return frase
@@ -34,13 +34,12 @@ def _frase_con_destinos(revision, destinos):
 def confirmar_transmision(padre, revision, destinos=()) -> bool:
     """Pide confirmar el inicio del directo con la revisión a la vista.
 
-    Mismo texto, título, etiquetas y regla de cancelación por defecto
-    que la ventana Transmisión: si la revisión trae problemas o hay
-    destinos de más, el foco arranca en Cancelar. Con destinos, su
-    mensaje va primero y suena su aviso.
+    Mismo texto y regla de cancelación por defecto que la ventana Transmisión:
+    con problemas, cortina o destinos de más el foco arranca en Cancelar. Con
+    destinos, su mensaje va primero y suena su aviso.
     """
     frase = _frase_con_destinos(revision, destinos)
-    problemas = bool(getattr(revision, "problemas", ())) or bool(destinos)
+    problemas = bool(obs_prevuelo.problemas_de(revision)) or bool(destinos)
     if destinos:
         sound_player.reproducir("destinos_de_mas")
     return confirmar.preguntar(

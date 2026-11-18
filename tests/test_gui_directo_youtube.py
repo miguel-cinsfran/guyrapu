@@ -207,6 +207,16 @@ class TestDialogoDirectoVentana(unittest.TestCase):
                       dialogo.txt_revision.GetValue())
         self.assertEqual(dialogo.FindFocus(), dialogo.btn_cancelar)
 
+    def test_revision_con_solo_cortina_enfoca_cancelar(self):
+        from guyrapu.obs import obs_prevuelo
+        revision = obs_prevuelo.Revision(
+            "YouTube", "YouTube", "Sin Título", 1280, 720, "Principal",
+            (), (), None, (), cortina=("Pantalla",))
+        dialogo = self._dialogo(titulo="Hola", revision=revision)
+        self.assertIn("La cortina de pantalla de NVDA",
+                      dialogo.txt_revision.GetValue())
+        self.assertEqual(dialogo.FindFocus(), dialogo.btn_cancelar)
+
     def test_crear_con_titulo_vacio_anuncia_y_sigue_abierto(self):
         dialogo = self._dialogo(titulo="Hola")
         dialogo.txt_titulo.SetValue("   ")

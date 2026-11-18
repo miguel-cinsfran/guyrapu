@@ -762,12 +762,17 @@ class CortinaNvdaTest(unittest.TestCase):
         for method in (0, 1):
             with self.subTest(method=method):
                 revision = self._revisar(self._doble(method), True)
-                self.assertIn(self._PROBLEMA, revision.problemas)
+                self.assertEqual(revision.cortina,
+                                 ("Captura de pantalla",))
+                self.assertFalse(any(self._PROBLEMA in problema
+                                     for problema in revision.problemas))
+                self.assertIn(self._PROBLEMA, frase_revision(revision))
                 self.assertFalse(any(self._VACIA in problema
                                      for problema in revision.problemas))
 
     def test_windows_10_con_cortina_no_da_el_problema(self):
         revision = self._revisar(self._doble(2), True)
+        self.assertEqual(revision.cortina, ())
         self.assertFalse(any("cortina" in problema
                              for problema in revision.problemas))
         self.assertTrue(any(self._VACIA in problema
@@ -775,6 +780,7 @@ class CortinaNvdaTest(unittest.TestCase):
 
     def test_captura_oculta_con_cortina_no_da_el_problema(self):
         revision = self._revisar(self._doble(0, visible=False), True)
+        self.assertEqual(revision.cortina, ())
         self.assertFalse(any("cortina" in problema
                              for problema in revision.problemas))
 
@@ -784,6 +790,7 @@ class CortinaNvdaTest(unittest.TestCase):
                 doble = self._doble(0)
                 revision = self._revisar(doble, cortina)
                 self.assertIs(revision.imagen_vacia, True)
+                self.assertEqual(revision.cortina, ())
                 self.assertTrue(any(self._VACIA in problema
                                     for problema in revision.problemas))
                 self.assertFalse(any("cortina" in problema

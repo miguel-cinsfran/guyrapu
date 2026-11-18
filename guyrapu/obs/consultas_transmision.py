@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from guyrapu.obs import chat_en_video
 from guyrapu.obs import obs_audio
 from guyrapu.obs import obs_disposicion
+from guyrapu.obs import obs_prevuelo
 from guyrapu.obs.obs_destinos import DESTINOS
 from guyrapu.obs.obs_panel import NOMBRE_FUENTE
 
@@ -47,7 +48,7 @@ def _problemas(gestor, destino) -> tuple:
     if destino not in DESTINOS:
         return ()
     revision = gestor.revisar(destino)
-    return tuple(getattr(revision, "problemas", ()) or ())
+    return obs_prevuelo.problemas_de(revision)
 
 
 def estado_transmision(leer, parada=None) -> dict:

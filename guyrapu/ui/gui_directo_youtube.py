@@ -16,6 +16,7 @@ import wx
 from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
+from guyrapu.obs import obs_prevuelo
 from guyrapu.ui import ayuda_manual, miniatura_directo, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.espera_sonora import EsperaSonora
@@ -97,7 +98,7 @@ class DialogoDirectoYoutube(wx.Dialog):
         if not solo_titulo:
             self._enlazar_opciones()
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
-        if revision is not None and bool(getattr(revision, "problemas", ())):
+        if revision is not None and obs_prevuelo.problemas_de(revision):
             self.btn_cancelar.SetDefault()
             self.btn_cancelar.SetFocus()
         else:

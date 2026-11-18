@@ -171,6 +171,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "comando_directo.py": (
         "comando del botón y del panel que transmite y finaliza el directo; "
         "no abre ventana propia."),
+    "cortina_captura.py": (
+        "ofrece cambiar el método de captura antes de transmitir; el cuadro "
+        "lo cubren las pruebas con wx y no abre una ventana propia."),
     "comando_en_directo.py": (
         "comandos del menú Interacción que actúan sobre la cola del vídeo; "
         "no abren ventana propia."),

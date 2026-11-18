@@ -7,6 +7,7 @@ from unittest import mock
 
 from guyrapu.obs import consultas_transmision
 from guyrapu.obs import obs_disposicion
+from guyrapu.obs import obs_prevuelo
 
 
 def _gestor():
@@ -22,7 +23,8 @@ def _gestor():
     gestor.entradas_audio.return_value = (
         ("Mic/Aux", "wasapi_input_capture"),)
     gestor.microfono_especial.return_value = ""
-    gestor.revisar.return_value = mock.Mock(problemas=("Un problema.",))
+    gestor.revisar.return_value = mock.Mock(
+        problemas=("Un problema.",), cortina=())
     gestor.silenciada.return_value = False
     gestor.ventanas.return_value = (mock.sentinel.opciones,
                                     mock.sentinel.actual)
@@ -93,6 +95,21 @@ class TestCargarInicial(unittest.TestCase):
         self.assertEqual(datos.microfono, "")
         self.assertFalse(datos.silenciado)
         gestor.silenciada.assert_not_called()
+
+
+class TestProblemasDeLaCortina(unittest.TestCase):
+
+    def test_la_cortina_aparece_entre_los_problemas(self):
+        gestor = _gestor()
+        gestor.revisar.return_value = obs_prevuelo.Revision(
+            "YouTube", "YouTube", "YouTube", 1280, 720, "Principal",
+            (), (), None, (), cortina=("Pantalla",))
+        datos = consultas_transmision.cargar_inicial(gestor)
+        self.assertEqual(datos.problemas, (
+            "La cortina de pantalla de NVDA deja en negro la captura de "
+            "pantalla Pantalla. En sus propiedades, cambia el método de "
+            "captura a Windows 10, o desactiva la cortina con "
+            "NVDA+Control+Esc.",))
 
 
 class TestLeerEstado(unittest.TestCase):
