@@ -12,6 +12,21 @@ from __future__ import annotations
 
 import re
 
+from guyrapu.core.config import TIPO_STICKER, TIPO_SUPERCHAT
+
+# Color de fondo que YouTube asigna a cada banda de pago, medido el 18/11/2026
+# sobre 1167 pagos reales. El nivel es el de YouTube, no el monto: así no hay
+# que convertir monedas.
+_NIVEL_POR_COLOR = {
+    4280191205: 1,
+    4278248959: 2,
+    4280150454: 3,
+    4294953512: 4,
+    4294278144: 5,
+    4293467747: 6,
+    4293271831: 7,
+}
+
 # Captura el primer número del importe, admitiendo separadores de millar y
 # decimales en formato europeo o anglosajón.
 #   - Rama 1: con separadores de millar reales ("1.234,56", "1,234.56").
@@ -26,6 +41,24 @@ _NUM_RE = re.compile(
 _DIVISA_RE = re.compile(r"[^\d\s,.]+")
 # Número con un único tipo de separador y solo grupos de tres cifras tras él.
 _MILLARES_RE = re.compile(r"\d{1,3}(?:,\d{3})+|\d{1,3}(?:\.\d{3})+")
+
+
+def nivel_de_color(color) -> int:
+    """Nivel de YouTube (1 a 7) del color de fondo del pago, o 0 si no es uno."""
+    return _NIVEL_POR_COLOR.get(color, 0)
+
+
+def monto_y_nivel(item, tipo) -> tuple[str, int]:
+    """Monto visible y nivel de YouTube de un pago de pytchat.
+
+    Solo el Super Chat y el sticker traen importe y color; cualquier otro
+    tipo devuelve vacío y nivel 0.
+    """
+    if tipo not in (TIPO_SUPERCHAT, TIPO_STICKER):
+        return "", 0
+    monto = getattr(item, "amountString", None)
+    monto = str(monto).strip() if monto is not None else ""
+    return monto, nivel_de_color(getattr(item, "bgColor", 0))
 
 
 def parsear_monto(monto: str) -> tuple[str, float] | None:

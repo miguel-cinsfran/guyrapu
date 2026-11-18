@@ -114,6 +114,45 @@ class TestSonidoDeMensaje(unittest.TestCase):
                 sonidos_eventos.sonido_de_mensaje(
                     tipo, sonidos_eventos.ROL_MODERADOR), "superchat")
 
+    def test_superchat_y_sticker_de_youtube_suena_por_nivel(self):
+        tramos = {
+            1: "regalo_chico", 2: "regalo_chico",
+            3: "regalo_mediano", 4: "regalo_mediano",
+            5: "regalo_grande", 6: "regalo_grande", 7: "regalo_grande",
+        }
+        for tipo in (TIPO_SUPERCHAT, TIPO_STICKER):
+            for nivel, tramo in tramos.items():
+                with self.subTest(tipo=tipo, nivel=nivel):
+                    self.assertEqual(
+                        sonidos_eventos.sonido_de_mensaje(
+                            tipo, plataforma="youtube", nivel=nivel), tramo)
+
+    def test_superchat_sin_nivel_sigue_sonando_superchat(self):
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_SUPERCHAT, plataforma="youtube", nivel=0), "superchat")
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_STICKER, plataforma="youtube"), "superchat")
+
+    def test_al_subir_el_nivel_el_tramo_nunca_baja(self):
+        orden = {
+            "regalo_chico": 1, "regalo_mediano": 2, "regalo_grande": 3,
+        }
+        anterior = 0
+        for nivel in range(1, 8):
+            tramo = sonidos_eventos.sonido_de_mensaje(
+                TIPO_SUPERCHAT, plataforma="youtube", nivel=nivel)
+            with self.subTest(nivel=nivel):
+                self.assertGreaterEqual(orden[tramo], anterior)
+            anterior = orden[tramo]
+
+    def test_un_regalo_de_tiktok_sigue_sonando_por_diamantes(self):
+        self.assertEqual(
+            sonidos_eventos.sonido_de_mensaje(
+                TIPO_SUPERCHAT, monto="250 diamantes", plataforma="tiktok",
+                nivel=7), "regalo_mediano")
+
     def test_miembro_nuevo_no_usa_rol(self):
         self.assertEqual(
             sonidos_eventos.sonido_de_mensaje(
@@ -299,7 +338,8 @@ class TestProcesarEntranteConRol(unittest.TestCase):
     def test_entrega_el_rol_a_on_message(self):
         recibidos = []
 
-        def on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=""):
+        def on_message(autor, mensaje, hora, tipo, monto, canal_id,
+                       rol="", nivel=0):
             recibidos.append(rol)
 
         main.procesar_entrante("Ana", "hola", TIPO_TEXTO, "", "canal",
@@ -310,7 +350,8 @@ class TestProcesarEntranteConRol(unittest.TestCase):
     def test_sin_rol_queda_igual(self):
         recibidos = []
 
-        def on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=""):
+        def on_message(autor, mensaje, hora, tipo, monto, canal_id,
+                       rol="", nivel=0):
             recibidos.append(rol)
 
         main.procesar_entrante("Ana", "hola", TIPO_TEXTO, "", "canal",
@@ -383,7 +424,8 @@ class TestCableadoCapturaYouTube(unittest.TestCase):
         pytchat_falso = types.SimpleNamespace(create=lambda **k: chat)
         recibidos = []
 
-        def on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=""):
+        def on_message(autor, mensaje, hora, tipo, monto, canal_id,
+                       rol="", nivel=0):
             recibidos.append((autor, rol))
 
         parada = threading.Event()
@@ -432,7 +474,7 @@ class TestReenvioRolConexion(unittest.TestCase):
         return [(a, kw) for n, a, kw in vista.llamadas
                 if n == "agregar_mensaje"]
 
-    def test_youtube_reenvia_el_rol(self):
+    def test_youtube_reenvia_el_rol_y_el_nivel(self):
         conexiones, vista = self._conexiones()
         callbacks = {}
         def captura(*args, **kwargs):
@@ -451,11 +493,12 @@ class TestReenvioRolConexion(unittest.TestCase):
                 mock.patch("guyrapu.obs.overlay_servidor.difundir"):
             conexiones.conectar("dQw4w9WgXcQ")
             callbacks["on_message"]("Ana", "hola", "12:00", main.TIPO_TEXTO,
-                                    "", "CANAL1", rol="moderador")
+                                    "", "CANAL1", rol="moderador", nivel=3)
         agregados = self._agregados(vista)
         self.assertEqual(len(agregados), 1)
         args, kwargs = agregados[0]
         self.assertEqual(kwargs.get("rol"), "moderador")
+        self.assertEqual(kwargs.get("nivel"), 3)
         self.assertEqual(kwargs.get("plataforma"), "youtube")
 
     def test_tiktok_reenvia_el_rol_por_defecto(self):
@@ -482,6 +525,7 @@ class TestReenvioRolConexion(unittest.TestCase):
         self.assertEqual(len(agregados), 1)
         args, kwargs = agregados[0]
         self.assertEqual(kwargs.get("rol"), "")
+        self.assertEqual(kwargs.get("nivel"), 0)
         self.assertEqual(kwargs.get("plataforma"), "tiktok")
 
 
@@ -535,6 +579,40 @@ class TestSonidoGuiPorRol(unittest.TestCase):
 
     def test_sin_rol_reproduce_comun(self):
         self.assertEqual(self._procesar(self._frame(), TIPO_TEXTO, ""), "mensaje_nuevo")
+
+
+class TestCableadoNivelDelSuperChat(unittest.TestCase):
+    def test_el_nivel_llega_de_procesar_entrante_al_sonido(self):
+        from guyrapu.ui import chat_vivo, gui
+        frame = gui.VentanaPrincipal.__new__(gui.VentanaPrincipal)
+        frame._alive = True
+        frame._conectado = True
+        frame._config = _config_minima()
+        frame.lb_chat = mock.Mock()
+        frame.lb_chat.GetCount.return_value = 1
+        frame.chat_vivo = chat_vivo.ControladorChat(
+            frame.lb_chat, 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=lambda autor, texto, hora, tipo, monto:
+                f"{autor}: {texto}",
+            al_superchat=mock.Mock())
+
+        def on_message(autor, mensaje, hora, tipo, monto, canal_id,
+                       rol="", nivel=0):
+            gui.VentanaPrincipal.agregar_mensaje_chat(
+                frame, autor, mensaje, hora, tipo, monto, canal_id,
+                plataforma="youtube", rol=rol, nivel=nivel)
+
+        with mock.patch.object(chat_vivo.wx, "CallLater"), \
+                mock.patch.object(chat_vivo.wx.Window, "FindFocus",
+                                  return_value=None), \
+                mock.patch.object(chat_vivo._snd, "reproducir") as reproducir:
+            main.procesar_entrante(
+                "Ana", "gracias", TIPO_SUPERCHAT, "$100", "C", queue.Queue(),
+                _config_minima(), main.Stats(), on_message=on_message,
+                nivel=6, plataforma="youtube")
+            frame.chat_vivo.volcar()
+        reproducir.assert_called_once_with("regalo_grande")
 
 
 if __name__ == "__main__":

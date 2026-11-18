@@ -738,7 +738,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
     def agregar_mensaje_chat(self, autor: str, mensaje: str, hora: str,
                              tipo: str = TIPO_TEXTO, monto: str = "",
                              canal_id: str = "", plataforma: str = "",
-                             rol: str = "") -> None:
+                             rol: str = "", nivel: int = 0) -> None:
         if not self._alive:
             return
         # Si ya no estamos conectados, descartar: puede ser un mensaje rezagado
@@ -753,7 +753,7 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         # Append/Delete por mensaje mientras NVDA navega la lista.
         registro = MensajeChat(
             plataforma=plataforma, autor=autor, identificador=canal_id,
-            texto=mensaje, hora=hora, tipo=tipo, monto=monto, rol=rol)
+            texto=mensaje, hora=hora, tipo=tipo, monto=monto, rol=rol, nivel=nivel)
         self.chat_vivo.encolar(registro)
 
     def set_conectado(self, conectado: bool,

@@ -68,7 +68,7 @@ class TestVistaAdicional(unittest.TestCase):
         vista_gui = VistaGuiFalsa()
         vista = chat_adicional.VistaAdicional(vista=vista_gui)
         vista.agregar_mensaje("Ana", "hola", "12:00", "text", "", "C",
-                              plataforma="tiktok", rol="")
+                              plataforma="tiktok", rol="", nivel=0)
         vista.anunciar("Conectando al directo.")
         vista.set_titulo("Título")
         vista.set_metadatos({"canal": "x"})
@@ -79,6 +79,7 @@ class TestVistaAdicional(unittest.TestCase):
         vista.registrar_historial("tiktok", "pepe", "url", "t", "c", True)
         vista.url_invalida()
         self.assertEqual(len(vista_gui.mensajes), 1)
+        self.assertEqual(vista_gui.mensajes[0][1].get("nivel"), 0)
         self.assertEqual(vista_gui.anuncios, ["TikTok: Conectando al directo."])
 
     def test_conectado_lo_anuncia_con_prefijo(self):

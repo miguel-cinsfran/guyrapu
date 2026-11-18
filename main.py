@@ -47,7 +47,7 @@ from guyrapu.capture.sonido_reconexion import SonidoReconexion
 from guyrapu.core import diagnostico
 from guyrapu.core import avisos_red
 from guyrapu.downloads import ytdlp_bin
-from guyrapu.capture import chat_adicional, conexion, item_lectura
+from guyrapu.capture import chat_adicional, conexion, item_lectura, montos
 from guyrapu.capture.filtro_autores import permitido
 from guyrapu.ui.vista_captura import VistaGui
 from guyrapu.capture import alias
@@ -351,7 +351,8 @@ def debe_leer_tts(autor: str, config: dict) -> bool:
 
 def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
                       on_message=None, sesion_activa=None,
-                      etiqueta_monto=N_("Super Chat"), rol="", plataforma=""):
+                      etiqueta_monto=N_("Super Chat"), rol="", plataforma="",
+                      nivel=0):
     """Pipeline común de cada mensaje entrante (YouTube y TikTok): contadores,
     filtros, texto TTS, aviso a la GUI y encolado de lectura.
 
@@ -382,7 +383,7 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
         etiqueta_monto), plataforma, config, chat_adicional.activo())
 
     hora = datetime.now().strftime('%H:%M:%S')
-    if on_message: on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=rol)
+    if on_message: on_message(autor, mensaje, hora, tipo, monto, canal_id, rol=rol, nivel=nivel)
 
     if not avisos_tiktok.con_voz(modo):
         return  # en la lista, sin leer
@@ -579,13 +580,12 @@ def _captura_en_loop(video_id, cola, config, parada, stats, on_message, on_estad
                     tipo     = _TIPO_MAP.get(tipo_raw, None)
                     if tipo is None: continue
 
-                    monto = ""
-                    if tipo in (TIPO_SUPERCHAT, TIPO_STICKER):
-                        monto = _str(getattr(c, "amountString", None), "")
+                    monto, nivel = montos.monto_y_nivel(c, tipo)
                     logger.debug("YOUTUBE_EVENTO tipo=%s monto=%s", tipo, monto)
                     procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
                                       on_message=on_message, plataforma="youtube",
-                                      sesion_activa=sesion_activa, rol=rol)
+                                      sesion_activa=sesion_activa, rol=rol,
+                                      nivel=nivel)
 
                 err_con = 0
                 if not leido:

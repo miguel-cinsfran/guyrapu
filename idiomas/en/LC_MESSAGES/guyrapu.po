@@ -2550,16 +2550,16 @@ msgid "Me gusta del directo"
 msgstr "Live stream like"
 
 #: guyrapu/core/eventos_sonido.py
-msgid "Regalo chico recibido"
-msgstr "Small gift received"
+msgid "Regalo o Super Chat chico"
+msgstr "Small gift or Super Chat"
 
 #: guyrapu/core/eventos_sonido.py
-msgid "Regalo mediano recibido"
-msgstr "Medium gift received"
+msgid "Regalo o Super Chat mediano"
+msgstr "Medium gift or Super Chat"
 
 #: guyrapu/core/eventos_sonido.py
-msgid "Regalo grande recibido"
-msgstr "Large gift received"
+msgid "Regalo o Super Chat grande"
+msgstr "Large gift or Super Chat"
 
 #: guyrapu/core/eventos_sonido.py
 msgid "Alguien entró al directo"

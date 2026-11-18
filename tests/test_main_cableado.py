@@ -473,7 +473,7 @@ class PruebasFiltroReconexion(unittest.TestCase):
 
         def procesar(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
                      on_message=None, sesion_activa=None, rol="",
-                     plataforma=""):
+                     plataforma="", nivel=0):
             if mensaje == "X" and not corte:
                 corte.append(datetime.now(timezone.utc))
             procesados.append(mensaje)
@@ -500,12 +500,14 @@ class PruebasFiltroReconexion(unittest.TestCase):
         item = types.SimpleNamespace(
             id="uno", timestamp=futuro, message="mensaje privado de Ana",
             author=types.SimpleNamespace(name="Ana", channelId="canal"),
-            type="superChat", amountString="$5")
+            type="superChat", amountString="$5", bgColor=4294953512)
         parada = _Parada()
+        recibido = {}
 
         def procesar(autor, mensaje, tipo, monto, canal_id, cola, config, stats,
                      on_message=None, sesion_activa=None, rol="",
-                     plataforma=""):
+                     plataforma="", nivel=0):
+            recibido["nivel"] = nivel
             parada.set()
 
         config = {"reconectar": True, "max_intentos": 0,
@@ -526,6 +528,7 @@ class PruebasFiltroReconexion(unittest.TestCase):
         self.assertEqual(
             eventos,
             ["DEBUG:guyrapu.main:YOUTUBE_EVENTO tipo=superchat monto=$5"])
+        self.assertEqual(recibido["nivel"], 4)
         self.assertNotIn("Ana", "".join(registro.output))
         self.assertNotIn("mensaje privado", "".join(registro.output))
 

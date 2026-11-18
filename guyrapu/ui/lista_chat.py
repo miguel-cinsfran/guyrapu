@@ -40,6 +40,7 @@ class MensajeChat:
     tipo: str
     monto: str
     rol: str = ""
+    nivel: int = 0
 
 
 class ListaChat:

@@ -54,10 +54,11 @@ class VistaGui:
         return self._programar("url_invalida", False)
 
     def agregar_mensaje(self, autor, mensaje, hora, tipo=TIPO_TEXTO,
-                        monto="", canal_id="", plataforma="", rol=""):
+                        monto="", canal_id="", plataforma="", rol="",
+                        nivel=0):
         return self._programar("agregar_mensaje_chat", True, autor, mensaje,
                                hora, tipo, monto, canal_id,
-                               plataforma=plataforma, rol=rol)
+                               plataforma=plataforma, rol=rol, nivel=nivel)
 
     def set_conectado(self, conectado, sonido=None):
         if sonido is None:

@@ -14,6 +14,7 @@ from guyrapu.obs.overlay_datos import (
 )
 
 from guyrapu.capture.sesiones import RegistroSesiones
+from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
 
 
@@ -70,13 +71,13 @@ class Conexiones:
         self._activo = True
         ps, gen = sesion.parada, sesion.gen
 
-        def _on_msg(autor, mensaje, hora, tipo=main.TIPO_TEXTO, monto="", canal_id="", rol=""):
+        def _on_msg(autor, mensaje, hora, tipo=TIPO_TEXTO, monto="", canal_id="", rol="", nivel=0):
             if not self._registro.vigente(gen):
                 return  # mensaje de una sesión anterior: descartar
             self._difundir(autor, mensaje, "youtube", tipo, monto)
             self._vista.agregar_mensaje(
                 autor, mensaje, hora, tipo, monto, canal_id,
-                plataforma="youtube", rol=rol)
+                plataforma="youtube", rol=rol, nivel=nivel)
 
         def _refrescar_directo():
             try:
@@ -192,13 +193,14 @@ class Conexiones:
         ps, gen = sesion.parada, sesion.gen
         sonido = SonidoReconexion()
 
-        def _on_msg(autor, mensaje, hora, tipo=main.TIPO_TEXTO, monto="", canal_id="", rol=""):
+        def _on_msg(autor, mensaje, hora, tipo=main.TIPO_TEXTO, monto="",
+                    canal_id="", rol="", nivel=0):
             if not self._registro.vigente(gen):
                 return
             self._difundir(autor, mensaje, "tiktok", tipo, monto)
             self._vista.agregar_mensaje(
                 autor, mensaje, hora, tipo, monto, canal_id,
-                plataforma="tiktok", rol=rol)
+                plataforma="tiktok", rol=rol, nivel=nivel)
 
         def _on_evento(autor, mensaje, tipo, monto, canal_id):
             if not self._registro.vigente(gen):

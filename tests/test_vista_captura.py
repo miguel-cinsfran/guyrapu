@@ -74,7 +74,7 @@ class TestAgregarMensaje(BaseVista):
             plataforma="youtube", rol="moderador"))
         self.marco.agregar_mensaje_chat.assert_called_once_with(
             "Ana", "Hola", "12:00", "text", "US$ 5", "CANAL1",
-            plataforma="youtube", rol="moderador")
+            plataforma="youtube", rol="moderador", nivel=0)
 
     def test_sin_marco_no_hace_nada(self):
         self.gui_falsa._gui_frame = None

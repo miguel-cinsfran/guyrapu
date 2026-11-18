@@ -3,8 +3,50 @@
 """Tests del parseo de importes de Super Chat (montos.parsear_monto)."""
 
 import unittest
+from types import SimpleNamespace
 
-from guyrapu.capture.montos import parsear_monto, sumar_monto, texto_importes
+from guyrapu.capture.montos import (
+    monto_y_nivel, nivel_de_color, parsear_monto, sumar_monto,
+    texto_importes,
+)
+from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_STICKER, TIPO_TEXTO
+
+
+class TestNivelDeColor(unittest.TestCase):
+
+    def test_los_siete_colores_de_youtube(self):
+        casos = {
+            4280191205: 1,
+            4278248959: 2,
+            4280150454: 3,
+            4294953512: 4,
+            4294278144: 5,
+            4293467747: 6,
+            4293271831: 7,
+        }
+        for color, nivel in casos.items():
+            with self.subTest(color=color):
+                self.assertEqual(nivel_de_color(color), nivel)
+
+    def test_desconocido_y_cero_no_tienen_nivel(self):
+        self.assertEqual(nivel_de_color(0), 0)
+        self.assertEqual(nivel_de_color(123456), 0)
+        self.assertEqual(nivel_de_color(None), 0)
+
+
+class TestMontoYNivel(unittest.TestCase):
+
+    def test_superchat_trae_su_monto_y_su_nivel(self):
+        item = SimpleNamespace(amountString="$10.00", bgColor=4294953512)
+        self.assertEqual(monto_y_nivel(item, TIPO_SUPERCHAT), ("$10.00", 4))
+
+    def test_sticker_trae_su_monto_y_su_nivel(self):
+        item = SimpleNamespace(amountString="$100.00", bgColor=4293271831)
+        self.assertEqual(monto_y_nivel(item, TIPO_STICKER), ("$100.00", 7))
+
+    def test_un_mensaje_de_texto_no_trae_nada(self):
+        item = SimpleNamespace(amountString="$5.00", bgColor=4280191205)
+        self.assertEqual(monto_y_nivel(item, TIPO_TEXTO), ("", 0))
 
 
 class TestParsearMonto(unittest.TestCase):

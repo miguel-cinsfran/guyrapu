@@ -246,7 +246,7 @@ class ControladorChat:
         if registro.tipo in (TIPO_SUPERCHAT, TIPO_STICKER):
             _snd.reproducir(sonidos_eventos.sonido_de_mensaje(
                 registro.tipo, registro.rol, registro.monto,
-                registro.plataforma))
+                registro.plataforma, nivel=registro.nivel))
         elif registro.tipo == TIPO_MIEMBRO:
             _snd.reproducir("nuevo_miembro")
         elif registro.tipo == TIPO_ME_GUSTA:

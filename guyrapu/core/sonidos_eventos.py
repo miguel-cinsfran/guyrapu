@@ -82,6 +82,12 @@ _SONIDO_POR_TIPO = {
     TIPO_BATALLA_FIN: "batalla_fin",
 }
 
+_TRAMO_POR_NIVEL_YOUTUBE = {
+    1: "regalo_chico", 2: "regalo_chico",
+    3: "regalo_mediano", 4: "regalo_mediano",
+    5: "regalo_grande", 6: "regalo_grande", 7: "regalo_grande",
+}
+
 
 def rol_de_autor(autor) -> str:
     """Un rol por precedencia: propietario, moderador, verificado, miembro.
@@ -103,18 +109,20 @@ def rol_de_autor(autor) -> str:
 
 
 def sonido_de_mensaje(tipo: str, rol: str = "", monto: str = "",
-                      plataforma: str = "", propio: bool = False) -> str:
+                      plataforma: str = "", propio: bool = False,
+                      nivel: int = 0) -> str:
     """Nombre del evento de sonido para un mensaje ya clasificado.
 
     `monto` y `plataforma` solo importan para el regalo de TikTok: llega
-    como superchat con «N diamantes» y suena según su tramo; el Super Chat
-    y el sticker de YouTube siguen siendo «superchat». `propio` elige el
+    como superchat con «N diamantes» y suena según su tramo. El Super Chat
+    y el sticker de YouTube suenan según su `nivel`, el de YouTube, con los
+    mismos tramos; sin nivel siguen sonando «superchat». `propio` elige el
     sonido de la plataforma para un texto común sin rol.
     """
     if tipo == TIPO_SUPERCHAT or tipo == TIPO_STICKER:
         if (plataforma or "").lower() == "tiktok" and tipo == TIPO_SUPERCHAT:
             return tramo_regalo(_diamantes_de_monto(monto))
-        return "superchat"
+        return _TRAMO_POR_NIVEL_YOUTUBE.get(nivel, "superchat")
     sonido = _SONIDO_POR_TIPO.get(tipo)
     if sonido is not None:
         return sonido

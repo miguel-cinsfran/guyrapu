@@ -45,10 +45,10 @@ class VistaAdicional(_VistaNula):
         self._espectadores = None
 
     def agregar_mensaje(self, autor, mensaje, hora, tipo="", monto="",
-                        canal_id="", plataforma="", rol=""):
+                        canal_id="", plataforma="", rol="", nivel=0):
         return self._vista.agregar_mensaje(
             autor, mensaje, hora, tipo, monto, canal_id,
-            plataforma=plataforma, rol=rol)
+            plataforma=plataforma, rol=rol, nivel=nivel)
 
     def anunciar(self, texto):
         if not self._vista.activa:
