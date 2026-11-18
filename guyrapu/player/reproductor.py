@@ -1302,16 +1302,7 @@ class ReproductorPanel(wx.Panel):
             self._detener_relevo_ffmpeg()
             self._error_carga()
             return
-        self._pos_ms = self._dur_ms = 0
-        if reproducir:
-            if hasattr(self, "_estado_inicio"):
-                self._estado_inicio.iniciar()
-            self._fijar_estado(_("Cargando vídeo…"))
-        else:
-            if hasattr(self, "_estado_inicio"):
-                self._estado_inicio.cancelar()
-            # Traductores: estado en reposo, sin reproducir.
-            self._fijar_estado(_("Detenido."))
+        self._estado_tras_carga(reproducir)
 
     def _reproducir_flujo(self, reproducir: bool = True):
         """Arranca la URL de flujo directa en VLC (mismo camino final que
@@ -1347,6 +1338,9 @@ class ReproductorPanel(wx.Panel):
                 self._estado_inicio.cancelar()
             self._error_carga()
             return
+        self._estado_tras_carga(reproducir)
+
+    def _estado_tras_carga(self, reproducir):
         self._pos_ms = self._dur_ms = 0
         if reproducir:
             if hasattr(self, "_estado_inicio"):
