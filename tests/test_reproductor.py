@@ -1173,6 +1173,20 @@ class TestAvisoAlReproducir(unittest.TestCase):
             panel.alternar_pantalla_completa()
         anunciar.assert_called_once_with("El reproductor no está disponible")
 
+    def test_pantalla_completa_con_medio_sin_reproductor_no_la_abre(self):
+        panel = self._panel_sin_medio()
+        panel._listo = False
+        panel._video_id = "video-cargado"
+        panel._fs = None
+        panel._asegurar_player = lambda: False
+        panel._mapa_atajos_fs = mock.Mock()
+        panel._fijar_salida = mock.Mock()
+        with mock.patch.object(reproductor, "anunciar") as anunciar, \
+                mock.patch.object(reproductor, "PantallaCompleta") as clase:
+            panel.alternar_pantalla_completa()
+        anunciar.assert_called_once_with("El reproductor no está disponible")
+        clase.assert_not_called()
+
     def test_reproducir_sin_reproductor_anuncia(self):
         panel = self._panel_sin_medio()
         panel._listo = False
@@ -1180,6 +1194,18 @@ class TestAvisoAlReproducir(unittest.TestCase):
         with mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._toggle_play()
         anunciar.assert_called_once_with("El reproductor no está disponible")
+
+    def test_reproducir_con_medio_sin_reproductor_no_sigue(self):
+        panel = self._panel_sin_medio()
+        panel._listo = False
+        panel._video_id = "video-cargado"
+        panel._player = mock.Mock()
+        panel._intencion_reproducir = False
+        panel._asegurar_player = lambda: False
+        with mock.patch.object(reproductor, "anunciar") as anunciar:
+            panel._toggle_play()
+        anunciar.assert_called_once_with("El reproductor no está disponible")
+        panel._player.set_pause.assert_not_called()
 
     def test_reproducir_con_medio_no_anuncia_falta_de_medio(self):
         panel = self._panel_sin_medio()
@@ -2202,6 +2228,24 @@ class TestPseudoAnunciosReproductor(unittest.TestCase):
         panel._estado_busqueda = EstadoBusqueda(confirmada=0)
         panel._buscar_porcentaje(50)
         self._exigir_marcados(1)
+
+    def test_porcentaje_sin_duracion_anuncia_sin_barra(self):
+        panel = self._panel()
+        panel._player = mock.Mock()
+        panel._busqueda_permitida_actual = lambda: True
+        panel._duracion_actual = lambda: 0
+        panel._estado_vlc_actual = lambda: "playing"
+        panel._buscar_porcentaje(50)
+        self._exigir_marcados(1)
+
+    def test_deslizador_sin_duracion_no_anuncia_sin_barra(self):
+        panel = self._panel()
+        panel._player = mock.Mock()
+        panel._busqueda_permitida_actual = lambda: True
+        panel._duracion_actual = lambda: 0
+        panel._estado_vlc_actual = lambda: "playing"
+        panel._on_sld_pos(None)
+        self.assertEqual(self.captados, [])
 
     def test_fin_de_flujo_anuncia_marcado(self):
         from guyrapu.player.busqueda_video import EstadoBusqueda
