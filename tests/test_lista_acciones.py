@@ -14,14 +14,15 @@ from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 
 
 def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
-            motivo=None):
+            motivo=None, opciones=None):
     return lista_acciones.Accion(
         clave=clave,
         etiqueta="&" + clave.capitalize(),
         manejador=manejador or (lambda: None),
         tecla=tecla,
         necesita_elemento=necesita_elemento,
-        motivo=motivo)
+        motivo=motivo,
+        opciones=opciones)
 
 
 ACCIONES = (
@@ -403,6 +404,52 @@ class PruebaConLista(unittest.TestCase):
                 with mock.patch.object(lista_acciones, "anunciar") as anunciar:
                     self._tecla(tipo, codigo)
                 anunciar.assert_called_once_with("Sin elementos.")
+
+
+class PruebaAccionesConOpciones(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.lista = wx.ListBox(self.marco)
+
+    def _pieza(self, acciones):
+        pieza = lista_acciones.ListaConAcciones(
+            self.lista, acciones, "Sin elementos.")
+        pieza.fijar(["a"])
+        return pieza
+
+    def _menu(self, pieza):
+        menu = pieza._construir_menu()
+        self.addCleanup(menu.Destroy)
+        return menu
+
+    def _item(self, menu, etiqueta):
+        return next(item for item in menu.GetMenuItems()
+                    if item.GetItemLabelText() == etiqueta)
+
+    def _opciones(self, menu, etiqueta):
+        return self._item(menu, etiqueta).GetSubMenu()
+
+    def test_p2_las_opciones_se_piden_en_cada_apertura(self):
+        veces = []
+
+        def opciones():
+            veces.append(len(veces) + 1)
+            return [(f"&Lista {len(veces)}", lambda: None)]
+
+        pieza = self._pieza((_accion("agregar", opciones=opciones),))
+        self.assertEqual(veces, [])
+        primero = self._opciones(self._menu(pieza), "Agregar")
+        self.assertEqual(
+            [item.GetItemLabel() for item in primero.GetMenuItems()],
+            ["&Lista 1"])
+        segundo = self._opciones(self._menu(pieza), "Agregar")
+        self.assertEqual(
+            [item.GetItemLabel() for item in segundo.GetMenuItems()],
+            ["&Lista 2"])
+        self.assertEqual(veces, [1, 2])
 
 
 class PruebaEnvoltorioListaCtrl(unittest.TestCase):

@@ -23,7 +23,7 @@ from guyrapu.ui.accesibilidad import anunciar, entregar_intro
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 from guyrapu.ui.menu_lista import (
-    construir_menu, etiqueta_de_menu as etiqueta_de_menu)
+    construir_menu, etiqueta_de_menu, mostrar_opciones)
 from guyrapu.voice import sound_player as _snd
 
 _TECLAS = {
@@ -65,6 +65,8 @@ class Accion:
     tecla: str | None = None
     necesita_elemento: bool = True
     motivo: Callable[[], str] | None = None
+    opciones: (Callable[[], list[tuple[str, Callable[[], None]]]]
+               | None) = None
 
 
 def _tecla_nombrada(codigo, modificadores) -> str | None:
@@ -285,13 +287,20 @@ class ListaConAcciones:
         accion = self._accion(clave)
         if accion is None:
             return False
+        if self._rechazar(accion):
+            return True
+        if accion.opciones is not None:
+            self._abrir_opciones(accion)
+        else:
+            accion.manejador()
+        return True
+
+    def _rechazar(self, accion) -> bool:
+        """Anuncia por qué no se puede usar la acción, si es el caso."""
         if accion.necesita_elemento and self.indice() is None:
             self._vacio.sin_elemento()
             return True
-        if self._avisar_motivo(accion):
-            return True
-        accion.manejador()
-        return True
+        return self._avisar_motivo(accion)
 
     def _avisar_motivo(self, accion) -> bool:
         """Anuncia el motivo de una acción que no se puede usar ahora."""
@@ -324,6 +333,10 @@ class ListaConAcciones:
 
     def _al_contexto(self, _evento):
         self._abrir_menu()
+
+    def _abrir_opciones(self, accion):
+        """Muestra las opciones de la acción sobre la lista."""
+        mostrar_opciones(self._lista, accion.opciones)
 
     def _abrir_menu(self):
         ahora = time.monotonic()
