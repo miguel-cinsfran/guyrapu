@@ -345,6 +345,8 @@ class EscenaGuyrapu:
 
     def quitar_todo(self, parada=None, esperar=time.sleep) -> None:
         """Deja OBS como si Guyrapu nunca hubiera mostrado nada."""
+        # Import diferido: medio_obs toma ESCENA de este módulo.
+        from guyrapu.obs import medio_obs
         self._escena = ""
         for escena in self._escenas(parada):
             self._quitar(escena, ESCENA, parada)
@@ -352,7 +354,9 @@ class EscenaGuyrapu:
                 ("RemoveScene", {"sceneName": ESCENA}),
                 ("RemoveScene", {"sceneName": TARJETA}),
                 ("RemoveInput", {"inputName": TEXTO}),
-                ("RemoveInput", {"inputName": FONDO})):
+                ("RemoveInput", {"inputName": FONDO}),
+                ("RemoveInput", {"inputName": medio_obs.IMAGEN}),
+                ("RemoveInput", {"inputName": medio_obs.MEDIO})):
             try:
                 self._pedir(tipo, datos, parada)
             except obs_cliente.ObsError as error:

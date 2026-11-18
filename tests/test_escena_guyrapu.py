@@ -13,7 +13,7 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.obs import escena_guyrapu, estilos_aviso, fondo_guardado, fondo_tarjeta
-from guyrapu.obs import fuentes_windows
+from guyrapu.obs import fuentes_windows, medio_obs
 from guyrapu.obs.obs_cliente import ObsError
 
 
@@ -552,6 +552,16 @@ class TestOcultarYQuitar(Base):
         self.assertNotIn(FONDO, self.cliente.entradas)
         self.assertEqual(self.cliente.filtros, {})
         self.assertEqual(list(self.carpeta.glob("*.png")), [])
+
+    def test_p9_quita_tambien_las_entradas_del_medio(self):
+        self.capa.preparar()
+        self.cliente.entradas[medio_obs.IMAGEN] = {
+            "inputKind": "image_source", "inputSettings": {}}
+        self.cliente.entradas[medio_obs.MEDIO] = {
+            "inputKind": "ffmpeg_source", "inputSettings": {}}
+        self.capa.quitar_todo()
+        self.assertNotIn(medio_obs.IMAGEN, self.cliente.entradas)
+        self.assertNotIn(medio_obs.MEDIO, self.cliente.entradas)
 
     def test_p9_reintenta_el_borrado_del_png_hasta_lograrlo(self):
         self.capa.preparar()
