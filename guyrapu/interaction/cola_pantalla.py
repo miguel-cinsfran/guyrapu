@@ -61,13 +61,13 @@ class ColaPantalla:
     def agregar(self, pieza):
         """Suma una pieza, salvo con la cola llena o el pánico.
 
-        Las respuestas de los comandos y las tarjetas de los disparadores
-        pasan delante de los mensajes automáticos que esperan, pero detrás de
-        otras respuestas.
+        Las respuestas de los comandos y las tarjetas de los disparadores y
+        las metas pasan delante de los mensajes automáticos que esperan, pero
+        detrás de otras respuestas.
         """
         if self._panico or len(self._pendientes) >= self.TOPE:
             return False
-        if pieza.tipo in ("comando", "disparador"):
+        if pieza.tipo in ("comando", "disparador", "meta"):
             indice = next(
                 (posicion for posicion, actual
                  in enumerate(self._pendientes) if actual.tipo == "mensaje"),

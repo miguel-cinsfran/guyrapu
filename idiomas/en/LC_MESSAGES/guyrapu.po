@@ -16618,3 +16618,12 @@ msgstr "No song is playing"
 msgid "La cola está vacía"
 msgstr "The queue is empty"
 
+#: guyrapu/core/eventos_sonido.py
+msgid "Meta cumplida del directo"
+msgstr "Live stream goal reached"
+
+#: guyrapu/ui/metas_en_vivo.py
+#, python-brace-format
+msgid "Meta cumplida: {nombre}."
+msgstr "Goal reached: {nombre}."
+

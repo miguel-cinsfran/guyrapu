@@ -168,6 +168,8 @@ SIN_ESCENARIO: dict[str, str] = {
         "atiende los comandos del chat y no abre ventana propia."),
     "disparadores_en_vivo.py": (
         "atiende los disparadores del chat y no abre ventana propia."),
+    "metas_en_vivo.py": (
+        "atiende las metas del chat y no abre ventana propia."),
     "encuesta_en_vivo.py": (
         "atiende la encuesta abierta de la sesión y no abre ventana propia."),
     "comando_cerrar_obs.py": (

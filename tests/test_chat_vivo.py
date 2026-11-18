@@ -341,6 +341,34 @@ class TestComandosDelChat(unittest.TestCase):
         debug.assert_called_once()
 
 
+class TestMetasDelChat(unittest.TestCase):
+
+    def test_encolar_llama_a_las_metas_con_el_registro(self):
+        control = _controlador()
+        registro = _registro(tipo=TIPO_ME_GUSTA, monto="1")
+        with mock.patch.object(
+                chat_vivo.metas_en_vivo, "atender") as atender, \
+                mock.patch.object(chat_vivo.wx, "CallLater",
+                                  return_value=mock.Mock()):
+            control.encolar(registro)
+        atender.assert_called_once()
+        self.assertIs(atender.call_args.args[1], registro)
+
+    def test_un_fallo_al_atender_las_metas_no_corta_el_comando(self):
+        control = _controlador()
+        with mock.patch.object(chat_vivo.metas_en_vivo, "atender",
+                               side_effect=RuntimeError("x")), \
+                mock.patch.object(
+                    chat_vivo.comandos_en_vivo, "atender") as atender, \
+                mock.patch.object(chat_vivo.logger, "debug") as debug, \
+                mock.patch.object(chat_vivo.wx, "CallLater",
+                                  return_value=mock.Mock()):
+            control.encolar(_registro(tipo=TIPO_ME_GUSTA, monto="1"))
+        atender.assert_called_once()
+        debug.assert_called_once()
+        self.assertEqual(len(control._pendientes), 1)
+
+
 class TestDisparadoresDelChat(unittest.TestCase):
 
     def test_encolar_llama_a_los_disparadores_con_el_registro(self):

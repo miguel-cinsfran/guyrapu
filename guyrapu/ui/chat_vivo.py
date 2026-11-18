@@ -25,7 +25,9 @@ from guyrapu.core.config import (
     TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
 from guyrapu.translation import idiomas
-from guyrapu.ui import comandos_clips, comandos_en_vivo, disparadores_en_vivo
+from guyrapu.ui import (
+    comandos_clips, comandos_en_vivo, disparadores_en_vivo, metas_en_vivo,
+)
 from guyrapu.ui.lista_chat import ListaChat, MensajeChat
 from guyrapu.ui.participacion_chat import Participacion
 from guyrapu.voice import sound_player as _snd
@@ -71,6 +73,7 @@ class ControladorChat:
         self._quizas_clip(registro)
         self._quizas_comando(registro)
         self._quizas_disparador(registro)
+        self._quizas_meta(registro)
         self.recibidos += 1 if registro.tipo == TIPO_TEXTO else 0
         if self._modo(registro) == "ocultar":
             return
@@ -125,6 +128,17 @@ class ControladorChat:
         except Exception as error:
             logger.debug("no se pudo atender el disparador del chat: %s",
                          error)
+
+    def _quizas_meta(self, registro: MensajeChat) -> None:
+        """Atiende la meta que llega en el hilo de la interfaz.
+
+        Un error se registra y nunca corta la lectura del chat.
+        """
+        try:
+            metas_en_vivo.atender(
+                self.lista.GetTopLevelParent(), registro)
+        except Exception as error:
+            logger.debug("no se pudo atender la meta del chat: %s", error)
 
     def _clip_terminado(self, guardado: bool) -> None:
         self._clip_en_curso = False

@@ -21,6 +21,7 @@ MOTIVOS: dict[str, tuple[str, ...]] = {
         "actualizacion_lista",
         "aviso",
         "encuesta_cerrada",
+        "meta_cumplida",
         "destinos_de_mas",
         "restream_senal_debil",
         "transmision_problema",

@@ -307,6 +307,31 @@ class TestTarjetaDeDisparador(Base):
         self.assertEqual(self.anuncios_simples, [])
 
 
+class TestTarjetaDeMeta(Base):
+
+    def _pieza(self, estilo="clasico"):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        return Pieza(tipo="meta", texto="Risa: meta cumplida", segundos=10,
+                     datos={"estilo": estilo, "nombre": "Risa"})
+
+    def test_no_anuncia_la_tarjeta_de_una_meta(self):
+        self.assertTrue(self.capa.agregar_pieza(self._pieza()))
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "En el vídeo: Risa: meta cumplida.")
+        self.assertEqual(self.anuncios, [])
+        self.assertEqual(self.anuncios_simples, [])
+
+    def test_una_meta_con_estilo_vacio_usa_el_predeterminado_de_metas(self):
+        with tempfile.TemporaryDirectory() as carpeta, \
+                redirigir_rutas(carpeta):
+            estilos_aviso.guardar_por_tipo(
+                paths.estilos_avisos(), {"meta": "banda"})
+            self.capa.agregar_pieza(self._pieza(estilo=""))
+            self._atender()
+        self.assertEqual(self.escena.estilos[0]["clave"], "banda")
+
+
 class TestDisparadorConMedio(Base):
 
     def _pieza(self, texto="Ríe Ana", medio=None):

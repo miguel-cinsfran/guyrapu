@@ -308,10 +308,10 @@ class CapaVideo:
             self._en_cola -= 1
         self._ocupado = False
         self._falla_avisada = False
-        # La respuesta de un comando y la tarjeta de un disparador no se
-        # anuncian: el chat ya se lee como hoy. La encuesta ya se anunció al
-        # abrirse y al cerrarse.
-        if pieza.tipo in ("comando", "encuesta", "disparador"):
+        # La respuesta de un comando, la tarjeta de un disparador y la de una
+        # meta no se anuncian: el chat ya se lee como hoy. La encuesta ya se
+        # anunció al abrirse y al cerrarse.
+        if pieza.tipo in ("comando", "encuesta", "disparador", "meta"):
             return
         nombre = str(pieza.datos.get("nombre") or pieza.texto)
         # Traductores: aviso al confirmarse una tarjeta en el vídeo. {nombre} es el nombre del mensaje automático.

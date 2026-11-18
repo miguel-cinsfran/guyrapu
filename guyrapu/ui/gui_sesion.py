@@ -18,6 +18,7 @@ from guyrapu.core.idioma import _
 from guyrapu.ui import confirmar
 from guyrapu.ui import gui_construccion
 from guyrapu.ui import menu_habilitado
+from guyrapu.ui import metas_en_vivo
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.participacion_chat import ORDEN_REGALOS
 from guyrapu.ui.sesion_conectada import SesionConectada
@@ -168,6 +169,7 @@ def reiniciar_datos_sesion(ventana) -> None:
     # Contadores a cero.
     try:    ventana._stats.reset()
     except Exception as error: logger.debug("no se pudo reiniciar los contadores: %s", error)
+    metas_en_vivo.reiniciar(ventana)
     ventana._actualizar_sb()
 
 
