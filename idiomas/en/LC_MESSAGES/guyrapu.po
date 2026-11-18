@@ -2010,6 +2010,10 @@ msgstr "Live interaction (Ctrl+Alt+Shift)"
 msgid "Ventana y navegación (fijos)"
 msgstr "Window and navigation (fixed)"
 
+#: guyrapu/core/atajos.py
+msgid "Recientes y filtro del chat (fijos)"
+msgstr "Recent chat messages and filter (fixed)"
+
 #: guyrapu/core/avisos_preferencias.py
 msgid "Preferencias guardadas."
 msgstr "Preferences saved."
@@ -8033,6 +8037,14 @@ msgid "Leer el mensaje 10 desde el final del chat"
 msgstr "Read message 10 from the end of the chat"
 
 #: guyrapu/ui/atajos_captura.py
+msgid "Filtro anterior del chat"
+msgstr "Previous chat filter"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Filtro siguiente del chat"
+msgstr "Next chat filter"
+
+#: guyrapu/ui/atajos_captura.py
 msgid ""
 "Cada familia de atajos tiene su modificador. Ctrl es para el reproductor, "
 "Alt para el chat y Ctrl+Mayús para abrir ventanas. Alt+Mayús es para el "
@@ -10520,8 +10532,8 @@ msgid "Ajustar"
 msgstr "Fit"
 
 #: guyrapu/ui/escena_disenos.py
-msgid "Llenar"
-msgstr "Fill"
+msgid "Cubrir"
+msgstr "Cover"
 
 #: guyrapu/ui/escena_disenos.py
 msgid "Pequeño, un quinto del ancho"
@@ -10820,8 +10832,8 @@ msgid "&Ajustar al vídeo"
 msgstr "&Fit to the video"
 
 #: guyrapu/ui/escena_menu_fuente.py
-msgid "&Estirar al vídeo"
-msgstr "&Stretch to the video"
+msgid "C&ubrir el vídeo"
+msgstr "C&over the video"
 
 #: guyrapu/ui/escena_menu_fuente.py
 msgid "Voltear &horizontalmente"
@@ -15284,6 +15296,10 @@ msgid "Leer los mensajes recientes con"
 msgstr "Read recent messages with"
 
 #: guyrapu/ui/preferencias_lectura.py
+msgid "Usar atajos del chat en cual&quier aplicación"
+msgstr "Use chat shortcuts in any a&pplication"
+
+#: guyrapu/ui/preferencias_lectura.py
 msgid "Traducir chat"
 msgstr "Translate chat"
 
@@ -16751,20 +16767,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Filtro anterior del chat"
-msgstr "Previous chat filter"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Filtro siguiente del chat"
-msgstr "Next chat filter"
-
-#: guyrapu/core/atajos.py
-msgid "Recientes y filtro del chat (fijos)"
-msgstr "Recent chat messages and filter (fixed)"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Usar atajos del chat en cual&quier aplicación"
-msgstr "Use chat shortcuts in any a&pplication"
 

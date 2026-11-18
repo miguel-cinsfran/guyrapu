@@ -124,6 +124,11 @@ class DisenoEscenaDialogTest(unittest.TestCase):
         self.assertEqual(dialogo.cho_secundaria.GetStringSelection(), "Cámara")
         self.assertNotIn(NOMBRE_FUENTE, dialogo.cho_principal.GetStrings())
 
+    def test_el_ajuste_ofrece_cubrir(self):
+        dialogo = self._dialogo()
+        self.assertEqual(dialogo.cho_ajuste_principal.GetStrings(),
+                         ["Automático", "Ajustar", "Cubrir"])
+
     def test_los_controles_ajustan_el_diseno(self):
         dialogo = self._dialogo()
         self._elegir(dialogo, _indice("imagen_en_imagen"))

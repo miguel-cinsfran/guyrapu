@@ -47,7 +47,7 @@ def _menu_transformar(acciones):
 def _menu_transformar_forma(menu, acciones):
     _accion(menu, _("&Centrar en el vídeo"), acciones.centrar)
     _accion(menu, _("&Ajustar al vídeo"), acciones.ajustar)
-    _accion(menu, _("&Estirar al vídeo"), acciones.llenar)
+    _accion(menu, _("C&ubrir el vídeo"), acciones.llenar)
     menu.AppendSeparator()
     _accion(menu, _("Voltear &horizontalmente"), acciones.voltear_horizontal)
     _accion(menu, _("Voltear &verticalmente"), acciones.voltear_vertical)

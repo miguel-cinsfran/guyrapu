@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 557f0feb8c39b9c514dc3bc4d3c3af8b6caa061d -->
+<!-- original: es/MANUAL.md 4571594542c99df5f63a91e5b02b4653d7a2b34c -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -210,7 +210,7 @@ The *Sources* list shows the sources of the chosen scene. Each row first says wh
 factory layouts, *Full screen*, *Picture-in-picture* and *Split in two*, and
 the dialog lets you choose which source goes in each place, the corner, the
 split and the chat. *Fit* decides what happens if the aspect ratio does not
-match: *Fit* shows the whole source, *Fill* crops the edges and *Automatic*
+match: *Fit* shows the whole source, *Cover* crops the edges and *Automatic*
 fills with the camera and fits the rest. *Save as…* saves your own layout.
 On a vertical canvas, *Split in two* stacks the sources at the top and
 bottom, and the chat in a strip goes at the bottom.

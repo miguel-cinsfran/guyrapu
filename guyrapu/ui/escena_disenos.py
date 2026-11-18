@@ -21,7 +21,7 @@ from guyrapu.ui.preferencias_comun import (
     boton, fila_campo, lista_con_nombre, nombre_de_etiqueta)
 
 _OPCIONES_AJUSTE = (("", N_("Automático")), ("ajustar", N_("Ajustar")),
-                    ("llenar", N_("Llenar")))
+                    ("llenar", N_("Cubrir")))
 _OPCIONES_ESQUINA = tuple(
     (nombre, N_(obs_disposicion.etiqueta_anclaje(nombre)))
     for nombre in ESQUINAS)

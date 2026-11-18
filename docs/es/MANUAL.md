@@ -410,7 +410,7 @@ fábrica, *Pantalla completa*, *Imagen en imagen* y *Dividida en dos*, y en el
 cuadro se elige qué fuente va en cada lugar, la esquina, el reparto y el
 chat. *Ajuste*
 decide qué pasa si la proporción no coincide: *Ajustar* muestra la fuente
-entera, *Llenar* recorta los bordes y *Automático* llena con la cámara y
+entera, *Cubrir* recorta los bordes y *Automático* llena con la cámara y
 ajusta lo demás. *Guardar como…* guarda un diseño propio. En un lienzo
 vertical, *Dividida en dos* apila las fuentes arriba y abajo, y el chat en
 franja va abajo.
