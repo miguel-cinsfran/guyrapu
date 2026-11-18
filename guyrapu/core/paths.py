@@ -98,8 +98,7 @@ def comandos() -> Path:
 
 
 def disparadores() -> Path:
-    # Disparadores propios del usuario: nacen ya dentro de data/, así que
-    # no entran en datos_a_migrar().
+    # Disparadores propios del usuario.
     return carpeta_datos() / "disparadores.json"
 
 
@@ -129,19 +128,17 @@ def fin_pendiente() -> Path:
 
 def fin_pendiente_log() -> Path:
     # Cada intento y el resultado del proceso que finaliza directos con la
-    # app cerrada. Nace ya dentro de data/, así que no entra en datos_a_migrar().
+    # app cerrada.
     return carpeta_datos() / "fin-pendiente.log"
 
 
 def cuota_youtube() -> Path:
-    # Unidades de la API de YouTube gastadas en el día del Pacífico. Nace ya
-    # dentro de data/, así que no entra en datos_a_migrar().
+    # Unidades de la API de YouTube gastadas en el día del Pacífico.
     return carpeta_datos() / "cuota_youtube.json"
 
 
 def cuota_youtube_pagina() -> Path:
-    # Tabla de costos que publica Google, leída una vez por semana. Nace ya
-    # dentro de data/, así que no entra en datos_a_migrar().
+    # Tabla de costos que publica Google, leída una vez por semana.
     return carpeta_datos() / "cuota_youtube_pagina.json"
 
 
@@ -152,26 +149,23 @@ def catalogo_ia() -> Path:
 
 
 def disenos_escena() -> Path:
-    # Diseños de escena propios del usuario: nacen ya dentro de data/, así
-    # que no entran en datos_a_migrar().
+    # Diseños de escena propios del usuario.
     return carpeta_datos() / "disenos_escena.json"
 
 
 def estilos_avisos() -> Path:
-    # Estilos de aviso propios del usuario: nacen ya dentro de data/, así
-    # que no entran en datos_a_migrar().
+    # Estilos de aviso propios del usuario.
     return carpeta_datos() / "estilos_avisos.json"
 
 
 def fondos_de_avisos() -> Path:
-    # PNG de las tarjetas de aviso que se arman en OBS: nacen ya dentro de
-    # data/, así que no entran en datos_a_migrar().
+    # PNG de las tarjetas de aviso que se arman en OBS.
     return carpeta_datos() / "fondos-avisos"
 
 
 def gratis_ia() -> Path:
     # Marcas de qué modelos responde la clave gratuita de un proveedor: se
-    # rehacen al actualizar la lista, así que no entra en datos_a_migrar().
+    # rehacen al actualizar la lista.
     return carpeta_datos() / "gratis_ia.json"
 
 
@@ -245,7 +239,6 @@ def cache_video() -> Path:
 
 def resumenes_sesion() -> Path:
     # Resúmenes de participación de cada directo, para agradecer al cerrar.
-    # Nacen ya dentro de data/, así que no entran en datos_a_migrar().
     return carpeta_datos() / "resumenes_sesion"
 
 
@@ -281,7 +274,7 @@ def resolver_carpeta_musica(texto) -> str:
 
 
 def datos_a_migrar() -> list[Path]:
-    """Rutas de datos que la migración mueve de la raíz a `data/`."""
+    """Datos que se mueven de la raíz a data/; lo que ya nace ahí no se lista."""
     return [
         config_ini(),
         credenciales(),
