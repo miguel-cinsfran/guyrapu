@@ -6,6 +6,7 @@ import ast
 import contextlib
 import io
 import os
+import struct
 import subprocess
 import sys
 import tempfile
@@ -16,8 +17,66 @@ from pathlib import Path
 from guyrapu.core import config, eventos_sonido
 from scripts import sound_gen
 
+# Medidos sobre sounds/themes/*/espera.wav de la base el 18/11/2026.
+DURACION_ESPERA = 0.32
+PICO_ESPERA = 0.379974365234375
+
+
+def _canal_izquierdo(ruta):
+    with wave.open(str(ruta), "rb") as wav:
+        canales = wav.getnchannels()
+        frecuencia = wav.getframerate()
+        crudo = wav.readframes(wav.getnframes())
+    enteros = struct.unpack(f"<{len(crudo) // 2}h", crudo)
+    return list(enteros[0::canales]), frecuencia
+
+
+def _notas_de_espera(muestras, frecuencia):
+    # El respiro es el primer tramo de ceros de al menos 20 ms: separa las dos
+    # notas sin depender de sus duraciones exactas.
+    minimo = int(frecuencia * 0.02)
+    inicio = None
+    for i, muestra in enumerate(muestras):
+        if muestra != 0:
+            if inicio is not None and i - inicio >= minimo:
+                return muestras[:inicio], muestras[i:]
+            inicio = None
+        elif inicio is None:
+            inicio = i
+    return [], []
+
+
+def _frecuencia_de_nota(muestras, frecuencia):
+    cruces = sum(
+        1 for anterior, siguiente in zip(muestras, muestras[1:])
+        if (anterior < 0 <= siguiente) or (anterior >= 0 > siguiente))
+    return cruces * frecuencia / (2 * len(muestras))
+
 
 class PruebasSoundGen(unittest.TestCase):
+    def test_la_espera_son_dos_notas_iguales_en_g5_en_los_dos_temas(self):
+        for tema in ("default", "suave"):
+            ruta = sound_gen.THEMES_DIR / tema / "espera.wav"
+            with self.subTest(tema=tema):
+                muestras, frecuencia = _canal_izquierdo(ruta)
+                primera, segunda = _notas_de_espera(muestras, frecuencia)
+                self.assertTrue(primera and segunda, ruta.name)
+                f1 = _frecuencia_de_nota(primera, frecuencia)
+                f2 = _frecuencia_de_nota(segunda, frecuencia)
+                self.assertGreaterEqual(f2, f1, ruta.name)
+                self.assertAlmostEqual(f1, sound_gen.G5, delta=sound_gen.G5 * 0.05)
+                self.assertAlmostEqual(f2, sound_gen.G5, delta=sound_gen.G5 * 0.05)
+
+    def test_la_espera_no_supera_la_duracion_ni_el_pico_de_antes(self):
+        for tema in ("default", "suave"):
+            ruta = sound_gen.THEMES_DIR / tema / "espera.wav"
+            with self.subTest(tema=tema):
+                muestras, frecuencia = _canal_izquierdo(ruta)
+                duracion = len(muestras) / frecuencia
+                pico = max(abs(m) for m in muestras) / 32768.0
+                self.assertLessEqual(duracion, DURACION_ESPERA, ruta.name)
+                self.assertLessEqual(pico, PICO_ESPERA, ruta.name)
+
     def test_eventos_del_tema_default_coinciden_con_configuracion(self):
         generados = {Path(nombre).stem for nombre in sound_gen.TEMAS["default"]}
         configurados = set(config._EVENTOS_SONIDO) - set(eventos_sonido.SONIDOS)

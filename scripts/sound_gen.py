@@ -243,11 +243,11 @@ def gen_reanudar():
 
 
 def gen_espera():
-    # Dos notas bajas D5→C5 con un respiro, muy suaves: se repite cada dos
-    # segundos mientras el lector habla, sin taparlo ni cansar.
-    n1 = _perc(_seno(D5, 0.12, 0.20), 0.010, 0.10)
-    n2 = _perc(_seno(C5, 0.16, 0.20), 0.010, 0.12)
-    return _normalizar(_concat(n1, _silencio(0.04), n2), 0.38)
+    # Dos notas iguales en G5 con un respiro, suaves y breves: se repiten cada
+    # dos segundos mientras el lector habla, sin taparlo ni sonar a cierre.
+    n1 = _perc(_seno(G5, 0.10, 0.20), 0.010, 0.10)
+    n2 = _perc(_seno(G5, 0.10, 0.20), 0.010, 0.10)
+    return _normalizar(_concat(n1, _silencio(0.04), n2), 0.32)
 
 
 def gen_copiar():
@@ -435,8 +435,8 @@ def gen_ia_respuesta():
 
 
 # ── Preguntar a la IA: espera, captura, cancelación y captura negra ──────────
-# El de espera se repite cada 2 segundos: figura melódica baja y suave que
-# no tapa al lector. El resto sigue el lenguaje de gestos del archivo.
+# El de espera se repite cada 2 segundos: figura breve y suave que no tapa al
+# lector. El resto sigue el lenguaje de gestos del archivo.
 
 def gen_ia_analizando():
     # Cuatro notas que suben y bajan sin resolver (E4→G4→A4→G4): suena a
@@ -654,10 +654,10 @@ def s_reanudar():
 
 
 def s_espera():
-    # Las mismas dos notas de espera en madera, todavía más bajas y breves.
-    return _normalizar(_concat(_madera(D5, 0.12, 0.22, 0.10),
+    # Las mismas dos notas iguales en G5, en madera, suaves y breves.
+    return _normalizar(_concat(_madera(G5, 0.10, 0.22, 0.10),
                                _silencio(0.04),
-                               _madera(C5, 0.16, 0.22, 0.12)), 0.38)
+                               _madera(G5, 0.10, 0.22, 0.10)), 0.32)
 
 
 def s_copiar():
@@ -803,7 +803,7 @@ def s_ia_respuesta():
 
 
 # ── Preguntar a la IA en el tema suave: espera, captura y demás ──────────────
-# Los mismos gestos en madera cálida; la espera va baja porque se repite.
+# Los mismos gestos en madera cálida; la espera es breve y suave porque se repite.
 
 def s_ia_analizando():
     # La misma figura que sube y baja sin resolver, en madera y baja.
