@@ -16,8 +16,12 @@ CARPETA = Path(__file__).resolve().parent / "transcripciones"
 
 
 def _habla(paso) -> str:
-    return " ".join(str(evento.get("texto") or "")
-                    for evento in paso.get("habla") or ()).strip()
+    dicho = " ".join(str(evento.get("texto") or "")
+                     for evento in paso.get("habla") or ()).strip()
+    nombre = str((paso.get("foco") or {}).get("nombre") or "").strip()
+    if nombre and dicho.endswith(f"{nombre} {nombre}"):
+        return dicho[:-len(nombre) - 1]
+    return dicho
 
 
 def _linea(paso) -> str:

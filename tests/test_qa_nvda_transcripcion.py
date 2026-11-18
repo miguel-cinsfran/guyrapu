@@ -61,6 +61,22 @@ class TestFormato(unittest.TestCase):
         self.assertNotIn("77", transcripcion.texto(otro))
         self.assertNotIn("99", transcripcion.texto(otro))
 
+    def test_el_nombre_del_foco_repetido_al_final_se_escribe_una_vez(self):
+        simple = datos("No hay palabras.")
+        simple["pasos"][0]["habla"] = [{"texto": "No hay palabras."}]
+        doble = datos("No hay palabras.")
+        doble["pasos"][0]["habla"] = [
+            {"texto": "No hay palabras. No hay palabras."}]
+        self.assertEqual(transcripcion.texto(doble),
+                         transcripcion.texto(simple))
+
+    def test_otra_repeticion_que_no_es_el_nombre_del_foco_no_se_toca(self):
+        caso = datos("Lista")
+        caso["pasos"][0]["habla"] = [
+            {"texto": "No hay palabras. No hay palabras."}]
+        self.assertIn("dijo='No hay palabras. No hay palabras.'",
+                      transcripcion.texto(caso))
+
 
 class TestComparacion(unittest.TestCase):
 
