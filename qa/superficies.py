@@ -158,6 +158,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "lista_ctrl.py": (
         "traduce a un wx.ListCtrl lo que pide la pieza de listas; la "
         "recorren los escenarios de las ventanas que la usen."),
+    "menu_lista.py": (
+        "arma el menú contextual y los submenús de la pieza de listas; lo "
+        "recorren los escenarios de las ventanas que la usen."),
     "probar_aviso.py": (
         "es el comando Probar de las páginas de estilos y mensajes "
         "automáticos; no abre ventana propia."),
