@@ -12,8 +12,12 @@ from guyrapu.music import anuncios as anuncios_musica
 from guyrapu.music import enlaces as enlaces_musica
 from guyrapu.music import listas as listas_musica
 from guyrapu.music import vista as vista_musica
+from guyrapu.ui import musica_menus
 
 NOMBRE_LISTA = "QA música real"
+ETIQUETA_GUARDAR_COLA = next(
+    texto for texto, accion in musica_menus.entradas_cola()
+    if accion == musica_menus.ACCION_GUARDAR_COLA)
 
 
 def _url_video():
@@ -45,7 +49,7 @@ def _k_guardar_cola(rec):
     rec._elegir("Música", "Cola de reproducción", 0)
     try:
         rec._menu_contextual("Música", "Cola de reproducción",
-                             "Guardar la cola como lista", responder_ya=True)
+                             ETIQUETA_GUARDAR_COLA, responder_ya=True)
     except Exception:
         pass  # el cuadro es modal y se come la respuesta
     if rec.propia.esperar_ventana("Nueva lista", segundos=10) is None:
