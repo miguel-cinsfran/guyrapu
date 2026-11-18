@@ -88,19 +88,9 @@ class DisparadoresEnVivo:
 
     def _medio(self, nombre):
         """El medio de la biblioteca con ese nombre, o None si ya no está."""
-        nombre = (nombre or "").strip()
-        if not nombre:
-            return None
-        for guardado in medios_guardados.cargar(paths.medios()):
-            if guardado.get("nombre") == nombre:
-                return {
-                    "ruta": str(medios_guardados.archivo_de(
-                        paths.carpeta_medios(), guardado)),
-                    "tipo": guardado.get("tipo", ""),
-                    "duracion": guardado.get("duracion", 0),
-                    "ganancia_db": guardado.get("ganancia_db"),
-                }
-        return None
+        return medios_guardados.medio_para_video(
+            medios_guardados.cargar(paths.medios()),
+            paths.carpeta_medios(), nombre)
 
     def _recargar(self) -> None:
         """Vuelve a leer los disparadores y las palabras si cambiaron."""

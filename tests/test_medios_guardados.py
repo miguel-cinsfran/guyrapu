@@ -120,6 +120,26 @@ class TestGanancia(BaseMedios):
             medios_guardados.indice_de_archivo([], "risa.wav"))
 
 
+class TestMedioParaVideo(BaseMedios):
+
+    def test_devuelve_el_medio_con_su_ruta_tipo_duracion_y_ganancia(self):
+        guardado = medios_guardados.normalizar(
+            _datos(nombre="fuego", tipo="video", archivo="fuego.mp4",
+                   duracion=12, ganancia_db=-6.0))
+        self.assertEqual(
+            medios_guardados.medio_para_video(
+                [guardado], self.carpeta, "fuego"),
+            {"ruta": str(self.carpeta / "fuego.mp4"), "tipo": "video",
+             "duracion": 12, "ganancia_db": -6.0})
+
+    def test_sin_ese_nombre_no_hay_medio(self):
+        guardado = medios_guardados.normalizar(_datos(nombre="fuego"))
+        for nombre in ("otro", "", "  "):
+            with self.subTest(nombre=nombre):
+                self.assertIsNone(medios_guardados.medio_para_video(
+                    [guardado], self.carpeta, nombre))
+
+
 class TestArchivo(BaseMedios):
 
     def test_guardar_y_cargar_conserva_los_campos(self):

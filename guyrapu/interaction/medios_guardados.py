@@ -148,6 +148,24 @@ def archivo_de(carpeta, medio) -> Path:
     return Path(carpeta) / normalizar(medio)["archivo"]
 
 
+def medio_para_video(guardados, carpeta, nombre):
+    """El medio con ese nombre listo para la capa del vídeo, o None."""
+    nombre = _texto(nombre)
+    if not nombre:
+        return None
+    for guardado in guardados:
+        datos = normalizar(guardado)
+        if datos["nombre"] != nombre:
+            continue
+        return {
+            "ruta": str(archivo_de(carpeta, datos)),
+            "tipo": datos["tipo"],
+            "duracion": datos["duracion"],
+            "ganancia_db": datos["ganancia_db"],
+        }
+    return None
+
+
 def eliminar(carpeta, medio) -> None:
     """Borra la copia del medio; si ya no está, no falla."""
     try:
