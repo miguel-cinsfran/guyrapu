@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.core import paths
-from guyrapu.obs import escena_guyrapu, estilos_aviso, fondo_tarjeta
+from guyrapu.obs import escena_guyrapu, estilos_aviso, fondo_guardado, fondo_tarjeta
 from guyrapu.obs import fuentes_windows
 from guyrapu.obs.obs_cliente import ObsError
 
@@ -498,6 +498,25 @@ class TestMostrar(Base):
         self.assertEqual(self.cliente.fuentes_de(ESCENA), [TARJETA])
 
 
+class TestArmar(Base):
+    def test_p1_arma_igual_que_mostrar_sin_tocar_la_escena_del_programa(self):
+        self.capa.preparar()
+        self.cliente.agregar_item("Juego", "Cámara")
+        self.cliente.llamadas = []
+        tarjeta = self.capa.armar("Hola", _estilo())
+        armado = list(self.cliente.llamadas)
+        tipos = [tipo for tipo, _datos in armado]
+        self.assertNotIn("GetCurrentProgramScene", tipos)
+        self.assertNotIn("CreateSceneItem", tipos)
+        self.assertNotIn("SetSceneItemIndex", tipos)
+        self.assertEqual(tarjeta.escena, "")
+        self.assertEqual(self.cliente.fuentes_de("Juego"), ["Cámara"])
+        self.cliente.llamadas = []
+        mostrada = self.capa.mostrar("Hola", _estilo())
+        self.assertEqual(mostrada, tarjeta._replace(escena="Juego"))
+        self.assertEqual(self.cliente.llamadas[:len(armado)], armado)
+
+
 class TestOcultarYQuitar(Base):
     def test_p8_quita_la_escena_de_donde_la_puso(self):
         self.capa.preparar()
@@ -539,7 +558,7 @@ class TestOcultarYQuitar(Base):
         with mock.patch.object(Path, "unlink", unlink):
             self.capa.quitar_todo(esperar=esperas.append)
         self.assertEqual(len(intentos), 3)
-        self.assertEqual(esperas, [escena_guyrapu._ESPERA_BORRADO] * 2)
+        self.assertEqual(esperas, [fondo_guardado._ESPERA_BORRADO] * 2)
         self.assertFalse(ruta.exists())
 
     def test_p9_si_el_png_sigue_tomado_no_falla(self):
@@ -555,8 +574,8 @@ class TestOcultarYQuitar(Base):
 
         with mock.patch.object(Path, "unlink", unlink):
             self.capa.quitar_todo(esperar=esperas.append)
-        self.assertEqual(len(intentos), escena_guyrapu._INTENTOS_BORRADO)
-        self.assertEqual(len(esperas), escena_guyrapu._INTENTOS_BORRADO)
+        self.assertEqual(len(intentos), fondo_guardado._INTENTOS_BORRADO)
+        self.assertEqual(len(esperas), fondo_guardado._INTENTOS_BORRADO)
         self.assertTrue(ruta.exists())
 
     def test_p10_captura_devuelve_el_png_de_la_escena(self):

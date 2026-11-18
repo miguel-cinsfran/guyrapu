@@ -5,8 +5,6 @@
 from __future__ import annotations
 
 import base64
-import hashlib
-import os
 import time
 from collections import namedtuple
 
@@ -16,6 +14,7 @@ from guyrapu.interaction import zonas
 from guyrapu.obs import estilos_aviso, fondo_tarjeta, fuentes_windows
 from guyrapu.obs import luz_imagen
 from guyrapu.obs import obs_cliente
+from guyrapu.obs.fondo_guardado import borrar, guardar_fondo
 
 # Fijos, sin traducir: son identificadores dentro de OBS.
 ESCENA, TARJETA, TEXTO, FONDO, OPACIDAD = (
@@ -24,8 +23,6 @@ ESCENA, TARJETA, TEXTO, FONDO, OPACIDAD = (
 
 _ALINEACIONES = {"izquierda": "left", "centro": "center", "derecha": "right",
                  "left": "left", "center": "center", "right": "right"}
-_ESPERA_BORRADO = 0.5
-_INTENTOS_BORRADO = 4
 
 
 Tarjeta = namedtuple("Tarjeta", "x y ancho alto escena aviso_fuente")
@@ -60,44 +57,6 @@ def _ajustes_de_estilo(estilo, fuente, tamano, ancho, alto) -> dict:
             str(estilo.get("alineacion", "izquierda")), "left"),
         "valign": "top",
     }
-
-
-def _podar(carpeta, actual) -> None:
-    archivos = sorted(carpeta.glob("*.png"),
-                      key=lambda ruta: ruta.stat().st_mtime)
-    while len(archivos) > 20:
-        viejo = next((ruta for ruta in archivos if ruta != actual), None)
-        if viejo is None:
-            break
-        viejo.unlink()
-        archivos.remove(viejo)
-
-
-def _guardar_fondo(png, ancho, alto, estilo, escala):
-    carpeta = paths.fondos_de_avisos()
-    valores = "|".join(str(valor) for valor in (
-        ancho, alto, str(estilo.get("color_fondo", "#000000")),
-        float(estilo.get("opacidad_fondo", 0) or 0),
-        str(estilo.get("esquinas", "rectas")) == "redondeadas",
-        bool(estilo.get("sombra", False)), escala))
-    resumen = hashlib.sha1(valores.encode("utf-8")).hexdigest()[:12]
-    ruta = carpeta / f"fondo-{resumen}.png"
-    if ruta.exists():
-        os.utime(ruta, None)
-    else:
-        carpeta.mkdir(parents=True, exist_ok=True)
-        ruta.write_bytes(png)
-    _podar(carpeta, ruta)
-    return ruta
-
-
-def _borrar(ruta, esperar) -> None:
-    for _intento in range(_INTENTOS_BORRADO):
-        try:
-            ruta.unlink()
-            return
-        except PermissionError:
-            esperar(_ESPERA_BORRADO)
 
 
 def _pixel_bmp(datos):
@@ -243,8 +202,8 @@ class EscenaGuyrapu:
             cadencia=esperas.Fija(0.03), plazo=2,
             tolerar=(obs_cliente.ObsError,), tiempo=resolver_tiempo(None, esperar))
 
-    def mostrar(self, texto, estilo, parada=None, esperar=time.sleep) -> Tarjeta:
-        """Arma la tarjeta con el estilo y la pone encima de lo que está al aire."""
+    def armar(self, texto, estilo, parada=None, esperar=time.sleep) -> Tarjeta:
+        """Deja la tarjeta lista en la escena propia, sin ponerla al frente."""
         lienzo = self._pedir("GetVideoSettings", parada=parada)
         ancho = int(lienzo.get("baseWidth") or 0)
         alto = int(lienzo.get("baseHeight") or 0)
@@ -269,7 +228,7 @@ class EscenaGuyrapu:
                 float(estilo.get("opacidad_fondo", 0) or 0),
                 str(estilo.get("esquinas", "rectas")) == "redondeadas",
                 bool(estilo.get("sombra", False)), escala)
-            ruta = _guardar_fondo(
+            ruta = guardar_fondo(
                 fondo.png, ancho_tarjeta, alto_tarjeta, estilo, escala)
             self._pedir("SetInputSettings", {
                 "inputName": FONDO,
@@ -289,9 +248,14 @@ class EscenaGuyrapu:
         if fondo is not None:
             self._ubicar(FONDO, x - fondo.x_tarjeta,
                          y - fondo.y_tarjeta, parada)
+        return Tarjeta(x, y, ancho_tarjeta, alto_tarjeta, "", aviso)
+
+    def mostrar(self, texto, estilo, parada=None, esperar=time.sleep) -> Tarjeta:
+        """Arma la tarjeta con el estilo y la pone encima de lo que está al aire."""
+        tarjeta = self.armar(texto, estilo, parada, esperar)
         escena = self._al_frente(parada)
         self._escena = escena
-        return Tarjeta(x, y, ancho_tarjeta, alto_tarjeta, escena, aviso)
+        return tarjeta._replace(escena=escena)
 
     def _acomodar(self, texto, estilo, fuente, tamano, ancho, alto,
                   parada) -> tuple:
@@ -388,7 +352,7 @@ class EscenaGuyrapu:
         carpeta = paths.fondos_de_avisos()
         if carpeta.is_dir():
             for ruta in carpeta.glob("*.png"):
-                _borrar(ruta, esperar)
+                borrar(ruta, esperar)
 
     def captura(self, parada=None) -> bytes:
         """El PNG de la escena de Guyrapu."""
