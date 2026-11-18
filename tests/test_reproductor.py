@@ -1207,6 +1207,17 @@ class TestAvisoAlReproducir(unittest.TestCase):
         anunciar.assert_called_once_with("El reproductor no está disponible")
         panel._player.set_pause.assert_not_called()
 
+    def test_reproducir_con_medio_sin_reproductor_anuncia_el_aviso(self):
+        panel = self._panel_sin_medio()
+        panel._listo = False
+        panel._video_id = "video-cargado"
+        panel._asegurar_player = lambda: False
+        esperado = reproductor.aviso_reproductor(False, True)
+        with mock.patch.object(reproductor, "anunciar") as anunciar:
+            panel._toggle_play()
+        self.assertTrue(esperado)
+        anunciar.assert_called_once_with(esperado)
+
     def test_reproducir_con_medio_no_anuncia_falta_de_medio(self):
         panel = self._panel_sin_medio()
         panel._video_id = "video-cargado"
