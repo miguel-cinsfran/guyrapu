@@ -15,6 +15,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios, listas, vista
 from guyrapu.ui import confirmar, musica_dialogo_enlace, musica_menus
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -23,6 +24,10 @@ TITULO = N_("Música")
 TITULO_NUEVA = N_("Nueva lista")
 TITULO_RENOMBRAR = N_("Cambiar nombre de la lista")
 TEXTO_NOMBRE = N_("Nombre de la lista:")
+TEXTO_COLA_VACIA = N_(
+    "La cola está vacía. Elige un tema y pulsa Ctrl+Intro para agregarlo.")
+MOTIVO_NO_SUENA = N_("No suena ningún tema")
+MOTIVO_COLA_VACIA = N_("La cola está vacía")
 
 
 def _validar_nombre(nombre):
@@ -107,26 +112,71 @@ class AccionesVentanaMusica:
                 return indice
         return None
 
-    def _accion_cola(self, accion):
-        indice = self._indice_cola()
-        if indice is None:
-            return
+    def _armar_cola(self):
+        """Ata la Cola a la pieza común, con sus acciones y su caso vacío."""
+        self._cola = ListaConAcciones(
+            self.lb_cola, self._acciones_de_la_cola(), _(TEXTO_COLA_VACIA))
+
+    def _acciones_de_la_cola(self):
+        """Las acciones de la Cola, con sus teclas y sus motivos."""
+        etiquetas = {accion: etiqueta
+                     for etiqueta, accion in musica_menus.entradas_cola()}
         control = self._control
-        acciones = {
-            musica_menus.ACCION_REPRODUCIR:
-                lambda: control.reproducir_desde(indice),
-            musica_menus.ACCION_QUITAR:
-                lambda: control.quitar_de_cola(indice),
-            musica_menus.ACCION_SUBIR: lambda: self._mover_cola(indice, -1),
-            musica_menus.ACCION_BAJAR: lambda: self._mover_cola(indice, 1),
-            musica_menus.ACCION_IR_AL_QUE_SUENA: self._ir_al_que_suena,
-            musica_menus.ACCION_MEZCLAR: control.mezclar_cola,
-            musica_menus.ACCION_VACIAR: control.vaciar_cola,
-            musica_menus.ACCION_GUARDAR_COLA: self._guardar_cola,
-        }
-        funcion = acciones.get(accion)
-        if funcion is not None:
-            funcion()
+        return (self._acciones_con_fila(control, etiquetas)
+                + self._acciones_sin_fila(control, etiquetas))
+
+    def _acciones_con_fila(self, control, etiquetas):
+        """Las cuatro que actúan sobre la fila elegida."""
+        return (
+            Accion(musica_menus.ACCION_REPRODUCIR,
+                   etiquetas[musica_menus.ACCION_REPRODUCIR],
+                   lambda: control.reproducir_desde(self._indice_cola()),
+                   tecla="intro"),
+            Accion(musica_menus.ACCION_QUITAR,
+                   etiquetas[musica_menus.ACCION_QUITAR],
+                   lambda: control.quitar_de_cola(self._indice_cola()),
+                   tecla="suprimir"),
+            Accion(musica_menus.ACCION_SUBIR,
+                   etiquetas[musica_menus.ACCION_SUBIR],
+                   lambda: self._mover_cola(self._indice_cola(), -1),
+                   tecla="alt+flecha_arriba"),
+            Accion(musica_menus.ACCION_BAJAR,
+                   etiquetas[musica_menus.ACCION_BAJAR],
+                   lambda: self._mover_cola(self._indice_cola(), 1),
+                   tecla="alt+flecha_abajo"),
+        )
+
+    def _acciones_sin_fila(self, control, etiquetas):
+        """Las que no necesitan una fila elegida."""
+        return (
+            Accion(musica_menus.ACCION_IR_AL_QUE_SUENA,
+                   etiquetas[musica_menus.ACCION_IR_AL_QUE_SUENA],
+                   self._ir_al_que_suena, necesita_elemento=False,
+                   motivo=self._motivo_ir_al_que_suena),
+            Accion(musica_menus.ACCION_MEZCLAR,
+                   etiquetas[musica_menus.ACCION_MEZCLAR],
+                   lambda: control.mezclar_cola(), necesita_elemento=False,
+                   motivo=self._motivo_cola_vacia),
+            Accion(musica_menus.ACCION_VACIAR,
+                   etiquetas[musica_menus.ACCION_VACIAR],
+                   lambda: control.vaciar_cola(), necesita_elemento=False,
+                   motivo=self._motivo_cola_vacia),
+            Accion(musica_menus.ACCION_GUARDAR_COLA,
+                   etiquetas[musica_menus.ACCION_GUARDAR_COLA],
+                   self._guardar_cola, necesita_elemento=False),
+        )
+
+    def _motivo_ir_al_que_suena(self):
+        estado = self._control.estado()
+        if (estado is None or estado.terminado
+                or estado.posicion is None):
+            return _(MOTIVO_NO_SUENA)
+        return ""
+
+    def _motivo_cola_vacia(self):
+        if self._control.cola_actual() or ():
+            return ""
+        return _(MOTIVO_COLA_VACIA)
 
     def _mover_cola(self, indice, paso):
         self._control.mover_en_cola(indice, paso)
@@ -145,19 +195,17 @@ class AccionesVentanaMusica:
     def refrescar_cola(self, seleccion=None):
         if not self:
             return
-        anterior = (self.lb_cola.GetSelection()
-                    if seleccion is None else seleccion)
+        anterior = self._indice_cola() if seleccion is None else seleccion
         estado = self._control.estado()
         filas = (vista.filas_cola(estado)
                  if estado is not None else [])
-        self.lb_cola.Set(filas)
         indice = vista.indice_seleccion_tras_refrescar(anterior, len(filas))
-        if indice >= 0:
-            self.lb_cola.SetSelection(indice)
+        self._cola.poner_al_dia(
+            list(range(len(filas))), filas,
+            indice if indice >= 0 else None)
 
     def _indice_cola(self):
-        indice = self.lb_cola.GetSelection()
-        return None if indice == wx.NOT_FOUND else indice
+        return self._cola.indice()
 
     def actualizar_nombres(self, mapa):
         if not self or not mapa:
@@ -173,19 +221,9 @@ class AccionesVentanaMusica:
                     self.lb_temas.SetString(indice, filas[indice])
                 except Exception:
                     logger.debug("No se pudo actualizar la fila de un tema")
-        estado = self._control.estado()
-        if estado is None:
+        if self._control.estado() is None:
             return
-        filas_cola = vista.filas_cola(estado)
-        if self.lb_cola.GetCount() != len(filas_cola):
-            self.refrescar_cola()
-            return
-        for indice, tema in enumerate(estado.cola):
-            if tema.origen in mapa:
-                try:
-                    self.lb_cola.SetString(indice, filas_cola[indice])
-                except Exception:
-                    logger.debug("No se pudo actualizar la fila de la cola")
+        self.refrescar_cola()
 
     def _menu_temas(self):
         if self._con_tema()[0] is not None:
@@ -194,11 +232,6 @@ class AccionesVentanaMusica:
                 musica_menus.entradas_biblioteca(
                     self._fuente is not None, self._leer_nombres()),
                 self._accion_biblioteca)
-
-    def _menu_cola(self):
-        if self._indice_cola() is not None:
-            musica_menus.mostrar_menu(
-                self.lb_cola, musica_menus.entradas_cola(), self._accion_cola)
 
     def _guardar_cola(self):
         if not (self._control.cola_actual() or ()):

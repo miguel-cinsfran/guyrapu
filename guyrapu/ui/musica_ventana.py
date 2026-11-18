@@ -75,6 +75,7 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         self.btn_cola = self._boton(
             panel, _("Mostrar c&ola"), _("Mostrar cola"))
         self.lb_cola = self._lista(panel, _("Cola de reproducción"), 160)
+        self._armar_cola()
         self._crear_igualando(panel)
         self._crear_pie(panel)
         self._disponer(panel)
@@ -159,8 +160,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
             wx.EVT_CONTEXT_MENU, lambda e: self._menu_colecciones())
         self.lb_temas.Bind(wx.EVT_KEY_DOWN, self._tecla_temas)
         self.lb_temas.Bind(wx.EVT_CONTEXT_MENU, lambda e: self._menu_temas())
-        self.lb_cola.Bind(wx.EVT_KEY_DOWN, self._tecla_cola)
-        self.lb_cola.Bind(wx.EVT_CONTEXT_MENU, lambda e: self._menu_cola())
         self.Bind(wx.EVT_LISTBOX_DCLICK, self._doble_clic_lista)
         self.btn_cola.Bind(wx.EVT_BUTTON, lambda e: self._alternar_cola())
         self.btn_enlace.Bind(wx.EVT_BUTTON, lambda e: self._abrir_enlace())
@@ -192,8 +191,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
             self._reproducir_coleccion()
         elif foco is self.lb_temas:
             self._accion_biblioteca(musica_menus.ACCION_AHORA)
-        else:
-            self._accion_cola(musica_menus.ACCION_REPRODUCIR)
 
     def _cola_guardada_visible(self):
         lee = getattr(self._control, "cola_visible", None)
@@ -345,27 +342,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
             return
         evento.Skip()
 
-    def _tecla_cola(self, evento):
-        codigo = evento.GetKeyCode()
-        modificadores = evento.GetModifiers()
-        if codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            self._accion_cola(musica_menus.ACCION_REPRODUCIR)
-            return
-        if codigo in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
-            self._accion_cola(musica_menus.ACCION_QUITAR)
-            return
-        if codigo == wx.WXK_UP and modificadores & wx.MOD_ALT:
-            self._accion_cola(musica_menus.ACCION_SUBIR)
-            return
-        if codigo == wx.WXK_DOWN and modificadores & wx.MOD_ALT:
-            self._accion_cola(musica_menus.ACCION_BAJAR)
-            return
-        if codigo == wx.WXK_WINDOWS_MENU or (
-                codigo == wx.WXK_F10 and modificadores & wx.MOD_SHIFT):
-            self._menu_cola()
-            return
-        evento.Skip()
-
     def _tecla_atajo(self, evento):
         if ayuda_manual.atender_f1(self, evento, "musica"):
             return
@@ -375,8 +351,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
                 return self._tecla_colecciones(evento)
             if foco is self.lb_temas:
                 return self._tecla_temas(evento)
-            if foco is self.lb_cola:
-                return self._tecla_cola(evento)
         if musica_teclas.manejar_atajo_de_tecla(
                 self._control, self._combos, evento):
             self.refrescar_cola()

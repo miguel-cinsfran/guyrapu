@@ -16606,3 +16606,15 @@ msgid ""
 " agregarlas."
 msgstr "The list has no songs. Select the check boxes in All songs to add them."
 
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "La cola está vacía. Elige un tema y pulsa Ctrl+Intro para agregarlo."
+msgstr "The queue is empty. Choose a song and press Ctrl+Enter to add it."
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "No suena ningún tema"
+msgstr "No song is playing"
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "La cola está vacía"
+msgstr "The queue is empty"
+

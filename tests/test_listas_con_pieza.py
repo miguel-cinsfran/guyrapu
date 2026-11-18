@@ -29,7 +29,8 @@ PENDIENTES = {
     "elegir_formato.py": (
         "lista de solo lectura para elegir un formato, en elegir_formato.py:52"),
     "gui_construccion.py": "todavía no pasó a la pieza común",
-    "musica_ventana.py": "todavía no pasó a la pieza común",
+    "musica_ventana.py": (
+        "la cola ya usa la pieza; la biblioteca y las colecciones todavía no"),
 }
 
 

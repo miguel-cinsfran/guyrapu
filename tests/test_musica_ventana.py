@@ -684,13 +684,21 @@ class TestVentanaMusica(unittest.TestCase):
 
     # ── Teclas de la Cola ──────────────────────────────────────────────────
 
+    def _tecla_cola(self, tipo, codigo, mods=0):
+        evento = wx.KeyEvent(tipo)
+        evento.SetKeyCode(codigo)
+        evento.SetControlDown(bool(mods & wx.MOD_CONTROL))
+        evento.SetShiftDown(bool(mods & wx.MOD_SHIFT))
+        evento.SetAltDown(bool(mods & wx.MOD_ALT))
+        self.ventana.lb_cola.GetEventHandler().ProcessEvent(evento)
+
     def test_intro_en_la_cola_reproduce_desde_esa_fila(self):
         control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
         self._abrir(control)
         control.estado_actual = _estado("Rock", "Jazz")
         self.ventana.refrescar_cola()
         self.ventana.lb_cola.SetSelection(1)
-        self.ventana._tecla_cola(Evento(wx.WXK_RETURN))
+        self._tecla_cola(wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN)
         self.assertIn(("reproducir_desde", 1), control.llamadas)
 
     def test_suprimir_en_la_cola_quita(self):
@@ -699,7 +707,7 @@ class TestVentanaMusica(unittest.TestCase):
         control.estado_actual = _estado("Rock", "Jazz")
         self.ventana.refrescar_cola()
         self.ventana.lb_cola.SetSelection(1)
-        self.ventana._tecla_cola(Evento(wx.WXK_DELETE))
+        self._tecla_cola(wx.wxEVT_KEY_DOWN, wx.WXK_DELETE)
         self.assertIn(("quitar_de_cola", 1), control.llamadas)
 
     def test_alt_arriba_y_abajo_mueven(self):
@@ -708,23 +716,25 @@ class TestVentanaMusica(unittest.TestCase):
         control.estado_actual = _estado("Rock", "Jazz")
         self.ventana.refrescar_cola()
         self.ventana.lb_cola.SetSelection(1)
-        self.ventana._tecla_cola(Evento(wx.WXK_UP, wx.MOD_ALT))
-        self.ventana._tecla_cola(Evento(wx.WXK_DOWN, wx.MOD_ALT))
+        self._tecla_cola(wx.wxEVT_KEY_DOWN, wx.WXK_UP, wx.MOD_ALT)
+        self.assertEqual(self.ventana.lb_cola.GetSelection(), 0)
+        self._tecla_cola(wx.wxEVT_KEY_DOWN, wx.WXK_DOWN, wx.MOD_ALT)
+        self.assertEqual(self.ventana.lb_cola.GetSelection(), 1)
         self.assertIn(("mover_en_cola", 1, -1), control.llamadas)
         self.assertIn(("mover_en_cola", 0, 1), control.llamadas)
 
     def test_tecla_de_aplicaciones_abre_el_menu_de_la_cola(self):
         control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
         self._abrir(control)
-        with mock.patch.object(self.ventana, "_menu_cola") as menu:
-            self.ventana._tecla_cola(Evento(wx.WXK_WINDOWS_MENU))
+        with mock.patch.object(self.ventana._cola, "_abrir_menu") as menu:
+            self._tecla_cola(wx.wxEVT_KEY_DOWN, wx.WXK_WINDOWS_MENU)
         menu.assert_called_once_with()
 
     def test_mayus_f10_abre_el_menu_de_la_cola(self):
         control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
         self._abrir(control)
-        with mock.patch.object(self.ventana, "_menu_cola") as menu:
-            self.ventana._tecla_cola(Evento(wx.WXK_F10, wx.MOD_SHIFT))
+        with mock.patch.object(self.ventana._cola, "_abrir_menu") as menu:
+            self._tecla_cola(wx.wxEVT_KEY_DOWN, wx.WXK_F10, wx.MOD_SHIFT)
         menu.assert_called_once_with()
 
     def test_cada_lista_responde_solo_a_sus_teclas(self):
@@ -737,7 +747,7 @@ class TestVentanaMusica(unittest.TestCase):
         self.ventana._tecla_temas(Evento(wx.WXK_RETURN))
         self.assertNotIn("reproducir_desde", control.nombres())
         control.llamadas.clear()
-        self.ventana._tecla_cola(Evento(wx.WXK_RETURN))
+        self._tecla_cola(wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN)
         self.assertNotIn("reproducir_ahora", control.nombres())
 
     # ── Cola plegable ──────────────────────────────────────────────────────
@@ -1022,14 +1032,14 @@ class TestVentanaMusica(unittest.TestCase):
         tema = control._biblio.temas()[1]
         self.assertIn(("agregar_al_final", (tema,)), control.llamadas)
 
-    def test_intro_por_la_ventana_en_la_cola_reproduce_desde(self):
+    def test_intro_en_la_cola_por_el_gancho_del_control_reproduce_desde(self):
         control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
         self._abrir(control)
         control.estado_actual = _estado("Rock", "Jazz")
         self.ventana.refrescar_cola()
         self.ventana.lb_cola.SetFocus()
         self.ventana.lb_cola.SetSelection(1)
-        self._char_hook()
+        self._tecla_cola(wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN)
         self.assertIn(("reproducir_desde", 1), control.llamadas)
 
     def test_intro_por_la_ventana_en_colecciones_reproduce_la_lista(self):
@@ -1079,6 +1089,7 @@ class TestVentanaMusica(unittest.TestCase):
         self.ventana.refrescar_cola()
         self.ventana.lb_cola.SetSelection(1)
         self._doble_clic(self.ventana.lb_cola)
+        self.assertEqual(control.nombres().count("reproducir_desde"), 1)
         self.assertIn(("reproducir_desde", 1), control.llamadas)
 
     # ── Buscador ───────────────────────────────────────────────────────────
@@ -1199,7 +1210,7 @@ class TestVentanaMusica(unittest.TestCase):
                        musica_menus.ACCION_MEZCLAR,
                        musica_menus.ACCION_VACIAR):
             self.ventana.lb_cola.SetSelection(1)
-            self.ventana._accion_cola(accion)
+            self.ventana._cola.ejecutar(accion)
         self.assertIn(("reproducir_desde", 1), control.llamadas)
         self.assertIn(("quitar_de_cola", 1), control.llamadas)
         self.assertIn(("mover_en_cola", 1, -1), control.llamadas)
@@ -1217,7 +1228,7 @@ class TestVentanaMusica(unittest.TestCase):
         with mock.patch.object(
                 musica_ventana_acciones, "_pedir_nombre",
                 return_value="Copia"):
-            self.ventana._accion_cola(musica_menus.ACCION_GUARDAR_COLA)
+            self.ventana._cola.ejecutar(musica_menus.ACCION_GUARDAR_COLA)
         self.assertIn(("guardar_cola_como_lista", "Copia"), control.llamadas)
 
     def test_nueva_lista_abre_el_editor_y_guarda(self):
@@ -1321,6 +1332,93 @@ class TestVentanaMusica(unittest.TestCase):
         self.ventana.lb_cola.SetSelection(0)
         self.ventana._ir_al_que_suena()
         self.assertEqual(self.ventana.lb_cola.GetSelection(), 2)
+
+    def test_la_cola_vacia_muestra_que_hacer_para_agregar(self):
+        self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
+        self.assertEqual(self.ventana.lb_cola.GetCount(), 1)
+        self.assertEqual(
+            self.ventana.lb_cola.GetString(0),
+            "La cola está vacía. Elige un tema y pulsa Ctrl+Intro "
+            "para agregarlo.")
+
+    def test_el_menu_con_la_cola_vacia_conserva_sus_acciones_y_motivos(self):
+        self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))
+        menu = self.ventana._cola._construir_menu()
+        self.addCleanup(menu.Destroy)
+        items = menu.GetMenuItems()
+        self.assertEqual(
+            [item.GetItemLabel() for item in items],
+            ["&Reproducir\tEnter", "&Eliminar\tDel", "&Subir\tAlt+Up",
+             "&Bajar\tAlt+Down",
+             "&Ir al que suena (no suena ningún tema)",
+             "&Mezclar la cola (la cola está vacía)",
+             "&Vaciar la cola (la cola está vacía)",
+             "&Guardar la cola como lista…"])
+        self.assertEqual([item.IsEnabled() for item in items],
+                         [False, False, False, False, True, True, True, True])
+
+    def test_el_menu_con_la_cola_y_sin_sonido_solo_frena_ir_al_que_suena(self):
+        control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
+        self._abrir(control)
+        control.estado_actual = _estado("Rock", posicion=None)
+        control.cola = control.estado_actual.cola
+        self.ventana.refrescar_cola()
+        menu = self.ventana._cola._construir_menu()
+        self.addCleanup(menu.Destroy)
+        etiquetas = [item.GetItemLabel() for item in menu.GetMenuItems()]
+        self.assertIn("&Ir al que suena (no suena ningún tema)", etiquetas)
+        self.assertIn("&Mezclar la cola", etiquetas)
+        self.assertIn("&Vaciar la cola", etiquetas)
+
+    def test_con_la_cola_vacia_reproducir_no_toma_la_linea_como_tema(self):
+        control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
+        self._abrir(control)
+        self.assertIsNone(self.ventana._cola.indice())
+        self.ventana._cola.ejecutar(musica_menus.ACCION_REPRODUCIR)
+        self.assertNotIn("reproducir_desde", control.nombres())
+
+    def test_actualizar_nombres_conserva_la_fila_elegida_de_la_cola(self):
+        tema = Tema("C:/Musica/rock.mp3", "Rock")
+        otro = Tema("C:/Musica/jazz.mp3", "Jazz")
+        control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
+        self._abrir(control)
+        control.estado_actual = EstadoMusica(
+            (tema, otro), 1, False, False, 50, False)
+        control.cola = control.estado_actual.cola
+        self.ventana.refrescar_cola()
+        self.ventana.lb_cola.SetSelection(1)
+        nuevo = Tema("C:/Musica/jazz.mp3", "Jazz en vivo")
+        control.estado_actual = EstadoMusica(
+            (tema, nuevo), 1, False, False, 50, False)
+        self.ventana.actualizar_nombres({nuevo.origen: nuevo})
+        self.assertEqual(self.ventana.lb_cola.GetSelection(), 1)
+        self.assertIn("Jazz en vivo", self.ventana.lb_cola.GetString(1))
+
+    def test_actualizar_nombres_reescribe_solo_la_fila_que_cambia(self):
+        temas = (Tema("C:/Musica/rock.mp3", "Rock"),
+                 Tema("C:/Musica/jazz.mp3", "Jazz"),
+                 Tema("C:/Musica/blues.mp3", "Blues"))
+        control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
+        self._abrir(control)
+        control.estado_actual = EstadoMusica(
+            temas, 1, False, False, 50, False)
+        control.cola = control.estado_actual.cola
+        self.ventana.refrescar_cola()
+        nuevo = Tema("C:/Musica/jazz.mp3", "Jazz en vivo")
+        control.estado_actual = EstadoMusica(
+            (temas[0], nuevo, temas[2]), 1, False, False, 50, False)
+        with mock.patch.object(
+                self.ventana.lb_cola, "SetString") as setstring, \
+                mock.patch.object(
+                    self.ventana.lb_cola, "Set") as set_, \
+                mock.patch.object(
+                    self.ventana.lb_cola, "Clear") as clear:
+            self.ventana.actualizar_nombres({nuevo.origen: nuevo})
+        setstring.assert_called_once()
+        self.assertEqual(setstring.call_args.args[0], 1)
+        self.assertIn("Jazz en vivo", setstring.call_args.args[1])
+        set_.assert_not_called()
+        clear.assert_not_called()
 
     # ── Apertura con abrir_listas ──────────────────────────────────────────
 
