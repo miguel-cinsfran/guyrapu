@@ -207,21 +207,27 @@ def escenario_microfono(app: Aplicacion, args, res: Resultado):
             res.fallo("Panel de OBS: la ventana no cerró")
 
 
-def _auditar_dialogo_abierto(app, res, titulo, vueltas_tab, esperados):
-    """Audita un diálogo que ya está abierto y lo cierra."""
-    controles = app.arbol(titulo)
-    revisar_nombres(controles, res, titulo)
+def _auditar_ventana(app, res, ventana, esperados, vueltas):
+    """Revisa nombres, rótulos y orden de Tab de un diálogo ya abierto."""
+    controles = app.arbol(ventana)
+    revisar_nombres(controles, res, ventana)
     juntos = " ".join(
         ((control.get("nombre") or "") + " "
          + (control.get("etiqueta") or ""))
         for control in controles).replace("&", "").lower()
     for esperado in esperados:
         if esperado.lower() not in juntos:
-            res.fallo(f"{titulo}: no aparece nada llamado «{esperado}»")
-    orden = recorrer_tab(app, res, titulo, vueltas=vueltas_tab,
-                         ventana=titulo)
-    res.nota(f"{titulo}, orden de Tab, {len(orden)} paradas: "
+            res.fallo(f"{ventana}: no aparece nada llamado «{esperado}»")
+    orden = recorrer_tab(app, res, ventana, vueltas=vueltas,
+                         ventana=ventana)
+    res.nota(f"{ventana}, orden de Tab, {len(orden)} paradas: "
              + " > ".join(orden))
+    return orden
+
+
+def _auditar_dialogo_abierto(app, res, titulo, vueltas_tab, esperados):
+    """Audita un diálogo que ya está abierto y lo cierra."""
+    orden = _auditar_ventana(app, res, titulo, esperados, vueltas_tab)
     recorrido = " ".join(orden).replace("&", "").lower()
     for esperado in esperados:
         if esperado.lower() not in recorrido:
@@ -507,18 +513,8 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
         return
     res.nota("«Transmitir a» abre desde el botón «Transmitir en directo»")
 
-    controles = app.arbol("Transmitir a")
-    revisar_nombres(controles, res, "Transmitir a")
-    juntos = " ".join(
-        ((c.get("nombre") or "") + " " + (c.get("etiqueta") or ""))
-        for c in controles).replace("&", "").lower()
-    for e in ("Transmitir a", "Continuar", "Cancelar"):
-        if e.lower() not in juntos:
-            res.fallo(f"Transmitir a: no aparece nada llamado «{e}»")
-    orden = recorrer_tab(app, res, "Transmitir a", vueltas=10,
-                         ventana="Transmitir a")
-    res.nota("Transmitir a, orden de Tab, %d paradas: %s"
-             % (len(orden), " > ".join(orden)))
+    _auditar_ventana(app, res, "Transmitir a",
+                     ("Transmitir a", "Continuar", "Cancelar"), 10)
 
     n = len(app.anuncios)
     app.pedir("pulsar", nombre="Cancelar")
@@ -629,20 +625,10 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
                       f"en 120 s; dijo «{dichos[:120]}»")
             return
 
-        controles = app.arbol("Directo de YouTube")
-        revisar_nombres(controles, res, "Directo de YouTube")
-        juntos = " ".join(
-            ((c.get("nombre") or "") + " " + (c.get("etiqueta") or ""))
-            for c in controles).replace("&", "").lower()
-        for e in ("Título del directo", "Descripción del directo",
-                  "Privacidad", "Revisión de OBS", "Transmitir", "Cancelar"):
-            if e.lower() not in juntos:
-                res.fallo(f"Directo de YouTube: no aparece nada llamado "
-                          f"«{e}»")
-        orden = recorrer_tab(app, res, "Directo de YouTube", vueltas=14,
-                             ventana="Directo de YouTube")
-        res.nota("Directo de YouTube, orden de Tab, %d paradas: %s"
-                 % (len(orden), " > ".join(orden)))
+        _auditar_ventana(
+            app, res, "Directo de YouTube",
+            ("Título del directo", "Descripción del directo", "Privacidad",
+             "Revisión de OBS", "Transmitir", "Cancelar"), 14)
         # Se cierra con «Cancelar»: pulsar «Transmitir» crearía un directo.
         app.pedir("cerrar_ventana", ventana="Directo de YouTube")
         if app.esperar_ventana("Directo de YouTube", segundos=4) is not None:
@@ -664,17 +650,7 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
         if not estaba_obs and obs_abierto():
             res.nota("transmitir_destino: la revisión abrió OBS y no estaba, "
                      "se lo cierra")
-            import subprocess
-            try:
-                subprocess.run(["taskkill", "/IM", "obs64.exe"],
-                               capture_output=True, timeout=30)
-                time.sleep(5)
-                if obs_abierto():
-                    subprocess.run(["taskkill", "/F", "/IM", "obs64.exe"],
-                                   capture_output=True, timeout=30)
-            except Exception as exc:
-                res.nota("transmitir_destino: no se pudo cerrar OBS "
-                         f"({exc})")
+            cerrar_obs_del_banco(res)
 
 
 def escenario_overlay(app: Aplicacion, args, res: Resultado):

@@ -455,6 +455,46 @@ class TestPestanaDeRestream(unittest.TestCase):
                           "Cerrar"))
 
 
+class _AppConDialogo:
+
+    def __init__(self):
+        self.abierto = True
+        self.pedidos = []
+
+    def arbol(self, ventana=None):
+        return [{"clase": "Button", "nombre": "Aceptar",
+                 "etiqueta": "", "visible": True}]
+
+    def foco(self):
+        return {"clase": "Button", "nombre": "Aceptar", "etiqueta": ""}
+
+    def navegar(self, ventana=None):
+        pass
+
+    def pedir(self, op, **kwargs):
+        self.pedidos.append((op, kwargs))
+        if op == "cerrar_ventana":
+            self.abierto = False
+        return {"ok": True, "datos": {}}
+
+    def esperar_ventana(self, titulo, segundos=15):
+        return {"titulo": titulo, "visible": True} if self.abierto else None
+
+
+class TestAuditarDialogoAbierto(unittest.TestCase):
+
+    def test_audita_y_cierra_el_dialogo(self):
+        app = _AppConDialogo()
+        res = conducir.Resultado()
+
+        escenarios_obs._auditar_dialogo_abierto(
+            app, res, "Diálogo", 1, ("Aceptar",))
+
+        self.assertEqual(res.fallos, [])
+        self.assertFalse(app.abierto)
+        self.assertIn(("cerrar_ventana", {"ventana": "Diálogo"}), app.pedidos)
+
+
 class TestHilosSinDaemon(unittest.TestCase):
 
     def test_nombra_solo_los_que_pueden_retener_el_cierre(self):
