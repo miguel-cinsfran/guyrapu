@@ -1,7 +1,7 @@
 tecla=tab fase=ida dijo='Buscar botón Alt+ b' foco={nombre='Buscar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+b'}
 tecla=tab fase=ida dijo='Mostrar filtros casilla de verificación sin marcar Alt+ l' foco={nombre='Mostrar filtros', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
 tecla=tab fase=ida dijo='Cantidad: cuadro combinado 20 contraído Alt+ n' foco={nombre='Cantidad:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='20', atajo='Alt+n'}
-tecla=tab fase=ida dijo='lista' foco={nombre='', rol='LIST', estados=['FOCUSABLE', 'FOCUSED', 'MULTISELECTABLE'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Resultados de la búsqueda lista' foco={nombre='Resultados de la búsqueda', rol='LIST', estados=['FOCUSABLE', 'FOCUSED', 'MULTISELECTABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Detalles: edición sólo lectura multilínea Alt+ e en blanco' foco={nombre='Detalles:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'MULTILINE', 'READONLY'], valor='', atajo='Alt+e'}
 tecla=tab fase=ida dijo='Agregar a la cola botón Alt+ a' foco={nombre='Agregar a la cola', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
 tecla=tab fase=ida dijo='Mostrar más (todavía no hay resultados) botón Alt+ m' foco={nombre='Mostrar más (todavía no hay resultados)', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
@@ -17,7 +17,7 @@ tecla=shift+tab fase=vuelta dijo='Formato: cuadro combinado Vídeo MP4 contraíd
 tecla=shift+tab fase=vuelta dijo='lista de pestañas Mostrar más (todavía no hay resultados) botón Alt+ m' foco={nombre='Mostrar más (todavía no hay resultados)', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
 tecla=shift+tab fase=vuelta dijo='Agregar a la cola botón Alt+ a' foco={nombre='Agregar a la cola', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
 tecla=shift+tab fase=vuelta dijo='Detalles: edición sólo lectura multilínea Alt+ e en blanco' foco={nombre='Detalles:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'MULTILINE', 'READONLY'], valor='', atajo='Alt+e'}
-tecla=shift+tab fase=vuelta dijo='lista' foco={nombre='', rol='LIST', estados=['FOCUSABLE', 'FOCUSED', 'MULTISELECTABLE'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Resultados de la búsqueda lista' foco={nombre='Resultados de la búsqueda', rol='LIST', estados=['FOCUSABLE', 'FOCUSED', 'MULTISELECTABLE'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Cantidad: cuadro combinado 20 contraído Alt+ n' foco={nombre='Cantidad:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='20', atajo='Alt+n'}
 tecla=shift+tab fase=vuelta dijo='Mostrar filtros casilla de verificación sin marcar Alt+ l' foco={nombre='Mostrar filtros', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
 tecla=shift+tab fase=vuelta dijo='Buscar botón Alt+ b' foco={nombre='Buscar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+b'}
