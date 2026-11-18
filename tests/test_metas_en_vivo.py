@@ -16,11 +16,25 @@ from tests.rutas_temporales import redirigir_rutas
 
 
 def _meta(nombre="Risa", que_cuenta="me_gusta", objetivo=3, estilo="",
-          festejo="", activa=True):
+          festejo="", activa=True, en_video=False):
     return {
         "nombre": nombre, "que_cuenta": que_cuenta, "objetivo": objetivo,
         "estilo": estilo, "festejo": festejo, "activa": activa,
+        "en_video": en_video,
     }
+
+
+class _Llamada:
+    """Doble del programador de esperas: no dispara solo y se cancela."""
+
+    def __init__(self, ms, funcion, *args):
+        self.ms = ms
+        self.funcion = funcion
+        self.args = args
+        self.parada = False
+
+    def Stop(self):
+        self.parada = True
 
 
 def _medio(nombre="fuegos", tipo="video", archivo="fuegos.mp4", duracion=12,
@@ -86,6 +100,15 @@ class Base(unittest.TestCase):
 
     def _progreso(self, nombre="Risa"):
         return metas_en_vivo._en_vivo(self.frame)._progresos[nombre]
+
+    def _en_vivo_con_reloj(self):
+        self.reloj = [100.0]
+        self.frame._metas_en_vivo = metas_en_vivo.MetasEnVivo(
+            self.frame, reloj=lambda: self.reloj[0], programar=_Llamada)
+        return self.frame._metas_en_vivo
+
+    def _fija(self):
+        return self.frame._capa_video.fijar_metas.call_args.args[0]
 
 
 class TestAvance(Base):
@@ -203,6 +226,66 @@ class TestReinicioYRecarga(Base):
         self.assertEqual(self._progreso("Risa").valor, 3)
         self.assertEqual(self._progreso("Otra").valor, 3)
         self.assertEqual(self._progreso("Nueva").valor, 1)
+
+
+class TestMetasEnElVideo(Base):
+
+    def _texto(self):
+        return _registro(tipo=TIPO_TEXTO, texto="hola", monto="")
+
+    def test_p2_fija_una_pieza_con_una_linea_por_cada_meta_en_video(self):
+        self._guardar(
+            _meta(nombre="Risa", objetivo=10, estilo="banda", en_video=True),
+            _meta(nombre="Viaje", que_cuenta="seguidores", objetivo=5,
+                  en_video=True))
+        self._atender(self._texto())
+        pieza = self._fija()
+        self.assertEqual(pieza.tipo, "metas")
+        self.assertEqual(pieza.texto, "Risa: 0 de 10\nViaje: 0 de 5")
+        self.assertEqual(pieza.datos["estilo"], "banda")
+        self.assertEqual(pieza.segundos, 0)
+
+    def test_p2_una_meta_apagada_o_sin_en_video_no_entra_en_la_pieza(self):
+        self._guardar(
+            _meta(nombre="Risa", objetivo=10, en_video=True),
+            _meta(nombre="Viaje", objetivo=5, activa=False, en_video=True),
+            _meta(nombre="Otra", objetivo=5, en_video=False))
+        self._atender(self._texto())
+        self.assertEqual(self._fija().texto, "Risa: 0 de 10")
+
+    def test_p3_dos_cambios_seguidos_ponen_al_dia_una_vez_con_el_ultimo(self):
+        self._en_vivo_con_reloj()
+        self._guardar(_meta(objetivo=100, en_video=True))
+        self._atender(self._texto())
+        self.reloj[0] = 100.5
+        self._atender(_registro(monto="3"))
+        self.reloj[0] = 101.0
+        self._atender(_registro(monto="4"))
+        self.frame._capa_video.poner_al_dia_metas.assert_not_called()
+        llamada = metas_en_vivo._en_vivo(self.frame)._llamada
+        self.assertAlmostEqual(llamada.ms, 1500, places=0)
+        self.reloj[0] = 102.5
+        llamada.funcion()
+        self.frame._capa_video.poner_al_dia_metas.assert_called_once()
+        pieza = self.frame._capa_video.poner_al_dia_metas.call_args.args[0]
+        self.assertIn("7 de 100", pieza.texto)
+        self.assertEqual(self.frame._capa_video.fijar_metas.call_count, 1)
+
+    def test_p5_reiniciar_quita_la_pieza_de_metas(self):
+        self._en_vivo_con_reloj()
+        self._guardar(_meta(objetivo=10, en_video=True))
+        self._atender(self._texto())
+        gui_sesion.reiniciar_datos_sesion(self.frame)
+        self.frame._capa_video.quitar_metas.assert_called_once()
+
+    def test_p5_sin_ninguna_meta_activa_con_en_video_quita_la_pieza(self):
+        self._en_vivo_con_reloj()
+        self._guardar(_meta(objetivo=10, en_video=True))
+        self._atender(self._texto())
+        self._guardar(_meta(objetivo=10, en_video=False))
+        self._adelantar(paths.metas())
+        self._atender(self._texto())
+        self.frame._capa_video.quitar_metas.assert_called_once()
 
 
 if __name__ == "__main__":

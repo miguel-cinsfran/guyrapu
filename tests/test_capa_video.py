@@ -558,6 +558,51 @@ class TestEncuestaFija(Base):
         self.assertEqual(self.capa.describir(), "Nada en el vídeo.")
 
 
+class TestMetasFijas(Base):
+
+    def _metas(self, texto="Risa: 1 de 3"):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        return Pieza(tipo="metas", texto=texto, segundos=0,
+                     datos={"estilo": "clasico"})
+
+    def test_p4_la_encuesta_tapa_las_metas_y_al_quitarla_vuelven(self):
+        metas = self._metas()
+        self.capa.fijar_metas(metas)
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "Metas en el vídeo: Risa: 1 de 3.")
+        self.capa.fijar_encuesta(self._pieza("¿Sí o no?"))
+        self._atender()
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "Encuesta en el vídeo: ¿Sí o no?.")
+        self.capa.quitar_encuesta()
+        self._atender()
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "Metas en el vídeo: Risa: 1 de 3.")
+        self.assertEqual(self.escena.ocultaciones, 2)
+
+    def test_p4_las_metas_se_ponen_al_dia_detras_de_la_encuesta(self):
+        self.capa.fijar_metas(self._metas("Risa: 1 de 3"))
+        self._atender()
+        self.capa.fijar_encuesta(self._pieza("¿Sí o no?"))
+        self._atender()
+        self._atender()
+        self.assertFalse(self.capa.poner_al_dia_metas(
+            self._metas("Risa: 2 de 3")))
+        self.capa.quitar_encuesta()
+        self._atender()
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "Metas en el vídeo: Risa: 2 de 3.")
+
+    def _pieza(self, texto):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        return Pieza(tipo="encuesta", texto=texto, segundos=0,
+                     datos={"estilo": "clasico"})
+
+
 class TestFallas(Base):
 
     def test_una_falla_llega_a_la_cola_y_se_anuncia_una_vez(self):

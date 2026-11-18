@@ -125,6 +125,18 @@ class TestTexto(unittest.TestCase):
         self.assertEqual(metas.texto(meta, 12.5), "Apoyo: 12.50 de 50")
         self.assertEqual(metas.texto(meta, 50), "Apoyo: meta cumplida")
 
+    def test_el_texto_fijo_lleva_una_linea_por_meta_en_su_orden(self):
+        risa = metas.Progreso(_meta(nombre="Risa", objetivo=10))
+        risa.sumar(_evento(TIPO_ME_GUSTA, "4"))
+        viaje = metas.Progreso(_meta(nombre="Viaje", objetivo=5))
+        viaje.sumar(_evento(TIPO_ME_GUSTA, "5"))
+        self.assertEqual(
+            metas.texto_en_video([risa, viaje]),
+            "Risa: 4 de 10\nViaje: meta cumplida")
+
+    def test_sin_metas_el_texto_fijo_queda_vacio(self):
+        self.assertEqual(metas.texto_en_video([]), "")
+
 
 class TestValidar(unittest.TestCase):
 

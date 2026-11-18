@@ -241,6 +241,15 @@ class TestColaPantalla(unittest.TestCase):
         self.assertEqual(cola.describir(),
                          "Encuesta en el vídeo: ¿Sí o no? 2 votos.")
 
+    def test_p6_la_pieza_fija_de_metas_se_describe_como_metas(self):
+        cola = ColaPantalla()
+        pieza = _pieza("Risa: 2 de 3", 0, "metas")
+        cola.fijar_encuesta(pieza)
+        cola.ordenes(0)
+        cola.mostrada(pieza, 0)
+        self.assertEqual(cola.describir(),
+                         "Metas en el vídeo: Risa: 2 de 3.")
+
     def test_fijar_otra_encuesta_reemplaza_la_anterior(self):
         cola = ColaPantalla()
         primera = _pieza("¿Sí o no?")

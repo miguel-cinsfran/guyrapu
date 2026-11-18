@@ -21,8 +21,8 @@ from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 NOMBRES_ACCESIBLES = (
-    "Nombre", "Qué cuenta", "Objetivo", "Estilo", "Festejo", "Aceptar",
-    "Cancelar")
+    "Nombre", "Qué cuenta", "Objetivo", "Estilo", "Festejo",
+    "Mostrar avance en el vídeo", "Aceptar", "Cancelar")
 
 ETIQUETAS = (
     "&Nombre:", "&Qué cuenta:", "&Objetivo:", "Esti&lo:", "&Festejo:")
@@ -66,8 +66,8 @@ class TestCampos(BaseCuadro):
         cuadro = self._cuadro()
         controles = (
             cuadro.txt_nombre, cuadro.cho_que_cuenta, cuadro.sp_objetivo,
-            cuadro.cho_estilo, cuadro.cho_festejo, cuadro.btn_aceptar,
-            cuadro.btn_cancelar)
+            cuadro.cho_estilo, cuadro.cho_festejo, cuadro.chk_en_video,
+            cuadro.btn_aceptar, cuadro.btn_cancelar)
         self.assertEqual(
             tuple(control.GetName() for control in controles),
             NOMBRES_ACCESIBLES)
@@ -87,6 +87,14 @@ class TestCampos(BaseCuadro):
         cuadro = self._cuadro()
         self.assertEqual(cuadro.cho_festejo.GetStrings(),
                          ["Ninguno", "aplauso.gif"])
+
+    def test_p1_la_casilla_va_despues_del_festejo_y_nace_apagada(self):
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.chk_en_video.GetLabel(),
+                         "Mostrar a&vance en el vídeo")
+        self.assertFalse(cuadro.chk_en_video.GetValue())
+        self.assertIs(cuadro.cho_festejo.GetNextSibling(),
+                      cuadro.chk_en_video)
 
     def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
         cuadro = self._cuadro()
@@ -139,7 +147,15 @@ class TestDatos(BaseCuadro):
         cuadro._elegir_estilo("banda")
         self.assertEqual(cuadro.datos(), {
             "nombre": "Viaje", "que_cuenta": "regalos", "objetivo": 500,
-            "estilo": "banda", "festejo": "aplauso.gif", "activa": True})
+            "estilo": "banda", "festejo": "aplauso.gif", "activa": True,
+            "en_video": False})
+
+    def test_p1_la_casilla_viaja_en_los_datos(self):
+        cuadro = self._cuadro({
+            "nombre": "Viaje", "que_cuenta": "me_gusta", "objetivo": 10,
+            "en_video": True})
+        self.assertTrue(cuadro.chk_en_video.GetValue())
+        self.assertTrue(cuadro.datos()["en_video"])
 
     def test_se_abre_con_los_datos_de_la_meta(self):
         cuadro = self._cuadro({

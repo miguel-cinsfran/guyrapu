@@ -82,6 +82,12 @@ class DialogoMeta(wx.Dialog):
             panel, _("&Festejo:"), [_("Ninguno")] + self._nombres_de_medios())
         vs.Add(self.cho_festejo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
+        etiqueta = _("Mostrar a&vance en el vídeo")
+        self.chk_en_video = wx.CheckBox(
+            panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+        nombre_accesible(self.chk_en_video, self.chk_en_video.GetName())
+        vs.Add(self.chk_en_video, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+
         vs.Add(self._botones(panel), 0, wx.ALIGN_RIGHT | wx.ALL, 8)
         panel.SetSizer(vs)
         self._cargar(datos)
@@ -130,6 +136,7 @@ class DialogoMeta(wx.Dialog):
         self.sp_objetivo.SetValue(meta.objetivo)
         self._elegir_festejo(meta.festejo)
         self._elegir_estilo(meta.estilo if datos else "")
+        self.chk_en_video.SetValue(meta.en_video)
 
     def _elegir_festejo(self, nombre):
         nombres = self._nombres_de_medios()
@@ -158,6 +165,7 @@ class DialogoMeta(wx.Dialog):
                 self.cho_estilo.GetSelection(), self._estilos),
             festejo=self._festejo_elegido(),
             activa=self._activa,
+            en_video=self.chk_en_video.GetValue(),
         )
 
     def _aceptar(self, _evento):

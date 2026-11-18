@@ -48,6 +48,7 @@ def a_meta(datos: dict) -> Meta:
         estilo=_texto(datos.get("estilo")),
         festejo=_texto(datos.get("festejo")),
         activa=_a_bool(datos.get("activa", True)),
+        en_video=_a_bool(datos.get("en_video", False)),
     )
 
 
@@ -60,6 +61,7 @@ def desde_meta(meta: Meta) -> dict:
         "estilo": meta.estilo,
         "festejo": meta.festejo,
         "activa": meta.activa,
+        "en_video": meta.en_video,
     }
 
 

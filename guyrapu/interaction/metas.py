@@ -37,6 +37,7 @@ class Meta:
     estilo: str = ""
     festejo: str = ""
     activa: bool = True
+    en_video: bool = False
 
 
 class Progreso:
@@ -111,6 +112,12 @@ def texto(meta: Meta, valor) -> str:
     # meta, {valor} lo logrado y {objetivo} lo que hay que lograr.
     return _("{nombre}: {valor} de {objetivo}").format(
         nombre=meta.nombre, valor=mostrado, objetivo=meta.objetivo)
+
+
+def texto_en_video(progresos) -> str:
+    """Las líneas de la pieza fija en el vídeo, una por meta."""
+    return "\n".join(texto(progreso.meta, progreso.valor)
+                     for progreso in progresos)
 
 
 def validar(meta: Meta, otras) -> str:

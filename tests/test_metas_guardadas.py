@@ -13,7 +13,7 @@ from guyrapu.interaction import metas, metas_guardadas
 def _datos(**cambios):
     datos = {
         "nombre": "100 me gusta", "que_cuenta": "me_gusta", "objetivo": 100,
-        "estilo": "", "festejo": "", "activa": True,
+        "estilo": "", "festejo": "", "activa": True, "en_video": False,
     }
     datos.update(cambios)
     return datos
@@ -41,6 +41,18 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(meta.estilo, "")
         self.assertEqual(meta.festejo, "")
         self.assertTrue(meta.activa)
+        self.assertFalse(meta.en_video)
+
+    def test_p1_un_archivo_sin_en_video_lo_lee_falso(self):
+        meta = metas_guardadas.a_meta(
+            {"nombre": "Viaje", "que_cuenta": "me_gusta", "objetivo": 5})
+        self.assertFalse(meta.en_video)
+
+    def test_p1_en_video_se_guarda_y_se_lee(self):
+        datos = _datos(en_video=True)
+        meta = metas_guardadas.a_meta(datos)
+        self.assertTrue(meta.en_video)
+        self.assertTrue(metas_guardadas.desde_meta(meta)["en_video"])
 
     def test_los_tipos_se_fuerzan_y_lo_raro_cae_a_su_defecto(self):
         meta = metas_guardadas.a_meta({

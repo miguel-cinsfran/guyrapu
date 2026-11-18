@@ -234,15 +234,27 @@ class ColaPantalla:
 
     def poner_al_dia_encuesta(self, pieza):
         """Cambia el texto de la encuesta que ya se ve, sin ocultarla."""
-        if self._encuesta_visible is None or self._encuesta is None:
+        if self._encuesta is None:
             return False
         self._encuesta = pieza
+        if self._encuesta_visible is None:
+            return False
         self._encuesta_al_dia = pieza
         return True
 
     def libre(self) -> bool:
         """Si no hay nada en el vídeo, ni tarjeta ni encuesta visibles."""
         return self._visible is None and self._encuesta_visible is None
+
+    def _frase_fija(self) -> str:
+        """La frase de F2 para la pieza fija, según lo que sea."""
+        if self._encuesta_visible.tipo == "metas":
+            # Traductores: estado de F2; {texto} es el de las metas.
+            return _("Metas en el vídeo: {texto}.").format(
+                texto=self._encuesta_visible.texto)
+        # Traductores: estado de F2; {texto} es el de la encuesta.
+        return _("Encuesta en el vídeo: {texto}.").format(
+            texto=self._encuesta_visible.texto)
 
     def describir(self):
         """La frase que F2 dice del estado del vídeo."""
@@ -252,10 +264,7 @@ class ColaPantalla:
             partes.append(_("Pánico activado: no se muestra nada en el vídeo."))
         else:
             if self._encuesta_visible is not None:
-                # Traductores: estado de F2; {texto} es el de la encuesta.
-                partes.append(
-                    _("Encuesta en el vídeo: {texto}.").format(
-                        texto=self._encuesta_visible.texto))
+                partes.append(self._frase_fija())
             if self._visible is not None:
                 # Traductores: estado de F2; {texto} es lo que se está viendo.
                 partes.append(_("En el vídeo: {texto}.").format(

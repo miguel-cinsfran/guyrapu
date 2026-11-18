@@ -57,6 +57,8 @@ class CapaVideo:
         self._en_cola = 0
         self._visible = None
         self._mostrando = False
+        self._encuesta = None
+        self._metas = None
         self._timer = wx.Timer(frame)
         frame.Bind(wx.EVT_TIMER, self._atender, self._timer)
         self._timer.Start(self.INTERVALO)
@@ -94,6 +96,7 @@ class CapaVideo:
 
     def fijar_encuesta(self, pieza):
         """Deja la encuesta fija en el vídeo."""
+        self._encuesta = pieza
         self.cola.fijar_encuesta(pieza)
 
     def poner_al_dia_encuesta(self, pieza) -> bool:
@@ -101,8 +104,28 @@ class CapaVideo:
         return self.cola.poner_al_dia_encuesta(pieza)
 
     def quitar_encuesta(self):
-        """Saca la encuesta fija del vídeo."""
-        self.cola.fijar_encuesta(None)
+        """Saca la encuesta fija y deja volver lo que esperaba detrás."""
+        self._encuesta = None
+        self.cola.fijar_encuesta(self._metas)
+
+    def fijar_metas(self, pieza):
+        """Deja las metas fijas, detrás de la encuesta si hay una."""
+        self._metas = pieza
+        if self._encuesta is None:
+            self.cola.fijar_encuesta(pieza)
+
+    def poner_al_dia_metas(self, pieza) -> bool:
+        """Cambia el texto de las metas fijas, sin ocultarlas."""
+        self._metas = pieza
+        if self._encuesta is not None:
+            return False
+        return self.cola.poner_al_dia_encuesta(pieza)
+
+    def quitar_metas(self):
+        """Saca las metas fijas del vídeo."""
+        self._metas = None
+        if self._encuesta is None:
+            self.cola.fijar_encuesta(None)
 
     def describir(self) -> str:
         """La frase de F2 sobre lo que hay en el vídeo."""
@@ -311,10 +334,11 @@ class CapaVideo:
             self._en_cola -= 1
         self._ocupado = False
         self._falla_avisada = False
-        # La respuesta de un comando, la tarjeta de un disparador y la de una
-        # meta no se anuncian: el chat ya se lee como hoy. La encuesta ya se
-        # anunció al abrirse y al cerrarse.
-        if pieza.tipo in ("comando", "encuesta", "disparador", "meta"):
+        # La respuesta de un comando, la tarjeta de un disparador, la de una
+        # meta y la pieza fija de metas no se anuncian: el chat ya se lee como
+        # hoy. La encuesta ya se anunció al abrirse y al cerrarse.
+        if pieza.tipo in ("comando", "encuesta", "disparador", "meta",
+                          "metas"):
             return
         nombre = str(pieza.datos.get("nombre") or pieza.texto)
         # Traductores: aviso al confirmarse una tarjeta en el vídeo. {nombre} es el nombre del mensaje automático.

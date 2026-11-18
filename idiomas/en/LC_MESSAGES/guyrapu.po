@@ -16747,3 +16747,12 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/interaction/cola_pantalla.py
+#, python-brace-format
+msgid "Metas en el vídeo: {texto}."
+msgstr "Goals on the video: {texto}."
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "Mostrar a&vance en el vídeo"
+msgstr "Show &progress on the video"
+
