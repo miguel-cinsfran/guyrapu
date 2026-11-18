@@ -362,8 +362,8 @@ def procesar_entrante(autor, mensaje, tipo, monto, canal_id, cola, config, stats
     stats.inc("recibidos")
     if tipo in (TIPO_SUPERCHAT, TIPO_STICKER): stats.inc("superchats")
 
-    modo = avisos_tiktok.modo_evento(config, tipo)
-    if modo == "ocultar":
+    modo = avisos_tiktok.modo_evento(config, avisos_tiktok.evento_de_mensaje(tipo, mensaje))
+    if modo == "ocultar" and tipo != TIPO_TEXTO:
         stats.inc("filtrados")
         return
 

@@ -31,6 +31,7 @@ _EVENTOS = {
     "encuesta": N_("Encues&tas:"),
     "meta": N_("&Metas:"),
     "batalla": N_("Batal&las:"),
+    "comando": N_("&Comandos del chat:"),
 }
 
 
@@ -63,6 +64,8 @@ OPCIONES_EVENTOS = (
      str, "principal"),
     ("cho_evento_batalla", "eventos", "batalla", "evento_batalla",
      str, "principal"),
+    ("cho_evento_comando", "eventos", "comando", "evento_comando",
+     str, "lista"),
     ("cho_sonido_plataformas", "lectura", "sonido_plataformas",
      "sonido_plataformas", str, "varios"),
     ("chk_decir_plataforma", "lectura", "decir_plataforma",

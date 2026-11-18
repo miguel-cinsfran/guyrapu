@@ -377,6 +377,54 @@ class TestFiltros(unittest.TestCase):
         self.assertTrue(entra_en_grupo(
             "Ana", self._cfg(silenciar_lectura=True)))
 
+    def test_un_comando_con_el_modo_de_fabrica_no_se_encola(self):
+        cola = queue.Queue()
+        on_message = mock.Mock()
+        procesar_entrante(
+            "Ana", "!discord", main.TIPO_TEXTO, "", "canal", cola,
+            self._cfg(limpiar_emojis=True, eliminar_urls=False,
+                      max_longitud_mensaje=200, umbral_solo_nombre=0,
+                      formato_prefijo="nombre_mensaje", estrategia="todas",
+                      tamanio_maximo=10),
+            Stats(), on_message=on_message)
+        on_message.assert_called_once()
+        self.assertTrue(cola.empty())
+
+    def test_un_mensaje_comun_se_encola(self):
+        cola = queue.Queue()
+        procesar_entrante(
+            "Ana", "hola", main.TIPO_TEXTO, "", "canal", cola,
+            self._cfg(limpiar_emojis=True, eliminar_urls=False,
+                      max_longitud_mensaje=200, umbral_solo_nombre=0,
+                      formato_prefijo="nombre_mensaje", estrategia="todas",
+                      tamanio_maximo=10),
+            Stats())
+        self.assertEqual(cola.get_nowait()["texto_tts"], "Ana: hola")
+
+    def test_un_comando_en_voz_principal_se_encola(self):
+        cola = queue.Queue()
+        procesar_entrante(
+            "Ana", "!discord", main.TIPO_TEXTO, "", "canal", cola,
+            self._cfg(limpiar_emojis=True, eliminar_urls=False,
+                      max_longitud_mensaje=200, umbral_solo_nombre=0,
+                      formato_prefijo="nombre_mensaje", estrategia="todas",
+                      tamanio_maximo=10, evento_comando="principal"),
+            Stats())
+        self.assertEqual(cola.get_nowait()["texto_tts"], "Ana: !discord")
+
+    def test_un_comando_en_desactivado_llega_a_la_gui_y_no_se_encola(self):
+        cola = queue.Queue()
+        on_message = mock.Mock()
+        procesar_entrante(
+            "Ana", "!discord", main.TIPO_TEXTO, "", "canal", cola,
+            self._cfg(limpiar_emojis=True, eliminar_urls=False,
+                      max_longitud_mensaje=200, umbral_solo_nombre=0,
+                      formato_prefijo="nombre_mensaje", estrategia="todas",
+                      tamanio_maximo=10, evento_comando="ocultar"),
+            Stats(), on_message=on_message)
+        on_message.assert_called_once()
+        self.assertTrue(cola.empty())
+
     def test_alias_se_lee_y_el_autor_real_llega_a_los_filtros_y_a_la_gui(self):
         autor = "xX_gamer_29384756_Xx"
         alias.usar(alias.poner({}, autor, "Carlos"))

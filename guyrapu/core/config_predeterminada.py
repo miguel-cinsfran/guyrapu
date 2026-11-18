@@ -114,6 +114,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("encuesta", "principal"),
         ("meta", "principal"),
         ("batalla", "principal"),
+        ("comando", "lista"),
     ]),
     ("programados", [
         ("activo", "false"),

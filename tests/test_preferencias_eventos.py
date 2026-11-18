@@ -38,6 +38,8 @@ EVENTOS_ESPERADOS = (
     ("cho_evento_encuesta", "evento_encuesta", "Encues&tas:", "Encuestas"),
     ("cho_evento_meta", "evento_meta", "&Metas:", "Metas"),
     ("cho_evento_batalla", "evento_batalla", "Batal&las:", "Batallas"),
+    ("cho_evento_comando", "evento_comando", "&Comandos del chat:",
+     "Comandos del chat"),
 )
 
 CONTROLES_EN_ORDEN = (
@@ -55,6 +57,7 @@ CONTROLES_EN_ORDEN = (
     "cho_evento_encuesta",
     "cho_evento_meta",
     "cho_evento_batalla",
+    "cho_evento_comando",
     "cho_sonido_plataformas",
     "chk_decir_plataforma",
 )
@@ -124,7 +127,7 @@ class TestCategoriaEventos(BaseEventos):
 
 
 class TestControlesEventos(BaseEventos):
-    def test_las_diez_listas_tienen_su_nombre_y_su_valor(self):
+    def test_las_once_listas_tienen_su_nombre_y_su_valor(self):
         dialogo = self._dialogo({"evento_superchat": "ocultar",
                                  "evento_cofre": "secundaria"})
         esperados = {"evento_superchat": "ocultar",
@@ -136,7 +139,8 @@ class TestControlesEventos(BaseEventos):
                      "evento_cofre": "secundaria",
                      "evento_encuesta": "principal",
                      "evento_meta": "principal",
-                     "evento_batalla": "principal"}
+                     "evento_batalla": "principal",
+                     "evento_comando": "lista"}
         for atributo, en_memoria, _etiqueta, nombre in EVENTOS_ESPERADOS:
             with self.subTest(atributo=atributo):
                 control = getattr(dialogo, atributo)
@@ -298,6 +302,19 @@ class TestLecturaSinEventos(BaseEventos):
 
 
 class TestGuardarEventos(BaseEventos):
+    def test_guardar_comandos_del_chat_escribe_la_seccion_eventos(self):
+        dialogo = self._dialogo()
+        self.assertEqual(dialogo.cho_evento_comando.GetValue(), "lista")
+        dialogo.cho_evento_comando.SetValue("principal")
+        with mock.patch.object(gui_preferencias._snd, "reproducir"), \
+                mock.patch.object(preferencias_transmision, "anunciar"), \
+                mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        self.assertEqual(dialogo._config.get("evento_comando"), "principal")
+        parser = config._mk_parser()
+        parser.read(self.ruta / "config.ini", encoding="utf-8")
+        self.assertEqual(parser.get("eventos", "comando"), "principal")
+
     def test_guardar_encuestas_en_ocultar_escribe_la_seccion_eventos(self):
         dialogo = self._dialogo()
         dialogo.cho_evento_superchat.SetValue("ocultar")

@@ -172,6 +172,30 @@ class TestEventos(unittest.TestCase):
             avisos_tiktok.modo_de(opciones, cfg.TIPO_ENTRADA), "lista")
 
 
+class TestEventoDeMensaje(unittest.TestCase):
+    def test_un_comando_es_el_evento_comando(self):
+        for texto in ("!discord", "!1 dale"):
+            with self.subTest(texto=texto):
+                self.assertEqual(
+                    avisos_tiktok.evento_de_mensaje(cfg.TIPO_TEXTO, texto),
+                    "comando")
+
+    def test_lo_que_no_es_comando_va_con_su_tipo(self):
+        for texto in ("hola", "! nada", "¡hola!"):
+            with self.subTest(texto=texto):
+                self.assertEqual(
+                    avisos_tiktok.evento_de_mensaje(cfg.TIPO_TEXTO, texto),
+                    cfg.TIPO_TEXTO)
+
+    def test_solo_un_texto_puede_ser_comando(self):
+        self.assertEqual(
+            avisos_tiktok.evento_de_mensaje(cfg.TIPO_SUPERCHAT, "!discord"),
+            cfg.TIPO_SUPERCHAT)
+
+    def test_el_comando_va_de_fabrica_en_la_lista(self):
+        self.assertEqual(avisos_tiktok.modo_evento({}, "comando"), "lista")
+
+
 class TestFuncionesDeModo(unittest.TestCase):
     TABLA = {
         "principal": (True, False, True),

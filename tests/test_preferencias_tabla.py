@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la tabla de opciones simples de Preferencias.
 
-La lista de 56 va literal en este módulo, no se lee de la tabla nueva:
+La lista de 57 va literal en este módulo, no se lee de la tabla nueva:
 así protege la tabla en vez de repetirla.
 """
 
@@ -48,6 +48,7 @@ OPCIONES_ESPERADAS = [
     ("cho_evento_encuesta", "eventos", "encuesta", "evento_encuesta", str),
     ("cho_evento_meta", "eventos", "meta", "evento_meta", str),
     ("cho_evento_batalla", "eventos", "batalla", "evento_batalla", str),
+    ("cho_evento_comando", "eventos", "comando", "evento_comando", str),
     ("sp_long", "texto", "max_longitud_mensaje", "max_longitud_mensaje", int),
     ("cho_lectura_recientes", "lectura", "recientes", "lectura_recientes", str),
     ("chk_lectura_atajos_globales", "lectura", "atajos_globales", "lectura_atajos_globales", bool),
@@ -132,6 +133,7 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                                       "evento_encuesta": "secundaria",
                                       "evento_meta": "secundaria",
                                       "evento_batalla": "secundaria",
+                                      "evento_comando": "principal",
                                       "sonido_plataformas": "siempre",
                                       "traducir_que": "solo_voz",
                                       "traducir_idioma_original": "abreviado",
@@ -141,11 +143,11 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                 config[en_memoria] = por_defecto + 1
         return config
 
-    def test_tabla_tiene_56_filas_sin_repetir_y_cada_atributo_existe(self):
+    def test_tabla_tiene_57_filas_sin_repetir_y_cada_atributo_existe(self):
         tabla = gui_preferencias._OPCIONES_SIMPLES
-        self.assertEqual(len(tabla), 56)
+        self.assertEqual(len(tabla), 57)
         atributos = [fila[0] for fila in tabla]
-        self.assertEqual(len(set(atributos)), 56)
+        self.assertEqual(len(set(atributos)), 57)
         dialogo = self._dialogo()
         for atributo in atributos:
             with self.subTest(atributo=atributo):
@@ -201,6 +203,7 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                                   "evento_encuesta": "secundaria",
                                   "evento_meta": "secundaria",
                                   "evento_batalla": "secundaria",
+                                  "evento_comando": "principal",
                                   "traducir_que": "solo_voz",
                                   "traducir_idioma_original": "abreviado",
                                   "traducir_destino": "en"}.get(
@@ -342,7 +345,7 @@ class TestPorDefectoContraFabrica(unittest.TestCase):
                 return texto
             if clave in ("superchat", "miembro", "entrada", "me_gusta",
                          "seguir", "compartir", "cofre", "encuesta",
-                         "meta", "batalla"):
+                         "meta", "batalla", "comando"):
                 return texto
             return gui_preferencias.cfg.normalizar_repetir(texto)
         return tipo(texto)

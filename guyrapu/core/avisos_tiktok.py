@@ -11,6 +11,7 @@ importa sin ciclo porque los tipos son los mismos textos que `config.TIPO_*`.
 from __future__ import annotations
 
 from guyrapu.core.idioma import N_
+from guyrapu.core.tipos_mensaje import TIPO_TEXTO
 
 AVISOS = (("entrada", "aviso_entradas", N_("&Entradas al directo:"),
            "mostrar"),
@@ -47,7 +48,8 @@ EVENTOS = (("superchat", "principal"),
            ("cofre", "principal"),
            ("encuesta", "principal"),
            ("meta", "principal"),
-           ("batalla", "principal"))
+           ("batalla", "principal"),
+           ("comando", "lista"))
 
 TIPOS_AVISO = frozenset(
     [tipo for tipo, _clave, _rotulo, _fabrica in AVISOS]
@@ -59,6 +61,7 @@ _EVENTO_DE_TIPO = {
     "compartir": "compartir", "cofre": "cofre",
     "encuesta": "encuesta", "encuesta_fin": "encuesta",
     "meta": "meta", "batalla": "batalla", "batalla_fin": "batalla",
+    "comando": "comando",
 }
 _CLAVE_EVENTO = {tipo: clave
                  for tipo, clave, _rotulo, _fabrica in AVISOS}
@@ -96,6 +99,20 @@ def modo_de(config, tipo) -> str | None:
 def evento_de(tipo) -> str | None:
     """Nombre del evento de un tipo, o None si se lee con la principal."""
     return _EVENTO_DE_TIPO.get(tipo)
+
+
+def evento_de_mensaje(tipo, texto) -> str | None:
+    """Evento del que se toma el modo: «comando» para un texto que invoca uno,
+    el tipo del mensaje para lo demás.
+
+    `comandos` se importa acá dentro porque su cadena de imports vuelve a
+    `config`, que ya importó este módulo al arrancar.
+    """
+    from guyrapu.interaction import comandos
+
+    if tipo == TIPO_TEXTO and comandos.leer(texto):
+        return "comando"
+    return tipo
 
 
 def modo_evento(config, tipo) -> str | None:

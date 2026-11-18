@@ -282,6 +282,41 @@ class TestControladorChat(unittest.TestCase):
         reproducir.assert_not_called()
         control._al_superchat.assert_called_once_with("$5")
 
+    def test_un_comando_de_fabrica_entra_a_la_lista_sin_sonar(self):
+        control = _controlador(config={})
+        with mock.patch.object(chat_vivo._snd, "reproducir") as reproducir:
+            visible = control._procesar(_registro(texto="!1"))
+        self.assertTrue(visible)
+        reproducir.assert_not_called()
+        control.lista.Append.assert_called_once()
+
+    def test_un_mensaje_comun_suena_aunque_el_comando_este_en_la_lista(self):
+        control = _controlador(config={})
+        with mock.patch.object(chat_vivo._snd, "reproducir") as reproducir:
+            control._procesar(_registro(texto="hola"))
+        reproducir.assert_called_once()
+
+    def test_un_comando_en_voz_principal_suena(self):
+        control = _controlador(config={"evento_comando": "principal"})
+        with mock.patch.object(chat_vivo._snd, "reproducir") as reproducir:
+            control._procesar(_registro(texto="!1"))
+        reproducir.assert_called_once()
+
+    def test_un_comando_en_desactivado_se_atiende_y_no_entra(self):
+        control = _controlador(config={"evento_comando": "ocultar"})
+        with mock.patch.object(chat_vivo.wx, "CallLater",
+                               return_value=mock.Mock()), \
+                mock.patch.object(chat_vivo.comandos_en_vivo,
+                                  "atender") as atender, \
+                mock.patch.object(chat_vivo._snd,
+                                  "reproducir") as reproducir:
+            control.encolar(_registro(texto="!1"))
+            control.volcar()
+        atender.assert_called_once()
+        reproducir.assert_not_called()
+        control.lista.Append.assert_not_called()
+        self.assertEqual(control.modelo.todos, [])
+
     def test_filtro_avisos_deja_solo_los_avisos_en_la_lista(self):
         control = _controlador(filtro=TIPOS_AVISO)
         with mock.patch.object(chat_vivo._snd, "reproducir"):
@@ -338,6 +373,21 @@ class TestClipDelChat(unittest.TestCase):
         control = self._control(guardar=guardar)
         self._encolar(control, "hola")
         guardar.assert_not_called()
+
+    def test_un_clip_en_desactivado_se_atiende_igual(self):
+        guardar = mock.Mock()
+        lista = mock.Mock()
+        lista.GetCount.return_value = 1
+        control = ControladorChat(
+            lista, 500, activo=lambda: True,
+            autor_oculto=lambda autor: False,
+            formatear=lambda autor, texto, hora, tipo, monto: texto,
+            al_superchat=mock.Mock(), config={"evento_comando": "ocultar"},
+            ajustes_clip=lambda: SimpleNamespace(activo=True, minutos=1),
+            guardar_clip=guardar)
+        self._encolar(control, "!clip")
+        guardar.assert_called_once()
+        self.assertEqual(control._pendientes, [])
 
     def test_otro_clip_durante_la_espera_no_guarda(self):
         ahora = [0.0]

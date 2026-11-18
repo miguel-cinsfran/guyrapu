@@ -18,7 +18,9 @@ from guyrapu.core import comando_clip
 from guyrapu.core import diagnostico
 from guyrapu.core import plataformas
 from guyrapu.core import sonidos_eventos
-from guyrapu.core.avisos_tiktok import con_sonido, modo_evento, pasa_filtro
+from guyrapu.core.avisos_tiktok import (
+    con_sonido, evento_de_mensaje, modo_evento, pasa_filtro,
+)
 from guyrapu.core.config import (
     TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
@@ -69,6 +71,8 @@ class ControladorChat:
         self._quizas_clip(registro)
         self._quizas_comando(registro)
         self.recibidos += 1 if registro.tipo == TIPO_TEXTO else 0
+        if self._modo(registro) == "ocultar":
+            return
         self._pendientes.append(registro)
         self._pedir_traduccion(registro)
         # Si el temporizador ya corre, NO reiniciarlo: con un chat activo
@@ -150,6 +154,13 @@ class ControladorChat:
         """La traducción guardada de ese registro, o None."""
         return self._traducciones.get(registro)
 
+    def _modo(self, registro: MensajeChat) -> str | None:
+        """Modo del evento del mensaje, o None para un texto común."""
+        if self._config is None:
+            return None
+        return modo_evento(
+            self._config, evento_de_mensaje(registro.tipo, registro.texto))
+
     def _procesar(self, registro: MensajeChat) -> bool:
         """Aplica UN mensaje ya desencolado al modelo y a la lista. Devuelve si
         quedó visible (se le hizo Append). Solo lo llama volcar."""
@@ -165,8 +176,8 @@ class ControladorChat:
         for _sin_uso in range(borrar):
             self.lista.Delete(0)
 
-        sonar = (self._config is None
-                 or con_sonido(modo_evento(self._config, registro.tipo)))
+        modo = self._modo(registro)
+        sonar = con_sonido(modo)
         if registro.tipo in (TIPO_SUPERCHAT, TIPO_STICKER):
             self._al_superchat(registro.monto)
         if sonar:

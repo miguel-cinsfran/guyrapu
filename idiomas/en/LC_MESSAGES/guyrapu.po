@@ -13637,6 +13637,10 @@ msgid "&Directo compartido:"
 msgstr "Shared l&ive streams:"
 
 #: guyrapu/ui/preferencias_eventos.py
+msgid "&Comandos del chat:"
+msgstr "&Chat commands:"
+
+#: guyrapu/ui/preferencias_eventos.py
 msgid "Agrupar ent&radas"
 msgstr "Group &arrivals"
 
