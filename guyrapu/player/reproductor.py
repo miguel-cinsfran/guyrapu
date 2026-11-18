@@ -1876,28 +1876,37 @@ class ReproductorPanel(wx.Panel):
             return
         self._reabrir_relevo(self._intencion_reproducir, inicio_ms=int(destino))
 
-    def _on_sld_pos(self, event):
+    def _saltar_a(self, origen, calcular_destino, avisar_sin_barra):
+        """Mueve a un destino común al deslizador y al porcentaje."""
         if self._avisar_sin_medio():
             return
         if self._player is None:
             return
         if not self._busqueda_permitida_actual():
-            self._aviso_busqueda_no_permitida("deslizador")
+            self._aviso_busqueda_no_permitida(origen)
             return
         dur = self._duracion_actual()
         if dur <= 0:
-            logger.debug("%s", traza_sin_barra("deslizador", dur))
+            logger.debug("%s", traza_sin_barra(origen, dur))
+            if avisar_sin_barra:
+                self._aviso_sin_barra()
             return
         bus = self._estado_busqueda
-        destino = int(self.sld_pos.GetValue() / 1000.0 * dur)
+        destino = calcular_destino(dur)
         destino = max(0, min(destino, dur))
         pendiente_prev = bus.destino
         pos = bus.confirmada
         logger.debug("%s", traza_salto(
-            "deslizador", pendiente_prev, pos,
+            origen, pendiente_prev, pos,
             destino - pos, destino, dur))
         self._ir_a(destino)
         self._marcar_destino(destino, anunciar_usuario=True)
+
+    def _on_sld_pos(self, event):
+        self._saltar_a(
+            "deslizador",
+            lambda dur: int(self.sld_pos.GetValue() / 1000.0 * dur),
+            False)
 
     def _on_pos_key(self, event):
         k = event.GetKeyCode()
@@ -1913,28 +1922,7 @@ class ReproductorPanel(wx.Panel):
             event.Skip()
 
     def _buscar_porcentaje(self, pct):
-        if self._avisar_sin_medio():
-            return
-        if self._player is None:
-            return
-        if not self._busqueda_permitida_actual():
-            self._aviso_busqueda_no_permitida("porcentaje")
-            return
-        dur = self._duracion_actual()
-        if dur <= 0:
-            logger.debug("%s", traza_sin_barra("porcentaje", dur))
-            self._aviso_sin_barra()
-            return
-        bus = self._estado_busqueda
-        destino = int(dur * pct / 100)
-        destino = max(0, min(destino, dur))
-        pendiente_prev = bus.destino
-        pos = bus.confirmada
-        logger.debug("%s", traza_salto(
-            "porcentaje", pendiente_prev, pos,
-            destino - pos, destino, dur))
-        self._ir_a(destino)
-        self._marcar_destino(destino, anunciar_usuario=True)
+        self._saltar_a("porcentaje", lambda dur: int(dur * pct / 100), True)
 
     def _on_vol_key(self, event):
         k = event.GetKeyCode()
