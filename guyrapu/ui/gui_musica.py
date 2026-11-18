@@ -26,10 +26,10 @@ from guyrapu.music.transporte import (
     PASO_VOLUMEN, VOLUMEN_INICIAL, VOLUMEN_MAX, VOLUMEN_MIN, nuevo_volumen,
     toca_pausar,)
 from guyrapu.music.normalizado import Normalizado
-from guyrapu.ui import atajos_globales
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.musica_cola import ColaMusica
+from guyrapu.ui.musica_desde_fuera import DesdeFueraMusica
 from guyrapu.ui.musica_enlaces import EnlacesMusica
 from guyrapu.ui.musica_indice import IndiceMusica, TEXTO_CARPETA_INEXISTENTE
 from guyrapu.ui.musica_listas_propias import ListasPropiasMusica
@@ -64,15 +64,9 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
         self._generacion_etiquetas = 0
         self._guardado_memoria = GuardadoDiferido(wx.CallLater)
         self._guardado_volumen = GuardadoDiferido(wx.CallLater)
-        self._globales = atajos_globales.AtajosGlobales(frame, self.acciones_musica())
-        self._globales_atajos = None
-        if bool(self._config.get("musica_atajos_globales", False)):
-            # Después de que la ventana exista: el registro es del sistema
-            # y pide el bucle de eventos.
-            try:
-                wx.CallAfter(self._activar_globales_arranque)
-            except Exception:
-                logger.debug("No se pudieron activar los atajos globales")
+        self._desde_fuera = DesdeFueraMusica(
+            frame, self._config, self.acciones_musica(), self._avisar)
+        self._globales = self._desde_fuera.globales
 
     # ── Acciones del menú y los atajos ───────────────────────────────────────
 
@@ -232,7 +226,7 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
         todavía no haya sonado nada. Nunca lanza: lo llama el frame al
         guardar Preferencias.
         """
-        self._aplicar_globales_desde_preferencias()
+        self._desde_fuera.aplicar_preferencias()
         if self._coordinador is None:
             return
         try:
@@ -250,50 +244,6 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
         except Exception:
             logger.exception("No se pudieron aplicar las preferencias de música")
 
-    # ── Atajos globales (valen en cualquier programa) ────────────────────────
-
-    def _atajos_globales_textos(self) -> dict:
-        """Los atajos efectivos de música, acción → texto guardado."""
-        atajos = cfg.parsear_atajos(self._config.get("atajos_raw", {}))
-        return {accion: atajos[accion].texto for accion in atajos_globales.ACCIONES
-                if accion in atajos}
-
-    def _activar_globales_arranque(self) -> None:
-        """Activa los globales al arrancar: calla salvo que algo falle."""
-        try:
-            textos = self._atajos_globales_textos()
-            fallidos = self._globales.activar(textos)
-        except Exception:
-            logger.exception("No se pudieron activar los atajos globales")
-            return
-        self._globales_atajos = textos
-        if fallidos:
-            self._avisar(anuncios.aviso_atajos_globales_fallo(fallidos))
-
-    def _aplicar_globales_desde_preferencias(self) -> None:
-        """Activa o desactiva los globales según la preferencia.
-
-        Reactiva si cambiaron los atajos. Al activar desde Preferencias se
-        anuncia (y el fallo, con error); al desactivar, también. Nunca lanza.
-        """
-        try:
-            if bool(self._config.get("musica_atajos_globales", False)):
-                textos = self._atajos_globales_textos()
-                if self._globales.activos and textos == self._globales_atajos:
-                    return
-                fallidos = self._globales.activar(textos)
-                self._globales_atajos = dict(textos)
-                if fallidos:
-                    self._avisar(anuncios.aviso_atajos_globales_fallo(fallidos))
-                else:
-                    self._avisar(anuncios.aviso_atajos_globales_activos())
-            elif self._globales.activos:
-                self._globales.desactivar()
-                self._globales_atajos = None
-                self._avisar(anuncios.aviso_atajos_globales_solo())
-        except Exception:
-            logger.exception("No se pudieron aplicar los atajos globales")
-
     def cerrar(self) -> None:
         """Cierra el motor si llegó a nacer y suelta los atajos. Nunca lanza."""
         self.parar_vigia()
@@ -302,10 +252,7 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
             self._guardado_volumen.vaciar()
         except Exception:
             logger.exception("No se pudo guardar lo pendiente de la música")
-        try:
-            self._globales.desactivar()
-        except Exception:
-            logger.debug("No se pudieron soltar los atajos globales")
+        self._desde_fuera.soltar()
         if self._adaptador is not None:
             try:
                 self._adaptador.cerrar()
