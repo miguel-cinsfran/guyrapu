@@ -136,6 +136,34 @@ class BuscarItemMenuTest(unittest.TestCase):
         self.assertIsNone(
             sonda._buscar_item_menu(_barra_volumenes(), "silenciar todo"))
 
+    def test_encuentra_el_item_aunque_el_pedido_traiga_la_letra_de_acceso(self):
+        barra = BarraFalsa([
+            MenuFalso("Interacción", [
+                ItemFalso(11, "&Mensajes automáticos…"),
+                ItemFalso(12, "&Comandos del chat…"),
+                ItemFalso(13, "Es&tilos del vídeo…"),
+            ]),
+        ])
+        casos = (
+            ("&Mensajes automáticos…", (11, "Mensajes automáticos…")),
+            ("&Comandos del chat…", (12, "Comandos del chat…")),
+            ("Es&tilos del vídeo…", (13, "Estilos del vídeo…")),
+        )
+        for pedido, esperado in casos:
+            with self.subTest(pedido=pedido):
+                self.assertEqual(
+                    sonda._buscar_item_menu(barra, pedido), esperado)
+
+    def test_la_exacta_gana_aunque_lleve_puntos_suspensivos(self):
+        barra = BarraFalsa([
+            MenuFalso("Interacción", [
+                ItemFalso(11, "Comandos del chat…"),
+                ItemFalso(12, "Comandos…"),
+            ]),
+        ])
+        self.assertEqual(
+            sonda._buscar_item_menu(barra, "Comandos…"), (12, "Comandos…"))
+
 
 if __name__ == "__main__":
     unittest.main()

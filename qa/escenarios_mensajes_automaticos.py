@@ -31,6 +31,7 @@ def escenario_mensajes_automaticos(app: Aplicacion, args, res: Resultado):
         revisar_nombres(controles, res, "mensajes_automaticos")
         textos = " ".join((c.get("etiqueta") or "") + " "
                           + (c.get("nombre") or "") for c in controles)
+        textos = " ".join(textos.split())
         for clave, que in (("5 minutos", "el intervalo mínimo"),
                            ("200 caracteres", "el límite de caracteres"),
                            ("enlaces", "el aviso sobre los enlaces")):

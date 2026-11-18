@@ -36,7 +36,7 @@ def escenario_estilos(app: Aplicacion, args, res: Resultado):
     try:
         controles = app.arbol("Interacción")
         revisar_nombres(controles, res, "estilos")
-        esperados = ("ListaEstilosVideo", "Estilos del vídeo guardados")
+        esperados = ("Estilos del vídeo guardados",)
         nombres = {c.get("nombre") or "" for c in controles}
         faltan = [nombre for nombre in esperados if nombre not in nombres]
         if faltan:

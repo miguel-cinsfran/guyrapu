@@ -302,12 +302,12 @@ def _buscar_item_menu(barra, objetivo: str):
     # Ojo: los ids que reparte `wx.ID_ANY` son NEGATIVOS. Descartar por
     # `id < 0` para saltarse los menús de nivel superior se lleva puestos
     # todos los ítems de verdad, y el síntoma es "no existe ese menú".
-    texto = str(objetivo or "").strip().lower()
+    texto = _limpiar_etiqueta(objetivo)
     menu = None
     if ">" in texto:
         pedido, _, resto = texto.partition(">")
         menu = _limpiar_etiqueta(pedido)
-        texto = resto.strip()
+        texto = _limpiar_etiqueta(resto)
     candidatos = [datos for datos in _recorrer_menus(barra)
                   if not datos.get("submenu") and datos.get("id") is not None]
     if menu is not None:
@@ -315,10 +315,10 @@ def _buscar_item_menu(barra, objetivo: str):
                       if _limpiar_etiqueta(str(d.get("camino", ""))
                                            .split(" > ", 1)[0]) == menu]
     for datos in candidatos:
-        if datos["etiqueta"].strip().lower() == texto:
+        if _limpiar_etiqueta(datos["etiqueta"]) == texto:
             return datos["id"], datos["etiqueta"]
     for datos in candidatos:
-        if texto in datos["etiqueta"].strip().lower():
+        if texto in _limpiar_etiqueta(datos["etiqueta"]):
             return datos["id"], datos["etiqueta"]
     return None
 
