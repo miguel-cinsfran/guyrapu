@@ -178,6 +178,32 @@ class TestManejadoresNuevos(unittest.TestCase):
         asyncio.run(cliente.manejadores[mod_eventos.FollowEvent](nuevo))
         self.assertEqual(len(recibidos), 1)
 
+    def _seguidor(self, mod_eventos, ident, creado_ms):
+        evento = mod_eventos.FollowEvent()
+        evento.common = types.SimpleNamespace(create_time=creado_ms)
+        if ident is not None:
+            evento.user_info = types.SimpleNamespace(
+                nick_name="Pepe", id=ident)
+        return evento
+
+    def test_la_misma_persona_siguiendo_dos_veces_se_lee_una(self):
+        recibidos = []
+        cliente, mod_eventos = self._sesion(recibidos)
+        ahora_ms = (self.CONECTADO + 1) * 1000
+        for _ in range(2):
+            asyncio.run(cliente.manejadores[mod_eventos.FollowEvent](
+                self._seguidor(mod_eventos, "1", ahora_ms)))
+        self.assertEqual(len(recibidos), 1)
+
+    def test_sin_id_el_seguir_sigue_pasando(self):
+        recibidos = []
+        cliente, mod_eventos = self._sesion(recibidos)
+        ahora_ms = (self.CONECTADO + 1) * 1000
+        for _ in range(2):
+            asyncio.run(cliente.manejadores[mod_eventos.FollowEvent](
+                self._seguidor(mod_eventos, None, ahora_ms)))
+        self.assertEqual(len(recibidos), 2)
+
     def test_suscripcion_y_entrada_tambien_descartan_historico(self):
         recibidos = []
         cliente, mod_eventos = self._sesion(

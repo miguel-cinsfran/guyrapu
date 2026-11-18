@@ -2,11 +2,54 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Qué eventos de TikTok no se leen.
 
-Funciones puras del filtrado: si el evento es viejo, si TikTok lo marcó como
-histórico y cuántos me gusta pasan por ventana. Sin wx ni la librería.
+Lo que decide el filtrado: si el evento es viejo, si TikTok lo marcó como
+histórico, cuántos me gusta pasan por ventana y qué ya se leyó en la sesión.
+Sin wx ni la librería.
 """
 
 from __future__ import annotations
+
+import unicodedata
+from collections import deque
+
+TOPE_MENSAJES = 2000
+
+
+def nombre_para_leer(nombre, usuario="") -> str:
+    """Nombre del autor limpio para leer: NFKC y, si no queda letra ni cifra,
+    el usuario de TikTok; si tampoco, «Usuario»."""
+    for candidato in (nombre, usuario):
+        limpio = unicodedata.normalize("NFKC", str(candidato or "")).strip()
+        if any(caracter.isalnum() for caracter in limpio):
+            return limpio
+    return "Usuario"
+
+
+class MemoriaSesion:
+    """Lo que ya se leyó en esta sesión, para no repetirlo al reconectar."""
+
+    def __init__(self, maximo=TOPE_MENSAJES):
+        self._seguidores = set()
+        self._mensajes = set()
+        self._orden = deque()
+        self._maximo = maximo
+
+    def registrar_seguidor(self, ident) -> bool:
+        """True la primera vez que esa persona sigue en la sesión."""
+        if ident in self._seguidores:
+            return False
+        self._seguidores.add(ident)
+        return True
+
+    def registrar_mensaje(self, ident) -> bool:
+        """True la primera vez que se ve ese mensaje en la sesión."""
+        if ident in self._mensajes:
+            return False
+        self._mensajes.add(ident)
+        self._orden.append(ident)
+        while len(self._orden) > self._maximo:
+            self._mensajes.discard(self._orden.popleft())
+        return True
 
 
 def es_previo_a_conexion(creado_ms, conectado_s, margen_s=5.0) -> bool:
@@ -55,3 +98,21 @@ def debe_pasar_me_gusta(ultimo, ahora, intervalo=3.0) -> bool:
         return (float(ahora) - float(ultimo)) >= float(intervalo)
     except (TypeError, ValueError):
         return True
+
+
+def descartar_evento(evento, conectado_s, memoria, modulo_eventos,
+                     autor_de_evento) -> bool:
+    """Si el evento se descarta: viejo, histórico, seguir repetido o comentario
+    con un identificador ya visto en esta sesión."""
+    if es_historico(evento) or es_previo_a_conexion(
+            _creado_ms(evento), conectado_s):
+        return True
+    clase_seguir = getattr(modulo_eventos, "FollowEvent", None)
+    if clase_seguir is not None and isinstance(evento, clase_seguir):
+        _nombre, ident = autor_de_evento(evento)
+        return bool(ident) and not memoria.registrar_seguidor(ident)
+    clase_comentar = getattr(modulo_eventos, "CommentEvent", None)
+    if clase_comentar is not None and isinstance(evento, clase_comentar):
+        ident = getattr(getattr(evento, "common", None), "msg_id", 0)
+        return bool(ident) and not memoria.registrar_mensaje(ident)
+    return False

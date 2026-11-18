@@ -6,6 +6,7 @@ import asyncio
 import json
 import sys
 import threading
+import time
 import types
 import unittest
 from unittest import mock
@@ -170,7 +171,7 @@ class TestReconexion(unittest.TestCase):
         caidas = [0]
 
         def sesion(usuario, parada, on_evento, on_estado, on_info, on_espectadores,
-                   anunciar_entradas=False):
+                   anunciar_entradas=False, memoria=None):
             caidas[0] += 1
             on_estado("conectado", "ok")
             if caidas[0] >= 6:
@@ -193,7 +194,7 @@ class TestReconexion(unittest.TestCase):
         llamadas = [0]
 
         def sesion(usuario, parada, on_evento, on_estado, on_info,
-                   on_espectadores, anunciar_entradas=False):
+                   on_espectadores, anunciar_entradas=False, memoria=None):
             llamadas[0] += 1
             if llamadas[0] < 3:
                 return exc
@@ -221,7 +222,7 @@ class TestReconexion(unittest.TestCase):
         exc = self._exc("UserOfflineError", "user is offline")
 
         def sesion(usuario, parada, on_evento, on_estado, on_info,
-                   on_espectadores, anunciar_entradas=False):
+                   on_espectadores, anunciar_entradas=False, memoria=None):
             on_estado("conectado", "Conectado al directo de TikTok.")
             return exc
 
@@ -234,7 +235,7 @@ class TestReconexion(unittest.TestCase):
         llamadas = [0]
 
         def sesion(usuario, parada, on_evento, on_estado, on_info,
-                   on_espectadores, anunciar_entradas=False):
+                   on_espectadores, anunciar_entradas=False, memoria=None):
             llamadas[0] += 1
             if llamadas[0] == 1:
                 on_estado("conectado", "Conectado al directo de TikTok.")
@@ -292,6 +293,67 @@ class TestReconexion(unittest.TestCase):
 
 
 
+class TestMemoriaEntreReconexiones(unittest.TestCase):
+    """Dos conexiones de la misma capturar_con_reconexion comparten la memoria."""
+
+    class _ClienteFalso:
+        room_info = {}
+
+        def __init__(self, eventos, comentario, parada, falla=False):
+            self.manejadores = {}
+            self.eventos = eventos
+            self.comentario = comentario
+            self.parada = parada
+            self.falla = falla
+
+        def on(self, evento):
+            def decorar(func):
+                self.manejadores[evento] = func
+                return func
+            return decorar
+
+        async def connect(self, **kwargs):
+            await self.manejadores[self.eventos.ConnectEvent](
+                self.eventos.ConnectEvent())
+            await self.manejadores[self.eventos.CommentEvent](self.comentario)
+            if self.falla:
+                raise RuntimeError("microcorte")
+            self.parada.set()
+
+        async def disconnect(self):
+            pass
+
+    def test_el_mismo_comentario_tras_reconectar_no_llega(self):
+        mod_eventos = types.ModuleType("TikTokLive.events")
+        for nombre in ("ConnectEvent", "CommentEvent", "GiftEvent",
+                       "DisconnectEvent", "LiveEndEvent", "RoomUserSeqEvent",
+                       "JoinEvent"):
+            setattr(mod_eventos, nombre, type(nombre, (), {}))
+        mod_tiktok = types.ModuleType("TikTokLive")
+        mod_tiktok.events = mod_eventos
+        parada = threading.Event()
+        comentario = mod_eventos.CommentEvent()
+        comentario.common = types.SimpleNamespace(
+            create_time=int((time.time() + 60) * 1000), msg_id=42)
+        comentario.comment = "repetido"
+        comentario.user_info = types.SimpleNamespace(nick_name="Pepe", id="1")
+        clientes = [
+            self._ClienteFalso(mod_eventos, comentario, parada, falla=True),
+            self._ClienteFalso(mod_eventos, comentario, parada),
+        ]
+        mod_tiktok.TikTokLiveClient = lambda unique_id: clientes.pop(0)
+        recibidos = []
+        with mock.patch.object(tiktok_captura, "disponible", return_value=True), \
+                mock.patch.dict(sys.modules, {"TikTokLive": mod_tiktok,
+                                              "TikTokLive.events": mod_eventos}):
+            tiktok_captura.capturar_con_reconexion(
+                "pepe", {"reconectar": True, "max_intentos": 3,
+                         "espera_entre_intentos": 0},
+                parada, on_evento=lambda *a: recibidos.append(a))
+        self.assertEqual(len(recibidos), 1)
+        self.assertIn("repetido", recibidos[0][1])
+
+
 class TestSalaNoListaEnElBucle(unittest.TestCase):
     """TikTok tarda en dar los datos de la sala al empezar un directo."""
 
@@ -319,7 +381,7 @@ class TestSalaNoListaEnElBucle(unittest.TestCase):
             return tiempos[0]
 
         def sesion(usuario, parada, on_evento, on_estado, on_info,
-                   on_espectadores, anunciar_entradas=False):
+                   on_espectadores, anunciar_entradas=False, memoria=None):
             fallos[0] += 1
             if fallos[0] <= 7:
                 tiempos[0] += 12
@@ -344,7 +406,7 @@ class TestSalaNoListaEnElBucle(unittest.TestCase):
             return tiempos[0]
 
         def sesion(usuario, parada, on_evento, on_estado, on_info,
-                   on_espectadores, anunciar_entradas=False):
+                   on_espectadores, anunciar_entradas=False, memoria=None):
             tiempos[0] += 100
             return self._exc()
 
@@ -419,6 +481,17 @@ class TestAutorDeEvento(unittest.TestCase):
         nombre, ident = autor_de_evento(ev)
         self.assertEqual(nombre, "María José")
         self.assertEqual(ident, "7")
+
+    def test_normaliza_el_nombre_decorativo(self):
+        autor = types.SimpleNamespace(nick_name="𝓜𝓪𝓻𝓲𝓪", id=7)
+        nombre, _ = autor_de_evento(types.SimpleNamespace(user_info=autor))
+        self.assertEqual(nombre, "Maria")
+
+    def test_sin_letra_ni_cifra_usa_el_unique_id(self):
+        autor = types.SimpleNamespace(
+            nick_name="✦✦", unique_id="mariaj", id=7)
+        nombre, _ = autor_de_evento(types.SimpleNamespace(user_info=autor))
+        self.assertEqual(nombre, "mariaj")
 
     def test_respaldo_username_si_no_hay_nick(self):
         ev = self._EventoComentario(self._UserInfoPlano(username="mariaj"))
@@ -750,7 +823,7 @@ class TestFinDirecto(unittest.TestCase):
         parada = threading.Event()
 
         def sesion(usuario, parada, on_evento, on_estado, on_info,
-                   on_espectadores, anunciar_entradas=False):
+                   on_espectadores, anunciar_entradas=False, memoria=None):
             parada.set()
             return None
 

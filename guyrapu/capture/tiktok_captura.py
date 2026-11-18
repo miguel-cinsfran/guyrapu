@@ -31,9 +31,9 @@ import sys
 import time
 
 from guyrapu.capture.tiktok_filtros import (
-    _creado_ms,
-    es_historico,
-    es_previo_a_conexion,
+    MemoriaSesion,
+    descartar_evento,
+    nombre_para_leer,
 )
 from guyrapu.capture.tiktok_reconexion import paso_tras_sesion
 from guyrapu.core import diagnostico
@@ -109,7 +109,7 @@ def autor_de_evento(evento) -> tuple[str, str]:
     nombre = (_g(u, "nick_name") or _g(u, "nickname") or _g(u, "unique_id")
               or _g(u, "username") or _g(u, "display_id") or "Usuario").strip()
     canal_id = (_g(u, "id") or _g(u, "unique_id") or _g(u, "username"))
-    return (nombre or "Usuario"), canal_id
+    return nombre_para_leer(nombre, _g(u, "unique_id")), canal_id
 
 
 def _info_de_sala(client) -> dict:
@@ -211,7 +211,7 @@ def _clase_suscripcion(modulo_eventos):
 
 def _registrar_manejadores(client, modulo_eventos, on_evento, on_estado,
                            on_info, on_espectadores, config,
-                           hora_conexion):
+                           hora_conexion, memoria):
     """Manejadores de una sesión: conexión, filtrado de previos y cierre.
     `hora_conexion` es la lista compartida entre `_on_connect` y
     `descartar`."""
@@ -233,8 +233,8 @@ def _registrar_manejadores(client, modulo_eventos, on_evento, on_estado,
             on_estado("conectado", _("Conectado al directo de TikTok."))
 
     def descartar(evento) -> bool:
-        return es_historico(evento) or es_previo_a_conexion(
-            _creado_ms(evento), hora_conexion[0])
+        return descartar_evento(evento, hora_conexion[0], memoria,
+                                modulo_eventos, autor_de_evento)
 
     tiktok_manejadores.registrar_manejadores(
         client, modulo_eventos, on_evento=on_evento,
@@ -297,7 +297,7 @@ def _correr_cliente(client, parada):
 
 
 def _sesion(usuario, parada, on_evento, on_estado, on_info, on_espectadores,
-            config=None):
+            config=None, memoria=None):
     """Una conexión completa (bloquea hasta desconectar). Devuelve la excepción
     de conexión si la hubo, o None si terminó con normalidad.
 
@@ -316,19 +316,21 @@ def _sesion(usuario, parada, on_evento, on_estado, on_info, on_espectadores,
         logger.debug("preparación TikTok: %s", exc)
         return exc
     hora_conexion: list = [None]
+    if memoria is None:
+        memoria = MemoriaSesion()
     _registrar_manejadores(client, modulo_eventos, on_evento, on_estado,
                            on_info, on_espectadores, config,
-                           hora_conexion)
+                           hora_conexion, memoria)
     return _correr_cliente(client, parada)
 
 
 def _sesion_protegida(usuario, parada, on_evento, on_estado, on_info,
-                       on_espectadores, config):
+                       on_espectadores, config, memoria):
     """Una sesión que nunca mata el hilo: lo inesperado vuelve como error
     de conexión y sigue la misma política de reintentos."""
     try:
         return _sesion(usuario, parada, on_evento, on_estado, on_info,
-                       on_espectadores, config)
+                       on_espectadores, config, memoria)
     except Exception as exc:
         # Nada de lo que salga de _sesion puede matar el hilo: se trata
         # como un error de conexión y sigue la misma política de reintentos.
@@ -352,7 +354,7 @@ def capturar_con_reconexion(usuario, config, parada, on_evento,
         parada.set()
         return
 
-    intentos = 0
+    intentos, memoria = 0, MemoriaSesion()
     conecto = [False, False]
     primer_fallo = [None]
     esperando_sala = [False]
@@ -372,7 +374,7 @@ def capturar_con_reconexion(usuario, config, parada, on_evento,
             _estado("conectando", _("Conectando al directo de TikTok de @{usuario}…").format(usuario=usuario))
         conecto[0] = False
         err = _sesion_protegida(usuario, parada, on_evento, _estado, on_info,
-                                on_espectadores, config)
+                                on_espectadores, config, memoria)
         if conecto[0]:
             intentos = 0
         accion, estado, espera, intentos, primer_fallo[0] = paso_tras_sesion(
