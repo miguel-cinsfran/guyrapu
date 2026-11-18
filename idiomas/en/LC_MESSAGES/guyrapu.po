@@ -2406,6 +2406,10 @@ msgid "Encuesta cerrada por tiempo"
 msgstr "Poll ended on time"
 
 #: guyrapu/core/eventos_sonido.py
+msgid "Meta cumplida del directo"
+msgstr "Live stream goal reached"
+
+#: guyrapu/core/eventos_sonido.py
 msgid "Problema de la grabación"
 msgstr "Recording problem"
 
@@ -13433,6 +13437,10 @@ msgid "Medios guardados"
 msgstr "Saved media"
 
 #: guyrapu/ui/medios_ventana.py
+msgid "&Volumen de los medios en el vídeo:"
+msgstr "&Volume of the media in the video:"
+
+#: guyrapu/ui/medios_ventana.py
 msgid "Medio agregado"
 msgstr "Media added"
 
@@ -13887,6 +13895,11 @@ msgstr "&Goal:"
 msgid "&Festejo:"
 msgstr "&Celebration:"
 
+#: guyrapu/ui/metas_en_vivo.py
+#, python-brace-format
+msgid "Meta cumplida: {nombre}."
+msgstr "Goal reached: {nombre}."
+
 #: guyrapu/ui/metas_ventana.py
 msgid "No hay metas. Usa Agregar para crear una."
 msgstr "There are no goals. Use Add to create one."
@@ -14047,6 +14060,12 @@ msgid "El nombre no puede tener más de 60 caracteres"
 msgstr "The name cannot be more than 60 characters"
 
 #: guyrapu/ui/musica_editor_lista.py
+msgid ""
+"La lista no tiene canciones. Marca las casillas de Todas las canciones para"
+" agregarlas."
+msgstr "The list has no songs. Select the check boxes in All songs to add them."
+
+#: guyrapu/ui/musica_editor_lista.py
 msgid "Nombre de la lista"
 msgstr "Playlist name"
 
@@ -14181,6 +14200,18 @@ msgstr "Rename playlist"
 #: guyrapu/ui/musica_ventana_acciones.py
 msgid "Nombre de la lista:"
 msgstr "Playlist name:"
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "La cola está vacía. Elige un tema y pulsa Ctrl+Intro para agregarlo."
+msgstr "The queue is empty. Choose a song and press Ctrl+Enter to add it."
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "No suena ningún tema"
+msgstr "No song is playing"
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "La cola está vacía"
+msgstr "The queue is empty"
 
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/preferencias_musica.py
 msgid "Elige la carpeta de música"
@@ -16599,31 +16630,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/musica_editor_lista.py
-msgid ""
-"La lista no tiene canciones. Marca las casillas de Todas las canciones para"
-" agregarlas."
-msgstr "The list has no songs. Select the check boxes in All songs to add them."
-
-#: guyrapu/ui/musica_ventana_acciones.py
-msgid "La cola está vacía. Elige un tema y pulsa Ctrl+Intro para agregarlo."
-msgstr "The queue is empty. Choose a song and press Ctrl+Enter to add it."
-
-#: guyrapu/ui/musica_ventana_acciones.py
-msgid "No suena ningún tema"
-msgstr "No song is playing"
-
-#: guyrapu/ui/musica_ventana_acciones.py
-msgid "La cola está vacía"
-msgstr "The queue is empty"
-
-#: guyrapu/core/eventos_sonido.py
-msgid "Meta cumplida del directo"
-msgstr "Live stream goal reached"
-
-#: guyrapu/ui/metas_en_vivo.py
-#, python-brace-format
-msgid "Meta cumplida: {nombre}."
-msgstr "Goal reached: {nombre}."
 

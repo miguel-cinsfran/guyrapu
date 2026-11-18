@@ -13,7 +13,8 @@ from unittest import mock
 import wx
 
 from guyrapu.core import paths
-from guyrapu.interaction import medios, medios_guardados, paquetes
+from guyrapu.interaction import (
+    ajustes_interaccion, medios, medios_guardados, paquetes)
 from guyrapu.ui import medio_cuadro, medios_ventana
 from tests.letras_acceso import letras_repetidas
 from tests.rutas_temporales import redirigir_rutas
@@ -267,6 +268,39 @@ class TestPagina(BaseVentana):
         ruta = paths.carpeta_medios() / guardados[0]["archivo"]
         self.assertEqual(ruta.read_bytes(), b"BBB")
         self.assertEqual(panel.lista.GetSelection(), 0)
+
+
+class TestVolumen(BaseVentana):
+
+    def test_el_control_va_entre_la_lista_y_los_botones_y_nace_en_cien(self):
+        panel = self._panel([])
+        self.assertEqual(panel.sp_volumen.GetName(),
+                         "Volumen de los medios en el vídeo")
+        self.assertEqual((panel.sp_volumen.GetMin(),
+                          panel.sp_volumen.GetMax(),
+                          panel.sp_volumen.GetValue()), (0, 100, 100))
+        hijos = panel.GetChildren()
+        primer_boton = next(hijo for hijo in hijos
+                            if isinstance(hijo, wx.Button))
+        self.assertLess(hijos.index(panel.lista),
+                        hijos.index(panel.sp_volumen))
+        self.assertLess(hijos.index(panel.sp_volumen),
+                        hijos.index(primer_boton))
+        etiquetas = [hijo.GetLabel() for hijo in hijos
+                     if isinstance(hijo, wx.StaticText)]
+        self.assertIn("&Volumen de los medios en el vídeo:", etiquetas)
+        self.assertEqual(letras_repetidas(panel), {})
+
+    def test_cambiarlo_lo_guarda_y_se_conserva_al_reabrir(self):
+        panel = self._panel([])
+        panel.sp_volumen.SetValue(40)
+        evento = wx.SpinEvent(wx.EVT_SPINCTRL.typeId,
+                              panel.sp_volumen.GetId())
+        panel.sp_volumen.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(
+            ajustes_interaccion.cargar_volumen(paths.interaccion()), 40)
+        otro = self._panel([])
+        self.assertEqual(otro.sp_volumen.GetValue(), 40)
 
 
 class TestCuadro(BaseVentana):

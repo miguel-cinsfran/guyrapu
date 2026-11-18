@@ -31,6 +31,7 @@ RUTAS_DE_DATOS = [
     ("comandos", "comandos.json"),
     ("disparadores", "disparadores.json"),
     ("metas", "metas.json"),
+    ("interaccion", "interaccion.json"),
     ("encuestas", "encuestas.json"),
     ("medios", "medios.json"),
     ("carpeta_medios", "medios"),

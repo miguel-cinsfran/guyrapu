@@ -9,6 +9,7 @@ from unittest import mock
 
 from guyrapu.capture import programados
 from guyrapu.core import paths
+from guyrapu.interaction import ajustes_interaccion
 from guyrapu.obs import estilos_aviso, obs_cliente
 from guyrapu.obs.escena_guyrapu import Tarjeta
 from guyrapu.ui import capa_video, gui_envio_chat
@@ -345,6 +346,14 @@ class TestDisparadorConMedio(Base):
         return {"ruta": "C:/medios/tono.wav", "tipo": tipo, "duracion": 4,
                 "ganancia_db": ganancia_db}
 
+    def _con_volumen(self, volumen):
+        temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(temporal.cleanup)
+        parche = redirigir_rutas(temporal.name)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        ajustes_interaccion.guardar_volumen(paths.interaccion(), volumen)
+
     def test_p2_arma_el_medio_con_la_ganancia_de_la_pieza(self):
         self.assertTrue(self.capa.agregar_pieza(
             self._pieza(medio=self._medio(ganancia_db=-6.0))))
@@ -357,7 +366,7 @@ class TestDisparadorConMedio(Base):
             self._pieza(medio=self._medio())))
         self._atender()
         self.assertEqual(self.medio.armados,
-                         [("C:/medios/tono.wav", "sonido", None)])
+                         [("C:/medios/tono.wav", "sonido", 0.0)])
         self.assertEqual(self.eventos,
                          ["preparar", "armar_medio", "animar", "mostrar",
                           "animar"])
@@ -367,9 +376,38 @@ class TestDisparadorConMedio(Base):
             self._pieza(texto="", medio=self._medio("imagen"))))
         self._atender()
         self.assertEqual(self.medio.armados,
-                         [("C:/medios/tono.wav", "imagen", None)])
+                         [("C:/medios/tono.wav", "imagen", 0.0)])
         self.assertEqual(self.eventos,
                          ["preparar", "armar_medio", "mostrar_sin_tarjeta"])
+
+    def test_p3_con_el_volumen_en_cincuenta_resta_seis_db(self):
+        self._con_volumen(50)
+        self.capa.agregar_pieza(self._pieza(
+            medio=self._medio(ganancia_db=-6.0)))
+        self._atender()
+        self.assertAlmostEqual(self.medio.armados[0][2], -12.0206, places=4)
+
+    def test_p3_con_el_volumen_en_cero_pasa_menos_cien(self):
+        self._con_volumen(0)
+        self.capa.agregar_pieza(self._pieza(
+            medio=self._medio(ganancia_db=-6.0)))
+        self._atender()
+        self.assertEqual(self.medio.armados[0][2], -100.0)
+
+    def test_p3_lee_el_volumen_al_armar_cada_medio(self):
+        self._con_volumen(100)
+        self.capa.agregar_pieza(self._pieza(
+            medio=self._medio(ganancia_db=-6.0)))
+        self._atender()
+        self.ahora += 10.0
+        self._atender()
+        ajustes_interaccion.guardar_volumen(paths.interaccion(), 50)
+        self.capa.agregar_pieza(self._pieza(
+            medio=self._medio(ganancia_db=-6.0)))
+        self.ahora += 1.0
+        self._atender()
+        self.assertAlmostEqual(self.medio.armados[0][2], -6.0)
+        self.assertAlmostEqual(self.medio.armados[1][2], -12.0206, places=4)
 
     def test_p4_al_ocultar_saca_la_tarjeta_y_despues_suelta_el_medio(self):
         self.capa.agregar_pieza(self._pieza(medio=self._medio()))

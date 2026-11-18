@@ -14,10 +14,12 @@ import wx
 
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
-from guyrapu.interaction import coleccion, medios, medios_guardados, paquetes
+from guyrapu.interaction import (
+    ajustes_interaccion, coleccion, medios, medios_guardados, paquetes)
 from guyrapu.music import consultas_vlc
 from guyrapu.ui import confirmar, medio_cuadro, medios_medicion
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import (
+    ContadorAccesible, anunciar, nombre_accesible)
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.medio_escucha import EscuchaPrevia
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -89,6 +91,16 @@ class PanelMedios(wx.Panel):
         self._lista = ListaConAcciones(self.lista, self._acciones, _(VACIO))
         self._lista.fijar(self._textos())
         vs.Add(self.lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        etiqueta_volumen = _("&Volumen de los medios en el vídeo:")
+        vs.Add(fila_label(self, etiqueta_volumen), 0,
+               wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        self.sp_volumen = ContadorAccesible(
+            self, min=0, max=100,
+            initial=ajustes_interaccion.cargar_volumen(paths.interaccion()),
+            name=nombre_de_etiqueta(etiqueta_volumen))
+        nombre_accesible(self.sp_volumen, self.sp_volumen.GetName())
+        self.sp_volumen.Bind(wx.EVT_SPINCTRL, self._al_cambiar_volumen)
+        vs.Add(self.sp_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         vs.Add(self._fila_de_botones(), 0,
                wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.SetSizer(vs)
@@ -114,6 +126,10 @@ class PanelMedios(wx.Panel):
 
     def _guardar(self):
         medios_guardados.guardar(self._ruta, self._medios)
+
+    def _al_cambiar_volumen(self, _evento):
+        ajustes_interaccion.guardar_volumen(
+            paths.interaccion(), self.sp_volumen.GetValue())
 
     def _elegido(self):
         return self._lista.indice()

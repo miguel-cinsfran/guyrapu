@@ -106,6 +106,10 @@ def metas() -> Path:
     return carpeta_datos() / "metas.json"
 
 
+def interaccion() -> Path:
+    return carpeta_datos() / "interaccion.json"
+
+
 def encuestas() -> Path:
     return carpeta_datos() / "encuestas.json"
 

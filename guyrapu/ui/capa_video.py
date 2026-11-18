@@ -15,6 +15,7 @@ import wx
 
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
+from guyrapu.interaction import ajustes_interaccion
 from guyrapu.interaction.cola_pantalla import ColaPantalla, Pieza
 from guyrapu.obs import animador as animador_obs
 from guyrapu.obs import escena_guyrapu, estilos_aviso, medio_obs, obs_cliente
@@ -236,8 +237,10 @@ class CapaVideo:
         self._asegurar()
         medio = pieza.datos.get("medio")
         if medio:
-            self._medio.armar(medio["ruta"], medio["tipo"],
-                              medio.get("ganancia_db"))
+            volumen = ajustes_interaccion.cargar_volumen(paths.interaccion())
+            ganancia = ajustes_interaccion.ganancia_total(
+                medio.get("ganancia_db"), volumen)
+            self._medio.armar(medio["ruta"], medio["tipo"], ganancia)
         if medio and not (pieza.texto or "").strip():
             self._escena.mostrar_sin_tarjeta()
             return
