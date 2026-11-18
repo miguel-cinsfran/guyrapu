@@ -17,9 +17,13 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import os
 import sys
 import time
 from ctypes import wintypes
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from foco_ventanas import traer_al_frente
 
 EVENTOS = {
     0x8005: "FOCUS",
@@ -380,10 +384,14 @@ def main(argv=None):
         app.ExitMainLoop()
 
     secuencia = Secuencia(marco, terminar)
+
+    def preparar():
+        traer_al_frente(marco.GetHandle(), os.getpid())
+        boton.SetFocus()
+        wx.CallLater(800, secuencia.empezar)
+
     marco.Show()
-    marco.Raise()
-    boton.SetFocus()
-    wx.CallLater(800, secuencia.empezar)
+    wx.CallLater(100, preparar)
     app.MainLoop()
     return 0
 
