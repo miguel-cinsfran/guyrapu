@@ -770,7 +770,7 @@ class TestVentanaObs(unittest.TestCase):
             ["Mostrar en la escena", "Bloquear posición",
              "Propiedades…", "Cambiar nombre…", "Duplicar", "Eliminar",
              "Tamaño y posición…", "Mover con flechas",
-             "Centrar en el vídeo", "Ajustar al vídeo", "Llenar el vídeo",
+             "Centrar en el vídeo", "Ajustar al vídeo", "Estirar al vídeo",
              "Voltear horizontalmente", "Voltear verticalmente",
              "Girar a la derecha", "Girar a la izquierda",
              "Restablecer tamaño y posición",
@@ -1705,7 +1705,7 @@ class TestVentanaObs(unittest.TestCase):
                 ("Mover con flechas", "mover_con_flechas"),
                 ("Centrar en el vídeo", "centrar"),
                 ("Ajustar al vídeo", "ajustar"),
-                ("Llenar el vídeo", "llenar"),
+                ("Estirar al vídeo", "llenar"),
                 ("Voltear horizontalmente", "voltear_horizontal"),
                 ("Voltear verticalmente", "voltear_vertical"),
                 ("Girar a la derecha", "girar_derecha"),
@@ -1762,6 +1762,19 @@ class TestVentanaObs(unittest.TestCase):
         separadores = sum(
             1 for item in transformar.GetMenuItems() if item.IsSeparator())
         self.assertEqual(separadores, 3)
+
+    def test_el_submenu_transformar_no_repite_letras_de_acceso(self):
+        fila = FilaFuente("Juego", "Juego", True, False)
+        menu = escena_menu_fuente.menu_de_fuente(fila, mock.Mock())
+        self.addCleanup(menu.Destroy)
+        transformar = next(
+            item.GetSubMenu() for item in menu.GetMenuItems()
+            if item.GetItemLabelText() == "Transformar")
+        letras = [etiqueta[etiqueta.index("&") + 1].lower()
+                  for etiqueta in (item.GetItemLabel()
+                                   for item in transformar.GetMenuItems())
+                  if "&" in etiqueta]
+        self.assertEqual(len(set(letras)), len(letras))
 
     def test_renombrar_el_chat_avisa_y_no_pide_nombre_ni_toca_obs(self):
         pagina = self.dialogo._pagina_fuentes

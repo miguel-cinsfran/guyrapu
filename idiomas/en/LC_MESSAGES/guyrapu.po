@@ -10824,8 +10824,8 @@ msgid "&Ajustar al vídeo"
 msgstr "&Fit to the video"
 
 #: guyrapu/ui/escena_menu_fuente.py
-msgid "&Llenar el vídeo"
-msgstr "&Fill the video"
+msgid "&Estirar al vídeo"
+msgstr "&Stretch to the video"
 
 #: guyrapu/ui/escena_menu_fuente.py
 msgid "Voltear &horizontalmente"
