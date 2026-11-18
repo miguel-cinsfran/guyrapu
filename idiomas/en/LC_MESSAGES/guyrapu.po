@@ -3536,6 +3536,11 @@ msgstr "Paused."
 
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
+msgid "con Ctrl+Alt+Mayús+{numero}"
+msgstr "with Ctrl+Alt+Shift+{numero}"
+
+#: guyrapu/interaction/descripcion_disparador.py
+#, python-brace-format
 msgid "el regalo {regalo}"
 msgstr "the gift {regalo}"
 
@@ -3669,6 +3674,18 @@ msgstr "The command trigger needs at least one name."
 #, python-brace-format
 msgid "El comando {nombre} ya lo usa otro disparador."
 msgstr "The command {nombre} is already used by another trigger."
+
+#. Traductores: validación de disparadores del directo (error).
+#: guyrapu/interaction/disparadores.py
+msgid "El atajo tiene que ser un número del 1 al 9."
+msgstr "The shortcut must be a number from 1 to 9."
+
+#. Traductores: validación de disparadores del directo (error). {nombre} es el
+#. disparador que ya usa ese número.
+#: guyrapu/interaction/disparadores.py
+#, python-brace-format
+msgid "Ese número ya lo usa el disparador {nombre}"
+msgstr "That number is already used by the trigger {nombre}"
 
 #. Traductores: validación de disparadores del directo (error). {evento} es el
 #. nombre del evento desconocido.
@@ -9971,8 +9988,16 @@ msgid "Evento del directo"
 msgstr "Live event"
 
 #: guyrapu/ui/disparador_cuadro.py
+msgid "Atajo del teclado"
+msgstr "Keyboard shortcut"
+
+#: guyrapu/ui/disparador_cuadro.py
 msgid "C&uándo:"
 msgstr "&When:"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Número del ata&jo, Ctrl+Alt+Mayús:"
+msgstr "Shortc&ut number, Ctrl+Alt+Shift:"
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Co&mandos del chat:"
@@ -10032,6 +10057,15 @@ msgstr "&General wait (seconds):"
 #: guyrapu/ui/restream_perfil.py
 msgid "Cambiar nombre"
 msgstr "Rename"
+
+#: guyrapu/ui/disparadores_en_vivo.py
+msgid "Conecta un directo para usar los disparadores"
+msgstr "Connect a live stream to use the triggers"
+
+#: guyrapu/ui/disparadores_en_vivo.py
+#, python-brace-format
+msgid "Ningún disparador usa Ctrl+Alt+Mayús+{numero}"
+msgstr "No trigger uses Ctrl+Alt+Shift+{numero}"
 
 #: guyrapu/ui/disparadores_ventana.py
 msgid "No hay disparadores. Usa Agregar para crear uno."
@@ -14158,6 +14192,18 @@ msgstr "&Remove from this list"
 msgid "&Reproducir"
 msgstr "&Play"
 
+#: guyrapu/ui/musica_menus.py
+msgid "&Editar lista…"
+msgstr "&Edit playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "Cambiar n&ombre…"
+msgstr "Rena&me…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "E&liminar lista…"
+msgstr "Delete play&list…"
+
 #. Traductores: crea una lista nueva; segunda, su nombre accesible.
 #: guyrapu/ui/musica_menus.py guyrapu/ui/musica_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py
@@ -14171,6 +14217,18 @@ msgstr "Move do&wn"
 #: guyrapu/ui/musica_menus.py
 msgid "&Ir al que suena"
 msgstr "&Go to the one playing"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Mezclar"
+msgstr "&Shuffle"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Vaciar"
+msgstr "&Clear"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Guardar como lista…"
+msgstr "Sa&ve as playlist…"
 
 #. Traductores: nombre accesible de la lista de colecciones; una palabra.
 #: guyrapu/ui/musica_ventana.py
@@ -16684,28 +16742,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Editar lista…"
-msgstr "&Edit playlist…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "Cambiar n&ombre…"
-msgstr "Rena&me…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "E&liminar lista…"
-msgstr "Delete play&list…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Mezclar"
-msgstr "&Shuffle"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Vaciar"
-msgstr "&Clear"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Guardar como lista…"
-msgstr "Sa&ve as playlist…"
 

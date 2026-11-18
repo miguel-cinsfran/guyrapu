@@ -6,14 +6,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from guyrapu.interaction import disparadores, disparadores_guardados
+from guyrapu.interaction import disparadores, disparadores_guardados, paquetes
 
 
 def _datos(**cambios):
     datos = {
         "nombre": "aplauso", "cuando": "comando", "comandos": ["aplauso"],
-        "evento": "", "minimo": None, "regalo": "", "medio": "fuegos",
-        "tarjeta": "",
+        "evento": "", "minimo": None, "regalo": "", "atajo": 0,
+        "medio": "fuegos", "tarjeta": "",
         "estilo": "clasico", "segundos": 8, "permiso": "todos",
         "nombres": [], "espera_general": 5.0, "espera_persona": 30.0,
         "activo": True,
@@ -49,6 +49,7 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(disparador.comandos, ())
         self.assertEqual(disparador.evento, "")
         self.assertIsNone(disparador.minimo)
+        self.assertEqual(disparador.atajo, 0)
         self.assertEqual(disparador.medio, "")
         self.assertEqual(disparador.permiso, "todos")
         self.assertEqual((disparador.espera_general, disparador.espera_persona),
@@ -68,6 +69,7 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(disparador.comandos, ("uno", "dos"))
         self.assertEqual(disparador.evento, "")
         self.assertIsNone(disparador.minimo)
+        self.assertEqual(disparador.atajo, 0)
         self.assertEqual(disparador.permiso, "todos")
         self.assertEqual(disparador.nombres, ("Ana", "Beto"))
         self.assertEqual(disparador.espera_general, 7)
@@ -117,6 +119,27 @@ class TestArchivo(unittest.TestCase):
         del sin_regalo["regalo"]
         self.assertEqual(
             disparadores_guardados.a_disparador(sin_regalo).regalo, "")
+
+    def test_p5_el_atajo_se_guarda_y_se_lee_del_archivo(self):
+        datos = _datos(nombre="botonera", cuando="atajo", comandos=[],
+                       atajo=4)
+        disparadores_guardados.guardar(
+            self.ruta, [disparadores_guardados.a_disparador(datos)])
+        self.assertEqual(disparadores_guardados.cargar(self.ruta), [datos])
+
+    def test_p5_un_archivo_sin_atajo_lo_lee_cero(self):
+        sin_atajo = _datos()
+        del sin_atajo["atajo"]
+        self.assertEqual(
+            disparadores_guardados.a_disparador(sin_atajo).atajo, 0)
+
+    def test_p5_los_paquetes_llevan_el_atajo(self):
+        datos = _datos(nombre="botonera", cuando="atajo", comandos=[],
+                       atajo=7)
+        paquetes.exportar(self.ruta.with_suffix(".zip"), "disparadores",
+                          [datos])
+        paquete = paquetes.leer(self.ruta.with_suffix(".zip"), "disparadores")
+        self.assertEqual(paquete.elementos, [datos])
 
     def test_ida_y_vuelta_por_el_archivo(self):
         disparadores_guardados.guardar(self.ruta, [_datos()])

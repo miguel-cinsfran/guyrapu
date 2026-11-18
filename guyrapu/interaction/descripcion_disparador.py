@@ -24,6 +24,9 @@ def _numero(valor) -> str:
 
 
 def _cuando(disparador: Disparador) -> str:
+    if disparador.cuando == "atajo":
+        return _("con Ctrl+Alt+Mayús+{numero}").format(
+            numero=disparador.atajo)
     if disparador.cuando == "evento":
         if disparador.evento == "superchat" and disparador.regalo:
             nombre = _("el regalo {regalo}").format(regalo=disparador.regalo)

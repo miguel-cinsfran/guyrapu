@@ -20,6 +20,12 @@ def _evento(**cambios):
     return disparadores.Disparador(**datos)
 
 
+def _atajo(**cambios):
+    datos = {"nombre": "botonera", "cuando": "atajo", "atajo": 3}
+    datos.update(cambios)
+    return disparadores.Disparador(**datos)
+
+
 class TestFila(unittest.TestCase):
 
     def test_dice_el_nombre_y_cuando_sale(self):
@@ -42,6 +48,11 @@ class TestFila(unittest.TestCase):
         self.assertEqual(
             descripcion_disparador.fila(_evento(regalo="Lion", minimo=5)),
             "regalo, cuando llega el regalo Lion desde 5")
+
+    def test_p6_la_fila_dice_el_atajo(self):
+        self.assertEqual(
+            descripcion_disparador.fila(_atajo()),
+            "botonera, con Ctrl+Alt+Mayús+3")
 
 
 class TestEscuchar(unittest.TestCase):
@@ -80,6 +91,11 @@ class TestEscuchar(unittest.TestCase):
             descripcion_disparador.escuchar(disparador),
             "aplauso: cuando alguien escribe !aplauso, muestra la tarjeta "
             "«Gracias».")
+
+    def test_p6_escuchar_dice_el_atajo(self):
+        self.assertEqual(
+            descripcion_disparador.escuchar(_atajo(medio="fuegos.gif")),
+            "botonera: con Ctrl+Alt+Mayús+3, muestra el medio fuegos.gif.")
 
     def test_marca_los_pausados_al_final(self):
         disparador = _comando(medio="aplauso.gif", activo=False)

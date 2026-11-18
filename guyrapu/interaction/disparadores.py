@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Cuándo se cumple un disparador de la interacción con el público.
 
-Puro y sin wx. Única razón para cambiar: qué datos tiene un disparador y
-cuándo un mensaje del directo lo cumple.
+Puro y sin wx. Única razón para cambiar: qué datos tiene un disparador,
+cuándo un mensaje del directo lo cumple y cuáles dispara un atajo.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos
 from guyrapu.interaction.texto import normalizar
 
-CUANDOS = ("comando", "evento")
+CUANDOS = ("comando", "evento", "atajo")
 EVENTOS_DEL_DIRECTO = tuple(tipo for tipo, _modo in avisos_tiktok.EVENTOS
                             if tipo != "comando")
 NOMBRES_EVENTOS = {
@@ -63,6 +63,7 @@ class Disparador:
     espera_general: float = 5
     espera_persona: float = 30
     activo: bool = True
+    atajo: int = 0
 
     def __post_init__(self):
         object.__setattr__(self, "comandos",
@@ -70,6 +71,8 @@ class Disparador:
                                  for nombre in self.comandos))
         object.__setattr__(self, "segundos",
                            max(3, min(60, int(self.segundos))))
+        object.__setattr__(self, "atajo",
+                           max(0, min(9, int(self.atajo))))
 
 
 def cantidad_de(monto) -> float:
@@ -116,6 +119,13 @@ def _cumple(disparador: Disparador, evento) -> bool:
     if disparador.cuando == "evento":
         return _cumple_evento(disparador, evento)
     return False
+
+
+def por_atajo(disparadores, numero) -> list[Disparador]:
+    """Los disparadores activos de ese número, en el orden de la lista."""
+    return [disparador for disparador in disparadores
+            if disparador.activo and disparador.cuando == "atajo"
+            and disparador.atajo == numero]
 
 
 def cumplidos(disparadores, evento, esperas, ahora) -> list[Disparador]:
@@ -175,6 +185,23 @@ def _error_de_comando(disparador: Disparador, otros) -> str:
     return ""
 
 
+def _error_de_atajo(disparador: Disparador, otros) -> str:
+    if disparador.cuando != "atajo":
+        return ""
+    if not 1 <= disparador.atajo <= 9:
+        # Traductores: validación de disparadores del directo (error).
+        return _("El atajo tiene que ser un número del 1 al 9.")
+    if not disparador.activo:
+        return ""
+    for otro in otros:
+        if (otro.activo and otro.cuando == "atajo"
+                and otro.atajo == disparador.atajo):
+            # Traductores: validación de disparadores del directo (error). {nombre} es el disparador que ya usa ese número.
+            return _("Ese número ya lo usa el disparador {nombre}").format(
+                nombre=otro.nombre)
+    return ""
+
+
 def _error_de_evento(disparador: Disparador) -> str:
     if disparador.cuando != "evento":
         return ""
@@ -201,5 +228,6 @@ def validar(disparador: Disparador, otros) -> str:
     return (_error_de_nombre(disparador, otros)
             or _error_de_cuando(disparador)
             or _error_de_comando(disparador, otros)
+            or _error_de_atajo(disparador, otros)
             or _error_de_evento(disparador)
             or _error_de_que(disparador))

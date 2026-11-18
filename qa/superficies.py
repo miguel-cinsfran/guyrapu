@@ -189,6 +189,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "interaccion_atajos.py": (
         "registra los atajos globales de lo que sale en el vídeo; no abre "
         "ventana propia."),
+    "botonera_atajos.py": (
+        "registra los atajos globales de los disparadores; no abre ventana "
+        "propia."),
     "restream_perfil.py": "El banco no tiene cuenta ni canales; el diálogo lo cubren las pruebas con wx.",
     "restream_dialogos_destino.py": "El banco no tiene cuenta ni canales; los cuadros los cubren las pruebas con wx.",
     "agregar_camara.py": (

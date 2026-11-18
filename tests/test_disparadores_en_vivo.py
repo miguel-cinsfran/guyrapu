@@ -19,14 +19,14 @@ from tests.rutas_temporales import redirigir_rutas
 def _datos(nombre="risa", cuando="comando", comandos=("risa",), evento="",
            minimo=None, medio="", tarjeta="Ríe {usuario}", estilo="clasico",
            segundos=8, permiso="todos", nombres=(), espera_general=5.0,
-           espera_persona=0.0, activo=True):
+           espera_persona=0.0, activo=True, atajo=0):
     return {
         "nombre": nombre, "cuando": cuando, "comandos": list(comandos),
         "evento": evento, "minimo": minimo, "medio": medio,
         "tarjeta": tarjeta, "estilo": estilo, "segundos": segundos,
         "permiso": permiso, "nombres": list(nombres),
         "espera_general": espera_general, "espera_persona": espera_persona,
-        "activo": activo,
+        "activo": activo, "atajo": atajo,
     }
 
 
@@ -265,6 +265,57 @@ class TestRecarga(Base):
         self._adelantar(paths.palabras_bloqueadas())
         self._atender(_registro(autor="Tonto"), ahora=1)
         self.assertEqual(self._textos(), ["Hola ***", "Hola Tonto"])
+
+
+class TestAtajoGlobal(Base):
+
+    def _disparar(self, numero, ahora=None):
+        disparadores_en_vivo.disparar(self.frame, numero, ahora)
+
+    def test_p2_dispara_los_activos_con_ese_numero_en_el_orden_de_la_lista(
+            self):
+        self._guardar(
+            _datos(nombre="uno", cuando="atajo", comandos=(), atajo=3,
+                   tarjeta="Uno", permiso="moderadores"),
+            _datos(nombre="dos", cuando="atajo", comandos=(), atajo=4,
+                   tarjeta="Dos"),
+            _datos(nombre="tres", cuando="atajo", comandos=(), atajo=3,
+                   tarjeta="Tres"),
+            _datos(nombre="pausado", cuando="atajo", comandos=(), atajo=3,
+                   tarjeta="Pausado", activo=False))
+        self._disparar(3, ahora=0)
+        self.assertEqual(self._textos(), ["Uno", "Tres"])
+
+    def test_p2_dos_veces_seguidas_con_espera_general_las_dos_disparan(self):
+        self._guardar(_datos(
+            nombre="risa", cuando="atajo", comandos=(), atajo=1,
+            tarjeta="Ríe", espera_general=5, espera_persona=0))
+        self._disparar(1, ahora=10)
+        self._disparar(1, ahora=11)
+        self.assertEqual(self._textos(), ["Ríe", "Ríe"])
+
+    def test_p3_sin_disparador_con_ese_numero_avisa_con_el_sonido_de_error(
+            self):
+        self._guardar(_datos(
+            nombre="risa", cuando="atajo", comandos=(), atajo=1))
+        with mock.patch.object(
+                disparadores_en_vivo, "anunciar_con_sonido") as avisar:
+            self._disparar(2, ahora=0)
+        avisar.assert_called_once_with(
+            "Ningún disparador usa Ctrl+Alt+Mayús+2", "error")
+        self.frame._capa_video.agregar_pieza.assert_not_called()
+
+    def test_p3_sin_directo_conectado_avisa_y_no_hace_nada_mas(self):
+        self._guardar(_datos(
+            nombre="risa", cuando="atajo", comandos=(), atajo=1,
+            tarjeta="Ríe"))
+        self.frame._conectado = False
+        with mock.patch.object(
+                disparadores_en_vivo, "anunciar_con_sonido") as avisar:
+            self._disparar(1, ahora=0)
+        avisar.assert_called_once_with(
+            "Conecta un directo para usar los disparadores", "error")
+        self.frame._capa_video.agregar_pieza.assert_not_called()
 
 
 class TestDesconectado(Base):

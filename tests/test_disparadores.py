@@ -266,6 +266,40 @@ class TestCumplidos(unittest.TestCase):
                 comandos.Esperas(), 0))
 
 
+class TestAtajo(unittest.TestCase):
+
+    def test_p1_el_atajo_nace_en_cero(self):
+        self.assertEqual(disparadores.Disparador("aplauso").atajo, 0)
+
+    def test_p1_atajo_es_una_de_las_condiciones(self):
+        self.assertIn("atajo", disparadores.CUANDOS)
+
+    def test_p1_un_mensaje_no_cumple_un_disparador_de_atajo(self):
+        disparador = _comando(cuando="atajo", atajo=3)
+        self.assertEqual(
+            [],
+            disparadores.cumplidos([disparador], _evento("!aplauso"),
+                                   comandos.Esperas(), 0))
+
+
+class TestPorAtajo(unittest.TestCase):
+
+    def test_elige_los_activos_con_ese_numero_en_el_orden_de_la_lista(self):
+        primero = _comando(nombre="uno", cuando="atajo", atajo=3)
+        otro_numero = _comando(nombre="dos", cuando="atajo", atajo=4)
+        pausado = _comando(nombre="tres", cuando="atajo", atajo=3,
+                           activo=False)
+        segundo = _comando(nombre="cuatro", cuando="atajo", atajo=3)
+        self.assertEqual(
+            [primero, segundo],
+            disparadores.por_atajo(
+                [primero, otro_numero, pausado, segundo], 3))
+
+    def test_un_disparador_de_otra_condicion_no_usa_su_numero(self):
+        disparador = _comando(atajo=3)
+        self.assertEqual([], disparadores.por_atajo([disparador], 3))
+
+
 class TestCantidad(unittest.TestCase):
 
     def test_los_ejemplos_de_la_regla(self):

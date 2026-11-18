@@ -21,7 +21,8 @@ from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 NOMBRES_ACCESIBLES = (
-    "Nombre", "Cuándo", "Comandos del chat", "Evento", "Cantidad mínima",
+    "Nombre", "Cuándo", "Número del atajo, Ctrl+Alt+Mayús",
+    "Comandos del chat", "Evento", "Cantidad mínima",
     "Nombre del regalo. Vacío para cualquier regalo. Escribe el nombre "
     "como lo lee Guyrapu",
     "Medio", "Texto de la tarjeta", "Estilo", "Segundos en pantalla",
@@ -29,7 +30,8 @@ NOMBRES_ACCESIBLES = (
     "Espera por persona (segundos)", "Aceptar", "Cancelar")
 
 ETIQUETAS = (
-    "&Nombre:", "C&uándo:", "Co&mandos del chat:", "&Evento:",
+    "&Nombre:", "C&uándo:", "Número del ata&jo, Ctrl+Alt+Mayús:",
+    "Co&mandos del chat:", "&Evento:",
     "Cantidad mín&ima:", "Nom&bre del regalo:", "Me&dio:",
     "&Texto de la tarjeta:", "Esti&lo:", "&Segundos en pantalla:",
     "Pe&rmiso:", "Nombres &permitidos:", "Espera &general (segundos):",
@@ -74,8 +76,9 @@ class TestCampos(BaseCuadro):
     def test_cada_control_tiene_el_nombre_accesible_de_su_rotulo(self):
         cuadro = self._cuadro()
         controles = (
-            cuadro.txt_nombre, cuadro.cho_cuando, cuadro.txt_comandos,
-            cuadro.cho_evento, cuadro.txt_minimo, cuadro.txt_regalo,
+            cuadro.txt_nombre, cuadro.cho_cuando, cuadro.sp_atajo,
+            cuadro.txt_comandos, cuadro.cho_evento, cuadro.txt_minimo,
+            cuadro.txt_regalo,
             cuadro.cho_medio, cuadro.txt_tarjeta, cuadro.cho_estilo,
             cuadro.sp_segundos, cuadro.cho_permiso, cuadro.txt_nombres,
             cuadro.sp_espera, cuadro.sp_persona, cuadro.btn_aceptar,
@@ -83,6 +86,22 @@ class TestCampos(BaseCuadro):
         self.assertEqual(
             tuple(control.GetName() for control in controles),
             NOMBRES_ACCESIBLES)
+
+    def test_p4_el_campo_del_atajo_va_despues_del_cuando_en_el_tab(self):
+        cuadro = self._cuadro()
+        hijos = cuadro.GetChildren()[0].GetChildren()
+        self.assertEqual(hijos.index(cuadro.sp_atajo),
+                         hijos.index(cuadro.cho_cuando) + 2)
+
+    def test_p4_el_campo_del_atajo_pide_del_uno_al_nueve_y_nunca_se_deshabilita(
+            self):
+        cuadro = self._cuadro()
+        self.assertEqual(
+            (cuadro.sp_atajo.GetMin(), cuadro.sp_atajo.GetMax()), (1, 9))
+        self.assertEqual(cuadro.sp_atajo.GetName(),
+                         "Número del atajo, Ctrl+Alt+Mayús")
+        cuadro.cho_cuando.SetSelection(1)
+        self.assertTrue(cuadro.sp_atajo.IsEnabled())
 
     def test_p3_el_regalo_va_despues_del_minimo_en_el_tab(self):
         cuadro = self._cuadro()
@@ -131,8 +150,9 @@ class TestCampos(BaseCuadro):
 
     def test_las_opciones_del_cuando_y_del_evento(self):
         cuadro = self._cuadro()
-        self.assertEqual(cuadro.cho_cuando.GetStrings(),
-                         ["Comando del chat", "Evento del directo"])
+        self.assertEqual(
+            cuadro.cho_cuando.GetStrings(),
+            ["Comando del chat", "Evento del directo", "Atajo del teclado"])
         self.assertEqual(
             cuadro.cho_evento.GetStrings(),
             [_(disparadores.NOMBRES_EVENTOS[clave])
@@ -182,13 +202,51 @@ class TestDatos(BaseCuadro):
         cuadro.txt_nombres.SetValue("Ana, Beto")
         cuadro.sp_espera.SetValue(10)
         cuadro.sp_persona.SetValue(40)
+        cuadro.sp_atajo.SetValue(3)
         self.assertEqual(cuadro.datos(), {
             "nombre": "regalo", "cuando": "evento",
             "comandos": [], "evento": "superchat", "minimo": 5.0,
-            "regalo": "", "medio": "aplauso.gif", "tarjeta": "Gracias",
+            "regalo": "", "atajo": 3, "medio": "aplauso.gif",
+            "tarjeta": "Gracias",
             "estilo": "banda", "segundos": 15, "permiso": "lista",
             "nombres": ["Ana", "Beto"], "espera_general": 10.0,
             "espera_persona": 40.0, "activo": True})
+
+    def test_p4_el_cuadro_carga_y_guarda_el_atajo(self):
+        cuadro = self._cuadro({
+            "nombre": "botonera", "cuando": "atajo", "atajo": 4,
+            "tarjeta": "Gracias"})
+        self.assertEqual(cuadro.sp_atajo.GetValue(), 4)
+        datos = cuadro.datos()
+        self.assertEqual((datos["cuando"], datos["atajo"]), ("atajo", 4))
+
+    def test_p4_un_numero_que_usa_otro_activo_no_guarda(self):
+        otro = {"nombre": "otro", "cuando": "atajo", "atajo": 2,
+                "tarjeta": "Gracias", "activo": True}
+        cuadro = self._cuadro({}, [otro])
+        cuadro.txt_nombre.SetValue("botonera")
+        cuadro.cho_cuando.SetSelection(
+            disparadores.CUANDOS.index("atajo"))
+        cuadro.sp_atajo.SetValue(2)
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro.sp_atajo, "SetFocus") as foco:
+            decir = self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+        self.assertEqual(decir.call_args.args[0],
+                         "Ese número ya lo usa el disparador otro")
+
+    def test_p4_un_numero_de_otro_pausado_se_puede_usar(self):
+        otro = {"nombre": "otro", "cuando": "atajo", "atajo": 2,
+                "tarjeta": "Gracias", "activo": False}
+        cuadro = self._cuadro({}, [otro])
+        cuadro.txt_nombre.SetValue("botonera")
+        cuadro.cho_cuando.SetSelection(
+            disparadores.CUANDOS.index("atajo"))
+        cuadro.sp_atajo.SetValue(2)
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_called_once_with(wx.ID_OK)
 
     def test_p3_el_cuadro_carga_y_guarda_el_regalo(self):
         cuadro = self._cuadro({

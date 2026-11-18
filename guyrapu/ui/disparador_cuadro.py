@@ -25,7 +25,8 @@ TITULO_EDITAR = N_("Editar disparador")
 
 
 def _cuandos():
-    return [_("Comando del chat"), _("Evento del directo")]
+    return [_("Comando del chat"), _("Evento del directo"),
+            _("Atajo del teclado")]
 
 
 def _eventos():
@@ -87,6 +88,12 @@ class DialogoDisparador(wx.Dialog):
         vs.Add(fila_label(panel, _("C&uándo:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.cho_cuando = self._eleccion(panel, _("C&uándo:"), _cuandos())
         vs.Add(self.cho_cuando, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+
+        vs.Add(fila_label(panel, _("Número del ata&jo, Ctrl+Alt+Mayús:")), 0,
+               wx.LEFT | wx.RIGHT, 8)
+        self.sp_atajo = self._contador(
+            panel, _("Número del ata&jo, Ctrl+Alt+Mayús:"), 1, 9, 1)
+        vs.Add(self.sp_atajo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
         vs.Add(fila_label(panel, _("Co&mandos del chat:")), 0,
                wx.LEFT | wx.RIGHT, 8)
@@ -199,6 +206,7 @@ class DialogoDisparador(wx.Dialog):
         self.txt_nombre.SetValue(disparador.nombre)
         self.cho_cuando.SetSelection(
             disparadores.CUANDOS.index(disparador.cuando))
+        self.sp_atajo.SetValue(disparador.atajo or 1)
         self.txt_comandos.SetValue(", ".join(disparador.comandos))
         self._elegir_evento(disparador.evento)
         self.txt_minimo.SetValue(
@@ -260,6 +268,7 @@ class DialogoDisparador(wx.Dialog):
             comandos=(comandos.separar_alias(self.txt_comandos.GetValue())
                       if cuando == "comando" else ()),
             evento=evento,
+            atajo=self.sp_atajo.GetValue(),
             minimo=(self._minimo_de_campo()
                     if cuando == "evento" else None),
             regalo=(self.txt_regalo.GetValue().strip()
@@ -291,7 +300,13 @@ class DialogoDisparador(wx.Dialog):
         if any(normalizar(otro.nombre) == normalizar(disparador.nombre)
                for otro in self._otros):
             return self.txt_nombre
-        if disparador.cuando == "comando":
+        if disparador.cuando == "atajo":
+            repetido = (disparador.activo
+                        and disparadores.por_atajo(
+                            self._otros, disparador.atajo))
+            if not 1 <= disparador.atajo <= 9 or repetido:
+                return self.sp_atajo
+        elif disparador.cuando == "comando":
             propios = {normalizar(nombre)
                        for nombre in disparador.comandos}
             propios.discard("")

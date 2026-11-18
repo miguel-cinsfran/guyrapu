@@ -6,8 +6,9 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.ui import (
-    comando_comandos_chat, comando_en_directo, comando_estilos,
-    comando_interaccion, comando_mensajes_automaticos, interaccion_atajos)
+    botonera_atajos, comando_comandos_chat, comando_en_directo,
+    comando_estilos, comando_interaccion, comando_mensajes_automaticos,
+    interaccion_atajos)
 
 
 def _programados(frame, m):
@@ -103,3 +104,5 @@ def construir(frame, mb):
     mb.Append(m, _("&Interacción"))
     if getattr(frame, "_interaccion_atajos", None) is None:
         frame._interaccion_atajos = interaccion_atajos.InteraccionAtajos(frame)
+    if getattr(frame, "_botonera_atajos", None) is None:
+        frame._botonera_atajos = botonera_atajos.BotoneraAtajos(frame)
