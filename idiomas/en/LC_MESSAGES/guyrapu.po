@@ -704,7 +704,7 @@ msgid "Rostro centrado."
 msgstr "Face centered."
 
 #: guyrapu/capture/agrupar_entradas.py guyrapu/capture/batallas.py
-#: guyrapu/capture/encuestas.py
+#: guyrapu/capture/encuestas.py guyrapu/ui/estilos_ventana.py
 #, python-brace-format
 msgid "{a} y {b}"
 msgstr "{a} and {b}"
@@ -720,6 +720,7 @@ msgid "{a}, {b}, {c} y {n} más"
 msgstr "{a}, {b}, {c} and {n} more"
 
 #: guyrapu/capture/batallas.py guyrapu/capture/encuestas.py
+#: guyrapu/ui/estilos_ventana.py
 #, python-brace-format
 msgid "{primeros} y {ultimo}"
 msgstr "{primeros} and {ultimo}"
@@ -894,7 +895,8 @@ msgid "Lo que se ve en el vídeo"
 msgstr "What is shown on the video"
 
 #. Traductores: rótulo en Preferencias del componente de F2.
-#: guyrapu/capture/componentes_estado.py guyrapu/ui/interaccion_ventana.py
+#: guyrapu/capture/componentes_estado.py guyrapu/obs/estilos_aviso.py
+#: guyrapu/ui/interaccion_ventana.py
 msgid "Mensajes automáticos"
 msgstr "Scheduled messages"
 
@@ -2976,6 +2978,38 @@ msgstr ""
 msgid "Un directo en curso no se puede descargar."
 msgstr "A live stream in progress cannot be downloaded."
 
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga está en curso"
+msgstr "The download is in progress"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga no está en curso"
+msgstr "The download is not in progress"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "Solo para descargas completadas"
+msgstr "Only for completed downloads"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga ya está completada"
+msgstr "The download is already completed"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga no se completó"
+msgstr "The download did not complete"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "El enlace no se puede usar"
+msgstr "The link cannot be used"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "No hay archivo guardado"
+msgstr "No saved file"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "No hay carpeta guardada"
+msgstr "No saved folder"
+
 #. Traductores: cuando yt-dlp no informa el tamaño de la opción.
 #: guyrapu/downloads/formatos_reales.py
 msgid "tamaño desconocido"
@@ -3532,14 +3566,35 @@ msgid "{nombre}: {cuando}, {que}."
 msgstr "{nombre}: {cuando}, {que}."
 
 #: guyrapu/interaction/descripcion_disparador.py
+#: guyrapu/interaction/descripcion_meta.py
 msgid "En pausa."
 msgstr "Paused."
+
+#: guyrapu/interaction/descripcion_meta.py
+#, python-brace-format
+msgid "objetivo {objetivo}"
+msgstr "goal {objetivo}"
+
+#: guyrapu/interaction/descripcion_meta.py
+msgid "en pausa"
+msgstr "paused"
+
+#: guyrapu/interaction/descripcion_meta.py
+#, python-brace-format
+msgid "{nombre}: {que_cuenta}, objetivo {objetivo}, estilo {estilo}."
+msgstr "{nombre}: {que_cuenta}, goal {objetivo}, style {estilo}."
+
+#: guyrapu/interaction/descripcion_meta.py
+#, python-brace-format
+msgid "Festejo: {medio}."
+msgstr "Celebration: {medio}."
 
 #: guyrapu/interaction/disparadores.py
 msgid "Super Chats y regalos"
 msgstr "Super Chats and gifts"
 
-#: guyrapu/interaction/disparadores.py guyrapu/ui/gui_menu.py
+#: guyrapu/interaction/disparadores.py guyrapu/interaction/metas.py
+#: guyrapu/ui/gui_menu.py
 msgid "Membresías"
 msgstr "Memberships"
 
@@ -3547,11 +3602,11 @@ msgstr "Memberships"
 msgid "Entradas al directo"
 msgstr "Live joins"
 
-#: guyrapu/interaction/disparadores.py
+#: guyrapu/interaction/disparadores.py guyrapu/interaction/metas.py
 msgid "Me gusta"
 msgstr "Likes"
 
-#: guyrapu/interaction/disparadores.py
+#: guyrapu/interaction/disparadores.py guyrapu/interaction/metas.py
 msgid "Seguidores nuevos"
 msgstr "New followers"
 
@@ -3563,11 +3618,13 @@ msgstr "Shared live streams"
 msgid "Cofres"
 msgstr "Treasure chests"
 
-#: guyrapu/interaction/disparadores.py guyrapu/ui/interaccion_ventana.py
+#: guyrapu/interaction/disparadores.py guyrapu/obs/estilos_aviso.py
+#: guyrapu/ui/interaccion_ventana.py
 msgid "Encuestas"
 msgstr "Polls"
 
-#: guyrapu/interaction/disparadores.py
+#: guyrapu/interaction/disparadores.py guyrapu/obs/estilos_aviso.py
+#: guyrapu/ui/interaccion_ventana.py
 msgid "Metas"
 msgstr "Goals"
 
@@ -3716,6 +3773,18 @@ msgstr "{pregunta}, {opciones}, {duracion}"
 msgid "Encuesta: {pregunta}. Opciones: {opciones}."
 msgstr "Poll: {pregunta}. Options: {opciones}."
 
+#. Traductores: primera opción de la elección de estilo de un cuadro. {estilo}
+#. es el estilo predeterminado del tipo.
+#: guyrapu/interaction/estilo_elegido.py
+#, python-brace-format
+msgid "Predeterminado ({estilo})"
+msgstr "Default ({estilo})"
+
+#: guyrapu/interaction/estilo_elegido.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/metas_ventana.py
+msgid "nombre"
+msgstr "name"
+
 #: guyrapu/interaction/medios.py guyrapu/obs/obs_prevuelo.py
 msgid "imagen"
 msgstr "image"
@@ -3753,6 +3822,14 @@ msgstr "{nombre}, {tipo}, {duracion}"
 #, python-brace-format
 msgid "{nombre}. {descripcion}"
 msgstr "{nombre}. {descripcion}"
+
+#: guyrapu/interaction/metas.py
+msgid "Regalos de TikTok en diamantes"
+msgstr "TikTok diamond gifts"
+
+#: guyrapu/interaction/metas.py
+msgid "Super Chats de YouTube"
+msgstr "YouTube Super Chats"
 
 #. Traductores: línea de la tarjeta de una meta cumplida.
 #: guyrapu/interaction/metas.py
@@ -4722,6 +4799,14 @@ msgstr "Bottom center"
 #: guyrapu/obs/estilos_aviso.py guyrapu/obs/obs_disposicion.py
 msgid "Abajo a la derecha"
 msgstr "Bottom right"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/ui/interaccion_ventana.py
+msgid "Comandos"
+msgstr "Commands"
+
+#: guyrapu/obs/estilos_aviso.py guyrapu/ui/interaccion_ventana.py
+msgid "Disparadores"
+msgstr "Triggers"
 
 #: guyrapu/obs/estilos_aviso.py
 msgid "Blanco"
@@ -8084,12 +8169,13 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 #: guyrapu/ui/disparadores_ventana.py guyrapu/ui/encuesta_cuadro.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui.py guyrapu/ui/gui_cierre.py
-#: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
-#: guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py guyrapu/ui/medio_cuadro.py
-#: guyrapu/ui/medio_descripcion_ia.py guyrapu/ui/medios_ventana.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/preferencias_api.py
+#: guyrapu/ui/estilo_tipos_cuadro.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/gui.py guyrapu/ui/gui_cierre.py guyrapu/ui/gui_comentarios.py
+#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/medio_descripcion_ia.py
+#: guyrapu/ui/medios_ventana.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/meta_cuadro.py
+#: guyrapu/ui/metas_ventana.py guyrapu/ui/preferencias_api.py
 #: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
 #: guyrapu/ui/voces_ventana.py
 msgid "Aceptar"
@@ -8746,12 +8832,6 @@ msgstr "S&econds on screen:"
 msgid "&Estilo:"
 msgstr "&Style:"
 
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
-#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "nombre"
-msgstr "name"
-
 #: guyrapu/ui/comando_cuadro.py
 msgid "Acti&vado"
 msgstr "Acti&vated"
@@ -8761,7 +8841,8 @@ msgstr "Acti&vated"
 #: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_disenos.py
 #: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_propiedades.py
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/medio_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/estilo_tipos_cuadro.py guyrapu/ui/medio_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/meta_cuadro.py
 #: guyrapu/ui/preferencias_general.py guyrapu/ui/restream_dialogos_destino.py
 msgid "&Aceptar"
 msgstr "&Accept"
@@ -8778,28 +8859,29 @@ msgstr "&Accept"
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_propiedades.py
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui_cierre.py
-#: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
-#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
-#: guyrapu/ui/medio_cuadro.py guyrapu/ui/medios_ventana.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/palabras_bloqueadas_ventana.py guyrapu/ui/preferencias_general.py
-#: guyrapu/ui/preferencias_ia_clave.py guyrapu/ui/restream_pagina_cuenta.py
-#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
-#: guyrapu/ui/restream_perfil.py guyrapu/ui/ventana_espera.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/estilo_tipos_cuadro.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/gui_cierre.py guyrapu/ui/gui_envio_chat.py
+#: guyrapu/ui/gui_preferencias.py guyrapu/ui/gui_redactar.py
+#: guyrapu/ui/ia_privacidad.py guyrapu/ui/medio_cuadro.py
+#: guyrapu/ui/medios_ventana.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/meta_cuadro.py
+#: guyrapu/ui/metas_ventana.py guyrapu/ui/musica_ventana_acciones.py
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/palabras_bloqueadas_ventana.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/preferencias_ia_clave.py
+#: guyrapu/ui/restream_pagina_cuenta.py guyrapu/ui/restream_pagina_destinos.py
+#: guyrapu/ui/restream_pagina_perfiles.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
 msgid "&Cancelar"
 msgstr "&Cancel"
 
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
 #: guyrapu/ui/elegir_formato.py guyrapu/ui/encuesta_cuadro.py
 #: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_tamano.py
-#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/gui_directo_youtube.py
-#: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/gui_redactar.py
-#: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/medio_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/musica_dialogo_enlace.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/estilo_tipos_cuadro.py
+#: guyrapu/ui/gui_directo_youtube.py guyrapu/ui/gui_elegir_destino.py
+#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_agregar_captura.py
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/meta_cuadro.py guyrapu/ui/musica_dialogo_enlace.py
 #: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
 #: guyrapu/ui/restream_perfil.py
 msgid "Cancelar"
@@ -8863,20 +8945,21 @@ msgstr "There are no commands. Use Add to create one."
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/metas_ventana.py
 msgid "Paquete de Guyrapu (*.zip)|*.zip"
 msgstr "Guyrapu package (*.zip)|*.zip"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/palabras_bloqueadas_ventana.py
+#: guyrapu/ui/metas_ventana.py guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "A&gregar"
 msgstr "A&dd"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/palabras_bloqueadas_ventana.py
+#: guyrapu/ui/metas_ventana.py guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "&Editar"
 msgstr "&Edit"
 
@@ -8888,18 +8971,20 @@ msgstr "Change &word"
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_menu_escena.py
 #: guyrapu/ui/escena_menu_fuente.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/metas_ventana.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Duplicar"
 msgstr "&Duplicate"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/metas_ventana.py
 msgid "&Pausar o reanudar"
 msgstr "&Pause or resume"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/metas_ventana.py
 msgid "Escuc&har"
 msgstr "&Listen"
 
@@ -8907,7 +8992,7 @@ msgstr "&Listen"
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_menu_escena.py
 #: guyrapu/ui/escena_menu_fuente.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/gui_historial.py guyrapu/ui/medios_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/metas_ventana.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "E&liminar"
@@ -8916,12 +9001,14 @@ msgstr "De&lete"
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/metas_ventana.py
 msgid "Expo&rtar"
 msgstr "Exp&ort"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/metas_ventana.py
 msgid "&Importar"
 msgstr "&Import"
 
@@ -8962,9 +9049,10 @@ msgstr "Delete command"
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_edicion_fuente.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/palabras_bloqueadas_ventana.py guyrapu/ui/restream_menus.py
-#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/metas_ventana.py guyrapu/ui/musica_ventana_acciones.py
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/palabras_bloqueadas_ventana.py
+#: guyrapu/ui/restream_menus.py guyrapu/ui/restream_pagina_destinos.py
+#: guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Eliminar"
 msgstr "&Delete"
 
@@ -8979,6 +9067,7 @@ msgstr "There are no commands to export."
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/metas_ventana.py
 #, python-brace-format
 msgid ""
 "No se pudo escribir el paquete:\n"
@@ -9012,12 +9101,14 @@ msgstr "Commands named {nombres} already exist. Replace them?"
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/metas_ventana.py
 msgid "&Sí"
 msgstr "&Yes"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/metas_ventana.py
 msgid "&No"
 msgstr "&No"
 
@@ -9335,43 +9426,6 @@ msgstr "With errors ({cantidad})"
 msgid "Todas ({cantidad})"
 msgstr "All ({cantidad})"
 
-#: guyrapu/ui/descargas_listas.py guyrapu/ui/musica_filtros.py
-#: guyrapu/ui/restream_pagina_eventos.py
-msgid "&Mostrar:"
-msgstr "&Show:"
-
-#: guyrapu/ui/descargas_listas.py guyrapu/ui/musica_filtros.py
-#: guyrapu/ui/restream_pagina_eventos.py
-msgid "Mostrar"
-msgstr "Show"
-
-#: guyrapu/ui/descargas_listas.py
-msgid "Lista de descargas"
-msgstr "Download list"
-
-#. Traductores: nombre de la barra de progreso.
-#: guyrapu/ui/descargas_listas.py guyrapu/ui/gui_actualizacion.py
-msgid "Progreso"
-msgstr "Progress"
-
-#. Traductores: nombre del cuadro de estado.
-#: guyrapu/ui/descargas_listas.py guyrapu/ui/gui_actualizacion.py
-#: guyrapu/ui/obs_pagina_general.py
-msgid "Estado"
-msgstr "Status"
-
-#: guyrapu/ui/descargas_listas.py
-msgid "Nombre"
-msgstr "Name"
-
-#: guyrapu/ui/descargas_listas.py
-msgid "C&ancelar descarga"
-msgstr "Cancel &download"
-
-#: guyrapu/ui/descargas_listas.py
-msgid "Vaciar l&ista"
-msgstr "Clear l&ist"
-
 #: guyrapu/ui/descargas_listas.py
 msgid "&Abrir archivo"
 msgstr "&Open file"
@@ -9407,6 +9461,47 @@ msgstr "Cancel &all"
 #: guyrapu/ui/descargas_listas.py
 msgid "Eliminar c&ompletadas"
 msgstr "Remove co&mpleted"
+
+#: guyrapu/ui/descargas_listas.py guyrapu/ui/musica_filtros.py
+#: guyrapu/ui/restream_pagina_eventos.py
+msgid "&Mostrar:"
+msgstr "&Show:"
+
+#: guyrapu/ui/descargas_listas.py guyrapu/ui/musica_filtros.py
+#: guyrapu/ui/restream_pagina_eventos.py
+msgid "Mostrar"
+msgstr "Show"
+
+#: guyrapu/ui/descargas_listas.py
+msgid "Lista de descargas"
+msgstr "Download list"
+
+#. Traductores: nombre de la barra de progreso.
+#: guyrapu/ui/descargas_listas.py guyrapu/ui/gui_actualizacion.py
+msgid "Progreso"
+msgstr "Progress"
+
+#. Traductores: nombre del cuadro de estado.
+#: guyrapu/ui/descargas_listas.py guyrapu/ui/gui_actualizacion.py
+#: guyrapu/ui/obs_pagina_general.py
+msgid "Estado"
+msgstr "Status"
+
+#: guyrapu/ui/descargas_listas.py
+msgid "Nombre"
+msgstr "Name"
+
+#: guyrapu/ui/descargas_listas.py
+msgid "No hay descargas en esta vista."
+msgstr "No downloads in this view."
+
+#: guyrapu/ui/descargas_listas.py
+msgid "C&ancelar descarga"
+msgstr "Cancel &download"
+
+#: guyrapu/ui/descargas_listas.py
+msgid "Vaciar l&ista"
+msgstr "Clear l&ist"
 
 #: guyrapu/ui/dialogo_ajustes_perfil.py
 msgid ""
@@ -9615,8 +9710,9 @@ msgstr "Profile name"
 
 #: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/disparador_cuadro.py
 #: guyrapu/ui/estilo_cuadro.py guyrapu/ui/medio_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/musica_editor_lista.py
-#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/meta_cuadro.py
+#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
+#: guyrapu/ui/restream_perfil.py
 msgid "&Nombre:"
 msgstr "&Name:"
 
@@ -9885,7 +9981,7 @@ msgstr "M&inimum amount:"
 msgid "Me&dio:"
 msgstr "Me&dia item:"
 
-#: guyrapu/ui/disparador_cuadro.py
+#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/meta_cuadro.py
 msgid "Ninguno"
 msgstr "None"
 
@@ -9893,7 +9989,7 @@ msgstr "None"
 msgid "&Texto de la tarjeta:"
 msgstr "Card &text:"
 
-#: guyrapu/ui/disparador_cuadro.py
+#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/meta_cuadro.py
 msgid "Esti&lo:"
 msgstr "St&yle:"
 
@@ -9915,7 +10011,8 @@ msgstr "&General wait (seconds):"
 
 #: guyrapu/ui/disparador_cuadro.py guyrapu/ui/escena_edicion_fuente.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/meta_cuadro.py
+#: guyrapu/ui/restream_perfil.py
 msgid "Cambiar nombre"
 msgstr "Rename"
 
@@ -9924,7 +10021,7 @@ msgid "No hay disparadores. Usa Agregar para crear uno."
 msgstr "There are no triggers. Use Add to create one."
 
 #: guyrapu/ui/disparadores_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/metas_ventana.py
 msgid "Cambiar n&ombre"
 msgstr "Re&name"
 
@@ -9945,7 +10042,7 @@ msgid "Disparador guardado"
 msgstr "Trigger saved"
 
 #: guyrapu/ui/disparadores_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/metas_ventana.py
 msgid "Nombre cambiado"
 msgstr "Name changed"
 
@@ -11084,6 +11181,10 @@ msgstr "Right"
 msgid "Personalizado ({codigo})"
 msgstr "Custom ({codigo})"
 
+#: guyrapu/ui/estilo_tipos_cuadro.py
+msgid "Establecer como predeterminado"
+msgstr "Set as default"
+
 #: guyrapu/ui/estilos_ventana.py
 msgid "No hay estilos. Usa Agregar para crear uno."
 msgstr "There are no styles. Use Add to create one."
@@ -11097,6 +11198,10 @@ msgid "Pro&bar"
 msgstr "Te&st"
 
 #: guyrapu/ui/estilos_ventana.py
+msgid "Establecer como &predeterminado…"
+msgstr "Set as &default…"
+
+#: guyrapu/ui/estilos_ventana.py
 msgid "Estilos del &vídeo:"
 msgstr "&Video styles:"
 
@@ -11108,6 +11213,11 @@ msgstr "Saved video styles"
 #, python-brace-format
 msgid "{nombre} (de fábrica)"
 msgstr "{nombre} (factory)"
+
+#: guyrapu/ui/estilos_ventana.py
+#, python-brace-format
+msgid ", predeterminado de {tipos}"
+msgstr ", default for {tipos}"
 
 #: guyrapu/ui/estilos_ventana.py
 msgid "Estilo agregado"
@@ -11124,6 +11234,10 @@ msgstr "Style duplicated"
 #: guyrapu/ui/estilos_ventana.py
 msgid "Así se ve un mensaje con este estilo."
 msgstr "This is how a message looks with this style."
+
+#: guyrapu/ui/estilos_ventana.py
+msgid "Predeterminados guardados"
+msgstr "Defaults saved"
 
 #: guyrapu/ui/estilos_ventana.py
 #, python-brace-format
@@ -13127,14 +13241,6 @@ msgstr ""
 "read it, broadcast as public or unlisted."
 
 #: guyrapu/ui/interaccion_ventana.py
-msgid "Comandos"
-msgstr "Commands"
-
-#: guyrapu/ui/interaccion_ventana.py
-msgid "Disparadores"
-msgstr "Triggers"
-
-#: guyrapu/ui/interaccion_ventana.py
 msgid "Medios"
 msgstr "Media"
 
@@ -13760,6 +13866,95 @@ msgstr "&Record while broadcasting"
 #: guyrapu/ui/menu_transmision.py
 msgid "&Transmisión"
 msgstr "&Broadcast"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "Agregar meta"
+msgstr "Add goal"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "Editar meta"
+msgstr "Edit goal"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "&Qué cuenta:"
+msgstr "&What it counts:"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "&Objetivo:"
+msgstr "&Goal:"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "&Festejo:"
+msgstr "&Celebration:"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "No hay metas. Usa Agregar para crear una."
+msgstr "There are no goals. Use Add to create one."
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Lista de met&as:"
+msgstr "&List of goals:"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Metas guardadas"
+msgstr "Saved goals"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Meta agregada"
+msgstr "Goal added"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Meta guardada"
+msgstr "Goal saved"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Meta duplicada"
+msgstr "Goal duplicated"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Activa"
+msgstr "Active"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Pausada"
+msgstr "Paused"
+
+#: guyrapu/ui/metas_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar la meta «{nombre}»?"
+msgstr "Delete the goal «{nombre}»?"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Eliminar meta"
+msgstr "Delete goal"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Meta eliminada"
+msgstr "Goal deleted"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "No hay metas para exportar."
+msgstr "There are no goals to export."
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Exportar metas"
+msgstr "Export goals"
+
+#: guyrapu/ui/metas_ventana.py
+msgid "Importar metas"
+msgstr "Import goals"
+
+#: guyrapu/ui/metas_ventana.py
+#, python-brace-format
+msgid "Se importó una meta."
+msgid_plural "Se importaron {n} metas."
+msgstr[0] "One goal imported."
+msgstr[1] "{n} goals imported."
+
+#: guyrapu/ui/metas_ventana.py
+#, python-brace-format
+msgid "Ya hay metas llamadas {nombres}. ¿Quieres reemplazarlas?"
+msgstr "Goals named {nombres} already exist. Replace them?"
 
 #: guyrapu/ui/miniatura_directo.py
 msgid "Imágenes JPG y PNG (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png"
@@ -16404,64 +16599,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: primera opción de la elección de estilo de un cuadro. {estilo}
-#. es el estilo predeterminado del tipo.
-#: guyrapu/interaction/estilo_elegido.py
-#, python-brace-format
-msgid "Predeterminado ({estilo})"
-msgstr "Default ({estilo})"
-
-#: guyrapu/ui/estilo_tipos_cuadro.py
-msgid "Establecer como predeterminado"
-msgstr "Set as default"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Establecer como &predeterminado…"
-msgstr "Set as &default…"
-
-#: guyrapu/ui/estilos_ventana.py
-#, python-brace-format
-msgid ", predeterminado de {tipos}"
-msgstr ", default for {tipos}"
-
-#: guyrapu/ui/estilos_ventana.py
-msgid "Predeterminados guardados"
-msgstr "Defaults saved"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "La descarga está en curso"
-msgstr "The download is in progress"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "La descarga no está en curso"
-msgstr "The download is not in progress"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "Solo para descargas completadas"
-msgstr "Only for completed downloads"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "La descarga ya está completada"
-msgstr "The download is already completed"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "La descarga no se completó"
-msgstr "The download did not complete"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "El enlace no se puede usar"
-msgstr "The link cannot be used"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "No hay archivo guardado"
-msgstr "No saved file"
-
-#: guyrapu/downloads/filas_descargas.py
-msgid "No hay carpeta guardada"
-msgstr "No saved folder"
-
-#: guyrapu/ui/descargas_listas.py
-msgid "No hay descargas en esta vista."
-msgstr "No downloads in this view."
 

@@ -11,12 +11,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from guyrapu.core import avisos_tiktok, plataformas
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.interaction.disparadores import cantidad_de
 from guyrapu.interaction.evento import persona
 from guyrapu.interaction.texto import normalizar
 
 QUE_CUENTA = ("me_gusta", "seguidores", "miembros", "regalos", "super_chat")
+
+NOMBRES_QUE_CUENTA = {
+    "me_gusta": N_("Me gusta"),
+    "seguidores": N_("Seguidores nuevos"),
+    "miembros": N_("Membresías"),
+    "regalos": N_("Regalos de TikTok en diamantes"),
+    "super_chat": N_("Super Chats de YouTube"),
+}
 
 
 @dataclass(frozen=True, slots=True)

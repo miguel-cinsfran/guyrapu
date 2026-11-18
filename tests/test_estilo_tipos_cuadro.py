@@ -24,11 +24,12 @@ class TestCuadro(unittest.TestCase):
         self.addCleanup(destruir, cuadro)
         return cuadro
 
-    def test_tiene_las_cuatro_casillas_en_su_orden(self):
+    def test_tiene_las_cinco_casillas_en_su_orden(self):
         cuadro = self._cuadro()
         self.assertEqual(
             [casilla.GetLabel() for casilla in cuadro._casillas.values()],
-            ["Mensajes automáticos", "Comandos", "Disparadores", "Encuestas"])
+            ["Mensajes automáticos", "Comandos", "Disparadores", "Encuestas",
+             "Metas"])
 
     def test_cada_casilla_tiene_su_rotulo_como_nombre_accesible(self):
         cuadro = self._cuadro()

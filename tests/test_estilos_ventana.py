@@ -77,7 +77,7 @@ class TestVentana(BaseVentana):
         panel = self._panel([_estilo("Mío")])
         self.assertEqual(self._textos(panel), [
             "Clásico (de fábrica), predeterminado de mensajes automáticos, "
-            "comandos, disparadores y encuestas",
+            "comandos, disparadores, encuestas y metas",
             "Banda (de fábrica)", "Tarjeta (de fábrica)",
             "Alto contraste (de fábrica)", "Mío"])
 
@@ -227,7 +227,7 @@ class TestAcciones(BaseVentana):
         self.assertEqual(
             estilos_aviso.cargar_por_tipo(paths.estilos_avisos()),
             {"mensaje": "clasico", "comando": "mio",
-             "disparador": "clasico", "encuesta": "mio"})
+             "disparador": "clasico", "encuesta": "mio", "meta": "clasico"})
         self.assertEqual(self._textos(panel)[4],
                          "Mío, predeterminado de comandos y encuestas")
         decir.assert_called_once_with("Predeterminados guardados")
@@ -245,7 +245,8 @@ class TestAcciones(BaseVentana):
         self.assertEqual(
             estilos_aviso.cargar_por_tipo(paths.estilos_avisos()),
             {"mensaje": "clasico", "comando": "mio",
-             "disparador": "clasico", "encuesta": "clasico"})
+             "disparador": "clasico", "encuesta": "clasico",
+             "meta": "clasico"})
 
     def test_p1_el_cuadro_abre_marcado_lo_que_ya_usa_el_estilo(self):
         estilos_aviso.guardar_por_tipo(
@@ -272,7 +273,8 @@ class TestAcciones(BaseVentana):
         self.assertEqual(
             estilos_aviso.cargar_por_tipo(paths.estilos_avisos()),
             {"mensaje": "clasico", "comando": "clasico",
-             "disparador": "clasico", "encuesta": "banda"})
+             "disparador": "clasico", "encuesta": "banda",
+             "meta": "clasico"})
 
     def test_p8_eliminar_dice_cuantos_lo_usan_y_deja_clasico(self):
         programados.guardar(paths.mensajes_programados(), [

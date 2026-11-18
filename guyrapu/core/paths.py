@@ -102,6 +102,10 @@ def disparadores() -> Path:
     return carpeta_datos() / "disparadores.json"
 
 
+def metas() -> Path:
+    return carpeta_datos() / "metas.json"
+
+
 def encuestas() -> Path:
     return carpeta_datos() / "encuestas.json"
 

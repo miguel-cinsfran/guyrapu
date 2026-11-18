@@ -19,6 +19,7 @@ from guyrapu.ui.disparadores_ventana import PanelDisparadores
 from guyrapu.ui.encuestas_ventana import PanelEncuestas
 from guyrapu.ui.estilos_ventana import PanelEstilos
 from guyrapu.ui.medios_ventana import PanelMedios
+from guyrapu.ui.metas_ventana import PanelMetas
 from guyrapu.ui.mensajes_automaticos_ventana import PanelMensajesAutomaticos
 from guyrapu.ui.palabras_bloqueadas_ventana import PanelPalabrasBloqueadas
 from guyrapu.ui.preferencias_comun import ajustar_ancho_categorias
@@ -28,6 +29,7 @@ PAGINAS = (
     ("comandos", N_("Comandos")),
     ("encuestas", N_("Encuestas")),
     ("disparadores", N_("Disparadores")),
+    ("metas", N_("Metas")),
     ("medios", N_("Medios")),
     ("estilos", N_("Estilos")),
     ("palabras", N_("Palabras bloqueadas")),
@@ -57,6 +59,7 @@ class VentanaInteraccion(wx.Dialog):
         self._paginas["comandos"] = PanelComandos(self.libro)
         self._paginas["encuestas"] = PanelEncuestas(self.libro)
         self._paginas["disparadores"] = PanelDisparadores(self.libro)
+        self._paginas["metas"] = PanelMetas(self.libro)
         self._paginas["medios"] = PanelMedios(self.libro)
         self._paginas["estilos"] = PanelEstilos(self.libro)
         self._paginas["palabras"] = PanelPalabrasBloqueadas(self.libro)

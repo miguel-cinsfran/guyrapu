@@ -43,6 +43,7 @@ TIPOS = (
     ("comando", N_("Comandos")),
     ("disparador", N_("Disparadores")),
     ("encuesta", N_("Encuestas")),
+    ("meta", N_("Metas")),
 )
 
 # Traductores: nombres de los colores disponibles para un estilo de aviso.

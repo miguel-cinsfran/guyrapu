@@ -18,7 +18,7 @@ TITULO = N_("Establecer como predeterminado")
 
 
 class DialogoTipos(wx.Dialog):
-    """Las cuatro casillas de tipos, marcadas las que ya usan el estilo."""
+    """Las casillas de tipos, marcadas las que ya usan el estilo."""
 
     def __init__(self, padre, marcados):
         super().__init__(padre, title=_(TITULO),

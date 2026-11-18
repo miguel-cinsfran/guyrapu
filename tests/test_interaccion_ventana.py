@@ -17,7 +17,7 @@ from guyrapu.ui import (
     comando_interaccion, comando_mensajes_automaticos, comandos_ventana,
     disparadores_ventana, encuestas_ventana, estilos_ventana, gui,
     interaccion_ventana, medios_ventana, mensajes_automaticos_ventana,
-    menu_interaccion, palabras_bloqueadas_ventana)
+    menu_interaccion, metas_ventana, palabras_bloqueadas_ventana)
 from tests.letras_acceso import letras_repetidas, repetidas_con_lo_de_fuera
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -90,7 +90,7 @@ class TestPaginas(BaseVentana):
             [ventana.libro.GetPageText(indice)
              for indice in range(ventana.libro.GetPageCount())],
             ["Mensajes automáticos", "Comandos", "Encuestas", "Disparadores",
-             "Medios", "Estilos", "Palabras bloqueadas"])
+             "Metas", "Medios", "Estilos", "Palabras bloqueadas"])
         self.assertIsInstance(
             ventana.libro.GetPage(0),
             mensajes_automaticos_ventana.PanelMensajesAutomaticos)
@@ -101,11 +101,13 @@ class TestPaginas(BaseVentana):
         self.assertIsInstance(ventana.libro.GetPage(3),
                               disparadores_ventana.PanelDisparadores)
         self.assertIsInstance(ventana.libro.GetPage(4),
-                              medios_ventana.PanelMedios)
+                              metas_ventana.PanelMetas)
         self.assertIsInstance(ventana.libro.GetPage(5),
+                              medios_ventana.PanelMedios)
+        self.assertIsInstance(ventana.libro.GetPage(6),
                               estilos_ventana.PanelEstilos)
         self.assertIsInstance(
-            ventana.libro.GetPage(6),
+            ventana.libro.GetPage(7),
             palabras_bloqueadas_ventana.PanelPalabrasBloqueadas)
 
     def test_p1_cerrar_es_el_unico_boton_y_cierra(self):
@@ -158,8 +160,8 @@ class TestPaginas(BaseVentana):
              for indice in range(ventana.libro.GetPageCount())],
             ["Mensajes automáticos guardados", "Comandos del chat guardados",
              "Encuestas guardadas", "Disparadores guardados",
-             "Medios guardados", "Estilos del vídeo guardados",
-             "Palabras bloqueadas"])
+             "Metas guardadas", "Medios guardados",
+             "Estilos del vídeo guardados", "Palabras bloqueadas"])
 
     def test_las_letras_no_se_repiten_en_el_dialogo_ni_en_sus_paginas(self):
         ventana = self._ventana()
@@ -167,7 +169,7 @@ class TestPaginas(BaseVentana):
         self.assertEqual(
             repetidas_con_lo_de_fuera(ventana, ventana.libro),
             {"Mensajes automáticos": {}, "Comandos": {}, "Encuestas": {},
-             "Disparadores": {}, "Medios": {}, "Estilos": {},
+             "Disparadores": {}, "Metas": {}, "Medios": {}, "Estilos": {},
              "Palabras bloqueadas": {}})
 
 
@@ -201,7 +203,7 @@ class TestPaginaRecordada(BaseVentana):
 
     def test_p3_el_foco_queda_en_la_lista_de_la_pagina(self):
         for pagina in ("mensajes", "comandos", "encuestas", "disparadores",
-                       "medios", "estilos", "palabras"):
+                       "metas", "medios", "estilos", "palabras"):
             with self.subTest(pagina=pagina):
                 ventana = self._ventana(pagina)
                 ventana.Show()
