@@ -1167,7 +1167,7 @@ class ReproductorPanel(wx.Panel):
             if inicio_ms is None:
                 relevo = relevo_ffmpeg.RelevoFfmpeg(
                     video_url, audio_url, desfase,
-                    aviso=self._vigilancia.aviso)
+                    vigilancia=self._vigilancia)
             else:
                 relevo = relevo_ffmpeg.RelevoFfmpeg(
                     video_url, audio_url, inicio_ms=inicio_ms)

@@ -3,11 +3,27 @@
 import io
 import socket
 import subprocess
+import sys
+import threading
 import unittest
 from unittest import mock
 
 from guyrapu.core import red
 from guyrapu.player import relevo_ffmpeg
+
+
+class VigilanciaFalsa:
+    """Doble de la vigilancia del panel: registra avisos y fines."""
+
+    def __init__(self):
+        self.avisos = []
+        self.fines = 0
+
+    def aviso(self, texto):
+        self.avisos.append(texto)
+
+    def fin(self):
+        self.fines += 1
 
 
 class PruebasRelevoFfmpeg(unittest.TestCase):
@@ -267,9 +283,9 @@ class PruebasStderr(unittest.TestCase):
         self.assertEqual(avisos, ["una linea", "otra linea"])
 
     def test_iniciar_pasa_el_aviso_al_lector(self):
-        avisos = []
+        vigilancia = VigilanciaFalsa()
         relevo = relevo_ffmpeg.RelevoFfmpeg(
-            "video", "audio", aviso=avisos.append)
+            "video", "audio", vigilancia=vigilancia)
         proceso = mock.Mock()
         proceso.poll.return_value = None
         proceso.pid = 4242
@@ -282,7 +298,8 @@ class PruebasStderr(unittest.TestCase):
                 self._sincrono(), \
                 self.assertLogs(relevo_ffmpeg.logger, level="WARNING"):
             relevo.iniciar()
-        self.assertEqual(avisos, ["Error during demuxing: I/O error"])
+        self.assertEqual(vigilancia.avisos,
+                         ["Error during demuxing: I/O error"])
         relevo.detener()
 
     def test_stderr_que_no_es_un_flujo_se_ignora_sin_colgarse(self):
@@ -487,6 +504,59 @@ class PruebasEntradaUnica(unittest.TestCase):
             "-c", "copy", "-f", "mpegts", "-listen", "1",
             "tcp://127.0.0.1:5000",
         ])
+
+
+class PruebasFinDelRelevo(unittest.TestCase):
+    """Un ffmpeg que muere solo con error avisa el fin a la vigilancia; uno
+    que termina bien o al que la app detuvo no avisa."""
+
+    def _iniciar(self, guion):
+        vigilancia = VigilanciaFalsa()
+        relevo = relevo_ffmpeg.RelevoFfmpeg(
+            "video", "audio", vigilancia=vigilancia)
+        hilos = []
+
+        def crear_hilo(objetivo, _nombre, args=()):
+            hilo = threading.Thread(target=objetivo, args=args, daemon=True)
+            hilos.append(hilo)
+            return hilo
+
+        with mock.patch.object(relevo_ffmpeg.ffmpeg_bin, "ruta_ffmpeg",
+                               return_value=sys.executable), \
+                mock.patch.object(relevo_ffmpeg, "argumentos_relevo",
+                                  return_value=[sys.executable, "-c", guion]), \
+                mock.patch.object(relevo_ffmpeg.diagnostico, "crear_hilo",
+                                  side_effect=crear_hilo), \
+                mock.patch.object(relevo_ffmpeg, "puerto_libre",
+                                  return_value=9999):
+            relevo.iniciar()
+        self.addCleanup(relevo.detener)
+        return relevo, vigilancia, hilos
+
+    def test_un_ffmpeg_que_muere_con_error_avisa_el_fin(self):
+        _relevo, vigilancia, hilos = self._iniciar(
+            "import sys; sys.stderr.write('boom\\n'); sys.exit(1)")
+        for hilo in hilos:
+            hilo.join(timeout=10)
+        self.assertEqual(vigilancia.avisos, ["boom"])
+        self.assertEqual(vigilancia.fines, 1)
+
+    def test_un_ffmpeg_que_termina_bien_no_avisa_el_fin(self):
+        _relevo, vigilancia, hilos = self._iniciar(
+            "import sys; sys.stderr.write('fin\\n'); sys.exit(0)")
+        for hilo in hilos:
+            hilo.join(timeout=10)
+        self.assertEqual(vigilancia.avisos, ["fin"])
+        self.assertEqual(vigilancia.fines, 0)
+
+    def test_detener_no_avisa_el_fin(self):
+        relevo, vigilancia, hilos = self._iniciar(
+            "import sys, time; sys.stderr.write('vivo\\n'); "
+            "sys.stderr.flush(); time.sleep(30)")
+        relevo.detener()
+        for hilo in hilos:
+            hilo.join(timeout=10)
+        self.assertEqual(vigilancia.fines, 0)
 
 
 if __name__ == "__main__":

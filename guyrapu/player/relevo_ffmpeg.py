@@ -38,6 +38,10 @@ logger = diagnostico.obtener_logger(__name__)
 TIEMPO_ESPERA_LISTENER = 20.0
 INTERVALO_SONDA = 0.1
 
+# Tope corto para leer el código de salida cuando ffmpeg ya cerró stderr:
+# normalmente terminó, y si sigue vivo no es un final que haya que avisar.
+TIEMPO_ESPERA_SALIDA = 2.0
+
 
 def puerto_libre() -> int:
     """Un puerto TCP libre en localhost, elegido por el sistema operativo."""
@@ -110,13 +114,14 @@ def nivel_de_linea(texto: str) -> int:
     return logging.WARNING
 
 
-def volcar_stderr(flujo, pid, aviso=None) -> None:
+def volcar_stderr(flujo, pid, aviso=None, al_terminar=None) -> None:
     """Pasa al registro cada línea que ffmpeg escriba por stderr.
 
     Con stderr a DEVNULL, un 403 de googlevideo o un «Invalid data found»
     no dejaban rastro y el fallo del relevo era imposible de diagnosticar.
     Solo se leen flujos reales: las pruebas dan un Mock/None como proceso y
-    leer de un Mock no termina nunca.
+    leer de un Mock no termina nunca. Al cerrarse la lectura se llama a
+    `al_terminar`, que decide si el final hay que avisarlo.
     """
     if not isinstance(flujo, io.IOBase):
         return
@@ -138,6 +143,11 @@ def volcar_stderr(flujo, pid, aviso=None) -> None:
             flujo.close()
         except Exception as error:
             logger.debug("no se pudo cerrar la salida del relevo: %s", error)
+        if al_terminar is not None:
+            try:
+                al_terminar()
+            except Exception as error:
+                logger.debug("no se pudo avisar el fin del relevo: %s", error)
 
 
 # Segmentos que ffmpeg deja por detrás del borde al abrir un HLS en vivo
@@ -260,10 +270,10 @@ class RelevoFfmpeg:
     """
 
     def __init__(self, video_url: str, audio_url: str, desfase_segmentos: int = 0,
-                 inicio_ms: int | None = None, aviso=None):
+                 inicio_ms: int | None = None, vigilancia=None):
         self._video_url = video_url
         self._audio_url = audio_url
-        self._aviso = aviso
+        self._vigilancia = vigilancia
         self._inicio_ms = None if inicio_ms is None else max(0, int(inicio_ms))
         if self._inicio_ms is not None:
             self._desfase_segmentos = 0
@@ -317,10 +327,12 @@ class RelevoFfmpeg:
                      self._inicio_ms)
         # Hilo daemon: termina solo al cerrarse la tubería cuando ffmpeg
         # muere o detener() lo mata, así detener() no tiene que esperarlo.
+        proceso = self._proceso
+        aviso = self._vigilancia.aviso if self._vigilancia is not None else None
         diagnostico.crear_hilo(
             volcar_stderr, "RelevoFfmpegStderr",
-            args=(getattr(self._proceso, "stderr", None), self._proceso.pid,
-                  self._aviso),
+            args=(getattr(proceso, "stderr", None), proceso.pid, aviso,
+                  lambda: self._al_terminar(proceso)),
         ).start()
         return self.direccion
 
@@ -338,6 +350,17 @@ class RelevoFfmpeg:
 
     def activo(self) -> bool:
         return self._proceso is not None and self._proceso.poll() is None
+
+    def _al_terminar(self, proceso) -> None:
+        """Avisa a la vigilancia si ffmpeg murió solo con un error."""
+        if self._vigilancia is None or proceso is not self._proceso:
+            return
+        try:
+            codigo = proceso.wait(timeout=TIEMPO_ESPERA_SALIDA)
+        except subprocess.TimeoutExpired:
+            return
+        if codigo:
+            self._vigilancia.fin()
 
     def detener(self) -> None:
         proceso = self._proceso

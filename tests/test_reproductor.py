@@ -325,7 +325,7 @@ class TestReproducirDirecto(unittest.TestCase):
             panel._reproducir_calidad(None, reproducir=False)
 
         clase_relevo.assert_called_once_with(
-            "video-solicitado", "audio-solicitado", 0, aviso=mock.ANY)
+            "video-solicitado", "audio-solicitado", 0, vigilancia=mock.ANY)
         panel._inst.media_new.assert_called_once_with("tcp://127.0.0.1:5555")
         opciones = [c.args[0] for c in medio.add_option.call_args_list]
         self.assertFalse(any(o.startswith(":input-slave=") for o in opciones))
@@ -778,14 +778,22 @@ class TestCableadoVigilancia(unittest.TestCase):
                                   return_value=relevo) as clase:
             panel._reproducir_calidad(None, reproducir=False)
 
-        aviso = clase.call_args.kwargs["aviso"]
+        vigilancia = clase.call_args.kwargs["vigilancia"]
         panel._arrancar_relevo = mock.Mock()
         with mock.patch("guyrapu.voice.sound_player.reproducir"):
-            aviso("[in#1/hls @ 1] Error during demuxing: I/O error", 0.0)
+            vigilancia.aviso(
+                "[in#1/hls @ 1] Error during demuxing: I/O error", 0.0)
 
         args, kwargs = panel._arrancar_relevo.call_args
         self.assertEqual(args, ("video", "audio", True))
         self.assertEqual(kwargs["desfase"], 0)
+        self.assertEqual(kwargs["anuncio"], "Reconectando el directo")
+
+        panel._arrancar_relevo = mock.Mock()
+        with mock.patch("guyrapu.voice.sound_player.reproducir"):
+            vigilancia.fin(21.0)
+        args, kwargs = panel._arrancar_relevo.call_args
+        self.assertEqual(args, ("video", "audio", True))
         self.assertEqual(kwargs["anuncio"], "Reconectando el directo")
 
     def test_tres_eventos_de_buffer_del_directo_reinician(self):
@@ -1462,7 +1470,7 @@ class TestSaltoEnRelevo(unittest.TestCase):
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._buscar_rel(-60_000)
         clase.assert_called_once_with(
-            "video-hls", "audio-hls", 12, aviso=mock.ANY)
+            "video-hls", "audio-hls", 12, vigilancia=mock.ANY)
         viejo.detener.assert_called_once()
         self.assertIs(panel._estado_relevo.ffmpeg, nuevo)
         self.assertEqual(panel._estado_relevo.desfase, 12)
@@ -1487,7 +1495,7 @@ class TestSaltoEnRelevo(unittest.TestCase):
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._buscar_rel(-10_000)
         clase.assert_called_once_with(
-            "video-hls", "audio-hls", 14, aviso=mock.ANY)
+            "video-hls", "audio-hls", 14, vigilancia=mock.ANY)
         self.assertEqual(anunciar.call_args.args[0],
                          "1 minuto y 10 segundos por detrás del directo")
 
@@ -1501,7 +1509,7 @@ class TestSaltoEnRelevo(unittest.TestCase):
                 mock.patch.object(reproductor, "anunciar") as anunciar:
             panel._buscar_rel(+60_000)
         clase.assert_called_once_with(
-            "video-hls", "audio-hls", 0, aviso=mock.ANY)
+            "video-hls", "audio-hls", 0, vigilancia=mock.ANY)
         self.assertEqual(anunciar.call_args.args[0], "En el directo")
         panel.lbl_tiempo.SetLabel.assert_called_with("En directo")
 
@@ -1533,7 +1541,7 @@ class TestSaltoEnRelevo(unittest.TestCase):
                 mock.patch.object(reproductor, "anunciar"):
             panel._buscar_rel(-60_000)
         clase.assert_called_once_with(
-            "video-hls", "audio-hls", 12, aviso=mock.ANY)
+            "video-hls", "audio-hls", 12, vigilancia=mock.ANY)
 
     def test_sin_fuentes_en_carga_inicial_anuncia_cargando(self):
         # Sin fuentes todavía no hay con qué reiniciar: es la carga

@@ -192,6 +192,80 @@ class TestErrores(unittest.TestCase):
         self.assertEqual(len(banco.reinicios), 2)
 
 
+class TestFinDelRelevo(unittest.TestCase):
+    """El fin del relevo avisa como un error cuando ffmpeg muere solo."""
+
+    def _crear(self, activo=True):
+        banco = Banco(activo=activo)
+        decisiones = []
+
+        def despachar(funcion, *args):
+            decisiones.append(funcion(*args))
+
+        vigilancia = vigilancia_relevo.Vigilancia(
+            banco.reabrir, banco.anunciar, banco.sonar, despachar,
+            activo=lambda: banco.activo,
+            dos_entradas=lambda: banco.dos_entradas,
+            reloj=banco.reloj)
+        return banco, vigilancia, decisiones
+
+    def test_el_fin_con_el_relevo_activo_reinicia(self):
+        banco, vigilancia, decisiones = self._crear()
+        vigilancia.fin(0.0)
+        self.assertEqual(decisiones, [vigilancia_relevo.REINICIAR])
+        self.assertEqual(banco.reinicios, [(None, "Reconectando el directo")])
+        self.assertEqual(banco.anuncios, ["Reconectando el directo"])
+        self.assertEqual(banco.sonidos, ["reconectando_directo"])
+
+    def test_el_fin_repetido_mas_alla_del_tope_avisa(self):
+        banco, vigilancia, decisiones = self._crear()
+        for instante in (0.0, 30.0, 60.0):
+            vigilancia.fin(instante)
+        vigilancia.fin(90.0)
+        self.assertEqual(decisiones,
+                         [vigilancia_relevo.REINICIAR] * 3
+                         + [vigilancia_relevo.AVISAR])
+        self.assertEqual(
+            banco.anuncios[-1],
+            "El directo sigue con cortes. Vuelve a cargarlo si no mejora.")
+        self.assertEqual(banco.sonidos[-1], "directo_con_cortes")
+
+    def test_un_fin_tres_segundos_despues_de_un_error_reinicia(self):
+        banco, vigilancia, decisiones = self._crear()
+        vigilancia.aviso(
+            "[in#1/hls @ 1] Error during demuxing: I/O error", 0.0)
+        vigilancia.fin(3.0)
+        self.assertEqual(decisiones, [vigilancia_relevo.REINICIAR] * 2)
+        self.assertEqual(len(banco.reinicios), 2)
+
+    def test_cuatro_fines_seguidos_en_un_minuto_terminan_en_avisar(self):
+        banco, vigilancia, decisiones = self._crear()
+        for instante in (0.0, 3.0, 6.0, 9.0):
+            vigilancia.fin(instante)
+        self.assertEqual(decisiones,
+                         [vigilancia_relevo.REINICIAR] * 3
+                         + [vigilancia_relevo.AVISAR])
+        self.assertEqual(
+            banco.anuncios[-1],
+            "El directo sigue con cortes. Vuelve a cargarlo si no mejora.")
+        self.assertEqual(banco.sonidos[-1], "directo_con_cortes")
+
+    def test_con_activo_falso_el_fin_no_hace_nada(self):
+        banco, vigilancia, decisiones = self._crear(activo=False)
+        vigilancia.fin(0.0)
+        self.assertEqual(decisiones, [vigilancia_relevo.NADA])
+        self.assertEqual(banco.reinicios, [])
+        self.assertEqual(banco.anuncios, [])
+        self.assertEqual(banco.sonidos, [])
+
+
+class TestVigilanciaInerte(unittest.TestCase):
+
+    def test_nada_ignora_el_fin_del_relevo(self):
+        self.assertEqual(vigilancia_relevo.NADA_OBJETO.fin(),
+                         vigilancia_relevo.NADA)
+
+
 class TestTopeDeReinicios(unittest.TestCase):
 
     def test_cuarto_motivo_avisa_una_sola_vez(self):

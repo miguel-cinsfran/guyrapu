@@ -64,6 +64,9 @@ class Nada:
     def aviso(self, texto, instante=None):
         return NADA
 
+    def fin(self, instante=None):
+        return NADA
+
     def registrar_vuelta(self, instante):
         return ""
 
@@ -75,7 +78,7 @@ NADA_OBJETO = Nada()
 
 
 class Vigilancia:
-    """Decide si un corte o un error de ffmpeg se convierte en reinicio."""
+    """Decide si un corte, un error de ffmpeg o su final se vuelven reinicio."""
 
     def __init__(self, reabrir, anunciar, sonar, despachar,
                  activo=lambda: True, dos_entradas=lambda: True,
@@ -117,6 +120,11 @@ class Vigilancia:
             self._procesar_aviso, texto,
             self._reloj() if instante is None else instante)
 
+    def fin(self, instante=None):
+        self._despachar(
+            self._procesar_fin,
+            self._reloj() if instante is None else instante)
+
     def registrar_vuelta(self, instante):
         pendiente = self._pendiente
         if pendiente is None:
@@ -151,6 +159,11 @@ class Vigilancia:
             dos = bool(dos)
         entrada = entrada_de_error(texto, dos)
         return self._reconectar("error", entrada, instante)
+
+    def _procesar_fin(self, instante):
+        if self._avisado or not self.activo():
+            return NADA
+        return self._reconectar("fin", "ninguna", instante)
 
     def _reconectar(self, motivo, entrada, instante):
         self._reinicios = [t for t in self._reinicios
