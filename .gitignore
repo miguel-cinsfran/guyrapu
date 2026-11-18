@@ -55,6 +55,8 @@ alias.json
 # Historial de sesión de versiones viejas (la opción que lo escribía ya no existe)
 historial.csv
 historial.txt
+# Las transcripciones del carril de NVDA sí se versionan, aunque se llamen igual.
+!qa/nvda/transcripciones/historial.txt
 # Historial de directos vistos (ventana Historial)
 historial_lives.json
 # Registro y carpeta del gestor de descargas (URLs, rutas y vídeos enteros)
