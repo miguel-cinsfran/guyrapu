@@ -30,6 +30,12 @@ import time
 from pathlib import Path
 from typing import NamedTuple
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from foco_ventanas import (
+    TECLA_ARRIBA, VK_MENU, pid_al_frente as _pid_al_frente,
+    pulsar_alt as _pulsar_alt, traer_al_frente as _traer_al_frente)
+
 from guyrapu.core import config_predeterminada
 from guyrapu.music import anuncios as anuncios_musica
 from guyrapu.music import anuncios_teclas
@@ -48,8 +54,6 @@ PREFIJO_FALLO = anuncios_musica.TEXTO_ATAJOS_GLOBALES_FALLO.split("{lista}")[0]
 TEXTO_QA = "qa"
 TITULO_VENTANA_AJENA = "Ventana ajena de QA"
 ESPERA_VENTANA_AJENA = 15.0
-VK_MENU = 0x12
-TECLA_ARRIBA = 0x0002
 WM_CLOSE = 0x0010
 ESPERA_PASO = 5.0
 
@@ -355,21 +359,6 @@ def _resolver_activacion(propia, res, desde, esperado,
     return True
 
 
-def _pid_al_frente():
-    """Pid de la ventana al frente, None si no se pudo saber."""
-    try:
-        import ctypes
-        actual = ctypes.windll.user32.GetForegroundWindow()
-        if not actual:
-            return None
-        pid = ctypes.c_ulong()
-        ctypes.windll.user32.GetWindowThreadProcessId(actual,
-                                                      ctypes.byref(pid))
-        return int(pid.value) or None
-    except Exception:
-        return None
-
-
 def _usuario32():
     """`user32`, None si no hay Win32."""
     try:
@@ -422,20 +411,6 @@ def _esperar_ventana_ajena(segundos: float = ESPERA_VENTANA_AJENA):
     return None, None
 
 
-def _pulsar_alt(usuario) -> None:
-    """Pulsación suelta de Alt para levantar el bloqueo del primer plano.
-
-    Windows le niega el primer plano a un proceso que no es el del
-    frente; esa pulsación lo levanta. Es lo que hace `pywinauto` en
-    `set_focus`.
-    """
-    try:
-        usuario.keybd_event(VK_MENU, 0, 0, 0)
-        usuario.keybd_event(VK_MENU, 0, TECLA_ARRIBA, 0)
-    except Exception:
-        pass
-
-
 def _pedir_cierre_ventana_ajena() -> None:
     """Pide a la ventana ajena que se cierre, si sigue existiendo.
 
@@ -451,37 +426,6 @@ def _pedir_cierre_ventana_ajena() -> None:
             usuario.PostMessageW(hwnd, WM_CLOSE, 0, 0)
     except Exception:
         pass
-
-
-def _traer_al_frente(hwnd, pid: int, segundos: float = 10.0) -> bool:
-    """Lleva al frente la ventana ajena y espera que Windows confirme.
-
-    Comprueba con `GetForegroundWindow` que el primer plano es del pid
-    dueño de la ventana e intenta `SetForegroundWindow` con su hwnd si
-    no, con una pulsación suelta de Alt antes de cada intento para
-    levantar el bloqueo del primer plano. Devuelve si quedó al frente.
-    """
-    try:
-        import ctypes
-        usuario = ctypes.windll.user32
-    except Exception:
-        return False
-    if hwnd is None or pid is None:
-        return False
-    limite = time.monotonic() + segundos
-    while time.monotonic() < limite:
-        if _pid_al_frente() == pid:
-            return True
-        _pulsar_alt(usuario)
-        try:
-            usuario.SetForegroundWindow(hwnd)
-        except Exception:
-            pass
-        time.sleep(0.3)
-    try:
-        return _pid_al_frente() == pid
-    except Exception:
-        return False
 
 
 def _enviar(teclas: str) -> bool:
