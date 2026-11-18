@@ -11,6 +11,7 @@ menú, se conduce con el complemento de NVDA y se guarda su transcripción.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -23,6 +24,7 @@ from qa.nvda.recorrido import InstrumentoRoto
 RAIZ = Path(__file__).resolve().parent.parent.parent
 
 COD_TRANSCRIPCION = 7
+VAR_DATOS = "GUYRAPU_QA_DATOS"
 
 
 class TranscripcionCambiada(RuntimeError):
@@ -51,8 +53,24 @@ class DobleLector:
         self._grabador.braille(texto)
 
 
+def _aislar_datos() -> None:
+    """Deja la carpeta de datos del carril y le copia la configuración real."""
+    ruta = os.environ.get(VAR_DATOS)
+    if not ruta:
+        return
+    from guyrapu.core import paths
+
+    carpeta = Path(ruta)
+    carpeta.mkdir(parents=True, exist_ok=True)
+    origen = paths.carpeta_datos() / "config.ini"
+    if origen.exists():
+        shutil.copy2(origen, carpeta / "config.ini")
+    paths.carpeta_datos = lambda: carpeta
+
+
 def preparar() -> None:
-    """Instala la sonda y deja el lector real y el grabador tras un doble."""
+    """Aísla los datos, instala la sonda y deja el lector real tras un doble."""
+    _aislar_datos()
     from guyrapu.ui import accesibilidad, gui
 
     originales = (gui._lector_init, accesibilidad._lector_init)
@@ -82,6 +100,9 @@ class Aplicacion(banco_app.Aplicacion):
 
     def arrancar(self) -> None:
         entorno = dict(os.environ)
+        datos = self.anuncios_ruta.parent / "datos"
+        datos.mkdir(parents=True, exist_ok=True)
+        entorno[VAR_DATOS] = str(datos)
         entorno[sonda.VAR_DESTINO] = str(self.anuncios_ruta)
         entorno[sonda.VAR_ORDENES] = str(self.ordenes_ruta)
         entorno[sonda.VAR_RESULTADOS] = str(self.resultados_ruta)
@@ -151,7 +172,7 @@ def recorrer(cliente, args, iniciales=(), revisar=None) -> list:
     lineas = list(iniciales)
     lineas.append("== ventanas de la aplicación ==")
     diferentes = False
-    with tempfile.TemporaryDirectory() as base:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as base:
         banco = Aplicacion(Path(base))
         try:
             banco.arrancar()
