@@ -27,8 +27,18 @@ from guyrapu.ui.menu_habilitado import habilitar
 from guyrapu.voice import sound_player as _snd
 
 _TECLAS = {
-    wx.WXK_RETURN: "intro",
-    wx.WXK_NUMPAD_ENTER: "intro",
+    (wx.WXK_RETURN, wx.MOD_NONE): "intro",
+    (wx.WXK_NUMPAD_ENTER, wx.MOD_NONE): "intro",
+    (wx.WXK_RETURN, wx.MOD_SHIFT): "mayus+intro",
+    (wx.WXK_NUMPAD_ENTER, wx.MOD_SHIFT): "mayus+intro",
+    (wx.WXK_RETURN, wx.MOD_CONTROL): "ctrl+intro",
+    (wx.WXK_NUMPAD_ENTER, wx.MOD_CONTROL): "ctrl+intro",
+    (wx.WXK_UP, wx.MOD_ALT): "alt+flecha_arriba",
+    (wx.WXK_DOWN, wx.MOD_ALT): "alt+flecha_abajo",
+}
+
+# F2 y Suprimir responden con cualquier modificador, como antes.
+_TECLAS_CON_CUALQUIER_MODIFICADOR = {
     wx.WXK_F2: "f2",
     wx.WXK_DELETE: "suprimir",
     wx.WXK_NUMPAD_DELETE: "suprimir",
@@ -43,6 +53,10 @@ _TECLAS_CON_CONTROL = {
 
 _SUFIJOS = {
     "intro": "\tEnter",
+    "mayus+intro": "\tShift+Enter",
+    "ctrl+intro": "\tCtrl+Enter",
+    "alt+flecha_arriba": "\tAlt+Up",
+    "alt+flecha_abajo": "\tAlt+Down",
     "f2": "\tF2",
     "suprimir": "\tDel",
     "ctrl+c": "\tCtrl+C",
@@ -72,7 +86,10 @@ def _tecla_nombrada(codigo, modificadores) -> str | None:
                 and not modificadores & (wx.MOD_ALT | wx.MOD_SHIFT)):
             return _TECLAS_CON_CONTROL[codigo]
         return None
-    return _TECLAS.get(codigo)
+    nombre = _TECLAS.get((codigo, modificadores))
+    if nombre is not None:
+        return nombre
+    return _TECLAS_CON_CUALQUIER_MODIFICADOR.get(codigo)
 
 
 def clave_de_tecla(codigo: int, modificadores: int, acciones) -> str | None:

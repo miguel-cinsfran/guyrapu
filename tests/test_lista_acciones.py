@@ -49,6 +49,91 @@ class PruebaPartePura(unittest.TestCase):
                         codigo, wx.MOD_NONE, ACCIONES),
                     esperado)
 
+    def test_mayus_intro_y_ctrl_intro_llegan_a_su_accion(self):
+        acciones = (
+            _accion("continuar", "mayus+intro"),
+            _accion("agregar", "ctrl+intro"),
+        )
+        for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+            with self.subTest(codigo=codigo):
+                self.assertEqual(
+                    lista_acciones.clave_de_tecla(
+                        codigo, wx.MOD_SHIFT, acciones),
+                    "continuar")
+                self.assertEqual(
+                    lista_acciones.clave_de_tecla(
+                        codigo, wx.MOD_CONTROL, acciones),
+                    "agregar")
+                self.assertIsNone(lista_acciones.clave_de_tecla(
+                    codigo, wx.MOD_NONE, acciones))
+                self.assertIsNone(lista_acciones.clave_de_tecla(
+                    codigo, wx.MOD_ALT, acciones))
+                self.assertIsNone(lista_acciones.clave_de_tecla(
+                    codigo, wx.MOD_SHIFT | wx.MOD_CONTROL, acciones))
+
+    def test_alt_flecha_arriba_y_abajo_llegan_a_su_accion(self):
+        acciones = (
+            _accion("subir", "alt+flecha_arriba"),
+            _accion("bajar", "alt+flecha_abajo"),
+        )
+        self.assertEqual(
+            lista_acciones.clave_de_tecla(wx.WXK_UP, wx.MOD_ALT, acciones),
+            "subir")
+        self.assertEqual(
+            lista_acciones.clave_de_tecla(wx.WXK_DOWN, wx.MOD_ALT, acciones),
+            "bajar")
+        self.assertIsNone(lista_acciones.clave_de_tecla(
+            wx.WXK_UP, wx.MOD_NONE, acciones))
+        self.assertIsNone(lista_acciones.clave_de_tecla(
+            wx.WXK_DOWN, wx.MOD_ALT | wx.MOD_SHIFT, acciones))
+
+    def test_ctrl_intro_sin_accion_que_lo_declare_da_none(self):
+        for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+            with self.subTest(codigo=codigo):
+                self.assertIsNone(lista_acciones.clave_de_tecla(
+                    codigo, wx.MOD_CONTROL, ACCIONES))
+                self.assertEqual(
+                    lista_acciones.clave_de_tecla(
+                        codigo, wx.MOD_NONE, ACCIONES),
+                    "editar")
+
+    def test_f2_y_suprimir_siguen_respondiendo_con_modificadores(self):
+        casos = (
+            (wx.WXK_F2, wx.MOD_CONTROL | wx.MOD_SHIFT, "renombrar"),
+            (wx.WXK_DELETE, wx.MOD_ALT, "eliminar"),
+            (wx.WXK_NUMPAD_DELETE, wx.MOD_CONTROL, "eliminar"),
+        )
+        for codigo, modificadores, esperado in casos:
+            with self.subTest(codigo=codigo):
+                self.assertEqual(
+                    lista_acciones.clave_de_tecla(
+                        codigo, modificadores, ACCIONES),
+                    esperado)
+
+    def test_el_menu_muestra_las_teclas_con_modificador(self):
+        casos = (
+            ("mayus+intro", "\tShift+Enter"),
+            ("ctrl+intro", "\tCtrl+Enter"),
+            ("alt+flecha_arriba", "\tAlt+Up"),
+            ("alt+flecha_abajo", "\tAlt+Down"),
+        )
+        for tecla, sufijo in casos:
+            with self.subTest(tecla=tecla):
+                self.assertEqual(
+                    lista_acciones.etiqueta_de_menu(_accion("hacer", tecla)),
+                    "&Hacer" + sufijo)
+
+    def test_alt_flecha_sin_accion_deja_pasar_el_evento(self):
+        pieza = lista_acciones.ListaConAcciones(
+            mock.Mock(), ACCIONES, "Sin elementos.")
+        for codigo in (wx.WXK_UP, wx.WXK_DOWN):
+            with self.subTest(codigo=codigo):
+                evento = mock.Mock()
+                evento.GetKeyCode.return_value = codigo
+                evento.GetModifiers.return_value = wx.MOD_ALT
+                pieza._al_tecla(evento)
+                evento.Skip.assert_called_once_with()
+
     def test_aplicaciones_y_mayus_f10_dan_menu(self):
         self.assertEqual(
             lista_acciones.clave_de_tecla(
@@ -290,6 +375,17 @@ class PruebaConLista(unittest.TestCase):
                 self.pieza.fijar(["a"])
                 self._tecla(tipo, codigo)
                 self.assertEqual(self.llamadas, [esperado])
+
+    def test_intro_con_modificador_no_ejecuta_la_accion_intro(self):
+        self.pieza.fijar(["a"])
+        for modificar in ("SetControlDown", "SetShiftDown", "SetAltDown"):
+            with self.subTest(modificador=modificar):
+                self.llamadas.clear()
+                evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+                evento.KeyCode = wx.WXK_RETURN
+                getattr(evento, modificar)(True)
+                self.lista.GetEventHandler().ProcessEvent(evento)
+                self.assertEqual(self.llamadas, [])
 
     def test_ctrl_d_ejecuta_la_accion_de_tecla_ctrl_d(self):
         llamadas = []

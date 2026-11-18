@@ -152,6 +152,7 @@ class TestRecientesVentana(unittest.TestCase):
         recientes.lista.SetSelection(1)
         evento = mock.Mock()
         evento.GetKeyCode.return_value = self.wx.WXK_RETURN
+        evento.GetModifiers.return_value = self.wx.MOD_NONE
         recientes._lista_acciones._al_tecla(evento)
         esperada = recientes.entradas[1]["url"]
         al_conectar.assert_called_once_with(esperada)
@@ -407,6 +408,7 @@ class TestOrdenTabDesconectada(unittest.TestCase):
             self.assertEqual(1, marco._inicio.lista.GetCount())
             evento = mock.Mock()
             evento.GetKeyCode.return_value = self.wx.WXK_RETURN
+            evento.GetModifiers.return_value = self.wx.MOD_NONE
             with mock.patch.object(gui.wx, "CallAfter") as diferir:
                 marco._inicio._lista_acciones._al_tecla(evento)
             self.assertEqual(entrada["url"], marco.txt_url.GetValue())
