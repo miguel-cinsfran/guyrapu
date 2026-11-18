@@ -1,16 +1,12 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Entradas y despliegue de los menús contextuales de la ventana de música.
+"""Entradas de los menús contextuales de la ventana de música.
 
 Las entradas se arman con funciones puras que devuelven pares
-(etiqueta, acción), para poder comprobarlas sin mostrar el menú. Una acción
-que es una lista de entradas se despliega como submenú. El despliegue es lo
-único que toca wx.
+(etiqueta, acción), para poder comprobarlas sin mostrar el menú.
 """
 
 from __future__ import annotations
-
-import wx
 
 from guyrapu.core.idioma import N_
 
@@ -49,20 +45,16 @@ def entradas_canciones() -> list:
     ]
 
 
-def entradas_colecciones(es_lista: bool) -> list:
-    """Las entradas del menú de «Colecciones», según lo elegido."""
-    entradas = [
+def entradas_colecciones() -> list:
+    """Las entradas del menú de «Colecciones»."""
+    return [
         (N_("&Reproducir"), ACCION_REPRODUCIR_COLECCION),
         (N_("A&gregar a la cola"), ACCION_AGREGAR_COLECCION),
+        (N_("&Editar lista…"), ACCION_EDITAR_LISTA),
+        (N_("Cambiar n&ombre…"), ACCION_RENOMBRAR_LISTA),
+        (N_("E&liminar lista…"), ACCION_BORRAR_LISTA),
+        (N_("&Nueva lista…"), ACCION_NUEVA_LISTA),
     ]
-    if es_lista:
-        entradas += [
-            (N_("&Editar la lista…"), ACCION_EDITAR_LISTA),
-            (N_("&Cambiar nombre de la lista…"), ACCION_RENOMBRAR_LISTA),
-            (N_("&Borrar la lista…"), ACCION_BORRAR_LISTA),
-        ]
-    entradas.append((N_("&Nueva lista…"), ACCION_NUEVA_LISTA))
-    return entradas
 
 
 def entradas_cola() -> list:
@@ -73,9 +65,9 @@ def entradas_cola() -> list:
         (N_("&Subir"), ACCION_SUBIR),
         (N_("&Bajar"), ACCION_BAJAR),
         (N_("&Ir al que suena"), ACCION_IR_AL_QUE_SUENA),
-        (N_("&Mezclar la cola"), ACCION_MEZCLAR),
-        (N_("&Vaciar la cola"), ACCION_VACIAR),
-        (N_("&Guardar la cola como lista…"), ACCION_GUARDAR_COLA),
+        (N_("&Mezclar"), ACCION_MEZCLAR),
+        (N_("&Vaciar"), ACCION_VACIAR),
+        (N_("&Guardar como lista…"), ACCION_GUARDAR_COLA),
     ]
 
 
@@ -87,28 +79,3 @@ def entradas_lista_editada() -> list:
         (N_("&Subir"), ACCION_SUBIR),
         (N_("&Bajar"), ACCION_BAJAR),
     ]
-
-
-def _agregar_entradas(menu, entradas, al_elegir) -> None:
-    """Engancha cada entrada en el menú que la contiene."""
-    for etiqueta, accion in entradas:
-        if isinstance(accion, list):
-            submenu = wx.Menu()
-            menu.AppendSubMenu(submenu, etiqueta)
-            _agregar_entradas(submenu, accion, al_elegir)
-            continue
-        ident = wx.NewIdRef()
-        menu.Append(ident, etiqueta)
-        menu.Bind(
-            wx.EVT_MENU, lambda _evento, accion=accion: al_elegir(accion),
-            id=ident)
-
-
-def mostrar_menu(ventana, entradas, al_elegir) -> None:
-    """Muestra las entradas y despacha la acción elegida."""
-    menu = wx.Menu()
-    try:
-        _agregar_entradas(menu, entradas, al_elegir)
-        ventana.PopupMenu(menu)
-    finally:
-        menu.Destroy()

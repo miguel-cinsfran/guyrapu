@@ -10,17 +10,18 @@ Supr elimina la lista, previa confirmación.
 
 from __future__ import annotations
 
-import wx
-
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios, listas, vista
 from guyrapu.ui import musica_editor_lista, musica_menus
 from guyrapu.ui import musica_ventana_acciones as _acciones
 from guyrapu.ui.espera_sonora import EsperaSonora
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 
 logger = diagnostico.obtener_logger(__name__)
 
+# La clave de «Biblioteca» no puede chocar con el nombre de una lista.
+CLAVE_BIBLIOTECA = object()
 TEXTO_CARGANDO = N_("Cargando la carpeta…")
 # Traductores: motivo del botón «Cambiar carpeta» mientras se carga la carpeta.
 MOTIVO_CARGANDO = N_("Cargando la carpeta")
@@ -38,6 +39,57 @@ def _anunciar_ventana(texto) -> None:
 
 class ColeccionesVentanaMusica:
     """La lista «Colecciones» y la fuente que muestra la lista de temas."""
+
+    def _armar_colecciones(self):
+        """Ata «Colecciones» a la pieza común, con sus acciones y su caso vacío."""
+        self._colecciones = ListaConAcciones(
+            self.lb_colecciones, self._acciones_de_colecciones(),
+            _(TEXTO_CARGANDO))
+
+    def _acciones_de_colecciones(self):
+        """Las acciones de «Colecciones», con sus teclas y sus motivos."""
+        etiquetas = {accion: _(etiqueta)
+                     for etiqueta, accion in musica_menus.entradas_colecciones()}
+        return (self._acciones_de_reproducir_coleccion(etiquetas)
+                + self._acciones_de_lista(etiquetas))
+
+    def _acciones_de_reproducir_coleccion(self, etiquetas):
+        """Las que empiezan a sonar o agregan a la cola la colección."""
+        return (
+            Accion(musica_menus.ACCION_REPRODUCIR_COLECCION,
+                   etiquetas[musica_menus.ACCION_REPRODUCIR_COLECCION],
+                   self._reproducir_coleccion, tecla="intro"),
+            Accion(musica_menus.ACCION_AGREGAR_COLECCION,
+                   etiquetas[musica_menus.ACCION_AGREGAR_COLECCION],
+                   self._agregar_coleccion_a_cola, tecla="ctrl+intro"),
+        )
+
+    def _acciones_de_lista(self, etiquetas):
+        """Las que actúan sobre una lista propia o crean una."""
+        return (
+            self._accion_de_lista(
+                etiquetas, musica_menus.ACCION_EDITAR_LISTA,
+                self._editar_lista),
+            self._accion_de_lista(
+                etiquetas, musica_menus.ACCION_RENOMBRAR_LISTA,
+                self._renombrar_lista, tecla="f2"),
+            self._accion_de_lista(
+                etiquetas, musica_menus.ACCION_BORRAR_LISTA,
+                self._borrar_lista, tecla="suprimir"),
+            Accion(musica_menus.ACCION_NUEVA_LISTA,
+                   etiquetas[musica_menus.ACCION_NUEVA_LISTA],
+                   self._nueva_lista, necesita_elemento=False),
+        )
+
+    def _accion_de_lista(self, etiquetas, clave, manejador, tecla=None):
+        """Una acción que solo vale en una lista propia."""
+        return Accion(clave, etiquetas[clave], manejador, tecla=tecla,
+                      necesita_elemento=False, motivo=self._motivo_solo_lista)
+
+    def _motivo_solo_lista(self):
+        if self._coleccion_elegida() is None:
+            return _(_acciones.MOTIVO_SOLO_EN_LISTA_PROPIA)
+        return ""
 
     def _inicio(self):
         estado = self._control.estado()
@@ -64,18 +116,11 @@ class ColeccionesVentanaMusica:
     def _reload_colecciones(self, preferir=None):
         nombres = self._leer_nombres()
         self._nombres_listas = nombres
-        self.lb_colecciones.Set(self._refrescar_cantidades_colecciones())
-        indice = 0
-        if preferir:
-            buscado = str(preferir).casefold()
-            for posicion, nombre in enumerate(nombres, start=1):
-                if nombre.casefold() == buscado:
-                    indice = posicion
-                    break
-        self.lb_colecciones.SetSelection(indice)
+        self._refrescar_cantidades_colecciones(
+            elegida=preferir or CLAVE_BIBLIOTECA)
         self._fuente = self._coleccion_elegida()
 
-    def _refrescar_cantidades_colecciones(self):
+    def _refrescar_cantidades_colecciones(self, elegida=None):
         nombres = self._nombres_listas or []
         cantidad = getattr(self, "_cantidad_biblioteca", None)
         try:
@@ -88,15 +133,12 @@ class ColeccionesVentanaMusica:
         else:
             cantidades = {n: listas.cantidad(carpeta, n) for n in nombres}
         filas = vista.filas_colecciones(nombres, cantidad, cantidades)
-        actuales = self.lb_colecciones.GetStrings()
-        for indice, texto in enumerate(filas):
-            if indice < len(actuales) and texto != actuales[indice]:
-                self.lb_colecciones.SetString(indice, texto)
-        return filas
+        claves = [CLAVE_BIBLIOTECA] + [str(n) for n in nombres]
+        self._colecciones.poner_al_dia(claves, filas, elegida)
 
     def _coleccion_elegida(self):
-        indice = self.lb_colecciones.GetSelection()
-        if indice <= 0 or indice > len(self._nombres_listas):
+        indice = self._colecciones.indice()
+        if indice is None or indice <= 0 or indice > len(self._nombres_listas):
             return None
         return self._nombres_listas[indice - 1]
 
@@ -254,22 +296,6 @@ class ColeccionesVentanaMusica:
             self.refrescar_por_vigia()
         _anunciar_ventana(vista.texto_carpeta_examinada(nuevas, quitadas))
 
-    def _tecla_colecciones(self, evento):
-        codigo = evento.GetKeyCode()
-        modificadores = evento.GetModifiers()
-        if codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            self._reproducir_coleccion()
-            return
-        if codigo in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
-            if self._coleccion_elegida() is not None:
-                self._borrar_lista()
-            return
-        if codigo == wx.WXK_WINDOWS_MENU or (
-                codigo == wx.WXK_F10 and modificadores & wx.MOD_SHIFT):
-            self._menu_colecciones()
-            return
-        evento.Skip()
-
     def _reproducir_coleccion(self):
         nombre = self._coleccion_elegida()
         if nombre is not None:
@@ -287,20 +313,6 @@ class ColeccionesVentanaMusica:
             temas = tuple(self._temas_fuente)
         if temas:
             self._control.agregar_al_final(list(temas))
-
-    def _accion_coleccion(self, accion):
-        if accion == musica_menus.ACCION_REPRODUCIR_COLECCION:
-            self._reproducir_coleccion()
-        elif accion == musica_menus.ACCION_AGREGAR_COLECCION:
-            self._agregar_coleccion_a_cola()
-        elif accion == musica_menus.ACCION_EDITAR_LISTA:
-            self._editar_lista()
-        elif accion == musica_menus.ACCION_RENOMBRAR_LISTA:
-            self._renombrar_lista()
-        elif accion == musica_menus.ACCION_BORRAR_LISTA:
-            self._borrar_lista()
-        elif accion == musica_menus.ACCION_NUEVA_LISTA:
-            self._nueva_lista()
 
     def _nueva_lista(self, tema_marcado=None):
         self._editar_lista_guardada(None, tema_marcado)
@@ -334,14 +346,6 @@ class ColeccionesVentanaMusica:
         self._control.guardar_lista(nombre, list(temas), viejo)
         self._reload_colecciones(preferir=nombre)
         self._cargar_fuente()
-
-    def _menu_colecciones(self):
-        musica_menus.mostrar_menu(
-            self.lb_colecciones,
-            [(_(etiqueta), accion) for etiqueta, accion
-             in musica_menus.entradas_colecciones(
-                 self._coleccion_elegida() is not None)],
-            self._accion_coleccion)
 
     def _renombrar_lista(self):
         viejo = self._coleccion_elegida()

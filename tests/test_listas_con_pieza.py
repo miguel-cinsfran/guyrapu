@@ -18,6 +18,8 @@ LLAMADAS_DE_LISTA = (
 )
 
 NOMBRES_DE_LA_PIEZA = ("ListaConAcciones", "ListaConVacio")
+# Los montajes que atan una lista a la pieza desde otro módulo de la ventana.
+MONTAJES_DE_LA_PIEZA = ("_armar_canciones", "_armar_cola", "_armar_colecciones")
 
 # Lo que todavía no pasó a la pieza, con el motivo. Pasar un módulo a la
 # pieza obliga a borrar su línea: el alta sin la pieza y la baja de la lista
@@ -29,8 +31,6 @@ PENDIENTES = {
     "elegir_formato.py": (
         "lista de solo lectura para elegir un formato, en elegir_formato.py:52"),
     "gui_construccion.py": "todavía no pasó a la pieza común",
-    "musica_ventana.py": (
-        "la cola y canciones ya usan la pieza; colecciones todavía no"),
 }
 
 
@@ -40,8 +40,9 @@ def _crea_lista(texto):
 
 
 def _usa_la_pieza(texto):
-    """Si el módulo nombra la pieza común."""
-    return any(nombre in texto for nombre in NOMBRES_DE_LA_PIEZA)
+    """Si el módulo nombra la pieza común o el montaje que la ata."""
+    return any(nombre in texto for nombre in
+               NOMBRES_DE_LA_PIEZA + MONTAJES_DE_LA_PIEZA)
 
 
 def _leer_ui():

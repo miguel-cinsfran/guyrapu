@@ -64,6 +64,7 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         # Traductores: nombre accesible de la lista de colecciones; una palabra.
         self.lb_colecciones = self._lista(panel, _("Colecciones"), 190)
         self.lb_colecciones.SetMinSize((220, 190))
+        self._armar_colecciones()
         self.txt_buscar = self._campo(panel, _("Buscar en la música"))
         self.filtros = musica_filtros.FiltrosMusica(
             panel, *self._control.filtros_guardados(),
@@ -156,10 +157,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         self.txt_buscar.Bind(wx.EVT_TEXT, self._al_filtrar)
         self.txt_buscar.Bind(wx.EVT_KEY_DOWN, self._tecla_buscar)
         self.lb_colecciones.Bind(wx.EVT_LISTBOX, self._cambiar_coleccion)
-        self.lb_colecciones.Bind(wx.EVT_KEY_DOWN, self._tecla_colecciones)
-        self.lb_colecciones.Bind(
-            wx.EVT_CONTEXT_MENU, lambda e: self._menu_colecciones())
-        self.Bind(wx.EVT_LISTBOX_DCLICK, self._doble_clic_lista)
         self.btn_cola.Bind(wx.EVT_BUTTON, lambda e: self._alternar_cola())
         self.btn_enlace.Bind(wx.EVT_BUTTON, lambda e: self._abrir_enlace())
         self.btn_nueva.Bind(wx.EVT_BUTTON, lambda e: self._nueva_lista())
@@ -183,11 +180,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
                 self.SetSize((ancho, alto))
         except Exception as exc:
             logger.debug("mínimo de la ventana de música: %s", exc)
-
-    def _doble_clic_lista(self, evento):
-        foco = evento.GetEventObject()
-        if foco is self.lb_colecciones:
-            self._reproducir_coleccion()
 
     def _cola_guardada_visible(self):
         lee = getattr(self._control, "cola_visible", None)
@@ -319,10 +311,6 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
     def _tecla_atajo(self, evento):
         if ayuda_manual.atender_f1(self, evento, "musica"):
             return
-        if evento.GetKeyCode() in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-            foco = wx.Window.FindFocus()
-            if foco is self.lb_colecciones:
-                return self._tecla_colecciones(evento)
         if musica_teclas.manejar_atajo_de_tecla(
                 self._control, self._combos, evento):
             self.refrescar_cola()

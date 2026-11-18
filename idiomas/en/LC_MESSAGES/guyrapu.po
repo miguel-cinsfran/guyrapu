@@ -14158,18 +14158,6 @@ msgstr "&Remove from this list"
 msgid "&Reproducir"
 msgstr "&Play"
 
-#: guyrapu/ui/musica_menus.py
-msgid "&Editar la lista…"
-msgstr "&Edit playlist…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Cambiar nombre de la lista…"
-msgstr "&Rename playlist…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Borrar la lista…"
-msgstr "Delete play&list…"
-
 #. Traductores: crea una lista nueva; segunda, su nombre accesible.
 #: guyrapu/ui/musica_menus.py guyrapu/ui/musica_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py
@@ -14183,18 +14171,6 @@ msgstr "Move do&wn"
 #: guyrapu/ui/musica_menus.py
 msgid "&Ir al que suena"
 msgstr "&Go to the one playing"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Mezclar la cola"
-msgstr "&Shuffle the queue"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Vaciar la cola"
-msgstr "&Clear the queue"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Guardar la cola como lista…"
-msgstr "Sa&ve the queue as a playlist…"
 
 #. Traductores: nombre accesible de la lista de colecciones; una palabra.
 #: guyrapu/ui/musica_ventana.py
@@ -16708,4 +16684,28 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Editar lista…"
+msgstr "&Edit playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "Cambiar n&ombre…"
+msgstr "Rena&me…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "E&liminar lista…"
+msgstr "Delete play&list…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Mezclar"
+msgstr "&Shuffle"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Vaciar"
+msgstr "&Clear"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Guardar como lista…"
+msgstr "Sa&ve as playlist…"
 
