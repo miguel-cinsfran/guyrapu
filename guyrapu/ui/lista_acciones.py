@@ -114,6 +114,46 @@ def _texto_de(fila):
     return fila[0] if isinstance(fila, tuple) else fila
 
 
+def _con_apariciones(claves):
+    """Cada clave con su número de aparición, para que todas sean únicas."""
+    vistos = {}
+    salida = []
+    for clave in claves:
+        vez = vistos.get(clave, 0)
+        salida.append((clave, vez))
+        vistos[clave] = vez + 1
+    return salida
+
+
+def _indice_de_elegida(clave, claves, internas, elegida):
+    """La aparición que corresponde a la clave pedida."""
+    if clave is not None and clave[0] == elegida and clave in internas:
+        return internas.index(clave), False
+    return claves.index(elegida), False
+
+
+def _indice_de_clave(seleccion, clave, claves, internas):
+    """La aparición de la clave que ya estaba elegida."""
+    if clave in internas:
+        indice = internas.index(clave)
+        return indice, indice != seleccion
+    if clave[0] in claves:
+        indice = claves.index(clave[0])
+        return indice, indice != seleccion
+    return min(max(seleccion, 0), len(claves) - 1), True
+
+
+def _indice_restaurado(seleccion, clave, claves, internas, elegida):
+    """El índice que hay que elegir y si hace falta forzar la selección."""
+    if elegida is not None and elegida in claves:
+        return _indice_de_elegida(clave, claves, internas, elegida)
+    if not claves:
+        return 0, False
+    if clave is not None:
+        return _indice_de_clave(seleccion, clave, claves, internas)
+    return min(max(seleccion, 0), len(claves) - 1), True
+
+
 class ListaConVacio:
     """Deja el caso vacío elegido en una lista y da el índice real."""
 
@@ -162,14 +202,13 @@ class ListaConVacio:
         """Deja la lista igual a `filas`, una por clave, sin recargar todo."""
         claves = list(claves)
         filas = list(filas)
+        internas = _con_apariciones(claves)
         seleccion = self._lista.GetSelection()
         clave_elegida = self._clave_en(seleccion)
-        self._sincronizar(claves, filas)
-        self._claves = claves
+        self._sincronizar(internas, filas)
+        self._claves = internas
         self._textos = filas
-        if not filas:
-            self._dejar_vacia()
-        self._restaurar(seleccion, clave_elegida, claves, elegida)
+        self._restaurar(seleccion, clave_elegida, claves, internas, elegida)
 
     def _clave_en(self, indice):
         if 0 <= indice < len(self._claves):
@@ -214,17 +253,13 @@ class ListaConVacio:
         self._borrar_todo()
         self._lista.Append(self._texto_vacio)
 
-    def _restaurar(self, seleccion, clave, claves, elegida):
+    def _restaurar(self, seleccion, clave, claves, internas, elegida):
         """Vuelve a elegir la fila de antes, sin tocarla si no se movió."""
-        if elegida is not None and elegida in claves:
-            self._elegir(claves.index(elegida), forzar=False)
-        elif not claves:
-            self._elegir(0, forzar=False)
-        elif clave is not None and clave in claves:
-            indice = claves.index(clave)
-            self._elegir(indice, forzar=indice != seleccion)
-        else:
-            self._elegir(min(max(seleccion, 0), len(claves) - 1), forzar=True)
+        if not claves:
+            self._dejar_vacia()
+        indice, forzar = _indice_restaurado(
+            seleccion, clave, claves, internas, elegida)
+        self._elegir(indice, forzar)
 
     def _elegir(self, indice, forzar):
         if not forzar and self._lista.GetSelection() == indice:

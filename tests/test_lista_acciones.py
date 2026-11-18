@@ -874,6 +874,44 @@ class PruebaPonerAlDiaListBox(unittest.TestCase):
         self.assertEqual(self._textos(), ["a"])
         self.assertEqual(self.lista.insertadas, [(0, "a")])
 
+    def test_claves_repetidas_se_muestran_todas(self):
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"])
+        self.assertEqual(self._textos(), ["a", "b", "a", "c", "a"])
+
+    def test_quitar_una_repetida_y_agregar_otra_en_medio(self):
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"])
+        self.vacio.poner_al_dia(
+            ["a", "b", "x", "c", "a"], ["a", "b", "x", "c", "a"])
+        self.assertEqual(self._textos(), ["a", "b", "x", "c", "a"])
+
+    def test_la_segunda_a_elegida_sigue_en_la_segunda_a(self):
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"])
+        self.lista.SetSelection(2)
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"])
+        self.assertEqual(self.lista.GetSelection(), 2)
+
+    def test_elegida_con_la_misma_clave_conserva_la_aparicion(self):
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"])
+        self.lista.SetSelection(2)
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"],
+            elegida="a")
+        self.assertEqual(self.lista.GetSelection(), 2)
+
+    def test_elegida_con_otra_clave_va_a_la_primera_aparicion(self):
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"])
+        self.lista.SetSelection(2)
+        self.vacio.poner_al_dia(
+            ["a", "b", "a", "c", "a"], ["a", "b", "a", "c", "a"],
+            elegida="b")
+        self.assertEqual(self.lista.GetSelection(), 1)
+
 
 class PruebaPonerAlDiaListCtrl(unittest.TestCase):
 
