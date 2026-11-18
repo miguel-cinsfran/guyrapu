@@ -5,6 +5,7 @@
 import wx
 
 from guyrapu.core import config as cfg
+from guyrapu.core import tecla_fisica
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import teclado_altgr
 
@@ -138,6 +139,8 @@ ETIQUETAS = {
     "chat_reciente_8": N_("Leer el mensaje 8 desde el final del chat"),
     "chat_reciente_9": N_("Leer el mensaje 9 desde el final del chat"),
     "chat_reciente_10": N_("Leer el mensaje 10 desde el final del chat"),
+    "chat_filtro_anterior": N_("Filtro anterior del chat"),
+    "chat_filtro_siguiente": N_("Filtro siguiente del chat"),
 }
 
 
@@ -203,6 +206,10 @@ def atajo_legible(texto_guardado: str | None) -> str:
             partes.append(_(_MOD_LEER[parte]))
         elif parte in _NOMBRE_TECLA_LEER:
             partes.append(_(_NOMBRE_TECLA_LEER[parte]))
+        elif (len(parte) == 4 and parte.startswith("sc")
+                and all(c in "0123456789abcdef" for c in parte[2:])):
+            partes.append(tecla_fisica.texto_tecla(int(parte[2:], 16))
+                          or parte.upper())
         else:
             partes.append(parte.upper())
     return "+".join(partes)

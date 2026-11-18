@@ -10,12 +10,15 @@ ventana oculta.
 import unittest
 from unittest import mock
 
+import wx
+
 from tests.pseudo_prueba import con_pseudo
 from guyrapu.core.atajos import ATAJOS_FIJOS_DEFAULTS
 from guyrapu.core.config import APP_NAME
 from guyrapu.core.idioma import _
-from guyrapu.ui import atajos_globales, chat_recientes, gui
+from guyrapu.ui import atajos_globales, chat_acciones, chat_recientes, gui
 from guyrapu.ui.atajos_globales import AtajosGlobales, combinacion_ctrl_mayus
+from guyrapu.ui.gui_menu import FILTROS
 from guyrapu.voice.cola_tts import ColaTTS
 from tests.ventanas_prueba import app_de_prueba
 
@@ -52,12 +55,56 @@ class _GlobalesFalsos:
         self._activos = False
 
 
-def _recientes(config, filas=(), cola=None):
+class _VentanaGlobales:
+    """Doble de ventana que anota los registros y guarda los manejadores."""
+
+    def __init__(self):
+        self.registrados = {}
+        self.manejadores = {}
+
+    def RegisterHotKey(self, ident, mods, vk):
+        self.registrados[ident] = (mods, vk)
+        return True
+
+    def UnregisterHotKey(self, ident):
+        self.registrados.pop(ident, None)
+        return True
+
+    def Bind(self, _evento, manejador, id=-1):
+        self.manejadores[id] = manejador
+
+    def Unbind(self, _evento, id=-1):
+        self.manejadores.pop(id, None)
+
+
+class _ChatFalso:
+    def __init__(self):
+        self.filtro = None
+        self.reconstrucciones = 0
+
+    def reconstruir(self):
+        self.reconstrucciones += 1
+
+
+class _ItemFalso:
+    def __init__(self):
+        self.marcado = False
+
+    def Check(self, valor):
+        self.marcado = valor
+
+
+def _recientes(config, filas=(), cola=None, acciones=None):
     with mock.patch.object(atajos_globales, "AtajosGlobales",
                            _GlobalesFalsos):
         lector = chat_recientes.LecturaRecientes(
-            mock.Mock(), _ListaFalsa(filas), dict(config), cola)
+            mock.Mock(), _ListaFalsa(filas), dict(config), cola, acciones)
     return lector
+
+
+def _textos_globales():
+    return {accion: ATAJOS_FIJOS_DEFAULTS[accion]
+            for accion in chat_recientes.ORDEN_GLOBALES}
 
 
 class TestLecturaRecientes(unittest.TestCase):
@@ -112,8 +159,7 @@ class TestLecturaRecientes(unittest.TestCase):
         lector = _recientes({"lectura_atajos_globales": True})
         with mock.patch.object(gui, "anunciar") as anunciar:
             lector.aplicar_preferencias()
-        self.assertEqual(lector._globales.activaciones, [
-            {a: ATAJOS_FIJOS_DEFAULTS[a] for a in chat_recientes.ORDEN}])
+        self.assertEqual(lector._globales.activaciones, [_textos_globales()])
         anunciar.assert_called_once_with(chat_recientes.TEXTO_ACTIVOS)
 
     def test_aplicar_con_preferencia_apagada_suelta_y_anuncia(self):
@@ -166,6 +212,88 @@ class TestLecturaRecientes(unittest.TestCase):
                         and sub.value.id in ("ventana", "lista")
                         and sub.attr.startswith("_")):
                     self.fail(f"lee privado ajeno: {sub.value.id}.{sub.attr}")
+
+
+class TestPasoFiltro(unittest.TestCase):
+
+    def test_siguiente_y_anterior(self):
+        self.assertEqual(chat_acciones.paso_filtro(1, 1, 5), 2)
+        self.assertEqual(chat_acciones.paso_filtro(1, -1, 5), 0)
+
+    def test_da_la_vuelta_en_los_dos_extremos(self):
+        self.assertEqual(chat_acciones.paso_filtro(4, 1, 5), 0)
+        self.assertEqual(chat_acciones.paso_filtro(0, -1, 5), 4)
+
+    def test_dar_una_vuelta_completa_vuelve_al_mismo(self):
+        for indice in range(5):
+            with self.subTest(indice=indice):
+                self.assertEqual(chat_acciones.paso_filtro(indice, 5, 5),
+                                 indice)
+                self.assertEqual(chat_acciones.paso_filtro(indice, -5, 5),
+                                 indice)
+
+
+class TestAtajosDelFiltro(unittest.TestCase):
+
+    def _acciones(self):
+        chat = _ChatFalso()
+        acciones = chat_acciones.AccionesChat(
+            _ListaFalsa(["mensaje"] * 7), chat, None, {}, lambda: None, None)
+        acciones.fi_items = [_ItemFalso() for _ in FILTROS]
+        return acciones, chat
+
+    @staticmethod
+    def _traducir(texto):
+        mods = wx.MOD_CONTROL | wx.MOD_SHIFT
+        return [(mods, 0xDB if texto.endswith("sc0c") else 0xDD)]
+
+    def _manejador(self, ventana, accion):
+        ident = (chat_recientes.BASE_IDS
+                 + chat_recientes.ORDEN_GLOBALES.index(accion))
+        return ventana.manejadores[ident]
+
+    def test_el_atajo_siguiente_cambia_marca_guarda_y_anuncia(self):
+        acciones, chat = self._acciones()
+        ventana = _VentanaGlobales()
+        config = {"lectura_atajos_globales": True}
+        with mock.patch.object(atajos_globales, "combinacion_ctrl_mayus",
+                               side_effect=self._traducir), \
+                mock.patch.object(chat_acciones, "guardar_opcion") as guardar, \
+                mock.patch.object(chat_acciones, "anunciar") as anunciar, \
+                mock.patch.object(chat_recientes.wx, "CallAfter",
+                                  side_effect=lambda fn, *a: fn(*a)):
+            lector = chat_recientes.LecturaRecientes(
+                ventana, _ListaFalsa([]), config, None, acciones)
+            lector.activar_arranque()
+            self._manejador(ventana, "chat_filtro_siguiente")(mock.Mock())
+        self.assertEqual(chat.filtro, FILTROS[1][1])
+        self.assertEqual(chat.reconstrucciones, 1)
+        self.assertTrue(acciones.fi_items[1].marcado)
+        self.assertEqual(guardar.call_args.args[1:],
+                         ("ui", "filtro_activo", "texto"))
+        anunciar.assert_called_once_with("Filtro: Solo texto. 7 mensajes")
+
+    def test_el_atajo_anterior_da_la_vuelta_en_el_primero(self):
+        acciones, chat = self._acciones()
+        ventana = _VentanaGlobales()
+        with mock.patch.object(atajos_globales, "combinacion_ctrl_mayus",
+                               side_effect=self._traducir), \
+                mock.patch.object(chat_acciones, "guardar_opcion"), \
+                mock.patch.object(chat_acciones, "anunciar"), \
+                mock.patch.object(chat_recientes.wx, "CallAfter",
+                                  side_effect=lambda fn, *a: fn(*a)):
+            lector = chat_recientes.LecturaRecientes(
+                ventana, _ListaFalsa([]),
+                {"lectura_atajos_globales": True}, None, acciones)
+            lector.activar_arranque()
+            self._manejador(ventana, "chat_filtro_anterior")(mock.Mock())
+        self.assertEqual(chat.filtro, FILTROS[-1][1])
+
+    def test_con_la_casilla_apagada_no_registra_los_del_filtro(self):
+        ventana = _VentanaGlobales()
+        chat_recientes.LecturaRecientes(
+            ventana, _ListaFalsa([]), {}, None)
+        self.assertEqual(ventana.registrados, {})
 
 
 class TestPseudoTextos(unittest.TestCase):

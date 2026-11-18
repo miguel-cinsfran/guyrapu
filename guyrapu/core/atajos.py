@@ -46,6 +46,8 @@ ATAJOS_FIJOS_DEFAULTS = {
     "chat_reciente_8": "ctrl+shift+8",
     "chat_reciente_9": "ctrl+shift+9",
     "chat_reciente_10": "ctrl+shift+0",
+    "chat_filtro_anterior": "ctrl+shift+sc0c",
+    "chat_filtro_siguiente": "ctrl+shift+sc0d",
 }
 
 # Acciones cuya tecla NO debe poder cambiarse en el editor de atajos.
@@ -92,7 +94,7 @@ ATAJOS_GRUPOS = [
      ["chat_reciente_1", "chat_reciente_2", "chat_reciente_3",
       "chat_reciente_4", "chat_reciente_5", "chat_reciente_6",
       "chat_reciente_7", "chat_reciente_8", "chat_reciente_9",
-      "chat_reciente_10"]),
+      "chat_reciente_10", "chat_filtro_anterior", "chat_filtro_siguiente"]),
 ]
 
 # Modificador obligatorio por acción: reproductor → Ctrl, chat → Alt,

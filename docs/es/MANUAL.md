@@ -796,18 +796,25 @@ al llegar al principio o al final suena un aviso.
 | `Ctrl+Alt+A` | Orden aleatorio |
 | `Ctrl+Alt+R` | Cambiar la repetición |
 
-### Mensajes recientes del chat (Ctrl+Mayús y número)
+### Filtro y mensajes recientes del chat (Ctrl+Mayús)
 
 | Atajo | Acción |
 |---|---|
+| `Ctrl+Mayús+'` | Filtro anterior del chat |
+| `Ctrl+Mayús+¿` | Filtro siguiente del chat |
 | `Ctrl+Mayús+1` | Leer el último mensaje |
 | `Ctrl+Mayús+2` a `Ctrl+Mayús+9` | Leer del segundo al noveno desde el final |
 | `Ctrl+Mayús+0` | Leer el décimo desde el final |
 
+Los dos atajos del filtro usan las teclas a la derecha del cero y recorren
+la lista del chat en el orden del menú, con vuelta en los extremos. En el
+teclado de España son `Ctrl+Mayús+'` y `Ctrl+Mayús+¡`; en el de Estados
+Unidos, `Ctrl+Mayús+-` y `Ctrl+Mayús+=`.
+
 Con *Leer mensajes recientes en cualquier aplicación*, en *Preferencias*,
-categoría *Lectura*, estos atajos funcionan también con otra aplicación en
-primer plano. Si otra aplicación ya usa una de estas combinaciones, suena
-un tono y Guyrapu dice cuál.
+categoría *Lectura*, todos estos atajos funcionan también con otra
+aplicación en primer plano. Si otra aplicación ya usa una de estas
+combinaciones, suena un tono y Guyrapu dice cuál.
 
 ## Actualizar
 

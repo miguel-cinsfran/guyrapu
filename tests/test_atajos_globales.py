@@ -117,6 +117,29 @@ class TestCombinacionCtrlMayus(unittest.TestCase):
                 self.assertIsNone(combinacion_ctrl_mayus(texto))
 
 
+class TestCombinacionCtrlMayusFisica(unittest.TestCase):
+
+    def test_una_tecla_fisica_da_la_virtual_de_cada_teclado(self):
+        mods = wx.MOD_CONTROL | wx.MOD_SHIFT
+        with mock.patch.object(atajos_globales.tecla_fisica,
+                               "teclas_virtuales",
+                               side_effect=lambda exploracion: {
+                                   0x0C: [0xDB, 0xBD],
+                                   0x0D: [0xDD, 0xBB],
+                               }[exploracion]):
+            self.assertEqual(combinacion_ctrl_mayus("ctrl+shift+sc0c"),
+                             [(mods, 0xDB), (mods, 0xBD)])
+            self.assertEqual(combinacion_ctrl_mayus("ctrl+shift+sc0d"),
+                             [(mods, 0xDD), (mods, 0xBB)])
+
+    def test_la_tecla_fisica_mal_escrita_no_se_traduce(self):
+        for texto in ("ctrl+shift+sc", "ctrl+shift+sc0",
+                      "ctrl+shift+sc0d0", "ctrl+shift+sczz",
+                      "ctrl+shift+sc0g"):
+            with self.subTest(texto=texto):
+                self.assertIsNone(combinacion_ctrl_mayus(texto))
+
+
 class TestCombinacionFuncion(unittest.TestCase):
 
     def test_las_tres_teclas_de_fabrica(self):
@@ -258,6 +281,46 @@ class TestAtajosGlobales(unittest.TestCase):
         acciones, _llamadas = self._acciones()
         globales = AtajosGlobales(ventana, acciones)
         self.assertEqual(globales.activar({}), [])
+        self.assertFalse(globales.activos)
+
+    def test_una_accion_con_varios_teclados_registra_cada_virtual(self):
+        ventana = _VentanaFalsa()
+        globales = AtajosGlobales(
+            ventana, {"chat_filtro_siguiente": lambda: None},
+            orden=("chat_filtro_siguiente",),
+            traducir=lambda _texto: [(MODS, 0xDD), (MODS, 0xBB)])
+        self.assertEqual(
+            globales.activar({"chat_filtro_siguiente": "ctrl+shift+sc0d"}),
+            [])
+        self.assertEqual({virtual for _mods, virtual in
+                          ventana.registrados.values()}, {0xDD, 0xBB})
+
+    def test_si_falla_un_teclado_el_otro_sigue_y_avisa_una_vez(self):
+        ventana = _VentanaFalsa()
+        ventana.fallan_vk = {0xBB}
+        globales = AtajosGlobales(
+            ventana, {"chat_filtro_siguiente": lambda: None},
+            orden=("chat_filtro_siguiente",),
+            traducir=lambda _texto: [(MODS, 0xDD), (MODS, 0xBB)])
+        with mock.patch.object(atajos_globales, "atajo_legible",
+                               return_value="Ctrl+Mayús+="):
+            fallidos = globales.activar(
+                {"chat_filtro_siguiente": "ctrl+shift+sc0d"})
+        self.assertEqual(fallidos, ["Ctrl+Mayús+="])
+        self.assertEqual(len(ventana.registrados), 1)
+
+    def test_si_fallan_los_dos_teclados_avisa_una_sola_vez(self):
+        ventana = _VentanaFalsa()
+        ventana.fallan_vk = {0xDD, 0xBB}
+        globales = AtajosGlobales(
+            ventana, {"chat_filtro_siguiente": lambda: None},
+            orden=("chat_filtro_siguiente",),
+            traducir=lambda _texto: [(MODS, 0xDD), (MODS, 0xBB)])
+        with mock.patch.object(atajos_globales, "atajo_legible",
+                               return_value="Ctrl+Mayús+="):
+            fallidos = globales.activar(
+                {"chat_filtro_siguiente": "ctrl+shift+sc0d"})
+        self.assertEqual(fallidos, ["Ctrl+Mayús+="])
         self.assertFalse(globales.activos)
 
 

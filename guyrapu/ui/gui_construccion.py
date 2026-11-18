@@ -189,7 +189,7 @@ def construir_pagina_chat(frame, parent) -> wx.Panel:
     # Nace acá, donde ya existe lb_chat.
     from guyrapu.ui import chat_recientes
     frame._recientes = chat_recientes.LecturaRecientes(
-        frame, frame.lb_chat, frame._config, frame._cola)
+        frame, frame.lb_chat, frame._config, frame._cola, frame._chat_acciones)
     return pag
 
 

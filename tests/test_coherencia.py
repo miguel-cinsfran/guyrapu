@@ -12,6 +12,9 @@ import ast
 import re
 import unittest
 from pathlib import Path
+from unittest import mock
+
+from guyrapu.core import tecla_fisica
 
 from guyrapu.core import config as cfg
 from guyrapu.core import config_predeterminada as fabrica
@@ -532,6 +535,16 @@ class PruebaAtajos(unittest.TestCase):
         self.assertEqual(
             faltan, [],
             "Atajos de fábrica que no figuran en MANUAL.md: " + ", ".join(faltan))
+
+    def test_los_atajos_del_filtro_figuran_en_el_manual(self):
+        manual = _atajos_en_manual()
+        with mock.patch.object(
+                tecla_fisica, "texto_tecla",
+                side_effect={0x0C: "'", 0x0D: "¿"}.get):
+            for texto in ("ctrl+shift+sc0c", "ctrl+shift+sc0d"):
+                legible = atajos_captura.atajo_legible(texto)
+                with self.subTest(texto=texto):
+                    self.assertIn(legible, manual)
 
 
 # ── Regla 5: solo lectura con Tab ─────────────────────────────────────────

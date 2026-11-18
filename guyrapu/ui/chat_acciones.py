@@ -32,6 +32,11 @@ IDX_FILTRO     = {"todos": 0, "texto": 1, "superchat": 2, "miembro": 3, "avisos"
 _URL_RE = re.compile(r'https?://[^\s<>"\']+', re.IGNORECASE)
 
 
+def paso_filtro(indice: int, paso: int, cantidad: int) -> int:
+    """Índice del filtro que queda al avanzar `paso` lugares, con vuelta."""
+    return (indice + paso) % cantidad
+
+
 class AccionesChat:
     """Lo que se puede hacer con un mensaje de la lista del chat."""
 
@@ -55,8 +60,20 @@ class AccionesChat:
         from guyrapu.ui.gui import RUTA_CONFIG
         guardar_opcion(RUTA_CONFIG, "ui", "filtro_activo",
                        _NOMBRES_FILTRO[idx] if idx < len(_NOMBRES_FILTRO) else "todos")
+        self._marcar_filtro()
         anunciar(_("Filtro: {filtro}. {n} mensajes").format(
             filtro=_(FILTROS[idx][0]), n=self.lb_chat.GetCount()))
+
+    def _indice_filtro(self) -> int:
+        for indice, (_nombre, valor) in enumerate(FILTROS):
+            if valor == self.chat_vivo.filtro:
+                return indice
+        return 0
+
+    def cambiar_filtro(self, paso: int) -> None:
+        """Elige el filtro anterior o siguiente, con vuelta en los extremos."""
+        self._aplicar_filtro(paso_filtro(self._indice_filtro(), paso,
+                                         len(FILTROS)))
 
     def abrir_busqueda(self) -> None:
         """Abre el cuadro que busca en los mensajes de la sesión."""
@@ -82,7 +99,6 @@ class AccionesChat:
             return False
         if indice not in modelo.visibles:
             self._aplicar_filtro(0)
-            self._marcar_filtro()
         fila = modelo.visibles.index(indice)
         self.lb_chat.SetSelection(fila)
         self.lb_chat.SetFirstItem(fila)

@@ -1,9 +1,9 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Atajos de música que funcionan en cualquier programa.
+"""Atajos que funcionan en cualquier programa.
 
 Mientras están activos, las combinaciones dejan de llegar a los demás
-programas (por eso la casilla viene apagada de fábrica). Lo puro
+programas (por eso la casilla de música viene apagada de fábrica). Lo puro
 (`combinacion_windows`) no toca wx; el registro vive en `AtajosGlobales`,
 que recibe la ventana.
 """
@@ -14,7 +14,7 @@ import re
 
 import wx
 
-from guyrapu.core import diagnostico
+from guyrapu.core import diagnostico, tecla_fisica
 from guyrapu.ui.atajos_captura import atajo_legible
 
 logger = diagnostico.obtener_logger(__name__)
@@ -80,11 +80,13 @@ def combinacion_windows(texto: str | None) -> tuple[int, int] | None:
     return (wx.MOD_CONTROL | wx.MOD_ALT, codigo)
 
 
-def combinacion_ctrl_mayus(texto: str | None) -> tuple[int, int] | None:
-    """Traduce un atajo Ctrl+Mayús+dígito a lo que pide `RegisterHotKey`.
+def combinacion_ctrl_mayus(texto: str | None):
+    """Traduce un atajo Ctrl+Mayús a lo que pide `RegisterHotKey`.
 
-    Devuelve `(wx.MOD_CONTROL | wx.MOD_SHIFT, ord(dígito))`. Cualquier
-    otra cosa da None.
+    Un dígito devuelve `(wx.MOD_CONTROL | wx.MOD_SHIFT, ord(dígito))`. Una
+    tecla física (`sc0c`, `sc0d`) devuelve la lista de combinaciones de cada
+    teclado instalado, sin repetir, porque la misma tecla física cambia de
+    virtual según el teclado. Cualquier otra cosa da None.
     """
     partes = (texto or "").strip().lower().replace(" ", "").split("+")
     if len(partes) != 3:
@@ -95,6 +97,10 @@ def combinacion_ctrl_mayus(texto: str | None) -> tuple[int, int] | None:
         return None
     if len(tecla) == 1 and tecla.isascii() and tecla.isdigit():
         return (wx.MOD_CONTROL | wx.MOD_SHIFT, ord(tecla))
+    if (len(tecla) == 4 and tecla.startswith("sc")
+            and all(c in "0123456789abcdef" for c in tecla[2:])):
+        codigos = tecla_fisica.teclas_virtuales(int(tecla[2:], 16))
+        return [(wx.MOD_CONTROL | wx.MOD_SHIFT, codigo) for codigo in codigos]
     return None
 
 
@@ -149,7 +155,8 @@ class AtajosGlobales:
     `acciones` es un dict `{acción: función}` con lo mismo que llama el
     menú de música. `orden` fija qué acciones se registran y en qué orden
     (el índice da el id desde `base_ids`); `traducir` convierte el texto
-    del atajo en `(modificadores, código virtual)`. Nunca lanza: registrar
+    del atajo en `(modificadores, código virtual)` o en una lista de ellos
+    cuando una tecla física vale en varios teclados. Nunca lanza: registrar
     o soltar puede fallar (otro programa tiene la combinación, la ventana
     se cerró) y se informa con el valor devuelto, no con excepciones.
     """
@@ -161,7 +168,7 @@ class AtajosGlobales:
         self._orden = tuple(orden) if orden is not None else ACCIONES
         self._base_ids = BASE_IDS if base_ids is None else base_ids
         self._traducir = combinacion_windows if traducir is None else traducir
-        self._registrados: dict[str, tuple[int, object]] = {}
+        self._registrados: dict[str, list[tuple[int, object]]] = {}
 
     @property
     def activos(self) -> bool:
@@ -178,6 +185,7 @@ class AtajosGlobales:
         """
         self.desactivar()
         fallidos: list[str] = []
+        siguiente_extra = self._base_ids + len(self._orden)
         for indice, accion in enumerate(self._orden):
             funcion = self._acciones.get(accion)
             if funcion is None:
@@ -189,18 +197,38 @@ class AtajosGlobales:
             combo = self._traducir(valor)
             if combo is None:
                 continue
-            mods, vk = combo
-            ident = self._base_ids + indice
+            combos = [combo] if isinstance(combo, tuple) else list(combo)
+            manejadores, fallo, siguiente_extra = self._registrar(
+                accion, funcion, combos, indice, siguiente_extra)
+            if fallo:
+                fallidos.append(atajo_legible(valor))
+            if manejadores:
+                self._registrados[accion] = manejadores
+        return fallidos
+
+    def _registrar(self, accion, funcion, combos, indice, siguiente_extra):
+        """Registra los códigos de una acción y devuelve qué quedó.
+
+        Los primeros códigos de cada acción usan su id de siempre; los de
+        los teclados siguientes se numeran después para no pisarlos.
+        """
+        manejadores: list[tuple[int, object]] = []
+        fallo = False
+        for numero, (mods, vk) in enumerate(combos):
+            if numero == 0:
+                ident = self._base_ids + indice
+            else:
+                ident = siguiente_extra
+                siguiente_extra += 1
             try:
                 registrado = self._ventana.RegisterHotKey(ident, mods, vk)
             except Exception:
                 registrado = False
             if not registrado:
-                fallidos.append(atajo_legible(valor))
+                fallo = True
                 continue
-            manejador = self._enlazar(ident, accion, funcion)
-            self._registrados[accion] = (ident, manejador)
-        return fallidos
+            manejadores.append((ident, self._enlazar(ident, accion, funcion)))
+        return manejadores, fallo, siguiente_extra
 
     def _enlazar(self, ident: int, accion: str, funcion) -> object:
         """Enlaza `EVT_HOTKEY` a la acción, que corre con `CallAfter`."""
@@ -214,12 +242,13 @@ class AtajosGlobales:
     def desactivar(self) -> None:
         """Suelta todos los registrados. Nunca lanza; dos veces no falla."""
         registrados, self._registrados = self._registrados, {}
-        for _accion, (ident, _manejador) in registrados.items():
-            try:
-                self._ventana.Unbind(wx.EVT_HOTKEY, id=ident)
-            except Exception as error:
-                logger.debug("no se pudo soltar el atajo %s: %s", ident, error)
-            try:
-                self._ventana.UnregisterHotKey(ident)
-            except Exception as error:
-                logger.debug("no se pudo desregistrar el atajo %s: %s", ident, error)
+        for _accion, manejadores in registrados.items():
+            for ident, _manejador in manejadores:
+                try:
+                    self._ventana.Unbind(wx.EVT_HOTKEY, id=ident)
+                except Exception as error:
+                    logger.debug("no se pudo soltar el atajo %s: %s", ident, error)
+                try:
+                    self._ventana.UnregisterHotKey(ident)
+                except Exception as error:
+                    logger.debug("no se pudo desregistrar el atajo %s: %s", ident, error)

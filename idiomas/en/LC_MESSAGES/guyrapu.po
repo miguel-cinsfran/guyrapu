@@ -16760,3 +16760,11 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/atajos_captura.py
+msgid "Filtro anterior del chat"
+msgstr "Previous chat filter"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Filtro siguiente del chat"
+msgstr "Next chat filter"
+

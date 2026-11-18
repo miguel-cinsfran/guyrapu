@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 976ead936b0e402eae5f172df6f6f949bf6ce6a3 -->
+<!-- original: es/MANUAL.md e2e7640f493e4839fd2ce6dfb700a9fedc122595 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -476,15 +476,19 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | `Ctrl+Alt+A` | Shuffle |
 | `Ctrl+Alt+R` | Change the repeat mode |
 
-### Recent chat messages (Ctrl+Shift and a number)
+### Chat filter and recent messages (Ctrl+Shift)
 
 | Shortcut | Action |
 |---|---|
+| `Ctrl+Shift+-` | Previous chat filter |
+| `Ctrl+Shift+=` | Next chat filter |
 | `Ctrl+Shift+1` | Read the last message |
 | `Ctrl+Shift+2` to `Ctrl+Shift+9` | Read from the second to the ninth from the end |
 | `Ctrl+Shift+0` | Read the tenth from the end |
 
-With *Read recent messages in any application*, in *Preferences*, on the *Reading* category, these shortcuts also work with another application in the foreground. If another application already uses one of these combinations, a tone sounds and Guyrapu says which one.
+The two filter shortcuts use the keys to the right of zero and move through the chat list in menu order, wrapping at both ends. On a United States keyboard, these are `Ctrl+Shift+-` and `Ctrl+Shift+=`; on a Spanish keyboard, `Ctrl+Shift+'` and `Ctrl+Shift+¡` or `Ctrl+Shift+¿`.
+
+With *Read recent messages in any application*, in *Preferences*, on the *Reading* category, all these shortcuts also work with another application in the foreground. If another application already uses one of these combinations, a tone sounds and Guyrapu says which one.
 
 ## Updating
 
