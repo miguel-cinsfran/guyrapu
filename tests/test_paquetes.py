@@ -15,6 +15,8 @@ from types import SimpleNamespace
 
 from guyrapu.interaction import paquetes
 
+from tests.letras_acceso import ingles
+
 
 class PaquetesTest(unittest.TestCase):
 
@@ -238,6 +240,35 @@ class PaquetesTest(unittest.TestCase):
         paquetes.extraer_archivos(self.ruta, leido, destino)
         self.assertEqual(codigo, (destino / "script.py").read_bytes())
         self.assertFalse(marca.exists())
+
+    def _encuestas(self):
+        return [
+            {"nombre": "¿Qué pizza?", "pregunta": "¿Qué pizza?",
+             "opciones": ["muzzarella", "napolitana"], "segundos": 120,
+             "destino": "video", "estilo": "clasico"},
+            {"nombre": "¿Qué bebida?", "pregunta": "¿Qué bebida?",
+             "opciones": ["agua", "vino"], "segundos": 300,
+             "destino": "ambos", "estilo": "banda"},
+        ]
+
+    def test_ida_y_vuelta_de_encuestas(self):
+        elementos = self._encuestas()
+        paquetes.exportar(self.ruta, "encuestas", elementos)
+        leido = paquetes.leer(self.ruta, "encuestas")
+        self.assertEqual("encuestas", leido.tipo)
+        self.assertEqual(elementos, leido.elementos)
+
+    def test_el_aviso_de_otro_tipo_nombra_las_encuestas(self):
+        paquetes.exportar(self.ruta, "encuestas", self._encuestas())
+        with self.assertRaises(paquetes.PaqueteRechazado) as contexto:
+            paquetes.leer(self.ruta, "comandos")
+        self.assertEqual("El paquete contiene encuestas, no comandos.",
+                         str(contexto.exception))
+        with ingles():
+            with self.assertRaises(paquetes.PaqueteRechazado) as contexto:
+                paquetes.leer(self.ruta, "comandos")
+            self.assertEqual("The package contains polls, not commands.",
+                             str(contexto.exception))
 
 
 if __name__ == "__main__":

@@ -97,6 +97,10 @@ def comandos() -> Path:
     return carpeta_datos() / "comandos.json"
 
 
+def encuestas() -> Path:
+    return carpeta_datos() / "encuestas.json"
+
+
 def palabras_bloqueadas() -> Path:
     return carpeta_datos() / "palabras_bloqueadas.json"
 

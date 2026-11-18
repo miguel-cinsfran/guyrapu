@@ -70,6 +70,7 @@ SUPERFICIES = {
     "mensajes_automaticos_ventana.py": "mensajes_automaticos",
     "estilos_ventana.py": "estilos",
     "comandos_ventana.py": "comandos",
+    "encuestas_ventana.py": "comandos",
     "palabras_bloqueadas_ventana.py": "mensajes_automaticos",
     "menu_reproductor.py": "menus",
     "menu_transmision.py": "menus",
@@ -179,6 +180,9 @@ SIN_ESCENARIO: dict[str, str] = {
         "arma los desplegables de un estilo; los recorren las pruebas y el "
         "escenario de la ventana que los usa."),
     "comando_cuadro.py": (
+        "el cuadro lo cubren las pruebas con wx; el banco audita la "
+        "ventana que lo abre."),
+    "encuesta_cuadro.py": (
         "el cuadro lo cubren las pruebas con wx; el banco audita la "
         "ventana que lo abre."),
     "menu_habilitado.py": "Prende y apaga elementos de menú y no abre ventana propia.",

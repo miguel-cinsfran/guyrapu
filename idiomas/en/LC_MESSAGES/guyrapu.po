@@ -15504,3 +15504,153 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/interaction/encuestas_guardadas.py
+#, python-brace-format
+msgid "{n} opción"
+msgid_plural "{n} opciones"
+msgstr[0] "{n} option"
+msgstr[1] "{n} options"
+
+#. Traductores: una fila de la lista de encuestas; {pregunta} es la
+#. pregunta, {opciones} cuántas opciones tiene y {duracion} cuánto dura.
+#: guyrapu/interaction/encuestas_guardadas.py
+#, python-brace-format
+msgid "{pregunta}, {opciones}, {duracion}"
+msgstr "{pregunta}, {opciones}, {duracion}"
+
+#. Traductores: lo que se oye al pedir Escuchar una encuesta; {pregunta}
+#. es la pregunta y {opciones} sus opciones separadas por comas.
+#: guyrapu/interaction/encuestas_guardadas.py
+#, python-brace-format
+msgid "Encuesta: {pregunta}. Opciones: {opciones}."
+msgstr "Poll: {pregunta}. Options: {opciones}."
+
+#: guyrapu/interaction/paquetes.py
+msgid "encuestas"
+msgstr "polls"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Agregar encuesta"
+msgstr "Add poll"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Editar encuesta"
+msgstr "Edit poll"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "1 minuto"
+msgstr "1 minute"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "2 minutos"
+msgstr "2 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "3 minutos"
+msgstr "3 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "5 minutos"
+msgstr "5 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "10 minutos"
+msgstr "10 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "15 minutos"
+msgstr "15 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "30 minutos"
+msgstr "30 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Chat de YouTube"
+msgstr "YouTube chat"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Vídeo y chat de YouTube"
+msgstr "Video and YouTube chat"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Pregunta:"
+msgstr "&Question:"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Respuestas, una por línea:"
+msgstr "&Answers, one per line:"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Duración:"
+msgstr "&Duration:"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Mostrar resultado en:"
+msgstr "&Show result in:"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "No hay encuestas. Usa Agregar para crear una."
+msgstr "There are no polls. Use Add to create one."
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Lista de e&ncuestas:"
+msgstr "&Poll list:"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuestas guardadas"
+msgstr "Saved polls"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta agregada"
+msgstr "Poll added"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta guardada"
+msgstr "Poll saved"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta duplicada"
+msgstr "Poll duplicated"
+
+#: guyrapu/ui/encuestas_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar la encuesta «{pregunta}»?"
+msgstr "Delete the poll «{pregunta}»?"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Eliminar encuesta"
+msgstr "Delete poll"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta eliminada"
+msgstr "Poll deleted"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "No hay encuestas para exportar."
+msgstr "There are no polls to export."
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Exportar encuestas"
+msgstr "Export polls"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Importar encuestas"
+msgstr "Import polls"
+
+#: guyrapu/ui/encuestas_ventana.py
+#, python-brace-format
+msgid "Se importó una encuesta."
+msgid_plural "Se importaron {n} encuestas."
+msgstr[0] "One poll imported."
+msgstr[1] "{n} polls imported."
+
+#: guyrapu/ui/encuestas_ventana.py
+#, python-brace-format
+msgid "Ya hay encuestas llamadas {nombres}. ¿Quieres reemplazarlas?"
+msgstr "Polls named {nombres} already exist. Replace them?"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Encuestas"
+msgstr "Polls"
+
