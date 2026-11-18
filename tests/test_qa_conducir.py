@@ -469,6 +469,7 @@ class _AppDeTransmitirDestino:
         self.anuncios = []
         self.pedidos = []
         self.teclas_escritas = []
+        self.pulsados = []
         self.confirmacion = idioma._("Antes de transmitir")
         self.ventanas_actuales = [
             {"titulo": "Guyrapu 3.0.0 beta 2", "visible": True},
@@ -506,7 +507,9 @@ class _AppDeTransmitirDestino:
     def pedir(self, op, **kwargs):
         self.pedidos.append((op, kwargs))
         nombre = kwargs.get("nombre")
-        if op == "pulsar" and nombre == "Transmitir en directo":
+        if op == "cerrar_ventana":
+            self._quitar(kwargs["ventana"])
+        elif op == "pulsar" and nombre == "Transmitir en directo":
             self.ventanas_actuales.append(
                 {"titulo": "Transmitir a", "visible": True})
         elif op == "pulsar" and nombre == "Cancelar":
@@ -540,34 +543,55 @@ class TestFinalesDeTransmitirDestino(unittest.TestCase):
         res = conducir.Resultado()
         nativo = _DialogoNativo("OBS tiene algo que avisar.")
         buscados = []
+        dejar = idioma._("&Dejar como está").replace("&", "")
 
         def buscar(titulo, segundos=8.0):
             buscados.append(titulo)
-            if final == "confirmacion" and not nativo.cerrado:
+            if final in ("confirmacion", "cortina") and not nativo.cerrado:
                 return nativo
             return None
 
         def pulsar(dlg, nombre):
+            app.pulsados.append(nombre)
+            if final == "cortina" and nombre == dejar:
+                dlg.cerrado = True
+                app.ventanas_actuales.append(
+                    {"titulo": "Directo de YouTube", "visible": True})
+                return True
             if nombre != "Cancelar":
                 return False
             dlg.cerrado = True
             return True
 
+        tiempos = [0, 0, 1, 200] if final == "cortina" else [0, 0, 200]
         with mock.patch.object(escenarios_obs, "_destino_guardado_en_disco",
                                return_value=""), \
                 mock.patch.object(escenarios_obs, "obs_abierto",
                                   return_value=False), \
                 mock.patch("guyrapu.core.config.guardar_opcion"), \
                 mock.patch.object(escenarios_obs.time, "time",
-                                  side_effect=[0, 0, 200]), \
+                                  side_effect=tiempos), \
                 mock.patch.object(escenarios_obs, "dialogo_nativo",
                                   side_effect=buscar), \
                 mock.patch.object(escenarios_obs, "_textos_de",
                                   side_effect=lambda dlg: [dlg.texto]), \
+                mock.patch.object(escenarios_obs, "_auditar_ventana"), \
                 mock.patch.object(escenarios_obs, "pulsar_boton_nativo",
                                   side_effect=pulsar):
             escenarios_obs.escenario_transmitir_destino(app, None, res)
         return app, res, nativo, buscados
+
+    def test_la_cortina_de_nvda_se_deja_como_esta_y_sigue(self):
+        app, res, nativo, _buscados = self._correr("cortina")
+
+        dejar = idioma._("&Dejar como está").replace("&", "")
+        self.assertEqual(res.fallos, [])
+        self.assertTrue(nativo.cerrado)
+        self.assertIn(dejar, app.pulsados)
+        self.assertNotIn("Cambiar a Windows 10", app.pulsados)
+        self.assertTrue(any("OBS tiene algo que avisar" in n
+                            for n in res.notas))
+        self.assertTrue(any(dejar in n for n in res.notas))
 
     def test_la_confirmacion_antes_de_transmitir_cancela_y_no_falla(self):
         app, res, nativo, buscados = self._correr("confirmacion")

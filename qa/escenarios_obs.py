@@ -577,8 +577,8 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
 
         # La revisión de OBS corre en un hilo: el diálogo tarda lo que tarde.
         # Se espera a cualquiera de los finales: el diálogo de YouTube, el de
-        # confirmación de TikTok (la lista no era YouTube), la confirmación
-        # «Antes de transmitir» cuando la revisión tiene algo que avisar, o un
+        # confirmación de TikTok (la lista no era YouTube), la pregunta
+        # «Antes de transmitir» de la cortina o de la confirmación, o un
         # anuncio que explique por qué no hay diálogo (sin sesión, sin OBS, o
         # ya al aire, que también vale: no se interfiere con lo que ya emite).
         from guyrapu.core.idioma import _
@@ -597,9 +597,21 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
             if any(t.strip() == "Panel de OBS" for t in visibles):
                 motivo = "tiktok"
                 break
-            if dialogo_nativo(confirmacion, segundos=0.5) is not None:
-                motivo = "confirmacion"
-                break
+            dlg = dialogo_nativo(confirmacion, segundos=0.5)
+            if dlg is not None:
+                texto = " ".join(_textos_de(dlg))
+                res.nota(f"transmitir_destino: «{confirmacion}» avisa: {texto}")
+                dejar = _("&Dejar como está").replace("&", "")
+                if pulsar_boton_nativo(dlg, dejar):
+                    res.nota(f"transmitir_destino: se pulsó «{dejar}»")
+                    continue
+                if not pulsar_boton_nativo(dlg, "Cancelar"):
+                    res.fallo("transmitir_destino: no se pudo pulsar «Cancelar» "
+                              f"en «{confirmacion}»")
+                elif dialogo_nativo(confirmacion, segundos=4.0) is not None:
+                    res.fallo(f"transmitir_destino: «{confirmacion}» no cerró "
+                              "con «Cancelar»")
+                return
             dichos = " ".join(a.get("texto", "") for a in app.anuncios[n:])
             dichos = dichos.lower()
             if "sesión" in dichos or "sesion" in dichos:
@@ -615,17 +627,6 @@ def escenario_transmitir_destino(app: Aplicacion, args, res: Resultado):
                 break
             time.sleep(1.0)
 
-        if motivo == "confirmacion":
-            dlg = dialogo_nativo(confirmacion, segundos=2.0)
-            texto = " ".join(_textos_de(dlg)) if dlg is not None else ""
-            res.nota(f"transmitir_destino: «{confirmacion}» avisa: {texto}")
-            if dlg is None or not pulsar_boton_nativo(dlg, "Cancelar"):
-                res.fallo("transmitir_destino: no se pudo pulsar «Cancelar» "
-                          f"en «{confirmacion}»")
-            elif dialogo_nativo(confirmacion, segundos=4.0) is not None:
-                res.fallo(f"transmitir_destino: «{confirmacion}» no cerró "
-                          "con «Cancelar»")
-            return
         if motivo == "tiktok":
             res.fallo("transmitir_destino: «Continuar» llevó al Panel de OBS, "
                       "o sea que el destino no era YouTube")
