@@ -207,7 +207,7 @@ class TestVentana(unittest.TestCase):
                       "Desde el código fuente no se instala: "
                       "se actualiza con git.", ventana.anuncios)
         self.assertEqual(["novedades"], ventana.notas_vistas)
-        self.assertEqual("&Abrir la página", ventana.accion_etiqueta)
+        self.assertEqual("&Abrir página", ventana.accion_etiqueta)
         ventana.pulsar_accion()
         red.assert_called_once_with(actualizacion.URL_PAGINA_RELEASES)
 
@@ -216,7 +216,7 @@ class TestVentana(unittest.TestCase):
             consultar=_paquete(VERSION_NUEVA), frozen=True, admite=False)
         self.assertIn("La carpeta de la aplicación no admite cambios. Se puede "
                       "descargar manualmente desde la página.", ventana.anuncios[-1])
-        self.assertEqual("&Abrir la página", ventana.accion_etiqueta)
+        self.assertEqual("&Abrir página", ventana.accion_etiqueta)
         ventana.pulsar_accion()
         red.assert_called_once_with(actualizacion.URL_PAGINA_RELEASES)
 

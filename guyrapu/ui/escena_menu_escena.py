@@ -11,7 +11,7 @@ _ACCIONES = (
     ("cambiar", N_("&Cambiar escena"), "intro"),
     ("renombrar", N_("Cambiar &nombre…"), "f2"),
     ("duplicar", N_("&Duplicar"), "ctrl+d"),
-    ("vertical", N_("Crear la versión &vertical"), None),
+    ("vertical", N_("Crear versión &vertical"), None),
     ("eliminar", N_("E&liminar"), "suprimir"),
     ("guardar", N_("&Guardar imagen…"), None),
 )

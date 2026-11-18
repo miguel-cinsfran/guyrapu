@@ -339,15 +339,15 @@ class TestLetrasAccesoPanelObs(unittest.TestCase):
 
     def test_general_tiene_el_boton_de_probar_el_equipo(self):
         boton_equipo = self.dialogo._pagina_general.btn_probar_equipo
-        self.assertEqual(boton_equipo.GetLabel(), _("Probar el e&quipo…"))
-        self.assertEqual(boton_equipo.GetName(), _("Probar el equipo…"))
+        self.assertEqual(boton_equipo.GetLabel(), _("Probar e&quipo…"))
+        self.assertEqual(boton_equipo.GetName(), _("Probar equipo…"))
 
     def test_general_tiene_el_boton_de_probar_la_conexion(self):
         boton_conexion = self.dialogo._pagina_general.btn_probar_conexion
         self.assertEqual(boton_conexion.GetLabel(),
-                         _("Probar la co&nexión…"))
+                         _("Probar co&nexión…"))
         self.assertEqual(boton_conexion.GetName(),
-                         _("Probar la conexión…"))
+                         _("Probar conexión…"))
 
     def test_etiquetas_alternativas_de_grabacion(self):
         grabacion = self.dialogo._pagina_grabacion._grabacion

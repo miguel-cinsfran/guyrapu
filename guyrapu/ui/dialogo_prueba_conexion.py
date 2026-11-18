@@ -67,7 +67,7 @@ class DialogoPruebaConexion(wx.Dialog):
     """El cuadro previo: qué se va a hacer y con qué perfil."""
 
     def __init__(self, padre, perfil, bitrate, segundos_maximos):
-        super().__init__(padre, title=_("Probar la conexión"),
+        super().__init__(padre, title=_("Probar conexión"),
                          name="DialogoPruebaConexion")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_detalle = wx.TextCtrl(

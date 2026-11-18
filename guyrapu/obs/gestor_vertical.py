@@ -25,7 +25,7 @@ MENSAJE_CORTE = N_(
 MENSAJE_VUELTA = N_("El vertical volvió.")
 MENSAJE_SIN_PAREJA = N_(
     "La escena {escena} no tiene versión vertical: el vertical sigue en "
-    "{vertical}. Créala con Crear la versión vertical.")
+    "{vertical}. Créala con Crear versión vertical.")
 MENSAJE_FIN = N_("También se detuvo el vertical.")
 
 INTERVALO_REINTENTO = 30.0

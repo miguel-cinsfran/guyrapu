@@ -317,7 +317,7 @@ def revisar(cliente, destino, parada=None, grabar=False,
             and escena_gemela.original_de(escena, escenas) is None
             and escena_gemela.nombre_gemela(escena) not in escenas):
         avisos.append(_("La escena {escena} no tiene versión vertical: créala "
-                        "con Crear la versión vertical, en el menú de la "
+                        "con Crear versión vertical, en el menú de la "
                         "escena del Panel de OBS.").format(escena=escena))
     if grabar and obs_grabacion.codificador_propio_en_obs(
             cliente, parada) is True:

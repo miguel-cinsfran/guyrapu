@@ -14,7 +14,7 @@ import wx
 from guyrapu.core.idioma import _
 
 # Las dos entradas del menú de eventos comparten esta etiqueta.
-ABRIR_DIRECTO = _("&Abrir el directo")
+ABRIR_DIRECTO = _("&Abrir directo")
 
 
 def menu_destino(destino, acciones):
@@ -31,7 +31,7 @@ def menu_destino(destino, acciones):
 
 
 def menu_evento(acciones, enlaces):
-    """El menú de un evento; con varios enlaces, Abrir el directo es submenú."""
+    """El menú de un evento; con varios enlaces, Abrir directo es submenú."""
     menu = wx.Menu()
     _accion(menu, _("&Copiar enlaces") + "\tCtrl+C", acciones.copiar)
     _accion(menu, _("Copiar &información"), acciones.copiar_informacion)

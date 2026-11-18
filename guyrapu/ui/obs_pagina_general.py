@@ -53,8 +53,8 @@ class PaginaGeneral(wx.Panel):
         self.btn_cerrar = boton(
             self, _("&Cerrar OBS"), nombre_de_etiqueta(_("&Cerrar OBS")))
         self.btn_probar_equipo = boton(
-            self, _("Probar el e&quipo…"), _("Probar el equipo…"))
-        self.btn_probar_conexion = boton(self, _("Probar la co&nexión…"), _("Probar la conexión…"))
+            self, _("Probar e&quipo…"), _("Probar equipo…"))
+        self.btn_probar_conexion = boton(self, _("Probar co&nexión…"), _("Probar conexión…"))
 
     def _fila_botones(self):
         fila = wx.BoxSizer(wx.HORIZONTAL)

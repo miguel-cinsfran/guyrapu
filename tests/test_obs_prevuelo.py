@@ -170,9 +170,9 @@ class RevisarTest(unittest.TestCase):
         revision = revisar(doble, "TikTok")
         self.assertEqual(revision.problemas, ())
         self.assertEqual(revision.avisos, (
-            "La escena Escena no tiene versión vertical: créala con Crear la "
+            "La escena Escena no tiene versión vertical: créala con Crear "
             "versión vertical, en el menú de la escena del Panel de OBS.",))
-        self.assertIn("Crear la versión vertical",
+        self.assertIn("Crear versión vertical",
                       frase_revision(revision))
 
     def test_con_version_vertical_no_avisa(self):

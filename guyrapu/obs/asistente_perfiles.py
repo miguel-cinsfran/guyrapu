@@ -114,7 +114,7 @@ def lineas_resumen(resultado, tiktok_sin_restream=True):
                 "«Editar ajustes» del perfil «{nombre}».").format(
                     nombre=vertical))
         lineas.append(_(
-            "Crea la versión vertical de las escenas con «Crear la versión "
+            "Crea la versión vertical de las escenas con «Crear versión "
             "vertical»."))
     return tuple(lineas)
 

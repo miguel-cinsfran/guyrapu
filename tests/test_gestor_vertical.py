@@ -250,7 +250,7 @@ class EscenasTest(BaseGestorVertical):
                   if aviso[1] == "aviso"]
         self.assertEqual(avisos, [(
             _("La escena {escena} no tiene versión vertical: el vertical "
-              "sigue en {vertical}. Créala con Crear la versión vertical.")
+              "sigue en {vertical}. Créala con Crear versión vertical.")
             .format(escena="Charla", vertical="Juego vertical"), "aviso")])
         self.assertEqual(lienzo.actual, "Juego vertical")
         self.assertNotIn(("cambiar", "Charla vertical"), lienzo.llamadas)

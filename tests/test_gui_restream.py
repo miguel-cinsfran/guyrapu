@@ -1320,7 +1320,7 @@ class PruebaPaginaEventos(unittest.TestCase):
         self.addCleanup(menu.Destroy)
         self.assertEqual(
             ["&Copiar enlaces\tCtrl+C", "Copiar &información",
-             "&Abrir el directo", "&Estadísticas\tEnter"],
+             "&Abrir directo", "&Estadísticas\tEnter"],
             [elemento.GetItemLabel() for elemento in menu.GetMenuItems()])
 
         menu = restream_menus.menu_evento(
@@ -1328,7 +1328,7 @@ class PruebaPaginaEventos(unittest.TestCase):
                        ("YouTube: dos", "https://b")])
         self.addCleanup(menu.Destroy)
         abrir = next(elemento for elemento in menu.GetMenuItems()
-                     if elemento.GetItemLabel() == "&Abrir el directo")
+                     if elemento.GetItemLabel() == "&Abrir directo")
         self.assertIsNotNone(abrir.GetSubMenu())
         self.assertEqual(
             ["TikTok: uno", "YouTube: dos"],

@@ -287,7 +287,7 @@ class _FlujoActualizacion:
     def _ofrecer_pagina(self, paquete):
         if paquete.notas:
             self.ventana.notas(paquete.notas)
-        self.ventana.ofrecer_accion(_("&Abrir la página"), self._abrir_pagina)
+        self.ventana.ofrecer_accion(_("&Abrir página"), self._abrir_pagina)
 
     def _abrir_pagina(self):
         try:

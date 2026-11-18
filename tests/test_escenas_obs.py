@@ -181,7 +181,7 @@ class TestAccionesDeEscena(unittest.TestCase):
         self.assertEqual(
             [accion.etiqueta for accion in acciones],
             ["&Cambiar escena", "Cambiar &nombre…", "&Duplicar",
-             "Crear la versión &vertical", "E&liminar", "&Guardar imagen…"])
+             "Crear versión &vertical", "E&liminar", "&Guardar imagen…"])
         self.assertEqual(
             [accion.tecla for accion in acciones],
             ["intro", "f2", "ctrl+d", None, "suprimir", None])

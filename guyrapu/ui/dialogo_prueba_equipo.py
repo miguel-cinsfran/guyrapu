@@ -86,7 +86,7 @@ class DialogoPruebaEquipo(wx.Dialog):
 
     def __init__(self, padre, perfil, ajustes, segundos_maximos,
                  vertical=False):
-        super().__init__(padre, title=_("Probar el equipo"),
+        super().__init__(padre, title=_("Probar equipo"),
                          name="DialogoPruebaEquipo")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_detalle = wx.TextCtrl(

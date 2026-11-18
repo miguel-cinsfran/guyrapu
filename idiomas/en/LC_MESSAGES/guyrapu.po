@@ -4529,7 +4529,7 @@ msgstr ""
 "settings” of the “{nombre}” profile."
 
 #: guyrapu/obs/asistente_perfiles.py
-msgid "Crea la versión vertical de las escenas con «Crear la versión vertical»."
+msgid "Crea la versión vertical de las escenas con «Crear versión vertical»."
 msgstr "Create the vertical version of the scenes with “Create vertical version”."
 
 #: guyrapu/obs/asistente_perfiles.py
@@ -5046,7 +5046,7 @@ msgstr "The vertical stream is back."
 #, python-brace-format
 msgid ""
 "La escena {escena} no tiene versión vertical: el vertical sigue en "
-"{vertical}. Créala con Crear la versión vertical."
+"{vertical}. Créala con Crear versión vertical."
 msgstr ""
 "Scene {escena} has no vertical version: the vertical stream stays on "
 "{vertical}. Create it with Create vertical version."
@@ -5998,7 +5998,7 @@ msgstr ""
 #: guyrapu/obs/obs_prevuelo.py
 #, python-brace-format
 msgid ""
-"La escena {escena} no tiene versión vertical: créala con Crear la versión "
+"La escena {escena} no tiene versión vertical: créala con Crear versión "
 "vertical, en el menú de la escena del Panel de OBS."
 msgstr ""
 "The scene {escena} has no vertical version: create it with Create vertical "
@@ -9058,10 +9058,10 @@ msgstr "Delete command"
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_edicion_fuente.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/metas_ventana.py guyrapu/ui/musica_ventana_acciones.py
-#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/palabras_bloqueadas_ventana.py
-#: guyrapu/ui/restream_menus.py guyrapu/ui/restream_pagina_destinos.py
-#: guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/metas_ventana.py guyrapu/ui/musica_menus.py
+#: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/palabras_bloqueadas_ventana.py guyrapu/ui/restream_menus.py
+#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Eliminar"
 msgstr "&Delete"
 
@@ -9775,7 +9775,7 @@ msgid "Quedó pendiente: {errores}"
 msgstr "Left pending: {errores}"
 
 #: guyrapu/ui/dialogo_prueba_conexion.py
-msgid "Probar la conexión"
+msgid "Probar conexión"
 msgstr "Test connection"
 
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
@@ -9900,7 +9900,7 @@ msgid "No se pudo eliminar la grabación de la prueba: {rutas}."
 msgstr "Could not delete the test recording: {rutas}."
 
 #: guyrapu/ui/dialogo_prueba_equipo.py
-msgid "Probar el equipo"
+msgid "Probar equipo"
 msgstr "Test computer"
 
 #: guyrapu/ui/dialogo_prueba_equipo.py
@@ -10729,7 +10729,7 @@ msgid "Cambiar &nombre…"
 msgstr "Change &name…"
 
 #: guyrapu/ui/escena_menu_escena.py
-msgid "Crear la versión &vertical"
+msgid "Crear versión &vertical"
 msgstr "Create &vertical version"
 
 #: guyrapu/ui/escena_menu_escena.py
@@ -11627,7 +11627,7 @@ msgid ""
 msgstr "Could not check for a new version. Check the internet connection."
 
 #: guyrapu/ui/gui_actualizar_app.py
-msgid "&Abrir la página"
+msgid "&Abrir página"
 msgstr "&Open the page"
 
 #: guyrapu/ui/gui_actualizar_app.py
@@ -12652,7 +12652,7 @@ msgid "Re&troceder 10 segundos"
 msgstr "Rew&ind 10 seconds"
 
 #: guyrapu/ui/gui_menu.py
-msgid "Silenciar la &música"
+msgid "Silenciar &música"
 msgstr "Mute the &music"
 
 #: guyrapu/ui/gui_menu.py
@@ -13601,7 +13601,7 @@ msgstr ""
 msgid "No hay mensajes automáticos. Usa Agregar para crear uno."
 msgstr "There are no scheduled messages. Use Add to create one."
 
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/musica_menus.py
 msgid "&Subir"
 msgstr "Move &up"
 
@@ -14035,7 +14035,7 @@ msgstr "&YouTube link:"
 msgid "Enlace de YouTube"
 msgstr "YouTube link"
 
-#: guyrapu/ui/musica_dialogo_enlace.py
+#: guyrapu/ui/musica_dialogo_enlace.py guyrapu/ui/musica_menus.py
 msgid "Reproducir &ahora"
 msgstr "Play &now"
 
@@ -14134,6 +14134,68 @@ msgid ""
 "Música"
 msgstr "Music folder not found. Choose another one in Preferences, Music category"
 
+#: guyrapu/ui/musica_menus.py
+msgid "Reproducir a &continuación"
+msgstr "Play ne&xt"
+
+#: guyrapu/ui/musica_menus.py
+msgid "A&gregar a la cola"
+msgstr "A&dd to queue"
+
+#: guyrapu/ui/musica_menus.py
+msgid "Reproducir &todo desde aquí"
+msgstr "Play &all from here"
+
+#: guyrapu/ui/musica_menus.py
+msgid "Agregar a una &lista"
+msgstr "Add to a &playlist"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Eliminar de esta lista"
+msgstr "&Remove from this list"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Reproducir"
+msgstr "&Play"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Editar la lista…"
+msgstr "&Edit playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Cambiar nombre de la lista…"
+msgstr "&Rename playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Borrar la lista…"
+msgstr "Delete play&list…"
+
+#. Traductores: crea una lista nueva; segunda, su nombre accesible.
+#: guyrapu/ui/musica_menus.py guyrapu/ui/musica_ventana.py
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "&Nueva lista…"
+msgstr "&New playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Bajar"
+msgstr "Move do&wn"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Ir al que suena"
+msgstr "&Go to the one playing"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Mezclar la cola"
+msgstr "&Shuffle the queue"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Vaciar la cola"
+msgstr "&Clear the queue"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Guardar la cola como lista…"
+msgstr "Sa&ve the queue as a playlist…"
+
 #. Traductores: nombre accesible de la lista de colecciones; una palabra.
 #: guyrapu/ui/musica_ventana.py
 msgid "Colecciones"
@@ -14172,11 +14234,6 @@ msgstr "Son&gs:"
 #: guyrapu/ui/musica_ventana.py
 msgid "Abrir &enlace…"
 msgstr "Open lin&k…"
-
-#. Traductores: crea una lista nueva; segunda, su nombre accesible.
-#: guyrapu/ui/musica_ventana.py
-msgid "&Nueva lista…"
-msgstr "&New playlist…"
 
 #: guyrapu/ui/musica_ventana.py
 msgid "Cambiar car&peta…"
@@ -14219,12 +14276,20 @@ msgid "La cola está vacía. Elige un tema y pulsa Ctrl+Intro para agregarlo."
 msgstr "The queue is empty. Choose a song and press Ctrl+Enter to add it."
 
 #: guyrapu/ui/musica_ventana_acciones.py
+msgid "No hay canciones. Cambia la búsqueda, los filtros o la carpeta."
+msgstr "No songs. Change the search, the filters, or the folder."
+
+#: guyrapu/ui/musica_ventana_acciones.py
 msgid "No suena ningún tema"
 msgstr "No song is playing"
 
 #: guyrapu/ui/musica_ventana_acciones.py
 msgid "La cola está vacía"
 msgstr "The queue is empty"
+
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid "Solo en una lista propia"
+msgstr "Only in one of your lists"
 
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/preferencias_musica.py
 msgid "Elige la carpeta de música"
@@ -14263,19 +14328,19 @@ msgid "&Cerrar OBS"
 msgstr "&Close OBS"
 
 #: guyrapu/ui/obs_pagina_general.py
-msgid "Probar el e&quipo…"
+msgid "Probar e&quipo…"
 msgstr "Test the co&mputer…"
 
 #: guyrapu/ui/obs_pagina_general.py
-msgid "Probar el equipo…"
+msgid "Probar equipo…"
 msgstr "Test computer…"
 
 #: guyrapu/ui/obs_pagina_general.py
-msgid "Probar la co&nexión…"
+msgid "Probar co&nexión…"
 msgstr "Test the co&nnection…"
 
 #: guyrapu/ui/obs_pagina_general.py
-msgid "Probar la conexión…"
+msgid "Probar conexión…"
 msgstr "Test connection…"
 
 #: guyrapu/ui/obs_pagina_grabacion.py
@@ -15775,7 +15840,7 @@ msgid "Falta la clave de transmisión."
 msgstr "The stream key is missing."
 
 #: guyrapu/ui/restream_menus.py
-msgid "&Abrir el directo"
+msgid "&Abrir directo"
 msgstr "&Open live"
 
 #: guyrapu/ui/restream_menus.py
@@ -16643,68 +16708,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/musica_menus.py
-msgid "Reproducir a &continuación"
-msgstr "Play ne&xt"
-
-#: guyrapu/ui/musica_menus.py
-msgid "A&gregar a la cola"
-msgstr "A&dd to queue"
-
-#: guyrapu/ui/musica_menus.py
-msgid "Reproducir &todo desde aquí"
-msgstr "Play &all from here"
-
-#: guyrapu/ui/musica_menus.py
-msgid "Agregar a una &lista"
-msgstr "Add to a &playlist"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Eliminar de esta lista"
-msgstr "&Remove from this list"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Reproducir"
-msgstr "&Play"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Editar la lista…"
-msgstr "&Edit playlist…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Cambiar nombre de la lista…"
-msgstr "&Rename playlist…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Borrar la lista…"
-msgstr "Delete play&list…"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Bajar"
-msgstr "Move do&wn"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Ir al que suena"
-msgstr "&Go to the one playing"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Mezclar la cola"
-msgstr "&Shuffle the queue"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Vaciar la cola"
-msgstr "&Clear the queue"
-
-#: guyrapu/ui/musica_menus.py
-msgid "&Guardar la cola como lista…"
-msgstr "Sa&ve the queue as a playlist…"
-
-#: guyrapu/ui/musica_ventana_acciones.py
-msgid "No hay canciones. Cambia la búsqueda, los filtros o la carpeta."
-msgstr "No songs. Change the search, the filters, or the folder."
-
-#: guyrapu/ui/musica_ventana_acciones.py
-msgid "Solo en una lista propia"
-msgstr "Only in one of your lists"
 

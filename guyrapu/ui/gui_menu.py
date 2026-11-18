@@ -369,7 +369,7 @@ def _construir_menu_musica(frame, mb):
         wx.ID_ANY, _("Re&troceder 10 segundos") + frame._accel("musica_retroceder"))
     m.AppendSeparator()
     frame.mi_musica_silenciar = m.AppendCheckItem(
-        wx.ID_ANY, _("Silenciar la &música") + frame._accel("musica_silenciar"))
+        wx.ID_ANY, _("Silenciar &música") + frame._accel("musica_silenciar"))
     mi_detener = m.Append(
         wx.ID_ANY, _("&Detener música") + frame._accel("musica_detener"))
     frame.mi_musica_aleatorio = m.AppendCheckItem(

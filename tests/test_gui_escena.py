@@ -565,11 +565,11 @@ class TestVentanaObs(unittest.TestCase):
         self.assertEqual(
             etiquetas,
             ["Cambiar escena", "Cambiar nombre…", "Duplicar",
-             "Crear la versión vertical", "Eliminar", "Guardar imagen…"])
+             "Crear versión vertical", "Eliminar", "Guardar imagen…"])
         self.assertEqual(
             [texto.split("\t")[-1] for texto in textos[:3]],
             ["Enter", "F2", "Ctrl+D"])
-        self.assertEqual(textos[3], "Crear la versión &vertical")
+        self.assertEqual(textos[3], "Crear versión &vertical")
         self.assertEqual(textos[4].split("\t")[-1], "Del")
         self.assertEqual(textos[5], "&Guardar imagen…")
 

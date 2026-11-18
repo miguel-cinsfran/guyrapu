@@ -270,7 +270,7 @@ class TestResumen(unittest.TestCase):
         self.assertIn("Fotogramas por segundo: 30 a 24.", texto)
         self.assertIn("Perfil viejo", texto)
         self.assertIn("Editar ajustes", texto)
-        self.assertIn("Crear la versión vertical", texto)
+        self.assertIn("Crear versión vertical", texto)
 
 
 if __name__ == "__main__":
