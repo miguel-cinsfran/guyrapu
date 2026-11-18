@@ -1,7 +1,7 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Ventana Interacción: mensajes, comandos, encuestas, medios, estilos y
-palabras bloqueadas.
+"""Ventana Interacción: mensajes, comandos, encuestas, disparadores, medios,
+estilos y palabras bloqueadas.
 
 Una sola ventana con una lista de páginas, como Preferencias. La página se
 elige por su identificador y se recuerda al cerrar.
@@ -15,6 +15,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.comandos_ventana import PanelComandos
+from guyrapu.ui.disparadores_ventana import PanelDisparadores
 from guyrapu.ui.encuestas_ventana import PanelEncuestas
 from guyrapu.ui.estilos_ventana import PanelEstilos
 from guyrapu.ui.medios_ventana import PanelMedios
@@ -26,6 +27,7 @@ PAGINAS = (
     ("mensajes", N_("Mensajes automáticos")),
     ("comandos", N_("Comandos")),
     ("encuestas", N_("Encuestas")),
+    ("disparadores", N_("Disparadores")),
     ("medios", N_("Medios")),
     ("estilos", N_("Estilos")),
     ("palabras", N_("Palabras bloqueadas")),
@@ -54,6 +56,7 @@ class VentanaInteraccion(wx.Dialog):
             self.libro, padre)
         self._paginas["comandos"] = PanelComandos(self.libro)
         self._paginas["encuestas"] = PanelEncuestas(self.libro)
+        self._paginas["disparadores"] = PanelDisparadores(self.libro)
         self._paginas["medios"] = PanelMedios(self.libro)
         self._paginas["estilos"] = PanelEstilos(self.libro)
         self._paginas["palabras"] = PanelPalabrasBloqueadas(self.libro)

@@ -71,6 +71,7 @@ SUPERFICIES = {
     "estilos_ventana.py": "estilos",
     "comandos_ventana.py": "comandos",
     "encuestas_ventana.py": "comandos",
+    "disparadores_ventana.py": "comandos",
     "medios_ventana.py": "comandos",
     "palabras_bloqueadas_ventana.py": "mensajes_automaticos",
     "menu_reproductor.py": "menus",
@@ -200,6 +201,9 @@ SIN_ESCENARIO: dict[str, str] = {
         "el cuadro lo cubren las pruebas con wx; el banco audita la "
         "ventana que lo abre."),
     "encuesta_cuadro.py": (
+        "el cuadro lo cubren las pruebas con wx; el banco audita la "
+        "ventana que lo abre."),
+    "disparador_cuadro.py": (
         "el cuadro lo cubren las pruebas con wx; el banco audita la "
         "ventana que lo abre."),
     "medio_cuadro.py": (

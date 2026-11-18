@@ -1,0 +1,263 @@
+# Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
+# SPDX-License-Identifier: GPL-3.0-only
+"""Cuadro del disparador: campos, nombres accesibles, validación y datos.
+
+Abre ventanas.
+"""
+
+import tempfile
+import unittest
+from unittest import mock
+
+import wx
+
+from guyrapu.core import paths
+from guyrapu.core.idioma import _
+from guyrapu.interaction import disparadores, medios_guardados
+from guyrapu.ui import disparador_cuadro
+from tests.letras_acceso import letras_repetidas
+from tests.rutas_temporales import redirigir_rutas
+from tests.ventanas_prueba import app_de_prueba, destruir
+
+NOMBRES_ACCESIBLES = (
+    "Nombre", "Cuándo", "Comandos del chat", "Evento", "Cantidad mínima",
+    "Medio", "Texto de la tarjeta", "Estilo", "Segundos en pantalla",
+    "Permiso", "Nombres permitidos", "Espera general (segundos)",
+    "Espera por persona (segundos)", "Aceptar", "Cancelar")
+
+ETIQUETAS = (
+    "&Nombre:", "C&uándo:", "Co&mandos del chat:", "&Evento:",
+    "Cantidad mín&ima:", "Me&dio:", "&Texto de la tarjeta:", "Esti&lo:",
+    "&Segundos en pantalla:", "Pe&rmiso:", "Nombres &permitidos:",
+    "Espera &general (segundos):", "Espera por pers&ona (segundos):")
+
+
+class BaseCuadro(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        parche = redirigir_rutas(self.tmp.name)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        medios_guardados.guardar(paths.medios(), [{
+            "nombre": "aplauso.gif", "tipo": "imagen",
+            "archivo": "aplauso.gif"}])
+
+    def _cuadro(self, datos=None, otros=()):
+        cuadro = disparador_cuadro.DialogoDisparador(
+            None, datos or {}, otros)
+        self.addCleanup(destruir, cuadro)
+        return cuadro
+
+    def _aceptar_con_error(self, cuadro):
+        with mock.patch.object(disparador_cuadro, "anunciar") as decir, \
+                mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_not_called()
+        return decir
+
+
+class TestCampos(BaseCuadro):
+
+    def test_los_campos_van_en_el_orden_pedido(self):
+        panel = self._cuadro().GetChildren()[0]
+        etiquetas = [hijo.GetLabel() for hijo in panel.GetChildren()
+                     if isinstance(hijo, wx.StaticText)]
+        self.assertEqual(tuple(etiquetas), ETIQUETAS)
+
+    def test_cada_control_tiene_el_nombre_accesible_de_su_rotulo(self):
+        cuadro = self._cuadro()
+        controles = (
+            cuadro.txt_nombre, cuadro.cho_cuando, cuadro.txt_comandos,
+            cuadro.cho_evento, cuadro.txt_minimo, cuadro.cho_medio,
+            cuadro.txt_tarjeta, cuadro.cho_estilo, cuadro.sp_segundos,
+            cuadro.cho_permiso, cuadro.txt_nombres, cuadro.sp_espera,
+            cuadro.sp_persona, cuadro.btn_aceptar, cuadro.btn_cancelar)
+        self.assertEqual(
+            tuple(control.GetName() for control in controles),
+            NOMBRES_ACCESIBLES)
+
+    def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
+        self.assertEqual(letras_repetidas(self._cuadro()), {})
+
+    def test_el_foco_nace_en_el_nombre(self):
+        cuadro = self._cuadro()
+        cuadro.Show()
+        try:
+            self.assertIs(wx.Window.FindFocus(), cuadro.txt_nombre)
+        finally:
+            cuadro.Hide()
+
+    def test_las_opciones_del_cuando_y_del_evento(self):
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_cuando.GetStrings(),
+                         ["Comando del chat", "Evento del directo"])
+        self.assertEqual(
+            cuadro.cho_evento.GetStrings(),
+            [_(disparadores.NOMBRES_EVENTOS[clave])
+             for clave in disparadores.EVENTOS_DEL_DIRECTO])
+
+    def test_el_medio_trae_la_biblioteca_y_ninguno(self):
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_medio.GetStrings(),
+                         ["Ninguno", "aplauso.gif"])
+
+    def test_los_segundos_y_las_esperas_tienen_sus_topes(self):
+        cuadro = self._cuadro()
+        self.assertEqual(
+            (cuadro.sp_segundos.GetMin(), cuadro.sp_segundos.GetMax()),
+            (3, 60))
+        self.assertEqual(
+            (cuadro.sp_espera.GetMin(), cuadro.sp_espera.GetMax()),
+            (0, 3600))
+        self.assertEqual(
+            (cuadro.sp_persona.GetMin(), cuadro.sp_persona.GetMax()),
+            (0, 3600))
+
+    def test_escape_cierra_el_cuadro(self):
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+        cuadro = self._cuadro()
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._al_tecla(evento)
+        cerrar.assert_called_once_with(wx.ID_CANCEL)
+
+
+class TestDatos(BaseCuadro):
+
+    def test_guarda_cada_campo_con_el_minimo_en_numero(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("regalo")
+        cuadro.cho_cuando.SetSelection(1)
+        cuadro.txt_comandos.SetValue("aplauso, festejar")
+        cuadro.cho_evento.SetSelection(
+            disparadores.EVENTOS_DEL_DIRECTO.index("superchat"))
+        cuadro.txt_minimo.SetValue("5")
+        cuadro.cho_medio.SetSelection(1)
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        cuadro._elegir_estilo("banda")
+        cuadro.sp_segundos.SetValue(15)
+        cuadro.cho_permiso.SetSelection(2)
+        cuadro.txt_nombres.SetValue("Ana, Beto")
+        cuadro.sp_espera.SetValue(10)
+        cuadro.sp_persona.SetValue(40)
+        self.assertEqual(cuadro.datos(), {
+            "nombre": "regalo", "cuando": "evento",
+            "comandos": [], "evento": "superchat",
+            "minimo": 5.0, "medio": "aplauso.gif", "tarjeta": "Gracias",
+            "estilo": "banda", "segundos": 15, "permiso": "lista",
+            "nombres": ["Ana", "Beto"], "espera_general": 10.0,
+            "espera_persona": 40.0, "activo": True})
+
+    def test_una_cantidad_vacia_es_sin_minimo(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("regalo")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        self.assertIsNone(cuadro.datos()["minimo"])
+
+    def test_un_comando_ignora_el_evento_y_el_minimo(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("aplauso")
+        cuadro.txt_comandos.SetValue("aplauso")
+        cuadro.cho_evento.SetSelection(
+            disparadores.EVENTOS_DEL_DIRECTO.index("superchat"))
+        cuadro.txt_minimo.SetValue("5")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        datos = cuadro.datos()
+        self.assertEqual(datos["evento"], "")
+        self.assertIsNone(datos["minimo"])
+        self.assertEqual(datos["comandos"], ["aplauso"])
+
+    def test_un_evento_ignora_los_comandos(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("regalo")
+        cuadro.cho_cuando.SetSelection(1)
+        cuadro.txt_comandos.SetValue("aplauso")
+        cuadro.cho_evento.SetSelection(
+            disparadores.EVENTOS_DEL_DIRECTO.index("cofre"))
+        cuadro.txt_minimo.SetValue("5")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        datos = cuadro.datos()
+        self.assertEqual(datos["comandos"], [])
+        self.assertEqual(datos["evento"], "cofre")
+        self.assertEqual(datos["minimo"], 5.0)
+
+    def test_conserva_el_estado_de_pausa_al_editar(self):
+        cuadro = self._cuadro({
+            "nombre": "regalo", "cuando": "evento", "evento": "cofre",
+            "minimo": 5, "medio": "aplauso.gif", "activo": False})
+        self.assertFalse(cuadro.datos()["activo"])
+
+
+class TestValidacion(BaseCuadro):
+
+    def test_un_nombre_vacio_manda_el_foco_al_nombre(self):
+        cuadro = self._cuadro()
+        cuadro.txt_comandos.SetValue("aplauso")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro.txt_nombre, "SetFocus") as foco:
+            decir = self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+        self.assertIn("nombre", decir.call_args.args[0])
+
+    def test_un_nombre_repetido_manda_el_foco_al_nombre(self):
+        otro = {"nombre": "regalo", "cuando": "evento",
+                "evento": "cofre", "medio": "aplauso.gif"}
+        cuadro = self._cuadro({}, [otro])
+        cuadro.txt_nombre.SetValue("REGALO")
+        cuadro.txt_comandos.SetValue("aplauso")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro.txt_nombre, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+    def test_un_comando_sin_nombres_manda_el_foco_a_los_comandos(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("aplauso")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro.txt_comandos, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+    def test_un_comando_repetido_manda_el_foco_a_los_comandos(self):
+        otro = {"nombre": "otro", "cuando": "comando",
+                "comandos": ("APLAUSO",), "medio": "aplauso.gif"}
+        cuadro = self._cuadro({}, [otro])
+        cuadro.txt_nombre.SetValue("aplauso")
+        cuadro.txt_comandos.SetValue("aplauso")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro.txt_comandos, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+    def test_un_minimo_negativo_manda_el_foco_al_minimo(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("regalo")
+        cuadro.cho_cuando.SetSelection(1)
+        cuadro.cho_evento.SetSelection(
+            disparadores.EVENTOS_DEL_DIRECTO.index("superchat"))
+        cuadro.txt_minimo.SetValue("-1")
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro.txt_minimo, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+    def test_sin_medio_ni_tarjeta_manda_el_foco_a_la_tarjeta(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("aplauso")
+        cuadro.txt_comandos.SetValue("aplauso")
+        with mock.patch.object(cuadro.txt_tarjeta, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+    def test_un_error_de_validacion_no_cierra_el_cuadro(self):
+        cuadro = self._cuadro()
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            self._aceptar_con_error(cuadro)
+        cerrar.assert_not_called()
+
+
+if __name__ == "__main__":
+    unittest.main()

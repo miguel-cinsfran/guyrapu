@@ -12,13 +12,25 @@ import re
 from dataclasses import dataclass
 
 from guyrapu.core import avisos_tiktok
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos
 from guyrapu.interaction.texto import normalizar
 
 CUANDOS = ("comando", "evento")
 EVENTOS_DEL_DIRECTO = tuple(tipo for tipo, _modo in avisos_tiktok.EVENTOS
                             if tipo != "comando")
+NOMBRES_EVENTOS = {
+    "superchat": N_("Super Chats y regalos"),
+    "miembro": N_("Membresías"),
+    "entrada": N_("Entradas al directo"),
+    "me_gusta": N_("Me gusta"),
+    "seguir": N_("Seguidores nuevos"),
+    "compartir": N_("Directo compartido"),
+    "cofre": N_("Cofres"),
+    "encuesta": N_("Encuestas"),
+    "meta": N_("Metas"),
+    "batalla": N_("Batallas"),
+}
 
 _NUMERO_RE = re.compile(r"\d+(?:[.,]\d+)*")
 _DECIMAL_RE = re.compile(r"[.,]\d{2}$")
