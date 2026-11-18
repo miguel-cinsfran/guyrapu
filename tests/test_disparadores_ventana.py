@@ -180,6 +180,34 @@ class TestAcciones(BaseVentana):
         self.assertEqual(panel.lista.GetSelection(), 1)
         decir.assert_called_once_with("Disparador duplicado")
 
+    def test_duplicar_un_atajo_activo_deja_la_copia_en_pausa(self):
+        panel = self._panel([_datos(
+            "A", cuando="atajo", comandos=[], atajo=2)])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(disparadores_ventana, "anunciar") as decir:
+            panel._duplicar()
+        copia = disparadores_guardados.cargar(paths.disparadores())[1]
+        self.assertFalse(copia["activo"])
+        self.assertEqual(copia["atajo"], 2)
+        decir.assert_called_once_with(
+            "Disparador duplicado en pausa: usa el mismo atajo")
+
+    def test_reanudar_un_atajo_con_el_numero_ocupado_no_lo_reanuda(self):
+        panel = self._panel([
+            _datos("A", cuando="atajo", comandos=[], atajo=2),
+            _datos("B", cuando="atajo", comandos=[], atajo=2,
+                   activo=False)])
+        panel.lista.SetSelection(1)
+        with mock.patch.object(
+                disparadores_ventana, "anunciar_con_sonido") as avisar:
+            panel._pausar()
+        self.assertFalse(
+            disparadores_guardados.cargar(paths.disparadores())[1]["activo"])
+        self.assertEqual(panel.lista.GetString(1),
+                         "B, con Ctrl+Alt+Mayús+2, pausado")
+        avisar.assert_called_once_with(
+            "Ese número ya lo usa el disparador A", "error")
+
     def test_pausar_cambia_el_estado_y_la_fila(self):
         panel = self._panel([_datos("A")])
         panel.lista.SetSelection(0)

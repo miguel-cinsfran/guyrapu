@@ -15,7 +15,8 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, disparadores, disparadores_guardados
 from guyrapu.interaction import descripcion_disparador, paquetes
 from guyrapu.ui import disparador_cuadro, confirmar
-from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.accesibilidad import (
+    anunciar, anunciar_con_sonido, nombre_accesible)
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
@@ -157,20 +158,41 @@ class PanelDisparadores(wx.Panel):
         copia = dict(self._disparadores[indice])
         copia["nombre"] = coleccion.nombre_de_copia(
             copia.get("nombre", ""), self._disparadores)
+        en_pausa = (copia.get("cuando") == "atajo"
+                    and copia.get("activo", True))
+        if en_pausa:
+            copia["activo"] = False
         self._disparadores.insert(indice + 1, copia)
         self._guardar()
         self._fijar(indice + 1)
-        anunciar(_("Disparador duplicado"))
+        if en_pausa:
+            anunciar(_("Disparador duplicado en pausa: usa el mismo atajo"))
+        else:
+            anunciar(_("Disparador duplicado"))
 
     def _pausar(self):
         indice = self._elegido()
         if indice is None:
             return
         disparador = self._disparadores[indice]
+        if (not disparador.get("activo", True)
+                and disparador.get("cuando") == "atajo"):
+            error = self._error_al_reanudar(indice, disparador)
+            if error:
+                anunciar_con_sonido(error, "error")
+                return
         disparador["activo"] = not disparador.get("activo", False)
         self._guardar()
         self._fijar(indice)
         anunciar(_("Activo") if disparador["activo"] else _("Pausado"))
+
+    def _error_al_reanudar(self, indice, disparador):
+        prueba = disparadores_guardados.a_disparador(
+            {**disparador, "activo": True})
+        otros = [disparadores_guardados.a_disparador(otro)
+                 for posicion, otro in enumerate(self._disparadores)
+                 if posicion != indice]
+        return disparadores.validar(prueba, otros)
 
     def _escuchar(self):
         indice = self._elegido()

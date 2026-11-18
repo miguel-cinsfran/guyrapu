@@ -10098,6 +10098,10 @@ msgid "Nombre cambiado"
 msgstr "Name changed"
 
 #: guyrapu/ui/disparadores_ventana.py
+msgid "Disparador duplicado en pausa: usa el mismo atajo"
+msgstr "Trigger duplicated and paused: it uses the same shortcut"
+
+#: guyrapu/ui/disparadores_ventana.py
 msgid "Disparador duplicado"
 msgstr "Trigger duplicated"
 
