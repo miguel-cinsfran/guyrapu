@@ -165,6 +165,9 @@ CATALOGO: tuple[EventoSonido, ...] = (
     EventoSonido("descarga_cancelada", nombre=N_("Descarga cancelada"), sonido="pausa",
                  familia="desactivado"),
     EventoSonido("aviso", nombre=N_("Aviso general"), familia="advertencia"),
+    # La encuesta se cerró sola al cumplirse su tiempo.
+    EventoSonido("encuesta_cerrada", nombre=N_("Encuesta cerrada por tiempo"),
+                 sonido="aviso", familia="advertencia"),
     EventoSonido("grabacion_problema", nombre=N_("Problema de la grabación"), sonido="aviso",
                  familia="advertencia"),
     # Pregunta antes de transmitir a TikTok cuando Restream manda a otros

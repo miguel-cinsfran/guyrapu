@@ -212,6 +212,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Interacción", "Vaciar co&la del vídeo", ANY, "normal"),
             ("&Interacción", "Silencia&r medios", ANY, "check"),
             ("&Interacción", "Modo pánic&o", ANY, "check"),
+            ("&Interacción", "Cerrar e&ncuesta", ANY, "normal"),
             ("&Interacción", "Acti&var mensajes automáticos", ANY, "check"),
             ("&Música", "&Elegir música…", ANY, "normal"),
             ("&Música", "---", None, "sep"),
@@ -386,7 +387,7 @@ class TestMenuInteraccionEnDirecto(unittest.TestCase):
         _, lista = _construir_lista(accel)
         return [fila for fila in lista if fila[0] == "&Interacción"]
 
-    def test_seis_elementos_en_orden_con_su_atajo(self):
+    def test_siete_elementos_en_orden_con_su_atajo(self):
         ANY = gui.wx.ID_ANY
         self.assertEqual([
             ("&Interacción", "&Abrir Interacción…\tCtrl+Shift+A",
@@ -406,6 +407,8 @@ class TestMenuInteraccionEnDirecto(unittest.TestCase):
              "Silencia&r medios\tCtrl+Alt+Shift+M", ANY, "check"),
             ("&Interacción",
              "Modo pánic&o\tCtrl+Alt+Shift+Q", ANY, "check"),
+            ("&Interacción",
+             "Cerrar e&ncuesta\tCtrl+Alt+Shift+E", ANY, "normal"),
             ("&Interacción",
              "Acti&var mensajes automáticos\tCtrl+Alt+Shift+A",
              ANY, "check"),
@@ -430,6 +433,7 @@ class TestCableadoInteraccionEnDirecto(unittest.TestCase):
             "mi_video_vaciar": "vaciar",
             "mi_video_silenciar": "alternar_silencio",
             "mi_video_panico": "alternar_panico",
+            "mi_encuesta_cerrar": "cerrar_encuesta",
             "mi_programados_activo": "alternar_mensajes",
         }
         dobles = {}

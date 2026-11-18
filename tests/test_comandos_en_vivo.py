@@ -11,8 +11,8 @@ from unittest import mock
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.interaction import comandos_guardados, filtro_publico
-from guyrapu.ui import chat_vivo, comandos_en_vivo, gui_envio_chat
-from guyrapu.ui import gui
+from guyrapu.ui import chat_vivo, comandos_en_vivo, encuesta_en_vivo
+from guyrapu.ui import gui, gui_envio_chat
 from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
 
@@ -139,6 +139,48 @@ class TestFrenoDeCuota(Base):
         self.assertIn("poca cuota de YouTube", avisos[0][0])
         self.assertEqual(
             self.frame._capa_video.agregar_comando.call_count, 2)
+
+
+class TestVotoDeEncuesta(Base):
+
+    def test_con_encuesta_abierta_el_numero_no_llega_a_los_comandos(self):
+        self._guardar(_datos(nombre="2", respuesta="Respuesta del comando"))
+        with mock.patch.object(encuesta_en_vivo, "votar",
+                               return_value=True) as votar:
+            self._encolar("!2")
+        votar.assert_called_once()
+        self.frame._capa_video.agregar_comando.assert_not_called()
+
+    def test_sin_encuesta_el_numero_sigue_como_hoy(self):
+        self._guardar(_datos(nombre="2", respuesta="Respuesta del comando"))
+        self._encolar("!2")
+        self.frame._capa_video.agregar_comando.assert_called_once()
+
+
+class TestRespuestaAlChatDeLaEncuesta(Base):
+
+    def test_usa_el_mismo_envio_que_las_respuestas_de_los_comandos(self):
+        with mock.patch.object(
+                gui_envio_chat, "enviar_respuesta_chat") as enviar:
+            self.assertTrue(comandos_en_vivo.enviar_respuesta(
+                self.frame, "Encuesta cerrada."))
+        enviar.assert_called_once_with(self.frame, "Encuesta cerrada.")
+
+    def test_con_la_cuota_baja_no_envia_y_avisa(self):
+        avisos = []
+        with mock.patch.object(comandos_en_vivo.cuota, "usadas_hoy",
+                               return_value=9000), \
+                mock.patch.object(
+                    gui, "anunciar_con_sonido",
+                    side_effect=lambda texto, sonido: avisos.append(
+                        (texto, sonido))), \
+                mock.patch.object(
+                    gui_envio_chat, "enviar_respuesta_chat") as enviar:
+            self.assertFalse(comandos_en_vivo.enviar_respuesta(
+                self.frame, "Encuesta cerrada."))
+        enviar.assert_not_called()
+        self.assertEqual(len(avisos), 1)
+        self.assertEqual(avisos[0][1], "aviso")
 
 
 class TestComandosRespondidos(Base):

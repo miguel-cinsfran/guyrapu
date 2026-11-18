@@ -47,6 +47,7 @@ ACTUAN_DIRECTO = frozenset((
     "Bajar volumen del reproductor",
     "Cambiar repetición",
     "Canción anterior",
+    "Cerrar encuesta",
     "Cerrar OBS",
     "Conectar",
     "Consulta rápida a la IA",

@@ -20,6 +20,7 @@ MOTIVOS: dict[str, tuple[str, ...]] = {
     "llega_solo": (
         "actualizacion_lista",
         "aviso",
+        "encuesta_cerrada",
         "destinos_de_mas",
         "restream_senal_debil",
         "transmision_problema",

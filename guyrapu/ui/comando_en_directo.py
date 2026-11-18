@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Las seis acciones de lo que sale en el vídeo.
+"""Las siete acciones de lo que sale en el vídeo.
 
 Un solo camino por acción: el menú Interacción y los atajos globales llaman
 acá. La capa del vídeo conserva el estado de la cola entre una acción y la
@@ -10,7 +10,7 @@ siguiente.
 from __future__ import annotations
 
 from guyrapu.core.idioma import _
-from guyrapu.ui import comando_mensajes_automaticos
+from guyrapu.ui import comando_mensajes_automaticos, encuesta_en_vivo
 from guyrapu.ui.accesibilidad import anunciar_con_sonido
 
 
@@ -82,3 +82,9 @@ def alternar_panico(frame):
 def alternar_mensajes(frame):
     """Prende o apaga los mensajes automáticos con su comando."""
     comando_mensajes_automaticos.alternar(frame)
+
+
+def cerrar_encuesta(frame):
+    """Cierra la encuesta abierta, o dice que no hay ninguna."""
+    if not encuesta_en_vivo.cerrar(frame):
+        anunciar_con_sonido(_("No hay ninguna encuesta abierta"), "listo")

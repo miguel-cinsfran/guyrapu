@@ -365,7 +365,9 @@ class TestParsearAtajos(unittest.TestCase):
                 ("musica_retroceder", "ctrl+alt+shift+left", "ctrl+alt"),
                 ("anunciar_encuadre", "ctrl+f3", "f"),
                 ("avisos_encuadre", "ctrl+shift+f3", "f"),
-                ("camara_visible", "alt+f3", "f")):
+                ("camara_visible", "alt+f3", "f"),
+                ("encuesta_cerrar", "ctrl+alt+shift+e",
+                 "ctrl+alt+shift")):
             self.assertEqual(ATAJOS_DEFAULTS[accion], valor)
             self.assertTrue(atajo_valido_para_area(accion, valor),
                             f"{accion} no tiene un atajo válido para su área")
@@ -481,13 +483,13 @@ class TestParsearAtajos(unittest.TestCase):
         self.assertEqual(detectar_conflictos_atajos({}), [])
         self.assertTrue(all(accion in parsear_atajos({}) for accion in acciones))
 
-    def test_grupo_de_interaccion_en_directo_con_sus_seis_acciones(self):
+    def test_grupo_de_interaccion_en_directo_con_sus_siete_acciones(self):
         acciones = dict(ATAJOS_GRUPOS)[
             "Interacción en directo (Ctrl+Alt+Mayús)"]
         self.assertEqual(acciones, [
             "video_pausar", "video_saltar", "video_vaciar",
             "video_silenciar", "video_panico",
-            "mensajes_automaticos_alternar"])
+            "mensajes_automaticos_alternar", "encuesta_cerrar"])
         esperados = {
             "video_pausar": "ctrl+alt+shift+p",
             "video_saltar": "ctrl+alt+shift+s",
@@ -495,6 +497,7 @@ class TestParsearAtajos(unittest.TestCase):
             "video_silenciar": "ctrl+alt+shift+m",
             "video_panico": "ctrl+alt+shift+q",
             "mensajes_automaticos_alternar": "ctrl+alt+shift+a",
+            "encuesta_cerrar": "ctrl+alt+shift+e",
         }
         for accion, valor in esperados.items():
             with self.subTest(accion=accion):

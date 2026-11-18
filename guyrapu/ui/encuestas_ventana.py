@@ -13,7 +13,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, encuestas_guardadas, paquetes
-from guyrapu.ui import confirmar, encuesta_cuadro
+from guyrapu.ui import confirmar, encuesta_cuadro, encuesta_en_vivo
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -22,11 +22,19 @@ VACIO = N_("No hay encuestas. Usa Agregar para crear una.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 
+def _ventana(panel):
+    """La ventana principal, aunque el panel viva dentro del cuadro Interacción."""
+    ventana = panel.GetTopLevelParent()
+    padre = ventana.GetParent()
+    return padre if padre is not None else ventana
+
+
 def _acciones(panel):
     return (
         Accion("agregar", _("A&gregar"), panel._agregar,
                necesita_elemento=False),
         Accion("editar", _("&Editar"), panel._editar, tecla="intro"),
+        Accion("iniciar", _("I&niciar"), panel._iniciar),
         Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d"),
         Accion("escuchar", _("Escuc&har"), panel._escuchar),
         Accion("eliminar", _("E&liminar"), panel._eliminar,
@@ -108,6 +116,22 @@ class PanelEncuestas(wx.Panel):
         self._guardar()
         self._fijar(indice)
         anunciar(_("Encuesta guardada"))
+
+    def _iniciar(self):
+        indice = self._elegido()
+        if indice is None:
+            return
+        ventana = _ventana(self)
+        if encuesta_en_vivo.abierta(ventana):
+            if not confirmar.preguntar(
+                    self,
+                    _("Ya hay una encuesta abierta. ¿Quieres cerrarla y abrir "
+                      "la nueva?"),
+                    _("Iniciar encuesta"), _("&Sí"), _("&No"),
+                    predeterminado_si=False):
+                return
+            encuesta_en_vivo.cerrar(ventana)
+        encuesta_en_vivo.iniciar(ventana, self._encuestas[indice])
 
     def _duplicar(self):
         indice = self._elegido()

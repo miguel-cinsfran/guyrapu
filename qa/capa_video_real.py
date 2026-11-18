@@ -1,13 +1,14 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Muestra un mensaje automático en el OBS real de esta PC, con capturas.
+"""Muestra una encuesta y un mensaje automático en el OBS real de esta PC.
 
-Abre OBS si está cerrado, crea una `CapaVideo`, le suma dos mensajes de tres
-segundos con los estilos Tarjeta y Banda y comprueba con capturas de la
-escena del programa que la tarjeta no se ve antes de la entrada, que se ve a
-mitad de sus segundos y que al final no queda la escena «Guyrapu» al aire.
-Después quita todo y, si abrió OBS, lo cierra. Una línea por comprobación y
-sale con 1 si alguna falla.
+Abre OBS si está cerrado, crea una `CapaVideo`, fija una encuesta, la pone al
+día con un voto más y comprueba que la fuente de texto cambia sin ocultarse.
+Después le suma dos mensajes de tres segundos con los estilos Tarjeta y Banda
+y comprueba con capturas de la escena del programa que la tarjeta no se ve
+antes de la entrada, que se ve a mitad de sus segundos y que al final no queda
+la escena «Guyrapu» al aire. Después quita todo y, si abrió OBS, lo cierra.
+Una línea por comprobación y sale con 1 si alguna falla.
 
 Se corre a mano, porque abre OBS:
 
@@ -114,7 +115,75 @@ def _limpiar(capa) -> None:
             print(f"Aviso: no se pudo {que}: {error}")
 
 
+def _texto_del_video(cliente) -> str:
+    """El texto que tiene ahora la fuente de texto de la tarjeta."""
+    datos = _pedir(cliente, "GetInputSettings",
+                   {"inputName": escena_guyrapu.TEXTO})
+    texto = str(datos.get("inputSettings", {}).get("text", "") or "")
+    return " ".join(texto.split())
+
+
+def _fuente_de_texto_visible(cliente) -> bool:
+    """Si la fuente de texto de la tarjeta está habilitada en su escena."""
+    datos = _pedir(cliente, "GetSceneItemList",
+                   {"sceneName": escena_guyrapu.TARJETA})
+    item = next((candidato for candidato in datos.get("sceneItems", ())
+                 if candidato.get("sourceName") == escena_guyrapu.TEXTO), None)
+    return bool(item is not None and item.get("sceneItemEnabled"))
+
+
+def _probar_encuesta(marco, cliente, fallos) -> None:
+    """Fija una encuesta, la pone al día y comprueba que el texto no parpadea."""
+    from guyrapu.interaction.cola_pantalla import Pieza
+
+    capa = CapaVideo(marco)
+    bucle = wx.GUIEventLoop()
+    encuesta = Pieza(tipo="encuesta", texto="Encuesta de prueba", segundos=0,
+                     datos={"estilo": "tarjeta"})
+    al_dia = Pieza(tipo="encuesta", texto="Encuesta de prueba, 2 votos",
+                   segundos=0, datos={"estilo": "tarjeta"})
+    try:
+        with wx.EventLoopActivator(bucle):
+            capa.fijar_encuesta(encuesta)
+            _comprobar(
+                "la encuesta queda fija y se ve",
+                _esperar(bucle, lambda: "Encuesta en el vídeo: "
+                         "Encuesta de prueba" in capa.describir(), TOPE_VIDEO),
+                fallos)
+            _comprobar(
+                "la fuente de texto tiene la encuesta",
+                "Encuesta de prueba" in _texto_del_video(cliente), fallos)
+            capa.poner_al_dia_encuesta(al_dia)
+            visibles = []
+            actualizada = False
+            limite = time.monotonic() + TOPE_VIDEO
+            while time.monotonic() < limite:
+                visibles.append(_fuente_de_texto_visible(cliente))
+                if "Encuesta de prueba, 2 votos" in _texto_del_video(cliente):
+                    actualizada = True
+                    break
+                _paso(bucle)
+            visibles.append(_fuente_de_texto_visible(cliente))
+            _comprobar("la encuesta se pone al día con el texto nuevo",
+                       actualizada, fallos)
+            _comprobar("la fuente de texto no se oculta al ponerse al día",
+                       all(visibles), fallos)
+            capa.quitar_encuesta()
+            _comprobar(
+                "al quitarla deja de verse",
+                _esperar(bucle, lambda: capa.describir()
+                         == "Nada en el vídeo.", TOPE_VIDEO),
+                fallos)
+            programa = _programa(cliente)
+            _comprobar("al quitarla no queda la escena Guyrapu al aire",
+                       escena_guyrapu.ESCENA not in _fuentes_de(
+                           cliente, programa), fallos)
+    finally:
+        _limpiar(capa)
+
+
 def _probar(marco, cliente, fallos) -> None:
+    _probar_encuesta(marco, cliente, fallos)
     capa = CapaVideo(marco)
     bucle = wx.GUIEventLoop()
     try:

@@ -86,6 +86,22 @@ class CapaVideo:
             self._en_cola += 1
         return agregada
 
+    def agregar_pieza(self, pieza) -> bool:
+        """Suma una pieza ya armada, como la encuesta terminada."""
+        return self._agregar(pieza)
+
+    def fijar_encuesta(self, pieza):
+        """Deja la encuesta fija en el vídeo."""
+        self.cola.fijar_encuesta(pieza)
+
+    def poner_al_dia_encuesta(self, pieza) -> bool:
+        """Cambia el texto de la encuesta que ya se ve, sin ocultarla."""
+        return self.cola.poner_al_dia_encuesta(pieza)
+
+    def quitar_encuesta(self):
+        """Saca la encuesta fija del vídeo."""
+        self.cola.fijar_encuesta(None)
+
     def describir(self) -> str:
         """La frase de F2 sobre lo que hay en el vídeo."""
         return self.cola.describir()
@@ -142,6 +158,8 @@ class CapaVideo:
         try:
             if orden.accion == "mostrar":
                 self._mostrar(orden.pieza)
+            elif orden.accion == "actualizar":
+                self._actualizar(orden.pieza)
             else:
                 self._ocultar(orden.pieza)
         except Exception as error:
@@ -158,6 +176,8 @@ class CapaVideo:
         else:
             if orden.accion == "mostrar":
                 wx.CallAfter(self._mostrada, orden)
+            elif orden.accion == "actualizar":
+                wx.CallAfter(self._actualizada, orden.pieza)
             else:
                 wx.CallAfter(self._oculta, orden.pieza)
 
@@ -173,6 +193,13 @@ class CapaVideo:
         if not self._animar(ordenes_animador.entrada(
                 self._elemento, estilo, self._ancho, self._alto)):
             raise RuntimeError("OBS no terminó la entrada de la tarjeta")
+
+    def _actualizar(self, pieza):
+        estilo = estilos_aviso.buscar(
+            pieza.datos.get("estilo", ""),
+            estilos_aviso.cargar_estilos(paths.estilos_avisos()))
+        self._asegurar()
+        self._escena.mostrar(pieza.texto, estilo)
 
     def _ocultar(self, pieza):
         if not self._preparado:
@@ -219,7 +246,8 @@ class CapaVideo:
         self._ocupado = False
         self._falla_avisada = False
         # La respuesta de un comando no se anuncia: el chat ya se lee como hoy.
-        if pieza.tipo == "comando":
+        # La encuesta ya se anunció al abrirse y al cerrarse.
+        if pieza.tipo in ("comando", "encuesta"):
             return
         nombre = str(pieza.datos.get("nombre") or pieza.texto)
         # Traductores: aviso al confirmarse una tarjeta en el vídeo. {nombre} es el nombre del mensaje automático.
@@ -228,6 +256,11 @@ class CapaVideo:
             anunciar_con_sonido(frase, "aviso")
         else:
             anunciar(frase)
+
+    def _actualizada(self, pieza):
+        self.cola.actualizada(pieza, self._reloj())
+        self._ocupado = False
+        self._falla_avisada = False
 
     def _oculta(self, pieza):
         self.cola.oculta(pieza, self._reloj())

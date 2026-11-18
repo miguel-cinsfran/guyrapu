@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 351614b28f4d1695c6bb715d8deb78ce1d4f845a -->
+<!-- original: es/MANUAL.md 49d57f0687fb4cede96c9c844a9e325a3dc71712 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -448,6 +448,18 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | `Ctrl+F3` | Announce camera framing. Twice, guide with beeps |
 | `Ctrl+Shift+F3` | Warn when the face leaves the frame |
 | `Alt+F3` | Show or hide the camera |
+
+### Live stream interaction (Ctrl+Alt+Shift)
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+Alt+Shift+P` | Pause or resume the video queue |
+| `Ctrl+Alt+Shift+S` | Skip the video message |
+| `Ctrl+Alt+Shift+V` | Clear the video queue |
+| `Ctrl+Alt+Shift+M` | Mute or turn on the media |
+| `Ctrl+Alt+Shift+Q` | Turn panic mode on or off |
+| `Ctrl+Alt+Shift+A` | Turn scheduled messages on or off |
+| `Ctrl+Alt+Shift+E` | Close the poll |
 
 ### Music (Ctrl+Alt)
 

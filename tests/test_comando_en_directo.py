@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Las seis acciones de lo que sale en el vídeo y lo que anuncian.
+"""Las siete acciones de lo que sale en el vídeo y lo que anuncian.
 
 La capa se sustituye por una de prueba que anota lo que le piden. El pánico
 se prueba con una cola real detrás para comprobar que al apagarlo vuelve a
@@ -175,6 +175,26 @@ class TestPanico(Base):
         self.assertFalse(self.capa.cola.agregar(self._pieza()))
         comando_en_directo.alternar_panico(self.frame)
         self.assertTrue(self.capa.cola.agregar(self._pieza()))
+
+
+class TestCerrarEncuesta(Base):
+
+    def test_sin_encuesta_dice_que_no_hay_ninguna(self):
+        with mock.patch.object(
+                comando_en_directo.encuesta_en_vivo, "cerrar",
+                return_value=False) as cerrar:
+            comando_en_directo.cerrar_encuesta(self.frame)
+        cerrar.assert_called_once_with(self.frame)
+        self.assertEqual(self.anuncios,
+                         [("No hay ninguna encuesta abierta", "listo")])
+
+    def test_con_encuesta_abierta_el_modulo_anuncia_el_resultado(self):
+        with mock.patch.object(
+                comando_en_directo.encuesta_en_vivo, "cerrar",
+                return_value=True) as cerrar:
+            comando_en_directo.cerrar_encuesta(self.frame)
+        cerrar.assert_called_once_with(self.frame)
+        self.assertEqual(self.anuncios, [])
 
 
 class TestMensajesAutomaticos(Base):

@@ -224,6 +224,23 @@ class TestColaPantalla(unittest.TestCase):
                          "Encuesta en el vídeo: ¿Sí o no?. "
                          "En el vídeo: Primera.")
 
+    def test_poner_al_dia_la_encuesta_visible_no_la_oculta(self):
+        cola = ColaPantalla()
+        encuesta = _pieza("¿Sí o no?")
+        cola.fijar_encuesta(encuesta)
+        cola.ordenes(0)
+        cola.mostrada(encuesta, 0)
+        nueva = _pieza("¿Sí o no? 2 votos")
+        self.assertTrue(cola.poner_al_dia_encuesta(nueva))
+        orden = cola.ordenes(1)
+        self.assertEqual([actual.accion for actual in orden],
+                         ["actualizar"])
+        self.assertIs(orden[0].pieza, nueva)
+        cola.actualizada(nueva, 1)
+        self.assertEqual(cola.ordenes(1), [])
+        self.assertEqual(cola.describir(),
+                         "Encuesta en el vídeo: ¿Sí o no? 2 votos.")
+
     def test_fijar_otra_encuesta_reemplaza_la_anterior(self):
         cola = ColaPantalla()
         primera = _pieza("¿Sí o no?")

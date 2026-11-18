@@ -125,6 +125,7 @@ ETIQUETAS = {
     "video_panico": N_("Modo pánico"),
     "mensajes_automaticos_alternar": N_(
         "Activar o desactivar los mensajes automáticos"),
+    "encuesta_cerrar": N_("Cerrar la encuesta"),
     "preguntar_ia": N_("Preguntar a la IA sobre la imagen"),
     "chat_reciente_1": N_("Leer el último mensaje del chat"),
     "chat_reciente_2": N_("Leer el mensaje 2 desde el final del chat"),

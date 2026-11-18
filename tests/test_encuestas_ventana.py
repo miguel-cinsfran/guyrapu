@@ -89,12 +89,69 @@ class TestPagina(BaseVentana):
         panel = self._panel([])
         self.assertEqual([(accion.clave, accion.tecla)
                           for accion in panel._acciones], [
-            ("agregar", None), ("editar", "intro"), ("duplicar", "ctrl+d"),
-            ("escuchar", None), ("eliminar", "suprimir"), ("exportar", None),
-            ("importar", None)])
+            ("agregar", None), ("editar", "intro"), ("iniciar", None),
+            ("duplicar", "ctrl+d"), ("escuchar", None),
+            ("eliminar", "suprimir"), ("exportar", None), ("importar", None)])
         sin_elemento = {accion.clave for accion in panel._acciones
                         if not accion.necesita_elemento}
         self.assertEqual(sin_elemento, {"agregar", "exportar", "importar"})
+
+    def test_iniciar_sin_encuesta_elegida_dice_por_que(self):
+        from guyrapu.ui import lista_acciones
+
+        panel = self._panel([])
+        with mock.patch.object(lista_acciones, "anunciar") as decir:
+            panel._lista.ejecutar("iniciar")
+        decir.assert_called_once_with(
+            "No hay encuestas. Usa Agregar para crear una.")
+
+    def test_iniciar_abre_la_encuesta_elegida(self):
+        panel = self._panel([_datos("A"), _datos("B")])
+        panel.lista.SetSelection(1)
+        with mock.patch.object(
+                encuestas_ventana.encuesta_en_vivo, "abierta",
+                return_value=False), \
+                mock.patch.object(
+                    encuestas_ventana.encuesta_en_vivo, "iniciar") as iniciar:
+            panel._iniciar()
+        iniciar.assert_called_once_with(panel.GetTopLevelParent(),
+                                        panel._encuestas[1])
+
+    def test_iniciar_con_otra_abierta_pregunta_con_no_y_no_cambia_nada(self):
+        panel = self._panel([_datos("A"), _datos("B")])
+        panel.lista.SetSelection(1)
+        with mock.patch.object(
+                encuestas_ventana.encuesta_en_vivo, "abierta",
+                return_value=True), \
+                mock.patch.object(
+                    encuestas_ventana.confirmar, "preguntar",
+                    return_value=False) as preguntar, \
+                mock.patch.object(
+                    encuestas_ventana.encuesta_en_vivo, "cerrar") as cerrar, \
+                mock.patch.object(
+                    encuestas_ventana.encuesta_en_vivo, "iniciar") as iniciar:
+            panel._iniciar()
+        self.assertFalse(preguntar.call_args.kwargs["predeterminado_si"])
+        cerrar.assert_not_called()
+        iniciar.assert_not_called()
+
+    def test_iniciar_con_otra_abierta_la_cierra_y_abre_la_nueva(self):
+        panel = self._panel([_datos("A"), _datos("B")])
+        panel.lista.SetSelection(1)
+        with mock.patch.object(
+                encuestas_ventana.encuesta_en_vivo, "abierta",
+                return_value=True), \
+                mock.patch.object(
+                    encuestas_ventana.confirmar, "preguntar",
+                    return_value=True), \
+                mock.patch.object(
+                    encuestas_ventana.encuesta_en_vivo, "cerrar") as cerrar, \
+                mock.patch.object(
+                    encuestas_ventana.encuesta_en_vivo, "iniciar") as iniciar:
+            panel._iniciar()
+        cerrar.assert_called_once_with(panel.GetTopLevelParent())
+        iniciar.assert_called_once_with(panel.GetTopLevelParent(),
+                                        panel._encuestas[1])
 
     def test_agregar_guarda_y_deja_el_foco_en_la_nueva(self):
         panel = self._panel([])

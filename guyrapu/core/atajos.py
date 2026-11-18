@@ -84,7 +84,7 @@ ATAJOS_GRUPOS = [
       "musica_detener", "musica_adelantar", "musica_retroceder"]),
     (N_("Interacción en directo (Ctrl+Alt+Mayús)"),
      ["video_pausar", "video_saltar", "video_vaciar", "video_silenciar",
-      "video_panico", "mensajes_automaticos_alternar"]),
+      "video_panico", "mensajes_automaticos_alternar", "encuesta_cerrar"]),
     (N_("Ventana y navegación (fijos)"),
      ["salir", "region_siguiente", "region_anterior"]),
     (N_("Mensajes recientes del chat (fijos)"),

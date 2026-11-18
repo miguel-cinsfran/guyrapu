@@ -19,7 +19,7 @@ from guyrapu.core.idioma import _
 from guyrapu.interaction import (
     atencion, comandos, comandos_guardados, filtro_publico)
 from guyrapu.interaction.evento import desde_entrante
-from guyrapu.ui import gui_envio_chat
+from guyrapu.ui import encuesta_en_vivo, gui_envio_chat
 from guyrapu.youtube import cuota
 
 # Con más de 8000 unidades usadas quedan menos de 2000 de las 10 000.
@@ -28,13 +28,26 @@ CUOTA_BAJA = 8000
 logger = diagnostico.obtener_logger(__name__)
 
 
-def atender(frame, registro, ahora) -> None:
-    """Atiende el mensaje con la instancia de comandos de esa ventana."""
+def _en_vivo(frame):
     en_vivo = getattr(frame, "_comandos_en_vivo", None)
     if en_vivo is None:
         en_vivo = ComandosEnVivo(frame)
         frame._comandos_en_vivo = en_vivo
-    en_vivo.atender(registro, ahora)
+    return en_vivo
+
+
+def _cuota_baja() -> bool:
+    return cuota.usadas_hoy() > CUOTA_BAJA
+
+
+def atender(frame, registro, ahora) -> None:
+    """Atiende el mensaje con la instancia de comandos de esa ventana."""
+    _en_vivo(frame).atender(registro, ahora)
+
+
+def enviar_respuesta(frame, texto) -> bool:
+    """Manda un texto al chat como las respuestas de los comandos."""
+    return _en_vivo(frame).enviar_respuesta(texto)
 
 
 def _evento(registro):
@@ -60,13 +73,15 @@ class ComandosEnVivo:
     def atender(self, registro, ahora) -> None:
         if registro.tipo != TIPO_TEXTO:
             return
+        if encuesta_en_vivo.votar(self._frame, _evento(registro), ahora):
+            return
         if comandos.leer(registro.texto) is None:
             return
         self._recargar()
         respuesta = self._atencion.atender(
             _evento(registro), ahora,
             chat_disponible=self._chat_disponible(),
-            cuota_baja=cuota.usadas_hoy() > CUOTA_BAJA)
+            cuota_baja=_cuota_baja())
         if respuesta is None:
             return
         self._respondidos += 1
@@ -80,6 +95,16 @@ class ComandosEnVivo:
             gui_envio_chat.enviar_respuesta_chat(self._frame, respuesta.texto)
         if respuesta.freno_cuota:
             self._avisar_cuota()
+
+    def enviar_respuesta(self, texto) -> bool:
+        """Manda un texto al chat con el mismo freno de cuota de los comandos."""
+        if not self._chat_disponible():
+            return False
+        if _cuota_baja():
+            self._avisar_cuota()
+            return False
+        gui_envio_chat.enviar_respuesta_chat(self._frame, texto)
+        return True
 
     def frase_estado(self) -> str:
         """La frase para F2, o "" si la app no respondió ningún comando."""

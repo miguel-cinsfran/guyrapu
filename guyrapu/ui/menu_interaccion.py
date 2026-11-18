@@ -68,9 +68,18 @@ def _en_directo_medios(frame, m):
                      comando_en_directo.alternar_panico, frame)
 
 
+def _encuesta(frame, m):
+    frame.mi_encuesta_cerrar = m.Append(
+        wx.ID_ANY,
+        _("Cerrar e&ncuesta") + frame._accel("encuesta_cerrar"))
+    frame._bind_menu(frame.mi_encuesta_cerrar,
+                     comando_en_directo.cerrar_encuesta, frame)
+
+
 def _en_directo(frame, m):
     _en_directo_cola(frame, m)
     _en_directo_medios(frame, m)
+    _encuesta(frame, m)
     _programados(frame, m)
 
 

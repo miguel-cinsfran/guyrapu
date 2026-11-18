@@ -87,6 +87,15 @@ class TestEventosDeLoQueSaleEnElVideo(unittest.TestCase):
                     motivos_sonido.MOTIVO_POR_CLAVE[clave], "estado")
 
 
+class TestCierreDeEncuestaPorTiempo(unittest.TestCase):
+    def test_usa_el_aviso_y_llega_solo(self):
+        self.assertEqual(eventos_sonido.NOMBRES["encuesta_cerrada"],
+                         "Encuesta cerrada por tiempo")
+        self.assertEqual(eventos_sonido.SONIDOS["encuesta_cerrada"], "aviso")
+        self.assertEqual(
+            motivos_sonido.MOTIVO_POR_CLAVE["encuesta_cerrada"], "llega_solo")
+
+
 class TestOpcionales(unittest.TestCase):
     def test_musica_tema_y_musica_fin_son_opcionales(self):
         for clave in ("musica_tema", "musica_fin"):

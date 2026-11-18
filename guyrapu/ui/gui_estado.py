@@ -29,6 +29,7 @@ from guyrapu.capture import batallas
 from guyrapu.capture import metas
 from guyrapu.core.doble_pulsacion import DoblePulsacion
 from guyrapu.core.idioma import _
+from guyrapu.ui import encuesta_en_vivo
 
 _PULSACIONES = DoblePulsacion()
 
@@ -107,7 +108,9 @@ def _campos_lectura(frame):
         "mensajes_leidos": _seguro(lambda: frame._stats.leidos, 0),
         "aportes": _seguro(lambda: frame._stats.superchats, 0),
         "total_aportes": frame._total_aportes_texto(),
-        "encuesta": _seguro(lambda: encuestas.registro.en_curso(), ""),
+        "encuesta": (_seguro(
+            lambda: encuesta_en_vivo.frase_estado(frame), "")
+            or _seguro(lambda: encuestas.registro.en_curso(), "")),
         "batalla": _seguro(lambda: batallas.registro.en_curso(), ""),
         "meta": _seguro(lambda: metas.registro.en_curso(), ""),
         "en_cola": _seguro(lambda: frame._cola.qsize(), 0),

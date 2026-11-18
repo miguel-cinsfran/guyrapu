@@ -240,6 +240,46 @@ class TestRespuestaDeComando(Base):
         self.assertEqual(self.anuncios_simples, [])
 
 
+class TestEncuestaFija(Base):
+
+    def _pieza(self, texto):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        return Pieza(tipo="encuesta", texto=texto, segundos=0,
+                     datos={"estilo": "clasico"})
+
+    def test_fijar_y_poner_al_dia_cambia_el_texto_sin_ocultar(self):
+        encuesta = self._pieza("¿Sí o no?")
+        self.capa.fijar_encuesta(encuesta)
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "Encuesta en el vídeo: ¿Sí o no?.")
+        nueva = self._pieza("¿Sí o no? 2 votos")
+        self.assertTrue(self.capa.poner_al_dia_encuesta(nueva))
+        self._atender()
+        self.assertEqual(self.capa.describir(),
+                         "Encuesta en el vídeo: ¿Sí o no? 2 votos.")
+        self.assertEqual(self.escena.ocultaciones, 0)
+        self.assertEqual(self.anuncios, [])
+        self.assertEqual(self.anuncios_simples, [])
+
+    def test_agrega_la_encuesta_terminada_como_una_pieza(self):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        pieza = Pieza(tipo="encuesta", texto="Resultado", segundos=10,
+                      datos={"estilo": "clasico"})
+        self.assertTrue(self.capa.agregar_pieza(pieza))
+        self._atender()
+        self.assertEqual(self.capa.describir(), "En el vídeo: Resultado.")
+
+    def test_quitar_la_encuesta_la_oculta(self):
+        encuesta = self._pieza("¿Sí o no?")
+        self.capa.fijar_encuesta(encuesta)
+        self._atender()
+        self.capa.quitar_encuesta()
+        self._atender()
+        self.assertEqual(self.escena.ocultaciones, 1)
+        self.assertEqual(self.capa.describir(), "Nada en el vídeo.")
+
+
 class TestFallas(Base):
 
     def test_una_falla_llega_a_la_cola_y_se_anuncia_una_vez(self):

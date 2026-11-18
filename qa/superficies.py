@@ -158,6 +158,8 @@ SIN_ESCENARIO: dict[str, str] = {
     "comandos_clips.py": "comanda el búfer de clips del menú OBS; no abre ventana.",
     "comandos_en_vivo.py": (
         "atiende los comandos del chat y no abre ventana propia."),
+    "encuesta_en_vivo.py": (
+        "atiende la encuesta abierta de la sesión y no abre ventana propia."),
     "comando_cerrar_obs.py": (
         "comando del menú OBS y del panel que cierra OBS; no abre ventana."),
     "comando_directo.py": (

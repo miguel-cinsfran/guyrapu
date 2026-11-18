@@ -1159,7 +1159,8 @@ msgstr "TikTok live stream"
 #. Traductores: parte del estado F2 (tipo de conexión).
 #. Traductores: superficie donde se ve el vídeo.
 #: guyrapu/capture/estado_sesion.py guyrapu/player/reproductor.py
-#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/encuesta_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Vídeo"
 msgstr "Video"
 
@@ -1999,6 +2000,10 @@ msgid "Música (Ctrl+Alt)"
 msgstr "Music (Ctrl+Alt)"
 
 #: guyrapu/core/atajos.py
+msgid "Interacción en directo (Ctrl+Alt+Mayús)"
+msgstr "Live interaction (Ctrl+Alt+Shift)"
+
+#: guyrapu/core/atajos.py
 msgid "Ventana y navegación (fijos)"
 msgstr "Window and navigation (fixed)"
 
@@ -2311,6 +2316,22 @@ msgstr "Recording started"
 msgid "Grabación reanudada"
 msgstr "Recording resumed"
 
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Cola del vídeo reanudada"
+msgstr "Video queue resumed"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Medios activados"
+msgstr "Media unmuted"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Modo pánico activado"
+msgstr "Panic mode on"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_mensajes_automaticos.py
+msgid "Mensajes automáticos activados"
+msgstr "Scheduled messages enabled"
+
 #: guyrapu/core/eventos_sonido.py
 msgid "Lectura en pausa"
 msgstr "Reading paused"
@@ -2327,6 +2348,22 @@ msgstr "Recording stopped"
 msgid "Grabación en pausa"
 msgstr "Recording paused"
 
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Cola del vídeo en pausa"
+msgstr "Video queue paused"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Medios silenciados"
+msgstr "Media muted"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Modo pánico desactivado"
+msgstr "Panic mode off"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_mensajes_automaticos.py
+msgid "Mensajes automáticos desactivados"
+msgstr "Scheduled messages disabled"
+
 #: guyrapu/core/eventos_sonido.py
 msgid "Consulta a la IA cancelada"
 msgstr "AI query canceled"
@@ -2340,6 +2377,10 @@ msgstr "Download canceled"
 #: guyrapu/core/eventos_sonido.py
 msgid "Aviso general"
 msgstr "General alert"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Encuesta cerrada por tiempo"
+msgstr "Poll ended on time"
 
 #: guyrapu/core/eventos_sonido.py
 msgid "Problema de la grabación"
@@ -3481,6 +3522,49 @@ msgstr "The poll needs between {minimo} and {maximo} options."
 msgid "Ninguna opción de la encuesta puede estar vacía."
 msgstr "No poll option can be empty."
 
+#. Traductores: duración de una encuesta; {n} son los segundos.
+#. Traductores: {n} es la cantidad de segundos por detrás del directo.
+#. Traductores: {n} es la cantidad de segundos de la posición.
+#: guyrapu/interaction/encuestas_guardadas.py guyrapu/obs/duraciones.py
+#: guyrapu/player/busqueda_video.py guyrapu/player/reproductor.py
+#, python-brace-format
+msgid "{n} segundo"
+msgid_plural "{n} segundos"
+msgstr[0] "{n} second"
+msgstr[1] "{n} seconds"
+
+#. Traductores: duración de una encuesta; {n} son los minutos.
+#. Traductores: {n} es la cantidad de minutos por detrás del directo.
+#. Traductores: {n} es la cantidad de minutos de la posición.
+#: guyrapu/interaction/encuestas_guardadas.py guyrapu/obs/duraciones.py
+#: guyrapu/player/busqueda_video.py guyrapu/player/reproductor.py
+#, python-brace-format
+msgid "{n} minuto"
+msgid_plural "{n} minutos"
+msgstr[0] "{n} minute"
+msgstr[1] "{n} minutes"
+
+#: guyrapu/interaction/encuestas_guardadas.py
+#, python-brace-format
+msgid "{n} opción"
+msgid_plural "{n} opciones"
+msgstr[0] "{n} option"
+msgstr[1] "{n} options"
+
+#. Traductores: una fila de la lista de encuestas; {pregunta} es la
+#. pregunta, {opciones} cuántas opciones tiene y {duracion} cuánto dura.
+#: guyrapu/interaction/encuestas_guardadas.py
+#, python-brace-format
+msgid "{pregunta}, {opciones}, {duracion}"
+msgstr "{pregunta}, {opciones}, {duracion}"
+
+#. Traductores: lo que se oye al pedir Escuchar una encuesta; {pregunta}
+#. es la pregunta y {opciones} sus opciones separadas por comas.
+#: guyrapu/interaction/encuestas_guardadas.py
+#, python-brace-format
+msgid "Encuesta: {pregunta}. Opciones: {opciones}."
+msgstr "Poll: {pregunta}. Options: {opciones}."
+
 #: guyrapu/interaction/paquetes.py
 msgid "estilos"
 msgstr "styles"
@@ -3492,6 +3576,10 @@ msgstr "notices"
 #: guyrapu/interaction/paquetes.py
 msgid "comandos"
 msgstr "commands"
+
+#: guyrapu/interaction/paquetes.py
+msgid "encuestas"
+msgstr "polls"
 
 #: guyrapu/interaction/paquetes.py
 msgid "El paquete está dañado y no se puede leer."
@@ -4261,26 +4349,6 @@ msgid "{n} hora"
 msgid_plural "{n} horas"
 msgstr[0] "{n} hour"
 msgstr[1] "{n} hours"
-
-#. Traductores: {n} es la cantidad de minutos por detrás del directo.
-#. Traductores: {n} es la cantidad de minutos de la posición.
-#: guyrapu/obs/duraciones.py guyrapu/player/busqueda_video.py
-#: guyrapu/player/reproductor.py
-#, python-brace-format
-msgid "{n} minuto"
-msgid_plural "{n} minutos"
-msgstr[0] "{n} minute"
-msgstr[1] "{n} minutes"
-
-#. Traductores: {n} es la cantidad de segundos por detrás del directo.
-#. Traductores: {n} es la cantidad de segundos de la posición.
-#: guyrapu/obs/duraciones.py guyrapu/player/busqueda_video.py
-#: guyrapu/player/reproductor.py
-#, python-brace-format
-msgid "{n} segundo"
-msgid_plural "{n} segundos"
-msgstr[0] "{n} second"
-msgstr[1] "{n} seconds"
 
 #: guyrapu/obs/escalones_equipo.py
 #, python-brace-format
@@ -7302,6 +7370,10 @@ msgstr ""
 "accepted."
 
 #: guyrapu/ui/atajos_captura.py
+msgid "Debe ser Ctrl+Alt+Mayús y una letra (por ejemplo Ctrl+Alt+Mayús+P)."
+msgstr "It must be Ctrl+Alt+Shift and a letter (for example Ctrl+Alt+Shift+P)."
+
+#: guyrapu/ui/atajos_captura.py
 msgid ""
 "Debe ser una tecla de función, de F1 a F12 (por ejemplo F2). Puede ir sola,"
 " con Ctrl, con Ctrl+Mayús o con Alt (por ejemplo Ctrl+F2 o Alt+F3)."
@@ -7543,6 +7615,34 @@ msgid "Abrir la ventana de música"
 msgstr "Open the music window"
 
 #: guyrapu/ui/atajos_captura.py
+msgid "Pausar la cola del vídeo"
+msgstr "Pause the video queue"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Omitir el mensaje del vídeo"
+msgstr "Skip the video message"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Vaciar la cola del vídeo"
+msgstr "Clear the video queue"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Silenciar los medios"
+msgstr "Mute the media"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Modo pánico"
+msgstr "Panic mode"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Activar o desactivar los mensajes automáticos"
+msgstr "Turn scheduled messages on or off"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Cerrar la encuesta"
+msgstr "Close the poll"
+
+#: guyrapu/ui/atajos_captura.py
 msgid "Preguntar a la IA sobre la imagen"
 msgstr "Ask the AI about the picture"
 
@@ -7585,6 +7685,24 @@ msgstr "Read message 9 from the end of the chat"
 #: guyrapu/ui/atajos_captura.py
 msgid "Leer el mensaje 10 desde el final del chat"
 msgstr "Read message 10 from the end of the chat"
+
+#: guyrapu/ui/atajos_captura.py
+msgid ""
+"Cada familia de atajos tiene su modificador. Ctrl es para el reproductor, "
+"Alt para el chat y Ctrl+Mayús para abrir ventanas. Alt+Mayús es para el "
+"directo y OBS, y Ctrl+Alt para la música. Ctrl+Alt+Mayús es para lo que "
+"sale en el vídeo, y las teclas F para la voz. Pulsa un botón y luego la "
+"combinación que quieras. La aplicación comprueba que sirva para esa familia"
+" y que no coincida con otra. F6, Mayús+F6, F9 a F12 y Alt+F4 son fijas, y "
+"se muestran para que no se puedan reemplazar."
+msgstr ""
+"Each shortcut family has its own modifier. Ctrl is for the player, Alt for "
+"the chat, and Ctrl+Shift for opening windows. Alt+Shift is for the live "
+"stream and OBS, and Ctrl+Alt for music. Ctrl+Alt+Shift is for what appears "
+"on the video, and the F keys for voice. Press a button and then the "
+"combination you want. The application checks that it works for that family "
+"and does not match another. F6, Shift+F6, F9 through F12, and Alt+F4 are "
+"fixed, and they are shown so they cannot be replaced."
 
 #: guyrapu/ui/atajos_captura.py
 #, python-brace-format
@@ -7720,7 +7838,8 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 
 #: guyrapu/ui/aviso_importante.py guyrapu/ui/chat_acciones.py
 #: guyrapu/ui/chat_participacion.py guyrapu/ui/comando_cuadro.py
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuesta_cuadro.py
+#: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui.py guyrapu/ui/gui_cierre.py
 #: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
@@ -8202,12 +8321,35 @@ msgstr ""
 "{exc}"
 
 #: guyrapu/ui/chat_participacion.py
+msgid "Carpeta de resúmenes"
+msgstr "Summaries folder"
+
+#: guyrapu/ui/chat_participacion.py
+#, python-brace-format
+msgid ""
+"No se pudo abrir la carpeta de resúmenes:\n"
+"\n"
+"{exc}"
+msgstr ""
+"Could not open the summaries folder:\n"
+"\n"
+"{exc}"
+
+#: guyrapu/ui/chat_participacion.py
 msgid "&Participación:"
 msgstr "&Participation:"
 
 #: guyrapu/ui/chat_participacion.py
 msgid "Participación"
 msgstr "Participation"
+
+#: guyrapu/ui/chat_participacion.py guyrapu/ui/musica_filtros.py
+msgid "Or&denar por:"
+msgstr "Sor&t by:"
+
+#: guyrapu/ui/chat_participacion.py guyrapu/ui/musica_filtros.py
+msgid "Ordenar por"
+msgstr "Sort by"
 
 #: guyrapu/ui/chat_participacion.py
 msgid "&Guardar…"
@@ -8216,6 +8358,14 @@ msgstr "&Save…"
 #: guyrapu/ui/chat_participacion.py guyrapu/ui/musica_editor_lista.py
 msgid "Guardar"
 msgstr "Save"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "&Abrir carpeta de resúmenes"
+msgstr "&Open summaries folder"
+
+#: guyrapu/ui/chat_participacion.py
+msgid "Abrir carpeta de resúmenes"
+msgstr "Open summaries folder"
 
 #: guyrapu/ui/chat_recientes.py
 msgid "Mensajes recientes del chat en cualquier aplicación"
@@ -8330,12 +8480,13 @@ msgstr "Wait per pers&on (seconds):"
 msgid "Se&gundos en pantalla:"
 msgstr "S&econds on screen:"
 
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/encuesta_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "&Estilo:"
 msgstr "&Style:"
 
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/encuesta_cuadro.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "nombre"
 msgstr "name"
 
@@ -8344,11 +8495,11 @@ msgid "Acti&vado"
 msgstr "Acti&vated"
 
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/dialogo_usos_perfil.py
-#: guyrapu/ui/escena_captura_ventana.py guyrapu/ui/escena_disenos.py
-#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_propiedades.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/preferencias_general.py
-#: guyrapu/ui/restream_dialogos_destino.py
+#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/escena_captura_ventana.py
+#: guyrapu/ui/escena_disenos.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_propiedades.py guyrapu/ui/escena_tamano.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/restream_dialogos_destino.py
 msgid "&Aceptar"
 msgstr "&Accept"
 
@@ -8358,6 +8509,7 @@ msgstr "&Accept"
 #: guyrapu/ui/dialogo_asistente_perfiles.py
 #: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/dialogo_prueba_conexion.py
 #: guyrapu/ui/dialogo_prueba_equipo.py guyrapu/ui/dialogo_usos_perfil.py
+#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/encuestas_ventana.py
 #: guyrapu/ui/escena_agregar_fuente.py guyrapu/ui/escena_captura_ventana.py
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/escena_propiedades.py
@@ -8377,12 +8529,13 @@ msgid "&Cancelar"
 msgstr "&Cancel"
 
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/elegir_formato.py
-#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_tamano.py
-#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/gui_directo_youtube.py
-#: guyrapu/ui/gui_elegir_destino.py guyrapu/ui/gui_redactar.py
-#: guyrapu/ui/ia_agregar_captura.py guyrapu/ui/mensaje_automatico_cuadro.py
-#: guyrapu/ui/musica_dialogo_enlace.py guyrapu/ui/musica_editor_lista.py
-#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/escena_filtros.py
+#: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
+#: guyrapu/ui/gui_directo_youtube.py guyrapu/ui/gui_elegir_destino.py
+#: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_agregar_captura.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/musica_dialogo_enlace.py
+#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
+#: guyrapu/ui/restream_perfil.py
 msgid "Cancelar"
 msgstr "Cancel"
 
@@ -8402,13 +8555,21 @@ msgstr "Type your TikTok user in TikTok user."
 msgid "Sigues transmitiendo."
 msgstr "Still broadcasting."
 
-#: guyrapu/ui/comando_mensajes_automaticos.py
-msgid "Mensajes automáticos activados"
-msgstr "Scheduled messages enabled"
+#: guyrapu/ui/comando_en_directo.py
+msgid "Mensaje del vídeo omitido"
+msgstr "Video message skipped"
 
-#: guyrapu/ui/comando_mensajes_automaticos.py
-msgid "Mensajes automáticos desactivados"
-msgstr "Scheduled messages disabled"
+#: guyrapu/ui/comando_en_directo.py
+msgid "Nada en el vídeo"
+msgstr "Nothing on the video"
+
+#: guyrapu/ui/comando_en_directo.py
+msgid "Cola del vídeo vacía"
+msgstr "Video queue empty"
+
+#: guyrapu/ui/comando_en_directo.py
+msgid "No hay ninguna encuesta abierta"
+msgstr "No poll is open"
 
 #. Traductores: parte del estado F2 (comandos). {n} es el nº de comandos
 #. respondidos, {palabra} el último comando y {autor} quien lo pidió.
@@ -8433,19 +8594,19 @@ msgstr "No recording is in progress."
 msgid "No hay comandos. Usa Agregar para crear uno."
 msgstr "There are no commands. Use Add to create one."
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Paquete de Guyrapu (*.zip)|*.zip"
 msgstr "Guyrapu package (*.zip)|*.zip"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "A&gregar"
 msgstr "A&dd"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "&Editar"
 msgstr "&Edit"
@@ -8454,10 +8615,10 @@ msgstr "&Edit"
 msgid "Cambiar p&alabra"
 msgstr "Change &word"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_menu_escena.py
-#: guyrapu/ui/escena_menu_fuente.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/obs_pagina_perfiles.py
-#: guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Duplicar"
 msgstr "&Duplicate"
 
@@ -8465,26 +8626,27 @@ msgstr "&Duplicate"
 msgid "&Pausar o reanudar"
 msgstr "&Pause or resume"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Escuc&har"
 msgstr "&Listen"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_menu_escena.py
-#: guyrapu/ui/escena_menu_fuente.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/gui_historial.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui_historial.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "E&liminar"
 msgstr "De&lete"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Expo&rtar"
 msgstr "Exp&ort"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "&Importar"
 msgstr "&Import"
 
@@ -8521,9 +8683,9 @@ msgstr "Delete the command «{nombre}»?"
 msgid "Eliminar comando"
 msgstr "Delete command"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/escena_edicion_fuente.py
-#: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_escena.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py guyrapu/ui/restream_menus.py
 #: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
@@ -8538,8 +8700,8 @@ msgstr "Command deleted"
 msgid "No hay comandos para exportar."
 msgstr "There are no commands to export."
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 #, python-brace-format
 msgid ""
 "No se pudo escribir el paquete:\n"
@@ -8570,13 +8732,13 @@ msgstr[1] "{n} commands imported."
 msgid "Ya hay comandos llamados {nombres}. ¿Quieres reemplazarlos?"
 msgstr "Commands named {nombres} already exist. Replace them?"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "&Sí"
 msgstr "&Yes"
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "&No"
 msgstr "&No"
 
@@ -9422,6 +9584,149 @@ msgstr "Framing warnings on"
 #: guyrapu/ui/encuadre_camara.py
 msgid "Avisos de encuadre desactivados"
 msgstr "Framing warnings off"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Agregar encuesta"
+msgstr "Add poll"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Editar encuesta"
+msgstr "Edit poll"
+
+#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/preferencias_transmision.py
+msgid "30 segundos"
+msgstr "30 seconds"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "1 minuto"
+msgstr "1 minute"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "2 minutos"
+msgstr "2 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "3 minutos"
+msgstr "3 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "5 minutos"
+msgstr "5 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "10 minutos"
+msgstr "10 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "15 minutos"
+msgstr "15 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "30 minutos"
+msgstr "30 minutes"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Chat de YouTube"
+msgstr "YouTube chat"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Vídeo y chat de YouTube"
+msgstr "Video and YouTube chat"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Pregunta:"
+msgstr "&Question:"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Respuestas, una por línea:"
+msgstr "&Answers, one per line:"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Duración:"
+msgstr "&Duration:"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "&Mostrar resultado en:"
+msgstr "&Show result in:"
+
+#. Traductores: aviso al iniciar una encuesta; {pregunta} es su pregunta.
+#: guyrapu/ui/encuesta_en_vivo.py
+#, python-brace-format
+msgid "Encuesta abierta: {pregunta}"
+msgstr "Poll opened: {pregunta}"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "No hay encuestas. Usa Agregar para crear una."
+msgstr "There are no polls. Use Add to create one."
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "I&niciar"
+msgstr "&Start"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Lista de e&ncuestas:"
+msgstr "&Poll list:"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuestas guardadas"
+msgstr "Saved polls"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta agregada"
+msgstr "Poll added"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta guardada"
+msgstr "Poll saved"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Ya hay una encuesta abierta. ¿Quieres cerrarla y abrir la nueva?"
+msgstr "A poll is already open. Do you want to close it and open the new one?"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Iniciar encuesta"
+msgstr "Start poll"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta duplicada"
+msgstr "Poll duplicated"
+
+#: guyrapu/ui/encuestas_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar la encuesta «{pregunta}»?"
+msgstr "Delete the poll «{pregunta}»?"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Eliminar encuesta"
+msgstr "Delete poll"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Encuesta eliminada"
+msgstr "Poll deleted"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "No hay encuestas para exportar."
+msgstr "There are no polls to export."
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Exportar encuestas"
+msgstr "Export polls"
+
+#: guyrapu/ui/encuestas_ventana.py
+msgid "Importar encuestas"
+msgstr "Import polls"
+
+#: guyrapu/ui/encuestas_ventana.py
+#, python-brace-format
+msgid "Se importó una encuesta."
+msgid_plural "Se importaron {n} encuestas."
+msgstr[0] "One poll imported."
+msgstr[1] "{n} polls imported."
+
+#: guyrapu/ui/encuestas_ventana.py
+#, python-brace-format
+msgid "Ya hay encuestas llamadas {nombres}. ¿Quieres reemplazarlas?"
+msgstr "Polls named {nombres} already exist. Replace them?"
 
 #: guyrapu/ui/escena_acciones_fuente.py
 msgid "visibilidad"
@@ -12382,6 +12687,10 @@ msgid "Comandos"
 msgstr "Commands"
 
 #: guyrapu/ui/interaccion_ventana.py
+msgid "Encuestas"
+msgstr "Polls"
+
+#: guyrapu/ui/interaccion_ventana.py
 msgid "Estilos"
 msgstr "Styles"
 
@@ -12684,6 +12993,30 @@ msgstr "&Scheduled messages…"
 #: guyrapu/ui/menu_interaccion.py
 msgid "Es&tilos del vídeo…"
 msgstr "V&ideo styles…"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "&Pausar cola del vídeo"
+msgstr "&Pause video queue"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Omitir m&ensaje del vídeo"
+msgstr "Skip the vi&deo message"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Vaciar co&la del vídeo"
+msgstr "Clear the video &queue"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Silencia&r medios"
+msgstr "&Mute media"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Modo pánic&o"
+msgstr "Pa&nic mode"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Cerrar e&ncuesta"
+msgstr "C&lose poll"
 
 #: guyrapu/ui/menu_interaccion.py
 msgid "&Interacción"
@@ -12990,14 +13323,6 @@ msgid "Eliminada de la lista: {nombre}. Queda {n} canción"
 msgid_plural "Eliminada de la lista: {nombre}. Quedan {n} canciones"
 msgstr[0] "Removed from the list: {nombre}. {n} song left"
 msgstr[1] "Removed from the list: {nombre}. {n} songs left"
-
-#: guyrapu/ui/musica_filtros.py
-msgid "Or&denar por:"
-msgstr "Sor&t by:"
-
-#: guyrapu/ui/musica_filtros.py
-msgid "Ordenar por"
-msgstr "Sort by"
 
 #. Traductores: aviso cuando falta la carpeta de música; dice que elija otra en
 #. Preferencias.
@@ -13323,6 +13648,18 @@ msgstr "Delete blocked word"
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "Palabra eliminada"
 msgstr "Word deleted"
+
+#. Traductores: una línea de participación; {nombre} es la persona y {n} la
+#. cantidad de mensajes.
+#. Traductores: regalo de TikTok; {n} es la cantidad de diamantes.
+#. Traductores: criterios del cuadro «Ordenar por» de Participación.
+#: guyrapu/ui/participacion_chat.py
+msgid "Mensajes"
+msgstr "Messages"
+
+#: guyrapu/ui/participacion_chat.py
+msgid "Regalos"
+msgstr "Gifts"
 
 #. Traductores: motivo que lleva la etiqueta del botón «Iniciar sesión».
 #: guyrapu/ui/preferencias_api.py
@@ -14245,10 +14582,6 @@ msgstr "&Play sound"
 #: guyrapu/ui/preferencias_transmision.py
 msgid "Desactivados"
 msgstr "Off"
-
-#: guyrapu/ui/preferencias_transmision.py
-msgid "30 segundos"
-msgstr "30 seconds"
 
 #: guyrapu/ui/preferencias_transmision.py
 msgid "60 segundos"
@@ -15487,295 +15820,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/interaction/encuestas_guardadas.py
-#, python-brace-format
-msgid "{n} opción"
-msgid_plural "{n} opciones"
-msgstr[0] "{n} option"
-msgstr[1] "{n} options"
-
-#. Traductores: una fila de la lista de encuestas; {pregunta} es la
-#. pregunta, {opciones} cuántas opciones tiene y {duracion} cuánto dura.
-#: guyrapu/interaction/encuestas_guardadas.py
-#, python-brace-format
-msgid "{pregunta}, {opciones}, {duracion}"
-msgstr "{pregunta}, {opciones}, {duracion}"
-
-#. Traductores: lo que se oye al pedir Escuchar una encuesta; {pregunta}
-#. es la pregunta y {opciones} sus opciones separadas por comas.
-#: guyrapu/interaction/encuestas_guardadas.py
-#, python-brace-format
-msgid "Encuesta: {pregunta}. Opciones: {opciones}."
-msgstr "Poll: {pregunta}. Options: {opciones}."
-
-#: guyrapu/interaction/paquetes.py
-msgid "encuestas"
-msgstr "polls"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "Agregar encuesta"
-msgstr "Add poll"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "Editar encuesta"
-msgstr "Edit poll"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "1 minuto"
-msgstr "1 minute"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "2 minutos"
-msgstr "2 minutes"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "3 minutos"
-msgstr "3 minutes"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "5 minutos"
-msgstr "5 minutes"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "10 minutos"
-msgstr "10 minutes"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "15 minutos"
-msgstr "15 minutes"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "30 minutos"
-msgstr "30 minutes"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "Chat de YouTube"
-msgstr "YouTube chat"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "Vídeo y chat de YouTube"
-msgstr "Video and YouTube chat"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "&Pregunta:"
-msgstr "&Question:"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "&Respuestas, una por línea:"
-msgstr "&Answers, one per line:"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "&Duración:"
-msgstr "&Duration:"
-
-#: guyrapu/ui/encuesta_cuadro.py
-msgid "&Mostrar resultado en:"
-msgstr "&Show result in:"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "No hay encuestas. Usa Agregar para crear una."
-msgstr "There are no polls. Use Add to create one."
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Lista de e&ncuestas:"
-msgstr "&Poll list:"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Encuestas guardadas"
-msgstr "Saved polls"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Encuesta agregada"
-msgstr "Poll added"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Encuesta guardada"
-msgstr "Poll saved"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Encuesta duplicada"
-msgstr "Poll duplicated"
-
-#: guyrapu/ui/encuestas_ventana.py
-#, python-brace-format
-msgid "¿Quieres eliminar la encuesta «{pregunta}»?"
-msgstr "Delete the poll «{pregunta}»?"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Eliminar encuesta"
-msgstr "Delete poll"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Encuesta eliminada"
-msgstr "Poll deleted"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "No hay encuestas para exportar."
-msgstr "There are no polls to export."
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Exportar encuestas"
-msgstr "Export polls"
-
-#: guyrapu/ui/encuestas_ventana.py
-msgid "Importar encuestas"
-msgstr "Import polls"
-
-#: guyrapu/ui/encuestas_ventana.py
-#, python-brace-format
-msgid "Se importó una encuesta."
-msgid_plural "Se importaron {n} encuestas."
-msgstr[0] "One poll imported."
-msgstr[1] "{n} polls imported."
-
-#: guyrapu/ui/encuestas_ventana.py
-#, python-brace-format
-msgid "Ya hay encuestas llamadas {nombres}. ¿Quieres reemplazarlas?"
-msgstr "Polls named {nombres} already exist. Replace them?"
-
-#: guyrapu/ui/interaccion_ventana.py
-msgid "Encuestas"
-msgstr "Polls"
-
-#: guyrapu/ui/chat_participacion.py
-msgid "Carpeta de resúmenes"
-msgstr "Summaries folder"
-
-#: guyrapu/ui/chat_participacion.py
-#, python-brace-format
-msgid ""
-"No se pudo abrir la carpeta de resúmenes:\n"
-"\n"
-"{exc}"
-msgstr ""
-"Could not open the summaries folder:\n"
-"\n"
-"{exc}"
-
-#: guyrapu/ui/chat_participacion.py
-msgid "&Abrir carpeta de resúmenes"
-msgstr "&Open summaries folder"
-
-#: guyrapu/ui/chat_participacion.py
-msgid "Abrir carpeta de resúmenes"
-msgstr "Open summaries folder"
-
-#. Traductores: una línea de participación; {nombre} es la persona y {n} la
-#. cantidad de mensajes.
-#. Traductores: regalo de TikTok; {n} es la cantidad de diamantes.
-#. Traductores: criterios del cuadro «Ordenar por» de Participación.
-#: guyrapu/ui/participacion_chat.py
-msgid "Mensajes"
-msgstr "Messages"
-
-#: guyrapu/ui/participacion_chat.py
-msgid "Regalos"
-msgstr "Gifts"
-
-#: guyrapu/core/atajos.py
-msgid "Interacción en directo (Ctrl+Alt+Mayús)"
-msgstr "Live interaction (Ctrl+Alt+Shift)"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-msgid "Cola del vídeo reanudada"
-msgstr "Video queue resumed"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-msgid "Medios activados"
-msgstr "Media unmuted"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-msgid "Modo pánico activado"
-msgstr "Panic mode on"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-msgid "Cola del vídeo en pausa"
-msgstr "Video queue paused"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-msgid "Medios silenciados"
-msgstr "Media muted"
-
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
-msgid "Modo pánico desactivado"
-msgstr "Panic mode off"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Debe ser Ctrl+Alt+Mayús y una letra (por ejemplo Ctrl+Alt+Mayús+P)."
-msgstr "It must be Ctrl+Alt+Shift and a letter (for example Ctrl+Alt+Shift+P)."
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Pausar la cola del vídeo"
-msgstr "Pause the video queue"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Omitir el mensaje del vídeo"
-msgstr "Skip the video message"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Vaciar la cola del vídeo"
-msgstr "Clear the video queue"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Silenciar los medios"
-msgstr "Mute the media"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Modo pánico"
-msgstr "Panic mode"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Activar o desactivar los mensajes automáticos"
-msgstr "Turn scheduled messages on or off"
-
-#: guyrapu/ui/atajos_captura.py
-msgid ""
-"Cada familia de atajos tiene su modificador. Ctrl es para el reproductor, "
-"Alt para el chat y Ctrl+Mayús para abrir ventanas. Alt+Mayús es para el "
-"directo y OBS, y Ctrl+Alt para la música. Ctrl+Alt+Mayús es para lo que "
-"sale en el vídeo, y las teclas F para la voz. Pulsa un botón y luego la "
-"combinación que quieras. La aplicación comprueba que sirva para esa familia"
-" y que no coincida con otra. F6, Mayús+F6, F9 a F12 y Alt+F4 son fijas, y "
-"se muestran para que no se puedan reemplazar."
-msgstr ""
-"Each shortcut family has its own modifier. Ctrl is for the player, Alt for "
-"the chat, and Ctrl+Shift for opening windows. Alt+Shift is for the live "
-"stream and OBS, and Ctrl+Alt for music. Ctrl+Alt+Shift is for what appears "
-"on the video, and the F keys for voice. Press a button and then the "
-"combination you want. The application checks that it works for that family "
-"and does not match another. F6, Shift+F6, F9 through F12, and Alt+F4 are "
-"fixed, and they are shown so they cannot be replaced."
-
-#: guyrapu/ui/comando_en_directo.py
-msgid "Mensaje del vídeo omitido"
-msgstr "Video message skipped"
-
-#: guyrapu/ui/comando_en_directo.py
-msgid "Nada en el vídeo"
-msgstr "Nothing on the video"
-
-#: guyrapu/ui/comando_en_directo.py
-msgid "Cola del vídeo vacía"
-msgstr "Video queue empty"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "&Pausar cola del vídeo"
-msgstr "&Pause video queue"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "Omitir m&ensaje del vídeo"
-msgstr "Skip the vi&deo message"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "Vaciar co&la del vídeo"
-msgstr "Clear the video &queue"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "Silencia&r medios"
-msgstr "&Mute media"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "Modo pánic&o"
-msgstr "Pa&nic mode"
 

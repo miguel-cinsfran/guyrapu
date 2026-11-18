@@ -48,6 +48,8 @@ class ColaPantalla:
         self._ultima_oculta = None
         self._encuesta = None
         self._encuesta_visible = None
+        self._encuesta_al_dia = None
+        self._reintento_encuesta = 0.0
         self._esperando = None
         self._esperando_encuesta = False
         self._reintentos = {}
@@ -78,7 +80,9 @@ class ColaPantalla:
         """La orden que toca dar ahora, o nada si espera una confirmación."""
         if self._esperando is not None:
             return []
-        resultado = self._orden_de_ocultar(ahora)
+        resultado = self._orden_de_actualizar(ahora)
+        if resultado is None:
+            resultado = self._orden_de_ocultar(ahora)
         if resultado is None:
             resultado = self._orden_de_mostrar(ahora)
         if resultado is None:
@@ -87,6 +91,13 @@ class ColaPantalla:
         self._esperando = orden
         self._esperando_encuesta = es_encuesta
         return [orden]
+
+    def _orden_de_actualizar(self, ahora):
+        if (self._panico or self._encuesta_al_dia is None
+                or self._encuesta_visible is None
+                or ahora < self._reintento_encuesta):
+            return None
+        return Orden("actualizar", self._encuesta_al_dia, False), True
 
     def _orden_de_ocultar(self, ahora):
         if self._visible is not None and (
@@ -139,6 +150,15 @@ class ColaPantalla:
             self._visible = pieza
             self._inicio = ahora
 
+    def actualizada(self, pieza, ahora):
+        """Confirma que el texto de la encuesta visible ya cambió."""
+        if not self._espera("actualizar", pieza):
+            return
+        self._esperando = None
+        self._encuesta_visible = pieza
+        self._encuesta_al_dia = None
+        self._reintento_encuesta = 0.0
+
     def oculta(self, pieza, ahora):
         """Confirma que la pieza ya no se ve."""
         if not self._espera("ocultar", pieza):
@@ -155,6 +175,9 @@ class ColaPantalla:
         self._esperando = None
         if accion == "ocultar":
             self._aplicar_oculta(pieza, ahora, es_encuesta)
+            return
+        if accion == "actualizar":
+            self._reintento_encuesta = ahora + self.REINTENTO
             return
         if self._panico:
             return
@@ -205,6 +228,16 @@ class ColaPantalla:
     def fijar_encuesta(self, pieza):
         """Deja la encuesta en el vídeo hasta fijar otra o quitarla."""
         self._encuesta = pieza
+        self._encuesta_al_dia = None
+        self._reintento_encuesta = 0.0
+
+    def poner_al_dia_encuesta(self, pieza):
+        """Cambia el texto de la encuesta que ya se ve, sin ocultarla."""
+        if self._encuesta_visible is None or self._encuesta is None:
+            return False
+        self._encuesta = pieza
+        self._encuesta_al_dia = pieza
+        return True
 
     def describir(self):
         """La frase que F2 dice del estado del vídeo."""

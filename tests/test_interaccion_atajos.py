@@ -25,6 +25,7 @@ ORDEN = (
     ("video_silenciar", "m"),
     ("video_panico", "q"),
     ("mensajes_automaticos_alternar", "a"),
+    ("encuesta_cerrar", "e"),
 )
 
 MODS = wx.MOD_CONTROL | wx.MOD_ALT | wx.MOD_SHIFT
@@ -60,7 +61,7 @@ class _Ventana:
 
 class TestCombinacionCtrlAltMayus(unittest.TestCase):
 
-    def test_las_seis_de_fabrica_dan_su_letra(self):
+    def test_las_siete_de_fabrica_dan_su_letra(self):
         for accion, letra in ORDEN:
             with self.subTest(accion=accion):
                 self.assertEqual(
@@ -91,17 +92,17 @@ class TestInteraccionAtajos(unittest.TestCase):
             atajos.activar_arranque()
         return atajos, ventana
 
-    def test_registra_los_seis_con_su_accion(self):
+    def test_registra_los_siete_con_su_accion(self):
         ventana = _Ventana()
         acciones = (
             "alternar_pausa", "saltar", "vaciar", "alternar_silencio",
-            "alternar_panico", "alternar_mensajes")
+            "alternar_panico", "alternar_mensajes", "cerrar_encuesta")
         parches = [mock.patch.object(comando_en_directo, nombre)
                    for nombre in acciones]
         iniciados = [parche.start() for parche in parches]
         try:
             _atajos, ventana = self._atajos(ventana)
-            self.assertEqual(len(ventana.registrados), 6)
+            self.assertEqual(len(ventana.registrados), 7)
             for accion, letra in ORDEN:
                 indice = interaccion_atajos.ORDEN.index(accion)
                 ident = interaccion_atajos.BASE_IDS + indice

@@ -29,6 +29,7 @@ ORDEN = (
     "video_silenciar",
     "video_panico",
     "mensajes_automaticos_alternar",
+    "encuesta_cerrar",
 )
 
 # Base de los ids propios para `RegisterHotKey`, lejos de las otras áreas.
@@ -56,6 +57,8 @@ class InteraccionAtajos:
                 lambda: comando_en_directo.alternar_panico(frame),
             "mensajes_automaticos_alternar":
                 lambda: comando_en_directo.alternar_mensajes(frame),
+            "encuesta_cerrar":
+                lambda: comando_en_directo.cerrar_encuesta(frame),
         }
         self._globales = atajos_globales.AtajosGlobales(
             frame, self._acciones, orden=ORDEN, base_ids=BASE_IDS,

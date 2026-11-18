@@ -131,6 +131,13 @@ class TestSnapshotEncuesta(unittest.TestCase):
             "Encuesta en curso: ¿Qué almorzamos?. Opciones: Pizza con 5 votos y "
             "sushi sin votos")
 
+    def test_la_encuesta_de_la_sesion_tiene_prioridad(self):
+        frase = "Encuesta: ¿Qué pizza?. 1, muzzarella: 1 voto. Quedan 90 segundos."
+        with mock.patch.object(gui_estado.encuesta_en_vivo, "frase_estado",
+                               return_value=frase):
+            snap = gui_estado.snapshot_sesion(_marco_falso({}))
+        self.assertEqual(snap.encuesta, frase)
+
 
 class TestSnapshotBatallaYMeta(unittest.TestCase):
 

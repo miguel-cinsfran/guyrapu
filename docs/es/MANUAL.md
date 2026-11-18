@@ -769,6 +769,18 @@ al llegar al principio o al final suena un aviso.
 | `Ctrl+Mayús+F3` | Avisar si el rostro sale del encuadre |
 | `Alt+F3` | Mostrar u ocultar la cámara |
 
+### Interacción en directo (Ctrl+Alt+Mayús)
+
+| Atajo | Acción |
+|---|---|
+| `Ctrl+Alt+Mayús+P` | Pausar o reanudar la cola del vídeo |
+| `Ctrl+Alt+Mayús+S` | Omitir el mensaje del vídeo |
+| `Ctrl+Alt+Mayús+V` | Vaciar la cola del vídeo |
+| `Ctrl+Alt+Mayús+M` | Silenciar o activar los medios |
+| `Ctrl+Alt+Mayús+Q` | Activar o desactivar el modo pánico |
+| `Ctrl+Alt+Mayús+A` | Activar o desactivar los mensajes automáticos |
+| `Ctrl+Alt+Mayús+E` | Cerrar la encuesta |
+
 ### Música (Ctrl+Alt)
 
 | Atajo | Acción |
