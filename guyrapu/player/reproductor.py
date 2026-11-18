@@ -330,6 +330,16 @@ class ReproductorPanel(wx.Panel):
         self._enganchar_eventos_vlc()
         return True
 
+    def _diferir_si_en_retirada(self, flujo: bool, valor: str,
+                                reproducir: bool) -> bool:
+        ciclo = getattr(self, "_ciclo", None)
+        if ciclo is None or not ciclo.en_retirada:
+            return False
+        debe = (ciclo.diferir_flujo(valor, reproducir) if flujo
+                else ciclo.diferir_video(valor, reproducir))
+        self._mostrar_estado_cerrando(debe)
+        return True
+
     def _mostrar_estado_cerrando(self, debe_anunciar: bool) -> None:
         try:
             if hasattr(self, "lbl_estado"):
@@ -802,10 +812,7 @@ class ReproductorPanel(wx.Panel):
         self._url_flujo = ""
         if not self._listo:
             return
-        ciclo = getattr(self, "_ciclo", None)
-        if ciclo is not None and ciclo.en_retirada:
-            debe = ciclo.diferir_video(video_id or "", autoplay)
-            self._mostrar_estado_cerrando(debe)
+        if self._diferir_si_en_retirada(False, video_id or "", autoplay):
             return
         self._detener(silencioso=True)
         self._info = None
@@ -829,10 +836,7 @@ class ReproductorPanel(wx.Panel):
                         flujo_tiktok.resumen_url(self._url_flujo))
         if not self._listo:
             return
-        ciclo = getattr(self, "_ciclo", None)
-        if ciclo is not None and ciclo.en_retirada:
-            debe = ciclo.diferir_flujo(url or "", autoplay)
-            self._mostrar_estado_cerrando(debe)
+        if self._diferir_si_en_retirada(True, url or "", autoplay):
             return
         self._detener(silencioso=True)
         self._info = None
@@ -893,10 +897,7 @@ class ReproductorPanel(wx.Panel):
     # ── Carga / reproducción ──────────────────────────────────────────────────
 
     def cargar(self, reproducir: bool = True):
-        ciclo = getattr(self, "_ciclo", None)
-        if ciclo is not None and ciclo.en_retirada:
-            debe = ciclo.diferir_video(self._video_id or "", reproducir)
-            self._mostrar_estado_cerrando(debe)
+        if self._diferir_si_en_retirada(False, self._video_id or "", reproducir):
             return
         if not self._listo or not self._asegurar_player():
             anunciar(_("El reproductor no está disponible."))
@@ -1312,10 +1313,7 @@ class ReproductorPanel(wx.Panel):
     def _reproducir_flujo(self, reproducir: bool = True):
         """Arranca la URL de flujo directa en VLC (mismo camino final que
         _reproducir_calidad, pero sin pasar por la info de yt-dlp)."""
-        ciclo = getattr(self, "_ciclo", None)
-        if ciclo is not None and ciclo.en_retirada:
-            debe = ciclo.diferir_flujo(self._url_flujo or "", reproducir)
-            self._mostrar_estado_cerrando(debe)
+        if self._diferir_si_en_retirada(True, self._url_flujo or "", reproducir):
             return
         if not self._url_flujo or not self._asegurar_player():
             anunciar(_("El reproductor no está disponible."))
