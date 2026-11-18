@@ -32,6 +32,8 @@ FRASES_DE_CORTE = (
     "reconectando el directo",
 )
 
+FRAGMENTO_RECONEXION = "reconectando"
+
 SEGUNDOS_LECTURA = 5.0
 SEGUNDOS_CONTINUIDAD = 60.0
 SEGUNDOS_CONTINUIDAD_TRAS_CORTE = 30.0
@@ -59,11 +61,13 @@ def revisar_continuidad(lecturas, anuncios=()):
     return None
 
 
-def segundos_hasta_volver(lecturas, tope):
+def segundos_hasta_volver(lecturas, tope, hubo_anuncio=False):
     """(segundos, True) de la primera vuelta a «playing», o (None, False).
 
-    Solo cuenta la vuelta si antes hubo una lectura que no era «playing»: si
-    nunca dejó de sonar, no hubo corte que medir.
+    Solo cuenta la vuelta si antes hubo una lectura que no era «playing» o si
+    la aplicación anunció una reconexión después del corte. En ese segundo
+    caso, la última lectura es la primera posterior al anuncio, porque quien
+    llama mira los anuncios en cada vuelta del bucle.
     """
     hubo_corte = False
     for segundo, estado in lecturas:
@@ -72,6 +76,10 @@ def segundos_hasta_volver(lecturas, tope):
         if estado != "playing":
             hubo_corte = True
         elif hubo_corte:
+            return segundo, True
+    if hubo_anuncio and lecturas:
+        segundo, estado = lecturas[-1]
+        if segundo <= tope and estado == "playing":
             return segundo, True
     return None, False
 
@@ -191,9 +199,13 @@ def _cortar_relevo(app, res) -> bool:
     volvio = False
     segundos = None
     while True:
+        hubo_anuncio = any(
+            FRAGMENTO_RECONEXION in a.get("texto", "").lower()
+            for a in app.anuncios[inicio:])
         transcurrido = time.monotonic() - corte
         lecturas.append((round(transcurrido, 1), _leer_estado(app)))
-        segundos, volvio = segundos_hasta_volver(lecturas, SEGUNDOS_VUELTA)
+        segundos, volvio = segundos_hasta_volver(
+            lecturas, SEGUNDOS_VUELTA, hubo_anuncio)
         if volvio or transcurrido >= SEGUNDOS_VUELTA:
             break
         time.sleep(INTERVALO_VUELTA)

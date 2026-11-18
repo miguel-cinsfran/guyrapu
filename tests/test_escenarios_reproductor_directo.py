@@ -47,6 +47,18 @@ class TestVueltaTrasElCorte(unittest.TestCase):
         self.assertEqual(escenario.segundos_hasta_volver(lecturas, 45.0),
                          (None, False))
 
+    def test_siempre_playing_con_anuncio_cuenta_como_vuelta(self):
+        lecturas = [(0.0, "playing"), (0.5, "playing"), (1.5, "playing")]
+        self.assertEqual(
+            escenario.segundos_hasta_volver(
+                lecturas, 45.0, hubo_anuncio=True),
+            (1.5, True))
+
+    def test_siempre_playing_sin_anuncio_no_cuenta(self):
+        lecturas = [(0.0, "playing"), (0.5, "playing"), (1.5, "playing")]
+        self.assertEqual(escenario.segundos_hasta_volver(lecturas, 45.0),
+                         (None, False))
+
 
 if __name__ == "__main__":
     unittest.main()
