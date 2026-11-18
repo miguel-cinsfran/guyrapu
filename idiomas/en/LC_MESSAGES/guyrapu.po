@@ -2010,10 +2010,6 @@ msgstr "Live interaction (Ctrl+Alt+Shift)"
 msgid "Ventana y navegación (fijos)"
 msgstr "Window and navigation (fixed)"
 
-#: guyrapu/core/atajos.py
-msgid "Mensajes recientes del chat (fijos)"
-msgstr "Recent chat messages (fixed)"
-
 #: guyrapu/core/avisos_preferencias.py
 msgid "Preferencias guardadas."
 msgstr "Preferences saved."
@@ -15288,10 +15284,6 @@ msgid "Leer los mensajes recientes con"
 msgstr "Read recent messages with"
 
 #: guyrapu/ui/preferencias_lectura.py
-msgid "Leer mensajes recientes en cual&quier aplicación"
-msgstr "Read recent messages in any a&pplication"
-
-#: guyrapu/ui/preferencias_lectura.py
 msgid "Traducir chat"
 msgstr "Translate chat"
 
@@ -16767,4 +16759,12 @@ msgstr "Previous chat filter"
 #: guyrapu/ui/atajos_captura.py
 msgid "Filtro siguiente del chat"
 msgstr "Next chat filter"
+
+#: guyrapu/core/atajos.py
+msgid "Recientes y filtro del chat (fijos)"
+msgstr "Recent chat messages and filter (fixed)"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Usar atajos del chat en cual&quier aplicación"
+msgstr "Use chat shortcuts in any a&pplication"
 

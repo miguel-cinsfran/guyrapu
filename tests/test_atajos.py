@@ -443,7 +443,7 @@ class TestParsearAtajos(unittest.TestCase):
         self.assertEqual(titulos[-3],
                          "Interacción en directo (Ctrl+Alt+Mayús)")
         self.assertEqual(titulos[-2], "Ventana y navegación (fijos)")
-        self.assertEqual(titulos[-1], "Mensajes recientes del chat (fijos)")
+        self.assertEqual(titulos[-1], "Recientes y filtro del chat (fijos)")
         self.assertEqual(_AREA_POR_GRUPO[5], "ctrl+alt")
         self.assertEqual(_AREA_POR_GRUPO[6], "ctrl+alt+shift")
         self.assertIsNone(_AREA_POR_GRUPO[7])

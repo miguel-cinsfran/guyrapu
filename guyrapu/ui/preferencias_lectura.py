@@ -102,7 +102,7 @@ class PaginaLectura:
                wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         self.chk_lectura_atajos_globales = wx.CheckBox(
-            p, label=_("Leer mensajes recientes en cual&quier aplicación"),
+            p, label=_("Usar atajos del chat en cual&quier aplicación"),
             name="LecturaAtajosGlobales")
         self.chk_lectura_atajos_globales.SetForegroundColour(_T.text)
         vs.Add(self.chk_lectura_atajos_globales, 0,

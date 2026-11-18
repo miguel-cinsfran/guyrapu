@@ -90,7 +90,7 @@ ATAJOS_GRUPOS = [
       "encuesta_cerrar"]),
     (N_("Ventana y navegación (fijos)"),
      ["salir", "region_siguiente", "region_anterior"]),
-    (N_("Mensajes recientes del chat (fijos)"),
+    (N_("Recientes y filtro del chat (fijos)"),
      ["chat_reciente_1", "chat_reciente_2", "chat_reciente_3",
       "chat_reciente_4", "chat_reciente_5", "chat_reciente_6",
       "chat_reciente_7", "chat_reciente_8", "chat_reciente_9",

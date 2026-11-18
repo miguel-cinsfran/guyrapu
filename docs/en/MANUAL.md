@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md e2e7640f493e4839fd2ce6dfb700a9fedc122595 -->
+<!-- original: es/MANUAL.md 557f0feb8c39b9c514dc3bc4d3c3af8b6caa061d -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -488,7 +488,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 
 The two filter shortcuts use the keys to the right of zero and move through the chat list in menu order, wrapping at both ends. On a United States keyboard, these are `Ctrl+Shift+-` and `Ctrl+Shift+=`; on a Spanish keyboard, `Ctrl+Shift+'` and `Ctrl+Shift+¡` or `Ctrl+Shift+¿`.
 
-With *Read recent messages in any application*, in *Preferences*, on the *Reading* category, all these shortcuts also work with another application in the foreground. If another application already uses one of these combinations, a tone sounds and Guyrapu says which one.
+With *Use chat shortcuts in any application*, in *Preferences*, on the *Reading* category, all these shortcuts also work when another application is in the foreground. If another application already uses one of these combinations, a tone sounds and Guyrapu says which one.
 
 ## Updating
 

@@ -65,6 +65,12 @@ class TestCambiosDeLectura(unittest.TestCase):
                 self.assertEqual(pagina.cambios(),
                                  [("lectura", "formato_prefijo", esperado)])
 
+    def test_la_casilla_de_atajos_nombra_los_atajos_del_chat(self):
+        dialogo = self._dialogo()
+        self.assertEqual(
+            dialogo.pagina_lectura.chk_lectura_atajos_globales.GetLabel(),
+            "Usar atajos del chat en cual&quier aplicación")
+
     def test_guardar_escribe_el_formato_elegido(self):
         dialogo = self._dialogo()
         dialogo.rb_formato.SetSelection(1)

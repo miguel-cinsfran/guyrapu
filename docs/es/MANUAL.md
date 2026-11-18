@@ -811,7 +811,7 @@ la lista del chat en el orden del menú, con vuelta en los extremos. En el
 teclado de España son `Ctrl+Mayús+'` y `Ctrl+Mayús+¡`; en el de Estados
 Unidos, `Ctrl+Mayús+-` y `Ctrl+Mayús+=`.
 
-Con *Leer mensajes recientes en cualquier aplicación*, en *Preferencias*,
+Con *Usar atajos del chat en cualquier aplicación*, en *Preferencias*,
 categoría *Lectura*, todos estos atajos funcionan también con otra
 aplicación en primer plano. Si otra aplicación ya usa una de estas
 combinaciones, suena un tono y Guyrapu dice cuál.
