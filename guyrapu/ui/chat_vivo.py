@@ -13,7 +13,7 @@ import time
 import wx
 
 from guyrapu.capture import traduccion_chat
-from guyrapu.capture.tiktok_captura import debe_pasar_me_gusta
+from guyrapu.capture.tiktok_filtros import debe_pasar_me_gusta
 from guyrapu.core import comando_clip
 from guyrapu.core import diagnostico
 from guyrapu.core import plataformas

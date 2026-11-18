@@ -18,9 +18,8 @@ from unittest import mock
 
 import main
 from guyrapu.capture import tiktok_captura
-from guyrapu.capture.tiktok_captura import (
-    debe_pasar_me_gusta, es_historico, _envolver_marcador_historico,
-)
+from guyrapu.capture.tiktok_captura import _envolver_marcador_historico
+from guyrapu.capture.tiktok_filtros import debe_pasar_me_gusta, es_historico
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.config import (
     TIPO_TEXTO, TIPO_SUPERCHAT, TIPO_STICKER, TIPO_MIEMBRO, TIPO_SEGUIR,

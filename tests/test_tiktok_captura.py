@@ -13,7 +13,8 @@ from unittest import mock
 from guyrapu.capture import tiktok_captura
 from guyrapu.capture import tiktok_errores as errores
 from guyrapu.capture.tiktok_captura import (usuario_de_url,
-                            _mejor_flujo, autor_de_evento, es_previo_a_conexion)
+                            _mejor_flujo, autor_de_evento)
+from guyrapu.capture.tiktok_filtros import es_previo_a_conexion
 from guyrapu.capture.tiktok_errores import (mensaje_error as _mensaje_error,
     es_error_permanente as _es_error_permanente)
 
