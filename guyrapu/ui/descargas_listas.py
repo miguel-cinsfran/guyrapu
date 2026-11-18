@@ -11,6 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core import diagnostico
+from guyrapu.core import pasos_lista
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import N_, _
 from guyrapu.downloads import filas_descargas
@@ -211,7 +212,7 @@ class PaginaDescargas(wx.Panel):
     def _sincronizar(self, deseadas: list) -> None:
         claves = list(self._claves)
         tramos = list(self._tramos)
-        pasos = filas_descargas.pasos_para_sincronizar(claves, deseadas)
+        pasos = pasos_lista.pasos_para_sincronizar(claves, deseadas)
         for paso in pasos:
             if paso[0] == "borrar":
                 self.lista.DeleteItem(paso[1])
