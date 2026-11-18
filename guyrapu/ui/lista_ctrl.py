@@ -20,6 +20,12 @@ class ListaCtrlEnvuelta:
     def GetSelection(self):
         return self._control.GetFirstSelected()
 
+    def GetSelections(self):
+        elegidos = [self._control.GetFirstSelected()]
+        while elegidos[-1] != -1:
+            elegidos.append(self._control.GetNextSelected(elegidos[-1]))
+        return elegidos[:-1]
+
     def SetSelection(self, indice):
         # Con solo `Select` el foco del lector queda en otra fila.
         self._control.Select(indice)

@@ -163,6 +163,17 @@ class ListaConVacio:
             return seleccion
         return None
 
+    def indices(self):
+        """Los índices elegidos en orden, o una lista vacía."""
+        if not self._textos:
+            return []
+        if isinstance(self._lista, ListaCtrlEnvuelta):
+            elegidos = self._lista.GetSelections()
+        else:
+            elegidos = [self._lista.GetSelection()]
+        return [indice for indice in elegidos
+                if 0 <= indice < len(self._textos)]
+
     def vacia(self):
         """Si la lista no tiene elementos, solo la línea vacía."""
         return not self._textos
@@ -199,6 +210,10 @@ class ListaConAcciones:
         """El índice elegido de verdad, o None también con la línea vacía."""
         return self._vacio.indice()
 
+    def indices(self):
+        """Los índices elegidos en orden, o una lista vacía."""
+        return self._vacio.indices()
+
     def _accion(self, clave):
         for accion in self._acciones:
             if accion.clave == clave:
@@ -220,8 +235,13 @@ class ListaConAcciones:
 
     def _rechazar(self, accion) -> bool:
         """Anuncia por qué no se puede usar la acción, si es el caso."""
-        if accion.necesita_elemento and self.indice() is None:
+        elegidas = self.indices()
+        if accion.necesita_elemento and not elegidas:
             self._vacio.sin_elemento()
+            return True
+        if (accion.necesita_elemento and not accion.varios
+                and len(elegidas) > 1):
+            anunciar(_("Elige un solo elemento para esta acción"))
             return True
         return self._avisar_motivo(accion)
 
@@ -274,6 +294,10 @@ class ListaConAcciones:
             menu.Destroy()
 
     def _construir_menu(self):
-        estados = acciones_encendidas(
-            self._acciones, self.indice() is not None)
-        return construir_menu(self._acciones, estados, self.ejecutar)
+        elegidas = len(self.indices())
+        estados = acciones_encendidas(self._acciones, elegidas)
+        motivos = {}
+        if elegidas > 1:
+            motivos = {clave: _("Elige un solo elemento para esta acción")
+                       for clave, activo in estados.items() if not activo}
+        return construir_menu(self._acciones, estados, self.ejecutar, motivos)

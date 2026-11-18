@@ -62,8 +62,9 @@ def _agregar_item(menu, accion, activo, ejecutar, etiqueta) -> None:
         id=identificador)
 
 
-def _agregar_accion(menu, accion, activo, ejecutar) -> None:
-    motivo = accion.motivo() if accion.motivo is not None else ""
+def _agregar_accion(menu, accion, activo, ejecutar, motivo_extra="") -> None:
+    motivo = motivo_extra or (
+        accion.motivo() if accion.motivo is not None else "")
     etiqueta = _etiqueta(accion, motivo)
     if accion.opciones is not None and activo and not motivo:
         submenu = wx.Menu()
@@ -73,11 +74,14 @@ def _agregar_accion(menu, accion, activo, ejecutar) -> None:
     _agregar_item(menu, accion, activo, ejecutar, etiqueta)
 
 
-def construir_menu(acciones, estados, ejecutar):
-    """El menú contextual de la lista, con sus submenús y estados."""
+def construir_menu(acciones, estados, ejecutar, motivos=None):
+    """El menú contextual de la lista, con sus submenús, estados y motivos."""
+    motivos = motivos or {}
     menu = wx.Menu()
     for accion in acciones:
-        _agregar_accion(menu, accion, estados[accion.clave], ejecutar)
+        _agregar_accion(
+            menu, accion, estados[accion.clave], ejecutar,
+            motivos.get(accion.clave, ""))
     return menu
 
 

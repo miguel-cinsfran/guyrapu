@@ -10,7 +10,7 @@ from guyrapu.ui import lista_pura, menu_lista
 
 
 def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
-            motivo=None, opciones=None):
+            motivo=None, opciones=None, varios=False):
     return lista_pura.Accion(
         clave=clave,
         etiqueta="&" + clave.capitalize(),
@@ -18,7 +18,8 @@ def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
         tecla=tecla,
         necesita_elemento=necesita_elemento,
         motivo=motivo,
-        opciones=opciones)
+        opciones=opciones,
+        varios=varios)
 
 
 ACCIONES = (
@@ -131,6 +132,26 @@ class PruebaPartePura(unittest.TestCase):
         self.assertTrue(sin_elemento["nuevo"])
         con_elemento = lista_pura.acciones_encendidas(ACCIONES, True)
         self.assertTrue(all(con_elemento.values()))
+
+    def test_p3_las_encendidas_dependen_de_la_cantidad_de_filas(self):
+        acciones = (
+            _accion("solo"),
+            _accion("varias", varios=True),
+            _accion("libre", necesita_elemento=False),
+            _accion("libre_varias", necesita_elemento=False, varios=True),
+        )
+        self.assertEqual(
+            lista_pura.acciones_encendidas(acciones, 0),
+            {"solo": False, "varias": False,
+             "libre": True, "libre_varias": True})
+        self.assertEqual(
+            lista_pura.acciones_encendidas(acciones, 1),
+            {"solo": True, "varias": True,
+             "libre": True, "libre_varias": True})
+        self.assertEqual(
+            lista_pura.acciones_encendidas(acciones, 3),
+            {"solo": False, "varias": True,
+             "libre": True, "libre_varias": True})
 
     def test_ctrl_d_da_su_accion_y_el_menu_dice_la_tecla(self):
         acciones = (_accion("duplicar", "ctrl+d"),)

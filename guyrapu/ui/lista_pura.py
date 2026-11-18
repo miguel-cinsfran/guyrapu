@@ -48,6 +48,7 @@ class Accion:
     manejador: Callable[[], None]
     tecla: str | None = None
     necesita_elemento: bool = True
+    varios: bool = False
     motivo: Callable[[], str] | None = None
     opciones: (Callable[[], list[tuple[str, Callable[[], None]]]]
                | None) = None
@@ -80,9 +81,11 @@ def clave_de_tecla(codigo: int, modificadores: int, acciones) -> str | None:
     return None
 
 
-def acciones_encendidas(acciones, hay_elemento: bool) -> dict[str, bool]:
-    """Qué acciones van encendidas: las que piden elemento solo con uno."""
-    return {accion.clave: hay_elemento or not accion.necesita_elemento
+def acciones_encendidas(acciones, elegidas: int) -> dict[str, bool]:
+    """Qué acciones van encendidas según cuántas filas están elegidas."""
+    return {accion.clave: (not accion.necesita_elemento
+                           or elegidas == 1
+                           or (elegidas > 1 and accion.varios))
             for accion in acciones}
 
 

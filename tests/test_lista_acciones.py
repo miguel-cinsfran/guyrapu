@@ -14,7 +14,7 @@ from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 
 
 def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
-            motivo=None, opciones=None):
+            motivo=None, opciones=None, varios=False):
     return lista_acciones.Accion(
         clave=clave,
         etiqueta="&" + clave.capitalize(),
@@ -22,7 +22,8 @@ def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
         tecla=tecla,
         necesita_elemento=necesita_elemento,
         motivo=motivo,
-        opciones=opciones)
+        opciones=opciones,
+        varios=varios)
 
 
 ACCIONES = (
@@ -579,6 +580,79 @@ class PruebaConListaCtrl(unittest.TestCase):
         self.pieza.fijar(["a", "b"], elegido=1)
         self.assertEqual(self.lista.GetFirstSelected(), 1)
         self.assertEqual(self.lista.GetFocusedItem(), 1)
+
+
+class PruebaSeleccionMultiple(unittest.TestCase):
+
+    MOTIVO = "Elige un solo elemento para esta acción"
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.lista = wx.ListCtrl(self.marco, style=wx.LC_REPORT)
+        self.lista.InsertColumn(0, "Nombre", width=150)
+        self.lista.InsertColumn(1, "Familia", width=150)
+
+    def _pieza(self, acciones):
+        pieza = lista_acciones.ListaConAcciones(
+            self.lista, acciones, "Sin elementos.")
+        pieza.fijar(["a", "b", "c", "d", "e"])
+        return pieza
+
+    def test_p1_indices_da_todas_las_elegidas_en_orden(self):
+        pieza = self._pieza((_accion("editar"),))
+        for indice in (0, 2, 4):
+            self.lista.Select(indice)
+        self.assertEqual(pieza.indices(), [0, 2, 4])
+        for indice in (0, 2, 4):
+            self.lista.Select(indice, False)
+        self.assertEqual(pieza.indices(), [])
+        self.lista.Select(3)
+        self.assertEqual(pieza.indices(), [3])
+        pieza.fijar([])
+        self.assertEqual(pieza.indices(), [])
+
+    def test_p1_lista_con_vacio_da_los_indices_elegidos(self):
+        vacio = lista_acciones.ListaConVacio(self.lista, "Sin elementos.")
+        vacio.fijar(["a", "b", "c"])
+        self.lista.Select(0, False)
+        self.lista.Select(1)
+        self.assertEqual(vacio.indices(), [1])
+        vacio.fijar([])
+        self.assertEqual(vacio.indices(), [])
+
+    def test_p2_con_dos_elegidas_la_de_una_anuncia_y_no_corre(self):
+        llamadas = []
+        pieza = self._pieza((_accion(
+            "editar", manejador=lambda: llamadas.append("editar")),))
+        self.lista.Select(1)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.assertTrue(pieza.ejecutar("editar"))
+        anunciar.assert_called_once_with(self.MOTIVO)
+        self.assertEqual(llamadas, [])
+
+    def test_p2_con_varias_la_accion_de_varias_corre(self):
+        llamadas = []
+        pieza = self._pieza((_accion(
+            "unir", varios=True,
+            manejador=lambda: llamadas.append("unir")),))
+        self.lista.Select(1)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self.assertTrue(pieza.ejecutar("unir"))
+        anunciar.assert_not_called()
+        self.assertEqual(llamadas, ["unir"])
+
+    def test_p2_en_el_menu_la_de_una_queda_apagada_con_el_motivo(self):
+        pieza = self._pieza((_accion("editar"),))
+        self.lista.Select(1)
+        menu = pieza._construir_menu()
+        self.addCleanup(menu.Destroy)
+        item = menu.GetMenuItems()[0]
+        self.assertFalse(item.IsEnabled())
+        self.assertEqual(
+            item.GetItemLabel(),
+            "&Editar (elige un solo elemento para esta acción)")
 
 
 class PruebaCasillasConPieza(unittest.TestCase):

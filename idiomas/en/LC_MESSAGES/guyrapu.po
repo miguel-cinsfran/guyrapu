@@ -3363,15 +3363,22 @@ msgstr "To the bottom"
 msgid "Comandos: {lista}."
 msgstr "Commands: {lista}."
 
-#. Traductores: estado de F2 con el pánico activado.
+#. Traductores: estado de F2; {texto} es el de las metas.
 #: guyrapu/interaction/cola_pantalla.py
-msgid "Pánico activado: no se muestra nada en el vídeo."
-msgstr "Panic on: nothing is shown on the video."
+#, python-brace-format
+msgid "Metas en el vídeo: {texto}."
+msgstr "Goals on the video: {texto}."
 
+#. Traductores: estado de F2; {texto} es el de la encuesta.
 #: guyrapu/interaction/cola_pantalla.py
 #, python-brace-format
 msgid "Encuesta en el vídeo: {texto}."
 msgstr "Poll on the video: {texto}."
+
+#. Traductores: estado de F2 con el pánico activado.
+#: guyrapu/interaction/cola_pantalla.py
+msgid "Pánico activado: no se muestra nada en el vídeo."
+msgstr "Panic on: nothing is shown on the video."
 
 #. Traductores: estado de F2; {texto} es lo que se está viendo.
 #: guyrapu/interaction/cola_pantalla.py
@@ -13315,6 +13322,10 @@ msgstr "Interaction"
 msgid "Páginas de interacción"
 msgstr "Interaction pages"
 
+#: guyrapu/ui/lista_acciones.py
+msgid "Elige un solo elemento para esta acción"
+msgstr "Choose only one item for this action"
+
 #. Traductores: fila de me gusta agrupados; {autor} es quien los dio, {n}
 #. cuántos dio y {hora} la hora.
 #: guyrapu/ui/lista_chat.py
@@ -13945,6 +13956,10 @@ msgstr "&Goal:"
 #: guyrapu/ui/meta_cuadro.py
 msgid "&Festejo:"
 msgstr "&Celebration:"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "Mostrar a&vance en el vídeo"
+msgstr "Show &progress on the video"
 
 #: guyrapu/ui/metas_en_vivo.py
 #, python-brace-format
@@ -16746,13 +16761,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/interaction/cola_pantalla.py
-#, python-brace-format
-msgid "Metas en el vídeo: {texto}."
-msgstr "Goals on the video: {texto}."
-
-#: guyrapu/ui/meta_cuadro.py
-msgid "Mostrar a&vance en el vídeo"
-msgstr "Show &progress on the video"
 
