@@ -49,6 +49,12 @@ class CapaVideo:
         self._alto = 0
         self._ocupado = False
         self._falla_avisada = False
+        self._pausado = False
+        self._silenciado = False
+        self._panico = False
+        self._en_cola = 0
+        self._visible = None
+        self._mostrando = False
         self._timer = wx.Timer(frame)
         frame.Bind(wx.EVT_TIMER, self._atender, self._timer)
         self._timer.Start(self.INTERVALO)
@@ -62,7 +68,7 @@ class CapaVideo:
             datos={"estilo": mensaje.get("estilo", "clasico"),
                    "nombre": mensaje.get("nombre", "")},
         )
-        return self.cola.agregar(pieza)
+        return self._agregar(pieza)
 
     def agregar_comando(self, respuesta):
         """Suma la respuesta de un comando a la cola como pieza propia."""
@@ -72,11 +78,54 @@ class CapaVideo:
             segundos=respuesta.segundos,
             datos={"estilo": respuesta.estilo, "nombre": respuesta.nombre},
         )
-        return self.cola.agregar(pieza)
+        return self._agregar(pieza)
+
+    def _agregar(self, pieza) -> bool:
+        agregada = self.cola.agregar(pieza)
+        if agregada:
+            self._en_cola += 1
+        return agregada
 
     def describir(self) -> str:
         """La frase de F2 sobre lo que hay en el vídeo."""
         return self.cola.describir()
+
+    def estado(self) -> dict:
+        """Pausa, silencio y pánico vigentes, para las casillas del menú."""
+        return {"pausado": self._pausado,
+                "silenciado": self._silenciado,
+                "panico": self._panico}
+
+    def pausar(self):
+        self.cola.pausar()
+        self._pausado = True
+
+    def reanudar(self):
+        self.cola.reanudar()
+        self._pausado = False
+
+    def saltar(self) -> bool:
+        """Omite lo que se ve; dice si había algo en el vídeo."""
+        habia = self._visible is not None or self._mostrando
+        self.cola.saltar()
+        return habia
+
+    def vaciar(self) -> bool:
+        """Vacía lo pendiente; dice si había algo en la cola."""
+        habia = self._en_cola > 0
+        self.cola.vaciar()
+        self._en_cola = 0
+        return habia
+
+    def silenciar(self, activo):
+        self.cola.silenciar(activo)
+        self._silenciado = bool(activo)
+
+    def panico(self, activo):
+        self.cola.panico(activo)
+        self._panico = bool(activo)
+        if activo:
+            self._en_cola = 0
 
     def _atender(self, event):
         if self._ocupado:
@@ -85,6 +134,7 @@ class CapaVideo:
         if not ordenes:
             return
         self._ocupado = True
+        self._mostrando = ordenes[0].accion == "mostrar"
         diagnostico.crear_hilo(
             self._trabajo, "CapaVideo", args=(ordenes[0],)).start()
 
@@ -162,6 +212,10 @@ class CapaVideo:
     def _mostrada(self, orden):
         pieza = orden.pieza
         self.cola.mostrada(pieza, self._reloj())
+        self._visible = pieza
+        self._mostrando = False
+        if self._en_cola > 0:
+            self._en_cola -= 1
         self._ocupado = False
         self._falla_avisada = False
         # La respuesta de un comando no se anuncia: el chat ya se lee como hoy.
@@ -177,10 +231,12 @@ class CapaVideo:
 
     def _oculta(self, pieza):
         self.cola.oculta(pieza, self._reloj())
+        self._visible = None
         self._ocupado = False
 
     def _fallo(self, pieza):
         self.cola.fallo(pieza, self._reloj())
+        self._mostrando = False
         self._ocupado = False
         if self._falla_avisada:
             return

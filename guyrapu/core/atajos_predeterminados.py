@@ -63,4 +63,10 @@ ATAJOS_PREDETERMINADOS = [
     ("anunciar_encuadre", "ctrl+f3"),
     ("avisos_encuadre", "ctrl+shift+f3"),
     ("camara_visible", "alt+f3"),
+    ("video_pausar", "ctrl+alt+shift+p"),
+    ("video_saltar", "ctrl+alt+shift+s"),
+    ("video_vaciar", "ctrl+alt+shift+v"),
+    ("video_silenciar", "ctrl+alt+shift+m"),
+    ("video_panico", "ctrl+alt+shift+q"),
+    ("mensajes_automaticos_alternar", "ctrl+alt+shift+a"),
 ]

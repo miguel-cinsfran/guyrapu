@@ -7587,22 +7587,6 @@ msgid "Leer el mensaje 10 desde el final del chat"
 msgstr "Read message 10 from the end of the chat"
 
 #: guyrapu/ui/atajos_captura.py
-msgid ""
-"Cada familia de atajos tiene su modificador. Ctrl es para el reproductor, "
-"Alt para el chat y Ctrl+Mayús para abrir ventanas. Alt+Mayús es para el "
-"directo y OBS, Ctrl+Alt para la música y las teclas F para la voz. Pulsa un"
-" botón y luego la combinación que quieras. La aplicación comprueba que "
-"sirva para esa familia y que no coincida con otra. F6, Mayús+F6, F9 a F12 y"
-" Alt+F4 son fijas, y se muestran para que no se puedan reemplazar."
-msgstr ""
-"Each shortcut family has its own modifier. Ctrl is for the player, Alt for "
-"the chat, and Ctrl+Shift for opening windows. Alt+Shift is for the live "
-"stream and OBS, Ctrl+Alt for music, and the F keys for voice. Press a "
-"button and then the combination you want. The application checks that it "
-"works for that family and does not match another. F6, Shift+F6, F9 through "
-"F12, and Alt+F4 are fixed, and they are shown so they cannot be replaced."
-
-#: guyrapu/ui/atajos_captura.py
 #, python-brace-format
 msgid "{teclas} ya está asignado a {otra}. Elige otro atajo."
 msgstr "{teclas} is already assigned to {otra}. Choose another shortcut."
@@ -15688,4 +15672,110 @@ msgstr "Messages"
 #: guyrapu/ui/participacion_chat.py
 msgid "Regalos"
 msgstr "Gifts"
+
+#: guyrapu/core/atajos.py
+msgid "Interacción en directo (Ctrl+Alt+Mayús)"
+msgstr "Live interaction (Ctrl+Alt+Shift)"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Cola del vídeo reanudada"
+msgstr "Video queue resumed"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Medios activados"
+msgstr "Media unmuted"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Modo pánico activado"
+msgstr "Panic mode on"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Cola del vídeo en pausa"
+msgstr "Video queue paused"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Medios silenciados"
+msgstr "Media muted"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Modo pánico desactivado"
+msgstr "Panic mode off"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Debe ser Ctrl+Alt+Mayús y una letra (por ejemplo Ctrl+Alt+Mayús+P)."
+msgstr "It must be Ctrl+Alt+Shift and a letter (for example Ctrl+Alt+Shift+P)."
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Pausar la cola del vídeo"
+msgstr "Pause the video queue"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Omitir el mensaje del vídeo"
+msgstr "Skip the video message"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Vaciar la cola del vídeo"
+msgstr "Clear the video queue"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Silenciar los medios"
+msgstr "Mute the media"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Modo pánico"
+msgstr "Panic mode"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Activar o desactivar los mensajes automáticos"
+msgstr "Turn scheduled messages on or off"
+
+#: guyrapu/ui/atajos_captura.py
+msgid ""
+"Cada familia de atajos tiene su modificador. Ctrl es para el reproductor, "
+"Alt para el chat y Ctrl+Mayús para abrir ventanas. Alt+Mayús es para el "
+"directo y OBS, y Ctrl+Alt para la música. Ctrl+Alt+Mayús es para lo que "
+"sale en el vídeo, y las teclas F para la voz. Pulsa un botón y luego la "
+"combinación que quieras. La aplicación comprueba que sirva para esa familia"
+" y que no coincida con otra. F6, Mayús+F6, F9 a F12 y Alt+F4 son fijas, y "
+"se muestran para que no se puedan reemplazar."
+msgstr ""
+"Each shortcut family has its own modifier. Ctrl is for the player, Alt for "
+"the chat, and Ctrl+Shift for opening windows. Alt+Shift is for the live "
+"stream and OBS, and Ctrl+Alt for music. Ctrl+Alt+Shift is for what appears "
+"on the video, and the F keys for voice. Press a button and then the "
+"combination you want. The application checks that it works for that family "
+"and does not match another. F6, Shift+F6, F9 through F12, and Alt+F4 are "
+"fixed, and they are shown so they cannot be replaced."
+
+#: guyrapu/ui/comando_en_directo.py
+msgid "Mensaje del vídeo omitido"
+msgstr "Video message skipped"
+
+#: guyrapu/ui/comando_en_directo.py
+msgid "Nada en el vídeo"
+msgstr "Nothing on the video"
+
+#: guyrapu/ui/comando_en_directo.py
+msgid "Cola del vídeo vacía"
+msgstr "Video queue empty"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "&Pausar cola del vídeo"
+msgstr "&Pause video queue"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Omitir m&ensaje del vídeo"
+msgstr "Skip the vi&deo message"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Vaciar co&la del vídeo"
+msgstr "Clear the video &queue"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Silencia&r medios"
+msgstr "&Mute media"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Modo pánic&o"
+msgstr "Pa&nic mode"
 

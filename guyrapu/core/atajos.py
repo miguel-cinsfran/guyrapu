@@ -82,6 +82,9 @@ ATAJOS_GRUPOS = [
       "musica_vol_mas", "musica_vol_menos", "musica_que_suena",
       "musica_silenciar", "musica_aleatorio", "musica_repetir",
       "musica_detener", "musica_adelantar", "musica_retroceder"]),
+    (N_("Interacción en directo (Ctrl+Alt+Mayús)"),
+     ["video_pausar", "video_saltar", "video_vaciar", "video_silenciar",
+      "video_panico", "mensajes_automaticos_alternar"]),
     (N_("Ventana y navegación (fijos)"),
      ["salir", "region_siguiente", "region_anterior"]),
     (N_("Mensajes recientes del chat (fijos)"),
@@ -94,7 +97,8 @@ ATAJOS_GRUPOS = [
 # Modificador obligatorio por acción: reproductor → Ctrl, chat → Alt,
 # ventanas → Ctrl+Shift, directo → Alt+Shift, voz → F.
 # El grupo de atajos fijos no impone modificador.
-_AREA_POR_GRUPO = ("ctrl", "alt", "ctrl+shift", "alt+shift", "f", "ctrl+alt", None, None)
+_AREA_POR_GRUPO = ("ctrl", "alt", "ctrl+shift", "alt+shift", "f", "ctrl+alt",
+                   "ctrl+alt+shift", None, None)
 ATAJOS_AREA = {ac: _AREA_POR_GRUPO[i]
                for i, (_titulo, acs) in enumerate(ATAJOS_GRUPOS) for ac in acs}
 
@@ -131,11 +135,17 @@ _RE_ATAJO = re.compile(r"^(ctrl\+shift|ctrl|alt)\+(.+)$", re.IGNORECASE)
 _RE_CTRL_ALT = re.compile(
     r"^(ctrl\+alt|alt\+ctrl)\+(left|right|up|down|space|[a-z]|[0-9])$",
     re.IGNORECASE)
-# Con Mayús solo valen las dos flechas horizontales, en cualquier orden.
+# Con Mayús valen las dos flechas horizontales de la música y las letras de
+# la interacción en directo, en cualquier orden.
 _RE_CTRL_ALT_SHIFT = re.compile(
     r"^(ctrl\+alt\+shift|ctrl\+shift\+alt|alt\+ctrl\+shift"
-    r"|alt\+shift\+ctrl|shift\+ctrl\+alt|shift\+alt\+ctrl)\+(left|right)$",
+    r"|alt\+shift\+ctrl|shift\+ctrl\+alt|shift\+alt\+ctrl)"
+    r"\+(left|right|[a-z])$",
     re.IGNORECASE)
+_RE_CTRL_ALT_VALIDO = re.compile(
+    r"^(ctrl\+alt\+(left|right|up|down|space|[a-z]|[0-9])"
+    r"|ctrl\+alt\+shift\+(left|right))$")
+_RE_CTRL_ALT_SHIFT_LETRA = re.compile(r"^ctrl\+alt\+shift\+[a-z]$")
 _RE_FKEY  = re.compile(r"^f(1[0-2]|[1-9])$", re.IGNORECASE)
 _RE_CTRL_FKEY = re.compile(r"^ctrl\+f(1[0-2]|[1-9])$", re.IGNORECASE)
 _RE_CTRL_SHIFT_FKEY = re.compile(
@@ -170,9 +180,9 @@ def _normalizar_atajo(valor: str | None) -> str | None:
     / 'alt+shift+c' / 'f5' / 'ctrl+f2'. None si no vale.
 
     Ctrl+Shift, Ctrl, Alt o Alt+Shift + tecla, Ctrl+Alt con flechas,
-    Espacio, una letra, un dígito o Mayús con left/right, una tecla F sin
-    modificador, o Ctrl más una tecla F (como Ctrl+F2). Las letras y dígitos
-    que AltGr escribe se descartan al capturar el atajo, no aquí.
+    Espacio, una letra o un dígito, Ctrl+Alt+Mayús con left/right o una
+    letra, una tecla F sin modificador, o Ctrl más una tecla F (como Ctrl+F2).
+    Las letras y dígitos que AltGr escribe se descartan al capturar.
     """
     if valor is None:
         return None
@@ -203,14 +213,24 @@ def atajo_valido_para_area(accion: str, normalizado: str | None) -> bool:
 
     Reproductor → Ctrl, chat → Alt, voz → tecla F sola, con Ctrl o con
     Ctrl+Mayús (como Ctrl+F2 o Ctrl+Mayús+F2), música → Ctrl+Alt con
-    flechas, Espacio, una letra o un dígito. Vacío (desactivado) o acción
-    sin área definida se aceptan sin restricción.
+    flechas, Espacio, una letra o un dígito, interacción en directo →
+    Ctrl+Alt+Mayús y una letra. Vacío (desactivado) o acción sin área
+    definida se aceptan sin restricción.
     """
     area = ATAJOS_AREA.get(accion)
     if not normalizado or area is None:
         return True
+    return _atajo_valido_de_area(area, normalizado)
+
+
+def _atajo_valido_de_area(area: str, normalizado: str) -> bool:
+    """Si la combinación ya normalizada respeta el modificador de su área."""
     if area == "f":
         return any(patron.match(normalizado) for patron in _RE_F_TODAS)
+    if area == "ctrl+alt":
+        return bool(_RE_CTRL_ALT_VALIDO.match(normalizado))
+    if area == "ctrl+alt+shift":
+        return bool(_RE_CTRL_ALT_SHIFT_LETRA.match(normalizado))
     # Ctrl+Shift, Ctrl+Alt y Alt+Shift tienen área propia, no las generales.
     if area == "ctrl" and (normalizado.startswith("ctrl+shift+")
                            or normalizado.startswith("ctrl+alt+")):

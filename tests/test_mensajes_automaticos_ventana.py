@@ -336,30 +336,34 @@ class TestImportarExportar(BaseVentana):
 
 class TestCableado(BaseVentana):
 
-    def test_alternar_guarda_marca_la_casilla_y_anuncia(self):
+    def test_alternar_guarda_marca_la_casilla_y_suena(self):
         frame = FrameDoble()
         with mock.patch.object(gui, "guardar_opcion") as guardar, \
-                mock.patch.object(gui, "anunciar") as decir:
+                mock.patch.object(gui, "anunciar_con_sonido") as decir:
             comando_mensajes_automaticos.alternar(frame)
             self.assertTrue(frame._config["programados_activo"])
             guardar.assert_called_once_with(
                 gui.RUTA_CONFIG, "programados", "activo", "true")
             frame.mi_programados_activo.Check.assert_called_once_with(True)
-            decir.assert_called_once_with("Mensajes automáticos activados")
+            decir.assert_called_once_with(
+                "Mensajes automáticos activados",
+                "mensajes_automaticos_activados")
             comando_mensajes_automaticos.alternar(frame)
         self.assertFalse(frame._config["programados_activo"])
-        decir.assert_called_with("Mensajes automáticos desactivados")
+        decir.assert_called_with(
+            "Mensajes automáticos desactivados",
+            "mensajes_automaticos_desactivados")
 
     def test_la_casilla_de_la_ventana_relee_el_valor(self):
         frame = FrameDoble()
         panel = self._panel([])
         panel._padre = frame
         with mock.patch.object(gui, "guardar_opcion"), \
-                mock.patch.object(gui, "anunciar"):
+                mock.patch.object(gui, "anunciar_con_sonido"):
             panel._al_alternar(None)
         self.assertTrue(panel.chk_programados.GetValue())
         with mock.patch.object(gui, "guardar_opcion"), \
-                mock.patch.object(gui, "anunciar"):
+                mock.patch.object(gui, "anunciar_con_sonido"):
             panel._al_alternar(None)
         self.assertFalse(panel.chk_programados.GetValue())
 

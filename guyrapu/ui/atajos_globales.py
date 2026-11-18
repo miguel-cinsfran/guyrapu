@@ -98,6 +98,24 @@ def combinacion_ctrl_mayus(texto: str | None) -> tuple[int, int] | None:
     return None
 
 
+def combinacion_ctrl_alt_mayus(texto: str | None) -> tuple[int, int] | None:
+    """Traduce Ctrl+Alt+Mayús más una letra a lo que pide `RegisterHotKey`.
+
+    Devuelve `(wx.MOD_CONTROL | wx.MOD_ALT | wx.MOD_SHIFT, ord(letra))`.
+    Los tres modificadores valen en cualquier orden. Cualquier otra cosa da
+    None.
+    """
+    partes = (texto or "").strip().lower().replace(" ", "").split("+")
+    if len(partes) != 4:
+        return None
+    if set(partes[:3]) != {"ctrl", "alt", "shift"}:
+        return None
+    tecla = partes[3]
+    if len(tecla) != 1 or not tecla.isascii() or not tecla.isalpha():
+        return None
+    return (wx.MOD_CONTROL | wx.MOD_ALT | wx.MOD_SHIFT, ord(tecla.upper()))
+
+
 def combinacion_funcion(texto: str | None) -> tuple[int, int] | None:
     """Traduce una tecla F con modificadores a lo que pide `RegisterHotKey`.
 

@@ -100,17 +100,20 @@ class TestNormalizarAtajo(unittest.TestCase):
 
     def test_ctrl_alt_rechaza_teclas_f_enter_end_simbolos_y_shift_con_letra(self):
         for valor in ("ctrl+alt+f5", "ctrl+alt+enter", "ctrl+alt+end",
-                      "ctrl+alt+.", "ctrl+alt+shift+a"):
+                      "ctrl+alt+."):
             with self.subTest(valor=valor):
                 self.assertIsNone(_normalizar_atajo(valor))
 
-    def test_ctrl_alt_shift_solo_acepta_las_flechas_horizontales(self):
+    def test_ctrl_alt_shift_acepta_las_flechas_y_las_letras(self):
         self.assertEqual(_normalizar_atajo("ctrl+alt+shift+left"),
                          "ctrl+alt+shift+left")
         self.assertEqual(_normalizar_atajo("ctrl+alt+shift+right"),
                          "ctrl+alt+shift+right")
+        self.assertEqual(_normalizar_atajo("ctrl+alt+shift+p"),
+                         "ctrl+alt+shift+p")
         self.assertIsNone(_normalizar_atajo("ctrl+alt+shift+up"))
         self.assertIsNone(_normalizar_atajo("ctrl+alt+shift+down"))
+        self.assertIsNone(_normalizar_atajo("ctrl+alt+shift+1"))
 
     def test_ctrl_alt_shift_normaliza_los_otros_ordenes(self):
         for valor in ("shift+ctrl+alt+left", "ctrl+shift+alt+left",
@@ -432,14 +435,17 @@ class TestParsearAtajos(unittest.TestCase):
                 self.assertNotIn(accion, ETIQUETAS)
                 self.assertNotIn(accion, acciones)
 
-    def test_grupo_de_musica_justo_antes_del_de_fijos(self):
+    def test_los_grupos_de_musica_y_video_van_antes_del_de_fijos(self):
         titulos = [titulo for titulo, _acciones in ATAJOS_GRUPOS]
-        self.assertEqual(titulos[-3], "Música (Ctrl+Alt)")
+        self.assertEqual(titulos[-4], "Música (Ctrl+Alt)")
+        self.assertEqual(titulos[-3],
+                         "Interacción en directo (Ctrl+Alt+Mayús)")
         self.assertEqual(titulos[-2], "Ventana y navegación (fijos)")
         self.assertEqual(titulos[-1], "Mensajes recientes del chat (fijos)")
         self.assertEqual(_AREA_POR_GRUPO[5], "ctrl+alt")
-        self.assertIsNone(_AREA_POR_GRUPO[6])
+        self.assertEqual(_AREA_POR_GRUPO[6], "ctrl+alt+shift")
         self.assertIsNone(_AREA_POR_GRUPO[7])
+        self.assertIsNone(_AREA_POR_GRUPO[8])
         self.assertEqual(len(titulos), len(_AREA_POR_GRUPO))
 
     def test_tono_es_editable_en_el_grupo_de_voz_y_no_choca(self):
@@ -474,6 +480,45 @@ class TestParsearAtajos(unittest.TestCase):
                     self.assertFalse(atajo_valido_para_area(accion, otra))
         self.assertEqual(detectar_conflictos_atajos({}), [])
         self.assertTrue(all(accion in parsear_atajos({}) for accion in acciones))
+
+    def test_grupo_de_interaccion_en_directo_con_sus_seis_acciones(self):
+        acciones = dict(ATAJOS_GRUPOS)[
+            "Interacción en directo (Ctrl+Alt+Mayús)"]
+        self.assertEqual(acciones, [
+            "video_pausar", "video_saltar", "video_vaciar",
+            "video_silenciar", "video_panico",
+            "mensajes_automaticos_alternar"])
+        esperados = {
+            "video_pausar": "ctrl+alt+shift+p",
+            "video_saltar": "ctrl+alt+shift+s",
+            "video_vaciar": "ctrl+alt+shift+v",
+            "video_silenciar": "ctrl+alt+shift+m",
+            "video_panico": "ctrl+alt+shift+q",
+            "mensajes_automaticos_alternar": "ctrl+alt+shift+a",
+        }
+        for accion, valor in esperados.items():
+            with self.subTest(accion=accion):
+                self.assertEqual(ATAJOS_DEFAULTS[accion], valor)
+                self.assertEqual(ATAJOS_AREA[accion], "ctrl+alt+shift")
+                self.assertNotIn(accion, ATAJOS_FIJOS)
+                self.assertTrue(atajo_valido_para_area(accion, valor))
+        self.assertEqual(detectar_conflictos_atajos({}), [])
+
+    def test_interaccion_solo_acepta_ctrl_alt_mayus_y_letra(self):
+        self.assertTrue(atajo_valido_para_area(
+            "video_pausar", "ctrl+alt+shift+p"))
+        self.assertFalse(atajo_valido_para_area("video_pausar", "ctrl+p"))
+        for valor in ("ctrl+alt+p", "ctrl+shift+p", "ctrl+alt+shift+1",
+                      "ctrl+alt+shift+left"):
+            with self.subTest(valor=valor):
+                self.assertFalse(atajo_valido_para_area(
+                    "video_pausar", valor))
+
+    def test_la_musica_sigue_aceptando_ctrl_alt_mayus_flecha(self):
+        self.assertTrue(atajo_valido_para_area(
+            "musica_adelantar", "ctrl+alt+shift+right"))
+        self.assertFalse(atajo_valido_para_area(
+            "musica_adelantar", "ctrl+alt+shift+p"))
 
     def test_menus_usan_el_sistema_para_los_nuevos_atajos(self):
         from guyrapu.ui import menu_obs

@@ -52,6 +52,7 @@ _AREA_AYUDA = {
     "ctrl+shift": N_("Debe ser Ctrl+Mayús y una tecla (por ejemplo Ctrl+Mayús+P)."),
     "alt+shift": N_("Debe ser Alt+Mayús y una tecla (por ejemplo Alt+Mayús+C)."),
     "ctrl+alt": N_("Debe ser Ctrl+Alt y una flecha, Espacio, una letra o un número (por ejemplo Ctrl+Alt+T). También se acepta Ctrl+Alt+Mayús y Flecha izquierda o derecha."),
+    "ctrl+alt+shift": N_("Debe ser Ctrl+Alt+Mayús y una letra (por ejemplo Ctrl+Alt+Mayús+P)."),
     "f": N_("Debe ser una tecla de función, de F1 a F12 (por ejemplo F2). Puede ir sola, con Ctrl, con Ctrl+Mayús o con Alt (por ejemplo Ctrl+F2 o Alt+F3)."),
 }
 ETIQUETAS = {
@@ -116,6 +117,14 @@ ETIQUETAS = {
     "musica_adelantar": N_("Avanzar la música 10 segundos"),
     "musica_retroceder": N_("Retroceder la música 10 segundos"),
     "musica_ventana": N_("Abrir la ventana de música"),
+    # Interacción en directo (Ctrl+Alt+Mayús)
+    "video_pausar": N_("Pausar la cola del vídeo"),
+    "video_saltar": N_("Omitir el mensaje del vídeo"),
+    "video_vaciar": N_("Vaciar la cola del vídeo"),
+    "video_silenciar": N_("Silenciar los medios"),
+    "video_panico": N_("Modo pánico"),
+    "mensajes_automaticos_alternar": N_(
+        "Activar o desactivar los mensajes automáticos"),
     "preguntar_ia": N_("Preguntar a la IA sobre la imagen"),
     "chat_reciente_1": N_("Leer el último mensaje del chat"),
     "chat_reciente_2": N_("Leer el mensaje 2 desde el final del chat"),
@@ -133,8 +142,9 @@ ETIQUETAS = {
 NOTA_PAGINA = N_(
     "Cada familia de atajos tiene su modificador. Ctrl es para el "
     "reproductor, Alt para el chat y Ctrl+Mayús para abrir ventanas. "
-    "Alt+Mayús es para el directo y OBS, Ctrl+Alt para la música y las "
-    "teclas F para la voz. Pulsa un botón y luego la combinación que "
+    "Alt+Mayús es para el directo y OBS, y Ctrl+Alt para la música. "
+    "Ctrl+Alt+Mayús es para lo que sale en el vídeo, y las teclas F para la "
+    "voz. Pulsa un botón y luego la combinación que "
     "quieras. La aplicación comprueba que sirva para esa familia y que no "
     "coincida con otra. F6, Mayús+F6, F9 a F12 y Alt+F4 son fijas, y se "
     "muestran para que no se puedan reemplazar.")
@@ -245,7 +255,7 @@ def resolver(accion: str, combo: str | None,
         ayuda = _AREA_AYUDA.get(cfg.ATAJOS_AREA.get(accion), "")
         return "rechazado", None, _("No se puede usar aquí. {ayuda}").format(ayuda=_(ayuda) if ayuda else "")
 
-    if normalizado.startswith("ctrl+alt+"):
+    if normalizado.startswith("ctrl+alt+") and normalizado.count("+") == 2:
         tecla = normalizado.split("+")[-1]
         if len(tecla) == 1 and tecla.isascii() and tecla.isalnum():
             if altgr is None:

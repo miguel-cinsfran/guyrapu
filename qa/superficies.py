@@ -163,6 +163,12 @@ SIN_ESCENARIO: dict[str, str] = {
     "comando_directo.py": (
         "comando del botón y del panel que transmite y finaliza el directo; "
         "no abre ventana propia."),
+    "comando_en_directo.py": (
+        "comandos del menú Interacción que actúan sobre la cola del vídeo; "
+        "no abren ventana propia."),
+    "interaccion_atajos.py": (
+        "registra los atajos globales de lo que sale en el vídeo; no abre "
+        "ventana propia."),
     "restream_perfil.py": "El banco no tiene cuenta ni canales; el diálogo lo cubren las pruebas con wx.",
     "restream_dialogos_destino.py": "El banco no tiene cuenta ni canales; los cuadros los cubren las pruebas con wx.",
     "agregar_camara.py": (

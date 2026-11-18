@@ -58,6 +58,35 @@ class TestMotivos(unittest.TestCase):
                 self.assertNotEqual(_problemas(motivos, claves), [])
 
 
+class TestEventosDeLoQueSaleEnElVideo(unittest.TestCase):
+    NUEVOS = {
+        "video_pausa": ("Cola del vídeo en pausa", "pausa", "desactivado"),
+        "video_reanudar": ("Cola del vídeo reanudada", "reanudar",
+                           "activado"),
+        "video_silenciar": ("Medios silenciados", "pausa", "desactivado"),
+        "video_audio": ("Medios activados", "reanudar", "activado"),
+        "video_panico": ("Modo pánico activado", "reanudar", "activado"),
+        "video_panico_fin": ("Modo pánico desactivado", "pausa",
+                             "desactivado"),
+        "mensajes_automaticos_activados": (
+            "Mensajes automáticos activados", "reanudar", "activado"),
+        "mensajes_automaticos_desactivados": (
+            "Mensajes automáticos desactivados", "pausa", "desactivado"),
+    }
+
+    def test_cada_uno_tiene_su_nombre_su_sonido_y_su_motivo(self):
+        catalogo = {evento.clave: evento
+                    for evento in eventos_sonido.CATALOGO}
+        for clave, (nombre, sonido, familia) in self.NUEVOS.items():
+            with self.subTest(clave=clave):
+                self.assertIn(clave, catalogo)
+                self.assertEqual(eventos_sonido.NOMBRES[clave], nombre)
+                self.assertEqual(eventos_sonido.SONIDOS[clave], sonido)
+                self.assertEqual(catalogo[clave].familia, familia)
+                self.assertEqual(
+                    motivos_sonido.MOTIVO_POR_CLAVE[clave], "estado")
+
+
 class TestOpcionales(unittest.TestCase):
     def test_musica_tema_y_musica_fin_son_opcionales(self):
         for clave in ("musica_tema", "musica_fin"):

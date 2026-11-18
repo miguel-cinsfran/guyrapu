@@ -84,6 +84,7 @@ ACTUAN_DIRECTO = frozenset((
     "Mostrar OBS",
     "Mostrar u ocultar la cámara",
     "Novedades",
+    "Omitir mensaje del vídeo",
     "Pantalla completa",
     "Pausar lectura",
     "Pausar o reanudar grabación",
@@ -101,6 +102,7 @@ ACTUAN_DIRECTO = frozenset((
     "Subir volumen de la voz",
     "Subir volumen del reproductor",
     "Vaciar cola",
+    "Vaciar cola del vídeo",
 ))
 
 

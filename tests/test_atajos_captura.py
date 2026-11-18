@@ -176,6 +176,31 @@ class TestAtajosCaptura(unittest.TestCase):
             "capturado", "ctrl+alt+t",
             "Capturado: Ctrl+Alt+T. Se aplica al pulsar Guardar."))
 
+    def test_area_de_interaccion_acepta_ctrl_alt_mayus_y_letra(self):
+        resultado = atajos_captura.resolver(
+            "video_pausar", "ctrl+alt+shift+p", {})
+        self.assertEqual(resultado, (
+            "capturado", "ctrl+alt+shift+p",
+            "Capturado: Ctrl+Alt+Mayús+P. Se aplica al pulsar Guardar."))
+
+    def test_area_de_interaccion_rechaza_lo_que_no_es_letra(self):
+        for valor in ("ctrl+alt+p", "ctrl+shift+p", "ctrl+alt+shift+left"):
+            with self.subTest(valor=valor):
+                resultado = atajos_captura.resolver(
+                    "video_pausar", valor, {})
+                self.assertEqual(resultado[0], "rechazado")
+                self.assertIn("Ctrl+Alt+Mayús y una letra", resultado[2])
+        resultado = atajos_captura.resolver(
+            "video_pausar", "ctrl+alt+shift+1", {})
+        self.assertEqual(resultado[0], "rechazado")
+
+    def test_area_de_interaccion_no_consulta_altgr(self):
+        altgr = mock.Mock(side_effect=AssertionError("no debe llamarse"))
+        resultado = atajos_captura.resolver(
+            "video_pausar", "ctrl+alt+shift+p", {}, altgr)
+        altgr.assert_not_called()
+        self.assertEqual(resultado[0], "capturado")
+
     def test_accion_de_area_ctrl_rechaza_ctrl_alt(self):
         resultado = atajos_captura.resolver(
             "rep_play", "ctrl+alt+left", self.valores)

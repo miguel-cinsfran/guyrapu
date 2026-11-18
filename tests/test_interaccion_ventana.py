@@ -223,10 +223,13 @@ class TestCableado(BaseVentana):
         self.assertEqual(etiquetas, [
             "&Abrir Interacción…", "&Mensajes automáticos…",
             "&Comandos del chat…", "Es&tilos del vídeo…", "---",
-            "Acti&var mensajes automáticos"])
+            "&Pausar cola del vídeo", "Omitir m&ensaje del vídeo",
+            "Vaciar co&la del vídeo", "Silencia&r medios",
+            "Modo pánic&o", "Acti&var mensajes automáticos"])
         letras = [etiqueta[etiqueta.index("&") + 1].lower()
                   for etiqueta in etiquetas if "&" in etiqueta]
-        self.assertEqual(letras, ["a", "m", "c", "t", "v"])
+        self.assertEqual(letras, ["a", "m", "c", "t", "p", "e", "l", "r",
+                                  "o", "v"])
 
     def test_p6_cada_entrada_abre_su_pagina(self):
         frame, _ = self._menu()
@@ -244,10 +247,12 @@ class TestCableado(BaseVentana):
                 mock.patch.object(comando_interaccion.paths,
                                   "mensajes_programados",
                                   return_value="ruta"):
+            abren = (comando_interaccion.abrir,
+                     comando_mensajes_automaticos.abrir,
+                     comando_comandos_chat.abrir, comando_estilos.abrir)
             for fn, args in frame._enlaces:
-                if fn is comando_mensajes_automaticos.alternar:
-                    continue
-                fn(*args)
+                if fn in abren:
+                    fn(*args)
         self.assertEqual(abiertas,
                          ["mensajes", "mensajes", "comandos", "estilos"])
 

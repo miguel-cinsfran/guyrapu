@@ -207,6 +207,11 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Interacción", "&Comandos del chat…", ANY, "normal"),
             ("&Interacción", "Es&tilos del vídeo…", ANY, "normal"),
             ("&Interacción", "---", None, "sep"),
+            ("&Interacción", "&Pausar cola del vídeo", ANY, "check"),
+            ("&Interacción", "Omitir m&ensaje del vídeo", ANY, "normal"),
+            ("&Interacción", "Vaciar co&la del vídeo", ANY, "normal"),
+            ("&Interacción", "Silencia&r medios", ANY, "check"),
+            ("&Interacción", "Modo pánic&o", ANY, "check"),
             ("&Interacción", "Acti&var mensajes automáticos", ANY, "check"),
             ("&Música", "&Elegir música…", ANY, "normal"),
             ("&Música", "---", None, "sep"),
@@ -366,6 +371,81 @@ class TestMenuMusica(unittest.TestCase):
             ("&Música", "&Orden aleatorio\tCtrl+Alt+A", ANY, "check"),
             ("&Música", "Cambiar &repetición\tCtrl+Alt+R", ANY, "normal"),
         ], self._entradas())
+
+
+class TestMenuInteraccionEnDirecto(unittest.TestCase):
+    """La parte En directo del menú Interacción, con sus atajos a la vista."""
+
+    def _entradas(self):
+        from guyrapu.core import config as cfg
+
+        def accel(accion):
+            valor = cfg.ATAJOS_DEFAULTS.get(accion, "")
+            return ("\t" + gui._fmt_accel(valor)) if valor else ""
+
+        _, lista = _construir_lista(accel)
+        return [fila for fila in lista if fila[0] == "&Interacción"]
+
+    def test_seis_elementos_en_orden_con_su_atajo(self):
+        ANY = gui.wx.ID_ANY
+        self.assertEqual([
+            ("&Interacción", "&Abrir Interacción…\tCtrl+Shift+A",
+             ANY, "normal"),
+            ("&Interacción", "&Mensajes automáticos…", ANY, "normal"),
+            ("&Interacción", "&Comandos del chat…", ANY, "normal"),
+            ("&Interacción", "Es&tilos del vídeo…", ANY, "normal"),
+            ("&Interacción", "---", None, "sep"),
+            ("&Interacción",
+             "&Pausar cola del vídeo\tCtrl+Alt+Shift+P", ANY, "check"),
+            ("&Interacción",
+             "Omitir m&ensaje del vídeo\tCtrl+Alt+Shift+S",
+             ANY, "normal"),
+            ("&Interacción",
+             "Vaciar co&la del vídeo\tCtrl+Alt+Shift+V", ANY, "normal"),
+            ("&Interacción",
+             "Silencia&r medios\tCtrl+Alt+Shift+M", ANY, "check"),
+            ("&Interacción",
+             "Modo pánic&o\tCtrl+Alt+Shift+Q", ANY, "check"),
+            ("&Interacción",
+             "Acti&var mensajes automáticos\tCtrl+Alt+Shift+A",
+             ANY, "check"),
+        ], self._entradas())
+
+    def test_la_letra_no_se_repite_en_el_menu(self):
+        letras = [texto[texto.index("&") + 1].lower()
+                  for _menu, texto, _dato, _tipo in self._entradas()
+                  if texto != "---" and "&" in texto]
+        self.assertEqual(len(letras), len(set(letras)))
+
+
+class TestCableadoInteraccionEnDirecto(unittest.TestCase):
+    """Cada elemento de En directo llama a la acción que le corresponde."""
+
+    def test_cada_elemento_llama_a_su_accion(self):
+        from guyrapu.ui import comando_en_directo
+
+        elementos = {
+            "mi_video_pausar": "alternar_pausa",
+            "mi_video_omitir": "saltar",
+            "mi_video_vaciar": "vaciar",
+            "mi_video_silenciar": "alternar_silencio",
+            "mi_video_panico": "alternar_panico",
+            "mi_programados_activo": "alternar_mensajes",
+        }
+        dobles = {}
+        for nombre in elementos.values():
+            parche = mock.patch.object(comando_en_directo, nombre)
+            dobles[nombre] = parche.start()
+            self.addCleanup(parche.stop)
+        _, _lista, frame = _construir_lista(con_frame=True)
+        for atributo, nombre in elementos.items():
+            with self.subTest(elemento=atributo):
+                item = getattr(frame, atributo)
+                enlace = next(
+                    llamada for llamada in frame._bind_menu.call_args_list
+                    if llamada.args[0] is item)
+                enlace.args[1](*enlace.args[2:])
+                dobles[nombre].assert_called_once_with(frame)
 
 
 class TestMenuReproductorAcciones(unittest.TestCase):

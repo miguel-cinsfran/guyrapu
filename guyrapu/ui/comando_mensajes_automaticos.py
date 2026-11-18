@@ -8,8 +8,15 @@ su casilla y la casilla de la ventana llaman acá.
 
 from __future__ import annotations
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.ui import comando_interaccion
+
+_AVISO = {
+    True: (N_("Mensajes automáticos activados"),
+           "mensajes_automaticos_activados"),
+    False: (N_("Mensajes automáticos desactivados"),
+            "mensajes_automaticos_desactivados"),
+}
 
 
 def abrir(frame):
@@ -27,5 +34,5 @@ def alternar(frame):
     item = getattr(frame, "mi_programados_activo", None)
     if item is not None:
         item.Check(nuevo)
-    gui.anunciar(_("Mensajes automáticos activados") if nuevo
-                 else _("Mensajes automáticos desactivados"))
+    texto, sonido = _AVISO[nuevo]
+    gui.anunciar_con_sonido(_(texto), sonido)

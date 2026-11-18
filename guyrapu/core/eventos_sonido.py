@@ -129,6 +129,17 @@ CATALOGO: tuple[EventoSonido, ...] = (
                  familia="activado"),
     EventoSonido("grabacion_reanudada", nombre=N_("Grabación reanudada"), sonido="reanudar",
                  familia="activado"),
+    # Lo que sale en el vídeo y los mensajes automáticos, cada estado con su
+    # evento para poder callarlo por separado.
+    EventoSonido("video_reanudar", nombre=N_("Cola del vídeo reanudada"),
+                 sonido="reanudar", familia="activado"),
+    EventoSonido("video_audio", nombre=N_("Medios activados"),
+                 sonido="reanudar", familia="activado"),
+    EventoSonido("video_panico", nombre=N_("Modo pánico activado"),
+                 sonido="reanudar", familia="activado"),
+    EventoSonido("mensajes_automaticos_activados",
+                 nombre=N_("Mensajes automáticos activados"),
+                 sonido="reanudar", familia="activado"),
     EventoSonido("pausa", nombre=N_("Lectura en pausa"), familia="desactivado"),
     EventoSonido("desconectado", nombre=N_("Desconexión del chat"), sonido="pausa",
                  familia="desactivado"),
@@ -137,6 +148,15 @@ CATALOGO: tuple[EventoSonido, ...] = (
                  familia="desactivado"),
     EventoSonido("grabacion_en_pausa", nombre=N_("Grabación en pausa"), sonido="pausa",
                  familia="desactivado"),
+    EventoSonido("video_pausa", nombre=N_("Cola del vídeo en pausa"),
+                 sonido="pausa", familia="desactivado"),
+    EventoSonido("video_silenciar", nombre=N_("Medios silenciados"),
+                 sonido="pausa", familia="desactivado"),
+    EventoSonido("video_panico_fin", nombre=N_("Modo pánico desactivado"),
+                 sonido="pausa", familia="desactivado"),
+    EventoSonido("mensajes_automaticos_desactivados",
+                 nombre=N_("Mensajes automáticos desactivados"),
+                 sonido="pausa", familia="desactivado"),
     # Preguntar a la IA: consulta que sale, espera que suena, respuesta que
     # llega, fallo, captura agregada, consulta cancelada y captura negra:
     EventoSonido("ia_cancelada", nombre=N_("Consulta a la IA cancelada"), sonido="pausa",

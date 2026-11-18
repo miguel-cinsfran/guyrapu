@@ -281,6 +281,48 @@ class TestFallas(Base):
         self.assertEqual(len(self._anuncios_de("espera")), 2)
 
 
+class TestEstadoParaAcciones(Base):
+
+    def test_pausar_y_reanudar_se_reflejan_en_el_estado_y_en_f2(self):
+        self.capa.pausar()
+        self.assertTrue(self.capa.estado()["pausado"])
+        self.assertIn("La cola está en pausa.", self.capa.describir())
+        self.capa.reanudar()
+        self.assertFalse(self.capa.estado()["pausado"])
+        self.assertNotIn("La cola está en pausa.", self.capa.describir())
+
+    def test_silenciar_se_refleja_en_el_estado_y_en_f2(self):
+        self.capa.silenciar(True)
+        self.assertTrue(self.capa.estado()["silenciado"])
+        self.assertIn("Sonido de los medios silenciado.", self.capa.describir())
+        self.capa.silenciar(False)
+        self.assertFalse(self.capa.estado()["silenciado"])
+
+    def test_el_panico_vacia_y_al_apagarlo_la_cola_sigue(self):
+        self.capa.agregar(self._mensaje())
+        self.capa.panico(True)
+        self.assertTrue(self.capa.estado()["panico"])
+        self.assertIn("Pánico activado", self.capa.describir())
+        self.assertFalse(self.capa.vaciar())
+        self.capa.panico(False)
+        self.assertFalse(self.capa.estado()["panico"])
+        self.assertTrue(self.capa.agregar(self._mensaje()))
+
+    def test_saltar_dice_si_habia_algo_en_el_video(self):
+        self.assertFalse(self.capa.saltar())
+        self.capa.agregar(self._mensaje())
+        self._atender()
+        self.assertTrue(self.capa.saltar())
+        self._atender()
+        self.assertNotIn("En el vídeo:", self.capa.describir())
+
+    def test_vaciar_dice_si_habia_algo_en_la_cola(self):
+        self.assertFalse(self.capa.vaciar())
+        self.capa.agregar(self._mensaje())
+        self.assertTrue(self.capa.vaciar())
+        self.assertEqual(self.capa.describir(), "Nada en el vídeo.")
+
+
 class _SesionFalsa:
     def __init__(self, es_tiktok, live_chat_id, propio):
         self.es_tiktok = es_tiktok
