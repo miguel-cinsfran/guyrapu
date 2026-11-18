@@ -24,7 +24,6 @@ NOMBRES_DE_LA_PIEZA = ("ListaConAcciones", "ListaConVacio")
 # son fallos.
 PENDIENTES = {
     "descargas_buscador.py": "todavía no pasó a la pieza común",
-    "descargas_listas.py": "todavía no pasó a la pieza común",
     "dialogo_estado.py": (
         "lista de solo lectura sin acciones, en dialogo_estado.py:39"),
     "elegir_formato.py": (

@@ -187,6 +187,103 @@ class TestAcciones(unittest.TestCase):
         self.assertNotIn("abrir_carpeta", acciones)
 
 
+class TestMotivo(unittest.TestCase):
+
+    def _fila(self, estado, url="https://www.youtube.com/watch?v=abc",
+              ruta="C:/D/video.mp4", carpeta="C:/D"):
+        return filas_descargas.Fila("k", estado, 0.0, "n", "", url, ruta,
+                                    carpeta, "", None)
+
+    def test_en_curso_o_en_espera_dicen_que_esta_en_curso(self):
+        for estado in ("descargando", "en_cola"):
+            for clave in ("abrir_archivo", "abrir_carpeta", "reintentar",
+                          "volver_a_descargar", "eliminar"):
+                with self.subTest(estado=estado, clave=clave):
+                    self.assertEqual(
+                        filas_descargas.motivo(self._fila(estado), clave),
+                        "La descarga está en curso")
+
+    def test_cancelar_fuera_de_curso_dice_que_no_esta_en_curso(self):
+        for estado in ("completado", "parcial", "error", "cancelado"):
+            with self.subTest(estado=estado):
+                self.assertEqual(
+                    filas_descargas.motivo(self._fila(estado), "cancelar"),
+                    "La descarga no está en curso")
+
+    def test_volver_a_descargar_sin_estar_completada(self):
+        for estado in ("parcial", "error", "cancelado"):
+            with self.subTest(estado=estado):
+                self.assertEqual(
+                    filas_descargas.motivo(
+                        self._fila(estado), "volver_a_descargar"),
+                    "Solo para descargas completadas")
+
+    def test_reintentar_en_una_completada(self):
+        self.assertEqual(
+            filas_descargas.motivo(self._fila("completado"), "reintentar"),
+            "La descarga ya está completada")
+
+    def test_abrir_archivo_sin_estar_completada(self):
+        for estado in ("parcial", "error", "cancelado"):
+            with self.subTest(estado=estado):
+                self.assertEqual(
+                    filas_descargas.motivo(self._fila(estado), "abrir_archivo"),
+                    "La descarga no se completó")
+
+    def test_abrir_carpeta_no_completada_con_ruta_dice_no_se_completo(self):
+        self.assertEqual(
+            filas_descargas.motivo(self._fila("error"), "abrir_carpeta"),
+            "La descarga no se completó")
+
+    def test_enlace_que_no_se_puede_usar(self):
+        casos = (("reintentar", "error"), ("volver_a_descargar", "completado"),
+                 ("copiar", "parcial"))
+        for clave, estado in casos:
+            with self.subTest(clave=clave):
+                self.assertEqual(
+                    filas_descargas.motivo(
+                        self._fila(estado, url="sin identificador"), clave),
+                    "El enlace no se puede usar")
+
+    def test_abrir_archivo_sin_ruta(self):
+        self.assertEqual(
+            filas_descargas.motivo(self._fila("completado", ruta=""),
+                                   "abrir_archivo"),
+            "No hay archivo guardado")
+
+    def test_abrir_carpeta_sin_ruta_ni_carpeta(self):
+        self.assertEqual(
+            filas_descargas.motivo(
+                self._fila("completado", ruta="", carpeta=""),
+                "abrir_carpeta"),
+            "No hay carpeta guardada")
+
+    def test_motivo_vacio_solo_cuando_la_accion_aplica(self):
+        claves = ("abrir_archivo", "abrir_carpeta", "cancelar", "reintentar",
+                  "volver_a_descargar", "copiar", "eliminar")
+        filas = (
+            self._fila("descargando"),
+            self._fila("en_cola"),
+            self._fila("completado"),
+            self._fila("completado", url=""),
+            self._fila("completado", ruta=""),
+            self._fila("completado", ruta="", carpeta=""),
+            self._fila("parcial"),
+            self._fila("parcial", url=""),
+            self._fila("error"),
+            self._fila("error", url=""),
+            self._fila("error", ruta="", carpeta=""),
+            self._fila("cancelado"),
+        )
+        for fila in filas:
+            for clave in claves:
+                with self.subTest(estado=fila.estado, url=fila.url,
+                                  ruta=fila.ruta, clave=clave):
+                    self.assertEqual(
+                        filas_descargas.motivo(fila, clave) == "",
+                        clave in filas_descargas.acciones(fila))
+
+
 class TestUrlUtilizable(unittest.TestCase):
 
     def test_enlace_completo_pasa_tal_cual(self):

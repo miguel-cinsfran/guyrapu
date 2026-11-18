@@ -13,6 +13,7 @@ from guyrapu.downloads import busqueda_youtube
 from guyrapu.downloads import filas_descargas
 from guyrapu.music.modelo import Tema
 from guyrapu.ui import barra_progreso, descargas_acciones, descargas_buscador, descargas_listas, gui_descargas
+from guyrapu.ui import lista_acciones
 from guyrapu.ui import accesibilidad
 from guyrapu.ui import tema as _tema
 from guyrapu.ui import buscador_acciones, buscador_escucha
@@ -232,6 +233,11 @@ class TestPaginaUnica(unittest.TestCase):
         self.addCleanup(descargas.reiniciar_gestor)
         return dialogo
 
+    def _menu_de(self, pagina):
+        menu = pagina._lista_acciones._construir_menu()
+        self.addCleanup(menu.Destroy)
+        return menu.GetMenuItems()
+
     def test_dos_pestanas_buscador_y_descargas_con_columnas(self):
         dialogo = self._dialogo()
         self.assertEqual(dialogo.pestanas.GetPageCount(), 2)
@@ -282,7 +288,40 @@ class TestPaginaUnica(unittest.TestCase):
         self.assertEqual(pagina.lista.GetItemCount(), 1)
         self.assertEqual(pagina.lista.GetItemText(0, 2), "cola1.mp4")
 
-    def test_menu_solo_lo_que_aplica_y_siempre_globales(self):
+    def test_menu_con_todas_las_acciones_en_orden_y_sin_elemento(self):
+        dialogo = self._dialogo([
+            {"id": "hecha", "nombre": "hecha.mp4", "fecha": "2026-10-30T08:33:00",
+             "estado": "completado", "url": "https://youtu.be/hecha",
+             "carpeta": "C:/D", "ruta": "C:/D/hecha.mp4"}])
+        pagina = dialogo.pagina_descargas
+        pagina.refrescar()
+        pagina.lista.Select(pagina.lista.GetFirstSelected(), False)
+        items = self._menu_de(pagina)
+        self.assertEqual(
+            [item.GetItemLabel() for item in items],
+            ["&Abrir archivo\tEnter", "Abrir car&peta", "&Cancelar descarga",
+             "&Reintentar", "&Volver a descargar", "Copiar &enlace",
+             "E&liminar de la lista\tDel", "Cancelar &todas",
+             "Eliminar c&ompletadas"])
+        self.assertEqual([item.IsEnabled() for item in items],
+                         [False] * 7 + [True, True])
+
+    def test_menu_de_una_descarga_en_curso_dice_el_motivo(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_descargas
+        item = descargas.ItemDescarga("activa", "https://youtu.be/activa",
+                                      "video", nombre="activa.mp4")
+        dialogo._gestor._items[item.id] = item
+        dialogo._gestor._orden.append(item.id)
+        pagina.refrescar()
+        pagina.lista.Select(0)
+        etiquetas = [item.GetItemLabel().replace("&", "")
+                     for item in self._menu_de(pagina)]
+        self.assertIn("Abrir archivo (la descarga está en curso)\tEnter",
+                      etiquetas)
+        self.assertIn("Abrir carpeta (la descarga está en curso)", etiquetas)
+
+    def test_menu_de_una_completada_dice_el_motivo_de_reintentar(self):
         dialogo = self._dialogo([
             {"id": "hecha", "nombre": "hecha.mp4", "fecha": "2026-10-30T08:33:00",
              "estado": "completado", "url": "https://youtu.be/hecha",
@@ -290,25 +329,12 @@ class TestPaginaUnica(unittest.TestCase):
         pagina = dialogo.pagina_descargas
         pagina.refrescar()
         pagina.lista.Select(0)
-        vistos = {}
-
-        def falso_popup(menu):
-            vistos["etiquetas"] = [i.GetItemLabel()
-                                   for i in menu.GetMenuItems()
-                                   if i.GetKind() == wx.ITEM_NORMAL]
-
-        with mock.patch.object(pagina.lista, "PopupMenu", falso_popup):
-            pagina._mostrar_menu()
-        etiquetas = " ".join(vistos["etiquetas"]).replace("&", "")
-        self.assertIn("Abrir archivo", etiquetas)
-        self.assertNotIn("Reintentar", etiquetas)
+        etiquetas = [item.GetItemLabel().replace("&", "")
+                     for item in self._menu_de(pagina)]
+        self.assertIn("Reintentar (la descarga ya está completada)", etiquetas)
+        self.assertIn("Abrir archivo\tEnter", etiquetas)
         self.assertIn("Cancelar todas", etiquetas)
         self.assertIn("Eliminar completadas", etiquetas)
-        pagina.lista.Select(pagina.lista.GetFirstSelected(), False)
-        vistos.clear()
-        with mock.patch.object(pagina.lista, "PopupMenu", falso_popup):
-            pagina._mostrar_menu()
-        self.assertEqual(len(vistos["etiquetas"]), 2)
 
     def test_menu_dispara_cada_comando(self):
         dialogo = self._dialogo()
@@ -351,18 +377,28 @@ class TestPaginaUnica(unittest.TestCase):
                     pagina.refrescar()
                     pagina.lista.Select(0)
                 espias = {n: mock.Mock() for n in nombres}
-                with mock.patch.multiple(pagina, **{n: espias[n] for n in nombres}):
-                    with mock.patch.object(pagina.lista, "PopupMenu") as popup:
-                        def falso(menu):
-                            for it in menu.GetMenuItems():
-                                if it.GetKind() != wx.ITEM_NORMAL:
-                                    continue
-                                menu.ProcessEvent(wx.CommandEvent(wx.EVT_MENU.typeId,
-                                                                  it.GetId()))
-                        popup.side_effect = falso
-                        pagina._mostrar_menu()
-                for nombre in esperados:
-                    self.assertTrue(espias[nombre].called, nombre)
+                with mock.patch.multiple(
+                        pagina._acciones,
+                        **{n: espias[n] for n in nombres}), \
+                        mock.patch.object(lista_acciones, "anunciar"):
+                    menu = pagina._lista_acciones._construir_menu()
+                    for it in menu.GetMenuItems():
+                        if it.GetKind() != wx.ITEM_NORMAL:
+                            continue
+                        menu.ProcessEvent(wx.CommandEvent(wx.EVT_MENU.typeId,
+                                                          it.GetId()))
+                    menu.Destroy()
+                for nombre in nombres:
+                    with self.subTest(estado=estado, comando=nombre):
+                        if nombre in esperados:
+                            self.assertTrue(espias[nombre].called, nombre)
+                        else:
+                            self.assertFalse(espias[nombre].called, nombre)
+
+    def _tecla(self, pagina, tipo, codigo):
+        evento = wx.KeyEvent(tipo)
+        evento.KeyCode = codigo
+        pagina.lista.GetEventHandler().ProcessEvent(evento)
 
     def test_intro_abre_y_supr_elimina(self):
         dialogo = self._dialogo([
@@ -372,23 +408,86 @@ class TestPaginaUnica(unittest.TestCase):
         pagina = dialogo.pagina_descargas
         pagina.refrescar()
         pagina.lista.Select(0)
-        with mock.patch.object(pagina, "abrir_archivo") as abrir:
-            pagina._on_activar(None)
-            abrir.assert_called_once_with()
+        with mock.patch.object(pagina._acciones, "abrir_archivo") as abrir:
+            self._tecla(pagina, wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN)
+            abrir.assert_called_once()
+        with mock.patch.object(pagina._acciones, "eliminar") as eliminar:
+            self._tecla(pagina, wx.wxEVT_KEY_DOWN, wx.WXK_DELETE)
+            eliminar.assert_called_once()
 
-        class Evento:
-            def GetKeyCode(self):
-                return wx.WXK_DELETE
+    def test_intro_sobre_una_descarga_en_curso_dice_el_motivo(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_descargas
+        item = descargas.ItemDescarga("activa", "https://youtu.be/activa",
+                                      "video", nombre="activa.mp4")
+        dialogo._gestor._items[item.id] = item
+        dialogo._gestor._orden.append(item.id)
+        pagina.refrescar()
+        pagina.lista.Select(0)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar, \
+                mock.patch.object(pagina._acciones, "abrir_archivo") as abrir:
+            self._tecla(pagina, wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN)
+        anunciar.assert_called_once_with("La descarga está en curso.")
+        abrir.assert_not_called()
 
-            def ShiftDown(self):
-                return False
+    def test_tres_refrescos_de_progreso_no_mueven_el_foco(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_descargas
+        item = descargas.ItemDescarga("activa", "https://youtu.be/activa",
+                                      "video", nombre="activa.mp4")
+        item.estado = "descargando"
+        dialogo._gestor._items[item.id] = item
+        dialogo._gestor._orden.append(item.id)
+        pagina.refrescar()
+        pagina.lista.Select(0)
+        with mock.patch.object(pagina.lista, "Select") as seleccionar, \
+                mock.patch.object(pagina.lista, "Focus") as enfocar:
+            for progreso in (10.0, 20.0, 30.0):
+                item.progreso = progreso
+                pagina.refrescar()
+        seleccionar.assert_not_called()
+        enfocar.assert_not_called()
+        self.assertEqual(pagina.lista.GetFirstSelected(), 0)
+        self.assertEqual(pagina._fila_elegida().clave, "activa")
 
-            def Skip(self):
-                pass
+    def test_quitar_la_fila_de_arriba_deja_la_misma_descarga_y_su_imagen(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_descargas
+        arriba = descargas.ItemDescarga("arriba", "https://youtu.be/arriba",
+                                        "video", nombre="arriba.mp4")
+        arriba.estado = "descargando"
+        arriba.progreso = 10.0
+        abajo = descargas.ItemDescarga("abajo", "https://youtu.be/abajo",
+                                       "video", nombre="abajo.mp4")
+        abajo.estado = "descargando"
+        abajo.progreso = 90.0
+        for item in (arriba, abajo):
+            dialogo._gestor._items[item.id] = item
+            dialogo._gestor._orden.append(item.id)
+        pagina.refrescar()
+        pagina.lista.Select(1)
+        imagen = barra_progreso.tramo("descargando", 90.0)
+        self.assertEqual(pagina._fila_elegida().clave, "abajo")
+        self.assertEqual(pagina.lista.GetItem(1).GetImage(), imagen)
+        dialogo._gestor._items.pop("arriba")
+        dialogo._gestor._orden.remove("arriba")
+        pagina.refrescar()
+        self.assertEqual(pagina.lista.GetFirstSelected(), 0)
+        self.assertEqual(pagina._fila_elegida().clave, "abajo")
+        self.assertEqual(pagina.lista.GetItem(0).GetImage(), imagen)
 
-        with mock.patch.object(pagina, "eliminar") as eliminar:
-            pagina._on_key(Evento())
-            eliminar.assert_called_once_with()
+    def test_sin_descargas_en_la_vista_muestra_una_sola_linea(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_descargas
+        pagina.cho_mostrar.SetSelection(3)
+        pagina._on_filtro(None)
+        self.assertEqual(pagina.lista.GetItemCount(), 1)
+        self.assertEqual(pagina.lista.GetItemText(0, 0),
+                         "No hay descargas en esta vista.")
+        self.assertEqual(
+            [pagina.lista.GetItemText(0, columna) for columna in range(1, 4)],
+            ["", "", ""])
+        self.assertIsNone(pagina._fila_elegida())
 
     def test_reintentar_deja_solo_la_nueva(self):
         import threading as _hilos
@@ -2711,6 +2810,28 @@ class TestBarraProgresoEnLista(unittest.TestCase):
         fijar.reset_mock()
         pagina.refrescar()
         fijar.assert_not_called()
+
+    def test_volver_a_todas_devuelve_la_imagen_de_la_descarga(self):
+        item = descargas.ItemDescarga(
+            "media", "https://youtu.be/media", "video", nombre="media.mp4")
+        item.estado = "descargando"
+        item.progreso = 45.0
+        dialogo = self._dialogo([
+            {"id": "hecha", "nombre": "hecha.mp4",
+             "fecha": "2026-10-30T08:33:00", "estado": "completado",
+             "url": "https://youtu.be/hecha", "carpeta": "C:/D",
+             "ruta": "C:/D/hecha.mp4"}],
+            activos=[item])
+        pagina = dialogo.pagina_descargas
+        self.assertEqual(pagina.lista.GetItem(0).GetImage(), 9)
+        pagina.cho_mostrar.SetSelection(3)
+        pagina._on_filtro(None)
+        self.assertEqual(pagina.lista.GetItemCount(), 1)
+        pagina.cho_mostrar.SetSelection(0)
+        pagina._on_filtro(None)
+        self.assertEqual(pagina.lista.GetItemCount(), 2)
+        self.assertEqual(pagina.lista.GetItem(0).GetImage(), 9)
+        self.assertEqual(pagina.lista.GetItem(1).GetImage(), 20)
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")

@@ -16429,3 +16429,39 @@ msgstr ", default for {tipos}"
 msgid "Predeterminados guardados"
 msgstr "Defaults saved"
 
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga está en curso"
+msgstr "The download is in progress"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga no está en curso"
+msgstr "The download is not in progress"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "Solo para descargas completadas"
+msgstr "Only for completed downloads"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga ya está completada"
+msgstr "The download is already completed"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "La descarga no se completó"
+msgstr "The download did not complete"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "El enlace no se puede usar"
+msgstr "The link cannot be used"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "No hay archivo guardado"
+msgstr "No saved file"
+
+#: guyrapu/downloads/filas_descargas.py
+msgid "No hay carpeta guardada"
+msgstr "No saved folder"
+
+#: guyrapu/ui/descargas_listas.py
+msgid "No hay descargas en esta vista."
+msgstr "No downloads in this view."
+

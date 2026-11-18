@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
+from guyrapu.core.idioma import _
 from guyrapu.downloads.argumentos_ytdlp import recortar_url_registro
 
 TODAS = "todas"
@@ -193,6 +194,33 @@ def acciones(fila: Fila) -> tuple[str, ...]:
     if not (fila.ruta or "").strip() and not (fila.carpeta or "").strip():
         base = [a for a in base if a != "abrir_carpeta"]
     return tuple(base)
+
+
+def motivo(fila: Fila, clave: str) -> str:
+    """Por qué no se puede usar `clave` con esa fila, o "" si se puede."""
+    if clave in acciones(fila):
+        return ""
+    if fila.estado in ACTIVAS:
+        if clave in ("abrir_archivo", "abrir_carpeta", "reintentar",
+                     "volver_a_descargar", "eliminar"):
+            return _("La descarga está en curso")
+    if clave == "cancelar":
+        return _("La descarga no está en curso")
+    if clave == "volver_a_descargar" and fila.estado != "completado":
+        return _("Solo para descargas completadas")
+    if clave == "reintentar" and fila.estado == "completado":
+        return _("La descarga ya está completada")
+    if clave == "abrir_archivo" and fila.estado != "completado":
+        return _("La descarga no se completó")
+    if clave in ("reintentar", "volver_a_descargar", "copiar") \
+            and not url_utilizable(fila.url):
+        return _("El enlace no se puede usar")
+    if clave == "abrir_archivo" and not (fila.ruta or "").strip():
+        return _("No hay archivo guardado")
+    if clave == "abrir_carpeta" and not (fila.ruta or "").strip() \
+            and not (fila.carpeta or "").strip():
+        return _("No hay carpeta guardada")
+    return _("La descarga no se completó")
 
 
 def fecha_legible(iso: str) -> str:
