@@ -30,6 +30,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
 from guyrapu.obs import escena_guyrapu  # noqa: E402
+from guyrapu.obs import estilos_aviso  # noqa: E402
 from guyrapu.obs import medio_obs  # noqa: E402
 from guyrapu.obs import obs_activacion  # noqa: E402
 from guyrapu.obs import obs_cliente  # noqa: E402
@@ -78,7 +79,7 @@ def _escribir_wav(ruta):
 
 def _captura_bmp(cliente, fuente):
     datos = _pedir(cliente, "GetSourceScreenshot", {
-        "sourceName": fuente, "imageFormat": "bmp"})
+        "sourceName": fuente, "imageFormat": "bmp", "imageWidth": 160})
     imagen = str(datos.get("imageData", "") or "")
     if "," in imagen:
         imagen = imagen.split(",", 1)[1]
@@ -106,12 +107,6 @@ def _parecido(pixel, color):
 def _entradas(cliente):
     return {entrada.get("inputName", "") for entrada in
             _pedir(cliente, "GetInputList").get("inputs", ())}
-
-
-def _items(cliente):
-    return {item.get("sourceName", "") for item in
-            _pedir(cliente, "GetSceneItemList", {
-                "sceneName": escena_guyrapu.ESCENA}).get("sceneItems", ())}
 
 
 def _habilitada(cliente, nombre):
@@ -142,11 +137,20 @@ def _esperar_cursor(cliente, minimo, tope=5.0):
     return cursor
 
 
+def _esperar_color(cliente, color, tope=5.0):
+    limite = time.monotonic() + tope
+    pixel = None
+    while time.monotonic() < limite:
+        pixel = _pixel_central(_captura_bmp(cliente, escena_guyrapu.ESCENA))
+        if _parecido(pixel, color):
+            return pixel
+        time.sleep(0.2)
+    return pixel
+
+
 def _restos(cliente):
-    nombres = (medio_obs.IMAGEN, medio_obs.MEDIO)
-    presentes = sorted((_entradas(cliente) | _items(cliente))
-                       & set(nombres))
-    return presentes
+    nombres = {medio_obs.IMAGEN, medio_obs.MEDIO}
+    return sorted(_entradas(cliente) & nombres)
 
 
 def _esperar_restos(cliente, esperar=time.sleep):
@@ -176,9 +180,10 @@ def _probar(cliente, capa, fallos):
     _escribir_wav(wav)
     try:
         medio.armar(png, "imagen")
-        pixel = _pixel_central(_captura_bmp(cliente, escena_guyrapu.ESCENA))
+        pixel = _esperar_color(cliente, COLOR)
         _comprobar("imagen: el centro de la escena tiene el color",
                    _parecido(pixel, COLOR), fallos)
+        capa.mostrar("prueba", estilos_aviso.FABRICA[0])
         medio.armar(wav, "sonido")
         cursor = _esperar_cursor(cliente, 250)
         _comprobar("sonido: reproduce desde el principio", cursor >= 250,
@@ -188,6 +193,7 @@ def _probar(cliente, capa, fallos):
         cursor = float(estado.get("mediaCursor") or 0)
         _comprobar("sonido: al armarlo otra vez volvió cerca de cero",
                    _reproduciendo(estado) and cursor < 1000, fallos)
+        capa.ocultar()
         medio.soltar()
         _comprobar("soltar: las dos entradas quedaron apagadas",
                    not _habilitada(cliente, medio_obs.IMAGEN)
@@ -195,7 +201,7 @@ def _probar(cliente, capa, fallos):
         _comprobar("soltar: no borró las dos entradas",
                    {medio_obs.IMAGEN, medio_obs.MEDIO} <= _entradas(cliente),
                    fallos)
-        medio.quitar_todo()
+        capa.quitar_todo()
         restos = _esperar_restos(cliente)
         if restos:
             print("Quedó: " + ", ".join(restos))

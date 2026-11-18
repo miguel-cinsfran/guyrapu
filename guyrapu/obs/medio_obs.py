@@ -60,13 +60,15 @@ class MedioObs:
             "sceneName": escena_guyrapu.ESCENA,
             "sceneItemId": item["sceneItemId"],
             "sceneItemTransform": {
-                "positionX": 0, "positionY": 0, "alignment": 0,
+                "positionX": 0, "positionY": 0, "alignment": 5,
                 "boundsType": "OBS_BOUNDS_SCALE_INNER", "boundsAlignment": 0,
                 "boundsWidth": ancho, "boundsHeight": alto}}, parada)
+
+    def _debajo(self, item, indice, parada) -> None:
         self._pedir("SetSceneItemIndex", {
             "sceneName": escena_guyrapu.ESCENA,
             "sceneItemId": item["sceneItemId"],
-            "sceneItemIndex": 0}, parada)
+            "sceneItemIndex": indice}, parada)
 
     def _habilitar(self, item, visible, parada) -> None:
         self._pedir("SetSceneItemEnabled", {
@@ -97,6 +99,8 @@ class MedioObs:
                     "close_when_inactive": True}}, parada)
             activo, inactivo = medio, imagen
         self._ajustar(activo, ancho, alto, parada)
+        self._debajo(imagen, 0, parada)
+        self._debajo(medio, 1, parada)
         self._habilitar(activo, True, parada)
         self._habilitar(inactivo, False, parada)
         if tipo != "imagen":
@@ -117,7 +121,12 @@ class MedioObs:
             self._habilitar(imagen, False, parada)
 
     def quitar_todo(self, parada=None) -> None:
-        """Borra las dos entradas del medio, aunque no existan."""
+        """Borra las dos entradas del medio, aunque no existan.
+
+        Medido el 18/11/2026: OBS no limpia la escena que no se dibuja hasta
+        que pasa por un cuadro; borrar la escena, como hace
+        `EscenaGuyrapu.quitar_todo`, la deja en cero.
+        """
         for nombre in (IMAGEN, MEDIO):
             try:
                 self._pedir("RemoveInput", {"inputName": nombre}, parada)

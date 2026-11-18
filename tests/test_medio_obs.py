@@ -157,6 +157,23 @@ class TestArmar(Base):
         self.assertLess(self.cliente.indice(IMAGEN),
                         self.cliente.indice(TARJETA))
 
+    def test_p1_el_medio_se_ancla_arriba_a_la_izquierda_y_se_centra(self):
+        self.medio.armar("C:/medios/foto.png", "imagen")
+        transformacion = self.cliente.item(IMAGEN)["sceneItemTransform"]
+        self.assertEqual(transformacion["alignment"], 5)
+        self.assertEqual(transformacion["boundsAlignment"], 0)
+
+    def test_p1_las_dos_entradas_del_medio_quedan_debajo_de_la_tarjeta(self):
+        for tipo, ruta in (("imagen", "C:/medios/foto.png"),
+                           ("sonido", "C:/medios/tono.wav")):
+            with self.subTest(tipo=tipo):
+                self.setUp()
+                self.medio.armar(ruta, tipo)
+                self.assertLess(self.cliente.indice(IMAGEN),
+                                self.cliente.indice(TARJETA))
+                self.assertLess(self.cliente.indice(MEDIO),
+                                self.cliente.indice(TARJETA))
+
     def test_p1_video_y_sonido_van_a_la_entrada_de_multimedia(self):
         for tipo, ruta in (("video", "C:/medios/clip.mp4"),
                            ("sonido", "C:/medios/tono.wav")):
