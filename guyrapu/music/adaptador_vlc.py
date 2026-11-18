@@ -15,7 +15,7 @@ import queue
 import threading
 
 from guyrapu.core import diagnostico
-from guyrapu.music import cruce, enlaces
+from guyrapu.music import cruce, enlace_vlc
 from guyrapu.music.transicion import Transiciones
 from guyrapu.player import motor_vlc
 
@@ -65,6 +65,7 @@ class AdaptadorVlc:
         self._callbacks = {}
         self._cola = queue.Queue()
         self._cerrado = False
+        self._enlace = enlace_vlc.EnlaceVlc(self)
         self._hilo = diagnostico.crear_hilo(self._consumir, "musica-vlc")
         self._hilo.start()
 
@@ -92,7 +93,7 @@ class AdaptadorVlc:
             volumen = self._volumen if volumen is None else volumen
             self._pedida, self._pausa_pendiente = ficha, False
             if tema.es_enlace:
-                self._preparar_enlace(tema, ficha, volumen)
+                self._enlace.preparar(tema, ficha, volumen)
                 return
             self._pendiente = None
             largo, self._cruce_largo = self._cruce_largo, False
@@ -113,17 +114,6 @@ class AdaptadorVlc:
                 # propio gestor con su ficha vieja, y el coordinador lo ignora.
                 self._cola.put((_CERRAR, None, viejo))
             self._vigilar(nuevo, ficha, tema.origen)
-
-    def _preparar_enlace(self, tema, ficha, volumen):
-        """Deja pedido el enlace y lo resuelve en su hilo."""
-        self._cruce_largo, self._pendiente = False, ficha
-        anterior = self._actual
-        self._actual, self._iniciado, self._ficha_actual = None, False, None
-        self._volumen = volumen
-        if anterior is not None:
-            self._cola.put((_CERRAR, None, anterior))
-        diagnostico.crear_hilo(
-            self._resolver_enlace, "musica-enlace", args=(tema, ficha)).start()
 
     def _segundos_cruce(self):
         try:
@@ -195,63 +185,8 @@ class AdaptadorVlc:
     def _soltar(self, reproductor):
         self._cola.put((_CERRAR, None, reproductor))
 
-    def _resolver_enlace(self, tema, ficha):
-        """Resuelve el audio del enlace y arranca el reproductor. Corre en su
-        propio hilo: nunca usa libVLC desde un callback."""
-        try:
-            url = enlaces.url_audio(tema.origen)
-        except Exception:
-            logger.debug("No se pudo resolver el audio del enlace: %s", tema.origen)
-            with self._lock:
-                if self._pendiente == ficha:
-                    self._pendiente = None
-                if ficha == self._pedida:
-                    # El aviso sale por el hilo consumidor: acá se puede tener
-                    # el candado del coordinador y llamarlo acá lo colgaría.
-                    self._cola.put((_ERROR, ficha, None))
-            return
-        with self._lock:
-            if self._pendiente == ficha:
-                self._pendiente = None
-            # La ficha guardada es la pedida: si el usuario ya pidió otro tema,
-            # el resultado que llegó tarde se descarta y no toca al que suena.
-            if self._cerrado or ficha != self._pedida:
-                return
-            self._abrir_enlace(url, ficha)
-
-    def _abrir_enlace(self, url, ficha):
-        reproductor = self._instancia.media_player_new()
-        if reproductor is None:
-            self._cola.put((_ERROR, ficha, None))
-            return
-        if self._salida_audio is not None:
-            motor_vlc.fijar_salida_audio(reproductor, self._salida_audio)
-        if self._dispositivo:
-            reproductor.audio_output_device_set(None, self._dispositivo)
-        try:
-            media = self._instancia.media_new(url)
-            for opcion in _opciones_enlace():
-                media.add_option(opcion)
-            reproductor.set_media(media)
-        except Exception as exc:
-            logger.debug("No se pudo preparar el enlace: %s", exc)
-            self._cola.put((_CERRAR, None, reproductor))
-            self._cola.put((_ERROR, ficha, None))
-            return
-        reproductor.audio_set_volume(self._volumen)
-        self._enganchar(reproductor, ficha)
-        preparado_en_pausa = self._pausa_pendiente
-        self._pausa_pendiente = False
-        if not preparado_en_pausa and reproductor.play() == -1:
-            self._cola.put((_CERRAR, None, reproductor))
-            self._cola.put((_ERROR, ficha, None))
-            return
-        anterior = self._actual
-        self._actual = reproductor
-        self._iniciado = not preparado_en_pausa
-        self._ficha_actual = ficha
-        if anterior is not None:
-            self._cola.put((_CERRAR, None, anterior))
+    def _fallar(self, ficha):
+        self._cola.put((_ERROR, ficha, None))
 
     def pausar(self):
         self._terminar_transicion()
@@ -453,18 +388,4 @@ class AdaptadorVlc:
             logger.debug("no se pudo liberar el reproductor: %s", error)
         # Mientras libVLC pueda llamar, el gestor conserva vivos sus callbacks.
         self._callbacks.pop(reproductor, None)
-
-
-def _opciones_enlace() -> tuple[str, ...]:
-    """Opciones de red del reproductor de vídeo para flujos de YouTube.
-
-    Salen de ``reproductor.opciones_medio``, que es pública, importada al
-    momento para no arrastrar la interfaz al cargar este módulo. Si no se
-    puede importar, ninguna: el medio igual suena.
-    """
-    try:
-        from guyrapu.player.reproductor import opciones_medio
-    except Exception:
-        return ()
-    return opciones_medio(False, solo_audio=True)
 

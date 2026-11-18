@@ -16,7 +16,7 @@ from guyrapu.music.consultas_vlc import (
     leer_etiquetas_vlc,
     salidas_audio,
 )
-from guyrapu.music import adaptador_vlc, cruce, enlaces
+from guyrapu.music import adaptador_vlc, cruce, enlace_vlc
 from guyrapu.music.bordes import Bordes
 from guyrapu.music.enlaces import ErrorEnlace
 from guyrapu.music.coordinador import Coordinador
@@ -738,7 +738,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
 
     def _adaptador_con_opciones(self, **kwargs):
         self._p_opciones = mock.patch.object(
-            adaptador_vlc, "_opciones_enlace", return_value=(":opcion-red",))
+            enlace_vlc, "_opciones_enlace", return_value=(":opcion-red",))
         self._p_opciones.start()
         self.addCleanup(self._p_opciones.stop)
         return self.crear(**kwargs)
@@ -746,10 +746,10 @@ class TestAdaptadorEnlaces(_BaseDobles):
     def test_la_salida_se_fija_antes_del_medio_en_el_enlace(self):
         adaptador = self.crear()
         self._p_opciones = mock.patch.object(
-            adaptador_vlc, "_opciones_enlace", return_value=())
+            enlace_vlc, "_opciones_enlace", return_value=())
         self._p_opciones.start()
         self.addCleanup(self._p_opciones.stop)
-        adaptador._abrir_enlace("http://audio/stream", 1)
+        adaptador._enlace.abrir("http://audio/stream", 1)
         eventos = self.instancia.eventos
         self.assertLess(eventos.index(("salida", 0, motor_vlc.SALIDA_AUDIO)),
                         eventos.index(("media", 0)))
@@ -762,7 +762,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
             soltar.wait(5)
             return "http://audio/stream"
 
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             self.assertIsNone(adaptador._actual)
@@ -787,7 +787,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
             resuelto.set()
             return "http://audio/vieja"
 
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "vieja"), 1)
             adaptador.cargar(Tema("C:/musica/a.mp3", "nueva"), 2)
@@ -807,7 +807,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
             recibido.set()
 
         adaptador.asignar_aviso(aviso)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=ErrorEnlace("No se pudo leer el enlace")):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 9)
             self.assertTrue(recibido.wait(5), "el aviso no llegó")
@@ -825,7 +825,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
             recibido.set()
 
         adaptador.asignar_aviso(aviso)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                return_value="http://audio/stream"):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 5)
             self.assertTrue(recibido.wait(5), "el aviso no llegó")
@@ -848,7 +848,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         self.existentes.add("C:/musica/a.mp3")
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("C:/musica/a.mp3", "a"), 1)
             local = self.instancia.reproductores[0]
@@ -866,7 +866,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.detener()
@@ -881,7 +881,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.pausar()
@@ -899,7 +899,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.pausar()
@@ -913,7 +913,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.volumen(35)
@@ -924,14 +924,14 @@ class TestAdaptadorEnlaces(_BaseDobles):
 
     def test_reanudar_que_falla_no_avisa_bajo_un_candado_ajeno(self):
         self._p_opciones = mock.patch.object(
-            adaptador_vlc, "_opciones_enlace", return_value=(":opcion-red",))
+            enlace_vlc, "_opciones_enlace", return_value=(":opcion-red",))
         self._p_opciones.start()
         self.addCleanup(self._p_opciones.stop)
         adaptador = AdaptadorVlc()
         self.instancia.play_resultado = -1
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.pausar()
@@ -975,7 +975,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador.asignar_aviso(aviso)
 
         def escenario():
-            with mock.patch.object(adaptador_vlc.enlaces, "url_audio",
+            with mock.patch.object(enlace_vlc.enlaces, "url_audio",
                                    side_effect=ErrorEnlace("sin enlace")):
                 adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 3)
                 avisado.wait(2.5)
