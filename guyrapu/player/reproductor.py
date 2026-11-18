@@ -1068,14 +1068,17 @@ class ReproductorPanel(wx.Panel):
         except Exception as exc:
             logger.debug("cambio a caché de vídeo: %s", exc)
 
-    def _detener_relevo_ffmpeg(self) -> None:
+    def _detener_reapertura_pendiente(self) -> None:
         pendiente = self._estado_relevo.vod_reapertura
-        self._estado_relevo.vod_reapertura = None
         if pendiente is not None:
             try:
                 pendiente.Stop()
             except Exception as error:
                 logger.debug("no se pudo detener la reapertura pendiente: %s", error)
+
+    def _detener_relevo_ffmpeg(self) -> None:
+        self._detener_reapertura_pendiente()
+        self._estado_relevo.vod_reapertura = None
         directa = self._estado_relevo.directo_reapertura
         self._estado_relevo.directo_reapertura = None
         if directa is not None:
@@ -1830,12 +1833,7 @@ class ReproductorPanel(wx.Panel):
             # En pausa no se reabre el relevo ni se toca VLC: reabrir sin
             # reproducir dejaba a VLC sin muestras y al reanudar el vídeo
             # volvía al principio. Se guarda el destino hasta reanudar.
-            pendiente = self._estado_relevo.vod_reapertura
-            if pendiente is not None:
-                try:
-                    pendiente.Stop()
-                except Exception as error:
-                    logger.debug("no se pudo detener la reapertura pendiente: %s", error)
+            self._detener_reapertura_pendiente()
             self._estado_relevo.vod_reapertura = None
             self._estado_relevo.vod_destino_en_pausa = int(destino)
             # _marcar_destino se llama después en todos los llamadores y deja
@@ -1843,12 +1841,7 @@ class ReproductorPanel(wx.Panel):
             # reemplace ese pendiente por el destino ya confirmado.
             wx.CallAfter(self._confirmar_salto_en_pausa, int(destino))
             return
-        pendiente = self._estado_relevo.vod_reapertura
-        if pendiente is not None:
-            try:
-                pendiente.Stop()
-            except Exception as error:
-                logger.debug("no se pudo detener la reapertura pendiente: %s", error)
+        self._detener_reapertura_pendiente()
         self._estado_relevo.vod_reapertura = wx.CallLater(400, self._reabrir_relevo_vod, int(destino))
 
     def _confirmar_salto_en_pausa(self, destino) -> None:
