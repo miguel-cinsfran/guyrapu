@@ -77,6 +77,25 @@ class TestFormato(unittest.TestCase):
         self.assertIn("dijo='No hay palabras. No hay palabras.'",
                       transcripcion.texto(caso))
 
+    def test_el_nombre_con_la_posicion_repetido_al_final_se_escribe_una_vez(
+            self):
+        simple = datos("Comandos")
+        simple["pasos"][0]["habla"] = [
+            {"texto": "Páginas de interacción lista Comandos 2 de 8"}]
+        doble = datos("Comandos")
+        doble["pasos"][0]["habla"] = [
+            {"texto": "Páginas de interacción lista Comandos 2 de 8 "
+                      "Comandos 2 de 8"}]
+        self.assertEqual(transcripcion.texto(doble),
+                         transcripcion.texto(simple))
+
+    def test_dos_entradas_distintas_al_final_no_se_tocan(self):
+        caso = datos("Comandos")
+        caso["pasos"][0]["habla"] = [
+            {"texto": "Comandos 2 de 8 Encuestas 3 de 8"}]
+        self.assertIn("dijo='Comandos 2 de 8 Encuestas 3 de 8'",
+                      transcripcion.texto(caso))
+
 
 class TestComparacion(unittest.TestCase):
 

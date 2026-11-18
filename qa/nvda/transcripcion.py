@@ -15,13 +15,25 @@ from pathlib import Path
 CARPETA = Path(__file__).resolve().parent / "transcripciones"
 
 
+def _sin_repeticion_final(dicho, nombre):
+    """Quita el tramo final repetido que empieza con el nombre del foco."""
+    if not nombre:
+        return dicho
+    inicio = dicho.rfind(nombre)
+    while inicio != -1:
+        if inicio == 0 or dicho[inicio - 1] == " ":
+            tramo = dicho[inicio:]
+            if dicho.endswith(f"{tramo} {tramo}"):
+                return dicho[:-len(tramo) - 1]
+        inicio = dicho.rfind(nombre, 0, inicio)
+    return dicho
+
+
 def _habla(paso) -> str:
     dicho = " ".join(str(evento.get("texto") or "")
                      for evento in paso.get("habla") or ()).strip()
     nombre = str((paso.get("foco") or {}).get("nombre") or "").strip()
-    if nombre and dicho.endswith(f"{nombre} {nombre}"):
-        return dicho[:-len(nombre) - 1]
-    return dicho
+    return _sin_repeticion_final(dicho, nombre)
 
 
 def _linea(paso) -> str:
