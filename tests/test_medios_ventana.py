@@ -41,6 +41,9 @@ class BaseVentana(unittest.TestCase):
         parche.__enter__()
         self.addCleanup(parche.__exit__, None, None, None)
         self.base = Path(self.tmp.name)
+        parche = mock.patch.object(medios_ventana.medios_medicion, "medir")
+        self.medir = parche.start()
+        self.addCleanup(parche.stop)
 
     def _origen(self, nombre="origen.wav", contenido=b"AAA"):
         ruta = self.base / "origenes" / nombre
@@ -125,6 +128,60 @@ class TestPagina(BaseVentana):
         self.assertEqual(panel.lista.GetSelection(), 0)
         self.assertIs(wx.Window.FindFocus(), panel.lista)
         decir.assert_called_once_with("Medio agregado")
+
+    def test_agregar_un_sonido_lo_manda_a_medir_y_guarda_su_ganancia(self):
+        panel = self._panel([])
+        origen = self._origen()
+
+        def abrir_falso(_padre, datos, editar=False, ruta=None):
+            return {**datos, "nombre": "Risa"}
+
+        with mock.patch.object(panel, "_elegir_archivo",
+                               return_value=str(origen)), \
+                mock.patch.object(medios_ventana, "duracion_de",
+                                  return_value=3), \
+                mock.patch.object(medios_ventana.medio_cuadro, "abrir",
+                                  side_effect=abrir_falso), \
+                mock.patch.object(medios_ventana, "anunciar"):
+            panel._agregar()
+        self.assertEqual(self.medir.call_count, 1)
+        ruta, al_terminar = self.medir.call_args.args
+        guardados = self._en_disco()
+        self.assertEqual(Path(ruta),
+                         paths.carpeta_medios() / guardados[0]["archivo"])
+        self.assertIsNone(guardados[0]["ganancia_db"])
+        al_terminar(-6.5)
+        self.assertEqual(self._en_disco()[0]["ganancia_db"], -6.5)
+
+    def test_importar_un_sonido_sin_ganancia_lo_manda_a_medir(self):
+        origen = self._origen("risa.wav", b"BBB")
+        paquete = self.base / "medios.zip"
+        paquetes.exportar(paquete, "medios", [_datos()], (origen,))
+        panel = self._panel([])
+        with mock.patch.object(panel, "_pedir_ruta",
+                               return_value=str(paquete)), \
+                mock.patch.object(medios_ventana, "anunciar"):
+            panel._importar()
+        self.assertEqual(self.medir.call_count, 1)
+        ruta, al_terminar = self.medir.call_args.args
+        self.assertEqual(
+            Path(ruta),
+            paths.carpeta_medios() / self._en_disco()[0]["archivo"])
+        al_terminar(-6.5)
+        self.assertEqual(self._en_disco()[0]["ganancia_db"], -6.5)
+
+    def test_importar_un_sonido_con_ganancia_no_lo_vuelve_a_medir(self):
+        origen = self._origen("risa.wav", b"BBB")
+        paquete = self.base / "medios.zip"
+        paquetes.exportar(paquete, "medios",
+                          [_datos(ganancia_db=-6.5)], (origen,))
+        panel = self._panel([])
+        with mock.patch.object(panel, "_pedir_ruta",
+                               return_value=str(paquete)), \
+                mock.patch.object(medios_ventana, "anunciar"):
+            panel._importar()
+        self.medir.assert_not_called()
+        self.assertEqual(self._en_disco()[0]["ganancia_db"], -6.5)
 
     def test_editar_guarda_y_no_cambia_el_archivo(self):
         panel = self._panel([_datos()])

@@ -16,7 +16,7 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, medios, medios_guardados, paquetes
 from guyrapu.music import consultas_vlc
-from guyrapu.ui import confirmar, medio_cuadro
+from guyrapu.ui import confirmar, medio_cuadro, medios_medicion
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.medio_escucha import EscuchaPrevia
@@ -133,7 +133,28 @@ class PanelMedios(wx.Panel):
             medios_guardados.agregar(self._carpeta, origen, datos))
         self._guardar()
         self._fijar(len(self._medios) - 1)
+        self._medir(self._medios[-1])
         anunciar(_("Medio agregado"))
+
+    def _medir(self, medio):
+        if medio["tipo"] not in ("sonido", "video"):
+            return
+        if medio.get("ganancia_db") is not None:
+            return
+        archivo = medio["archivo"]
+
+        def al_terminar(ganancia):
+            if ganancia is None:
+                return
+            indice = medios_guardados.indice_de_archivo(
+                self._medios, archivo)
+            if indice is None:
+                return
+            self._medios[indice]["ganancia_db"] = ganancia
+            self._guardar()
+
+        medios_medicion.medir(
+            medios_guardados.archivo_de(self._carpeta, medio), al_terminar)
 
     def _editar(self):
         indice = self._elegido()
@@ -258,6 +279,9 @@ class PanelMedios(wx.Panel):
         self._medios = coleccion.combinar(
             self._medios, nuevos, reemplazar)
         self._guardar()
+        for medio in self._medios:
+            if id(medio) not in anteriores:
+                self._medir(medio)
         indice = next((posicion for posicion, medio
                        in enumerate(self._medios)
                        if id(medio) not in anteriores), 0)

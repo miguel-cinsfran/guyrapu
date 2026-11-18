@@ -6,7 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from guyrapu.interaction import medios_guardados
+from guyrapu.interaction import medios, medios_guardados, paquetes
+from guyrapu.music import sonoridad
 
 
 def _datos(**cambios):
@@ -68,6 +69,57 @@ class TestAgregar(BaseMedios):
         self.assertFalse(copia.exists())
 
 
+class TestGanancia(BaseMedios):
+
+    def test_conserva_la_ganancia_medida(self):
+        medio = medios_guardados.normalizar(_datos(ganancia_db=-6.5))
+        self.assertEqual(medio["ganancia_db"], -6.5)
+
+    def test_la_ganancia_se_limita_al_rango(self):
+        for valor, esperado in ((50, sonoridad.GANANCIA_MAXIMA_DB),
+                                (-50, sonoridad.GANANCIA_MINIMA_DB)):
+            with self.subTest(valor=valor):
+                medio = medios_guardados.normalizar(
+                    _datos(ganancia_db=valor))
+                self.assertEqual(medio["ganancia_db"], esperado)
+
+    def test_sin_ganancia_o_sin_numero_queda_vacia(self):
+        for valor in (None, "alto", True, float("inf")):
+            with self.subTest(valor=valor):
+                medio = medios_guardados.normalizar(
+                    _datos(ganancia_db=valor))
+                self.assertIsNone(medio["ganancia_db"])
+
+    def test_falta_la_ganancia_queda_vacia(self):
+        self.assertIsNone(
+            medios_guardados.normalizar(_datos())["ganancia_db"])
+
+    def test_el_paquete_lleva_y_respeta_la_ganancia(self):
+        medio = self._agregar(ganancia_db=-6.5)
+        paquete = self.base / "medios.zip"
+        paquetes.exportar(
+            paquete, "medios", [medio],
+            (self.carpeta / medio["archivo"],))
+        leido = paquetes.leer(paquete, "medios",
+                              extensiones=medios.EXTENSIONES)
+        self.assertEqual(leido.elementos[0]["ganancia_db"], -6.5)
+        self.assertEqual(
+            medios_guardados.normalizar(leido.elementos[0])["ganancia_db"],
+            -6.5)
+
+    def test_el_indice_sigue_al_medio_editado_por_su_archivo(self):
+        guardados = [medios_guardados.normalizar(_datos())]
+        guardados[0]["nombre"] = "Otra risa"
+        indice = medios_guardados.indice_de_archivo(guardados, "risa.wav")
+        self.assertEqual(indice, 0)
+        self.assertIs(guardados[indice], guardados[0])
+        self.assertEqual(guardados[indice]["nombre"], "Otra risa")
+
+    def test_el_indice_del_medio_eliminado_no_esta(self):
+        self.assertIsNone(
+            medios_guardados.indice_de_archivo([], "risa.wav"))
+
+
 class TestArchivo(BaseMedios):
 
     def test_guardar_y_cargar_conserva_los_campos(self):
@@ -79,7 +131,7 @@ class TestArchivo(BaseMedios):
         self.assertEqual(
             medios_guardados.cargar(ruta),
             [{"nombre": "Logo", "descripcion": "El logo", "tipo": "imagen",
-              "archivo": "logo.png", "duracion": 0}])
+              "archivo": "logo.png", "duracion": 0, "ganancia_db": None}])
 
     def test_un_archivo_danado_se_lee_como_lista_vacia(self):
         ruta = self.base / "medios.json"

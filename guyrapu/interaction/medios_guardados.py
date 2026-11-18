@@ -9,11 +9,13 @@ cómo se copian, renombran y borran los archivos de la biblioteca.
 from __future__ import annotations
 
 import json
+import math
 import shutil
 from pathlib import Path
 
 from guyrapu.core import archivos, diagnostico
 from guyrapu.interaction import medios
+from guyrapu.music import sonoridad
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -30,6 +32,19 @@ def _duracion(valor) -> int:
     return max(0, numero)
 
 
+def _ganancia(valor):
+    if isinstance(valor, bool):
+        return None
+    try:
+        numero = float(valor)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(numero):
+        return None
+    return max(sonoridad.GANANCIA_MINIMA_DB,
+               min(sonoridad.GANANCIA_MAXIMA_DB, numero))
+
+
 def normalizar(datos: dict) -> dict:
     """Los datos de un medio tal como se guardan, con los tipos forzados."""
     datos = datos if isinstance(datos, dict) else {}
@@ -44,7 +59,17 @@ def normalizar(datos: dict) -> dict:
         "tipo": tipo,
         "archivo": archivo,
         "duracion": _duracion(datos.get("duracion")),
+        "ganancia_db": _ganancia(datos.get("ganancia_db")),
     }
+
+
+def indice_de_archivo(guardados, archivo) -> int | None:
+    """El índice del medio que usa esa copia, o None si ya no está."""
+    nombre = Path(_texto(archivo)).name
+    for indice, medio in enumerate(guardados):
+        if normalizar(medio)["archivo"] == nombre:
+            return indice
+    return None
 
 
 def cargar(ruta) -> list[dict]:

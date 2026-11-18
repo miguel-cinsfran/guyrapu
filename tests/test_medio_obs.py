@@ -22,12 +22,14 @@ class ClienteFalso:
         self.escenas = {ESCENA: []}
         self.entradas = {}
         self.llamadas = []
+        self.paradas = []
         self._siguiente = 1
         self._agregar(TARJETA)
 
     def pedir(self, tipo, datos=None, parada=None):
         datos = dict(datos or {})
         self.llamadas.append((tipo, datos))
+        self.paradas.append((tipo, parada))
         manejador = getattr(self, "_" + tipo, None)
         return {"responseData": manejador(datos) if manejador else {}}
 
@@ -99,6 +101,13 @@ class ClienteFalso:
         if entrada is None:
             raise ObsError("no existe", 600)
         entrada["inputSettings"].update(datos["inputSettings"])
+        return {}
+
+    def _SetInputVolume(self, datos):
+        entrada = self.entradas.get(datos["inputName"])
+        if entrada is None:
+            raise ObsError("no existe", 600)
+        entrada["inputVolumeDb"] = datos["inputVolumeDb"]
         return {}
 
     def _SetSceneItemTransform(self, datos):
@@ -198,6 +207,37 @@ class TestArmar(Base):
                                   transformacion["boundsHeight"]), (1280, 720))
                 self.assertLess(self.cliente.indice(MEDIO),
                                 self.cliente.indice(TARJETA))
+
+
+class TestVolumen(Base):
+
+    def test_p4_el_volumen_usa_la_ganancia_del_medio(self):
+        self.medio.armar("C:/medios/tono.wav", "sonido", -6.5)
+        self.assertEqual(self.cliente.pedidos("SetInputVolume"), [
+            {"inputName": MEDIO, "inputVolumeDb": -6.5}])
+
+    def test_p4_sin_ganancia_el_volumen_queda_en_cero(self):
+        self.medio.armar("C:/medios/tono.wav", "sonido")
+        self.assertEqual(self.cliente.pedidos("SetInputVolume"), [
+            {"inputName": MEDIO, "inputVolumeDb": 0}])
+
+    def test_p4_todos_los_pedidos_llevan_la_parada(self):
+        parada = object()
+        self.medio.armar("C:/medios/tono.wav", "sonido", 3.0, parada=parada)
+        self.assertTrue(self.cliente.paradas)
+        self.assertEqual({recibida for _tipo, recibida
+                          in self.cliente.paradas}, {parada})
+
+    def test_p4_el_volumen_va_en_un_pedido_aparte_del_archivo(self):
+        self.medio.armar("C:/medios/tono.wav", "sonido", -6.5)
+        self.assertEqual(
+            [datos["inputName"]
+             for datos in self.cliente.pedidos("SetInputSettings")],
+            [MEDIO])
+        self.assertEqual(
+            [datos["inputName"]
+             for datos in self.cliente.pedidos("SetInputVolume")],
+            [MEDIO])
 
 
 class TestReproducir(Base):

@@ -76,7 +76,7 @@ class MedioObs:
             "sceneItemId": item["sceneItemId"],
             "sceneItemEnabled": visible}, parada)
 
-    def armar(self, ruta, tipo, parada=None) -> None:
+    def armar(self, ruta, tipo, ganancia_db=None, parada=None) -> None:
         """Deja el medio listo y habilitado, debajo de la tarjeta."""
         if tipo not in medios.CLAVES:
             raise ValueError(f"tipo de medio desconocido: {tipo!r}")
@@ -98,6 +98,10 @@ class MedioObs:
                     "restart_on_activate": True,
                     "close_when_inactive": True}}, parada)
             activo, inactivo = medio, imagen
+        self._pedir("SetInputVolume", {
+            "inputName": MEDIO,
+            "inputVolumeDb": 0 if ganancia_db is None else ganancia_db},
+            parada)
         self._ajustar(activo, ancho, alto, parada)
         self._debajo(imagen, 0, parada)
         self._debajo(medio, 1, parada)
