@@ -11,11 +11,9 @@ from __future__ import annotations
 
 import webbrowser
 
-import wx
-
 from guyrapu.core import diagnostico
 from guyrapu.core.config import APP_NAME
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.gui import anunciar, copiar_al_portapapeles
 from guyrapu.voice import sound_player as _snd
@@ -23,6 +21,10 @@ from guyrapu.voice import sound_player as _snd
 logger = diagnostico.obtener_logger(__name__)
 
 SITIOS_URL = "https://github.com/yt-dlp/yt-dlp/blob/master/supported_sites.md"
+
+MOTIVO_NO_DISPONIBLE = N_("No disponible para este tipo de resultado")
+MOTIVO_MEZCLA = N_("Algún resultado elegido no se puede descargar")
+DESCARGAS = ("agregar", "audio", "video")
 
 def textos() -> dict:
     """Los rótulos del menú, traducidos al pedirlos y no al importar."""
@@ -79,6 +81,20 @@ def _descargable(resultado) -> bool:
     return not resultado.en_directo and not resultado.programado
 
 
+def motivo_de(opcion, resultados, hay_app=True, hay_musica=True) -> str:
+    """Por qué esa opción no aplica a esos resultados, o "" si aplica."""
+    resultados = list(resultados)
+    if not resultados:
+        return ""
+    if len(resultados) > 1:
+        if opcion in DESCARGAS and not all(_descargable(r) for r in resultados):
+            return _(MOTIVO_MEZCLA)
+        return ""
+    if opcion in opciones_de(resultados[0], hay_app, hay_musica):
+        return ""
+    return _(MOTIVO_NO_DISPONIBLE)
+
+
 def texto_agregados(cuantos, titulo=None, hay_turno=True) -> str:
     """Lo que se anuncia al agregar: lo que pasa de verdad. Función pura."""
     if cuantos != 1:
@@ -123,47 +139,6 @@ def reparto_para_agregar(resultados) -> tuple[list, list]:
         else:
             urls.append(resultado.url)
     return urls, list(dict.fromkeys(rechazos))
-
-
-def _llamadas_menu(resultados, unico, acciones, al_ver_contenido,
-                 al_agregar, al_escuchar):
-    """Qué hace cada opción del menú sobre esos resultados."""
-    return {
-        "agregar": lambda: al_agregar(
-            [r.url for r in resultados], titulo=titulo_para_anunciar(resultados)),
-        "escuchar": lambda: al_escuchar(unico),
-        "audio": lambda: acciones.como_audio(list(resultados)),
-        "video": lambda: acciones.como_video(list(resultados)),
-        "formato": lambda: acciones.elegir_formato(unico),
-        "app": lambda: acciones.en_app(unico),
-        "musica": lambda: acciones.a_musica(unico),
-        "contenido": lambda: al_ver_contenido(unico),
-        "copiar": lambda: acciones.copiar(unico),
-        "navegador": lambda: acciones.abrir_en_navegador(unico),
-        "sitios": lambda: acciones.ver_sitios(),
-    }
-
-
-def construir_menu(opciones, resultados, acciones, al_ver_contenido,
-                   al_agregar, al_escuchar=None):
-    """El menú con esas opciones, actuando sobre esos resultados.
-
-    `al_ver_contenido(resultado)` entra a la vista, `al_agregar(urls,
-    titulo)` encola y `al_escuchar(resultado)` escucha la previa. Los
-    sitios compatibles van siempre al final, separados.
-    """
-    menu = wx.Menu()
-    unico = resultados[0] if len(resultados) == 1 else None
-    llamadas = _llamadas_menu(resultados, unico, acciones, al_ver_contenido,
-                              al_agregar, al_escuchar)
-    for opcion in opciones:
-        if opcion == "sitios" and menu.GetMenuItemCount():
-            menu.AppendSeparator()
-        ident = wx.NewIdRef()
-        menu.Append(ident, textos()[opcion])
-        menu.Bind(wx.EVT_MENU, lambda _e, f=llamadas[opcion]: f(), id=ident)
-    return menu
-
 
 class AccionesResultado:
     """Ejecuta cada acción del menú sobre el resultado dado."""

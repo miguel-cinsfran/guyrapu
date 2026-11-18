@@ -10,7 +10,7 @@ from guyrapu.ui import lista_pura, menu_lista
 
 
 def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
-            motivo=None, opciones=None, varios=False):
+            motivo=None, opciones=None, varios=False, motivo_indices=None):
     return lista_pura.Accion(
         clave=clave,
         etiqueta="&" + clave.capitalize(),
@@ -19,7 +19,8 @@ def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
         necesita_elemento=necesita_elemento,
         motivo=motivo,
         opciones=opciones,
-        varios=varios)
+        varios=varios,
+        motivo_indices=motivo_indices)
 
 
 ACCIONES = (
@@ -152,6 +153,26 @@ class PruebaPartePura(unittest.TestCase):
             lista_pura.acciones_encendidas(acciones, 3),
             {"solo": False, "varias": True,
              "libre": True, "libre_varias": True})
+
+    def test_el_motivo_propio_gana_sobre_el_generico_de_varias_filas(self):
+        accion = _accion(
+            "descargar", varios=True,
+            motivo_indices=lambda indices: "No se puede descargar")
+        self.assertEqual(
+            lista_pura.motivo_de(accion, [0, 2]), "No se puede descargar")
+        self.assertEqual(
+            lista_pura.motivo_de(_accion("solo"), [0, 2]),
+            "Elige un solo elemento para esta acción")
+        self.assertEqual(
+            lista_pura.motivo_de(_accion("varias", varios=True), [0, 2]), "")
+        self.assertEqual(lista_pura.motivo_de(_accion("solo"), [0]), "")
+
+    def test_el_motivo_de_siempre_sigue_valiendo(self):
+        accion = _accion("responder", motivo=lambda: "Sin sesión de YouTube")
+        self.assertEqual(
+            lista_pura.motivo_de(accion, [0]), "Sin sesión de YouTube")
+        self.assertEqual(
+            lista_pura.motivo_de(accion, [0, 1]), "Sin sesión de YouTube")
 
     def test_ctrl_d_da_su_accion_y_el_menu_dice_la_tecla(self):
         acciones = (_accion("duplicar", "ctrl+d"),)

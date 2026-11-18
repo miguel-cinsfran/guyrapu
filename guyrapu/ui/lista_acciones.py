@@ -21,7 +21,7 @@ from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 from guyrapu.ui.lista_pura import (
     Accion, _con_apariciones, _indice_restaurado, acciones_encendidas,
-    clave_de_tecla)
+    clave_de_tecla, motivo_de)
 from guyrapu.ui.menu_lista import (
     construir_menu, etiqueta_de_menu, mostrar_opciones)
 from guyrapu.voice import sound_player as _snd
@@ -239,19 +239,11 @@ class ListaConAcciones:
         if accion.necesita_elemento and not elegidas:
             self._vacio.sin_elemento()
             return True
-        if (accion.necesita_elemento and not accion.varios
-                and len(elegidas) > 1):
-            anunciar(_("Elige un solo elemento para esta acción"))
+        motivo = motivo_de(accion, elegidas)
+        if motivo:
+            anunciar(f"{motivo}.")
             return True
-        return self._avisar_motivo(accion)
-
-    def _avisar_motivo(self, accion) -> bool:
-        """Anuncia el motivo de una acción que no se puede usar ahora."""
-        motivo = accion.motivo() if accion.motivo is not None else ""
-        if not motivo:
-            return False
-        anunciar(f"{motivo}.")
-        return True
+        return False
 
     def _al_tecla(self, evento):
         clave = clave_de_tecla(
@@ -294,10 +286,14 @@ class ListaConAcciones:
             menu.Destroy()
 
     def _construir_menu(self):
-        elegidas = len(self.indices())
-        estados = acciones_encendidas(self._acciones, elegidas)
+        elegidas = self.indices()
+        estados = acciones_encendidas(self._acciones, len(elegidas))
         motivos = {}
-        if elegidas > 1:
-            motivos = {clave: _("Elige un solo elemento para esta acción")
-                       for clave, activo in estados.items() if not activo}
+        for accion in self._acciones:
+            motivo = motivo_de(accion, elegidas)
+            if not motivo:
+                continue
+            motivos[accion.clave] = motivo
+            if accion.motivo_indices is not None:
+                estados[accion.clave] = False
         return construir_menu(self._acciones, estados, self.ejecutar, motivos)

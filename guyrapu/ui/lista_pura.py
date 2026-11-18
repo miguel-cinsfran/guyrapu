@@ -13,6 +13,8 @@ from typing import Callable
 
 import wx
 
+from guyrapu.core.idioma import _
+
 _TECLAS = {
     (wx.WXK_RETURN, wx.MOD_NONE): "intro",
     (wx.WXK_NUMPAD_ENTER, wx.MOD_NONE): "intro",
@@ -50,6 +52,7 @@ class Accion:
     necesita_elemento: bool = True
     varios: bool = False
     motivo: Callable[[], str] | None = None
+    motivo_indices: Callable[[list[int]], str] | None = None
     opciones: (Callable[[], list[tuple[str, Callable[[], None]]]]
                | None) = None
 
@@ -87,6 +90,21 @@ def acciones_encendidas(acciones, elegidas: int) -> dict[str, bool]:
                            or elegidas == 1
                            or (elegidas > 1 and accion.varios))
             for accion in acciones}
+
+
+def motivo_de(accion, indices) -> str:
+    """Por qué la acción no aplica a esas filas, o "" si aplica."""
+    indices = list(indices)
+    propio = ""
+    if accion.motivo_indices is not None:
+        propio = accion.motivo_indices(indices)
+    elif accion.motivo is not None:
+        propio = accion.motivo()
+    if propio:
+        return propio
+    if len(indices) > 1 and accion.necesita_elemento and not accion.varios:
+        return _("Elige un solo elemento para esta acción")
+    return ""
 
 
 def _con_apariciones(claves):

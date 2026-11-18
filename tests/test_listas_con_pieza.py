@@ -25,7 +25,6 @@ MONTAJES_DE_LA_PIEZA = ("_armar_canciones", "_armar_cola", "_armar_colecciones")
 # pieza obliga a borrar su línea: el alta sin la pieza y la baja de la lista
 # son fallos.
 PENDIENTES = {
-    "descargas_buscador.py": "todavía no pasó a la pieza común",
     "dialogo_estado.py": (
         "lista de solo lectura sin acciones, en dialogo_estado.py:39"),
     "elegir_formato.py": (

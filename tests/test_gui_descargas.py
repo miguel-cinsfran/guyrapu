@@ -1580,6 +1580,17 @@ class TestMenuYVistaBuscador(unittest.TestCase):
             actual = pagina.lista.GetFirstSelected()
         pagina.lista.Select(indice)
 
+    def _intro(self, pagina):
+        evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+        evento.KeyCode = wx.WXK_RETURN
+        pagina.lista.GetEventHandler().ProcessEvent(evento)
+
+    def _menu_items(self, pagina):
+        pagina._lista_acciones._ultimo_menu = None
+        menu = pagina._lista_acciones._construir_menu()
+        self.addCleanup(menu.Destroy)
+        return menu.GetMenuItems()
+
     def _menu_disparado(self, pagina):
         etiquetas = []
 
@@ -1591,8 +1602,10 @@ class TestMenuYVistaBuscador(unittest.TestCase):
                 menu.ProcessEvent(
                     wx.CommandEvent(wx.EVT_MENU.typeId, it.GetId()))
 
-        with mock.patch.object(pagina.lista, "PopupMenu", falso_popup):
-            pagina._mostrar_menu()
+        pagina._lista_acciones._ultimo_menu = None
+        with mock.patch.object(pagina.lista, "PopupMenu", falso_popup), \
+                mock.patch.object(lista_acciones, "anunciar"):
+            pagina._lista_acciones._abrir_menu()
         return etiquetas
 
     def test_menu_dispara_cada_comando(self):
@@ -1621,7 +1634,12 @@ class TestMenuYVistaBuscador(unittest.TestCase):
                       "Copiar enlace", "Abrir en el navegador",
                       "Ver sitios compatibles"):
             self.assertIn(texto, juntos)
-        self.assertNotIn("Ver contenido", juntos)
+        contenido = next(
+            item for item in self._menu_items(pagina)
+            if item.GetItemLabel().replace("&", "").startswith("Ver contenido"))
+        self.assertFalse(contenido.IsEnabled())
+        self.assertIn("no disponible para este tipo de resultado",
+                      contenido.GetItemLabel())
         agregar.assert_called_once_with(["https://www.youtube.com/watch?v=v"],
                                         titulo="Título v")
         resultado = pagina._resultados[0]
@@ -1666,6 +1684,21 @@ class TestMenuYVistaBuscador(unittest.TestCase):
         self._buscar(items)
         dialogo = self._dialogo()
         pagina = self._pagina_buscada(dialogo, items)
+        pagina.lista.Select(0)
+        pagina.lista.Select(1)
+        menu_items = self._menu_items(pagina)
+        por_texto = {item.GetItemLabel().replace("&", ""): item
+                     for item in menu_items}
+        for texto in ("Agregar a la cola", "Descargar como audio",
+                      "Descargar como vídeo", "Ver sitios compatibles"):
+            with self.subTest(texto=texto):
+                self.assertTrue(por_texto[texto].IsEnabled())
+        copiar = next(
+            item for item in menu_items
+            if item.GetItemLabel().replace("&", "").startswith("Copiar enlace"))
+        self.assertFalse(copiar.IsEnabled())
+        self.assertIn("elige un solo elemento para esta acción",
+                      copiar.GetItemLabel())
         with mock.patch.object(pagina, "_agregar_urls",
                                return_value=2) as agregar, \
                 mock.patch.object(buscador_acciones.webbrowser, "open"), \
@@ -1674,14 +1707,12 @@ class TestMenuYVistaBuscador(unittest.TestCase):
                 mock.patch.object(pagina._acciones,
                                   "como_video") as como_video, \
                 mock.patch.object(pagina._acciones,
-                                  "ver_sitios") as ver_sitios:
-            pagina.lista.Select(0)
-            pagina.lista.Select(1)
+                                  "ver_sitios") as ver_sitios, \
+                mock.patch.object(pagina._acciones, "copiar") as copiar_spy, \
+                mock.patch.object(pagina._acciones,
+                                  "abrir_en_navegador") as navegador:
             etiquetas = self._menu_disparado(pagina)
-        self.assertEqual(
-            [e.replace("&", "") for e in etiquetas],
-            ["Agregar a la cola", "Descargar como audio",
-             "Descargar como vídeo", "Ver sitios compatibles"])
+        self.assertEqual(len(etiquetas), len(menu_items))
         agregar.assert_called_once_with(
             ["https://www.youtube.com/watch?v=v",
              "https://www.youtube.com/playlist?list=L"], titulo=None)
@@ -1689,6 +1720,60 @@ class TestMenuYVistaBuscador(unittest.TestCase):
         como_audio.assert_called_once_with(ambos)
         como_video.assert_called_once_with(ambos)
         ver_sitios.assert_called_once_with()
+        copiar_spy.assert_not_called()
+        navegador.assert_not_called()
+
+    def test_menu_de_un_canal_desactiva_las_descargas_con_su_motivo(self):
+        items = [_resultado_canal()]
+        self._buscar(items)
+        dialogo = self._dialogo()
+        pagina = self._pagina_buscada(dialogo, items)
+        pagina.lista.Select(0)
+        menu_items = self._menu_items(pagina)
+        for texto in ("Agregar a la cola", "Descargar como audio",
+                      "Descargar como vídeo", "Escuchar"):
+            with self.subTest(texto=texto):
+                item = next(
+                    it for it in menu_items
+                    if it.GetItemLabel().replace("&", "").startswith(texto))
+                self.assertFalse(item.IsEnabled())
+                self.assertIn("no disponible para este tipo de resultado",
+                              item.GetItemLabel())
+        contenido = next(
+            it for it in menu_items
+            if it.GetItemLabel().replace("&", "").startswith("Ver contenido"))
+        self.assertTrue(contenido.IsEnabled())
+
+    def test_intro_con_dos_filas_agrega_y_avisa_los_rechazos(self):
+        items = [_resultado_busqueda("v"), _resultado_canal()]
+        self._buscar(items)
+        dialogo = self._dialogo()
+        pagina = self._pagina_buscada(dialogo, items)
+        pagina.lista.Select(0)
+        pagina.lista.Select(1)
+        with mock.patch.object(pagina, "_agregar_urls",
+                               return_value=1) as agregar:
+            self._intro(pagina)
+        agregar.assert_called_once_with(
+            ["https://www.youtube.com/watch?v=v"], titulo=None)
+        dichos = [llamada.args[0]
+                  for llamada in descargas_buscador.avisar.call_args_list]
+        self.assertIn("Un canal no se puede agregar a la cola.", dichos)
+
+    def test_el_boton_agrega_llama_a_la_misma_accion_que_el_menu(self):
+        items = [_resultado_busqueda("v")]
+        self._buscar(items)
+        dialogo = self._dialogo()
+        pagina = self._pagina_buscada(dialogo, items)
+        pagina.lista.Select(0)
+        with mock.patch.object(pagina, "_on_agregar") as agregar:
+            pagina.btn_agregar.GetEventHandler().ProcessEvent(
+                wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                pagina.btn_agregar.GetId()))
+            agregar.assert_called_once_with(None)
+            agregar.reset_mock()
+            self.assertTrue(pagina._lista_acciones.ejecutar("agregar"))
+            agregar.assert_called_once_with(None)
 
     def test_intro_en_lista_entra_retroceso_vuelve_y_recupera(self):
         items = [_resultado_busqueda("v"), _resultado_lista()]
@@ -1702,7 +1787,7 @@ class TestMenuYVistaBuscador(unittest.TestCase):
                                   "anunciar") as anunciar_vista, \
                 mock.patch.object(pagina, "_agregar_urls", return_value=1):
             self._seleccionar_solo(pagina, 1)
-            pagina._on_activar(None)
+            self._intro(pagina)
         self.assertTrue(pagina._vista.activa)
         self.assertEqual(pagina.lista.GetItemCount(), 2)
         self.assertEqual(pagina.lista.GetItemText(0, 0), "Título a")
@@ -1713,9 +1798,9 @@ class TestMenuYVistaBuscador(unittest.TestCase):
         dichos = [llamada.args[0]
                   for llamada in anunciar_vista.call_args_list]
         self.assertIn("Una lista: 2 vídeos", dichos)
-        evento = mock.Mock()
-        evento.GetKeyCode.return_value = wx.WXK_BACK
-        pagina._on_key(evento)
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = wx.WXK_BACK
+        pagina.lista.GetEventHandler().ProcessEvent(evento)
         self.assertFalse(pagina._vista.activa)
         self.assertEqual(pagina.lista.GetItemCount(), 2)
         self.assertEqual(pagina.lista.GetItemText(1, 0), "Título l")
@@ -1851,7 +1936,7 @@ class TestMenuYVistaBuscador(unittest.TestCase):
                 mock.patch.object(buscador_contenido, "anunciar"), \
                 mock.patch.object(pagina, "_agregar_urls", return_value=1):
             self._seleccionar_solo(pagina, 1)
-            pagina._on_activar(None)
+            self._intro(pagina)
         self.assertTrue(pagina._vista.activa)
         pagina.btn_volver.GetEventHandler().ProcessEvent(
             wx.CommandEvent(wx.EVT_BUTTON.typeId, pagina.btn_volver.GetId()))
@@ -1927,19 +2012,22 @@ class TestMenuYVistaBuscador(unittest.TestCase):
         dialogo = self._dialogo()
         pagina = self._pagina_buscada(dialogo, items)
         pagina.lista.Select(0)
-        with mock.patch.object(pagina, "_mostrar_menu") as mostrar:
-            evento = mock.Mock()
-            evento.GetKeyCode.return_value = wx.WXK_WINDOWS_MENU
-            pagina._on_key(evento)
-            mostrar.assert_called_once_with()
-        with mock.patch.object(pagina, "_mostrar_menu") as mostrar:
-            evento = mock.Mock()
-            evento.GetKeyCode.return_value = wx.WXK_F10
-            evento.ShiftDown.return_value = True
-            pagina._on_key(evento)
-            mostrar.assert_called_once_with()
-        with mock.patch.object(pagina.lista, "PopupMenu"):
-            pagina._on_context_menu(None)
+
+        def popup_con(codigo, mayus=False):
+            pagina._lista_acciones._ultimo_menu = None
+            evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+            evento.KeyCode = codigo
+            evento.SetShiftDown(mayus)
+            with mock.patch.object(pagina.lista, "PopupMenu") as popup:
+                pagina.lista.GetEventHandler().ProcessEvent(evento)
+            return popup
+
+        popup_con(wx.WXK_WINDOWS_MENU).assert_called_once()
+        popup_con(wx.WXK_F10, mayus=True).assert_called_once()
+        pagina._lista_acciones._ultimo_menu = None
+        with mock.patch.object(pagina.lista, "PopupMenu") as popup:
+            pagina._lista_acciones._al_contexto(None)
+        popup.assert_called_once()
 
     def test_agregar_urls_con_no_solo_los_nuevos(self):
         vieja1 = "https://www.youtube.com/watch?v=una"
@@ -2199,62 +2287,35 @@ class TestEscuchaPrevia(TestMenuYVistaBuscador):
         dialogo.Hide()
 
     def test_el_menu_escuchar_llega_a_alternar(self):
-        resultado = _resultado_busqueda("v")
-        opciones = buscador_acciones.opciones_de(resultado, False, True)
-        self.assertIn("escuchar", opciones)
-        al_escuchar = mock.Mock()
-        menu = buscador_acciones.construir_menu(
-            opciones, [resultado], mock.Mock(), mock.Mock(),
-            mock.Mock(), al_escuchar)
+        items = [_resultado_busqueda("v")]
+        musica = _MusicaFalsa()
+        _dialogo, pagina = self._pagina_buscada_con_musica(
+            items, musica=musica)
+        pagina.lista.Select(0)
+        menu = pagina._lista_acciones._construir_menu()
         try:
             for it in menu.GetMenuItems():
-                if it.GetItemLabel().replace("&", "") == "Escuchar":
+                if it.GetItemLabel().replace("&", "").startswith("Escuchar"):
                     menu.ProcessEvent(wx.CommandEvent(
                         wx.EVT_MENU.typeId, it.GetId()))
         finally:
             menu.Destroy()
-        al_escuchar.assert_called_once_with(resultado)
+        self.assertEqual(
+            musica.reproducidos,
+            [(Tema(items[0].url, items[0].titulo),)])
 
 
-@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
 class TestLetrasMenuBuscador(unittest.TestCase):
-
-    def setUp(self):
-        self.app = app_de_prueba()
-
-    def _casos(self):
-        video = _resultado_busqueda("v")
-        return [
-            ([video], True, True),
-            ([video], False, False),
-            ([_resultado_busqueda("d", directo=True)], True, True),
-            ([_resultado_busqueda("p", programado=True)], False, False),
-            ([_resultado_lista()], True, True),
-            ([_resultado_canal()], False, False),
-            ([video, _resultado_lista()], True, True),
-            ([video, _resultado_canal()], False, False),
-        ]
 
     def test_letras_del_menu_no_se_repiten(self):
         from tests.letras_acceso import _letra_de_acceso
-        acciones = mock.Mock()
-        for resultados, hay_app, hay_musica in self._casos():
-            opciones = opciones_de(resultados[0] if len(resultados) == 1
-                                   else resultados, hay_app, hay_musica)
-            with self.subTest(opciones=opciones):
-                menu = buscador_acciones.construir_menu(
-                    opciones, resultados, acciones, mock.Mock(), mock.Mock())
-                try:
-                    letras = {}
-                    for it in menu.GetMenuItems():
-                        if it.GetKind() != wx.ITEM_NORMAL:
-                            continue
-                        letra = _letra_de_acceso(it.GetItemLabel())
-                        self.assertIsNotNone(letra, it.GetItemLabel())
-                        self.assertNotIn(letra, letras, it.GetItemLabel())
-                        letras[letra] = it.GetItemLabel()
-                finally:
-                    menu.Destroy()
+        letras = {}
+        for opcion, etiqueta in buscador_acciones.textos().items():
+            with self.subTest(opcion=opcion):
+                letra = _letra_de_acceso(etiqueta)
+                self.assertIsNotNone(letra, etiqueta)
+                self.assertNotIn(letra, letras, etiqueta)
+                letras[letra] = etiqueta
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")

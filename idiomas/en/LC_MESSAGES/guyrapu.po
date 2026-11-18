@@ -16762,3 +16762,11 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/buscador_acciones.py
+msgid "No disponible para este tipo de resultado"
+msgstr "Not available for this type of result"
+
+#: guyrapu/ui/buscador_acciones.py
+msgid "Algún resultado elegido no se puede descargar"
+msgstr "A selected result cannot be downloaded"
+

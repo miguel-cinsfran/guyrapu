@@ -14,7 +14,7 @@ from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 
 
 def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
-            motivo=None, opciones=None, varios=False):
+            motivo=None, opciones=None, varios=False, motivo_indices=None):
     return lista_acciones.Accion(
         clave=clave,
         etiqueta="&" + clave.capitalize(),
@@ -23,7 +23,8 @@ def _accion(clave, tecla=None, necesita_elemento=True, manejador=None,
         necesita_elemento=necesita_elemento,
         motivo=motivo,
         opciones=opciones,
-        varios=varios)
+        varios=varios,
+        motivo_indices=motivo_indices)
 
 
 ACCIONES = (
@@ -600,6 +601,11 @@ class PruebaSeleccionMultiple(unittest.TestCase):
         pieza.fijar(["a", "b", "c", "d", "e"])
         return pieza
 
+    def _tecla(self, tipo, codigo):
+        evento = wx.KeyEvent(tipo)
+        evento.KeyCode = codigo
+        self.lista.GetEventHandler().ProcessEvent(evento)
+
     def test_p1_indices_da_todas_las_elegidas_en_orden(self):
         pieza = self._pieza((_accion("editar"),))
         for indice in (0, 2, 4):
@@ -629,7 +635,7 @@ class PruebaSeleccionMultiple(unittest.TestCase):
         self.lista.Select(1)
         with mock.patch.object(lista_acciones, "anunciar") as anunciar:
             self.assertTrue(pieza.ejecutar("editar"))
-        anunciar.assert_called_once_with(self.MOTIVO)
+        anunciar.assert_called_once_with(self.MOTIVO + ".")
         self.assertEqual(llamadas, [])
 
     def test_p2_con_varias_la_accion_de_varias_corre(self):
@@ -653,6 +659,34 @@ class PruebaSeleccionMultiple(unittest.TestCase):
         self.assertEqual(
             item.GetItemLabel(),
             "&Editar (elige un solo elemento para esta acción)")
+
+    def test_p3_la_tecla_anuncia_el_motivo_propio_y_no_corre(self):
+        llamadas = []
+        self._pieza((_accion(
+            "descargar", tecla="suprimir", varios=True,
+            motivo_indices=lambda indices: "Algún elegido no se puede bajar",
+            manejador=lambda: llamadas.append("descargar")),))
+        self.lista.Select(1)
+        self.lista.Select(2)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._tecla(wx.wxEVT_KEY_DOWN, wx.WXK_DELETE)
+        anunciar.assert_called_once_with(
+            "Algún elegido no se puede bajar.")
+        self.assertEqual(llamadas, [])
+
+    def test_p3_el_menu_apaga_con_el_motivo_propio(self):
+        pieza = self._pieza((_accion(
+            "descargar", varios=True,
+            motivo_indices=lambda indices: "Algún elegido no se puede bajar"),))
+        self.lista.Select(1)
+        self.lista.Select(2)
+        menu = pieza._construir_menu()
+        self.addCleanup(menu.Destroy)
+        item = menu.GetMenuItems()[0]
+        self.assertFalse(item.IsEnabled())
+        self.assertEqual(
+            item.GetItemLabel(),
+            "&Descargar (algún elegido no se puede bajar)")
 
 
 class PruebaCasillasConPieza(unittest.TestCase):
