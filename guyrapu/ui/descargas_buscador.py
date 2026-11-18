@@ -96,7 +96,7 @@ class PaginaBuscador(wx.Panel):
     def _crear_lista(self, vs):
         self.lista = wx.ListCtrl(self, style=wx.LC_REPORT,
                                  name="ListaResultados")
-        nombre_accesible(self.lista, _("Resultados de la búsqueda"), msaa=False)
+        nombre_accesible(self.lista, _("Resultados de la búsqueda"))
         self.lista.InsertColumn(0, _("Título"), width=280)
         self.lista.InsertColumn(1, _("Canal"), width=160)
         self.lista.InsertColumn(2, _("Duración"), width=80)

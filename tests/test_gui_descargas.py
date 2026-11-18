@@ -19,6 +19,7 @@ from guyrapu.ui import buscador_acciones, buscador_escucha
 from guyrapu.ui.buscador_acciones import AccionesResultado, opciones_de
 from guyrapu.ui import buscador_contenido
 from guyrapu.ui import buscador_tandas
+from guyrapu.core import nombre_msaa
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -244,6 +245,13 @@ class TestPaginaUnica(unittest.TestCase):
              for i in range(pagina.lista.GetColumnCount())],
             ["Progreso", "Estado", "Nombre", "Fecha"])
         self.assertEqual(dialogo.pestanas.GetName(), "PestanasDescargas")
+
+    def test_la_lista_de_descargas_anota_el_nombre_para_msaa(self):
+        with mock.patch.object(nombre_msaa, "poner",
+                               return_value=False) as poner:
+            dialogo = self._dialogo()
+            poner.assert_any_call(dialogo.pagina_descargas.lista.GetHandle(),
+                                  "Lista de descargas")
 
     def test_construir_la_pagina_arranca_la_vigilancia_del_progreso(self):
         with mock.patch.object(descargas_listas.aviso_progreso,
@@ -843,6 +851,13 @@ class TestBuscador(unittest.TestCase):
              for i in range(pagina.lista.GetColumnCount())],
             ["Título", "Canal", "Duración", "Vistas", "Fecha"])
         self.assertEqual(pagina.lista.GetName(), "Resultados de la búsqueda")
+
+    def test_la_lista_de_resultados_anota_el_nombre_para_msaa(self):
+        with mock.patch.object(nombre_msaa, "poner",
+                               return_value=False) as poner:
+            dialogo = self._dialogo()
+            poner.assert_any_call(dialogo.pagina_buscador.lista.GetHandle(),
+                                  "Resultados de la búsqueda")
 
     def test_palabras_buscan_y_muestran(self):
         buscar = self._con_busqueda(_respuesta_busqueda(

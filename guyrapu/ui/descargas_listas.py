@@ -151,7 +151,7 @@ class PaginaDescargas(wx.Panel):
     def _seccion_lista(self):
         self.lista = wx.ListCtrl(self, style=wx.LC_REPORT | wx.LC_SINGLE_SEL,
                                  name="ListaDescargas")
-        nombre_accesible(self.lista, _("Lista de descargas"), msaa=False)
+        nombre_accesible(self.lista, _("Lista de descargas"))
         self.lista.AssignImageList(
             barra_progreso.lista_de_imagenes(self.lista.GetBackgroundColour()),
             wx.IMAGE_LIST_SMALL)
