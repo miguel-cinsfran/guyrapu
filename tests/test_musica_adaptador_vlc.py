@@ -16,7 +16,7 @@ from guyrapu.music.consultas_vlc import (
     leer_etiquetas_vlc,
     salidas_audio,
 )
-from guyrapu.music import adaptador_vlc, cruce, enlace_vlc
+from guyrapu.music import cruce, enlace_vlc, enlaces
 from guyrapu.music.bordes import Bordes
 from guyrapu.music.enlaces import ErrorEnlace
 from guyrapu.music.coordinador import Coordinador
@@ -749,7 +749,9 @@ class TestAdaptadorEnlaces(_BaseDobles):
             enlace_vlc, "_opciones_enlace", return_value=())
         self._p_opciones.start()
         self.addCleanup(self._p_opciones.stop)
-        adaptador._enlace.abrir("http://audio/stream", 1)
+        adaptador._enlace.abrir(
+            "http://audio/stream", 1, False,
+            Tema("https://youtu.be/abc123", "x"))
         eventos = self.instancia.eventos
         self.assertLess(eventos.index(("salida", 0, motor_vlc.SALIDA_AUDIO)),
                         eventos.index(("media", 0)))
@@ -760,9 +762,9 @@ class TestAdaptadorEnlaces(_BaseDobles):
 
         def url_audio(_origen):
             soltar.wait(5)
-            return "http://audio/stream"
+            return "http://audio/stream", False
 
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             self.assertIsNone(adaptador._actual)
@@ -785,9 +787,9 @@ class TestAdaptadorEnlaces(_BaseDobles):
         def url_audio(_origen):
             soltar.wait(5)
             resuelto.set()
-            return "http://audio/vieja"
+            return "http://audio/vieja", False
 
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "vieja"), 1)
             adaptador.cargar(Tema("C:/musica/a.mp3", "nueva"), 2)
@@ -807,7 +809,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
             recibido.set()
 
         adaptador.asignar_aviso(aviso)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=ErrorEnlace("No se pudo leer el enlace")):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 9)
             self.assertTrue(recibido.wait(5), "el aviso no llegó")
@@ -825,8 +827,8 @@ class TestAdaptadorEnlaces(_BaseDobles):
             recibido.set()
 
         adaptador.asignar_aviso(aviso)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
-                               return_value="http://audio/stream"):
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
+                               return_value=("http://audio/stream", False)):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 5)
             self.assertTrue(recibido.wait(5), "el aviso no llegó")
         self.assertEqual(vistos, [(5, True)])
@@ -839,7 +841,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         def url_audio(_origen):
             soltar.wait(5)
             resuelto.set()
-            return destino
+            return destino, False
 
         return url_audio, resuelto
 
@@ -848,7 +850,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         self.existentes.add("C:/musica/a.mp3")
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("C:/musica/a.mp3", "a"), 1)
             local = self.instancia.reproductores[0]
@@ -866,7 +868,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.detener()
@@ -881,7 +883,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.pausar()
@@ -899,7 +901,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.pausar()
@@ -913,7 +915,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador = self._adaptador_con_opciones()
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.volumen(35)
@@ -931,7 +933,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         self.instancia.play_resultado = -1
         soltar = threading.Event()
         url_audio, resuelto = self._url_que_espera(soltar)
-        with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+        with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                side_effect=url_audio):
             adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
             adaptador.pausar()
@@ -975,7 +977,7 @@ class TestAdaptadorEnlaces(_BaseDobles):
         adaptador.asignar_aviso(aviso)
 
         def escenario():
-            with mock.patch.object(enlace_vlc.enlaces, "url_audio",
+            with mock.patch.object(enlace_vlc.enlaces, "url_audio_con_cache",
                                    side_effect=ErrorEnlace("sin enlace")):
                 adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 3)
                 avisado.wait(2.5)
@@ -985,6 +987,200 @@ class TestAdaptadorEnlaces(_BaseDobles):
         hilo.join(timeout=3)
         self.assertFalse(hilo.is_alive(), "la resolución se colgó")
         self.assertEqual(vistos, [(3, True)])
+
+
+class TestReintentoDeEnlace(_BaseDobles):
+    """Un error de VLC antes de sonar con una dirección del caché se reintenta."""
+
+    def _parchear_resolucion(self, funcion):
+        nueva = mock.patch.object(
+            enlace_vlc.enlaces, "url_audio_con_cache", side_effect=funcion)
+        vieja = mock.patch.object(
+            enlace_vlc.enlaces, "url_audio",
+            side_effect=AssertionError(
+                "la resolución debe usar url_audio_con_cache"))
+        nueva.start()
+        vieja.start()
+        self.addCleanup(vieja.stop)
+        self.addCleanup(nueva.stop)
+
+    def _adaptador(self):
+        parche = mock.patch.object(
+            enlace_vlc, "_opciones_enlace", return_value=(":opcion-red",))
+        parche.start()
+        self.addCleanup(parche.stop)
+        return self.crear()
+
+    def _avisos(self):
+        vistos = []
+        recibido = threading.Event()
+
+        def aviso(ficha, fallo):
+            vistos.append((ficha, fallo))
+            recibido.set()
+
+        return vistos, recibido, aviso
+
+    def test_error_antes_de_sonar_con_direccion_del_cache_reintenta(self):
+        adaptador = self._adaptador()
+        llamadas = []
+
+        def resolver(origen):
+            llamadas.append(origen)
+            if len(llamadas) == 1:
+                return "http://audio/cacheada", True
+            return "http://audio/fresca", False
+
+        vistos, _, aviso = self._avisos()
+        adaptador.asignar_aviso(aviso)
+        self._parchear_resolucion(resolver)
+        with mock.patch.object(enlace_vlc.enlaces.CACHE, "olvidar") as olvidar:
+            adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 1))
+            primero = self.instancia.reproductores[0]
+            self.assertEqual(primero.media.origen, "http://audio/cacheada")
+            primero.gestor.disparar(FakeVlc.EventType.MediaPlayerEncounteredError)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 2))
+            time.sleep(0.1)
+        self.assertEqual(self.instancia.reproductores[1].media.origen,
+                         "http://audio/fresca")
+        self.assertEqual(olvidar.call_args.args, ("abc123",))
+        self.assertEqual(len(llamadas), 2)
+        self.assertEqual(vistos, [])
+        self.assertIs(adaptador._actual, self.instancia.reproductores[1])
+
+    def test_el_segundo_error_se_avisa(self):
+        adaptador = self._adaptador()
+        respuestas = [("http://audio/cacheada", True),
+                      ("http://audio/fresca", False)]
+        vistos, recibido, aviso = self._avisos()
+        adaptador.asignar_aviso(aviso)
+        self._parchear_resolucion(lambda _origen: respuestas.pop(0))
+        with mock.patch.object(enlace_vlc.enlaces.CACHE, "olvidar"):
+            adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 1))
+            self.instancia.reproductores[0].gestor.disparar(
+                FakeVlc.EventType.MediaPlayerEncounteredError)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 2))
+            self.instancia.reproductores[1].gestor.disparar(
+                FakeVlc.EventType.MediaPlayerEncounteredError)
+            self.assertTrue(recibido.wait(5), "el aviso no llegó")
+        self.assertEqual(vistos, [(1, True)])
+        self.assertEqual(len(self.instancia.reproductores), 2)
+
+    def test_error_sin_direccion_del_cache_avisa_sin_reintentar(self):
+        adaptador = self._adaptador()
+        llamadas = []
+        vistos, recibido, aviso = self._avisos()
+        adaptador.asignar_aviso(aviso)
+        self._parchear_resolucion(
+            lambda origen: llamadas.append(origen) or (
+                "http://audio/fresca", False))
+        adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
+        self.assertTrue(esperar(lambda: len(self.instancia.reproductores) == 1))
+        self.instancia.reproductores[0].gestor.disparar(
+            FakeVlc.EventType.MediaPlayerEncounteredError)
+        self.assertTrue(recibido.wait(5), "el aviso no llegó")
+        self.assertEqual(vistos, [(1, True)])
+        self.assertEqual(len(llamadas), 1)
+        self.assertEqual(len(self.instancia.reproductores), 1)
+
+    def test_si_piden_otro_tema_el_reintento_se_descarta(self):
+        adaptador = self._adaptador()
+        self.existentes.add("C:/musica/a.mp3")
+        en_reintento = threading.Event()
+        soltar = threading.Event()
+        llamadas = []
+
+        def resolver(origen):
+            llamadas.append(origen)
+            if len(llamadas) == 1:
+                return "http://audio/cacheada", True
+            en_reintento.set()
+            soltar.wait(5)
+            return "http://audio/fresca", False
+
+        vistos, _, aviso = self._avisos()
+        adaptador.asignar_aviso(aviso)
+        self._parchear_resolucion(resolver)
+        with mock.patch.object(enlace_vlc.enlaces.CACHE, "olvidar"):
+            adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 1))
+            self.instancia.reproductores[0].gestor.disparar(
+                FakeVlc.EventType.MediaPlayerEncounteredError)
+            self.assertTrue(en_reintento.wait(5), "no empezó el reintento")
+            adaptador.cargar(Tema("C:/musica/a.mp3", "a"), 2)
+            soltar.set()
+            time.sleep(0.1)
+        self.assertEqual(len(self.instancia.reproductores), 2)
+        self.assertEqual(self.instancia.reproductores[1].media.origen,
+                         "C:/musica/a.mp3")
+        self.assertIs(adaptador._actual, self.instancia.reproductores[1])
+        self.assertEqual(vistos, [])
+
+    def test_reintento_resuelve_con_el_cache_real_y_ytdlp_doble(self):
+        adaptador = self._adaptador()
+        enlaces.CACHE.olvidar("abc123")
+        self.addCleanup(enlaces.CACHE.olvidar, "abc123")
+        cacheada = (f"https://r1.googlevideo.com/videoplayback"
+                    f"?expire={int(time.time()) + 6 * 3600}")
+        enlaces.CACHE.guardar("abc123", cacheada, 240)
+        fresca = (f"https://r1.googlevideo.com/videoplayback"
+                  f"?expire={int(time.time()) + 6 * 3600}&firma=nueva")
+        info = {"duration": 240, "formats": [
+            {"vcodec": "none", "acodec": "mp4a", "url": fresca,
+             "language_preference": 10},
+        ]}
+        vistos, _, aviso = self._avisos()
+        adaptador.asignar_aviso(aviso)
+        with mock.patch.object(enlaces.ytdlp_bin, "ruta_ytdlp",
+                               return_value=r"C:\yt-dlp.exe"), \
+                mock.patch.object(enlaces.ytdlp_bin, "info_video",
+                                  return_value=info) as pedir:
+            adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 1))
+            primero = self.instancia.reproductores[0]
+            self.assertEqual(primero.media.origen, cacheada)
+            pedir.assert_not_called()
+            primero.gestor.disparar(
+                FakeVlc.EventType.MediaPlayerEncounteredError)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 2))
+            time.sleep(0.1)
+        self.assertEqual(self.instancia.reproductores[1].media.origen, fresca)
+        pedir.assert_called_once_with("abc123")
+        self.assertEqual(vistos, [])
+
+    def test_error_despues_de_sonar_avisa_sin_reintentar(self):
+        adaptador = self._adaptador()
+        llamadas = []
+
+        def resolver(origen):
+            llamadas.append(origen)
+            return "http://audio/cacheada", True
+
+        vistos, recibido, aviso = self._avisos()
+        adaptador.asignar_aviso(aviso)
+        self._parchear_resolucion(resolver)
+        with mock.patch.object(enlace_vlc.enlaces.CACHE, "olvidar") as olvidar:
+            adaptador.cargar(Tema("https://youtu.be/abc123", "x"), 1)
+            self.assertTrue(
+                esperar(lambda: len(self.instancia.reproductores) == 1))
+            reproductor = self.instancia.reproductores[0]
+            reproductor.gestor.disparar(FakeVlc.EventType.MediaPlayerPlaying)
+            reproductor.gestor.disparar(
+                FakeVlc.EventType.MediaPlayerEncounteredError)
+            self.assertTrue(recibido.wait(5), "el aviso no llegó")
+        self.assertEqual(vistos, [(1, True)])
+        self.assertEqual(len(llamadas), 1)
+        olvidar.assert_not_called()
+        self.assertEqual(len(self.instancia.reproductores), 1)
 
 
 def _wav_silencio(ruta, duracion=0.4, tasa=8000):

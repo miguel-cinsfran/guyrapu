@@ -185,8 +185,8 @@ class AdaptadorVlc:
     def _soltar(self, reproductor):
         self._cola.put((_CERRAR, None, reproductor))
 
-    def _fallar(self, ficha):
-        self._cola.put((_ERROR, ficha, None))
+    def _fallar(self, ficha, reproductor=None):
+        self._cola.put((_ERROR, ficha, reproductor))
 
     def pausar(self):
         self._terminar_transicion()
@@ -219,11 +219,12 @@ class AdaptadorVlc:
             self._actual = None
             self._iniciado = False
             self._ficha_actual = None
-            self._cola.put((_CERRAR, None, reproductor))
             if ficha is not None and ficha == self._pedida:
                 # Nunca directo: `reanudar` puede venir con el candado del
                 # coordinador tomado y el aviso lo vuelve a pedir.
-                self._cola.put((_ERROR, ficha, None))
+                self._fallar(ficha, reproductor)
+            else:
+                self._soltar(reproductor)
             return
         self._iniciado = True
 
@@ -331,6 +332,7 @@ class AdaptadorVlc:
             if tipo == _CERRAR:
                 self._cerrar_reproductor(reproductor)
             elif tipo == _SONANDO:
+                self._enlace.sonar(reproductor)
                 if (reproductor is self._actual
                         and not self._en_fundido(reproductor)):
                     try:
@@ -339,8 +341,11 @@ class AdaptadorVlc:
                         logger.debug("no se pudo fijar el volumen del tema: %s", error)
             elif tipo == _POR_TERMINAR:
                 self._terminar_anticipado(ficha)
+            elif tipo == _ERROR:
+                if self._enlace.consumir_error(ficha, reproductor):
+                    self._avisar_fin(ficha, True)
             else:
-                self._avisar_fin(ficha, tipo == _ERROR)
+                self._avisar_fin(ficha, False)
 
     def _en_fundido(self, reproductor):
         return (self._transiciones is not None
@@ -376,6 +381,7 @@ class AdaptadorVlc:
             logger.exception("Falló el aviso de fin de tema")
 
     def _cerrar_reproductor(self, reproductor):
+        self._enlace.olvidar(reproductor)
         if self._transiciones is not None:
             self._transiciones.olvidar(reproductor)
         try:

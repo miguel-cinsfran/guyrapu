@@ -316,6 +316,28 @@ class TestUrlAudio(unittest.TestCase):
                         "https://www.youtube.com/watch?v=abc123")
                 self.assertEqual(pedir.call_count, 2)
 
+    def test_dice_si_la_direccion_salio_del_cache(self):
+        guardada = (f"https://r1.googlevideo.com/videoplayback"
+                    f"?expire={int(time.time()) + 6 * 3600}")
+        enlaces.CACHE.guardar("abc123", guardada, 240)
+        info = {"duration": 240, "formats": [
+            {"vcodec": "none", "acodec": "mp4a", "url": "audio-fresco",
+             "language_preference": 10},
+        ]}
+        with mock.patch.object(enlaces.ytdlp_bin, "ruta_ytdlp",
+                               return_value=r"C:\yt-dlp.exe"), \
+                mock.patch.object(enlaces.ytdlp_bin, "info_video",
+                                  return_value=info) as pedir:
+            primera, del_cache = enlaces.url_audio_con_cache(
+                "https://www.youtube.com/watch?v=abc123")
+            self.assertEqual((primera, del_cache), (guardada, True))
+            pedir.assert_not_called()
+            enlaces.CACHE.olvidar("abc123")
+            segunda, del_cache = enlaces.url_audio_con_cache(
+                "https://www.youtube.com/watch?v=abc123")
+        self.assertEqual((segunda, del_cache), ("audio-fresco", False))
+        pedir.assert_called_once_with("abc123")
+
 
 _MARCAS_LISTA_FALTANTE = (
     "does not exist", "not exist", "not found", "no longer",

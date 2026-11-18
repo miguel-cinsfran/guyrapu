@@ -190,16 +190,16 @@ def _info_video(video_id: str) -> dict:
     return _extraer_video_con_modulo(video_id)
 
 
-def url_audio(origen: str) -> str:
-    """Dirección del audio para reproducir ese vídeo ahora. Se guarda en
-    memoria hasta que esté por vencer. Bloqueante (usar en hilo). Lanza
-    `ErrorEnlace` si no hay audio."""
+def url_audio_con_cache(origen: str) -> tuple[str, bool]:
+    """Dirección del audio para reproducir ese vídeo ahora y si salió del
+    caché. Se guarda en memoria hasta que esté por vencer. Bloqueante (usar
+    en hilo). Lanza `ErrorEnlace` si no hay audio."""
     video_id = id_de_url(origen)
     if not video_id:
         raise ErrorEnlace(_(TEXTO_NO_SE_PUDO_LEER))
     url = CACHE.buscar(video_id, time.time())
     if url:
-        return url
+        return url, True
     info = _info_video(video_id)
     url = formatos.mejor_audio(info)
     if not url:
@@ -209,4 +209,11 @@ def url_audio(origen: str) -> str:
                or info.get("live_status") in ("is_live", "is_upcoming"))
     if not directo:
         CACHE.guardar(video_id, url, info.get("duration"))
-    return url
+    return url, False
+
+
+def url_audio(origen: str) -> str:
+    """Dirección del audio para reproducir ese vídeo ahora. Se guarda en
+    memoria hasta que esté por vencer. Bloqueante (usar en hilo). Lanza
+    `ErrorEnlace` si no hay audio."""
+    return url_audio_con_cache(origen)[0]
