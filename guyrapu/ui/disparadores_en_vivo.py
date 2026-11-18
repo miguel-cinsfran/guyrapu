@@ -14,7 +14,8 @@ from __future__ import annotations
 
 from guyrapu.core import diagnostico, paths
 from guyrapu.interaction import (
-    comandos, disparadores, disparadores_guardados, filtro_publico)
+    comandos, disparadores, disparadores_guardados, filtro_publico,
+    medios_guardados)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
@@ -64,20 +65,41 @@ class DisparadoresEnVivo:
             self._poner(disparador, evento)
 
     def _poner(self, disparador, evento) -> None:
-        if not (disparador.tarjeta or "").strip():
+        tarjeta = (disparador.tarjeta or "").strip()
+        medio = self._medio(disparador.medio)
+        if not tarjeta and medio is None:
             return
-        texto = (disparador.tarjeta or "").replace(
-            "{usuario}",
-            filtro_publico.tapar(evento.autor or "",
-                                 self._palabras_bloqueadas))
-        pieza = Pieza(
-            tipo="disparador",
-            texto=texto,
-            segundos=disparador.segundos,
-            datos={"estilo": disparador.estilo,
-                   "nombre": disparador.nombre},
-        )
+        if tarjeta:
+            texto = (disparador.tarjeta or "").replace(
+                "{usuario}",
+                filtro_publico.tapar(evento.autor or "",
+                                     self._palabras_bloqueadas))
+        else:
+            texto = ""
+        segundos = disparador.segundos
+        datos = {"estilo": disparador.estilo, "nombre": disparador.nombre}
+        if medio is not None:
+            datos["medio"] = medio
+            if medio["tipo"] in ("sonido", "video") and medio["duracion"]:
+                segundos = max(1, medio["duracion"])
+        pieza = Pieza(tipo="disparador", texto=texto, segundos=segundos,
+                      datos=datos)
         gui_envio_chat.capa_de_video(self._frame).agregar_pieza(pieza)
+
+    def _medio(self, nombre):
+        """El medio de la biblioteca con ese nombre, o None si ya no está."""
+        nombre = (nombre or "").strip()
+        if not nombre:
+            return None
+        for guardado in medios_guardados.cargar(paths.medios()):
+            if guardado.get("nombre") == nombre:
+                return {
+                    "ruta": str(medios_guardados.archivo_de(
+                        paths.carpeta_medios(), guardado)),
+                    "tipo": guardado.get("tipo", ""),
+                    "duracion": guardado.get("duracion", 0),
+                }
+        return None
 
     def _recargar(self) -> None:
         """Vuelve a leer los disparadores y las palabras si cambiaron."""

@@ -17,7 +17,7 @@ from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction.cola_pantalla import ColaPantalla, Pieza
 from guyrapu.obs import animador as animador_obs
-from guyrapu.obs import escena_guyrapu, estilos_aviso, obs_cliente
+from guyrapu.obs import escena_guyrapu, estilos_aviso, medio_obs, obs_cliente
 from guyrapu.obs import ordenes_animador, revision_tarjeta
 from guyrapu.ui.accesibilidad import anunciar, anunciar_con_sonido
 
@@ -35,11 +35,12 @@ class CapaVideo:
     INTERVALO = 250
 
     def __init__(self, frame, *, cliente=None, escena=None, animador=None,
-                 reloj=time.monotonic):
+                 medio=None, reloj=time.monotonic):
         self.cola = ColaPantalla()
         self._cliente = cliente or obs_cliente.ClienteObs(
             obs_cliente.leer_ajustes())
         self._escena = escena or escena_guyrapu.EscenaGuyrapu(self._cliente)
+        self._medio = medio or medio_obs.MedioObs(self._cliente)
         self._animador = animador or animador_obs.Animador()
         self._reloj = reloj
         self._preparado = False
@@ -233,6 +234,12 @@ class CapaVideo:
         estilo = estilos_aviso.buscar_para(
             pieza.datos.get("estilo", ""), pieza.tipo, usuario, por_tipo)
         self._asegurar()
+        medio = pieza.datos.get("medio")
+        if medio:
+            self._medio.armar(medio["ruta"], medio["tipo"])
+        if medio and not (pieza.texto or "").strip():
+            self._escena.mostrar_sin_tarjeta()
+            return
         if not self._animar(ordenes_animador.ocultar_antes(
                 self._elemento, self._ancho)):
             raise RuntimeError("OBS no ocultó la tarjeta antes de mostrarla")
@@ -253,6 +260,7 @@ class CapaVideo:
         if not self._preparado:
             self._cliente.conectar()
             self._escena.ocultar()
+            self._soltar(pieza)
             return
         usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
         por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
@@ -262,6 +270,11 @@ class CapaVideo:
                 self._elemento, estilo, self._ancho, self._alto)):
             raise RuntimeError("OBS no terminó la salida de la tarjeta")
         self._escena.ocultar()
+        self._soltar(pieza)
+
+    def _soltar(self, pieza):
+        if pieza.datos.get("medio"):
+            self._medio.soltar()
 
     def _asegurar(self):
         if self._preparado:

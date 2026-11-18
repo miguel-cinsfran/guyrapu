@@ -9,7 +9,8 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
-from guyrapu.interaction import disparadores_guardados, filtro_publico
+from guyrapu.interaction import (
+    disparadores_guardados, filtro_publico, medios_guardados)
 from guyrapu.ui import disparadores_en_vivo
 from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
@@ -27,6 +28,11 @@ def _datos(nombre="risa", cuando="comando", comandos=("risa",), evento="",
         "espera_general": espera_general, "espera_persona": espera_persona,
         "activo": activo,
     }
+
+
+def _medio(nombre="fuegos", tipo="video", archivo="fuegos.mp4", duracion=12):
+    return {"nombre": nombre, "tipo": tipo, "archivo": archivo,
+            "duracion": duracion}
 
 
 def _registro(texto="!risa", autor="Ana", plataforma="youtube",
@@ -58,6 +64,13 @@ class Base(unittest.TestCase):
 
     def _guardar_palabras(self, palabras):
         filtro_publico.guardar(paths.palabras_bloqueadas(), palabras)
+
+    def _guardar_medios(self, *medios):
+        medios_guardados.guardar(paths.medios(), list(medios))
+        carpeta = paths.carpeta_medios()
+        carpeta.mkdir(parents=True, exist_ok=True)
+        for medio in medios:
+            (carpeta / medio["archivo"]).write_bytes(b"x")
 
     def _adelantar(self, ruta):
         futuro = ruta.stat().st_mtime + 10
@@ -119,6 +132,86 @@ class TestUsuario(Base):
         self._guardar_palabras(["tonto"])
         self._atender(_registro(autor="Tonto"))
         self.assertEqual(self._textos(), ["Hola ***"])
+
+
+class TestPiezaConMedio(Base):
+
+    def _pieza(self):
+        self.frame._capa_video.agregar_pieza.assert_called_once()
+        return self.frame._capa_video.agregar_pieza.call_args.args[0]
+
+    def test_p1_un_medio_solo_agrega_la_pieza_con_su_ruta_tipo_y_duracion(self):
+        self._guardar_medios(_medio())
+        self._guardar(_datos(tarjeta="", medio="fuegos", espera_general=0,
+                             espera_persona=0))
+        self._atender()
+        pieza = self._pieza()
+        self.assertEqual((pieza.tipo, pieza.texto), ("disparador", ""))
+        self.assertEqual(pieza.datos["medio"], {
+            "ruta": str(paths.carpeta_medios() / "fuegos.mp4"),
+            "tipo": "video", "duracion": 12})
+
+    def test_p1_con_tarjeta_la_misma_pieza_lleva_el_medio_y_el_texto(self):
+        self._guardar_medios(_medio(tipo="imagen", archivo="fuegos.gif",
+                                    duracion=0))
+        self._guardar(_datos(tarjeta="Ríe {usuario}", medio="fuegos",
+                             espera_general=0, espera_persona=0))
+        self._atender()
+        pieza = self._pieza()
+        self.assertEqual(pieza.texto, "Ríe Ana")
+        self.assertEqual(pieza.datos["medio"]["tipo"], "imagen")
+        self.assertEqual(pieza.datos["medio"]["ruta"],
+                         str(paths.carpeta_medios() / "fuegos.gif"))
+
+    def test_p1_sin_tarjeta_ni_medio_en_la_biblioteca_no_agrega(self):
+        self._guardar(_datos(tarjeta="", medio="fuegos", espera_general=0,
+                             espera_persona=0))
+        self._atender()
+        self.frame._capa_video.agregar_pieza.assert_not_called()
+
+
+class TestSegundosDeLaPieza(Base):
+
+    def _segundos(self, tipo, duracion, segundos=8):
+        self._guardar_medios(_medio(tipo=tipo, archivo="x.mp4",
+                                    duracion=duracion))
+        self._guardar(_datos(tarjeta="", medio="fuegos", segundos=segundos,
+                             espera_general=0, espera_persona=0))
+        self._atender()
+        self.frame._capa_video.agregar_pieza.assert_called_once()
+        return self.frame._capa_video.agregar_pieza.call_args.args[0].segundos
+
+    def test_p2_un_video_dura_lo_que_su_archivo(self):
+        self.assertEqual(self._segundos("video", 12), 12)
+
+    def test_p2_un_sonido_dura_lo_que_su_archivo(self):
+        self.assertEqual(self._segundos("sonido", 4), 4)
+
+    def test_p2_un_sonido_sin_duracion_usa_los_segundos_del_disparador(self):
+        self.assertEqual(self._segundos("sonido", 0), 8)
+
+    def test_p2_una_imagen_usa_los_segundos_del_disparador(self):
+        self.assertEqual(self._segundos("imagen", 20), 8)
+
+
+class TestMedioQueYaNoEsta(Base):
+
+    def test_p6_con_tarjeta_sale_solo_la_tarjeta_sin_medio(self):
+        self._guardar_medios(_medio(nombre="otro", archivo="otro.mp4"))
+        self._guardar(_datos(tarjeta="Ríe", medio="fuegos", espera_general=0,
+                             espera_persona=0))
+        self._atender()
+        self.frame._capa_video.agregar_pieza.assert_called_once()
+        pieza = self.frame._capa_video.agregar_pieza.call_args.args[0]
+        self.assertEqual(pieza.texto, "Ríe")
+        self.assertNotIn("medio", pieza.datos)
+
+    def test_p6_sin_tarjeta_no_sale(self):
+        self._guardar_medios(_medio(nombre="otro", archivo="otro.mp4"))
+        self._guardar(_datos(tarjeta="", medio="fuegos", espera_general=0,
+                             espera_persona=0))
+        self._atender()
+        self.frame._capa_video.agregar_pieza.assert_not_called()
 
 
 class TestSinTarjeta(Base):

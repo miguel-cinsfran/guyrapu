@@ -85,6 +85,9 @@ class _EscenaFalsa:
         self.estilos.append(estilo)
         return Tarjeta(0, 0, 100, 50, "Juego", "")
 
+    def mostrar_sin_tarjeta(self):
+        self.eventos.append("mostrar_sin_tarjeta")
+
     def ocultar(self):
         self.ocultaciones += 1
         self.eventos.append("ocultar")
@@ -109,6 +112,21 @@ class _AnimadorFalso:
 
     def cerrar(self):
         pass
+
+
+class _MedioFalso:
+    def __init__(self, eventos):
+        self.eventos = eventos
+        self.armados = []
+        self.soltados = 0
+
+    def armar(self, ruta, tipo):
+        self.eventos.append("armar_medio")
+        self.armados.append((ruta, tipo))
+
+    def soltar(self):
+        self.eventos.append("soltar_medio")
+        self.soltados += 1
 
 
 class Base(unittest.TestCase):
@@ -138,13 +156,14 @@ class Base(unittest.TestCase):
         self.cliente = _ClienteFalso()
         self.escena = _EscenaFalsa(self.eventos)
         self.animador = _AnimadorFalso(self.eventos, self.cliente)
+        self.medio = _MedioFalso(self.eventos)
         self.capa = self._capa()
 
     def _capa(self):
         marco = types.SimpleNamespace(Bind=mock.Mock())
         return capa_video.CapaVideo(
             marco, cliente=self.cliente, escena=self.escena,
-            animador=self.animador, reloj=lambda: self.ahora)
+            animador=self.animador, medio=self.medio, reloj=lambda: self.ahora)
 
     def _mensaje(self, texto="Hola", nombre="Saludo", destino="video",
                  estilo="tarjeta", segundos=10):
@@ -286,6 +305,62 @@ class TestTarjetaDeDisparador(Base):
         self.assertEqual(self.capa.describir(), "En el vídeo: Ríe Ana.")
         self.assertEqual(self.anuncios, [])
         self.assertEqual(self.anuncios_simples, [])
+
+
+class TestDisparadorConMedio(Base):
+
+    def _pieza(self, texto="Ríe Ana", medio=None):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        datos = {"estilo": "clasico", "nombre": "risa"}
+        if medio is not None:
+            datos["medio"] = medio
+        return Pieza(tipo="disparador", texto=texto, segundos=8, datos=datos)
+
+    def _medio(self, tipo="sonido"):
+        return {"ruta": "C:/medios/tono.wav", "tipo": tipo, "duracion": 4}
+
+    def test_p3_con_tarjeta_arma_el_medio_y_despues_la_muestra(self):
+        self.assertTrue(self.capa.agregar_pieza(
+            self._pieza(medio=self._medio())))
+        self._atender()
+        self.assertEqual(self.medio.armados,
+                         [("C:/medios/tono.wav", "sonido")])
+        self.assertEqual(self.eventos,
+                         ["preparar", "armar_medio", "animar", "mostrar",
+                          "animar"])
+
+    def test_p3_sin_tarjeta_pone_la_escena_sin_animar_la_tarjeta(self):
+        self.assertTrue(self.capa.agregar_pieza(
+            self._pieza(texto="", medio=self._medio("imagen"))))
+        self._atender()
+        self.assertEqual(self.medio.armados,
+                         [("C:/medios/tono.wav", "imagen")])
+        self.assertEqual(self.eventos,
+                         ["preparar", "armar_medio", "mostrar_sin_tarjeta"])
+
+    def test_p4_al_ocultar_saca_la_tarjeta_y_despues_suelta_el_medio(self):
+        self.capa.agregar_pieza(self._pieza(medio=self._medio()))
+        self._atender()
+        self.ahora += 10.0
+        self._atender()
+        self.assertEqual(self.eventos[-3:],
+                         ["animar", "ocultar", "soltar_medio"])
+        self.assertEqual(self.medio.soltados, 1)
+
+    def test_p4_al_saltar_suelta_el_medio(self):
+        self.capa.agregar_pieza(self._pieza(medio=self._medio()))
+        self._atender()
+        self.assertTrue(self.capa.saltar())
+        self._atender()
+        self.assertEqual(self.medio.soltados, 1)
+
+    def test_p5_una_pieza_sin_medio_no_toca_las_entradas(self):
+        self.capa.agregar_pieza(self._pieza())
+        self._atender()
+        self.ahora += 10.0
+        self._atender()
+        self.assertEqual(self.medio.armados, [])
+        self.assertEqual(self.medio.soltados, 0)
 
 
 class TestProbar(Base):

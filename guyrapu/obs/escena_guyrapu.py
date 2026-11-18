@@ -172,6 +172,12 @@ class EscenaGuyrapu:
             "sceneName": ESCENA, "sceneItemId": identificador,
             "sceneItemEnabled": True}, parada)
 
+    def _visible_tarjeta(self, visible, parada) -> None:
+        item = self._item(ESCENA, TARJETA, parada)
+        self._pedir("SetSceneItemEnabled", {
+            "sceneName": ESCENA, "sceneItemId": item["sceneItemId"],
+            "sceneItemEnabled": visible}, parada)
+
     def _asegurar_filtro(self, parada) -> None:
         filtros = self._pedir("GetSourceFilterList", {"sourceName": TARJETA},
                               parada).get("filters", ())
@@ -253,9 +259,15 @@ class EscenaGuyrapu:
     def mostrar(self, texto, estilo, parada=None, esperar=time.sleep) -> Tarjeta:
         """Arma la tarjeta con el estilo y la pone encima de lo que está al aire."""
         tarjeta = self.armar(texto, estilo, parada, esperar)
+        self._visible_tarjeta(True, parada)
         escena = self._al_frente(parada)
         self._escena = escena
         return tarjeta._replace(escena=escena)
+
+    def mostrar_sin_tarjeta(self, parada=None) -> None:
+        """Pone la escena al frente con el elemento de la tarjeta apagado."""
+        self._visible_tarjeta(False, parada)
+        self._escena = self._al_frente(parada)
 
     def _acomodar(self, texto, estilo, fuente, tamano, ancho, alto,
                   parada) -> tuple:

@@ -517,6 +517,25 @@ class TestArmar(Base):
         self.assertEqual(self.cliente.llamadas[:len(armado)], armado)
 
 
+class TestMostrarSinTarjeta(Base):
+    def test_p3_apaga_la_tarjeta_y_pone_la_escena_al_frente(self):
+        self.capa.preparar()
+        self.cliente.agregar_item("Juego", "Cámara")
+        self.capa.mostrar_sin_tarjeta()
+        item = next(item for item in self.cliente.escenas[ESCENA]
+                    if item["sourceName"] == TARJETA)
+        self.assertFalse(item["sceneItemEnabled"])
+        self.assertEqual(self.cliente.fuentes_de("Juego"), ["Cámara", ESCENA])
+
+    def test_p3_mostrar_vuelve_a_habilitar_la_tarjeta(self):
+        self.capa.preparar()
+        self.capa.mostrar_sin_tarjeta()
+        self.capa.mostrar("Hola", _estilo())
+        item = next(item for item in self.cliente.escenas[ESCENA]
+                    if item["sourceName"] == TARJETA)
+        self.assertTrue(item["sceneItemEnabled"])
+
+
 class TestEnElPrograma(Base):
     def test_p3_dice_si_la_escena_esta_en_la_del_programa(self):
         self.capa.preparar()
