@@ -8,6 +8,7 @@ from unittest import mock
 import main
 from guyrapu.core import autocomprobacion, instalador, modos_de_arranque
 from guyrapu.obs import animador
+from guyrapu.youtube import finalizar_aparte
 
 
 class TestCorrer(unittest.TestCase):
@@ -39,6 +40,13 @@ class TestCorrer(unittest.TestCase):
                 ["--animador", "direccion"])
         self.assertEqual(codigo, 6)
         principal.assert_called_once_with(["direccion"])
+
+    def test_finalizar_pendientes_corre_su_modo(self):
+        with mock.patch.object(finalizar_aparte, "principal",
+                               return_value=7) as principal:
+            codigo = modos_de_arranque.correr(["--finalizar-pendientes"])
+        self.assertEqual(codigo, 7)
+        principal.assert_called_once_with(["--finalizar-pendientes"])
 
 
 class TestMainUsaLosModos(unittest.TestCase):

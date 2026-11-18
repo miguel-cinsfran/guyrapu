@@ -103,6 +103,12 @@ def fin_pendiente() -> Path:
     return carpeta_datos() / "fin_pendiente.json"
 
 
+def fin_pendiente_log() -> Path:
+    # Cada intento y el resultado del proceso que finaliza directos con la
+    # app cerrada. Nace ya dentro de data/, así que no entra en datos_a_migrar().
+    return carpeta_datos() / "fin-pendiente.log"
+
+
 def cuota_youtube() -> Path:
     # Unidades de la API de YouTube gastadas en el día del Pacífico. Nace ya
     # dentro de data/, así que no entra en datos_a_migrar().

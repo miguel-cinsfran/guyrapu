@@ -15420,3 +15420,33 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/gui_cierre.py
+msgid ""
+"El directo de YouTube sigue abierto porque no hay conexión. Guyrapu lo "
+"finalizará solo cuando vuelva la conexión, aunque la aplicación esté "
+"cerrada."
+msgstr ""
+"The YouTube live stream is still open because there is no connection. "
+"Guyrapu will end it automatically when the connection returns, even if the "
+"application is closed."
+
+#: guyrapu/ui/gui_cierre.py
+msgid "Directo sin finalizar"
+msgstr "Live stream not ended"
+
+#: guyrapu/youtube/finalizar_aparte.py
+msgid "Sin directos pendientes."
+msgstr "No pending live streams."
+
+#. Traductores: {cuantos} es la cantidad de directos sin finalizar.
+#: guyrapu/youtube/finalizar_aparte.py
+#, python-brace-format
+msgid "Sin sesión de YouTube: quedan {cuantos} directos pendientes."
+msgstr "No YouTube session: {cuantos} live streams pending."
+
+#. Traductores: {finalizados} y {quedan} son cantidades de directos.
+#: guyrapu/youtube/finalizar_aparte.py
+#, python-brace-format
+msgid "Resultado: {finalizados} finalizados, {quedan} pendientes."
+msgstr "Result: {finalizados} ended, {quedan} pending."
+

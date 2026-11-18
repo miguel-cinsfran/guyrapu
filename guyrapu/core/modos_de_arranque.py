@@ -7,6 +7,19 @@ from __future__ import annotations
 
 def correr(argv):
     """Devuelve el código de salida del modo pedido, o None si es normal."""
+    if argv and argv[0] == "--finalizar-pendientes":
+        return _finalizar_pendientes(argv)
+    return _correr_otros_modos(argv)
+
+
+def _finalizar_pendientes(argv):
+    # Termina los directos que quedaron abiertos al cerrar sin red: sin
+    # mutex de instancia ni ventanas.
+    from guyrapu.youtube import finalizar_aparte
+    return finalizar_aparte.principal(argv)
+
+
+def _correr_otros_modos(argv):
     # Autocomprobación del paquete: la corre construir.bat sobre el exe armado.
     # Va antes que todo, sin logging, sin mutex ni ventanas.
     if argv and argv[0] == "--autocomprobar":

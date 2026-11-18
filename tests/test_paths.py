@@ -32,6 +32,7 @@ RUTAS_DE_DATOS = [
     ("estilos_avisos", "estilos_avisos.json"),
     ("fondos_de_avisos", "fondos-avisos"),
     ("fin_pendiente", "fin_pendiente.json"),
+    ("fin_pendiente_log", "fin-pendiente.log"),
     ("cuota_youtube", "cuota_youtube.json"),
     ("cuota_youtube_pagina", "cuota_youtube_pagina.json"),
     ("catalogo_ia", "catalogo_ia.json"),

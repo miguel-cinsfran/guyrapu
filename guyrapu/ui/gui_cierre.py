@@ -14,6 +14,7 @@ import wx
 
 from guyrapu.core import apagado
 from guyrapu.core import diagnostico
+from guyrapu.core import paths
 from guyrapu.core.idioma import _
 from guyrapu.downloads.descargas import gestor
 from guyrapu.obs import overlay_servidor
@@ -22,8 +23,13 @@ from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.confirmar_salida import (
     descargas_sin_terminar, mensaje_confirmar_salida, mensaje_con_descargas)
 from guyrapu.voice import sound_player as _snd
+from guyrapu.youtube import finalizar_aparte, fin_pendiente
 
 logger = diagnostico.obtener_logger(__name__)
+
+
+def _puede_vetar(event) -> bool:
+    return callable(getattr(event, "CanVeto", None)) and event.CanVeto()
 
 
 def on_close(frame, event):
@@ -32,6 +38,14 @@ def on_close(frame, event):
     if not getattr(frame, "_cerrar_sin_preguntar", False):
         if not preguntar_salida(frame, event):
             return
+    if _puede_vetar(event) and fin_pendiente.leer(paths.fin_pendiente()):
+        # Traductores: aviso al salir con un directo de YouTube sin finalizar.
+        confirmar.avisar(
+            frame,
+            _("El directo de YouTube sigue abierto porque no hay conexión. "
+              "Guyrapu lo finalizará solo cuando vuelva la conexión, aunque "
+              "la aplicación esté cerrada."),
+            _("Directo sin finalizar"), _("Aceptar"))
     apagar(frame)
 
 
@@ -48,8 +62,7 @@ def preguntar_salida(frame, event) -> bool:
             mensaje, descargas_sin_terminar(gestor().lista()))
     except Exception as error:
         logger.debug("no se pudo leer las descargas al salir: %s", error)
-    puede_vetar = callable(getattr(event, "CanVeto", None)) and event.CanVeto()
-    if mensaje is None or not puede_vetar:
+    if mensaje is None or not _puede_vetar(event):
         return True
     # Traductores: título del cuadro para salir.
     if not confirmar.preguntar(
@@ -61,11 +74,7 @@ def preguntar_salida(frame, event) -> bool:
     return True
 
 
-def apagar(frame):
-    frame._apagando = True
-    frame._alive = False
-    diagnostico.registrar_cierre_pedido(frame._diagnostico_parada)
-    actualizar_vigilante_obs_cierre(frame)
+def _abandonar_supervisor(frame):
     supervisor = getattr(frame, "_supervisor", None)
     if supervisor is not None and supervisor.activo:
         try:
@@ -73,6 +82,16 @@ def apagar(frame):
         except Exception as error:
             logger.debug("no se pudo abandonar la supervisión: %s", error)
         frame._supervisor = None
+
+
+def apagar(frame):
+    frame._apagando = True
+    frame._alive = False
+    if fin_pendiente.leer(paths.fin_pendiente()):
+        finalizar_aparte.lanzar()
+    diagnostico.registrar_cierre_pedido(frame._diagnostico_parada)
+    actualizar_vigilante_obs_cierre(frame)
+    _abandonar_supervisor(frame)
     try:    frame._timer.Stop()
     except Exception as error: logger.debug("no se pudo detener el temporizador: %s", error)
     try:    frame._diagnostico_timer.Stop()
