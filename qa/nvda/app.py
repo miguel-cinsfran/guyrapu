@@ -134,6 +134,15 @@ def _pid(banco) -> int:
     return pid
 
 
+def _paginas_de_interaccion() -> list:
+    """Los nombres que muestra la lista de páginas, en su orden."""
+    from guyrapu.core import idioma
+    from guyrapu.ui import interaccion_ventana
+
+    return [idioma._(etiqueta)
+            for _clave, etiqueta in interaccion_ventana.PAGINAS]
+
+
 def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     from qa.nvda.correr import _lineas_de_ventana
 
@@ -142,11 +151,15 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     if banco.esperar_ventana(entrada["titulo"], segundos=15.0) is None:
         raise InstrumentoRoto(
             f"no se abrió la ventana «{entrada['titulo']}»")
-    datos = recorrido.conducir(cliente, {
+    datos_ventana = {
         "nombre": nombre,
         "pid": pid,
         "primero": entrada["primero"],
-    })
+    }
+    if entrada.get("pagina"):
+        datos_ventana["pagina"] = entrada["pagina"]
+        datos_ventana["paginas"] = _paginas_de_interaccion()
+    datos = recorrido.conducir(cliente, datos_ventana)
     banco.pedir("cerrar_ventana", ventana=entrada["titulo"], tiempo=10.0)
     hallazgos = reglas.analizar(datos, catalogo)
     lineas = _lineas_de_ventana(nombre, datos, hallazgos)

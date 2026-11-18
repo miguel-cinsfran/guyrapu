@@ -88,12 +88,52 @@ def _ir_a(cliente, nombre, pid, tope) -> None:
         raise InstrumentoRoto(f"no se llegó con Tab a «{nombre}»")
 
 
+def _foco_de(cliente) -> dict:
+    return cliente.foco_completo().get("foco") or {}
+
+
+def _elegir_pagina(cliente, ventana, pid, tope) -> list:
+    """Va con Shift+Tab a la lista de páginas y elige la pedida con flechas.
+
+    La lista de un `wx.Listbook` se maneja con las flechas; entrar a la página
+    con Tab es lo que hace un usuario, no elegirla por código.
+    """
+    pagina = ventana["pagina"]
+    paginas = list(ventana.get("paginas") or ())
+    if pagina not in paginas:
+        raise InstrumentoRoto(f"la lista de páginas no tiene «{pagina}»")
+    pasos = []
+    for _ in range(tope):
+        if _foco_de(cliente).get("nombre") in paginas:
+            break
+        pasos.append(_paso(cliente, "shift+tab", "pagina", pid))
+    else:
+        raise InstrumentoRoto(
+            f"no se llegó a la lista de páginas para «{pagina}»")
+    actual = paginas.index(_foco_de(cliente).get("nombre"))
+    destino = paginas.index(pagina)
+    tecla = "downArrow" if destino > actual else "upArrow"
+    for _ in range(abs(destino - actual)):
+        pasos.append(_paso(cliente, tecla, "pagina", pid))
+    if _foco_de(cliente).get("nombre") != pagina:
+        raise InstrumentoRoto(f"la lista de páginas no llegó a «{pagina}»")
+    pasos.append(_paso(cliente, "tab", "pagina", pid))
+    return pasos
+
+
+def _pasos_de_pagina(cliente, ventana, pid, tope) -> list:
+    """Los pasos de elegir la página, o ninguno si no lleva una."""
+    if not ventana.get("pagina"):
+        return []
+    return _elegir_pagina(cliente, ventana, pid, tope)
+
+
 def conducir(cliente, ventana, tope=TOPE_PASOS, tope_foco_s=20.0,
              dormir=time.sleep) -> dict:
     """La ida, la vuelta y las acciones de una ventana ya abierta."""
     pid = int(ventana["pid"])
+    pasos = _pasos_de_pagina(cliente, ventana, pid, tope)
     primero = _esperar_foco(cliente, ventana["primero"], tope_foco_s, dormir)
-    pasos = []
     identidad_primera = identidad(primero)
     for _ in range(tope):
         paso = _paso(cliente, "tab", "ida", pid)

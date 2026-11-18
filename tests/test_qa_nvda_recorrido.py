@@ -133,6 +133,96 @@ class TestAccion(unittest.TestCase):
         self.assertEqual(datos["pasos"][0]["ms_habla"], 50)
 
 
+class ClienteDePaginas:
+    """La ventana Interacción: el contenido, la lista de páginas y sus flechas."""
+
+    def __init__(self, paginas, primeras, actual, pid=7):
+        self.paginas = list(paginas)
+        self.primeras = dict(primeras)
+        self.indice = self.paginas.index(actual)
+        self.en_lista = False
+        self.entro = False
+        self.pid = pid
+        self.pasos = []
+
+    def _foco(self):
+        if self.en_lista:
+            nombre = self.paginas[self.indice]
+        else:
+            nombre = self.primeras[self.paginas[self.indice]]
+        return {"nombre": nombre, "rol_nombre": "LISTITEM", "pid": self.pid,
+                "estados": [], "atajo": "", "texto": nombre}
+
+    def foco_completo(self):
+        return {"ok": True, "foco": self._foco(),
+                "primer_plano": {"pid": self.pid, "nombre": "Interacción"}}
+
+    def paso(self, tecla, silencio_ms=400, tope_ms=10000):
+        self.pasos.append(tecla)
+        if tecla == "shift+tab" and not self.entro:
+            self.en_lista = True
+        elif tecla == "downArrow" and self.en_lista:
+            self.indice = min(self.indice + 1, len(self.paginas) - 1)
+        elif tecla == "upArrow" and self.en_lista:
+            self.indice = max(self.indice - 1, 0)
+        elif tecla == "tab" and self.en_lista:
+            self.en_lista = False
+            self.entro = True
+        nombre = self._foco()["nombre"]
+        return {
+            "tecla": tecla,
+            "agotado": False,
+            "hora": 1.0,
+            "eventos": [{"tipo": "habla", "texto": nombre,
+                         "partes": [nombre], "hora": 1.05}],
+            "foco": self._foco(),
+        }
+
+
+class TestPagina(unittest.TestCase):
+
+    PAGINAS = ["Mensajes automáticos", "Comandos", "Encuestas", "Medios",
+               "Estilos", "Palabras bloqueadas"]
+
+    def _cliente(self, actual):
+        return ClienteDePaginas(
+            self.PAGINAS,
+            {pagina: f"primero de {pagina}" for pagina in self.PAGINAS},
+            actual)
+
+    def test_la_pagina_se_elige_con_flechas_y_se_entra_con_tab(self):
+        for actual, destino, flechas in (
+                ("Comandos", "Palabras bloqueadas", ["downArrow"] * 4),
+                ("Medios", "Encuestas", ["upArrow"])):
+            with self.subTest(destino=destino):
+                cliente = self._cliente(actual)
+                datos = recorrido.conducir(cliente, {
+                    "nombre": "pagina",
+                    "pid": 7,
+                    "primero": f"primero de {destino}",
+                    "pagina": destino,
+                    "paginas": self.PAGINAS,
+                }, tope=10)
+                pagina = [paso["tecla"] for paso in datos["pasos"]
+                          if paso["fase"] == "pagina"]
+                self.assertEqual(pagina, ["shift+tab"] + flechas + ["tab"])
+                self.assertEqual(datos["primero"]["nombre"],
+                                 f"primero de {destino}")
+
+    def test_una_pagina_que_no_esta_termina_con_instrumento_roto(self):
+        cliente = self._cliente("Comandos")
+        with self.assertRaises(recorrido.InstrumentoRoto) as capturado:
+            recorrido.conducir(cliente, {
+                "nombre": "palabras",
+                "pid": 7,
+                "primero": "primero de Palabras bloqueadas",
+                "pagina": "Palabras bloqueadas",
+                "paginas": self.PAGINAS[:4],
+            }, tope=10)
+        self.assertIn("Palabras bloqueadas", str(capturado.exception))
+        self.assertEqual(cliente.pasos, [])
+
+
 class TestPrimerPlano(unittest.TestCase):
 
     def test_un_primer_plano_ajeno_corta_con_instrumento_roto(self):

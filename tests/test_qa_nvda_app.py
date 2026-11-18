@@ -22,21 +22,62 @@ from qa.nvda import app, ventanas_app
 
 class TestVentanas(unittest.TestCase):
 
-    def test_la_tabla_tiene_las_seis_ventanas_con_sus_cuatro_campos(self):
+    def test_la_tabla_tiene_las_nueve_ventanas_con_sus_campos(self):
         self.assertEqual(
             [entrada["nombre"] for entrada in ventanas_app.VENTANAS],
             ["preferencias", "interaccion", "comandos", "estilos",
-             "historial", "descargas"])
+             "historial", "descargas", "palabras", "encuestas", "medios"])
         for entrada in ventanas_app.VENTANAS:
-            self.assertEqual(set(entrada),
-                             {"nombre", "menu", "titulo", "primero"})
+            campos = {"nombre", "menu", "titulo", "primero"}
+            if "pagina" in entrada:
+                campos.add("pagina")
+            self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
         self.assertEqual(
-            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 6)
+            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 9)
         self.assertEqual(ventanas_app.VENTANAS[0]["titulo"], "Preferencias")
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
+
+    def test_las_tres_paginas_de_interaccion_tienen_su_entrada(self):
+        esperadas = {
+            "palabras": "Palabras bloqueadas",
+            "encuestas": "Encuestas",
+            "medios": "Medios",
+        }
+        por_nombre = {entrada["nombre"]: entrada
+                      for entrada in ventanas_app.VENTANAS}
+        for nombre, pagina in esperadas.items():
+            with self.subTest(nombre=nombre):
+                entrada = por_nombre[nombre]
+                self.assertEqual(entrada["pagina"], pagina)
+                self.assertEqual(entrada["menu"],
+                                 "Interacción > Abrir Interacción…")
+                self.assertTrue(entrada["primero"])
+
+    def test_cada_pagina_de_interaccion_se_puede_pedir_sola(self):
+        for pedida in ("palabras", "encuestas", "medios"):
+            with self.subTest(pedida=pedida):
+                banco = mock.Mock()
+                banco.pedir.return_value = {"datos": {"pid": 7}}
+                banco.esperar_lista.return_value = True
+                conducidas = []
+
+                def ventana(_banco, _cliente, entrada, _pid, _catalogo,
+                            _aprobar):
+                    conducidas.append(entrada["nombre"])
+                    return [], False
+
+                with (
+                    mock.patch.object(app, "Aplicacion", return_value=banco),
+                    mock.patch.object(app.reglas, "leer_catalogo_ingles",
+                                      return_value=set()),
+                    mock.patch.object(app, "_ventana", side_effect=ventana),
+                ):
+                    app.recorrer(mock.Mock(), SimpleNamespace(
+                        ventana=pedida, aprobar=False))
+                self.assertEqual(conducidas, [pedida])
 
     def test_ventana_comandos_elige_solo_esa(self):
         banco = mock.Mock()
