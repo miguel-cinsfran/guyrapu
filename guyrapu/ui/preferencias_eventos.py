@@ -31,7 +31,7 @@ _EVENTOS = {
     "encuesta": N_("Encues&tas:"),
     "meta": N_("&Metas:"),
     "batalla": N_("Batal&las:"),
-    "comando": N_("&Comandos del chat:"),
+    "comando": N_("Comandos del c&hat:"),
 }
 
 

@@ -38,7 +38,7 @@ EVENTOS_ESPERADOS = (
     ("cho_evento_encuesta", "evento_encuesta", "Encues&tas:", "Encuestas"),
     ("cho_evento_meta", "evento_meta", "&Metas:", "Metas"),
     ("cho_evento_batalla", "evento_batalla", "Batal&las:", "Batallas"),
-    ("cho_evento_comando", "evento_comando", "&Comandos del chat:",
+    ("cho_evento_comando", "evento_comando", "Comandos del c&hat:",
      "Comandos del chat"),
 )
 

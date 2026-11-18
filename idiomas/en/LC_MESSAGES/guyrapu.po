@@ -14105,7 +14105,7 @@ msgstr "Super Chats and &gifts:"
 
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Mem&bresías:"
-msgstr "&Memberships:"
+msgstr "Mem&berships:"
 
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Me g&usta:"
@@ -14118,10 +14118,6 @@ msgstr "&New followers:"
 #: guyrapu/ui/preferencias_eventos.py
 msgid "&Directo compartido:"
 msgstr "Shared l&ive streams:"
-
-#: guyrapu/ui/preferencias_eventos.py
-msgid "&Comandos del chat:"
-msgstr "&Chat commands:"
 
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Agrupar ent&radas"
@@ -16030,4 +16026,8 @@ msgstr "Describe image"
 #: guyrapu/ui/medio_descripcion_ia.py
 msgid "Pidiendo la descripción a la IA…"
 msgstr "Asking the AI for the description…"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Comandos del c&hat:"
+msgstr "Chat co&mmands:"
 
