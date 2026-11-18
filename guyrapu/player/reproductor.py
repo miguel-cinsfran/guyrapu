@@ -1416,14 +1416,20 @@ class ReproductorPanel(wx.Panel):
             anunciar(aviso)
         return True
 
+    def _puede_seguir_con_player(self) -> bool:
+        """Asegura el reproductor o anuncia por qué no se puede seguir."""
+        if self._asegurar_player():
+            return True
+        aviso = aviso_reproductor(
+            self._listo, bool(self._video_id or self._url_flujo))
+        if aviso:
+            anunciar(aviso)
+        return False
+
     def _toggle_play(self):
         if self._avisar_sin_medio():
             return
-        if not self._asegurar_player():
-            aviso = aviso_reproductor(
-                self._listo, bool(self._video_id or self._url_flujo))
-            if aviso:
-                anunciar(aviso)
+        if not self._puede_seguir_con_player():
             return
         estado = self._estado_vlc_actual()
         orden = getattr(self, "_orden_transporte", None)
@@ -1665,11 +1671,7 @@ class ReproductorPanel(wx.Panel):
     def alternar_pantalla_completa(self):
         if getattr(self, "_fs", None) is None and self._avisar_sin_medio():
             return
-        if not self._asegurar_player():
-            aviso = aviso_reproductor(
-                self._listo, bool(self._video_id or self._url_flujo))
-            if aviso:
-                anunciar(aviso)
+        if not self._puede_seguir_con_player():
             return
         if self._fs is None:
             self._fs = PantallaCompleta(self._mapa_atajos_fs(), AccionesPantalla(
