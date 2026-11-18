@@ -1867,18 +1867,20 @@ class ReproductorPanel(wx.Panel):
         except Exception as error:
             logger.debug("no se pudo fijar el tiempo tras el salto: %s", error)
 
+    def _reabrir_relevo(self, reproducir, **argumentos) -> None:
+        url, slave = self._estado_relevo.fuentes
+        self._cancelar_transporte()
+        self._detener_relevo_ffmpeg()
+        self._estado_relevo.fuentes = (url, slave)
+        self._arrancar_relevo(url, slave, reproducir, **argumentos)
+
     def _reabrir_relevo_vod(self, destino) -> None:
         self._estado_relevo.vod_reapertura = None
         self._estado_relevo.vod_destino_en_pausa = None
         fuentes = self._estado_relevo.fuentes
         if fuentes is None:
             return
-        url, slave = fuentes
-        self._cancelar_transporte()
-        self._detener_relevo_ffmpeg()
-        self._estado_relevo.fuentes = (url, slave)
-        self._arrancar_relevo(url, slave, self._intencion_reproducir,
-                              inicio_ms=int(destino))
+        self._reabrir_relevo(self._intencion_reproducir, inicio_ms=int(destino))
 
     def _on_sld_pos(self, event):
         if self._avisar_sin_medio():
@@ -2176,12 +2178,7 @@ class ReproductorPanel(wx.Panel):
         self._estado_relevo.vod_recuperaciones = int(rec) + 1
         logger.warning("VOD_RELEVO recupera=%d ultima=%d dur=%d",
                        self._estado_relevo.vod_recuperaciones, ultima, dur)
-        url, slave = fuentes
-        self._cancelar_transporte()
-        self._detener_relevo_ffmpeg()
-        self._estado_relevo.fuentes = (url, slave)
-        self._arrancar_relevo(url, slave, self._intencion_reproducir,
-                              inicio_ms=ultima)
+        self._reabrir_relevo(self._intencion_reproducir, inicio_ms=ultima)
 
     def _fallo_reproduccion(self) -> None:
         """VLC quedó en «error»: no pudo abrir la fuente.

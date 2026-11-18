@@ -215,17 +215,12 @@ def conectar(panel, anunciar, despachar):
     def reabrir(desfase, anuncio):
         if not activo():
             return None
-        url, slave = fuentes()
-        if not url:
+        if not fuentes()[0]:
             return None
         if desfase is None:
             desfase = int(panel._estado_relevo.desfase or 0)
         panel._cancelar_busqueda()
-        panel._cancelar_transporte()
-        panel._detener_relevo_ffmpeg()
-        panel._estado_relevo.fuentes = (url, slave)
-        panel._arrancar_relevo(url, slave, True, desfase=int(desfase),
-                               anuncio=anuncio)
+        panel._reabrir_relevo(True, desfase=int(desfase), anuncio=anuncio)
         return int(desfase)
 
     return Vigilancia(reabrir, anunciar, _snd.reproducir, despachar,

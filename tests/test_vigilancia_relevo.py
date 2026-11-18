@@ -348,6 +348,13 @@ class Panel:
     def _es_directo_actual(self):
         return self.directo
 
+    def _reabrir_relevo(self, reproducir, **argumentos):
+        url, slave = self._estado_relevo.fuentes
+        self._cancelar_transporte()
+        self._detener_relevo_ffmpeg()
+        self._estado_relevo.fuentes = (url, slave)
+        self._arrancar_relevo(url, slave, reproducir, **argumentos)
+
 
 class TestConectar(unittest.TestCase):
 
