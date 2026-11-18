@@ -21,20 +21,22 @@ class TestResumen(unittest.TestCase):
     def test_cuenta_los_focos_por_entrada_y_omite_las_otras_ventanas(self):
         eventos = [
             {"ms": 10, "evento": "FOCUS", "ventana": 100,
-             "control": "ListBox", "id_hijo": 1, "nombre": "primera"},
+             "control": "ListBox", "id_hijo": 0, "nombre": ""},
             {"ms": 20, "evento": "FOCUS", "ventana": 100,
              "control": "ListBox", "id_hijo": 1, "nombre": "primera"},
             {"ms": 30, "evento": "FOCUS", "ventana": 100,
+             "control": "ListBox", "id_hijo": 0, "nombre": ""},
+            {"ms": 40, "evento": "FOCUS", "ventana": 100,
              "control": "ListBox", "id_hijo": 2, "nombre": "segunda"},
-            {"ms": 40, "evento": "SELECTION", "ventana": 100,
+            {"ms": 50, "evento": "SELECTION", "ventana": 100,
              "control": "ListBox", "id_hijo": 2, "nombre": "segunda"},
-            {"ms": 50, "evento": "FOCUS", "ventana": 200,
+            {"ms": 60, "evento": "FOCUS", "ventana": 200,
              "control": "ListBox", "id_hijo": 1, "nombre": "primera"},
         ]
 
         self.assertEqual(
             sonda.resumen(eventos, 100),
-            ["ListBox: primera entrada 2 focos, segunda 1"])
+            ["ListBox: primera entrada 2 focos, segunda 2"])
 
 
 class TestRutaDeLaRaiz(unittest.TestCase):

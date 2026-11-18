@@ -97,13 +97,18 @@ def _nombre_entrada(indice: int) -> str:
 
 
 def contar_focos(eventos, ventana):
-    """Cuenta los eventos de foco por control y hijo, solo de `ventana`."""
-    cuenta = {}
+    """Cuenta los FOCUS por entrada, con el foco de la lista incluido."""
+    cuenta, pendiente = {}, {}
     for evento in eventos:
         if evento["ventana"] != ventana or evento["evento"] != "FOCUS":
             continue
-        clave = (evento["control"], int(evento["id_hijo"]))
-        cuenta[clave] = cuenta.get(clave, 0) + 1
+        c, h = evento["control"], int(evento["id_hijo"])
+        if h:
+            cuenta[c, h] = cuenta.get((c, h), 0) + pendiente.pop(c, 0) + 1
+        else:
+            pendiente[c] = pendiente.get(c, 0) + 1
+    for c, n in pendiente.items():
+        cuenta[c, 0] = cuenta.get((c, 0), 0) + n
     return cuenta
 
 
@@ -343,15 +348,6 @@ def _etiquetas(marco, boton, lista, tabla, libro):
     }
 
 
-def _informe(escucha, hwnd):
-    cuentas = contar_focos(escucha.eventos, hwnd)
-    for (control, hijo), cuantos in sorted(cuentas.items()):
-        if control in LISTAS:
-            print(f"{control} hijo {hijo}: {cuantos} eventos de foco")
-    for linea in resumen(escucha.eventos, hwnd, LISTAS):
-        print(linea)
-
-
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Cuenta los eventos de accesibilidad que Windows manda "
@@ -384,7 +380,8 @@ def main(argv=None):
         return 2
 
     def terminar():
-        _informe(escucha, marco.GetHandle())
+        for linea in resumen(escucha.eventos, marco.GetHandle(), LISTAS):
+            print(linea)
         escucha.soltar()
         marco.Destroy()
         app.ExitMainLoop()
