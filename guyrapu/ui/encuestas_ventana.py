@@ -34,7 +34,7 @@ def _acciones(panel):
         Accion("agregar", _("A&gregar"), panel._agregar,
                necesita_elemento=False),
         Accion("editar", _("&Editar"), panel._editar, tecla="intro"),
-        Accion("iniciar", _("I&niciar"), panel._iniciar),
+        Accion("iniciar", _("Inici&ar"), panel._iniciar),
         Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d"),
         Accion("escuchar", _("Escuc&har"), panel._escuchar),
         Accion("eliminar", _("E&liminar"), panel._eliminar,

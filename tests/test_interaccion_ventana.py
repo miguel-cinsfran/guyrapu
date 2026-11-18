@@ -245,11 +245,12 @@ class TestCableado(BaseVentana):
             "&Comandos del chat…", "Es&tilos del vídeo…", "---",
             "&Pausar cola del vídeo", "Omitir m&ensaje del vídeo",
             "Vaciar co&la del vídeo", "Silencia&r medios",
-            "Modo pánic&o", "Acti&var mensajes automáticos"])
+            "Modo pánic&o", "Cerrar e&ncuesta",
+            "Acti&var mensajes automáticos"])
         letras = [etiqueta[etiqueta.index("&") + 1].lower()
                   for etiqueta in etiquetas if "&" in etiqueta]
         self.assertEqual(letras, ["a", "m", "c", "t", "p", "e", "l", "r",
-                                  "o", "v"])
+                                  "o", "n", "v"])
 
     def test_p6_cada_entrada_abre_su_pagina(self):
         frame, _ = self._menu()

@@ -1535,7 +1535,8 @@ msgid "entre {minimo} y {maximo} minutos"
 msgstr "between {minimo} and {maximo} minutes"
 
 #. Traductores: destino en la lista de mensajes programados.
-#: guyrapu/capture/programados.py guyrapu/obs/obs_prevuelo.py
+#: guyrapu/capture/programados.py guyrapu/interaction/medios.py
+#: guyrapu/obs/obs_prevuelo.py
 msgid "vídeo"
 msgstr "video"
 
@@ -3523,10 +3524,12 @@ msgid "Ninguna opción de la encuesta puede estar vacía."
 msgstr "No poll option can be empty."
 
 #. Traductores: duración de una encuesta; {n} son los segundos.
+#. Traductores: duración de un medio; {n} son los segundos.
 #. Traductores: {n} es la cantidad de segundos por detrás del directo.
 #. Traductores: {n} es la cantidad de segundos de la posición.
-#: guyrapu/interaction/encuestas_guardadas.py guyrapu/obs/duraciones.py
-#: guyrapu/player/busqueda_video.py guyrapu/player/reproductor.py
+#: guyrapu/interaction/encuestas_guardadas.py guyrapu/interaction/medios.py
+#: guyrapu/obs/duraciones.py guyrapu/player/busqueda_video.py
+#: guyrapu/player/reproductor.py
 #, python-brace-format
 msgid "{n} segundo"
 msgid_plural "{n} segundos"
@@ -3534,10 +3537,12 @@ msgstr[0] "{n} second"
 msgstr[1] "{n} seconds"
 
 #. Traductores: duración de una encuesta; {n} son los minutos.
+#. Traductores: duración de un medio; {n} son los minutos.
 #. Traductores: {n} es la cantidad de minutos por detrás del directo.
 #. Traductores: {n} es la cantidad de minutos de la posición.
-#: guyrapu/interaction/encuestas_guardadas.py guyrapu/obs/duraciones.py
-#: guyrapu/player/busqueda_video.py guyrapu/player/reproductor.py
+#: guyrapu/interaction/encuestas_guardadas.py guyrapu/interaction/medios.py
+#: guyrapu/obs/duraciones.py guyrapu/player/busqueda_video.py
+#: guyrapu/player/reproductor.py
 #, python-brace-format
 msgid "{n} minuto"
 msgid_plural "{n} minutos"
@@ -3565,6 +3570,44 @@ msgstr "{pregunta}, {opciones}, {duracion}"
 msgid "Encuesta: {pregunta}. Opciones: {opciones}."
 msgstr "Poll: {pregunta}. Options: {opciones}."
 
+#: guyrapu/interaction/medios.py guyrapu/obs/obs_prevuelo.py
+msgid "imagen"
+msgstr "image"
+
+#: guyrapu/interaction/medios.py
+msgid "sonido"
+msgstr "sound"
+
+#: guyrapu/interaction/medios.py
+msgid "Archivos de medios"
+msgstr "Media files"
+
+#. Traductores: una fila de la lista de medios; {nombre} es el nombre
+#. y {tipo} la clase de archivo.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}, {tipo}"
+msgstr "{nombre}, {tipo}"
+
+#. Traductores: una fila de la lista de medios sin duración conocida.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}, {tipo}, duración desconocida"
+msgstr "{nombre}, {tipo}, unknown duration"
+
+#. Traductores: una fila de la lista de medios; {duracion} está en palabras.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}, {tipo}, {duracion}"
+msgstr "{nombre}, {tipo}, {duracion}"
+
+#. Traductores: lo que se oye al escuchar un medio; {nombre} y
+#. {descripcion} son los dos datos del medio.
+#: guyrapu/interaction/medios.py
+#, python-brace-format
+msgid "{nombre}. {descripcion}"
+msgstr "{nombre}. {descripcion}"
+
 #: guyrapu/interaction/paquetes.py
 msgid "estilos"
 msgstr "styles"
@@ -3580,6 +3623,10 @@ msgstr "commands"
 #: guyrapu/interaction/paquetes.py
 msgid "encuestas"
 msgstr "polls"
+
+#: guyrapu/interaction/paquetes.py
+msgid "medios"
+msgstr "media"
 
 #: guyrapu/interaction/paquetes.py
 msgid "El paquete está dañado y no se puede leer."
@@ -5612,10 +5659,6 @@ msgstr ""
 #: guyrapu/obs/obs_prevuelo.py
 msgid "navegador"
 msgstr "browser"
-
-#: guyrapu/obs/obs_prevuelo.py
-msgid "imagen"
-msgstr "image"
 
 #: guyrapu/obs/obs_prevuelo.py
 msgid "texto"
@@ -7843,8 +7886,8 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui.py guyrapu/ui/gui_cierre.py
 #: guyrapu/ui/gui_comentarios.py guyrapu/ui/gui_envio_chat.py
-#: guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py guyrapu/ui/medio_cuadro.py
+#: guyrapu/ui/medios_ventana.py guyrapu/ui/mensaje_automatico_cuadro.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/preferencias_api.py
 #: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
 #: guyrapu/ui/voces_ventana.py
@@ -8498,8 +8541,9 @@ msgstr "Acti&vated"
 #: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/escena_captura_ventana.py
 #: guyrapu/ui/escena_disenos.py guyrapu/ui/escena_filtros.py
 #: guyrapu/ui/escena_propiedades.py guyrapu/ui/escena_tamano.py
-#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
-#: guyrapu/ui/preferencias_general.py guyrapu/ui/restream_dialogos_destino.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/medio_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/preferencias_general.py
+#: guyrapu/ui/restream_dialogos_destino.py
 msgid "&Aceptar"
 msgstr "&Accept"
 
@@ -8517,6 +8561,7 @@ msgstr "&Accept"
 #: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui_cierre.py
 #: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_preferencias.py
 #: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_privacidad.py
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/medios_ventana.py
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
@@ -8533,9 +8578,9 @@ msgstr "&Cancel"
 #: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/gui_directo_youtube.py guyrapu/ui/gui_elegir_destino.py
 #: guyrapu/ui/gui_redactar.py guyrapu/ui/ia_agregar_captura.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/musica_dialogo_enlace.py
-#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
-#: guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/musica_dialogo_enlace.py guyrapu/ui/musica_editor_lista.py
+#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
 msgid "Cancelar"
 msgstr "Cancel"
 
@@ -8595,18 +8640,21 @@ msgid "No hay comandos. Usa Agregar para crear uno."
 msgstr "There are no commands. Use Add to create one."
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Paquete de Guyrapu (*.zip)|*.zip"
 msgstr "Guyrapu package (*.zip)|*.zip"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "A&gregar"
 msgstr "A&dd"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "&Editar"
 msgstr "&Edit"
@@ -8617,8 +8665,9 @@ msgstr "Change &word"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
 #: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/obs_pagina_perfiles.py guyrapu/ui/restream_pagina_perfiles.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/obs_pagina_perfiles.py
+#: guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Duplicar"
 msgstr "&Duplicate"
 
@@ -8627,26 +8676,29 @@ msgid "&Pausar o reanudar"
 msgstr "&Pause or resume"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Escuc&har"
 msgstr "&Listen"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
 #: guyrapu/ui/escena_menu_escena.py guyrapu/ui/escena_menu_fuente.py
 #: guyrapu/ui/estilos_ventana.py guyrapu/ui/gui_historial.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "E&liminar"
 msgstr "De&lete"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Expo&rtar"
 msgstr "Exp&ort"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "&Importar"
 msgstr "&Import"
 
@@ -8685,7 +8737,8 @@ msgstr "Delete command"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
 #: guyrapu/ui/escena_edicion_fuente.py guyrapu/ui/escena_pagina_escena.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/musica_ventana_acciones.py guyrapu/ui/obs_pagina_perfiles.py
 #: guyrapu/ui/palabras_bloqueadas_ventana.py guyrapu/ui/restream_menus.py
 #: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
@@ -8701,7 +8754,8 @@ msgid "No hay comandos para exportar."
 msgstr "There are no commands to export."
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilos_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilos_ventana.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 #, python-brace-format
 msgid ""
 "No se pudo escribir el paquete:\n"
@@ -8733,12 +8787,14 @@ msgid "Ya hay comandos llamados {nombres}. ¿Quieres reemplazarlos?"
 msgstr "Commands named {nombres} already exist. Replace them?"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "&Sí"
 msgstr "&Yes"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/encuestas_ventana.py
-#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/mensajes_automaticos_ventana.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/medios_ventana.py
+#: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "&No"
 msgstr "&No"
 
@@ -9302,8 +9358,9 @@ msgid "Nombre del perfil"
 msgstr "Profile name"
 
 #: guyrapu/ui/dialogo_nombre_perfil_obs.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/musica_editor_lista.py
-#: guyrapu/ui/restream_dialogos_destino.py guyrapu/ui/restream_perfil.py
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/musica_editor_lista.py guyrapu/ui/restream_dialogos_destino.py
+#: guyrapu/ui/restream_perfil.py
 msgid "&Nombre:"
 msgstr "&Name:"
 
@@ -9660,8 +9717,8 @@ msgid "No hay encuestas. Usa Agregar para crear una."
 msgstr "There are no polls. Use Add to create one."
 
 #: guyrapu/ui/encuestas_ventana.py
-msgid "I&niciar"
-msgstr "&Start"
+msgid "Inici&ar"
+msgstr "St&art"
 
 #: guyrapu/ui/encuestas_ventana.py
 msgid "Lista de e&ncuestas:"
@@ -12691,6 +12748,10 @@ msgid "Encuestas"
 msgstr "Polls"
 
 #: guyrapu/ui/interaccion_ventana.py
+msgid "Medios"
+msgstr "Media"
+
+#: guyrapu/ui/interaccion_ventana.py
 msgid "Estilos"
 msgstr "Styles"
 
@@ -12807,6 +12868,107 @@ msgid "El chat tiene {n} mensaje."
 msgid_plural "El chat tiene {n} mensajes."
 msgstr[0] "The chat has {n} message."
 msgstr[1] "The chat has {n} messages."
+
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/medios_ventana.py
+msgid "Agregar medio"
+msgstr "Add media"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Editar medio"
+msgstr "Edit media"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Dura más de 15 segundos: al dispararlo se detiene a los 15"
+msgstr "Longer than 15 seconds: when triggered, it stops at 15."
+
+#: guyrapu/ui/medio_cuadro.py guyrapu/ui/restream_dialogos_destino.py
+msgid "&Descripción:"
+msgstr "&Description:"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "&Tipo:"
+msgstr "&Type:"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "D&uración:"
+msgstr "D&uration:"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "No se aplica"
+msgstr "Not applicable"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Duración desconocida"
+msgstr "Unknown duration"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "No hay medios. Usa Agregar para crear uno."
+msgstr "There are no media items. Use Add to create one."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Lista de &medios:"
+msgstr "List of &media:"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medios guardados"
+msgstr "Saved media"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio agregado"
+msgstr "Media added"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio guardado"
+msgstr "Media saved"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio duplicado"
+msgstr "Media duplicated"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "No se pudo reproducir el medio."
+msgstr "Could not play the media."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Escuchar medio"
+msgstr "Listen to media"
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid "¿Quieres eliminar el medio «{nombre}»?"
+msgstr "Do you want to delete the media item «{nombre}»?"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Eliminar medio"
+msgstr "Delete media"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Medio eliminado"
+msgstr "Media deleted"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "No hay medios para exportar."
+msgstr "There are no media items to export."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Exportar medios"
+msgstr "Export media"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Importar medios"
+msgstr "Import media"
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid "Se importó un medio."
+msgid_plural "Se importaron {n} medios."
+msgstr[0] "One media item imported."
+msgstr[1] "{n} media items imported."
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid "Ya hay medios llamados {nombres}. ¿Quieres reemplazarlos?"
+msgstr "Media items named {nombres} already exist. Replace them?"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Agregar mensaje automático"
@@ -14920,10 +15082,6 @@ msgid "&Título:"
 msgstr "&Title:"
 
 #: guyrapu/ui/restream_dialogos_destino.py
-msgid "&Descripción:"
-msgstr "&Description:"
-
-#: guyrapu/ui/restream_dialogos_destino.py
 msgid "Agregar destino manual"
 msgstr "Add manual destination"
 
@@ -15820,143 +15978,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/interaction/medios.py
-msgid "sonido"
-msgstr "sound"
-
-#: guyrapu/interaction/medios.py
-msgid "Archivos de medios"
-msgstr "Media files"
-
-#. Traductores: una fila de la lista de medios; {nombre} es el nombre
-#. y {tipo} la clase de archivo.
-#: guyrapu/interaction/medios.py
-#, python-brace-format
-msgid "{nombre}, {tipo}"
-msgstr "{nombre}, {tipo}"
-
-#. Traductores: una fila de la lista de medios sin duración conocida.
-#: guyrapu/interaction/medios.py
-#, python-brace-format
-msgid "{nombre}, {tipo}, duración desconocida"
-msgstr "{nombre}, {tipo}, unknown duration"
-
-#. Traductores: una fila de la lista de medios; {duracion} está en palabras.
-#: guyrapu/interaction/medios.py
-#, python-brace-format
-msgid "{nombre}, {tipo}, {duracion}"
-msgstr "{nombre}, {tipo}, {duracion}"
-
-#. Traductores: lo que se oye al escuchar un medio; {nombre} y
-#. {descripcion} son los dos datos del medio.
-#: guyrapu/interaction/medios.py
-#, python-brace-format
-msgid "{nombre}. {descripcion}"
-msgstr "{nombre}. {descripcion}"
-
-#: guyrapu/interaction/paquetes.py
-msgid "medios"
-msgstr "media"
-
-#: guyrapu/ui/interaccion_ventana.py
-msgid "Medios"
-msgstr "Media"
-
-#: guyrapu/ui/medio_cuadro.py guyrapu/ui/medios_ventana.py
-msgid "Agregar medio"
-msgstr "Add media"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "Editar medio"
-msgstr "Edit media"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "Dura más de 15 segundos: al dispararlo se detiene a los 15"
-msgstr "Longer than 15 seconds: when triggered, it stops at 15."
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "&Tipo:"
-msgstr "&Type:"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "D&uración:"
-msgstr "D&uration:"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "No se aplica"
-msgstr "Not applicable"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "Duración desconocida"
-msgstr "Unknown duration"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "No hay medios. Usa Agregar para crear uno."
-msgstr "There are no media items. Use Add to create one."
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Lista de &medios:"
-msgstr "List of &media:"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Medios guardados"
-msgstr "Saved media"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Medio agregado"
-msgstr "Media added"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Medio guardado"
-msgstr "Media saved"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Medio duplicado"
-msgstr "Media duplicated"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "No se pudo reproducir el medio."
-msgstr "Could not play the media."
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Escuchar medio"
-msgstr "Listen to media"
-
-#: guyrapu/ui/medios_ventana.py
-#, python-brace-format
-msgid "¿Quieres eliminar el medio «{nombre}»?"
-msgstr "Do you want to delete the media item «{nombre}»?"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Eliminar medio"
-msgstr "Delete media"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Medio eliminado"
-msgstr "Media deleted"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "No hay medios para exportar."
-msgstr "There are no media items to export."
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Exportar medios"
-msgstr "Export media"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Importar medios"
-msgstr "Import media"
-
-#: guyrapu/ui/medios_ventana.py
-#, python-brace-format
-msgid "Se importó un medio."
-msgid_plural "Se importaron {n} medios."
-msgstr[0] "One media item imported."
-msgstr[1] "{n} media items imported."
-
-#: guyrapu/ui/medios_ventana.py
-#, python-brace-format
-msgid "Ya hay medios llamados {nombres}. ¿Quieres reemplazarlos?"
-msgstr "Media items named {nombres} already exist. Replace them?"
 
