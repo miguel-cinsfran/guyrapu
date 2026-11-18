@@ -249,6 +249,35 @@ class TestCableadoRetirada(unittest.TestCase):
             self.assertEqual(panel._ciclo.pendiente.valor, "https://flujo")
             self.assertEqual(panel._ciclo.pendiente.tipo, "flujo")
 
+    def test_cargar_con_ciclo_en_retirada_difiere_el_video(self):
+        panel = _panel_base(player=mock.Mock(), inst=mock.Mock())
+        panel._video_id = "VID"
+        panel._asegurar_player = mock.Mock(return_value=True)
+        panel._ciclo.iniciar_retirada()
+        with mock.patch.object(reproductor, "anunciar"), \
+             mock.patch.object(reproductor.diagnostico, "crear_hilo") as crear_hilo:
+            panel.cargar(reproducir=False)
+        pendiente = panel._ciclo.pendiente
+        self.assertEqual(pendiente.tipo, "video")
+        self.assertEqual(pendiente.valor, "VID")
+        self.assertFalse(pendiente.autoplay)
+        self.assertFalse(panel._cargando)
+        crear_hilo.assert_not_called()
+
+    def test_set_video_con_ciclo_en_retirada_difiere_el_video(self):
+        panel = _panel_base(player=mock.Mock(), inst=mock.Mock())
+        panel._ciclo.iniciar_retirada()
+        panel._detener = mock.Mock()
+        panel.cargar = mock.Mock()
+        with mock.patch.object(reproductor, "anunciar"):
+            panel.set_video("VID", autoplay=False)
+        pendiente = panel._ciclo.pendiente
+        self.assertEqual(pendiente.tipo, "video")
+        self.assertEqual(pendiente.valor, "VID")
+        self.assertFalse(pendiente.autoplay)
+        panel._detener.assert_not_called()
+        panel.cargar.assert_not_called()
+
     def test_desconectar_cancela_carga_diferida(self):
         player_viejo = mock.Mock(set_hwnd=mock.Mock(), stop=mock.Mock(), release=mock.Mock())
         inst = mock.Mock(media_player_new=mock.Mock(return_value=mock.Mock(set_hwnd=mock.Mock(), event_manager=mock.Mock(return_value=mock.Mock(event_attach=mock.Mock())))))
