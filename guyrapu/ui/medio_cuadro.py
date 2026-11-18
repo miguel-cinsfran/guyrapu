@@ -12,24 +12,28 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import medios, medios_guardados
-from guyrapu.ui import paleta, tecla_escape
-from guyrapu.ui.accesibilidad import nombre_accesible
+from guyrapu.ui import medio_descripcion_ia, paleta, tecla_escape
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar medio")
 TITULO_EDITAR = N_("Editar medio")
 AVISO_LARGO = N_("Dura más de 15 segundos: al dispararlo se detiene a los 15")
+TEXTO_SOLO_IMAGEN = N_("Solo se propone la descripción de una imagen o un GIF")
+# Traductores: anuncio de la descripción que propone la IA; {texto} es la frase.
+TEXTO_PROPUESTA = N_("Descripción propuesta: {texto}")
 
 
 class DialogoMedio(wx.Dialog):
     """Nombre, descripción, tipo y duración de un medio."""
 
-    def __init__(self, padre, datos, editar=False):
+    def __init__(self, padre, datos, editar=False, ruta=None):
         super().__init__(
             padre,
             title=_(TITULO_EDITAR if editar else TITULO_AGREGAR),
             name="DialogoMedio")
         self._datos = medios_guardados.normalizar(datos or {})
+        self._ruta = ruta
         self.aviso = None
         self._crear_controles()
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
@@ -51,6 +55,12 @@ class DialogoMedio(wx.Dialog):
         self.txt_descripcion = self._campo(panel, "&Descripción:")
         vs.Add(self.txt_descripcion, 0,
                wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+
+        self.btn_describir = wx.Button(
+            panel, label=_("Describir &imagen"),
+            name=nombre_de_etiqueta(_("Describir &imagen")))
+        self.btn_describir.Bind(wx.EVT_BUTTON, self._describir)
+        vs.Add(self.btn_describir, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
         vs.Add(fila_label(panel, _("&Tipo:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.txt_tipo = self._campo_lectura(panel, "&Tipo:")
@@ -94,6 +104,17 @@ class DialogoMedio(wx.Dialog):
         self.txt_tipo.SetValue(medios.etiqueta_tipo(self._datos["tipo"]))
         self.txt_duracion.SetValue(self._texto_duracion())
 
+    def _describir(self, _evento):
+        if self._datos["tipo"] != "imagen":
+            anunciar(_(TEXTO_SOLO_IMAGEN))
+            return
+        medio_descripcion_ia.pedir(self, self._ruta, self._descripcion_propuesta)
+
+    def _descripcion_propuesta(self, texto):
+        self.txt_descripcion.SetValue(texto)
+        self.txt_descripcion.SetFocus()
+        anunciar(_(TEXTO_PROPUESTA).format(texto=texto))
+
     def _texto_duracion(self) -> str:
         if self._datos["tipo"] == "imagen":
             return _("No se aplica")
@@ -128,9 +149,9 @@ class DialogoMedio(wx.Dialog):
         tecla_escape.cancelar_si_escape(self, evento)
 
 
-def abrir(padre, datos, editar=False):
+def abrir(padre, datos, editar=False, ruta=None):
     """Abre el cuadro y devuelve los datos del medio, o None."""
-    dialogo = DialogoMedio(padre, datos, editar)
+    dialogo = DialogoMedio(padre, datos, editar, ruta)
     try:
         if dialogo.ShowModal() != wx.ID_OK:
             return None

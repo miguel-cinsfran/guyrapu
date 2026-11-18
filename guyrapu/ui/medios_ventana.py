@@ -126,7 +126,7 @@ class PanelMedios(wx.Panel):
         duracion = (duracion_de(origen)
                     if tipo in ("sonido", "video") else 0)
         datos = medio_cuadro.abrir(
-            self, medios_guardados.provisional(origen, duracion))
+            self, medios_guardados.provisional(origen, duracion), ruta=origen)
         if datos is None:
             return
         self._medios.append(
@@ -139,7 +139,10 @@ class PanelMedios(wx.Panel):
         indice = self._elegido()
         if indice is None:
             return
-        datos = medio_cuadro.abrir(self, self._medios[indice], editar=True)
+        datos = medio_cuadro.abrir(
+            self, self._medios[indice], editar=True,
+            ruta=medios_guardados.archivo_de(
+                self._carpeta, self._medios[indice]))
         if datos is None:
             return
         self._medios[indice] = medios_guardados.normalizar(datos)

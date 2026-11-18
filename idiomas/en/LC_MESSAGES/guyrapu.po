@@ -15996,3 +15996,38 @@ msgstr "Pause chat commands"
 msgid "Pa&usar comandos"
 msgstr "P&ause commands"
 
+#. Traductores: pregunta que recibe la IA con la imagen o el GIF de un medio.
+#: guyrapu/ai/descripcion_medio.py
+msgid ""
+"Describe en una frase corta, en el idioma de la aplicación, qué muestra la "
+"imagen a quien no la ve."
+msgstr ""
+"Describe in a short sentence, in the application language, what the image "
+"shows to someone who cannot see it."
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Solo se propone la descripción de una imagen o un GIF"
+msgstr "Only an image or a GIF can be described"
+
+#. Traductores: anuncio de la descripción que propone la IA; {texto} es la
+#. frase.
+#: guyrapu/ui/medio_cuadro.py
+#, python-brace-format
+msgid "Descripción propuesta: {texto}"
+msgstr "Proposed description: {texto}"
+
+#: guyrapu/ui/medio_cuadro.py
+msgid "Describir &imagen"
+msgstr "Describe &image"
+
+#. Traductores: título de la espera mientras la IA propone la descripción.
+#: guyrapu/ui/medio_descripcion_ia.py
+msgid "Describir imagen"
+msgstr "Describe image"
+
+#. Traductores: texto inicial de la espera mientras la IA propone la
+#. descripción.
+#: guyrapu/ui/medio_descripcion_ia.py
+msgid "Pidiendo la descripción a la IA…"
+msgstr "Asking the AI for the description…"
+

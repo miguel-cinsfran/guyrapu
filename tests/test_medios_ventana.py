@@ -102,16 +102,21 @@ class TestPagina(BaseVentana):
         panel = self._panel([])
         self._mostrada(panel.GetParent())
         origen = self._origen()
+        capturado = {}
+
+        def abrir_falso(_padre, datos, editar=False, ruta=None):
+            capturado["ruta"] = ruta
+            return {**datos, "nombre": "Risa", "descripcion": "Una risa"}
+
         with mock.patch.object(panel, "_elegir_archivo",
                                return_value=str(origen)), \
                 mock.patch.object(medios_ventana, "duracion_de",
                                   return_value=20), \
                 mock.patch.object(medios_ventana.medio_cuadro, "abrir",
-                                  side_effect=lambda _padre, datos, editar=False:
-                                  {**datos, "nombre": "Risa",
-                                   "descripcion": "Una risa"}), \
+                                  side_effect=abrir_falso), \
                 mock.patch.object(medios_ventana, "anunciar") as decir:
             panel._agregar()
+        self.assertEqual(Path(capturado["ruta"]), origen)
         guardados = self._en_disco()
         self.assertEqual(guardados[0]["nombre"], "Risa")
         self.assertEqual(guardados[0]["duracion"], 20)
@@ -124,11 +129,18 @@ class TestPagina(BaseVentana):
     def test_editar_guarda_y_no_cambia_el_archivo(self):
         panel = self._panel([_datos()])
         self._mostrada(panel.GetParent())
+        capturado = {}
+
+        def abrir_falso(_padre, datos, editar=False, ruta=None):
+            capturado["ruta"] = ruta
+            return {**datos, "descripcion": "Otra risa"}
+
         with mock.patch.object(medios_ventana.medio_cuadro, "abrir",
-                               side_effect=lambda _padre, datos, editar=False:
-                               {**datos, "descripcion": "Otra risa"}), \
+                               side_effect=abrir_falso), \
                 mock.patch.object(medios_ventana, "anunciar") as decir:
             panel._editar()
+        self.assertEqual(capturado["ruta"],
+                         paths.carpeta_medios() / "risa.wav")
         guardados = self._en_disco()
         self.assertEqual(guardados[0]["archivo"], "risa.wav")
         self.assertEqual(guardados[0]["descripcion"], "Otra risa")
@@ -220,6 +232,23 @@ class TestCuadro(BaseVentana):
 
     def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
         self.assertEqual(letras_repetidas(self._cuadro(_datos())), {})
+
+    def test_el_boton_describir_va_despues_de_la_descripcion_y_no_se_apaga(self):
+        for editar in (False, True):
+            with self.subTest(editar=editar):
+                cuadro = self._cuadro(
+                    _datos(tipo="imagen", archivo="logo.png", duracion=0),
+                    editar=editar)
+                self.assertEqual(cuadro.btn_describir.GetLabel(),
+                                 "Describir &imagen")
+                self.assertEqual(cuadro.btn_describir.GetName(),
+                                 "Describir imagen")
+                self.assertTrue(cuadro.btn_describir.IsEnabled())
+                hermanos = cuadro.txt_descripcion.GetParent().GetChildren()
+                posicion = hermanos.index(cuadro.txt_descripcion)
+                self.assertIs(hermanos[posicion + 1], cuadro.btn_describir)
+                self.assertLess(hermanos.index(cuadro.btn_describir),
+                                hermanos.index(cuadro.txt_tipo))
 
     def test_el_foco_nace_en_nombre(self):
         cuadro = self._cuadro(_datos())

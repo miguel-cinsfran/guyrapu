@@ -198,6 +198,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "medio_cuadro.py": (
         "el cuadro lo cubren las pruebas con wx; el banco audita la "
         "ventana que lo abre."),
+    "medio_descripcion_ia.py": (
+        "lo cubren las pruebas con wx y usa la espera común; no abre una "
+        "ventana propia."),
     "menu_habilitado.py": "Prende y apaga elementos de menú y no abre ventana propia.",
     "ayuda_manual.py": (
         "Atiende F1 y arma la página de redirección; no abre ventana propia."),
