@@ -136,6 +136,8 @@ MOTIVOS: dict[str, tuple[str, ...]] = {
         "video_panico_fin",
         "mensajes_automaticos_activados",
         "mensajes_automaticos_desactivados",
+        "comandos_pausa",
+        "comandos_reanudar",
     ),
     # El eco de algo que el usuario ya oye.
     "opcional": (

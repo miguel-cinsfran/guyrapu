@@ -15979,3 +15979,20 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+msgid "Comandos reanudados"
+msgstr "Commands resumed"
+
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_en_directo.py
+#: guyrapu/ui/comandos_en_vivo.py
+msgid "Comandos en pausa"
+msgstr "Commands paused"
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Pausar los comandos del chat"
+msgstr "Pause chat commands"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Pa&usar comandos"
+msgstr "P&ause commands"
+

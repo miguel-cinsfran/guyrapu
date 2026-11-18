@@ -207,6 +207,7 @@ FALTAS_CONOCIDAS = [
     "«Shift» en la tecla de «Vaciar cola del vídeo»",
     "«Shift» en la tecla de «Silenciar medios»",
     "«Shift» en la tecla de «Modo pánico»",
+    "«Shift» en la tecla de «Pausar comandos»",
     "«Shift» en la tecla de «Cerrar encuesta»",
     "«Shift» en la tecla de «Activar mensajes automáticos»",
     "«Enter» en la tecla de "

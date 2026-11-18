@@ -69,5 +69,6 @@ ATAJOS_PREDETERMINADOS = [
     ("video_silenciar", "ctrl+alt+shift+m"),
     ("video_panico", "ctrl+alt+shift+q"),
     ("mensajes_automaticos_alternar", "ctrl+alt+shift+a"),
+    ("comandos_pausar", "ctrl+alt+shift+c"),
     ("encuesta_cerrar", "ctrl+alt+shift+e"),
 ]

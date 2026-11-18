@@ -69,11 +69,19 @@ class ComandosEnVivo:
         self._avisado_cuota = False
         self._respondidos = 0
         self._ultimo = ("", "")
+        self._pausados = False
+
+    def alternar_pausa(self) -> bool:
+        """Invierte el freno de todos los comandos y devuelve el estado nuevo."""
+        self._pausados = not self._pausados
+        return self._pausados
 
     def atender(self, registro, ahora) -> None:
         if registro.tipo != TIPO_TEXTO:
             return
         if encuesta_en_vivo.votar(self._frame, _evento(registro), ahora):
+            return
+        if self._pausados:
             return
         if comandos.leer(registro.texto) is None:
             return
@@ -107,14 +115,18 @@ class ComandosEnVivo:
         return True
 
     def frase_estado(self) -> str:
-        """La frase para F2, o "" si la app no respondió ningún comando."""
-        if not self._respondidos:
-            return ""
-        palabra, autor = self._ultimo
-        # Traductores: parte del estado F2 (comandos). {n} es el nº de comandos
-        # respondidos, {palabra} el último comando y {autor} quien lo pidió.
-        return _("Comandos respondidos: {n}, el último {palabra} de {autor}").format(
-            n=_fmt_num(self._respondidos), palabra=palabra, autor=autor)
+        """La frase para F2, o "" si no hay pausa ni comandos respondidos."""
+        resumen = ""
+        if self._respondidos:
+            palabra, autor = self._ultimo
+            # Traductores: parte del estado F2 (comandos). {n} es el nº de comandos
+            # respondidos, {palabra} el último comando y {autor} quien lo pidió.
+            resumen = _(
+                "Comandos respondidos: {n}, el último {palabra} de {autor}").format(
+                    n=_fmt_num(self._respondidos), palabra=palabra, autor=autor)
+        if not self._pausados:
+            return resumen
+        return _("Comandos en pausa") + (". " + resumen if resumen else "")
 
     def _recargar(self) -> None:
         """Vuelve a leer los comandos y las palabras si cambiaron."""

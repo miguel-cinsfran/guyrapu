@@ -228,6 +228,45 @@ class TestComandosRespondidos(Base):
             comandos_en_vivo.ComandosEnVivo(self.frame).frase_estado(), "")
 
 
+class TestComandosEnPausa(Base):
+
+    def _en_vivo(self):
+        en_vivo = comandos_en_vivo.ComandosEnVivo(self.frame)
+        self.frame._comandos_en_vivo = en_vivo
+        return en_vivo
+
+    def test_en_pausa_no_contesta_ningun_comando(self):
+        self._guardar(_datos(respuesta="Hola"))
+        self._en_vivo().alternar_pausa()
+        self._encolar("!discord")
+        self.frame._capa_video.agregar_comando.assert_not_called()
+
+    def test_en_pausa_la_encuesta_sigue_contando_el_voto(self):
+        self._guardar(_datos(nombre="2", respuesta="Respuesta del comando"))
+        self._en_vivo().alternar_pausa()
+        with mock.patch.object(encuesta_en_vivo, "votar",
+                               return_value=True) as votar:
+            self._encolar("!2")
+        votar.assert_called_once()
+        self.frame._capa_video.agregar_comando.assert_not_called()
+
+    def test_reanudados_vuelve_a_contestar(self):
+        self._guardar(_datos(respuesta="Hola"))
+        en_vivo = self._en_vivo()
+        en_vivo.alternar_pausa()
+        en_vivo.alternar_pausa()
+        self._encolar("!discord")
+        self.frame._capa_video.agregar_comando.assert_called_once()
+
+    def test_una_sesion_nueva_empieza_sin_pausa(self):
+        self._guardar(_datos(respuesta="Hola"))
+        self._en_vivo().alternar_pausa()
+        self.frame._comandos_en_vivo = comandos_en_vivo.ComandosEnVivo(
+            self.frame)
+        self._encolar("!discord")
+        self.frame._capa_video.agregar_comando.assert_called_once()
+
+
 class TestRecargaDeComandos(Base):
 
     def test_relee_el_archivo_cuando_cambia(self):

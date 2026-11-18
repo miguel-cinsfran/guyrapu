@@ -87,6 +87,25 @@ class TestEventosDeLoQueSaleEnElVideo(unittest.TestCase):
                     motivos_sonido.MOTIVO_POR_CLAVE[clave], "estado")
 
 
+class TestEventosDeComandosEnPausa(unittest.TestCase):
+    NUEVOS = {
+        "comandos_pausa": ("Comandos en pausa", "pausa", "desactivado"),
+        "comandos_reanudar": ("Comandos reanudados", "reanudar", "activado"),
+    }
+
+    def test_cada_uno_tiene_su_nombre_su_sonido_y_su_motivo(self):
+        catalogo = {evento.clave: evento
+                    for evento in eventos_sonido.CATALOGO}
+        for clave, (nombre, sonido, familia) in self.NUEVOS.items():
+            with self.subTest(clave=clave):
+                self.assertIn(clave, catalogo)
+                self.assertEqual(eventos_sonido.NOMBRES[clave], nombre)
+                self.assertEqual(eventos_sonido.SONIDOS[clave], sonido)
+                self.assertEqual(catalogo[clave].familia, familia)
+                self.assertEqual(
+                    motivos_sonido.MOTIVO_POR_CLAVE[clave], "estado")
+
+
 class TestCierreDeEncuestaPorTiempo(unittest.TestCase):
     def test_usa_el_aviso_y_llega_solo(self):
         self.assertEqual(eventos_sonido.NOMBRES["encuesta_cerrada"],

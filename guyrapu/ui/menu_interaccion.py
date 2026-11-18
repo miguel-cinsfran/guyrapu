@@ -68,6 +68,14 @@ def _en_directo_medios(frame, m):
                      comando_en_directo.alternar_panico, frame)
 
 
+def _comandos(frame, m):
+    frame.mi_comandos_pausar = m.AppendCheckItem(
+        wx.ID_ANY,
+        _("Pa&usar comandos") + frame._accel("comandos_pausar"))
+    frame._bind_menu(frame.mi_comandos_pausar,
+                     comando_en_directo.alternar_comandos, frame)
+
+
 def _encuesta(frame, m):
     frame.mi_encuesta_cerrar = m.Append(
         wx.ID_ANY,
@@ -79,6 +87,7 @@ def _encuesta(frame, m):
 def _en_directo(frame, m):
     _en_directo_cola(frame, m)
     _en_directo_medios(frame, m)
+    _comandos(frame, m)
     _encuesta(frame, m)
     _programados(frame, m)
 

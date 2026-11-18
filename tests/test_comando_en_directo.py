@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Las siete acciones de lo que sale en el vídeo y lo que anuncian.
+"""Las ocho acciones de lo que sale en el vídeo y lo que anuncian.
 
 La capa se sustituye por una de prueba que anota lo que le piden. El pánico
 se prueba con una cola real detrás para comprobar que al apagarlo vuelve a
@@ -74,6 +74,7 @@ class Base(unittest.TestCase):
             mi_video_pausar=mock.Mock(),
             mi_video_silenciar=mock.Mock(),
             mi_video_panico=mock.Mock(),
+            mi_comandos_pausar=mock.Mock(),
         )
         self.parche_capa = mock.patch.object(
             gui_envio_chat, "capa_de_video", return_value=self.capa)
@@ -175,6 +176,23 @@ class TestPanico(Base):
         self.assertFalse(self.capa.cola.agregar(self._pieza()))
         comando_en_directo.alternar_panico(self.frame)
         self.assertTrue(self.capa.cola.agregar(self._pieza()))
+
+
+class TestComandos(Base):
+
+    def test_alternar_dos_veces_anuncia_y_marca_la_casilla(self):
+        comando_en_directo.alternar_comandos(self.frame)
+        self.assertEqual(self.anuncios,
+                         [("Comandos en pausa", "comandos_pausa")])
+        self.frame.mi_comandos_pausar.Check.assert_called_once_with(True)
+        self.assertIn("Comandos en pausa",
+                      self.frame._comandos_en_vivo.frase_estado())
+
+        comando_en_directo.alternar_comandos(self.frame)
+        self.assertEqual(self.anuncios[-1],
+                         ("Comandos reanudados", "comandos_reanudar"))
+        self.frame.mi_comandos_pausar.Check.assert_called_with(False)
+        self.assertEqual(self.frame._comandos_en_vivo.frase_estado(), "")
 
 
 class TestCerrarEncuesta(Base):

@@ -87,6 +87,7 @@ ACTUAN_DIRECTO = frozenset((
     "Novedades",
     "Omitir mensaje del vídeo",
     "Pantalla completa",
+    "Pausar comandos",
     "Pausar lectura",
     "Pausar o reanudar grabación",
     "Región anterior",

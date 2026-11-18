@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 49d57f0687fb4cede96c9c844a9e325a3dc71712 -->
+<!-- original: es/MANUAL.md 976ead936b0e402eae5f172df6f6f949bf6ce6a3 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -459,6 +459,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | `Ctrl+Alt+Shift+M` | Mute or turn on the media |
 | `Ctrl+Alt+Shift+Q` | Turn panic mode on or off |
 | `Ctrl+Alt+Shift+A` | Turn scheduled messages on or off |
+| `Ctrl+Alt+Shift+C` | Pause or resume all chat commands |
 | `Ctrl+Alt+Shift+E` | Close the poll |
 
 ### Music (Ctrl+Alt)

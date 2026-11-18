@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Las siete acciones de lo que sale en el vídeo.
+"""Las ocho acciones de lo que sale en el vídeo.
 
 Un solo camino por acción: el menú Interacción y los atajos globales llaman
 acá. La capa del vídeo conserva el estado de la cola entre una acción y la
@@ -10,7 +10,8 @@ siguiente.
 from __future__ import annotations
 
 from guyrapu.core.idioma import _
-from guyrapu.ui import comando_mensajes_automaticos, encuesta_en_vivo
+from guyrapu.ui import (
+    comando_mensajes_automaticos, comandos_en_vivo, encuesta_en_vivo)
 from guyrapu.ui.accesibilidad import anunciar_con_sonido
 
 
@@ -77,6 +78,15 @@ def alternar_panico(frame):
         _("Modo pánico activado") if activo
         else _("Modo pánico desactivado"),
         "video_panico" if activo else "video_panico_fin")
+
+
+def alternar_comandos(frame):
+    """Pausa o reanuda todos los comandos y dice el estado nuevo."""
+    pausados = comandos_en_vivo._en_vivo(frame).alternar_pausa()
+    _marcar(frame, "mi_comandos_pausar", pausados)
+    anunciar_con_sonido(
+        _("Comandos en pausa") if pausados else _("Comandos reanudados"),
+        "comandos_pausa" if pausados else "comandos_reanudar")
 
 
 def alternar_mensajes(frame):

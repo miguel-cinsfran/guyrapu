@@ -29,6 +29,7 @@ ORDEN = (
     "video_silenciar",
     "video_panico",
     "mensajes_automaticos_alternar",
+    "comandos_pausar",
     "encuesta_cerrar",
 )
 
@@ -57,6 +58,8 @@ class InteraccionAtajos:
                 lambda: comando_en_directo.alternar_panico(frame),
             "mensajes_automaticos_alternar":
                 lambda: comando_en_directo.alternar_mensajes(frame),
+            "comandos_pausar":
+                lambda: comando_en_directo.alternar_comandos(frame),
             "encuesta_cerrar":
                 lambda: comando_en_directo.cerrar_encuesta(frame),
         }

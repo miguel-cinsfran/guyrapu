@@ -129,8 +129,8 @@ CATALOGO: tuple[EventoSonido, ...] = (
                  familia="activado"),
     EventoSonido("grabacion_reanudada", nombre=N_("Grabación reanudada"), sonido="reanudar",
                  familia="activado"),
-    # Lo que sale en el vídeo y los mensajes automáticos, cada estado con su
-    # evento para poder callarlo por separado.
+    # Lo que sale en el vídeo, los mensajes automáticos y los comandos del
+    # chat, cada estado con su evento para poder callarlo por separado.
     EventoSonido("video_reanudar", nombre=N_("Cola del vídeo reanudada"),
                  sonido="reanudar", familia="activado"),
     EventoSonido("video_audio", nombre=N_("Medios activados"),
@@ -139,6 +139,8 @@ CATALOGO: tuple[EventoSonido, ...] = (
                  sonido="reanudar", familia="activado"),
     EventoSonido("mensajes_automaticos_activados",
                  nombre=N_("Mensajes automáticos activados"),
+                 sonido="reanudar", familia="activado"),
+    EventoSonido("comandos_reanudar", nombre=N_("Comandos reanudados"),
                  sonido="reanudar", familia="activado"),
     EventoSonido("pausa", nombre=N_("Lectura en pausa"), familia="desactivado"),
     EventoSonido("desconectado", nombre=N_("Desconexión del chat"), sonido="pausa",
@@ -156,6 +158,8 @@ CATALOGO: tuple[EventoSonido, ...] = (
                  sonido="pausa", familia="desactivado"),
     EventoSonido("mensajes_automaticos_desactivados",
                  nombre=N_("Mensajes automáticos desactivados"),
+                 sonido="pausa", familia="desactivado"),
+    EventoSonido("comandos_pausa", nombre=N_("Comandos en pausa"),
                  sonido="pausa", familia="desactivado"),
     # Preguntar a la IA: consulta que sale, espera que suena, respuesta que
     # llega, fallo, captura agregada, consulta cancelada y captura negra:

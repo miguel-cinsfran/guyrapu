@@ -14,6 +14,7 @@ from guyrapu.capture import encuestas
 from guyrapu.capture import batallas
 from guyrapu.capture import metas
 from guyrapu.core.doble_pulsacion import DoblePulsacion
+from guyrapu.ui import comandos_en_vivo
 from guyrapu.ui import dialogo_estado
 from guyrapu.ui import gui
 from guyrapu.ui import gui_estado
@@ -212,6 +213,26 @@ class TestSnapshotComandos(unittest.TestCase):
         self.assertEqual(
             gui_estado.snapshot_sesion(frame).comandos,
             "Comandos respondidos: 2, el último !discord de Ana")
+
+    def test_en_pausa_lo_dice_junto_al_resumen(self):
+        frame = _marco_falso({})
+        en_vivo = comandos_en_vivo.ComandosEnVivo(frame)
+        en_vivo._respondidos = 1
+        en_vivo._ultimo = ("!discord", "Ana")
+        en_vivo.alternar_pausa()
+        frame._comandos_en_vivo = en_vivo
+        self.assertEqual(
+            gui_estado.snapshot_sesion(frame).comandos,
+            "Comandos en pausa. Comandos respondidos: 1, "
+            "el último !discord de Ana")
+
+    def test_en_pausa_sin_respuestas_lo_dice_igual(self):
+        frame = _marco_falso({})
+        en_vivo = comandos_en_vivo.ComandosEnVivo(frame)
+        en_vivo.alternar_pausa()
+        frame._comandos_en_vivo = en_vivo
+        self.assertEqual(gui_estado.snapshot_sesion(frame).comandos,
+                         "Comandos en pausa")
 
 
 class TestTotalAportesTexto(unittest.TestCase):
