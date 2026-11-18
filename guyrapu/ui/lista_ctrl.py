@@ -39,6 +39,25 @@ class ListaCtrlEnvuelta:
         for columna, texto in enumerate(celdas[1:], start=1):
             self._control.SetItem(indice, columna, texto)
 
+    def Insert(self, fila, indice):
+        celdas = (fila,) if isinstance(fila, str) else fila
+        self._control.InsertItem(indice, celdas[0])
+        for columna, texto in enumerate(celdas[1:], start=1):
+            self._control.SetItem(indice, columna, texto)
+
+    def Delete(self, indice):
+        self._control.DeleteItem(indice)
+
+    def GetString(self, indice):
+        return tuple(self._control.GetItemText(indice, columna)
+                     for columna in range(self._control.GetColumnCount()))
+
+    def SetString(self, indice, fila):
+        celdas = (fila,) if isinstance(fila, str) else fila
+        for columna, texto in enumerate(celdas):
+            if self._control.GetItemText(indice, columna) != texto:
+                self._control.SetItem(indice, columna, texto)
+
     def Bind(self, evento, manejador):
         self._control.Bind(evento, manejador)
 

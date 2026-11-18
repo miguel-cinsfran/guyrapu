@@ -17,6 +17,7 @@ from typing import Callable
 import wx
 
 from guyrapu.capture import redaccion
+from guyrapu.core import pasos_lista
 from guyrapu.core import sonidos_eventos
 from guyrapu.core.idioma import _
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro
@@ -122,6 +123,7 @@ class ListaConVacio:
         self._texto_vacio = texto_vacio
         self._texto_vacio_inicial = texto_vacio
         self._textos = []
+        self._claves = []
         self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
         instalar_busqueda_tipo(
             self._lista, lambda: [_texto_de(fila) for fila in self._textos])
@@ -141,6 +143,7 @@ class ListaConVacio:
         self._texto_vacio = (
             self._texto_vacio_inicial if vacio is None else vacio)
         self._textos = list(textos)
+        self._claves = []
         self._lista.Clear()
         if not self._textos:
             self._lista.Append(self._texto_vacio)
@@ -154,6 +157,79 @@ class ListaConVacio:
         indice = 0 if elegido is None else elegido
         if not 0 <= indice < len(self._textos):
             indice = 0
+        self._lista.SetSelection(indice)
+
+    def poner_al_dia(self, claves, filas, elegida=None):
+        """Deja la lista igual a `filas`, una por clave, sin recargar todo."""
+        claves = list(claves)
+        filas = list(filas)
+        seleccion = self._lista.GetSelection()
+        clave_elegida = self._clave_en(seleccion)
+        self._sincronizar(claves, filas)
+        self._claves = claves
+        self._textos = filas
+        if not filas:
+            self._dejar_vacia()
+        self._restaurar(seleccion, clave_elegida, claves, elegida)
+
+    def _clave_en(self, indice):
+        if 0 <= indice < len(self._claves):
+            return self._claves[indice]
+        return None
+
+    def _sincronizar(self, claves, filas):
+        actuales = list(self._claves)
+        if len(actuales) != len(self._textos) or (self.vacia() and filas):
+            actuales = []
+            self._borrar_todo()
+        por_clave = dict(zip(claves, filas))
+        for paso in pasos_lista.pasos_para_sincronizar(actuales, claves):
+            self._aplicar(paso, por_clave, actuales)
+        for indice, fila in enumerate(filas):
+            self._reescribir(indice, fila)
+
+    def _aplicar(self, paso, por_clave, actuales):
+        if paso[0] == "borrar":
+            self._lista.Delete(paso[1])
+            del actuales[paso[1]]
+        else:
+            self._lista.Insert(por_clave[paso[2]], paso[1])
+            actuales.insert(paso[1], paso[2])
+
+    def _borrar_todo(self):
+        for indice in range(self._lista.GetCount() - 1, -1, -1):
+            self._lista.Delete(indice)
+
+    def _reescribir(self, indice, fila):
+        """Reescribe la fila solo si su texto no es ya el deseado."""
+        actual = self._lista.GetString(indice)
+        actuales = actual if isinstance(actual, tuple) else (actual,)
+        deseadas = fila if isinstance(fila, tuple) else (fila,)
+        if actuales != deseadas:
+            self._lista.SetString(indice, fila)
+
+    def _dejar_vacia(self):
+        """Deja la línea vacía como la deja `fijar`."""
+        if self._lista.GetCount() == 1:
+            return
+        self._borrar_todo()
+        self._lista.Append(self._texto_vacio)
+
+    def _restaurar(self, seleccion, clave, claves, elegida):
+        """Vuelve a elegir la fila de antes, sin tocarla si no se movió."""
+        if elegida is not None and elegida in claves:
+            self._elegir(claves.index(elegida), forzar=False)
+        elif not claves:
+            self._elegir(0, forzar=False)
+        elif clave is not None and clave in claves:
+            indice = claves.index(clave)
+            self._elegir(indice, forzar=indice != seleccion)
+        else:
+            self._elegir(min(max(seleccion, 0), len(claves) - 1), forzar=True)
+
+    def _elegir(self, indice, forzar):
+        if not forzar and self._lista.GetSelection() == indice:
+            return
         self._lista.SetSelection(indice)
 
     def indice(self):
@@ -192,6 +268,10 @@ class ListaConAcciones:
     def fijar(self, textos, elegido=None, vacio=None):
         """Reemplaza a Clear y Append y deja el caso vacío elegido."""
         self._vacio.fijar(textos, elegido, vacio)
+
+    def poner_al_dia(self, claves, filas, elegida=None):
+        """Deja la lista igual a `filas`, una por clave, sin recargar todo."""
+        self._vacio.poner_al_dia(claves, filas, elegida)
 
     def indice(self):
         """El índice elegido de verdad, o None también con la línea vacía."""

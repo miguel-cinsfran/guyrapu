@@ -629,5 +629,198 @@ class PruebaCasillasConPieza(unittest.TestCase):
         self.assertTrue(self.lista.IsItemChecked(0))
 
 
+class _ListBoxEspia(wx.ListBox):
+    """ListBox real que cuenta lo que la pieza le hace."""
+
+    def __init__(self, padre):
+        super().__init__(padre)
+        self.insertadas = []
+        self.borradas = []
+        self.reescritas = []
+        self.selecciones = []
+
+    def Insert(self, texto, indice):
+        self.insertadas.append((indice, texto))
+        return super().Insert(texto, indice)
+
+    def Delete(self, indice):
+        self.borradas.append(indice)
+        return super().Delete(indice)
+
+    def SetString(self, indice, texto):
+        self.reescritas.append((indice, texto))
+        return super().SetString(indice, texto)
+
+    def SetSelection(self, indice):
+        self.selecciones.append(indice)
+        return super().SetSelection(indice)
+
+    def limpiar_cuentas(self):
+        self.insertadas.clear()
+        self.borradas.clear()
+        self.reescritas.clear()
+        self.selecciones.clear()
+
+
+class _ListCtrlEspia(wx.ListCtrl):
+    """ListCtrl real que cuenta lo que la pieza le hace."""
+
+    def __init__(self, padre):
+        super().__init__(padre, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+        self.insertadas = []
+        self.borradas = []
+        self.celdas = []
+        self.selecciones = []
+
+    def InsertItem(self, indice, texto):
+        self.insertadas.append((indice, texto))
+        return super().InsertItem(indice, texto)
+
+    def DeleteItem(self, indice):
+        self.borradas.append(indice)
+        return super().DeleteItem(indice)
+
+    def SetItem(self, indice, columna, texto):
+        self.celdas.append((indice, columna, texto))
+        return super().SetItem(indice, columna, texto)
+
+    def Select(self, indice, *args):
+        self.selecciones.append(indice)
+        return super().Select(indice, *args)
+
+    def limpiar_cuentas(self):
+        self.insertadas.clear()
+        self.borradas.clear()
+        self.celdas.clear()
+        self.selecciones.clear()
+
+
+class PruebaPonerAlDiaListBox(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.lista = _ListBoxEspia(self.marco)
+        self.vacio = lista_acciones.ListaConVacio(self.lista, "Sin elementos.")
+        self.vacio.poner_al_dia(["a", "b", "c"], ["a", "b", "c"])
+        self.lista.limpiar_cuentas()
+
+    def _textos(self):
+        return [self.lista.GetString(i) for i in range(self.lista.GetCount())]
+
+    def test_de_a_b_c_a_a_c_d_conserva_la_a(self):
+        self.vacio.poner_al_dia(["a", "c", "d"], ["a", "c", "d"])
+        self.assertEqual(self._textos(), ["a", "c", "d"])
+        self.assertEqual(self.lista.borradas, [1])
+        self.assertEqual(self.lista.insertadas, [(2, "d")])
+        self.assertEqual(self.lista.reescritas, [])
+
+    def test_b_elegida_queda_en_su_indice_nuevo(self):
+        self.lista.SetSelection(1)
+        self.lista.limpiar_cuentas()
+        self.vacio.poner_al_dia(["x", "a", "b", "c"], ["x", "a", "b", "c"])
+        self.assertEqual(self.lista.GetSelection(), 2)
+        self.assertEqual(self.lista.selecciones, [2])
+
+    def test_b_elegida_sin_movimiento_no_llama_a_set_selection(self):
+        self.lista.SetSelection(1)
+        self.lista.limpiar_cuentas()
+        self.vacio.poner_al_dia(["a", "b", "c"], ["a", "b", "c"])
+        self.assertEqual(self.lista.selecciones, [])
+        self.assertEqual(self.lista.GetSelection(), 1)
+
+    def test_si_la_elegida_desaparece_se_elege_el_mismo_indice_o_el_ultimo(self):
+        self.lista.SetSelection(2)
+        self.lista.limpiar_cuentas()
+        self.vacio.poner_al_dia(["a", "b", "d"], ["a", "b", "d"])
+        self.assertEqual(self.lista.GetSelection(), 2)
+        self.vacio.poner_al_dia(["a"], ["a"])
+        self.assertEqual(self.lista.GetSelection(), 0)
+
+    def test_con_una_clave_elegida_se_elege_esa_fila(self):
+        self.vacio.poner_al_dia(["a", "b", "c"], ["a", "b", "c"],
+                                elegida="c")
+        self.assertEqual(self.lista.GetSelection(), 2)
+
+    def test_de_filas_a_ninguna_deja_la_linea_vacia(self):
+        self.vacio.poner_al_dia([], [])
+        self.assertEqual(self._textos(), ["Sin elementos."])
+        self.assertIsNone(self.vacio.indice())
+        self.assertTrue(self.vacio.vacia())
+
+    def test_de_la_linea_vacia_a_filas_la_reemplaza(self):
+        self.vacio.poner_al_dia([], [])
+        self.lista.limpiar_cuentas()
+        self.vacio.poner_al_dia(["a"], ["a"])
+        self.assertEqual(self._textos(), ["a"])
+        self.assertEqual(self.lista.insertadas, [(0, "a")])
+
+
+class PruebaPonerAlDiaListCtrl(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.marco = wx.Frame(None)
+        self.addCleanup(destruir, self.marco)
+        self.control = _ListCtrlEspia(self.marco)
+        self.control.InsertColumn(0, "Clave", width=100)
+        self.control.InsertColumn(1, "Valor", width=100)
+        self.lista = ListaCtrlEnvuelta(self.control)
+        self.vacio = lista_acciones.ListaConVacio(
+            self.lista, "Sin elementos.")
+        self.vacio.poner_al_dia(
+            ["a", "b", "c"], [("a", "1"), ("b", "2"), ("c", "3")])
+        self.control.limpiar_cuentas()
+
+    def _textos(self):
+        return [self.control.GetItemText(i, 0)
+                for i in range(self.control.GetItemCount())]
+
+    def test_de_a_b_c_a_a_c_d_conserva_la_a(self):
+        self.vacio.poner_al_dia(
+            ["a", "c", "d"], [("a", "1"), ("c", "3"), ("d", "4")])
+        self.assertEqual(self._textos(), ["a", "c", "d"])
+        self.assertEqual(self.control.borradas, [1])
+        self.assertEqual(self.control.insertadas, [(2, "d")])
+        self.assertEqual(self.control.celdas, [(2, 1, "4")])
+
+    def test_cambiar_solo_la_segunda_celda_reescribe_solo_esa_celda(self):
+        self.vacio.poner_al_dia(["a", "b"], [("a", "1"), ("b", "2")])
+        self.control.limpiar_cuentas()
+        self.vacio.poner_al_dia(["a", "b"], [("a", "1"), ("b", "X")])
+        self.assertEqual(self.control.celdas, [(1, 1, "X")])
+
+    def test_b_elegida_queda_en_su_indice_nuevo(self):
+        self.lista.SetSelection(1)
+        self.control.limpiar_cuentas()
+        self.vacio.poner_al_dia(
+            ["x", "a", "b", "c"],
+            [("x", "0"), ("a", "1"), ("b", "2"), ("c", "3")])
+        self.assertEqual(self.control.GetFirstSelected(), 2)
+        self.assertEqual(self.control.selecciones, [2])
+
+    def test_b_elegida_sin_movimiento_no_llama_a_set_selection(self):
+        self.lista.SetSelection(1)
+        self.control.limpiar_cuentas()
+        self.vacio.poner_al_dia(
+            ["a", "b", "c"], [("a", "1"), ("b", "2"), ("c", "3")])
+        self.assertEqual(self.control.selecciones, [])
+        self.assertEqual(self.control.GetFirstSelected(), 1)
+
+    def test_de_filas_a_ninguna_deja_la_linea_vacia(self):
+        self.vacio.poner_al_dia([], [])
+        self.assertEqual(self._textos(), ["Sin elementos."])
+        self.assertIsNone(self.vacio.indice())
+        self.assertTrue(self.vacio.vacia())
+
+    def test_de_la_linea_vacia_a_filas_la_reemplaza(self):
+        self.vacio.poner_al_dia([], [])
+        self.control.limpiar_cuentas()
+        self.vacio.poner_al_dia(["a"], [("a", "1")])
+        self.assertEqual(self._textos(), ["a"])
+        self.assertEqual(self.control.insertadas, [(0, "a")])
+
+
 if __name__ == "__main__":
     unittest.main()
