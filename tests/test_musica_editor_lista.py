@@ -58,71 +58,31 @@ class TestValidarNombre(unittest.TestCase):
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
 class TestAccionTecla(unittest.TestCase):
 
-    def test_enter_en_cualquiera_de_las_dos_listas_reproduce(self):
-        for en_lista in ("lista", "todas"):
-            for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-                with self.subTest(en_lista=en_lista, codigo=codigo):
-                    self.assertEqual(
-                        musica_editor_lista.accion_tecla(codigo, 0, en_lista),
-                        musica_menus.ACCION_REPRODUCIR)
+    def test_enter_en_todas_reproduce(self):
+        for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+            with self.subTest(codigo=codigo):
+                self.assertEqual(
+                    musica_editor_lista.accion_tecla(codigo, "todas"),
+                    musica_menus.ACCION_REPRODUCIR)
 
     def test_enter_fuera_de_las_listas_sigue_su_camino(self):
         for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
             with self.subTest(codigo=codigo):
                 self.assertIsNone(
-                    musica_editor_lista.accion_tecla(codigo, 0, None))
+                    musica_editor_lista.accion_tecla(codigo, None))
 
     def test_espacio_en_todas_lo_maneja_el_control(self):
         self.assertIsNone(
-            musica_editor_lista.accion_tecla(wx.WXK_SPACE, 0, "todas"))
-
-    def test_supr_quita_solo_en_la_lista(self):
-        for codigo in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
-            with self.subTest(codigo=codigo):
-                self.assertEqual(
-                    musica_editor_lista.accion_tecla(codigo, 0, "lista"),
-                    musica_menus.ACCION_QUITAR)
-        self.assertIsNone(
-            musica_editor_lista.accion_tecla(wx.WXK_DELETE, 0, "todas"))
-        self.assertIsNone(
-            musica_editor_lista.accion_tecla(wx.WXK_DELETE, 0, None))
-
-    def test_alt_flechas_mueven_solo_en_la_lista(self):
-        self.assertEqual(
-            musica_editor_lista.accion_tecla(
-                wx.WXK_UP, wx.MOD_ALT, "lista"),
-            musica_menus.ACCION_SUBIR)
-        self.assertEqual(
-            musica_editor_lista.accion_tecla(
-                wx.WXK_DOWN, wx.MOD_ALT, "lista"),
-            musica_menus.ACCION_BAJAR)
-        self.assertIsNone(
-            musica_editor_lista.accion_tecla(
-                wx.WXK_UP, wx.MOD_ALT, "todas"))
-        self.assertIsNone(
-            musica_editor_lista.accion_tecla(wx.WXK_DOWN, 0, "lista"))
-
-    def test_aplicaciones_y_mayus_f10_abren_el_menu_solo_en_la_lista(self):
-        self.assertEqual(
-            musica_editor_lista.accion_tecla(
-                wx.WXK_WINDOWS_MENU, 0, "lista"),
-            musica_editor_lista.ACCION_MENU)
-        self.assertEqual(
-            musica_editor_lista.accion_tecla(
-                wx.WXK_F10, wx.MOD_SHIFT, "lista"),
-            musica_editor_lista.ACCION_MENU)
-        self.assertIsNone(
-            musica_editor_lista.accion_tecla(
-                wx.WXK_WINDOWS_MENU, 0, "todas"))
+            musica_editor_lista.accion_tecla(wx.WXK_SPACE, "todas"))
 
     def test_escape_cancela_aunque_no_este_en_una_lista(self):
         self.assertEqual(
-            musica_editor_lista.accion_tecla(wx.WXK_ESCAPE, 0, None),
+            musica_editor_lista.accion_tecla(wx.WXK_ESCAPE, None),
             musica_editor_lista.ACCION_CANCELAR)
 
     def test_otra_tecla_sigue_su_camino(self):
         self.assertIsNone(
-            musica_editor_lista.accion_tecla(wx.WXK_DOWN, 0, "lista"))
+            musica_editor_lista.accion_tecla(wx.WXK_DOWN, "lista"))
 
 
 class TestSubmenu(unittest.TestCase):
@@ -234,6 +194,72 @@ class TestEditorPseudo(unittest.TestCase):
                 self.dialogo._guardar()
         anunciar.assert_called_once_with(
             "[¡El nombre no puede tener más de 60 caracteres!]")
+
+
+TEXTO_LISTA_VACIA = (
+    "La lista no tiene canciones. "
+    "Marca las casillas de Todas las canciones para agregarlas.")
+A = Tema("C:/Musica/a.mp3", "A")
+B = Tema("C:/Musica/b.mp3", "B")
+
+
+@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
+class TestListaConLaPieza(unittest.TestCase):
+    """«Canciones de la lista» con la pieza común: vacío, menú y teclas."""
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.dialogo = None
+
+    def tearDown(self):
+        if self.dialogo is not None:
+            destruir(self.dialogo)
+
+    def _abrir(self, lista=(), reproducir=None):
+        self.dialogo = musica_editor_lista.DialogoEditorLista(
+            None, "Lista", (A, B), tuple(lista), reproducir=reproducir)
+        wx.Yield()
+        return self.dialogo
+
+    def _menu(self):
+        menu = self.dialogo._lista_acciones._construir_menu()
+        self.addCleanup(menu.Destroy)
+        return menu
+
+    def _pulsar(self, codigo, tipo=None):
+        evento = wx.KeyEvent(tipo or wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = codigo
+        self.dialogo.lb_lista.GetEventHandler().ProcessEvent(evento)
+
+    def test_vacia_dice_que_marcar_las_casillas(self):
+        dialogo = self._abrir(lista=())
+        self.assertEqual(dialogo.lb_lista.GetItemCount(), 1)
+        self.assertEqual(dialogo.lb_lista.GetItemText(0), TEXTO_LISTA_VACIA)
+        self.assertIsNone(dialogo._lista_acciones.indice())
+
+    def test_el_menu_tiene_las_cuatro_acciones_en_orden_y_encendidas(self):
+        self._abrir(lista=(A,))
+        items = self._menu().GetMenuItems()
+        self.assertEqual(
+            [item.GetItemLabel() for item in items],
+            ["&Reproducir\tEnter", "&Eliminar\tDel",
+             "&Subir\tAlt+Up", "&Bajar\tAlt+Down"])
+        self.assertTrue(all(item.IsEnabled() for item in items))
+
+    def test_el_menu_sin_fila_se_abre_con_las_acciones_apagadas(self):
+        self._abrir(lista=())
+        items = self._menu().GetMenuItems()
+        self.assertEqual(len(items), 4)
+        self.assertFalse(any(item.IsEnabled() for item in items))
+
+    def test_intro_con_la_lista_vacia_no_reproduce(self):
+        reproducir = mock.Mock()
+        dialogo = self._abrir(lista=(), reproducir=reproducir)
+        self.assertEqual(dialogo.lb_lista.GetItemText(0), TEXTO_LISTA_VACIA)
+        dialogo.lb_lista.SetFocus()
+        self._pulsar(wx.WXK_RETURN, wx.wxEVT_CHAR_HOOK)
+        reproducir.assert_not_called()
+        self.assertEqual(dialogo._lista.temas, ())
 
 
 if __name__ == "__main__":

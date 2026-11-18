@@ -16600,3 +16600,9 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/musica_editor_lista.py
+msgid ""
+"La lista no tiene canciones. Marca las casillas de Todas las canciones para"
+" agregarlas."
+msgstr "The list has no songs. Select the check boxes in All songs to add them."
+

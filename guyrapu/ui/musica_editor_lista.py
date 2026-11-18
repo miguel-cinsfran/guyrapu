@@ -18,13 +18,23 @@ from guyrapu.music import anuncios, listas, vista
 from guyrapu.music.edicion_lista import ListaEnEdicion
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui import musica_menus, paleta, tecla_escape
+from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 
 MAX_NOMBRE = 60
 TITULO_NUEVA = N_("Nueva lista")
 TITULO_EDITAR = N_("Editar lista")
 TEXTO_NOMBRE_LARGO = N_("El nombre no puede tener más de 60 caracteres")
+TEXTO_LISTA_VACIA = N_(
+    "La lista no tiene canciones. "
+    "Marca las casillas de Todas las canciones para agregarlas.")
 ACCION_CANCELAR = "cancelar"
-ACCION_MENU = "menu"
+
+_TECLAS_EDITADA = {
+    musica_menus.ACCION_REPRODUCIR: "intro",
+    musica_menus.ACCION_QUITAR: "suprimir",
+    musica_menus.ACCION_SUBIR: "alt+flecha_arriba",
+    musica_menus.ACCION_BAJAR: "alt+flecha_abajo",
+}
 
 
 def validar_nombre(nombre):
@@ -35,30 +45,18 @@ def validar_nombre(nombre):
     return limpio
 
 
-def accion_tecla(codigo, modificadores, en_lista):
-    """Qué hacer con la tecla, según su código, sus modificadores y el foco.
+def accion_tecla(codigo, en_lista):
+    """Qué hacer con la tecla, según su código y el foco.
 
-    `en_lista` es "lista", "todas" o None. Enter en cualquiera de las dos
-    reproduce; el resto de las teclas de la lista propia actúan solo en
-    ella. Fuera de las listas, Enter sigue su camino hacia Guardar.
+    `en_lista` es "lista", "todas" o None. Escape cancela y Enter en «Todas
+    las canciones» reproduce; la lista propia resuelve sus teclas en la
+    pieza común. Fuera de las listas, Enter sigue su camino hacia Guardar.
     """
     if tecla_escape.es_escape(codigo):
         return ACCION_CANCELAR
-    if codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
-        if en_lista in ("lista", "todas"):
-            return musica_menus.ACCION_REPRODUCIR
-        return None
-    if en_lista != "lista":
-        return None
-    if codigo in (wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE):
-        return musica_menus.ACCION_QUITAR
-    if codigo == wx.WXK_UP and modificadores & wx.MOD_ALT:
-        return musica_menus.ACCION_SUBIR
-    if codigo == wx.WXK_DOWN and modificadores & wx.MOD_ALT:
-        return musica_menus.ACCION_BAJAR
-    if codigo == wx.WXK_WINDOWS_MENU or (
-            codigo == wx.WXK_F10 and modificadores & wx.MOD_SHIFT):
-        return ACCION_MENU
+    if (codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER)
+            and en_lista == "todas"):
+        return musica_menus.ACCION_REPRODUCIR
     return None
 
 
@@ -115,7 +113,23 @@ class DialogoEditorLista(wx.Dialog):
             panel, label=_("&Canciones de la lista:")), 0, wx.ALL, 12)
         self.lb_lista = self._lista_ctrl(
             panel, _("Canciones de la lista"), 120)
+        self._lista_acciones = ListaConAcciones(
+            self.lb_lista, self._acciones_lista(), _(TEXTO_LISTA_VACIA))
         vs.Add(self.lb_lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 12)
+
+    def _acciones_lista(self):
+        """Las entradas del menú de la lista propia, con su tecla."""
+        manejadores = {
+            musica_menus.ACCION_REPRODUCIR:
+                lambda: self._reproducir_en("lista"),
+            musica_menus.ACCION_QUITAR: self._quitar_actual,
+            musica_menus.ACCION_SUBIR: lambda: self._mover_actual(-1),
+            musica_menus.ACCION_BAJAR: lambda: self._mover_actual(1),
+        }
+        return tuple(
+            Accion(clave, etiqueta, manejadores[clave],
+                   tecla=_TECLAS_EDITADA[clave])
+            for etiqueta, clave in musica_menus.entradas_lista_editada())
 
     def _agregar_buscar(self, panel, vs):
         vs.Add(wx.StaticText(panel, label=_("&Buscar:")), 0, wx.ALL, 12)
@@ -162,10 +176,8 @@ class DialogoEditorLista(wx.Dialog):
         return fila
 
     def _cargar_lista(self):
-        self.lb_lista.DeleteAllItems()
-        for tema in self._lista.temas:
-            self.lb_lista.InsertItem(
-                self.lb_lista.GetItemCount(), vista.fila_tema(tema))
+        self._lista_acciones.fijar(
+            [vista.fila_tema(tema) for tema in self._lista.temas])
 
     def _cargar_todas(self):
         self._aplicar_filtro()
@@ -238,8 +250,8 @@ class DialogoEditorLista(wx.Dialog):
 
     def _tema_de(self, en_lista):
         if en_lista == "lista":
-            indice = self._indice_de(self.lb_lista)
-            if 0 <= indice < len(self._lista.temas):
+            indice = self._lista_acciones.indice()
+            if indice is not None:
                 return self._lista.temas[indice]
         elif en_lista == "todas":
             return self._tema_todas(self._indice_de(self.lb_todas))
@@ -253,7 +265,9 @@ class DialogoEditorLista(wx.Dialog):
             self._reproducir(tema)
 
     def _quitar_actual(self):
-        indice = self._indice_de(self.lb_lista)
+        indice = self._lista_acciones.indice()
+        if indice is None:
+            return
         tema = self._lista.quitar_en(indice)
         if tema is None:
             return
@@ -281,8 +295,8 @@ class DialogoEditorLista(wx.Dialog):
             self.lb_lista.Select(nuevo)
 
     def _mover_actual(self, paso):
-        indice = self._indice_de(self.lb_lista)
-        if indice < 0:
+        indice = self._lista_acciones.indice()
+        if indice is None:
             return
         nuevo = self._lista.mover(indice, paso)
         self._cargar_lista()
@@ -291,23 +305,6 @@ class DialogoEditorLista(wx.Dialog):
         self.lb_lista.Select(nuevo)
         total = len(self._lista.temas)
         anunciar(anuncios.aviso_tema_movido(nuevo + 1, total).texto)
-
-    def _menu_lista(self):
-        if self._indice_de(self.lb_lista) < 0:
-            return
-        musica_menus.mostrar_menu(
-            self.lb_lista, musica_menus.entradas_lista_editada(),
-            self._accion_lista)
-
-    def _accion_lista(self, accion):
-        if accion == musica_menus.ACCION_REPRODUCIR:
-            self._reproducir_en("lista")
-        elif accion == musica_menus.ACCION_QUITAR:
-            self._quitar_actual()
-        elif accion == musica_menus.ACCION_SUBIR:
-            self._mover_actual(-1)
-        elif accion == musica_menus.ACCION_BAJAR:
-            self._mover_actual(1)
 
     def _guardar(self, _evento=None):
         try:
@@ -327,25 +324,12 @@ class DialogoEditorLista(wx.Dialog):
 
     def _tecla(self, evento):
         en_lista = self._en_que_lista()
-        accion = accion_tecla(
-            evento.GetKeyCode(), evento.GetModifiers(), en_lista)
+        accion = accion_tecla(evento.GetKeyCode(), en_lista)
         if accion == ACCION_CANCELAR:
             self.EndModal(wx.ID_CANCEL)
             return
         if accion == musica_menus.ACCION_REPRODUCIR:
             self._reproducir_en(en_lista)
-            return
-        if accion == musica_menus.ACCION_QUITAR:
-            self._quitar_actual()
-            return
-        if accion == musica_menus.ACCION_SUBIR:
-            self._mover_actual(-1)
-            return
-        if accion == musica_menus.ACCION_BAJAR:
-            self._mover_actual(1)
-            return
-        if accion == ACCION_MENU:
-            self._menu_lista()
             return
         evento.Skip()
 

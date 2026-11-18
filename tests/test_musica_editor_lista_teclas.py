@@ -43,6 +43,8 @@ class Evento:
 A = Tema("C:/Musica/a.mp3", "A")
 B = Tema("C:/Musica/b.mp3", "B")
 C = Tema("C:/Musica/c.mp3", "C")
+VACIA = ("La lista no tiene canciones. Marca las casillas de Todas las "
+         "canciones para agregarlas.")
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
@@ -88,6 +90,15 @@ class TestEditorTeclas(unittest.TestCase):
         lista.Select(indice)
         wx.Yield()
 
+    def _pulsar(self, codigo, alt=False, shift=False, tipo=None):
+        evento = wx.KeyEvent(tipo or wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = codigo
+        if alt:
+            evento.SetAltDown(True)
+        if shift:
+            evento.SetShiftDown(True)
+        self.dialogo.lb_lista.GetEventHandler().ProcessEvent(evento)
+
     def test_marcar_en_todas_agrega_al_final_y_anuncia(self):
         dialogo = self._abrir(carpeta=(A, B), lista=(A,))
         self.assertEqual(self._filas(dialogo.lb_lista), ["A"])
@@ -102,7 +113,7 @@ class TestEditorTeclas(unittest.TestCase):
         dialogo = self._abrir(carpeta=(A, B), lista=(A,))
         self.assertTrue(dialogo.lb_todas.IsItemChecked(0))
         self._marcar(0, False)
-        self.assertEqual(self._filas(dialogo.lb_lista), [])
+        self.assertEqual(self._filas(dialogo.lb_lista), [VACIA])
         self.assertFalse(dialogo.lb_todas.IsItemChecked(0))
         self.assertEqual(
             self.anuncios,
@@ -111,7 +122,7 @@ class TestEditorTeclas(unittest.TestCase):
     def test_supr_quita_desmarca_y_deja_el_foco(self):
         dialogo = self._abrir(carpeta=(A, B, C), lista=(A, B, C))
         self._enfocar(dialogo.lb_lista, 1)
-        dialogo._tecla(Evento(wx.WXK_DELETE))
+        self._pulsar(wx.WXK_DELETE)
         self.assertEqual(self._filas(dialogo.lb_lista), ["A", "C"])
         self.assertFalse(dialogo.lb_todas.IsItemChecked(1))
         self.assertIs(wx.Window.FindFocus(), dialogo.lb_lista)
@@ -123,14 +134,14 @@ class TestEditorTeclas(unittest.TestCase):
     def test_supr_de_la_ultima_deja_el_foco_en_la_que_queda(self):
         dialogo = self._abrir(carpeta=(A, B), lista=(A, B))
         self._enfocar(dialogo.lb_lista, 1)
-        dialogo._tecla(Evento(wx.WXK_DELETE))
+        self._pulsar(wx.WXK_DELETE)
         self.assertIs(wx.Window.FindFocus(), dialogo.lb_lista)
         self.assertEqual(dialogo.lb_lista.GetFocusedItem(), 0)
 
     def test_alt_abajo_mueve_enfoca_y_anuncia_la_posicion(self):
         dialogo = self._abrir(carpeta=(A, B, C), lista=(A, B, C))
         self._enfocar(dialogo.lb_lista, 0)
-        dialogo._tecla(Evento(wx.WXK_DOWN, wx.MOD_ALT))
+        self._pulsar(wx.WXK_DOWN, alt=True)
         self.assertEqual(self._filas(dialogo.lb_lista), ["B", "A", "C"])
         self.assertIs(wx.Window.FindFocus(), dialogo.lb_lista)
         self.assertEqual(dialogo.lb_lista.GetFocusedItem(), 1)
@@ -143,11 +154,25 @@ class TestEditorTeclas(unittest.TestCase):
     def test_alt_arriba_en_el_borde_anuncia_la_posicion_que_tiene(self):
         dialogo = self._abrir(carpeta=(A, B), lista=(A, B))
         self._enfocar(dialogo.lb_lista, 0)
-        dialogo._tecla(Evento(wx.WXK_UP, wx.MOD_ALT))
+        self._pulsar(wx.WXK_UP, alt=True)
         self.assertEqual(self._filas(dialogo.lb_lista), ["A", "B"])
         self.assertEqual(
             self.anuncios,
             ["Canción movida a la posición 1 de 2"])
+
+    def test_aplicaciones_abre_el_menu_una_vez(self):
+        dialogo = self._abrir(carpeta=(A, B), lista=(A, B))
+        self._enfocar(dialogo.lb_lista, 0)
+        with mock.patch.object(dialogo.lb_lista, "PopupMenu") as popup:
+            self._pulsar(wx.WXK_WINDOWS_MENU)
+        self.assertEqual(popup.call_count, 1)
+
+    def test_mayus_f10_abre_el_menu_una_vez(self):
+        dialogo = self._abrir(carpeta=(A, B), lista=(A, B))
+        self._enfocar(dialogo.lb_lista, 0)
+        with mock.patch.object(dialogo.lb_lista, "PopupMenu") as popup:
+            self._pulsar(wx.WXK_F10, shift=True)
+        self.assertEqual(popup.call_count, 1)
 
     def test_intro_en_la_lista_reproduce_sin_cerrar_ni_marcar(self):
         reproducir = mock.Mock()
@@ -155,7 +180,7 @@ class TestEditorTeclas(unittest.TestCase):
             carpeta=(A, B), lista=(A, B), reproducir=reproducir)
         self._enfocar(dialogo.lb_lista, 1)
         with mock.patch.object(dialogo, "EndModal") as fin:
-            dialogo._tecla(Evento(wx.WXK_RETURN))
+            self._pulsar(wx.WXK_RETURN, tipo=wx.wxEVT_CHAR_HOOK)
         reproducir.assert_called_once_with(B)
         fin.assert_not_called()
         self.assertEqual(self._filas(dialogo.lb_lista), ["A", "B"])
@@ -170,8 +195,14 @@ class TestEditorTeclas(unittest.TestCase):
             dialogo._tecla(Evento(wx.WXK_NUMPAD_ENTER))
         reproducir.assert_called_once_with(B)
         fin.assert_not_called()
-        self.assertEqual(self._filas(dialogo.lb_lista), [])
+        self.assertEqual(self._filas(dialogo.lb_lista), [VACIA])
         self.assertFalse(dialogo.lb_todas.IsItemChecked(1))
+
+    def test_escape_cancela_el_cuadro(self):
+        dialogo = self._abrir(carpeta=(A,), lista=(A,))
+        with mock.patch.object(dialogo, "EndModal") as fin:
+            dialogo._tecla(Evento(wx.WXK_ESCAPE))
+        fin.assert_called_once_with(wx.ID_CANCEL)
 
     def test_intro_fuera_de_las_listas_sigue_su_camino(self):
         reproducir = mock.Mock()
