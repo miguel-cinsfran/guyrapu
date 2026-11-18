@@ -235,4 +235,7 @@ SIN_ESCENARIO: dict[str, str] = {
     "aviso_importante.py": "Envuelve los cuadros de aviso de Windows; no abre una ventana propia.",
     "espera_sonora.py": "Suena la espera de otra ventana y no abre ventana propia.",
     "estado_relevo.py": "Guarda el estado del relevo en curso; no abre una ventana propia.",
+    "sonda_foco_listas.py": (
+        "es una sonda de diagnóstico del foco de las listas; abre su propia "
+        "ventana de prueba y no tiene escena en el banco."),
 }

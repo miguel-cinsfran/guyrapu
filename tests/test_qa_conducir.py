@@ -94,6 +94,7 @@ class TestSuperficiesQa(unittest.TestCase):
             nombre for nombre in conducir.SIN_ESCENARIO
             if not (raiz / "guyrapu" / "ui" / nombre).is_file()
             and not (raiz / "guyrapu" / "player" / nombre).is_file()
+            and not (raiz / "qa" / nombre).is_file()
         ]
         self.assertEqual(faltan, [])
 
