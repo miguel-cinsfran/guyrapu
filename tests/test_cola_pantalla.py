@@ -280,6 +280,25 @@ class TestColaPantalla(unittest.TestCase):
         self.assertEqual(vistos, ["Comando 1", "Comando 2",
                                   "Mensaje 1", "Mensaje 2"])
 
+    def test_un_disparador_va_delante_de_los_mensajes_y_detras_de_lo_que_espera(self):
+        cola = ColaPantalla()
+        cola.agregar(_pieza("Mensaje 1", 0, tipo="mensaje"))
+        cola.agregar(_pieza("Mensaje 2", 0, tipo="mensaje"))
+        cola.agregar(_pieza("Comando", 0, tipo="comando"))
+        cola.agregar(_pieza("Disparador 1", 0, tipo="disparador"))
+        cola.agregar(_pieza("Disparador 2", 0, tipo="disparador"))
+        vistos = []
+        for instante in range(5):
+            mostrar = cola.ordenes(instante)[0]
+            self.assertEqual(mostrar.accion, "mostrar")
+            vistos.append(mostrar.pieza.texto)
+            cola.mostrada(mostrar.pieza, instante)
+            ocultar = cola.ordenes(instante)[0]
+            self.assertEqual(ocultar.accion, "ocultar")
+            cola.oculta(ocultar.pieza, instante)
+        self.assertEqual(vistos, ["Comando", "Disparador 1", "Disparador 2",
+                                  "Mensaje 1", "Mensaje 2"])
+
     def test_la_pieza_veintiuno_se_rechaza(self):
         cola = ColaPantalla()
         for numero in range(20):

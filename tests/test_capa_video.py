@@ -261,6 +261,21 @@ class TestRespuestaDeComando(Base):
         self.assertEqual(self.anuncios_simples, [])
 
 
+class TestTarjetaDeDisparador(Base):
+
+    def _pieza(self):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        return Pieza(tipo="disparador", texto="Ríe Ana", segundos=8,
+                     datos={"estilo": "clasico", "nombre": "risa"})
+
+    def test_no_anuncia_la_tarjeta_de_un_disparador(self):
+        self.assertTrue(self.capa.agregar_pieza(self._pieza()))
+        self._atender()
+        self.assertEqual(self.capa.describir(), "En el vídeo: Ríe Ana.")
+        self.assertEqual(self.anuncios, [])
+        self.assertEqual(self.anuncios_simples, [])
+
+
 class TestProbar(Base):
 
     def setUp(self):
