@@ -229,6 +229,29 @@ def leer_despues(cliente, id_chat, ruta_chat, texto, comentario_faltante,
                    f"({detalle_lista(leidos)})")
 
 
+def enviar_y_ver_comentarios(cliente, id_chat, comentarios, ruta_chat,
+                             comentario_faltante, detalle_lista,
+                             guardar_token) -> tuple[tuple[bool, str],
+                                                     tuple[bool, str] | None]:
+    """Comenta por la API y comprueba que lleguen al chat de la app.
+
+    Devuelve el resultado del envío y el de la lectura. El segundo es None
+    cuando el envío falló, para no anotar un paso que no ocurrió.
+    """
+    try:
+        for comentario in comentarios:
+            cliente.enviar_mensaje_live(id_chat, comentario)
+        guardar_token()
+    except Exception as exc:
+        return ((False, str(exc)), None)
+    enviado = (True, f"{len(list(comentarios))} al chat del directo")
+    faltante, leidos = comentario_faltante(ruta_chat, comentarios, 30)
+    if faltante is None:
+        return (enviado, (True, "los tres están en la lista del chat"))
+    return (enviado, (False, f"«{faltante}» no apareció en 30 s "
+                              f"({detalle_lista(leidos)})"))
+
+
 def comprobar_sin_repetidos(ruta_chat, comentarios) -> tuple[bool, str]:
     """Cada comentario esperado aparece una sola vez en el chat."""
     try:

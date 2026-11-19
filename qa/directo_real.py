@@ -1325,27 +1325,20 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
             anotar("comentarios enviados", False,
                    "la API no devolvió liveChatId para el vídeo")
             return (salida, 1)
-        try:
-            for comentario in COMENTARIOS_PRUEBA:
-                cliente.enviar_mensaje_live(id_chat, comentario)
-            _guardar_token_si_renovo(cliente, creds)
-            anotar("comentarios enviados", True,
-                   f"{len(COMENTARIOS_PRUEBA)} al chat del directo")
-        except Exception as exc:
-            anotar("comentarios enviados", False, str(exc))
-            return (salida, 1)
-        faltante, leidos = _comentario_faltante(ruta_chat, COMENTARIOS_PRUEBA, 30)
-        if faltante is None:
-            anotar("comentarios en la app", True,
-                   "los tres están en la lista del chat")
-        else:
-            anotar("comentarios en la app", False,
-                   f"«{faltante}» no apareció en 30 s "
-                   f"({_detalle_lista_chat(leidos)})")
-            return (salida, 1)
         from directo_chat import (comprobar_sin_repetidos,
+                                  enviar_y_ver_comentarios,
                                   escribir_desde_app, esperar_reconexion,
                                   leer_despues, limitar_corte, paso_corte)
+        enviado, visto = enviar_y_ver_comentarios(
+            cliente, id_chat, COMENTARIOS_PRUEBA, ruta_chat,
+            _comentario_faltante, _detalle_lista_chat,
+            lambda: _guardar_token_si_renovo(cliente, creds))
+        anotar("comentarios enviados", *enviado)
+        if not enviado[0]:
+            return (salida, 1)
+        anotar("comentarios en la app", *visto)
+        if not visto[0]:
+            return (salida, 1)
 
         def _respuesta_chat():
             return cliente._escritura().liveChatMessages().list(

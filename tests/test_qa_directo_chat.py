@@ -403,6 +403,45 @@ class TestLeerDespues(unittest.TestCase):
         self.assertIn("cuota", detalle)
 
 
+class TestEnviarYVerComentarios(unittest.TestCase):
+
+    def test_los_tres_enviados_y_vistos(self):
+        cliente = _ClienteFalso()
+        tokens = []
+        enviado, visto = directo_chat.enviar_y_ver_comentarios(
+            cliente, "chat123", ["uno", "dos", "tres"], "chat.txt",
+            comentario_faltante=lambda *args: (None, ["uno", "dos", "tres"]),
+            detalle_lista=lambda leidos: "detalle",
+            guardar_token=lambda: tokens.append(1))
+        self.assertEqual(cliente.enviados,
+                         [("chat123", "uno"), ("chat123", "dos"),
+                          ("chat123", "tres")])
+        self.assertEqual(tokens, [1])
+        self.assertEqual(enviado, (True, "3 al chat del directo"))
+        self.assertEqual(visto, (True, "los tres están en la lista del chat"))
+
+    def test_uno_que_falta_da_el_detalle(self):
+        enviado, visto = directo_chat.enviar_y_ver_comentarios(
+            _ClienteFalso(), "chat123", ["uno", "dos"], "chat.txt",
+            comentario_faltante=lambda *args: ("dos", ["uno"]),
+            detalle_lista=lambda leidos: f"{len(leidos)} elementos",
+            guardar_token=lambda: None)
+        self.assertTrue(enviado[0])
+        self.assertFalse(visto[0])
+        self.assertIn("«dos» no apareció en 30 s", visto[1])
+        self.assertIn("1 elementos", visto[1])
+
+    def test_si_la_api_falla_no_hay_verificacion(self):
+        enviado, visto = directo_chat.enviar_y_ver_comentarios(
+            _ClienteFalso(falla=True), "chat123", ["uno"], "chat.txt",
+            comentario_faltante=lambda *args: (None, []),
+            detalle_lista=lambda leidos: "detalle",
+            guardar_token=lambda: None)
+        self.assertFalse(enviado[0])
+        self.assertIn("cuota", enviado[1])
+        self.assertIsNone(visto)
+
+
 class TestComprobarSinRepetidos(unittest.TestCase):
 
     def _ruta_con(self, lineas):
