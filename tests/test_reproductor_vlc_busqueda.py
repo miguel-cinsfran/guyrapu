@@ -55,13 +55,14 @@ class TestReproductorVLCBusqueda(unittest.TestCase):
             from guyrapu.player import reproductor
             from guyrapu.player.busqueda_video import EstadoBusqueda
             from guyrapu.player.estado_relevo import EstadoRelevo
+            from guyrapu.player.tarea_cache_video import EstadoCacheVideo
             panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
             panel._estado_relevo = EstadoRelevo()
             panel._listo = True
             panel._video_id = "test"
             panel._url_flujo = ""
             panel._tiene_esclavo = False
-            panel._usando_cache_local = False
+            panel._cache_video = EstadoCacheVideo()
             panel._gen = 0
             panel._cargando = False
             panel._config = {}

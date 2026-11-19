@@ -7,12 +7,14 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 class TestCargaReproductor(unittest.TestCase):
 
     def _panel(self, video_id, cargando):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = video_id
@@ -174,6 +176,7 @@ class TestSalidaDelPanel(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._ciclo = None
         panel._player = None
         panel._inst = mock.Mock()

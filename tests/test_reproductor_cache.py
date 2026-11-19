@@ -13,7 +13,7 @@ from unittest import mock
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import EstadoBusqueda
 from guyrapu.player.estado_relevo import EstadoRelevo
-from guyrapu.player.tarea_cache_video import TareaCacheVideo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo, TareaCacheVideo
 from tests.rutas_temporales import redirigir_rutas
 
 
@@ -25,7 +25,7 @@ class TestReproductorCache(unittest.TestCase):
         panel._config = {"cache_video_mb": 1024}
         panel._gen = gen
         panel._video_id = video_id
-        panel._tarea_cache_video = None
+        panel._cache_video = EstadoCacheVideo()
         panel._intencion_reproducir = True
         panel._vol = 80
         panel._muted = False
@@ -77,7 +77,7 @@ class TestReproductorCache(unittest.TestCase):
                      redirigir_rutas(tmp), \
                      mock.patch.object(reproductor.ytdlp_bin, "descargar_video_cache", side_effect=fake_descargar):
                     panel._descargar_video_cache(panel._video_id, panel._gen)
-                    tarea_a = panel._tarea_cache_video
+                    tarea_a = panel._cache_video.tarea
                     self.assertIsNotNone(tarea_a)
                     self.assertIsInstance(tarea_a.cancelacion, threading.Event)
                     self.assertTrue(entro.wait(timeout=2))
@@ -133,12 +133,12 @@ class TestReproductorCache(unittest.TestCase):
                      redirigir_rutas(tmp), \
                      mock.patch.object(reproductor.ytdlp_bin, "descargar_video_cache", side_effect=fake_descargar):
                     panel._descargar_video_cache("VID_A_12345", 5)
-                    tarea_a = panel._tarea_cache_video
+                    tarea_a = panel._cache_video.tarea
                     self.assertTrue(entro_a.wait(timeout=2))
                     self.assertIs(capturado["a"], tarea_a.cancelacion)
                     self.assertTrue(hilos[0].is_alive())
                     panel._descargar_video_cache("VID_B_12345", 5)
-                    tarea_b = panel._tarea_cache_video
+                    tarea_b = panel._cache_video.tarea
                     self.assertTrue(tarea_a.cancelacion.is_set())
                     self.assertIsNot(tarea_a, tarea_b)
                     self.assertIsNot(tarea_a.cancelacion, tarea_b.cancelacion)
@@ -154,7 +154,7 @@ class TestReproductorCache(unittest.TestCase):
                         func(*args)
                         podar.assert_not_called()
                         panel._player.set_media.assert_not_called()
-                        self.assertIs(panel._tarea_cache_video, tarea_b)
+                        self.assertIs(panel._cache_video.tarea, tarea_b)
                     liberar_b.set()
                     hilos[1].join(timeout=2)
                     self.assertFalse(hilos[1].is_alive())
@@ -167,7 +167,7 @@ class TestReproductorCache(unittest.TestCase):
                         func2(*args2)
                         podar.assert_called_once()
                         panel._player.set_media.assert_called_once()
-                        self.assertIsNone(panel._tarea_cache_video)
+                        self.assertIsNone(panel._cache_video.tarea)
                     for t in hilos:
                         self.assertFalse(t.is_alive())
             finally:
@@ -193,7 +193,7 @@ class TestReproductorCache(unittest.TestCase):
             dest_b.write_bytes(b"y" * 100)
             tarea_a = TareaCacheVideo("VID_A_12345", 5, dest_a)
             tarea_b = TareaCacheVideo("VID_B_12345", 5, dest_b)
-            panel._tarea_cache_video = tarea_b
+            panel._cache_video.tarea = tarea_b
             panel._inst.media_new = mock.Mock(return_value=mock.Mock(add_option=mock.Mock()))
             with mock.patch.object(panel, "_podar_cache_video") as podar, \
                  mock.patch("guyrapu.voice.sound_player.reproducir") as snd:
@@ -204,12 +204,12 @@ class TestReproductorCache(unittest.TestCase):
                 snd.assert_not_called()
                 self.assertTrue(dest_a.is_file())
                 self.assertTrue(dest_b.is_file())
-                self.assertIs(panel._tarea_cache_video, tarea_b)
+                self.assertIs(panel._cache_video.tarea, tarea_b)
                 panel._estado_busqueda = EstadoBusqueda(confirmada=999)
                 reproductor.ReproductorPanel._cache_video_lista(panel, tarea_b, True)
                 podar.assert_called_once()
                 panel._player.set_media.assert_called_once()
-                self.assertIsNone(panel._tarea_cache_video)
+                self.assertIsNone(panel._cache_video.tarea)
 
     def test_mismo_video_id_A_no_borra_destino_de_B(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -219,20 +219,20 @@ class TestReproductorCache(unittest.TestCase):
             panel = self._panel(video_id="VID_SAME", gen=0)
             tarea_a = TareaCacheVideo("VID_SAME", 0, dest)
             tarea_b = TareaCacheVideo("VID_SAME", 0, dest)
-            panel._tarea_cache_video = tarea_b
+            panel._cache_video.tarea = tarea_b
             panel._inst.media_new = mock.Mock(return_value=mock.Mock(add_option=mock.Mock()))
             with mock.patch.object(panel, "_podar_cache_video") as podar:
                 reproductor.ReproductorPanel._cache_video_lista(panel, tarea_a, True)
                 podar.assert_not_called()
                 panel._player.set_media.assert_not_called()
                 self.assertTrue(dest.is_file())
-                self.assertIs(panel._tarea_cache_video, tarea_b)
+                self.assertIs(panel._cache_video.tarea, tarea_b)
 
     def test_detener_marca_evento_y_deja_inerte_callback(self):
         with tempfile.TemporaryDirectory() as tmp:
             panel = self._panel()
             panel._gen = 0
-            panel._tarea_cache_video = None
+            panel._cache_video.tarea = None
             panel._mostrar_pausa = mock.Mock()
             panel._fijar_tiempo = mock.Mock()
             panel._ic_play = mock.Mock()
@@ -264,14 +264,14 @@ class TestReproductorCache(unittest.TestCase):
                      redirigir_rutas(tmp), \
                      mock.patch.object(reproductor.ytdlp_bin, "descargar_video_cache", side_effect=fake_descargar):
                     panel._descargar_video_cache(panel._video_id, panel._gen)
-                    tarea = panel._tarea_cache_video
+                    tarea = panel._cache_video.tarea
                     dest_esperado = tarea.destino
                     self.assertTrue(entro.wait(timeout=2))
                     self.assertIs(capturado["event"], tarea.cancelacion)
                     self.assertTrue(hilos[0].is_alive())
                     panel._detener(silencioso=True)
                     self.assertTrue(tarea.cancelacion.is_set())
-                    self.assertIsNone(panel._tarea_cache_video)
+                    self.assertIsNone(panel._cache_video.tarea)
                     for t in hilos:
                         t.join(timeout=2)
                     self.assertFalse(any(t.is_alive() for t in hilos))
@@ -306,16 +306,16 @@ class TestReproductorCache(unittest.TestCase):
                  redirigir_rutas(tmp), \
                  mock.patch.object(reproductor.ytdlp_bin, "descargar_video_cache", return_value=True):
                 panel._descargar_video_cache("VID_A_12345", 0)
-                tarea_a = panel._tarea_cache_video
+                tarea_a = panel._cache_video.tarea
                 panel._descargar_video_cache("VID_B_12345", 0)
-                tarea_b = panel._tarea_cache_video
+                tarea_b = panel._cache_video.tarea
                 self.assertTrue(tarea_a.cancelacion.is_set())
                 tarea_a.cancelacion.set()
                 self.assertFalse(tarea_b.cancelacion.is_set())
                 tarea_b.cancelacion.set()
                 tarea_b.cancelacion.set()
                 self.assertTrue(tarea_b.cancelacion.is_set())
-                self.assertIs(panel._tarea_cache_video, tarea_b)
+                self.assertIs(panel._cache_video.tarea, tarea_b)
 
     def test_cargar_otro_video_y_cambiar_flujo_pasan_por_detener(self):
         dest = Path(tempfile.gettempdir()) / "VID_OLD.mp4"
@@ -328,7 +328,8 @@ class TestReproductorCache(unittest.TestCase):
         real_panel._url_flujo = ""
         real_panel._listo = True
         real_panel._cargando = False
-        real_panel._tarea_cache_video = tarea
+        real_panel._cache_video = EstadoCacheVideo()
+        real_panel._cache_video.tarea = tarea
         real_panel._estado_busqueda = EstadoBusqueda(confirmada=0)
         real_panel._transporte_pendiente = False
         real_panel._intencion_reproducir = True
@@ -350,12 +351,12 @@ class TestReproductorCache(unittest.TestCase):
         real_panel._audio_local = None
         real_panel.set_video("VID_NEW", autoplay=False)
         self.assertTrue(tarea.cancelacion.is_set())
-        self.assertIsNone(real_panel._tarea_cache_video)
+        self.assertIsNone(real_panel._cache_video.tarea)
         tarea2 = TareaCacheVideo("VID_NEW", real_panel._gen, Path(tempfile.gettempdir()) / "VID_NEW.mp4")
-        real_panel._tarea_cache_video = tarea2
+        real_panel._cache_video.tarea = tarea2
         real_panel.set_flujo("https://example.com/stream.m3u8", autoplay=False)
         self.assertTrue(tarea2.cancelacion.is_set())
-        self.assertIsNone(real_panel._tarea_cache_video)
+        self.assertIsNone(real_panel._cache_video.tarea)
 
     def test_callback_A_con_completa_false_no_limpia_B(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -365,13 +366,13 @@ class TestReproductorCache(unittest.TestCase):
             panel = self._panel(video_id="VID_B_12345", gen=1)
             tarea_a = TareaCacheVideo("VID_A_12345", 1, dest_a)
             tarea_b = TareaCacheVideo("VID_B_12345", 1, dest_b)
-            panel._tarea_cache_video = tarea_b
+            panel._cache_video.tarea = tarea_b
             panel._inst.media_new = mock.Mock(return_value=mock.Mock(add_option=mock.Mock()))
             with mock.patch.object(panel, "_podar_cache_video") as podar:
                 reproductor.ReproductorPanel._cache_video_lista(panel, tarea_a, False)
                 podar.assert_not_called()
                 panel._player.set_media.assert_not_called()
-                self.assertIs(panel._tarea_cache_video, tarea_b)
+                self.assertIs(panel._cache_video.tarea, tarea_b)
 
     def test_guardas_validas_conservan_cambio_a_archivo_local(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -380,8 +381,8 @@ class TestReproductorCache(unittest.TestCase):
             panel = self._panel(video_id="VID12345678", gen=7)
             panel._gen = 7
             panel._video_id = "VID12345678"
-            panel._tarea_cache_video = TareaCacheVideo("VID12345678", 7, dest)
-            tarea = panel._tarea_cache_video
+            panel._cache_video.tarea = TareaCacheVideo("VID12345678", 7, dest)
+            tarea = panel._cache_video.tarea
             medio = mock.Mock()
             medio.add_option = mock.Mock()
             panel._inst.media_new = mock.Mock(return_value=medio)
@@ -403,14 +404,14 @@ class TestReproductorCache(unittest.TestCase):
             panel._marcar_destino.assert_called_once_with(55555, anunciar_usuario=False)
             snd.assert_called_once_with("transporte_en_curso")
             panel._podar_cache_video.assert_called_once_with(dest.parent)
-            self.assertIsNone(panel._tarea_cache_video)
+            self.assertIsNone(panel._cache_video.tarea)
             dest2 = Path(tmp) / "VID99999999.mp4"
             dest2.write_bytes(b"v2")
             panel2 = self._panel(video_id="VID99999999", gen=7)
             panel2._gen = 7
             panel2._video_id = "VID99999999"
             tarea2 = TareaCacheVideo("VID99999999", 7, dest2)
-            panel2._tarea_cache_video = tarea2
+            panel2._cache_video.tarea = tarea2
             medio2 = mock.Mock()
             medio2.add_option = mock.Mock()
             panel2._inst.media_new = mock.Mock(return_value=medio2)
@@ -431,7 +432,7 @@ class TestReproductorCache(unittest.TestCase):
 
         def fake_descargar(video_id, destino, cancel_event=None, **kw):
             orden.append("descargar")
-            self.assertIs(cancel_event, panel._tarea_cache_video.cancelacion)
+            self.assertIs(cancel_event, panel._cache_video.tarea.cancelacion)
             raise OSError("fallo simulado")
 
         panel._podar_cache_video = fake_podar
@@ -459,7 +460,7 @@ class TestReproductorCache(unittest.TestCase):
                 self.assertEqual(func.__func__, reproductor.ReproductorPanel._cache_video_lista)
                 self.assertIs(func.__self__, panel)
                 tarea, completa = args
-                self.assertIs(tarea, panel._tarea_cache_video)
+                self.assertIs(tarea, panel._cache_video.tarea)
                 self.assertFalse(completa)
         finally:
             for t in hilos:

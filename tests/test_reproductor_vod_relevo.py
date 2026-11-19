@@ -17,6 +17,7 @@ from unittest import mock
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import EstadoBusqueda
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 from guyrapu.player import relevo_ffmpeg
 from guyrapu.downloads import ffmpeg_bin
 
@@ -33,6 +34,7 @@ class PruebasArranqueVodRelevo(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "A" * 11
@@ -151,7 +153,7 @@ class PruebasSaltoVodRelevo(unittest.TestCase):
         panel._player.get_time.return_value = 1500
         panel._estado_busqueda = EstadoBusqueda(confirmada=10_000)
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._intencion_reproducir = True
         panel._estado_relevo.ffmpeg = mock.Mock()
         panel._estado_relevo.fuentes = ("https://video", "https://audio")
@@ -233,7 +235,7 @@ class PruebasSaltoVodRelevo(unittest.TestCase):
             destino = Path(carpeta) / "video.mp4"
             destino.write_bytes(b"x" * 1024)
             tarea = TareaCacheVideo(panel._video_id, panel._gen, destino)
-            panel._tarea_cache_video = tarea
+            panel._cache_video.tarea = tarea
             panel._gen = tarea.generacion
             panel._estado_relevo.vod_reapertura = mock.Mock()
             panel._vol = 80
@@ -246,7 +248,7 @@ class PruebasSaltoVodRelevo(unittest.TestCase):
         self.assertIsNone(panel._estado_relevo.ffmpeg)
         self.assertIsNone(panel._estado_relevo.vod_base_ms)
         reapertura_vieja.Stop.assert_called_once()
-        self.assertTrue(panel._usando_cache_local)
+        self.assertTrue(panel._cache_video.local)
 
 
 class PruebasFronteraRealFfmpeg(unittest.TestCase):
@@ -364,7 +366,7 @@ class PruebasVentanaReaperturaVodRelevo(unittest.TestCase):
         panel._player.get_time.return_value = 1500
         panel._estado_busqueda = EstadoBusqueda(confirmada=10_000)
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._intencion_reproducir = True
         panel._estado_relevo.ffmpeg = None
         panel._estado_relevo.fuentes = ("https://video", "https://audio")
@@ -446,7 +448,7 @@ class PruebasVentanaReaperturaVodRelevo(unittest.TestCase):
             destino = Path(carpeta) / "video.mp4"
             destino.write_bytes(b"x" * 1024)
             tarea = TareaCacheVideo(panel._video_id, panel._gen, destino)
-            panel._tarea_cache_video = tarea
+            panel._cache_video.tarea = tarea
             panel._vol = 80
             panel._muted = False
             panel._player = mock.Mock()
@@ -496,6 +498,7 @@ class PruebasVodRelevoEvitaHls(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "A" * 11

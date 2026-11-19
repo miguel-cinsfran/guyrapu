@@ -13,6 +13,7 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 def _formato_video(fid, protocolo, altura, tbr, url=None):
@@ -56,6 +57,7 @@ class PruebasAlturaAutoVod(unittest.TestCase):
 
 def _panel_calidad(info, calidad_sel=None, es_directo=False):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._cache_video = EstadoCacheVideo()
     panel._estado_relevo = EstadoRelevo()
     panel._listo = True
     panel._video_id = "A" * 11
@@ -168,7 +170,7 @@ class PruebasAudioRespaldoNoBloquea(unittest.TestCase):
         panel._estado_inicio = mock.Mock()
         panel._estado_inicio.cancelar.return_value = 1
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo.vod_por_relevo = False
         panel._estado_relevo.vod_recuperaciones = 0
         panel._estado_relevo.vod_ultima = None

@@ -15,6 +15,7 @@ from unittest import mock
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import busqueda_permitida
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 def _panel(info, url_flujo=""):
@@ -34,7 +35,7 @@ def _panel(info, url_flujo=""):
     panel._estado_relevo.fuentes = None
     panel._estado_relevo.ventana = None
     panel._tiene_esclavo = False
-    panel._usando_cache_local = False
+    panel._cache_video = EstadoCacheVideo()
     panel._asegurar_player = mock.Mock(return_value=True)
     panel._cancelar_busqueda = mock.Mock()
     panel._detener_relevo_ffmpeg = mock.Mock()

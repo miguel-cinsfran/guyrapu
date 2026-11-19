@@ -7,6 +7,7 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 from tests.rutas_temporales import redirigir_rutas
 
 
@@ -21,6 +22,7 @@ class PruebasEsclavoReproductor(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = EstadoRelevo()
         panel._vigilancia = reproductor.vigilancia_relevo.NADA_OBJETO
         panel._listo = True

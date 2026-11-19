@@ -13,6 +13,7 @@ from unittest import mock
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import EstadoBusqueda
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 def _info_vod():
@@ -46,7 +47,7 @@ def _panel_pausa(confirmada=41_000):
     panel._player.get_time.return_value = 1145
     panel._estado_busqueda = EstadoBusqueda(confirmada=confirmada)
     panel._tiene_esclavo = False
-    panel._usando_cache_local = False
+    panel._cache_video = EstadoCacheVideo()
     panel._intencion_reproducir = False
     panel._orden_transporte = None
     panel._estado_relevo.ffmpeg = mock.Mock()

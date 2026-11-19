@@ -15,6 +15,7 @@ import vlc
 
 from guyrapu.player import reproductor
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 def _panel(info, url_flujo="", cargando=False):
@@ -29,7 +30,7 @@ def _panel(info, url_flujo="", cargando=False):
     panel._duracion_actual = mock.Mock(return_value=30000)
     panel._estado_relevo.ffmpeg = None
     panel._estado_relevo.fuentes = None
-    panel._usando_cache_local = False
+    panel._cache_video = EstadoCacheVideo()
     panel._tiene_esclavo = False
     panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=0)
     return panel

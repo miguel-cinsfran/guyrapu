@@ -41,6 +41,7 @@ from guyrapu.player.traza_transporte import (
 from guyrapu.downloads import ytdlp_bin
 from guyrapu.player import esclavo_audio
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 from guyrapu.player import flujo_tiktok
 from guyrapu.player import motor_vlc
 from guyrapu.player.pantalla_completa import AccionesPantalla, PantallaCompleta
@@ -230,7 +231,6 @@ class ReproductorPanel(wx.Panel):
         self._estado_busqueda = EstadoBusqueda(confirmada=0)
         self._estado_inicio = EstadoInicioReproduccion()
         self._tiene_esclavo = False
-        self._usando_cache_local = False
         self._transporte_pendiente = False
         self._orden_transporte = None
         self._intencion_reproducir = False
@@ -253,7 +253,6 @@ class ReproductorPanel(wx.Panel):
         self._gestor_eventos_vlc = None
         self._info = None
         self._audio_local = None
-        self._tarea_cache_video = None
         self._marca_reproduccion = None
         self._marca_extraccion = None
         self._marca_url = None
@@ -263,6 +262,7 @@ class ReproductorPanel(wx.Panel):
         self._precalentamiento_cancelado = False
         self._ciclo = reproductor_ciclo.CicloReproductor()
         self._estado_relevo = EstadoRelevo()
+        self._cache_video = EstadoCacheVideo()
         # Recargas automáticas seguidas tras interrumpirse un directo por
         # relevo (ver _directo_interrumpido). Se reinicia al cambiar de vídeo.
         self._recargas_directo = 0
@@ -514,7 +514,7 @@ class ReproductorPanel(wx.Panel):
 
     def _topologia_actual(self) -> str:
         return topologia_medio(
-            es_local=bool(getattr(self, "_usando_cache_local", False)),
+            es_local=bool(self._cache_video.local),
             tiene_esclavo=bool(getattr(self, "_tiene_esclavo", False)),
             es_flujo=bool(getattr(self, "_url_flujo", "")),
             usa_relevo=bool(self._estado_relevo.ffmpeg),
@@ -539,7 +539,7 @@ class ReproductorPanel(wx.Panel):
     def _busqueda_permitida_actual(self) -> bool:
         return busqueda_permitida(
             self._es_directo_actual(),
-            bool(getattr(self, "_usando_cache_local", False)),
+            bool(self._cache_video.local),
             bool(getattr(self, "_tiene_esclavo", False)),
             usa_relevo=bool(self._estado_relevo.ffmpeg),
         )
@@ -915,7 +915,7 @@ class ReproductorPanel(wx.Panel):
             self._estado_inicio.cancelar()
         self._estado_busqueda = EstadoBusqueda(confirmada=0)
         self._tiene_esclavo = False
-        self._usando_cache_local = False
+        self._cache_video.local = False
         self._cancelar_transporte()
         self._estado_relevo.olvidar_vod()
         self._intencion_reproducir = reproducir
@@ -1006,12 +1006,7 @@ class ReproductorPanel(wx.Panel):
             return
         carpeta = paths.cache_video()
         destino = carpeta / f"{video_id}.mp4"
-        vigente = getattr(self, "_tarea_cache_video", None)
-        if vigente is not None:
-            vigente.cancelacion.set()
-        from guyrapu.player.tarea_cache_video import TareaCacheVideo
-        tarea = TareaCacheVideo(video_id, gen, destino)
-        self._tarea_cache_video = tarea
+        tarea = self._cache_video.empezar(video_id, gen, destino)
 
         def descargar():
             try:
@@ -1028,9 +1023,8 @@ class ReproductorPanel(wx.Panel):
         diagnostico.crear_hilo(descargar, "ReproductorCacheVideo").start()
 
     def _cache_video_lista(self, tarea, completa):
-        if getattr(self, "_tarea_cache_video", None) is not tarea:
+        if not self._cache_video.recibir(tarea):
             return
-        self._tarea_cache_video = None
         if (not completa or tarea.generacion != self._gen
                 or tarea.video_id != self._video_id
                 or not tarea.destino.is_file()):
@@ -1052,7 +1046,7 @@ class ReproductorPanel(wx.Panel):
             self._player.set_media(media)
             self._player.audio_set_volume(self._vol)
             self._player.audio_set_mute(self._muted)
-            self._usando_cache_local = True
+            self._cache_video.local = True
             self._tiene_esclavo = False
             self._estado_relevo.vod_por_relevo = False
             self._player.play()
@@ -1076,7 +1070,7 @@ class ReproductorPanel(wx.Panel):
             return
         self._cancelar_busqueda()
         self._tiene_esclavo = False
-        self._usando_cache_local = False
+        self._cache_video.local = False
         self._estado_relevo.vod_por_relevo = False
         self._detener_relevo_ffmpeg()
         es_directo = self._info.get("is_live")
@@ -1276,7 +1270,7 @@ class ReproductorPanel(wx.Panel):
             return
         self._cancelar_busqueda()
         self._tiene_esclavo = False
-        self._usando_cache_local = False
+        self._cache_video.local = False
         self._cancelar_transporte()
         self._aviso_fallo_flujo = False
         self._intencion_reproducir = reproducir
@@ -1504,12 +1498,8 @@ class ReproductorPanel(wx.Panel):
         if hasattr(self, "_estado_inicio"):
             self._estado_inicio.cancelar()
         self._tiene_esclavo = False
-        self._usando_cache_local = False
         self._cancelar_transporte()
-        tarea = getattr(self, "_tarea_cache_video", None)
-        if tarea is not None:
-            tarea.cancelacion.set()
-            self._tarea_cache_video = None
+        self._cache_video.cancelar()
         self._detener_relevo_ffmpeg()
         self._estado_relevo.al_detener()
         self._intencion_reproducir = False

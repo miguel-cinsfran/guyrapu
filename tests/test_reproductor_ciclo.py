@@ -10,6 +10,7 @@ from unittest import mock
 from guyrapu.player import reproductor
 from guyrapu.player import reproductor_ciclo
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 class TestCicloPuro(unittest.TestCase):
@@ -106,7 +107,7 @@ def _panel_base(player=None, inst=None):
     panel._estado_busqueda.pendiente = False
     panel._estado_inicio = mock.Mock(cancelar=mock.Mock())
     panel._tiene_esclavo = False
-    panel._usando_cache_local = False
+    panel._cache_video = EstadoCacheVideo()
     panel._transporte_pendiente = False
     panel._orden_transporte = None
     panel._intencion_reproducir = False
@@ -119,7 +120,6 @@ def _panel_base(player=None, inst=None):
     panel._gestor_eventos_vlc = object()
     panel._info = None
     panel._audio_local = None
-    panel._tarea_cache_video = None
     panel._marca_reproduccion = None
     panel._marca_extraccion = None
     panel._marca_url = None

@@ -11,6 +11,7 @@ from tests.pseudo_prueba import con_pseudo
 
 from guyrapu.player import motor_vlc
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 from guyrapu.player.busqueda_video import (
     CADUCIDAD_DESTINO_MS, EstadoBusqueda, MARGEN_VENTANA_SEGMENTOS,
     PROGRESO_MINIMO_MS, TOLERANCIA_ATRAS_MS, TOLERANCIA_DESTINO_MS,
@@ -341,7 +342,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._player.get_time.return_value = 10_000
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=10_000)
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._video_id = "video-cargado"
         panel._url_flujo = ""
         panel._fijar_tiempo = mock.Mock()
@@ -364,7 +365,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._player.get_time.return_value = 0
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=31_038)
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._video_id = "video-cargado"
         panel._url_flujo = ""
         panel._fijar_tiempo = mock.Mock()
@@ -382,7 +383,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._player.get_length.return_value = 60_000
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=5_000)
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._video_id = "video-cargado"
         panel._url_flujo = ""
         panel._fijar_tiempo = mock.Mock()
@@ -412,7 +413,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._fijar_tiempo = mock.Mock()
         panel.sld_pos = mock.Mock()
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._url_flujo = ""
 
         with mock.patch.object(reproductor.wx.Window, "FindFocus",
@@ -437,7 +438,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._fijar_tiempo = mock.Mock()
         panel.sld_pos = mock.Mock()
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._url_flujo = ""
         bus = reproductor.EstadoBusqueda(confirmada=0)
         bus.solicitar(30_000, __import__("time").monotonic() - 0.1)
@@ -466,7 +467,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._player.get_time.return_value = 3_615_868
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=3_615_868)
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._video_id = "video-cargado"
         panel._url_flujo = ""
         panel._fijar_tiempo = mock.Mock()
@@ -491,7 +492,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=10_000)
         panel._estado_busqueda.solicitar(20_000, time.monotonic())
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._video_id = "video-cargado"
         panel._url_flujo = ""
         panel._fijar_tiempo = mock.Mock()
@@ -511,7 +512,7 @@ class TestCableadoBusqueda(unittest.TestCase):
         panel._estado_busqueda = reproductor.EstadoBusqueda(confirmada=10_000)
         panel._estado_busqueda.solicitar(20_000, time.monotonic())
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._video_id = "video-cargado"
         panel._url_flujo = ""
         panel._fijar_tiempo = mock.Mock()
@@ -578,6 +579,7 @@ class TestPendienteSecuencial(unittest.TestCase):
     def _panel_pausa(self):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="playing")
@@ -598,6 +600,7 @@ class TestPendienteSecuencial(unittest.TestCase):
     def _panel_reanudar(self):
         from guyrapu.player import reproductor
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = EstadoRelevo()
         panel._player = mock.Mock()
         panel._player.get_state.return_value = SimpleNamespace(name="paused")
@@ -718,7 +721,7 @@ class TestPendienteSecuencial(unittest.TestCase):
         self.assertTrue(panel._transporte_pendiente)
         panel._timer_progreso = mock.Mock()
         panel._gen = 0
-        panel._tarea_cache_video = None
+        panel._cache_video = EstadoCacheVideo()
         panel.lbl_estado = mock.Mock()
         panel.btn_play = mock.Mock()
         panel._fijar_tiempo = mock.Mock()
@@ -811,7 +814,7 @@ class TestTransporteContratos(unittest.TestCase):
         panel._gen = 0
         panel._cargando = False
         panel._config = {"cache_video_mb": 1024}
-        panel._tarea_cache_video = None
+        panel._cache_video = EstadoCacheVideo()
         panel._timer_progreso = mock.Mock()
         panel._inst = mock.Mock()
         return panel
@@ -1424,7 +1427,7 @@ class TestEstadoBusquedaMuestrasLejanas(unittest.TestCase):
         panel._video_id = "a"
         panel._url_flujo = ""
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_busqueda = EstadoBusqueda(confirmada=0)
         panel._player = mock.Mock()
         panel._player.get_length.return_value = 100_000
@@ -1457,7 +1460,7 @@ class TestEstadoBusquedaMuestrasLejanas(unittest.TestCase):
         panel2._video_id = "a"
         panel2._url_flujo = ""
         panel2._tiene_esclavo = False
-        panel2._usando_cache_local = False
+        panel2._cache_video = EstadoCacheVideo()
         panel2._estado_busqueda = EstadoBusqueda(confirmada=0)
         panel2._player = mock.Mock()
         panel2._player.get_length.return_value = 100_000

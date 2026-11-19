@@ -5,6 +5,7 @@ from unittest import mock
 
 from guyrapu.player import recuperacion
 from guyrapu.player import reproductor
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 def _funciones(**valores):
@@ -219,6 +220,7 @@ class TestDespachoAlTerminar(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = reproductor.EstadoRelevo()
         panel._player = mock.Mock()
         panel._muted = True
@@ -279,6 +281,7 @@ class TestDespachoFinVod(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = reproductor.EstadoRelevo()
         panel._duracion_actual = mock.Mock(return_value=60000)
         panel._pos_ms = 20000

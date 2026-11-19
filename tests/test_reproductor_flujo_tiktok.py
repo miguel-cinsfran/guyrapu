@@ -7,10 +7,12 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 def _panel_timer(estado, sono=False):
     panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+    panel._cache_video = EstadoCacheVideo()
     panel._estado_relevo = EstadoRelevo()
     panel._video_id = ""
     panel._url_flujo = ("https://example.com/flujo.flv"
@@ -133,6 +135,7 @@ class TestLogDelEnlace(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._listo = True
         panel._ciclo = None
         panel._detener = mock.Mock()

@@ -7,12 +7,14 @@ from unittest import mock
 
 from guyrapu.player import reproductor
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 class TestTrazaReproductor(unittest.TestCase):
 
     def _panel(self):
         panel = reproductor.ReproductorPanel.__new__(reproductor.ReproductorPanel)
+        panel._cache_video = EstadoCacheVideo()
         panel._estado_relevo = EstadoRelevo()
         panel._listo = True
         panel._video_id = "A" * 11
@@ -160,7 +162,7 @@ class TestBusquedaCableado(unittest.TestCase):
         panel._video_id = "A" * 11
         panel._url_flujo = ""
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._gen = 0
         panel._cargando = False
         panel._config = {"cache_video_mb": 1024}
@@ -182,7 +184,6 @@ class TestBusquedaCableado(unittest.TestCase):
         panel._player.is_seekable.return_value = 1
         panel._inst = mock.Mock()
         panel._gestor_eventos_vlc = None
-        panel._tarea_cache_video = None
         panel._fijar_tiempo = mock.Mock()
         panel._fijar_salida = mock.Mock()
         panel._mostrar_pausa = mock.Mock()
@@ -263,7 +264,7 @@ class TestBusquedaCableado(unittest.TestCase):
             destino.write_bytes(b"0")
             from guyrapu.player.tarea_cache_video import TareaCacheVideo
             tarea = TareaCacheVideo("vid", 0, destino)
-            panel._tarea_cache_video = tarea
+            panel._cache_video.tarea = tarea
             panel._gen = 0
             panel._video_id = "vid"
             panel._inst.media_new.return_value = mock.Mock()
@@ -399,7 +400,7 @@ class TestBusquedaBloqueadaVODDividido(unittest.TestCase):
         panel._video_id = "VOD12345678"
         panel._url_flujo = ""
         panel._tiene_esclavo = True
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._info = {"is_live": False}
         panel._gen = 0
         panel._cargando = False
@@ -492,7 +493,7 @@ class TestBusquedaBloqueadaVODDividido(unittest.TestCase):
     def test_local_dividido_acepta_busqueda(self):
         from guyrapu.player import reproductor
         panel = self._panel_vod_dividido(confirmada=10_000)
-        panel._usando_cache_local = True
+        panel._cache_video.local = True
         panel._topologia_actual = lambda: "local"
         with mock.patch.object(reproductor, "anunciar"):
             with self.assertLogs("guyrapu.reproductor", "DEBUG") as cap:
@@ -550,7 +551,7 @@ class TestInicioReproduccionCableado(unittest.TestCase):
         panel._url_flujo = ""
         panel._info = {"is_live": False}
         panel._tiene_esclavo = False
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._gen = 0
         panel._cargando = False
         panel._config = {}
@@ -561,7 +562,6 @@ class TestInicioReproduccionCableado(unittest.TestCase):
         panel._marca_extraccion = None
         panel._intencion_reproducir = True
         panel._transporte_pendiente = False
-        panel._tarea_cache_video = None
         panel._player = mock.Mock()
         panel._player.get_state.return_value = mock.Mock(name="playing")
         panel._player.get_state.return_value.name = "playing"
@@ -658,7 +658,7 @@ class TestInicioReproduccionCableado(unittest.TestCase):
                 panel._video_id = "VID12345678"
                 panel._gen = 0
                 tarea = TareaCacheVideo("VID12345678", 0, dest)
-                panel._tarea_cache_video = tarea
+                panel._cache_video.tarea = tarea
                 panel._player.set_media = mock.Mock()
                 panel._player.audio_set_volume = mock.Mock()
                 panel._player.audio_set_mute = mock.Mock()
@@ -807,7 +807,7 @@ class TestInicioReproduccionCableado(unittest.TestCase):
         panel._video_id = "VID12345678"
         panel._url_flujo = ""
         panel._tiene_esclavo = True
-        panel._usando_cache_local = False
+        panel._cache_video = EstadoCacheVideo()
         panel._info = {"is_live": False}
         panel._gen = 3
         panel._cargando = False
@@ -848,7 +848,7 @@ class TestInicioReproduccionCableado(unittest.TestCase):
             dest = Path(tmp) / "VID12345678.mp4"
             dest.write_bytes(b"x")
             tarea = TareaCacheVideo("VID12345678", 3, dest)
-            panel._tarea_cache_video = tarea
+            panel._cache_video.tarea = tarea
             panel._player.set_media = mock.Mock()
             panel._player.audio_set_volume = mock.Mock()
             panel._player.audio_set_mute = mock.Mock()
@@ -859,7 +859,7 @@ class TestInicioReproduccionCableado(unittest.TestCase):
             # no mockear _marcar_destino, dejar que registre destino real
             with mock.patch("guyrapu.voice.sound_player.reproducir"):
                 panel._cache_video_lista(tarea, True)
-            self.assertTrue(panel._usando_cache_local)
+            self.assertTrue(panel._cache_video.local)
             self.assertFalse(panel._tiene_esclavo)
             self.assertEqual(panel._estado_busqueda.confirmada, 40000)
             # ahora buscable: debe aceptar

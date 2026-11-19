@@ -15,6 +15,7 @@ from unittest import mock
 from guyrapu.player import reproductor
 from guyrapu.player.busqueda_video import EstadoBusqueda, EstadoInicioReproduccion
 from guyrapu.player.estado_relevo import EstadoRelevo
+from guyrapu.player.tarea_cache_video import EstadoCacheVideo
 
 
 class _Aplazada:
@@ -39,7 +40,7 @@ def _panel_directo(desfase=2):
     panel._player.get_state.return_value = None
     panel._estado_busqueda = EstadoBusqueda(confirmada=0)
     panel._tiene_esclavo = False
-    panel._usando_cache_local = False
+    panel._cache_video = EstadoCacheVideo()
     panel._intencion_reproducir = True
     panel._cargando = False
     panel._gen = 0
@@ -150,7 +151,7 @@ def _panel_vod_relevo(bus):
     panel._estado_busqueda = bus
     panel._estado_inicio = EstadoInicioReproduccion()
     panel._tiene_esclavo = False
-    panel._usando_cache_local = False
+    panel._cache_video = EstadoCacheVideo()
     panel._intencion_reproducir = True
     panel._cargando = True
     panel._gen = 0
