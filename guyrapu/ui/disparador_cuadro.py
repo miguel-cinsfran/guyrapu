@@ -27,7 +27,7 @@ AYUDA_TARJETA = N_(
 
 def _cuandos():
     return [_("Comando del chat"), _("Evento del directo"),
-            _("Atajo del teclado")]
+            _("Atajo del teclado"), _("Palabra o emoji en el chat")]
 
 
 def _eventos():
@@ -100,6 +100,13 @@ class DialogoDisparador(wx.Dialog):
                wx.LEFT | wx.RIGHT, 8)
         self.txt_comandos = self._campo(panel, _("Co&mandos del chat:"))
         vs.Add(self.txt_comandos, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+
+        vs.Add(fila_label(panel, _("Palabras o emojis del c&hat:")), 0,
+               wx.LEFT | wx.RIGHT, 8)
+        self.txt_palabras = self._campo(
+            panel, _("Palabras o emojis del c&hat:"))
+        vs.Add(self.txt_palabras, 0,
+               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
         vs.Add(fila_label(panel, _("&Evento:")), 0, wx.LEFT | wx.RIGHT, 8)
         self.cho_evento = self._eleccion(panel, _("&Evento:"), _eventos())
@@ -210,6 +217,7 @@ class DialogoDisparador(wx.Dialog):
             disparadores.CUANDOS.index(disparador.cuando))
         self.sp_atajo.SetValue(disparador.atajo or 1)
         self.txt_comandos.SetValue(", ".join(disparador.comandos))
+        self.txt_palabras.SetValue(", ".join(disparador.palabras))
         self._elegir_evento(disparador.evento)
         self.txt_minimo.SetValue(
             "" if disparador.minimo is None
@@ -269,6 +277,8 @@ class DialogoDisparador(wx.Dialog):
             cuando=cuando,
             comandos=(comandos.separar_alias(self.txt_comandos.GetValue())
                       if cuando == "comando" else ()),
+            palabras=(comandos.separar_nombres(
+                self.txt_palabras.GetValue()) if cuando == "palabra" else ()),
             evento=evento,
             atajo=self.sp_atajo.GetValue(),
             minimo=(self._minimo_de_campo()
@@ -301,6 +311,7 @@ class DialogoDisparador(wx.Dialog):
             "nombre": self.txt_nombre,
             "atajo": self.sp_atajo,
             "comandos": self.txt_comandos,
+            "palabras": self.txt_palabras,
             "evento": self.cho_evento,
             "minimo": self.txt_minimo,
             "tarjeta": self.txt_tarjeta,

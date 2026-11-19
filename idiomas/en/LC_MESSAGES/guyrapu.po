@@ -3553,6 +3553,13 @@ msgstr "when {evento} arrives"
 msgid "cuando llega {evento} desde {minimo}"
 msgstr "when {evento} arrives with at least {minimo}"
 
+#. Traductores: descripción del disparador. {palabras} es la lista de palabras
+#. y emojis tal como se escribió.
+#: guyrapu/interaction/descripcion_disparador.py
+#, python-brace-format
+msgid "cuando un mensaje dice {palabras}"
+msgstr "when a message says {palabras}"
+
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
 msgid "cuando alguien escribe {comandos}"
@@ -3673,6 +3680,11 @@ msgstr "The command trigger needs at least one name."
 #, python-brace-format
 msgid "El comando {nombre} ya lo usa otro disparador."
 msgstr "The command {nombre} is already used by another trigger."
+
+#. Traductores: validación de disparadores del directo (error).
+#: guyrapu/interaction/disparadores.py
+msgid "El disparador de palabras necesita al menos una palabra o emoji."
+msgstr "The word trigger needs at least one word or emoji."
 
 #. Traductores: validación de disparadores del directo (error).
 #: guyrapu/interaction/disparadores.py
@@ -4361,6 +4373,15 @@ msgstr "There is no song at position {posicion}"
 #: guyrapu/ui/musica_ventana_igualando.py
 msgid "Igualar volumen"
 msgstr "Match the volume"
+
+#: guyrapu/music/pregunta_igualar.py
+msgid "&Igualar ahora"
+msgstr "&Match now"
+
+#: guyrapu/music/pregunta_igualar.py guyrapu/ui/gui_actualizar_app.py
+#: guyrapu/ui/preferencias_general.py
+msgid "&Más tarde"
+msgstr "&Later"
 
 #: guyrapu/music/pregunta_igualar.py
 msgid "&No volver a preguntar"
@@ -10096,6 +10117,10 @@ msgid "Atajo del teclado"
 msgstr "Keyboard shortcut"
 
 #: guyrapu/ui/disparador_cuadro.py
+msgid "Palabra o emoji en el chat"
+msgstr "Word or emoji in chat"
+
+#: guyrapu/ui/disparador_cuadro.py
 msgid "C&uándo:"
 msgstr "&When:"
 
@@ -10106,6 +10131,10 @@ msgstr "Shortc&ut number, Ctrl+Alt+Shift:"
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Co&mandos del chat:"
 msgstr "Chat co&mmands:"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Palabras o emojis del c&hat:"
+msgstr "Words or emojis in c&hat:"
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "&Evento:"
@@ -11877,11 +11906,6 @@ msgstr "Could not start the installation: {detalle}."
 #: guyrapu/ui/gui_actualizar_app.py
 msgid "Buscar actualizaciones"
 msgstr "Check for updates"
-
-#: guyrapu/ui/gui_actualizar_app.py guyrapu/ui/musica_ventana_igualando.py
-#: guyrapu/ui/preferencias_general.py
-msgid "&Más tarde"
-msgstr "&Later"
 
 #: guyrapu/ui/gui_actualizar_ytdlp.py
 msgid "Actualizar yt-dlp"
@@ -14602,10 +14626,6 @@ msgstr "Choose the music folder"
 #: guyrapu/ui/musica_ventana_igualando.py
 msgid "Progreso de la igualación"
 msgstr "Matching progress"
-
-#: guyrapu/ui/musica_ventana_igualando.py
-msgid "&Igualar ahora"
-msgstr "&Match now"
 
 #: guyrapu/ui/musica_ventana_igualando.py
 msgid "Detener la &igualación"

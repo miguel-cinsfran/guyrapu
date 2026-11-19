@@ -16,12 +16,13 @@ from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
 
 
-def _datos(nombre="risa", cuando="comando", comandos=("risa",), evento="",
-           minimo=None, medio="", tarjeta="Ríe {usuario}", estilo="clasico",
-           segundos=8, permiso="todos", nombres=(), espera_general=5.0,
-           espera_persona=0.0, activo=True, atajo=0):
+def _datos(nombre="risa", cuando="comando", comandos=("risa",), palabras=(),
+            evento="", minimo=None, medio="", tarjeta="Ríe {usuario}",
+            estilo="clasico", segundos=8, permiso="todos", nombres=(),
+            espera_general=5.0, espera_persona=0.0, activo=True, atajo=0):
     return {
         "nombre": nombre, "cuando": cuando, "comandos": list(comandos),
+        "palabras": list(palabras),
         "evento": evento, "minimo": minimo, "medio": medio,
         "tarjeta": tarjeta, "estilo": estilo, "segundos": segundos,
         "permiso": permiso, "nombres": list(nombres),
@@ -108,6 +109,25 @@ class TestPiezaDeDisparador(Base):
         self._atender(ahora=5)
         self.assertEqual(
             self.frame._capa_video.agregar_pieza.call_count, 2)
+
+
+class TestPalabraEnVivo(Base):
+
+    def test_p3_un_mensaje_comun_con_la_palabra_pone_la_tarjeta_entera(self):
+        self._guardar(_datos(
+            nombre="saludo", cuando="palabra", comandos=(),
+            palabras=("hola",), tarjeta="Dijo {texto}",
+            espera_general=0, espera_persona=0))
+        self._atender(_registro(texto="Hola a todos"))
+        self.assertEqual(self._textos(), ["Dijo Hola a todos"])
+
+    def test_p3_un_comando_con_la_palabra_no_pone_la_tarjeta(self):
+        self._guardar(_datos(
+            nombre="saludo", cuando="palabra", comandos=(),
+            palabras=("hola",), tarjeta="Dijo {texto}",
+            espera_general=0, espera_persona=0))
+        self._atender(_registro(texto="!hola"))
+        self.frame._capa_video.agregar_pieza.assert_not_called()
 
 
 class TestContador(Base):

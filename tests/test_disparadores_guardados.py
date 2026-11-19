@@ -12,8 +12,8 @@ from guyrapu.interaction import disparadores, disparadores_guardados, paquetes
 def _datos(**cambios):
     datos = {
         "nombre": "aplauso", "cuando": "comando", "comandos": ["aplauso"],
-        "evento": "", "minimo": None, "regalo": "", "atajo": 0,
-        "medio": "fuegos", "tarjeta": "",
+        "palabras": [], "evento": "", "minimo": None, "regalo": "",
+        "atajo": 0, "medio": "fuegos", "tarjeta": "",
         "estilo": "clasico", "segundos": 8, "permiso": "todos",
         "nombres": [], "espera_general": 5.0, "espera_persona": 30.0,
         "activo": True,
@@ -132,6 +132,19 @@ class TestArchivo(unittest.TestCase):
         del sin_atajo["atajo"]
         self.assertEqual(
             disparadores_guardados.a_disparador(sin_atajo).atajo, 0)
+
+    def test_p5_las_palabras_se_guardan_y_se_leen_del_archivo(self):
+        datos = _datos(nombre="saludo", cuando="palabra", comandos=[],
+                       palabras=["hola", "🔥"], medio="")
+        disparadores_guardados.guardar(
+            self.ruta, [disparadores_guardados.a_disparador(datos)])
+        self.assertEqual(disparadores_guardados.cargar(self.ruta), [datos])
+
+    def test_p5_un_archivo_sin_palabras_lo_lee_vacio(self):
+        sin_palabras = _datos()
+        del sin_palabras["palabras"]
+        self.assertEqual(
+            disparadores_guardados.a_disparador(sin_palabras).palabras, ())
 
     def test_p5_los_paquetes_llevan_el_atajo(self):
         datos = _datos(nombre="botonera", cuando="atajo", comandos=[],

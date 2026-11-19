@@ -39,6 +39,13 @@ def _de_evento(**cambios):
     return disparadores.Disparador(**datos)
 
 
+def _palabra(**cambios):
+    datos = {"nombre": "saludo", "cuando": "palabra",
+             "palabras": ("hola",), "medio": "fuegos"}
+    datos.update(cambios)
+    return disparadores.Disparador(**datos)
+
+
 class TestCampos(unittest.TestCase):
 
     def test_los_valores_de_fabrica_son_los_de_los_comandos(self):
@@ -66,6 +73,12 @@ class TestCampos(unittest.TestCase):
         validos = {tipo for tipo, _modo in EVENTOS if tipo != "comando"}
         self.assertIn("superchat", validos)
         self.assertNotIn("comando", validos)
+
+    def test_p2_la_lista_de_palabras_nace_vacia(self):
+        self.assertEqual((), disparadores.Disparador("aplauso").palabras)
+
+    def test_p2_la_palabra_es_la_ultima_condicion(self):
+        self.assertEqual("palabra", disparadores.CUANDOS[-1])
 
 
 class TestCumplidos(unittest.TestCase):
@@ -266,6 +279,66 @@ class TestCumplidos(unittest.TestCase):
                 comandos.Esperas(), 0))
 
 
+class TestPalabra(unittest.TestCase):
+
+    def test_p3_cumple_con_los_ejemplos_de_la_regla(self):
+        casos = (
+            ("hola", "Hola a todos"),
+            ("hola", "HOLA, qué tal"),
+            ("canción", "qué cancion"),
+            ("🔥", "qué bueno🔥🔥"),
+            (":fuego:", "mira :fuego: ya"),
+        )
+        for palabra, texto in casos:
+            with self.subTest(palabra=palabra, texto=texto):
+                disparador = _palabra(palabras=(palabra,))
+                self.assertEqual(
+                    [disparador],
+                    disparadores.cumplidos(
+                        [disparador], _evento(texto),
+                        comandos.Esperas(), 0))
+
+    def test_p3_una_letra_pegada_no_cumple(self):
+        disparador = _palabra(palabras=("hola",))
+        self.assertEqual(
+            [],
+            disparadores.cumplidos([disparador], _evento("holanda"),
+                                   comandos.Esperas(), 0))
+
+    def test_p3_un_comando_no_cumple(self):
+        disparador = _palabra(palabras=("hola",))
+        self.assertEqual(
+            [],
+            disparadores.cumplidos([disparador], _evento("!hola"),
+                                   comandos.Esperas(), 0))
+
+    def test_p3_un_superchat_no_cumple(self):
+        disparador = _palabra(palabras=("hola",))
+        self.assertEqual(
+            [],
+            disparadores.cumplidos(
+                [disparador], _evento(texto="hola", tipo="superchat"),
+                comandos.Esperas(), 0))
+
+    def test_p3_un_regalo_no_cumple(self):
+        disparador = _palabra(palabras=("hola",))
+        self.assertEqual(
+            [],
+            disparadores.cumplidos(
+                [disparador],
+                _evento(texto="hola", tipo="superchat",
+                        plataforma=plataformas.TIKTOK),
+                comandos.Esperas(), 0))
+
+    def test_p3_un_evento_no_cumple(self):
+        disparador = _palabra(palabras=("hola",))
+        self.assertEqual(
+            [],
+            disparadores.cumplidos(
+                [disparador], _evento(texto="hola", tipo="miembro"),
+                comandos.Esperas(), 0))
+
+
 class TestAtajo(unittest.TestCase):
 
     def test_p1_el_atajo_nace_en_cero(self):
@@ -440,6 +513,23 @@ class TestTarjeta(unittest.TestCase):
                 _comando(tarjeta="{texto}"), _evento("!aplauso !!!!!!!!!"),
                 1, []))
 
+    def test_p7_el_texto_es_el_mensaje_entero(self):
+        self.assertEqual(
+            "Hola a todos", disparadores.texto_de_tarjeta(
+                _palabra(tarjeta="{texto}"), _evento("Hola a todos"),
+                1, []))
+
+    def test_p7_el_texto_sale_con_las_palabras_bloqueadas_tapadas(self):
+        self.assertEqual(
+            "hola ***", disparadores.texto_de_tarjeta(
+                _palabra(tarjeta="{texto}"), _evento("hola tonto"),
+                1, ["tonto"]))
+
+    def test_p7_el_texto_se_corta_en_cien_caracteres(self):
+        self.assertEqual(
+            "a" * 100, disparadores.texto_de_tarjeta(
+                _palabra(tarjeta="{texto}"), _evento("a" * 120), 1, []))
+
     def test_p5_el_contador_es_el_que_recibe(self):
         casos = (
             (_comando(tarjeta="{contador}"), _evento("!aplauso")),
@@ -476,6 +566,7 @@ class TestErrorYCampo(unittest.TestCase):
             (_comando(cuando="atajo", atajo=0, medio="fuegos"), "atajo"),
             (_de_evento(evento="tecla", medio="fuegos"), "evento"),
             (_de_evento(minimo=-1, medio="fuegos"), "minimo"),
+            (_palabra(palabras=(), medio="fuegos"), "palabras"),
             (_comando(medio="", tarjeta=""), "tarjeta"),
             (_comando(tarjeta="Hola {nada}"), "tarjeta"),
         )
@@ -523,6 +614,12 @@ class TestValidar(unittest.TestCase):
 
     def test_un_minimo_negativo(self):
         self.assertTrue(disparadores.validar(_de_evento(minimo=-1), []))
+
+    def test_una_lista_de_palabras_vacia_no_guarda(self):
+        for palabras in ((), ("   ",)):
+            with self.subTest(palabras=palabras):
+                self.assertTrue(
+                    disparadores.validar(_palabra(palabras=palabras), []))
 
     def test_un_que_sin_medio_ni_tarjeta(self):
         error = disparadores.validar(_comando(medio=""), [])

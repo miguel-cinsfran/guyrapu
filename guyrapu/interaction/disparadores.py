@@ -13,10 +13,11 @@ from dataclasses import dataclass
 
 from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core.idioma import N_, _
+from guyrapu.core.tipos_mensaje import TIPO_TEXTO
 from guyrapu.interaction import comandos, filtro_publico
 from guyrapu.interaction.texto import normalizar
 
-CUANDOS = ("comando", "evento", "atajo")
+CUANDOS = ("comando", "evento", "atajo", "palabra")
 VARIABLES = ("usuario", "cantidad", "regalo", "texto", "contador")
 EVENTOS_DEL_DIRECTO = tuple(tipo for tipo, _modo in avisos_tiktok.EVENTOS
                             if tipo != "comando")
@@ -52,6 +53,7 @@ class Disparador:
     nombre: str
     cuando: str = "comando"
     comandos: tuple[str, ...] = ()
+    palabras: tuple[str, ...] = ()
     evento: str = ""
     minimo: float | None = None
     regalo: str = ""
@@ -114,11 +116,37 @@ def _cumple_evento(disparador: Disparador, evento) -> bool:
     return cantidad_de(evento.monto) >= disparador.minimo
 
 
+def _palabra_en(mensaje: str, palabra: str) -> bool:
+    if not palabra:
+        return False
+    if not (palabra[0].isalnum() and palabra[-1].isalnum()):
+        return palabra in mensaje
+    inicio = 0
+    while (pos := mensaje.find(palabra, inicio)) >= 0:
+        antes = mensaje[pos - 1] if pos else ""
+        fin = pos + len(palabra)
+        despues = mensaje[fin:fin + 1]
+        if not antes.isalnum() and not despues.isalnum():
+            return True
+        inicio = pos + 1
+    return False
+
+
+def _cumple_palabra(disparador: Disparador, evento) -> bool:
+    if evento.tipo != TIPO_TEXTO or comandos.leer(evento.texto) is not None:
+        return False
+    mensaje = normalizar(evento.texto)
+    return any(_palabra_en(mensaje, normalizar(palabra))
+               for palabra in disparador.palabras)
+
+
 def _cumple(disparador: Disparador, evento) -> bool:
     if disparador.cuando == "comando":
         return _cumple_comando(disparador, evento)
     if disparador.cuando == "evento":
         return _cumple_evento(disparador, evento)
+    if disparador.cuando == "palabra":
+        return _cumple_palabra(disparador, evento)
     return False
 
 
@@ -153,7 +181,7 @@ def _texto_publico(disparador: Disparador, evento) -> str:
     if disparador.cuando == "comando":
         invocacion = comandos.leer(evento.texto)
         return invocacion.argumentos if invocacion is not None else ""
-    if disparador.cuando == "evento":
+    if disparador.cuando in ("evento", "palabra"):
         return evento.texto or ""
     return ""
 
@@ -193,7 +221,7 @@ def _error_de_nombre(disparador: Disparador, otros) -> tuple[str, str]:
     return "", ""
 
 
-def _error_de_cuando(disparador: Disparador) -> tuple[str, str]:
+def _error_de_cuando(disparador: Disparador, _otros) -> tuple[str, str]:
     if disparador.cuando not in CUANDOS:
         # Traductores: validación de disparadores del directo (error).
         return "nombre", _("Ese tipo de disparador todavía no existe.")
@@ -218,6 +246,16 @@ def _error_de_comando(disparador: Disparador, otros) -> tuple[str, str]:
     return "", ""
 
 
+def _error_de_palabra(disparador: Disparador, _otros) -> tuple[str, str]:
+    if disparador.cuando != "palabra":
+        return "", ""
+    if not any((palabra or "").strip() for palabra in disparador.palabras):
+        # Traductores: validación de disparadores del directo (error).
+        return "palabras", _("El disparador de palabras necesita al menos "
+                             "una palabra o emoji.")
+    return "", ""
+
+
 def _error_de_atajo(disparador: Disparador, otros) -> tuple[str, str]:
     if disparador.cuando != "atajo":
         return "", ""
@@ -235,7 +273,7 @@ def _error_de_atajo(disparador: Disparador, otros) -> tuple[str, str]:
     return "", ""
 
 
-def _error_de_evento(disparador: Disparador) -> tuple[str, str]:
+def _error_de_evento(disparador: Disparador, _otros) -> tuple[str, str]:
     if disparador.cuando != "evento":
         return "", ""
     if disparador.evento not in EVENTOS_DEL_DIRECTO:
@@ -248,7 +286,7 @@ def _error_de_evento(disparador: Disparador) -> tuple[str, str]:
     return "", ""
 
 
-def _error_de_que(disparador: Disparador) -> tuple[str, str]:
+def _error_de_que(disparador: Disparador, _otros) -> tuple[str, str]:
     if not (disparador.medio or "").strip() \
             and not (disparador.tarjeta or "").strip():
         # Traductores: validación de disparadores del directo (error).
@@ -262,7 +300,7 @@ def variables_desconocidas(tarjeta) -> list[str]:
             if variable not in VARIABLES]
 
 
-def _error_de_variables(disparador: Disparador) -> tuple[str, str]:
+def _error_de_variables(disparador: Disparador, _otros) -> tuple[str, str]:
     desconocidas = variables_desconocidas(disparador.tarjeta)
     if desconocidas:
         # Traductores: validación de disparadores del directo (error). {variable} es la variable desconocida y las demás son las que se pueden usar.
@@ -279,25 +317,14 @@ def _error_de_variables(disparador: Disparador) -> tuple[str, str]:
 
 def error_y_campo(disparador: Disparador, otros) -> tuple[str, str]:
     """El campo y el mensaje del primer error, o ("", "") si no hay ninguno."""
-    campo, mensaje = _error_de_nombre(disparador, otros)
-    if mensaje:
-        return campo, mensaje
-    campo, mensaje = _error_de_cuando(disparador)
-    if mensaje:
-        return campo, mensaje
-    campo, mensaje = _error_de_comando(disparador, otros)
-    if mensaje:
-        return campo, mensaje
-    campo, mensaje = _error_de_atajo(disparador, otros)
-    if mensaje:
-        return campo, mensaje
-    campo, mensaje = _error_de_evento(disparador)
-    if mensaje:
-        return campo, mensaje
-    campo, mensaje = _error_de_que(disparador)
-    if mensaje:
-        return campo, mensaje
-    return _error_de_variables(disparador)
+    comprobaciones = (_error_de_nombre, _error_de_cuando, _error_de_comando,
+                      _error_de_palabra, _error_de_atajo, _error_de_evento,
+                      _error_de_que, _error_de_variables)
+    for comprobar in comprobaciones:
+        campo, mensaje = comprobar(disparador, otros)
+        if mensaje:
+            return campo, mensaje
+    return "", ""
 
 
 def validar(disparador: Disparador, otros) -> str:

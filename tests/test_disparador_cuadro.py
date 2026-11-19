@@ -22,7 +22,8 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 
 NOMBRES_ACCESIBLES = (
     "Nombre", "Cuándo", "Número del atajo, Ctrl+Alt+Mayús",
-    "Comandos del chat", "Evento", "Cantidad mínima",
+    "Comandos del chat", "Palabras o emojis del chat", "Evento",
+    "Cantidad mínima",
     "Nombre del regalo. Vacío para cualquier regalo. Escribe el nombre "
     "como lo lee Guyrapu",
     "Medio", "Texto de la tarjeta. Puedes usar {usuario}, {cantidad}, "
@@ -32,7 +33,7 @@ NOMBRES_ACCESIBLES = (
 
 ETIQUETAS = (
     "&Nombre:", "C&uándo:", "Número del ata&jo, Ctrl+Alt+Mayús:",
-    "Co&mandos del chat:", "&Evento:",
+    "Co&mandos del chat:", "Palabras o emojis del c&hat:", "&Evento:",
     "Cantidad mín&ima:", "Nom&bre del regalo:", "Me&dio:",
     "&Texto de la tarjeta:", "Esti&lo:", "&Segundos en pantalla:",
     "Pe&rmiso:", "Nombres &permitidos:", "Espera &general (segundos):",
@@ -78,8 +79,8 @@ class TestCampos(BaseCuadro):
         cuadro = self._cuadro()
         controles = (
             cuadro.txt_nombre, cuadro.cho_cuando, cuadro.sp_atajo,
-            cuadro.txt_comandos, cuadro.cho_evento, cuadro.txt_minimo,
-            cuadro.txt_regalo,
+            cuadro.txt_comandos, cuadro.txt_palabras, cuadro.cho_evento,
+            cuadro.txt_minimo, cuadro.txt_regalo,
             cuadro.cho_medio, cuadro.txt_tarjeta, cuadro.cho_estilo,
             cuadro.sp_segundos, cuadro.cho_permiso, cuadro.txt_nombres,
             cuadro.sp_espera, cuadro.sp_persona, cuadro.btn_aceptar,
@@ -93,6 +94,12 @@ class TestCampos(BaseCuadro):
         hijos = cuadro.GetChildren()[0].GetChildren()
         self.assertEqual(hijos.index(cuadro.sp_atajo),
                          hijos.index(cuadro.cho_cuando) + 2)
+
+    def test_p4_el_campo_de_palabras_va_despues_de_los_comandos_en_el_tab(self):
+        cuadro = self._cuadro()
+        hijos = cuadro.GetChildren()[0].GetChildren()
+        self.assertEqual(hijos.index(cuadro.txt_palabras),
+                         hijos.index(cuadro.txt_comandos) + 2)
 
     def test_p4_el_campo_del_atajo_pide_del_uno_al_nueve_y_nunca_se_deshabilita(
             self):
@@ -153,7 +160,8 @@ class TestCampos(BaseCuadro):
         cuadro = self._cuadro()
         self.assertEqual(
             cuadro.cho_cuando.GetStrings(),
-            ["Comando del chat", "Evento del directo", "Atajo del teclado"])
+            ["Comando del chat", "Evento del directo", "Atajo del teclado",
+             "Palabra o emoji en el chat"])
         self.assertEqual(
             cuadro.cho_evento.GetStrings(),
             [_(disparadores.NOMBRES_EVENTOS[clave])
@@ -212,7 +220,8 @@ class TestDatos(BaseCuadro):
         cuadro.sp_atajo.SetValue(3)
         self.assertEqual(cuadro.datos(), {
             "nombre": "regalo", "cuando": "evento",
-            "comandos": [], "evento": "superchat", "minimo": 5.0,
+            "comandos": [], "palabras": [], "evento": "superchat",
+            "minimo": 5.0,
             "regalo": "", "atajo": 3, "medio": "aplauso.gif",
             "tarjeta": "Gracias",
             "estilo": "banda", "segundos": 15, "permiso": "lista",
@@ -226,6 +235,15 @@ class TestDatos(BaseCuadro):
         self.assertEqual(cuadro.sp_atajo.GetValue(), 4)
         datos = cuadro.datos()
         self.assertEqual((datos["cuando"], datos["atajo"]), ("atajo", 4))
+
+    def test_p4_el_cuadro_carga_y_guarda_las_palabras(self):
+        cuadro = self._cuadro({
+            "nombre": "saludo", "cuando": "palabra",
+            "palabras": ["hola", "🔥"], "tarjeta": "Gracias"})
+        self.assertEqual(cuadro.txt_palabras.GetValue(), "hola, 🔥")
+        datos = cuadro.datos()
+        self.assertEqual((datos["cuando"], datos["palabras"]),
+                         ("palabra", ["hola", "🔥"]))
 
     def test_p4_un_numero_que_usa_otro_activo_no_guarda(self):
         otro = {"nombre": "otro", "cuando": "atajo", "atajo": 2,
@@ -352,6 +370,17 @@ class TestValidacion(BaseCuadro):
         with mock.patch.object(cuadro.txt_comandos, "SetFocus") as foco:
             self._aceptar_con_error(cuadro)
         foco.assert_called_once()
+
+    def test_p4_una_lista_de_palabras_vacia_manda_el_foco_a_las_palabras(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("saludo")
+        cuadro.cho_cuando.SetSelection(
+            disparadores.CUANDOS.index("palabra"))
+        cuadro.txt_tarjeta.SetValue("Gracias")
+        with mock.patch.object(cuadro.txt_palabras, "SetFocus") as foco:
+            decir = self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+        self.assertIn("palabra", decir.call_args.args[0])
 
     def test_un_minimo_negativo_manda_el_foco_al_minimo(self):
         cuadro = self._cuadro()

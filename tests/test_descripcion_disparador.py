@@ -26,6 +26,13 @@ def _atajo(**cambios):
     return disparadores.Disparador(**datos)
 
 
+def _palabra(**cambios):
+    datos = {"nombre": "saludo", "cuando": "palabra",
+             "palabras": ("hola", "🔥")}
+    datos.update(cambios)
+    return disparadores.Disparador(**datos)
+
+
 class TestFila(unittest.TestCase):
 
     def test_dice_el_nombre_y_cuando_sale(self):
@@ -53,6 +60,11 @@ class TestFila(unittest.TestCase):
         self.assertEqual(
             descripcion_disparador.fila(_atajo()),
             "botonera, con Ctrl+Alt+Mayús+3")
+
+    def test_p6_la_fila_dice_las_palabras(self):
+        self.assertEqual(
+            descripcion_disparador.fila(_palabra()),
+            "saludo, cuando un mensaje dice hola, 🔥")
 
 
 class TestEscuchar(unittest.TestCase):
@@ -96,6 +108,12 @@ class TestEscuchar(unittest.TestCase):
         self.assertEqual(
             descripcion_disparador.escuchar(_atajo(medio="fuegos.gif")),
             "botonera: con Ctrl+Alt+Mayús+3, muestra el medio fuegos.gif.")
+
+    def test_p6_escuchar_dice_las_palabras(self):
+        self.assertEqual(
+            descripcion_disparador.escuchar(_palabra(medio="fuegos.gif")),
+            "saludo: cuando un mensaje dice hola, 🔥, muestra el medio "
+            "fuegos.gif.")
 
     def test_marca_los_pausados_al_final(self):
         disparador = _comando(medio="aplauso.gif", activo=False)

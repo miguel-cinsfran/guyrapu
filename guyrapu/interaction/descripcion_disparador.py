@@ -36,6 +36,11 @@ def _cuando(disparador: Disparador) -> str:
             return _("cuando llega {evento}").format(evento=nombre)
         return _("cuando llega {evento} desde {minimo}").format(
             evento=nombre, minimo=_numero(disparador.minimo))
+    if disparador.cuando == "palabra":
+        palabras = ", ".join(disparador.palabras)
+        # Traductores: descripción del disparador. {palabras} es la lista de palabras y emojis tal como se escribió.
+        return _("cuando un mensaje dice {palabras}").format(
+            palabras=palabras)
     nombres = ", ".join(_con_signo(nombre)
                         for nombre in disparador.comandos)
     return _("cuando alguien escribe {comandos}").format(comandos=nombres)
