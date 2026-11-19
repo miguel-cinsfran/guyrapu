@@ -34,6 +34,9 @@ import threading
 import time
 from pathlib import Path
 from foco_ventanas import primer_foco
+from sonda_listas import (
+    clase_visible, describir_filas, es_lista_activable,
+    es_lista_o_desplegable, evento_de_activar, evento_de_elegir)
 
 VAR_DESTINO = "GUYRAPU_QA_ANUNCIOS"
 VAR_ORDENES = "GUYRAPU_QA_ORDENES"
@@ -144,7 +147,7 @@ def _describir(ventana, profundidad=0):
     except Exception:
         etiqueta = ""
     datos = {
-        "clase": ventana.__class__.__name__,
+        "clase": clase_visible(ventana),
         "nombre": nombre,
         "etiqueta": etiqueta,
         "habilitado": bool(ventana.IsEnabled()),
@@ -171,25 +174,7 @@ def _describir(ventana, profundidad=0):
     if isinstance(ventana, wx.Slider):
         try:    datos["valor"] = int(ventana.GetValue())
         except Exception: pass
-    # El contenido de las listas es lo que de verdad lee el usuario, así que
-    # sin esto no se puede comprobar que un mensaje llegó al chat. Los
-    # desplegables también: «Colecciones» elige la fuente de la Biblioteca.
-    if isinstance(ventana, (wx.ListBox, wx.Choice)):
-        try:
-            datos["items"] = list(ventana.GetStrings())
-            datos["seleccion"] = int(ventana.GetSelection())
-        except Exception: pass
-    elif isinstance(ventana, wx.ListCtrl):
-        try:
-            filas = []
-            for f in range(ventana.GetItemCount()):
-                cols = []
-                for c in range(max(1, ventana.GetColumnCount())):
-                    try:    cols.append(ventana.GetItemText(f, c))
-                    except Exception: break
-                filas.append(cols)
-            datos["items"] = filas
-        except Exception: pass
+    describir_filas(ventana, datos)
     return datos
 
 
@@ -810,11 +795,7 @@ class Sonda:
                 ctrl = _buscar_control(objetivo, orden.get("nombre", ""))
                 if ctrl is None:
                     raise RuntimeError(f"no encontré {orden.get('nombre')!r}")
-                if isinstance(ctrl, wx.ListBox):
-                    tipo = wx.EVT_LISTBOX.typeId
-                elif isinstance(ctrl, wx.Choice):
-                    tipo = wx.EVT_CHOICE.typeId
-                else:
+                if not es_lista_o_desplegable(ctrl):
                     raise RuntimeError(
                         f"{orden.get('nombre')!r} no es una lista ni un "
                         "desplegable")
@@ -828,10 +809,8 @@ class Sonda:
                         f"índice {indice} fuera de la lista "
                         f"{orden.get('nombre')!r}")
                 ctrl.SetSelection(indice)
-                evento = wx.CommandEvent(tipo, ctrl.GetId())
-                evento.SetEventObject(ctrl)
-                evento.SetInt(indice)
-                ctrl.GetEventHandler().ProcessEvent(evento)
+                ctrl.GetEventHandler().ProcessEvent(
+                    evento_de_elegir(ctrl, indice))
                 self.responder(id_orden, True, {"indice": indice})
 
             elif op == "tecla_en":
@@ -945,21 +924,14 @@ class Sonda:
                 ctrl = _buscar_control(objetivo, orden.get("nombre", ""))
                 if ctrl is None:
                     raise RuntimeError(f"no encontré {orden.get('nombre')!r}")
-                if not isinstance(ctrl, wx.ListBox):
+                if not es_lista_activable(ctrl):
                     raise RuntimeError(
                         f"{orden.get('nombre')!r} no es una lista")
                 # Como en `pulsar`: si abre un diálogo modal, el control no
                 # vuelve hasta que se cierre.
                 if orden.get("responder_ya"):
                     self.responder(id_orden, True)
-                evento = wx.CommandEvent(wx.EVT_LISTBOX_DCLICK.typeId,
-                                         ctrl.GetId())
-                evento.SetEventObject(ctrl)
-                try:
-                    evento.SetInt(int(ctrl.GetSelection()))
-                except Exception:
-                    pass
-                ctrl.GetEventHandler().ProcessEvent(evento)
+                ctrl.GetEventHandler().ProcessEvent(evento_de_activar(ctrl))
                 if not orden.get("responder_ya"):
                     self.responder(id_orden, True)
 

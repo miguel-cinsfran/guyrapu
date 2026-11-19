@@ -21,6 +21,7 @@ from guyrapu.ui import (ayuda_manual, musica_filtros,
                         musica_teclas, tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
+from guyrapu.ui.lista_ctrl import ListaCtrlComoListBox
 from guyrapu.ui import paleta
 from guyrapu.ui.musica_colecciones import (
     MOTIVO_CARGANDO, TEXTO_CARGANDO, TEXTO_SIN_CARPETA,
@@ -62,7 +63,8 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
     def _crear_controles(self):
         self._panel = panel = wx.Panel(self, name="PanelMusica")
         # Traductores: nombre accesible de la lista de colecciones; una palabra.
-        self.lb_colecciones = self._lista(panel, _("Colecciones"), 190)
+        self.lb_colecciones = self._lista(panel, _("Colecciones"), 190,
+                                          colecciones=True)
         self.lb_colecciones.SetMinSize((220, 190))
         self._armar_colecciones()
         self.txt_buscar = self._campo(panel, _("Buscar en la música"))
@@ -119,9 +121,12 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
         return campo
 
     @staticmethod
-    def _lista(panel, nombre, alto):
-        lista = wx.ListBox(
-            panel, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=nombre)
+    def _lista(panel, nombre, alto, colecciones=False):
+        if colecciones:
+            lista = wx.ListBox(
+                panel, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=nombre)
+        else:
+            lista = ListaCtrlComoListBox(panel, name=nombre)
         nombre_accesible(lista, nombre)
         instalar_busqueda_tipo(
             lista,

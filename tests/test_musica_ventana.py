@@ -288,7 +288,7 @@ class TestVentanaMusica(unittest.TestCase):
         interactivos = [
             control for control in self._panel().GetChildren()
             if isinstance(control, (wx.TextCtrl, wx.Choice, wx.ListBox,
-                                    wx.Button, wx.CheckBox))]
+                                    wx.ListCtrl, wx.Button, wx.CheckBox))]
         self.assertEqual([control.GetName() for control in interactivos], [
             "Colecciones", "Buscar en la música", "Mostrar filtros",
             "Mostrar", "Ordenar por", "Canciones",
@@ -320,8 +320,8 @@ class TestVentanaMusica(unittest.TestCase):
         self.assertTrue(self.ventana.lb_cola.IsShown())
         interactivos = [
             control for control in self._panel().GetChildren()
-            if isinstance(control, (wx.TextCtrl, wx.ListBox, wx.Button,
-                                    wx.CheckBox))]
+            if isinstance(control, (wx.TextCtrl, wx.ListBox, wx.ListCtrl,
+                                    wx.Button, wx.CheckBox))]
         self.assertEqual([control.GetName() for control in interactivos], [
             "Colecciones", "Buscar en la música", "Mostrar filtros",
             "Canciones", "Ocultar cola", "Cola de reproducción",
@@ -1111,7 +1111,13 @@ class TestVentanaMusica(unittest.TestCase):
         self.ventana.GetEventHandler().ProcessEvent(evento)
 
     def _doble_clic(self, lista):
-        evento = wx.CommandEvent(wx.EVT_LISTBOX_DCLICK.typeId, lista.GetId())
+        if isinstance(lista, wx.ListCtrl):
+            evento = wx.ListEvent(
+                wx.wxEVT_LIST_ITEM_ACTIVATED, lista.GetId())
+            evento.SetIndex(int(lista.GetSelection()))
+        else:
+            evento = wx.CommandEvent(wx.EVT_LISTBOX_DCLICK.typeId,
+                                     lista.GetId())
         evento.SetEventObject(lista)
         lista.GetEventHandler().ProcessEvent(evento)
 
