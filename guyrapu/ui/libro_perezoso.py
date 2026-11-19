@@ -9,6 +9,8 @@ crear, que es lo que esperan las pruebas de cada página.
 
 from __future__ import annotations
 
+from functools import partial
+
 import wx
 
 
@@ -30,9 +32,10 @@ class LibroPerezoso:
                 self._paneles[indice] = fabrica(libro)
                 libro.AddPage(self._paneles[indice], titulo)
             return
-        for titulo, _fabrica in self._entradas:
+        for indice, (titulo, _fabrica) in enumerate(self._entradas):
             vacio = wx.Panel(libro)
             vacio.SetSizer(wx.BoxSizer(wx.VERTICAL))
+            vacio.Bind(wx.EVT_SHOW, partial(self._al_mostrar, indice))
             libro.AddPage(vacio, titulo)
         libro.Bind(wx.EVT_LISTBOOK_PAGE_CHANGED, self._al_cambiar)
         self.construir(libro.GetSelection())
@@ -40,6 +43,25 @@ class LibroPerezoso:
     def _al_cambiar(self, evento):
         self.construir(evento.GetSelection())
         evento.Skip()
+
+    def _al_mostrar(self, indice, evento):
+        evento.Skip()
+        try:
+            panel = self._paneles[indice]
+            if panel is not None and not panel.IsBeingDeleted():
+                self._reenviar(evento.IsShown(), panel)
+        except RuntimeError:
+            # Al destruir el cuadro, el panel real puede irse antes que su
+            # contenedor y wx ya no deja preguntarle ni mandarle el evento.
+            pass
+
+    @staticmethod
+    def _reenviar(mostrar, panel):
+        # La página real vive dentro del panel vacío: sin esto no recibe el
+        # EVT_SHOW que sí recibía cuando era hija directa del libro.
+        evento = wx.ShowEvent(show=mostrar, winid=panel.GetId())
+        evento.SetEventObject(panel)
+        panel.GetEventHandler().ProcessEvent(evento)
 
     def construida(self, indice) -> bool:
         """Si la página de ese índice ya tiene su panel real."""
@@ -56,3 +78,5 @@ class LibroPerezoso:
         vacio.Layout()
         self._libro.Layout()
         self._paneles[indice] = panel
+        if vacio.IsShown():
+            self._reenviar(True, panel)

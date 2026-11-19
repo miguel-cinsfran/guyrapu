@@ -93,6 +93,32 @@ class TestLibroPerezoso(unittest.TestCase):
         LibroPerezoso(con_pereza, self._entradas([0, 0, 0]), True)
         self.assertEqual(self._titulos(sin_pereza), self._titulos(con_pereza))
 
+    def test_la_pagina_real_recibe_mostrar_y_ocultar_como_en_el_modo_entero(self):
+        marco = wx.Frame(None)
+        self.addCleanup(destruir, marco)
+        marco.Show()
+        libro = wx.Listbook(marco)
+        vistos = []
+
+        def fabrica(indice):
+            def armar(parent):
+                panel = wx.Panel(parent, name=f"Pag{indice}")
+                panel.Bind(wx.EVT_SHOW, lambda evento, i=indice:
+                           vistos.append((i, evento.IsShown())))
+                return panel
+            return armar
+
+        entradas = [(f"Categoría {i}", fabrica(i)) for i in range(2)]
+        LibroPerezoso(libro, entradas, True)
+        self.assertIn((0, True), vistos)
+
+        libro.SetSelection(1)
+        self.assertIn((0, False), vistos)
+
+        vistos.clear()
+        libro.SetSelection(0)
+        self.assertIn((0, True), vistos)
+
 
 if __name__ == "__main__":
     unittest.main()
