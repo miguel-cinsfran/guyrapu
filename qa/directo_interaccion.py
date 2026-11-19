@@ -46,14 +46,11 @@ ARCHIVOS_SONDA = ("anuncios-sonda.jsonl", "ordenes.jsonl", "resultados.jsonl")
 
 
 def coinciden(texto, fragmento) -> bool:
-    """Búsqueda por fragmento, sin distinguir mayúsculas."""
     return bool(fragmento) and str(fragmento).lower() in str(texto or "").lower()
 
 
 def esperar_texto(leer, fragmento, segundos=30) -> tuple[bool, str]:
-    """Espera hasta 30 s a que el texto leído contenga el fragmento."""
     fin = time.time() + segundos
-    visto = ""
     while True:
         try:
             visto = str(leer() or "")
@@ -198,7 +195,10 @@ class Pasos:
             return False
         if not self._enviar("!1"):
             return False
-        self.anotar("voto !1 contado", True, "votamos " + OPCION_UNO)
+        ruta_chat = Path(self.ruta_anuncios).with_name("chat.txt")
+        if not self._comprobar("voto !1 contado", "!1",
+                               lambda: self.leer_anuncios(ruta_chat)):
+            return False
         marca = len(self.leer_anuncios(self.ruta_anuncios))
         try:
             self.cerrar_encuesta()

@@ -39,10 +39,16 @@ class _Anotador:
         return bien
 
 
-def _anuncios(*textos):
+def _anuncios(*textos, voto="!1"):
     """El archivo crece: la marca ve lo viejo y cada lectura lo nuevo."""
     turnos = iter([valor for texto in textos for valor in ("", texto)])
-    return lambda ruta: next(turnos, textos[-1])
+
+    def leer(ruta):
+        if str(ruta).endswith("chat.txt"):
+            return voto
+        return next(turnos, textos[-1])
+
+    return leer
 
 
 def _pasos(anotar, **cambios):
@@ -223,6 +229,23 @@ class TestPasoEncuesta(unittest.TestCase):
                           "resultado de la encuesta en el chat"])
         self.assertTrue(all(p[1] for p in anotar.pasos))
 
+    def test_el_voto_no_se_cuenta_sin_el_mensaje_en_el_chat(self):
+        anotar = _Anotador()
+        acciones = []
+        pasos = _pasos(
+            anotar, cerrar_encuesta=lambda: acciones.append("cerrar"),
+            leer_anuncios=_anuncios(
+                di.ANUNCIO_ENCUESTA, di.RESULTADO_UNO, voto=""),
+            respuesta=lambda: {"items": []})
+        self.assertFalse(pasos.encuesta())
+        self.assertEqual(acciones, [])
+        votos = [paso for paso in anotar.pasos
+                 if paso[0] == "voto !1 contado"]
+        self.assertEqual(len(votos), 1)
+        self.assertFalse(votos[0][1])
+        self.assertIn("!1", votos[0][2])
+        self.assertIn("en 0 s", votos[0][2])
+
     def test_la_marca_se_toma_antes_de_abrir_la_encuesta(self):
         anotar = _Anotador()
         anuncios = []
@@ -235,7 +258,9 @@ class TestPasoEncuesta(unittest.TestCase):
 
         pasos = _pasos(
             anotar, abrir_encuesta=abrir, cerrar_encuesta=cerrar,
-            leer_anuncios=lambda ruta: "\n".join(anuncios),
+            leer_anuncios=lambda ruta: (
+                "!1" if str(ruta).endswith("chat.txt")
+                else "\n".join(anuncios)),
             respuesta=lambda: {"items": [{"snippet": {
                 "displayMessage": di.OPCION_UNO}}]})
         self.assertTrue(pasos.encuesta())
