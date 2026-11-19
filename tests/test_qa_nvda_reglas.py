@@ -93,6 +93,13 @@ class TestNombreRepetido(unittest.TestCase):
         self.assertFalse(_regla(
             reglas.analizar(datos, set()), "nombre_repetido"))
 
+    def test_ignora_un_nombre_repetido_en_un_paso_de_la_pagina_anterior(self):
+        datos = recorrido([paso(
+            foco("Idioma:"), fase="pagina",
+            frases=["Idioma:", "Idioma: cuadro combinado"])])
+        self.assertFalse(_regla(
+            reglas.analizar(datos, set()), "nombre_repetido"))
+
     def test_ignora_nombres_de_menos_de_tres_letras(self):
         datos = recorrido([paso(foco("Vo"), frases=["Vo Vo Vo"])])
         self.assertFalse(_regla(
@@ -133,6 +140,25 @@ class TestAtajoRepetido(unittest.TestCase):
             paso(foco("Segunda", hwnd=2, atajo="Alt+O")),
         ])
         self.assertFalse(_regla(
+            reglas.analizar(datos, set()), "atajo_repetido"))
+
+    def test_no_compara_con_los_atajos_de_la_pagina_anterior(self):
+        datos = recorrido([
+            paso(foco("Idioma:", hwnd=1, atajo="Alt+S"), fase="pagina"),
+            paso(foco("Avisos:", hwnd=2, atajo="Alt+I"), fase="pagina"),
+            paso(foco("Tamaño de letra", hwnd=3, atajo="Alt+S")),
+            paso(foco("Super Chats", hwnd=4, atajo="Alt+I")),
+        ])
+        self.assertFalse(_regla(
+            reglas.analizar(datos, set()), "atajo_repetido"))
+
+    def test_sigue_marcando_un_atajo_repetido_entre_dos_pasos_de_ida(self):
+        datos = recorrido([
+            paso(foco("Idioma:", hwnd=1, atajo="Alt+S"), fase="pagina"),
+            paso(foco("Tamaño de letra", hwnd=2, atajo="Alt+S")),
+            paso(foco("Super Chats", hwnd=3, atajo="Alt+S")),
+        ])
+        self.assertTrue(_regla(
             reglas.analizar(datos, set()), "atajo_repetido"))
 
     def test_calla_con_la_misma_parada_visitada_dos_veces(self):

@@ -160,7 +160,8 @@ def analizar(datos, catalogo_ingles) -> list:
             hallazgos.append(_hallazgo(
                 "rol_contenedor", datos, indice,
                 f"la parada de Tab tiene el rol {rol}"))
-        if (len(nombre) >= LARGO_MINIMO_NOMBRE
+        if (paso.get("fase") != "pagina"
+                and len(nombre) >= LARGO_MINIMO_NOMBRE
                 and " ".join(frases).casefold().count(nombre.casefold()) >= 2):
             hallazgos.append(_hallazgo(
                 "nombre_repetido", datos, indice,
@@ -168,8 +169,9 @@ def analizar(datos, catalogo_ingles) -> list:
         if any(normalizar(frase) in catalogo for frase in frases + [nombre]):
             hallazgos.append(_hallazgo(
                 "ingles", datos, indice, "hay un texto del catálogo inglés"))
-        hallazgos.extend(_revisar_atajo(
-            datos, indice, foco, vistos_atajos))
+        if paso.get("fase") != "pagina":
+            hallazgos.extend(_revisar_atajo(
+                datos, indice, foco, vistos_atajos))
         if paso.get("fase") == "accion":
             if not frases:
                 hallazgos.append(_hallazgo(
