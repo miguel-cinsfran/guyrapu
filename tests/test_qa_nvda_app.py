@@ -160,6 +160,26 @@ class TestVentana(unittest.TestCase):
         self.assertEqual(claves,
                          ["esperar_ventana", "al_frente", "conducir"])
 
+    def test_pasa_las_acciones_de_la_entrada_a_conducir(self):
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "historial")
+        visto = {}
+
+        def conducir(_cliente, datos):
+            visto["acciones"] = datos.get("acciones")
+            return {"pasos": []}
+
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              side_effect=conducir),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(BancoFalso(True), mock.Mock(), entrada,
+                         7, set(), False)
+        self.assertEqual(visto["acciones"], entrada["acciones"])
+
     def test_si_no_queda_al_frente_corta_sin_conducir(self):
         banco = BancoFalso(False)
         with (
