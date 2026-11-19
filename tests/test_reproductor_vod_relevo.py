@@ -120,6 +120,21 @@ class PruebasArranqueVodRelevo(unittest.TestCase):
         self.assertEqual(args[0], "https://progresivo")
         self.assertFalse(args[2])
 
+    def test_fallo_al_arrancar_en_grabado_apaga_el_vod(self):
+        panel = self._panel()
+        panel._estado_relevo.vod_por_relevo = True
+        panel._estado_relevo.vod_base_ms = 10_000
+        panel._estado_busqueda = EstadoBusqueda(confirmada=0)
+        panel._continuar_reproducir_calidad = mock.Mock()
+        panel._relevo_listo(
+            mock.Mock(), None, panel._estado_relevo.gen, panel._gen,
+            panel._video_id, "https://video", "https://audio", True,
+            inicio_ms=0)
+        self.assertFalse(panel._estado_relevo.vod_por_relevo)
+        self.assertIsNone(panel._estado_relevo.vod_base_ms)
+        panel._continuar_reproducir_calidad.assert_called_once_with(
+            "https://video", "https://audio", False, True)
+
 
 class PruebasSaltoVodRelevo(unittest.TestCase):
     """Tres flechas seguidas producen una sola reapertura al destino acumulado."""
