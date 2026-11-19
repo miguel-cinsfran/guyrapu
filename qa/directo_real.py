@@ -1312,9 +1312,8 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
         if not bien_lista:
             return (salida, 1)
 
-        marca_chat = len(_leer_anuncios(ruta_anuncios))
         resultado = _esperar_anuncio(ruta_anuncios, (OK_CHAT,),
-                                     args.timeout_chat, marca_chat)
+                                     args.timeout_chat, marca)
         if resultado is None:
             anotar("chat conectado", False,
                    f"sin «Conectado al directo» en {args.timeout_chat} s")

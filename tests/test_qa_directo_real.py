@@ -518,6 +518,32 @@ class TestComentarioFaltante(unittest.TestCase):
         self.assertIsNone(leidos)
 
 
+class TestMarcaDelChat(unittest.TestCase):
+
+    def test_el_anuncio_anterior_a_la_marca_tardia_si_esta_en_la_marca_del_aire(self):
+        import inspect
+        import shutil
+        import tempfile
+
+        carpeta = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, carpeta, True)
+        ruta = carpeta / "anuncios.txt"
+        ruta.write_text("", encoding="utf-8")
+        marca = len(directo_real._leer_anuncios(str(ruta)))
+        with ruta.open("a", encoding="utf-8") as archivo:
+            archivo.write("13:35:29 " + directo_real.OK_AL_AIRE + "\n")
+            archivo.write("13:35:33 Conectado al directo. Leyendo el chat.\n")
+        marca_tardia = len(directo_real._leer_anuncios(str(ruta)))
+        self.assertGreater(marca_tardia, marca)
+        self.assertIsNone(directo_real._esperar_anuncio(
+            str(ruta), (directo_real.OK_CHAT,), 1, marca_tardia))
+        self.assertIsNotNone(directo_real._esperar_anuncio(
+            str(ruta), (directo_real.OK_CHAT,), 1, marca))
+        fuente = inspect.getsource(directo_real._correr)
+        self.assertIn("args.timeout_chat, marca)", fuente)
+        self.assertNotIn("marca_chat", fuente)
+
+
 class TestCodigoFinal(unittest.TestCase):
 
     def test_un_paso_fallido_deja_codigo_uno(self):
