@@ -201,7 +201,8 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     }
     if entrada.get("pagina"):
         datos_ventana["pagina"] = entrada["pagina"]
-        datos_ventana["paginas"] = _paginas_de_interaccion()
+        datos_ventana["paginas"] = (entrada["paginas"] if "paginas" in entrada
+                                   else _paginas_de_interaccion())
     if entrada.get("acciones"):
         datos_ventana["acciones"] = entrada["acciones"]
     datos = recorrido.conducir(cliente, datos_ventana)

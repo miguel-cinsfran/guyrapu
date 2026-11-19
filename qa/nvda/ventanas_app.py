@@ -10,7 +10,33 @@ ventana es agregar una entrada.
 
 from __future__ import annotations
 
-# En una lista, el primero es el elemento seleccionado, no la lista.
+from guyrapu.core.idioma import _
+
+# Los nombres de las categorías de Preferencias, en el orden de la app.
+PAGINAS_PREFERENCIAS = (
+    _("General"),
+    _("Interfaz"),
+    _("Sonidos"),
+    _("Atajos"),
+    _("Voces"),
+    _("Lectura"),
+    _("Cola de lectura"),
+    _("Eventos del directo"),
+    _("Filtros"),
+    _("Estado (F2)"),
+    _("Conexión"),
+    _("YouTube"),
+    _("Reproductor"),
+    _("Música"),
+    _("Descargas"),
+    _("Inteligencia artificial"),
+    _("OBS"),
+    _("Cámara"),
+)
+
+# En una lista, el primero es el elemento seleccionado, no la lista. Los
+# primeros de Atajos, Cola de lectura y Lectura salen de los valores de
+# fábrica: el carril abre la app con una carpeta de datos aislada y vacía.
 VENTANAS = (
     {
         "nombre": "preferencias",
@@ -85,5 +111,148 @@ VENTANAS = (
         "titulo": "Interacción",
         "primero": "No hay medios. Usa Agregar para crear uno.",
         "pagina": "Medios",
+    },
+    {
+        "nombre": "preferencias_interfaz",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Tamaño de letra del chat (8 a 24):",
+        "pagina": "Interfaz",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_sonidos",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Tema de sonido:",
+        "pagina": "Sonidos",
+        "paginas": PAGINAS_PREFERENCIAS,
+        "acciones": [
+            {"control": "Acción completada", "gesto": "upArrow"},
+        ],
+    },
+    {
+        "nombre": "preferencias_atajos",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Reproducir o pausar: Ctrl+P",
+        "pagina": "Atajos",
+        "paginas": PAGINAS_PREFERENCIAS,
+        "acciones": [
+            {"control": "Bajar velocidad de la voz: F9 (fija)",
+             "espera": "Este atajo es fijo"},
+        ],
+    },
+    {
+        "nombre": "preferencias_voces",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Motor de voz:",
+        "pagina": "Voces",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_lectura",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Nombre y mensaje",
+        "pagina": "Lectura",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_cola_de_lectura",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Descartar los más antiguos si se acumulan",
+        "pagina": "Cola de lectura",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_eventos_del_directo",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Super Chats y regalos:",
+        "pagina": "Eventos del directo",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_filtros",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Palabras silenciadas (separadas por comas):",
+        "pagina": "Filtros",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_estado_f2",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Estado de conexión y tipo",
+        "pagina": "Estado (F2)",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_conexion",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Reconectar automáticamente",
+        "pagina": "Conexión",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_youtube",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Clave de API:",
+        "pagina": "YouTube",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_reproductor",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Reproducir audio automáticamente al conectar",
+        "pagina": "Reproductor",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_musica",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Carpeta de música",
+        "pagina": "Música",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_descargas",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Carpeta de descargas",
+        "pagina": "Descargas",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_inteligencia_artificial",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Proveedor:",
+        "pagina": "Inteligencia artificial",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_obs",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Avisar si OBS se sobrecarga",
+        "pagina": "OBS",
+        "paginas": PAGINAS_PREFERENCIAS,
+    },
+    {
+        "nombre": "preferencias_camara",
+        "menu": "Herramientas > Preferencias",
+        "titulo": "Preferencias",
+        "primero": "Avisar si el rostro sale del encuadre",
+        "pagina": "Cámara",
+        "paginas": PAGINAS_PREFERENCIAS,
     },
 )

@@ -24,23 +24,33 @@ from qa.nvda import app, recorrido, ventanas_app
 
 class TestVentanas(unittest.TestCase):
 
-    def test_la_tabla_tiene_las_diez_ventanas_con_sus_campos(self):
+    def test_la_tabla_tiene_una_entrada_por_ventana_con_sus_campos(self):
         self.assertEqual(
             [entrada["nombre"] for entrada in ventanas_app.VENTANAS],
             ["preferencias", "interaccion", "comandos", "estilos",
              "historial", "descargas", "palabras", "encuestas", "preguntas",
-             "medios"])
+             "medios", "preferencias_interfaz", "preferencias_sonidos",
+             "preferencias_atajos", "preferencias_voces",
+             "preferencias_lectura", "preferencias_cola_de_lectura",
+             "preferencias_eventos_del_directo", "preferencias_filtros",
+             "preferencias_estado_f2", "preferencias_conexion",
+             "preferencias_youtube", "preferencias_reproductor",
+             "preferencias_musica", "preferencias_descargas",
+             "preferencias_inteligencia_artificial", "preferencias_obs",
+             "preferencias_camara"])
         for entrada in ventanas_app.VENTANAS:
             campos = {"nombre", "menu", "titulo", "primero"}
             if "pagina" in entrada:
                 campos.add("pagina")
+            if "paginas" in entrada:
+                campos.add("paginas")
             if "acciones" in entrada:
                 campos.add("acciones")
             self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
         self.assertEqual(
-            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 10)
+            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 27)
         self.assertEqual(ventanas_app.VENTANAS[0]["titulo"], "Preferencias")
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
@@ -72,6 +82,42 @@ class TestVentanas(unittest.TestCase):
                 self.assertEqual(entrada["menu"],
                                  "Interacción > Abrir Interacción…")
                 self.assertTrue(entrada["primero"])
+
+    def test_una_entrada_por_pagina_de_preferencias_salvo_general(self):
+        entradas = [entrada for entrada in ventanas_app.VENTANAS
+                    if entrada["nombre"].startswith("preferencias_")]
+        self.assertEqual([entrada["pagina"] for entrada in entradas],
+                         list(ventanas_app.PAGINAS_PREFERENCIAS[1:]))
+        self.assertEqual(len({e["nombre"] for e in entradas}), len(entradas))
+        for entrada in entradas:
+            with self.subTest(entrada=entrada["nombre"]):
+                self.assertEqual(entrada["menu"], "Herramientas > Preferencias")
+                self.assertEqual(entrada["titulo"], "Preferencias")
+                self.assertIs(entrada["paginas"],
+                              ventanas_app.PAGINAS_PREFERENCIAS)
+                self.assertTrue(entrada["primero"])
+
+    def test_las_paginas_de_preferencias_coinciden_con_las_de_la_app(self):
+        from guyrapu.ui import gui_preferencias
+
+        falso = SimpleNamespace(
+            _envolver=lambda fabrica: fabrica, _pagina_de=lambda *args: None,
+            _config={}, _ruta="", _pag_interfaz=None, _pag_cola=None,
+            _pag_filtros=None, _pag_estado=None, _pag_conexion=None,
+            _pag_reproductor=None)
+        etiquetas = [etiqueta for etiqueta, _fabrica in
+                     gui_preferencias.PreferenciasDialog._entradas(falso)]
+        self.assertEqual(list(ventanas_app.PAGINAS_PREFERENCIAS), etiquetas)
+
+    def test_las_acciones_de_atajos_y_sonidos(self):
+        por_nombre = {entrada["nombre"]: entrada
+                      for entrada in ventanas_app.VENTANAS}
+        self.assertEqual(por_nombre["preferencias_atajos"]["acciones"],
+                         [{"control": "Bajar velocidad de la voz: F9 (fija)",
+                           "espera": "Este atajo es fijo"}])
+        self.assertEqual(por_nombre["preferencias_sonidos"]["acciones"],
+                         [{"control": "Acción completada",
+                           "gesto": "upArrow"}])
 
     def test_cada_pagina_de_interaccion_se_puede_pedir_sola(self):
         for pedida in ("palabras", "encuestas", "preguntas", "medios"):
@@ -179,6 +225,31 @@ class TestVentana(unittest.TestCase):
             app._ventana(BancoFalso(True), mock.Mock(), entrada,
                          7, set(), False)
         self.assertEqual(visto["acciones"], entrada["acciones"])
+
+    def test_pasa_la_lista_de_paginas_de_la_entrada_a_conducir(self):
+        visto = {}
+
+        def conducir(_cliente, datos):
+            visto["paginas"] = datos.get("paginas")
+            return {"pasos": []}
+
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              side_effect=conducir),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            atajos = next(item for item in ventanas_app.VENTANAS
+                          if item["nombre"] == "preferencias_atajos")
+            palabras = next(item for item in ventanas_app.VENTANAS
+                            if item["nombre"] == "palabras")
+            app._ventana(BancoFalso(True), mock.Mock(), atajos, 7, set(), False)
+            self.assertIs(visto["paginas"],
+                          ventanas_app.PAGINAS_PREFERENCIAS)
+            app._ventana(BancoFalso(True), mock.Mock(), palabras, 7, set(),
+                         False)
+            self.assertEqual(visto["paginas"], app._paginas_de_interaccion())
 
     def test_si_no_queda_al_frente_corta_sin_conducir(self):
         banco = BancoFalso(False)
