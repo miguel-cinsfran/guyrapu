@@ -34,6 +34,8 @@ def notificar_secuencia(secuencia, cancelado, al_indice, al_fin) -> bool:
 class SynthDriver(synthDriverHandler.SynthDriver):
     name = "espia_guyrapu"
     description = "Espía del carril de QA, no suena"
+    # NVDA deriva esta propiedad de `availableVoices`, que el espía no tiene.
+    availableLanguages = {"es", "en"}
     supportedSettings = []
     supportedNotifications = {
         synthDriverHandler.synthIndexReached,

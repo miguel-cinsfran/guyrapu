@@ -402,6 +402,11 @@ class TestEspia(unittest.TestCase):
         declaradas = self.modulo.SynthDriver.supportedNotifications
         self.assertEqual(len(declaradas), 2)
 
+    def test_declara_idiomas_disponibles_para_la_deteccion_de_idioma(self):
+        idiomas = self.modulo.SynthDriver.availableLanguages
+        self.assertIn("es", idiomas)
+        self.assertTrue(all(isinstance(idioma, str) for idioma in idiomas))
+
 
 class TestEventosSueltos(unittest.TestCase):
 

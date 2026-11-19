@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del perfil de prueba del carril de NVDA, sin tocar NVDA."""
 
+import configparser
 import tempfile
 import unittest
 from pathlib import Path
@@ -102,6 +103,18 @@ class TestArmarPerfil(unittest.TestCase):
             perfil.armar_perfil(destino, origen, appdata=base)
             self.assertFalse((destino / "carril.json").exists())
             self.assertTrue((destino / "nvda.ini").is_file())
+
+    def test_el_ini_generado_apaga_la_lectura_automatica_al_cargar_pagina(self):
+        with tempfile.TemporaryDirectory() as base:
+            origen = Path(base) / "dentro"
+            origen.mkdir()
+            destino = Path(base) / "carril" / "perfil-nvda"
+            perfil.armar_perfil(destino, origen, appdata=base)
+            texto = (destino / "nvda.ini").read_text(encoding="utf-8")
+            ini = configparser.ConfigParser(interpolation=None)
+            ini.read_string("[nvda]\n" + texto)
+            self.assertFalse(ini.getboolean("virtualBuffers",
+                                            "autoSayAllOnPageLoad"))
 
     def test_no_toca_la_configuracion_real_aunque_se_lo_pidan(self):
         with tempfile.TemporaryDirectory() as base:

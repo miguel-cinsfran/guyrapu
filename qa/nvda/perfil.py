@@ -48,6 +48,9 @@ reportObjectDescriptions = True
 [[progressBarUpdates]]
 progressBarOutputMode = off
 
+[virtualBuffers]
+autoSayAllOnPageLoad = False
+
 [speech]
 synth = espia_guyrapu
 symbolLevel = 100
