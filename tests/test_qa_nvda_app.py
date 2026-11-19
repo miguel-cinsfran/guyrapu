@@ -10,6 +10,8 @@ carril.
 
 import logging
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -414,6 +416,35 @@ class TestGrabadorSonidos(unittest.TestCase):
         for manejador in list(logger.handlers):
             if isinstance(manejador, app._GrabadorSonidos):
                 logger.removeHandler(manejador)
+
+    def test_la_cadena_real_anota_el_sonido_con_la_sonda_instalada(self):
+        with tempfile.TemporaryDirectory() as base:
+            ruta = Path(base) / "sonidos.txt"
+            entorno = dict(os.environ)
+            entorno.update({
+                recorrido.VAR_SONIDOS: str(ruta),
+                app.VAR_DATOS: str(Path(base) / "datos"),
+                app.sonda.VAR_DESTINO: str(Path(base) / "anuncios.txt"),
+                app.sonda.VAR_ORDENES: str(Path(base) / "ordenes.json"),
+                app.sonda.VAR_RESULTADOS: str(Path(base) / "resultados.txt"),
+            })
+            programa = (
+                "from pathlib import Path;"
+                "import qa.nvda.app as carril; carril.preparar();"
+                "from guyrapu.core import config; config.configurar_logging();"
+                "from guyrapu.voice import sound_player as snd;"
+                "snd._eventos = {'orilla': Path('sin-archivo.wav')};"
+                "snd.reproducir('orilla')"
+            )
+            proceso = subprocess.run(
+                [sys.executable, "-B", "-c", programa],
+                cwd=Path(__file__).resolve().parent.parent, env=entorno,
+                capture_output=True, text=True, encoding="utf-8",
+                errors="replace", timeout=30)
+            self.assertEqual(proceso.returncode, 0, proceso.stderr)
+            contenido = (ruta.read_text(encoding="utf-8") if ruta.exists()
+                         else "")
+            self.assertEqual(contenido, "orilla\n")
 
     def _preparar_con_sonidos(self, ruta):
         with (

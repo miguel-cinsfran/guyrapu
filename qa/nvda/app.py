@@ -109,9 +109,11 @@ def preparar() -> None:
         logger_sonidos.setLevel(logging.DEBUG)
         logger_sonidos.addHandler(_GrabadorSonidos(ruta_sonidos))
     from guyrapu.ui import accesibilidad, gui
+    from guyrapu.voice import sound_player
 
     originales = (gui._lector_init, accesibilidad._lector_init)
     sonda.instalar()
+    sound_player.silenciar_todo(False)
     grabador = accesibilidad._lector
 
     def _con_doble(original):
