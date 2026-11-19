@@ -558,6 +558,7 @@ class TestCodigoFinal(unittest.TestCase):
 class TestRegistroDeAvisosImportantes(unittest.TestCase):
 
     def test_un_modulo_importado_despues_registra_por_nombre(self):
+        import guyrapu.ui as paquete_ui
         import os
         import shutil
         import sys
@@ -584,6 +585,8 @@ class TestRegistroDeAvisosImportantes(unittest.TestCase):
         with mock.patch.dict(os.environ, entorno), \
                 mock.patch.dict(sys.modules, {
                     "guyrapu.ui.accesibilidad": accesibilidad}), \
+                mock.patch.object(paquete_ui, "accesibilidad",
+                                  accesibilidad, create=True), \
                 mock.patch.object(sys, "argv", [str(carpeta / "main.py")]), \
                 mock.patch.object(sys, "path", list(sys.path)):
             exec(compile(prefijo, "lanzador", "exec"), espacio)
