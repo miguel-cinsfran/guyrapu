@@ -84,6 +84,18 @@ VENTANAS = (
         "primero": "",
     },
     {
+        "nombre": "musica",
+        "menu": "Música > Elegir música…",
+        "titulo": _("Música"),
+        "primero": "Buscar en la música",
+    },
+    {
+        "nombre": "ia",
+        "menu": "Ver > Preguntar a la IA sobre la imagen…",
+        "titulo": _("Preguntar a la IA"),
+        "primero": "Mensaje",
+    },
+    {
         "nombre": "palabras",
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Interacción",

@@ -55,6 +55,20 @@ class TestSinNombre(unittest.TestCase):
         datos = recorrido([paso(foco("Aceptar"), frases=["Aceptar botón"])])
         self.assertFalse(_regla(reglas.analizar(datos, set()), "sin_nombre"))
 
+    def test_calla_con_un_combo_editable_nombrado_por_nvda(self):
+        datos = recorrido([paso(
+            foco("", "EDITABLETEXT"),
+            frases=["Buscar o pegar enlace: cuadro combinado contraído "
+                    "edición Alt+ u en blanco"])])
+        self.assertFalse(_regla(
+            reglas.analizar(datos, set()), "sin_nombre"))
+
+    def test_salta_sin_nombre_aunque_nvda_diga_solo_edicion(self):
+        datos = recorrido([paso(
+            foco("", "EDITABLETEXT"), frases=["edición"])])
+        self.assertTrue(_regla(
+            reglas.analizar(datos, set()), "sin_nombre"))
+
 
 class TestRolContenedor(unittest.TestCase):
 

@@ -12,6 +12,7 @@ con las ventanas de la app.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
@@ -34,6 +35,10 @@ ROLES_CONTENEDOR = frozenset({
 
 LETRAS_MINIMAS_TEXTO = 4
 LARGO_MINIMO_NOMBRE = 3
+
+# NVDA dice el nombre del combo y después el rol, aunque el foco sea la
+# edición interna del combo y no traiga nombre propio.
+_COMBO_NOMBRADO = re.compile(r"^\s*(.+?)\s+cuadro combinado\b", re.IGNORECASE)
 
 
 def normalizar(texto) -> str:
@@ -90,6 +95,11 @@ def _frases(paso) -> list:
         if texto.strip():
             frases.append(texto)
     return frases
+
+
+def _combo_nombrado(frases) -> bool:
+    """El habla empieza con un nombre seguido de «cuadro combinado»."""
+    return bool(_COMBO_NOMBRADO.match(" ".join(frases)))
 
 
 def _atajo(foco) -> str:
@@ -153,7 +163,7 @@ def analizar(datos, catalogo_ingles) -> list:
         nombre = str(foco.get("nombre") or "").strip()
         rol = str(foco.get("rol_nombre") or foco.get("rol") or "")
         frases = _frases(paso)
-        if not nombre:
+        if not nombre and not _combo_nombrado(frases):
             hallazgos.append(_hallazgo(
                 "sin_nombre", datos, indice, "la parada no tiene nombre"))
         if paso.get("tecla") == "tab" and rol in ROLES_CONTENEDOR:

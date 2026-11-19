@@ -30,7 +30,8 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(
             [entrada["nombre"] for entrada in ventanas_app.VENTANAS],
             ["preferencias", "interaccion", "comandos", "estilos",
-             "historial", "descargas", "palabras", "encuestas", "preguntas",
+             "historial", "descargas", "musica", "ia",
+             "palabras", "encuestas", "preguntas",
              "medios", "preferencias_interfaz", "preferencias_sonidos",
              "preferencias_atajos", "preferencias_voces",
              "preferencias_lectura", "preferencias_cola_de_lectura",
@@ -54,10 +55,31 @@ class TestVentanas(unittest.TestCase):
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
         self.assertEqual(
-            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 27)
+            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 29)
         self.assertEqual(ventanas_app.VENTANAS[0]["titulo"], "Preferencias")
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
+
+    def test_musica_e_ia_estan_en_la_tabla_con_su_menu_titulo_y_primero(self):
+        from guyrapu.core.idioma import _
+        from guyrapu.ui import ia_ventana, musica_ventana
+
+        por_nombre = {entrada["nombre"]: entrada
+                      for entrada in ventanas_app.VENTANAS}
+        self.assertEqual(len(por_nombre), len(ventanas_app.VENTANAS))
+        self.assertEqual(
+            por_nombre["musica"]["titulo"], _(musica_ventana.TITULO))
+        self.assertEqual(
+            por_nombre["ia"]["titulo"], _(ia_ventana.TITULO))
+        for nombre, menu, primero in (
+                ("musica", "Música > Elegir música…", "Buscar en la música"),
+                ("ia", "Ver > Preguntar a la IA sobre la imagen…",
+                 "Mensaje")):
+            with self.subTest(nombre=nombre):
+                entrada = por_nombre[nombre]
+                self.assertEqual(entrada["menu"], menu)
+                self.assertEqual(entrada["primero"], primero)
+                self.assertTrue(entrada["titulo"])
 
     def test_historial_activa_conectar_y_eliminar_con_el_vacio(self):
         historial = next(entrada for entrada in ventanas_app.VENTANAS
