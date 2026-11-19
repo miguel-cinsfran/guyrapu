@@ -5,13 +5,15 @@
 Abre ventanas.
 """
 
+import tempfile
 import unittest
 from unittest import mock
 
 import wx
 
 from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
-from guyrapu.ui import ensayo_ventana, gui_sesion
+from guyrapu.ui import chat_vivo, ensayo_ventana, gui_sesion
+from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 
@@ -158,6 +160,53 @@ class TestConectarConEnsayo(Base):
             "Cierra Prueba sin directo para conectar un directo.")
         sonar.assert_called_once_with("error")
         frame.on_conectar_cb.assert_not_called()
+
+
+class TestMensajeEnLaListaDelChat(Base):
+    """El mensaje de la ventana recorre el encolado y el volcado del chat."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        parche = redirigir_rutas(self.tmp.name)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+
+    def _frame_con_chat(self, ensayo):
+        frame = wx.Frame(None)
+        self.addCleanup(destruir, frame)
+        frame._alive = True
+        frame._conectado = False
+        frame._ensayo = ensayo
+        frame.lista_chat = wx.ListBox(frame, name="ChatDelEnsayo")
+        frame.chat_vivo = chat_vivo.ControladorChat(
+            frame.lista_chat, 500,
+            activo=lambda: frame._alive and frame._conectado,
+            autor_oculto=lambda autor: False,
+            formatear=lambda autor, texto, hora, tipo, monto: (
+                f"{autor}: {texto}"),
+            al_superchat=lambda monto: None)
+        return frame
+
+    def _enviar_y_volcar(self, frame):
+        ventana = self._ventana(frame)
+        ventana.txt_mensaje.SetValue("mensaje en la lista")
+        with mock.patch.object(ensayo_ventana, "anunciar"), \
+                mock.patch.object(chat_vivo._snd, "reproducir"):
+            self._pulsar(ventana.btn_enviar)
+            frame.chat_vivo.volcar_ya()
+        return frame.lista_chat
+
+    def test_en_ensayo_el_mensaje_aparece_en_la_lista_del_chat(self):
+        frame = self._frame_con_chat(ensayo=True)
+        lista = self._enviar_y_volcar(frame)
+        self.assertEqual(lista.GetCount(), 1)
+        self.assertIn("mensaje en la lista", lista.GetString(0))
+
+    def test_sin_ensayo_ni_conexion_el_mensaje_no_aparece(self):
+        frame = self._frame_con_chat(ensayo=False)
+        lista = self._enviar_y_volcar(frame)
+        self.assertEqual(lista.GetCount(), 0)
 
 
 if __name__ == "__main__":
