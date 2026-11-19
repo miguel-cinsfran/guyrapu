@@ -1,0 +1,16 @@
+tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Tema de sonido: cuadro combinado Predeterminado contraído Alt+ t' foco={nombre='Tema de sonido:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Predeterminado', atajo='Alt+t'}
+tecla=tab fase=ida dijo='Sonidos lista Alt+ s Acción completada; Familia: Completado casilla de verificación marcado 1 de 118' foco={nombre='Acción completada; Familia: Completado', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Reproducir sonido elegido botón Alt+ r' foco={nombre='Reproducir sonido elegido', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
+tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Categorías lista Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Tema de sonido: cuadro combinado Predeterminado contraído Alt+ t' foco={nombre='Tema de sonido:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Predeterminado', atajo='Alt+t'}
+tecla=shift+tab fase=vuelta dijo='Categorías lista Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=vuelta dijo='Reproducir sonido elegido botón Alt+ r' foco={nombre='Reproducir sonido elegido', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
+tecla=shift+tab fase=vuelta dijo='Sonidos lista Alt+ s Acción completada; Familia: Completado casilla de verificación marcado 1 de 118' foco={nombre='Acción completada; Familia: Completado', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Tema de sonido: cuadro combinado Predeterminado contraído Alt+ t' foco={nombre='Tema de sonido:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Predeterminado', atajo='Alt+t'}
+tecla=upArrow fase=accion dijo='' foco={nombre='Acción completada; Familia: Completado', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''} sonó=['orilla']

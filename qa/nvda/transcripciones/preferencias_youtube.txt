@@ -1,0 +1,32 @@
+tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Lectura 6 de 18' foco={nombre='Lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Cola de lectura 7 de 18' foco={nombre='Cola de lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Eventos del directo 8 de 18' foco={nombre='Eventos del directo', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Filtros 9 de 18' foco={nombre='Filtros', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Conexión 11 de 18' foco={nombre='Conexión', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='YouTube 12 de 18' foco={nombre='YouTube', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Clave de API: edición Alt+ v en blanco' foco={nombre='Clave de API:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
+tecla=tab fase=ida dijo='ID de cliente OAuth: edición Alt+ o en blanco' foco={nombre='ID de cliente OAuth:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+o'}
+tecla=tab fase=ida dijo='Secreto de cliente OAuth: edición contraseña Alt+ s en blanco' foco={nombre='Secreto de cliente OAuth:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'PROTECTED'], valor='', atajo='Alt+s'}
+tecla=tab fase=ida dijo='Guardar claves botón Alt+ a' foco={nombre='Guardar claves', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
+tecla=tab fase=ida dijo='Iniciar sesión botón Alt+ i' foco={nombre='Iniciar sesión', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
+tecla=tab fase=ida dijo='Cerrar sesión (no hay sesión iniciada) botón Alt+ e' foco={nombre='Cerrar sesión (no hay sesión iniciada)', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
+tecla=tab fase=ida dijo='Abrir guía botón Alt+ u' foco={nombre='Abrir guía', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+u'}
+tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Categorías lista YouTube 12 de 18' foco={nombre='YouTube', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Clave de API: edición Alt+ v en blanco' foco={nombre='Clave de API:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
+tecla=shift+tab fase=vuelta dijo='Categorías lista YouTube 12 de 18' foco={nombre='YouTube', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=vuelta dijo='Abrir guía botón Alt+ u' foco={nombre='Abrir guía', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+u'}
+tecla=shift+tab fase=vuelta dijo='Cerrar sesión (no hay sesión iniciada) botón Alt+ e' foco={nombre='Cerrar sesión (no hay sesión iniciada)', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
+tecla=shift+tab fase=vuelta dijo='Iniciar sesión botón Alt+ i' foco={nombre='Iniciar sesión', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
+tecla=shift+tab fase=vuelta dijo='Guardar claves botón Alt+ a' foco={nombre='Guardar claves', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
+tecla=shift+tab fase=vuelta dijo='Secreto de cliente OAuth: edición contraseña Alt+ s en blanco' foco={nombre='Secreto de cliente OAuth:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'PROTECTED'], valor='', atajo='Alt+s'}
+tecla=shift+tab fase=vuelta dijo='ID de cliente OAuth: edición Alt+ o en blanco' foco={nombre='ID de cliente OAuth:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+o'}
+tecla=shift+tab fase=vuelta dijo='Clave de API: edición Alt+ v en blanco' foco={nombre='Clave de API:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}

@@ -1,0 +1,46 @@
+tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Lectura 6 de 18' foco={nombre='Lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Cola de lectura 7 de 18' foco={nombre='Cola de lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Eventos del directo 8 de 18' foco={nombre='Eventos del directo', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Filtros 9 de 18' foco={nombre='Filtros', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Conexión 11 de 18' foco={nombre='Conexión', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='YouTube 12 de 18' foco={nombre='YouTube', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Reproductor 13 de 18' foco={nombre='Reproductor', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Música 14 de 18' foco={nombre='Música', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Descargas 15 de 18' foco={nombre='Descargas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Inteligencia artificial 16 de 18' foco={nombre='Inteligencia artificial', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Proveedor: cuadro combinado Google Gemini contraído Alt+ p' foco={nombre='Proveedor:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Google Gemini', atajo='Alt+p'}
+tecla=tab fase=ida dijo='Clave: edición contraseña Alt+ v en blanco' foco={nombre='Clave:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'PROTECTED'], valor='', atajo='Alt+v'}
+tecla=tab fase=ida dijo='Guardar clave botón Alt+ u' foco={nombre='Guardar clave', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+u'}
+tecla=tab fase=ida dijo='Comprobar clave botón Alt+ b' foco={nombre='Comprobar clave', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+b'}
+tecla=tab fase=ida dijo='Modelo: cuadro combinado Gemini 2.5 Flash contraído Alt+ m' foco={nombre='Modelo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Gemini 2.5 Flash', atajo='Alt+m'}
+tecla=tab fase=ida dijo='Actualizar lista de modelos botón Alt+ a' foco={nombre='Actualizar lista de modelos', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
+tecla=tab fase=ida dijo='Otro modelo: edición Alt+ o en blanco' foco={nombre='Otro modelo:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+o'}
+tecla=tab fase=ida dijo='Instrucción para las capturas: edición multilínea Alt+ i en blanco' foco={nombre='Instrucción para las capturas:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'MULTILINE'], valor='', atajo='Alt+i'}
+tecla=tab fase=ida dijo='Restablecer instrucción botón Alt+ e' foco={nombre='Restablecer instrucción', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
+tecla=tab fase=ida dijo='Extensión de la respuesta: cuadro combinado Media contraído Alt+ x' foco={nombre='Extensión de la respuesta:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Media', atajo='Alt+x'}
+tecla=tab fase=ida dijo='Tiempo de espera en segundos: edición Alt+ s seleccionado 60' foco={nombre='Tiempo de espera en segundos:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='60', atajo='Alt+s'}
+tecla=tab fase=ida dijo='Anunciar «Analizando» mientras espera casilla de verificación marcado Alt+ z' foco={nombre='Anunciar «Analizando» mientras espera', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+z'}
+tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Categorías lista Inteligencia artificial 16 de 18' foco={nombre='Inteligencia artificial', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Proveedor: cuadro combinado Google Gemini contraído Alt+ p' foco={nombre='Proveedor:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Google Gemini', atajo='Alt+p'}
+tecla=shift+tab fase=vuelta dijo='Categorías lista Inteligencia artificial 16 de 18' foco={nombre='Inteligencia artificial', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=vuelta dijo='Anunciar «Analizando» mientras espera casilla de verificación marcado Alt+ z' foco={nombre='Anunciar «Analizando» mientras espera', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+z'}
+tecla=shift+tab fase=vuelta dijo='Tiempo de espera en segundos: edición Alt+ s seleccionado 60' foco={nombre='Tiempo de espera en segundos:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='60', atajo='Alt+s'}
+tecla=shift+tab fase=vuelta dijo='Extensión de la respuesta: cuadro combinado Media contraído Alt+ x' foco={nombre='Extensión de la respuesta:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Media', atajo='Alt+x'}
+tecla=shift+tab fase=vuelta dijo='Restablecer instrucción botón Alt+ e' foco={nombre='Restablecer instrucción', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
+tecla=shift+tab fase=vuelta dijo='Instrucción para las capturas: edición multilínea Alt+ i en blanco' foco={nombre='Instrucción para las capturas:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'MULTILINE'], valor='', atajo='Alt+i'}
+tecla=shift+tab fase=vuelta dijo='Otro modelo: edición Alt+ o en blanco' foco={nombre='Otro modelo:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+o'}
+tecla=shift+tab fase=vuelta dijo='Actualizar lista de modelos botón Alt+ a' foco={nombre='Actualizar lista de modelos', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
+tecla=shift+tab fase=vuelta dijo='Modelo: cuadro combinado Gemini 2.5 Flash contraído Alt+ m' foco={nombre='Modelo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Gemini 2.5 Flash', atajo='Alt+m'}
+tecla=shift+tab fase=vuelta dijo='Comprobar clave botón Alt+ b' foco={nombre='Comprobar clave', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+b'}
+tecla=shift+tab fase=vuelta dijo='Guardar clave botón Alt+ u' foco={nombre='Guardar clave', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+u'}
+tecla=shift+tab fase=vuelta dijo='Clave: edición contraseña Alt+ v en blanco' foco={nombre='Clave:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED', 'PROTECTED'], valor='', atajo='Alt+v'}
+tecla=shift+tab fase=vuelta dijo='Proveedor: cuadro combinado Google Gemini contraído Alt+ p' foco={nombre='Proveedor:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Google Gemini', atajo='Alt+p'}

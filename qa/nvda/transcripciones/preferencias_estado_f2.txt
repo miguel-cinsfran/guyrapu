@@ -1,0 +1,68 @@
+tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Lectura 6 de 18' foco={nombre='Lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Cola de lectura 7 de 18' foco={nombre='Cola de lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Eventos del directo 8 de 18' foco={nombre='Eventos del directo', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Filtros 9 de 18' foco={nombre='Filtros', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Estado de conexión y tipo casilla de verificación marcado' foco={nombre='Estado de conexión y tipo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Título del vídeo o directo casilla de verificación marcado' foco={nombre='Título del vídeo o directo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Canal o autor casilla de verificación marcado' foco={nombre='Canal o autor', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Espectadores ahora y en total casilla de verificación marcado' foco={nombre='Espectadores ahora y en total', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Tiempo que lleva el directo casilla de verificación marcado' foco={nombre='Tiempo que lleva el directo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Cuánto por detrás del directo va el reproductor casilla de verificación marcado' foco={nombre='Cuánto por detrás del directo va el reproductor', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Mensajes leídos casilla de verificación marcado' foco={nombre='Mensajes leídos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Super Chats / regalos casilla de verificación marcado' foco={nombre='Super Chats / regalos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Encuesta en curso casilla de verificación marcado' foco={nombre='Encuesta en curso', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Batalla en curso casilla de verificación marcado' foco={nombre='Batalla en curso', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Meta casilla de verificación marcado' foco={nombre='Meta', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Mensajes en cola de lectura casilla de verificación sin marcar' foco={nombre='Mensajes en cola de lectura', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Velocidad y volumen de la voz casilla de verificación sin marcar' foco={nombre='Velocidad y volumen de la voz', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Aviso de lectura silenciada casilla de verificación marcado' foco={nombre='Aviso de lectura silenciada', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Chat en el vídeo para transmitir casilla de verificación marcado' foco={nombre='Chat en el vídeo para transmitir', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Lo que se ve en el vídeo casilla de verificación marcado' foco={nombre='Lo que se ve en el vídeo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Mensajes automáticos casilla de verificación marcado' foco={nombre='Mensajes automáticos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Comandos respondidos casilla de verificación marcado' foco={nombre='Comandos respondidos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Mensajes descartados casilla de verificación sin marcar' foco={nombre='Mensajes descartados', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Estado de la transmisión de OBS casilla de verificación sin marcar' foco={nombre='Estado de la transmisión de OBS', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Estado de la grabación de OBS casilla de verificación sin marcar' foco={nombre='Estado de la grabación de OBS', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Escena actual en OBS casilla de verificación sin marcar' foco={nombre='Escena actual en OBS', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Música que suena casilla de verificación marcado' foco={nombre='Música que suena', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Igualación del volumen de la música casilla de verificación marcado' foco={nombre='Igualación del volumen de la música', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Encuadre de cámara casilla de verificación marcado' foco={nombre='Encuadre de cámara', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Cuota de YouTube usada hoy casilla de verificación marcado' foco={nombre='Cuota de YouTube usada hoy', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Categorías lista Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Estado de conexión y tipo casilla de verificación marcado' foco={nombre='Estado de conexión y tipo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Categorías lista Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=vuelta dijo='Cuota de YouTube usada hoy casilla de verificación marcado' foco={nombre='Cuota de YouTube usada hoy', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Encuadre de cámara casilla de verificación marcado' foco={nombre='Encuadre de cámara', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Igualación del volumen de la música casilla de verificación marcado' foco={nombre='Igualación del volumen de la música', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Música que suena casilla de verificación marcado' foco={nombre='Música que suena', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Escena actual en OBS casilla de verificación sin marcar' foco={nombre='Escena actual en OBS', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Estado de la grabación de OBS casilla de verificación sin marcar' foco={nombre='Estado de la grabación de OBS', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Estado de la transmisión de OBS casilla de verificación sin marcar' foco={nombre='Estado de la transmisión de OBS', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Mensajes descartados casilla de verificación sin marcar' foco={nombre='Mensajes descartados', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Comandos respondidos casilla de verificación marcado' foco={nombre='Comandos respondidos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Mensajes automáticos casilla de verificación marcado' foco={nombre='Mensajes automáticos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Lo que se ve en el vídeo casilla de verificación marcado' foco={nombre='Lo que se ve en el vídeo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Chat en el vídeo para transmitir casilla de verificación marcado' foco={nombre='Chat en el vídeo para transmitir', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Aviso de lectura silenciada casilla de verificación marcado' foco={nombre='Aviso de lectura silenciada', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Velocidad y volumen de la voz casilla de verificación sin marcar' foco={nombre='Velocidad y volumen de la voz', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Mensajes en cola de lectura casilla de verificación sin marcar' foco={nombre='Mensajes en cola de lectura', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Meta casilla de verificación marcado' foco={nombre='Meta', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Batalla en curso casilla de verificación marcado' foco={nombre='Batalla en curso', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Encuesta en curso casilla de verificación marcado' foco={nombre='Encuesta en curso', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Super Chats / regalos casilla de verificación marcado' foco={nombre='Super Chats / regalos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Mensajes leídos casilla de verificación marcado' foco={nombre='Mensajes leídos', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cuánto por detrás del directo va el reproductor casilla de verificación marcado' foco={nombre='Cuánto por detrás del directo va el reproductor', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Tiempo que lleva el directo casilla de verificación marcado' foco={nombre='Tiempo que lleva el directo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Espectadores ahora y en total casilla de verificación marcado' foco={nombre='Espectadores ahora y en total', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Canal o autor casilla de verificación marcado' foco={nombre='Canal o autor', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Título del vídeo o directo casilla de verificación marcado' foco={nombre='Título del vídeo o directo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Estado de conexión y tipo casilla de verificación marcado' foco={nombre='Estado de conexión y tipo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo=''}
