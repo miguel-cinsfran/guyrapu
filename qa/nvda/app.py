@@ -151,6 +151,9 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     if banco.esperar_ventana(entrada["titulo"], segundos=15.0) is None:
         raise InstrumentoRoto(
             f"no se abrió la ventana «{entrada['titulo']}»")
+    if not banco.al_frente():
+        raise InstrumentoRoto(
+            f"no se pudo traer al frente la ventana «{entrada['titulo']}»")
     datos_ventana = {
         "nombre": nombre,
         "pid": pid,

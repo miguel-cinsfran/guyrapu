@@ -100,6 +100,65 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(conducidas, ["comandos"])
 
 
+class BancoFalso:
+    """Anota las órdenes de `_ventana` y contesta lo justo."""
+
+    def __init__(self, al_frente=True):
+        self.resultado_frente = al_frente
+        self.llamadas = []
+
+    def pedir(self, op, **extra):
+        self.llamadas.append(op)
+        return {"datos": {}}
+
+    def esperar_ventana(self, titulo, segundos=15.0):
+        self.llamadas.append("esperar_ventana")
+        return {"titulo": titulo, "visible": True}
+
+    def al_frente(self):
+        self.llamadas.append("al_frente")
+        return self.resultado_frente
+
+
+class TestVentana(unittest.TestCase):
+
+    def test_pide_el_frente_despues_de_esperar_y_antes_de_conducir(self):
+        banco = BancoFalso(True)
+
+        def conducir(_cliente, _datos):
+            banco.llamadas.append("conducir")
+            return {"pasos": []}
+
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              side_effect=conducir),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(banco, mock.Mock(), ventanas_app.VENTANAS[0],
+                         7, set(), False)
+        claves = [llamada for llamada in banco.llamadas
+                  if llamada in ("esperar_ventana", "al_frente", "conducir")]
+        self.assertEqual(claves,
+                         ["esperar_ventana", "al_frente", "conducir"])
+
+    def test_si_no_queda_al_frente_corta_sin_conducir(self):
+        banco = BancoFalso(False)
+        with (
+            mock.patch.object(app.recorrido, "conducir") as conducir,
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            with self.assertRaises(app.InstrumentoRoto) as capturado:
+                app._ventana(banco, mock.Mock(), ventanas_app.VENTANAS[0],
+                             7, set(), False)
+        self.assertIn("no se pudo traer al frente la ventana «Preferencias»",
+                      str(capturado.exception))
+        conducir.assert_not_called()
+
+
 class TestAplicacion(unittest.TestCase):
 
     def test_arrancar_pasa_la_carpeta_de_datos_del_carril(self):
