@@ -8,9 +8,9 @@ tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='B
 tecla=tab fase=ida dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
 tecla=tab fase=ida dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
 tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=tab fase=ida dijo='Páginas de interacción lista Comandos 2 de 8' foco={nombre='Comandos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Páginas de interacción lista Comandos 2 de 9' foco={nombre='Comandos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Comandos del chat guardados lista Alt+ o No hay comandos. Usa Agregar para crear uno.' foco={nombre='No hay comandos. Usa Agregar para crear uno.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Comandos 2 de 8' foco={nombre='Comandos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Comandos 2 de 9' foco={nombre='Comandos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
 tecla=shift+tab fase=vuelta dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
 tecla=shift+tab fase=vuelta dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
