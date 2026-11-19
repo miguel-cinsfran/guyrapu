@@ -241,6 +241,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "estado_relevo.py": "Guarda el estado del relevo en curso; no abre una ventana propia.",
     "fotograma_video.py": (
         "Captura el fotograma del reproductor para la IA; no abre ventana propia."),
+    "ia_captura_video.py": (
+        "Suma el fotograma del reproductor a las capturas de la IA; no abre "
+        "ventana propia."),
     "sonda_foco_listas.py": (
         "es una sonda de diagnóstico del foco de las listas; abre su propia "
         "ventana de prueba y no tiene escena en el banco."),

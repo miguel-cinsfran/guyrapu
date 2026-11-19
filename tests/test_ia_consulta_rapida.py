@@ -144,6 +144,15 @@ class TestConsultaRapida(unittest.TestCase):
     def _instancia(self):
         return rapida._INSTANCIAS[id(self.marco)]
 
+    def test_los_textos_del_fotograma_siguen_en_el_modulo(self):
+        self.assertEqual(
+            rapida.TEXTO_SIN_VIDEO,
+            "OBS no está abierto y el reproductor no muestra vídeo.")
+        self.assertEqual(
+            rapida.TEXTO_FOTOGRAMA_FALLIDO,
+            "No se pudo capturar el fotograma del vídeo.")
+        self.assertEqual(rapida.ETIQUETA_FOTOGRAMA, "Fotograma del vídeo")
+
     def test_camino_feliz_suena_en_orden_anuncia_y_guarda(self):
         rapida.consultar(self.marco)
         self.assertEqual(

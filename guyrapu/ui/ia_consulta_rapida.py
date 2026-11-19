@@ -35,6 +35,8 @@ from guyrapu.player import fotograma_video
 from guyrapu.ui import ia_agregar_captura
 from guyrapu.ui import ia_privacidad
 from guyrapu.ui import ia_ventana
+from guyrapu.ui.ia_captura_video import (
+    ETIQUETA_FOTOGRAMA, TEXTO_FOTOGRAMA_FALLIDO, TEXTO_SIN_VIDEO)
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.voice.sound_player import reproducir
 
@@ -42,12 +44,6 @@ logger = diagnostico.obtener_logger(__name__)
 
 # Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia sin abrir nada.
 TEXTO_EN_CURSO = N_("Consulta rápida en curso.")
-# Traductores: aviso al pedir la consulta sin OBS y sin imagen en el reproductor.
-TEXTO_SIN_VIDEO = N_("OBS no está abierto y el reproductor no muestra vídeo.")
-# Traductores: aviso cuando libVLC no entrega el fotograma pedido.
-TEXTO_FOTOGRAMA_FALLIDO = N_("No se pudo capturar el fotograma del vídeo.")
-# Traductores: nombre de la captura en la conversación que hereda la ventana de IA.
-ETIQUETA_FOTOGRAMA = N_("Fotograma del vídeo")
 
 
 class ConsultaRapida:

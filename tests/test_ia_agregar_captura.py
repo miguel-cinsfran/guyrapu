@@ -6,7 +6,9 @@ Con ventana: las corre el dueño. No correr aquí, abren diálogos.
 """
 
 import base64
+import io
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
 try:
@@ -54,6 +56,79 @@ def _hilo_directo(target, nombre, **kwargs):
     hilo = mock.Mock()
     hilo.start.return_value = None
     return hilo
+
+
+class TestPedirCapturaSinObs(unittest.TestCase):
+    # Sin cuadro: un marco doble lleva al reproductor.
+
+    def setUp(self):
+        self.reproductor = mock.Mock()
+        self.reproductor.has_vout.return_value = 1
+        self.marco = mock.MagicMock()
+        self.marco._rep_panel = SimpleNamespace(_player=self.reproductor)
+        self.padre = mock.Mock()
+        self.padre.GetParent.return_value = self.marco
+        self.terminado = mock.Mock()
+        self.anunciar = self._parchear(agregar, "anunciar")
+        self.reproducir = self._parchear(agregar, "reproducir")
+        self.mostrar = self._parchear(agregar, "_mostrar")
+        self.crear_hilo = self._parchear(
+            agregar.diagnostico, "crear_hilo", side_effect=_hilo_directo)
+        self.capturar = self._parchear(agregar.ia_captura_video, "capturar")
+        self._parchear(agregar.obs_activacion,
+                       "obs_esta_en_ejecucion", return_value=False)
+        self._parchear(agregar.wx, "CallAfter",
+                       side_effect=lambda funcion, *args: funcion(*args))
+
+    def _parchear(self, objetivo, nombre, **kwargs):
+        parche = mock.patch.object(objetivo, nombre, **kwargs)
+        sustituto = parche.start()
+        self.addCleanup(parche.stop)
+        return sustituto
+
+    def test_con_video_agrega_el_fotograma_sin_abrir_cuadro(self):
+        captura = obs_captura_ia.Captura(b"jpg", 640, 360, None)
+        self.capturar.return_value = captura
+        agregar.pedir_captura(self.padre, self.terminado)
+        opcion = self.capturar.call_args.args[1]
+        self.assertEqual(opcion.fuente, "Fotograma del vídeo")
+        self.capturar.assert_called_once_with(None, opcion, self.reproductor)
+        self.assertTrue(self.crear_hilo.called)
+        self.terminado.assert_called_once_with(("Fotograma del vídeo", captura))
+        self.mostrar.assert_not_called()
+        self.anunciar.assert_not_called()
+        self.reproducir.assert_not_called()
+
+    def test_sin_video_anuncia_y_no_agrega(self):
+        with self.subTest("solo audio"):
+            self.reproductor.has_vout.return_value = 0
+            self._comprobar_sin_video()
+        self.anunciar.reset_mock()
+        self.reproducir.reset_mock()
+        self.terminado.reset_mock()
+        with self.subTest("sin nada cargado"):
+            self.marco._rep_panel = None
+            self._comprobar_sin_video()
+
+    def _comprobar_sin_video(self):
+        agregar.pedir_captura(self.padre, self.terminado)
+        self.anunciar.assert_called_once_with(
+            "OBS no está abierto y el reproductor no muestra vídeo.")
+        self.reproducir.assert_called_once_with("ia_error")
+        self.terminado.assert_called_once_with(None)
+        self.capturar.assert_not_called()
+        self.crear_hilo.assert_not_called()
+        self.mostrar.assert_not_called()
+
+    def test_fallo_del_fotograma_anuncia_y_no_agrega(self):
+        self.capturar.side_effect = obs_captura_ia.CapturaFallida(
+            "No se pudo capturar el fotograma del vídeo.")
+        agregar.pedir_captura(self.padre, self.terminado)
+        self.anunciar.assert_called_once_with(
+            "No se pudo capturar el fotograma del vídeo.")
+        self.reproducir.assert_called_once_with("ia_error")
+        self.terminado.assert_called_once_with(None)
+        self.mostrar.assert_not_called()
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
@@ -130,6 +205,52 @@ class TestDialogoAgregarCapturaVentana(unittest.TestCase):
                          "Escena actual: Escena")
         self.assertEqual(dialogo._opciones[0].fuente, "Escena")
         self.assertTrue(dialogo.btn_capturar.IsEnabled())
+
+    def _dialogo_con_reproductor(self, con_video=True):
+        reproductor = mock.Mock()
+        reproductor.has_vout.return_value = 1 if con_video else 0
+        dialogo = agregar.DialogoAgregarCaptura(
+            None, ClienteDoble(), reproductor)
+        self.addCleanup(destruir, dialogo)
+        return dialogo, reproductor
+
+    def test_con_video_la_lista_termina_con_el_fotograma(self):
+        dialogo, _reproductor = self._dialogo_con_reproductor()
+        self.assertEqual(
+            dialogo.cho_fuente.GetStrings(),
+            ["Escena actual: Escena", "Cámara", "Fotograma del vídeo"])
+        opcion = dialogo._opciones[-1]
+        self.assertEqual(opcion.fuente, "Fotograma del vídeo")
+        self.assertEqual(opcion.etiqueta, "Fotograma del vídeo")
+
+    def test_sin_video_la_lista_queda_como_hoy(self):
+        dialogo, _reproductor = self._dialogo_con_reproductor(False)
+        self.assertEqual(dialogo.cho_fuente.GetStrings(),
+                         ["Escena actual: Escena", "Cámara"])
+
+    def test_vista_previa_del_fotograma_usa_el_reproductor(self):
+        dialogo, reproductor = self._dialogo_con_reproductor()
+        dialogo.cho_fuente.SetSelection(2)
+        salida = io.BytesIO()
+        wx.Image(2, 2).SaveFile(salida, wx.BITMAP_TYPE_JPEG)
+        with mock.patch.object(agregar.ia_captura_video, "vista_previa",
+                               return_value=salida.getvalue()) as vista:
+            dialogo._al_temporizador(mock.Mock())
+        opcion = vista.call_args.args[1]
+        vista.assert_called_once_with(dialogo._cliente, opcion, reproductor)
+        self.assertTrue(dialogo.bmp_vista.GetBitmap().IsOk())
+
+    def test_capturar_el_fotograma_guarda_la_etiqueta(self):
+        dialogo, reproductor = self._dialogo_con_reproductor()
+        dialogo.cho_fuente.SetSelection(2)
+        captura = obs_captura_ia.Captura(b"jpg", 640, 360, None)
+        with mock.patch.object(dialogo, "EndModal"), \
+                mock.patch.object(agregar.ia_captura_video, "capturar",
+                                  return_value=captura) as capturar:
+            dialogo._al_capturar(mock.Mock())
+        opcion = capturar.call_args.args[1]
+        capturar.assert_called_once_with(dialogo._cliente, opcion, reproductor)
+        self.assertEqual(dialogo.resultado, ("Fotograma del vídeo", captura))
 
     def test_capturar_nunca_esta_deshabilitado(self):
         dialogo, pendientes = self._dialogo_sin_cargar()

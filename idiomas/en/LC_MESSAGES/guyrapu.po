@@ -13258,6 +13258,23 @@ msgstr "Capture"
 msgid "Ca&ncelar"
 msgstr "Ca&ncel"
 
+#. Traductores: aviso al pedir la consulta sin OBS y sin imagen en el
+#. reproductor.
+#: guyrapu/ui/ia_captura_video.py
+msgid "OBS no está abierto y el reproductor no muestra vídeo."
+msgstr "OBS is not open and the player is not showing video."
+
+#. Traductores: aviso cuando libVLC no entrega el fotograma pedido.
+#: guyrapu/ui/ia_captura_video.py
+msgid "No se pudo capturar el fotograma del vídeo."
+msgstr "Could not capture the video frame."
+
+#. Traductores: nombre de la captura en la conversación que hereda la ventana
+#. de IA.
+#: guyrapu/ui/ia_captura_video.py
+msgid "Fotograma del vídeo"
+msgstr "Video frame"
+
 #. Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia
 #. sin abrir nada.
 #: guyrapu/ui/ia_consulta_rapida.py
@@ -16937,21 +16954,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: aviso al pedir la consulta sin OBS y sin imagen en el
-#. reproductor.
-#: guyrapu/ui/ia_consulta_rapida.py
-msgid "OBS no está abierto y el reproductor no muestra vídeo."
-msgstr "OBS is not open and the player is not showing video."
-
-#. Traductores: aviso cuando libVLC no entrega el fotograma pedido.
-#: guyrapu/ui/ia_consulta_rapida.py
-msgid "No se pudo capturar el fotograma del vídeo."
-msgstr "Could not capture the video frame."
-
-#. Traductores: nombre de la captura en la conversación que hereda la ventana
-#. de IA.
-#: guyrapu/ui/ia_consulta_rapida.py
-msgid "Fotograma del vídeo"
-msgstr "Video frame"
 

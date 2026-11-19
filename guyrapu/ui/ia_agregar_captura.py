@@ -1,10 +1,9 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Subventana para elegir qué capturar de OBS y preguntarle a la IA.
+"""Subventana para elegir qué capturar y preguntarle a la IA.
 
-Modal y chica como `gui_elegir_destino`: lista «Capturar de» con lo que
-ofrece `obs_captura_ia.opciones`, vista previa solo para resto visual
-y botones Capturar y Cancelar. El cliente llega ya conectado.
+Lista «Capturar de» con las fuentes de OBS y el fotograma del
+reproductor, vista previa y botones Capturar y Cancelar.
 """
 
 from __future__ import annotations
@@ -20,6 +19,8 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_captura_ia
 from guyrapu.obs import obs_cliente
+from guyrapu.player import fotograma_video
+from guyrapu.ui import ia_captura_video
 from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.espera_sonora import EsperaSonora
@@ -64,10 +65,11 @@ def texto_negra(etiqueta, motivo="", fuente="") -> str:
 
 
 class DialogoAgregarCaptura(wx.Dialog):
-    def __init__(self, padre, cliente):
+    def __init__(self, padre, cliente, reproductor=None):
         super().__init__(padre, title=_("Agregar captura"),
                          name="DialogoAgregarCaptura")
         self._cliente = cliente
+        self._reproductor = reproductor
         self._cerrojo = threading.Lock()
         self._cerrado = False
         self._opciones = ()
@@ -163,7 +165,9 @@ class DialogoAgregarCaptura(wx.Dialog):
         def _trabajo():
             try:
                 with self._cerrojo:
-                    opciones = obs_captura_ia.opciones(self._cliente)
+                    opciones = ia_captura_video.con_fotograma(
+                        obs_captura_ia.opciones(self._cliente),
+                        self._reproductor)
             except Exception as error:
                 logger.warning("AgregarCaptura: no se pudo listar: %s", error)
                 wx.CallAfter(self._opciones_fallaron, error)
@@ -212,7 +216,8 @@ class DialogoAgregarCaptura(wx.Dialog):
         def _trabajo():
             try:
                 with self._cerrojo:
-                    jpeg = obs_captura_ia.vista_previa(self._cliente, opcion)
+                    jpeg = ia_captura_video.vista_previa(
+                        self._cliente, opcion, self._reproductor)
             except Exception as error:
                 logger.warning("AgregarCaptura: sin vista previa: %s", error)
                 wx.CallAfter(self._vista_fallida, generacion)
@@ -263,7 +268,8 @@ class DialogoAgregarCaptura(wx.Dialog):
         def _trabajo():
             try:
                 with self._cerrojo:
-                    captura = obs_captura_ia.capturar(self._cliente, opcion)
+                    captura = ia_captura_video.capturar(
+                        self._cliente, opcion, self._reproductor)
             except obs_captura_ia.CapturaFallida as error:
                 wx.CallAfter(self._captura_fallida, str(error))
                 return
@@ -308,8 +314,8 @@ def _cerrar(cliente) -> None:
         logger.warning("AgregarCaptura: no se pudo cerrar: %s", fallo)
 
 
-def _mostrar(padre, cliente, al_terminar) -> None:
-    dialogo = DialogoAgregarCaptura(padre, cliente)
+def _mostrar(padre, cliente, al_terminar, reproductor) -> None:
+    dialogo = DialogoAgregarCaptura(padre, cliente, reproductor)
     try:
         if dialogo.ShowModal() == wx.ID_OK and dialogo.resultado:
             al_terminar(dialogo.resultado)
@@ -323,18 +329,38 @@ def _mostrar(padre, cliente, al_terminar) -> None:
         _cerrar(cliente)
 
 
-def pedir_captura(padre, al_terminar) -> None:
-    """Pide una captura de OBS sin bloquear. Llama a `al_terminar`.
-
-    El resultado es `(fuente, captura)` o None, siempre en el hilo de
-    la interfaz. Sin OBS abierto o sin conexión, avisa y termina con
-    None sin abrir nada.
-    """
-    if not obs_activacion.obs_esta_en_ejecucion():
-        anunciar(_(TEXTO_OBS_CERRADO))
+def _sin_obs(padre, al_terminar) -> None:
+    """Toma el fotograma del reproductor sin abrir ningún cuadro."""
+    reproductor = fotograma_video.reproductor_de(padre.GetParent())
+    if not fotograma_video.muestra_video(reproductor):
+        anunciar(_(ia_captura_video.TEXTO_SIN_VIDEO))
         reproducir("ia_error")
         al_terminar(None)
         return
+    opcion = ia_captura_video.opcion_fotograma()
+
+    def _trabajo():
+        try:
+            captura = ia_captura_video.capturar(None, opcion, reproductor)
+        except obs_captura_ia.CapturaFallida:
+            wx.CallAfter(anunciar, _(ia_captura_video.TEXTO_FOTOGRAMA_FALLIDO))
+            wx.CallAfter(reproducir, "ia_error")
+            wx.CallAfter(al_terminar, None)
+            return
+        wx.CallAfter(al_terminar, (opcion.fuente, captura))
+
+    diagnostico.crear_hilo(_trabajo, "AgregarCapturaFotograma").start()
+
+
+def pedir_captura(padre, al_terminar) -> None:
+    """Pide una captura sin bloquear. Llama a `al_terminar`.
+
+    El resultado es `(fuente, captura)` o None, en el hilo de la interfaz.
+    """
+    if not obs_activacion.obs_esta_en_ejecucion():
+        _sin_obs(padre, al_terminar)
+        return
+    reproductor = fotograma_video.reproductor_de(padre.GetParent())
     cliente = obs_cliente.ClienteObs(obs_cliente.leer_ajustes())
 
     def _conexion_fallida(error) -> None:
@@ -344,7 +370,7 @@ def pedir_captura(padre, al_terminar) -> None:
         al_terminar(None)
 
     def _conexion_lista() -> None:
-        _mostrar(padre, cliente, al_terminar)
+        _mostrar(padre, cliente, al_terminar, reproductor)
 
     def _trabajo():
         try:
