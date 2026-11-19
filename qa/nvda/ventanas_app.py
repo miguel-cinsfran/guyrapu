@@ -88,6 +88,11 @@ VENTANAS = (
         "menu": "Música > Elegir música…",
         "titulo": _("Música"),
         "primero": "Buscar en la música",
+        # Sin esto sale el modal de igualar volumen con la biblioteca llena.
+        "ajustes": [
+            {"seccion": "musica", "clave": "preguntar_igualar",
+             "valor": "false"},
+        ],
     },
     {
         "nombre": "ia",

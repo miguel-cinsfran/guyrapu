@@ -10,6 +10,7 @@ menú, se conduce con el complemento de NVDA y se guarda su transcripción.
 
 from __future__ import annotations
 
+import configparser
 import logging
 import os
 import shutil
@@ -86,7 +87,7 @@ def falta_prism() -> bool:
 
 
 def _aislar_datos() -> None:
-    """Deja la carpeta de datos del carril y le copia la configuración real."""
+    """Deja la carpeta aislada con el INI copiado y los ajustes del carril."""
     ruta = os.environ.get(VAR_DATOS)
     if not ruta:
         return
@@ -95,8 +96,22 @@ def _aislar_datos() -> None:
     carpeta = Path(ruta)
     carpeta.mkdir(parents=True, exist_ok=True)
     origen = paths.carpeta_datos() / "config.ini"
+    destino = carpeta / "config.ini"
     if origen.exists():
-        shutil.copy2(origen, carpeta / "config.ini")
+        shutil.copy2(origen, destino)
+    ajustes = [ajuste for entrada in ventanas_app.VENTANAS
+               for ajuste in entrada.get("ajustes") or ()]
+    if ajustes:
+        parser = configparser.ConfigParser(interpolation=None,
+                                           default_section="__none__")
+        parser.read(destino, encoding="utf-8")
+        for ajuste in ajustes:
+            seccion = ajuste["seccion"]
+            if not parser.has_section(seccion):
+                parser.add_section(seccion)
+            parser.set(seccion, ajuste["clave"], ajuste["valor"])
+        with open(destino, "w", encoding="utf-8") as salida:
+            parser.write(salida)
     paths.carpeta_datos = lambda: carpeta
 
 
