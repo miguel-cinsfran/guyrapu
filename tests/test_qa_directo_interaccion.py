@@ -74,6 +74,7 @@ class TestDatos(unittest.TestCase):
         comandos = comandos_guardados.cargar(self.rutas["comandos"])
         nuevo = next(c for c in comandos if di.MARCA in c["respuesta"])
         self.assertEqual(nuevo["destino"], "ambos")
+        self.assertTrue(nuevo["activo"])
         from guyrapu.interaction import comandos
         encontrado = comandos.buscar(
             [comandos_guardados.a_comando(c) for c in comandos_guardados.cargar(
@@ -81,20 +82,26 @@ class TestDatos(unittest.TestCase):
             comandos.leer("!prueba"))
         self.assertIsNotNone(encontrado)
         self.assertEqual(encontrado.respuesta, di.RESPUESTA_PRUEBA)
+        self.assertEqual(encontrado.destino, "ambos")
+        self.assertTrue(encontrado.activo)
         disparadores = disparadores_guardados.cargar(
             self.rutas["disparadores"])
         disparador = next(d for d in disparadores if di.MARCA in d["nombre"])
         self.assertEqual(disparador["cuando"], "comando")
         self.assertIn("risa", disparador["comandos"])
-        self.assertTrue(disparador["tarjeta"])
+        self.assertEqual(disparador["tarjeta"], di.TARJETA_RISA)
+        self.assertTrue(disparador["activo"])
         encuestas = encuestas_guardadas.cargar(self.rutas["encuestas"])
         encuesta = next(e for e in encuestas if di.MARCA in e["pregunta"])
-        self.assertEqual(len(encuesta["opciones"]), 2)
+        self.assertEqual(encuesta["pregunta"], di.PREGUNTA_ENCUESTA)
+        self.assertEqual(set(encuesta["opciones"]),
+                         {di.OPCION_UNO, di.OPCION_DOS})
         self.assertEqual(encuesta["destino"], "chat")
         metas = metas_guardadas.cargar(self.rutas["metas"])
         meta = next(m for m in metas if di.MARCA in m["nombre"])
         self.assertEqual(meta["que_cuenta"], "super_chat")
         self.assertEqual(meta["objetivo"], 1)
+        self.assertTrue(meta["activa"])
         self.assertTrue(meta["en_video"])
 
     def test_la_restauracion_devuelve_los_bytes_previos(self):
