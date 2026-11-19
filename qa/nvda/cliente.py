@@ -45,14 +45,15 @@ class Cliente:
             self._estado = leer_estado(self._ruta)
         return self._estado
 
-    def _pedir(self, **orden) -> dict:
+    def _pedir(self, tope_s=None, **orden) -> dict:
         estado = self.estado()
         pedido = dict(orden)
         pedido["clave"] = estado["clave"]
         linea = (json.dumps(pedido, ensure_ascii=False) + "\n").encode("utf-8")
+        espera = self._espera_s if tope_s is None else tope_s
         with socket.create_connection(
                 ("127.0.0.1", int(estado["puerto"])),
-                timeout=self._espera_s) as conexion:
+                timeout=espera) as conexion:
             archivo = conexion.makefile("rwb")
             archivo.write(linea)
             archivo.flush()
@@ -75,6 +76,14 @@ class Cliente:
 
     def desde(self, indice) -> list:
         return self._pedir(orden="desde", indice=int(indice))["eventos"]
+
+    def esperar_frase(self, frase, desde, plazo_s=5.0) -> dict:
+        """Espera en el complemento a que NVDA diga la frase desde una marca."""
+        respuesta = self._pedir(
+            orden="esperar_frase", frase=frase, indice=int(desde),
+            plazo_s=float(plazo_s), tope_s=float(plazo_s) + 2.0)
+        return {"oida": bool(respuesta["oida"]),
+                "eventos": respuesta["eventos"]}
 
     def foco(self) -> dict:
         return self._pedir(orden="foco")["foco"]

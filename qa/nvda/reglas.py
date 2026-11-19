@@ -25,6 +25,7 @@ NIVELES = {
     "atajo_repetido": "aviso",
     "paso_mudo": "aviso",
     "foco_perdido": "aviso",
+    "espera_no_oida": "aviso",
     "recorrido": "aviso",
 }
 
@@ -177,6 +178,12 @@ def analizar(datos, catalogo_ingles) -> list:
                 hallazgos.append(_hallazgo(
                     "foco_perdido", datos, indice,
                     "después de la acción el foco quedó perdido"))
+        if paso.get("espera") and not paso.get("oida"):
+            frase = paso["espera"]
+            dicho = str(paso.get("espera_dicho") or "").strip()
+            hallazgos.append(_hallazgo(
+                "espera_no_oida", datos, indice,
+                f"no se oyó «{frase}»: NVDA dijo {dicho!r}"))
     problema = _problema_de_recorrido(datos)
     if problema:
         hallazgos.append(_hallazgo("recorrido", datos, None, problema))

@@ -149,6 +149,18 @@ class LectorEventos:
         with self._cerrojo:
             return self._eventos[max(0, int(indice)):]
 
+    def esperar_frase(self, frase, indice, plazo_s):
+        """Si NVDA dice la frase desde una marca, devuelve oída y los eventos."""
+        limite = time.monotonic() + plazo_s
+        buscada = frase.casefold()
+        while time.monotonic() < limite:
+            eventos = self.desde(indice)
+            if any(buscada in str(e.get("texto") or "").casefold()
+                   for e in eventos if e.get("tipo") == "habla"):
+                return True, eventos
+            time.sleep(0.1)
+        return False, self.desde(indice)
+
     def ultima_habla(self) -> float:
         with self._cerrojo:
             return self._ultima_habla
@@ -306,6 +318,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if orden == "desde":
             return {"ok": True,
                     "eventos": self._eventos.desde(pedido.get("indice", 0))}
+        if orden == "esperar_frase":
+            frase = str(pedido.get("frase") or "")
+            indice = int(pedido.get("indice", 0))
+            plazo = float(pedido.get("plazo_s", 5.0))
+            oida, eventos = self._eventos.esperar_frase(frase, indice, plazo)
+            return {"ok": True, "oida": oida, "eventos": eventos}
         if orden == "foco":
             return self._en_principal(self._foco_actual)
         if orden == "tecla":

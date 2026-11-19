@@ -187,6 +187,28 @@ class TestFocoPerdido(unittest.TestCase):
             self._accion(foco("Otro control")), set()), "foco_perdido"))
 
 
+class TestEsperaNoOida(unittest.TestCase):
+
+    def _accion(self, oida, dicho="otra cosa"):
+        datos = recorrido([paso(
+            foco("Conectar"), tecla="space", fase="accion")])
+        paso_datos = datos["pasos"][0]
+        paso_datos["espera"] = "el historial está vacío"
+        paso_datos["oida"] = oida
+        paso_datos["espera_dicho"] = dicho
+        return datos
+
+    def test_salta_con_la_frase_y_lo_que_nvda_dijo(self):
+        hallazgo = _regla(reglas.analizar(self._accion(False), set()),
+                          "espera_no_oida")[0]
+        self.assertIn("el historial está vacío", hallazgo["detalle"])
+        self.assertIn("otra cosa", hallazgo["detalle"])
+
+    def test_calla_cuando_se_oyó_la_frase(self):
+        self.assertFalse(_regla(
+            reglas.analizar(self._accion(True), set()), "espera_no_oida"))
+
+
 class TestRecorrido(unittest.TestCase):
 
     def _ciclo(self):
@@ -229,8 +251,9 @@ class TestNiveles(unittest.TestCase):
     def test_todas_las_reglas_son_aviso(self):
         self.assertEqual(
             set(reglas.NIVELES),
-            {"sin_nombre", "rol_contenedor", "nombre_repetido", "ingles",
-             "atajo_repetido", "paso_mudo", "foco_perdido", "recorrido"})
+             {"sin_nombre", "rol_contenedor", "nombre_repetido", "ingles",
+              "atajo_repetido", "paso_mudo", "foco_perdido",
+              "espera_no_oida", "recorrido"})
         self.assertEqual(set(reglas.NIVELES.values()), {"aviso"})
 
     def test_el_hallazgo_lleva_regla_nivel_ventana_paso_y_detalle(self):

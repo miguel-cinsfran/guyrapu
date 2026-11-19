@@ -26,6 +26,15 @@ class ClienteFalso:
         self.pid = pid
         self.ajeno = ajeno
         self.pasos = []
+        self.esperas = []
+
+    def marca(self):
+        return len(self.pasos)
+
+    def esperar_frase(self, frase, desde, plazo_s=5.0):
+        self.esperas.append((frase, desde, plazo_s, len(self.pasos)))
+        return {"oida": True,
+                "eventos": [{"tipo": "habla", "texto": frase}]}
 
     def _foco(self):
         nombre = self.nombres[self.pos]
@@ -131,6 +140,48 @@ class TestAccion(unittest.TestCase):
         nombres = ["Uno", "Dos"]
         datos = recorrido.conducir(ClienteFalso(nombres), ventana(nombres))
         self.assertEqual(datos["pasos"][0]["ms_habla"], 50)
+
+    def test_la_espera_toma_la_marca_antes_del_gesto(self):
+        nombres = ["Uno", "Dos"]
+        cliente = ClienteFalso(nombres)
+        datos = recorrido.conducir(cliente, ventana(nombres, [{
+            "control": "Dos", "gesto": "space", "espera": "listo"}]))
+        frase, desde, plazo, al_esperar = cliente.esperas[0]
+        self.assertEqual(frase, "listo")
+        self.assertEqual(plazo, 5.0)
+        self.assertLess(desde, al_esperar)
+        accion = [p for p in datos["pasos"] if p["fase"] == "accion"][0]
+        self.assertEqual(accion["espera"], "listo")
+        self.assertTrue(accion["oida"])
+        self.assertEqual(accion["espera_dicho"], "listo")
+
+    def test_sin_espera_no_llama_a_esperar_frase(self):
+        nombres = ["Uno"]
+        cliente = ClienteFalso(nombres)
+        recorrido.conducir(cliente, ventana(
+            nombres, [{"control": "Uno", "gesto": "space"}]))
+        self.assertEqual(cliente.esperas, [])
+
+    def test_los_sonidos_nuevos_se_ponen_en_cada_paso(self):
+        nombres = ["Uno", "Dos"]
+        with tempfile.TemporaryDirectory() as base:
+            ruta = Path(base) / "sonidos.txt"
+            ruta.write_text("anterior\n", encoding="utf-8")
+            cliente = ClienteFalso(nombres)
+            paso_original = cliente.paso
+
+            def con_sonido(tecla, silencio_ms=400, tope_ms=10000):
+                with open(ruta, "a", encoding="utf-8") as archivo:
+                    archivo.write("listo\n")
+                return paso_original(tecla, silencio_ms, tope_ms)
+
+            cliente.paso = con_sonido
+            with mock.patch.dict(os.environ,
+                                 {recorrido.VAR_SONIDOS: str(ruta)}):
+                datos = recorrido.conducir(cliente, ventana(nombres))
+        self.assertEqual(datos["pasos"][0]["sonidos"], ["listo"])
+        self.assertTrue(all("anterior" not in p["sonidos"]
+                            for p in datos["pasos"]))
 
 
 class ClienteDePaginas:

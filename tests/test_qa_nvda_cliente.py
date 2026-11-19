@@ -89,6 +89,9 @@ class TestPedidos(unittest.TestCase):
             "tecla": {"ok": True, "indice": 8, "agotado": False,
                       "hora": 1.5},
             "desde": {"ok": True, "eventos": [{"tipo": "habla"}]},
+            "esperar_frase": {
+                "ok": True, "oida": True,
+                "eventos": [{"tipo": "habla", "texto": "El historial está vacío."}]},
             "foco": {"ok": True, "foco": {"nombre": "Aceptar"},
                      "primer_plano": {"pid": 7, "nombre": "Ventana"}},
         })
@@ -120,6 +123,17 @@ class TestPedidos(unittest.TestCase):
         self.assertEqual(resultado["foco"], {"nombre": "Aceptar"})
         self.assertEqual(resultado["hora"], 1.5)
         self.assertEqual(self.servidor.recibidos[2]["indice"], 7)
+
+    def test_esperar_frase_manda_frase_marca_y_plazo(self):
+        resultado = cliente.Cliente(self.estado.ruta).esperar_frase(
+            "el historial está vacío", 7, plazo_s=3.0)
+        pedido = self.servidor.recibidos[0]
+        self.assertEqual(pedido["orden"], "esperar_frase")
+        self.assertEqual(pedido["frase"], "el historial está vacío")
+        self.assertEqual(pedido["indice"], 7)
+        self.assertEqual(pedido["plazo_s"], 3.0)
+        self.assertTrue(resultado["oida"])
+        self.assertEqual(len(resultado["eventos"]), 1)
 
     def test_foco_completo_trae_el_primer_plano(self):
         respuesta = cliente.Cliente(self.estado.ruta).foco_completo()

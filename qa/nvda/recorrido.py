@@ -14,6 +14,7 @@ de la app.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 import time
@@ -22,10 +23,31 @@ from pathlib import Path
 from qa.nvda.reglas import identidad
 
 TOPE_PASOS = 40
+VAR_SONIDOS = "GUYRAPU_QA_SONIDOS"
 
 
 class InstrumentoRoto(RuntimeError):
     """La ventana no tomó el foco o el primer plano es de otro proceso."""
+
+
+class Sonidos:
+    """Los sonidos nuevos del archivo que escribe la sonda del carril."""
+
+    def __init__(self, ruta):
+        self._ruta = Path(ruta) if ruta else None
+        self._pos = 0
+
+    def nuevos(self):
+        if not self._ruta:
+            return []
+        try:
+            with open(self._ruta, encoding="utf-8") as archivo:
+                archivo.seek(self._pos)
+                lineas = archivo.read().splitlines()
+                self._pos = archivo.tell()
+        except OSError:
+            return []
+        return [linea.strip() for linea in lineas if linea.strip()]
 
 
 def _comprobar_primer_plano(cliente, pid) -> None:
@@ -44,12 +66,12 @@ def _ms_hasta_la_ultima_habla(hora, habla):
     return max(0, round((ultima - float(hora)) * 1000))
 
 
-def _paso(cliente, tecla, fase, pid) -> dict:
+def _paso(cliente, tecla, fase, pid, lector=None) -> dict:
     _comprobar_primer_plano(cliente, pid)
     datos = cliente.paso(tecla)
     eventos = datos.get("eventos") or []
     habla = [evento for evento in eventos if evento.get("tipo") == "habla"]
-    return {
+    paso = {
         "tecla": tecla,
         "fase": fase,
         "habla": habla,
@@ -57,6 +79,9 @@ def _paso(cliente, tecla, fase, pid) -> dict:
         "agotado": bool(datos.get("agotado")),
         "ms_habla": _ms_hasta_la_ultima_habla(datos.get("hora"), habla),
     }
+    if lector is not None:
+        paso["sonidos"] = lector.nuevos()
+    return paso
 
 
 def _esperar_foco(cliente, nombre, tope_s, dormir) -> dict:
@@ -77,12 +102,12 @@ def _esperar_foco(cliente, nombre, tope_s, dormir) -> dict:
         f"el último foco fue {visto}")
 
 
-def _ir_a(cliente, nombre, pid, tope) -> None:
+def _ir_a(cliente, nombre, pid, tope, lector=None) -> None:
     for _ in range(tope):
         foco = cliente.foco_completo().get("foco") or {}
         if foco.get("nombre") == nombre:
             return
-        _paso(cliente, "tab", "navegacion", pid)
+        _paso(cliente, "tab", "navegacion", pid, lector)
     foco = cliente.foco_completo().get("foco") or {}
     if foco.get("nombre") != nombre:
         raise InstrumentoRoto(f"no se llegó con Tab a «{nombre}»")
@@ -92,7 +117,7 @@ def _foco_de(cliente) -> dict:
     return cliente.foco_completo().get("foco") or {}
 
 
-def _elegir_pagina(cliente, ventana, pid, tope) -> list:
+def _elegir_pagina(cliente, ventana, pid, tope, lector=None) -> list:
     """Va con Shift+Tab a la lista de páginas y elige la pedida con flechas.
 
     La lista de un `wx.Listbook` se maneja con las flechas; entrar a la página
@@ -106,7 +131,7 @@ def _elegir_pagina(cliente, ventana, pid, tope) -> list:
     for _ in range(tope):
         if _foco_de(cliente).get("nombre") in paginas:
             break
-        pasos.append(_paso(cliente, "shift+tab", "pagina", pid))
+        pasos.append(_paso(cliente, "shift+tab", "pagina", pid, lector))
     else:
         raise InstrumentoRoto(
             f"no se llegó a la lista de páginas para «{pagina}»")
@@ -114,41 +139,55 @@ def _elegir_pagina(cliente, ventana, pid, tope) -> list:
     destino = paginas.index(pagina)
     tecla = "downArrow" if destino > actual else "upArrow"
     for _ in range(abs(destino - actual)):
-        pasos.append(_paso(cliente, tecla, "pagina", pid))
+        pasos.append(_paso(cliente, tecla, "pagina", pid, lector))
     if _foco_de(cliente).get("nombre") != pagina:
         raise InstrumentoRoto(f"la lista de páginas no llegó a «{pagina}»")
-    pasos.append(_paso(cliente, "tab", "pagina", pid))
+    pasos.append(_paso(cliente, "tab", "pagina", pid, lector))
     return pasos
 
 
-def _pasos_de_pagina(cliente, ventana, pid, tope) -> list:
+def _pasos_de_pagina(cliente, ventana, pid, tope, lector=None) -> list:
     """Los pasos de elegir la página, o ninguno si no lleva una."""
     if not ventana.get("pagina"):
         return []
-    return _elegir_pagina(cliente, ventana, pid, tope)
+    return _elegir_pagina(cliente, ventana, pid, tope, lector)
 
 
 def conducir(cliente, ventana, tope=TOPE_PASOS, tope_foco_s=20.0,
              dormir=time.sleep) -> dict:
     """La ida, la vuelta y las acciones de una ventana ya abierta."""
     pid = int(ventana["pid"])
-    pasos = _pasos_de_pagina(cliente, ventana, pid, tope)
+    lector = Sonidos(os.environ.get(VAR_SONIDOS))
+    lector.nuevos()
+    pasos = _pasos_de_pagina(cliente, ventana, pid, tope, lector)
     primero = _esperar_foco(cliente, ventana["primero"], tope_foco_s, dormir)
     identidad_primera = identidad(primero)
     for _ in range(tope):
-        paso = _paso(cliente, "tab", "ida", pid)
+        paso = _paso(cliente, "tab", "ida", pid, lector)
         pasos.append(paso)
         if identidad(paso["foco"]) == identidad_primera:
             break
     for _ in range(tope):
-        paso = _paso(cliente, "shift+tab", "vuelta", pid)
+        paso = _paso(cliente, "shift+tab", "vuelta", pid, lector)
         pasos.append(paso)
         if identidad(paso["foco"]) == identidad_primera:
             break
     for accion in ventana.get("acciones") or ():
-        _ir_a(cliente, accion["control"], pid, tope)
-        pasos.append(_paso(cliente, accion.get("gesto", "space"),
-                           "accion", pid))
+        _ir_a(cliente, accion["control"], pid, tope, lector)
+        espera = accion.get("espera")
+        marca = cliente.marca() if espera else None
+        paso = _paso(cliente, accion.get("gesto", "space"), "accion", pid)
+        if espera:
+            respuesta = cliente.esperar_frase(
+                espera, marca, float(accion.get("plazo_s", 5.0)))
+            paso["espera"] = espera
+            paso["oida"] = respuesta["oida"]
+            paso["espera_dicho"] = " ".join(
+                str(evento.get("texto") or "")
+                for evento in respuesta["eventos"]
+                if evento.get("tipo") == "habla").strip()
+        paso["sonidos"] = lector.nuevos()
+        pasos.append(paso)
     return {
         "ventana": ventana.get("nombre") or ventana.get("titulo"),
         "pid": pid,

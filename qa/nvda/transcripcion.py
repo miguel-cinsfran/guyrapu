@@ -40,10 +40,17 @@ def _linea(paso) -> str:
     foco = paso.get("foco") or {}
     estados = sorted(str(estado) for estado in foco.get("estados") or ())
     rol = foco.get("rol_nombre") or foco.get("rol")
-    return (f"tecla={paso.get('tecla')} fase={paso.get('fase')} "
-            f"dijo={_habla(paso)!r} foco={{nombre={foco.get('nombre')!r}, "
-            f"rol={rol!r}, estados={estados!r}, "
-            f"valor={foco.get('valor')!r}, atajo={foco.get('atajo')!r}}}")
+    linea = (f"tecla={paso.get('tecla')} fase={paso.get('fase')} "
+             f"dijo={_habla(paso)!r} foco={{nombre={foco.get('nombre')!r}, "
+             f"rol={rol!r}, estados={estados!r}, "
+             f"valor={foco.get('valor')!r}, atajo={foco.get('atajo')!r}}}")
+    if paso.get("espera"):
+        linea += (f" espera={paso['espera']!r} "
+                  f"oída={bool(paso.get('oida'))}")
+    sonidos = paso.get("sonidos") or []
+    if sonidos:
+        linea += f" sonó={[str(sonido) for sonido in sonidos]!r}"
+    return linea
 
 
 def texto(datos) -> str:

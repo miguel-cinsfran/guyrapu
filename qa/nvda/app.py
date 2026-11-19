@@ -10,6 +10,7 @@ menú, se conduce con el complemento de NVDA y se guarda su transcripción.
 
 from __future__ import annotations
 
+import logging
 import os
 import shutil
 import subprocess
@@ -33,6 +34,26 @@ class TranscripcionCambiada(RuntimeError):
     def __init__(self, lineas):
         super().__init__("cambió una transcripción aprobada")
         self.lineas = lineas
+
+
+class _GrabadorSonidos(logging.Handler):
+    """Anota el nombre de cada sonido del catálogo que realmente sonó."""
+
+    def __init__(self, ruta):
+        super().__init__(level=logging.DEBUG)
+        self._ruta = Path(ruta)
+
+    def emit(self, registro):
+        mensaje = registro.getMessage()
+        if "SONIDO evento=" not in mensaje or "omitido" in mensaje:
+            return
+        evento = mensaje.split("SONIDO evento=", 1)[1].split()[0]
+        try:
+            with open(self._ruta, "a", encoding="utf-8") as archivo:
+                archivo.write(evento + "\n")
+        except OSError as exc:
+            logging.getLogger(__name__).debug(
+                "no se pudo anotar el sonido: %s", exc)
 
 
 class DobleLector:
@@ -82,6 +103,11 @@ def _aislar_datos() -> None:
 def preparar() -> None:
     """Aísla los datos, instala la sonda y deja el lector real tras un doble."""
     _aislar_datos()
+    ruta_sonidos = os.environ.get(recorrido.VAR_SONIDOS)
+    if ruta_sonidos:
+        logger_sonidos = logging.getLogger("guyrapu.sound_player")
+        logger_sonidos.setLevel(logging.DEBUG)
+        logger_sonidos.addHandler(_GrabadorSonidos(ruta_sonidos))
     from guyrapu.ui import accesibilidad, gui
 
     originales = (gui._lector_init, accesibilidad._lector_init)
@@ -117,6 +143,9 @@ class Aplicacion(banco_app.Aplicacion):
         entorno[sonda.VAR_DESTINO] = str(self.anuncios_ruta)
         entorno[sonda.VAR_ORDENES] = str(self.ordenes_ruta)
         entorno[sonda.VAR_RESULTADOS] = str(self.resultados_ruta)
+        sonidos = self.anuncios_ruta.parent / "sonidos.txt"
+        entorno[recorrido.VAR_SONIDOS] = str(sonidos)
+        os.environ[recorrido.VAR_SONIDOS] = str(sonidos)
         codigo = (
             "import sys; sys.path.insert(0, r'%s'); "
             "import qa.nvda.app as carril; carril.arrancar(r'%s')"

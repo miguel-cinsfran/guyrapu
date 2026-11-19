@@ -43,6 +43,12 @@ VENTANAS = (
         "menu": "Archivo > Historial de directos…",
         "titulo": "Historial de directos",
         "primero": "No hay entradas de YouTube.",
+        "acciones": [
+            {"control": "Conectar (el historial está vacío)",
+             "espera": "el historial está vacío"},
+            {"control": "Eliminar (el historial está vacío)",
+             "espera": "el historial está vacío"},
+        ],
     },
     {
         "nombre": "descargas",

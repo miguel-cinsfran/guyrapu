@@ -323,6 +323,37 @@ class TestComplemento(unittest.TestCase):
         self.assertGreaterEqual(reloj.ahora, 1.599)
         self.assertLessEqual(reloj.ahora, 1.7)
 
+    def _esperar(self, frase, indice, plazo_s, reloj=None):
+        pedido = {"orden": "esperar_frase", "frase": frase,
+                  "indice": indice, "plazo_s": plazo_s}
+        if reloj is None:
+            return self.plugin._atender(pedido)
+        with mock.patch.object(self.modulo, "time", reloj):
+            return self.plugin._atender(pedido)
+
+    def test_esperar_frase_oye_la_frase_y_devuelve_los_eventos(self):
+        self.plugin._al_hablar(speechSequence=["otra cosa"])
+        marca = self.plugin._eventos.marca()
+        self.plugin._al_hablar(speechSequence=["El historial está vacío."])
+        respuesta = self._esperar("historial ESTÁ vacío", marca, 0.5)
+        self.assertTrue(respuesta["oida"])
+        self.assertEqual([e["texto"] for e in respuesta["eventos"]],
+                         ["El historial está vacío."])
+
+    def test_esperar_frase_no_oida_al_vencer_el_plazo(self):
+        reloj = self._usar_reloj(0.0, 0.0)
+        respuesta = self._esperar("el historial está vacío", 0, 0.4, reloj)
+        self.assertFalse(respuesta["oida"])
+
+    def test_esperar_frase_no_cuenta_lo_dicho_antes_de_la_marca(self):
+        self.plugin._al_hablar(speechSequence=["El historial está vacío."])
+        marca = self.plugin._eventos.marca()
+        self.plugin._al_hablar(speechSequence=["otra cosa"])
+        reloj = self._usar_reloj(0.0, 0.0)
+        respuesta = self._esperar("el historial está vacío", marca, 0.4,
+                                  reloj)
+        self.assertFalse(respuesta["oida"])
+
 
 class TestEspia(unittest.TestCase):
 

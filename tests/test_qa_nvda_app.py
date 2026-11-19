@@ -8,6 +8,7 @@ real y al grabador de la sonda, que el inicializador deje ese doble donde
 carril.
 """
 
+import logging
 import os
 import tempfile
 import unittest
@@ -17,7 +18,8 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.ui import accesibilidad, gui
-from qa.nvda import app, ventanas_app
+from guyrapu.voice import sound_player
+from qa.nvda import app, recorrido, ventanas_app
 
 
 class TestVentanas(unittest.TestCase):
@@ -32,6 +34,8 @@ class TestVentanas(unittest.TestCase):
             campos = {"nombre", "menu", "titulo", "primero"}
             if "pagina" in entrada:
                 campos.add("pagina")
+            if "acciones" in entrada:
+                campos.add("acciones")
             self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
@@ -40,6 +44,17 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(ventanas_app.VENTANAS[0]["titulo"], "Preferencias")
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
+
+    def test_historial_activa_conectar_y_eliminar_con_el_vacio(self):
+        historial = next(entrada for entrada in ventanas_app.VENTANAS
+                         if entrada["nombre"] == "historial")
+        self.assertEqual(
+            [(accion["control"], accion["espera"])
+             for accion in historial["acciones"]],
+            [("Conectar (el historial está vacío)",
+              "el historial está vacío"),
+             ("Eliminar (el historial está vacío)",
+              "el historial está vacío")])
 
     def test_las_cuatro_paginas_de_interaccion_tienen_su_entrada(self):
         esperadas = {
@@ -248,6 +263,52 @@ class TestPreparar(unittest.TestCase):
 
         real.speak.assert_called_once_with("Hola", interrupt=False)
         grabador.speak.assert_called_once_with("Hola", interrupt=False)
+
+
+class TestGrabadorSonidos(unittest.TestCase):
+
+    def tearDown(self):
+        logger = logging.getLogger("guyrapu.sound_player")
+        for manejador in list(logger.handlers):
+            if isinstance(manejador, app._GrabadorSonidos):
+                logger.removeHandler(manejador)
+
+    def _preparar_con_sonidos(self, ruta):
+        with (
+            mock.patch.dict(os.environ, {recorrido.VAR_SONIDOS: str(ruta)}),
+            mock.patch.object(gui, "_lector_init"),
+            mock.patch.object(accesibilidad, "_lector_init"),
+            mock.patch.object(app.sonda, "instalar"),
+        ):
+            app.preparar()
+
+    def test_anota_el_evento_de_un_sonido_real_del_catalogo(self):
+        with tempfile.TemporaryDirectory() as base:
+            ruta = Path(base) / "sonidos.txt"
+            self._preparar_con_sonidos(ruta)
+            with (
+                mock.patch.object(sound_player, "_eventos",
+                                  {"listo": Path(base) / "listo.wav"}),
+                mock.patch.object(sound_player, "_activo", True),
+                mock.patch.object(sound_player, "_silenciado_usuario", False),
+                mock.patch.object(sound_player, "_encolar"),
+            ):
+                sound_player.reproducir("listo")
+            self.assertEqual(ruta.read_text(encoding="utf-8"), "listo\n")
+
+    def test_no_anota_un_sonido_omitido(self):
+        with tempfile.TemporaryDirectory() as base:
+            ruta = Path(base) / "sonidos.txt"
+            self._preparar_con_sonidos(ruta)
+            with (
+                mock.patch.object(sound_player, "_eventos",
+                                  {"listo": Path(base) / "listo.wav"}),
+                mock.patch.object(sound_player, "_activo", True),
+                mock.patch.object(sound_player, "_silenciado_usuario", True),
+                mock.patch.object(sound_player, "_encolar"),
+            ):
+                sound_player.reproducir("listo")
+            self.assertFalse(ruta.exists())
 
 
 if __name__ == "__main__":

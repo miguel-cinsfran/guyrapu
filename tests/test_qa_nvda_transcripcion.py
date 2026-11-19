@@ -53,6 +53,28 @@ class TestFormato(unittest.TestCase):
         self.assertIn("General", texto)
         self.assertIn("Alt+C", texto)
 
+    def test_un_paso_sin_sonidos_ni_espera_escribe_la_linea_de_siempre(self):
+        self.assertEqual(
+            transcripcion.texto(datos()),
+            "tecla=tab fase=ida dijo='Categorías' foco={nombre='Categorías', "
+            "rol='LIST', estados=['focusable', 'focused'], valor='General', "
+            "atajo='Alt+C'}\n")
+
+    def test_la_linea_lleva_la_espera_y_los_sonidos_al_final(self):
+        caso = datos()
+        caso["pasos"][0]["espera"] = "el historial está vacío"
+        caso["pasos"][0]["oida"] = True
+        caso["pasos"][0]["sonidos"] = ["listo", "aviso"]
+        self.assertTrue(transcripcion.texto(caso).rstrip().endswith(
+            " espera='el historial está vacío' oída=True "
+            "sonó=['listo', 'aviso']"))
+
+    def test_sin_sonidos_no_aparece_la_parte_de_sonidos(self):
+        caso = datos()
+        caso["pasos"][0]["espera"] = "listo"
+        caso["pasos"][0]["oida"] = False
+        self.assertNotIn("sonó", transcripcion.texto(caso))
+
     def test_dos_recorridos_iguales_salvo_horas_hwnd_y_pid_dan_el_mismo_texto(
             self):
         uno = datos(pid=10, hwnd=1, hora=1.0, ms=120)
