@@ -10,6 +10,7 @@ import wx
 # Nombres separados para que las pruebas sustituyan el cuadro sin abrir uno.
 MessageDialog = wx.MessageDialog
 OK = wx.OK
+YES_NO = wx.YES_NO
 CANCEL = wx.CANCEL
 CANCEL_DEFAULT = wx.CANCEL_DEFAULT
 CENTRE = wx.CENTRE
@@ -18,6 +19,8 @@ ICON_INFORMATION = wx.ICON_INFORMATION
 ICON_WARNING = wx.ICON_WARNING
 ICON_ERROR = wx.ICON_ERROR
 ID_OK = wx.ID_OK
+ID_YES = wx.ID_YES
+ID_NO = wx.ID_NO
 ID_CANCEL = wx.ID_CANCEL
 
 
@@ -34,6 +37,22 @@ def preguntar(padre, mensaje, titulo, etiqueta_si, etiqueta_no, *,
     try:
         dialogo.SetOKCancelLabels(etiqueta_si, etiqueta_no)
         return dialogo.ShowModal() == ID_OK
+    finally:
+        dialogo.Destroy()
+
+
+def preguntar_tres(padre, mensaje, titulo, etiqueta_si, etiqueta_no,
+                   etiqueta_cancelar) -> int:
+    """Pregunta con tres botones propios y dice cuál se eligió.
+
+    Escape devuelve el botón de cancelar, que es el predeterminado.
+    """
+    estilo = YES_NO | CANCEL | CANCEL_DEFAULT | ICON_QUESTION
+    dialogo = MessageDialog(padre, mensaje, titulo, estilo)
+    try:
+        dialogo.SetYesNoCancelLabels(
+            etiqueta_si, etiqueta_no, etiqueta_cancelar)
+        return dialogo.ShowModal()
     finally:
         dialogo.Destroy()
 

@@ -15,6 +15,7 @@ try:
     from guyrapu.music import pregunta_igualar
     from guyrapu.music import sonoridad
     from guyrapu.music.sonoridad import ResultadoIgualacion
+    from guyrapu.ui import confirmar
     from guyrapu.ui import musica_ventana
     from guyrapu.ui import musica_ventana_igualando as igualando
     from guyrapu.ui.musica_ventana_igualando import IgualandoVentanaMusica
@@ -187,43 +188,51 @@ class TestPseudoAnunciosIgualando(unittest.TestCase):
                 if total:
                     self.assertIn("7", texto)
 
-    def test_pregunta_muestra_texto_titulo_y_casilla_marcados(self):
+    def _pregunta(self, respuesta):
         control = mock.Mock()
         control.confirmar_pregunta.return_value = (1, 5 * 1024 * 1024)
-        capturado = {}
-
-        class Dialogo:
-            def __init__(self, parent, mensaje, titulo, estilo):
-                capturado["mensaje"] = mensaje
-                capturado["titulo"] = titulo
-
-            def ShowCheckBox(self, texto):
-                capturado["casilla"] = texto
-
-            def SetOKCancelLabels(self, si, no):
-                capturado["etiquetas"] = (si, no)
-
-            def ShowModal(self):
-                return wx.ID_CANCEL
-
-            def IsCheckBoxChecked(self):
-                return False
-
-            def Destroy(self):
-                pass
-
-        with mock.patch.object(igualando.wx, "RichMessageDialog", Dialogo):
+        with mock.patch.object(igualando.confirmar, "preguntar_tres",
+                               return_value=respuesta) as preguntar, \
+                mock.patch.object(igualando, "anunciar"), \
+                mock.patch.object(igualando, "_snd"):
             with con_pseudo():
                 self._manejar(control)._al_pendientes_pregunta(
                     ["a.mp3"], 5 * 1024 * 1024)
-        for clave in ("mensaje", "titulo", "casilla"):
-            with self.subTest(clave=clave):
-                self.assertTrue(capturado[clave].startswith("[¡"),
-                                capturado[clave])
-        self.assertIn("Hay 1 canción", capturado["mensaje"])
-        self.assertIn("5 MB", capturado["mensaje"])
-        self.assertIn("&Igualar ahora", capturado["etiquetas"][0])
-        self.assertIn("&Más tarde", capturado["etiquetas"][1])
+        return control, preguntar
+
+    def test_el_cuadro_muestra_el_mensaje_y_los_tres_botones(self):
+        _control, preguntar = self._pregunta(confirmar.ID_CANCEL)
+        mensaje, titulo, si, no, cancelar = preguntar.call_args.args[1:6]
+        self.assertTrue(mensaje.startswith("[¡"), mensaje)
+        self.assertIn("Hay 1 canción", mensaje)
+        self.assertIn("5 MB", mensaje)
+        with con_pseudo():
+            self.assertEqual(titulo, _(pregunta_igualar.TITULO))
+            self.assertEqual((si, no, cancelar), (
+                _(pregunta_igualar.IGUALAR_AHORA),
+                _(pregunta_igualar.CASILLA),
+                _(pregunta_igualar.MAS_TARDE)))
+
+    def test_igualar_ahora_empieza_la_igualacion(self):
+        control, _preguntar = self._pregunta(confirmar.ID_YES)
+        control.iniciar_medicion.assert_called_once_with(["a.mp3"])
+        control.fijar_preguntar_igualar.assert_not_called()
+
+    def test_mas_tarde_no_iguala_ni_apaga_la_pregunta(self):
+        control, _preguntar = self._pregunta(confirmar.ID_CANCEL)
+        control.iniciar_medicion.assert_not_called()
+        control.fijar_preguntar_igualar.assert_not_called()
+
+    def test_no_volver_a_preguntar_apaga_sin_igualar(self):
+        control, _preguntar = self._pregunta(confirmar.ID_NO)
+        control.iniciar_medicion.assert_not_called()
+        control.fijar_preguntar_igualar.assert_called_once_with(False)
+
+    def test_mas_tarde_es_el_boton_predeterminado(self):
+        _control, preguntar = self._pregunta(confirmar.ID_CANCEL)
+        with con_pseudo():
+            self.assertEqual(preguntar.call_args.args[5],
+                             _(pregunta_igualar.MAS_TARDE))
 
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ from guyrapu.core.idioma import _
 from guyrapu.music import anuncios
 from guyrapu.music import pregunta_igualar
 from guyrapu.music import sonoridad
+from guyrapu.ui import confirmar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.tema import _T, _pintar
 from guyrapu.voice import sound_player as _snd
@@ -143,8 +144,9 @@ class IgualandoVentanaMusica:
     def _al_pendientes_pregunta(self, pendientes, total) -> None:
         """Muestra la pregunta si sigue habiendo pendientes.
 
-        Sí mide con esas pendientes ya calculadas; en los dos casos, la
-        casilla deja guardado que no se pregunte más.
+        Sí mide con esas pendientes ya calculadas. «No volver a preguntar»
+        guarda que no se vuelva a preguntar; «Más tarde» es el
+        predeterminado y deja la pregunta como estaba.
         """
         if not self:
             return
@@ -152,19 +154,16 @@ class IgualandoVentanaMusica:
         if datos is None:
             return
         cantidad, tamano = datos
-        dialogo = wx.RichMessageDialog(
+        respuesta = confirmar.preguntar_tres(
             self, pregunta_igualar.texto_pregunta(cantidad, tamano),
             _(pregunta_igualar.TITULO),
-            wx.OK | wx.CANCEL | wx.ICON_QUESTION | wx.CANCEL_DEFAULT)
-        dialogo.ShowCheckBox(_(pregunta_igualar.CASILLA))
-        dialogo.SetOKCancelLabels(_("&Igualar ahora"), _("&Más tarde"))
-        respuesta = dialogo.ShowModal()
-        marcada = dialogo.IsCheckBoxChecked()
-        dialogo.Destroy()
-        if marcada:
-            self._control.fijar_preguntar_igualar(False)
-        if respuesta == wx.ID_OK:
+            _(pregunta_igualar.IGUALAR_AHORA),
+            _(pregunta_igualar.CASILLA),
+            _(pregunta_igualar.MAS_TARDE))
+        if respuesta == confirmar.ID_YES:
             self._empezar_igualacion(pendientes)
+        elif respuesta == confirmar.ID_NO:
+            self._control.fijar_preguntar_igualar(False)
 
     def _rotular_boton_igualar(self, midiendo) -> None:
         """Rotula el botón según se esté midiendo o no."""

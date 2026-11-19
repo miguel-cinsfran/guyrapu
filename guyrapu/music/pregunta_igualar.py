@@ -12,6 +12,8 @@ from __future__ import annotations
 from guyrapu.core.idioma import N_, _, ngettext
 
 TITULO = N_("Igualar volumen")
+IGUALAR_AHORA = N_("&Igualar ahora")
+MAS_TARDE = N_("&Más tarde")
 CASILLA = N_("&No volver a preguntar")
 
 _MB = 1024 * 1024

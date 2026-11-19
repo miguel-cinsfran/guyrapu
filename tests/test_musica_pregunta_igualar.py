@@ -100,6 +100,14 @@ class TestTextoPregunta(unittest.TestCase):
         self.assertEqual(pregunta_igualar.TITULO, "Igualar volumen")
         self.assertEqual(pregunta_igualar.CASILLA, "&No volver a preguntar")
 
+    def test_las_tres_etiquetas_tienen_su_letra_con_alt_sin_repetir(self):
+        etiquetas = (pregunta_igualar.IGUALAR_AHORA,
+                     pregunta_igualar.MAS_TARDE,
+                     pregunta_igualar.CASILLA)
+        letras = [etiqueta.split("&", 1)[1][:1] for etiqueta in etiquetas]
+        self.assertTrue(all(letras))
+        self.assertEqual(len(letras), len(set(letras)))
+
 
 class TestPseudoPreguntaIgualar(unittest.TestCase):
     """Pseudotraducción de la pregunta por igualar el volumen.
@@ -108,12 +116,15 @@ class TestPseudoPreguntaIgualar(unittest.TestCase):
     marcados, con los números presentes.
     """
 
-    def test_titulo_y_casilla_salen_marcados(self):
+    def test_titulo_y_las_tres_etiquetas_salen_marcados(self):
         with con_pseudo():
-            titulo = _(pregunta_igualar.TITULO)
-            casilla = _(pregunta_igualar.CASILLA)
-        self.assertTrue(titulo.startswith("[¡"), titulo)
-        self.assertTrue(casilla.startswith("[¡"), casilla)
+            textos = [_(pregunta_igualar.TITULO),
+                      _(pregunta_igualar.IGUALAR_AHORA),
+                      _(pregunta_igualar.MAS_TARDE),
+                      _(pregunta_igualar.CASILLA)]
+        for texto in textos:
+            with self.subTest(texto=texto):
+                self.assertTrue(texto.startswith("[¡"), texto)
 
     def test_tamanos_salen_marcados_en_sus_tres_formas(self):
         with con_pseudo():

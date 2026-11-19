@@ -19,11 +19,12 @@ from guyrapu.music import sonoridad
 from guyrapu.music.biblioteca import Biblioteca
 from guyrapu.music.modelo import EstadoMusica, Tema
 from guyrapu.music.sonoridad import ResultadoIgualacion
-from guyrapu.ui import (espera_sonora, lista_acciones, musica_colecciones,
-                       musica_dialogo_enlace, musica_editor_lista,
-                       musica_menus, musica_ventana, musica_ventana_acciones,
-                       musica_ventana_igualando)
+from guyrapu.ui import (confirmar, espera_sonora, lista_acciones,
+                        musica_colecciones, musica_dialogo_enlace,
+                        musica_editor_lista, musica_menus, musica_ventana,
+                        musica_ventana_acciones, musica_ventana_igualando)
 from guyrapu.ui.musica_colecciones import (
+
     MOTIVO_CARGANDO, TEXTO_CARGANDO, TEXTO_SIN_CARPETA)
 from guyrapu.ui.tema import ALTO_CONTRASTE, _T
 from tests.letras_acceso import ingles
@@ -2026,17 +2027,15 @@ class TestVentanaPreguntaIgualar(unittest.TestCase):
         self.ventana = musica_ventana.VentanaMusica(None, control)
         return self.ventana
 
-    def _dialogo(self, respuesta, marcada):
+    def _dialogo(self, respuesta):
         parche = mock.patch.object(
-            musica_ventana_igualando.wx, "RichMessageDialog")
-        clase = parche.start()
+            musica_ventana_igualando.confirmar, "preguntar_tres",
+            return_value=respuesta)
+        preguntar = parche.start()
         self.addCleanup(parche.stop)
-        dialogo = clase.return_value
-        dialogo.ShowModal.return_value = respuesta
-        dialogo.IsCheckBoxChecked.return_value = marcada
-        return clase, dialogo
+        return preguntar
 
-    def test_si_inicia_y_con_la_casilla_guarda_que_no_se_pregunte_mas(self):
+    def test_si_inicia_sin_apagar_la_pregunta(self):
         pendientes = ("a.mp3", "b.mp3", "c.mp3")
         total = 300 * 1024 * 1024
         control = ControlFalso(
@@ -2045,20 +2044,22 @@ class TestVentanaPreguntaIgualar(unittest.TestCase):
             resultado_igualacion=ResultadoIgualacion(
                 sonoridad.INICIO, 3))
         self._abrir(control)
-        clase, dialogo = self._dialogo(wx.ID_OK, True)
+        preguntar = self._dialogo(confirmar.ID_YES)
         self.ventana._al_pendientes_pregunta(pendientes, total)
-        texto, titulo = clase.call_args.args[1:3]
+        texto, titulo = preguntar.call_args.args[1:3]
         self.assertEqual(texto, pregunta_igualar.texto_pregunta(3, total))
         self.assertEqual(titulo, pregunta_igualar.TITULO)
-        dialogo.ShowCheckBox.assert_called_once_with(
-            pregunta_igualar.CASILLA)
+        self.assertEqual(preguntar.call_args.args[3:6], (
+            pregunta_igualar.IGUALAR_AHORA,
+            pregunta_igualar.CASILLA,
+            pregunta_igualar.MAS_TARDE))
         self.assertIn(("iniciar_medicion", pendientes), control.llamadas)
-        self.assertIn(("fijar_preguntar_igualar", False), control.llamadas)
+        self.assertNotIn("fijar_preguntar_igualar", control.nombres())
         self.assertEqual(self.anuncios,
                          ["Igualando el volumen de 3 canciones"])
         self.assertEqual(self.sonidos, ["musica_igualando"])
 
-    def test_no_cierra_sin_medir_y_sin_la_casilla_no_guarda_nada(self):
+    def test_no_cierra_sin_medir_y_mas_tarde_no_guarda_nada(self):
         pendientes = ("a.mp3", "b.mp3", "c.mp3")
         total = 300 * 1024 * 1024
         control = ControlFalso(
@@ -2067,13 +2068,13 @@ class TestVentanaPreguntaIgualar(unittest.TestCase):
             resultado_igualacion=ResultadoIgualacion(
                 sonoridad.INICIO, 3))
         self._abrir(control)
-        self._dialogo(wx.ID_NO, False)
+        self._dialogo(confirmar.ID_CANCEL)
         self.ventana._al_pendientes_pregunta(pendientes, total)
         self.assertNotIn("iniciar_medicion", control.nombres())
         self.assertNotIn("fijar_preguntar_igualar", control.nombres())
         self.assertEqual(self.anuncios, [])
 
-    def test_no_con_la_casilla_tambien_guarda_que_no_se_pregunte_mas(self):
+    def test_no_con_no_volver_a_preguntar_tambien_guarda(self):
         pendientes = ("a.mp3", "b.mp3", "c.mp3")
         total = 300 * 1024 * 1024
         control = ControlFalso(
@@ -2082,7 +2083,7 @@ class TestVentanaPreguntaIgualar(unittest.TestCase):
             resultado_igualacion=ResultadoIgualacion(
                 sonoridad.INICIO, 3))
         self._abrir(control)
-        self._dialogo(wx.ID_NO, True)
+        self._dialogo(confirmar.ID_NO)
         self.ventana._al_pendientes_pregunta(pendientes, total)
         self.assertNotIn("iniciar_medicion", control.nombres())
         self.assertIn(("fijar_preguntar_igualar", False), control.llamadas)
@@ -2091,10 +2092,10 @@ class TestVentanaPreguntaIgualar(unittest.TestCase):
         control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
         self._abrir(control)
         with mock.patch.object(
-                musica_ventana_igualando.wx,
-                "RichMessageDialog") as clase:
+                musica_ventana_igualando.confirmar,
+                "preguntar_tres") as preguntar:
             self.ventana._al_pendientes_pregunta((), 0)
-        clase.assert_not_called()
+        preguntar.assert_not_called()
         self.assertEqual(self.anuncios, [])
 
     def test_preguntar_pide_las_pendientes_una_sola_vez_por_apertura(self):

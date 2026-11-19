@@ -61,12 +61,17 @@ class DobleDialogo:
         self.titulo = titulo
         self.estilo = estilo
         self.etiquetas_ok_cancel = None
+        self.etiquetas_yes_no_cancel = None
         self.etiqueta_ok = None
         self.destruido = False
         DobleDialogo.ultimo = self
 
     def SetOKCancelLabels(self, etiqueta_ok, etiqueta_cancel):
         self.etiquetas_ok_cancel = (etiqueta_ok, etiqueta_cancel)
+
+    def SetYesNoCancelLabels(self, etiqueta_si, etiqueta_no, etiqueta_cancelar):
+        self.etiquetas_yes_no_cancel = (
+            etiqueta_si, etiqueta_no, etiqueta_cancelar)
 
     def SetOKLabel(self, etiqueta):
         self.etiqueta_ok = etiqueta
@@ -124,6 +129,37 @@ class TestPreguntar(unittest.TestCase):
         self.assertTrue(dialogo.estilo & confirmar.OK)
         self.assertTrue(dialogo.estilo & confirmar.ICON_INFORMATION)
         self.assertTrue(dialogo.destruido)
+
+
+class TestPreguntarTres(unittest.TestCase):
+
+    def _correr(self, respuesta):
+        DobleDialogo.respuesta = respuesta
+        with mock.patch.object(confirmar, "MessageDialog", DobleDialogo):
+            resultado = confirmar.preguntar_tres(
+                "padre", "¿Igualar?", "Título", "&Igualar ahora",
+                "&No volver a preguntar", "&Más tarde")
+        return resultado, DobleDialogo.ultimo
+
+    def test_devuelve_cada_una_de_las_tres_respuestas(self):
+        for respuesta in (confirmar.ID_YES, confirmar.ID_NO,
+                          confirmar.ID_CANCEL):
+            with self.subTest(respuesta=respuesta):
+                resultado, dialogo = self._correr(respuesta)
+                self.assertEqual(resultado, respuesta)
+                self.assertEqual(
+                    dialogo.etiquetas_yes_no_cancel,
+                    ("&Igualar ahora", "&No volver a preguntar",
+                     "&Más tarde"))
+                self.assertTrue(dialogo.destruido)
+
+    def test_escape_devuelve_cancelar_y_es_el_predeterminado(self):
+        resultado, dialogo = self._correr(confirmar.ID_CANCEL)
+        self.assertEqual(resultado, confirmar.ID_CANCEL)
+        self.assertTrue(dialogo.estilo & confirmar.YES_NO)
+        self.assertTrue(dialogo.estilo & confirmar.CANCEL)
+        self.assertTrue(dialogo.estilo & confirmar.CANCEL_DEFAULT)
+        self.assertTrue(dialogo.estilo & confirmar.ICON_QUESTION)
 
 
 class TestCuadrosDeP1(unittest.TestCase):
