@@ -10,6 +10,7 @@ corrida es el sintetizador espía. Se cierra con Alt+F4 mandado desde NVDA.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -17,8 +18,20 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
+from qa import foco_ventanas  # noqa: E402
+
 TITULO = "Canario del carril"
 ANUNCIO = "Canario listo"
+
+
+def _al_mostrar(evento, marco, campo, lector):
+    if not evento.IsShown():
+        return
+    if not foco_ventanas.traer_al_frente(marco.GetHandle(), os.getpid()):
+        print("Windows no le dio el primer plano a la ventana canario",
+              file=sys.stderr)
+    campo.SetFocus()
+    lector.speak(ANUNCIO)
 
 
 def main() -> int:
@@ -43,14 +56,8 @@ def main() -> int:
     marco.Fit()
     marco.Centre()
     lector = Lector()
-
-    def al_mostrar(evento):
-        if not evento.IsShown():
-            return
-        campo.SetFocus()
-        lector.speak(ANUNCIO)
-
-    marco.Bind(wx.EVT_SHOW, al_mostrar)
+    marco.Bind(wx.EVT_SHOW,
+               lambda evento: _al_mostrar(evento, marco, campo, lector))
     marco.Show()
     app.MainLoop()
     return 0
