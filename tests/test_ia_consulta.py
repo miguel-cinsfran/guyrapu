@@ -174,8 +174,29 @@ class TestPreparar(unittest.TestCase):
         ajustes = AjustesIA(proveedor="opencode-go",
                             modelo="mini-rapido")
         preparada = consulta.preparar(charla, "hola", ajustes,
-                                      _muestra_opencode_go(), "clave", "")
+                                       _muestra_opencode_go(), "clave", "")
         self.assertEqual(preparada.pedido.cuerpo["max_tokens"], 500)
+
+    def test_temperatura_segun_el_catalogo(self):
+        casos = [
+            ("claude-oro", {"temperatura": True}, 0.2),
+            ("mini-rapido", {"temperatura": False}, None),
+            ("mini-rapido", {}, None),
+            ("modelo-escrito-a-mano", {}, None),
+        ]
+        for modelo, campo, esperado in casos:
+            with self.subTest(modelo=modelo, campo=campo):
+                muestra = _muestra_opencode_go()
+                for entry in muestra["proveedores"]["opencode-go"]["modelos"]:
+                    if entry["id"] == modelo:
+                        entry.pop("temperatura", None)
+                        entry.update(campo)
+                charla = _charla_con_captura()
+                ajustes = AjustesIA(proveedor="opencode-go", modelo=modelo)
+                preparada = consulta.preparar(
+                    charla, "hola", ajustes, muestra, "clave", "")
+                self.assertEqual(
+                    preparada.pedido.cuerpo.get("temperature"), esperado)
 
     def test_texto_enviado_es_el_ultimo_de_preparar(self):
         charla = _charla_con_captura()

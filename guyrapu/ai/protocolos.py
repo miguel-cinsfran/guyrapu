@@ -74,7 +74,8 @@ def _con_extra(cabeceras, extra):
     return cabeceras
 
 
-def _pedido_chat(base, modelo, clave, sistema, mensajes, max_tokens):
+def _pedido_chat(base, modelo, clave, sistema, mensajes, max_tokens,
+                 temperatura=None):
     cuerpo_mensajes = [{"role": "system", "content": sistema}]
     for mensaje in mensajes:
         if mensaje.rol == "asistente" and mensaje.imagen is None:
@@ -97,12 +98,15 @@ def _pedido_chat(base, modelo, clave, sistema, mensajes, max_tokens):
             cuerpo_mensajes.append({"role": rol, "content": partes})
     cuerpo = {"model": modelo, "messages": cuerpo_mensajes,
               "max_tokens": max_tokens}
+    if temperatura is not None:
+        cuerpo = {"temperature": temperatura, **cuerpo}
     return Pedido(CHAT, f"{base}/chat/completions",
                   {"Content-Type": "application/json",
                    "Authorization": f"Bearer {clave}"}, cuerpo)
 
 
-def _pedido_responses(base, modelo, clave, sistema, mensajes, max_tokens):
+def _pedido_responses(base, modelo, clave, sistema, mensajes, max_tokens,
+                      temperatura=None):
     turnos = []
     for mensaje in mensajes:
         contenido = []
@@ -125,12 +129,15 @@ def _pedido_responses(base, modelo, clave, sistema, mensajes, max_tokens):
         turnos.append({"role": "user", "content": contenido})
     cuerpo = {"model": modelo, "instructions": sistema, "input": turnos,
               "max_output_tokens": max_tokens}
+    if temperatura is not None:
+        cuerpo = {"temperature": temperatura, **cuerpo}
     return Pedido(RESPONSES, f"{base}/responses",
                   {"Content-Type": "application/json",
                    "Authorization": f"Bearer {clave}"}, cuerpo)
 
 
-def _pedido_anthropic(base, modelo, clave, sistema, mensajes, max_tokens):
+def _pedido_anthropic(base, modelo, clave, sistema, mensajes, max_tokens,
+                      temperatura=None):
     cuerpo_mensajes = []
     for mensaje in mensajes:
         if mensaje.rol == "asistente" and mensaje.imagen is None:
@@ -148,13 +155,16 @@ def _pedido_anthropic(base, modelo, clave, sistema, mensajes, max_tokens):
         cuerpo_mensajes.append({"role": rol, "content": bloques})
     cuerpo = {"model": modelo, "system": sistema,
               "messages": cuerpo_mensajes, "max_tokens": max_tokens}
+    if temperatura is not None:
+        cuerpo = {"temperature": temperatura, **cuerpo}
     return Pedido(ANTHROPIC, f"{base}/messages",
                   {"Content-Type": "application/json",
                    "x-api-key": clave,
                    "anthropic-version": "2023-06-01"}, cuerpo)
 
 
-def _pedido_gemini(base, modelo, clave, sistema, mensajes, max_tokens):
+def _pedido_gemini(base, modelo, clave, sistema, mensajes, max_tokens,
+                   temperatura=None):
     contenidos = []
     for mensaje in mensajes:
         partes = []
@@ -166,23 +176,25 @@ def _pedido_gemini(base, modelo, clave, sistema, mensajes, max_tokens):
             partes.append({"text": mensaje.texto})
         rol = "model" if mensaje.rol == "asistente" else "user"
         contenidos.append({"role": rol, "parts": partes})
+    config = {"maxOutputTokens": max_tokens}
+    if temperatura is not None:
+        config = {"temperature": temperatura, **config}
     cuerpo = {"systemInstruction": {"parts": [{"text": sistema}]},
-              "contents": contenidos,
-              "generationConfig": {"maxOutputTokens": max_tokens}}
+              "contents": contenidos, "generationConfig": config}
     return Pedido(GEMINI, f"{base}/models/{modelo}:generateContent",
                   {"Content-Type": "application/json",
                    "x-goog-api-key": clave}, cuerpo)
 
 
 def armar_pedido(protocolo, base, modelo, clave, sistema, mensajes,
-                 max_tokens, cabeceras_extra=None):
+                 max_tokens, cabeceras_extra=None, temperatura=None):
     constructores = {CHAT: _pedido_chat, RESPONSES: _pedido_responses,
                      ANTHROPIC: _pedido_anthropic, GEMINI: _pedido_gemini}
     constructor = constructores.get(protocolo)
     if constructor is None:
         raise ValueError(f"protocolo desconocido: {protocolo}")
     pedido = constructor(base.rstrip("/"), modelo, clave, sistema,
-                         mensajes, max_tokens)
+                         mensajes, max_tokens, temperatura)
     pedido.cabeceras = _con_extra(pedido.cabeceras, cabeceras_extra)
     return pedido
 

@@ -129,6 +129,30 @@ class TestPedidoGemini(unittest.TestCase):
         self.assertEqual(cuerpo["contents"][1]["role"], "model")
 
 
+class TestTemperatura(unittest.TestCase):
+
+    def test_con_temperatura_la_lleva_en_los_cuatro(self):
+        for protocolo in (protocolos.CHAT, protocolos.RESPONSES,
+                          protocolos.ANTHROPIC, protocolos.GEMINI):
+            with self.subTest(protocolo=protocolo):
+                pedido = protocolos.armar_pedido(
+                    protocolo, BASE, MODELO, CLAVE, SISTEMA,
+                    _tres_turnos(), 64, temperatura=0.2)
+                cuerpo = pedido.cuerpo
+                if protocolo == protocolos.GEMINI:
+                    self.assertEqual(
+                        cuerpo["generationConfig"]["temperature"], 0.2)
+                else:
+                    self.assertEqual(cuerpo["temperature"], 0.2)
+
+    def test_sin_temperatura_no_la_lleva_en_ninguno(self):
+        for protocolo in (protocolos.CHAT, protocolos.RESPONSES,
+                          protocolos.ANTHROPIC, protocolos.GEMINI):
+            with self.subTest(protocolo=protocolo):
+                self.assertNotIn(
+                    "temperature", json.dumps(_pedido(protocolo).cuerpo))
+
+
 class TestConversacion(unittest.TestCase):
 
     def test_tres_turnos_en_orden_con_imagen_solo_al_principio(self):

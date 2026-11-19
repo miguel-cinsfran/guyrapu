@@ -19,6 +19,8 @@ from guyrapu.ai import proveedores
 from guyrapu.ai.catalogo import modelos as modelos_de_catalogo
 from guyrapu.core.idioma import N_, _
 
+TEMPERATURA = 0.2
+
 FRASE_CORTADA = N_("Respuesta incompleta: alcanzó la longitud máxima "
                    "elegida en Preferencias.")
 
@@ -104,11 +106,14 @@ def preparar(charla, texto, ajustes, catalogo, clave, descripcion) -> Preparada:
         piensa, tope_salida = True, None
     else:
         piensa, tope_salida = encontrado.piensa, encontrado.tope_salida
+    temperatura = (TEMPERATURA if encontrado is not None
+                   and encontrado.temperatura else None)
     tope = conversacion.max_tokens(ajustes.largo, piensa, tope_salida)
     pedido = protocolos.armar_pedido(
         protocolo, base, modelo_id, clave,
         conversacion.prompt_sistema(descripcion), mensajes, tope,
-        proveedores.cabeceras(proveedor, charla.sesion))
+        proveedores.cabeceras(proveedor, charla.sesion),
+        temperatura=temperatura)
     return Preparada(pedido, mensajes[-1].texto, ajustes.tiempo_espera)
 
 

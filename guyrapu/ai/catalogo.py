@@ -54,6 +54,7 @@ class Modelo:
     gratis: bool
     contributor: bool
     piensa: bool
+    temperatura: bool
     tope_salida: int | None
 
 
@@ -146,6 +147,7 @@ def _reducir_modelo(ident, datos, npm_proveedor, api_proveedor, proveedor):
     if not isinstance(nombre, str) or not nombre:
         nombre = ident_final
     razona = datos.get("reasoning", False)
+    temperatura = datos.get("temperature", False)
     return {
         "id": ident_final,
         "nombre": nombre,
@@ -154,6 +156,7 @@ def _reducir_modelo(ident, datos, npm_proveedor, api_proveedor, proveedor):
         "gratis": _gratis_de(datos),
         "contributor": ident_final.endswith("-contributor"),
         "piensa": razona if isinstance(razona, bool) else False,
+        "temperatura": temperatura if isinstance(temperatura, bool) else False,
         "tope_salida": _tope_de(datos),
     }
 
@@ -267,7 +270,8 @@ def _convertir_modelo(crudo):
         protocolo=crudo["protocolo"], base=crudo["base"],
         gratis=bool(crudo.get("gratis")),
         contributor=bool(crudo.get("contributor")),
-        piensa=bool(crudo.get("piensa")), tope_salida=tope)
+        piensa=bool(crudo.get("piensa")),
+        temperatura=bool(crudo.get("temperatura")), tope_salida=tope)
 
 
 def modelos(catalogo, proveedor, solo_gratis=False):

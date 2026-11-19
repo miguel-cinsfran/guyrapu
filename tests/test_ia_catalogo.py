@@ -27,11 +27,13 @@ FECHA = "2026-10-21"
 
 def _modelo(ident, nombre, entradas=("text", "image"), npm=None, api=None,
             costo=(0, 0), piensa=True, tope=1024, estado=None,
-            salidas=("text",)):
+            salidas=("text",), temperatura=None):
     datos = {"id": ident, "name": nombre, "reasoning": piensa,
              "modalities": {"input": list(entradas),
                             "output": list(salidas)},
              "provider": {}}
+    if temperatura is not None:
+        datos["temperature"] = temperatura
     if npm is not None:
         datos["provider"]["npm"] = npm
     if api is not None:
@@ -194,6 +196,28 @@ class TestReducir(unittest.TestCase):
                     self.assertNotEqual(crudo.get("status"), "deprecated")
                     self.assertIn("image", crudo["modalities"]["input"])
 
+    def test_temperatura_del_campo_o_falsa_si_falta(self):
+        muestra = {
+            "google": {
+                "id": "google", "name": "Google", "npm": "@ai-sdk/google",
+                "models": {
+                    "con-temperatura": _modelo(
+                        "con-temperatura", "Con Temperatura",
+                        temperatura=True),
+                    "sin-temperatura": _modelo(
+                        "sin-temperatura", "Sin Temperatura",
+                        temperatura=False),
+                    "sin-campo": _modelo("sin-campo", "Sin Campo"),
+                },
+            },
+        }
+        reducido = catalogo.reducir(muestra, FECHA)
+        modelos = {m["id"]: m
+                   for m in reducido["proveedores"]["google"]["modelos"]}
+        self.assertTrue(modelos["con-temperatura"]["temperatura"])
+        self.assertFalse(modelos["sin-temperatura"]["temperatura"])
+        self.assertFalse(modelos["sin-campo"]["temperatura"])
+
 
 class TestReducirSalidas(unittest.TestCase):
     """Solo quedan los modelos que devuelven texto y nada más."""
@@ -300,6 +324,17 @@ class TestModelos(unittest.TestCase):
     def test_proveedor_desconocido_da_vacia(self):
         reducido = catalogo.reducir(_muestra(), FECHA)
         self.assertEqual(catalogo.modelos(reducido, "otro"), [])
+
+    def test_catalogo_guardado_sin_el_campo_da_falso(self):
+        guardado = {
+            "version": catalogo.VERSION, "fecha": FECHA,
+            "proveedores": {"google": {"nombre": "Google", "modelos": [{
+                "id": "m", "nombre": "M", "protocolo": protocolos.CHAT,
+                "base": "https://ejemplo.example/v1", "gratis": False,
+                "contributor": False, "piensa": True, "tope_salida": 100,
+            }]}},
+        }
+        self.assertFalse(catalogo.modelos(guardado, "google")[0].temperatura)
 
 
 class ServidorCatalogo(http.server.BaseHTTPRequestHandler):
