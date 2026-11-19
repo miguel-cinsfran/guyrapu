@@ -31,7 +31,7 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(
             [entrada["nombre"] for entrada in ventanas_app.VENTANAS],
             ["preferencias", "interaccion", "comandos", "estilos",
-             "historial", "descargas", "musica", "ia",
+             "historial", "descargas", "musica", "ia", "voces", "obs",
              "palabras", "encuestas", "preguntas",
              "medios", "preferencias_interfaz", "preferencias_sonidos",
              "preferencias_atajos", "preferencias_voces",
@@ -58,7 +58,7 @@ class TestVentanas(unittest.TestCase):
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
         self.assertEqual(
-            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 29)
+            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 31)
         self.assertEqual(ventanas_app.VENTANAS[0]["titulo"], "Preferencias")
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
@@ -83,6 +83,22 @@ class TestVentanas(unittest.TestCase):
                 self.assertEqual(entrada["menu"], menu)
                 self.assertEqual(entrada["primero"], primero)
                 self.assertTrue(entrada["titulo"])
+
+    def test_voces_abre_administrar_voces_y_recorre_la_ventana(self):
+        por_nombre = {entrada["nombre"]: entrada
+                      for entrada in ventanas_app.VENTANAS}
+        entrada = por_nombre["voces"]
+        self.assertEqual(entrada["menu"], "Voz > Administrar voces…")
+        self.assertEqual(entrada["titulo"], "Administrar voces")
+        self.assertEqual(entrada["primero"], "Paquetes de voces")
+
+    def test_obs_abre_el_panel_y_recorre_la_pestana_general(self):
+        por_nombre = {entrada["nombre"]: entrada
+                      for entrada in ventanas_app.VENTANAS}
+        entrada = por_nombre["obs"]
+        self.assertEqual(entrada["menu"], "OBS > Panel de OBS…")
+        self.assertEqual(entrada["titulo"], "Panel de OBS")
+        self.assertEqual(entrada["primero"], "Estado")
 
     def test_historial_activa_conectar_y_eliminar_con_el_vacio(self):
         historial = next(entrada for entrada in ventanas_app.VENTANAS
@@ -254,6 +270,25 @@ class TestVentana(unittest.TestCase):
             app._ventana(BancoFalso(True), mock.Mock(), entrada,
                          7, set(), False)
         self.assertEqual(visto["acciones"], entrada["acciones"])
+
+    def test_un_hallazgo_de_verdad_sale_en_la_linea_de_la_transcripcion(self):
+        hallazgo = {"regla": "sin_nombre", "nivel": "aviso",
+                    "ventana": "voces", "paso": 3, "tecla": "tab",
+                    "detalle": "la parada no tiene nombre"}
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "voces")
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              return_value={"pasos": []}),
+            mock.patch.object(app.reglas, "analizar",
+                              return_value=[hallazgo]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            lineas, _ = app._ventana(BancoFalso(True), mock.Mock(), entrada,
+                                     7, set(), False)
+        self.assertTrue(any("hallazgo sin_nombre" in linea
+                            for linea in lineas))
 
     def test_recorrer_anuncia_cada_ventana_con_flush(self):
         banco = mock.Mock()

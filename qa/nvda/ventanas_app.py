@@ -101,6 +101,18 @@ VENTANAS = (
         "primero": "Mensaje",
     },
     {
+        "nombre": "voces",
+        "menu": "Voz > Administrar voces…",
+        "titulo": "Administrar voces",
+        "primero": "Paquetes de voces",
+    },
+    {
+        "nombre": "obs",
+        "menu": "OBS > Panel de OBS…",
+        "titulo": "Panel de OBS",
+        "primero": "Estado",
+    },
+    {
         "nombre": "palabras",
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Interacción",
