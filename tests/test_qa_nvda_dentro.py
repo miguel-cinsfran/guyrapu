@@ -239,6 +239,17 @@ class TestComplemento(unittest.TestCase):
         self.assertEqual(evento["hwnd"], 42)
         self.assertEqual(evento["pid"], 7)
 
+    def test_el_foco_guarda_el_nombre_de_la_lista_padre(self):
+        objeto = types.SimpleNamespace(
+            name="Phonon, español", role=types.SimpleNamespace(
+                name="LISTITEM", displayString="elemento de lista"),
+            states=set(), value="", description="", keyboardShortcut="",
+            parent=types.SimpleNamespace(name="Paquetes de voces"))
+        self.plugin.event_gainFocus(objeto, lambda: None)
+        evento = self.plugin._eventos.desde(0)[-1]
+        self.assertEqual(evento["padre"], "Paquetes de voces")
+        self.assertNotIn("Paquetes de voces", evento["texto"])
+
     def test_la_respuesta_de_foco_trae_el_primer_plano(self):
         enfocado = types.SimpleNamespace(
             name="Aceptar", role=types.SimpleNamespace(

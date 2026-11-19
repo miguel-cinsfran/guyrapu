@@ -14,7 +14,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from qa.nvda import recorrido
+from qa.nvda import recorrido, transcripcion
 
 
 class ClienteFalso:
@@ -66,6 +66,26 @@ class ClienteFalso:
                          "partes": [texto], "hora": 1.05}],
             "foco": self._foco(),
         }
+
+
+class ClienteConFoco:
+    """Un foco fijo, para probar la espera del primer control."""
+
+    def __init__(self, foco):
+        self.foco = foco
+
+    def foco_completo(self):
+        return {"ok": True, "foco": self.foco}
+
+
+class ClienteConFila(ClienteFalso):
+    """La primera fila de la lista toma el foco al abrir la ventana."""
+
+    def _foco(self):
+        return {"nombre": "Phonon, español", "rol_nombre": "LISTITEM",
+                "padre": "Paquetes de voces", "hwnd": self.pos + 1,
+                "pid": self.pid, "estados": [], "atajo": "",
+                "texto": "Phonon, español"}
 
 
 class ClienteSinVuelta(ClienteFalso):
@@ -301,6 +321,54 @@ class TestEsperaDeFoco(unittest.TestCase):
         self.assertIn("PUSH_BUTTON", mensaje)
         self.assertIn("Lista de categorías", mensaje)
         self.assertEqual(cliente.pasos, [])
+
+    def _foco(self, nombre="Phonon, español", rol="LISTITEM",
+              padre="Paquetes de voces"):
+        return {"nombre": nombre, "rol_nombre": rol, "padre": padre}
+
+    def _esperar(self, foco):
+        return recorrido._esperar_foco(
+            ClienteConFoco(foco), "Paquetes de voces", 0.01,
+            lambda _segundos: None, "Paquetes de voces")
+
+    def test_acepta_una_fila_de_la_lista_declarada(self):
+        foco = self._foco()
+        self.assertIs(self._esperar(foco), foco)
+
+    def test_conducir_da_por_bueno_la_fila_de_la_lista(self):
+        datos = recorrido.conducir(
+            ClienteConFila(["Phonon, español"]),
+            {"nombre": "voces", "pid": 7, "primero": "Paquetes de voces",
+             "primero_lista": "Paquetes de voces"}, tope_foco_s=0.01)
+        self.assertEqual(datos["primero"]["rol_nombre"], "LISTITEM")
+        self.assertEqual(datos["primero"]["nombre"], "Phonon, español")
+
+    def test_rechaza_una_fila_de_otra_lista(self):
+        with self.assertRaises(recorrido.InstrumentoRoto) as capturado:
+            self._esperar(self._foco(padre="Otra lista"))
+        self.assertIn("Otra lista", str(capturado.exception))
+
+    def test_rechaza_un_foco_en_otro_control(self):
+        for foco in (self._foco(rol="PUSH_BUTTON"),
+                     self._foco(nombre="Instalar", rol="PUSH_BUTTON")):
+            with self.subTest(foco=foco), self.assertRaises(
+                    recorrido.InstrumentoRoto):
+                self._esperar(foco)
+
+
+class TestPadreEnTranscripcion(unittest.TestCase):
+
+    def test_el_nombre_del_padre_no_cambia_la_transcripcion(self):
+        datos = {"pasos": [{"tecla": "tab", "fase": "ida",
+                            "habla": [{"texto": "Phonon botón"}],
+                            "foco": {"nombre": "Phonon",
+                                     "rol_nombre": "LISTITEM",
+                                     "estados": []}}]}
+        sin_padre = transcripcion.texto(datos)
+        datos["pasos"][0]["foco"]["padre"] = "Paquetes de voces"
+        con_padre = transcripcion.texto(datos)
+        self.assertEqual(con_padre, sin_padre)
+        self.assertNotIn("Paquetes de voces", con_padre)
 
 
 class TestPidDeLaVentana(unittest.TestCase):

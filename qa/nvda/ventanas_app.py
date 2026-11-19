@@ -105,6 +105,7 @@ VENTANAS = (
         "menu": "Voz > Administrar voces…",
         "titulo": "Administrar voces",
         "primero": "Paquetes de voces",
+        "primero_lista": "Paquetes de voces",
     },
     {
         "nombre": "obs",

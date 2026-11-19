@@ -54,6 +54,8 @@ class TestVentanas(unittest.TestCase):
                 campos.add("ajustes")
             if "tope" in entrada:
                 campos.add("tope")
+            if "primero_lista" in entrada:
+                campos.add("primero_lista")
             self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
@@ -91,6 +93,7 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(entrada["menu"], "Voz > Administrar voces…")
         self.assertEqual(entrada["titulo"], "Administrar voces")
         self.assertEqual(entrada["primero"], "Paquetes de voces")
+        self.assertEqual(entrada["primero_lista"], "Paquetes de voces")
 
     def test_obs_abre_el_panel_y_recorre_la_pestana_general(self):
         por_nombre = {entrada["nombre"]: entrada

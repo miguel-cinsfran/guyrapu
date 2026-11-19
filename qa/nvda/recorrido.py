@@ -84,12 +84,22 @@ def _paso(cliente, tecla, fase, pid, lector=None) -> dict:
     return paso
 
 
-def _esperar_foco(cliente, nombre, tope_s, dormir) -> dict:
+def _es_primero(foco, nombre, lista) -> bool:
+    """El foco esperado, o una fila de la lista declarada como primero."""
+    if foco.get("nombre") == nombre:
+        return True
+    if not lista:
+        return False
+    rol = str(foco.get("rol_nombre") or foco.get("rol") or "")
+    return rol.casefold() == "listitem" and foco.get("padre") == lista
+
+
+def _esperar_foco(cliente, nombre, tope_s, dormir, lista=None) -> dict:
     limite = time.monotonic() + tope_s
     foco = {}
     while time.monotonic() < limite:
         foco = cliente.foco_completo().get("foco") or {}
-        if foco.get("nombre") == nombre:
+        if _es_primero(foco, nombre, lista):
             return foco
         dormir(0.05)
     nombre_visto = foco.get("nombre") or "sin nombre"
@@ -160,7 +170,8 @@ def conducir(cliente, ventana, tope=TOPE_PASOS, tope_foco_s=20.0,
     lector = Sonidos(os.environ.get(VAR_SONIDOS))
     lector.nuevos()
     pasos = _pasos_de_pagina(cliente, ventana, pid, tope, lector)
-    primero = _esperar_foco(cliente, ventana["primero"], tope_foco_s, dormir)
+    primero = _esperar_foco(cliente, ventana["primero"], tope_foco_s,
+                            dormir, ventana.get("primero_lista"))
     identidad_primera = identidad(primero)
     for _ in range(tope):
         paso = _paso(cliente, "tab", "ida", pid, lector)

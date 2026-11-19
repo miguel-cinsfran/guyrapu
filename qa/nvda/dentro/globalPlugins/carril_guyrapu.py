@@ -87,6 +87,7 @@ def describir_foco(obj) -> dict:
         "atajo": _texto(_atributo(obj, "keyboardShortcut")),
         "hwnd": int(_atributo(obj, "windowHandle", 0) or 0),
         "pid": int(_atributo(obj, "processID", 0) or 0),
+        "padre": _texto(_atributo(_atributo(obj, "parent", None), "name", "")),
     }
     datos["texto"] = ", ".join(
         parte for parte in (datos["nombre"], datos["rol_texto"],
