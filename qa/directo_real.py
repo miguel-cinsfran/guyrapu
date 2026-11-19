@@ -167,7 +167,6 @@ def faltas_de_opciones(contenido, snippet) -> list[str]:
         faltas.append("rebobinar apagado")
     if (snippet.get("categoryId") or "") != CATEGORIA_PRUEBA:
         faltas.append("categoría Educación")
-    # Las etiquetas no se comprueban: la API no las devuelve en un directo.
     return faltas
 
 
@@ -388,8 +387,6 @@ def _ayuda() -> argparse.ArgumentParser:
     return parser
 
 
-# -- Impuro: archivos, procesos, UI Automation y API. Fuera de las pruebas. --
-
 _LANZADOR = """\
 import os, sys, time
 REPO = {repo!r}
@@ -410,6 +407,8 @@ def _anunciar(texto, urgente=True):
     _orig(texto, urgente)
 
 g.anunciar = _anunciar
+from guyrapu.ui import aviso_importante as _aviso
+_aviso.anunciar = _anunciar
 _orig_agregar = g.VentanaPrincipal.agregar_mensaje_chat
 
 def _agregar_mensaje(self, *args, **kwargs):
