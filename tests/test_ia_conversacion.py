@@ -12,13 +12,15 @@ from guyrapu.ai import protocolos
 IMAGEN_UNO = b"\xff\xd8\xffuno\xff\xd9"
 IMAGEN_DOS = b"\xff\xd8\xffdos\xff\xd9"
 
-BASE_SISTEMA = ("Eres el asistente de un streamer ciego que transmite con OBS. "
-                 "Responde siempre en español, en prosa breve, sin markdown, sin "
-                 "listas, sin títulos y sin emojis: la respuesta se lee con un "
-                 "lector de pantalla. Ve directo a lo que se pregunta. Si algo no "
-                 "se distingue en la imagen, dilo en vez de suponer. Cuando "
-                 "recibas la lista de fuentes de OBS, usa sus nombres para decir "
-                 "qué es cada cosa que se ve.")
+BASE_SISTEMA = ("Eres el asistente de un streamer. Responde siempre en español, "
+                 "en prosa breve, sin markdown, sin listas, sin títulos y sin "
+                 "emojis: la respuesta se lee con un lector de pantalla. Ve "
+                 "directo a lo que se pregunta. Cada palabra tiene que aportar "
+                 "algo que se vea: nada de relleno. Si en la imagen hay texto "
+                 "que se pueda leer, cítalo tal como está escrito: si no hay, "
+                 "no lo menciones. Si algo no se distingue en la imagen, dilo "
+                 "en vez de suponer. Cuando recibas la lista de fuentes de OBS, "
+                 "usa sus nombres para decir qué es cada cosa que se ve.")
 
 
 def _conversacion_con_dos_turnos():
@@ -84,6 +86,24 @@ class TestPreguntaYPrompt(unittest.TestCase):
 
     def test_prompt_sin_descripcion(self):
         self.assertEqual(conversacion.prompt_sistema(""), BASE_SISTEMA)
+
+    def test_prompt_no_menciona_la_ceguera(self):
+        prompt = conversacion.prompt_sistema("")
+        self.assertNotIn("ciego", prompt)
+        self.assertNotIn("ceguera", prompt)
+
+    def test_prompt_pide_que_cada_palabra_aporte(self):
+        self.assertIn(
+            "Cada palabra tiene que aportar algo que se vea: nada de relleno.",
+            conversacion.prompt_sistema(""))
+
+    def test_prompt_pide_citar_el_texto_tal_como_esta(self):
+        self.assertIn("cítalo tal como está escrito",
+                      conversacion.prompt_sistema(""))
+
+    def test_prompt_pide_no_mencionar_el_texto_si_no_hay(self):
+        self.assertIn("si no hay, no lo menciones",
+                      conversacion.prompt_sistema(""))
 
     def test_prompt_con_descripcion(self):
         self.assertEqual(
@@ -361,7 +381,7 @@ class TestCableado(unittest.TestCase):
                         for crudo, usuario in zip(crudos,
                                                   esperado["usuarios"]):
                             self.assertIn(usuario, crudo)
-                        self.assertIn("Eres el asistente de un streamer ciego",
+                        self.assertIn("Eres el asistente de un streamer.",
                                       lugar)
                         self.assertIn("Juego al aire", lugar)
 

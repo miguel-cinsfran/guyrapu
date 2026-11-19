@@ -42,13 +42,15 @@ class SinTexto(Exception):
 
 def prompt_sistema(descripcion_escena):
     """El prompt fijo, con la descripción de OBS si la hay."""
-    base = _("Eres el asistente de un streamer ciego que transmite con OBS. "
-             "Responde siempre en español, en prosa breve, sin markdown, sin "
-             "listas, sin títulos y sin emojis: la respuesta se lee con un "
-             "lector de pantalla. Ve directo a lo que se pregunta. Si algo no "
-             "se distingue en la imagen, dilo en vez de suponer. Cuando "
-             "recibas la lista de fuentes de OBS, usa sus nombres para decir "
-             "qué es cada cosa que se ve.")
+    base = _("Eres el asistente de un streamer. Responde siempre en español, "
+             "en prosa breve, sin markdown, sin listas, sin títulos y sin "
+             "emojis: la respuesta se lee con un lector de pantalla. Ve "
+             "directo a lo que se pregunta. Cada palabra tiene que aportar algo "
+             "que se vea: nada de relleno. Si en la imagen hay texto que se "
+             "pueda leer, cítalo tal como está escrito: si no hay, no lo "
+             "menciones. Si algo no se distingue en la imagen, dilo en vez "
+             "de suponer. Cuando recibas la lista de fuentes de OBS, usa sus "
+             "nombres para decir qué es cada cosa que se ve.")
     if not descripcion_escena:
         return base
     return (base + "\n\n" + _("Lo que OBS informa de la escena al aire:")
