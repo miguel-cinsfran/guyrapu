@@ -476,6 +476,41 @@ class TestDetectores(unittest.TestCase):
             """)
         self.assertEqual([1, 4, 12, 14, 16], _lineas(hallazgos))
 
+    def test_la_cache_parsea_cada_archivo_una_vez_y_devuelve_copia(self):
+        for nombre in ("_ARBOLES", "_HALLAZGOS"):
+            cache = getattr(detectores, nombre, None)
+            if cache is not None:
+                cache.clear()
+        regla = reglas.Regla(
+            id="PRUEBA_CACHE",
+            prohibido="",
+            detectar=lambda archivo, arbol: [detectores.Hallazgo(archivo, 1)],
+            pendientes={},
+            duenos=("main.py",),
+            ambito=lambda archivo: archivo == "main.py",
+        )
+        esperados = sum(1 for ruta in detectores._rutas()
+                        if regla.ambito(ruta.relative_to(detectores.RAIZ).as_posix()))
+        parseos = []
+        original = detectores.ast.parse
+
+        def contar(*args, **kwargs):
+            parseos.append(1)
+            return original(*args, **kwargs)
+
+        detectores.ast.parse = contar
+        self.addCleanup(setattr, detectores.ast, "parse", original)
+        primera = detectores.hallazgos_por_archivo(regla)
+        segunda = detectores.hallazgos_por_archivo(regla)
+        self.assertEqual(esperados, len(parseos))
+        referencia = {archivo: list(hallazgos)
+                      for archivo, hallazgos in primera.items()}
+        for hallazgos in primera.values():
+            hallazgos.append(detectores.Hallazgo("falso.py", 999))
+        self.assertEqual(referencia, segunda)
+        tercera = detectores.hallazgos_por_archivo(regla)
+        self.assertEqual(referencia, tercera)
+
 
 if __name__ == "__main__":
     unittest.main()

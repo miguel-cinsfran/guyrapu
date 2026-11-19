@@ -27,6 +27,10 @@ class Hallazgo(NamedTuple):
     linea: int
 
 
+_ARBOLES: dict[Path, ast.Module] = {}
+_HALLAZGOS: dict[str, dict[str, list[Hallazgo]]] = {}
+
+
 def _termina_en_wx(nodo: ast.expr) -> bool:
     if isinstance(nodo, ast.Name):
         return nodo.id == "wx"
@@ -319,16 +323,22 @@ def _rutas() -> list[Path]:
 
 
 def hallazgos_por_archivo(regla: Regla) -> dict[str, list[Hallazgo]]:
-    resultado: dict[str, list[Hallazgo]] = {}
-    for ruta in _rutas():
-        archivo = ruta.relative_to(RAIZ).as_posix()
-        if not regla.ambito(archivo):
-            continue
-        arbol = ast.parse(ruta.read_text(encoding="utf-8"), filename=archivo)
-        encontrados = regla.detectar(archivo, arbol)
-        if encontrados:
-            resultado[archivo] = encontrados
-    return resultado
+    guardados = _HALLAZGOS.get(regla.id)
+    if guardados is None:
+        guardados = {}
+        for ruta in _rutas():
+            archivo = ruta.relative_to(RAIZ).as_posix()
+            if not regla.ambito(archivo):
+                continue
+            if ruta not in _ARBOLES:
+                _ARBOLES[ruta] = ast.parse(
+                    ruta.read_text(encoding="utf-8"), filename=archivo)
+            encontrados = regla.detectar(archivo, _ARBOLES[ruta])
+            if encontrados:
+                guardados[archivo] = encontrados
+        _HALLAZGOS[regla.id] = guardados
+    return {archivo: list(encontrados)
+            for archivo, encontrados in guardados.items()}
 
 
 def _es_dueno(regla: Regla, archivo: str) -> bool:
