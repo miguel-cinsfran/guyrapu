@@ -8,7 +8,10 @@ y el cliente sustituidos. No se abre ninguna ventana ni se toca una tarea
 programada.
 """
 
+import contextlib
+import io
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -553,3 +556,21 @@ class TestApp(unittest.TestCase):
         self.assertTrue(args.app)
         self.assertTrue(args.aprobar)
         self.assertEqual(args.ventana, "interaccion")
+
+
+class TestPrism(unittest.TestCase):
+
+    def test_sin_prism_termina_con_dos_y_lo_dice_por_stderr(self):
+        error = io.StringIO()
+        with (
+            mock.patch.dict(sys.modules, {"prism": None}),
+            mock.patch.object(correr, "ejecutar") as ejecutar,
+            contextlib.redirect_stderr(error),
+        ):
+            codigo = correr.main([])
+        self.assertEqual(codigo, 2)
+        ejecutar.assert_not_called()
+        self.assertEqual(
+            error.getvalue().strip(),
+            "Falta el paquete prism: corré el carril con uv run python "
+            "qa/nvda/correr.py.")

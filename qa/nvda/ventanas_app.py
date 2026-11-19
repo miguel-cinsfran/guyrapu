@@ -35,7 +35,8 @@ VENTANAS = (
         "menu": "Interacción > Estilos del vídeo…",
         "titulo": "Interacción",
         "primero": ("Clásico (de fábrica), predeterminado de mensajes "
-                    "automáticos, comandos, disparadores, encuestas y metas"),
+                    "automáticos, comandos, disparadores, encuestas, metas y "
+                    "preguntas"),
     },
     {
         "nombre": "historial",

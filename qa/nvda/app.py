@@ -53,6 +53,17 @@ class DobleLector:
         self._grabador.braille(texto)
 
 
+def falta_prism() -> bool:
+    """Avisa por stderr si prism no se importa y dice cómo correr el carril."""
+    try:
+        import prism  # noqa: F401
+    except ImportError:
+        print("Falta el paquete prism: corré el carril con uv run python "
+              "qa/nvda/correr.py.", file=sys.stderr)
+        return True
+    return False
+
+
 def _aislar_datos() -> None:
     """Deja la carpeta de datos del carril y le copia la configuración real."""
     ruta = os.environ.get(VAR_DATOS)

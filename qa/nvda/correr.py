@@ -393,7 +393,7 @@ def main(argv=None) -> int:
                             help="modo de una sola PC")
     analizador.add_argument("--respaldo-minutos", type=int,
                             default=seguridad.RESPALDO_MINUTOS)
-    return ejecutar(analizador.parse_args(argv))
+    return COD_INSTRUMENTO if app.falta_prism() else ejecutar(analizador.parse_args(argv))
 
 
 if __name__ == "__main__":
