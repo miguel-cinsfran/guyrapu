@@ -88,6 +88,60 @@ class ClienteConFila(ClienteFalso):
                 "texto": "Phonon, español"}
 
 
+class ClienteFilaDistinta:
+    """Tab vuelve a la lista en otra fila, con otro hwnd y otro texto."""
+
+    def __init__(self):
+        self.focos = [
+            {"nombre": "Phonon, español", "rol_nombre": "LISTITEM",
+             "padre": "Paquetes de voces", "hwnd": 1, "pid": 7,
+             "estados": [], "atajo": ""},
+            {"nombre": "Instalar", "rol_nombre": "BUTTON",
+             "hwnd": 2, "pid": 7, "estados": [], "atajo": ""},
+            {"nombre": "Otra fila, 3 voces", "rol_nombre": "LISTITEM",
+             "padre": "Paquetes de voces", "hwnd": 9, "pid": 7,
+             "estados": [], "atajo": ""},
+        ]
+        self.pos = 0
+
+    def foco_completo(self):
+        return {"ok": True, "foco": self.focos[self.pos],
+                "primer_plano": {"pid": 7, "nombre": "Ventana del carril"}}
+
+    def paso(self, tecla, silencio_ms=400, tope_ms=10000):
+        if tecla == "tab":
+            self.pos = (self.pos + 1) % len(self.focos)
+        elif tecla == "shift+tab":
+            self.pos = (self.pos - 1) % len(self.focos)
+        return {"tecla": tecla, "agotado": False, "hora": 1.0,
+                "eventos": [], "foco": self.focos[self.pos]}
+
+
+class ClienteConMismoNombre:
+    """Dos controles iguales: solo el hwnd distingue al primero."""
+
+    def __init__(self):
+        self.focos = [
+            {"nombre": "Uno", "rol_nombre": "PUSH_BUTTON", "hwnd": 1,
+             "pid": 7, "estados": [], "atajo": ""},
+            {"nombre": "Uno", "rol_nombre": "PUSH_BUTTON", "hwnd": 2,
+             "pid": 7, "estados": [], "atajo": ""},
+        ]
+        self.pos = 0
+
+    def foco_completo(self):
+        return {"ok": True, "foco": self.focos[self.pos],
+                "primer_plano": {"pid": 7, "nombre": "Ventana del carril"}}
+
+    def paso(self, tecla, silencio_ms=400, tope_ms=10000):
+        if tecla == "tab":
+            self.pos = (self.pos + 1) % len(self.focos)
+        elif tecla == "shift+tab":
+            self.pos = (self.pos - 1) % len(self.focos)
+        return {"tecla": tecla, "agotado": False, "hora": 1.0,
+                "eventos": [], "foco": self.focos[self.pos]}
+
+
 class ClienteSinVuelta(ClienteFalso):
     """Cada Tab deja un control nuevo: nunca vuelve a la primera parada."""
 
@@ -355,6 +409,32 @@ class TestEsperaDeFoco(unittest.TestCase):
             with self.subTest(foco=foco), self.assertRaises(
                     recorrido.InstrumentoRoto):
                 self._esperar(foco)
+
+
+class TestCierreDelCiclo(unittest.TestCase):
+
+    def test_sin_lista_no_cierra_en_otro_control_del_mismo_nombre(self):
+        datos = recorrido.conducir(
+            ClienteConMismoNombre(),
+            {"nombre": "prueba", "pid": 7, "primero": "Uno"}, tope=4,
+            tope_foco_s=0.01)
+        ida = [p for p in datos["pasos"] if p["fase"] == "ida"]
+        self.assertEqual(len(ida), 2)
+
+
+class TestVueltaALaLista(unittest.TestCase):
+
+    def test_conducir_cierra_la_ida_y_la_vuelta_en_otra_fila(self):
+        datos = recorrido.conducir(
+            ClienteFilaDistinta(),
+            {"nombre": "voces", "pid": 7, "primero": "Paquetes de voces",
+             "primero_lista": "Paquetes de voces"}, tope=6,
+            tope_foco_s=0.01)
+        ida = [p for p in datos["pasos"] if p["fase"] == "ida"]
+        vuelta = [p for p in datos["pasos"] if p["fase"] == "vuelta"]
+        self.assertEqual(len(ida), 2)
+        self.assertEqual(len(vuelta), 2)
+        self.assertEqual(datos["primero_lista"], "Paquetes de voces")
 
 
 class TestPadreEnTranscripcion(unittest.TestCase):

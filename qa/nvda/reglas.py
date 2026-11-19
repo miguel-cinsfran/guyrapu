@@ -126,13 +126,29 @@ def _perdido(foco, datos) -> bool:
 
 
 def _problema_de_recorrido(datos) -> str:
-    primero = identidad(datos.get("primero") or {})
+    primero = datos.get("primero") or {}
+    lista = datos.get("primero_lista")
+    identidad_primera = identidad(primero)
+
+    def es_primera(foco):
+        if identidad(foco) == identidad_primera:
+            return True
+        if not lista:
+            return False
+        rol = str(foco.get("rol_nombre") or foco.get("rol") or "")
+        return rol.casefold() == "listitem" and foco.get("padre") == lista
+
+    def clave(foco):
+        return identidad_primera if es_primera(foco) else identidad(foco)
+
     pasos = datos.get("pasos") or []
-    ida = [primero] + [identidad(paso.get("foco") or {})
-                       for paso in pasos if paso.get("fase") == "ida"]
-    vuelta = [primero] + [identidad(paso.get("foco") or {})
-                          for paso in pasos if paso.get("fase") == "vuelta"]
-    if primero not in ida[1:]:
+    focos_ida = [paso.get("foco") or {} for paso in pasos
+                 if paso.get("fase") == "ida"]
+    focos_vuelta = [paso.get("foco") or {} for paso in pasos
+                    if paso.get("fase") == "vuelta"]
+    ida = [identidad_primera] + [clave(foco) for foco in focos_ida]
+    vuelta = [identidad_primera] + [clave(foco) for foco in focos_vuelta]
+    if not any(clave(foco) == identidad_primera for foco in focos_ida):
         return "la ida con Tab no vuelve a la primera parada antes del tope"
     if vuelta != list(reversed(ida)):
         return "la vuelta con Mayús+Tab no da las mismas paradas al revés"

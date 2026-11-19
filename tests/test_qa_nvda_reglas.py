@@ -285,6 +285,21 @@ class TestRecorrido(unittest.TestCase):
         datos["pasos"][4]["foco"] = foco("Opcion", "CHECK_BOX", hwnd=3)
         self.assertTrue(_regla(reglas.analizar(datos, set()), "recorrido"))
 
+    def test_una_fila_de_la_lista_cierra_el_ciclo_aunque_cambie_de_foco(self):
+        primera = foco("Phonon", "LISTITEM", hwnd=1)
+        otra = foco("Otra fila", "LISTITEM", hwnd=9)
+        boton = foco("Instalar", "BUTTON", hwnd=2)
+        for fila in (primera, otra):
+            fila["padre"] = "Paquetes de voces"
+        datos = recorrido([
+            paso(boton),
+            paso(otra),
+            paso(boton, tecla="shift+tab", fase="vuelta"),
+            paso(primera, tecla="shift+tab", fase="vuelta"),
+        ], primero=primera)
+        datos["primero_lista"] = "Paquetes de voces"
+        self.assertFalse(_regla(reglas.analizar(datos, set()), "recorrido"))
+
 
 class TestNiveles(unittest.TestCase):
 
