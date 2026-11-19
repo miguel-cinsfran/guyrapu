@@ -24,6 +24,7 @@ _SUFIJOS = {
     "suprimir": "\tDel",
     "ctrl+c": "\tCtrl+C",
     "ctrl+d": "\tCtrl+D",
+    "ctrl+s": "\tCtrl+S",
 }
 
 

@@ -26,6 +26,7 @@ from guyrapu.capture import redaccion
 from guyrapu.core import paths
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.ui import ia_privacidad
+from guyrapu.ui import ia_guardar_conversacion as guardar_conv
 from guyrapu.ui import ayuda_manual, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.ia_agregar_captura import pedir_captura
@@ -89,11 +90,15 @@ class VentanaIA(wx.Dialog):
         nombre_accesible(self.lst_conversacion, _("Conversación"))
         self._lista_acciones = ListaConAcciones(
             self.lst_conversacion,
-            (Accion("ver", _("Ver mensaje completo…"),
-                    self._mostrar_mensaje, tecla="intro"),
-             Accion("copiar", _("Copiar mensaje"), self._copiar_mensaje,
-                    tecla="ctrl+c")),
-            _(ventana_ia.FILA_GUIA))
+             (Accion("ver", _("Ver mensaje completo…"),
+                     self._mostrar_mensaje, tecla="intro"),
+              Accion("copiar", _("Copiar mensaje"), self._copiar_mensaje,
+                     tecla="ctrl+c"),
+              Accion("guardar", _("Guardar conversación…"),
+                     lambda: guardar_conv.guardar(self, self._charla),
+                     tecla="ctrl+s", necesita_elemento=False,
+                     motivo=lambda: guardar_conv.motivo_vacio(self._charla))),
+             _(ventana_ia.FILA_GUIA))
         vs.Add(self.lst_conversacion, 1, wx.EXPAND | wx.ALL, 10)
 
     def _crear_controles(self) -> None:

@@ -16955,3 +16955,31 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/ia_guardar_conversacion.py
+msgid "Guardar conversación"
+msgstr "Save conversation"
+
+#. Traductores: {fecha} es AAAA-MM-DD HH-MM, sin dos puntos, que Windows no
+#. acepta en nombres de archivo.
+#: guyrapu/ui/ia_guardar_conversacion.py
+#, python-brace-format
+msgid "Conversación con la IA {fecha}.txt"
+msgstr "Conversation with the AI {fecha}.txt"
+
+#: guyrapu/ui/ia_guardar_conversacion.py
+msgid "La conversación está vacía"
+msgstr "The conversation is empty"
+
+#: guyrapu/ui/ia_guardar_conversacion.py
+#, python-brace-format
+msgid "Conversación guardada en {nombre}."
+msgstr "Conversation saved to {nombre}."
+
+#: guyrapu/ui/ia_guardar_conversacion.py
+msgid "No se pudo guardar la conversación."
+msgstr "Could not save the conversation."
+
+#: guyrapu/ui/ia_ventana.py
+msgid "Guardar conversación…"
+msgstr "Save conversation…"
+

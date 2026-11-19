@@ -38,6 +38,8 @@ _TECLAS_CON_CONTROL = {
     ord("c"): "ctrl+c",
     ord("D"): "ctrl+d",
     ord("d"): "ctrl+d",
+    ord("S"): "ctrl+s",
+    ord("s"): "ctrl+s",
 }
 
 

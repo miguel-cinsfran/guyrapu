@@ -19,6 +19,7 @@ from guyrapu.ai import consulta
 from guyrapu.ai import conversacion
 from guyrapu.ai import protocolos
 from guyrapu.ai import ventana_ia
+from guyrapu.ui import ia_guardar_conversacion as guardar_conv
 from guyrapu.ui import ia_ventana as ventana
 from guyrapu.ui import lista_acciones
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -245,7 +246,7 @@ class TestVentanaIAVentana(unittest.TestCase):
             dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
         sonar.assert_called_once_with("orilla")
 
-    def test_tecla_aplicaciones_abre_el_menu_con_las_dos_acciones(self):
+    def test_tecla_aplicaciones_abre_el_menu_con_las_tres_acciones(self):
         dialogo = self._ventana()
         dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
         dialogo._rehacer_lista()
@@ -262,7 +263,46 @@ class TestVentanaIAVentana(unittest.TestCase):
             dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
         popup.assert_called_once()
         self.assertEqual(vistos, [("Ver mensaje completo…\tEnter", True),
-                                  ("Copiar mensaje\tCtrl+C", True)])
+                                  ("Copiar mensaje\tCtrl+C", True),
+                                  ("Guardar conversación…\tCtrl+S", True)])
+
+    def test_ctrl_s_en_la_lista_guarda_la_conversacion(self):
+        dialogo = self._ventana()
+        dialogo._charla.agregar_captura(b"j", "Fuente", "10:00")
+        dialogo._charla.confirmar("pregunta", "respuesta")
+        dialogo._rehacer_lista()
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.SetKeyCode(ord("S"))
+        evento.SetControlDown(True)
+        with mock.patch.object(guardar_conv, "guardar") as guardar:
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
+        guardar.assert_called_once_with(dialogo, dialogo._charla)
+
+    def test_conversacion_vacia_sigue_en_el_menu_y_dice_el_motivo(self):
+        dialogo = self._ventana()
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.SetKeyCode(ord("s"))
+        evento.SetControlDown(True)
+        with mock.patch.object(guardar_conv, "guardar") as guardar, \
+                mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(evento)
+        guardar.assert_not_called()
+        anunciar.assert_called_once_with("La conversación está vacía.")
+        vistos = []
+
+        def _popup(menu):
+            vistos.extend((item.GetItemLabel(), item.IsEnabled())
+                          for item in menu.GetMenuItems())
+
+        menu_evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        menu_evento.SetKeyCode(wx.WXK_WINDOWS_MENU)
+        with mock.patch.object(dialogo.lst_conversacion, "PopupMenu",
+                               side_effect=_popup):
+            dialogo.lst_conversacion.GetEventHandler().ProcessEvent(
+                menu_evento)
+        self.assertIn(
+            ("Guardar conversación… (la conversación está vacía)\tCtrl+S",
+             True), vistos)
 
     def test_rehacer_lista_elige_la_ultima_fila(self):
         dialogo = self._ventana()

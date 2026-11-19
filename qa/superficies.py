@@ -236,6 +236,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "menu_habilitado.py": "Prende y apaga elementos de menú y no abre ventana propia.",
     "ayuda_manual.py": (
         "Atiende F1 y arma la página de redirección; no abre ventana propia."),
+    "ia_guardar_conversacion.py": (
+        "Guarda la conversación con el cuadro de guardar de Windows; no abre "
+        "ventana propia."),
     "aviso_importante.py": "Envuelve los cuadros de aviso de Windows; no abre una ventana propia.",
     "espera_sonora.py": "Suena la espera de otra ventana y no abre ventana propia.",
     "estado_relevo.py": "Guarda el estado del relevo en curso; no abre una ventana propia.",
