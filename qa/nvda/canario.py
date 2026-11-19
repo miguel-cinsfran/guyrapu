@@ -10,8 +10,10 @@ corrida es el sintetizador espía. Se cierra con Alt+F4 mandado desde NVDA.
 
 from __future__ import annotations
 
+import ctypes
 import os
 import sys
+import time
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
@@ -22,6 +24,27 @@ from qa import foco_ventanas  # noqa: E402
 
 TITULO = "Canario del carril"
 ANUNCIO = "Canario listo"
+VK_F24 = 0x87
+TECLA_ARRIBA = 0x0002
+
+
+def al_frente(pid, segundos=6.0) -> bool:
+    """Trae al frente la ventana canario con el truco de F24 del carril."""
+    usuario = ctypes.windll.user32
+    limite = time.monotonic() + segundos
+    while time.monotonic() < limite:
+        hwnd = usuario.FindWindowW(None, TITULO)
+        if hwnd:
+            dueño = ctypes.c_ulong()
+            usuario.GetWindowThreadProcessId(hwnd, ctypes.byref(dueño))
+            if int(dueño.value) == int(pid):
+                if usuario.GetForegroundWindow() == hwnd:
+                    return True
+                usuario.keybd_event(VK_F24, 0, 0, 0)
+                usuario.keybd_event(VK_F24, 0, TECLA_ARRIBA, 0)
+                usuario.SetForegroundWindow(hwnd)
+        time.sleep(0.2)
+    return False
 
 
 def _al_mostrar(evento, marco, campo, lector):

@@ -26,8 +26,8 @@ if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
 from qa.nvda import cliente as cliente_nvda  # noqa: E402
-from qa.nvda import (app, devolver, nvda_local, perfil, recorrido,  # noqa: E402
-                     reglas, seguridad, trampas)
+from qa.nvda import (app, canario, devolver, nvda_local, perfil,  # noqa: E402
+                     recorrido, reglas, seguridad, trampas)
 from qa.nvda.recorrido import InstrumentoRoto  # noqa: E402
 
 COD_OK = 0
@@ -118,6 +118,8 @@ def _canario(cliente, vigilante) -> list:
     proceso = subprocess.Popen([sys.executable, str(guion)])
     lineas = []
     try:
+        if not canario.al_frente(proceso.pid):
+            raise InstrumentoRoto("no se pudo traer al frente la ventana canario")
         _esperar_foco(cliente, "Nombre:", vigilante)
         inicial = _unir_habla(cliente.desde(0))
         if "Canario listo" not in inicial:

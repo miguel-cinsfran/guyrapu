@@ -195,6 +195,37 @@ class TestRespaldo(unittest.TestCase):
         cerrar.assert_not_called()
 
 
+class TestFrenteCanario(unittest.TestCase):
+
+    def _correr(self, al_frente, frente_ok=True):
+        cliente = mock.Mock()
+        cliente.desde.return_value = [
+            {"tipo": "habla", "texto": "Canario listo"}]
+        llamadas = []
+        with (
+            mock.patch.object(correr.subprocess, "Popen") as popen,
+            mock.patch.object(correr.canario, "al_frente",
+                              side_effect=lambda pid: (
+                                  llamadas.append("al_frente") or frente_ok)),
+            mock.patch.object(
+                correr, "_esperar_foco",
+                side_effect=lambda *a, **k: llamadas.append("esperar_foco")),
+            mock.patch.object(correr, "_paso_canario", return_value="paso"),
+        ):
+            resultado = al_frente(cliente, mock.Mock(cortado=False))
+        popen.return_value.wait.assert_called_once()
+        return cliente, llamadas, resultado
+
+    def test_trae_el_canario_al_frente_antes_de_esperar_el_foco(self):
+        _cliente, llamadas, _resultado = self._correr(correr._canario)
+        self.assertEqual(llamadas, ["al_frente", "esperar_foco"])
+
+    def test_si_al_frente_falla_lo_dice_y_no_espera_el_foco(self):
+        with self.assertRaises(correr.InstrumentoRoto) as capturado:
+            self._correr(correr._canario, frente_ok=False)
+        self.assertIn("frente", str(capturado.exception))
+
+
 class TestPasoCanario(unittest.TestCase):
 
     def test_cortado_justo_despues_de_la_tecla_no_pide_habla_ni_foco(self):
