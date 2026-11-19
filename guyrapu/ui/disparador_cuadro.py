@@ -14,7 +14,6 @@ from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos, disparadores, disparadores_guardados
 from guyrapu.interaction import estilo_elegido, medios_guardados
-from guyrapu.interaction.texto import normalizar
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
@@ -298,39 +297,17 @@ class DialogoDisparador(wx.Dialog):
         self.EndModal(wx.ID_OK)
 
     def _campo_del_error(self, disparador):
-        if not normalizar(disparador.nombre):
-            return self.txt_nombre
-        if any(normalizar(otro.nombre) == normalizar(disparador.nombre)
-               for otro in self._otros):
-            return self.txt_nombre
-        if disparador.cuando == "atajo":
-            repetido = (disparador.activo
-                        and disparadores.por_atajo(
-                            self._otros, disparador.atajo))
-            if not 1 <= disparador.atajo <= 9 or repetido:
-                return self.sp_atajo
-        elif disparador.cuando == "comando":
-            propios = {normalizar(nombre)
-                       for nombre in disparador.comandos}
-            propios.discard("")
-            if not propios:
-                return self.txt_comandos
-            for otro in self._otros:
-                if propios & {normalizar(nombre)
-                              for nombre in otro.comandos}:
-                    return self.txt_comandos
-        else:
-            if disparador.evento not in disparadores.EVENTOS_DEL_DIRECTO:
-                return self.cho_evento
-            if (disparador.minimo is not None
-                    and disparador.minimo < 0):
-                return self.txt_minimo
-        if (not (disparador.medio or "").strip()
-                and not (disparador.tarjeta or "").strip()):
-            return self.txt_tarjeta
-        if disparadores.variables_desconocidas(disparador.tarjeta):
-            return self.txt_tarjeta
-        return self.txt_nombre
+        campos = {
+            "nombre": self.txt_nombre,
+            "atajo": self.sp_atajo,
+            "comandos": self.txt_comandos,
+            "evento": self.cho_evento,
+            "minimo": self.txt_minimo,
+            "tarjeta": self.txt_tarjeta,
+        }
+        campo, _mensaje = disparadores.error_y_campo(
+            disparador, self._otros)
+        return campos.get(campo, self.txt_nombre)
 
     def datos(self) -> dict:
         """El disparador tal como se guarda."""

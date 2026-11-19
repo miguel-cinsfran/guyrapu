@@ -459,6 +459,33 @@ class TestTarjeta(unittest.TestCase):
                         disparador, evento, 3, []))
 
 
+class TestErrorYCampo(unittest.TestCase):
+
+    def test_el_primer_error_dice_su_campo_y_su_mensaje(self):
+        disparador = _comando(nombre="   ", comandos=(), medio="",
+                              tarjeta="")
+        self.assertEqual(
+            ("nombre", "El disparador necesita un nombre."),
+            disparadores.error_y_campo(disparador, []))
+
+    def test_cada_error_sabe_su_campo(self):
+        casos = (
+            (_comando(), ""),
+            (_comando(cuando="tecla", medio="fuegos"), "nombre"),
+            (_comando(comandos=(), medio="fuegos"), "comandos"),
+            (_comando(cuando="atajo", atajo=0, medio="fuegos"), "atajo"),
+            (_de_evento(evento="tecla", medio="fuegos"), "evento"),
+            (_de_evento(minimo=-1, medio="fuegos"), "minimo"),
+            (_comando(medio="", tarjeta=""), "tarjeta"),
+            (_comando(tarjeta="Hola {nada}"), "tarjeta"),
+        )
+        for disparador, campo_esperado in casos:
+            with self.subTest(campo=campo_esperado):
+                campo, mensaje = disparadores.error_y_campo(disparador, [])
+                self.assertEqual(campo_esperado, campo)
+                self.assertEqual(bool(campo_esperado), bool(mensaje))
+
+
 class TestValidar(unittest.TestCase):
 
     def test_un_disparador_valido_no_da_error(self):

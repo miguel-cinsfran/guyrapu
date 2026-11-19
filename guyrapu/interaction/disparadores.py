@@ -181,79 +181,79 @@ def texto_de_tarjeta(disparador: Disparador, evento, contador,
     return texto.replace("{texto}", publico)
 
 
-def _error_de_nombre(disparador: Disparador, otros) -> str:
+def _error_de_nombre(disparador: Disparador, otros) -> tuple[str, str]:
     if not normalizar(disparador.nombre):
         # Traductores: validación de disparadores del directo (error).
-        return _("El disparador necesita un nombre.")
+        return "nombre", _("El disparador necesita un nombre.")
     for otro in otros:
         if normalizar(otro.nombre) == normalizar(disparador.nombre):
             # Traductores: validación de disparadores del directo (error). {nombre} es el disparador que ya existe.
-            return _("El disparador {nombre} ya existe.").format(
+            return "nombre", _("El disparador {nombre} ya existe.").format(
                 nombre=disparador.nombre)
-    return ""
+    return "", ""
 
 
-def _error_de_cuando(disparador: Disparador) -> str:
+def _error_de_cuando(disparador: Disparador) -> tuple[str, str]:
     if disparador.cuando not in CUANDOS:
         # Traductores: validación de disparadores del directo (error).
-        return _("Ese tipo de disparador todavía no existe.")
-    return ""
+        return "nombre", _("Ese tipo de disparador todavía no existe.")
+    return "", ""
 
 
-def _error_de_comando(disparador: Disparador, otros) -> str:
+def _error_de_comando(disparador: Disparador, otros) -> tuple[str, str]:
     if disparador.cuando != "comando":
-        return ""
+        return "", ""
     propios = {normalizar(nombre) for nombre in disparador.comandos}
     propios.discard("")
     if not propios:
         # Traductores: validación de disparadores del directo (error).
-        return _("El disparador de comando necesita al menos un nombre.")
+        return "comandos", _("El disparador de comando necesita al menos un nombre.")
     for otro in otros:
         repetidos = propios & {normalizar(nombre)
                                for nombre in otro.comandos}
         if repetidos:
             # Traductores: validación de disparadores del directo (error). {nombre} es el comando del chat que ya usa otro disparador.
-            return _("El comando {nombre} ya lo usa otro disparador.").format(
+            return "comandos", _("El comando {nombre} ya lo usa otro disparador.").format(
                 nombre=sorted(repetidos)[0])
-    return ""
+    return "", ""
 
 
-def _error_de_atajo(disparador: Disparador, otros) -> str:
+def _error_de_atajo(disparador: Disparador, otros) -> tuple[str, str]:
     if disparador.cuando != "atajo":
-        return ""
+        return "", ""
     if not 1 <= disparador.atajo <= 9:
         # Traductores: validación de disparadores del directo (error).
-        return _("El atajo tiene que ser un número del 1 al 9.")
+        return "atajo", _("El atajo tiene que ser un número del 1 al 9.")
     if not disparador.activo:
-        return ""
+        return "", ""
     for otro in otros:
         if (otro.activo and otro.cuando == "atajo"
                 and otro.atajo == disparador.atajo):
             # Traductores: validación de disparadores del directo (error). {nombre} es el disparador que ya usa ese número.
-            return _("Ese número ya lo usa el disparador {nombre}").format(
+            return "atajo", _("Ese número ya lo usa el disparador {nombre}").format(
                 nombre=otro.nombre)
-    return ""
+    return "", ""
 
 
-def _error_de_evento(disparador: Disparador) -> str:
+def _error_de_evento(disparador: Disparador) -> tuple[str, str]:
     if disparador.cuando != "evento":
-        return ""
+        return "", ""
     if disparador.evento not in EVENTOS_DEL_DIRECTO:
         # Traductores: validación de disparadores del directo (error). {evento} es el nombre del evento desconocido.
-        return _("El evento {evento} no existe.").format(
+        return "evento", _("El evento {evento} no existe.").format(
             evento=disparador.evento)
     if disparador.minimo is not None and disparador.minimo < 0:
         # Traductores: validación de disparadores del directo (error).
-        return _("El mínimo no puede ser negativo.")
-    return ""
+        return "minimo", _("El mínimo no puede ser negativo.")
+    return "", ""
 
 
-def _error_de_que(disparador: Disparador) -> str:
+def _error_de_que(disparador: Disparador) -> tuple[str, str]:
     if not (disparador.medio or "").strip() \
             and not (disparador.tarjeta or "").strip():
         # Traductores: validación de disparadores del directo (error).
-        return _("El disparador necesita un medio o una tarjeta de texto.")
-    return ""
+        return "tarjeta", _("El disparador necesita un medio o una tarjeta de texto.")
+    return "", ""
 
 
 def variables_desconocidas(tarjeta) -> list[str]:
@@ -262,11 +262,11 @@ def variables_desconocidas(tarjeta) -> list[str]:
             if variable not in VARIABLES]
 
 
-def _error_de_variables(disparador: Disparador) -> str:
+def _error_de_variables(disparador: Disparador) -> tuple[str, str]:
     desconocidas = variables_desconocidas(disparador.tarjeta)
     if desconocidas:
         # Traductores: validación de disparadores del directo (error). {variable} es la variable desconocida y las demás son las que se pueden usar.
-        return _("La variable {variable} no existe. Puedes usar {usuario}, "
+        return "tarjeta", _("La variable {variable} no existe. Puedes usar {usuario}, "
                  "{cantidad}, {regalo}, {texto} y {contador}.").format(
                      variable="{" + desconocidas[0] + "}",
                      usuario="{" + VARIABLES[0] + "}",
@@ -274,15 +274,32 @@ def _error_de_variables(disparador: Disparador) -> str:
                      regalo="{" + VARIABLES[2] + "}",
                      texto="{" + VARIABLES[3] + "}",
                      contador="{" + VARIABLES[4] + "}")
-    return ""
+    return "", ""
+
+
+def error_y_campo(disparador: Disparador, otros) -> tuple[str, str]:
+    """El campo y el mensaje del primer error, o ("", "") si no hay ninguno."""
+    campo, mensaje = _error_de_nombre(disparador, otros)
+    if mensaje:
+        return campo, mensaje
+    campo, mensaje = _error_de_cuando(disparador)
+    if mensaje:
+        return campo, mensaje
+    campo, mensaje = _error_de_comando(disparador, otros)
+    if mensaje:
+        return campo, mensaje
+    campo, mensaje = _error_de_atajo(disparador, otros)
+    if mensaje:
+        return campo, mensaje
+    campo, mensaje = _error_de_evento(disparador)
+    if mensaje:
+        return campo, mensaje
+    campo, mensaje = _error_de_que(disparador)
+    if mensaje:
+        return campo, mensaje
+    return _error_de_variables(disparador)
 
 
 def validar(disparador: Disparador, otros) -> str:
     """Un texto de error, o "" si el disparador se puede guardar."""
-    return (_error_de_nombre(disparador, otros)
-            or _error_de_cuando(disparador)
-            or _error_de_comando(disparador, otros)
-            or _error_de_atajo(disparador, otros)
-            or _error_de_evento(disparador)
-            or _error_de_que(disparador)
-            or _error_de_variables(disparador))
+    return error_y_campo(disparador, otros)[1]
