@@ -32,7 +32,7 @@ TARJETA_RISA = MARCA + " tarjeta de la risa"
 PREGUNTA_ENCUESTA = MARCA + " encuesta"
 OPCION_UNO = "Una opción"
 OPCION_DOS = "Otra opción"
-RESULTADO_UNO = "Ganó " + OPCION_UNO + " con 1 voto"
+RESULTADO_UNO = (OPCION_UNO + ": 1 voto", "Cerrada.")
 ANUNCIO_ENCUESTA = "Encuesta abierta"
 ANUNCIO_META = "Meta cumplida"
 NOMBRE_META = MARCA + " meta de superchats"
@@ -46,7 +46,9 @@ ARCHIVOS_SONDA = ("anuncios-sonda.jsonl", "ordenes.jsonl", "resultados.jsonl")
 
 
 def coinciden(texto, fragmento) -> bool:
-    return bool(fragmento) and str(fragmento).lower() in str(texto or "").lower()
+    partes = fragmento if isinstance(fragmento, tuple) else (fragmento,)
+    return bool(partes) and all(str(p).lower() in str(texto or "").lower()
+                                for p in partes)
 
 
 def esperar_texto(leer, fragmento, segundos=30) -> tuple[bool, str]:
@@ -203,6 +205,13 @@ class Pasos:
 
     def pregunta(self) -> bool:
         if not self._enviar("!pregunta " + TEXTO_PREGUNTA):
+            return False
+        ruta_chat = Path(self.ruta_anuncios).with_name("chat.txt")
+        bien, detalle = esperar_texto(
+            lambda: self.leer_anuncios(ruta_chat),
+            "!pregunta " + TEXTO_PREGUNTA, self.segundos)
+        if not bien:
+            self.anotar("leer siguiente pregunta", False, detalle)
             return False
         marca = len(self.leer_anuncios(self.ruta_anuncios))
         try:

@@ -39,13 +39,13 @@ class _Anotador:
         return bien
 
 
-def _anuncios(*textos, voto="!1"):
+def _anuncios(*textos, chat="!1"):
     """El archivo crece: la marca ve lo viejo y cada lectura lo nuevo."""
     turnos = iter([valor for texto in textos for valor in ("", texto)])
 
     def leer(ruta):
         if str(ruta).endswith("chat.txt"):
-            return voto
+            return chat
         return next(turnos, textos[-1])
 
     return leer
@@ -235,7 +235,7 @@ class TestPasoEncuesta(unittest.TestCase):
         pasos = _pasos(
             anotar, cerrar_encuesta=lambda: acciones.append("cerrar"),
             leer_anuncios=_anuncios(
-                di.ANUNCIO_ENCUESTA, di.RESULTADO_UNO, voto=""),
+                di.ANUNCIO_ENCUESTA, di.RESULTADO_UNO, chat=""),
             respuesta=lambda: {"items": []})
         self.assertFalse(pasos.encuesta())
         self.assertEqual(acciones, [])
@@ -254,7 +254,7 @@ class TestPasoEncuesta(unittest.TestCase):
             anuncios.append(di.ANUNCIO_ENCUESTA)
 
         def cerrar():
-            anuncios.append(di.RESULTADO_UNO)
+            anuncios.append(". ".join(di.RESULTADO_UNO))
 
         pasos = _pasos(
             anotar, abrir_encuesta=abrir, cerrar_encuesta=cerrar,
@@ -265,6 +265,20 @@ class TestPasoEncuesta(unittest.TestCase):
                 "displayMessage": di.OPCION_UNO}}]})
         self.assertTrue(pasos.encuesta())
         self.assertTrue(all(bien for _, bien, _ in anotar.pasos))
+
+    def test_el_resultado_es_el_de_la_encuesta_de_la_app(self):
+        anotar = _Anotador()
+        cierre = (f"1, {di.OPCION_UNO}: 1 voto. "
+                  f"2, {di.OPCION_DOS}: 0 votos. Total: 1 voto. Cerrada.")
+        pasos = _pasos(
+            anotar, leer_anuncios=_anuncios(di.ANUNCIO_ENCUESTA, cierre),
+            respuesta=lambda: {"items": [{"snippet": {
+                "displayMessage": di.OPCION_UNO}}]})
+        self.assertTrue(pasos.encuesta())
+        resultados = [paso for paso in anotar.pasos
+                      if paso[0] == "resultado de la encuesta"]
+        self.assertEqual(len(resultados), 1)
+        self.assertTrue(resultados[0][1])
 
     def test_sin_anuncio_de_apertura_anota_el_fallo(self):
         anotar = _Anotador()
@@ -284,12 +298,26 @@ class TestPasoPregunta(unittest.TestCase):
         pasos = _pasos(
             anotar, enviar=enviados.append,
             leer_siguiente=lambda: acciones.append("leer"),
-            leer_anuncios=_anuncios("Miguel pregunta: " + di.TEXTO_PREGUNTA))
+            leer_anuncios=_anuncios("Miguel pregunta: " + di.TEXTO_PREGUNTA,
+                                    chat="!pregunta " + di.TEXTO_PREGUNTA))
         self.assertTrue(pasos.pregunta())
         self.assertEqual(enviados, ["!pregunta " + di.TEXTO_PREGUNTA])
         self.assertEqual(acciones, ["leer"])
         self.assertEqual(anotar.pasos[0][0], "leer siguiente pregunta")
         self.assertTrue(anotar.pasos[0][1])
+
+    def test_la_pregunta_espera_al_mensaje_en_el_chat(self):
+        anotar = _Anotador()
+        acciones = []
+        pasos = _pasos(
+            anotar, leer_siguiente=lambda: acciones.append("leer"),
+            leer_anuncios=_anuncios("Miguel pregunta: " + di.TEXTO_PREGUNTA,
+                                    chat=""))
+        self.assertFalse(pasos.pregunta())
+        self.assertEqual(acciones, [])
+        fallos = [paso for paso in anotar.pasos if not paso[1]]
+        self.assertEqual(len(fallos), 1)
+        self.assertIn("!pregunta", fallos[0][2])
 
     def test_sin_el_texto_anuncia_el_fallo(self):
         anotar = _Anotador()
