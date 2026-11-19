@@ -119,6 +119,49 @@ class TestFormato(unittest.TestCase):
                       transcripcion.texto(caso))
 
 
+class TestValorVariable(unittest.TestCase):
+
+    def _estado(self, nombre, dicho, valor, rol="EDITABLETEXT"):
+        caso = datos(nombre)
+        caso["pasos"][0]["habla"] = [{"texto": dicho}]
+        caso["pasos"][0]["foco"].update({
+            "rol_nombre": rol, "atajo": "Alt+E", "valor": valor})
+        return caso
+
+    def test_valores_distintos_del_control_variable_comparan_iguales(self):
+        casa = self._estado(
+            "Estado", "Estado edición Alt+ e Revisa antes de transmitir",
+            "Revisa antes de transmitir")
+        oficina = self._estado(
+            "Estado", "Estado edición Alt+ e Elige a dónde transmitir",
+            "Elige a dónde transmitir")
+        texto_casa = transcripcion.texto(casa, ["Estado"])
+        texto_oficina = transcripcion.texto(oficina, ["Estado"])
+        self.assertEqual(texto_casa, texto_oficina)
+        self.assertEqual(
+            transcripcion.diferencia(texto_casa, texto_oficina), "")
+        self.assertIn("dijo='Estado edición Alt+ e'", texto_casa)
+        self.assertNotIn("Revisa antes", texto_casa)
+        self.assertNotIn("Elige a dónde", texto_casa)
+        self.assertIn("valor=''", texto_casa)
+
+    def test_nombre_o_rol_distinto_del_control_variable_no_comparan_iguales(
+            self):
+        controles = ["Estado", "Otro estado"]
+        base = self._estado(
+            "Estado", "Estado edición Alt+ e Revisa antes", "Revisa antes")
+        otro_nombre = self._estado(
+            "Otro estado", "Otro estado edición Alt+ e Revisa antes",
+            "Revisa antes")
+        otro_rol = self._estado(
+            "Estado", "Estado edición Alt+ e Revisa antes", "Revisa antes",
+            rol="EDIT")
+        self.assertNotEqual(transcripcion.texto(base, controles),
+                            transcripcion.texto(otro_nombre, controles))
+        self.assertNotEqual(transcripcion.texto(base, controles),
+                            transcripcion.texto(otro_rol, controles))
+
+
 class TestComparacion(unittest.TestCase):
 
     def test_un_nombre_distinto_da_un_diff_con_su_linea(self):

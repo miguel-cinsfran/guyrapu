@@ -112,6 +112,8 @@ VENTANAS = (
         "menu": "OBS > Panel de OBS…",
         "titulo": "Panel de OBS",
         "primero": "Estado",
+        # El texto del estado depende de cómo esté OBS en cada PC.
+        "valor_variable": ["Estado"],
     },
     {
         "nombre": "palabras",

@@ -56,6 +56,8 @@ class TestVentanas(unittest.TestCase):
                 campos.add("tope")
             if "primero_lista" in entrada:
                 campos.add("primero_lista")
+            if "valor_variable" in entrada:
+                campos.add("valor_variable")
             self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
@@ -102,6 +104,7 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(entrada["menu"], "OBS > Panel de OBS…")
         self.assertEqual(entrada["titulo"], "Panel de OBS")
         self.assertEqual(entrada["primero"], "Estado")
+        self.assertEqual(entrada["valor_variable"], ["Estado"])
 
     def test_historial_activa_conectar_y_eliminar_con_el_vacio(self):
         historial = next(entrada for entrada in ventanas_app.VENTANAS
@@ -308,6 +311,32 @@ class TestVentana(unittest.TestCase):
             app._ventana(BancoFalso(True), mock.Mock(), entrada,
                          7, set(), False)
         self.assertEqual(visto["primero_lista"], "Paquetes de voces")
+
+    def test_la_transcripcion_de_obs_ignora_el_valor_del_estado(self):
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "obs")
+        datos = {"pasos": [{
+            "tecla": "tab", "fase": "ida",
+            "habla": [{"texto":
+                       "Estado edición Alt+ e Revisa antes de transmitir"}],
+            "foco": {"nombre": "Estado", "rol_nombre": "EDITABLETEXT",
+                     "atajo": "Alt+E", "valor": "Revisa antes de transmitir"},
+        }]}
+        visto = {}
+
+        def comparar(_nombre, nueva, _aprobar):
+            visto["nueva"] = nueva
+            return ""
+
+        with (
+            mock.patch.object(app.recorrido, "conducir", return_value=datos),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              side_effect=comparar),
+        ):
+            app._ventana(BancoFalso(True), mock.Mock(), entrada, 7, set(), False)
+        self.assertIn("dijo='Estado edición Alt+ e'", visto["nueva"])
+        self.assertNotIn("Revisa antes", visto["nueva"])
 
     def test_un_hallazgo_de_verdad_sale_en_la_linea_de_la_transcripcion(self):
         hallazgo = {"regla": "sin_nombre", "nivel": "aviso",

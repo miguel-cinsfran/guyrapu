@@ -242,7 +242,9 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     hallazgos = reglas.analizar(datos, catalogo)
     lineas = _lineas_de_ventana(nombre, datos, hallazgos)
     diferencia = transcripcion.comparar(
-        nombre, transcripcion.texto(datos), aprobar)
+        nombre,
+        transcripcion.texto(datos, entrada.get("valor_variable") or ()),
+        aprobar)
     if diferencia:
         lineas.append(f"transcripción distinta en «{nombre}»:")
         lineas.extend(diferencia.splitlines())

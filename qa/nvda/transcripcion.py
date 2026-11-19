@@ -29,21 +29,32 @@ def _sin_repeticion_final(dicho, nombre):
     return dicho
 
 
-def _habla(paso) -> str:
+def _habla(paso, variable=False) -> str:
     dicho = " ".join(str(evento.get("texto") or "")
                      for evento in paso.get("habla") or ()).strip()
     nombre = str((paso.get("foco") or {}).get("nombre") or "").strip()
-    return _sin_repeticion_final(dicho, nombre)
+    dicho = _sin_repeticion_final(dicho, nombre)
+    if variable:
+        atajo = str((paso.get("foco") or {}).get("atajo") or "").strip()
+        for forma in (atajo.replace("+", "+ "), atajo):
+            if forma:
+                pos = dicho.casefold().find(forma.casefold())
+                if pos != -1:
+                    return dicho[:pos + len(forma)].rstrip()
+    return dicho
 
 
-def _linea(paso) -> str:
+def _linea(paso, valor_variable=()) -> str:
     foco = paso.get("foco") or {}
+    variable = foco.get("nombre") in valor_variable
     estados = sorted(str(estado) for estado in foco.get("estados") or ())
     rol = foco.get("rol_nombre") or foco.get("rol")
+    valor = "" if variable else foco.get("valor")
     linea = (f"tecla={paso.get('tecla')} fase={paso.get('fase')} "
-             f"dijo={_habla(paso)!r} foco={{nombre={foco.get('nombre')!r}, "
+             f"dijo={_habla(paso, variable)!r} "
+             f"foco={{nombre={foco.get('nombre')!r}, "
              f"rol={rol!r}, estados={estados!r}, "
-             f"valor={foco.get('valor')!r}, atajo={foco.get('atajo')!r}}}")
+             f"valor={valor!r}, atajo={foco.get('atajo')!r}}}")
     if paso.get("espera"):
         linea += (f" espera={paso['espera']!r} "
                   f"oída={bool(paso.get('oida'))}")
@@ -53,9 +64,14 @@ def _linea(paso) -> str:
     return linea
 
 
-def texto(datos) -> str:
-    """Una línea por paso, sin horas, milisegundos, hwnd ni pid."""
-    lineas = [_linea(paso) for paso in datos.get("pasos") or ()]
+def texto(datos, valor_variable=()) -> str:
+    """Una línea por paso, sin horas, milisegundos, hwnd ni pid.
+
+    Los nombres en `valor_variable` escriben el habla hasta el atajo y dejan
+    el valor vacío: su contenido cambia según la PC y no es de la app.
+    """
+    lineas = [_linea(paso, valor_variable)
+              for paso in datos.get("pasos") or ()]
     return "\n".join(lineas) + ("\n" if lineas else "")
 
 
