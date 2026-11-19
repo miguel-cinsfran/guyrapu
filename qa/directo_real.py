@@ -382,6 +382,9 @@ def _ayuda() -> argparse.ArgumentParser:
                         help="segundos de corte de red tras escribir desde "
                              "la app, con la tarea GuyrapuCorteRed ya "
                              "lanzada (0 sin corte, tope 30)")
+    parser.add_argument("--interaccion", action="store_true",
+                        help="probar comandos, disparadores, encuestas, "
+                             "preguntas y metas con la sonda de órdenes")
     return parser
 
 
@@ -439,8 +442,7 @@ def _rep_init(self, *a, **k):
         pass
 
 _rep.ReproductorPanel.__init__ = _rep_init
-import main
-main.main()
+{arranque}
 """
 
 
@@ -1022,6 +1024,7 @@ def _detener_y_finalizar(gestor, cliente, credenciales,
 def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
     from guyrapu.core import config, paths
     from guyrapu.youtube import credenciales
+    from directo_interaccion import Interaccion
 
     pasos: list[tuple[str, bool, str]] = []
 
@@ -1056,6 +1059,8 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
     ruta_lanzador = os.path.join(tmpdir, "app_directo_real.py")
     open(ruta_anuncios, "w").close()
     open(ruta_chat, "w").close()
+    inter = Interaccion(args.interaccion, tmpdir, anotar)
+    inter.preparar()
     salida: list[tuple[str, bool, str]] = pasos
     app = None
     principal = None
@@ -1143,7 +1148,8 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
                    "ya estaba abierto, no se toca el sentinel")
 
         with open(ruta_lanzador, "w", encoding="utf-8") as f:
-            f.write(_LANZADOR.format(repo=str(raiz)))
+            f.write(_LANZADOR.format(repo=str(raiz),
+                                     arranque=inter.arranque))
         try:
             ventanas_prueba = _abrir_ventanas_prueba()
             anotar("ventanas de prueba", True,
@@ -1153,7 +1159,8 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
             return (salida, 1)
         entorno = dict(os.environ,
                        DIRECTO_REAL_ANUNCIOS=ruta_anuncios,
-                       DIRECTO_REAL_CHAT=ruta_chat)
+                       DIRECTO_REAL_CHAT=ruta_chat,
+                       **inter.entorno())
         app = subprocess.Popen([sys.executable, ruta_lanzador],
                                cwd=str(raiz), env=entorno)
         try:
@@ -1340,20 +1347,18 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
         if not visto[0]:
             return (salida, 1)
 
-        def _respuesta_chat():
-            return cliente._escritura().liveChatMessages().list(
-                liveChatId=id_chat, part="snippet",
-                maxResults=200).execute()
-
         texto_app = "Prueba desde la app " + time.strftime("%H:%M:%S")
         marca_envio = len(_leer_anuncios(ruta_anuncios))
         bien, detalle = escribir_desde_app(
             principal, texto_app, ruta_anuncios, marca_envio, _leer_anuncios,
-            _esperar_anuncio, _control, _respuesta_chat)
+            _esperar_anuncio, _control,
+            lambda: inter.respuesta(cliente, id_chat))
         _guardar_token_si_renovo(cliente, creds)
         anotar("escribir desde la app", bien, detalle)
         if not bien:
             return (salida, 1)
+        inter.pasar(cliente, id_chat, gestor_obs, _leer_anuncios,
+                    ruta_anuncios, principal, _control)
         corte = limitar_corte(args.corte)
         if corte:
             bien, detalle, marca_corte = paso_corte(
@@ -1380,7 +1385,8 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
             marca_envio2 = len(_leer_anuncios(ruta_anuncios))
             bien, detalle = escribir_desde_app(
                 principal, texto_app2, ruta_anuncios, marca_envio2,
-                _leer_anuncios, _esperar_anuncio, _control, _respuesta_chat)
+                _leer_anuncios, _esperar_anuncio, _control,
+                lambda: inter.respuesta(cliente, id_chat))
             _guardar_token_si_renovo(cliente, creds)
             anotar("escribir después del corte", bien, detalle)
             if not bien:
@@ -1582,6 +1588,7 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
                                 and _obs_en_ejecucion():
                             _cerrar_obs()
                     finally:
+                        inter.restaurar()
                         try:
                             shutil.copy2(respaldo, ruta_config)
                         except OSError:
@@ -1597,8 +1604,8 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
                         except OSError:
                             pass
                     anotar(paso, True,
-                           "app cerrada, config.ini y sounds.ini "
-                           "restaurados")
+                           "app cerrada, config.ini, sounds.ini y las "
+                           "colecciones de interacción restauradas")
             except Exception as exc:
                 anotar(paso, False, f"falló la limpieza: {exc}")
         if id_lista:

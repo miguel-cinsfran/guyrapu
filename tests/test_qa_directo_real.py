@@ -524,7 +524,8 @@ class TestVolumenPrueba(unittest.TestCase):
         self.assertEqual(directo_real.VOLUMEN_PRUEBA, 0.12)
 
     def test_lanzador_compila_y_fija_reproductor(self):
-        fuente = directo_real._LANZADOR.format(repo="C:/x")
+        fuente = directo_real._LANZADOR.format(
+            repo="C:/x", arranque="import main\nmain.main()")
         compile(fuente, "lanzador", "exec")
         self.assertIn("ReproductorPanel", fuente)
         self.assertIn("self._vol = 12", fuente)
