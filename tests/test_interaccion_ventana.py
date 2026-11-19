@@ -17,7 +17,8 @@ from guyrapu.ui import (
     comando_interaccion, comando_mensajes_automaticos, comandos_ventana,
     disparadores_ventana, encuestas_ventana, estilos_ventana, gui,
     interaccion_ventana, medios_ventana, mensajes_automaticos_ventana,
-    menu_interaccion, metas_ventana, palabras_bloqueadas_ventana)
+    menu_interaccion, metas_ventana, palabras_bloqueadas_ventana,
+    preguntas_ventana)
 from tests.letras_acceso import letras_repetidas, repetidas_con_lo_de_fuera
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -89,8 +90,9 @@ class TestPaginas(BaseVentana):
         self.assertEqual(
             [ventana.libro.GetPageText(indice)
              for indice in range(ventana.libro.GetPageCount())],
-            ["Mensajes automáticos", "Comandos", "Encuestas", "Disparadores",
-             "Metas", "Medios", "Estilos", "Palabras bloqueadas"])
+            ["Mensajes automáticos", "Comandos", "Encuestas", "Preguntas",
+             "Disparadores", "Metas", "Medios", "Estilos",
+             "Palabras bloqueadas"])
         self.assertIsInstance(
             ventana.libro.GetPage(0),
             mensajes_automaticos_ventana.PanelMensajesAutomaticos)
@@ -99,15 +101,17 @@ class TestPaginas(BaseVentana):
         self.assertIsInstance(ventana.libro.GetPage(2),
                               encuestas_ventana.PanelEncuestas)
         self.assertIsInstance(ventana.libro.GetPage(3),
-                              disparadores_ventana.PanelDisparadores)
+                              preguntas_ventana.PanelPreguntas)
         self.assertIsInstance(ventana.libro.GetPage(4),
-                              metas_ventana.PanelMetas)
+                              disparadores_ventana.PanelDisparadores)
         self.assertIsInstance(ventana.libro.GetPage(5),
-                              medios_ventana.PanelMedios)
+                              metas_ventana.PanelMetas)
         self.assertIsInstance(ventana.libro.GetPage(6),
+                              medios_ventana.PanelMedios)
+        self.assertIsInstance(ventana.libro.GetPage(7),
                               estilos_ventana.PanelEstilos)
         self.assertIsInstance(
-            ventana.libro.GetPage(7),
+            ventana.libro.GetPage(8),
             palabras_bloqueadas_ventana.PanelPalabrasBloqueadas)
 
     def test_p1_cerrar_es_el_unico_boton_y_cierra(self):
@@ -159,8 +163,8 @@ class TestPaginas(BaseVentana):
             [ventana.libro.GetPage(indice).lista.GetName()
              for indice in range(ventana.libro.GetPageCount())],
             ["Mensajes automáticos guardados", "Comandos del chat guardados",
-             "Encuestas guardadas", "Disparadores guardados",
-             "Metas guardadas", "Medios guardados",
+             "Encuestas guardadas", "Preguntas del público",
+             "Disparadores guardados", "Metas guardadas", "Medios guardados",
              "Estilos del vídeo guardados", "Palabras bloqueadas"])
 
     def test_las_letras_no_se_repiten_en_el_dialogo_ni_en_sus_paginas(self):
@@ -169,8 +173,8 @@ class TestPaginas(BaseVentana):
         self.assertEqual(
             repetidas_con_lo_de_fuera(ventana, ventana.libro),
             {"Mensajes automáticos": {}, "Comandos": {}, "Encuestas": {},
-             "Disparadores": {}, "Metas": {}, "Medios": {}, "Estilos": {},
-             "Palabras bloqueadas": {}})
+             "Preguntas": {}, "Disparadores": {}, "Metas": {}, "Medios": {},
+             "Estilos": {}, "Palabras bloqueadas": {}})
 
 
 class TestPaginaRecordada(BaseVentana):
@@ -202,8 +206,9 @@ class TestPaginaRecordada(BaseVentana):
         self.assertEqual(ventana.pagina_actual(), "estilos")
 
     def test_p3_el_foco_queda_en_la_lista_de_la_pagina(self):
-        for pagina in ("mensajes", "comandos", "encuestas", "disparadores",
-                       "metas", "medios", "estilos", "palabras"):
+        for pagina in ("mensajes", "comandos", "encuestas", "preguntas",
+                       "disparadores", "metas", "medios", "estilos",
+                       "palabras"):
             with self.subTest(pagina=pagina):
                 ventana = self._ventana(pagina)
                 ventana.Show()

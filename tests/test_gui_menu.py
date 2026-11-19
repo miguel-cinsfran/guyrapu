@@ -214,6 +214,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Interacción", "Modo pánic&o", ANY, "check"),
             ("&Interacción", "Pa&usar comandos", ANY, "check"),
             ("&Interacción", "Cerrar e&ncuesta", ANY, "normal"),
+            ("&Interacción", "Leer si&guiente pregunta", ANY, "normal"),
             ("&Interacción", "Acti&var mensajes automáticos", ANY, "check"),
             ("&Música", "&Elegir música…", ANY, "normal"),
             ("&Música", "---", None, "sep"),
@@ -388,7 +389,7 @@ class TestMenuInteraccionEnDirecto(unittest.TestCase):
         _, lista = _construir_lista(accel)
         return [fila for fila in lista if fila[0] == "&Interacción"]
 
-    def test_ocho_elementos_en_orden_con_su_atajo(self):
+    def test_nueve_elementos_en_orden_con_su_atajo(self):
         ANY = gui.wx.ID_ANY
         self.assertEqual([
             ("&Interacción", "&Abrir Interacción…\tCtrl+Shift+A",
@@ -412,6 +413,8 @@ class TestMenuInteraccionEnDirecto(unittest.TestCase):
              "Pa&usar comandos\tCtrl+Alt+Shift+C", ANY, "check"),
             ("&Interacción",
              "Cerrar e&ncuesta\tCtrl+Alt+Shift+E", ANY, "normal"),
+            ("&Interacción",
+             "Leer si&guiente pregunta\tCtrl+Alt+Shift+R", ANY, "normal"),
             ("&Interacción",
              "Acti&var mensajes automáticos\tCtrl+Alt+Shift+A",
              ANY, "check"),
@@ -438,6 +441,7 @@ class TestCableadoInteraccionEnDirecto(unittest.TestCase):
             "mi_video_panico": "alternar_panico",
             "mi_comandos_pausar": "alternar_comandos",
             "mi_encuesta_cerrar": "cerrar_encuesta",
+            "mi_pregunta_siguiente": "pregunta_siguiente",
             "mi_programados_activo": "alternar_mensajes",
         }
         dobles = {}

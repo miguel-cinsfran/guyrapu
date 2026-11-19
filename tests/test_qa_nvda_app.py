@@ -22,11 +22,12 @@ from qa.nvda import app, ventanas_app
 
 class TestVentanas(unittest.TestCase):
 
-    def test_la_tabla_tiene_las_nueve_ventanas_con_sus_campos(self):
+    def test_la_tabla_tiene_las_diez_ventanas_con_sus_campos(self):
         self.assertEqual(
             [entrada["nombre"] for entrada in ventanas_app.VENTANAS],
             ["preferencias", "interaccion", "comandos", "estilos",
-             "historial", "descargas", "palabras", "encuestas", "medios"])
+             "historial", "descargas", "palabras", "encuestas", "preguntas",
+             "medios"])
         for entrada in ventanas_app.VENTANAS:
             campos = {"nombre", "menu", "titulo", "primero"}
             if "pagina" in entrada:
@@ -35,15 +36,16 @@ class TestVentanas(unittest.TestCase):
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
         self.assertEqual(
-            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 9)
+            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 10)
         self.assertEqual(ventanas_app.VENTANAS[0]["titulo"], "Preferencias")
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
 
-    def test_las_tres_paginas_de_interaccion_tienen_su_entrada(self):
+    def test_las_cuatro_paginas_de_interaccion_tienen_su_entrada(self):
         esperadas = {
             "palabras": "Palabras bloqueadas",
             "encuestas": "Encuestas",
+            "preguntas": "Preguntas",
             "medios": "Medios",
         }
         por_nombre = {entrada["nombre"]: entrada
@@ -57,7 +59,7 @@ class TestVentanas(unittest.TestCase):
                 self.assertTrue(entrada["primero"])
 
     def test_cada_pagina_de_interaccion_se_puede_pedir_sola(self):
-        for pedida in ("palabras", "encuestas", "medios"):
+        for pedida in ("palabras", "encuestas", "preguntas", "medios"):
             with self.subTest(pedida=pedida):
                 banco = mock.Mock()
                 banco.pedir.return_value = {"datos": {"pid": 7}}

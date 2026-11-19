@@ -419,6 +419,9 @@ class AplicacionFalsa:
     def esperar_lista(self, segundos=60.0):
         return True
 
+    def al_frente(self):
+        return True
+
     def pedir(self, op, **extra):
         self.ordenes.append((op, extra))
         if op == "pid":

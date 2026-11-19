@@ -128,6 +128,7 @@ ETIQUETAS = {
         "Activar o desactivar los mensajes automáticos"),
     "comandos_pausar": N_("Pausar los comandos del chat"),
     "encuesta_cerrar": N_("Cerrar la encuesta"),
+    "pregunta_siguiente": N_("Leer la siguiente pregunta"),
     "preguntar_ia": N_("Preguntar a la IA sobre la imagen"),
     "chat_reciente_1": N_("Leer el último mensaje del chat"),
     "chat_reciente_2": N_("Leer el mensaje 2 desde el final del chat"),

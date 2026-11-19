@@ -14,9 +14,16 @@ from unittest import mock
 import wx
 
 from guyrapu.core import config
-from guyrapu.ui import comando_en_directo, interaccion_atajos
+from guyrapu.interaction import preguntas
+from guyrapu.interaction.evento import desde_entrante
+from guyrapu.ui import (
+    comando_en_directo, interaccion_atajos, preguntas_en_vivo)
 from guyrapu.ui.atajos_captura import atajo_legible
 from guyrapu.ui.atajos_globales import combinacion_ctrl_alt_mayus
+
+
+def _evento(autor, autor_id):
+    return desde_entrante(autor, "texto", "texto", "", autor_id, "", "youtube")
 
 ORDEN = (
     ("video_pausar", "p"),
@@ -27,6 +34,7 @@ ORDEN = (
     ("mensajes_automaticos_alternar", "a"),
     ("comandos_pausar", "c"),
     ("encuesta_cerrar", "e"),
+    ("pregunta_siguiente", "r"),
 )
 
 MODS = wx.MOD_CONTROL | wx.MOD_ALT | wx.MOD_SHIFT
@@ -62,7 +70,7 @@ class _Ventana:
 
 class TestCombinacionCtrlAltMayus(unittest.TestCase):
 
-    def test_las_ocho_de_fabrica_dan_su_letra(self):
+    def test_las_nueve_de_fabrica_dan_su_letra(self):
         for accion, letra in ORDEN:
             with self.subTest(accion=accion):
                 self.assertEqual(
@@ -93,18 +101,18 @@ class TestInteraccionAtajos(unittest.TestCase):
             atajos.activar_arranque()
         return atajos, ventana
 
-    def test_registra_los_ocho_con_su_accion(self):
+    def test_registra_los_nueve_con_su_accion(self):
         ventana = _Ventana()
         acciones = (
             "alternar_pausa", "saltar", "vaciar", "alternar_silencio",
             "alternar_panico", "alternar_mensajes", "alternar_comandos",
-            "cerrar_encuesta")
+            "cerrar_encuesta", "pregunta_siguiente")
         parches = [mock.patch.object(comando_en_directo, nombre)
                    for nombre in acciones]
         iniciados = [parche.start() for parche in parches]
         try:
             _atajos, ventana = self._atajos(ventana)
-            self.assertEqual(len(ventana.registrados), 8)
+            self.assertEqual(len(ventana.registrados), 9)
             for accion, letra in ORDEN:
                 indice = interaccion_atajos.ORDEN.index(accion)
                 ident = interaccion_atajos.BASE_IDS + indice
@@ -132,6 +140,41 @@ class TestInteraccionAtajos(unittest.TestCase):
         self.assertIn(atajo_legible("ctrl+alt+shift+p"), anuncios[0])
         self.assertIn("otra aplicación", anuncios[0])
         reproducir.assert_called_once_with("atajos_ocupados")
+
+    def _manejador_de(self, ventana, accion):
+        ident = (interaccion_atajos.BASE_IDS
+                 + interaccion_atajos.ORDEN.index(accion))
+        return ventana.manejadores[ident]
+
+    def _sumar(self, ventana, texto, autor, autor_id, ahora):
+        invocacion = preguntas.leer(texto)
+        ventana._preguntas_en_vivo.cola.agregar(
+            _evento(autor, autor_id), invocacion.argumentos, [], ahora)
+
+    def test_p7_lee_la_mas_vieja_y_dice_cuantas_quedan(self):
+        _atajos, ventana = self._atajos()
+        ventana._preguntas_en_vivo = preguntas_en_vivo.SesionPreguntas()
+        self._sumar(ventana, "!pregunta Primera", "Ana", "A", 1.0)
+        self._sumar(ventana, "!pregunta Segunda", "Beto", "B", 2.0)
+        anuncios = []
+        with mock.patch.object(comando_en_directo, "anunciar",
+                               side_effect=anuncios.append), \
+                mock.patch.object(interaccion_atajos.wx, "CallAfter",
+                                  side_effect=lambda funcion: funcion()):
+            self._manejador_de(ventana, "pregunta_siguiente")(None)
+        self.assertEqual(anuncios,
+                         ["Ana pregunta: Primera. Quedan 1."])
+        self.assertEqual(len(ventana._preguntas_en_vivo.cola.pendientes()), 2)
+
+    def test_p7_sin_preguntas_lo_dice(self):
+        _atajos, ventana = self._atajos()
+        anuncios = []
+        with mock.patch.object(comando_en_directo, "anunciar",
+                               side_effect=anuncios.append), \
+                mock.patch.object(interaccion_atajos.wx, "CallAfter",
+                                  side_effect=lambda funcion: funcion()):
+            self._manejador_de(ventana, "pregunta_siguiente")(None)
+        self.assertEqual(anuncios, ["No hay preguntas."])
 
 
 if __name__ == "__main__":

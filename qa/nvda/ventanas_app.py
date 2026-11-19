@@ -65,6 +65,14 @@ VENTANAS = (
         "pagina": "Encuestas",
     },
     {
+        "nombre": "preguntas",
+        "menu": "Interacción > Abrir Interacción…",
+        "titulo": "Interacción",
+        "primero": ("No hay preguntas. El público las hace con el comando "
+                    "pregunta y el texto."),
+        "pagina": "Preguntas",
+    },
+    {
         "nombre": "medios",
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Interacción",

@@ -75,6 +75,13 @@ def suscribir(frame, aviso) -> None:
     _sesion(frame).cola.suscribir(aviso)
 
 
+def desuscribir(frame, aviso) -> None:
+    """Deja de avisar a esa función; si no había sesión, no hace nada."""
+    sesion = getattr(frame, "_preguntas_en_vivo", None)
+    if sesion is not None:
+        sesion.cola.desuscribir(aviso)
+
+
 def mostrar(frame, id) -> bool:
     """Suma al vídeo la pregunta con ese id, sin sacarla de la cola."""
     pregunta = _sesion(frame).buscar(id)

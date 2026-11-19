@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Las ocho acciones de lo que sale en el vídeo.
+"""Las acciones de lo que sale en el vídeo.
 
 Un solo camino por acción: el menú Interacción y los atajos globales llaman
 acá. La capa del vídeo conserva el estado de la cola entre una acción y la
@@ -11,8 +11,9 @@ from __future__ import annotations
 
 from guyrapu.core.idioma import _
 from guyrapu.ui import (
-    comando_mensajes_automaticos, comandos_en_vivo, encuesta_en_vivo)
-from guyrapu.ui.accesibilidad import anunciar_con_sonido
+    comando_mensajes_automaticos, comandos_en_vivo, encuesta_en_vivo,
+    preguntas_en_vivo)
+from guyrapu.ui.accesibilidad import anunciar, anunciar_con_sonido
 
 
 def _capa(frame):
@@ -98,3 +99,14 @@ def cerrar_encuesta(frame):
     """Cierra la encuesta abierta, o dice que no hay ninguna."""
     if not encuesta_en_vivo.cerrar(frame):
         anunciar_con_sonido(_("No hay ninguna encuesta abierta"), "listo")
+
+
+def pregunta_siguiente(frame):
+    """Lee la pregunta más vieja pendiente y cuántas quedan."""
+    pregunta = preguntas_en_vivo.siguiente(frame)
+    if pregunta is None:
+        anunciar(_("No hay preguntas."))
+        return
+    quedan = len(preguntas_en_vivo.pendientes(frame)) - 1
+    anunciar(_("{autor} pregunta: {texto}. Quedan {n}.").format(
+        autor=pregunta.autor, texto=pregunta.texto, n=quedan))

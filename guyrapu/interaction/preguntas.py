@@ -115,6 +115,11 @@ class ColaPreguntas:
         """Avisa a esa función cada vez que la cola cambia."""
         self._suscriptores.append(aviso)
 
+    def desuscribir(self, aviso) -> None:
+        """Deja de avisar a esa función; si no estaba, no falla."""
+        if aviso in self._suscriptores:
+            self._suscriptores.remove(aviso)
+
     def avisar_llena(self) -> bool:
         """Si toca avisar que está llena, una vez hasta que vuelva a haber lugar."""
         if len(self._pendientes) < MAXIMO or self._llena_avisada:

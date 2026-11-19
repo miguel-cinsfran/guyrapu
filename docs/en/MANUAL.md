@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 4571594542c99df5f63a91e5b02b4653d7a2b34c -->
+<!-- original: es/MANUAL.md c0ea6ecaf18bf0493335d52163a231a1b252d2be -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -461,6 +461,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | `Ctrl+Alt+Shift+A` | Turn scheduled messages on or off |
 | `Ctrl+Alt+Shift+C` | Pause or resume all chat commands |
 | `Ctrl+Alt+Shift+E` | Close the poll |
+| `Ctrl+Alt+Shift+R` | Read the next question |
 
 ### Music (Ctrl+Alt)
 

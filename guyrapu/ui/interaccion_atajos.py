@@ -31,10 +31,31 @@ ORDEN = (
     "mensajes_automaticos_alternar",
     "comandos_pausar",
     "encuesta_cerrar",
+    "pregunta_siguiente",
 )
 
 # Base de los ids propios para `RegisterHotKey`, lejos de las otras áreas.
 BASE_IDS = 0xB400
+
+
+def _acciones(frame):
+    return {
+        "video_pausar": lambda: comando_en_directo.alternar_pausa(frame),
+        "video_saltar": lambda: comando_en_directo.saltar(frame),
+        "video_vaciar": lambda: comando_en_directo.vaciar(frame),
+        "video_silenciar":
+            lambda: comando_en_directo.alternar_silencio(frame),
+        "video_panico":
+            lambda: comando_en_directo.alternar_panico(frame),
+        "mensajes_automaticos_alternar":
+            lambda: comando_en_directo.alternar_mensajes(frame),
+        "comandos_pausar":
+            lambda: comando_en_directo.alternar_comandos(frame),
+        "encuesta_cerrar":
+            lambda: comando_en_directo.cerrar_encuesta(frame),
+        "pregunta_siguiente":
+            lambda: comando_en_directo.pregunta_siguiente(frame),
+    }
 
 
 class InteraccionAtajos:
@@ -47,22 +68,7 @@ class InteraccionAtajos:
 
     def __init__(self, frame) -> None:
         self._ventana = frame
-        self._acciones = {
-            "video_pausar":
-                lambda: comando_en_directo.alternar_pausa(frame),
-            "video_saltar": lambda: comando_en_directo.saltar(frame),
-            "video_vaciar": lambda: comando_en_directo.vaciar(frame),
-            "video_silenciar":
-                lambda: comando_en_directo.alternar_silencio(frame),
-            "video_panico":
-                lambda: comando_en_directo.alternar_panico(frame),
-            "mensajes_automaticos_alternar":
-                lambda: comando_en_directo.alternar_mensajes(frame),
-            "comandos_pausar":
-                lambda: comando_en_directo.alternar_comandos(frame),
-            "encuesta_cerrar":
-                lambda: comando_en_directo.cerrar_encuesta(frame),
-        }
+        self._acciones = _acciones(frame)
         self._globales = atajos_globales.AtajosGlobales(
             frame, self._acciones, orden=ORDEN, base_ids=BASE_IDS,
             traducir=combinacion_ctrl_alt_mayus)

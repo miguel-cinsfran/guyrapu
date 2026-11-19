@@ -100,6 +100,16 @@ class TestPagina(Base):
         preguntas_en_vivo.vaciar(self.frame)
         self.assertEqual(len(cambios), 4)
 
+    def test_desuscribir_deja_de_avisar_y_repetirlo_no_falla(self):
+        cambios = []
+        aviso = lambda: cambios.append(1)
+        preguntas_en_vivo.suscribir(self.frame, aviso)
+        self._recibir("!pregunta Uno", "Ana", "A")
+        preguntas_en_vivo.desuscribir(self.frame, aviso)
+        self._recibir("!pregunta Dos", "Beto", "B")
+        self.assertEqual(len(cambios), 1)
+        preguntas_en_vivo.desuscribir(self.frame, aviso)
+
 
 class TestVideo(Base):
 

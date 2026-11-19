@@ -781,6 +781,7 @@ al llegar al principio o al final suena un aviso.
 | `Ctrl+Alt+Mayús+A` | Activar o desactivar los mensajes automáticos |
 | `Ctrl+Alt+Mayús+C` | Pausar o reanudar todos los comandos del chat |
 | `Ctrl+Alt+Mayús+E` | Cerrar la encuesta |
+| `Ctrl+Alt+Mayús+R` | Leer la siguiente pregunta |
 
 ### Música (Ctrl+Alt)
 

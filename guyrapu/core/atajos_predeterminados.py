@@ -71,4 +71,5 @@ ATAJOS_PREDETERMINADOS = [
     ("mensajes_automaticos_alternar", "ctrl+alt+shift+a"),
     ("comandos_pausar", "ctrl+alt+shift+c"),
     ("encuesta_cerrar", "ctrl+alt+shift+e"),
+    ("pregunta_siguiente", "ctrl+alt+shift+r"),
 ]

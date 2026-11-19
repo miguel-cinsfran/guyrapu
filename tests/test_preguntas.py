@@ -176,6 +176,16 @@ class TestAdministrar(Base):
         self.cola.vaciar()
         self.assertEqual(len(cambios), 5)
 
+    def test_desuscribir_deja_de_avisar_y_repetirlo_no_falla(self):
+        cambios = []
+        aviso = lambda: cambios.append(1)
+        self.cola.suscribir(aviso)
+        self._sumar("!pregunta Uno", "Ana", "A")
+        self.cola.desuscribir(aviso)
+        self._sumar("!pregunta Dos", "Beto", "B")
+        self.assertEqual(len(cambios), 1)
+        self.cola.desuscribir(aviso)
+
 
 class TestPropiedad(Base):
 

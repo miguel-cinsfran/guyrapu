@@ -1,7 +1,7 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Ventana Interacción: mensajes, comandos, encuestas, disparadores, medios,
-estilos y palabras bloqueadas.
+"""Ventana Interacción: mensajes, comandos, encuestas, preguntas,
+disparadores, medios, estilos y palabras bloqueadas.
 
 Una sola ventana con una lista de páginas, como Preferencias. La página se
 elige por su identificador y se recuerda al cerrar.
@@ -23,11 +23,13 @@ from guyrapu.ui.metas_ventana import PanelMetas
 from guyrapu.ui.mensajes_automaticos_ventana import PanelMensajesAutomaticos
 from guyrapu.ui.palabras_bloqueadas_ventana import PanelPalabrasBloqueadas
 from guyrapu.ui.preferencias_comun import ajustar_ancho_categorias
+from guyrapu.ui.preguntas_ventana import PanelPreguntas
 
 PAGINAS = (
     ("mensajes", N_("Mensajes automáticos")),
     ("comandos", N_("Comandos")),
     ("encuestas", N_("Encuestas")),
+    ("preguntas", N_("Preguntas")),
     ("disparadores", N_("Disparadores")),
     ("metas", N_("Metas")),
     ("medios", N_("Medios")),
@@ -49,20 +51,11 @@ class VentanaInteraccion(wx.Dialog):
             padre, title=_("Interacción"), name=_("Interacción"),
             size=(760, 640),
             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
-        self._paginas = {}
         vs = wx.BoxSizer(wx.VERTICAL)
         self.libro = wx.Listbook(self, name=_("Interacción"))
         self.lista_paginas = self.libro.GetListView()
         nombre_accesible(self.lista_paginas, _("Páginas de interacción"))
-        self._paginas["mensajes"] = PanelMensajesAutomaticos(
-            self.libro, padre)
-        self._paginas["comandos"] = PanelComandos(self.libro)
-        self._paginas["encuestas"] = PanelEncuestas(self.libro)
-        self._paginas["disparadores"] = PanelDisparadores(self.libro)
-        self._paginas["metas"] = PanelMetas(self.libro)
-        self._paginas["medios"] = PanelMedios(self.libro)
-        self._paginas["estilos"] = PanelEstilos(self.libro)
-        self._paginas["palabras"] = PanelPalabrasBloqueadas(self.libro)
+        self._paginas = self._crear_paginas(padre)
         for clave, etiqueta in PAGINAS:
             self.libro.AddPage(self._paginas[clave], _(etiqueta))
         self.libro.SetSelection(self._pagina_inicial(padre, pagina))
@@ -79,6 +72,19 @@ class VentanaInteraccion(wx.Dialog):
         paleta.pintar_ventana(self)
         self.Centre()
         self._paginas[self.pagina_actual()].lista.SetFocus()
+
+    def _crear_paginas(self, padre):
+        return {
+            "mensajes": PanelMensajesAutomaticos(self.libro, padre),
+            "comandos": PanelComandos(self.libro),
+            "encuestas": PanelEncuestas(self.libro),
+            "preguntas": PanelPreguntas(self.libro, padre),
+            "disparadores": PanelDisparadores(self.libro),
+            "metas": PanelMetas(self.libro),
+            "medios": PanelMedios(self.libro),
+            "estilos": PanelEstilos(self.libro),
+            "palabras": PanelPalabrasBloqueadas(self.libro),
+        }
 
     def _pagina_inicial(self, padre, pagina):
         indice = _indice_de(pagina)

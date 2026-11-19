@@ -85,11 +85,20 @@ def _encuesta(frame, m):
                      comando_en_directo.cerrar_encuesta, frame)
 
 
+def _pregunta(frame, m):
+    frame.mi_pregunta_siguiente = m.Append(
+        wx.ID_ANY,
+        _("Leer si&guiente pregunta") + frame._accel("pregunta_siguiente"))
+    frame._bind_menu(frame.mi_pregunta_siguiente,
+                     comando_en_directo.pregunta_siguiente, frame)
+
+
 def _en_directo(frame, m):
     _en_directo_cola(frame, m)
     _en_directo_medios(frame, m)
     _comandos(frame, m)
     _encuesta(frame, m)
+    _pregunta(frame, m)
     _programados(frame, m)
 
 
