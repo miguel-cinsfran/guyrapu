@@ -32,6 +32,7 @@ ORDEN = (
     "comandos_pausar",
     "encuesta_cerrar",
     "pregunta_siguiente",
+    "interaccion_estado",
 )
 
 # Base de los ids propios para `RegisterHotKey`, lejos de las otras áreas.
@@ -55,6 +56,8 @@ def _acciones(frame):
             lambda: comando_en_directo.cerrar_encuesta(frame),
         "pregunta_siguiente":
             lambda: comando_en_directo.pregunta_siguiente(frame),
+        "interaccion_estado":
+            lambda: comando_en_directo.estado_interaccion(frame),
     }
 
 

@@ -58,6 +58,7 @@ ACTUAN_DIRECTO = frozenset((
     "Detener reproducción",
     "Detener voz",
     "Enviar mensaje al chat del directo (solo YouTube)",
+    "Estado de la interacción",
     "Finalizando el directo",
     "Finalizar directo",
     "Guardar clip",

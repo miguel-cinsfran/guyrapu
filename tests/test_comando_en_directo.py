@@ -12,7 +12,8 @@ from types import SimpleNamespace
 from unittest import mock
 
 from guyrapu.interaction.cola_pantalla import ColaPantalla, Pieza
-from guyrapu.ui import comando_en_directo, comando_mensajes_automaticos
+from guyrapu.ui import (
+    comando_en_directo, comando_mensajes_automaticos, preguntas_en_vivo)
 from guyrapu.ui import gui_envio_chat
 
 
@@ -222,6 +223,31 @@ class TestMensajesAutomaticos(Base):
                 comando_mensajes_automaticos, "alternar") as alternar:
             comando_en_directo.alternar_mensajes(self.frame)
         alternar.assert_called_once_with(self.frame)
+
+
+class TestEstadoInteraccion(Base):
+
+    def _anunciar(self, snap, preguntas):
+        self.frame._snapshot_sesion = lambda: snap
+        anuncios = []
+        with mock.patch.object(preguntas_en_vivo, "pendientes",
+                               return_value=preguntas), \
+                mock.patch.object(comando_en_directo, "anunciar",
+                                  side_effect=anuncios.append):
+            comando_en_directo.estado_interaccion(self.frame)
+        return anuncios
+
+    def test_con_encuesta_y_dos_preguntas_anuncia_las_dos_cosas(self):
+        snap = SimpleNamespace(
+            encuesta="Encuesta en curso: X. Opciones: A, B",
+            batalla="", meta="", video="")
+        self.assertEqual(self._anunciar(snap, [object(), object()]), [
+            "Encuesta en curso: X. Opciones: A, B; Esperan 2 preguntas."])
+
+    def test_sin_nada_anuncia_p3(self):
+        snap = SimpleNamespace(encuesta="", batalla="", meta="", video="")
+        self.assertEqual(self._anunciar(snap, []), [
+            "No hay nada de la interacción en curso."])
 
 
 if __name__ == "__main__":

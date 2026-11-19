@@ -87,7 +87,7 @@ ATAJOS_GRUPOS = [
     (N_("Interacción en directo (Ctrl+Alt+Mayús)"),
      ["video_pausar", "video_saltar", "video_vaciar", "video_silenciar",
       "video_panico", "mensajes_automaticos_alternar", "comandos_pausar",
-      "encuesta_cerrar", "pregunta_siguiente"]),
+      "encuesta_cerrar", "pregunta_siguiente", "interaccion_estado"]),
     (N_("Ventana y navegación (fijos)"),
      ["salir", "region_siguiente", "region_anterior"]),
     (N_("Recientes y filtro del chat (fijos)"),

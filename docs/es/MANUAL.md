@@ -782,6 +782,7 @@ al llegar al principio o al final suena un aviso.
 | `Ctrl+Alt+Mayús+C` | Pausar o reanudar todos los comandos del chat |
 | `Ctrl+Alt+Mayús+E` | Cerrar la encuesta |
 | `Ctrl+Alt+Mayús+R` | Leer la siguiente pregunta |
+| `Ctrl+Alt+Mayús+I` | Estado de la interacción |
 
 ### Música (Ctrl+Alt)
 

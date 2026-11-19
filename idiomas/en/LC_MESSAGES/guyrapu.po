@@ -16990,3 +16990,22 @@ msgstr "Show in command &list"
 msgid "La lista de comandos no se puede eliminar ni duplicar"
 msgstr "The command list cannot be deleted or duplicated"
 
+#: guyrapu/interaction/estado_interaccion.py
+#, python-brace-format
+msgid "Espera 1 pregunta."
+msgid_plural "Esperan {n} preguntas."
+msgstr[0] "1 question waiting."
+msgstr[1] "{n} questions waiting."
+
+#: guyrapu/interaction/estado_interaccion.py
+msgid "No hay nada de la interacción en curso."
+msgstr "There is no interaction in progress."
+
+#: guyrapu/ui/atajos_captura.py
+msgid "Estado de la interacción"
+msgstr "Interaction status"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "E&stado de la interacción"
+msgstr "Interaction stat&us"
+

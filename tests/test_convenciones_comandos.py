@@ -210,6 +210,7 @@ FALTAS_CONOCIDAS = [
     "«Shift» en la tecla de «Pausar comandos»",
     "«Shift» en la tecla de «Cerrar encuesta»",
     "«Shift» en la tecla de «Leer siguiente pregunta»",
+    "«Shift» en la tecla de «Estado de la interacción»",
     "«Shift» en la tecla de «Activar mensajes automáticos»",
     "«Enter» en la tecla de "
     "«Enviar mensaje al chat del directo (solo YouTube)»",

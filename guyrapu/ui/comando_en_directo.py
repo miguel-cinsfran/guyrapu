@@ -10,6 +10,7 @@ siguiente.
 from __future__ import annotations
 
 from guyrapu.core.idioma import _
+from guyrapu.interaction.estado_interaccion import texto as texto_estado
 from guyrapu.ui import (
     comando_mensajes_automaticos, comandos_en_vivo, encuesta_en_vivo,
     preguntas_en_vivo)
@@ -110,3 +111,11 @@ def pregunta_siguiente(frame):
     quedan = len(preguntas_en_vivo.pendientes(frame)) - 1
     anunciar(_("{autor} pregunta: {texto}. Quedan {n}.").format(
         autor=pregunta.autor, texto=pregunta.texto, n=quedan))
+
+
+def estado_interaccion(frame):
+    """Anuncia cómo va la interacción del directo."""
+    snap = frame._snapshot_sesion()
+    anunciar(texto_estado(
+        snap.encuesta, snap.batalla, snap.meta, snap.video,
+        len(preguntas_en_vivo.pendientes(frame))))

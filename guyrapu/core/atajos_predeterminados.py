@@ -72,4 +72,5 @@ ATAJOS_PREDETERMINADOS = [
     ("comandos_pausar", "ctrl+alt+shift+c"),
     ("encuesta_cerrar", "ctrl+alt+shift+e"),
     ("pregunta_siguiente", "ctrl+alt+shift+r"),
+    ("interaccion_estado", "ctrl+alt+shift+i"),
 ]

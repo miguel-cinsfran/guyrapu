@@ -93,12 +93,21 @@ def _pregunta(frame, m):
                      comando_en_directo.pregunta_siguiente, frame)
 
 
+def _estado(frame, m):
+    frame.mi_estado_interaccion = m.Append(
+        wx.ID_ANY,
+        _("E&stado de la interacción") + frame._accel("interaccion_estado"))
+    frame._bind_menu(frame.mi_estado_interaccion,
+                     comando_en_directo.estado_interaccion, frame)
+
+
 def _en_directo(frame, m):
     _en_directo_cola(frame, m)
     _en_directo_medios(frame, m)
     _comandos(frame, m)
     _encuesta(frame, m)
     _pregunta(frame, m)
+    _estado(frame, m)
     _programados(frame, m)
 
 
