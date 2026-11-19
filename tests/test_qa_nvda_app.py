@@ -46,6 +46,8 @@ class TestVentanas(unittest.TestCase):
                 campos.add("paginas")
             if "acciones" in entrada:
                 campos.add("acciones")
+            if "tope" in entrada:
+                campos.add("tope")
             self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
@@ -226,10 +228,59 @@ class TestVentana(unittest.TestCase):
                          7, set(), False)
         self.assertEqual(visto["acciones"], entrada["acciones"])
 
+    def test_recorrer_anuncia_cada_ventana_con_flush(self):
+        banco = mock.Mock()
+        banco.pedir.return_value = {"datos": {"pid": 7}}
+        banco.esperar_lista.return_value = True
+        with (
+            mock.patch.object(app, "Aplicacion", return_value=banco),
+            mock.patch.object(app.reglas, "leer_catalogo_ingles",
+                              return_value=set()),
+            mock.patch.object(app, "_ventana", return_value=([], False)),
+            mock.patch("builtins.print") as imprimir,
+        ):
+            app.recorrer(mock.Mock(), SimpleNamespace(
+                ventana=None, aprobar=False))
+        self.assertEqual(
+            [llamada.args[0] for llamada in imprimir.call_args_list],
+            [f"ventana {entrada['nombre']}"
+             for entrada in ventanas_app.VENTANAS])
+        self.assertTrue(all(llamada.kwargs.get("flush")
+                            for llamada in imprimir.call_args_list))
+
+    def test_pasa_el_tope_de_la_entrada_a_conducir(self):
+        from guyrapu.core import config as cfg
+
+        vistos = []
+
+        def conducir(_cliente, _datos, **opciones):
+            vistos.append(opciones)
+            return {"pasos": []}
+
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              side_effect=conducir),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            atajos = next(item for item in ventanas_app.VENTANAS
+                          if item["nombre"] == "preferencias_atajos")
+            interfaz = next(item for item in ventanas_app.VENTANAS
+                            if item["nombre"] == "preferencias_interfaz")
+            app._ventana(BancoFalso(True), mock.Mock(), atajos, 7, set(),
+                         False)
+            app._ventana(BancoFalso(True), mock.Mock(), interfaz, 7, set(),
+                         False)
+        botones = sum(len(acciones) for _, acciones in cfg.ATAJOS_GRUPOS) + 1
+        self.assertEqual(vistos[0]["tope"], atajos["tope"])
+        self.assertGreaterEqual(atajos["tope"], botones)
+        self.assertEqual(vistos[1], {})
+
     def test_pasa_la_lista_de_paginas_de_la_entrada_a_conducir(self):
         visto = {}
 
-        def conducir(_cliente, datos):
+        def conducir(_cliente, datos, **_opciones):
             visto["paginas"] = datos.get("paginas")
             return {"pasos": []}
 

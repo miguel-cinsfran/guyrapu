@@ -205,7 +205,8 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
                                    else _paginas_de_interaccion())
     if entrada.get("acciones"):
         datos_ventana["acciones"] = entrada["acciones"]
-    datos = recorrido.conducir(cliente, datos_ventana)
+    opciones = {"tope": entrada["tope"]} if "tope" in entrada else {}
+    datos = recorrido.conducir(cliente, datos_ventana, **opciones)
     banco.pedir("cerrar_ventana", ventana=entrada["titulo"], tiempo=10.0)
     hallazgos = reglas.analizar(datos, catalogo)
     lineas = _lineas_de_ventana(nombre, datos, hallazgos)
@@ -240,6 +241,7 @@ def recorrer(cliente, args, iniciales=(), revisar=None) -> list:
                     "la aplicación no abrió su ventana principal")
             pid = _pid(banco)
             for entrada in seleccion:
+                print(f"ventana {entrada['nombre']}", flush=True)
                 if revisar is not None:
                     revisar()
                 nuevas, distinta = _ventana(

@@ -139,6 +139,7 @@ VENTANAS = (
         "primero": "Reproducir o pausar: Ctrl+P",
         "pagina": "Atajos",
         "paginas": PAGINAS_PREFERENCIAS,
+        "tope": 90,
         "acciones": [
             {"control": "Bajar velocidad de la voz: F9 (fija)",
              "espera": "Este atajo es fijo"},

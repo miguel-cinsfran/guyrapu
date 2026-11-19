@@ -450,7 +450,7 @@ class TestApp(unittest.TestCase):
         canario = mock.Mock(return_value=["canario"])
         informe = mock.Mock(return_value=Path(base.name) / "informe.txt")
 
-        def conducir(cliente, datos):
+        def conducir(cliente, datos, **_opciones):
             conducidos.append(datos)
             return {"ventana": datos["nombre"], "pid": datos["pid"],
                     "primero": {}, "pasos": []}
