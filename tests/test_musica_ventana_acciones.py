@@ -130,6 +130,35 @@ class TestConstantesAcciones(unittest.TestCase):
                         nombre)
 
 
+class DobleVentanaCanciones:
+    """Ventana falsa: solo lo que `Nueva lista…` necesita de las canciones."""
+
+    def __init__(self, temas):
+        self.temas = temas
+        self.nueva = None
+
+    def _con_temas(self):
+        return self.temas
+
+    def _leer_nombres(self):
+        return ["Rock"]
+
+    def _nueva_lista(self, temas):
+        self.nueva = temas
+
+
+class TestOpcionesAgregarALista(unittest.TestCase):
+    """La opción de crear una lista recibe todas las canciones elegidas."""
+
+    def test_nueva_lista_recibe_todas_las_canciones_elegidas(self):
+        temas = [object(), object(), object()]
+        ventana = DobleVentanaCanciones(temas)
+        opciones = dict(
+            acciones.AccionesVentanaMusica._opciones_agregar_a_lista(ventana))
+        opciones["&Nueva lista…"]()
+        self.assertIs(ventana.nueva, temas)
+
+
 class TestDialogosAcciones(unittest.TestCase):
     """Los diálogos muestran el mensaje y el título marcados, sin abrirse."""
 

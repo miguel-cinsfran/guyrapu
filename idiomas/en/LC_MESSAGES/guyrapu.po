@@ -4248,6 +4248,27 @@ msgstr "Music muted"
 msgid "Audio de la música activado"
 msgstr "Music audio on"
 
+#: guyrapu/music/anuncios_varios.py
+#, python-brace-format
+msgid "{n} canción eliminada de la cola"
+msgid_plural "{n} canciones eliminadas de la cola"
+msgstr[0] "{n} song removed from the queue"
+msgstr[1] "{n} songs removed from the queue"
+
+#: guyrapu/music/anuncios_varios.py
+#, python-brace-format
+msgid "{n} canción eliminada de la lista"
+msgid_plural "{n} canciones eliminadas de la lista"
+msgstr[0] "{n} song removed from the playlist"
+msgstr[1] "{n} songs removed from the playlist"
+
+#: guyrapu/music/anuncios_varios.py
+#, python-brace-format
+msgid "{n} canción agregada a la lista {nombre}"
+msgid_plural "{n} canciones agregadas a la lista {nombre}"
+msgstr[0] "{n} song added to the {nombre} playlist"
+msgstr[1] "{n} songs added to the {nombre} playlist"
+
 #: guyrapu/music/biblioteca.py
 #, python-brace-format
 msgid "La carpeta no existe o no es una carpeta: {ruta}"

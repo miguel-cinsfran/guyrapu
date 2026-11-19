@@ -232,6 +232,19 @@ class TestQuitarMover(unittest.TestCase):
                 with self.assertRaises(ErrorListas):
                     listas.quitar(self.carpeta, "L", indice)
 
+    def test_quitar_varios_deja_las_demas_en_orden(self):
+        listas.guardar(self.carpeta, "L", self._temas("A", "B", "C", "D"))
+        listas.quitar_varios(self.carpeta, "L", [0, 2])
+        temas, _saltadas = listas.cargar(self.carpeta, "L")
+        self.assertEqual([t.titulo for t in temas], ["B", "D"])
+
+    def test_quitar_varios_con_un_indice_inexistente_no_quita_ninguno(self):
+        listas.guardar(self.carpeta, "L", self._temas("A", "B", "C"))
+        with self.assertRaises(ErrorListas):
+            listas.quitar_varios(self.carpeta, "L", [0, 3])
+        temas, _saltadas = listas.cargar(self.carpeta, "L")
+        self.assertEqual([t.titulo for t in temas], ["A", "B", "C"])
+
     def test_mover_una_posicion_y_devuelve_la_nueva(self):
         listas.guardar(self.carpeta, "L", self._temas("A", "B", "C"))
         self.assertEqual(listas.mover(self.carpeta, "L", 0, 1), 1)

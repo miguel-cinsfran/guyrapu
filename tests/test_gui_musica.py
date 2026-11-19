@@ -1352,6 +1352,28 @@ class TestOperacionesDeCola(unittest.TestCase):
         self.assertEqual(env.snd.sonidos, [])
         self.assertEqual(control.estado().cola, ())
 
+    def test_quitar_varios_sacando_el_que_suena_sigue_el_que_queda(self):
+        with _entorno() as env:
+            control = self._con_cola("A", "B", "C", "D")
+            env.anunciar.reset_mock()
+            control.quitar_varios_de_cola([0, 2])
+        env.anunciar.assert_called_once_with(
+            "2 canciones eliminadas de la cola. B")
+        self.assertEqual([t.titulo for t in control.estado().cola],
+                         ["B", "D"])
+        self.assertEqual(control.estado().actual.titulo, "B")
+
+    def test_quitar_varios_sin_nada_sonando_no_nombra_al_siguiente(self):
+        with _entorno() as env:
+            control = self._con_cola("A", "B", "C", "D")
+            control.detener()
+            env.anunciar.reset_mock()
+            control.quitar_varios_de_cola([1, 3])
+        env.anunciar.assert_called_once_with(
+            "2 canciones eliminadas de la cola")
+        self.assertEqual([t.titulo for t in control.estado().cola],
+                         ["A", "C"])
+
     def test_mover_en_cola_anuncia_la_posicion_nueva(self):
         with _entorno() as env:
             control = self._con_cola("A", "B", "C")
@@ -1767,6 +1789,38 @@ class TestListasPropias(unittest.TestCase):
         self.assertEqual(borrada, "Lista eliminada: Otra")
         self.assertEqual([t.titulo for t in devueltos], ["A"])
         env.anunciar.assert_not_called()
+
+    def test_agregar_varias_a_lista_anuncia_la_cantidad(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            temas = self._temas_reales(tmp, "A", "B", "C")
+            carpeta = self._carpeta(tmp)
+            listas.guardar(carpeta, "Rock", ())
+            with _entorno() as env, \
+                    mock.patch.object(musica_listas_propias.paths, "listas_musica",
+                                      return_value=carpeta):
+                control = ControlMusica(_frame())
+                env.anunciar.reset_mock()
+                control.agregar_a_lista("Rock", temas[1:])
+            env.anunciar.assert_called_once_with(
+                "2 canciones agregadas a la lista Rock")
+            guardados, _ = listas.cargar(carpeta, "Rock")
+            self.assertEqual([t.titulo for t in guardados], ["B", "C"])
+
+    def test_quitar_varias_de_lista_anuncia_una_sola_vez(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            temas = self._temas_reales(tmp, "A", "B", "C")
+            carpeta = self._carpeta(tmp)
+            listas.guardar(carpeta, "Rock", temas)
+            with _entorno() as env, \
+                    mock.patch.object(musica_listas_propias.paths, "listas_musica",
+                                      return_value=carpeta):
+                control = ControlMusica(_frame())
+                env.anunciar.reset_mock()
+                control.quitar_varios_de_lista("Rock", [0, 2])
+            env.anunciar.assert_called_once_with(
+                "2 canciones eliminadas de la lista")
+            restantes, _ = listas.cargar(carpeta, "Rock")
+            self.assertEqual([t.titulo for t in restantes], ["B"])
 
     def test_error_de_listas_avisa_con_sonido(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -142,6 +142,9 @@ class ControlFalso:
     def quitar_de_cola(self, indice):
         self.llamadas.append(("quitar_de_cola", indice))
 
+    def quitar_varios_de_cola(self, indices):
+        self.llamadas.append(("quitar_varios_de_cola", tuple(indices)))
+
     def mover_en_cola(self, indice, paso):
         self.llamadas.append(("mover_en_cola", indice, paso))
 
@@ -165,6 +168,9 @@ class ControlFalso:
 
     def quitar_de_lista(self, nombre, indice):
         self.llamadas.append(("quitar_de_lista", nombre, indice))
+
+    def quitar_varios_de_lista(self, nombre, indices):
+        self.llamadas.append(("quitar_varios_de_lista", nombre, tuple(indices)))
 
     def crear_lista(self, nombre):
         self.llamadas.append(("crear_lista", nombre))
@@ -434,6 +440,110 @@ class TestVentanaMusica(unittest.TestCase):
         self.assertNotEqual(self.ventana.btn_carpeta.GetLabel(), base)
         self.ventana._cambiar_estado(_(TEXTO_SIN_CARPETA))
         self.assertEqual(self.ventana.btn_carpeta.GetLabel(), base)
+
+    # ── Varias filas elegidas ──────────────────────────────────────────────
+
+    def test_canciones_y_cola_aceptan_varias_filas_y_colecciones_no(self):
+        self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock", "Jazz")))
+        self.assertFalse(
+            self.ventana.lb_temas.GetWindowStyleFlag() & wx.LC_SINGLE_SEL)
+        self.assertFalse(
+            self.ventana.lb_cola.GetWindowStyleFlag() & wx.LC_SINGLE_SEL)
+        self.assertIsInstance(self.ventana.lb_colecciones, wx.ListBox)
+        self.assertTrue(
+            self.ventana.lb_colecciones.GetWindowStyleFlag() & wx.LB_SINGLE)
+
+    def test_varias_canciones_actuan_todas_en_orden_en_cada_accion(self):
+        temas = (Tema("C:/Musica/rock.mp3", "Rock"),
+                 Tema("C:/Musica/jazz.mp3", "Jazz"),
+                 Tema("C:/Musica/blues.mp3", "Blues"))
+        self._crear_lista("Mía")
+        control = ControlFalso(biblioteca=_biblioteca_con(temas),
+                               carpeta_listas=self.carpeta_listas)
+        self._abrir(control)
+        for indice in range(3):
+            self.ventana.lb_temas.Select(indice)
+
+        for accion, nombre in (
+                (musica_menus.ACCION_AHORA, "reproducir_ahora"),
+                (musica_menus.ACCION_CONTINUACION, "poner_a_continuacion"),
+                (musica_menus.ACCION_AGREGAR, "agregar_al_final")):
+            self.ventana._canciones.ejecutar(accion)
+            self.assertIn((nombre, temas), control.llamadas)
+
+        def elegir(menu):
+            for item in menu.GetMenuItems():
+                if item.GetItemLabelText() == "Mía":
+                    menu.ProcessEvent(wx.CommandEvent(
+                        wx.EVT_MENU.typeId, item.GetId()))
+                    break
+
+        with mock.patch.object(self.ventana.lb_temas, "PopupMenu",
+                               side_effect=elegir):
+            self.ventana._canciones.ejecutar(
+                musica_menus.ACCION_AGREGAR_A_LISTA)
+        self.assertIn(("agregar_a_lista", "Mía", temas), control.llamadas)
+
+        with mock.patch.object(self.ventana, "_nueva_lista") as nueva:
+            opciones = dict(self.ventana._opciones_agregar_a_lista())
+            opciones["&Nueva lista…"]()
+        nueva.assert_called_once_with(list(temas))
+
+    def test_varias_filas_frenan_las_acciones_de_una_sola_fila(self):
+        temas = (Tema("C:/Musica/rock.mp3", "Rock"),
+                 Tema("C:/Musica/jazz.mp3", "Jazz"),
+                 Tema("C:/Musica/blues.mp3", "Blues"))
+        control = ControlFalso(biblioteca=_biblioteca_con(temas))
+        self._abrir(control)
+        for indice in range(3):
+            self.ventana.lb_temas.Select(indice)
+        with mock.patch.object(lista_acciones, "anunciar") as avisar:
+            self.ventana._canciones.ejecutar(
+                musica_menus.ACCION_TODO_DESDE_AQUI)
+        avisar.assert_called_once_with("Elige un solo elemento para esta acción.")
+        self.assertNotIn("reproducir_desde_aqui", control.nombres())
+
+        estado = _estado("A", "B", "C")
+        control.estado_actual = estado
+        control.cola = estado.cola
+        self.ventana.refrescar_cola()
+        for indice in range(3):
+            self.ventana.lb_cola.Select(indice)
+        with mock.patch.object(lista_acciones, "anunciar") as avisar:
+            for accion in (musica_menus.ACCION_REPRODUCIR,
+                           musica_menus.ACCION_SUBIR,
+                           musica_menus.ACCION_BAJAR):
+                self.ventana._cola.ejecutar(accion)
+        self.assertEqual(avisar.call_args_list,
+                         [mock.call("Elige un solo elemento para esta acción.")] * 3)
+        self.assertNotIn("reproducir_desde", control.nombres())
+        self.assertNotIn("mover_en_cola", control.nombres())
+
+    def test_eliminar_varias_de_una_lista_propia_pasa_todos_los_indices(self):
+        temas = (Tema("C:/Musica/rock.mp3", "Rock"),
+                 Tema("C:/Musica/jazz.mp3", "Jazz"),
+                 Tema("C:/Musica/blues.mp3", "Blues"))
+        self._crear_lista("Mía", temas)
+        control = ControlFalso(carpeta_listas=self.carpeta_listas,
+                               temas_listas={"Mía": temas})
+        self._abrir(control, abrir_listas=True)
+        for indice in range(3):
+            self.ventana.lb_temas.Select(indice)
+        self.ventana._canciones.ejecutar(musica_menus.ACCION_QUITAR_DE_LISTA)
+        self.assertIn(("quitar_varios_de_lista", "Mía", (0, 1, 2)),
+                      control.llamadas)
+
+    def test_eliminar_varias_de_la_cola_pasa_todos_los_indices(self):
+        control = ControlFalso(biblioteca=_biblioteca_de("Rock"))
+        self._abrir(control)
+        estado = _estado("A", "B", "C", "D")
+        control.estado_actual = estado
+        control.cola = estado.cola
+        self.ventana.refrescar_cola()
+        self.ventana.lb_cola.Select(0)
+        self.ventana.lb_cola.Select(2)
+        self.ventana._cola.ejecutar(musica_menus.ACCION_QUITAR)
+        self.assertIn(("quitar_varios_de_cola", (0, 2)), control.llamadas)
 
     # ── Teclas de la Biblioteca ────────────────────────────────────────────
 
@@ -1336,7 +1446,7 @@ class TestVentanaMusica(unittest.TestCase):
         tema = control._biblio.temas()[0]
         with mock.patch.object(self.ventana, "_nueva_lista") as nueva:
             dict(self.ventana._opciones_agregar_a_lista())["&Nueva lista…"]()
-        nueva.assert_called_once_with(tema)
+        nueva.assert_called_once_with([tema])
 
     def test_p3_eliminar_de_esta_lista_esta_en_el_menu_con_su_motivo(self):
         self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))

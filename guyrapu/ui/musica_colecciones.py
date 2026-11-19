@@ -314,17 +314,17 @@ class ColeccionesVentanaMusica:
         if temas:
             self._control.agregar_al_final(list(temas))
 
-    def _nueva_lista(self, tema_marcado=None):
-        self._editar_lista_guardada(None, tema_marcado)
+    def _nueva_lista(self, temas_marcados=()):
+        self._editar_lista_guardada(None, temas_marcados)
 
     def _editar_lista(self):
         nombre = self._coleccion_elegida()
         if nombre is not None:
             self._editar_lista_guardada(nombre)
 
-    def _editar_lista_guardada(self, viejo, tema_marcado=None):
+    def _editar_lista_guardada(self, viejo, temas_marcados=()):
         if viejo is None:
-            temas_lista = (tema_marcado,) if tema_marcado is not None else ()
+            temas_lista = tuple(temas_marcados)
         else:
             temas_lista = tuple(self._control.temas_de_lista(viejo) or ())
         biblioteca = self._control.biblioteca_actual()

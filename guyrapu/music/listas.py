@@ -163,6 +163,21 @@ def quitar(carpeta, nombre, indice) -> None:
     guardar(carpeta, nombre, actuales[:indice] + actuales[indice + 1:])
 
 
+def quitar_varios(carpeta, nombre, indices) -> None:
+    """Quita todas esas posiciones y guarda una sola vez.
+
+    Comprueba antes todos los índices: si uno no existe, no quita ninguno.
+    """
+    actuales, _saltadas = cargar(carpeta, nombre)
+    posiciones = set(indices)
+    for indice in sorted(posiciones):
+        if indice < 0 or indice >= len(actuales):
+            raise ErrorListas(_(TEXTO_POSICION).format(posicion=indice + 1))
+    restantes = [tema for indice, tema in enumerate(actuales)
+                 if indice not in posiciones]
+    guardar(carpeta, nombre, tuple(restantes))
+
+
 def mover(carpeta, nombre, indice, paso) -> int:
     """Mueve el tema y devuelve su posición nueva, sin pasarse de los bordes."""
     actuales, _saltadas = cargar(carpeta, nombre)

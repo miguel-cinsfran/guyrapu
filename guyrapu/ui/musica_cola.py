@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from guyrapu.core import config as cfg
 from guyrapu.core.idioma import _
-from guyrapu.music import anuncios
+from guyrapu.music import anuncios, anuncios_varios
 from guyrapu.music.modelo import FIN_LISTA
 
 
@@ -62,6 +62,11 @@ class ColaMusica:
     def quitar_de_cola(self, indice) -> None:
         """Quita un tema de la cola y avisa cuál salió."""
         self._asegurar_motor(lambda: self._quitar_de_la_cola(indice))
+
+    def quitar_varios_de_cola(self, indices) -> None:
+        """Quita esas posiciones de la cola y avisa una sola vez."""
+        self._asegurar_motor(
+            lambda: self._quitar_varios_de_la_cola(list(indices)))
 
     def mover_en_cola(self, indice, paso) -> None:
         """Mueve un tema un paso en la cola y avisa la posición nueva."""
@@ -237,6 +242,31 @@ class ColaMusica:
             self._avisar(anuncios.aviso_accion(
                 "quitar", resultado, self._incluir_artista()))
             return
+        self._guardar_memoria()
+
+    def _quitar_varios_de_la_cola(self, indices) -> None:
+        if self._coordinador is None or not indices:
+            return
+        antes = self._coordinador.estado()
+        sonaba = (antes.posicion is not None and not antes.terminado
+                  and antes.posicion in indices)
+        for indice in sorted(indices, reverse=True):
+            resultado = self._coordinador.quitar(indice)
+            if not resultado.ok:
+                if resultado.codigo == FIN_LISTA:
+                    self._avisar(anuncios.Aviso(_(anuncios.TEXTO_FIN_LISTA)))
+                else:
+                    self._avisar(anuncios.aviso_accion(
+                        "quitar", resultado, self._incluir_artista()))
+                return
+        aviso = anuncios_varios.aviso_eliminados_de_cola(len(indices))
+        texto = aviso.texto
+        nuevo = resultado.estado.actual
+        if sonaba and nuevo is not None and not resultado.estado.terminado:
+            # Traductores: punto que une el aviso con el tema que sigue.
+            texto += _(". {nombre}").format(
+                nombre=anuncios.nombre_tema(nuevo, self._incluir_artista()))
+        self._avisar(anuncios.Aviso(texto, aviso.sonido, aviso.importante))
         self._guardar_memoria()
 
     def _mover_en_la_cola(self, indice, paso) -> None:

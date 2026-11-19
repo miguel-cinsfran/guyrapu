@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from guyrapu.core import paths
-from guyrapu.music import anuncios
+from guyrapu.music import anuncios, anuncios_varios
 from guyrapu.music import listas
 
 
@@ -62,12 +62,17 @@ class ListasPropiasMusica:
 
     def agregar_a_lista(self, nombre, temas) -> None:
         """Suma temas al final de una lista que ya existe."""
+        temas = tuple(temas)
         try:
-            listas.agregar(self.carpeta_listas(), nombre, tuple(temas))
+            listas.agregar(self.carpeta_listas(), nombre, temas)
         except listas.ErrorListas as exc:
             self._avisar(anuncios.aviso_error_listas(str(exc)))
             return
-        self._avisar(anuncios.aviso_agregado_a_lista(nombre))
+        if len(temas) == 1:
+            self._avisar(anuncios.aviso_agregado_a_lista(nombre))
+        else:
+            self._avisar(anuncios_varios.aviso_agregados_a_lista(
+                len(temas), nombre))
 
     def quitar_de_lista(self, nombre, indice) -> None:
         """Quita un tema de una lista propia."""
@@ -77,6 +82,16 @@ class ListasPropiasMusica:
             self._avisar(anuncios.aviso_error_listas(str(exc)))
             return
         self._avisar(anuncios.aviso_tema_quitado())
+
+    def quitar_varios_de_lista(self, nombre, indices) -> None:
+        """Quita varias canciones de una lista propia y lo anuncia una vez."""
+        indices = tuple(indices)
+        try:
+            listas.quitar_varios(self.carpeta_listas(), nombre, indices)
+        except listas.ErrorListas as exc:
+            self._avisar(anuncios.aviso_error_listas(str(exc)))
+            return
+        self._avisar(anuncios_varios.aviso_eliminados_de_lista(len(indices)))
 
     def crear_lista(self, nombre) -> None:
         """Crea una lista propia vacía."""

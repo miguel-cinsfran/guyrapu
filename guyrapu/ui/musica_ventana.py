@@ -126,7 +126,7 @@ class VentanaMusica(ColeccionesVentanaMusica, AccionesVentanaMusica,
             lista = wx.ListBox(
                 panel, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=nombre)
         else:
-            lista = ListaCtrlComoListBox(panel, name=nombre)
+            lista = ListaCtrlComoListBox(panel, varias=True, name=nombre)
         nombre_accesible(lista, nombre)
         instalar_busqueda_tipo(
             lista,

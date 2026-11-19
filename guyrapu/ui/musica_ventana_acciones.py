@@ -77,15 +77,15 @@ class AccionesVentanaMusica:
             Accion(musica_menus.ACCION_AHORA,
                    etiquetas[musica_menus.ACCION_AHORA],
                    self._reproducir_cancion_ahora,
-                   tecla="intro"),
+                   tecla="intro", varios=True),
             Accion(musica_menus.ACCION_CONTINUACION,
                    etiquetas[musica_menus.ACCION_CONTINUACION],
                    self._poner_cancion_a_continuacion,
-                   tecla="mayus+intro"),
+                   tecla="mayus+intro", varios=True),
             Accion(musica_menus.ACCION_AGREGAR,
                    etiquetas[musica_menus.ACCION_AGREGAR],
                    self._agregar_cancion_a_la_cola,
-                   tecla="ctrl+intro"),
+                   tecla="ctrl+intro", varios=True),
         )
 
     def _acciones_de_lista_de_canciones(self, etiquetas):
@@ -97,25 +97,30 @@ class AccionesVentanaMusica:
             Accion(musica_menus.ACCION_AGREGAR_A_LISTA,
                    etiquetas[musica_menus.ACCION_AGREGAR_A_LISTA],
                    lambda: None,
-                   opciones=self._opciones_agregar_a_lista),
+                   opciones=self._opciones_agregar_a_lista,
+                   varios=True),
             Accion(musica_menus.ACCION_QUITAR_DE_LISTA,
                    etiquetas[musica_menus.ACCION_QUITAR_DE_LISTA],
                    self._quitar_cancion_de_la_lista,
                    tecla="suprimir",
-                   motivo=self._motivo_quitar_lista),
+                   motivo=self._motivo_quitar_lista,
+                   varios=True),
         )
 
+    def _con_temas(self):
+        """Las canciones elegidas, en orden de fila."""
+        return [self._temas_filtrados[indice]
+                for indice in self._canciones.indices()
+                if indice < len(self._temas_filtrados)]
+
     def _reproducir_cancion_ahora(self):
-        tema, _indice = self._con_tema()
-        self._control.reproducir_ahora([tema])
+        self._control.reproducir_ahora(self._con_temas())
 
     def _poner_cancion_a_continuacion(self):
-        tema, _indice = self._con_tema()
-        self._control.poner_a_continuacion([tema])
+        self._control.poner_a_continuacion(self._con_temas())
 
     def _agregar_cancion_a_la_cola(self):
-        tema, _indice = self._con_tema()
-        self._control.agregar_al_final([tema])
+        self._control.agregar_al_final(self._con_temas())
 
     def _reproducir_todo_desde_aqui(self):
         _tema, indice = self._con_tema()
@@ -130,19 +135,28 @@ class AccionesVentanaMusica:
         ]
         opciones.append((
             _("&Nueva lista…"),
-            lambda: self._nueva_lista(self._con_tema()[0])))
+            lambda: self._nueva_lista(self._con_temas())))
         return opciones
 
     def _agregar_a_una_lista(self, nombre):
-        tema, _indice = self._con_tema()
-        if tema is None:
+        temas = self._con_temas()
+        if not temas:
             return
-        self._control.agregar_a_lista(nombre, [tema])
+        self._control.agregar_a_lista(nombre, temas)
         self._refrescar_cantidades_colecciones()
 
     def _quitar_cancion_de_la_lista(self):
-        tema, _indice = self._con_tema()
-        self._quitar_lista(tema)
+        indices = []
+        for tema in self._con_temas():
+            origen = self._indice_en_fuente(tema)
+            if origen is not None:
+                indices.append(origen)
+        if len(indices) == 1:
+            self._quitar_lista(indices[0])
+        elif indices:
+            self._control.quitar_varios_de_lista(self._fuente, indices)
+            self._cargar_lista()
+            self._refrescar_cantidades_colecciones()
 
     def _motivo_quitar_lista(self):
         if self._fuente is None:
@@ -156,14 +170,12 @@ class AccionesVentanaMusica:
             logger.debug("No se pudieron leer las listas de música: %s", exc)
             return []
 
-    def _quitar_lista(self, tema):
+    def _quitar_lista(self, indice):
         if self._fuente is None:
             return
-        origen = self._indice_en_fuente(tema)
-        if origen is not None:
-            self._control.quitar_de_lista(self._fuente, origen)
-            self._cargar_lista()
-            self._refrescar_cantidades_colecciones()
+        self._control.quitar_de_lista(self._fuente, indice)
+        self._cargar_lista()
+        self._refrescar_cantidades_colecciones()
 
     def _indice_en_fuente(self, tema):
         for indice, candidato in enumerate(self._temas_fuente):
@@ -196,8 +208,8 @@ class AccionesVentanaMusica:
                    tecla="intro"),
             Accion(musica_menus.ACCION_QUITAR,
                    etiquetas[musica_menus.ACCION_QUITAR],
-                   lambda: control.quitar_de_cola(self._indice_cola()),
-                   tecla="suprimir"),
+                   self._quitar_canciones_de_la_cola,
+                   tecla="suprimir", varios=True),
             Accion(musica_menus.ACCION_SUBIR,
                    etiquetas[musica_menus.ACCION_SUBIR],
                    lambda: self._mover_cola(self._indice_cola(), -1),
@@ -268,6 +280,13 @@ class AccionesVentanaMusica:
 
     def _indice_cola(self):
         return self._cola.indice()
+
+    def _quitar_canciones_de_la_cola(self):
+        indices = self._cola.indices()
+        if len(indices) == 1:
+            self._control.quitar_de_cola(indices[0])
+        else:
+            self._control.quitar_varios_de_cola(indices)
 
     def actualizar_nombres(self, mapa):
         if not self or not mapa:
