@@ -101,6 +101,12 @@ def _aislar_datos() -> None:
         shutil.copy2(origen, destino)
     ajustes = [ajuste for entrada in ventanas_app.VENTANAS
                for ajuste in entrada.get("ajustes") or ()]
+    # Música lee [musica] carpeta del INI: vacía cae en la Música de Windows y
+    # la transcripción cambia según la PC. Medido el 19/11/2026.
+    carpeta_musica = carpeta / "musica"
+    carpeta_musica.mkdir(exist_ok=True)
+    ajustes.append({"seccion": "musica", "clave": "carpeta",
+                    "valor": str(carpeta_musica)})
     if ajustes:
         parser = configparser.ConfigParser(interpolation=None,
                                            default_section="__none__")

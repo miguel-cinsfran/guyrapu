@@ -471,9 +471,12 @@ class TestPreparar(unittest.TestCase):
             ):
                 app.preparar()
                 self.assertTrue(paths.comandos().is_relative_to(aislada))
+                esperado = (
+                    "[ui]\n\n[musica]\npreguntar_igualar = false\n"
+                    f"carpeta = {aislada / 'musica'}\n\n")
                 self.assertEqual(
                     (aislada / "config.ini").read_text(encoding="utf-8"),
-                    "[ui]\n\n[musica]\npreguntar_igualar = false\n\n")
+                    esperado)
 
     def test_aislar_datos_aplica_los_ajustes_de_la_entrada_sin_tocar_el_real(self):
         musica = next(entrada for entrada in ventanas_app.VENTANAS
@@ -503,6 +506,33 @@ class TestPreparar(unittest.TestCase):
             self.assertEqual(
                 (original / "config.ini").read_text(encoding="utf-8"),
                 "[ui]\n")
+
+    def test_la_carpeta_de_musica_del_carril_no_es_la_del_usuario(self):
+        with tempfile.TemporaryDirectory() as base:
+            original = Path(base) / "original"
+            original.mkdir()
+            (original / "config.ini").write_text(
+                "[musica]\ncarpeta = C:/Users/Alguien/Music\n", encoding="utf-8")
+            aislada = Path(base) / "aislada"
+
+            with (
+                mock.patch.object(paths, "carpeta_datos",
+                                  return_value=original),
+                mock.patch.dict(os.environ, {app.VAR_DATOS: str(aislada)}),
+            ):
+                app._aislar_datos()
+
+            parser = configparser.ConfigParser(interpolation=None,
+                                               default_section="__none__")
+            parser.read(aislada / "config.ini", encoding="utf-8")
+            usada = parser.get("musica", "carpeta")
+            self.assertNotEqual(usada, "C:/Users/Alguien/Music")
+            self.assertEqual(Path(usada), aislada / "musica")
+            self.assertTrue((aislada / "musica").is_dir())
+            self.assertEqual(list((aislada / "musica").iterdir()), [])
+            self.assertEqual(
+                (original / "config.ini").read_text(encoding="utf-8"),
+                "[musica]\ncarpeta = C:/Users/Alguien/Music\n")
 
     def test_el_inicializador_deja_el_doble_que_usa_anunciar(self):
         real = mock.Mock()
