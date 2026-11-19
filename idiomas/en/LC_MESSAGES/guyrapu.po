@@ -2396,6 +2396,10 @@ msgid "Encuesta cerrada por tiempo"
 msgstr "Poll ended on time"
 
 #: guyrapu/core/eventos_sonido.py
+msgid "Cola de preguntas llena"
+msgstr "Question queue full"
+
+#: guyrapu/core/eventos_sonido.py
 msgid "Meta cumplida del directo"
 msgstr "Live stream goal reached"
 
@@ -4830,6 +4834,10 @@ msgstr "Commands"
 #: guyrapu/obs/estilos_aviso.py guyrapu/ui/interaccion_ventana.py
 msgid "Disparadores"
 msgstr "Triggers"
+
+#: guyrapu/obs/estilos_aviso.py
+msgid "Preguntas"
+msgstr "Questions"
 
 #: guyrapu/obs/estilos_aviso.py
 msgid "Blanco"
@@ -15795,6 +15803,19 @@ msgstr "&Backup Windows voice:"
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Voz de Windows de respaldo de la voz secundaria"
 msgstr "Backup Windows voice for the secondary voice"
+
+#. Traductores: tarjeta del vídeo con una pregunta del público. {autor} es
+#. quien la hizo y {texto} su pregunta.
+#: guyrapu/ui/preguntas_en_vivo.py
+#, python-brace-format
+msgid "{autor} pregunta: {texto}"
+msgstr "{autor} asks: {texto}"
+
+#. Traductores: aviso cuando la cola de preguntas del público ya tiene su
+#. máximo.
+#: guyrapu/ui/preguntas_en_vivo.py
+msgid "La cola de preguntas está llena."
+msgstr "The question queue is full."
 
 #: guyrapu/ui/probar_aviso.py
 #, python-brace-format

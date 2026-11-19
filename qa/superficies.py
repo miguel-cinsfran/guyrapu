@@ -176,6 +176,8 @@ SIN_ESCENARIO: dict[str, str] = {
         "atiende las metas del chat y no abre ventana propia."),
     "encuesta_en_vivo.py": (
         "atiende la encuesta abierta de la sesión y no abre ventana propia."),
+    "preguntas_en_vivo.py": (
+        "atiende las preguntas del público y no abre ventana propia."),
     "comando_cerrar_obs.py": (
         "comando del menú OBS y del panel que cierra OBS; no abre ventana."),
     "comando_directo.py": (

@@ -104,11 +104,11 @@ class TestPorTipo(unittest.TestCase):
         self.assertEqual(
             estilos_aviso.cargar_por_tipo(self.ruta)["comando"], "mio")
 
-    def test_sin_archivo_los_cinco_tipos_son_clasico(self):
+    def test_sin_archivo_los_seis_tipos_son_clasico(self):
         self.assertEqual(estilos_aviso.cargar_por_tipo(self.ruta), {
             "mensaje": "clasico", "comando": "clasico",
             "disparador": "clasico", "encuesta": "clasico",
-            "meta": "clasico"})
+            "meta": "clasico", "pregunta": "clasico"})
 
     def test_guardar_estilos_conserva_por_tipo(self):
         self.ruta.write_text(json.dumps({
@@ -149,10 +149,11 @@ class TestPorTipo(unittest.TestCase):
                 "", "comando", [], {"comando": "borrado"})["clave"],
             "clasico")
 
-    def test_los_cinco_tipos_son_las_claves_de_la_pieza(self):
+    def test_los_seis_tipos_son_las_claves_de_la_pieza(self):
         self.assertEqual(
             [clave for clave, _nombre in estilos_aviso.TIPOS],
-            ["mensaje", "comando", "disparador", "encuesta", "meta"])
+            ["mensaje", "comando", "disparador", "encuesta", "meta",
+             "pregunta"])
 
 
 class TestZonas(unittest.TestCase):

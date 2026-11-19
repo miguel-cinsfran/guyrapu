@@ -12,7 +12,7 @@ from guyrapu.core import paths
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.interaction import comandos_guardados, filtro_publico
 from guyrapu.ui import chat_vivo, comandos_en_vivo, encuesta_en_vivo
-from guyrapu.ui import gui, gui_envio_chat
+from guyrapu.ui import gui, gui_envio_chat, preguntas_en_vivo
 from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
 
@@ -155,6 +155,28 @@ class TestVotoDeEncuesta(Base):
         self._guardar(_datos(nombre="2", respuesta="Respuesta del comando"))
         self._encolar("!2")
         self.frame._capa_video.agregar_comando.assert_called_once()
+
+
+class TestPreguntasDelPublico(Base):
+
+    def test_una_pregunta_suma_y_no_responde_el_comando_del_mismo_nombre(self):
+        self._guardar(_datos(nombre="pregunta",
+                             respuesta="Respuesta del comando"))
+        self._encolar("!pregunta Hola")
+        self.frame._capa_video.agregar_comando.assert_not_called()
+        pendientes = preguntas_en_vivo.pendientes(self.frame)
+        self.assertEqual([pregunta.texto for pregunta in pendientes],
+                         ["Hola"])
+
+    def test_con_los_comandos_en_pausa_no_suma(self):
+        self._guardar(_datos(nombre="pregunta",
+                             respuesta="Respuesta del comando"))
+        en_vivo = comandos_en_vivo.ComandosEnVivo(self.frame)
+        self.frame._comandos_en_vivo = en_vivo
+        en_vivo.alternar_pausa()
+        self._encolar("!pregunta Hola")
+        self.assertEqual(preguntas_en_vivo.pendientes(self.frame), [])
+        self.frame._capa_video.agregar_comando.assert_not_called()
 
 
 class TestRespuestaAlChatDeLaEncuesta(Base):

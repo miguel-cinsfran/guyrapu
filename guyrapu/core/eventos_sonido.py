@@ -172,6 +172,9 @@ CATALOGO: tuple[EventoSonido, ...] = (
     # La encuesta se cerró sola al cumplirse su tiempo.
     EventoSonido("encuesta_cerrada", nombre=N_("Encuesta cerrada por tiempo"),
                  sonido="aviso", familia="advertencia"),
+    # La cola de preguntas del público llegó a su máximo.
+    EventoSonido("preguntas_llena", nombre=N_("Cola de preguntas llena"),
+                 sonido="aviso", familia="advertencia"),
     # Una meta del directo llegó a su objetivo.
     EventoSonido("meta_cumplida", nombre=N_("Meta cumplida del directo"),
                  sonido="aviso", familia="advertencia"),

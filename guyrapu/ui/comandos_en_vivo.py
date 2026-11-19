@@ -19,7 +19,7 @@ from guyrapu.core.idioma import _
 from guyrapu.interaction import (
     atencion, comandos, comandos_guardados, filtro_publico)
 from guyrapu.interaction.evento import desde_entrante
-from guyrapu.ui import encuesta_en_vivo, gui_envio_chat
+from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
 from guyrapu.youtube import cuota
 
 # Con más de 8000 unidades usadas quedan menos de 2000 de las 10 000.
@@ -81,9 +81,9 @@ class ComandosEnVivo:
             return
         if encuesta_en_vivo.votar(self._frame, _evento(registro), ahora):
             return
-        if self._pausados:
-            return
-        if comandos.leer(registro.texto) is None:
+        if (self._pausados
+                or preguntas_en_vivo.recibir(self._frame, _evento(registro), ahora)
+                or comandos.leer(registro.texto) is None):
             return
         self._recargar()
         respuesta = self._atencion.atender(

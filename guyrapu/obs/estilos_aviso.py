@@ -44,6 +44,7 @@ TIPOS = (
     ("disparador", N_("Disparadores")),
     ("encuesta", N_("Encuestas")),
     ("meta", N_("Metas")),
+    ("pregunta", N_("Preguntas")),
 )
 
 # Traductores: nombres de los colores disponibles para un estilo de aviso.
