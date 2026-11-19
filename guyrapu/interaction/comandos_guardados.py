@@ -11,8 +11,10 @@ from __future__ import annotations
 import json
 
 from guyrapu.core import archivos
+from guyrapu.core.idioma import idioma_actual
 from guyrapu.interaction.comandos import (
-    DESTINOS, PERMISOS, Comando, separar_alias, separar_nombres)
+    DESTINOS, PERMISOS, Comando, asegurar_lista, separar_alias,
+    separar_nombres)
 
 DEFECTOS = {
     "nombre": "",
@@ -80,6 +82,8 @@ def a_comando(datos: dict) -> Comando:
         activo=_a_bool(datos.get("activo", True)),
         estilo=_estilo(datos),
         segundos=_numero(datos.get("segundos"), 8, int),
+        lista=_a_bool(datos.get("lista", False)),
+        en_lista=_a_bool(datos.get("en_lista", True)),
     )
 
 
@@ -97,6 +101,8 @@ def desde_comando(comando: Comando) -> dict:
         "activo": comando.activo,
         "estilo": comando.estilo,
         "segundos": comando.segundos,
+        "lista": comando.lista,
+        "en_lista": comando.en_lista,
     }
 
 
@@ -106,16 +112,18 @@ def normalizar(datos: dict) -> dict:
 
 
 def cargar(ruta) -> list[dict]:
-    """Carga los comandos y devuelve una lista aunque el archivo esté roto."""
+    """Carga los comandos y devuelve siempre una colección con su lista."""
     try:
         with open(ruta, "r", encoding="utf-8") as archivo:
             datos = json.load(archivo)
-        if not isinstance(datos, list):
-            return []
-        return [normalizar(comando) for comando in datos
-                if isinstance(comando, dict)]
     except Exception:
-        return []
+        datos = None
+    if not isinstance(datos, list):
+        datos = []
+    convertidos = [a_comando(comando) for comando in datos
+                   if isinstance(comando, dict)]
+    return [desde_comando(comando) for comando in asegurar_lista(
+        convertidos, idioma_actual())]
 
 
 def guardar(ruta, comandos) -> None:

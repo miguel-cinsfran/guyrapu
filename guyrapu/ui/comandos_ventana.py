@@ -22,6 +22,7 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 VACIO = N_("No hay comandos. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
+MOTIVO_LISTA = N_("La lista de comandos no se puede eliminar ni duplicar")
 
 
 def _acciones(panel):
@@ -31,11 +32,12 @@ def _acciones(panel):
         Accion("editar", _("&Editar"), panel._editar, tecla="intro"),
         Accion("renombrar", _("Cambiar p&alabra"), panel._renombrar,
                tecla="f2"),
-        Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d"),
+        Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d",
+               motivo_indices=panel._motivo_lista),
         Accion("pausar", _("&Pausar o reanudar"), panel._pausar),
         Accion("escuchar", _("Escuc&har"), panel._escuchar),
         Accion("eliminar", _("E&liminar"), panel._eliminar,
-               tecla="suprimir"),
+               tecla="suprimir", motivo_indices=panel._motivo_lista),
         Accion("exportar", _("Expo&rtar"), panel._exportar,
                necesita_elemento=False),
         Accion("importar", _("&Importar"), panel._importar,
@@ -92,6 +94,12 @@ class PanelComandos(wx.Panel):
 
     def _elegido(self):
         return self._lista.indice()
+
+    def _motivo_lista(self, indices):
+        if any(0 <= indice < len(self._comandos)
+               and self._comandos[indice].get("lista") for indice in indices):
+            return _(MOTIVO_LISTA)
+        return ""
 
     def _agregar(self):
         datos = comando_cuadro.abrir(self, otros=self._comandos)
@@ -233,6 +241,7 @@ class PanelComandos(wx.Panel):
                   for elemento in elementos]
         for comando in nuevos:
             comando["activo"] = False
+            comando["lista"] = False
         repetidos = paquetes.repetidos(nuevos, self._comandos)
         reemplazar = bool(repetidos) and self._preguntar_reemplazo(repetidos)
         anteriores = {id(comando) for comando in self._comandos}

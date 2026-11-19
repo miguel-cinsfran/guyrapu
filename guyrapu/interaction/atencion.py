@@ -16,15 +16,11 @@ from dataclasses import dataclass
 
 from guyrapu.core import plataformas
 from guyrapu.core.config import TIPO_TEXTO
-from guyrapu.core.idioma import _
 from guyrapu.interaction import comandos, filtro_publico
 from guyrapu.interaction.texto import normalizar
 
 ESPERA_CHAT = 30
 VENTANA_ECO = 120
-
-# La respuesta de la app a `!comandos`, con las esperas de fábrica.
-COMANDOS = comandos.Comando("comandos", (), "")
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,10 +61,10 @@ class Atencion:
         invocacion = comandos.leer(evento.texto)
         if invocacion is None:
             return None
-        if invocacion.nombre == comandos.PALABRA_RESERVADA:
-            return self._de_la_app(evento, ahora)
         comando = comandos.buscar(self._comandos, invocacion)
         if comando is None or not comandos.puede_usarlo(comando, evento):
+            return None
+        if comando.lista and not self._lista_de():
             return None
         if not self._esperas.libre(comando, evento, ahora):
             return None
@@ -76,25 +72,19 @@ class Atencion:
         return self._respuesta(comando, invocacion, evento, ahora,
                                chat_disponible, cuota_baja)
 
-    def _de_la_app(self, evento, ahora):
-        activos = [comando for comando in self._comandos if comando.activo]
-        if not activos:
-            return None
-        if not self._esperas.libre(COMANDOS, evento, ahora):
-            return None
-        self._esperas.anotar(COMANDOS, evento, ahora)
-        lista = ", ".join("!" + comando.nombre for comando in activos)
-        return Respuesta(
-            # Traductores: respuesta de la app al comando !comandos. {lista} son los nombres de los comandos activos.
-            texto=_("Comandos: {lista}.").format(lista=lista),
-            al_video=True, al_chat=False, estilo=COMANDOS.estilo,
-            segundos=COMANDOS.segundos, nombre=COMANDOS.nombre)
+    def _lista_de(self):
+        """Los nombres de los comandos activos que pidieron aparecer."""
+        return ", ".join("!" + comando.nombre for comando in self._comandos
+                         if comando.activo and comando.en_lista
+                         and not comando.lista)
 
     def _respuesta(self, comando, invocacion, evento, ahora,
                    chat_disponible, cuota_baja):
         contador = self._contadores.get(comando.nombre, 0) + 1
         self._contadores[comando.nombre] = contador
         texto = (comando.respuesta or "")
+        if comando.lista:
+            texto = texto.replace("{lista}", self._lista_de())
         texto = texto.replace(
             "{usuario}",
             filtro_publico.tapar(evento.autor or "",

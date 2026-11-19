@@ -189,6 +189,59 @@ class TestCampos(unittest.TestCase):
         self.assertEqual((comando.espera_general, comando.espera_persona),
                          (5, 30))
         self.assertEqual(comando.permiso, "todos")
+        self.assertFalse(comando.lista)
+        self.assertTrue(comando.en_lista)
+
+
+class TestListaDeComandos(unittest.TestCase):
+
+    def test_la_lista_de_fabrica_en_espanol_tiene_las_dos_palabras(self):
+        comando = comandos.comando_de_lista("es")
+        self.assertTrue(comando.lista)
+        self.assertEqual(comando.nombre, "commands")
+        self.assertEqual(comando.alias, ("comandos",))
+        self.assertEqual(comando.respuesta, "Comandos: {lista}.")
+        self.assertEqual(comando.destino, "video")
+        self.assertEqual(comando.segundos, 8)
+        self.assertEqual((comando.espera_general, comando.espera_persona),
+                         (5, 30))
+
+    def test_la_lista_de_fabrica_en_ingles_solo_tiene_commands(self):
+        comando = comandos.comando_de_lista("en")
+        self.assertEqual(comando.nombre, "commands")
+        self.assertEqual(comando.alias, ())
+
+    def test_la_lista_de_fabrica_en_portugues_tiene_las_dos_palabras(self):
+        self.assertEqual(comandos.comando_de_lista("pt_BR").alias,
+                         ("comandos",))
+
+    def test_asegurar_agrega_la_lista_al_principio_cuando_falta(self):
+        hola = comandos.Comando("hola", (), "Hola")
+        resultado = comandos.asegurar_lista([hola], "es")
+        self.assertEqual([comando.nombre for comando in resultado],
+                         ["commands", "hola"])
+        self.assertTrue(resultado[0].lista)
+
+    def test_asegurar_deja_el_primero_y_pasa_los_demas_a_comunes(self):
+        uno = comandos.Comando("uno", (), "Uno", lista=True)
+        dos = comandos.Comando("dos", (), "Dos", lista=True)
+        resultado = comandos.asegurar_lista([uno, dos], "es")
+        self.assertIs(resultado[0], uno)
+        self.assertTrue(resultado[0].lista)
+        self.assertFalse(resultado[1].lista)
+
+    def test_asegurar_no_toca_una_coleccion_que_ya_tiene_la_lista(self):
+        lista = comandos.comando_de_lista("es")
+        resultado = comandos.asegurar_lista([lista], "es")
+        self.assertEqual(len(resultado), 1)
+        self.assertIs(resultado[0], lista)
+
+    def test_la_variable_lista_solo_vale_en_el_comando_de_lista(self):
+        self.assertEqual("", comandos.validar(
+            comandos.comando_de_lista("es"), []))
+        error = comandos.validar(
+            comandos.Comando("hola", (), "Comandos: {lista}."), [])
+        self.assertIn("{lista}", error)
 
     def test_los_segundos_quedan_entre_tres_y_sesenta(self):
         self.assertEqual(comandos.Comando("hola", (), "Hola", segundos=1).segundos,
@@ -250,12 +303,12 @@ class TestValidar(unittest.TestCase):
         self.assertTrue(comandos.validar(
             self._comando(alias=("mi alias",)), []))
 
-    def test_la_palabra_de_la_app_no_sirve_de_nombre_ni_de_alias(self):
+    def test_comandos_ya_no_es_una_palabra_prohibida(self):
         for comando in (self._comando(nombre="comandos"),
                         self._comando(nombre="COMANDOS"),
                         self._comando(alias=("comandos",))):
             with self.subTest(comando=comando):
-                self.assertIn("comandos", comandos.validar(comando, []))
+                self.assertEqual("", comandos.validar(comando, []))
 
     def test_una_variable_desconocida_nombra_las_validas(self):
         error = comandos.validar(

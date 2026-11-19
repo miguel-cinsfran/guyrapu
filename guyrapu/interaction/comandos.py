@@ -9,9 +9,9 @@ encuentran, quién puede usarlos y cuánto esperan entre usos.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import _, idioma_actual
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR, ROL_PROPIETARIO
 from guyrapu.interaction.evento import EventoDirecto, persona
 from guyrapu.interaction.texto import normalizar
@@ -19,7 +19,6 @@ from guyrapu.interaction.texto import normalizar
 DESTINOS = ("video", "chat", "ambos")
 PERMISOS = ("todos", "moderadores", "lista")
 VARIABLES = ("usuario", "contador", "texto")
-PALABRA_RESERVADA = "comandos"
 MAXIMO_CHAT = 200
 
 _VARIABLE_RE = re.compile(r"\{([^{}]*)\}")
@@ -68,6 +67,8 @@ class Comando:
     activo: bool = True
     estilo: str = ""
     segundos: int = 8
+    lista: bool = False
+    en_lista: bool = True
 
     def __post_init__(self):
         object.__setattr__(self, "nombre", _sin_signo(self.nombre))
@@ -75,6 +76,30 @@ class Comando:
                            tuple(_sin_signo(alias) for alias in self.alias))
         object.__setattr__(self, "segundos",
                            max(3, min(60, int(self.segundos))))
+
+
+def comando_de_lista(codigo: str | None = None) -> Comando:
+    """El comando de lista de fábrica para el idioma indicado."""
+    codigo = idioma_actual() if codigo is None else codigo
+    alias = ("comandos",) if codigo.lower().startswith(("es", "pt")) else ()
+    # Traductores: respuesta del comando de lista del chat. {lista} son los nombres de los comandos activos.
+    respuesta = _("Comandos: {lista}.")
+    return Comando(
+        "commands", alias, respuesta,
+        destino="video", estilo="", segundos=8,
+        espera_general=5, espera_persona=30, lista=True)
+
+
+def asegurar_lista(disponibles, codigo: str | None = None) -> list[Comando]:
+    """Una colección con un solo comando de lista, el primero si hay varios."""
+    elementos = list(disponibles)
+    primera = next((indice for indice, comando in enumerate(elementos)
+                    if comando.lista), None)
+    if primera is None:
+        return [comando_de_lista(codigo), *elementos]
+    return [replace(comando, lista=False)
+            if comando.lista and indice != primera else comando
+            for indice, comando in enumerate(elementos)]
 
 
 def separar_alias(texto: str) -> tuple[str, ...]:
@@ -170,15 +195,6 @@ def _error_de_nombre(comando: Comando) -> str:
     return ""
 
 
-def _error_de_reservada(comando: Comando) -> str:
-    if any(normalizar(nombre) == PALABRA_RESERVADA
-           for nombre in _nombres_de(comando)):
-        # Traductores: validación de comandos del chat (error). «comandos» es la palabra que usa la app.
-        return _("«comandos» es de la app y no se puede usar como palabra ni "
-                 "alias.")
-    return ""
-
-
 def _error_de_repetido(comando: Comando, otros) -> str:
     propios = {normalizar(nombre) for nombre in _nombres_de(comando)}
     for otro in otros:
@@ -196,8 +212,9 @@ def _error_de_variables(comando: Comando) -> str:
     if not respuesta.strip():
         # Traductores: validación de comandos del chat (error).
         return _("El comando necesita una respuesta.")
+    permitidas = VARIABLES + (("lista",) if comando.lista else ())
     desconocidas = [variable for variable in _VARIABLE_RE.findall(respuesta)
-                    if variable not in VARIABLES]
+                    if variable not in permitidas]
     if desconocidas:
         # Traductores: validación de comandos del chat (error). {variable} es la variable desconocida y las demás son las que se pueden usar.
         return _("La variable {variable} no existe. Puedes usar {usuario}, "
@@ -230,7 +247,6 @@ def _error_de_lista(comando: Comando) -> str:
 def validar(comando: Comando, otros) -> str:
     """Un texto de error, o "" si el comando se puede guardar."""
     return (_error_de_nombre(comando)
-            or _error_de_reservada(comando)
             or _error_de_repetido(comando, otros)
             or _error_de_variables(comando)
             or _error_de_longitud(comando)

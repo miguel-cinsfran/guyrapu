@@ -25,6 +25,7 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 TITULO_AGREGAR = N_("Agregar comando")
 TITULO_EDITAR = N_("Editar comando")
 AYUDA_VARIABLES = N_("Puedes usar {usuario}, {contador} y {texto}.")
+AYUDA_LISTA = N_("Puedes usar {usuario}, {contador}, {texto} y {lista}.")
 
 _VARIABLE_RE = re.compile(r"\{([^{}]*)\}")
 
@@ -40,8 +41,7 @@ def _permisos():
 
 def _nombre_invalido(nombre: str) -> bool:
     limpio = normalizar(nombre)
-    return (not limpio or limpio == comandos.PALABRA_RESERVADA
-            or limpio.isdecimal() or len(limpio.split()) > 1)
+    return not limpio or limpio.isdecimal() or len(limpio.split()) > 1
 
 
 class DialogoComando(wx.Dialog):
@@ -52,6 +52,7 @@ class DialogoComando(wx.Dialog):
             padre,
             title=_(TITULO_EDITAR if datos else TITULO_AGREGAR),
             name="DialogoComando")
+        self._es_lista = bool((datos or {}).get("lista"))
         self._otros = [comandos_guardados.a_comando(otro) for otro in otros]
         self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
         self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
@@ -128,6 +129,10 @@ class DialogoComando(wx.Dialog):
         self.chk_activo = wx.CheckBox(
             panel, label=_("Acti&vado"), name=nombre_de_etiqueta(_("Acti&vado")))
         vs.Add(self.chk_activo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        self.chk_en_lista = wx.CheckBox(
+            panel, label=_("&Mostrar en la lista de comandos"),
+            name=nombre_de_etiqueta(_("&Mostrar en la lista de comandos")))
+        vs.Add(self.chk_en_lista, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
     def _campo(self, panel, etiqueta):
         campo = wx.TextCtrl(panel, name=nombre_de_etiqueta(etiqueta))
@@ -167,6 +172,10 @@ class DialogoComando(wx.Dialog):
         self._elegir_estilo(comando.estilo if datos else "")
         self.sp_segundos.SetValue(comando.segundos)
         self.chk_activo.SetValue(comando.activo)
+        self.chk_en_lista.SetValue(comando.en_lista)
+        if self._es_lista:
+            self.ayuda.SetLabel(_(AYUDA_LISTA))
+            self.chk_en_lista.Hide()
 
     def _elegir_estilo(self, clave):
         self.cho_estilo.SetSelection(
@@ -186,6 +195,8 @@ class DialogoComando(wx.Dialog):
             estilo=estilo_elegido.clave_de(
                 self.cho_estilo.GetSelection(), self._estilos),
             segundos=self.sp_segundos.GetValue(),
+            lista=self._es_lista,
+            en_lista=self.chk_en_lista.GetValue(),
         )
 
     def _aceptar(self, _evento):
@@ -209,7 +220,9 @@ class DialogoComando(wx.Dialog):
         if any(normalizar(alias) in ajenos for alias in comando.alias):
             return self.txt_alias
         respuesta = comando.respuesta or ""
-        desconocida = any(variable not in comandos.VARIABLES
+        permitidas = (comandos.VARIABLES + ("lista",) if comando.lista
+                      else comandos.VARIABLES)
+        desconocida = any(variable not in permitidas
                           for variable in _VARIABLE_RE.findall(respuesta))
         if (not respuesta.strip() or desconocida
                 or (comando.destino in ("chat", "ambos")

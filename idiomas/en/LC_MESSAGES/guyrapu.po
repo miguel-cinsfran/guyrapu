@@ -3423,12 +3423,6 @@ msgstr "A command cannot be named with numbers only."
 msgid "El nombre de un comando no puede tener espacios."
 msgstr "A command name cannot contain spaces."
 
-#. Traductores: validación de comandos del chat (error). «comandos» es la
-#. palabra que usa la app.
-#: guyrapu/interaction/comandos.py
-msgid "«comandos» es de la app y no se puede usar como palabra ni alias."
-msgstr "«commands» belongs to the app and cannot be used as a word or alias."
-
 #. Traductores: validación de comandos del chat (error). {nombre} es el comando
 #. que ya existe.
 #: guyrapu/interaction/comandos.py
@@ -16982,4 +16976,17 @@ msgstr "Could not save the conversation."
 #: guyrapu/ui/ia_ventana.py
 msgid "Guardar conversación…"
 msgstr "Save conversation…"
+
+#: guyrapu/ui/comando_cuadro.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador}, {texto} y {lista}."
+msgstr "You can use {usuario}, {contador}, {texto} and {lista}."
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Mostrar en la lista de comandos"
+msgstr "Show in command &list"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "La lista de comandos no se puede eliminar ni duplicar"
+msgstr "The command list cannot be deleted or duplicated"
 

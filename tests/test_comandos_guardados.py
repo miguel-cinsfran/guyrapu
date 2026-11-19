@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas del archivo de los comandos del chat."""
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
+from guyrapu.core import idioma
 from guyrapu.interaction import comandos, comandos_guardados
 
 
@@ -14,7 +16,7 @@ def _datos(**cambios):
         "nombre": "discord", "alias": ["dc"], "respuesta": "Hola {usuario}",
         "destino": "chat", "permiso": "lista", "nombres": ["Ana"],
         "espera_general": 5.0, "espera_persona": 30.0, "activo": True,
-        "estilo": "clasico", "segundos": 8,
+        "estilo": "clasico", "segundos": 8, "lista": False, "en_lista": True,
     }
     datos.update(cambios)
     return datos
@@ -40,6 +42,14 @@ class TestConversion(unittest.TestCase):
         self.assertTrue(comando.activo)
         self.assertEqual(comando.estilo, "clasico")
         self.assertEqual(comando.segundos, 8)
+        self.assertFalse(comando.lista)
+        self.assertTrue(comando.en_lista)
+
+    def test_los_campos_nuevos_se_convierten_con_tolerancia(self):
+        comando = comandos_guardados.a_comando({
+            "lista": "true", "en_lista": "false"})
+        self.assertTrue(comando.lista)
+        self.assertFalse(comando.en_lista)
 
     def test_los_tipos_se_fuerzan_y_lo_raro_cae_a_su_defecto(self):
         comando = comandos_guardados.a_comando({
@@ -83,10 +93,34 @@ class TestArchivo(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.ruta = Path(self.tmp.name) / "comandos.json"
+        idioma.instalar("es")
+        self.addCleanup(idioma._reiniciar)
 
     def test_ida_y_vuelta_por_el_archivo(self):
         comandos_guardados.guardar(self.ruta, [_datos()])
-        self.assertEqual(comandos_guardados.cargar(self.ruta), [_datos()])
+        lista = comandos_guardados.desde_comando(comandos.comando_de_lista("es"))
+        self.assertEqual(comandos_guardados.cargar(self.ruta),
+                         [lista, _datos()])
+
+    def test_un_archivo_de_antes_carga_con_el_comando_de_lista(self):
+        anterior = _datos()
+        anterior.pop("lista")
+        anterior.pop("en_lista")
+        self.ruta.write_text(json.dumps([anterior]), encoding="utf-8")
+        cargado = comandos_guardados.cargar(self.ruta)
+        self.assertEqual(len(cargado), 2)
+        self.assertEqual(cargado[0]["nombre"], "commands")
+        self.assertEqual(cargado[0]["alias"], ["comandos"])
+        self.assertTrue(cargado[0]["lista"])
+        self.assertTrue(cargado[1]["en_lista"])
+
+    def test_los_campos_nuevos_sobreviven_guardar_y_cargar(self):
+        comandos_guardados.guardar(self.ruta, [
+            comandos.Comando("lista", (), "Comandos: {lista}.", lista=True),
+            comandos.Comando("hola", (), "Hola", en_lista=False)])
+        cargado = comandos_guardados.cargar(self.ruta)
+        self.assertTrue(cargado[0]["lista"])
+        self.assertFalse(cargado[1]["en_lista"])
 
     def test_guarda_un_comando_de_verdad(self):
         comando = comandos.Comando(
@@ -94,23 +128,32 @@ class TestArchivo(unittest.TestCase):
             permiso="moderadores", espera_general=10, espera_persona=20,
             activo=False, estilo="banda", segundos=12)
         comandos_guardados.guardar(self.ruta, [comando])
-        cargado = comandos_guardados.cargar(self.ruta)
-        self.assertEqual(cargado[0]["nombre"], "saludo")
-        self.assertEqual(cargado[0]["alias"], ["hola"])
-        self.assertEqual(cargado[0]["destino"], "ambos")
-        self.assertEqual(cargado[0]["segundos"], 12)
-        self.assertFalse(cargado[0]["activo"])
+        cargado = comandos_guardados.cargar(self.ruta)[-1]
+        self.assertEqual(cargado["nombre"], "saludo")
+        self.assertEqual(cargado["alias"], ["hola"])
+        self.assertEqual(cargado["destino"], "ambos")
+        self.assertEqual(cargado["segundos"], 12)
+        self.assertFalse(cargado["activo"])
 
-    def test_un_archivo_danado_se_lee_como_lista_vacia(self):
+    def test_un_archivo_danado_carga_solo_el_comando_de_lista(self):
         self.ruta.write_text("{esto no es json", encoding="utf-8")
-        self.assertEqual(comandos_guardados.cargar(self.ruta), [])
+        cargado = comandos_guardados.cargar(self.ruta)
+        self.assertEqual(len(cargado), 1)
+        self.assertEqual(cargado[0]["nombre"], "commands")
+        self.assertTrue(cargado[0]["lista"])
 
-    def test_un_archivo_ausente_se_lee_como_lista_vacia(self):
-        self.assertEqual(comandos_guardados.cargar(self.ruta), [])
+    def test_un_archivo_ausente_carga_solo_el_comando_de_lista(self):
+        cargado = comandos_guardados.cargar(self.ruta)
+        self.assertEqual(len(cargado), 1)
+        self.assertEqual(cargado[0]["nombre"], "commands")
+        self.assertTrue(cargado[0]["lista"])
 
-    def test_un_json_que_no_es_lista_se_lee_como_lista_vacia(self):
+    def test_un_json_que_no_es_lista_carga_solo_el_comando_de_lista(self):
         self.ruta.write_text('{"nombre": "hola"}', encoding="utf-8")
-        self.assertEqual(comandos_guardados.cargar(self.ruta), [])
+        cargado = comandos_guardados.cargar(self.ruta)
+        self.assertEqual(len(cargado), 1)
+        self.assertEqual(cargado[0]["nombre"], "commands")
+        self.assertTrue(cargado[0]["lista"])
 
 
 if __name__ == "__main__":

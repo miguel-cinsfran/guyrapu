@@ -58,6 +58,10 @@ class BaseVentana(unittest.TestCase):
     def _nombres_en_disco(self):
         return [c["nombre"] for c in comandos_guardados.cargar(paths.comandos())]
 
+    def _indice(self, panel, nombre):
+        return next(indice for indice, comando in enumerate(panel._comandos)
+                    if comando["nombre"] == nombre)
+
     def _cuadro(self, datos=None, otros=()):
         cuadro = comando_cuadro.DialogoComando(None, datos or {}, otros)
         self.addCleanup(destruir, cuadro)
@@ -75,21 +79,25 @@ class TestContratos(BaseVentana):
         panel = self._panel([_datos("discord"), _datos(
             "hola", alias=[], destino="chat", permiso="lista",
             nombres=["Ana"])])
-        self.assertEqual(panel.lista.GetCount(), 2)
+        self.assertEqual(panel.lista.GetCount(), 3)
         self.assertEqual(panel.lista.GetString(0),
+                         "!commands, en el vídeo, todos")
+        self.assertEqual(panel.lista.GetString(1),
                          "!discord, en el vídeo, todos")
         self.assertEqual(
-            panel.lista.GetString(1),
+            panel.lista.GetString(2),
             "!hola, en el chat, una lista de nombres: Ana")
 
-    def test_la_lista_vacia_y_el_archivo_danado_dicen_que_hacer(self):
+    def test_la_lista_de_fabrica_aparece_con_coleccion_nueva_y_archivo_danado(self):
         panel = self._panel([])
+        self.assertEqual(panel.lista.GetCount(), 1)
         self.assertEqual(panel.lista.GetString(0),
-                         "No hay comandos. Usa Agregar para crear uno.")
+                         "!commands, en el vídeo, todos")
         paths.comandos().write_text("{roto", encoding="utf-8")
         panel = self._panel()
+        self.assertEqual(panel.lista.GetCount(), 1)
         self.assertEqual(panel.lista.GetString(0),
-                         "No hay comandos. Usa Agregar para crear uno.")
+                         "!commands, en el vídeo, todos")
 
     def test_los_botones_del_panel_estan_encendidos(self):
         panel = self._panel([])
@@ -99,7 +107,8 @@ class TestContratos(BaseVentana):
         self.assertTrue(all(boton.IsEnabled() for boton in botones))
 
     def test_sin_comandos_las_acciones_dicen_por_que(self):
-        panel = self._panel([])
+        with mock.patch.object(comandos_guardados, "cargar", return_value=[]):
+            panel = self._panel()
         with mock.patch("guyrapu.ui.lista_acciones.anunciar") as decir:
             panel._lista.ejecutar("editar")
         decir.assert_called_once_with(
@@ -134,6 +143,21 @@ class TestCuadro(BaseVentana):
         self.assertEqual(cuadro.cho_estilo.GetCount(), 5)
         self.assertEqual(cuadro.ayuda.GetLabel(),
                          "Puedes usar {usuario}, {contador} y {texto}.")
+        self.assertTrue(cuadro.chk_en_lista.GetValue())
+        self.assertEqual(cuadro.chk_en_lista.GetName(),
+                         "Mostrar en la lista de comandos")
+
+    def test_el_comando_de_lista_no_tiene_la_casilla_y_acepta_la_variable(self):
+        datos = _datos(nombre="commands", respuesta="Comandos: {lista}.",
+                       lista=True)
+        cuadro = self._cuadro(datos)
+        self.assertFalse(cuadro.chk_en_lista.IsShown())
+        self.assertEqual(cuadro.ayuda.GetLabel(),
+                         "Puedes usar {usuario}, {contador}, {texto} y {lista}.")
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_called_once_with(wx.ID_OK)
+        self.assertTrue(cuadro.datos()["lista"])
 
     def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
         cuadro = self._cuadro()
@@ -179,12 +203,14 @@ class TestCuadro(BaseVentana):
         cuadro._elegir_estilo("banda")
         cuadro.sp_segundos.SetValue(15)
         cuadro.chk_activo.SetValue(False)
+        cuadro.chk_en_lista.SetValue(False)
         self.assertEqual(cuadro.datos(), {
             "nombre": "sorteo", "alias": ["sorteo", "sort"],
             "respuesta": "Hola {usuario}", "destino": "ambos",
             "permiso": "lista", "nombres": ["Ana María", "Beto"],
             "espera_general": 10.0, "espera_persona": 40.0,
-            "activo": False, "estilo": "banda", "segundos": 15})
+            "activo": False, "estilo": "banda", "segundos": 15,
+            "lista": False, "en_lista": False})
         with mock.patch.object(cuadro, "EndModal") as cerrar:
             cuadro._aceptar(None)
         cerrar.assert_called_once_with(wx.ID_OK)
@@ -196,14 +222,13 @@ class TestCuadro(BaseVentana):
         cerrar.assert_not_called()
         return decir
 
-    def test_la_palabra_de_la_app_manda_el_foco_a_la_palabra(self):
+    def test_comandos_ya_es_una_palabra_valida(self):
         cuadro = self._cuadro()
         cuadro.txt_palabra.SetValue("comandos")
         cuadro.txt_respuesta.SetValue("Hola")
-        with mock.patch.object(cuadro.txt_palabra, "SetFocus") as foco:
-            decir = self._aceptar_con_error(cuadro)
-        foco.assert_called_once()
-        self.assertIn("comandos", decir.call_args.args[0])
+        with mock.patch.object(cuadro, "EndModal") as cerrar:
+            cuadro._aceptar(None)
+        cerrar.assert_called_once_with(wx.ID_OK)
 
     def test_una_variable_desconocida_manda_el_foco_a_la_respuesta(self):
         cuadro = self._cuadro()
@@ -259,36 +284,42 @@ class TestAcciones(BaseVentana):
 
     def test_duplicar_deja_la_copia_debajo(self):
         panel = self._panel([_datos("A"), _datos("B")])
-        panel.lista.SetSelection(0)
+        indice = self._indice(panel, "A")
+        panel.lista.SetSelection(indice)
         with mock.patch.object(comandos_ventana, "anunciar") as decir:
             panel._duplicar()
-        self.assertEqual(self._nombres_en_disco(), ["A", "A (copia)", "B"])
-        self.assertEqual(panel.lista.GetSelection(), 1)
+        self.assertEqual(self._nombres_en_disco(),
+                         ["commands", "A", "A (copia)", "B"])
+        self.assertEqual(panel.lista.GetSelection(), indice + 1)
         decir.assert_called_once_with("Comando duplicado")
 
     def test_pausar_cambia_el_estado_y_la_fila(self):
         panel = self._panel([_datos("A")])
-        panel.lista.SetSelection(0)
+        indice = self._indice(panel, "A")
+        panel.lista.SetSelection(indice)
         with mock.patch.object(comandos_ventana, "anunciar") as decir:
             panel._pausar()
-        self.assertFalse(comandos_guardados.cargar(paths.comandos())[0]["activo"])
-        self.assertEqual(panel.lista.GetString(0),
+        guardado = comandos_guardados.cargar(paths.comandos())
+        self.assertFalse(next(c["activo"] for c in guardado
+                              if c["nombre"] == "A"))
+        self.assertEqual(panel.lista.GetString(indice),
                          "!A, en el vídeo, todos, pausado")
         decir.assert_called_once_with("Pausado")
 
     def test_renombrar_repite_la_validacion(self):
         panel = self._panel([_datos("A")])
-        panel.lista.SetSelection(0)
+        panel.lista.SetSelection(self._indice(panel, "A"))
         with mock.patch.object(comando_cuadro, "pedir_palabra",
-                               side_effect=["comandos", "nuevo"]), \
-                mock.patch.object(comandos_ventana, "anunciar") as decir:
+                               side_effect=["mi comando", "nuevo"]), \
+                 mock.patch.object(comandos_ventana, "anunciar") as decir:
             panel._renombrar()
-        self.assertEqual(self._nombres_en_disco(), ["nuevo"])
-        self.assertIn("comandos", decir.call_args_list[0].args[0])
+        self.assertEqual(self._nombres_en_disco(), ["commands", "nuevo"])
+        self.assertIn("espacios", decir.call_args_list[0].args[0])
+
 
     def test_escuchar_cuenta_el_comando(self):
         panel = self._panel([_datos("A", alias=[], respuesta="Hola")])
-        panel.lista.SetSelection(0)
+        panel.lista.SetSelection(self._indice(panel, "A"))
         with mock.patch.object(
                 comandos_ventana.estilos_aviso, "buscar",
                 return_value={"nombre": "Clásico"}), \
@@ -302,24 +333,53 @@ class TestAcciones(BaseVentana):
             paths.estilos_avisos(), {"comando": "banda"})
         panel = self._panel([_datos(
             "A", alias=[], respuesta="Hola", estilo="")])
-        panel.lista.SetSelection(0)
+        panel.lista.SetSelection(self._indice(panel, "A"))
         with mock.patch.object(comandos_ventana, "anunciar") as decir:
             panel._escuchar()
         self.assertIn("estilo Banda", decir.call_args.args[0])
 
     def test_eliminar_pide_confirmacion_con_no_predeterminado(self):
         panel = self._panel([_datos("A"), _datos("B")])
-        panel.lista.SetSelection(0)
+        panel.lista.SetSelection(self._indice(panel, "A"))
         with mock.patch.object(comandos_ventana.confirmar, "preguntar",
                                return_value=True) as preguntar, \
-                mock.patch.object(comandos_ventana, "anunciar") as decir:
+                 mock.patch.object(comandos_ventana, "anunciar") as decir:
             panel._eliminar()
         self.assertFalse(preguntar.call_args.kwargs["predeterminado_si"])
-        self.assertEqual(self._nombres_en_disco(), ["B"])
+        self.assertEqual(self._nombres_en_disco(), ["commands", "B"])
+
         decir.assert_called_once_with("Comando eliminado")
 
+    def test_el_comando_de_lista_no_se_puede_eliminar_ni_duplicar(self):
+        panel = self._panel([_datos("A")])
+        panel.lista.SetSelection(self._indice(panel, "commands"))
+        with mock.patch("guyrapu.ui.lista_acciones.anunciar") as decir:
+            self.assertTrue(panel._lista.ejecutar("eliminar"))
+            self.assertTrue(panel._lista.ejecutar("duplicar"))
+        self.assertEqual(self._nombres_en_disco(), ["commands", "A"])
+        self.assertEqual(decir.call_count, 2)
+        for llamada in decir.call_args_list:
+            self.assertEqual(
+                llamada.args[0],
+                "La lista de comandos no se puede eliminar ni duplicar.")
+
+    def test_un_paquete_no_trae_otro_comando_de_lista(self):
+        ruta = self._paquete([_datos("externo", lista=True)])
+        panel = self._panel([_datos("A")])
+        with mock.patch.object(panel, "_pedir_ruta", return_value=ruta), \
+                mock.patch.object(panel, "_preguntar_reemplazo",
+                                  return_value=False), \
+                mock.patch.object(comandos_ventana, "anunciar"):
+            panel._importar()
+        guardados = comandos_guardados.cargar(paths.comandos())
+        externo = next(c for c in guardados if c["nombre"] == "externo")
+        self.assertFalse(externo["lista"])
+        self.assertEqual([c["nombre"] for c in guardados if c.get("lista")],
+                         ["commands"])
+
     def test_exportar_con_la_lista_vacia_no_abre_nada(self):
-        panel = self._panel([])
+        with mock.patch.object(comandos_guardados, "cargar", return_value=[]):
+            panel = self._panel()
         with mock.patch.object(panel, "_pedir_ruta") as pedir, \
                 mock.patch.object(comandos_ventana, "anunciar") as decir:
             panel._exportar()
@@ -338,7 +398,7 @@ class TestAcciones(BaseVentana):
                 mock.patch.object(comandos_ventana, "anunciar"):
             panel._importar()
         importados = [c for c in comandos_guardados.cargar(paths.comandos())
-                      if c["nombre"] != "A"]
+                      if c["nombre"] == "A (copia)"]
         self.assertEqual([c["activo"] for c in importados], [False])
 
 
@@ -350,10 +410,11 @@ class TestPanelSuelto(BaseVentana):
         self.addCleanup(destruir, marco)
         panel = comandos_ventana.PanelComandos(marco)
         self.assertIs(panel.GetParent(), marco)
-        panel.lista.SetSelection(0)
+        panel.lista.SetSelection(self._indice(panel, "A"))
         with mock.patch.object(comandos_ventana, "anunciar") as decir:
             panel._duplicar()
-        self.assertEqual(self._nombres_en_disco(), ["A", "A (copia)"])
+        self.assertEqual(self._nombres_en_disco(),
+                         ["commands", "A", "A (copia)"])
         decir.assert_called_once_with("Comando duplicado")
 
 

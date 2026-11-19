@@ -27,6 +27,13 @@ def _comando(nombre="saludo", respuesta="Hola", **cambios):
     return comandos.Comando(**datos)
 
 
+def _lista(**cambios):
+    datos = {"nombre": "commands", "alias": ("comandos",),
+             "respuesta": "Comandos: {lista}.", "lista": True}
+    datos.update(cambios)
+    return comandos.Comando(**datos)
+
+
 class TestPermisoYEsperas(unittest.TestCase):
 
     def test_un_comando_activo_responde_y_anota_el_uso(self):
@@ -76,28 +83,55 @@ class TestVariablesYContador(unittest.TestCase):
 
 class TestComandosDeLaApp(unittest.TestCase):
 
-    def test_lista_los_activos_en_su_orden(self):
-        atencion_ = atencion.Atencion([
+    def _atencion(self, **cambios):
+        return atencion.Atencion([
             _comando("discord", "D"), _comando("redes", "R"),
-            _comando("pausado", "P", activo=False)])
-        respuesta = atencion_.atender(_evento("!comandos"), 0)
+            _comando("pausado", "P", activo=False), _lista(**cambios)])
+
+    def test_lista_los_activos_en_su_orden_por_palabra_o_alias(self):
+        for texto in ("!commands", "!comandos"):
+            with self.subTest(texto=texto):
+                respuesta = self._atencion().atender(_evento(texto), 0)
+                self.assertEqual(
+                    (respuesta.texto, respuesta.al_video, respuesta.al_chat,
+                     respuesta.estilo, respuesta.segundos),
+                    ("Comandos: !discord, !redes.", True, False, "", 8))
+
+    def test_usa_el_texto_el_destino_el_estilo_y_los_segundos_guardados(self):
+        respuesta = self._atencion(
+            respuesta="Mira: {lista}.", destino="ambos", estilo="banda",
+            segundos=12).atender(_evento("!commands"), 0,
+                                 chat_disponible=True)
         self.assertEqual(
             (respuesta.texto, respuesta.al_video, respuesta.al_chat,
              respuesta.estilo, respuesta.segundos),
-            ("Comandos: !discord, !redes.", True, False, "", 8))
+            ("Mira: !discord, !redes.", True, True, "banda", 12))
 
-    def test_sin_comandos_activos_no_responde(self):
-        atencion_ = atencion.Atencion([_comando(activo=False)])
-        self.assertIsNone(atencion_.atender(_evento("!comandos"), 0))
+    def test_un_comando_fuera_de_la_lista_no_aparece(self):
+        atencion_ = atencion.Atencion([
+            _comando("discord", "D"),
+            _comando("redes", "R", en_lista=False), _lista()])
+        respuesta = atencion_.atender(_evento("!commands"), 0)
+        self.assertEqual(respuesta.texto, "Comandos: !discord.")
 
-    def test_usa_las_esperas_de_fabrica(self):
-        atencion_ = atencion.Atencion([_comando("discord", "D")])
-        self.assertIsNotNone(atencion_.atender(_evento("!comandos"), 0))
+    def test_sin_comandos_en_la_lista_no_responde(self):
+        atencion_ = atencion.Atencion([
+            _comando("discord", "D", en_lista=False), _lista()])
+        self.assertIsNone(atencion_.atender(_evento("!commands"), 0))
+
+    def test_el_comando_de_lista_pausado_no_responde(self):
+        atencion_ = atencion.Atencion([
+            _comando("discord", "D"), _lista(activo=False)])
+        self.assertIsNone(atencion_.atender(_evento("!commands"), 0))
+
+    def test_usa_las_esperas_del_comando_de_lista(self):
+        atencion_ = self._atencion()
+        self.assertIsNotNone(atencion_.atender(_evento("!commands"), 0))
         self.assertIsNone(atencion_.atender(
-            _evento("!comandos", autor="Bea", autor_id="2"), 4))
+            _evento("!commands", autor="Bea", autor_id="2"), 4))
         self.assertIsNotNone(atencion_.atender(
-            _evento("!comandos", autor="Bea", autor_id="2"), 5))
-        self.assertIsNone(atencion_.atender(_evento("!comandos"), 5))
+            _evento("!commands", autor="Bea", autor_id="2"), 5))
+        self.assertIsNone(atencion_.atender(_evento("!commands"), 5))
 
 
 class TestDestinoDelChat(unittest.TestCase):
