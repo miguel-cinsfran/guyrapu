@@ -317,9 +317,10 @@ class TestEsperaDeFoco(unittest.TestCase):
             recorrido.conducir(cliente, ventana(["Esperado"]),
                                tope_foco_s=0.01)
         mensaje = str(capturado.exception)
-        self.assertIn("«Otro»", mensaje)
-        self.assertIn("PUSH_BUTTON", mensaje)
-        self.assertIn("Lista de categorías", mensaje)
+        self.assertIn("nombre='Otro'", mensaje)
+        self.assertIn("rol=None", mensaje)
+        self.assertIn("rol_nombre='PUSH_BUTTON'", mensaje)
+        self.assertIn("padre='Lista de categorías'", mensaje)
         self.assertEqual(cliente.pasos, [])
 
     def _foco(self, nombre="Phonon, español", rol="LISTITEM",

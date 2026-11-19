@@ -274,6 +274,26 @@ class TestVentana(unittest.TestCase):
                          7, set(), False)
         self.assertEqual(visto["acciones"], entrada["acciones"])
 
+    def test_pasa_el_primero_lista_de_la_entrada_a_conducir(self):
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "voces")
+        visto = {}
+
+        def conducir(_cliente, datos):
+            visto["primero_lista"] = datos.get("primero_lista")
+            return {"pasos": []}
+
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              side_effect=conducir),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(BancoFalso(True), mock.Mock(), entrada,
+                         7, set(), False)
+        self.assertEqual(visto["primero_lista"], "Paquetes de voces")
+
     def test_un_hallazgo_de_verdad_sale_en_la_linea_de_la_transcripcion(self):
         hallazgo = {"regla": "sin_nombre", "nivel": "aviso",
                     "ventana": "voces", "paso": 3, "tecla": "tab",

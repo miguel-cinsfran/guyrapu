@@ -102,14 +102,11 @@ def _esperar_foco(cliente, nombre, tope_s, dormir, lista=None) -> dict:
         if _es_primero(foco, nombre, lista):
             return foco
         dormir(0.05)
-    nombre_visto = foco.get("nombre") or "sin nombre"
-    rol_visto = foco.get("rol_nombre") or foco.get("rol") or "sin rol"
-    visto = f"«{nombre_visto}», rol {rol_visto}"
-    if foco.get("padre"):
-        visto += f", padre «{foco['padre']}»"
     raise InstrumentoRoto(
-        f"la ventana no puso el foco en «{nombre}»: "
-        f"el último foco fue {visto}")
+        f"la ventana no puso el foco en {nombre!r}: el último foco fue "
+        f"nombre={foco.get('nombre')!r}, rol={foco.get('rol')!r}, "
+        f"rol_nombre={foco.get('rol_nombre')!r}, "
+        f"padre={foco.get('padre')!r}")
 
 
 def _ir_a(cliente, nombre, pid, tope, lector=None) -> None:

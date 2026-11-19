@@ -216,6 +216,8 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
         "pid": pid,
         "primero": entrada["primero"],
     }
+    if entrada.get("primero_lista"):
+        datos_ventana["primero_lista"] = entrada["primero_lista"]
     if entrada.get("pagina"):
         datos_ventana["pagina"] = entrada["pagina"]
         datos_ventana["paginas"] = (entrada["paginas"] if "paginas" in entrada
