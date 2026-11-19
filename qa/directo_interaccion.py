@@ -64,6 +64,13 @@ def esperar_texto(leer, fragmento, segundos=30) -> tuple[bool, str]:
         time.sleep(1)
 
 
+def _poner(guardados, ruta, campo, datos, convertir=None):
+    actuales = [d for d in guardados.cargar(ruta)
+                if MARCA not in str(d.get(campo, ""))]
+    actuales.append((convertir or guardados.normalizar)(datos))
+    guardados.guardar(ruta, actuales)
+
+
 class Datos:
     """Respaldo y vuelta atrás de las colecciones, archivo por archivo."""
 
@@ -83,37 +90,20 @@ class Datos:
             raise
 
     def _agregar(self) -> None:
-        ruta = self._rutas["comandos"]
-        actuales = [c for c in comandos_guardados.cargar(ruta)
-                    if MARCA not in c.get("respuesta", "")]
-        actuales.append(comandos_guardados.normalizar({
+        _poner(comandos_guardados, self._rutas["comandos"], "respuesta", {
             "nombre": "prueba", "respuesta": RESPUESTA_PRUEBA,
-            "destino": "ambos"}))
-        comandos_guardados.guardar(ruta, actuales)
-
-        ruta = self._rutas["disparadores"]
-        actuales = [d for d in disparadores_guardados.cargar(ruta)
-                    if MARCA not in d.get("nombre", "")]
-        actuales.append(disparadores_guardados.normalizar({
+            "destino": "ambos"})
+        _poner(disparadores_guardados, self._rutas["disparadores"], "nombre", {
             "nombre": "risa " + MARCA, "cuando": "comando",
-            "comandos": ["!risa"], "tarjeta": TARJETA_RISA}))
-        disparadores_guardados.guardar(ruta, actuales)
-
-        ruta = self._rutas["encuestas"]
-        actuales = [e for e in encuestas_guardadas.cargar(ruta)
-                    if MARCA not in e.get("pregunta", "")]
-        actuales.append(encuestas_guardadas.normalizar({
+            "comandos": ["!risa"], "tarjeta": TARJETA_RISA})
+        _poner(encuestas_guardadas, self._rutas["encuestas"], "pregunta", {
             "pregunta": PREGUNTA_ENCUESTA,
-            "opciones": [OPCION_UNO, OPCION_DOS], "destino": "chat"}))
-        encuestas_guardadas.guardar(ruta, actuales)
-
-        ruta = self._rutas["metas"]
-        actuales = [m for m in metas_guardadas.cargar(ruta)
-                    if MARCA not in m.get("nombre", "")]
-        actuales.append(metas_guardadas.desde_meta(metas_guardadas.a_meta({
+            "opciones": [OPCION_UNO, OPCION_DOS], "destino": "chat"})
+        _poner(metas_guardadas, self._rutas["metas"], "nombre", {
             "nombre": NOMBRE_META, "que_cuenta": "super_chat",
-            "objetivo": 1, "activa": True, "en_video": True})))
-        metas_guardadas.guardar(ruta, actuales)
+            "objetivo": 1, "activa": True, "en_video": True},
+            lambda datos: metas_guardadas.desde_meta(
+                metas_guardadas.a_meta(datos)))
 
     def restaurar(self) -> None:
         for clave in DATOS:
