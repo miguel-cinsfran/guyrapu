@@ -233,6 +233,20 @@ class BancoFalso:
 
 class TestVentana(unittest.TestCase):
 
+    def test_lleva_la_app_al_frente_antes_de_abrir_el_menu(self):
+        banco = BancoFalso(True)
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              return_value={"pasos": []}),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(banco, mock.Mock(), ventanas_app.VENTANAS[0],
+                         7, set(), False)
+        self.assertLess(banco.llamadas.index("al_frente"),
+                        banco.llamadas.index("menu_click"))
+
     def test_pide_el_frente_despues_de_esperar_y_antes_de_conducir(self):
         banco = BancoFalso(True)
 
@@ -252,7 +266,8 @@ class TestVentana(unittest.TestCase):
         claves = [llamada for llamada in banco.llamadas
                   if llamada in ("esperar_ventana", "al_frente", "conducir")]
         self.assertEqual(claves,
-                         ["esperar_ventana", "al_frente", "conducir"])
+                         ["al_frente", "esperar_ventana", "al_frente",
+                          "conducir"])
 
     def test_pasa_las_acciones_de_la_entrada_a_conducir(self):
         entrada = next(item for item in ventanas_app.VENTANAS
@@ -398,7 +413,7 @@ class TestVentana(unittest.TestCase):
             with self.assertRaises(app.InstrumentoRoto) as capturado:
                 app._ventana(banco, mock.Mock(), ventanas_app.VENTANAS[0],
                              7, set(), False)
-        self.assertIn("no se pudo traer al frente la ventana «Preferencias»",
+        self.assertIn("no se pudo traer al frente la app para «Preferencias»",
                       str(capturado.exception))
         conducir.assert_not_called()
 

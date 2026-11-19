@@ -204,6 +204,12 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     from qa.nvda.correr import _lineas_de_ventana
 
     nombre = entrada["nombre"]
+    # Si otra ventana tiene el primer plano, el diálogo se construye sin él y
+    # el SetFocus de su __init__ no llega al lector. Medido el 19/11/2026 con
+    # Música y un terminal en primer plano.
+    if not banco.al_frente():
+        raise InstrumentoRoto(
+            f"no se pudo traer al frente la app para «{entrada['titulo']}»")
     banco.pedir("menu_click", etiqueta=entrada["menu"], tiempo=10.0)
     if banco.esperar_ventana(entrada["titulo"], segundos=15.0) is None:
         raise InstrumentoRoto(
