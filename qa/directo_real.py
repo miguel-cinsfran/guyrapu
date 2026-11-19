@@ -395,8 +395,8 @@ LOG_CHAT = os.environ.get("DIRECTO_REAL_CHAT", "")
 sys.path.insert(0, REPO)
 os.chdir(REPO)
 sys.argv = [os.path.join(REPO, "main.py")]
-import guyrapu.ui.gui as g
-_orig = g.anunciar
+import guyrapu.ui.accesibilidad as _acc
+_orig = _acc.anunciar
 
 def _anunciar(texto, urgente=True):
     try:
@@ -406,9 +406,8 @@ def _anunciar(texto, urgente=True):
         pass
     _orig(texto, urgente)
 
-g.anunciar = _anunciar
-from guyrapu.ui import aviso_importante as _aviso
-_aviso.anunciar = _anunciar
+_acc.anunciar = _anunciar
+import guyrapu.ui.gui as g
 _orig_agregar = g.VentanaPrincipal.agregar_mensaje_chat
 
 def _agregar_mensaje(self, *args, **kwargs):

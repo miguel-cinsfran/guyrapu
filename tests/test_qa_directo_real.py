@@ -520,7 +520,7 @@ class TestComentarioFaltante(unittest.TestCase):
 
 class TestRegistroDeAvisosImportantes(unittest.TestCase):
 
-    def test_el_lanzador_registra_lo_que_dice_aviso_importante(self):
+    def test_un_modulo_importado_despues_registra_por_nombre(self):
         import os
         import shutil
         import sys
@@ -533,40 +533,34 @@ class TestRegistroDeAvisosImportantes(unittest.TestCase):
         anterior = os.getcwd()
         self.addCleanup(os.chdir, anterior)
         registro = carpeta / "anuncios.txt"
-        chat = carpeta / "chat.txt"
         dichos = []
-        gui = types.ModuleType("guyrapu.ui.gui")
-        gui.anunciar = lambda texto, urgente=True: dichos.append(texto)
-        gui.VentanaPrincipal = type("VentanaPrincipal", (), {
-            "agregar_mensaje_chat": lambda *a, **k: None})
-        aviso = types.ModuleType("guyrapu.ui.aviso_importante")
-        aviso.anunciar = lambda texto, urgente=True: dichos.append(
-            "original: " + texto)
-        reproductor = types.ModuleType("guyrapu.player.reproductor")
-        reproductor.ReproductorPanel = type("ReproductorPanel", (), {
-            "__init__": lambda self, *a, **k: None})
-        principal = types.ModuleType("main")
-        principal.main = lambda: None
+        accesibilidad = types.ModuleType("guyrapu.ui.accesibilidad")
+        accesibilidad.anunciar = lambda texto, urgente=True: dichos.append(
+            texto)
         fuente = directo_real._LANZADOR.format(
             repo=str(carpeta), arranque="import main\nmain.main()")
+        prefijo = fuente.partition("import guyrapu.ui.gui as g")[0]
         espacio = {"__name__": "lanzador_prueba"}
+        importado = types.ModuleType("modulo_importado_despues")
         entorno = {"DIRECTO_REAL_ANUNCIOS": str(registro),
-                   "DIRECTO_REAL_CHAT": str(chat)}
-        modulos = {"guyrapu.ui.gui": gui,
-                   "guyrapu.ui.aviso_importante": aviso,
-                   "guyrapu.player.reproductor": reproductor,
-                   "main": principal}
+                   "DIRECTO_REAL_CHAT": str(carpeta / "chat.txt")}
         with mock.patch.dict(os.environ, entorno), \
-                mock.patch.dict(sys.modules, modulos), \
+                mock.patch.dict(sys.modules, {
+                    "guyrapu.ui.accesibilidad": accesibilidad}), \
                 mock.patch.object(sys, "argv", [str(carpeta / "main.py")]), \
                 mock.patch.object(sys, "path", list(sys.path)):
-            exec(compile(fuente, "lanzador", "exec"), espacio)
-        self.assertIs(aviso.anunciar, espacio["_anunciar"])
-        aviso.anunciar("Directo iniciado en YouTube")
+            exec(compile(prefijo, "lanzador", "exec"), espacio)
+            exec(compile("from guyrapu.ui.accesibilidad import anunciar",
+                         "modulo_importado_despues", "exec"),
+                 importado.__dict__)
+        self.assertIs(accesibilidad.anunciar, espacio.get("_anunciar"))
+        self.assertIs(importado.anunciar, espacio.get("_anunciar"))
+        aviso = "Conectado al directo. Leyendo el chat."
+        importado.anunciar(aviso)
         lineas = registro.read_text(encoding="utf-8").splitlines()
         self.assertEqual(len(lineas), 1)
-        self.assertIn("Directo iniciado en YouTube", lineas[0])
-        self.assertEqual(dichos, ["Directo iniciado en YouTube"])
+        self.assertIn(aviso, lineas[0])
+        self.assertEqual(dichos, [aviso])
 
 
 class TestVolumenPrueba(unittest.TestCase):

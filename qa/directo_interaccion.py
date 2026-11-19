@@ -308,8 +308,6 @@ class Interaccion:
             return "import main\nmain.main()"
         return ("import sys\n"
                 "sys.path.insert(0, os.path.join(REPO, 'qa'))\n"
-                "from guyrapu.ui import accesibilidad as _acc\n"
-                "_acc.anunciar = _anunciar\n"
                 "import sonda as _qa_sonda\n"
                 "_qa_sonda.arrancar_aplicacion("
                 "os.path.join(REPO, 'main.py'))")
