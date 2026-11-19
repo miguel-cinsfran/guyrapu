@@ -128,7 +128,8 @@ VENTANAS = (
         "pagina": "Sonidos",
         "paginas": PAGINAS_PREFERENCIAS,
         "acciones": [
-            {"control": "Acción completada", "gesto": "upArrow"},
+            {"control": "Acción completada; Familia: Completado",
+             "gesto": "upArrow"},
         ],
     },
     {

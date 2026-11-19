@@ -116,7 +116,7 @@ class TestVentanas(unittest.TestCase):
                          [{"control": "Bajar velocidad de la voz: F9 (fija)",
                            "espera": "Este atajo es fijo"}])
         self.assertEqual(por_nombre["preferencias_sonidos"]["acciones"],
-                         [{"control": "Acción completada",
+                         [{"control": "Acción completada; Familia: Completado",
                            "gesto": "upArrow"}])
 
     def test_cada_pagina_de_interaccion_se_puede_pedir_sola(self):
