@@ -1,13 +1,19 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Qué sabe el reproductor del relevo de ffmpeg en curso.
+"""Qué sabe el reproductor del relevo de ffmpeg y cómo cambia ese estado.
 
-Solo datos, sin decisiones: guarda el relevo vivo, las fuentes con las que
-se puede reiniciar, el desfase y la ventana del directo, y el estado del
-VOD que va en modo grabado. El panel lo lee y lo escribe por campo.
+Guarda el relevo vivo, las fuentes con las que se puede reiniciar, el
+desfase y la ventana del directo, y el estado del VOD que va en modo
+grabado. Cada transición es un método con nombre. No conoce la interfaz:
+las reaperturas agendadas se detienen con su Stop() y el relevo con su
+detener().
 """
 
 from dataclasses import dataclass
+
+from guyrapu.core import diagnostico
+
+logger = diagnostico.obtener_logger(__name__)
 
 
 @dataclass
@@ -45,3 +51,67 @@ class EstadoRelevo:
     # Dice si este vídeo va en modo relevo grabado. Sobrevive a las
     # reaperturas: la base se limpia en cada una, esta bandera no.
     vod_por_relevo: bool = False
+
+    def detener_reapertura_vod(self) -> None:
+        pendiente = self.vod_reapertura
+        if pendiente is not None:
+            try:
+                pendiente.Stop()
+            except Exception as error:
+                logger.debug("no se pudo detener la reapertura pendiente: %s", error)
+
+    def soltar(self) -> None:
+        self.detener_reapertura_vod()
+        self.vod_reapertura = None
+        directa = self.directo_reapertura
+        self.directo_reapertura = None
+        if directa is not None:
+            try:
+                directa.Stop()
+            except Exception as error:
+                logger.debug("no se pudo detener la reapertura directa: %s", error)
+        self.vod_destino_en_pausa = None
+        relevo = self.ffmpeg
+        self.ffmpeg = None
+        self.vod_base_ms = None
+        if relevo is not None:
+            relevo.detener()
+
+    def olvidar_vod(self) -> None:
+        self.vod_por_relevo = False
+        self.vod_destino_en_pausa = None
+        self.vod_recuperaciones = 0
+        self.vod_ultima = None
+
+    def al_detener(self) -> None:
+        """Limpia lo que el panel deja al detener, después de llamar a
+        _detener_relevo_ffmpeg, que hace el soltar()."""
+        self.fuentes = None
+        self.desfase = 0
+        self.ventana = None
+        self.olvidar_vod()
+
+    def nueva_generacion(self) -> int:
+        self.gen = self.gen + 1
+        return self.gen
+
+    def adoptar(self, relevo, fuentes, desfase=0, inicio_ms=None) -> None:
+        """El relevo arrancó: lo adopta. Con inicio_ms es el modo grabado y
+        deja la base y la última en ese punto; sin él es el directo."""
+        self.ffmpeg = relevo
+        self.fuentes = fuentes
+        self.desfase = int(desfase or 0)
+        self.reintentos = 0
+        if inicio_ms is None:
+            self.vod_base_ms = None
+        else:
+            self.vod_base_ms = int(inicio_ms)
+            self.vod_ultima = int(inicio_ms)
+
+    def fallo_al_arrancar(self, grabado: bool) -> None:
+        self.ffmpeg = None
+        self.fuentes = None
+        self.desfase = 0
+        if grabado:
+            self.vod_base_ms = None
+            self.vod_por_relevo = False
