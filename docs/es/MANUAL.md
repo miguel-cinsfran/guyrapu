@@ -784,6 +784,15 @@ al llegar al principio o al final suena un aviso.
 | `Ctrl+Alt+Mayús+R` | Leer la siguiente pregunta |
 | `Ctrl+Alt+Mayús+I` | Estado de la interacción |
 
+En el menú *Interacción*, *Probar sin directo…* abre la ventana de ensayo
+cuando no hay ningún directo conectado. Escribe el autor, elige la plataforma
+y el tipo, y envía mensajes, Super Chats o regalos: pasan por el mismo reparto
+que los del directo, aparecen en la lista del chat y atienden los comandos, los
+disparadores, la encuesta y las metas. Lo que va al vídeo se ve en OBS como en
+un directo, sin publicar nada en los chats y sin que la voz lo lea. Al cerrar
+la ventana termina el ensayo y se descarta lo que dejó. Con la ventana abierta
+no se puede conectar un directo.
+
 ### Música (Ctrl+Alt)
 
 | Atajo | Acción |

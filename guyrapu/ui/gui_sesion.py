@@ -39,6 +39,11 @@ def fijar_campo_enlace(ventana, conectado: bool) -> None:
 
 
 def on_conectar(ventana, event):
+    if getattr(ventana, "_ensayo", False) is True:
+        # Traductores: aviso al intentar conectar un directo con el ensayo abierto.
+        _snd.reproducir("error")
+        anunciar(_("Cierra Prueba sin directo para conectar un directo."))
+        return
     if ventana._conectado or ventana._conectando:
         # Desconectar o, si aún estaba «Conectando…», cancelar: el callback
         # cierra la sesión y lo que devuelva ese hilo se descarta.

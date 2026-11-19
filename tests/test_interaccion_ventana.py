@@ -263,9 +263,10 @@ class TestCableado(BaseVentana):
 
     def test_p6_el_menu_queda_en_orden_y_sin_letras_repetidas(self):
         _, etiquetas = self._menu()
-        self.assertEqual(etiquetas[:5], [
-            "&Abrir Interacción…", "&Mensajes automáticos…",
-            "&Comandos del chat…", "Es&tilos del vídeo…", "---"])
+        self.assertEqual(etiquetas[:6], [
+            "&Abrir Interacción…", "Probar sin &directo…",
+            "&Mensajes automáticos…", "&Comandos del chat…",
+            "Es&tilos del vídeo…", "---"])
         letras = [etiqueta[etiqueta.index("&") + 1].lower()
                   for etiqueta in etiquetas if "&" in etiqueta]
         self.assertEqual(len(letras), len(set(letras)))

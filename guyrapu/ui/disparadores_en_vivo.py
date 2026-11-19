@@ -19,7 +19,7 @@ from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
 from guyrapu.interaction import (
-    comandos, disparadores, disparadores_guardados, filtro_publico,
+    comandos, disparadores, disparadores_guardados, ensayo, filtro_publico,
     medios_guardados)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
@@ -74,7 +74,7 @@ class DisparadoresEnVivo:
         self._mtime_palabras = None
 
     def atender(self, registro, ahora) -> None:
-        if not self._frame._conectado:
+        if not ensayo.en_vivo_o_ensayo(self._frame):
             return
         self._recargar()
         evento = _evento(registro)

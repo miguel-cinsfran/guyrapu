@@ -328,5 +328,27 @@ class TestRecargaDePalabrasBloqueadas(Base):
         self.assertEqual(textos, ["Hola ***", "Hola tonto"])
 
 
+class TestEnsayo(Base):
+    """Con la ventana de ensayo abierta, sin directo, la tarjeta va al vídeo."""
+
+    def setUp(self):
+        super().setUp()
+        self.frame._conectado = False
+        self.frame._ensayo = True
+
+    def test_el_comando_pone_su_tarjeta_y_no_va_al_chat(self):
+        self._guardar(_datos(respuesta="Nuestro Discord: {usuario}"))
+        with mock.patch.object(gui_envio_chat, "enviar_respuesta_chat") as enviar:
+            self._encolar("!discord")
+        self.frame._capa_video.agregar_comando.assert_called_once()
+        enviar.assert_not_called()
+
+    def test_sin_ensayo_ni_conexion_no_pone_tarjeta(self):
+        self.frame._ensayo = False
+        self._guardar(_datos(respuesta="Nuestro Discord: {usuario}"))
+        self._encolar("!discord")
+        self.frame._capa_video.agregar_comando.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

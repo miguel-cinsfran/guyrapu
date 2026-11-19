@@ -288,5 +288,25 @@ class TestMetasEnElVideo(Base):
         self.frame._capa_video.quitar_metas.assert_called_once()
 
 
+class TestEnsayo(Base):
+    """El avance de una meta del ensayo cuenta sin un directo conectado."""
+
+    def setUp(self):
+        super().setUp()
+        self.frame._conectado = False
+        self.frame._ensayo = True
+
+    def test_la_meta_en_ensayo_pone_su_tarjeta(self):
+        self._guardar(_meta(objetivo=1))
+        self._atender()
+        self.assertEqual(len(self._piezas()), 1)
+
+    def test_sin_ensayo_ni_conexion_no_cuenta_la_meta(self):
+        self.frame._ensayo = False
+        self._guardar(_meta(objetivo=1))
+        self._atender()
+        self.assertEqual(self._piezas(), [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -68,6 +68,7 @@ SUPERFICIES = {
     "menu_obs.py": "menus",
     "menu_interaccion.py": "menus",
     "interaccion_ventana.py": "mensajes_automaticos",
+    "ensayo_ventana.py": "comandos",
     "mensajes_automaticos_ventana.py": "mensajes_automaticos",
     "estilos_ventana.py": "estilos",
     "comandos_ventana.py": "comandos",

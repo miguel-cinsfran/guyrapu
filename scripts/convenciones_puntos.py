@@ -28,6 +28,7 @@ ABREN_CUADRO = frozenset((
     "Participación en el chat",
     "Preferencias",
     "Preguntar a la IA sobre la imagen",
+    "Probar sin directo",
     "Restream",
     "Transmitir en directo",
 ))

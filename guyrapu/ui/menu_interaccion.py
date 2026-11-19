@@ -8,7 +8,7 @@ from guyrapu.core.idioma import _
 from guyrapu.ui import (
     botonera_atajos, comando_comandos_chat, comando_en_directo,
     comando_estilos, comando_interaccion, comando_mensajes_automaticos,
-    interaccion_atajos)
+    ensayo_ventana, interaccion_atajos)
 
 
 def _programados(frame, m):
@@ -26,6 +26,11 @@ def _abrir(frame, m):
         wx.ID_ANY,
         _("&Abrir Interacción…") + frame._accel("mensajes_automaticos"))
     frame._bind_menu(frame.mi_interaccion, comando_interaccion.abrir, frame)
+
+
+def _probar(frame, m):
+    frame.mi_ensayo = m.Append(wx.ID_ANY, _("Probar sin &directo…"))
+    frame._bind_menu(frame.mi_ensayo, ensayo_ventana.abrir, frame)
 
 
 def _mensajes(frame, m):
@@ -114,6 +119,7 @@ def _en_directo(frame, m):
 def construir(frame, mb):
     m = wx.Menu()
     _abrir(frame, m)
+    _probar(frame, m)
     _mensajes(frame, m)
     comando_comandos_chat.agregar_al_menu(frame, m)
     _estilos(frame, m)

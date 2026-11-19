@@ -347,5 +347,25 @@ class TestDesconectado(Base):
         self.frame._capa_video.agregar_pieza.assert_not_called()
 
 
+class TestEnsayo(Base):
+    """El disparador del ensayo pone su tarjeta sin un directo conectado."""
+
+    def setUp(self):
+        super().setUp()
+        self.frame._conectado = False
+        self.frame._ensayo = True
+
+    def test_el_disparador_en_ensayo_pone_su_tarjeta(self):
+        self._guardar(_datos())
+        self._atender()
+        self.frame._capa_video.agregar_pieza.assert_called_once()
+
+    def test_sin_ensayo_ni_conexion_no_pone_tarjeta(self):
+        self.frame._ensayo = False
+        self._guardar(_datos())
+        self._atender()
+        self.frame._capa_video.agregar_pieza.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

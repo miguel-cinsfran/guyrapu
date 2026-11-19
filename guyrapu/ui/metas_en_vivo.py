@@ -18,7 +18,8 @@ import wx
 
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
-from guyrapu.interaction import medios_guardados, metas, metas_guardadas
+from guyrapu.interaction import (
+    ensayo, medios_guardados, metas, metas_guardadas)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
@@ -75,7 +76,7 @@ class MetasEnVivo:
         self._llamada = None
 
     def atender(self, registro) -> None:
-        if not self._frame._conectado:
+        if not ensayo.en_vivo_o_ensayo(self._frame):
             return
         self._recargar()
         evento = _evento(registro)

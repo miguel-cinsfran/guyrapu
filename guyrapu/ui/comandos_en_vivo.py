@@ -17,7 +17,7 @@ from guyrapu.core import diagnostico, paths
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
-    atencion, comandos, comandos_guardados, filtro_publico)
+    atencion, comandos, comandos_guardados, ensayo, filtro_publico)
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
 from guyrapu.youtube import cuota
@@ -97,7 +97,7 @@ class ComandosEnVivo:
         if not palabra.startswith("!"):
             palabra = "!" + palabra
         self._ultimo = (palabra, registro.autor)
-        if respuesta.al_video and self._frame._conectado:
+        if respuesta.al_video and ensayo.en_vivo_o_ensayo(self._frame):
             gui_envio_chat.capa_de_video(self._frame).agregar_comando(respuesta)
         if respuesta.al_chat:
             gui_envio_chat.enviar_respuesta_chat(self._frame, respuesta.texto)

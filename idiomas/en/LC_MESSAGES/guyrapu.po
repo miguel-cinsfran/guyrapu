@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: guyrapu/core/eventos_sonido.py main.py
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/ensayo_ventana.py main.py
 msgid "Super Chat"
 msgstr "Super Chat"
 
@@ -3808,6 +3808,11 @@ msgstr "{pregunta}, {opciones}, {duracion}"
 #, python-brace-format
 msgid "Encuesta: {pregunta}. Opciones: {opciones}."
 msgstr "Poll: {pregunta}. Options: {opciones}."
+
+#. Traductores: autor de fábrica de los mensajes de la ventana de ensayo.
+#: guyrapu/interaction/ensayo.py
+msgid "Público de prueba"
+msgstr "Test audience"
 
 #: guyrapu/interaction/estado_interaccion.py
 #, python-brace-format
@@ -10433,6 +10438,57 @@ msgstr[1] "{n} polls imported."
 msgid "Ya hay encuestas llamadas {nombres}. ¿Quieres reemplazarlas?"
 msgstr "Polls named {nombres} already exist. Replace them?"
 
+#. Traductores: motivo de no poder probar sin directo estando conectado.
+#: guyrapu/ui/ensayo_ventana.py
+msgid "Desconecta el directo para probar sin él."
+msgstr "Disconnect the live stream to test without it."
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "Prueba sin directo"
+msgstr "Test without a live stream"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "&Autor:"
+msgstr "&Author:"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "P&lataforma:"
+msgstr "Plat&form:"
+
+#. Traductores: opciones del tipo de mensaje de la ventana de ensayo.
+#: guyrapu/ui/ensayo_ventana.py guyrapu/ui/medio_cuadro.py
+msgid "&Tipo:"
+msgstr "&Type:"
+
+#: guyrapu/ui/ensayo_ventana.py guyrapu/ui/ia_ventana.py
+msgid "Mensaje"
+msgstr "Message"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "Regalo"
+msgstr "Gift"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "Canti&dad:"
+msgstr "&Quantity:"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "M&ensaje:"
+msgstr "&Message:"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "En&viar"
+msgstr "&Send"
+
+#: guyrapu/ui/ensayo_ventana.py guyrapu/ui/ia_ventana.py
+msgid "Ce&rrar"
+msgstr "Cl&ose"
+
+#. Traductores: aviso después de enviar un mensaje de prueba.
+#: guyrapu/ui/ensayo_ventana.py
+msgid "Enviado a la prueba."
+msgstr "Sent to the test."
+
 #: guyrapu/ui/escena_acciones_fuente.py
 msgid "visibilidad"
 msgstr "visibility"
@@ -13103,6 +13159,10 @@ msgid "Hay una conexión activa"
 msgstr "There is an active connection"
 
 #: guyrapu/ui/gui_sesion.py
+msgid "Cierra Prueba sin directo para conectar un directo."
+msgstr "Close Test without a live stream to connect a live stream."
+
+#: guyrapu/ui/gui_sesion.py
 msgid "Conexión cancelada"
 msgstr "Connection canceled"
 
@@ -13363,10 +13423,6 @@ msgid "Preguntar a la IA"
 msgstr "Ask the AI"
 
 #: guyrapu/ui/ia_ventana.py
-msgid "Mensaje"
-msgstr "Message"
-
-#: guyrapu/ui/ia_ventana.py
 msgid "Mensaje completo"
 msgstr "Full message"
 
@@ -13409,10 +13465,6 @@ msgstr "&New conversation"
 #: guyrapu/ui/ia_ventana.py
 msgid "Nueva conversación"
 msgstr "New conversation"
-
-#: guyrapu/ui/ia_ventana.py
-msgid "Ce&rrar"
-msgstr "Cl&ose"
 
 #: guyrapu/ui/inicio_youtube.py
 msgid ""
@@ -13602,10 +13654,6 @@ msgstr "&Description:"
 #: guyrapu/ui/medio_cuadro.py
 msgid "Describir &imagen"
 msgstr "Describe &image"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "&Tipo:"
-msgstr "&Type:"
 
 #: guyrapu/ui/medio_cuadro.py
 msgid "D&uración:"
@@ -13876,6 +13924,10 @@ msgstr "Messages named {nombres} already exist. Replace them?"
 #: guyrapu/ui/menu_interaccion.py
 msgid "&Abrir Interacción…"
 msgstr "&Open Interaction…"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "Probar sin &directo…"
+msgstr "&Test without a live stream…"
 
 #: guyrapu/ui/menu_interaccion.py
 msgid "&Mensajes automáticos…"

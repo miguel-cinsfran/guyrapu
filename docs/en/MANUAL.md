@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 8185887f9cd0e152b5e3653b1e8fe610416e7aa5 -->
+<!-- original: es/MANUAL.md 0ec884058ae4d3a368311c2325164faf294f8459 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -463,6 +463,15 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | `Ctrl+Alt+Shift+E` | Close the poll |
 | `Ctrl+Alt+Shift+R` | Read the next question |
 | `Ctrl+Alt+Shift+I` | Interaction status |
+
+In the *Interaction* menu, *Test without a live stream…* opens the rehearsal
+window when no live stream is connected. Type the author, choose the platform
+and the type, and send messages, Super Chats or gifts: they go through the same
+route as live messages, appear in the chat list and are handled by commands,
+triggers, the poll and the goals. What goes to the video appears in OBS as it
+does in a live stream, without posting to any chat and without the voice reading
+it. Closing the window ends the rehearsal and discards what it left behind. You
+cannot connect a live stream while the window is open.
 
 ### Music (Ctrl+Alt)
 

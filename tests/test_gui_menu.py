@@ -203,6 +203,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&OBS", "C&errar OBS", ANY, "normal"),
             ("&OBS", "&Avisar si OBS se sobrecarga", ANY, "check"),
             ("&Interacción", "&Abrir Interacción…", ANY, "normal"),
+            ("&Interacción", "Probar sin &directo…", ANY, "normal"),
             ("&Interacción", "&Mensajes automáticos…", ANY, "normal"),
             ("&Interacción", "&Comandos del chat…", ANY, "normal"),
             ("&Interacción", "Es&tilos del vídeo…", ANY, "normal"),
@@ -395,6 +396,7 @@ class TestMenuInteraccionEnDirecto(unittest.TestCase):
         self.assertEqual([
             ("&Interacción", "&Abrir Interacción…\tCtrl+Shift+A",
              ANY, "normal"),
+            ("&Interacción", "Probar sin &directo…", ANY, "normal"),
             ("&Interacción", "&Mensajes automáticos…", ANY, "normal"),
             ("&Interacción", "&Comandos del chat…", ANY, "normal"),
             ("&Interacción", "Es&tilos del vídeo…", ANY, "normal"),
@@ -428,6 +430,29 @@ class TestMenuInteraccionEnDirecto(unittest.TestCase):
                   for _menu, texto, _dato, _tipo in self._entradas()
                   if texto != "---" and "&" in texto]
         self.assertEqual(len(letras), len(set(letras)))
+
+
+class TestProbarSinDirecto(unittest.TestCase):
+    """El comando del menú abre la ventana solo cuando no hay directo."""
+
+    def test_el_elemento_existe_y_con_conexion_dice_el_motivo(self):
+        from guyrapu.ui import ensayo_ventana
+
+        _, lista, frame = _construir_lista(con_frame=True)
+        self.assertIn(
+            ("&Interacción", "Probar sin &directo…", gui.wx.ID_ANY, "normal"),
+            lista)
+        enlace = next(llamada for llamada in frame._bind_menu.call_args_list
+                      if llamada.args[0] is frame.mi_ensayo)
+        frame._conectado = True
+        with mock.patch.object(ensayo_ventana, "anunciar") as anunciar, \
+                mock.patch.object(ensayo_ventana._snd, "reproducir") as sonar, \
+                mock.patch.object(ensayo_ventana, "VentanaEnsayo") as ventana:
+            enlace.args[1](*enlace.args[2:])
+        anunciar.assert_called_once_with(
+            "Desconecta el directo para probar sin él.")
+        sonar.assert_called_once_with("error")
+        ventana.assert_not_called()
 
 
 class TestCableadoInteraccionEnDirecto(unittest.TestCase):

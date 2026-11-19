@@ -239,5 +239,36 @@ class TestFinDeLaSesion(Base):
         self.assertEqual(self.enviados, [])
 
 
+class TestEnsayo(Base):
+    """La encuesta del ensayo se ve en el vídeo y cuenta los votos."""
+
+    def setUp(self):
+        super().setUp()
+        self.frame._conectado = False
+        self.frame._ensayo = True
+
+    def test_la_encuesta_se_fija_en_el_video_y_cuenta_el_voto(self):
+        self._iniciar()
+        self.assertEqual(len(self.capa.fijadas), 1)
+        self.assertTrue(self._votar("!1"))
+        self.assertEqual(self._sesion().encuesta.total(), 1)
+
+    def test_al_descartar_no_anuncia_no_publica_y_no_envia(self):
+        self._iniciar(destino="ambos")
+        self.assertTrue(self._votar("!1"))
+        self.anuncios.clear()
+        self.assertTrue(encuesta_en_vivo.descartar(self.frame))
+        self.assertIsNone(self._sesion().encuesta)
+        self.assertEqual(self.anuncios, [])
+        self.assertEqual(self.capa.agregadas, [])
+        self.assertEqual(self.enviados, [])
+        self.assertEqual(self.capa.quitadas, 1)
+
+    def test_sin_ensayo_ni_conexion_la_encuesta_no_va_al_video(self):
+        self.frame._ensayo = False
+        self._iniciar()
+        self.assertEqual(self.capa.fijadas, [])
+
+
 if __name__ == "__main__":
     unittest.main()

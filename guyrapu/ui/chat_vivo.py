@@ -21,6 +21,7 @@ from guyrapu.core import sonidos_eventos
 from guyrapu.core.avisos_tiktok import (
     con_sonido, evento_de_mensaje, modo_evento, pasa_filtro,
 )
+from guyrapu.interaction import ensayo
 from guyrapu.core.config import (
     TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
@@ -274,7 +275,10 @@ class ControladorChat:
         repintar fila a fila."""
         self._timer = None
         pendientes, self._pendientes = self._pendientes, []
-        if not pendientes or not self._activo():
+        # El ensayo no conecta el chat, pero sus mensajes también se vuelcan:
+        # `activo` mira la conexión real y no debe descartarlos.
+        if not pendientes or not (
+                self._activo() or ensayo.en_ensayo(self.lista.GetTopLevelParent())):
             return
         freeze = len(pendientes) > 1
         if freeze:

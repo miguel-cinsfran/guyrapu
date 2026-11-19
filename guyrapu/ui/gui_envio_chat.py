@@ -24,6 +24,7 @@ directo.
 from __future__ import annotations
 
 from guyrapu.core.idioma import _
+from guyrapu.interaction import ensayo
 from guyrapu.ui import confirmar
 from guyrapu.ui.aviso_importante import avisar
 
@@ -198,6 +199,8 @@ def capa_de_video(frame):
 def destinos_disponibles(frame) -> set:
     """El chat y el vídeo que se pueden usar ahora mismo."""
     from guyrapu.ui import gui as _gui
+    if ensayo.en_ensayo(frame):
+        return ensayo.destinos()
     propio = bool(frame.sesion.chat_propio or frame.sesion.conexion_propia)
     destinos = set()
     puede_chat = _gui.programados.puede_enviar(
@@ -227,6 +230,9 @@ def _repartir_programado(frame, mensaje, ahora, destinos) -> None:
 
 
 def procesar_programado(frame) -> None:
+    if ensayo.en_ensayo(frame):
+        # El ensayo no es un directo: nada de lo programado arranca ni se envía.
+        return
     from guyrapu.ui import gui as _gui
     activo = bool(frame._config.get("programados_activo", False))
     if not activo:

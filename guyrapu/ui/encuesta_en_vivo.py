@@ -13,7 +13,8 @@ from __future__ import annotations
 import time
 
 from guyrapu.core.idioma import _
-from guyrapu.interaction import comandos, encuestas, encuestas_guardadas
+from guyrapu.interaction import (
+    comandos, encuestas, encuestas_guardadas, ensayo)
 from guyrapu.interaction.cola_pantalla import Pieza
 
 # Cada cuánto late el temporizador y cada cuánto, como mucho, se pone al día
@@ -80,6 +81,15 @@ def cerrar(frame, por_tiempo=False, ahora=None) -> bool:
     if sesion is None:
         return False
     return sesion.cerrar(por_tiempo, ahora)
+
+
+def descartar(frame) -> bool:
+    """Cierra la encuesta sin anunciar ni publicar su resultado."""
+    sesion = getattr(frame, "_encuesta_en_vivo", None)
+    if sesion is None or sesion.encuesta is None:
+        return False
+    sesion._descartar()
+    return True
 
 
 def frase_estado(frame) -> str:
@@ -151,7 +161,7 @@ class SesionEncuesta:
         if self._en_video:
             capa = _capa(self._frame)
             capa.quitar_encuesta()
-            if getattr(self._frame, "_conectado", False):
+            if ensayo.en_vivo_o_ensayo(self._frame):
                 capa.agregar_pieza(self._pieza_resultado(texto))
         if self._destino in ("chat", "ambos"):
             _enviar_chat(self._frame, texto)
@@ -188,7 +198,9 @@ class SesionEncuesta:
         if self._sesion is not None and getattr(
                 self._frame, "sesion", None) is not self._sesion:
             return False
-        return bool(getattr(self._frame, "_conectado", True))
+        if not hasattr(self._frame, "_conectado"):
+            return True
+        return ensayo.en_vivo_o_ensayo(self._frame)
 
     def _descartar(self) -> None:
         self.encuesta = None
@@ -198,7 +210,7 @@ class SesionEncuesta:
 
     def _va_al_video(self) -> bool:
         return (self._destino in ("video", "ambos")
-                and bool(getattr(self._frame, "_conectado", False)))
+                and ensayo.en_vivo_o_ensayo(self._frame))
 
     def _poner_al_dia(self, ahora) -> None:
         if self.encuesta is None or not self._en_video:
