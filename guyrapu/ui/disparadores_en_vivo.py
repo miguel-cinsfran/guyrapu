@@ -67,6 +67,7 @@ class DisparadoresEnVivo:
         self._disparadores = []
         self._palabras_bloqueadas = []
         self._esperas = comandos.Esperas()
+        self._contadores: dict[str, int] = {}
         self._cargado = False
         self._mtime = None
         self._cargado_palabras = False
@@ -108,11 +109,11 @@ class DisparadoresEnVivo:
         medio = self._medio(disparador.medio)
         if not tarjeta and medio is None:
             return
+        contador = self._contadores.get(disparador.nombre, 0) + 1
+        self._contadores[disparador.nombre] = contador
         if tarjeta:
-            texto = (disparador.tarjeta or "").replace(
-                "{usuario}",
-                filtro_publico.tapar(evento.autor or "",
-                                     self._palabras_bloqueadas))
+            texto = disparadores.texto_de_tarjeta(
+                disparador, evento, contador, self._palabras_bloqueadas)
         else:
             texto = ""
         segundos = disparador.segundos

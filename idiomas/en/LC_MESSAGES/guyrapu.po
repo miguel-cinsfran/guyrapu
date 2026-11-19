@@ -3354,13 +3354,6 @@ msgstr "To the top"
 msgid "Hacia abajo"
 msgstr "To the bottom"
 
-#. Traductores: respuesta de la app al comando !comandos. {lista} son los
-#. nombres de los comandos activos.
-#: guyrapu/interaction/atencion.py
-#, python-brace-format
-msgid "Comandos: {lista}."
-msgstr "Commands: {lista}."
-
 #. Traductores: estado de F2; {texto} es el de las metas.
 #: guyrapu/interaction/cola_pantalla.py
 #, python-brace-format
@@ -3406,6 +3399,13 @@ msgstr "The queue is paused."
 #: guyrapu/interaction/cola_pantalla.py
 msgid "Sonido de los medios silenciado."
 msgstr "Media sound is muted."
+
+#. Traductores: respuesta del comando de lista del chat. {lista} son los
+#. nombres de los comandos activos.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "Comandos: {lista}."
+msgstr "Commands: {lista}."
 
 #. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
@@ -3703,6 +3703,17 @@ msgstr "The minimum cannot be negative."
 msgid "El disparador necesita un medio o una tarjeta de texto."
 msgstr "The trigger needs a media item or a text card."
 
+#. Traductores: validación de disparadores del directo (error). {variable} es
+#. la variable desconocida y las demás son las que se pueden usar.
+#: guyrapu/interaction/disparadores.py
+#, python-brace-format
+msgid ""
+"La variable {variable} no existe. Puedes usar {usuario}, {cantidad}, "
+"{regalo}, {texto} y {contador}."
+msgstr ""
+"The variable {variable} does not exist. You can use {usuario}, {cantidad}, "
+"{regalo}, {texto} and {contador}."
+
 #. Traductores: resumen de una encuesta; {pregunta} es su pregunta.
 #: guyrapu/interaction/encuestas.py
 #, python-brace-format
@@ -3797,6 +3808,17 @@ msgstr "{pregunta}, {opciones}, {duracion}"
 #, python-brace-format
 msgid "Encuesta: {pregunta}. Opciones: {opciones}."
 msgstr "Poll: {pregunta}. Options: {opciones}."
+
+#: guyrapu/interaction/estado_interaccion.py
+#, python-brace-format
+msgid "Espera 1 pregunta."
+msgid_plural "Esperan {n} preguntas."
+msgstr[0] "1 question waiting."
+msgstr[1] "{n} questions waiting."
+
+#: guyrapu/interaction/estado_interaccion.py
+msgid "No hay nada de la interacción en curso."
+msgstr "There is no interaction in progress."
 
 #. Traductores: primera opción de la elección de estilo de un cuadro. {estilo}
 #. es el estilo predeterminado del tipo.
@@ -8025,6 +8047,10 @@ msgid "Leer la siguiente pregunta"
 msgstr "Read the next question"
 
 #: guyrapu/ui/atajos_captura.py
+msgid "Estado de la interacción"
+msgstr "Interaction status"
+
+#: guyrapu/ui/atajos_captura.py
 msgid "Preguntar a la IA sobre la imagen"
 msgstr "Ask the AI about the picture"
 
@@ -8713,7 +8739,7 @@ msgid "Guardar participación"
 msgstr "Save chat participation"
 
 #. Traductores: traduce solo «Archivos de texto»; no cambies «(*.txt)|*.txt».
-#: guyrapu/ui/chat_participacion.py
+#: guyrapu/ui/chat_participacion.py guyrapu/ui/ia_guardar_conversacion.py
 msgid "Archivos de texto (*.txt)|*.txt"
 msgstr "Text files (*.txt)|*.txt"
 
@@ -8838,6 +8864,11 @@ msgid "Puedes usar {usuario}, {contador} y {texto}."
 msgstr "You can use {usuario}, {contador} and {texto}."
 
 #: guyrapu/ui/comando_cuadro.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador}, {texto} y {lista}."
+msgstr "You can use {usuario}, {contador}, {texto} and {lista}."
+
+#: guyrapu/ui/comando_cuadro.py
 msgid "En el vídeo"
 msgstr "On the video"
 
@@ -8906,6 +8937,10 @@ msgstr "&Style:"
 #: guyrapu/ui/comando_cuadro.py
 msgid "Acti&vado"
 msgstr "Acti&vated"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Mostrar en la lista de comandos"
+msgstr "Show in command &list"
 
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/dialogo_usos_perfil.py
 #: guyrapu/ui/disparador_cuadro.py guyrapu/ui/encuesta_cuadro.py
@@ -9029,6 +9064,10 @@ msgstr "There are no commands. Use Add to create one."
 #: guyrapu/ui/metas_ventana.py
 msgid "Paquete de Guyrapu (*.zip)|*.zip"
 msgstr "Guyrapu package (*.zip)|*.zip"
+
+#: guyrapu/ui/comandos_ventana.py
+msgid "La lista de comandos no se puede eliminar ni duplicar"
+msgstr "The command list cannot be deleted or duplicated"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
@@ -10033,6 +10072,11 @@ msgstr "Add trigger"
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Editar disparador"
 msgstr "Edit trigger"
+
+#: guyrapu/ui/disparador_cuadro.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}."
+msgstr "You can use {usuario}, {cantidad}, {regalo}, {texto} and {contador}."
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Comando del chat"
@@ -13275,6 +13319,30 @@ msgstr "Video frame"
 msgid "Consulta rápida en curso."
 msgstr "Quick question in progress."
 
+#: guyrapu/ui/ia_guardar_conversacion.py
+msgid "Guardar conversación"
+msgstr "Save conversation"
+
+#. Traductores: {fecha} es AAAA-MM-DD HH-MM, sin dos puntos, que Windows no
+#. acepta en nombres de archivo.
+#: guyrapu/ui/ia_guardar_conversacion.py
+#, python-brace-format
+msgid "Conversación con la IA {fecha}.txt"
+msgstr "Conversation with the AI {fecha}.txt"
+
+#: guyrapu/ui/ia_guardar_conversacion.py
+msgid "La conversación está vacía"
+msgstr "The conversation is empty"
+
+#: guyrapu/ui/ia_guardar_conversacion.py
+#, python-brace-format
+msgid "Conversación guardada en {nombre}."
+msgstr "Conversation saved to {nombre}."
+
+#: guyrapu/ui/ia_guardar_conversacion.py
+msgid "No se pudo guardar la conversación."
+msgstr "Could not save the conversation."
+
 #. Traductores: aviso antes de enviar la captura a la IA; {proveedor} es el
 #. nombre del proveedor.
 #: guyrapu/ui/ia_privacidad.py
@@ -13313,6 +13381,10 @@ msgstr "Conversation"
 #: guyrapu/ui/ia_ventana.py
 msgid "Ver mensaje completo…"
 msgstr "View full message…"
+
+#: guyrapu/ui/ia_ventana.py
+msgid "Guardar conversación…"
+msgstr "Save conversation…"
 
 #: guyrapu/ui/ia_ventana.py
 msgid "Enviar"
@@ -13844,6 +13916,10 @@ msgstr "C&lose poll"
 #: guyrapu/ui/menu_interaccion.py
 msgid "Leer si&guiente pregunta"
 msgstr "Read the ne&xt question"
+
+#: guyrapu/ui/menu_interaccion.py
+msgid "E&stado de la interacción"
+msgstr "Interaction stat&us"
 
 #: guyrapu/ui/menu_interaccion.py
 msgid "&Interacción"
@@ -16948,64 +17024,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/ui/ia_guardar_conversacion.py
-msgid "Guardar conversación"
-msgstr "Save conversation"
-
-#. Traductores: {fecha} es AAAA-MM-DD HH-MM, sin dos puntos, que Windows no
-#. acepta en nombres de archivo.
-#: guyrapu/ui/ia_guardar_conversacion.py
-#, python-brace-format
-msgid "Conversación con la IA {fecha}.txt"
-msgstr "Conversation with the AI {fecha}.txt"
-
-#: guyrapu/ui/ia_guardar_conversacion.py
-msgid "La conversación está vacía"
-msgstr "The conversation is empty"
-
-#: guyrapu/ui/ia_guardar_conversacion.py
-#, python-brace-format
-msgid "Conversación guardada en {nombre}."
-msgstr "Conversation saved to {nombre}."
-
-#: guyrapu/ui/ia_guardar_conversacion.py
-msgid "No se pudo guardar la conversación."
-msgstr "Could not save the conversation."
-
-#: guyrapu/ui/ia_ventana.py
-msgid "Guardar conversación…"
-msgstr "Save conversation…"
-
-#: guyrapu/ui/comando_cuadro.py
-#, python-brace-format
-msgid "Puedes usar {usuario}, {contador}, {texto} y {lista}."
-msgstr "You can use {usuario}, {contador}, {texto} and {lista}."
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "&Mostrar en la lista de comandos"
-msgstr "Show in command &list"
-
-#: guyrapu/ui/comandos_ventana.py
-msgid "La lista de comandos no se puede eliminar ni duplicar"
-msgstr "The command list cannot be deleted or duplicated"
-
-#: guyrapu/interaction/estado_interaccion.py
-#, python-brace-format
-msgid "Espera 1 pregunta."
-msgid_plural "Esperan {n} preguntas."
-msgstr[0] "1 question waiting."
-msgstr[1] "{n} questions waiting."
-
-#: guyrapu/interaction/estado_interaccion.py
-msgid "No hay nada de la interacción en curso."
-msgstr "There is no interaction in progress."
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Estado de la interacción"
-msgstr "Interaction status"
-
-#: guyrapu/ui/menu_interaccion.py
-msgid "E&stado de la interacción"
-msgstr "Interaction stat&us"
 

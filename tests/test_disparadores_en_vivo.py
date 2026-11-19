@@ -110,6 +110,16 @@ class TestPiezaDeDisparador(Base):
             self.frame._capa_video.agregar_pieza.call_count, 2)
 
 
+class TestContador(Base):
+
+    def test_p5_dos_veces_el_mismo_disparador_ponen_uno_y_dos(self):
+        self._guardar(_datos(tarjeta="Va {contador}", espera_general=0,
+                             espera_persona=0))
+        self._atender(ahora=0)
+        self._atender(ahora=1)
+        self.assertEqual(self._textos(), ["Va 1", "Va 2"])
+
+
 class TestEventoDelDirecto(Base):
 
     def test_el_superchat_solo_cumple_desde_el_minimo(self):
@@ -123,6 +133,16 @@ class TestEventoDelDirecto(Base):
         self._atender(_registro(texto="", tipo=TIPO_SUPERCHAT,
                                 monto="US$5.00"), ahora=1)
         self.frame._capa_video.agregar_pieza.assert_called_once()
+
+    def test_p3_un_regalo_de_tiktok_pone_el_regalo_y_la_cantidad(self):
+        self._guardar(_datos(
+            nombre="regalo", cuando="evento", comandos=(),
+            evento="superchat", tarjeta="{regalo}: {cantidad}",
+            espera_general=0, espera_persona=0))
+        self._atender(_registro(
+            texto="Rosa x5", tipo=TIPO_SUPERCHAT,
+            monto="500 diamantes", plataforma="tiktok"), ahora=0)
+        self.assertEqual(self._textos(), ["Rosa: 500 diamantes"])
 
 
 class TestUsuario(Base):

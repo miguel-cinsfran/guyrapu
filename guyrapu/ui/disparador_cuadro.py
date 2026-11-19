@@ -22,6 +22,8 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar disparador")
 TITULO_EDITAR = N_("Editar disparador")
+AYUDA_TARJETA = N_(
+    "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.")
 
 
 def _cuandos():
@@ -126,7 +128,8 @@ class DialogoDisparador(wx.Dialog):
 
         vs.Add(fila_label(panel, _("&Texto de la tarjeta:")), 0,
                wx.LEFT | wx.RIGHT, 8)
-        self.txt_tarjeta = self._campo(panel, _("&Texto de la tarjeta:"))
+        self.txt_tarjeta = self._campo(
+            panel, _("&Texto de la tarjeta:"), _(AYUDA_TARJETA))
         vs.Add(self.txt_tarjeta, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
         vs.Add(fila_label(panel, _("Esti&lo:")), 0, wx.LEFT | wx.RIGHT, 8)
@@ -324,6 +327,8 @@ class DialogoDisparador(wx.Dialog):
                 return self.txt_minimo
         if (not (disparador.medio or "").strip()
                 and not (disparador.tarjeta or "").strip()):
+            return self.txt_tarjeta
+        if disparadores.variables_desconocidas(disparador.tarjeta):
             return self.txt_tarjeta
         return self.txt_nombre
 

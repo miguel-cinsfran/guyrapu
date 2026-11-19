@@ -25,7 +25,8 @@ NOMBRES_ACCESIBLES = (
     "Comandos del chat", "Evento", "Cantidad mínima",
     "Nombre del regalo. Vacío para cualquier regalo. Escribe el nombre "
     "como lo lee Guyrapu",
-    "Medio", "Texto de la tarjeta", "Estilo", "Segundos en pantalla",
+    "Medio", "Texto de la tarjeta. Puedes usar {usuario}, {cantidad}, "
+    "{regalo}, {texto} y {contador}.", "Estilo", "Segundos en pantalla",
     "Permiso", "Nombres permitidos", "Espera general (segundos)",
     "Espera por persona (segundos)", "Aceptar", "Cancelar")
 
@@ -174,6 +175,12 @@ class TestCampos(BaseCuadro):
         self.assertEqual(
             (cuadro.sp_persona.GetMin(), cuadro.sp_persona.GetMax()),
             (0, 3600))
+
+    def test_p7_el_campo_de_la_tarjeta_dice_las_variables(self):
+        nombre = self._cuadro().txt_tarjeta.GetName()
+        for variable in ("{usuario}", "{cantidad}", "{regalo}",
+                         "{texto}", "{contador}"):
+            self.assertIn(variable, nombre)
 
     def test_escape_cierra_el_cuadro(self):
         evento = mock.Mock()
@@ -362,6 +369,26 @@ class TestValidacion(BaseCuadro):
         cuadro = self._cuadro()
         cuadro.txt_nombre.SetValue("aplauso")
         cuadro.txt_comandos.SetValue("aplauso")
+        with mock.patch.object(cuadro.txt_tarjeta, "SetFocus") as foco:
+            self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+
+    def test_p6_una_variable_que_no_existe_muestra_su_error(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("aplauso")
+        cuadro.txt_comandos.SetValue("aplauso")
+        cuadro.txt_tarjeta.SetValue("Hola {nada}")
+        decir = self._aceptar_con_error(cuadro)
+        self.assertEqual(
+            decir.call_args.args[0],
+            "La variable {nada} no existe. Puedes usar {usuario}, "
+            "{cantidad}, {regalo}, {texto} y {contador}.")
+
+    def test_p6_una_variable_que_no_existe_deja_el_foco_en_la_tarjeta(self):
+        cuadro = self._cuadro()
+        cuadro.txt_nombre.SetValue("aplauso")
+        cuadro.txt_comandos.SetValue("aplauso")
+        cuadro.txt_tarjeta.SetValue("Hola {nada}")
         with mock.patch.object(cuadro.txt_tarjeta, "SetFocus") as foco:
             self._aceptar_con_error(cuadro)
         foco.assert_called_once()

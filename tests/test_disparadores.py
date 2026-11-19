@@ -325,6 +325,140 @@ class TestCantidad(unittest.TestCase):
                     numero, disparadores.cantidad_de(f"{numero} diamantes"))
 
 
+class TestTarjeta(unittest.TestCase):
+
+    def test_p1_el_usuario_es_el_autor_en_los_cuatro_casos(self):
+        casos = (
+            (_comando(tarjeta="{usuario}"), _evento("!aplauso")),
+            (_de_evento(tarjeta="{usuario}"),
+             _evento(texto="", tipo="superchat", monto="US$5.00")),
+            (_de_evento(tarjeta="{usuario}", regalo="Rosa"),
+             _evento(texto="Rosa x5", tipo="superchat",
+                     monto="500 diamantes", plataforma=plataformas.TIKTOK)),
+            (_comando(cuando="atajo", atajo=1, tarjeta="{usuario}"),
+             _evento("")),
+        )
+        for disparador, evento in casos:
+            with self.subTest(cuando=disparador.cuando):
+                self.assertEqual(
+                    "Ana", disparadores.texto_de_tarjeta(
+                        disparador, evento, 1, []))
+
+    def test_p1_el_usuario_sale_con_las_palabras_bloqueadas_tapadas(self):
+        self.assertEqual(
+            "***", disparadores.texto_de_tarjeta(
+                _comando(tarjeta="{usuario}"), _evento("!aplauso"),
+                1, ["ana"]))
+
+    def test_p2_la_cantidad_es_el_monto_tal_cual(self):
+        casos = (
+            (_comando(tarjeta="{cantidad}"),
+             _evento("!aplauso", monto="5,00 US$"), "5,00 US$"),
+            (_de_evento(tarjeta="{cantidad}"),
+             _evento(texto="", tipo="superchat", monto="US$5.00"),
+             "US$5.00"),
+            (_de_evento(tarjeta="{cantidad}", regalo="Rosa"),
+             _evento(texto="Rosa x5", tipo="superchat",
+                     monto="500 diamantes", plataforma=plataformas.TIKTOK),
+             "500 diamantes"),
+            (_de_evento(tarjeta="{cantidad}", evento="me_gusta"),
+             _evento(texto="", tipo="me_gusta", monto="500"), "500"),
+            (_comando(cuando="atajo", atajo=1, tarjeta="{cantidad}"),
+             _evento(""), ""),
+        )
+        for disparador, evento, esperado in casos:
+            with self.subTest(cuando=disparador.cuando):
+                self.assertEqual(
+                    esperado, disparadores.texto_de_tarjeta(
+                        disparador, evento, 1, []))
+
+    def test_p3_el_regalo_es_el_nombre_sin_la_racha(self):
+        self.assertEqual(
+            "Rosa", disparadores.texto_de_tarjeta(
+                _de_evento(tarjeta="{regalo}", regalo="Rosa"),
+                _evento(texto="Rosa x5", tipo="superchat",
+                        monto="500 diamantes", plataforma=plataformas.TIKTOK),
+                1, []))
+
+    def test_p3_el_regalo_esta_vacio_en_los_demas_eventos(self):
+        casos = (
+            (_comando(tarjeta="{regalo}"), _evento("!aplauso")),
+            (_de_evento(tarjeta="{regalo}"),
+             _evento(texto="Rosa x5", tipo="superchat", monto="US$5.00")),
+            (_comando(cuando="atajo", atajo=1, tarjeta="{regalo}"),
+             _evento("Rosa x5", plataforma=plataformas.TIKTOK)),
+        )
+        for disparador, evento in casos:
+            with self.subTest(cuando=disparador.cuando):
+                self.assertEqual(
+                    "", disparadores.texto_de_tarjeta(
+                        disparador, evento, 1, []))
+
+    def test_p4_el_texto_es_lo_que_sigue_al_comando(self):
+        self.assertEqual(
+            "hola mundo", disparadores.texto_de_tarjeta(
+                _comando(tarjeta="{texto}"), _evento("!aplauso hola mundo"),
+                1, []))
+
+    def test_p4_el_texto_de_un_evento_es_su_mensaje(self):
+        self.assertEqual(
+            "Gran directo", disparadores.texto_de_tarjeta(
+                _de_evento(tarjeta="{texto}"),
+                _evento(texto="Gran directo", tipo="superchat",
+                        monto="US$5.00"),
+                1, []))
+
+    def test_p4_el_texto_de_un_regalo_con_racha_es_el_del_evento(self):
+        self.assertEqual(
+            "Rosa x5", disparadores.texto_de_tarjeta(
+                _de_evento(tarjeta="{texto}", regalo="Rosa"),
+                _evento(texto="Rosa x5", tipo="superchat",
+                        monto="500 diamantes", plataforma=plataformas.TIKTOK),
+                1, []))
+
+    def test_p4_un_atajo_no_lleva_texto(self):
+        self.assertEqual(
+            "", disparadores.texto_de_tarjeta(
+                _comando(cuando="atajo", atajo=1, tarjeta="{texto}"),
+                _evento("!aplauso algo"), 1, []))
+
+    def test_p4_el_texto_sale_con_las_palabras_bloqueadas_tapadas(self):
+        self.assertEqual(
+            "hola ***", disparadores.texto_de_tarjeta(
+                _comando(tarjeta="{texto}"), _evento("!aplauso hola tonto"),
+                1, ["tonto"]))
+
+    def test_p4_el_texto_se_corta_en_cien_caracteres(self):
+        self.assertEqual(
+            "a" * 100, disparadores.texto_de_tarjeta(
+                _comando(tarjeta="{texto}"),
+                _evento("!aplauso " + "a" * 120), 1, []))
+
+    def test_p4_el_texto_casi_todo_simbolos_queda_vacio(self):
+        self.assertEqual(
+            "", disparadores.texto_de_tarjeta(
+                _comando(tarjeta="{texto}"), _evento("!aplauso !!!!!!!!!"),
+                1, []))
+
+    def test_p5_el_contador_es_el_que_recibe(self):
+        casos = (
+            (_comando(tarjeta="{contador}"), _evento("!aplauso")),
+            (_de_evento(tarjeta="{contador}"),
+             _evento(texto="Gran directo", tipo="superchat",
+                     monto="US$5.00")),
+            (_de_evento(tarjeta="{contador}", regalo="Rosa"),
+             _evento(texto="Rosa x5", tipo="superchat",
+                     monto="500 diamantes", plataforma=plataformas.TIKTOK)),
+            (_comando(cuando="atajo", atajo=1, tarjeta="{contador}"),
+             _evento("")),
+        )
+        for disparador, evento in casos:
+            with self.subTest(cuando=disparador.cuando):
+                self.assertEqual(
+                    "3", disparadores.texto_de_tarjeta(
+                        disparador, evento, 3, []))
+
+
 class TestValidar(unittest.TestCase):
 
     def test_un_disparador_valido_no_da_error(self):
@@ -366,6 +500,18 @@ class TestValidar(unittest.TestCase):
     def test_un_que_sin_medio_ni_tarjeta(self):
         error = disparadores.validar(_comando(medio=""), [])
         self.assertIn("medio", error)
+
+    def test_p6_una_variable_que_no_existe_da_su_error(self):
+        self.assertEqual(
+            "La variable {nada} no existe. Puedes usar {usuario}, "
+            "{cantidad}, {regalo}, {texto} y {contador}.",
+            disparadores.validar(_comando(tarjeta="Hola {nada}"), []))
+
+    def test_p6_las_cinco_variables_no_dan_error(self):
+        self.assertEqual(
+            "", disparadores.validar(
+                _comando(tarjeta="{usuario} {cantidad} {regalo} {texto} "
+                                  "{contador}"), []))
 
 
 if __name__ == "__main__":

@@ -13,10 +13,11 @@ from dataclasses import dataclass
 
 from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core.idioma import N_, _
-from guyrapu.interaction import comandos
+from guyrapu.interaction import comandos, filtro_publico
 from guyrapu.interaction.texto import normalizar
 
 CUANDOS = ("comando", "evento", "atajo")
+VARIABLES = ("usuario", "cantidad", "regalo", "texto", "contador")
 EVENTOS_DEL_DIRECTO = tuple(tipo for tipo, _modo in avisos_tiktok.EVENTOS
                             if tipo != "comando")
 NOMBRES_EVENTOS = {
@@ -148,6 +149,38 @@ def cumplidos(disparadores, evento, esperas, ahora) -> list[Disparador]:
     return logrados
 
 
+def _texto_publico(disparador: Disparador, evento) -> str:
+    if disparador.cuando == "comando":
+        invocacion = comandos.leer(evento.texto)
+        return invocacion.argumentos if invocacion is not None else ""
+    if disparador.cuando == "evento":
+        return evento.texto or ""
+    return ""
+
+
+def _nombre_del_regalo(disparador: Disparador, evento) -> str:
+    if (disparador.cuando == "evento" and disparador.evento == "superchat"
+            and evento.plataforma == plataformas.TIKTOK):
+        return _RACHA_RE.sub("", evento.texto or "")
+    return ""
+
+
+def texto_de_tarjeta(disparador: Disparador, evento, contador,
+                     bloqueadas) -> str:
+    """El texto de la tarjeta con sus variables ya llenas."""
+    publico = _texto_publico(disparador, evento)
+    if filtro_publico.es_casi_todo_simbolos(publico):
+        publico = ""
+    publico = filtro_publico.tapar(publico, bloqueadas)[:100]
+    texto = (disparador.tarjeta or "").replace(
+        "{usuario}",
+        filtro_publico.tapar(evento.autor or "", bloqueadas))
+    texto = texto.replace("{cantidad}", evento.monto or "")
+    texto = texto.replace("{regalo}", _nombre_del_regalo(disparador, evento))
+    texto = texto.replace("{contador}", str(contador))
+    return texto.replace("{texto}", publico)
+
+
 def _error_de_nombre(disparador: Disparador, otros) -> str:
     if not normalizar(disparador.nombre):
         # Traductores: validación de disparadores del directo (error).
@@ -223,6 +256,27 @@ def _error_de_que(disparador: Disparador) -> str:
     return ""
 
 
+def variables_desconocidas(tarjeta) -> list[str]:
+    return [variable
+            for variable in comandos._VARIABLE_RE.findall(tarjeta or "")
+            if variable not in VARIABLES]
+
+
+def _error_de_variables(disparador: Disparador) -> str:
+    desconocidas = variables_desconocidas(disparador.tarjeta)
+    if desconocidas:
+        # Traductores: validación de disparadores del directo (error). {variable} es la variable desconocida y las demás son las que se pueden usar.
+        return _("La variable {variable} no existe. Puedes usar {usuario}, "
+                 "{cantidad}, {regalo}, {texto} y {contador}.").format(
+                     variable="{" + desconocidas[0] + "}",
+                     usuario="{" + VARIABLES[0] + "}",
+                     cantidad="{" + VARIABLES[1] + "}",
+                     regalo="{" + VARIABLES[2] + "}",
+                     texto="{" + VARIABLES[3] + "}",
+                     contador="{" + VARIABLES[4] + "}")
+    return ""
+
+
 def validar(disparador: Disparador, otros) -> str:
     """Un texto de error, o "" si el disparador se puede guardar."""
     return (_error_de_nombre(disparador, otros)
@@ -230,4 +284,5 @@ def validar(disparador: Disparador, otros) -> str:
             or _error_de_comando(disparador, otros)
             or _error_de_atajo(disparador, otros)
             or _error_de_evento(disparador)
-            or _error_de_que(disparador))
+            or _error_de_que(disparador)
+            or _error_de_variables(disparador))
