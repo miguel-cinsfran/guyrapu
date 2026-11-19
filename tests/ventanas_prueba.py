@@ -25,6 +25,37 @@ def app_de_prueba():
     return _APP
 
 
+def armar_preferencias(config, *titulos):
+    """Abre Preferencias en modo perezoso y arma solo las páginas pedidas.
+
+    Los títulos son los visibles en la lista de categorías. Quien llama pone
+    sus propios `mock.patch` alrededor y destruye el cuadro al terminar.
+    """
+    from guyrapu.ui import gui_preferencias
+    app_de_prueba()
+    dialogo = gui_preferencias.PreferenciasDialog(
+        None, config, perezosa=True)
+    try:
+        for titulo in titulos:
+            dialogo._libro_perezoso.construir(_indice(dialogo, titulo))
+    except ValueError:
+        destruir(dialogo)
+        raise
+    return dialogo
+
+
+def _indice(dialogo, titulo):
+    for i in range(dialogo.nb.GetPageCount()):
+        if dialogo.nb.GetPageText(i) in (titulo, f"[¡{titulo}!]"):
+            return i
+    raise ValueError(f"No está la categoría {titulo}")
+
+
+def pagina_por_titulo(dialogo, titulo):
+    """Devuelve el panel real de una categoría, no el panel vacío del libro."""
+    return dialogo._libro_perezoso._paneles[_indice(dialogo, titulo)]
+
+
 def destruir(ventana) -> None:
     """Libera la ventana con Destroy y SafeYield; nunca lanza."""
     try:

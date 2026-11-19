@@ -17,7 +17,7 @@ from guyrapu.core import config_predeterminada as pred
 from guyrapu.core import idioma
 from guyrapu.core import musica_decir
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import app_de_prueba, armar_preferencias, destruir
 from pathlib import Path
 
 
@@ -272,7 +272,7 @@ class TestIdiomaEnPreferencias(unittest.TestCase):
 
     def _dialogo(self, config=None):
         with mock.patch.object(motores, "listar_voces", return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, config or {})
+            dialogo = armar_preferencias(config or {}, "General")
         self.addCleanup(destruir, dialogo)
         return dialogo
 

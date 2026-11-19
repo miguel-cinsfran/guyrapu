@@ -13,11 +13,11 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.core import config
-from guyrapu.ui import gui_preferencias
 from guyrapu.voice import motores
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 
 
 class TestApiSinTextosSinEnvolver(unittest.TestCase):
@@ -35,15 +35,12 @@ class TestApiSinTextosSinEnvolver(unittest.TestCase):
     def _dialogo(self, configuracion=None):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "YouTube")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
     def _pagina(self, dialogo):
-        return next(dialogo.nb.GetPage(i)
-                    for i in range(dialogo.nb.GetPageCount())
-                    if dialogo.nb.GetPage(i).GetName() == "PagApi")
+        return pagina_por_titulo(dialogo, "YouTube")
 
     def test_no_queda_ningun_texto_visible_sin_envolver(self):
         with con_pseudo():

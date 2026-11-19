@@ -11,10 +11,11 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.core import config
-from guyrapu.ui import gui, gui_preferencias
+from guyrapu.ui import gui
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 
 
 class TestUmbralEnSizer(unittest.TestCase):
@@ -38,14 +39,12 @@ class TestUmbralEnSizer(unittest.TestCase):
     def _dialogo(self, configuracion=None):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Cola de lectura")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
     def _pagina_cola(self, dialogo):
-        return next(p for p in dialogo._paginas()
-                    if p.GetName() == "PagCola")
+        return pagina_por_titulo(dialogo, "Cola de lectura")
 
     def test_contador_esta_en_el_sizer_de_la_pagina(self):
         dialogo = self._dialogo()

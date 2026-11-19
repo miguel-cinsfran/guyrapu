@@ -17,7 +17,8 @@ from guyrapu.ui import gui, gui_aplicar_preferencias, gui_preferencias
 from guyrapu.ui import preferencias_transmision
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 
 
 IGUAL_PRINCIPAL = "Igual que la voz principal"
@@ -61,8 +62,7 @@ class TestBloqueVozSecundaria(unittest.TestCase):
     def _dialogo(self, configuracion=None, voces=("Voz A", "Voz B")):
         with mock.patch.object(motores, "listar_voces",
                                return_value=list(voces)):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Voces")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -153,8 +153,7 @@ class TestBloqueVozSecundaria(unittest.TestCase):
         with mock.patch.object(
                 motores, "listar_voces",
                 side_effect=lambda motor: list(voces_por_motor.get(motor, []))):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion)
+            dialogo = armar_preferencias(configuracion, "Voces")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -250,8 +249,8 @@ class TestBloqueVozSecundaria(unittest.TestCase):
                     "onecore": ["Voz C", "Voz B"]}.get(motor, [])
 
         with mock.patch.object(motores, "listar_voces", side_effect=voces):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, {"motor": "sapi", "voz_secundaria": "Voz B"})
+            dialogo = armar_preferencias(
+                {"motor": "sapi", "voz_secundaria": "Voz B"}, "Voces")
         self.addCleanup(destruir, dialogo)
         bloque = self._bloque(dialogo)
         pagina = dialogo.pagina_voz
@@ -270,8 +269,8 @@ class TestBloqueVozSecundaria(unittest.TestCase):
                     "onecore": ["Voz C"]}.get(motor, [])
 
         with mock.patch.object(motores, "listar_voces", side_effect=voces):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, {"motor": "sapi", "voz_secundaria": "Voz B"})
+            dialogo = armar_preferencias(
+                {"motor": "sapi", "voz_secundaria": "Voz B"}, "Voces")
         self.addCleanup(destruir, dialogo)
         bloque = self._bloque(dialogo)
         pagina = dialogo.pagina_voz
@@ -349,8 +348,7 @@ class TestBloqueVozSecundaria(unittest.TestCase):
 
     def test_los_mnemonicos_de_voces_no_se_repiten(self):
         dialogo = self._dialogo()
-        pagina = next(p for p in dialogo._paginas()
-                      if p.GetName() == "PagVoz")
+        pagina = pagina_por_titulo(dialogo, "Voces")
         letras = _letras_acceso(pagina)
         self.assertEqual(len(letras), len(set(letras)), letras)
 

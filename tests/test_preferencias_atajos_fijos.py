@@ -15,11 +15,10 @@ from unittest import mock
 import wx
 
 from guyrapu.core import config
-from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_atajos
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import app_de_prueba, armar_preferencias, destruir
 
 
 ACCION_FIJA = "salir"
@@ -42,7 +41,7 @@ class TestAtajosFijos(unittest.TestCase):
     def _pagina(self):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "Atajos")
         self.addCleanup(destruir, dialogo)
         return dialogo.pagina_atajos
 

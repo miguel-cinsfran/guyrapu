@@ -18,7 +18,8 @@ from guyrapu.ui import gui, gui_preferencias
 from guyrapu.ui import preferencias_transmision
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 
 
 # Valores literales, no leídos de la página: así protegen el orden en vez
@@ -92,19 +93,25 @@ class BaseEventos(unittest.TestCase):
     def _dialogo(self, configuracion=None):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(
+                configuracion or {}, "Eventos del directo", "Lectura")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
-    def _pagina(self, dialogo, nombre):
-        return next(p for p in dialogo._paginas()
-                    if p.GetName() == nombre)
+    def _dialogo_completo(self):
+        with mock.patch.object(motores, "listar_voces",
+                               return_value=["Voz de prueba"]):
+            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def _pagina(self, dialogo, titulo):
+        return pagina_por_titulo(dialogo, titulo)
 
 
 class TestCategoriaEventos(BaseEventos):
     def test_la_categoria_va_justo_despues_de_la_cola_de_lectura(self):
-        dialogo = self._dialogo()
+        dialogo = self._dialogo_completo()
         textos = [dialogo.nb.GetPageText(i)
                   for i in range(dialogo.nb.GetPageCount())]
         self.assertIn("Cola de lectura", textos)
@@ -113,7 +120,7 @@ class TestCategoriaEventos(BaseEventos):
 
     def test_la_pagina_tiene_las_listas_y_agrupaciones_en_orden_de_tab(self):
         dialogo = self._dialogo()
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         por_control = {id(getattr(dialogo, atributo)): atributo
                        for atributo in CONTROLES_EN_ORDEN}
         nombres = []
@@ -160,7 +167,7 @@ class TestControlesEventos(BaseEventos):
 
     def test_las_etiquetas_van_en_el_orden_pedido(self):
         dialogo = self._dialogo()
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         etiquetas = [h.GetLabel() for h in pagina.GetChildren()
                      if isinstance(h, gui.wx.StaticText)]
         esperadas = []
@@ -181,7 +188,7 @@ class TestControlesEventos(BaseEventos):
                          "Agrupar me gusta durante, en segundos")
         self.assertEqual((contador.GetMin(), contador.GetMax()), (1, 120))
         self.assertEqual(contador.GetValue(), 10)
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         controles = [h for h in pagina.GetChildren()
                      if isinstance(h, (gui.wx.Choice, gui.wx.SpinCtrl))]
         indice = controles.index(dialogo.cho_evento_me_gusta)
@@ -198,7 +205,7 @@ class TestControlesEventos(BaseEventos):
             contador.GetName(), "Agrupar entradas durante, en segundos")
         self.assertEqual((contador.GetMin(), contador.GetMax()), (1, 120))
         self.assertEqual(contador.GetValue(), 10)
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         controles = [h for h in pagina.GetChildren()
                      if isinstance(h, (gui.wx.Choice, gui.wx.SpinCtrl,
                                        gui.wx.CheckBox))]
@@ -214,7 +221,7 @@ class TestControlesEventos(BaseEventos):
         self.assertEqual(
             dialogo.chk_agrupar_me_gusta.GetName(), "Agrupar me gusta")
         self.assertTrue(dialogo.chk_agrupar_me_gusta.GetValue())
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         controles = [h for h in pagina.GetChildren()
                      if isinstance(h, (gui.wx.Choice, gui.wx.SpinCtrl,
                                        gui.wx.CheckBox))]
@@ -234,7 +241,7 @@ class TestControlesEventos(BaseEventos):
 
     def test_la_grilla_va_directo_en_el_panel_sin_recuadro(self):
         dialogo = self._dialogo()
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         grillas = [it.GetSizer() for it in pagina.GetSizer().GetChildren()
                    if isinstance(it.GetSizer(), gui.wx.FlexGridSizer)]
         self.assertEqual(len(grillas), 1)
@@ -256,7 +263,7 @@ class TestControlesEventos(BaseEventos):
             casilla.GetName(),
             "Anunciar qué plataforma tiene cada mensaje cuando hay varios chats")
         self.assertFalse(casilla.GetValue())
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         controles = [h for h in pagina.GetChildren()
                      if isinstance(h, (gui.wx.Choice, gui.wx.CheckBox))]
         indice = controles.index(sonido)
@@ -277,7 +284,7 @@ class TestControlesEventos(BaseEventos):
 
     def test_los_mnemonicos_de_eventos_no_se_repiten(self):
         dialogo = self._dialogo()
-        pagina = self._pagina(dialogo, "PagEventos")
+        pagina = self._pagina(dialogo, "Eventos del directo")
         letras = _letras_acceso(pagina)
         self.assertEqual(len(letras), len(set(letras)), letras)
 
@@ -285,7 +292,7 @@ class TestControlesEventos(BaseEventos):
 class TestLecturaSinEventos(BaseEventos):
     def test_la_pagina_lectura_ya_no_tiene_listas_de_eventos(self):
         dialogo = self._dialogo()
-        pagina = self._pagina(dialogo, "PagLectura")
+        pagina = self._pagina(dialogo, "Lectura")
         nombres = set()
         pendientes = [pagina]
         while pendientes:

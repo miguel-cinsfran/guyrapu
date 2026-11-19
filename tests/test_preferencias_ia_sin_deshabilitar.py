@@ -18,13 +18,12 @@ import wx
 from guyrapu.ai import catalogo
 from guyrapu.ai import protocolos
 from guyrapu.capture import redaccion
-from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
 from guyrapu.ui import preferencias_ia_lista
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import app_de_prueba, armar_preferencias, destruir
 
 BASE_PROBAR = "Compro&bar clave"
 PROBANDO = redaccion.etiqueta_con_motivo(BASE_PROBAR, "Probando la clave")
@@ -73,7 +72,7 @@ class _PaginaIA(unittest.TestCase):
                 mock.patch.object(
                     preferencias_ia.catalogo, "cargar",
                     return_value=muestra or _catalogo_de_prueba()):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "Inteligencia artificial")
         self.addCleanup(destruir, dialogo)
         return dialogo
 

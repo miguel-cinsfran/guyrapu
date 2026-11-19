@@ -14,7 +14,8 @@ from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_camara
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 from pathlib import Path
 
 
@@ -45,8 +46,7 @@ class TestPaginaCamara(unittest.TestCase):
 
     def _dialogo(self, configuracion=None):
         with mock.patch.object(motores, "listar_voces", return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Cámara")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -133,8 +133,7 @@ class TestPaginaCamara(unittest.TestCase):
 
     def test_los_atajos_globales_quedan_al_final_de_la_pagina(self):
         dialogo = self._dialogo({})
-        pagina = dialogo.nb.GetPage(
-            self._indice_categoria(dialogo, "Cámara"))
+        pagina = pagina_por_titulo(dialogo, "Cámara")
         hijos = [h for h in pagina.GetChildren() if h.IsShown()]
         self.assertIs(hijos[-1],
                       dialogo.pagina_camara.chk_escena_atajos_globales)

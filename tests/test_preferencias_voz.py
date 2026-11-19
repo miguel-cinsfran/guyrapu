@@ -12,12 +12,12 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from guyrapu.ui import gui_preferencias
 from guyrapu.voice import motores
 from guyrapu.voice import reproductor_pcm
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 
 
 # Textos que arma otro módulo y aparecen en la parte recorrida: no se
@@ -43,15 +43,14 @@ class TestPseudoVoz(unittest.TestCase):
         with mock.patch.object(motores, "listar_voces", return_value=[]), \
                 mock.patch.object(reproductor_pcm, "listar_salidas",
                                   return_value=[]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "Voces")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
     def test_no_queda_ningun_texto_visible_sin_envolver(self):
         with con_pseudo():
             dialogo = self._dialogo()
-            pagina = next(p for p in dialogo._paginas()
-                          if p.GetName() == "PagVoz")
+            pagina = pagina_por_titulo(dialogo, "Voces")
             sin_marcar = textos_sin_marcar(pagina)
 
         self.assertEqual(sorted(sin_marcar),
@@ -72,7 +71,7 @@ class TestSalidaDeVoz(unittest.TestCase):
                                return_value=["Voz A"]), \
                 mock.patch.object(reproductor_pcm, "listar_salidas",
                                   return_value=salidas):
-            dialogo = gui_preferencias.PreferenciasDialog(None, configuracion)
+            dialogo = armar_preferencias(configuracion, "Voces")
         self.addCleanup(destruir, dialogo)
         return dialogo
 

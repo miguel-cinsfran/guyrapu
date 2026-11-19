@@ -18,13 +18,14 @@ import wx
 from guyrapu.ai import catalogo
 from guyrapu.ai import opciones_ia
 from guyrapu.ai import protocolos
-from guyrapu.ui import confirmar, gui, gui_preferencias
+from guyrapu.ui import confirmar, gui
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
 from guyrapu.voice import motores
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 
 
 class TestPseudoIA(unittest.TestCase):
@@ -51,15 +52,14 @@ class TestPseudoIA(unittest.TestCase):
     def _dialogo(self):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "Inteligencia artificial")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
     def test_no_queda_ningun_texto_visible_sin_envolver(self):
         with con_pseudo():
             dialogo = self._dialogo()
-            pagina = next(p for p in dialogo._paginas()
-                          if p.GetName() == "PagIA")
+            pagina = pagina_por_titulo(dialogo, "Inteligencia artificial")
             sin_marcar = textos_sin_marcar(pagina)
 
         self.assertEqual([], sin_marcar)
@@ -108,7 +108,7 @@ class TestDisenoIA(unittest.TestCase):
     def _dialogo(self):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "Inteligencia artificial")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -303,7 +303,7 @@ class TestModeloElegidoDeLaPagina(unittest.TestCase):
     def test_recibe_el_id_de_la_lista_y_el_texto_de_otro(self):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "Inteligencia artificial")
         self.addCleanup(destruir, dialogo)
         pagina = dialogo.pagina_ia
         self.assertEqual(["gemini-uno", "gemini-dos"],

@@ -17,7 +17,7 @@ from guyrapu.ui import (clave_elevenlabs, espera_sonora, gui_preferencias,
 from guyrapu.ui import preferencias_transmision
 from guyrapu.voice import motores
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import app_de_prueba, armar_preferencias, destruir
 
 NO_HAY_VOCES = "(no hay voces instaladas: usa Administrar voces)"
 NO_HAY_RESPALDO = "(no hay voces disponibles)"
@@ -47,8 +47,7 @@ class TestListasDeVozSinDeshabilitar(unittest.TestCase):
                 mock.patch.object(
                     preferencias_voz.credenciales, "cargar",
                     return_value={"elevenlabs_clave": clave} if clave else {}):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Voces")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
