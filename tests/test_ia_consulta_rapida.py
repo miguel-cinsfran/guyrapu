@@ -20,6 +20,7 @@ except Exception:
 
 from guyrapu.ai import consulta
 from guyrapu.ai import protocolos
+from guyrapu.player import fotograma_video
 from guyrapu.ui import ia_consulta_rapida as rapida
 from tests.pseudo_prueba import con_pseudo
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -168,16 +169,84 @@ class TestConsultaRapida(unittest.TestCase):
                                             "Respuesta: Se ve bien."])
         self.assertIsNone(rapida.tomar_conversacion(self.marco))
 
-    def test_obs_cerrado_avisa_y_no_hace_nada(self):
+    def test_obs_abierto_no_toca_el_reproductor(self):
+        with mock.patch.object(rapida.fotograma_video,
+                               "reproductor_de") as desde, \
+                mock.patch.object(rapida.fotograma_video,
+                                  "capturar") as capturar:
+            rapida.consultar(self.marco)
+        desde.assert_not_called()
+        capturar.assert_not_called()
+        self.assertTrue(rapida.tomar_conversacion(self.marco)[0].filas)
+
+    def _con_video_en_el_reproductor(self):
+        reproductor = mock.Mock()
+        reproductor.has_vout.return_value = 1
+        self.marco._rep_panel = SimpleNamespace(_player=reproductor)
+        return reproductor
+
+    def test_obs_cerrado_con_video_captura_y_sigue_como_escena(self):
+        reproductor = self._con_video_en_el_reproductor()
+        with mock.patch.object(rapida.obs_activacion,
+                               "obs_esta_en_ejecucion", return_value=False), \
+                mock.patch.object(rapida.fotograma_video, "capturar",
+                                  return_value=(b"jpg-falso", 640, 360)) as capturar:
+            rapida.consultar(self.marco)
+        capturar.assert_called_once_with(reproductor)
+        self.m_gestor.descripcion_escena.assert_not_called()
+        self.assertEqual(
+            self.m_sonar.mock_calls,
+            [mock.call("ia_enviada"), mock.call("ia_respuesta")])
+        charla, descripcion = rapida.tomar_conversacion(self.marco)
+        self.assertEqual(descripcion, "")
+        self.assertTrue(charla.filas[0].startswith(
+            "Captura: Fotograma del vídeo, "))
+        self.assertEqual(charla.filas[1:], ["Pregunta: ¿qué se ve?",
+                                            "Respuesta: Se ve bien."])
+
+    def test_obs_cerrado_sin_panel_avisa_y_no_hace_nada(self):
+        marco = mock.MagicMock(spec=["IsBeingDeleted", "Bind"])
+        marco.IsBeingDeleted.return_value = False
+        with mock.patch.object(rapida.obs_activacion,
+                               "obs_esta_en_ejecucion", return_value=False), \
+                mock.patch.object(rapida.diagnostico,
+                                   "crear_hilo") as hilo:
+            rapida.consultar(marco)
+        self.m_anunciar.assert_called_once_with(
+            "OBS no está abierto y el reproductor no muestra vídeo.")
+        self.m_sonar.assert_called_once_with("ia_error")
+        hilo.assert_not_called()
+        self.assertIsNone(rapida.tomar_conversacion(marco))
+
+    def test_obs_cerrado_sin_video_avisa_y_no_hace_nada(self):
+        reproductor = mock.Mock()
+        reproductor.has_vout.return_value = 0
+        self.marco._rep_panel = SimpleNamespace(_player=reproductor)
         with mock.patch.object(rapida.obs_activacion,
                                "obs_esta_en_ejecucion", return_value=False), \
                 mock.patch.object(rapida.diagnostico,
                                    "crear_hilo") as hilo:
             rapida.consultar(self.marco)
         self.m_anunciar.assert_called_once_with(
-            rapida.ia_agregar_captura.TEXTO_OBS_CERRADO)
+            "OBS no está abierto y el reproductor no muestra vídeo.")
         self.m_sonar.assert_called_once_with("ia_error")
         hilo.assert_not_called()
+        self.assertIsNone(rapida.tomar_conversacion(self.marco))
+
+    def test_fallo_del_fotograma_avisa_y_no_envia(self):
+        self._con_video_en_el_reproductor()
+        with mock.patch.object(rapida.obs_activacion,
+                               "obs_esta_en_ejecucion", return_value=False), \
+                mock.patch.object(rapida.fotograma_video, "capturar",
+                                  side_effect=fotograma_video.FotogramaFallido(
+                                      "sin fotograma")), \
+                mock.patch.object(rapida.envio_ia, "enviar") as envio:
+            rapida.consultar(self.marco)
+        self.m_anunciar.assert_called_once_with(
+            "No se pudo capturar el fotograma del vídeo.")
+        self.m_sonar.assert_called_once_with("ia_error")
+        envio.assert_not_called()
+        self.assertFalse(self._instancia()._en_curso)
         self.assertIsNone(rapida.tomar_conversacion(self.marco))
 
     def test_captura_negra_no_envia(self):

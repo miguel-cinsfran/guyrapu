@@ -1,11 +1,12 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Preguntar a la IA sobre la escena actual, sin abrir ventanas.
+"""Preguntar a la IA por la escena o el vídeo, sin abrir ventanas.
 
-Ctrl+Mayús+F2 captura la escena actual de OBS, la envía con la
-instrucción de Preferencias y anuncia la respuesta. Al terminar, la
-conversación queda guardada en la instancia: la ventana Preguntar a la
-IA la toma con `tomar_conversacion` y arranca con ella.
+Ctrl+Mayús+F2 captura la escena actual de OBS, o el fotograma que muestra
+el reproductor si OBS no está abierto, lo envía con la instrucción de
+Preferencias y anuncia la respuesta. Al terminar, la conversación queda
+guardada en la instancia: la ventana Preguntar a la IA la toma con
+`tomar_conversacion` y arranca con ella.
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_captura_ia
 from guyrapu.obs import obs_cliente
 from guyrapu.obs.obs_panel import GestorPanelObs
+from guyrapu.player import fotograma_video
 from guyrapu.ui import ia_agregar_captura
 from guyrapu.ui import ia_privacidad
 from guyrapu.ui import ia_ventana
@@ -40,13 +42,19 @@ logger = diagnostico.obtener_logger(__name__)
 
 # Traductores: aviso cuando ya hay una consulta rápida en curso; se anuncia sin abrir nada.
 TEXTO_EN_CURSO = N_("Consulta rápida en curso.")
+# Traductores: aviso al pedir la consulta sin OBS y sin imagen en el reproductor.
+TEXTO_SIN_VIDEO = N_("OBS no está abierto y el reproductor no muestra vídeo.")
+# Traductores: aviso cuando libVLC no entrega el fotograma pedido.
+TEXTO_FOTOGRAMA_FALLIDO = N_("No se pudo capturar el fotograma del vídeo.")
+# Traductores: nombre de la captura en la conversación que hereda la ventana de IA.
+ETIQUETA_FOTOGRAMA = N_("Fotograma del vídeo")
 
 
 class ConsultaRapida:
     """Una consulta rápida por ventana principal, con su estado.
 
     Guarda la conversación que deja para la ventana Preguntar a la IA.
-    Al marco solo lo usa como padre: nunca lee sus atributos.
+    Al marco lo usa como padre y, sin OBS, para llegar al reproductor.
     """
 
     def __init__(self, frame):
@@ -86,8 +94,15 @@ class ConsultaRapida:
             anunciar(_(TEXTO_EN_CURSO))
             return
         if not obs_activacion.obs_esta_en_ejecucion():
-            anunciar(ia_agregar_captura.TEXTO_OBS_CERRADO)
-            reproducir("ia_error")
+            reproductor = fotograma_video.reproductor_de(marco)
+            if not fotograma_video.muestra_video(reproductor):
+                anunciar(_(TEXTO_SIN_VIDEO))
+                reproducir("ia_error")
+                return
+            self._en_curso = True
+            diagnostico.crear_hilo(
+                self._capturar_video_en_hilo, "ConsultaRapidaFotograma",
+                args=(reproductor,)).start()
             return
         self._en_curso = True
         diagnostico.crear_hilo(
@@ -119,6 +134,18 @@ class ConsultaRapida:
                                fallo)
         wx.CallAfter(self._vuelta_captura, opcion, captura,
                      self._descripcion_escena())
+
+    def _capturar_video_en_hilo(self, reproductor) -> None:
+        try:
+            (jpeg, ancho, alto) = fotograma_video.capturar(reproductor)
+        except Exception as fallo:
+            logger.warning("ConsultaRapida: sin fotograma: %s", fallo)
+            wx.CallAfter(self._vuelta_fallo, _(TEXTO_FOTOGRAMA_FALLIDO))
+            return
+        etiqueta = _(ETIQUETA_FOTOGRAMA)
+        opcion = obs_captura_ia.OpcionCaptura(etiqueta, etiqueta, ancho, alto)
+        captura = obs_captura_ia.Captura(jpeg, ancho, alto, None)
+        wx.CallAfter(self._vuelta_captura, opcion, captura, "")
 
     def _descripcion_escena(self) -> str:
         gestor = GestorPanelObs()
