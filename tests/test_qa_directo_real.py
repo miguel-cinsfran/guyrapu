@@ -518,6 +518,17 @@ class TestComentarioFaltante(unittest.TestCase):
         self.assertIsNone(leidos)
 
 
+class TestCodigoFinal(unittest.TestCase):
+
+    def test_un_paso_fallido_deja_codigo_uno(self):
+        import inspect
+
+        fuente = inspect.getsource(directo_real._correr)
+        self.assertIn(
+            "return (salida, 0 if all(bien for _, bien, _ in salida) else 1)",
+            fuente)
+
+
 class TestRegistroDeAvisosImportantes(unittest.TestCase):
 
     def test_un_modulo_importado_despues_registra_por_nombre(self):

@@ -223,6 +223,24 @@ class TestPasoEncuesta(unittest.TestCase):
                           "resultado de la encuesta en el chat"])
         self.assertTrue(all(p[1] for p in anotar.pasos))
 
+    def test_la_marca_se_toma_antes_de_abrir_la_encuesta(self):
+        anotar = _Anotador()
+        anuncios = []
+
+        def abrir():
+            anuncios.append(di.ANUNCIO_ENCUESTA)
+
+        def cerrar():
+            anuncios.append(di.RESULTADO_UNO)
+
+        pasos = _pasos(
+            anotar, abrir_encuesta=abrir, cerrar_encuesta=cerrar,
+            leer_anuncios=lambda ruta: "\n".join(anuncios),
+            respuesta=lambda: {"items": [{"snippet": {
+                "displayMessage": di.OPCION_UNO}}]})
+        self.assertTrue(pasos.encuesta())
+        self.assertTrue(all(bien for _, bien, _ in anotar.pasos))
+
     def test_sin_anuncio_de_apertura_anota_el_fallo(self):
         anotar = _Anotador()
         acciones = []
@@ -253,6 +271,26 @@ class TestPasoPregunta(unittest.TestCase):
         self.assertFalse(_pasos(anotar).pregunta())
         self.assertFalse(anotar.pasos[0][1])
         self.assertIn(di.TEXTO_PREGUNTA, anotar.pasos[0][2])
+
+
+class TestTodosLosPasos(unittest.TestCase):
+
+    def test_un_paso_fallido_no_impide_los_demas(self):
+        from unittest import mock
+
+        pasos = _pasos(_Anotador())
+        llamadas = []
+        for nombre in ("comando", "disparador", "encuesta", "pregunta",
+                       "meta"):
+            parche = mock.patch.object(
+                pasos, nombre,
+                lambda nombre=nombre: llamadas.append(nombre)
+                or nombre == "comando")
+            parche.start()
+            self.addCleanup(parche.stop)
+        self.assertFalse(pasos.todos())
+        self.assertEqual(llamadas, ["comando", "disparador", "encuesta",
+                                    "pregunta", "meta"])
 
 
 class TestPasoMeta(unittest.TestCase):

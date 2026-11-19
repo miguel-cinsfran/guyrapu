@@ -151,8 +151,9 @@ class Pasos:
         self.anotar(nombre, bien, detalle)
         return bien
 
-    def _anuncios(self, nombre, fragmento) -> bool:
-        marca = len(self.leer_anuncios(self.ruta_anuncios))
+    def _anuncios(self, nombre, fragmento, marca=None) -> bool:
+        if marca is None:
+            marca = len(self.leer_anuncios(self.ruta_anuncios))
 
         def leer():
             return self.leer_anuncios(self.ruta_anuncios)[marca:]
@@ -187,23 +188,25 @@ class Pasos:
                                TARJETA_RISA, self.texto_video)
 
     def encuesta(self) -> bool:
+        marca = len(self.leer_anuncios(self.ruta_anuncios))
         try:
             self.abrir_encuesta()
         except Exception as exc:
             self.anotar("encuesta abierta", False, f"no se pudo abrir: {exc}")
             return False
-        if not self._anuncios("encuesta abierta", ANUNCIO_ENCUESTA):
+        if not self._anuncios("encuesta abierta", ANUNCIO_ENCUESTA, marca):
             return False
         if not self._enviar("!1"):
             return False
         self.anotar("voto !1 contado", True, "votamos " + OPCION_UNO)
+        marca = len(self.leer_anuncios(self.ruta_anuncios))
         try:
             self.cerrar_encuesta()
         except Exception as exc:
             self.anotar("resultado de la encuesta", False,
                         f"no se pudo cerrar: {exc}")
             return False
-        if not self._anuncios("resultado de la encuesta", RESULTADO_UNO):
+        if not self._anuncios("resultado de la encuesta", RESULTADO_UNO, marca):
             return False
         return self._comprobar("resultado de la encuesta en el chat",
                                OPCION_UNO, self._en_chat(OPCION_UNO))
@@ -211,15 +214,17 @@ class Pasos:
     def pregunta(self) -> bool:
         if not self._enviar("!pregunta " + TEXTO_PREGUNTA):
             return False
+        marca = len(self.leer_anuncios(self.ruta_anuncios))
         try:
             self.leer_siguiente()
         except Exception as exc:
             self.anotar("leer siguiente pregunta", False,
                         f"no se pudo pedir: {exc}")
             return False
-        return self._anuncios("leer siguiente pregunta", TEXTO_PREGUNTA)
+        return self._anuncios("leer siguiente pregunta", TEXTO_PREGUNTA, marca)
 
     def meta(self) -> bool:
+        marca = len(self.leer_anuncios(self.ruta_anuncios))
         try:
             self.orden("agregar_mensaje_chat", "Miguel", TEXTO_SUPERCHAT,
                        "12:00", "superchat", "1", "",
@@ -227,15 +232,16 @@ class Pasos:
         except Exception as exc:
             self.anotar("meta de superchat cumplida", False, str(exc))
             return False
-        if not self._anuncios("meta de superchat cumplida", ANUNCIO_META):
+        if not self._anuncios("meta de superchat cumplida", ANUNCIO_META,
+                              marca):
             return False
         return self._comprobar("meta de superchat en la tarjeta",
                                NOMBRE_META, self.texto_video)
 
     def todos(self) -> bool:
-        return all(paso() for paso in (self.comando, self.disparador,
-                                       self.encuesta, self.pregunta,
-                                       self.meta))
+        bienes = [paso() for paso in (self.comando, self.disparador,
+                                      self.encuesta, self.pregunta, self.meta)]
+        return all(bienes)
 
 
 def _rotulo_limpio(texto) -> str:
@@ -322,8 +328,7 @@ class Interaccion:
         if not self.activo:
             return
         from guyrapu.core import paths
-        rutas = {clave: str(getattr(paths, clave)()) for clave in DATOS}
-        self._datos = Datos(rutas)
+        self._datos = Datos({clave: str(getattr(paths, clave)()) for clave in DATOS})
         self._datos.preparar()
         try:
             for nombre in ARCHIVOS_SONDA:

@@ -1452,7 +1452,7 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
         borrado_id = id_video
         id_video = ""
         enlace_manual = ""
-        return (salida, 0)
+        return (salida, 0 if all(bien for _, bien, _ in salida) else 1)
     finally:
         id_por_titulo = False
         if not id_video and (salio_al_aire or pulso_transmitir) \
