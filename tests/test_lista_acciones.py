@@ -483,6 +483,12 @@ class PruebaConListaCtrl(unittest.TestCase):
         evento.KeyCode = codigo
         self.lista.GetEventHandler().ProcessEvent(evento)
 
+    def _ctrl_a(self):
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = ord("A")
+        evento.SetControlDown(True)
+        self.lista.GetEventHandler().ProcessEvent(evento)
+
     def test_fijar_vacio_deja_la_linea_elegida_y_sin_indice(self):
         self.pieza.fijar([])
         self.assertEqual(self.lista.GetItemCount(), 1)
@@ -582,6 +588,13 @@ class PruebaConListaCtrl(unittest.TestCase):
         self.assertEqual(self.lista.GetFirstSelected(), 1)
         self.assertEqual(self.lista.GetFocusedItem(), 1)
 
+    def test_p3_ctrl_a_en_una_lista_de_una_sola_fila_no_hace_nada(self):
+        self.pieza.fijar(["a"])
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._ctrl_a()
+        anunciar.assert_not_called()
+        self.assertEqual(self.pieza.indices(), [0])
+
 
 class PruebaSeleccionMultiple(unittest.TestCase):
 
@@ -605,6 +618,29 @@ class PruebaSeleccionMultiple(unittest.TestCase):
         evento = wx.KeyEvent(tipo)
         evento.KeyCode = codigo
         self.lista.GetEventHandler().ProcessEvent(evento)
+
+    def _ctrl_a(self):
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = ord("A")
+        evento.SetControlDown(True)
+        self.lista.GetEventHandler().ProcessEvent(evento)
+
+    def test_p3_ctrl_a_selecciona_todas_sin_mover_el_foco_y_anuncia(self):
+        pieza = self._pieza((_accion("editar"),))
+        self.lista.Focus(1)
+        self.lista.Select(1)
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._ctrl_a()
+        self.assertEqual(pieza.indices(), [0, 1, 2, 3, 4])
+        self.assertEqual(self.lista.GetFocusedItem(), 1)
+        anunciar.assert_called_once_with("5 elementos seleccionados")
+
+    def test_p3_ctrl_a_con_la_lista_vacia_dice_el_texto_vacio(self):
+        pieza = self._pieza((_accion("editar"),))
+        pieza.fijar([])
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._ctrl_a()
+        anunciar.assert_called_once_with("Sin elementos.")
 
     def test_p1_indices_da_todas_las_elegidas_en_orden(self):
         pieza = self._pieza((_accion("editar"),))
@@ -720,6 +756,26 @@ class PruebaCasillasConPieza(unittest.TestCase):
         self.assertFalse(self.lista.IsItemChecked(0))
         self._espacio()
         self.assertTrue(self.lista.IsItemChecked(0))
+
+    def test_p1_la_linea_vacia_no_tiene_casillas(self):
+        self.pieza.fijar([])
+        self.assertFalse(self.lista.HasCheckBoxes())
+        self.assertEqual(self.lista.GetItemCount(), 1)
+        self.assertEqual(self.lista.GetItemText(0, 0), "Sin elementos.")
+        self.assertFalse(self.lista.IsItemChecked(0))
+
+    def test_p1_al_cargar_filas_vuelven_las_casillas(self):
+        self.pieza.fijar([])
+        self.pieza.fijar([("Uno", "A")])
+        self.assertTrue(self.lista.HasCheckBoxes())
+        self.assertFalse(self.lista.IsItemChecked(0))
+
+    def test_p2_marcadas_deja_marcadas_esas_y_no_otras(self):
+        self.pieza.fijar([("Uno", "A"), ("Dos", "B"), ("Tres", "C")],
+                         marcadas=(1,))
+        self.assertFalse(self.lista.IsItemChecked(0))
+        self.assertTrue(self.lista.IsItemChecked(1))
+        self.assertFalse(self.lista.IsItemChecked(2))
 
 
 class _ListBoxEspia(wx.ListBox):

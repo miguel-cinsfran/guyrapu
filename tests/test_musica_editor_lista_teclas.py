@@ -10,6 +10,7 @@ from unittest import mock
 
 from guyrapu.core import idioma
 from guyrapu.music.modelo import Tema
+from guyrapu.ui import lista_acciones, musica_menus
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 try:
@@ -98,6 +99,24 @@ class TestEditorTeclas(unittest.TestCase):
         if shift:
             evento.SetShiftDown(True)
         self.dialogo.lb_lista.GetEventHandler().ProcessEvent(evento)
+
+    def _pulsar_en_todas(self, codigo, shift=False):
+        evento = wx.KeyEvent(wx.wxEVT_KEY_DOWN)
+        evento.KeyCode = codigo
+        if shift:
+            evento.SetShiftDown(True)
+        self.dialogo.lb_todas.GetEventHandler().ProcessEvent(evento)
+
+    def _menu_todas(self):
+        menu = self.dialogo._todas_acciones._construir_menu()
+        self.addCleanup(menu.Destroy)
+        return menu
+
+    def _indice_todas(self, titulo):
+        return self._filas(self.dialogo.lb_todas).index(titulo)
+
+    def _ejecutar_todas(self, clave):
+        self.dialogo._todas_acciones.ejecutar(clave)
 
     def test_marcar_en_todas_agrega_al_final_y_anuncia(self):
         dialogo = self._abrir(carpeta=(A, B), lista=(A,))
@@ -192,11 +211,153 @@ class TestEditorTeclas(unittest.TestCase):
             carpeta=(A, B), lista=(), reproducir=reproducir)
         self._enfocar(dialogo.lb_todas, 1)
         with mock.patch.object(dialogo, "EndModal") as fin:
-            dialogo._tecla(Evento(wx.WXK_NUMPAD_ENTER))
+            evento = wx.KeyEvent(wx.wxEVT_CHAR_HOOK)
+            evento.KeyCode = wx.WXK_RETURN
+            dialogo.lb_todas.GetEventHandler().ProcessEvent(evento)
         reproducir.assert_called_once_with(B)
         fin.assert_not_called()
         self.assertEqual(self._filas(dialogo.lb_lista), [VACIA])
         self.assertFalse(dialogo.lb_todas.IsItemChecked(1))
+
+    def test_aplicaciones_en_todas_abre_el_menu_una_vez(self):
+        dialogo = self._abrir(carpeta=(A, B))
+        self._enfocar(dialogo.lb_todas, 0)
+        with mock.patch.object(dialogo.lb_todas, "PopupMenu") as popup:
+            self._pulsar_en_todas(wx.WXK_WINDOWS_MENU)
+        self.assertEqual(popup.call_count, 1)
+
+    def test_mayus_f10_en_todas_abre_el_menu_una_vez(self):
+        dialogo = self._abrir(carpeta=(A, B))
+        self._enfocar(dialogo.lb_todas, 0)
+        with mock.patch.object(dialogo.lb_todas, "PopupMenu") as popup:
+            self._pulsar_en_todas(wx.WXK_F10, shift=True)
+        self.assertEqual(popup.call_count, 1)
+
+    def test_clic_derecho_en_todas_abre_el_menu(self):
+        dialogo = self._abrir(carpeta=(A, B))
+        with mock.patch.object(dialogo.lb_todas, "PopupMenu") as popup:
+            dialogo.lb_todas.ProcessEvent(
+                wx.ContextMenuEvent(wx.wxEVT_CONTEXT_MENU))
+        popup.assert_called_once()
+
+    def test_escribir_en_todas_elige_la_que_empieza(self):
+        dialogo = self._abrir(carpeta=(A, B))
+        self._enfocar(dialogo.lb_todas, 0)
+        with mock.patch.object(wx, "CallLater"), \
+                mock.patch("guyrapu.ui.busqueda_teclado.anunciar"):
+            evento = wx.KeyEvent(wx.wxEVT_CHAR)
+            evento.SetUnicodeKey(ord("B"))
+            dialogo.lb_todas.GetEventHandler().ProcessEvent(evento)
+        self.assertEqual(dialogo.lb_todas.GetFirstSelected(), 1)
+
+    def test_flecha_en_el_borde_de_todas_suena_la_orilla(self):
+        dialogo = self._abrir(carpeta=(A, B))
+        self._enfocar(dialogo.lb_todas, 0)
+        with mock.patch.object(
+                lista_acciones._snd, "reproducir") as sonar:
+            self._pulsar_en_todas(wx.WXK_UP)
+        sonar.assert_called_once_with("orilla")
+
+    def test_el_menu_de_todas_tiene_sus_cuatro_acciones_en_orden(self):
+        dialogo = self._abrir(carpeta=(A, B))
+        dialogo.lb_todas.Select(0, False)
+        items = self._menu_todas().GetMenuItems()
+        self.assertEqual(
+            [item.GetItemLabel() for item in items],
+            ["&Reproducir\tEnter", "&Agregar a la lista",
+             "&Eliminar de la lista\tDel", "Agregar &todas a la lista"])
+        self.assertEqual(
+            [item.IsEnabled() for item in items],
+            [False, False, False, True])
+
+    def test_agregar_a_la_lista_marca_y_anuncia_como_la_casilla(self):
+        dialogo = self._abrir(carpeta=(A, B), lista=())
+        indice = self._indice_todas("A")
+        self._enfocar(dialogo.lb_todas, indice)
+        self._ejecutar_todas(musica_menus.ACCION_AGREGAR_A_LISTA)
+        self.assertEqual(
+            [tema.titulo for tema in dialogo._lista.temas], ["A"])
+        self.assertTrue(dialogo.lb_todas.IsItemChecked(indice))
+        self.assertEqual(
+            self.anuncios,
+            ["Agregada a la lista: A. 1 canción en total"])
+
+    def test_eliminar_de_la_lista_desmarca_y_anuncia_como_la_casilla(self):
+        dialogo = self._abrir(carpeta=(A, B), lista=(A, B))
+        indice = self._indice_todas("A")
+        self._enfocar(dialogo.lb_todas, indice)
+        self._ejecutar_todas(musica_menus.ACCION_QUITAR_DE_LISTA)
+        self.assertEqual(
+            [tema.titulo for tema in dialogo._lista.temas], ["B"])
+        self.assertFalse(dialogo.lb_todas.IsItemChecked(indice))
+        self.assertEqual(
+            self.anuncios,
+            ["Eliminada de la lista: A. Queda 1 canción"])
+
+    def test_agregar_a_la_lista_dice_que_ya_esta(self):
+        dialogo = self._abrir(carpeta=(A,), lista=(A,))
+        self._enfocar(dialogo.lb_todas, self._indice_todas("A"))
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._ejecutar_todas(musica_menus.ACCION_AGREGAR_A_LISTA)
+        anunciar.assert_called_once_with("Ya está en la lista.")
+
+    def test_eliminar_de_la_lista_dice_que_no_esta(self):
+        dialogo = self._abrir(carpeta=(A,), lista=())
+        self._enfocar(dialogo.lb_todas, self._indice_todas("A"))
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._ejecutar_todas(musica_menus.ACCION_QUITAR_DE_LISTA)
+        anunciar.assert_called_once_with("No está en la lista.")
+
+    def test_agregar_todas_dice_que_ya_estan_todas(self):
+        self._abrir(carpeta=(A,), lista=(A,))
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._ejecutar_todas(musica_menus.ACCION_AGREGAR_TODAS_A_LISTA)
+        anunciar.assert_called_once_with("Ya están todas en la lista.")
+
+    def test_agregar_todas_suma_en_orden_marca_y_anuncia_una_vez(self):
+        dialogo = self._abrir(carpeta=(C, A, B), lista=(B,))
+        self._ejecutar_todas(musica_menus.ACCION_AGREGAR_TODAS_A_LISTA)
+        self.assertEqual(
+            [tema.titulo for tema in dialogo._lista.temas],
+            ["B", "C", "A"])
+        self.assertEqual(
+            self._filas(dialogo.lb_lista), ["B", "C", "A"])
+        for indice in range(3):
+            self.assertTrue(dialogo.lb_todas.IsItemChecked(indice))
+        self.assertEqual(
+            self.anuncios,
+            ["2 canciones agregadas a la lista. 3 canciones en total"])
+
+    def test_agregar_todas_sin_filas_dice_el_texto_vacio(self):
+        dialogo = self._abrir(carpeta=(A,), lista=())
+        dialogo.txt_buscar.SetValue("zzz")
+        dialogo._aplicar_filtro()
+        with mock.patch.object(lista_acciones, "anunciar") as anunciar:
+            self._ejecutar_todas(musica_menus.ACCION_AGREGAR_TODAS_A_LISTA)
+        anunciar.assert_called_once_with(
+            "Ninguna canción coincide con la búsqueda.")
+
+    def test_marcar_con_fijar_no_agrega_ni_anuncia(self):
+        dialogo = self._abrir(carpeta=(A, B), lista=(A,))
+        self.assertTrue(dialogo.lb_todas.IsItemChecked(0))
+        self.assertFalse(dialogo.lb_todas.IsItemChecked(1))
+        self.assertEqual(
+            [tema.titulo for tema in dialogo._lista.temas], ["A"])
+        self.assertEqual(self.anuncios, [])
+
+    def test_sin_canciones_la_linea_vacia_lo_dice(self):
+        dialogo = self._abrir(carpeta=())
+        self.assertEqual(
+            self._filas(dialogo.lb_todas),
+            ["No hay canciones en la carpeta de música."])
+
+    def test_sin_coincidencias_la_linea_vacia_lo_dice(self):
+        dialogo = self._abrir(carpeta=(A, B))
+        dialogo.txt_buscar.SetValue("zzz")
+        dialogo._aplicar_filtro()
+        self.assertEqual(
+            self._filas(dialogo.lb_todas),
+            ["Ninguna canción coincide con la búsqueda."])
 
     def test_escape_cancela_el_cuadro(self):
         dialogo = self._abrir(carpeta=(A,), lista=(A,))

@@ -15,13 +15,13 @@ import wx
 
 from guyrapu.core import pasos_lista
 from guyrapu.core import sonidos_eventos
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import _, ngettext
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.lista_ctrl import ListaCtrlEnvuelta
 from guyrapu.ui.lista_pura import (
     Accion, _con_apariciones, _indice_restaurado, acciones_encendidas,
-    clave_de_tecla, motivo_de)
+    clave_de_tecla, es_ctrl_a, motivo_de)
 from guyrapu.ui.menu_lista import (
     construir_menu, etiqueta_de_menu, mostrar_opciones)
 from guyrapu.voice import sound_player as _snd
@@ -46,7 +46,13 @@ class ListaConVacio:
     """Deja el caso vacío elegido en una lista y da el índice real."""
 
     def __init__(self, lista, texto_vacio):
+        self._control = lista if isinstance(lista, wx.ListCtrl) else None
         self._lista = _envuelta(lista)
+        self._con_casillas = bool(
+            self._control is not None and self._control.HasCheckBoxes())
+        self._varias = bool(
+            self._control is not None
+            and not self._control.GetWindowStyleFlag() & wx.LC_SINGLE_SEL)
         self._texto_vacio = texto_vacio
         self._texto_vacio_inicial = texto_vacio
         self._textos = []
@@ -56,6 +62,8 @@ class ListaConVacio:
             self._lista, lambda: [_texto_de(fila) for fila in self._textos])
 
     def _al_tecla(self, evento):
+        if self._ctrl_a(evento):
+            return
         try:
             seleccion = self._lista.GetSelection()
             total = self._lista.GetCount()
@@ -65,7 +73,23 @@ class ListaConVacio:
             _snd.reproducir("orilla")
         evento.Skip()
 
-    def fijar(self, textos, elegido=None, vacio=None):
+    def _ctrl_a(self, evento):
+        """Elige todas las filas sin mover el foco y lo anuncia."""
+        if not self._varias or not es_ctrl_a(
+                evento.GetKeyCode(), evento.GetModifiers()):
+            return False
+        if self.vacia():
+            self.sin_elemento()
+            return True
+        for indice in range(len(self._textos)):
+            self._control.Select(indice)
+        total = len(self._textos)
+        anunciar(ngettext(
+            "{n} elemento seleccionado", "{n} elementos seleccionados",
+            total).format(n=total))
+        return True
+
+    def fijar(self, textos, elegido=None, vacio=None, marcadas=()):
         """Reemplaza a Clear y Append y deja el caso vacío elegido."""
         self._texto_vacio = (
             self._texto_vacio_inicial if vacio is None else vacio)
@@ -73,14 +97,27 @@ class ListaConVacio:
         self._claves = []
         self._lista.Clear()
         if not self._textos:
+            self._casillas(False)
             self._lista.Append(self._texto_vacio)
             self._lista.SetSelection(0)
         else:
-            self._cargar(elegido)
+            self._casillas(True)
+            self._cargar(elegido, marcadas)
 
-    def _cargar(self, elegido):
+    def _casillas(self, activas):
+        """Prende o apaga las casillas del control si hace falta."""
+        if not self._con_casillas:
+            return
+        if self._control.HasCheckBoxes() != activas:
+            self._control.EnableCheckBoxes(activas)
+
+    def _cargar(self, elegido, marcadas):
         for texto in self._textos:
             self._lista.Append(texto)
+        if self._con_casillas:
+            for indice in marcadas:
+                if 0 <= indice < len(self._textos):
+                    self._control.CheckItem(indice, True)
         indice = 0 if elegido is None else elegido
         if not 0 <= indice < len(self._textos):
             indice = 0
@@ -189,7 +226,7 @@ class ListaConAcciones:
     def __init__(self, lista, acciones, texto_vacio):
         self._lista = _envuelta(lista)
         self._acciones = tuple(acciones)
-        self._vacio = ListaConVacio(self._lista, texto_vacio)
+        self._vacio = ListaConVacio(lista, texto_vacio)
         self._ultimo_menu = None
         self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
         self._lista.Bind(wx.EVT_CONTEXT_MENU, self._al_contexto)
@@ -198,9 +235,9 @@ class ListaConAcciones:
         self._lista.Bind(evento, self._al_doble_clic)
         entregar_intro(self._lista, self._al_intro)
 
-    def fijar(self, textos, elegido=None, vacio=None):
+    def fijar(self, textos, elegido=None, vacio=None, marcadas=()):
         """Reemplaza a Clear y Append y deja el caso vacío elegido."""
-        self._vacio.fijar(textos, elegido, vacio)
+        self._vacio.fijar(textos, elegido, vacio, marcadas)
 
     def poner_al_dia(self, claves, filas, elegida=None):
         """Deja la lista igual a `filas`, una por clave, sin recargar todo."""
@@ -213,6 +250,14 @@ class ListaConAcciones:
     def indices(self):
         """Los índices elegidos en orden, o una lista vacía."""
         return self._vacio.indices()
+
+    def vacia(self):
+        """Si la lista no tiene elementos, solo la línea vacía."""
+        return self._vacio.vacia()
+
+    def sin_elemento(self):
+        """Dice por qué no hay nada que usar o que falta elegir."""
+        self._vacio.sin_elemento()
 
     def _accion(self, clave):
         for accion in self._acciones:

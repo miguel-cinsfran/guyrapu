@@ -16,6 +16,7 @@ ACCION_AGREGAR = "agregar"
 ACCION_TODO_DESDE_AQUI = "todo_desde_aqui"
 ACCION_AGREGAR_A_LISTA = "agregar_a_lista"
 ACCION_QUITAR_DE_LISTA = "quitar_de_lista"
+ACCION_AGREGAR_TODAS_A_LISTA = "agregar_todas_a_lista"
 ACCION_RENOMBRAR_LISTA = "renombrar_lista"
 ACCION_BORRAR_LISTA = "borrar_lista"
 ACCION_EDITAR_LISTA = "editar_lista"
@@ -78,4 +79,14 @@ def entradas_lista_editada() -> list:
         (N_("&Eliminar"), ACCION_QUITAR),
         (N_("&Subir"), ACCION_SUBIR),
         (N_("&Bajar"), ACCION_BAJAR),
+    ]
+
+
+def entradas_todas() -> list:
+    """Las entradas del menú de «Todas las canciones» del editor."""
+    return [
+        (N_("&Reproducir"), ACCION_REPRODUCIR),
+        (N_("&Agregar a la lista"), ACCION_AGREGAR_A_LISTA),
+        (N_("&Eliminar de la lista"), ACCION_QUITAR_DE_LISTA),
+        (N_("Agregar &todas a la lista"), ACCION_AGREGAR_TODAS_A_LISTA),
     ]

@@ -47,6 +47,19 @@ class TestAgregar(unittest.TestCase):
         self.assertEqual(lista.temas, (A, B))
 
 
+class TestAgregarVarias(unittest.TestCase):
+
+    def test_suma_en_orden_sin_repetidas_y_devuelve_cuantas(self):
+        lista = ListaEnEdicion((B,))
+        self.assertEqual(lista.agregar_varias((C, B, A, C)), 2)
+        self.assertEqual(lista.temas, (B, C, A))
+
+    def test_sin_nada_nuevo_devuelve_cero(self):
+        lista = ListaEnEdicion((A, B))
+        self.assertEqual(lista.agregar_varias((B, A)), 0)
+        self.assertEqual(lista.temas, (A, B))
+
+
 class TestQuitar(unittest.TestCase):
 
     def test_quitar_devuelve_el_indice(self):

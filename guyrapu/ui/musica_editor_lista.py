@@ -48,15 +48,12 @@ def validar_nombre(nombre):
 def accion_tecla(codigo, en_lista):
     """Qué hacer con la tecla, según su código y el foco.
 
-    `en_lista` es "lista", "todas" o None. Escape cancela y Enter en «Todas
-    las canciones» reproduce; la lista propia resuelve sus teclas en la
-    pieza común. Fuera de las listas, Enter sigue su camino hacia Guardar.
+    `en_lista` es "lista", "todas" o None. Escape cancela; las listas
+    resuelven sus teclas en la pieza común. Fuera de las listas, Enter
+    sigue su camino hacia Guardar.
     """
     if tecla_escape.es_escape(codigo):
         return ACCION_CANCELAR
-    if (codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER)
-            and en_lista == "todas"):
-        return musica_menus.ACCION_REPRODUCIR
     return None
 
 
@@ -78,7 +75,7 @@ class DialogoEditorLista(wx.Dialog):
         if nombre:
             self.txt_nombre.SetValue(nombre)
         self._cargar_lista()
-        self._cargar_todas()
+        self._aplicar_filtro()
         self.Bind(wx.EVT_CHAR_HOOK, self._tecla)
         self.lb_todas.Bind(wx.EVT_LIST_ITEM_CHECKED, self._al_marcar)
         self.lb_todas.Bind(wx.EVT_LIST_ITEM_UNCHECKED, self._al_desmarcar)
@@ -143,8 +140,32 @@ class DialogoEditorLista(wx.Dialog):
         self.lb_todas = self._lista_ctrl(
             panel, _("Todas las canciones"), 180)
         self.lb_todas.EnableCheckBoxes(True)
+        self._todas_acciones = ListaConAcciones(
+            self.lb_todas, self._acciones_todas(), "")
         vs.Add(self.lb_todas, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
                12)
+
+    def _acciones_todas(self):
+        """Las entradas del menú de «Todas las canciones», con su tecla."""
+        etiquetas = {clave: _(etiqueta)
+                     for etiqueta, clave in musica_menus.entradas_todas()}
+        return (
+            Accion(musica_menus.ACCION_REPRODUCIR,
+                   etiquetas[musica_menus.ACCION_REPRODUCIR],
+                   lambda: self._reproducir_en("todas"), tecla="intro"),
+            Accion(musica_menus.ACCION_AGREGAR_A_LISTA,
+                   etiquetas[musica_menus.ACCION_AGREGAR_A_LISTA],
+                   lambda: self._cambiar_elegida(True),
+                   motivo_indices=lambda indices: self._motivo(indices, True)),
+            Accion(musica_menus.ACCION_QUITAR_DE_LISTA,
+                   etiquetas[musica_menus.ACCION_QUITAR_DE_LISTA],
+                   lambda: self._cambiar_elegida(False), tecla="suprimir",
+                   motivo_indices=lambda indices: self._motivo(indices, False)),
+            Accion(musica_menus.ACCION_AGREGAR_TODAS_A_LISTA,
+                   etiquetas[musica_menus.ACCION_AGREGAR_TODAS_A_LISTA],
+                   self._agregar_todas_a_la_lista, necesita_elemento=False,
+                   motivo=self._motivo_agregar_todas),
+        )
 
     def _lista_ctrl(self, panel, nombre, alto):
         lista = wx.ListCtrl(
@@ -179,19 +200,20 @@ class DialogoEditorLista(wx.Dialog):
         self._lista_acciones.fijar(
             [vista.fila_tema(tema) for tema in self._lista.temas])
 
-    def _cargar_todas(self):
-        self._aplicar_filtro()
-
     def _aplicar_filtro(self):
         self._visibles_todas = list(vista.filtrar_lista(
             self._temas_carpeta, self.txt_buscar.GetValue()))
+        vacio = (_("Ninguna canción coincide con la búsqueda.")
+                 if self.txt_buscar.GetValue()
+                 else _("No hay canciones en la carpeta de música."))
         self._actualizando_todas = True
         try:
-            self.lb_todas.DeleteAllItems()
-            for tema in self._visibles_todas:
-                indice = self.lb_todas.InsertItem(
-                    self.lb_todas.GetItemCount(), vista.fila_tema(tema))
-                self.lb_todas.CheckItem(indice, self._lista.contiene(tema))
+            self._todas_acciones.fijar(
+                [vista.fila_tema(tema) for tema in self._visibles_todas],
+                vacio=vacio,
+                marcadas=[indice for indice, tema
+                          in enumerate(self._visibles_todas)
+                          if self._lista.contiene(tema)])
         finally:
             self._actualizando_todas = False
 
@@ -234,6 +256,41 @@ class DialogoEditorLista(wx.Dialog):
         anunciar(texto.format(
             nombre=anuncios.nombre_tema(tema, False), n=total))
 
+    def _cambiar_elegida(self, marcada):
+        indice = self._todas_acciones.indice()
+        if indice is not None:
+            self.lb_todas.CheckItem(indice, marcada)
+
+    def _motivo(self, indices, en_lista):
+        tema = self._tema_todas(indices[0]) if indices else None
+        if tema is None or self._lista.contiene(tema) != en_lista:
+            return ""
+        return _("Ya está en la lista") if en_lista else _("No está en la lista")
+
+    def _motivo_agregar_todas(self):
+        if self._visibles_todas and all(
+                self._lista.contiene(tema) for tema in self._visibles_todas):
+            return _("Ya están todas en la lista")
+        return ""
+
+    def _agregar_todas_a_la_lista(self):
+        if self._todas_acciones.vacia():
+            self._todas_acciones.sin_elemento()
+            return
+        agregadas = self._lista.agregar_varias(self._visibles_todas)
+        self._cargar_lista()
+        for tema in self._visibles_todas:
+            self._marcar_en_todas(tema, True)
+        total = len(self._lista.temas)
+        # Traductores: {n} es cuántas se agregaron y {total} las que hay.
+        cuantas = ngettext(
+            "{n} canción agregada a la lista",
+            "{n} canciones agregadas a la lista", agregadas)
+        en_total = ngettext(
+            "{total} canción en total", "{total} canciones en total", total)
+        anunciar(cuantas.format(n=agregadas) + ". "
+                 + en_total.format(total=total))
+
     def _en_que_lista(self):
         foco = wx.Window.FindFocus()
         if foco is self.lb_lista:
@@ -242,19 +299,15 @@ class DialogoEditorLista(wx.Dialog):
             return "todas"
         return None
 
-    def _indice_de(self, lista):
-        indice = lista.GetFocusedItem()
-        if indice == -1:
-            indice = lista.GetFirstSelected()
-        return indice
-
     def _tema_de(self, en_lista):
         if en_lista == "lista":
             indice = self._lista_acciones.indice()
             if indice is not None:
                 return self._lista.temas[indice]
         elif en_lista == "todas":
-            return self._tema_todas(self._indice_de(self.lb_todas))
+            indice = self._todas_acciones.indice()
+            if indice is not None:
+                return self._tema_todas(indice)
         return None
 
     def _reproducir_en(self, en_lista):
@@ -323,13 +376,9 @@ class DialogoEditorLista(wx.Dialog):
         return self._nombre, self._lista.temas
 
     def _tecla(self, evento):
-        en_lista = self._en_que_lista()
-        accion = accion_tecla(evento.GetKeyCode(), en_lista)
+        accion = accion_tecla(evento.GetKeyCode(), self._en_que_lista())
         if accion == ACCION_CANCELAR:
             self.EndModal(wx.ID_CANCEL)
-            return
-        if accion == musica_menus.ACCION_REPRODUCIR:
-            self._reproducir_en(en_lista)
             return
         evento.Skip()
 

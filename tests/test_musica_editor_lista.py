@@ -14,7 +14,6 @@ from unittest import mock
 from guyrapu.music import listas
 from guyrapu.music.listas import ErrorListas
 from guyrapu.music.modelo import Tema
-from guyrapu.ui import musica_menus
 from guyrapu.ui.musica_listas_propias import ListasPropiasMusica
 from tests.ventanas_prueba import app_de_prueba
 
@@ -58,12 +57,11 @@ class TestValidarNombre(unittest.TestCase):
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
 class TestAccionTecla(unittest.TestCase):
 
-    def test_enter_en_todas_reproduce(self):
+    def test_enter_en_todas_lo_resuelve_la_pieza(self):
         for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
             with self.subTest(codigo=codigo):
-                self.assertEqual(
-                    musica_editor_lista.accion_tecla(codigo, "todas"),
-                    musica_menus.ACCION_REPRODUCIR)
+                self.assertIsNone(
+                    musica_editor_lista.accion_tecla(codigo, "todas"))
 
     def test_enter_fuera_de_las_listas_sigue_su_camino(self):
         for codigo in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):

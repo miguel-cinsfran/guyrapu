@@ -84,6 +84,13 @@ def clave_de_tecla(codigo: int, modificadores: int, acciones) -> str | None:
     return None
 
 
+def es_ctrl_a(codigo: int, modificadores: int) -> bool:
+    """Si la pulsación es Ctrl+A, sin otro modificador."""
+    return (codigo in (ord("A"), ord("a"))
+            and bool(modificadores & wx.MOD_CONTROL)
+            and not modificadores & (wx.MOD_ALT | wx.MOD_SHIFT))
+
+
 def acciones_encendidas(acciones, elegidas: int) -> dict[str, bool]:
     """Qué acciones van encendidas según cuántas filas están elegidas."""
     return {accion.clave: (not accion.necesita_elemento

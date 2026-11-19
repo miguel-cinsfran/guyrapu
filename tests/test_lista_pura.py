@@ -174,6 +174,19 @@ class PruebaPartePura(unittest.TestCase):
         self.assertEqual(
             lista_pura.motivo_de(accion, [0, 1]), "Sin sesión de YouTube")
 
+    def test_ctrl_a_se_reconoce_solo_con_control(self):
+        for codigo in (ord("A"), ord("a")):
+            with self.subTest(codigo=codigo):
+                self.assertTrue(lista_pura.es_ctrl_a(
+                    codigo, wx.MOD_CONTROL))
+                self.assertFalse(lista_pura.es_ctrl_a(
+                    codigo, wx.MOD_NONE))
+                self.assertFalse(lista_pura.es_ctrl_a(
+                    codigo, wx.MOD_CONTROL | wx.MOD_SHIFT))
+                self.assertFalse(lista_pura.es_ctrl_a(
+                    codigo, wx.MOD_CONTROL | wx.MOD_ALT))
+        self.assertFalse(lista_pura.es_ctrl_a(ord("B"), wx.MOD_CONTROL))
+
     def test_ctrl_d_da_su_accion_y_el_menu_dice_la_tecla(self):
         acciones = (_accion("duplicar", "ctrl+d"),)
         self.assertEqual(

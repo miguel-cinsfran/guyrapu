@@ -39,6 +39,14 @@ class ListaEnEdicion:
         self._temas.append(tema)
         return True
 
+    def agregar_varias(self, temas):
+        """Las agrega al final en orden, sin repetidas; cuántas agregó."""
+        agregadas = 0
+        for tema in temas or ():
+            if self.agregar(tema):
+                agregadas += 1
+        return agregadas
+
     def quitar(self, tema):
         """Quita esa canción y devuelve el índice que tenía, o None."""
         for indice, candidato in enumerate(self._temas):

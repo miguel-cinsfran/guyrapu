@@ -13351,6 +13351,13 @@ msgstr "Interaction"
 msgid "Páginas de interacción"
 msgstr "Interaction pages"
 
+#: guyrapu/ui/lista_acciones.py
+#, python-brace-format
+msgid "{n} elemento seleccionado"
+msgid_plural "{n} elementos seleccionados"
+msgstr[0] "{n} item selected"
+msgstr[1] "{n} items selected"
+
 #. Traductores: fila de me gusta agrupados; {autor} es quien los dio, {n}
 #. cuántos dio y {hora} la hora.
 #: guyrapu/ui/lista_chat.py
@@ -14196,6 +14203,14 @@ msgstr "All songs"
 msgid "Canción"
 msgstr "Song"
 
+#: guyrapu/ui/musica_editor_lista.py
+msgid "Ninguna canción coincide con la búsqueda."
+msgstr "No songs match the search."
+
+#: guyrapu/ui/musica_editor_lista.py
+msgid "No hay canciones en la carpeta de música."
+msgstr "There are no songs in the music folder."
+
 #. Traductores: {nombre} es la canción y {n} cuántas hay en total.
 #: guyrapu/ui/musica_editor_lista.py
 #, python-brace-format
@@ -14211,6 +14226,33 @@ msgid "Eliminada de la lista: {nombre}. Queda {n} canción"
 msgid_plural "Eliminada de la lista: {nombre}. Quedan {n} canciones"
 msgstr[0] "Removed from the list: {nombre}. {n} song left"
 msgstr[1] "Removed from the list: {nombre}. {n} songs left"
+
+#: guyrapu/ui/musica_editor_lista.py
+msgid "Ya está en la lista"
+msgstr "Already in the playlist"
+
+#: guyrapu/ui/musica_editor_lista.py
+msgid "No está en la lista"
+msgstr "Not in the playlist"
+
+#: guyrapu/ui/musica_editor_lista.py
+msgid "Ya están todas en la lista"
+msgstr "All are already in the playlist"
+
+#. Traductores: {n} es cuántas se agregaron y {total} las que hay.
+#: guyrapu/ui/musica_editor_lista.py
+#, python-brace-format
+msgid "{n} canción agregada a la lista"
+msgid_plural "{n} canciones agregadas a la lista"
+msgstr[0] "{n} song added to the playlist"
+msgstr[1] "{n} songs added to the playlist"
+
+#: guyrapu/ui/musica_editor_lista.py
+#, python-brace-format
+msgid "{total} canción en total"
+msgid_plural "{total} canciones en total"
+msgstr[0] "{total} song in total"
+msgstr[1] "{total} songs in total"
 
 #. Traductores: aviso cuando falta la carpeta de música; dice que elija otra en
 #. Preferencias.
@@ -14281,6 +14323,18 @@ msgstr "&Clear"
 #: guyrapu/ui/musica_menus.py
 msgid "&Guardar como lista…"
 msgstr "Sa&ve as playlist…"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Agregar a la lista"
+msgstr "&Add to the playlist"
+
+#: guyrapu/ui/musica_menus.py
+msgid "&Eliminar de la lista"
+msgstr "&Remove from the playlist"
+
+#: guyrapu/ui/musica_menus.py
+msgid "Agregar &todas a la lista"
+msgstr "Add a&ll to the playlist"
 
 #. Traductores: nombre accesible de la lista de colecciones; una palabra.
 #: guyrapu/ui/musica_ventana.py
