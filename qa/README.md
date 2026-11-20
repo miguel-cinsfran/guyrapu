@@ -111,6 +111,35 @@ Lo que no sale: los menús contextuales y los cuadros nativos de Windows
 wx de nivel superior, y eso no es una: no se fuerza y queda anotado en el
 índice como no capturado, con su motivo.
 
+## Galería de ventanas
+
+Antes de cada release hay que verlas todas, también los cuadros que se abren
+desde dentro de otro cuadro y a los que no llegan el banco ni el carril de
+NVDA. `qa/galeria.py` los arma fuera de la aplicación con datos de ejemplo:
+
+    python qa/galeria.py
+    python qa/galeria.py --solo preferencias --solo comando
+    python qa/galeria.py --salida C:\galeria
+
+Cada muestra se arma en un proceso propio con su biblioteca gráfica, con el
+idioma español y los datos en una carpeta temporal. Se abre sin activar, se
+recorren sus páginas como las elegiría el usuario y se guarda un PNG y un JSON
+por captura en `qa/salida/galeria/<AAAA-MM-DD_HH-MM>/`, con un `indice.md` de
+una línea por captura. `--solo NOMBRE` se puede repetir y `--salida CARPETA`
+cambia la carpeta.
+
+El JSON trae la clase, la variante, la página, el tamaño de la ventana y de su
+área cliente, el tamaño mínimo, el área de trabajo del monitor y el árbol de
+controles con su rectángulo, color, fuente y medida de la etiqueta. Es el
+contrato que consume `qa/visual_reglas.py`.
+
+El registro está en `galeria_muestras.py` y en
+`galeria_muestras_interaccion.py`. `tests/test_galeria_cobertura.py` pone la
+suite en rojo si aparece una ventana sin muestra ni motivo, si el motivo está
+vacío o si una muestra desaparece. Las que no se arman fuera de la app quedan
+en `SIN_MUESTRA` con el motivo. La galería no toca la red ni los datos reales:
+se corre en la PC donde no hay nadie.
+
 ## Barrido con pseudotraducción
 
 `pseudo.py` arranca la aplicación con `GUYRAPU_IDIOMA=pseudo` y recorre la
