@@ -90,6 +90,17 @@ class TestCampos(BaseCuadro):
             tuple(control.GetName() for control in controles),
             NOMBRES_ACCESIBLES)
 
+    def test_los_rotulos_se_nombran_igual_que_el_control_siguiente(self):
+        cuadro = self._cuadro()
+        hijos = list(cuadro.GetChildren()[0].GetChildren())
+        pares = 0
+        for indice, hijo in enumerate(hijos[:-1]):
+            if (isinstance(hijo, wx.StaticText)
+                    and not isinstance(hijos[indice + 1], wx.Button)):
+                pares += 1
+                self.assertEqual(hijo.GetName(), hijos[indice + 1].GetName())
+        self.assertGreaterEqual(pares, 12)
+
     def test_cada_contador_tiene_su_rotulo_inmediatamente_antes(self):
         cuadro = self._cuadro()
         hijos = cuadro.GetChildren()[0].GetChildren()

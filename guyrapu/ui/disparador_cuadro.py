@@ -79,7 +79,17 @@ class DialogoDisparador(wx.Dialog):
         self._crear_alcance(panel, vs)
         vs.Add(self._botones(panel), 0, wx.ALIGN_RIGHT | wx.ALL, 8)
         panel.SetSizer(vs)
+        self._nombrar_etiquetas(panel)
         self._cargar(datos)
+
+    def _nombrar_etiquetas(self, panel):
+        # NVDA omite un texto estático del texto del diálogo cuando el control
+        # siguiente se nombra igual. Sin esto lee todos los rótulos seguidos.
+        hijos = list(panel.GetChildren())
+        for indice, hijo in enumerate(hijos[:-1]):
+            if (isinstance(hijo, wx.StaticText)
+                    and not isinstance(hijos[indice + 1], wx.Button)):
+                nombre_accesible(hijo, hijos[indice + 1].GetName())
 
     def _crear_cuando(self, panel, vs):
         vs.Add(fila_label(panel, _("&Nombre:")), 0, wx.ALL, 8)
