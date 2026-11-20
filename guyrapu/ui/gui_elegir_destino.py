@@ -14,7 +14,7 @@ import wx
 from guyrapu.obs.obs_destinos import DESTINOS
 from guyrapu.core.idioma import _
 from guyrapu.restream import ganchos, transmitir
-from guyrapu.ui import ayuda_manual, paleta, tecla_escape
+from guyrapu.ui import ayuda_manual, formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 
 
@@ -62,48 +62,45 @@ class DialogoElegirDestino(wx.Dialog):
         destino = destino_inicial(destino, self._opciones)
         self._datos = None
 
+        panel = wx.Panel(self, name="PanelElegirDestino")
+        self._panel = panel
         vs = wx.BoxSizer(wx.VERTICAL)
-        self._crear_destino(vs, destino)
-        self._crear_usuario(vs, usuario)
-        self._crear_botones(vs)
+        self._crear_destino(panel, vs, destino)
+        self._crear_usuario(panel, vs, usuario)
+        self._crear_botones(panel, vs)
 
-        self.SetSizerAndFit(vs)
+        self._mostrar_usuario()
+        formulario.ajustar_tamano(self, panel, vs)
         self.cho_destino.Bind(wx.EVT_CHOICE, self._al_destino)
         self.btn_continuar.Bind(wx.EVT_BUTTON, self._al_continuar)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
-        self._mostrar_usuario()
         self.cho_destino.SetFocus()
 
-    def _crear_destino(self, vs, destino):
-        self.rotulo_destino = wx.StaticText(self, label=_("Transmitir a:"))
-        vs.Add(self.rotulo_destino, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+    def _crear_destino(self, panel, vs, destino):
+        self.rotulo_destino = wx.StaticText(panel, label=_("Transmitir a:"))
         self.cho_destino = wx.Choice(
-            self, choices=[transmitir.texto(opcion)
-                           for opcion in self._opciones],
+            panel, choices=[transmitir.texto(opcion)
+                            for opcion in self._opciones],
             name=_("Transmitir a"))
         self.cho_destino.SetSelection(self._opciones.index(destino))
         nombre_accesible(self.cho_destino, _("Transmitir a"))
-        vs.Add(self.cho_destino, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(vs, self.rotulo_destino, self.cho_destino)
 
-    def _crear_usuario(self, vs, usuario):
+    def _crear_usuario(self, panel, vs, usuario):
         self.rotulo_usuario = wx.StaticText(
-            self, label=_("Usuario de TikTok:"))
-        vs.Add(self.rotulo_usuario, 0, wx.LEFT | wx.RIGHT, 10)
+            panel, label=_("Usuario de TikTok:"))
         self.txt_usuario = wx.TextCtrl(
-            self, value=usuario or "", name=_("Usuario de TikTok"))
+            panel, value=usuario or "", name=_("Usuario de TikTok"))
         nombre_accesible(self.txt_usuario, _("Usuario de TikTok"))
-        vs.Add(self.txt_usuario, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(vs, self.rotulo_usuario, self.txt_usuario)
 
-    def _crear_botones(self, vs):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+    def _crear_botones(self, panel, vs):
         # Traductores: botón para seguir con la transmisión.
-        self.btn_continuar = wx.Button(self, wx.ID_OK, _("&Continuar"), name=_("Continuar"))
+        self.btn_continuar = wx.Button(panel, wx.ID_OK, _("&Continuar"), name=_("Continuar"))
         self.btn_continuar.SetDefault()
         # Traductores: botón para volver sin transmitir.
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
-        fila.Add(self.btn_continuar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
+        formulario.agregar_pie(vs, [self.btn_continuar, self.btn_cancelar])
 
     @property
     def datos(self):
@@ -117,7 +114,7 @@ class DialogoElegirDestino(wx.Dialog):
         visible = self._opcion_elegida() == "TikTok"
         self.rotulo_usuario.Show(visible)
         self.txt_usuario.Show(visible)
-        self.Layout()
+        self._panel.Layout()
         paleta.pintar_ventana(self)
 
     def _al_destino(self, _event):
@@ -133,7 +130,7 @@ class DialogoElegirDestino(wx.Dialog):
             anunciar(str(exc))
             self.txt_usuario.Show()
             self.rotulo_usuario.Show()
-            self.Layout()
+            self._panel.Layout()
             self.txt_usuario.SetFocus()
             return
         self.EndModal(wx.ID_OK)

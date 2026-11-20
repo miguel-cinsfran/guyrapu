@@ -20,6 +20,8 @@ except ImportError:
     dialogo_estado = None  # type: ignore
     _HAY_DIALOGO = False
 
+from guyrapu.ui import formulario, tema
+
 
 @unittest.skipUnless(_HAY_WX and _HAY_DIALOGO, "wxPython no está instalado")
 class TestDialogoEstado(unittest.TestCase):
@@ -92,6 +94,30 @@ class TestAbrirEstado(unittest.TestCase):
                 mock.patch.object(dialogo_estado, "DialogoEstado"):
             dialogo_estado.abrir_estado(padre, ["Uno"])
         padre.SetFocus.assert_called_once_with()
+
+
+@unittest.skipUnless(_HAY_WX and _HAY_DIALOGO, "wxPython no está instalado")
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_geometria_del_cuadro(self):
+        cuadro = dialogo_estado.DialogoEstado(None, ["Uno", "Dos"])
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        cliente = cuadro.GetClientSize()
+        self.assertEqual(cuadro.lista.GetPosition().x, formulario.MARGEN)
+        boton = cuadro.btn_cerrar
+        self.assertEqual(
+            cliente.width - (boton.GetPosition().x + boton.GetSize().width),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (boton.GetPosition().y + boton.GetSize().height),
+            formulario.MARGEN)
+        self.assertNotEqual(boton.GetBackgroundColour(), tema._T.primary)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ import wx
 from guyrapu.core import diagnostico
 from guyrapu.core.actualizacion import notas_legibles
 from guyrapu.core.idioma import _
-from guyrapu.ui import paleta
+from guyrapu.ui import formulario, paleta, tema
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
@@ -38,13 +38,14 @@ class DialogoActualizacion(wx.Dialog):
         self._cancelado = threading.Event()
         self._accion = None
 
+        panel = wx.Panel(self, name="PanelActualizacion")
+        self.panel = panel
         vs = wx.BoxSizer(wx.VERTICAL)
-        self._crear_estado_y_progreso(vs)
-        self._crear_novedades(vs)
-        self._crear_botones(vs)
+        self._crear_estado_y_progreso(panel, vs)
+        self._crear_novedades(panel, vs)
+        self._crear_botones(panel, vs)
 
-        self.SetSizer(vs)
-        self.Fit()
+        formulario.ajustar_tamano(self, panel, vs)
         self.Centre()
         self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
         self.Bind(wx.EVT_CLOSE, self._al_cerrar)
@@ -53,27 +54,27 @@ class DialogoActualizacion(wx.Dialog):
         except Exception as error:
             logger.debug("no se pudo enfocar el cierre: %s", error)
 
-    def _crear_estado_y_progreso(self, vs) -> None:
+    def _crear_estado_y_progreso(self, panel, vs) -> None:
         self.txt_estado = wx.TextCtrl(
-            self, value="", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_NO_VSCROLL,
+            panel, value="", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_NO_VSCROLL,
             # Traductores: nombre del cuadro de estado.
             name=_("Estado"))
         self.txt_estado.SetMinSize(
             (380, 3 * self.txt_estado.GetCharHeight() + 12))
         # Traductores: nombre del cuadro de estado.
         nombre_accesible(self.txt_estado, _("Estado"))
-        vs.Add(self.txt_estado, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(vs, None, self.txt_estado, hueco=0)
 
         # Traductores: nombre de la barra de progreso.
-        self.gauge = wx.Gauge(self, range=100, name=_("Progreso"))
+        self.gauge = wx.Gauge(panel, range=100, name=_("Progreso"))
         # Traductores: nombre de la barra de progreso.
         nombre_accesible(self.gauge, _("Progreso"))
-        vs.Add(self.gauge, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+        formulario.agregar_fila(vs, None, self.gauge, hueco=0)
         self._espera = EsperaSonora(self)
 
-    def _crear_novedades(self, vs) -> None:
+    def _crear_novedades(self, panel, vs) -> None:
         self.txt_notas = wx.TextCtrl(
-            self, value="", style=wx.TE_MULTILINE | wx.TE_READONLY,
+            panel, value="", style=wx.TE_MULTILINE | wx.TE_READONLY,
             # Traductores: nombre del cuadro de novedades.
             name=_("Novedades"))
         try:
@@ -87,20 +88,17 @@ class DialogoActualizacion(wx.Dialog):
         self.txt_notas.SetMinSize((ancho60, alto_notas))
         # Traductores: nombre del cuadro de novedades.
         nombre_accesible(self.txt_notas, _("Novedades"))
-        vs.Add(self.txt_notas, 1, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(vs, None, self.txt_notas, hueco=0)
         self.txt_notas.Hide()
 
-    def _crear_botones(self, vs) -> None:
+    def _crear_botones(self, panel, vs) -> None:
         # Traductores: nombre del botón de acción; no se oye porque nace oculto.
-        self.btn_accion = wx.Button(self, wx.ID_ANY, "", name=_("Acción"))
+        self.btn_accion = wx.Button(panel, wx.ID_ANY, "", name=_("Acción"))
         self.btn_accion.Hide()
 
         # Traductores: botón para cerrar la ventana.
-        self.btn_cerrar = wx.Button(self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
-        fila_botones = wx.BoxSizer(wx.HORIZONTAL)
-        fila_botones.Add(self.btn_accion, 0, wx.RIGHT, 10)
-        fila_botones.Add(self.btn_cerrar, 0)
-        vs.Add(fila_botones, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        self.btn_cerrar = wx.Button(panel, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
+        formulario.agregar_pie(vs, [self.btn_accion, self.btn_cerrar])
 
     @property
     def cerrado(self) -> bool:
@@ -154,6 +152,7 @@ class DialogoActualizacion(wx.Dialog):
         # dentro del área cliente. No toca el foco ni re-centra: el foco lo
         # dejan `ofrecer_accion` y `quitar_accion` como siempre.
         try:
+            self.panel.Layout()
             self.Layout()
         except Exception as error:
             logger.debug("no se pudo repartir la ventana: %s", error)
@@ -162,6 +161,7 @@ class DialogoActualizacion(wx.Dialog):
         except Exception as error:
             logger.debug("no se pudo ajustar la ventana: %s", error)
         try:
+            self.panel.Layout()
             self.Layout()
         except Exception as error:
             logger.debug("no se pudo repartir la ventana: %s", error)
@@ -196,6 +196,7 @@ class DialogoActualizacion(wx.Dialog):
         self.btn_accion.Bind(
             wx.EVT_BUTTON, lambda _event: self._accion())
         self.btn_accion.Show()
+        tema.boton_principal(self.btn_accion)
         self._reajustar()
         try:
             self.btn_accion.SetFocus()

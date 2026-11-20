@@ -13,7 +13,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import _
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 from guyrapu.ui.restream_perfil import _rotulo
@@ -22,18 +22,15 @@ from guyrapu.ui.restream_perfil import _rotulo
 class DialogoDestinoBase(wx.Dialog):
     """Botones Aceptar y Cancelar y Escape, comunes a los cuadros de destino."""
 
-    def _agregar_botones(self, vs):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+    def _agregar_botones(self, panel, vs):
         etiqueta = _("&Aceptar")
         self.btn_aceptar = wx.Button(
-            self, wx.ID_OK, etiqueta, name=nombre_de_etiqueta(etiqueta))
+            panel, wx.ID_OK, etiqueta, name=nombre_de_etiqueta(etiqueta))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("Cance&lar"), name=_("Cancelar"))
+            panel, wx.ID_CANCEL, _("Cance&lar"), name=_("Cancelar"))
         for boton in (self.btn_aceptar, self.btn_cancelar):
             nombre_accesible(boton, boton.GetName())
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        formulario.agregar_pie(vs, [self.btn_aceptar, self.btn_cancelar])
 
     def _al_tecla(self, evento):
         tecla_escape.cancelar_si_escape(self, evento)
@@ -43,7 +40,7 @@ class DialogoMetaDestino(DialogoDestinoBase):
     """Título y descripción de un destino de la cuenta."""
 
     def __init__(self, parent, meta):
-        super().__init__(parent, title=_("Cambiar título"), size=(520, 360),
+        super().__init__(parent, title=_("Cambiar título"),
                          name="DialogoMetaDestino")
         self._resultado = None
         self._crear_ui(meta)
@@ -51,22 +48,21 @@ class DialogoMetaDestino(DialogoDestinoBase):
         self.Centre()
 
     def _crear_ui(self, meta):
+        panel = wx.Panel(self, name="PanelMetaDestino")
         vs = wx.BoxSizer(wx.VERTICAL)
-        contenido = wx.BoxSizer(wx.VERTICAL)
         self.lbl_titulo, self.txt_titulo = _rotulo(
-            self, contenido, _("&Título:"),
+            panel, vs, _("&Título:"),
             lambda: wx.TextCtrl(
-                self, value=meta.titulo, style=wx.TE_PROCESS_ENTER))
+                panel, value=meta.titulo, style=wx.TE_PROCESS_ENTER))
         self.lbl_descripcion, self.txt_descripcion = _rotulo(
-            self, contenido, _("&Descripción:"),
+            panel, vs, _("&Descripción:"),
             lambda: wx.TextCtrl(
-                self, value=meta.descripcion, style=wx.TE_MULTILINE))
+                panel, value=meta.descripcion, style=wx.TE_MULTILINE))
         self.txt_descripcion.SetMinSize(
             (-1, 3 * self.txt_descripcion.GetCharHeight() + 12))
-        vs.Add(contenido, 1, wx.EXPAND)
-        self._agregar_botones(vs)
+        self._agregar_botones(panel, vs)
 
-        self.SetSizer(vs)
+        formulario.ajustar_tamano(self, panel, vs)
         self.btn_aceptar.SetDefault()
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
         self.btn_cancelar.Bind(
@@ -90,7 +86,7 @@ class DialogoDestinoManual(DialogoDestinoBase):
 
     def __init__(self, parent, plataformas):
         super().__init__(parent, title=_("Agregar destino manual"),
-                         size=(560, 470), name="DialogoDestinoManual")
+                         name="DialogoDestinoManual")
         self._plataformas = sorted(
             plataformas.items(),
             key=lambda par: (par[1].casefold(), par[0]))
@@ -100,26 +96,25 @@ class DialogoDestinoManual(DialogoDestinoBase):
         self.Centre()
 
     def _crear_ui(self):
+        panel = wx.Panel(self, name="PanelDestinoManual")
         vs = wx.BoxSizer(wx.VERTICAL)
-        contenido = wx.BoxSizer(wx.VERTICAL)
         self.lbl_plataforma, self.cho_plataforma = _rotulo(
-            self, contenido, _("&Plataforma:"),
+            panel, vs, _("&Plataforma:"),
             lambda: wx.Choice(
-                self, choices=[nombre for _id, nombre in self._plataformas]))
+                panel, choices=[nombre for _id, nombre in self._plataformas]))
         self.lbl_nombre, self.txt_nombre = _rotulo(
-            self, contenido, _("&Nombre:"),
-            lambda: wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER))
+            panel, vs, _("&Nombre:"),
+            lambda: wx.TextCtrl(panel, style=wx.TE_PROCESS_ENTER))
         self.lbl_servidor, self.txt_servidor = _rotulo(
-            self, contenido, _("&Servidor:"),
-            lambda: wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER))
+            panel, vs, _("&Servidor:"),
+            lambda: wx.TextCtrl(panel, style=wx.TE_PROCESS_ENTER))
         self.lbl_clave, self.txt_clave = _rotulo(
-            self, contenido, _("&Clave de transmisión:"),
+            panel, vs, _("&Clave de transmisión:"),
             lambda: wx.TextCtrl(
-                self, style=wx.TE_PASSWORD | wx.TE_PROCESS_ENTER))
-        vs.Add(contenido, 1, wx.EXPAND)
-        self._agregar_botones(vs)
+                panel, style=wx.TE_PASSWORD | wx.TE_PROCESS_ENTER))
+        self._agregar_botones(panel, vs)
 
-        self.SetSizer(vs)
+        formulario.ajustar_tamano(self, panel, vs)
         self.btn_aceptar.SetDefault()
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
         self.btn_cancelar.Bind(

@@ -15,7 +15,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.downloads import formatos_reales, ytdlp_bin
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui import paleta
+from guyrapu.ui import formulario, paleta
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
@@ -47,25 +47,21 @@ class DialogoFormato(wx.Dialog):
         self.panel = panel
         vs = wx.BoxSizer(wx.VERTICAL)
 
-        vs.Add(wx.StaticText(panel, label=_("&Formatos:")),
-               0, wx.ALL, 8)
+        rotulo = wx.StaticText(panel, label=_("&Formatos:"))
         self.lista = wx.ListBox(
             panel, choices=[o.etiqueta for o in self._opciones],
             name=_("Formatos"))
+        self.lista.SetMinSize((-1, 4 * self.lista.GetCharHeight() + 12))
         nombre_accesible(self.lista, _("Formatos"))
-        vs.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
+        formulario.agregar_fila(vs, rotulo, self.lista, hueco=0)
 
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_descargar = wx.Button(
             panel, wx.ID_OK, _("&Descargar"), name=_("Descargar"))
         self.btn_descargar.SetDefault()
-        fila.Add(self.btn_descargar, 0, wx.RIGHT, 8)
         self.btn_cancelar = wx.Button(
             panel, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
-        fila.Add(self.btn_cancelar, 0)
-        vs.Add(fila, 0, wx.ALL, 8)
-
-        panel.SetSizer(vs)
+        formulario.agregar_pie(vs, [self.btn_descargar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, vs)
         if self._opciones:
             self.lista.SetSelection(0)
         self.lista.SetFocus()

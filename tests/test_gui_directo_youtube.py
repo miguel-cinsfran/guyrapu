@@ -18,6 +18,7 @@ except Exception:
 
 from guyrapu.ui import gui_directo_youtube as directo
 from guyrapu.ui import espera_sonora, miniatura_directo
+from guyrapu.ui import formulario, tema
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.youtube.emision import (
@@ -277,13 +278,17 @@ class TestDialogoDirectoVentana(unittest.TestCase):
         self.assertEqual(dialogo.btn_cargar_listas.GetLabel(),
                          "Ca&rgar listas (sin sesión de YouTube)")
 
-    def test_casillas_con_borde_de_arriba_como_los_demas_controles(self):
+    def test_casillas_en_la_grilla_comun(self):
         dialogo = self._dialogo(titulo="Hola")
-        for casilla in (dialogo.chk_ninos, dialogo.chk_dvr):
-            with self.subTest(casilla=casilla.GetName()):
-                partida = casilla.GetContainingSizer().GetItem(casilla)
-                self.assertTrue(partida.GetFlag() & wx.TOP)
-                self.assertEqual(partida.GetBorder(), 6)
+        grilla = dialogo.chk_ninos.GetContainingSizer()
+        self.assertIs(grilla, dialogo.chk_dvr.GetContainingSizer())
+        self.assertEqual(grilla.GetItem(dialogo.chk_ninos).GetFlag()
+                         & wx.EXPAND, wx.EXPAND)
+        contenido = dialogo.zona_desplazamiento.GetSizer()
+        partida = next(contenido.GetItem(i)
+                       for i in range(contenido.GetItemCount())
+                       if contenido.GetItem(i).GetSizer() is grilla)
+        self.assertEqual(partida.GetBorder(), formulario.CONTROL_A_ETIQUETA)
 
     def test_orden_de_tab_con_las_opciones(self):
         dialogo = self._dialogo(titulo="Hola")
@@ -771,6 +776,42 @@ class TestPseudoAnunciosDirectoYoutube(unittest.TestCase):
         self.assertTrue(captado["titulo"].startswith("[¡"))
         self.assertTrue(captado["filtro"].startswith("[¡"))
         self._exigir_marcados(1)
+
+
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_geometria_y_desplazamiento_del_cuadro(self):
+        cuadro = directo.DialogoDirectoYoutube(None, titulo="Hola")
+        self.addCleanup(destruir, cuadro)
+        ancho, _alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        zona = cuadro.zona_desplazamiento
+        self.assertIsInstance(zona, wx.ScrolledWindow)
+        self.assertTrue(zona.GetWindowStyle() & wx.VSCROLL)
+        hijos = list(zona.GetChildren())
+        indice = next(i for i, h in enumerate(hijos)
+                      if isinstance(h, wx.StaticText) and h.GetLabel())
+        rotulo, control = hijos[indice], hijos[indice + 1]
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            control.GetPosition().y - formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(rotulo.GetPosition().x, control.GetPosition().x)
+        cliente = cuadro.GetClientSize()
+        botones = [cuadro.btn_crear, cuadro.btn_cancelar]
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(cuadro.btn_crear.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

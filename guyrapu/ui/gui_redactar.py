@@ -8,7 +8,7 @@ import wx
 
 from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
-from guyrapu.ui import paleta
+from guyrapu.ui import formulario, paleta
 
 
 def _anunciar(texto: str) -> None:
@@ -17,24 +17,33 @@ def _anunciar(texto: str) -> None:
 
 
 class PanelRedactar(wx.Panel):
-    def __init__(self, parent, etiqueta, maximo, al_enviar):
+    def __init__(self, parent, etiqueta, maximo, al_enviar, en_dialogo=False):
         super().__init__(parent, name="PanelRedactar")
         self._maximo = maximo
         self._al_enviar = al_enviar
         self._motivo = ""
 
         vs = wx.BoxSizer(wx.VERTICAL)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.etiqueta = wx.StaticText(self, label=etiqueta, name="EtiquetaRedaccion")
-        fila.Add(self.etiqueta, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 6)
         self.texto = wx.TextCtrl(self, style=wx.TE_MULTILINE, name=_("Mensaje para el chat"))
-        self.texto.SetMinSize((-1, 3 * self.texto.GetCharHeight() + 12))
-        fila.Add(self.texto, 1, wx.EXPAND | wx.RIGHT, 6)
+        self.texto.SetMinSize((-1, (4 if en_dialogo else 3)
+                               * self.texto.GetCharHeight() + 12))
         # Traductores: botón para enviar el mensaje.
         self.boton = wx.Button(self, label=_("E&nviar"), name=_("Enviar mensaje al chat"))
-        fila.Add(self.boton, 0, wx.ALIGN_BOTTOM)
-        vs.Add(fila, 1, wx.EXPAND)
-        self.SetSizer(vs)
+        if en_dialogo:
+            formulario.agregar_fila(vs, self.etiqueta, self.texto, hueco=0)
+            self.btn_cancelar = wx.Button(
+                self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
+            formulario.agregar_pie(vs, [self.boton, self.btn_cancelar])
+        else:
+            fila = wx.BoxSizer(wx.HORIZONTAL)
+            fila.Add(self.etiqueta, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 6)
+            fila.Add(self.texto, 1, wx.EXPAND | wx.RIGHT, 6)
+            fila.Add(self.boton, 0, wx.ALIGN_BOTTOM)
+            vs.Add(fila, 1, wx.EXPAND)
+        self.contenido = vs
+        if not en_dialogo:
+            self.SetSizer(vs)
         self.boton.Bind(wx.EVT_BUTTON, self._on_enviar)
         self.texto.Bind(wx.EVT_CHAR_HOOK, self._on_char_hook)
 
@@ -87,20 +96,19 @@ class DialogoRedactar(wx.Dialog):
         # Traductores: nombre del botón que publica.
         nombre_boton = _("Publicar") if nombre_boton is None else nombre_boton
         super().__init__(parent, title=titulo, name="DialogoRedactar")
+        self.SetEscapeId(wx.ID_CANCEL)
         self._al_enviar = al_enviar
-        vs = wx.BoxSizer(wx.VERTICAL)
-        self.panel = PanelRedactar(self, etiqueta, maximo, self._enviar)
+        self.panel = PanelRedactar(
+            self, etiqueta, maximo, self._enviar, en_dialogo=True)
         self.panel.texto.SetName(nombre_texto)
         # Traductores: botón con el nombre que pone el llamador; {boton} es ese nombre.
         self.panel.boton.SetLabel(_("&{boton}").format(boton=nombre_boton))
         self.panel.boton.SetName(nombre_boton)
+        self.panel.boton.SetDefault()
         self.panel.establecer_motivo(motivo)
-        vs.Add(self.panel, 1, wx.EXPAND | wx.ALL, 10)
-        # Traductores: botón para cerrar sin publicar.
-        cancelar = wx.Button(self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
-        vs.Add(cancelar, 0, wx.ALIGN_RIGHT | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self.SetSizerAndFit(vs)
-        self.Bind(wx.EVT_BUTTON, lambda e: self.EndModal(wx.ID_CANCEL), cancelar)
+        formulario.ajustar_tamano(self, self.panel, self.panel.contenido)
+        self.panel.btn_cancelar.Bind(
+            wx.EVT_BUTTON, lambda e: self.EndModal(wx.ID_CANCEL))
         paleta.pintar_ventana(self)
 
     def _enviar(self, texto) -> None:

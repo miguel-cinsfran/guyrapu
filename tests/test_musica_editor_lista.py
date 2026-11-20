@@ -20,6 +20,7 @@ from tests.ventanas_prueba import app_de_prueba
 try:
     import wx
     from guyrapu.ui import musica_editor_lista
+    from guyrapu.ui import formulario, tema
     from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
     from tests.ventanas_prueba import destruir
     _HAY_WX = True
@@ -241,6 +242,41 @@ class TestListaConLaPieza(unittest.TestCase):
         self._pulsar(wx.WXK_RETURN, wx.wxEVT_CHAR_HOOK)
         reproducir.assert_not_called()
         self.assertEqual(dialogo._lista.temas, ())
+
+
+@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_geometria_del_cuadro(self):
+        cuadro = musica_editor_lista.DialogoEditorLista(None, "Mías")
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        hijos = list(cuadro.txt_nombre.GetParent().GetChildren())
+        indice = next(i for i, h in enumerate(hijos)
+                      if isinstance(h, wx.StaticText) and h.GetLabel())
+        rotulo, control = hijos[indice], hijos[indice + 1]
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            control.GetPosition().y - formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(rotulo.GetPosition().x, control.GetPosition().x)
+        cliente = cuadro.GetClientSize()
+        botones = [cuadro.btn_guardar, cuadro.btn_cancelar]
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(cuadro.btn_guardar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

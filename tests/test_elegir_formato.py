@@ -28,6 +28,8 @@ except ImportError:
     elegir_formato = None  # type: ignore
     _HAY_ELEGIR = False
 
+from guyrapu.ui import formulario, tema
+
 
 def _res(id="v", tipo="video", directo=False, programado=False):
     return Resultado(
@@ -146,9 +148,11 @@ class TestDialogoFormato(unittest.TestCase):
             [o.etiqueta for o in self.opciones])
 
     def test_margen_de_8_entre_descargar_y_cancelar(self):
-        vs = self.dialogo.panel.GetSizer()
-        fila = vs.GetItem(vs.GetItemCount() - 1).GetSizer()
-        self.assertEqual(fila.GetItem(0).GetBorder(), 8)
+        exterior = self.dialogo.panel.GetSizer()
+        contenido = exterior.GetItem(0).GetSizer()
+        fila = contenido.GetItem(contenido.GetItemCount() - 1).GetSizer()
+        self.assertEqual(fila.GetItem(0).GetBorder(),
+                         formulario.ENTRE_BOTONES)
 
 
 class _HiloYa:
@@ -356,6 +360,41 @@ class TestConsultaFormatos(unittest.TestCase):
             consulta.pedir(self.resultado)
             consulta.pedir(self.resultado)
         self.assertEqual(len(llegadas), 1)
+
+
+@unittest.skipUnless(_HAY_WX and _HAY_ELEGIR, "wxPython no está instalado")
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_geometria_del_cuadro(self):
+        cuadro = elegir_formato.DialogoFormato(None, [])
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        hijos = list(cuadro.lista.GetParent().GetChildren())
+        indice = next(i for i, h in enumerate(hijos)
+                      if isinstance(h, wx.StaticText) and h.GetLabel())
+        rotulo, control = hijos[indice], hijos[indice + 1]
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            control.GetPosition().y - formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(rotulo.GetPosition().x, control.GetPosition().x)
+        cliente = cuadro.GetClientSize()
+        botones = [cuadro.btn_descargar, cuadro.btn_cancelar]
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(cuadro.btn_descargar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

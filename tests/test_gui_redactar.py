@@ -7,6 +7,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.ui import gui_redactar
+from guyrapu.ui import formulario, tema
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -206,6 +207,52 @@ class TestPseudoRedactar(unittest.TestCase):
         destruir(dialogo)
         for texto in (titulo, nombre_texto, boton):
             self.assertTrue(texto.startswith("[¡"), texto)
+
+
+class TestDisenioComun(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = app_de_prueba()
+        cls.frame = wx.Frame(None)
+
+    @classmethod
+    def tearDownClass(cls):
+        destruir(cls.frame)
+        del cls.frame
+        del cls.app
+
+    def test_geometria_del_cuadro(self):
+        cuadro = gui_redactar.DialogoRedactar(
+            self.frame, "&Comentario:", 200, lambda texto: None)
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        rotulo = cuadro.panel.etiqueta
+        texto = cuadro.panel.texto
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            texto.GetPosition().y - formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(rotulo.GetPosition().x, texto.GetPosition().x)
+        cliente = cuadro.GetClientSize()
+        self.assertEqual(texto.GetSize().width,
+                         cliente.width - 2 * formulario.MARGEN)
+        self.assertGreaterEqual(
+            texto.GetMinSize().height, 4 * texto.GetCharHeight() + 12)
+        botones = [cuadro.panel.boton,
+                   cuadro.FindWindowByName("Cancelar")]
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(cuadro.panel.boton.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

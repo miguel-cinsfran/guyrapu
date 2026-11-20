@@ -17,7 +17,7 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.music import anuncios, listas, vista
 from guyrapu.music.edicion_lista import ListaEnEdicion
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui import musica_menus, paleta, tecla_escape
+from guyrapu.ui import formulario, musica_menus, paleta, tecla_escape
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 
 MAX_NOMBRE = 60
@@ -79,7 +79,6 @@ class DialogoEditorLista(wx.Dialog):
         self.Bind(wx.EVT_CHAR_HOOK, self._tecla)
         self.lb_todas.Bind(wx.EVT_LIST_ITEM_CHECKED, self._al_marcar)
         self.lb_todas.Bind(wx.EVT_LIST_ITEM_UNCHECKED, self._al_desmarcar)
-        self.Fit()
         self.Centre()
         paleta.pintar_ventana(self)
         (self.lb_lista if nombre else self.txt_nombre).SetFocus()
@@ -91,28 +90,23 @@ class DialogoEditorLista(wx.Dialog):
         self._agregar_lista(panel, vs)
         self._agregar_buscar(panel, vs)
         self._agregar_todas(panel, vs)
-        vs.Add(self._crear_botones(panel), 0, wx.ALL, 12)
-        panel.SetSizer(vs)
-        contenedor = wx.BoxSizer(wx.VERTICAL)
-        contenedor.Add(panel, 1, wx.EXPAND)
-        self.SetSizer(contenedor)
+        formulario.agregar_pie(vs, self._crear_botones(panel))
+        formulario.ajustar_tamano(self, panel, vs)
         self.txt_buscar.Bind(wx.EVT_TEXT, lambda _evento: self._aplicar_filtro())
 
     def _agregar_nombre(self, panel, vs):
-        vs.Add(wx.StaticText(panel, label=_("&Nombre:")), 0, wx.ALL, 12)
+        rotulo = wx.StaticText(panel, label=_("&Nombre:"))
         self.txt_nombre = self._campo(
             panel, _("Nombre de la lista"), MAX_NOMBRE)
-        vs.Add(self.txt_nombre, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
-               12)
+        formulario.agregar_fila(vs, rotulo, self.txt_nombre)
 
     def _agregar_lista(self, panel, vs):
-        vs.Add(wx.StaticText(
-            panel, label=_("&Canciones de la lista:")), 0, wx.ALL, 12)
+        rotulo = wx.StaticText(panel, label=_("&Canciones de la lista:"))
         self.lb_lista = self._lista_ctrl(
             panel, _("Canciones de la lista"), 120)
         self._lista_acciones = ListaConAcciones(
             self.lb_lista, self._acciones_lista(), _(TEXTO_LISTA_VACIA))
-        vs.Add(self.lb_lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 12)
+        formulario.agregar_fila(vs, rotulo, self.lb_lista, hueco=0)
 
     def _acciones_lista(self):
         """Las entradas del menú de la lista propia, con su tecla."""
@@ -129,21 +123,18 @@ class DialogoEditorLista(wx.Dialog):
             for etiqueta, clave in musica_menus.entradas_lista_editada())
 
     def _agregar_buscar(self, panel, vs):
-        vs.Add(wx.StaticText(panel, label=_("&Buscar:")), 0, wx.ALL, 12)
+        rotulo = wx.StaticText(panel, label=_("&Buscar:"))
         self.txt_buscar = self._campo(panel, _("Buscar canciones"))
-        vs.Add(self.txt_buscar, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
-               12)
+        formulario.agregar_fila(vs, rotulo, self.txt_buscar)
 
     def _agregar_todas(self, panel, vs):
-        vs.Add(wx.StaticText(
-            panel, label=_("&Todas las canciones:")), 0, wx.ALL, 12)
+        rotulo = wx.StaticText(panel, label=_("&Todas las canciones:"))
         self.lb_todas = self._lista_ctrl(
             panel, _("Todas las canciones"), 180)
         self.lb_todas.EnableCheckBoxes(True)
         self._todas_acciones = ListaConAcciones(
             self.lb_todas, self._acciones_todas(), "")
-        vs.Add(self.lb_todas, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
-               12)
+        formulario.agregar_fila(vs, rotulo, self.lb_todas)
 
     def _acciones_todas(self):
         """Las entradas del menú de «Todas las canciones», con su tecla."""
@@ -183,18 +174,15 @@ class DialogoEditorLista(wx.Dialog):
         return campo
 
     def _crear_botones(self, panel):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_guardar = wx.Button(panel, wx.ID_OK, _("&Guardar"),
-                                      name=_("Guardar"))
+                                       name=_("Guardar"))
         self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("Cance&lar"),
                                        name=_("Cancelar"))
-        for boton in (self.btn_guardar, self.btn_cancelar):
-            fila.Add(boton, 0, wx.RIGHT, 8)
         self.btn_guardar.SetDefault()
         self.btn_guardar.Bind(wx.EVT_BUTTON, self._guardar)
         self.btn_cancelar.Bind(
             wx.EVT_BUTTON, lambda _evento: self.EndModal(wx.ID_CANCEL))
-        return fila
+        return [self.btn_guardar, self.btn_cancelar]
 
     def _cargar_lista(self):
         self._lista_acciones.fijar(

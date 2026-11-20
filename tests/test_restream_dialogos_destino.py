@@ -18,6 +18,7 @@ import wx
 from guyrapu.restream.api import Canal, ErrorApi, MetaCanal
 from guyrapu.ui import restream_acciones_destino as acciones
 from guyrapu.ui import restream_dialogos_destino as dialogos
+from guyrapu.ui import formulario, tema
 from tests.letras_acceso import letras_repetidas
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -413,6 +414,46 @@ class PruebaAccionesDestino(unittest.TestCase):
         ventana._pagina_eventos.actualizar_nombres.assert_called_once_with()
         anunciar.assert_called_once_with("Destino agregado.")
         self.assertFalse(any(secreto in registro for registro in registros))
+
+
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def _comprobar(self, cuadro, rotulo, control, principal, botones):
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            control.GetPosition().y - formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(rotulo.GetPosition().x, control.GetPosition().x)
+        cliente = cuadro.GetClientSize()
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(principal.GetBackgroundColour(), tema._T.primary)
+
+    def test_geometria_de_cambiar_titulo(self):
+        cuadro = dialogos.DialogoMetaDestino(
+            None, MetaCanal("Título", "Descripción"))
+        self._comprobar(cuadro, cuadro.lbl_titulo, cuadro.txt_titulo,
+                        cuadro.btn_aceptar,
+                        [cuadro.btn_aceptar, cuadro.btn_cancelar])
+
+    def test_geometria_de_agregar_destino_manual(self):
+        cuadro = dialogos.DialogoDestinoManual(None, {"rtmp": "RTMP"})
+        self._comprobar(cuadro, cuadro.lbl_plataforma, cuadro.cho_plataforma,
+                        cuadro.btn_aceptar,
+                        [cuadro.btn_aceptar, cuadro.btn_cancelar])
 
 
 if __name__ == "__main__":

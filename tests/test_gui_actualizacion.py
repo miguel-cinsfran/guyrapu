@@ -17,6 +17,7 @@ except Exception:
 
 from guyrapu.ui import espera_sonora
 from guyrapu.ui import gui_actualizacion as actualizacion
+from guyrapu.ui import formulario, tema
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -61,7 +62,7 @@ class TestDialogoActualizacion(unittest.TestCase):
     def test_orden_de_tab(self):
         dialogo = self._dialogo()
         self.assertEqual(
-            list(dialogo.GetChildren()),
+            list(dialogo.panel.GetChildren()),
             [dialogo.txt_estado, dialogo.gauge, dialogo.txt_notas,
              dialogo.btn_accion, dialogo.btn_cerrar])
 
@@ -233,7 +234,7 @@ class TestReajuste(unittest.TestCase):
 
     def _orden_tab(self, dialogo):
         self.assertEqual(
-            list(dialogo.GetChildren()),
+            list(dialogo.panel.GetChildren()),
             [dialogo.txt_estado, dialogo.gauge, dialogo.txt_notas,
              dialogo.btn_accion, dialogo.btn_cerrar])
 
@@ -265,6 +266,36 @@ class TestReajuste(unittest.TestCase):
                          dialogo.btn_cerrar.GetPosition().y)
         self.assertLess(dialogo.btn_accion.GetPosition().x,
                         dialogo.btn_cerrar.GetPosition().x)
+
+
+@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_geometria_del_cuadro(self):
+        cuadro = actualizacion.DialogoActualizacion(None, "Actualizar algo")
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        self.assertLess(cuadro.txt_estado.GetPosition().y,
+                        cuadro.gauge.GetPosition().y)
+        cuadro.ofrecer_accion("&Descargar", lambda: None)
+        cliente = cuadro.GetClientSize()
+        botones = [cuadro.btn_accion, cuadro.btn_cerrar]
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(cuadro.btn_accion.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

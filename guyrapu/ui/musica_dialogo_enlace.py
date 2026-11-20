@@ -12,7 +12,7 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui.accesibilidad import nombre_accesible
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 
 TITULO = N_("Abrir enlace")
 MODO_AHORA = "ahora"
@@ -45,13 +45,11 @@ class DialogoEnlace(wx.Dialog):
         self._panel = panel
         vs = wx.BoxSizer(wx.VERTICAL)
 
-        vs.Add(wx.StaticText(panel, label=_("Enlace &de YouTube:")),
-                0, wx.ALL, 8)
+        rotulo = wx.StaticText(panel, label=_("Enlace &de YouTube:"))
         self.txt_enlace = wx.TextCtrl(panel, name=_("Enlace de YouTube"))
         nombre_accesible(self.txt_enlace, _("Enlace de YouTube"))
-        vs.Add(self.txt_enlace, 0, wx.EXPAND | wx.ALL, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_enlace, hueco=0)
 
-        botones = wx.WrapSizer(wx.HORIZONTAL, flags=0)
         self.btn_ahora = self._boton(
             panel, _("Reproducir &ahora"), _("Reproducir ahora"))
         self.btn_continuacion = self._boton(
@@ -60,12 +58,9 @@ class DialogoEnlace(wx.Dialog):
             panel, _("Agregar a la &cola"), _("Agregar a la cola"))
         self.btn_cancelar = wx.Button(
             panel, wx.ID_CANCEL, _("Cance&lar"), name=_("Cancelar"))
-        for boton in (self.btn_ahora, self.btn_continuacion,
-                      self.btn_cola, self.btn_cancelar):
-            botones.Add(boton, 0, wx.RIGHT, 6)
-        vs.Add(botones, 0, wx.ALL, 8)
-
-        panel.SetSizer(vs)
+        formulario.agregar_pie(vs, [self.btn_ahora, self.btn_continuacion,
+                                    self.btn_cola, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, vs)
 
         self.btn_ahora.SetDefault()
         self.btn_ahora.Bind(wx.EVT_BUTTON, lambda e: self._elegir(MODO_AHORA))

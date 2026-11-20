@@ -17,7 +17,7 @@ from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_prevuelo
-from guyrapu.ui import ayuda_manual, miniatura_directo, paleta, tecla_escape
+from guyrapu.ui import ayuda_manual, formulario, miniatura_directo, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.youtube import youtube_api
@@ -83,17 +83,13 @@ class DialogoDirectoYoutube(wx.Dialog):
                                    revision)
 
         zona.SetSizer(contenido)
-        vs.Add(zona, 1, wx.EXPAND)
+        vs.Add(zona, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP,
+               formulario.MARGEN)
 
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_crear = wx.Button(self, wx.ID_OK, _("&Transmitir"), name=_("Transmitir"))
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
-        fila.Add(self.btn_crear, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        pie = self._crear_pie(vs)
 
         self.txt_titulo.SetMinSize((420, -1))
-        self._ajustar_tamano(vs, zona, fila)
+        self._ajustar_tamano(vs, zona, pie)
         self.btn_crear.Bind(wx.EVT_BUTTON, self._al_crear)
         if not solo_titulo:
             self._enlazar_opciones()
@@ -104,14 +100,26 @@ class DialogoDirectoYoutube(wx.Dialog):
         else:
             self.btn_crear.SetDefault()
             self.txt_titulo.SetFocus()
+        paleta.pintar_ventana(self)
 
-    def _ajustar_tamano(self, vs, zona, fila):
+    def _crear_pie(self, vs):
+        self.btn_crear = wx.Button(self, wx.ID_OK, _("&Transmitir"),
+                                   name=_("Transmitir"))
+        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("C&ancelar"),
+                                      name=_("Cancelar"))
+        pie = wx.BoxSizer(wx.VERTICAL)
+        formulario.agregar_pie(pie, [self.btn_crear, self.btn_cancelar])
+        vs.Add(pie, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
+               formulario.MARGEN)
+        return pie
+
+    def _ajustar_tamano(self, vs, zona, pie):
         self.SetSizer(vs)
         self.Fit()
-        ancho = self.GetSize().width
+        ancho = max(formulario.ANCHO_MINIMO, self.GetSize().width)
         delta = self.GetSize().height - self.GetClientSize().height
         alto_contenido = zona.GetSizer().GetMinSize().height
-        alto_pie = fila.GetMinSize().height + 20
+        alto_pie = pie.GetMinSize().height + formulario.MARGEN
         try:
             indice = wx.Display.GetFromWindow(self)
             if indice == wx.NOT_FOUND:
@@ -133,51 +141,48 @@ class DialogoDirectoYoutube(wx.Dialog):
                                      alto_maximo), piso)))
         self.SetMinSize((ancho, piso))
         self.Layout()
-        paleta.pintar_ventana(self)
 
     def _contenido_datos(self, zona, contenido, titulo, descripcion,
                            privacidad, latencia, solo_titulo=False):
         rotulo_titulo = wx.StaticText(zona, label=_("Título:"))
-        contenido.Add(rotulo_titulo, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         self.txt_titulo = wx.TextCtrl(
             zona, value=titulo, name=_("Título del directo"))
         self.txt_titulo.SetMaxLength(100)
         self.txt_titulo.SelectAll()
         nombre_accesible(self.txt_titulo, _("Título del directo"))
-        contenido.Add(self.txt_titulo, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_titulo, self.txt_titulo)
 
         rotulo_descripcion = wx.StaticText(
             zona, label=_("Descripción, opcional:"))
-        contenido.Add(rotulo_descripcion, 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_descripcion = wx.TextCtrl(
             zona, value=descripcion or "", style=wx.TE_MULTILINE,
             name=_("Descripción del directo"))
         self.txt_descripcion.SetMinSize(
             (-1, 3 * self.txt_descripcion.GetCharHeight() + 12))
         nombre_accesible(self.txt_descripcion, _("Descripción del directo"))
-        contenido.Add(self.txt_descripcion, 1, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_descripcion,
+                                self.txt_descripcion)
         if solo_titulo:
             return
 
         rotulo_privacidad = wx.StaticText(zona, label=_("Privacidad:"))
-        contenido.Add(rotulo_privacidad, 0, wx.LEFT | wx.RIGHT, 10)
         self.cho_privacidad = wx.Choice(
             zona, choices=[_(ETIQUETAS_PRIVACIDAD[p])
                            for p in PRIVACIDADES],
             name=_("Privacidad"))
         self.cho_privacidad.SetSelection(PRIVACIDADES.index(privacidad))
         nombre_accesible(self.cho_privacidad, _("Privacidad"))
-        contenido.Add(self.cho_privacidad, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_privacidad,
+                                self.cho_privacidad)
 
         rotulo_latencia = wx.StaticText(zona, label=_("&Latencia:"))
-        contenido.Add(rotulo_latencia, 0, wx.LEFT | wx.RIGHT, 10)
         self.cho_latencia = wx.Choice(
             zona, choices=[_(ETIQUETAS_LATENCIA[latencia])
                            for latencia in LATENCIAS],
             name=_("Latencia"))
         self.cho_latencia.SetSelection(LATENCIAS.index(latencia))
         nombre_accesible(self.cho_latencia, _("Latencia"))
-        contenido.Add(self.cho_latencia, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_latencia, self.cho_latencia)
 
     def _contenido_opciones(self, zona, contenido, ninos, dvr, categoria,
                             etiquetas):
@@ -186,17 +191,15 @@ class DialogoDirectoYoutube(wx.Dialog):
             name=_("Creado para niños"))
         self.chk_ninos.SetValue(bool(ninos))
         nombre_accesible(self.chk_ninos, _("Creado para niños"))
-        contenido.Add(self.chk_ninos, 0, wx.LEFT | wx.RIGHT | wx.TOP, 6)
 
         self.chk_dvr = wx.CheckBox(
             zona, label=_("Permitir re&bobinar el directo"),
             name=_("Permitir rebobinar"))
         self.chk_dvr.SetValue(bool(dvr))
         nombre_accesible(self.chk_dvr, _("Permitir rebobinar"))
-        contenido.Add(self.chk_dvr, 0, wx.LEFT | wx.RIGHT | wx.TOP, 6)
+        formulario.agregar_casillas(contenido, [self.chk_ninos, self.chk_dvr])
 
         rotulo_categoria = wx.StaticText(zona, label=_("Cate&goría:"))
-        contenido.Add(rotulo_categoria, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         self.cho_categoria = wx.Choice(
             zona, choices=[_(texto) for _id, texto in CATEGORIAS],
             name=_("Categoría"))
@@ -204,20 +207,18 @@ class DialogoDirectoYoutube(wx.Dialog):
         self.cho_categoria.SetSelection(
             ids.index(categoria) if categoria in ids else 0)
         nombre_accesible(self.cho_categoria, _("Categoría"))
-        contenido.Add(self.cho_categoria, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_categoria, self.cho_categoria)
 
         rotulo_etiquetas = wx.StaticText(
             zona, label=_("&Etiquetas, separadas por comas:"))
-        contenido.Add(rotulo_etiquetas, 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_etiquetas = wx.TextCtrl(
             zona, value=etiquetas or "", name=_("Etiquetas"))
         nombre_accesible(self.txt_etiquetas, _("Etiquetas"))
-        contenido.Add(self.txt_etiquetas, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_etiquetas, self.txt_etiquetas)
 
     def _contenido_cierre(self, zona, contenido, lista, lista_titulo,
                           revision):
         rotulo_miniatura = wx.StaticText(zona, label=_("Miniatura:"))
-        contenido.Add(rotulo_miniatura, 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_miniatura = wx.TextCtrl(
             zona, value=miniatura_directo.texto_miniatura(self._miniatura),
             style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_NO_VSCROLL,
@@ -225,7 +226,7 @@ class DialogoDirectoYoutube(wx.Dialog):
         self.txt_miniatura.SetMinSize(
             (-1, self.txt_miniatura.GetCharHeight() + 12))
         nombre_accesible(self.txt_miniatura, _("Miniatura"))
-        contenido.Add(self.txt_miniatura, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_miniatura, self.txt_miniatura)
 
         fila_miniatura = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_elegir_miniatura = wx.Button(
@@ -239,22 +240,21 @@ class DialogoDirectoYoutube(wx.Dialog):
         self._opciones_lista, seleccion_lista = opciones_lista(
             None, lista, lista_titulo)
         rotulo_lista = wx.StaticText(zona, label=_("Lista de re&producción:"))
-        contenido.Add(rotulo_lista, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         self.cho_lista = wx.Choice(
             zona, choices=[texto for _id, texto in self._opciones_lista],
             name=_("Lista de reproducción"))
         self.cho_lista.SetSelection(seleccion_lista)
         nombre_accesible(self.cho_lista, _("Lista de reproducción"))
-        contenido.Add(self.cho_lista, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_lista, self.cho_lista)
         self.btn_cargar_listas = wx.Button(
             zona, label=_("Ca&rgar listas"), name=_("Cargar listas"))
-        contenido.Add(self.btn_cargar_listas, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        contenido.Add(self.btn_cargar_listas, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM,
+                      formulario.CONTROL_A_ETIQUETA)
 
         from guyrapu.obs import obs_prevuelo
         texto_revision = (obs_prevuelo.frase_revision(revision)
                           if revision is not None else "")
         rotulo_revision = wx.StaticText(zona, label=_("Revisión de OBS:"))
-        contenido.Add(rotulo_revision, 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_revision = wx.TextCtrl(
             zona, value=texto_revision,
             style=wx.TE_MULTILINE | wx.TE_READONLY,
@@ -262,7 +262,7 @@ class DialogoDirectoYoutube(wx.Dialog):
         self.txt_revision.SetMinSize(
             (-1, 3 * self.txt_revision.GetCharHeight() + 12))
         nombre_accesible(self.txt_revision, _("Revisión de OBS"))
-        contenido.Add(self.txt_revision, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, rotulo_revision, self.txt_revision)
 
     def _enlazar_opciones(self):
         self.btn_elegir_miniatura.Bind(

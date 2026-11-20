@@ -12,7 +12,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import paleta
+from guyrapu.ui import formulario, paleta
 from guyrapu.ui.accesibilidad import nombre_accesible
 
 TITULO = N_("Estado de la sesión")
@@ -38,15 +38,12 @@ class DialogoEstado(wx.Dialog):
 
         self.lista = wx.ListBox(panel, choices=self._lineas, name=_(TITULO))
         nombre_accesible(self.lista, _(TITULO))
-        vs.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
+        vs.Add(self.lista, 1, wx.EXPAND)
 
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_cerrar = wx.Button(
             panel, wx.ID_CANCEL, _("&Cerrar"), name=_(CERRAR))
-        fila.Add(self.btn_cerrar, 0)
-        vs.Add(fila, 0, wx.ALL, 8)
-
-        panel.SetSizer(vs)
+        formulario.agregar_pie(vs, [self.btn_cerrar])
+        formulario.ajustar_tamano(self, panel, vs)
         self.lista.SetSelection(0)
         self.lista.SetFocus()
 

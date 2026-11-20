@@ -15,9 +15,8 @@ import wx
 from guyrapu.core.idioma import _, ngettext
 from guyrapu.restream import perfiles
 from guyrapu.restream.perfiles import ORIENTACIONES, Perfil
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui.gui import caja_de_grupo
 from guyrapu.ui.preferencias_comun import mostrar_control, nombre_de_etiqueta
 
 
@@ -27,8 +26,7 @@ def _rotulo(padre, contenido, texto, crear_control):
     control = crear_control()
     control.SetName(nombre_de_etiqueta(texto))
     nombre_accesible(control, control.GetName())
-    contenido.Add(rotulo, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-    contenido.Add(control, 0, wx.EXPAND | wx.ALL, 10)
+    formulario.agregar_fila(contenido, rotulo, control, hueco=0)
     return rotulo, control
 
 
@@ -38,7 +36,7 @@ class DialogoPerfilRestream(wx.Dialog):
                  sin_cuenta=False):
         titulo = (_("Nuevo perfil de Restream") if perfil is None
                   else _("Editar perfil de Restream"))
-        super().__init__(parent, title=titulo, size=(560, 640),
+        super().__init__(parent, title=titulo,
                          name="DialogoPerfilRestream")
         self._perfil = perfil
         self._existentes = list(existentes or ())
@@ -55,31 +53,26 @@ class DialogoPerfilRestream(wx.Dialog):
         self.Centre()
 
     def _crear_ui(self):
-        vs = wx.BoxSizer(wx.VERTICAL)
-        zona = wx.ScrolledWindow(self, style=wx.TAB_TRAVERSAL | wx.VSCROLL)
-        zona.SetScrollRate(0, 20)
+        panel = wx.Panel(self, name="PanelPerfilRestream")
+        self._panel = panel
         contenido = wx.BoxSizer(wx.VERTICAL)
-        self._agregar_nombre(zona, contenido)
-        self._agregar_orientacion(zona, contenido)
-        self._agregar_destinos(zona, contenido)
-        self._agregar_youtube_y_chat(zona, contenido)
-        zona.SetSizer(contenido)
-        vs.Add(zona, 1, wx.EXPAND)
+        self._agregar_nombre(panel, contenido)
+        self._agregar_orientacion(panel, contenido)
+        self._agregar_destinos(panel, contenido)
+        self._agregar_youtube_y_chat(panel, contenido)
 
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         etiqueta_guardar = _("&Guardar")
         self.btn_guardar = wx.Button(
-            self, wx.ID_OK, etiqueta_guardar,
+            panel, wx.ID_OK, etiqueta_guardar,
             name=nombre_de_etiqueta(etiqueta_guardar))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
+            panel, wx.ID_CANCEL, _("C&ancelar"), name=_("Cancelar"))
         nombre_accesible(self.btn_guardar, self.btn_guardar.GetName())
         nombre_accesible(self.btn_cancelar, self.btn_cancelar.GetName())
-        fila.Add(self.btn_guardar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        formulario.agregar_pie(contenido,
+                               [self.btn_guardar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, contenido)
 
-        self.SetSizer(vs)
         self.btn_guardar.SetDefault()
         self.btn_guardar.Bind(wx.EVT_BUTTON, self._guardar)
         self.btn_cancelar.Bind(
@@ -102,11 +95,13 @@ class DialogoPerfilRestream(wx.Dialog):
                        else ORIENTACIONES[0])
         self.cho_orientacion.SetSelection(ORIENTACIONES.index(orientacion))
 
-    def _agregar_destinos(self, zona, contenido):
-        sizer, padre = caja_de_grupo(zona, _("Destinos"))
+    def _agregar_destinos(self, panel, contenido):
+        sizer = formulario.agregar_seccion(contenido, panel, _("Destinos"))
+        caja = sizer.GetStaticBox()
         self._caja_canales = sizer
+        casillas = []
         for identificador, texto in self._canales:
-            casilla = wx.CheckBox(padre, label=texto.replace("&", "&&"),
+            casilla = wx.CheckBox(caja, label=texto.replace("&", "&&"),
                                   name=texto)
             nombre_accesible(casilla, texto)
             if (self._perfil is not None
@@ -116,16 +111,17 @@ class DialogoPerfilRestream(wx.Dialog):
                          lambda evento: self._actualizar_chat())
             self._casillas.append((identificador, casilla))
             self._textos[identificador] = texto
-            sizer.Add(casilla, 0, wx.ALL, 4)
-        if not self._canales:
+            casillas.append(casilla)
+        if casillas:
+            formulario.agregar_casillas(sizer, casillas, hueco=0)
+        else:
             texto = (_("Sin cuenta de Restream. Conéctala en la pestaña "
                        "Cuenta.") if self._sin_cuenta else _(
-                "No hay destinos. Agrégalos en la pestaña Destinos."))
-            sizer.Add(wx.StaticText(padre, label=texto), 0, wx.ALL, 4)
-        contenido.Add(sizer, 0, wx.EXPAND | wx.ALL, 10)
-        self._nota_sobrantes = self._crear_nota_sobrantes(zona, contenido)
+                 "No hay destinos. Agrégalos en la pestaña Destinos."))
+            sizer.Add(wx.StaticText(caja, label=texto), 0, wx.EXPAND)
+        self._nota_sobrantes = self._crear_nota_sobrantes(panel, contenido)
 
-    def _crear_nota_sobrantes(self, zona, contenido):
+    def _crear_nota_sobrantes(self, panel, contenido):
         if self._perfil is None or self._sin_cuenta:
             return None
         sobrantes = [identificador for identificador in self._perfil.canales
@@ -138,34 +134,34 @@ class DialogoPerfilRestream(wx.Dialog):
             "Hay {n} destinos del perfil de Restream que ya no están en "
             "Restream. Se eliminarán al guardar.",
             len(sobrantes)).format(n=len(sobrantes))
-        nota = wx.StaticText(zona, label=texto)
-        contenido.Add(nota, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        nota = wx.StaticText(panel, label=texto)
+        contenido.Add(nota, 0, wx.EXPAND)
         return nota
 
-    def _agregar_youtube_y_chat(self, zona, contenido):
+    def _agregar_youtube_y_chat(self, panel, contenido):
         perfil = self._perfil
         texto_youtube = _("YouTube, el canal de tu sesión de Google")
         self.chk_youtube = wx.CheckBox(
-            zona, label=_("&YouTube, el canal de tu sesión de Google"),
+            panel, label=_("&YouTube, el canal de tu sesión de Google"),
             name=texto_youtube)
         nombre_accesible(self.chk_youtube, texto_youtube)
         self.chk_youtube.SetValue(bool(perfil.youtube)
                                   if perfil is not None else False)
         self.chk_youtube.Bind(
             wx.EVT_CHECKBOX, lambda evento: self._actualizar_chat())
-        contenido.Add(self.chk_youtube, 0, wx.ALL, 10)
+        formulario.agregar_casillas(contenido, [self.chk_youtube], hueco=0)
 
         self._rotulo_chat = wx.StaticText(
-            zona, label=_("&Chat que lee Guyrapu:"))
-        contenido.Add(self._rotulo_chat, 0, wx.LEFT | wx.RIGHT, 10)
+            panel, label=_("&Chat que lee Guyrapu:"))
         self.cho_chat = wx.Choice(
-            zona, choices=[_("YouTube y TikTok"), _("Solo YouTube"),
-                           _("Solo TikTok")],
+            panel, choices=[_("YouTube y TikTok"), _("Solo YouTube"),
+                            _("Solo TikTok")],
             name=_("Chat que lee Guyrapu"))
         nombre_accesible(self.cho_chat, _("Chat que lee Guyrapu"))
         chat = perfil.chat if perfil is not None else "ambos"
         self.cho_chat.SetSelection({"ambos": 0, "tiktok": 2}.get(chat, 1))
-        contenido.Add(self.cho_chat, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(contenido, self._rotulo_chat, self.cho_chat,
+                                hueco=0)
         self._actualizar_chat()
 
     def _actualizar_chat(self):
@@ -176,7 +172,7 @@ class DialogoPerfilRestream(wx.Dialog):
             for identificador, casilla in self._casillas)
         for control in (self._rotulo_chat, self.cho_chat):
             mostrar_control(control, youtube and tiktok, self.chk_youtube)
-        self.Layout()
+        self._panel.Layout()
 
     def perfil(self):
         return self._resultado

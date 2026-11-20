@@ -29,6 +29,7 @@ from guyrapu.ui import restream_pagina_eventos
 from guyrapu.ui import restream_pagina_perfiles
 from guyrapu.ui import restream_perfil
 from guyrapu.ui import restream_ventana
+from guyrapu.ui import formulario, tema
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 from tests.letras_acceso import (
     _letra_de_acceso, letras_repetidas, repetidas_con_lo_de_fuera)
@@ -1919,6 +1920,40 @@ class PruebaDialogoPerfil(unittest.TestCase):
             sin_marcar = textos_sin_marcar(
                 dialogo, propios=("TikTok: uno", "YouTube: dos"))
         self.assertEqual([], sin_marcar)
+
+
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_geometria_del_perfil(self):
+        cuadro = restream_perfil.DialogoPerfilRestream(None, None, [], [])
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        hijos = list(cuadro.txt_nombre.GetParent().GetChildren())
+        indice = next(i for i, h in enumerate(hijos)
+                      if isinstance(h, wx.StaticText) and h.GetLabel())
+        rotulo, control = hijos[indice], hijos[indice + 1]
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            control.GetPosition().y - formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(rotulo.GetPosition().x, control.GetPosition().x)
+        cliente = cuadro.GetClientSize()
+        botones = [cuadro.btn_guardar, cuadro.btn_cancelar]
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(cuadro.btn_guardar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

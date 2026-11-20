@@ -21,7 +21,7 @@ from guyrapu.obs import obs_captura_ia
 from guyrapu.obs import obs_cliente
 from guyrapu.player import fotograma_video
 from guyrapu.ui import ia_captura_video
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.voice.sound_player import reproducir
@@ -76,32 +76,29 @@ class DialogoAgregarCaptura(wx.Dialog):
         self._resultado = None
         self._generacion_vista = 0
 
+        panel = wx.Panel(self, name="PanelAgregarCaptura")
+        self.panel = panel
         vs = wx.BoxSizer(wx.VERTICAL)
-        self.rotulo_fuente = wx.StaticText(self, label=_("&Capturar de:"))
-        vs.Add(self.rotulo_fuente, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        self.rotulo_fuente = wx.StaticText(panel, label=_("&Capturar de:"))
         self.cho_fuente = wx.Choice(
-            self, choices=[_(TEXTO_CARGANDO)], name=_("Capturar de"))
+            panel, choices=[_(TEXTO_CARGANDO)], name=_("Capturar de"))
         self.cho_fuente.SetSelection(0)
         nombre_accesible(self.cho_fuente, _("Capturar de"))
-        vs.Add(self.cho_fuente, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(vs, self.rotulo_fuente, self.cho_fuente)
 
         self.bmp_vista = wx.StaticBitmap(
-            self, bitmap=wx.NullBitmap, size=(ANCHO_VISTA, ALTO_VISTA),
+            panel, bitmap=wx.NullBitmap, size=(ANCHO_VISTA, ALTO_VISTA),
             name=_("Vista previa"))
         self.bmp_vista.SetMinSize((ANCHO_VISTA, ALTO_VISTA))
         nombre_accesible(self.bmp_vista, _("Vista previa"))
-        vs.Add(self.bmp_vista, 0, wx.LEFT | wx.RIGHT, 10)
+        formulario.agregar_fila(vs, None, self.bmp_vista)
 
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_capturar = wx.Button(self, wx.ID_OK, _("Captu&rar"), name=_("Capturar"))
+        self.btn_capturar = wx.Button(panel, wx.ID_OK, _("Captu&rar"), name=_("Capturar"))
         self.btn_capturar.SetDefault()
         self._fijar_motivo(TEXTO_CARGANDO_MOTIVO)
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("Ca&ncelar"), name=_("Cancelar"))
-        fila.Add(self.btn_capturar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-
-        self.SetSizerAndFit(vs)
+        self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("Ca&ncelar"), name=_("Cancelar"))
+        formulario.agregar_pie(vs, [self.btn_capturar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, vs)
         self._temporizador = wx.Timer(self)
         self.cho_fuente.Bind(wx.EVT_CHOICE, self._al_elegir)
         self.btn_capturar.Bind(wx.EVT_BUTTON, self._al_capturar)

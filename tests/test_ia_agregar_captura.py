@@ -20,6 +20,7 @@ except Exception:
 from guyrapu.capture import redaccion
 from guyrapu.ui import espera_sonora
 from guyrapu.ui import ia_agregar_captura as agregar
+from guyrapu.ui import formulario, tema
 from guyrapu.obs import obs_captura_ia
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -176,10 +177,10 @@ class TestDialogoAgregarCapturaVentana(unittest.TestCase):
 
     def test_orden_de_tab(self):
         dialogo = self._dialogo()
-        navegables = [hijo.GetName() for hijo in dialogo.GetChildren()
+        navegables = [hijo.GetName() for hijo in dialogo.panel.GetChildren()
                       if isinstance(hijo, (wx.Choice, wx.Button))]
         self.assertEqual(navegables, ["Capturar de", "Capturar", "Cancelar"])
-        hijos = list(dialogo.GetChildren())
+        hijos = list(dialogo.panel.GetChildren())
         self.assertLess(hijos.index(dialogo.cho_fuente),
                         hijos.index(dialogo.bmp_vista))
         self.assertLess(hijos.index(dialogo.bmp_vista),
@@ -524,6 +525,39 @@ class TestDialogoAgregarCapturaVentana(unittest.TestCase):
         dialogo._opciones_listas([obs_captura_ia.OpcionCaptura(
             "Otra", "Otra", 640, 360)])
         self.assertEqual(dialogo.cho_fuente.GetStringSelection(), antes)
+
+
+@unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
+class TestDisenioComun(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_geometria_del_cuadro(self):
+        cuadro = agregar.DialogoAgregarCaptura(None, ClienteDoble())
+        self.addCleanup(destruir, cuadro)
+        ancho, alto = cuadro.GetSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO)
+        rotulo = cuadro.rotulo_fuente
+        control = cuadro.cho_fuente
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            control.GetPosition().y - formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(rotulo.GetPosition().x, control.GetPosition().x)
+        cliente = cuadro.GetClientSize()
+        botones = [cuadro.btn_capturar, cuadro.btn_cancelar]
+        self.assertEqual(len({b.GetPosition().y for b in botones}), 1)
+        self.assertEqual(
+            cliente.width - max(b.GetPosition().x + b.GetSize().width
+                                for b in botones),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (botones[0].GetPosition().y
+                              + botones[0].GetSize().height),
+            formulario.MARGEN)
+        self.assertEqual(cuadro.btn_capturar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":
