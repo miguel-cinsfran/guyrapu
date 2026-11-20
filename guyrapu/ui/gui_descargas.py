@@ -262,7 +262,8 @@ class GestorDescargasDialog(wx.Dialog):
         self.btn_cerrar = wx.Button(parent, wx.ID_CANCEL, _("&Cerrar"),
                                     name="CerrarGestorDescargas")
         self.btn_cerrar.Bind(wx.EVT_BUTTON, self._on_cerrar)
-        fila.Add(self.btn_cerrar, 0, wx.RIGHT, 6)
+        fila.AddStretchSpacer(1)
+        fila.Add(self.btn_cerrar, 0, wx.RIGHT | wx.BOTTOM, 4)
         return fila
 
     # ── Callbacks de UI ──────────────────────────────────────────────────────

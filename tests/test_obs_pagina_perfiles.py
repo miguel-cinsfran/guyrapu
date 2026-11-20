@@ -211,6 +211,20 @@ class TestPestana(BasePagina):
             "&Usar este perfil", "Usar p&ara…", "&Nuevo…", "&Duplicar…",
             "&Eliminar perfil", "Editar a&justes…", "&Preparar perfiles…"])
 
+    def test_los_siete_botones_caben_con_su_texto_al_ancho_minimo(self):
+        self.marco.SetClientSize(680, 400)
+        self.pagina.SetSize(680, 400)
+        self.pagina.Layout()
+        for boton in (self.pagina.btn_usar, self.pagina.btn_usar_para,
+                      self.pagina.btn_nuevo, self.pagina.btn_duplicar,
+                      self.pagina.btn_eliminar, self.pagina.btn_editar,
+                      self.pagina.btn_preparar):
+            with self.subTest(boton=boton.GetLabel()):
+                ancho_texto = boton.GetTextExtent(
+                    boton.GetLabel().replace("&", "")).GetWidth()
+                self.assertGreaterEqual(
+                    boton.GetSize().GetWidth(), ancho_texto + 16)
+
     def test_el_boton_usar_para_tiene_su_nombre_accesible(self):
         self.assertEqual(self.pagina.btn_usar_para.GetName(), "Usar para…")
 

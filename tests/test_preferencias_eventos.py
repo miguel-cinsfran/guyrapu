@@ -231,6 +231,15 @@ class TestControlesEventos(BaseEventos):
         self.assertIs(controles[indice + 2],
                       dialogo.sp_segundos_me_gusta)
 
+    def test_las_casillas_de_agrupacion_tienen_el_fondo_de_la_pagina(self):
+        dialogo = self._dialogo()
+        fondo_modelo = dialogo.chk_decir_plataforma.GetBackgroundColour()
+        for nombre in ("chk_agrupar_entradas", "chk_agrupar_me_gusta"):
+            with self.subTest(casilla=nombre):
+                casilla = getattr(dialogo, nombre)
+                self.assertFalse(casilla.UseBackgroundColour())
+                self.assertEqual(casilla.GetBackgroundColour(), fondo_modelo)
+
     def test_no_quedan_las_listas_viejas_de_tiktok(self):
         dialogo = self._dialogo()
         for viejo in ("cho_aviso_entradas", "cho_aviso_me_gusta",

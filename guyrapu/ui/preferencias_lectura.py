@@ -115,6 +115,7 @@ class PaginaLectura:
         self.chk_traducir.SetForegroundColour(_T.text)
         self.chk_traducir.Bind(wx.EVT_CHECKBOX, self._al_cambiar_traduccion)
         vs.Add(self.chk_traducir, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        vs.Add((0, 12), 0)
 
         vs.Add(self._fila_label(p, _("Qué se tra&duce:")),
                0, wx.LEFT | wx.RIGHT, 10)

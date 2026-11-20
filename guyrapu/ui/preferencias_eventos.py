@@ -141,7 +141,6 @@ class PaginaEventos:
                             etiqueta_contador, nombre_contador, atributo):
         casilla = wx.CheckBox(padre, label=etiqueta, name=nombre)
         casilla.SetForegroundColour(_T.text)
-        _tc(casilla)
         setattr(self, "chk_" + clave, casilla)
         grilla.Add((0, 0), 0)
         grilla.Add(casilla, 0, wx.EXPAND)

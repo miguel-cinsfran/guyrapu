@@ -22,10 +22,7 @@ from guyrapu.ui.dialogo_asistente_perfiles import AsistentePerfilesPanel
 from guyrapu.ui.dialogo_nombre_perfil_obs import DialogoNombrePerfil
 from guyrapu.ui.dialogo_usos_perfil import DialogoUsosPerfil
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
-from guyrapu.ui.preferencias_comun import (
-    fila_horizontal,
-    nombre_de_etiqueta,
-)
+from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 
 
 class PaginaPerfiles(wx.Panel):
@@ -54,11 +51,12 @@ class PaginaPerfiles(wx.Panel):
         etiquetas = self._etiquetas()
         self._crear_lista_acciones(etiquetas)
         self._crear_botones(etiquetas)
-        caja.Add(fila_horizontal((self.btn_usar, self.btn_usar_para,
-                                  self.btn_nuevo, self.btn_duplicar,
-                                  self.btn_eliminar, self.btn_editar,
-                                  self.btn_preparar)),
-                 0, wx.ALL, 6)
+        fila = wx.WrapSizer(wx.HORIZONTAL, flags=0)
+        for boton in (self.btn_usar, self.btn_usar_para, self.btn_nuevo,
+                      self.btn_duplicar, self.btn_eliminar, self.btn_editar,
+                      self.btn_preparar):
+            fila.Add(boton, 0, wx.RIGHT | wx.BOTTOM, 6)
+        caja.Add(fila, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 6)
         self.SetSizer(caja)
 
     def _etiquetas(self):

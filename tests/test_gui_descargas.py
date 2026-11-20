@@ -238,6 +238,19 @@ class TestPaginaUnica(unittest.TestCase):
         self.addCleanup(menu.Destroy)
         return menu.GetMenuItems()
 
+    def test_cerrar_va_abajo_a_la_derecha_con_16_pixeles_de_margen(self):
+        dialogo = self._dialogo()
+        panel = dialogo.btn_cerrar.GetParent()
+        panel.SetSize(dialogo.GetClientSize())
+        panel.Layout()
+        cliente = panel.GetClientSize()
+        posicion = dialogo.btn_cerrar.GetPosition()
+        tamano = dialogo.btn_cerrar.GetSize()
+        self.assertEqual(
+            cliente.GetWidth() - posicion.x - tamano.GetWidth(), 16)
+        self.assertEqual(
+            cliente.GetHeight() - posicion.y - tamano.GetHeight(), 16)
+
     def test_dos_pestanas_buscador_y_descargas_con_columnas(self):
         dialogo = self._dialogo()
         self.assertEqual(dialogo.pestanas.GetPageCount(), 2)

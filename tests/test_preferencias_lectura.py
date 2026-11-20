@@ -64,6 +64,18 @@ class TestCambiosDeLectura(unittest.TestCase):
                 self.assertEqual(pagina.cambios(),
                                  [("lectura", "formato_prefijo", esperado)])
 
+    def test_entre_traducir_chat_y_que_se_traduce_hay_12_pixeles(self):
+        dialogo = self._dialogo()
+        panel = dialogo.pagina_lectura.rb_formato.GetParent()
+        panel.Layout()
+        casilla = dialogo.chk_traducir
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, gui.wx.StaticText)
+                    and h.GetLabel() == "Qué se tra&duce:"][0]
+        separacion = etiqueta.GetPosition().y - (
+            casilla.GetPosition().y + casilla.GetSize().GetHeight())
+        self.assertEqual(separacion, 12)
+
     def test_la_casilla_de_atajos_nombra_los_atajos_del_chat(self):
         dialogo = self._dialogo()
         self.assertEqual(
