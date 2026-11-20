@@ -34,12 +34,14 @@ def texto_descarga(nombre, indice, cantidad):
 
 def texto_final(cantidad, correctas, fallidos, cancelada, accion, nombre):
     """El único texto al terminar y su sonido, como hoy si es uno solo."""
+    actualizar = accion == "actualizar"
     if cancelada:
-        return _("Instalación cancelada."), None
+        return ((_("Actualización cancelada.") if actualizar
+                 else _("Instalación cancelada.")), None)
     if cantidad == 1:
         if correctas:
             frase = (_("Actualización completada: {nombre}.")
-                     if accion == "actualizar"
+                     if actualizar
                      else _("Instalación completada: {nombre}."))
             return frase.format(nombre=nombre), "listo"
         motivo = fallidos[0][1] if fallidos else ""
@@ -48,12 +50,18 @@ def texto_final(cantidad, correctas, fallidos, cancelada, accion, nombre):
                       nombre=nombre,
                       motivo=motivo or _("motivo desconocido")), "error")
     if not fallidos:
-        return ngettext("{n} paquete instalado.", "{n} paquetes instalados.",
-                        cantidad).format(n=cantidad), "listo"
+        frase = (ngettext("{n} paquete actualizado.",
+                          "{n} paquetes actualizados.", cantidad)
+                 if actualizar else
+                 ngettext("{n} paquete instalado.",
+                          "{n} paquetes instalados.", cantidad))
+        return frase.format(n=cantidad), "listo"
     nombres = ", ".join(nombre for nombre, _motivo in fallidos)
-    return (_("{ok} de {n} paquetes instalados. No se pudo instalar: "
-              "{nombres}.").format(ok=correctas, n=cantidad, nombres=nombres),
-            "error")
+    frase = (_("{ok} de {n} paquetes actualizados. No se pudo actualizar: "
+               "{nombres}.") if actualizar else
+             _("{ok} de {n} paquetes instalados. No se pudo instalar: "
+               "{nombres}."))
+    return frase.format(ok=correctas, n=cantidad, nombres=nombres), "error"
 
 
 def empezar(paquetes, accion, crear_espera, poner_espera, al_progreso,
@@ -61,10 +69,11 @@ def empezar(paquetes, accion, crear_espera, poner_espera, al_progreso,
     """Instala los paquetes en orden en un hilo, con una sola espera."""
     parada = threading.Event()
     cantidad = len(paquetes)
-    nombre = voces_disponibles.nombre(paquetes[0]) if cantidad == 1 else ""
+    primer_nombre = voces_disponibles.nombre(paquetes[0])
+    nombre = primer_nombre if cantidad == 1 else ""
     titulo_ = titulo(accion, cantidad, nombre)
     espera = crear_espera(
-        titulo_, texto_descarga(nombre, 1, cantidad), parada)
+        titulo_, texto_descarga(primer_nombre, 1, cantidad), parada)
     poner_espera(espera)
     def trabajar():
         correctas = 0

@@ -16655,6 +16655,10 @@ msgid "Descargando {nombre}, {i} de {n}."
 msgstr "Downloading {nombre}, {i} of {n}."
 
 #: guyrapu/ui/voces_instalacion.py
+msgid "Actualización cancelada."
+msgstr "Update canceled."
+
+#: guyrapu/ui/voces_instalacion.py
 msgid "Instalación cancelada."
 msgstr "Installation canceled."
 
@@ -16679,10 +16683,22 @@ msgstr ""
 
 #: guyrapu/ui/voces_instalacion.py
 #, python-brace-format
+msgid "{n} paquete actualizado."
+msgid_plural "{n} paquetes actualizados."
+msgstr[0] "{n} voice pack updated."
+msgstr[1] "{n} voice packs updated."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
 msgid "{n} paquete instalado."
 msgid_plural "{n} paquetes instalados."
 msgstr[0] "{n} voice pack installed."
 msgstr[1] "{n} voice packs installed."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "{ok} de {n} paquetes actualizados. No se pudo actualizar: {nombres}."
+msgstr "{ok} of {n} voice packs updated. Could not update: {nombres}."
 
 #: guyrapu/ui/voces_instalacion.py
 #, python-brace-format

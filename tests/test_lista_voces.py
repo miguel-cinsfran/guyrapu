@@ -198,6 +198,12 @@ class TestInstalacionPorLotes(unittest.TestCase):
             lambda espera: None, lambda porcentaje, nombre: None,
             lambda: None, self._terminar)
 
+    def test_el_texto_inicial_nombra_el_primer_paquete(self):
+        self._preparar([_ok(), _ok(), _ok()])
+        self._empezar()
+        self.assertEqual(self.instancias[0].texto,
+                         "Descargando Ana, 1 de 3.")
+
     def test_tres_paquetes_abren_una_espera_y_se_instalan_en_orden(self):
         self._preparar([_ok(), _ok(), _ok()])
         self._empezar()
@@ -226,6 +232,26 @@ class TestInstalacionPorLotes(unittest.TestCase):
             self.finales,
             [("2 de 3 paquetes instalados. No se pudo instalar: Bruno.",
               "error")])
+
+
+class TestTextosDelLote(unittest.TestCase):
+
+    def setUp(self):
+        idioma.instalar("es")
+        self.addCleanup(idioma._reiniciar)
+
+    def test_actualizar_varios_dice_actualizados(self):
+        self.assertEqual(
+            voces_instalacion.texto_final(3, 3, [], False, "actualizar", ""),
+            ("3 paquetes actualizados.", "listo"))
+        self.assertEqual(
+            voces_instalacion.texto_final(
+                3, 2, [("Bruno", "sin red")], False, "actualizar", ""),
+            ("2 de 3 paquetes actualizados. No se pudo actualizar: Bruno.",
+             "error"))
+        self.assertEqual(
+            voces_instalacion.texto_final(3, 1, [], True, "actualizar", ""),
+            ("Actualización cancelada.", None))
 
 
 if __name__ == "__main__":
