@@ -5373,7 +5373,11 @@ class TestCopiarEnlaceDirecto(unittest.TestCase):
         frame._worker = mock.Mock()
         frame._stats = mock.Mock()
         frame._actualizar_sb = mock.Mock()
-        frame._reiniciar_datos_sesion()
+        resumenes = paths.resumenes_sesion()
+        antes = set(resumenes.glob("*.txt"))
+        with tempfile.TemporaryDirectory() as tmp, redirigir_rutas(tmp):
+            frame._reiniciar_datos_sesion()
+        self.assertEqual(set(resumenes.glob("*.txt")), antes)
         self.assertTrue(frame.chat_vivo.participacion.vacia())
 
     def test_reiniciar_guarda_el_resumen_en_la_carpeta_de_datos(self):
