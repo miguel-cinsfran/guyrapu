@@ -5,7 +5,7 @@ from __future__ import annotations
 import threading
 import wx
 from guyrapu.core import diagnostico, paquetes_instalacion, voces_disponibles
-from guyrapu.core.idioma import _, pgettext
+from guyrapu.core.idioma import _, ngettext, pgettext
 from guyrapu.ui import confirmar
 from guyrapu.voice import sound_player as _snd
 logger = diagnostico.obtener_logger(__name__)
@@ -67,27 +67,39 @@ def terminar_instalacion(espera, resultado, accion, nombre):
     except RuntimeError as error:
         logger.debug("la espera ya no existe: %s", error)
 
-def eliminar(padre, entrada, indice, anunciar, error, al_cambiar):
-    nombre = voces_disponibles.nombre(entrada)
-    if entrada.instalado is None:
-        anunciar(_("{nombre} no está instalado.").format(nombre=nombre))
-        return False
+def eliminar(padre, entradas, indice, anunciar, error, al_cambiar):
+    """Elimina los paquetes elegidos con una sola confirmación."""
+    for entrada in entradas:
+        if entrada.instalado is None:
+            anunciar(_("{nombre} no está instalado.").format(
+                nombre=voces_disponibles.nombre(entrada)))
+            return False
+    if len(entradas) == 1:
+        pregunta = _(
+            "¿Eliminar {nombre}? Se liberan {tamano} del disco. Para "
+            "volver a usarlo, hay que instalarlo de nuevo.").format(
+                nombre=voces_disponibles.nombre(entradas[0]),
+                tamano=voces_disponibles.tamano(entradas[0]))
+    else:
+        pregunta = ngettext(
+            "¿Eliminar {n} paquete de voces? Para volver a usarlos, hay "
+            "que instalarlos de nuevo.",
+            "¿Eliminar {n} paquetes de voces? Para volver a usarlos, hay "
+            "que instalarlos de nuevo.", len(entradas)).format(n=len(entradas))
     if not confirmar.preguntar(
-            padre,
-            _("¿Eliminar {nombre}? Se liberan {tamano} del disco. Para "
-              "volver a usarlo, hay que instalarlo de nuevo.").format(
-                  nombre=nombre, tamano=voces_disponibles.tamano(entrada)),
-            _("Eliminar paquete de voces"),
+            padre, pregunta, _("Eliminar paquete de voces"),
             pgettext("paquete de voces", "&Eliminar"), _("&Cancelar"),
             predeterminado_si=False):
         return False
-    resultado = paquetes_instalacion.borrar(
-        voces_disponibles.identificador(entrada), "voz")
-    if not resultado.correcta:
-        error(_("No se pudo eliminar {nombre}: {motivo}.").format(
-            nombre=nombre,
-            motivo=resultado.motivo or _("motivo desconocido")))
-        return False
-    anunciar(_("Paquete eliminado: {nombre}.").format(nombre=nombre))
-    al_cambiar(entrada, indice)
+    for entrada in entradas:
+        nombre = voces_disponibles.nombre(entrada)
+        resultado = paquetes_instalacion.borrar(
+            voces_disponibles.identificador(entrada), "voz")
+        if not resultado.correcta:
+            error(_("No se pudo eliminar {nombre}: {motivo}.").format(
+                nombre=nombre,
+                motivo=resultado.motivo or _("motivo desconocido")))
+            return False
+        anunciar(_("Paquete eliminado: {nombre}.").format(nombre=nombre))
+    al_cambiar(entradas[0], indice)
     return True

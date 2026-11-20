@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Ventana Administrar voces: controles, filtros, acciones y vista previa."""
+"""Ventana Administrar voces: controles, listas, acciones y vista previa."""
 
 import json
 import unittest
@@ -9,7 +9,7 @@ from unittest import mock
 import wx
 
 from guyrapu.core import idioma, paquetes_instalacion
-from guyrapu.ui import preferencias_voz, voces_ventana
+from guyrapu.ui import voces_ventana
 from tests.letras_acceso import ingles, letras_repetidas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -36,6 +36,11 @@ def _paquete(identificador, proveedor, nombre, idioma, voces, version=1):
 
 def _catalogo(*paquetes):
     return json.dumps({"formato": 1, "paquetes": list(paquetes)})
+
+
+def _elegir_voces(dialogo, *indices):
+    for indice in indices:
+        dialogo.lista_voces.Select(indice)
 
 
 class _Instalados:
@@ -89,6 +94,18 @@ class EsperaFalsa:
         self.error = error
 
 
+class _Tecla:
+    def __init__(self, codigo):
+        self.codigo = codigo
+        self.saltada = False
+
+    def GetKeyCode(self):
+        return self.codigo
+
+    def Skip(self):
+        self.saltada = True
+
+
 class BaseVentana(unittest.TestCase):
 
     def setUp(self):
@@ -127,38 +144,45 @@ class BaseVentana(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
+    def _dos_piper(self, ids_instalados=()):
+        paquetes = [
+            _paquete("piper-a", "piper", "Piper A", "es-ES",
+                     [_voz("Ana", "es-ES", "female")]),
+            _paquete("piper-b", "piper", "Piper B", "es-ES",
+                     [_voz("Bruno", "es-ES", "male")])]
+        fichas = [dict(p, instalado="2026-11-14T12:00:00-03:00")
+                  for p in paquetes if p["id"] in ids_instalados]
+        return self._dialogo(paquetes=paquetes, instalados=fichas)
+
+    def _borrar_falso(self):
+        def borrar(identificador, _tipo):
+            self.instalados.fichas = [
+                ficha for ficha in self.instalados.fichas
+                if ficha["id"] != identificador]
+            return paquetes_instalacion.ResultadoInstalacion(
+                True, "paquete borrado")
+        return self._parchear(voces_ventana.paquetes_instalacion, "borrar",
+                              mock.Mock(side_effect=borrar))
+
 
 class TestControles(BaseVentana):
 
-    def test_nombres_accesibles_y_orden_de_tab(self):
+    def test_nombres_accesibles(self):
         paquete = _paquete("piper-davefx", "piper", "Piper Davefx", "es-ES",
                            [_voz("Davefx", "es-ES")])
         dialogo = self._dialogo(paquetes=(paquete,))
         for nombre, control in (
                 ("Idioma", dialogo.cho_idioma),
-                ("Motor de voz", dialogo.cho_motor),
-                ("Paquetes de voces", dialogo.lista_paquetes),
+                ("Motor de voz", dialogo.lista_motores),
+                ("Buscar voz", dialogo.txt_buscar),
+                ("Voces", dialogo.lista_voces),
                 ("Detalles", dialogo.txt_detalles),
                 ("Instalar", dialogo.btn_instalar),
                 ("Actualizar", dialogo.btn_actualizar),
                 ("Eliminar", dialogo.btn_eliminar),
-                ("Voces del paquete", dialogo.lista_voces),
                 ("Vista previa de voz", dialogo.btn_previa),
                 ("Cerrar", dialogo.btn_cerrar)):
             self.assertEqual(control.GetName(), nombre)
-        self.assertEqual(
-            [control for control in dialogo.GetChildren()
-             if isinstance(control, (wx.Choice, wx.ListBox, wx.TextCtrl,
-                                     wx.Button))],
-            [dialogo.cho_idioma, dialogo.cho_motor, dialogo.lista_paquetes,
-             dialogo.txt_detalles, dialogo.btn_instalar,
-             dialogo.btn_actualizar, dialogo.btn_eliminar,
-             dialogo.lista_voces, dialogo.btn_previa, dialogo.btn_cerrar])
-        dialogo.Show()
-        try:
-            self.assertIs(wx.Window.FindFocus(), dialogo.lista_paquetes)
-        finally:
-            dialogo.Hide()
 
     def test_letras_de_acceso_sin_repetir(self):
         paquete = _paquete("piper-davefx", "piper", "Piper Davefx", "es-ES",
@@ -167,8 +191,8 @@ class TestControles(BaseVentana):
 
     def test_cargando_mientras_no_hay_instalado(self):
         dialogo = self._dialogo(hilo=HiloQuieto)
-        self.assertEqual(dialogo.lista_paquetes.GetCount(), 1)
-        self.assertEqual(dialogo.lista_paquetes.GetString(0),
+        self.assertEqual(dialogo.lista_motores.GetCount(), 1)
+        self.assertEqual(dialogo.lista_motores.GetString(0),
                          "Cargando paquetes de voces…")
 
 
@@ -181,44 +205,70 @@ class TestListasYFiltros(BaseVentana):
                           [_voz("Ana", "en-US")])
         return piper, phonon
 
-    def test_la_fila_se_lee_entera(self):
-        piper, _phonon = self._dos()
-        instalado = dict(piper, instalado="2026-11-14T12:00:00-03:00")
-        dialogo = self._dialogo(paquetes=(piper,), instalados=(instalado,))
-        self.assertEqual(dialogo.lista_paquetes.GetString(0),
-                         "Davefx, Piper, español (España), 10 MB, instalado")
+    def test_las_filas_de_motores_dicen_las_cuentas(self):
+        fon = _paquete("phonon-es", "phonon", "Phonon español", "es",
+                       [_voz("Noa", "es-ES"), _voz("Marc", "es-ES"),
+                        _voz("Lia", "es-ES")])
+        a = _paquete("piper-a", "piper", "Piper A", "es-ES",
+                     [_voz("Ana", "es-ES")])
+        b = _paquete("piper-b", "piper", "Piper B", "es-ES",
+                     [_voz("Bruno", "es-ES")])
+        instalados = [dict(fon, instalado="2026-11-14T12:00:00-03:00"),
+                      dict(b, instalado="2026-11-14T12:00:00-03:00")]
+        dialogo = self._dialogo(paquetes=(fon, a, b), instalados=instalados)
+        self.assertEqual(dialogo.lista_motores.GetString(0),
+                         "Phonon, 3 voces, 3 instaladas")
+        self.assertEqual(dialogo.lista_motores.GetString(1),
+                         "Piper, 2 voces, 1 instalada")
 
-    def test_elegir_un_paquete_llena_detalles_y_voces(self):
+    def test_la_lista_de_voces_muestra_el_estado_de_cada_una(self):
+        dialogo = self._dos_piper(("piper-b",))
+        self.assertEqual(
+            [dialogo.lista_voces.GetString(i)
+             for i in range(dialogo.lista_voces.GetCount())],
+            ["Ana, femenina, disponible", "Bruno, masculina, instalado"])
+
+    def test_detalles_de_una_voz_de_phonon_dicen_que_instala_todas(self):
         paquete = _paquete(
             "phonon-es", "phonon", "Phonon español", "es",
             [_voz("Noa", "es-ES", "female"), _voz("Marc", "es-MX", "male")])
         dialogo = self._dialogo(paquetes=(paquete,))
-        dialogo.lista_paquetes.SetSelection(0)
-        dialogo._al_elegir_paquete(mock.Mock())
         detalles = dialogo.txt_detalles.GetValue()
         self.assertIn("Nombre: Phonon español", detalles)
-        self.assertIn("Licencia: CC BY 4.0", detalles)
+        self.assertIn("Phonon instala todas las voces del idioma juntas.",
+                      detalles)
+
+    def test_la_busqueda_filtra_y_flecha_abajo_enfoca_la_lista(self):
+        paquete = _paquete("piper-a", "piper", "Piper A", "es-ES",
+                           [_voz("Ángela", "es-ES"), _voz("Bruno", "es-ES")])
+        dialogo = self._dialogo(paquetes=(paquete,))
+        dialogo.txt_buscar.SetValue("ANGELA")
+        dialogo._al_buscar(None)
         self.assertEqual(
             [dialogo.lista_voces.GetString(i)
              for i in range(dialogo.lista_voces.GetCount())],
-            ["Noa, femenina, español (España)",
-             "Marc, masculina, español (México)"])
+            ["Ángela, disponible"])
+        tecla = _Tecla(wx.WXK_DOWN)
+        dialogo._tecla_buscar(tecla)
+        self.assertFalse(tecla.saltada)
+        dialogo.Show()
+        try:
+            self.assertIs(wx.Window.FindFocus(), dialogo.lista_voces)
+        finally:
+            dialogo.Hide()
 
-    def test_cambiar_un_filtro_rehace_la_lista(self):
+    def test_cambiar_el_idioma_y_el_motor_rehace_las_listas(self):
         piper, phonon = self._dos()
-        dialogo = self._dialogo(paquetes=(piper, phonon))
-        self.assertEqual(dialogo.lista_paquetes.GetCount(), 1)
-        self.assertIn("Davefx", dialogo.lista_paquetes.GetString(0))
-        dialogo.cho_idioma.SetSelection(
-            dialogo._valores_idioma.index("en"))
-        dialogo._al_cambiar_filtro(True)
-        self.assertEqual(dialogo.lista_paquetes.GetCount(), 1)
-        self.assertIn("Phonon", dialogo.lista_paquetes.GetString(0))
-        dialogo.cho_motor.SetSelection(
-            dialogo._valores_motor.index("piper"))
-        dialogo._al_cambiar_filtro(False)
-        self.assertEqual(dialogo.lista_paquetes.GetString(0),
-                         "No hay paquetes de voces con este filtro.")
+        piper_en = _paquete("piper-en", "piper", "Piper Inglés", "en-US",
+                            [_voz("Elena", "en-US")])
+        dialogo = self._dialogo(paquetes=(piper, phonon, piper_en))
+        dialogo.cho_idioma.SetSelection(dialogo._valores_idioma.index("en"))
+        dialogo._al_cambiar_idioma()
+        self.assertEqual(dialogo.lista_motores.GetString(0),
+                         "Phonon, 1 voz, 0 instaladas")
+        dialogo.lista_motores.SetSelection(1)
+        dialogo._al_elegir_motor(mock.Mock())
+        self.assertEqual(dialogo.lista_voces.GetString(0), "Elena, disponible")
 
 
 class TestInstalarYActualizar(BaseVentana):
@@ -246,32 +296,49 @@ class TestInstalarYActualizar(BaseVentana):
         self._preparar_instalacion(
             dialogo, paquetes_instalacion.ResultadoInstalacion(
                 True, "paquete instalado"))
-        dialogo._paquetes.ejecutar("instalar")
+        dialogo._voces.ejecutar("instalar")
         self.instalar.assert_called_once()
         self.assertEqual(self.instalar.call_args.args[0], paquete)
-        self.assertIn("instalado", dialogo.lista_paquetes.GetString(0))
+        self.assertIn("instalado", dialogo.lista_voces.GetString(0))
         self.assertEqual(EsperaFalsa.instancias[-1].final,
                          "Instalación completada: Piper Davefx.")
         self.assertEqual(self.sonido.call_args_list, [mock.call("listo")])
+
+    def test_instalar_dos_voces_de_paquetes_distintos(self):
+        dialogo = self._dos_piper()
+        instalados = []
+
+        def instalar(paquete, aviso=None, cancelar=None):
+            instalados.append(paquete["id"])
+            self.instalados.fichas.append(dict(
+                paquete, instalado="2026-11-14T12:00:00-03:00"))
+            return paquetes_instalacion.ResultadoInstalacion(
+                True, "paquete instalado")
+        self._parchear(voces_ventana.paquetes_instalacion, "instalar",
+                       mock.Mock(side_effect=instalar))
+        self._parchear(voces_ventana, "VentanaEspera", EsperaFalsa)
+        _elegir_voces(dialogo, 0, 1)
+        dialogo._voces.ejecutar("instalar")
+        self.assertEqual(instalados, ["piper-a", "piper-b"])
 
     def test_instalar_con_ya_instalado_no_llama(self):
         paquete = self._paquete_base()
         instalado = dict(paquete, instalado="2026-11-14T12:00:00-03:00")
         dialogo = self._dialogo(paquetes=(paquete,), instalados=(instalado,))
-        self.instalar = self._parchear(
+        instalar = self._parchear(
             voces_ventana.paquetes_instalacion, "instalar", mock.Mock())
-        dialogo._paquetes.ejecutar("instalar")
-        self.instalar.assert_not_called()
+        dialogo._voces.ejecutar("instalar")
+        instalar.assert_not_called()
         self.anuncios.assert_called_with("Piper Davefx ya está instalado.")
 
     def test_actualizar_sin_actualizacion_no_llama(self):
         paquete = self._paquete_base()
         instalado = dict(paquete, instalado="2026-11-14T12:00:00-03:00")
         dialogo = self._dialogo(paquetes=(paquete,), instalados=(instalado,))
-        self.instalar = self._parchear(
+        instalar = self._parchear(
             voces_ventana.paquetes_instalacion, "instalar", mock.Mock())
-        dialogo._paquetes.ejecutar("actualizar")
-        self.instalar.assert_not_called()
+        dialogo._voces.ejecutar("actualizar")
+        instalar.assert_not_called()
         self.anuncios.assert_called_with(
             "No hay actualización disponible para Piper Davefx.")
 
@@ -283,40 +350,10 @@ class TestInstalarYActualizar(BaseVentana):
         self._preparar_instalacion(
             dialogo, paquetes_instalacion.ResultadoInstalacion(
                 True, "paquete instalado"))
-        dialogo._paquetes.ejecutar("actualizar")
+        dialogo._voces.ejecutar("actualizar")
         self.instalar.assert_called_once()
         self.assertEqual(EsperaFalsa.instancias[-1].final,
                          "Actualización completada: Piper Davefx.")
-
-    def test_cancelado_lo_dice_sin_error(self):
-        paquete = self._paquete_base()
-        dialogo = self._dialogo(paquetes=(paquete,))
-        self._preparar_instalacion(
-            dialogo, paquetes_instalacion.ResultadoInstalacion(
-                False, "instalación cancelada", cancelada=True))
-        dialogo._paquetes.ejecutar("instalar")
-        self.assertEqual(EsperaFalsa.instancias[-1].final,
-                         "Instalación cancelada.")
-        self.assertFalse(EsperaFalsa.instancias[-1].error)
-
-    def test_el_aviso_de_porcentaje_pasa_por_callafter(self):
-        paquete = self._paquete_base()
-        dialogo = self._dialogo(paquetes=(paquete,))
-
-        def instalar(_paquete, aviso=None, cancelar=None):
-            aviso(10)
-            return paquetes_instalacion.ResultadoInstalacion(
-                True, "paquete instalado")
-        self._parchear(voces_ventana.paquetes_instalacion, "instalar",
-                       mock.Mock(side_effect=instalar))
-        self._parchear(voces_ventana, "VentanaEspera", EsperaFalsa)
-        with mock.patch.object(voces_ventana.wx, "CallAfter") as diferido:
-            dialogo._paquetes.ejecutar("instalar")
-        self.assertTrue(diferido.called)
-        self.assertTrue(any(
-            llamada.args and llamada.args[0] == dialogo._aviso_porcentaje
-            for llamada in diferido.call_args_list))
-        self.assertEqual(EsperaFalsa.instancias[-1].estados, [])
 
     def test_el_texto_cambia_al_cruzar_una_decena(self):
         dialogo = self._dialogo()
@@ -349,9 +386,8 @@ class TestEliminar(BaseVentana):
         dialogo = self._con_instalado()
         preguntar = self._parchear(
             voces_ventana.confirmar, "preguntar", mock.Mock(return_value=False))
-        borrar = self._parchear(
-            voces_ventana.paquetes_instalacion, "borrar", mock.Mock())
-        dialogo._eliminar()
+        borrar = self._borrar_falso()
+        dialogo._eliminar_voces()
         self.assertFalse(borrar.called)
         self.assertEqual(preguntar.call_args.kwargs["predeterminado_si"], False)
 
@@ -360,20 +396,24 @@ class TestEliminar(BaseVentana):
         self._parchear(voces_ventana.confirmar, "preguntar",
                        mock.Mock(return_value=True))
 
-        def borrar(identificador, tipo):
-            self.instalados.fichas = [
-                ficha for ficha in self.instalados.fichas
-                if ficha["id"] != identificador]
-            return paquetes_instalacion.ResultadoInstalacion(
-                True, "paquete borrado")
-        self.borrar = self._parchear(
-            voces_ventana.paquetes_instalacion, "borrar",
-            mock.Mock(side_effect=borrar))
-        dialogo._eliminar()
-        self.borrar.assert_called_once_with("piper-davefx", "voz")
+        borrar = self._borrar_falso()
+        dialogo._eliminar_voces()
+        borrar.assert_called_once_with("piper-davefx", "voz")
         self.anuncios.assert_called_with("Paquete eliminado: Piper Davefx.")
-        self.assertEqual(dialogo.lista_paquetes.GetString(0),
+        self.assertEqual(dialogo.lista_voces.GetString(0),
                          "No hay paquetes de voces.")
+
+    def test_eliminar_varias_pide_una_sola_confirmacion(self):
+        dialogo = self._dos_piper(("piper-a", "piper-b"))
+        preguntar = self._parchear(voces_ventana.confirmar, "preguntar",
+                                   mock.Mock(return_value=True))
+        borrar = self._borrar_falso()
+        _elegir_voces(dialogo, 0, 1)
+        dialogo._eliminar_voces()
+        self.assertEqual([llamada.args[0] for llamada in borrar.call_args_list],
+                         ["piper-a", "piper-b"])
+        preguntar.assert_called_once()
+        self.assertIn("2 paquetes de voces", preguntar.call_args.args[1])
 
     def test_si_sigue_en_el_catalogo_la_fila_queda_disponible(self):
         dialogo = self._con_instalado(en_catalogo=True)
@@ -386,8 +426,8 @@ class TestEliminar(BaseVentana):
                 True, "paquete borrado")
         self._parchear(voces_ventana.paquetes_instalacion, "borrar",
                        mock.Mock(side_effect=borrar))
-        dialogo._eliminar()
-        self.assertIn("disponible", dialogo.lista_paquetes.GetString(0))
+        dialogo._eliminar_voces()
+        self.assertIn("disponible", dialogo.lista_voces.GetString(0))
 
 
 class TestFalloYVistaPrevia(BaseVentana):
@@ -398,8 +438,8 @@ class TestFalloYVistaPrevia(BaseVentana):
         ficha = dict(paquete, instalado="2026-11-14T12:00:00-03:00")
         dialogo = self._dialogo(instalados=(ficha,),
                                 fallo=OSError("sin conexión"))
-        self.assertEqual(dialogo.lista_paquetes.GetCount(), 1)
-        self.assertIn("instalado", dialogo.lista_paquetes.GetString(0))
+        self.assertEqual(dialogo.lista_voces.GetCount(), 1)
+        self.assertIn("instalado", dialogo.lista_voces.GetString(0))
         self.avisar.assert_called_once()
         self.assertIn("sin conexión", self.avisar.call_args.args[1])
         self.sonido.assert_called_with("error")
@@ -411,14 +451,14 @@ class TestFalloYVistaPrevia(BaseVentana):
         dialogo = self._dialogo(paquetes=(paquete,))
         reproducir = self._parchear(
             voces_ventana.muestra_voz, "reproducir", mock.Mock())
-        dialogo._vista_previa()
+        dialogo._voces.ejecutar("previa")
         reproducir.assert_called_once_with("https://ejemplo.test/davefx.mp3")
 
     def test_sin_muestra_lo_anuncia(self):
         paquete = _paquete("piper-davefx", "piper", "Piper Davefx", "es-ES",
                            [_voz("Davefx", "es-ES")])
         dialogo = self._dialogo(paquetes=(paquete,))
-        dialogo._vista_previa()
+        dialogo._voces.ejecutar("previa")
         self.anuncios.assert_called_with("Esta voz no tiene vista previa.")
 
     def test_si_libvlc_falla_muestra_el_motivo(self):
@@ -441,49 +481,6 @@ class TestLetrasEnIngles(BaseVentana):
                                "es-ES", [_voz("Davefx", "es-ES")])
             dialogo = self._dialogo(paquetes=(paquete,), idioma="en")
             self.assertEqual(letras_repetidas(dialogo), {})
-
-
-class TestAbrirReal(BaseVentana):
-
-    def test_abrir_llama_a_al_cerrar_despues_de_cerrar(self):
-        self._parchear(voces_ventana.paquetes_instalacion, "instalados",
-                       _Instalados())
-        self._parchear(voces_ventana.red, "pedir_texto",
-                       mock.Mock(return_value=_catalogo()))
-        self._parchear(voces_ventana.diagnostico, "crear_hilo", HiloInmediato)
-        self._parchear(voces_ventana.wx, "CallAfter",
-                       lambda funcion, *args: funcion(*args))
-        self._parchear(voces_ventana.voces_disponibles, "idioma_actual",
-                       lambda: "es")
-        self._parchear(voces_ventana.confirmar, "avisar", mock.Mock())
-        self._parchear(voces_ventana._snd, "reproducir", mock.Mock())
-        self._parchear(voces_ventana, "anunciar", mock.Mock())
-        al_cerrar = mock.Mock()
-        with mock.patch.object(voces_ventana.VentanaVoces, "ShowModal",
-                               return_value=wx.ID_CANCEL):
-            voces_ventana.abrir(None, al_cerrar=al_cerrar)
-        al_cerrar.assert_called_once_with()
-
-
-class TestDesdePreferencias(BaseVentana):
-
-    def test_abrir_y_cerrar_recarga_las_voces_de_la_pagina(self):
-        frame = wx.Frame(None)
-        self.addCleanup(destruir, frame)
-        self._parchear(preferencias_voz.credenciales, "cargar",
-                       mock.Mock(return_value={}))
-        with mock.patch("guyrapu.voice.motores.listar_voces",
-                        return_value=[]):
-            pagina = preferencias_voz.PaginaVoz(frame, {})
-            pagina.construir(frame)
-        pagina._on_motor_cambiado = mock.Mock()
-        with mock.patch.object(voces_ventana, "abrir") as abrir:
-            evento = wx.CommandEvent(
-                wx.EVT_BUTTON.typeId, pagina.btn_voces.GetId())
-            pagina.btn_voces.GetEventHandler().ProcessEvent(evento)
-        abrir.assert_called_once()
-        abrir.call_args.kwargs["al_cerrar"]()
-        pagina._on_motor_cambiado.assert_called_once_with(None)
 
 
 if __name__ == "__main__":

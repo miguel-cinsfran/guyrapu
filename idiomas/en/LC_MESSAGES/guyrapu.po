@@ -1948,7 +1948,7 @@ msgid "{app} se actualizó a la versión {hacia}."
 msgstr "{app} updated to version {hacia}."
 
 #: guyrapu/core/actualizacion.py guyrapu/ui/gui_actualizar_app.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/voces_instalacion.py
 msgid "motivo desconocido"
 msgstr "unknown reason"
 
@@ -2781,6 +2781,21 @@ msgstr "{etiqueta} from {autor}: {monto}. {mensaje}"
 msgid "{etiqueta} de {autor}: {monto}"
 msgstr "{etiqueta} from {autor}: {monto}"
 
+#: guyrapu/core/lista_voces.py guyrapu/core/voces_disponibles.py
+#: guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "{n} voz"
+msgid_plural "{n} voces"
+msgstr[0] "{n} voice"
+msgstr[1] "{n} voices"
+
+#: guyrapu/core/lista_voces.py
+#, python-brace-format
+msgid "{n} instalada"
+msgid_plural "{n} instaladas"
+msgstr[0] "{n} installed"
+msgstr[1] "{n} installed"
+
 #. Traductores: encabezado de las novedades de una versión.
 #: guyrapu/core/novedades.py
 #, python-brace-format
@@ -2905,13 +2920,6 @@ msgstr "less than 1 MB"
 msgid "{n} MB"
 msgstr "{n} MB"
 
-#: guyrapu/core/voces_disponibles.py
-#, python-brace-format
-msgid "{n} voz"
-msgid_plural "{n} voces"
-msgstr[0] "{n} voice"
-msgstr[1] "{n} voices"
-
 #: guyrapu/core/voces_disponibles.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Nombre:"
@@ -2932,6 +2940,10 @@ msgstr "Voices:"
 #: guyrapu/core/voces_disponibles.py
 msgid "Tamaño:"
 msgstr "Size:"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Phonon instala todas las voces del idioma juntas."
+msgstr "Phonon installs all the voices for the language together."
 
 #: guyrapu/core/voces_disponibles.py
 msgid "Estado:"
@@ -9032,7 +9044,7 @@ msgstr "&Accept"
 #: guyrapu/ui/preguntas_ventana.py guyrapu/ui/restream_pagina_cuenta.py
 #: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_perfiles.py
 #: guyrapu/ui/restream_perfil.py guyrapu/ui/ventana_espera.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/voces_instalacion.py
 msgid "&Cancelar"
 msgstr "&Cancel"
 
@@ -13027,7 +13039,7 @@ msgstr "Sounds"
 msgid "Atajos"
 msgstr "Shortcuts"
 
-#: guyrapu/ui/gui_preferencias.py
+#: guyrapu/ui/gui_preferencias.py guyrapu/ui/voces_ventana.py
 msgid "Voces"
 msgstr "Voices"
 
@@ -13685,7 +13697,7 @@ msgid_plural "El chat tiene {n} mensajes."
 msgstr[0] "The chat has {n} message."
 msgstr[1] "The chat has {n} messages."
 
-#: guyrapu/ui/lista_pura.py
+#: guyrapu/ui/lista_pura.py guyrapu/ui/voces_ventana.py
 msgid "Elige un solo elemento para esta acción"
 msgstr "Choose only one item for this action"
 
@@ -16608,6 +16620,93 @@ msgstr "{titulo} — {app}"
 msgid "Cancelando…"
 msgstr "Canceling…"
 
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Instalar {nombre}"
+msgstr "Install {nombre}"
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Actualizar {nombre}"
+msgstr "Update {nombre}"
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Descargando {nombre}."
+msgstr "Downloading {nombre}."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Descargando {nombre}: {porcentaje} por ciento"
+msgstr "Downloading {nombre}: {porcentaje} percent"
+
+#: guyrapu/ui/voces_instalacion.py
+msgid "Instalación cancelada."
+msgstr "Installation canceled."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Actualización completada: {nombre}."
+msgstr "Update complete: {nombre}."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Instalación completada: {nombre}."
+msgstr "Installation complete: {nombre}."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid ""
+"No se pudo instalar {nombre}: {motivo}. Revisa la conexión a internet y "
+"vuelve a intentarlo."
+msgstr ""
+"Could not install {nombre}: {motivo}. Check the internet connection and try"
+" again."
+
+#: guyrapu/ui/voces_instalacion.py guyrapu/ui/voces_ventana.py
+#, python-brace-format
+msgid "{nombre} no está instalado."
+msgstr "{nombre} is not installed."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid ""
+"¿Eliminar {nombre}? Se liberan {tamano} del disco. Para volver a usarlo, "
+"hay que instalarlo de nuevo."
+msgstr ""
+"Remove {nombre}? This frees {tamano} on the disk. To use it again, install "
+"it again."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid ""
+"¿Eliminar {n} paquete de voces? Para volver a usarlos, hay que instalarlos "
+"de nuevo."
+msgid_plural ""
+"¿Eliminar {n} paquetes de voces? Para volver a usarlos, hay que instalarlos"
+" de nuevo."
+msgstr[0] "Delete {n} voice pack? To use it again, install it again."
+msgstr[1] "Delete {n} voice packs? To use them again, install them again."
+
+#: guyrapu/ui/voces_instalacion.py
+msgid "Eliminar paquete de voces"
+msgstr "Remove voice pack"
+
+#: guyrapu/ui/voces_instalacion.py guyrapu/ui/voces_ventana.py
+msgctxt "paquete de voces"
+msgid "&Eliminar"
+msgstr "&Remove"
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "No se pudo eliminar {nombre}: {motivo}."
+msgstr "Could not remove {nombre}: {motivo}."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Paquete eliminado: {nombre}."
+msgstr "Voice pack removed: {nombre}."
+
 #: guyrapu/ui/voces_ventana.py
 msgid "Administrar voces"
 msgstr "Manage voices"
@@ -16617,12 +16716,28 @@ msgid "&Idioma:"
 msgstr "&Language:"
 
 #: guyrapu/ui/voces_ventana.py
-msgid "&Paquetes de voces:"
-msgstr "&Voice packs:"
+msgid "No hay motores de voz para este idioma."
+msgstr "There are no voice engines for this language."
 
 #: guyrapu/ui/voces_ventana.py
-msgid "Paquetes de voces"
-msgstr "Voice packs"
+msgid "&Buscar voz:"
+msgstr "Se&arch voice:"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "Buscar voz"
+msgstr "Search voice"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "&Voces:"
+msgstr "&Voices:"
+
+#: guyrapu/ui/voces_ventana.py
+msgid "No hay voces que coincidan con la búsqueda."
+msgstr "No voices match the search."
+
+#: guyrapu/ui/voces_ventana.py
+msgid "De&talles:"
+msgstr "De&tails:"
 
 #: guyrapu/ui/voces_ventana.py
 msgid "In&stalar"
@@ -16633,33 +16748,8 @@ msgid "&Actualizar"
 msgstr "&Update"
 
 #: guyrapu/ui/voces_ventana.py
-msgctxt "paquete de voces"
-msgid "&Eliminar"
-msgstr "&Remove"
-
-#: guyrapu/ui/voces_ventana.py
-msgid "De&talles:"
-msgstr "De&tails:"
-
-#: guyrapu/ui/voces_ventana.py
-msgid "&Voces del paquete:"
-msgstr "V&oices in the pack:"
-
-#: guyrapu/ui/voces_ventana.py
-msgid "Voces del paquete"
-msgstr "Voices in the pack"
-
-#: guyrapu/ui/voces_ventana.py
 msgid "Vista p&revia de voz"
 msgstr "&Preview voice"
-
-#: guyrapu/ui/voces_ventana.py
-msgid "No hay voces en este paquete."
-msgstr "There are no voices in this pack."
-
-#: guyrapu/ui/voces_ventana.py
-msgid "Vista previa de voz"
-msgstr "Preview voice"
 
 #: guyrapu/ui/voces_ventana.py
 #, python-brace-format
@@ -16672,91 +16762,13 @@ msgstr ""
 
 #: guyrapu/ui/voces_ventana.py
 #, python-brace-format
-msgid "{n} paquete de voces"
-msgid_plural "{n} paquetes de voces"
-msgstr[0] "{n} voice pack"
-msgstr[1] "{n} voice packs"
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
 msgid "{nombre} ya está instalado."
 msgstr "{nombre} is already installed."
 
 #: guyrapu/ui/voces_ventana.py
 #, python-brace-format
-msgid "{nombre} no está instalado."
-msgstr "{nombre} is not installed."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
 msgid "No hay actualización disponible para {nombre}."
 msgstr "No update is available for {nombre}."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "Instalar {nombre}"
-msgstr "Install {nombre}"
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "Actualizar {nombre}"
-msgstr "Update {nombre}"
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "Descargando {nombre}."
-msgstr "Downloading {nombre}."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "Descargando {nombre}: {porcentaje} por ciento"
-msgstr "Downloading {nombre}: {porcentaje} percent"
-
-#: guyrapu/ui/voces_ventana.py
-msgid "Instalación cancelada."
-msgstr "Installation canceled."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "Actualización completada: {nombre}."
-msgstr "Update complete: {nombre}."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "Instalación completada: {nombre}."
-msgstr "Installation complete: {nombre}."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid ""
-"No se pudo instalar {nombre}: {motivo}. Revisa la conexión a internet y "
-"vuelve a intentarlo."
-msgstr ""
-"Could not install {nombre}: {motivo}. Check the internet connection and try"
-" again."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid ""
-"¿Eliminar {nombre}? Se liberan {tamano} del disco. Para volver a usarlo, "
-"hay que instalarlo de nuevo."
-msgstr ""
-"Remove {nombre}? This frees {tamano} on the disk. To use it again, install "
-"it again."
-
-#: guyrapu/ui/voces_ventana.py
-msgid "Eliminar paquete de voces"
-msgstr "Remove voice pack"
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "No se pudo eliminar {nombre}: {motivo}."
-msgstr "Could not remove {nombre}: {motivo}."
-
-#: guyrapu/ui/voces_ventana.py
-#, python-brace-format
-msgid "Paquete eliminado: {nombre}."
-msgstr "Voice pack removed: {nombre}."
 
 #: guyrapu/ui/voces_ventana.py
 msgid "Esta voz no tiene vista previa."

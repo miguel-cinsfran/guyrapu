@@ -1,19 +1,36 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Ventana Administrar voces: catálogo, vista previa e instalación."""
+"""Ventana Administrar voces: motores, búsqueda, voces e instalación."""
 from __future__ import annotations
 import wx
-from guyrapu.core import (config, diagnostico, paquetes_catalogo,
+from guyrapu.core import (config, diagnostico, lista_voces, paquetes_catalogo,
                           paquetes_instalacion, red, voces_disponibles)
 from guyrapu.core.idioma import _, ngettext, pgettext
-from guyrapu.ui import ayuda_manual, confirmar, paleta, voces_instalacion
-from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
+from guyrapu.music import anuncios as anuncios_musica
+from guyrapu.ui import (ayuda_manual, confirmar, paleta, tecla_escape,
+                        voces_instalacion)
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 from guyrapu.ui.ventana_espera import VentanaEspera
 from guyrapu.voice import muestra_voz, sound_player as _snd
 from guyrapu.voice.proveedores import PROVEEDORES
 logger = diagnostico.obtener_logger(__name__)
+
+class ListaVocesConAcciones(ListaConAcciones):
+    """En una lista múltiple wx rechaza GetSelection: solo da GetSelections."""
+
+    def __init__(self, lista, acciones, texto_vacio):
+        super().__init__(lista, acciones, texto_vacio)
+        self._lista_multiple = lista
+
+    def indice(self):
+        elegidas = self._lista_multiple.GetSelections()
+        return elegidas[0] if elegidas else None
+
+    def indices(self):
+        return list(self._lista_multiple.GetSelections())
+
 
 def abrir(padre, al_cerrar=None):
     """Muestra la ventana y, al cerrarla, avisa a quien la abrió."""
@@ -25,6 +42,7 @@ def abrir(padre, al_cerrar=None):
     if al_cerrar is not None:
         al_cerrar()
 
+
 class VentanaVoces(wx.Dialog):
 
     def __init__(self, padre):
@@ -32,11 +50,14 @@ class VentanaVoces(wx.Dialog):
                          name="VentanaVoces", size=(820, 700))
         self._vivo = True
         self._espera = None
+        self._ultimo_porcentaje = None
         self._idioma_tocado = False
         self._cargando, self._fallo = True, False
-        self._valores_idioma, self._valores_motor = [""], [""]
+        self._valores_idioma = [""]
         self._catalogo, self._instalados = [], []
-        self._entradas, self._filtradas = [], []
+        self._entradas, self._por_idioma = [], []
+        self._motores, self._filtradas = [], []
+        self._motor, self._buscado = "", ""
         self._crear_controles()
         ayuda_manual.enlazar(self, "voces")
         paleta.pintar_ventana(self)
@@ -45,73 +66,82 @@ class VentanaVoces(wx.Dialog):
         self._recargar_instalados()
         self._rehacer_filtros()
         self._rehacer()
-        self.lista_paquetes.SetFocus()
+        self.lista_motores.SetFocus()
         self._leer_catalogo()
 
     def _crear_controles(self):
         vs = wx.BoxSizer(wx.VERTICAL)
         vs.Add(fila_label(self, _("&Idioma:")), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         self.cho_idioma = wx.Choice(self, name=_("Idioma"))
-        self.cho_idioma.Bind(wx.EVT_CHOICE, lambda e: self._al_cambiar_filtro(True))
+        self.cho_idioma.Bind(wx.EVT_CHOICE, self._al_cambiar_idioma)
         vs.Add(self.cho_idioma, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         vs.Add(fila_label(self, _("&Motor de voz:")), 0, wx.LEFT | wx.RIGHT, 10)
-        self.cho_motor = wx.Choice(self, name=_("Motor de voz"))
-        self.cho_motor.Bind(wx.EVT_CHOICE, lambda e: self._al_cambiar_filtro(False))
-        vs.Add(self.cho_motor, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(fila_label(self, _("&Paquetes de voces:")), 0,
-               wx.LEFT | wx.RIGHT, 10)
-        self.lista_paquetes = wx.ListBox(
-            self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Paquetes de voces"))
-        nombre_accesible(self.lista_paquetes, _("Paquetes de voces"))
-        self.lista_paquetes.Bind(wx.EVT_LISTBOX, self._al_elegir_paquete)
-        self._paquetes = ListaConAcciones(self.lista_paquetes, [
-            Accion("instalar", _("In&stalar"), lambda: self._accion("instalar")),
-            Accion("actualizar", _("&Actualizar"),
-                   lambda: self._accion("actualizar")),
-            Accion("eliminar", pgettext("paquete de voces", "&Eliminar"), self._eliminar,
-                   tecla="suprimir")], "")
-        entregar_intro(self.lista_paquetes, self._al_intro_paquete)
-        vs.Add(self.lista_paquetes, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self.lista_motores = wx.ListBox(
+            self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Motor de voz"))
+        nombre_accesible(self.lista_motores, _("Motor de voz"))
+        self.lista_motores.Bind(wx.EVT_LISTBOX, self._al_elegir_motor)
+        self._motores_pieza = ListaConAcciones(
+            self.lista_motores, (),
+            _("No hay motores de voz para este idioma."))
+        vs.Add(self.lista_motores, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        vs.Add(fila_label(self, _("&Buscar voz:")), 0, wx.LEFT | wx.RIGHT, 10)
+        self.txt_buscar = wx.TextCtrl(self, name=_("Buscar voz"))
+        nombre_accesible(self.txt_buscar, _("Buscar voz"))
+        self.txt_buscar.Bind(wx.EVT_TEXT, self._al_buscar)
+        self.txt_buscar.Bind(wx.EVT_KEY_DOWN, self._tecla_buscar)
+        vs.Add(self.txt_buscar, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        vs.Add(fila_label(self, _("&Voces:")), 0, wx.LEFT | wx.RIGHT, 10)
+        self.lista_voces = wx.ListBox(
+            self, style=wx.LB_EXTENDED | wx.LB_HSCROLL, name=_("Voces"))
+        nombre_accesible(self.lista_voces, _("Voces"))
+        self._voces = ListaVocesConAcciones(
+            self.lista_voces, self._acciones_voces(),
+            _("No hay voces que coincidan con la búsqueda."))
+        vs.Add(self.lista_voces, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         vs.Add(fila_label(self, _("De&talles:")), 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_detalles = wx.TextCtrl(
             self, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_AUTO_URL
             | wx.TE_RICH2, name=_("Detalles"))
         self.txt_detalles.SetMinSize((-1, 120))
         vs.Add(self.txt_detalles, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self._crear_botones(vs)
+        self.SetSizer(vs)
+
+    def _crear_botones(self, vs):
         fila = wx.BoxSizer(wx.HORIZONTAL)
-        for clave, etiqueta in (("instalar", _("In&stalar")),
-                                ("actualizar", _("&Actualizar")),
-                                ("eliminar", pgettext("paquete de voces", "&Eliminar"))):
+        for clave, etiqueta in (
+                ("instalar", _("In&stalar")),
+                ("actualizar", _("&Actualizar")),
+                ("eliminar", pgettext("paquete de voces", "&Eliminar")),
+                ("previa", _("Vista p&revia de voz"))):
             boton = wx.Button(self, label=etiqueta,
                               name=nombre_de_etiqueta(etiqueta))
             boton.Bind(wx.EVT_BUTTON,
-                       lambda _e, clave=clave: self._paquetes.ejecutar(clave))
+                       lambda _e, clave=clave: self._voces.ejecutar(clave))
             setattr(self, "btn_" + clave, boton)
             fila.Add(boton, 0, wx.RIGHT, 6)
         vs.Add(fila, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self._crear_voces(vs)
-        self.SetSizer(vs)
-
-    def _crear_voces(self, vs):
-        vs.Add(fila_label(self, _("&Voces del paquete:")), 0,
-               wx.LEFT | wx.RIGHT, 10)
-        self.lista_voces = wx.ListBox(
-            self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Voces del paquete"))
-        nombre_accesible(self.lista_voces, _("Voces del paquete"))
-        self._lista_voces = ListaConAcciones(
-            self.lista_voces,
-            [Accion("previa", _("Vista p&revia de voz"), self._vista_previa,
-                    tecla="intro")], _("No hay voces en este paquete."))
-        vs.Add(self.lista_voces, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self.btn_previa = wx.Button(
-            self, label=_("Vista p&revia de voz"), name=_("Vista previa de voz"))
-        self.btn_previa.Bind(
-            wx.EVT_BUTTON, lambda _e: self._lista_voces.ejecutar("previa"))
-        vs.Add(self.btn_previa, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.btn_cerrar = wx.Button(self, wx.ID_CANCEL, _("&Cerrar"),
-                                    name=_("Cerrar"))
+                                     name=_("Cerrar"))
         self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
         vs.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+
+    def _acciones_voces(self):
+        return (
+            Accion("instalar", _("In&stalar"),
+                   lambda: self._accion_voces("instalar"), varios=True),
+            Accion("actualizar", _("&Actualizar"),
+                   lambda: self._accion_voces("actualizar"), varios=True),
+            Accion("eliminar", pgettext("paquete de voces", "&Eliminar"),
+                   self._eliminar_voces, tecla="suprimir", varios=True),
+            Accion("previa", _("Vista p&revia de voz"), self._vista_previa,
+                   tecla="intro", motivo=self._motivo_previa),
+        )
+
+    def _motivo_previa(self):
+        if len(self.lista_voces.GetSelections()) > 1:
+            return _("Elige un solo elemento para esta acción")
+        return ""
 
     def _leer_catalogo(self):
         def trabajar():
@@ -131,25 +161,23 @@ class VentanaVoces(wx.Dialog):
     def _catalogo_listo(self, paquetes):
         if not self._vivo:
             return
-        conservar = self._id_elegido()
         self._catalogo = paquetes
         self._cargando, self._fallo = False, False
         self._recargar_instalados()
         self._rehacer_filtros()
-        self._rehacer(conservar=conservar, anunciar_conteo=True)
+        self._rehacer(anunciar_conteo=True)
 
     def _catalogo_fallo(self, motivo):
         if not self._vivo:
             return
-        conservar = self._id_elegido()
         self._catalogo, self._fallo, self._cargando = [], True, False
         self._recargar_instalados()
         self._rehacer_filtros()
-        self._rehacer(conservar=conservar)
+        self._rehacer()
         self._error(_("No se pudo cargar la lista de paquetes de voces: "
                       "{motivo}. Se muestran solo los paquetes instalados.").format(
                           motivo=motivo))
-        self.lista_paquetes.SetFocus()
+        self.lista_motores.SetFocus()
 
     def _recargar_instalados(self):
         self._instalados = paquetes_instalacion.instalados("voz")
@@ -166,101 +194,145 @@ class VentanaVoces(wx.Dialog):
         self.cho_idioma.SetSelection(
             self._valores_idioma.index(elegido)
             if elegido in self._valores_idioma else 0)
-        elegido = self._valor(self.cho_motor, self._valores_motor)
-        opciones = voces_disponibles.opciones_motor(self._entradas)
-        self._valores_motor = [valor for _texto, valor in opciones]
-        self.cho_motor.Set([texto for texto, _valor in opciones])
-        self.cho_motor.SetSelection(
-            self._valores_motor.index(elegido)
-            if elegido in self._valores_motor else 0)
 
     @staticmethod
     def _valor(control, valores):
         indice = control.GetSelection()
         return valores[indice] if 0 <= indice < len(valores) else ""
 
-    def _filtrar_actual(self):
-        return voces_disponibles.filtrar(
-            self._entradas,
-            self._valor(self.cho_idioma, self._valores_idioma),
-            self._valor(self.cho_motor, self._valores_motor))
+    def _idioma(self):
+        return self._valor(self.cho_idioma, self._valores_idioma)
 
     def _rehacer(self, conservar=None, elegido=None, anunciar_conteo=False):
-        self._filtradas = self._filtrar_actual()
-        if elegido is None and conservar is not None:
-            elegido = next(
-                (indice for indice, entrada in enumerate(self._filtradas)
-                 if voces_disponibles.identificador(entrada) == conservar), None)
-        textos = [voces_disponibles.fila(entrada) for entrada in self._filtradas]
-        self._paquetes.fijar(
-            textos, elegido=elegido,
+        if conservar is None:
+            fila = self._voz_elegida()
+            conservar = self._clave(fila) if fila is not None else None
+        self._por_idioma = voces_disponibles.filtrar(self._entradas, self._idioma())
+        self._motores = lista_voces.filas_motores(self._por_idioma)
+        if not any(motor == self._motor for _texto, motor in self._motores):
+            self._motor = self._motores[0][1] if self._motores else ""
+        seleccion = next((indice for indice, (_texto, motor)
+                          in enumerate(self._motores) if motor == self._motor), None)
+        self._motores_pieza.fijar(
+            [texto for texto, _motor in self._motores], elegido=seleccion,
             vacio=voces_disponibles.texto_vacio(
-                self._cargando, self._fallo,
-                bool(self._valor(self.cho_idioma, self._valores_idioma)
-                     or self._valor(self.cho_motor, self._valores_motor))))
+                self._cargando, self._fallo, bool(self._idioma())))
+        self._filtradas = lista_voces.filas_voces(
+            self._por_idioma, self._motor, self._buscado)
+        elegida = next((indice for indice, fila in enumerate(self._filtradas)
+                        if self._clave(fila) == conservar), None)
+        self._voces.fijar(
+            [fila.texto for fila in self._filtradas],
+            elegido=elegida if elegida is not None else elegido,
+            vacio=self._texto_vacio_voces())
         if anunciar_conteo:
-            anunciar(ngettext(
-                "{n} paquete de voces", "{n} paquetes de voces", len(textos)
-            ).format(n=len(textos)))
+            anunciar(ngettext("{n} voz", "{n} voces",
+                              len(self._filtradas)).format(n=len(self._filtradas)))
         self._mostrar_seleccion()
 
-    def _elegida(self):
-        indice = self._paquetes.indice()
+    def _texto_vacio_voces(self):
+        if self._buscado:
+            return _("No hay voces que coincidan con la búsqueda.")
+        return voces_disponibles.texto_vacio(
+            self._cargando, self._fallo, bool(self._idioma()))
+
+    @staticmethod
+    def _clave(fila):
+        return (voces_disponibles.identificador(fila.paquete), fila.indice)
+
+    def _voz_elegida(self):
+        indice = self._voces.indice()
         if indice is None or not 0 <= indice < len(self._filtradas):
             return None
         return self._filtradas[indice]
 
-    def _id_elegido(self):
-        entrada = self._elegida()
-        return voces_disponibles.identificador(entrada) if entrada else None
+    def _paquetes_elegidos(self):
+        elegidos, vistos = [], set()
+        for indice in self.lista_voces.GetSelections():
+            if not 0 <= indice < len(self._filtradas):
+                continue
+            paquete = self._filtradas[indice].paquete
+            clave = voces_disponibles.identificador(paquete)
+            if clave not in vistos:
+                vistos.add(clave)
+                elegidos.append(paquete)
+        return elegidos
 
     def _mostrar_seleccion(self):
-        entrada = self._elegida()
-        if entrada is None:
-            self.txt_detalles.SetValue("")
-            self._lista_voces.fijar([])
-            return
-        self.txt_detalles.SetValue(voces_disponibles.detalles(entrada))
-        self._lista_voces.fijar(voces_disponibles.filas_voces(entrada))
+        fila = self._voz_elegida()
+        self.txt_detalles.SetValue(
+            voces_disponibles.detalles(fila.paquete) if fila is not None else "")
 
-    def _al_elegir_paquete(self, evento):
+    def _al_cambiar_idioma(self, _evento=None):
+        self._idioma_tocado = True
+        self._motor = ""
+        self._rehacer()
+
+    def _al_elegir_motor(self, evento):
         evento.Skip()
-        self._mostrar_seleccion()
+        indice = self._motores_pieza.indice()
+        self._motor = self._motores[indice][1] if (
+            indice is not None and 0 <= indice < len(self._motores)) else ""
+        self._rehacer()
 
-    def _al_cambiar_filtro(self, es_idioma):
-        if es_idioma:
-            self._idioma_tocado = True
-        self._rehacer(conservar=self._id_elegido())
+    def _al_buscar(self, _evento):
+        self._buscado = self.txt_buscar.GetValue()
+        self._rehacer()
 
-    def _al_intro_paquete(self, _evento):
-        entrada = self._elegida()
-        if entrada is None:
-            self._paquetes.ejecutar("instalar")
-        elif (entrada.instalado is not None
-              and voces_disponibles.estado_codigo(entrada) == "actualizable"):
-            self._accion("actualizar")
-        else:
-            self._accion("instalar")
-
-    def _accion(self, accion):
-        entrada = self._elegida()
-        if entrada is None:
+    def _tecla_buscar(self, evento):
+        codigo = evento.GetKeyCode()
+        if tecla_escape.es_escape(codigo):
+            if self._buscado:
+                self.txt_buscar.ChangeValue("")
+                self._buscado = ""
+                self._rehacer()
+                anunciar(_(anuncios_musica.TEXTO_BUSQUEDA_BORRADA))
+            else:
+                self._al_cerrar()
             return
-        nombre = voces_disponibles.nombre(entrada)
-        if accion == "instalar":
-            if entrada.instalado is not None:
-                anunciar(_("{nombre} ya está instalado.").format(nombre=nombre))
-            elif entrada.catalogo is not None:
-                self._empezar(entrada.catalogo, accion, nombre)
+        if codigo == wx.WXK_DOWN:
+            self.lista_voces.SetFocus()
+            if self._voces.indice() is None and self._filtradas:
+                self.lista_voces.SetSelection(0)
             return
-        if entrada.instalado is None:
-            anunciar(_("{nombre} no está instalado.").format(nombre=nombre))
-        elif (entrada.catalogo is None
-              or voces_disponibles.estado_codigo(entrada) != "actualizable"):
-            anunciar(_("No hay actualización disponible para {nombre}.").format(
-                nombre=nombre))
-        else:
-            self._empezar(entrada.catalogo, accion, nombre)
+        evento.Skip()
+
+    def _accion_voces(self, accion):
+        for paquete in self._paquetes_elegidos():
+            nombre = voces_disponibles.nombre(paquete)
+            if accion == "instalar":
+                if paquete.instalado is not None:
+                    anunciar(_("{nombre} ya está instalado.").format(nombre=nombre))
+                    continue
+                if paquete.catalogo is None:
+                    continue
+            else:
+                if paquete.instalado is None:
+                    anunciar(_("{nombre} no está instalado.").format(nombre=nombre))
+                    continue
+                if (paquete.catalogo is None
+                        or voces_disponibles.estado_codigo(paquete) != "actualizable"):
+                    anunciar(_("No hay actualización disponible para {nombre}.").format(
+                        nombre=nombre))
+                    continue
+            self._empezar(paquete.catalogo, accion, nombre)
+        self._rehacer()
+        self.lista_voces.SetFocus()
+
+    def _eliminar_voces(self):
+        paquetes = self._paquetes_elegidos()
+        if not paquetes:
+            return
+        indice = self._voces.indice()
+        if voces_instalacion.eliminar(
+                self, paquetes, indice, self._anunciar, self._error,
+                self._rehacer_tras_eliminar):
+            self._rehacer()
+            self.lista_voces.SetFocus()
+
+    def _rehacer_tras_eliminar(self, _entrada, _indice):
+        self._recargar_instalados()
+        self._rehacer_filtros()
 
     def _empezar(self, paquete, accion, nombre):
         if self._espera is not None:
@@ -272,8 +344,7 @@ class VentanaVoces(wx.Dialog):
         if self._vivo:
             self._recargar_instalados()
             self._rehacer_filtros()
-            self._rehacer(conservar=paquete.get("id"))
-            self.lista_paquetes.SetFocus()
+            self._rehacer()
 
     def _poner_espera(self, espera):
         self._espera = espera
@@ -286,38 +357,15 @@ class VentanaVoces(wx.Dialog):
         voces_instalacion.terminar_instalacion(
             self._espera, resultado, accion, nombre)
 
-    def _eliminar(self):
-        entrada = self._elegida()
-        if entrada is None:
-            return
-        if voces_instalacion.eliminar(
-                self, entrada, self._paquetes.indice(), self._anunciar,
-                self._error, self._rehacer_tras_eliminar):
-            self.lista_paquetes.SetFocus()
-
-    def _rehacer_tras_eliminar(self, entrada, indice):
-        self._recargar_instalados()
-        self._rehacer_filtros()
-        restantes = self._filtrar_actual()
-        identificador = voces_disponibles.identificador(entrada)
-        if any(voces_disponibles.identificador(otra) == identificador
-               for otra in restantes):
-            self._rehacer(conservar=identificador)
-        else:
-            self._rehacer(elegido=min(
-                indice if indice is not None else 0,
-                max(0, len(restantes) - 1)))
-
     def _vista_previa(self):
-        indice = self._lista_voces.indice()
-        entrada = self._elegida()
-        if indice is None or entrada is None:
-            self._lista_voces.ejecutar("previa")
+        fila = self._voz_elegida()
+        if fila is None:
+            self._voces.ejecutar("previa")
             return
-        listado = voces_disponibles.voces(entrada)
-        if not 0 <= indice < len(listado):
+        listado = voces_disponibles.voces(fila.paquete)
+        if not 0 <= fila.indice < len(listado):
             return
-        muestra = listado[indice].get("muestra")
+        muestra = listado[fila.indice].get("muestra")
         if not muestra:
             anunciar(_("Esta voz no tiene vista previa."))
             return

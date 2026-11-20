@@ -198,6 +198,11 @@ def estado(entrada) -> str:
     return _(_ESTADOS[estado_codigo(entrada)])
 
 
+def aviso_uso(entrada) -> str:
+    aviso = _USO_FILA.get(paquetes_catalogo.uso_de(_ficha(entrada)))
+    return _(aviso) if aviso else ""
+
+
 def fila(entrada) -> str:
     listado = voces(entrada)
     if len(listado) == 1:
@@ -209,10 +214,7 @@ def fila(entrada) -> str:
         partes.append(
             ngettext("{n} voz", "{n} voces", len(listado)).format(
                 n=len(listado)))
-    partes.extend((tamano(entrada), estado(entrada)))
-    aviso = _USO_FILA.get(paquetes_catalogo.uso_de(_ficha(entrada)))
-    if aviso:
-        partes.append(_(aviso))
+    partes.extend((tamano(entrada), estado(entrada), aviso_uso(entrada)))
     return ", ".join(parte for parte in partes if parte)
 
 
@@ -256,9 +258,13 @@ def detalles(entrada) -> str:
         "{} {}".format(_("Idioma:"), idiomas),
         "{} {}".format(_("Voces:"), len(listado)),
         "{} {}".format(_("Tamaño:"), tamano(entrada)),
+    ]
+    if len(listado) > 1:
+        lineas.append(_("Phonon instala todas las voces del idioma juntas."))
+    lineas.extend((
         "{} {}".format(_("Estado:"), estado(entrada)),
         "{} {}".format(_("Licencia:"), str(ficha.get("licencia") or "")),
-    ]
+    ))
     lineas.append(_(_USO_DETALLE[paquetes_catalogo.uso_de(ficha)]))
     lineas.append("{} {}".format(
         _("Enlace de la licencia:"), str(ficha.get("licencia_url") or "")))
