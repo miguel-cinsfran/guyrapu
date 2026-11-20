@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Cómo se juzga lo que contesta la IA en el banco."""
 
+import re
 import unicodedata
+
+CIFRAS = "2345689"
 
 
 def sin_tildes(texto) -> str:
@@ -48,3 +51,23 @@ def es_error(texto) -> bool:
     base = sin_tildes(texto)
     return bool(base.strip()) and any(
         p and p in base for p in map(sin_tildes, _textos_error()))
+
+
+def elegir_numeros(azar) -> tuple[str, str]:
+    """Dos números de cuatro cifras distintos, sin cifras que se confundan."""
+    while True:
+        primero = "".join(azar.choice(CIFRAS) for _ in range(4))
+        segundo = "".join(azar.choice(CIFRAS) for _ in range(4))
+        if primero != segundo:
+            return (primero, segundo)
+
+
+def dice_numero(texto, numero) -> bool:
+    """Si el número aparece entero, sin otra cifra pegada ni antes ni después."""
+    if not numero:
+        return False
+    limpio = str(texto or "")
+    for separador in (".", "\u00a0", "\u202f"):
+        limpio = limpio.replace(separador, "")
+    patron = r"(?<!\d)" + re.escape(str(numero)) + r"(?!\d)"
+    return re.search(patron, limpio) is not None

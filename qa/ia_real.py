@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import random
 import re
 import subprocess
 import sys
@@ -23,22 +24,17 @@ sys.path.insert(0, str(RAIZ))
 sys.path.insert(0, str(RAIZ / "qa"))
 
 import directo_real
-from ia_respuestas import (es_error, lista_cargada, nombra_colores,
+from ia_respuestas import (dice_numero, elegir_numeros, es_error,
+                           lista_cargada, nombra_colores,
                            sin_tildes as _sin_tildes)
 from guyrapu.core.config import APP_NAME  # noqa: E402
 from conducir import contestar_salir_si_aparece
 
 TITULO_PRIVACIDAD = "Privacidad"
 PREGUNTA_RAPIDA = "(consulta rápida con la instrucción de Preferencias)"
-PREGUNTA_VENTANAS = "¿Cuántas ventanas de color se ven y dónde está cada una?"
+PREGUNTA_NUMERO = "¿Qué número se lee en el vídeo?"
+PREGUNTA_NUMERO_NUEVO = "¿Qué número se lee ahora en el vídeo?"
 PREGUNTA_PANEL = "¿Qué texto se lee en el panel de chat?"
-PREGUNTA_CAMBIO = "¿Cambió algo respecto de la captura anterior?"
-
-def describe_la_unica_ventana(texto) -> bool:
-    base = _sin_tildes(texto)
-    return (re.search(r"\b(?:una|un|1)\b", base) is not None
-            and re.search(r"\b(?:dos|2)\b", base) is None
-            and "verde" not in base)
 
 def modelo_permitido(proveedor, modelo) -> bool:
     """OpenRouter solo usa gratis («:free»); el resto vale todo."""
@@ -181,7 +177,9 @@ def _capturar(ctx, ventana, espera):
         return (False, "", 0, "no se pudo capturar ({})".format(f))
     if not _nueva(ctx["anuncios"], marca, 15):
         return (False, "", 0, "sin «Captura agregada»")
-    return _consultar(ctx, PREGUNTA_CAMBIO, espera, ventana=ventana)
+    return _consultar(ctx, PREGUNTA_NUMERO_NUEVO, espera, ventana=ventana,
+                      comprueba=lambda texto: dice_numero(texto, ctx["segundo"]),
+                      mala="no lee el número nuevo")
 
 def _obs():
     """Abre OBS como lo abre la app si no corre. (estaba, problema)."""
@@ -203,6 +201,11 @@ def _levantar(ctx) -> str:
     from guyrapu.core import paths
     tmpdir = tempfile.mkdtemp(prefix="ia-real-")
     ctx["anuncios"] = os.path.join(tmpdir, "anuncios.txt")
+    ctx["ruta_numero"] = os.path.join(tmpdir, "numero.txt")
+    ctx["primero"], ctx["segundo"] = elegir_numeros(random.Random())
+    with open(ctx["ruta_numero"], "w", encoding="utf-8") as f:
+        f.write(ctx["primero"])
+    os.environ["QA_VENTANA_NUMERO"] = ctx["ruta_numero"]
     entorno = dict(os.environ, DIRECTO_REAL_ANUNCIOS=ctx["anuncios"],
                    DIRECTO_REAL_CHAT=os.path.join(tmpdir, "chat.txt"))
     try:
@@ -281,8 +284,10 @@ def _recorrer(ctx, pasos, espera) -> tuple[list, int]:
         pasos.append(("preparar escena", "", problema, 0, False))
         return (pasos, 1)
     bien, respuesta, segundos, nota = _consultar(
-        ctx, PREGUNTA_RAPIDA, espera, rapida=True, comprueba=nombra_colores,
-        mala="no nombra los colores")
+        ctx, PREGUNTA_RAPIDA, espera, rapida=True,
+        comprueba=lambda texto: (nombra_colores(texto)
+                                 or dice_numero(texto, ctx["primero"])),
+        mala="no nombra los colores ni lee el número")
     pasos.append(("Consulta rápida", PREGUNTA_RAPIDA,
                   respuesta if bien else nota, segundos, bien))
     if not bien:
@@ -298,8 +303,8 @@ def _recorrer(ctx, pasos, espera) -> tuple[list, int]:
                       "no abrió «Preguntar a la IA» ({})".format(f), 0, False))
         return (pasos, 1)
     for nombre, pregunta, comprueba, mala in (
-            ("Pregunta por las ventanas", PREGUNTA_VENTANAS,
-             describe_la_unica_ventana, "no describe la única ventana que se ve"),
+            ("Pregunta por el número", PREGUNTA_NUMERO,
+             lambda texto: dice_numero(texto, ctx["primero"]), "no lee el número"),
             ("Pregunta por el panel", PREGUNTA_PANEL, None, "")):
         bien, respuesta, segundos, nota = _consultar(
             ctx, pregunta, espera, ventana=ventana, comprueba=comprueba,
@@ -308,19 +313,25 @@ def _recorrer(ctx, pasos, espera) -> tuple[list, int]:
                       segundos, bien))
         if not bien:
             return (pasos, 1)
+    with open(ctx["ruta_numero"], "w", encoding="utf-8") as f:
+        f.write(ctx["segundo"])
+    time.sleep(2)
     bien, respuesta, segundos, nota = _capturar(ctx, ventana, espera)
-    pasos.append(("Agregar captura y preguntar", PREGUNTA_CAMBIO,
+    pasos.append(("Agregar captura y preguntar", PREGUNTA_NUMERO_NUEVO,
                   respuesta if bien else nota, segundos, bien))
     if not bien:
         return (pasos, 1)
+    return (pasos, 0 if _cerrar_ia(ventana, pasos) else 1)
+
+def _cerrar_ia(ventana, pasos) -> bool:
     try:
         directo_real._control(ventana, "Cerrar", "Button", 10).invoke()
     except Exception as f:
         pasos.append(("Cerrar", "(sin pregunta)",
                       "sin «Cerrar» ({})".format(f), 0, False))
-        return (pasos, 1)
+        return False
     pasos.append(("Cerrar", "(sin pregunta)", "ventana cerrada", 0, True))
-    return (pasos, 0)
+    return True
 
 def _correr() -> tuple[list, int]:
     """Verifica, recorre, guarda qa/salida/ia-real.txt y dice el código."""

@@ -3,6 +3,7 @@
 """Pruebas de la lógica pura de qa/ia_real.py, sin red ni ventanas."""
 
 import importlib.util
+import random
 import unittest
 from pathlib import Path
 
@@ -10,6 +11,8 @@ _RUTA = Path(__file__).resolve().parent.parent / "qa" / "ia_real.py"
 _paquete = importlib.util.spec_from_file_location("ia_real_qa", _RUTA)
 ia_real = importlib.util.module_from_spec(_paquete)
 _paquete.loader.exec_module(ia_real)
+
+from ia_respuestas import CIFRAS, dice_numero, elegir_numeros  # noqa: E402
 
 
 class TestNombraColores(unittest.TestCase):
@@ -33,28 +36,34 @@ class TestNombraColores(unittest.TestCase):
         self.assertFalse(ia_real.nombra_colores(""))
 
 
-class TestDescribeLaUnicaVentana(unittest.TestCase):
+class TestDiceNumero(unittest.TestCase):
 
-    def test_una_ventana_magenta_pasa(self):
-        self.assertTrue(ia_real.describe_la_unica_ventana(
-            "Se ve una ventana de color. Ocupa todo el vídeo con magenta."))
+    def test_numero_suelto_pasa(self):
+        self.assertTrue(dice_numero("Se lee 4826.", "4826"))
 
-    def test_una_ventana_sin_nombrar_color_pasa(self):
-        self.assertTrue(ia_real.describe_la_unica_ventana(
-            "Se ve una ventana de color en toda la pantalla."))
+    def test_separador_de_miles_pasa(self):
+        self.assertTrue(dice_numero("el número 4.826", "4826"))
 
-    def test_dos_ventanas_no_pasa(self):
-        self.assertFalse(ia_real.describe_la_unica_ventana(
-            "Se ven dos ventanas: una verde a la izquierda y una magenta "
-            "a la derecha"))
+    def test_otra_cifra_despues_no_pasa(self):
+        self.assertFalse(dice_numero("48260", "4826"))
 
-    def test_una_ventana_verde_no_pasa(self):
-        self.assertFalse(ia_real.describe_la_unica_ventana(
-            "Se ve una ventana verde"))
+    def test_otro_numero_no_pasa(self):
+        self.assertFalse(dice_numero("4862", "4826"))
 
-    def test_magenta_sin_cantidad_no_pasa(self):
-        self.assertFalse(ia_real.describe_la_unica_ventana(
-            "Todo el vídeo es magenta."))
+    def test_vacio_no_pasa(self):
+        self.assertFalse(dice_numero("", "4826"))
+
+
+class TestElegirNumeros(unittest.TestCase):
+
+    def test_200_semillas_dan_numeros_distintos_y_permitidos(self):
+        for semilla in range(200):
+            with self.subTest(semilla=semilla):
+                primero, segundo = elegir_numeros(random.Random(semilla))
+                self.assertNotEqual(primero, segundo)
+                for numero in (primero, segundo):
+                    self.assertEqual(len(numero), 4)
+                    self.assertTrue(set(numero) <= set(CIFRAS))
 
 
 class TestListaCargada(unittest.TestCase):
