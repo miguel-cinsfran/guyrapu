@@ -15,6 +15,7 @@ ventanas se construyen recién en `construir`.
 from __future__ import annotations
 
 import argparse
+import ctypes
 import os
 import sys
 from pathlib import Path
@@ -330,6 +331,31 @@ _CONSTRUCTORES = {
 }
 
 
+def _hook_eventos(marco, archivo):
+    import wx
+    from qa.sonda_foco_listas import WINEVENTPROC, WINEVENT_OUTOFCONTEXT as OUT
+    eventos = {0x8005: "FOCUS", 0x8006: "SELECTION", 0x8007: "SELECTIONADD",
+               0x800A: "STATECHANGE", 0x800C: "NAMECHANGE"}
+    usuario = ctypes.WinDLL("user32")
+    usuario.SetWinEventHook.restype = ctypes.c_void_p
+    usuario.UnhookWinEvent.argtypes = [ctypes.c_void_p]
+
+    def al_evento(_hook, evento, hwnd, id_objeto, id_child, _hilo, hora):
+        if not hwnd or evento not in eventos:
+            return
+        clase = ctypes.create_unicode_buffer(256)
+        usuario.GetClassNameW(ctypes.c_void_p(hwnd), clase, 256)
+        print(f"{hora} EVENT_OBJECT_{eventos[evento]} hwnd={hwnd} clase={clase.value} "
+              f"idObject={id_objeto} idChild={id_child}", file=archivo, flush=True)
+    callback = WINEVENTPROC(al_evento)
+    hook = usuario.SetWinEventHook(
+        min(eventos), max(eventos), None, callback, os.getpid(), 0, OUT)
+    if hook:
+        marco.eventos_hook = (hook, callback, usuario, archivo)
+        marco.Bind(wx.EVT_WINDOW_DESTROY,
+                   lambda _: (usuario.UnhookWinEvent(hook), archivo.close()))
+
+
 def construir(nombre):
     """Arma la ventana pedida, sin mostrarla, y deja listo su primer control."""
     import wx
@@ -349,6 +375,8 @@ def construir(nombre):
             primero.SetFocus()
 
     marco.Bind(wx.EVT_SHOW, al_mostrar)
+    if datos.get("sonda") and (ruta := os.environ.get("GUYRAPU_SONDA_EVENTOS")):
+        _hook_eventos(marco, open(ruta, "a", encoding="utf-8"))
     return marco
 
 

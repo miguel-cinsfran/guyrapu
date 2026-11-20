@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de las ventanas de prueba del carril, construidas sin mostrar.
 
-Abren wx, así que se corren en la PC que no usa nadie. No abren ninguna
-ventana visible: solo se construyen los controles y se inspeccionan.
+Abren wx, así que se corren en la PC que no usa nadie. Solo la prueba de
+eventos muestra una ventana; las demás construyen y revisan los controles.
 """
 
+import os
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import wx
@@ -370,6 +373,33 @@ class TestSondas(Base):
             0, wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED)
         self.assertTrue(estado & wx.LIST_STATE_SELECTED)
         self.assertTrue(estado & wx.LIST_STATE_FOCUSED)
+
+    def test_la_sonda_escribe_los_eventos_de_foco_de_la_lista(self):
+        with tempfile.TemporaryDirectory() as base:
+            ruta = Path(base) / "eventos.txt"
+            with mock.patch.dict(os.environ,
+                                 {"GUYRAPU_SONDA_EVENTOS": str(ruta)}):
+                marco = trampas.construir("sonda_lista_box")
+            marco.Show()
+
+            def enfocar_y_salir():
+                lista = self._control_de_lista(marco, "sonda_lista_box")
+                lista.SetFocus()
+                wx.CallLater(200, wx.GetApp().ExitMainLoop)
+
+            wx.CallLater(100, enfocar_y_salir)
+            wx.GetApp().MainLoop()
+            lineas = ruta.read_text(encoding="utf-8").splitlines()
+            marco.Destroy()
+            wx.Yield()
+            self.assertTrue(any("EVENT_OBJECT_FOCUS" in linea
+                                for linea in lineas), lineas)
+
+    def test_sin_la_variable_no_se_instala_el_hook(self):
+        with mock.patch.dict(os.environ):
+            os.environ.pop("GUYRAPU_SONDA_EVENTOS", None)
+            marco = self.construir("sonda_lista_box")
+        self.assertFalse(hasattr(marco, "eventos_hook"))
 
 
 if __name__ == "__main__":
