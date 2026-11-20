@@ -16,6 +16,7 @@ from guyrapu.core.idioma import _
 from guyrapu.interaction import disparadores, medios_guardados
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import disparador_cuadro
+from guyrapu.ui.accesibilidad import ContadorAccesible
 from tests.letras_acceso import letras_repetidas
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -88,6 +89,20 @@ class TestCampos(BaseCuadro):
         self.assertEqual(
             tuple(control.GetName() for control in controles),
             NOMBRES_ACCESIBLES)
+
+    def test_cada_contador_tiene_su_rotulo_inmediatamente_antes(self):
+        cuadro = self._cuadro()
+        hijos = cuadro.GetChildren()[0].GetChildren()
+        contadores = [hijo for hijo in hijos
+                      if isinstance(hijo, ContadorAccesible)]
+        self.assertEqual(len(contadores), 4)
+        for control in contadores:
+            with self.subTest(control=control.GetName()):
+                anterior = hijos[hijos.index(control) - 1]
+                self.assertIsInstance(anterior, wx.StaticText)
+                self.assertEqual(
+                    anterior.GetLabel().replace("&", "").rstrip(":"),
+                    control.GetName())
 
     def test_p4_el_campo_del_atajo_va_despues_del_cuando_en_el_tab(self):
         cuadro = self._cuadro()

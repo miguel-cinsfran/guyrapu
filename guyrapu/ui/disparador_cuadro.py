@@ -144,10 +144,10 @@ class DialogoDisparador(wx.Dialog):
                 self._usuario, self._por_tipo, "disparador"))
         vs.Add(self.cho_estilo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
-        self.sp_segundos = self._contador(
-            panel, _("&Segundos en pantalla:"), 3, 60, 8)
         vs.Add(fila_label(panel, _("&Segundos en pantalla:")), 0,
                wx.LEFT | wx.RIGHT, 8)
+        self.sp_segundos = self._contador(
+            panel, _("&Segundos en pantalla:"), 3, 60, 8)
         vs.Add(self.sp_segundos, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
     def _crear_alcance(self, panel, vs):
@@ -161,16 +161,16 @@ class DialogoDisparador(wx.Dialog):
         self.txt_nombres = self._campo(panel, _("Nombres &permitidos:"))
         vs.Add(self.txt_nombres, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
-        self.sp_espera = self._contador(
-            panel, _("Espera &general (segundos):"), 0, 3600, 5)
         vs.Add(fila_label(panel, _("Espera &general (segundos):")), 0,
                wx.LEFT | wx.RIGHT, 8)
+        self.sp_espera = self._contador(
+            panel, _("Espera &general (segundos):"), 0, 3600, 5)
         vs.Add(self.sp_espera, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
-        self.sp_persona = self._contador(
-            panel, _("Espera por pers&ona (segundos):"), 0, 3600, 30)
         vs.Add(fila_label(panel, _("Espera por pers&ona (segundos):")), 0,
                wx.LEFT | wx.RIGHT, 8)
+        self.sp_persona = self._contador(
+            panel, _("Espera por pers&ona (segundos):"), 0, 3600, 30)
         vs.Add(self.sp_persona, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
     def _nombres_de_medios(self):
