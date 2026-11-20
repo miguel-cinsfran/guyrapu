@@ -51,25 +51,43 @@ class FuenteSinPixeles(Fuente):
         return type("Tamano", (), {"GetWidth": lambda self: 0})()
 
 
-def control_captura(id, x=20, y=20, ancho=80, alto=24, padre=None):
+def control_captura(id, x=20, y=20, ancho=80, alto=24, padre=None,
+                    clase="wxControl"):
     """Control mínimo, con los campos que mira la comprobación de captura."""
-    return {"id": id, "padre": padre, "visible": True,
+    return {"id": id, "padre": padre, "clase": clase, "visible": True,
             "rect": [x, y, ancho, alto]}
 
 
 class TestCapturaValida(unittest.TestCase):
     """La comprobación se prueba con datos a mano, sin ventanas."""
 
-    def test_menos_de_cuatro_controles_con_area(self):
-        controles = [control_captura(i, x=20 + i * 90) for i in range(3)]
-        self.assertIn("solo 3 controles",
-                      geometria.motivo_invalido(controles))
+    def test_sin_controles_con_area_no_sirve(self):
+        self.assertIn("solo 0 controles", geometria.motivo_invalido([]))
 
     def test_los_controles_sin_area_no_cuentan(self):
         controles = [control_captura(i, x=20 + i * 90) for i in range(2)]
         controles += [control_captura(i + 2, ancho=0) for i in range(3)]
-        self.assertIn("solo 2 controles",
-                      geometria.motivo_invalido(controles))
+        self.assertIsNone(geometria.motivo_invalido(controles))
+
+    def test_dos_controles_en_posiciones_distintas_son_validos(self):
+        controles = [control_captura(1, x=20, y=30),
+                     control_captura(2, x=200, y=120)]
+        self.assertIsNone(geometria.motivo_invalido(controles))
+
+    def test_la_caja_de_grupo_no_cuenta_como_amontonada(self):
+        caja = control_captura(1, x=6, y=6, ancho=500, alto=300,
+                               clase="wxStaticBox")
+        controles = [caja]
+        controles += [control_captura(i, x=20 + i * 90, y=30 + i)
+                      for i in range(2, 5)]
+        self.assertIsNone(geometria.motivo_invalido(controles))
+
+    def test_los_controles_en_el_origen_siguen_siendo_invalidos(self):
+        controles = [control_captura(i, x=0, y=0, ancho=0, alto=0)
+                     for i in range(3)]
+        self.assertIn("solo 0 controles", geometria.motivo_invalido(controles))
+        controles = [control_captura(i, x=20, y=20) for i in range(3)]
+        self.assertIn("amontonados", geometria.motivo_invalido(controles))
 
     def test_la_mayoria_en_la_misma_posicion(self):
         controles = [control_captura(i, x=20, y=20) for i in range(3)]

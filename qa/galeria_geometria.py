@@ -153,9 +153,15 @@ def _casi_encima(a, b):
 
 
 def _amontonados(controles):
-    """Cuántos controles comparten posición o se pisan casi enteros."""
+    """Cuántos controles comparten posición o se pisan casi enteros.
+
+    La caja de grupo es hermana de los controles que encierra y los contiene
+    enteros, así que compararla con ellos daría un amontonamiento falso.
+    """
     grupos = {}
     for c in controles:
+        if c.get("clase") == "wxStaticBox":
+            continue
         grupos.setdefault(c["padre"], []).append(c)
     tocados = set()
     for grupo in grupos.values():
@@ -178,7 +184,7 @@ def motivo_invalido(controles, colores=None, tamano=None) -> str | None:
     if (tamano and utiles
             and utiles[0]["rect"] == [0, 0, tamano[0], tamano[1]]):
         utiles = utiles[1:]
-    if len(utiles) < 4:
+    if len(utiles) < 1:
         return f"solo {len(utiles)} controles visibles con área"
     amontonados = _amontonados(utiles)
     if amontonados * 2 > len(utiles):
