@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Ventana Administrar voces: catálogo, vista previa e instalación."""
 from __future__ import annotations
-import threading
 import wx
 from guyrapu.core import (config, diagnostico, paquetes_catalogo,
                           paquetes_instalacion, red, voces_disponibles)
 from guyrapu.core.idioma import _, ngettext, pgettext
-from guyrapu.ui import ayuda_manual, confirmar, paleta
+from guyrapu.ui import ayuda_manual, confirmar, paleta, voces_instalacion
 from guyrapu.ui.accesibilidad import anunciar, entregar_intro, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -266,96 +265,37 @@ class VentanaVoces(wx.Dialog):
     def _empezar(self, paquete, accion, nombre):
         if self._espera is not None:
             return
-        parada = threading.Event()
-        titulo = (_("Instalar {nombre}") if accion == "instalar"
-                  else _("Actualizar {nombre}")).format(nombre=nombre)
-        espera = VentanaEspera(
-            self, titulo, _("Descargando {nombre}.").format(nombre=nombre),
-            parada=parada)
-        self._espera = espera
         self._ultimo_porcentaje = None
-        def aviso(porcentaje):
-            wx.CallAfter(self._aviso_porcentaje, porcentaje, nombre)
-        def trabajar():
-            resultado = paquetes_instalacion.instalar(
-                paquete, aviso, parada.is_set)
-            wx.CallAfter(self._terminar_instalacion, resultado, accion, nombre)
-        diagnostico.crear_hilo(trabajar, titulo).start()
-        try:
-            espera.ShowModal()
-        finally:
-            espera.Destroy()
-            self._espera = None
+        voces_instalacion.empezar(
+            paquete, accion, nombre, self._crear_espera, self._poner_espera,
+            self._aviso_porcentaje, self._terminar_instalacion)
         if self._vivo:
             self._recargar_instalados()
             self._rehacer_filtros()
             self._rehacer(conservar=paquete.get("id"))
             self.lista_paquetes.SetFocus()
 
+    def _poner_espera(self, espera):
+        self._espera = espera
+
     def _aviso_porcentaje(self, porcentaje, nombre):
-        if porcentaje is None or porcentaje == self._ultimo_porcentaje:
-            return
-        if (self._ultimo_porcentaje is not None
-                and porcentaje < self._ultimo_porcentaje + 10
-                and porcentaje != 100):
-            return
-        self._ultimo_porcentaje = porcentaje
-        if self._espera is not None:
-            try:
-                self._espera.estado(
-                    _("Descargando {nombre}: {porcentaje} por ciento").format(
-                        nombre=nombre, porcentaje=porcentaje))
-            except RuntimeError as error:
-                logger.debug("la espera ya no existe: %s", error)
+        self._ultimo_porcentaje = voces_instalacion.aviso_porcentaje(
+            self._espera, self._ultimo_porcentaje, porcentaje, nombre)
 
     def _terminar_instalacion(self, resultado, accion, nombre):
-        if self._espera is None:
-            return
-        try:
-            if resultado.cancelada:
-                self._espera.terminar(_("Instalación cancelada."))
-            elif resultado.correcta:
-                frase = (_("Actualización completada: {nombre}.")
-                         if accion == "actualizar"
-                         else _("Instalación completada: {nombre}."))
-                self._espera.terminar(frase.format(nombre=nombre))
-                _snd.reproducir("listo")
-            else:
-                self._espera.terminar(
-                    _("No se pudo instalar {nombre}: {motivo}. Revisa la "
-                      "conexión a internet y vuelve a intentarlo.").format(
-                          nombre=nombre,
-                          motivo=resultado.motivo or _("motivo desconocido")),
-                    error=True)
-        except RuntimeError as error:
-            logger.debug("la espera ya no existe: %s", error)
+        voces_instalacion.terminar_instalacion(
+            self._espera, resultado, accion, nombre)
 
     def _eliminar(self):
         entrada = self._elegida()
         if entrada is None:
             return
-        nombre = voces_disponibles.nombre(entrada)
-        if entrada.instalado is None:
-            anunciar(_("{nombre} no está instalado.").format(nombre=nombre))
-            return
-        if not confirmar.preguntar(
-                self,
-                _("¿Eliminar {nombre}? Se liberan {tamano} del disco. Para "
-                  "volver a usarlo, hay que instalarlo de nuevo.").format(
-                      nombre=nombre, tamano=voces_disponibles.tamano(entrada)),
-                _("Eliminar paquete de voces"),
-                pgettext("paquete de voces", "&Eliminar"), _("&Cancelar"),
-                predeterminado_si=False):
-            return
-        indice = self._paquetes.indice()
-        resultado = paquetes_instalacion.borrar(
-            voces_disponibles.identificador(entrada), "voz")
-        if not resultado.correcta:
-            self._error(_("No se pudo eliminar {nombre}: {motivo}.").format(
-                nombre=nombre,
-                motivo=resultado.motivo or _("motivo desconocido")))
-            return
-        anunciar(_("Paquete eliminado: {nombre}.").format(nombre=nombre))
+        if voces_instalacion.eliminar(
+                self, entrada, self._paquetes.indice(), self._anunciar,
+                self._error, self._rehacer_tras_eliminar):
+            self.lista_paquetes.SetFocus()
+
+    def _rehacer_tras_eliminar(self, entrada, indice):
         self._recargar_instalados()
         self._rehacer_filtros()
         restantes = self._filtrar_actual()
@@ -367,7 +307,6 @@ class VentanaVoces(wx.Dialog):
             self._rehacer(elegido=min(
                 indice if indice is not None else 0,
                 max(0, len(restantes) - 1)))
-        self.lista_paquetes.SetFocus()
 
     def _vista_previa(self):
         indice = self._lista_voces.indice()
@@ -387,6 +326,12 @@ class VentanaVoces(wx.Dialog):
         except Exception as error:
             self._error(_("No se pudo reproducir la vista previa: {motivo}.").format(
                 motivo=error))
+
+    def _anunciar(self, texto):
+        anunciar(texto)
+
+    def _crear_espera(self, titulo, texto, parada):
+        return VentanaEspera(self, titulo, texto, parada=parada)
 
     def _error(self, texto):
         _snd.reproducir("error")
