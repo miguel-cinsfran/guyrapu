@@ -117,7 +117,7 @@ class TestVentanas(unittest.TestCase):
         ensayo = por_nombre["ensayo"]
         self.assertEqual(ensayo["menu"], "Interacción > Probar sin directo…")
         self.assertEqual(ensayo["titulo"], "Prueba sin directo")
-        self.assertEqual(ensayo["primero"], "Autor:")
+        self.assertEqual(ensayo["primero"], "Autor")
         disparador = por_nombre["disparador"]
         self.assertEqual(disparador["menu"],
                          "Interacción > Abrir Interacción…")
@@ -125,7 +125,7 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(disparador["titulo_menu"], "Interacción")
         self.assertEqual(disparador["pagina"], "Disparadores")
         self.assertEqual(disparador["pulsar"], "Agregar")
-        self.assertEqual(disparador["primero"], "Nombre:")
+        self.assertEqual(disparador["primero"], "Nombre")
 
     def test_historial_activa_conectar_y_eliminar_con_el_vacio(self):
         historial = next(entrada for entrada in ventanas_app.VENTANAS

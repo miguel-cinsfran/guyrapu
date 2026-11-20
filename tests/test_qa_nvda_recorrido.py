@@ -423,7 +423,7 @@ class TestEsperaDeFoco(unittest.TestCase):
 class TestPulsar(unittest.TestCase):
 
     def test_pulsa_el_boton_despues_de_la_pagina_y_antes_del_primer_foco(self):
-        primero = {"nombre": "Nombre:", "pid": 7}
+        primero = {"nombre": "Nombre", "pid": 7}
         llamadas = []
 
         def paso(_cliente, tecla, fase, *_args, **_kwargs):
@@ -446,7 +446,7 @@ class TestPulsar(unittest.TestCase):
                     llamadas.append("esperar_foco") or primero)),
         ):
             datos = recorrido.conducir(mock.Mock(), {
-                "pid": 7, "primero": "Nombre:", "pulsar": "Agregar",
+                "pid": 7, "primero": "Nombre", "pulsar": "Agregar",
             }, tope=1, tope_foco_s=0.01)
         self.assertEqual(llamadas[:3], ["pagina", ("ir_a", "Agregar"),
                                         "pulsar"])

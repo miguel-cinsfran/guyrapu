@@ -119,7 +119,7 @@ VENTANAS = (
         "nombre": "ensayo",
         "menu": "Interacción > Probar sin directo…",
         "titulo": "Prueba sin directo",
-        "primero": "Autor:",
+        "primero": "Autor",
     },
     {
         "nombre": "palabras",
@@ -155,7 +155,7 @@ VENTANAS = (
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Agregar disparador",
         "titulo_menu": "Interacción",
-        "primero": "Nombre:",
+        "primero": "Nombre",
         "pagina": "Disparadores",
         "pulsar": "Agregar",
     },
