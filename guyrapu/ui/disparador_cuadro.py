@@ -89,6 +89,10 @@ class DialogoDisparador(wx.Dialog):
         for indice, hijo in enumerate(hijos[:-1]):
             if (isinstance(hijo, wx.StaticText)
                     and not isinstance(hijos[indice + 1], wx.Button)):
+                # El foco de un contador es su edición interna, que NVDA
+                # nombra con el rótulo y sus dos puntos: debe seguir igual.
+                if isinstance(hijos[indice + 1], ContadorAccesible):
+                    continue
                 nombre_accesible(hijo, hijos[indice + 1].GetName())
 
     def _crear_cuando(self, panel, vs):

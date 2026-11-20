@@ -96,10 +96,23 @@ class TestCampos(BaseCuadro):
         pares = 0
         for indice, hijo in enumerate(hijos[:-1]):
             if (isinstance(hijo, wx.StaticText)
-                    and not isinstance(hijos[indice + 1], wx.Button)):
+                    and not isinstance(hijos[indice + 1], wx.Button)
+                    and not isinstance(hijos[indice + 1], ContadorAccesible)):
                 pares += 1
                 self.assertEqual(hijo.GetName(), hijos[indice + 1].GetName())
         self.assertGreaterEqual(pares, 12)
+
+    def test_los_rotulos_de_los_contadores_no_se_renombran(self):
+        cuadro = self._cuadro()
+        hijos = list(cuadro.GetChildren()[0].GetChildren())
+        pares = [(hijo, hijos[indice + 1])
+                 for indice, hijo in enumerate(hijos[:-1])
+                 if isinstance(hijo, wx.StaticText)
+                 and isinstance(hijos[indice + 1], ContadorAccesible)]
+        self.assertEqual(len(pares), 4)
+        for rotulo, control in pares:
+            self.assertNotEqual(rotulo.GetName(), control.GetName())
+            self.assertTrue(rotulo.GetLabel().replace("&", "").endswith(":"))
 
     def test_cada_contador_tiene_su_rotulo_inmediatamente_antes(self):
         cuadro = self._cuadro()
