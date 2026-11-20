@@ -32,6 +32,17 @@ CLASES_PEDIDAS = {
     "DialogoPalabra", "DialogoEncuesta", "DialogoEstilo", "DialogoTipos",
     "DialogoMedio", "DialogoMensaje", "DialogoMeta", "DialogoNombre",
     "DialogoDisparador",
+    "DialogoActualizacion", "DialogoAgregarCaptura", "DialogoAjustesPerfil",
+    "DialogoArchivo", "DialogoAsistentePerfiles", "DialogoCapturarVentana",
+    "DialogoDestinoManual", "DialogoDirectoYoutube", "DialogoEditorLista",
+    "DialogoEleccion", "DialogoElegirDestino", "DialogoEnlace",
+    "DialogoEstado", "DialogoFormato", "DialogoJuego", "DialogoMetaDestino",
+    "DialogoNombrePerfil", "DialogoPerfilRestream", "DialogoPruebaConexion",
+    "DialogoPruebaEquipo", "DialogoRedactar", "DialogoResultadoPrueba",
+    "DialogoResultadoPruebaConexion", "DialogoResumenAsistente",
+    "DialogoTexto", "DialogoUsosPerfil", "DisenoEscenaDialog",
+    "FiltrosMicrofonoDialog", "MicrofonoObsDialog", "TamanoFuenteDialog",
+    "VentanaEspera",
 }
 
 
@@ -108,6 +119,12 @@ class TestCoberturaDeLaGaleria(unittest.TestCase):
         prohibidas = CLASES_PEDIDAS & set(registro.SIN_MUESTRA)
         self.assertEqual(sorted(prohibidas), [],
                          "pedidas sin mostrar: " + ", ".join(sorted(prohibidas)))
+
+    def test_p3_no_queda_el_motivo_falta_la_muestra(self):
+        viejos = [clase for clase, motivo in registro.SIN_MUESTRA.items()
+                  if str(motivo or "").strip() == "falta la muestra"]
+        self.assertEqual(viejos, [],
+                         "sin armar: " + ", ".join(sorted(viejos)))
 
 
 if __name__ == "__main__":

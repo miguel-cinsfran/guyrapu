@@ -16,6 +16,9 @@ from types import SimpleNamespace
 from unittest import mock
 
 from galeria_muestras_interaccion import MUESTRAS as MUESTRAS_CUADROS
+from galeria_muestras_obs import MUESTRAS as MUESTRAS_OBS
+from galeria_muestras_restream import MUESTRAS as MUESTRAS_RESTREAM
+from galeria_muestras_varios import MUESTRAS as MUESTRAS_VARIOS
 
 MUESTRAS = []
 SIN_MUESTRA = {}
@@ -310,44 +313,18 @@ _registrar("participacion", "VentanaParticipacion", "con_datos", _participacion)
 _registrar("buscar_chat", "CuadroBuscarChat", "con_datos", _buscar_chat)
 
 MUESTRAS.extend(MUESTRAS_CUADROS)
+MUESTRAS.extend(MUESTRAS_OBS)
+MUESTRAS.extend(MUESTRAS_RESTREAM)
+MUESTRAS.extend(MUESTRAS_VARIOS)
 
-# Las que no se pueden armar fuera de la app sin tocar guyrapu/, y las bases
-# de las que cuelgan otros cuadros. El motivo nunca puede quedar vacío.
+# Las bases de las que cuelgan otros cuadros y la ventana que no se puede
+# armar fuera de la app sin tocar guyrapu/. El motivo nunca puede quedar vacío.
 _SIN_MUESTRA_TEXTO = {
-    "DialogoActualizacion": "falta la muestra",
-    "DialogoAgregarCaptura": "falta la muestra",
-    "DialogoAjustesPerfil": "falta la muestra",
-    "DialogoArchivo": "falta la muestra",
-    "DialogoAsistentePerfiles": "falta la muestra",
     "DialogoBase": "base abstracta",
-    "DialogoCapturarVentana": "falta la muestra",
     "DialogoDestinoBase": "base abstracta",
-    "DialogoDestinoManual": "falta la muestra",
-    "DialogoDirectoYoutube": "falta la muestra",
-    "DialogoEditorLista": "falta la muestra",
-    "DialogoEleccion": "falta la muestra",
-    "DialogoElegirDestino": "falta la muestra",
-    "DialogoEnlace": "falta la muestra",
-    "DialogoEstado": "falta la muestra",
-    "DialogoFormato": "falta la muestra",
-    "DialogoJuego": "falta la muestra",
-    "DialogoMetaDestino": "falta la muestra",
-    "DialogoNombrePerfil": "falta la muestra",
-    "DialogoPerfilRestream": "falta la muestra",
-    "DialogoPruebaConexion": "falta la muestra",
-    "DialogoPruebaEquipo": "falta la muestra",
-    "DialogoRedactar": "falta la muestra",
-    "DialogoResultadoPrueba": "falta la muestra",
-    "DialogoResultadoPruebaConexion": "falta la muestra",
-    "DialogoResumenAsistente": "falta la muestra",
-    "DialogoTexto": "falta la muestra",
-    "DialogoUsosPerfil": "falta la muestra",
-    "DisenoEscenaDialog": "falta la muestra",
-    "FiltrosMicrofonoDialog": "falta la muestra",
-    "MicrofonoObsDialog": "falta la muestra",
-    "PantallaCompleta": "falta la muestra",
-    "TamanoFuenteDialog": "falta la muestra",
-    "VentanaEspera": "falta la muestra",
+    "PantallaCompleta": "ocupa la pantalla entera: llama a ShowFullScreen al "
+                        "construirse y sin un reproductor real solo muestra "
+                        "un control de vídeo vacío",
 }
 for _clase, _motivo in _SIN_MUESTRA_TEXTO.items():
     _sin_muestra(_clase, _motivo)
