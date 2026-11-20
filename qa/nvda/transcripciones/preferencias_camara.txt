@@ -1,50 +1,50 @@
-tecla=shift+tab fase=pagina dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=shift+tab fase=pagina dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=pagina dijo='Restablecer todas las preferencias… botón Alt+ p' foco={nombre='Restablecer todas las preferencias…', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+p'}
-tecla=shift+tab fase=pagina dijo='Importar preferencias… botón Alt+ m' foco={nombre='Importar preferencias…', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
-tecla=shift+tab fase=pagina dijo='Exportar preferencias… botón Alt+ x' foco={nombre='Exportar preferencias…', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+x'}
-tecla=shift+tab fase=pagina dijo='Abrir carpeta de datos botón Alt+ t' foco={nombre='Abrir carpeta de datos', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+t'}
-tecla=shift+tab fase=pagina dijo='Guardar un registro detallado para diagnosticar errores casilla de verificación marcado Alt+ d' foco={nombre='Guardar un registro detallado para diagnosticar errores', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+d'}
-tecla=shift+tab fase=pagina dijo='Reproducir sonido de inicio casilla de verificación marcado Alt+ i' foco={nombre='Reproducir sonido de inicio', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
-tecla=shift+tab fase=pagina dijo='Preguntar antes de salir si hay un chat conectado o una transmisión en curso casilla de verificación marcado Alt+ s' foco={nombre='Preguntar antes de salir si hay un chat conectado o una transmisión en curso', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+s'}
-tecla=shift+tab fase=pagina dijo='Canal de actualización: cuadro combinado Estable contraído Alt+ z' foco={nombre='Canal de actualización:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Estable', atajo='Alt+z'}
-tecla=shift+tab fase=pagina dijo='Buscar actualizaciones al iniciar casilla de verificación marcado Alt+ a' foco={nombre='Buscar actualizaciones al iniciar', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
-tecla=shift+tab fase=pagina dijo='Mostrar avisos importantes también en un cuadro de mensaje casilla de verificación sin marcar Alt+ v' foco={nombre='Mostrar avisos importantes también en un cuadro de mensaje', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
-tecla=shift+tab fase=pagina dijo='Idioma: cuadro combinado Idioma de Windows contraído Alt+ o' foco={nombre='Idioma:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Idioma de Windows', atajo='Alt+o'}
-tecla=shift+tab fase=pagina dijo='Categorías lista General 1 de 18' foco={nombre='General', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Lectura 6 de 18' foco={nombre='Lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Cola de lectura 7 de 18' foco={nombre='Cola de lectura', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Eventos del directo 8 de 18' foco={nombre='Eventos del directo', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Filtros 9 de 18' foco={nombre='Filtros', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Conexión 11 de 18' foco={nombre='Conexión', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='YouTube 12 de 18' foco={nombre='YouTube', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Reproductor 13 de 18' foco={nombre='Reproductor', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Música 14 de 18' foco={nombre='Música', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Descargas 15 de 18' foco={nombre='Descargas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Inteligencia artificial 16 de 18' foco={nombre='Inteligencia artificial', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='OBS 17 de 18' foco={nombre='OBS', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Cámara 18 de 18' foco={nombre='Cámara', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Avisar si el rostro sale del encuadre casilla de verificación sin marcar Alt+ v' foco={nombre='Avisar si el rostro sale del encuadre', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
-tecla=tab fase=ida dijo='Cámara de OBS: cuadro combinado Elegir automáticamente contraído Alt+ m' foco={nombre='Cámara de OBS:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Elegir automáticamente', atajo='Alt+m'}
-tecla=tab fase=ida dijo='Invertir izquierda y derecha casilla de verificación sin marcar Alt+ i' foco={nombre='Invertir izquierda y derecha', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
-tecla=tab fase=ida dijo='Sonido de la guía: cuadro combinado Normal contraído Alt+ s' foco={nombre='Sonido de la guía:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Normal', atajo='Alt+s'}
-tecla=tab fase=ida dijo='Usar atajos de cámara en cualquier aplicación casilla de verificación sin marcar Alt+ p' foco={nombre='Usar atajos de cámara en cualquier aplicación', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+p'}
-tecla=tab fase=ida dijo='Describir la escena y consultar a la IA en cualquier aplicación casilla de verificación marcado Alt+ d' foco={nombre='Describir la escena y consultar a la IA en cualquier aplicación', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+d'}
-tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
-tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=tab fase=ida dijo='Categorías lista Cámara 18 de 18' foco={nombre='Cámara', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Avisar si el rostro sale del encuadre casilla de verificación sin marcar Alt+ v' foco={nombre='Avisar si el rostro sale del encuadre', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
-tecla=shift+tab fase=vuelta dijo='Categorías lista Cámara 18 de 18' foco={nombre='Cámara', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=vuelta dijo='Describir la escena y consultar a la IA en cualquier aplicación casilla de verificación marcado Alt+ d' foco={nombre='Describir la escena y consultar a la IA en cualquier aplicación', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+d'}
-tecla=shift+tab fase=vuelta dijo='Usar atajos de cámara en cualquier aplicación casilla de verificación sin marcar Alt+ p' foco={nombre='Usar atajos de cámara en cualquier aplicación', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+p'}
-tecla=shift+tab fase=vuelta dijo='Sonido de la guía: cuadro combinado Normal contraído Alt+ s' foco={nombre='Sonido de la guía:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Normal', atajo='Alt+s'}
-tecla=shift+tab fase=vuelta dijo='Invertir izquierda y derecha casilla de verificación sin marcar Alt+ i' foco={nombre='Invertir izquierda y derecha', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
-tecla=shift+tab fase=vuelta dijo='Cámara de OBS: cuadro combinado Elegir automáticamente contraído Alt+ m' foco={nombre='Cámara de OBS:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Elegir automáticamente', atajo='Alt+m'}
-tecla=shift+tab fase=vuelta dijo='Avisar si el rostro sale del encuadre casilla de verificación sin marcar Alt+ v' foco={nombre='Avisar si el rostro sale del encuadre', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
+tecla=shift+tab fase=pagina dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=pagina dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=pagina dijo='Restablecer todas las preferencias… botón Alt+ p' foco={nombre='Restablecer todas las preferencias…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
+tecla=shift+tab fase=pagina dijo='Importar preferencias… botón Alt+ m' foco={nombre='Importar preferencias…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+m'}
+tecla=shift+tab fase=pagina dijo='Exportar preferencias… botón Alt+ x' foco={nombre='Exportar preferencias…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+x'}
+tecla=shift+tab fase=pagina dijo='Abrir carpeta de datos botón Alt+ t' foco={nombre='Abrir carpeta de datos', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+t'}
+tecla=shift+tab fase=pagina dijo='Guardar un registro detallado para diagnosticar errores casilla de verificación marcado Alt+ d' foco={nombre='Guardar un registro detallado para diagnosticar errores', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+d'}
+tecla=shift+tab fase=pagina dijo='Reproducir sonido de inicio casilla de verificación marcado Alt+ i' foco={nombre='Reproducir sonido de inicio', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+i'}
+tecla=shift+tab fase=pagina dijo='Preguntar antes de salir si hay un chat conectado o una transmisión en curso casilla de verificación marcado Alt+ s' foco={nombre='Preguntar antes de salir si hay un chat conectado o una transmisión en curso', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+s'}
+tecla=shift+tab fase=pagina dijo='Canal de actualización: cuadro combinado Estable contraído Alt+ z' foco={nombre='Canal de actualización:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Estable', atajo='Alt+z'}
+tecla=shift+tab fase=pagina dijo='Buscar actualizaciones al iniciar casilla de verificación marcado Alt+ a' foco={nombre='Buscar actualizaciones al iniciar', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+a'}
+tecla=shift+tab fase=pagina dijo='Mostrar avisos importantes también en un cuadro de mensaje casilla de verificación sin marcar Alt+ v' foco={nombre='Mostrar avisos importantes también en un cuadro de mensaje', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
+tecla=shift+tab fase=pagina dijo='Idioma: cuadro combinado Idioma de Windows contraído Alt+ o' foco={nombre='Idioma:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Idioma de Windows', atajo='Alt+o'}
+tecla=shift+tab fase=pagina dijo='Categorías lista General 1 de 18' foco={nombre='General', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Lectura 6 de 18' foco={nombre='Lectura', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Cola de lectura 7 de 18' foco={nombre='Cola de lectura', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Eventos del directo 8 de 18' foco={nombre='Eventos del directo', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Filtros 9 de 18' foco={nombre='Filtros', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Conexión 11 de 18' foco={nombre='Conexión', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='YouTube 12 de 18' foco={nombre='YouTube', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Reproductor 13 de 18' foco={nombre='Reproductor', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Música 14 de 18' foco={nombre='Música', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Descargas 15 de 18' foco={nombre='Descargas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Inteligencia artificial 16 de 18' foco={nombre='Inteligencia artificial', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='OBS 17 de 18' foco={nombre='OBS', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Cámara 18 de 18' foco={nombre='Cámara', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Avisar si el rostro queda fuera del encuadre casilla de verificación sin marcar Alt+ v' foco={nombre='Avisar si el rostro queda fuera del encuadre', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
+tecla=tab fase=ida dijo='Cámara de OBS: cuadro combinado Elegir automáticamente contraído Alt+ m' foco={nombre='Cámara de OBS:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Elegir automáticamente', atajo='Alt+m'}
+tecla=tab fase=ida dijo='Invertir izquierda y derecha casilla de verificación sin marcar Alt+ i' foco={nombre='Invertir izquierda y derecha', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
+tecla=tab fase=ida dijo='Sonido de la guía: cuadro combinado Normal contraído Alt+ s' foco={nombre='Sonido de la guía:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Normal', atajo='Alt+s'}
+tecla=tab fase=ida dijo='Usar atajos de cámara en cualquier aplicación casilla de verificación sin marcar Alt+ p' foco={nombre='Usar atajos de cámara en cualquier aplicación', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
+tecla=tab fase=ida dijo='Describir la escena y consultar a la IA en cualquier aplicación casilla de verificación marcado Alt+ d' foco={nombre='Describir la escena y consultar a la IA en cualquier aplicación', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+d'}
+tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
+tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Categorías lista Cámara 18 de 18' foco={nombre='Cámara', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Avisar si el rostro queda fuera del encuadre casilla de verificación sin marcar Alt+ v' foco={nombre='Avisar si el rostro queda fuera del encuadre', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
+tecla=shift+tab fase=vuelta dijo='Categorías lista Cámara 18 de 18' foco={nombre='Cámara', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=vuelta dijo='Describir la escena y consultar a la IA en cualquier aplicación casilla de verificación marcado Alt+ d' foco={nombre='Describir la escena y consultar a la IA en cualquier aplicación', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+d'}
+tecla=shift+tab fase=vuelta dijo='Usar atajos de cámara en cualquier aplicación casilla de verificación sin marcar Alt+ p' foco={nombre='Usar atajos de cámara en cualquier aplicación', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
+tecla=shift+tab fase=vuelta dijo='Sonido de la guía: cuadro combinado Normal contraído Alt+ s' foco={nombre='Sonido de la guía:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Normal', atajo='Alt+s'}
+tecla=shift+tab fase=vuelta dijo='Invertir izquierda y derecha casilla de verificación sin marcar Alt+ i' foco={nombre='Invertir izquierda y derecha', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
+tecla=shift+tab fase=vuelta dijo='Cámara de OBS: cuadro combinado Elegir automáticamente contraído Alt+ m' foco={nombre='Cámara de OBS:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Elegir automáticamente', atajo='Alt+m'}
+tecla=shift+tab fase=vuelta dijo='Avisar si el rostro queda fuera del encuadre casilla de verificación sin marcar Alt+ v' foco={nombre='Avisar si el rostro queda fuera del encuadre', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
