@@ -22,22 +22,22 @@ from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 NOMBRES_ACCESIBLES = (
-    "Nombre", "Cuándo", "Número del atajo, Ctrl+Alt+Mayús",
+    "Nombre", "Tipo", "Número del atajo, Ctrl+Alt+Mayús",
     "Comandos del chat", "Palabras o emojis del chat", "Evento",
     "Cantidad mínima",
-    "Nombre del regalo. Vacío para cualquier regalo. Escribe el nombre "
-    "como lo lee Guyrapu",
+    "Nombre del regalo. Déjalo vacío para cualquier regalo. Escribe el nombre "
+    "tal como lo lee Guyrapu.",
     "Medio", "Texto de la tarjeta. Puedes usar {usuario}, {cantidad}, "
     "{regalo}, {texto} y {contador}.", "Estilo", "Segundos en pantalla",
     "Permiso", "Nombres permitidos", "Espera general (segundos)",
     "Espera por persona (segundos)", "Aceptar", "Cancelar")
 
 ETIQUETAS = (
-    "&Nombre:", "C&uándo:", "Número del ata&jo, Ctrl+Alt+Mayús:",
-    "Co&mandos del chat:", "Palabras o emojis del c&hat:", "&Evento:",
+    "&Nombre:", "Ti&po:", "Número del ata&jo, Ctrl+Alt+Mayús:",
+    "Co&mandos del chat:", "Palabras o emojis del c&hat:", "E&vento:",
     "Cantidad mín&ima:", "Nom&bre del regalo:", "Me&dio:",
     "&Texto de la tarjeta:", "Esti&lo:", "&Segundos en pantalla:",
-    "Pe&rmiso:", "Nombres &permitidos:", "Espera &general (segundos):",
+    "Pe&rmiso:", "Nombres p&ermitidos:", "Espera &general (segundos):",
     "Espera por pers&ona (segundos):")
 
 

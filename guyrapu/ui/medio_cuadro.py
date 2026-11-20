@@ -18,7 +18,7 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar medio")
 TITULO_EDITAR = N_("Editar medio")
-AVISO_LARGO = N_("Dura más de 15 segundos: al dispararlo se detiene a los 15")
+AVISO_LARGO = N_("Dura más de 15 segundos: al activarlo se detiene a los 15 segundos.")
 TEXTO_SOLO_IMAGEN = N_("Solo se propone la descripción de una imagen o un GIF")
 # Traductores: anuncio de la descripción que propone la IA; {texto} es la frase.
 TEXTO_PROPUESTA = N_("Descripción propuesta: {texto}")

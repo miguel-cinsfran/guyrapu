@@ -138,5 +138,5 @@ def validar(meta: Meta, otras) -> str:
         return _("El objetivo tiene que ser un número entero mayor que cero.")
     if meta.que_cuenta not in QUE_CUENTA:
         # Traductores: validación de metas del directo (error).
-        return _("La meta no puede contar eso.")
+        return _("Ese tipo de meta no existe.")
     return ""

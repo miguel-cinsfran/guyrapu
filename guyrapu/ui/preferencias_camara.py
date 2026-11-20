@@ -74,7 +74,7 @@ class PaginaCamara:
 
     def _avisos(self, p, vs):
         self.chk_avisar_encuadre = wx.CheckBox(
-            p, label=_("A&visar si el rostro sale del encuadre"),
+            p, label=_("A&visar si el rostro queda fuera del encuadre"),
             name="AvisarEncuadre")
         self.chk_avisar_encuadre.SetValue(
             bool(self._config.get("avisar_encuadre", False)))

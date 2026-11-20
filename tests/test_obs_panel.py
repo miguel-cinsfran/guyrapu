@@ -727,7 +727,7 @@ class InstantaneaConMarcoTest(unittest.TestCase):
         self.assertTrue(
             descripcion.startswith("Pantalla. Escena; Oculta en OBS"),
             descripcion)
-        self.assertNotIn("Se sale del vídeo", descripcion)
+        self.assertNotIn("Queda fuera del vídeo", descripcion)
 
     def test_el_solape_usa_el_tamano_dibujado_de_cada_fuente(self):
         doble = DobleObs([

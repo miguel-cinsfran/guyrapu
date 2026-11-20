@@ -35,7 +35,7 @@ class DeMasTest(unittest.TestCase):
         self.assertIn("YouTube (Mi canal), Facebook (Mi página)", texto)
         self.assertTrue(texto.startswith(
             "Restream también va a transmitir este directo a: "))
-        self.assertTrue(texto.endswith("¿Transmitir igual?"))
+        self.assertTrue(texto.endswith("¿Quieres transmitir de todos modos?"))
 
 
 if __name__ == "__main__":

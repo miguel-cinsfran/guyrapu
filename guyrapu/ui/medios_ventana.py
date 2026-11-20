@@ -19,8 +19,8 @@ from guyrapu.interaction import (
 from guyrapu.music import consultas_vlc
 from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, medio_cuadro, medios_medicion
-from guyrapu.ui.accesibilidad import (
-    ContadorAccesible, anunciar, nombre_accesible)
+from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.medio_escucha import EscuchaPrevia
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -95,12 +95,11 @@ class PanelMedios(wx.Panel):
         etiqueta_volumen = _("&Volumen de los medios en el vídeo:")
         vs.Add(fila_label(self, etiqueta_volumen), 0,
                wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        self.sp_volumen = ContadorAccesible(
-            self, min=0, max=100,
-            initial=ajustes_interaccion.cargar_volumen(paths.interaccion()),
-            name=nombre_de_etiqueta(etiqueta_volumen))
-        nombre_accesible(self.sp_volumen, self.sp_volumen.GetName())
-        self.sp_volumen.Bind(wx.EVT_SPINCTRL, self._al_cambiar_volumen)
+        self.sp_volumen = deslizador_accesible(
+            self, minimo=0, maximo=100, paso=1,
+            inicial=ajustes_interaccion.cargar_volumen(paths.interaccion()),
+            nombre=nombre_de_etiqueta(etiqueta_volumen))
+        self.sp_volumen.Bind(wx.EVT_SLIDER, self._al_cambiar_volumen)
         vs.Add(self.sp_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         vs.Add(self._fila_de_botones(), 0,
                wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)

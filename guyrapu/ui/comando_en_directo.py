@@ -48,7 +48,7 @@ def saltar(frame):
     if _capa(frame).saltar():
         anunciar_con_sonido(_("Mensaje del vídeo omitido"), "listo")
     else:
-        anunciar_con_sonido(_("Nada en el vídeo"), "listo")
+        anunciar_con_sonido(_("No hay nada en el vídeo."), "listo")
 
 
 def vaciar(frame):
@@ -56,7 +56,7 @@ def vaciar(frame):
     if _capa(frame).vaciar():
         anunciar_con_sonido(_("Cola del vídeo vacía"), "listo")
     else:
-        anunciar_con_sonido(_("Nada en el vídeo"), "listo")
+        anunciar_con_sonido(_("No hay nada en el vídeo."), "listo")
 
 
 def alternar_silencio(frame):

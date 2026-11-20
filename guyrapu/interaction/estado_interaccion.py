@@ -21,8 +21,8 @@ def texto(encuesta: str, batalla: str, meta: str, video: str,
     """El estado de la interacción, en orden y sin lo que esté vacío."""
     partes = [_limpia(frase) for frase in (encuesta, batalla, meta, video)]
     if preguntas:
-        partes.append(_limpia(ngettext("Espera 1 pregunta.",
-                                       "Esperan {n} preguntas.",
+        partes.append(_limpia(ngettext("1 pregunta en espera.",
+                                       "{n} preguntas en espera.",
                                        preguntas).format(n=preguntas)))
     partes = [frase for frase in partes if frase]
     if not partes:

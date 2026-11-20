@@ -194,13 +194,13 @@ def _lugar_libre(snap):
                 borde=borde_y))
     if salidas and distancias:
         # Traductores: {salidas} son los lados y {distancias} los porcentajes.
-        texto = _("se sale del vídeo {salidas}, y {distancias}").format(
+        texto = _("queda fuera del vídeo {salidas}, y {distancias}").format(
             salidas=salidas,
             # Traductores: conjunción entre partes de una frase, con sus espacios.
             distancias=_(" y ").join(distancias))
     elif salidas:
-        # Traductores: {salidas} son los lados por donde se sale.
-        texto = _("se sale del vídeo {salidas}").format(salidas=salidas)
+        # Traductores: {salidas} son los lados por donde queda fuera.
+        texto = _("queda fuera del vídeo {salidas}").format(salidas=salidas)
     else:
         # Traductores: conjunción entre partes de una frase, con sus espacios.
         texto = _(" y ").join(distancias)

@@ -274,11 +274,13 @@ class TestVolumen(BaseVentana):
 
     def test_el_control_va_entre_la_lista_y_los_botones_y_nace_en_cien(self):
         panel = self._panel([])
+        self.assertIsInstance(panel.sp_volumen, wx.Slider)
         self.assertEqual(panel.sp_volumen.GetName(),
                          "Volumen de los medios en el vídeo")
         self.assertEqual((panel.sp_volumen.GetMin(),
                           panel.sp_volumen.GetMax(),
                           panel.sp_volumen.GetValue()), (0, 100, 100))
+        self.assertEqual(panel.sp_volumen.GetLineSize(), 1)
         hijos = panel.GetChildren()
         primer_boton = next(hijo for hijo in hijos
                             if isinstance(hijo, wx.Button))
@@ -294,8 +296,8 @@ class TestVolumen(BaseVentana):
     def test_cambiarlo_lo_guarda_y_se_conserva_al_reabrir(self):
         panel = self._panel([])
         panel.sp_volumen.SetValue(40)
-        evento = wx.SpinEvent(wx.EVT_SPINCTRL.typeId,
-                              panel.sp_volumen.GetId())
+        evento = wx.CommandEvent(wx.EVT_SLIDER.typeId,
+                                 panel.sp_volumen.GetId())
         panel.sp_volumen.GetEventHandler().ProcessEvent(evento)
         self.assertEqual(
             ajustes_interaccion.cargar_volumen(paths.interaccion()), 40)
@@ -351,7 +353,7 @@ class TestCuadro(BaseVentana):
         self.assertIsNotNone(cuadro.aviso)
         self.assertEqual(
             cuadro.aviso.GetLabel(),
-            "Dura más de 15 segundos: al dispararlo se detiene a los 15")
+            "Dura más de 15 segundos: al activarlo se detiene a los 15 segundos.")
 
     def test_quince_segundos_no_muestra_el_aviso(self):
         self.assertIsNone(self._cuadro(_datos(duracion=15)).aviso)

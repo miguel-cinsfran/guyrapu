@@ -172,7 +172,7 @@ def _probar_encuesta(marco, cliente, fallos) -> None:
             _comprobar(
                 "al quitarla deja de verse",
                 _esperar(bucle, lambda: capa.describir()
-                         == "Nada en el vídeo.", TOPE_VIDEO),
+                         == "No hay nada en el vídeo.", TOPE_VIDEO),
                 fallos)
             programa = _programa(cliente)
             _comprobar("al quitarla no queda la escena Guyrapu al aire",
@@ -206,7 +206,7 @@ def _probar(marco, cliente, fallos) -> None:
                        not _iguales(antes, medio), fallos)
             _esperar(bucle, lambda: capa.describir()
                      == "En el vídeo: Mensaje de prueba en Banda.", TOPE_VIDEO)
-            _esperar(bucle, lambda: capa.describir() == "Nada en el vídeo.",
+            _esperar(bucle, lambda: capa.describir() == "No hay nada en el vídeo.",
                      TOPE_VIDEO)
             programa = _programa(cliente)
             al_aire = escena_guyrapu.ESCENA in _fuentes_de(cliente, programa)

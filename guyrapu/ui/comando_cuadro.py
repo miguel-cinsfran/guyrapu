@@ -31,8 +31,7 @@ _VARIABLE_RE = re.compile(r"\{([^{}]*)\}")
 
 
 def _destinos():
-    return [_("En el vídeo"), _("En el chat"),
-            _("En el vídeo y en el chat")]
+    return [_("Vídeo"), _("Chat"), _("Chat y vídeo")]
 
 
 def _permisos():
@@ -67,8 +66,8 @@ class DialogoComando(wx.Dialog):
     def _crear_controles(self, datos):
         panel = wx.Panel(self, name="PanelComando")
         vs = wx.BoxSizer(wx.VERTICAL)
-        rotulo = fila_label(panel, _("&Palabra:"))
-        self.txt_palabra = self._campo(panel, _("&Palabra:"))
+        rotulo = fila_label(panel, _("Pala&bra:"))
+        self.txt_palabra = self._campo(panel, _("Pala&bra:"))
         formulario.agregar_fila(vs, rotulo, self.txt_palabra)
         rotulo = fila_label(panel, _("A&lias:"))
         self.txt_alias = self._campo(panel, _("A&lias:"))
@@ -78,16 +77,16 @@ class DialogoComando(wx.Dialog):
         formulario.agregar_fila(vs, rotulo, self.txt_respuesta)
         self.ayuda = wx.StaticText(panel, label=_(AYUDA_VARIABLES))
         formulario.agregar_nota(vs, self.ayuda)
-        rotulo = fila_label(panel, _("Dónde &sale:"))
+        rotulo = fila_label(panel, _("&Mostrar en:"))
         self.cho_destino = wx.Choice(
             panel, choices=_destinos(),
-            name=nombre_de_etiqueta(_("Dónde &sale:")))
+            name=nombre_de_etiqueta(_("&Mostrar en:")))
         nombre_accesible(self.cho_destino, self.cho_destino.GetName())
         formulario.agregar_fila(vs, rotulo, self.cho_destino)
-        rotulo = fila_label(panel, _("&Quién puede usarlo:"))
+        rotulo = fila_label(panel, _("&Permiso:"))
         self.cho_permiso = wx.Choice(
             panel, choices=_permisos(),
-            name=nombre_de_etiqueta(_("&Quién puede usarlo:")))
+            name=nombre_de_etiqueta(_("&Permiso:")))
         nombre_accesible(self.cho_permiso, self.cho_permiso.GetName())
         formulario.agregar_fila(vs, rotulo, self.cho_permiso)
         rotulo = fila_label(panel, _("&Nombres:"))
@@ -117,8 +116,8 @@ class DialogoComando(wx.Dialog):
         self.chk_activo = wx.CheckBox(
             panel, label=_("Acti&vado"), name=nombre_de_etiqueta(_("Acti&vado")))
         self.chk_en_lista = wx.CheckBox(
-            panel, label=_("&Mostrar en la lista de comandos"),
-            name=nombre_de_etiqueta(_("&Mostrar en la lista de comandos")))
+            panel, label=_("Mostrar en la l&ista de comandos"),
+            name=nombre_de_etiqueta(_("Mostrar en la l&ista de comandos")))
         formulario.agregar_casillas(vs, (self.chk_activo, self.chk_en_lista))
 
     def _campo(self, panel, etiqueta):

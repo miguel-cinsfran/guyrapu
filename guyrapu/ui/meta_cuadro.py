@@ -59,9 +59,9 @@ class DialogoMeta(wx.Dialog):
         rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = self._campo(panel, _("&Nombre:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombre)
-        rotulo = fila_label(panel, _("&Qué cuenta:"))
+        rotulo = fila_label(panel, _("&Tipo:"))
         self.cho_que_cuenta = self._eleccion(
-            panel, _("&Qué cuenta:"), _que_cuenta())
+            panel, _("&Tipo:"), _que_cuenta())
         formulario.agregar_fila(vs, rotulo, self.cho_que_cuenta)
         rotulo = fila_label(panel, _("&Objetivo:"))
         self.sp_objetivo = self._contador(

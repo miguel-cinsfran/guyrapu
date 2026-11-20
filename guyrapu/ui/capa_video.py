@@ -202,9 +202,9 @@ class CapaVideo:
             except obs_cliente.ObsError as fallo:
                 return obs_cliente.mensaje_de_fallo_obs(fallo), True
         if self._escena.en_el_programa():
-            return _("La escena de Guyrapu está en la escena que sale al "
-                     "aire. Quítala de esa escena en OBS y vuelve a "
-                     "probar."), True
+            return _("La escena de Guyrapu está dentro de la escena actual. "
+                     "Elimínala de esa escena en OBS y vuelve a "
+                     "intentarlo."), True
         self._asegurar()
         tarjeta = self._escena.armar(texto, estilo)
         return revision_tarjeta.revisar(

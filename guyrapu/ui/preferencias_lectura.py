@@ -58,7 +58,7 @@ class PaginaLectura:
         vs = wx.BoxSizer(wx.VERTICAL)
 
         self.rb_formato = wx.RadioBox(
-            p, label=_("Qué leer de cada mensaje"),
+            p, label=_("Formato de lectura"),
             choices=[_(f[0]) for f in _FORMATOS], majorDimension=1,
             style=wx.RA_SPECIFY_COLS, name=_("Formato de lectura"))
         self.rb_formato.SetForegroundColour(_T.text)
@@ -117,12 +117,12 @@ class PaginaLectura:
         vs.Add(self.chk_traducir, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         vs.Add((0, 12), 0)
 
-        vs.Add(self._fila_label(p, _("Qué se tra&duce:")),
+        vs.Add(self._fila_label(p, _("Tra&ducir:")),
                0, wx.LEFT | wx.RIGHT, 10)
         self.cho_traducir_que = EleccionTexto(
             p, (("voz_lista", _("La voz y la lista")),
                 ("solo_voz", _("Solo la voz"))),
-            name=_("Qué se traduce"))
+            name=_("Traducir"))
         _tc(self.cho_traducir_que)
         vs.Add(self.cho_traducir_que, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 

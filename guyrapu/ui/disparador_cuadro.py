@@ -21,9 +21,9 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar disparador")
 TITULO_EDITAR = N_("Editar disparador")
-SECCION_CUANDO = N_("Cuándo salta")
-SECCION_QUE = N_("Qué muestra")
-SECCION_ALCANCE = N_("Quién y cada cuánto")
+SECCION_CUANDO = N_("Activación")
+SECCION_QUE = N_("Contenido")
+SECCION_ALCANCE = N_("Permiso y espera")
 AYUDA_TARJETA = N_(
     "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.")
 
@@ -115,8 +115,8 @@ class DialogoDisparador(wx.Dialog):
         rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = self._campo(panel, _("&Nombre:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombre)
-        rotulo = fila_label(panel, _("C&uándo:"))
-        self.cho_cuando = self._eleccion(panel, _("C&uándo:"), _cuandos())
+        rotulo = fila_label(panel, _("Ti&po:"))
+        self.cho_cuando = self._eleccion(panel, _("Ti&po:"), _cuandos())
         formulario.agregar_fila(vs, rotulo, self.cho_cuando)
         rotulo = fila_label(panel, _("Número del ata&jo, Ctrl+Alt+Mayús:"))
         self.sp_atajo = self._contador(
@@ -129,8 +129,8 @@ class DialogoDisparador(wx.Dialog):
         self.txt_palabras = self._campo(
             panel, _("Palabras o emojis del c&hat:"))
         formulario.agregar_fila(vs, rotulo, self.txt_palabras)
-        rotulo = fila_label(panel, _("&Evento:"))
-        self.cho_evento = self._eleccion(panel, _("&Evento:"), _eventos())
+        rotulo = fila_label(panel, _("E&vento:"))
+        self.cho_evento = self._eleccion(panel, _("E&vento:"), _eventos())
         formulario.agregar_fila(vs, rotulo, self.cho_evento)
         rotulo = fila_label(panel, _("Cantidad mín&ima:"))
         self.txt_minimo = self._campo(panel, _("Cantidad mín&ima:"))
@@ -138,8 +138,8 @@ class DialogoDisparador(wx.Dialog):
         rotulo = fila_label(panel, _("Nom&bre del regalo:"))
         self.txt_regalo = self._campo(
             panel, _("Nom&bre del regalo:"),
-            _("Vacío para cualquier regalo. Escribe el nombre como lo lee "
-              "Guyrapu"))
+            _("Déjalo vacío para cualquier regalo. Escribe el nombre tal "
+              "como lo lee Guyrapu."))
         formulario.agregar_fila(vs, rotulo, self.txt_regalo)
 
     def _crear_que(self, panel, columna):
@@ -168,8 +168,8 @@ class DialogoDisparador(wx.Dialog):
         self.cho_permiso = self._eleccion(
             panel, _("Pe&rmiso:"), _permisos())
         formulario.agregar_fila(vs, rotulo, self.cho_permiso)
-        rotulo = fila_label(panel, _("Nombres &permitidos:"))
-        self.txt_nombres = self._campo(panel, _("Nombres &permitidos:"))
+        rotulo = fila_label(panel, _("Nombres p&ermitidos:"))
+        self.txt_nombres = self._campo(panel, _("Nombres p&ermitidos:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombres)
         rotulo = fila_label(panel, _("Espera &general (segundos):"))
         self.sp_espera = self._contador(

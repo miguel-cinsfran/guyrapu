@@ -271,7 +271,7 @@ class ColaPantalla:
                     texto=self._visible.texto))
             elif self._encuesta_visible is None:
                 # Traductores: estado de F2 sin piezas en el vídeo.
-                partes.append(_("Nada en el vídeo."))
+                partes.append(_("No hay nada en el vídeo."))
         if self._pendientes:
             cantidad = len(self._pendientes)
             partes.append(

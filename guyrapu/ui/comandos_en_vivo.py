@@ -170,6 +170,6 @@ class ComandosEnVivo:
         from guyrapu.ui import gui as _gui
         # Traductores: aviso único de la sesión cuando la poca cuota de YouTube corta las respuestas al chat.
         _gui.anunciar_con_sonido(
-            _("Las respuestas de los comandos ya no salen en el chat porque "
-              "queda poca cuota de YouTube. Siguen saliendo en el vídeo."),
+            _("Queda poca cuota de YouTube: las respuestas de los comandos "
+              "ya no se muestran en el chat, solo en el vídeo."),
             "aviso")

@@ -45,7 +45,7 @@ class TestEscuchar(unittest.TestCase):
             descripcion_comando.escuchar(comando, "Clásico"),
             "Comando !discord, con los alias !dc, !d. "
             "Responde: Hola Ana, número 1, fin. "
-            "Sale en el vídeo, con el estilo Clásico y 8 segundos en "
+            "Se muestra en el vídeo, con el estilo Clásico y 8 segundos en "
             "pantalla. "
             "Puede usarlo: todos. "
             "Espera 5 segundos entre usos y 30 segundos por persona.")
@@ -56,7 +56,7 @@ class TestEscuchar(unittest.TestCase):
             espera_general=0, espera_persona=15)
         self.assertEqual(
             descripcion_comando.escuchar(comando, "Clásico"),
-            "Comando !hola. Responde: Hola. Sale en el chat. "
+            "Comando !hola. Responde: Hola. Se muestra en el chat. "
             "Puede usarlo: solo moderadores. "
             "Espera 0 segundos entre usos y 15 segundos por persona.")
 
@@ -66,7 +66,7 @@ class TestEscuchar(unittest.TestCase):
             nombres=("Ana", "Beto"), activo=False)
         self.assertEqual(
             descripcion_comando.escuchar(comando, "Clásico"),
-            "Comando !sorteo. Responde: Hola. Sale en el chat. "
+            "Comando !sorteo. Responde: Hola. Se muestra en el chat. "
             "Puede usarlo: una lista de nombres: Ana, Beto. "
             "Espera 5 segundos entre usos y 30 segundos por persona. "
             "Pausado.")

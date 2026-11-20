@@ -104,7 +104,7 @@ class TestDesfaseEnF2(unittest.TestCase):
     def test_etiqueta(self):
         self.assertEqual(
             estado_sesion.ETIQUETAS["desfase_directo"],
-            "Cuánto por detrás del directo va el reproductor")
+            "Retraso del reproductor respecto al directo")
 
 
 class TestDesfasePorDefecto(unittest.TestCase):

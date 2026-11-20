@@ -12,6 +12,9 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import wx
+
+from guyrapu.ui import gui_preferencias, preferencias_transmision
 from guyrapu.voice import motores
 from guyrapu.voice import reproductor_pcm
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -96,6 +99,23 @@ class TestSalidaDeVoz(unittest.TestCase):
                          ["Salida predeterminada", "Altavoces",
                           "Salida vieja"])
         self.assertEqual(cho.GetStringSelection(), "Salida vieja")
+
+    def test_los_ajustes_son_deslizadores_y_guardan_lo_movido(self):
+        dialogo = self._dialogo({}, ["Altavoces"])
+        pagina = dialogo.pagina_voz
+        for control in (pagina.sp_velocidad, pagina.sp_volumen,
+                        pagina.sp_tono):
+            self.assertIsInstance(control, wx.Slider)
+        pagina.sp_velocidad.SetValue(65)
+        pagina.sp_volumen.SetValue(70)
+        pagina.sp_tono.SetValue(35)
+        with mock.patch.object(gui_preferencias._snd, "reproducir"), \
+                mock.patch.object(preferencias_transmision, "anunciar"), \
+                mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        self.assertEqual(dialogo._config["velocidad_voz"], 65)
+        self.assertEqual(dialogo._config["volumen"], 0.7)
+        self.assertEqual(dialogo._config["tono"], 35)
 
 
 if __name__ == "__main__":

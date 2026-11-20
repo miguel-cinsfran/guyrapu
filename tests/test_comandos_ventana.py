@@ -128,8 +128,7 @@ class TestCuadro(BaseVentana):
     def test_tiene_todos_los_campos(self):
         cuadro = self._cuadro()
         self.assertEqual(cuadro.cho_destino.GetStrings(),
-                         ["En el vídeo", "En el chat",
-                          "En el vídeo y en el chat"])
+                         ["Vídeo", "Chat", "Chat y vídeo"])
         self.assertEqual(cuadro.cho_permiso.GetStrings(),
                          ["Todos", "Solo moderadores",
                           "Una lista de nombres"])
@@ -146,6 +145,11 @@ class TestCuadro(BaseVentana):
         self.assertTrue(cuadro.chk_en_lista.GetValue())
         self.assertEqual(cuadro.chk_en_lista.GetName(),
                          "Mostrar en la lista de comandos")
+
+    def test_un_comando_de_video_y_chat_muestra_chat_y_video_y_guarda_igual(self):
+        cuadro = self._cuadro(_datos(destino="ambos"))
+        self.assertEqual(cuadro.cho_destino.GetStringSelection(), "Chat y vídeo")
+        self.assertEqual(cuadro.datos()["destino"], "ambos")
 
     def test_la_ayuda_va_cuatro_pixeles_debajo_de_la_respuesta(self):
         cuadro = self._cuadro()

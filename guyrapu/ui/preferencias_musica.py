@@ -16,6 +16,7 @@ from guyrapu.core import config as cfg
 from guyrapu.core.idioma import _
 from guyrapu.ui import opciones_musica
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
+from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.tema import _T, _tc
 from guyrapu.ui.gui_descargas import nombrar_selector_carpeta
 from guyrapu.ui.preferencias_comun import EleccionTexto, crear_panel, fila_label
@@ -102,12 +103,12 @@ class PaginaMusica:
         vs.Add(self.sp_musica_cruce, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _musica_anuncios(self, p, vs):
-        vs.Add(fila_label(p, _("Anunciar al pasar &de canción:")), 0, wx.LEFT | wx.RIGHT, 10)
-        # Traductores: no decir nada al pasar de canción.
+        vs.Add(fila_label(p, _("Anunciar al cambiar &de canción:")), 0, wx.LEFT | wx.RIGHT, 10)
+        # Traductores: no decir nada al cambiar de canción.
         self.cho_musica_decir = EleccionTexto(
             p, (("nada", _("Nada")), ("titulo", _("El título")),
                 ("titulo_artista", _("El título y el artista")), ("artista", _("Solo el artista"))),
-            normalizar=musica_decir.normalizar, name=_("Qué anunciar al pasar de canción"))
+            normalizar=musica_decir.normalizar, name=_("Anunciar al cambiar de canción"))
         _tc(self.cho_musica_decir)
         vs.Add(self.cho_musica_decir, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.chk_musica_decir_pausa = wx.CheckBox(
@@ -119,9 +120,9 @@ class PaginaMusica:
     def _musica_audio(self, p, vs):
         vs.Add(fila_label(p, _("&Volumen de la música:")),
                0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_musica_volumen = ContadorAccesible(
-            p, min=0, max=100,
-            name=_("Volumen de la música"))
+        self.sp_musica_volumen = deslizador_accesible(
+            p, minimo=0, maximo=100, inicial=0, paso=1,
+            nombre=_("Volumen de la música"))
         vs.Add(self.sp_musica_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         self._casilla_igualar(p, vs)

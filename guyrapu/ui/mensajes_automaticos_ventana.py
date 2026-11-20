@@ -24,12 +24,12 @@ from guyrapu.ui.preferencias_comun import ANCHO_NOTA, fila_label
 from guyrapu.ui.tema import _T
 
 EXPLICACION = N_(
-    "Los mensajes automáticos salen cada cierto tiempo en el chat de tu "
-    "directo, en el vídeo o en los dos. En el chat necesitan sesión de Google "
-    "iniciada y un directo de YouTube conectado. El intervalo mínimo son 5 "
+    "Los mensajes automáticos se muestran a intervalos en el chat del directo, "
+    "en el vídeo o en los dos. Para el chat se necesita la sesión de Google "
+    "iniciada y un directo de YouTube conectado. El intervalo mínimo es de 5 "
     "minutos y cada mensaje admite 200 caracteres. YouTube suele bloquear los "
-    "enlaces en el chat del directo: conviene escribir el nombre de usuario en "
-    "vez del enlace completo.")
+    "enlaces en el chat: escribe el nombre de usuario en lugar del enlace "
+    "completo.")
 VACIO = N_("No hay mensajes automáticos. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 

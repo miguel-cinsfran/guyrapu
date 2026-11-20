@@ -300,7 +300,7 @@ VENTANAS = (
         "nombre": "preferencias_camara",
         "menu": "Herramientas > Preferencias",
         "titulo": "Preferencias",
-        "primero": "Avisar si el rostro sale del encuadre",
+        "primero": "Avisar si el rostro queda fuera del encuadre",
         "pagina": "Cámara",
         "paginas": PAGINAS_PREFERENCIAS,
     },

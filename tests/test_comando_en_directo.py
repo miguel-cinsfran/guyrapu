@@ -119,7 +119,7 @@ class TestSaltarYVaciar(Base):
     def test_omitir_sin_nada_dice_nada_en_el_video(self):
         self.capa.habia = False
         comando_en_directo.saltar(self.frame)
-        self.assertEqual(self.anuncios, [("Nada en el vídeo", "listo")])
+        self.assertEqual(self.anuncios, [("No hay nada en el vídeo.", "listo")])
 
     def test_vaciar_dice_lo_que_hizo(self):
         comando_en_directo.vaciar(self.frame)
@@ -130,7 +130,7 @@ class TestSaltarYVaciar(Base):
     def test_vaciar_sin_nada_dice_nada_en_el_video(self):
         self.capa.habia = False
         comando_en_directo.vaciar(self.frame)
-        self.assertEqual(self.anuncios, [("Nada en el vídeo", "listo")])
+        self.assertEqual(self.anuncios, [("No hay nada en el vídeo.", "listo")])
 
 
 class TestSilencio(Base):
@@ -242,7 +242,7 @@ class TestEstadoInteraccion(Base):
             encuesta="Encuesta en curso: X. Opciones: A, B",
             batalla="", meta="", video="")
         self.assertEqual(self._anunciar(snap, [object(), object()]), [
-            "Encuesta en curso: X. Opciones: A, B; Esperan 2 preguntas."])
+            "Encuesta en curso: X. Opciones: A, B; 2 preguntas en espera."])
 
     def test_sin_nada_anuncia_p3(self):
         snap = SimpleNamespace(encuesta="", batalla="", meta="", video="")

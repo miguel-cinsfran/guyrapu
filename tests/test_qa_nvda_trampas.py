@@ -2,19 +2,25 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de las ventanas de prueba del carril, construidas sin mostrar.
 
-Abren wx, así que se corren en la PC que no usa nadie. No abren ninguna
-ventana visible: solo se construyen los controles y se inspeccionan.
+Abren wx, así que se corren en la PC que no usa nadie. Solo la prueba de
+eventos muestra una ventana; las demás construyen y revisan los controles.
 """
 
+import os
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import wx
 
+from guyrapu.core import nombre_msaa
 from qa.nvda import reglas, trampas
 
 TRAMPAS = [nombre for nombre, datos in trampas.VENTANAS.items()
            if datos["regla"]]
+SONDAS = [nombre for nombre, datos in trampas.VENTANAS.items()
+          if datos.get("sonda")]
 
 
 def setUpModule():
@@ -275,6 +281,125 @@ class TestRecorrido(Base):
                   if campo.GetWindowStyle() & wx.TE_MULTILINE
                   and not campo.GetWindowStyle() & wx.TE_PROCESS_TAB]
         self.assertTrue(libres)
+
+
+class TestSondas(Base):
+    TIPOS = {
+        "sonda_lista_box": wx.ListBox,
+        "sonda_lista_box_nombre": wx.ListBox,
+        "sonda_lista_box_pieza": wx.ListBox,
+        "sonda_lista_box_ayuda": wx.ListBox,
+        "sonda_lista_box_msaa": wx.ListBox,
+        "sonda_lista_vista": wx.ListCtrl,
+        "sonda_categorias": wx.Listbook,
+    }
+
+    def test_hay_siete_sondas_de_una_clase_de_lista_cada_una(self):
+        self.assertEqual(len(SONDAS), 7)
+        self.assertEqual(sorted(SONDAS), sorted(self.TIPOS))
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                datos = trampas.VENTANAS[nombre]
+                self.assertTrue(datos["sonda"])
+                self.assertIsNone(datos["regla"])
+                self.assertEqual(datos["primero"], "Antes")
+                marco = self.construir(nombre)
+                self.assertTrue(any(
+                    isinstance(control, self.TIPOS[nombre])
+                    for control in _controles(marco)))
+
+    def test_el_primer_control_de_cada_sonda_es_antes(self):
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                self.assertTrue(_con_nombre(self.construir(nombre), "Antes"))
+
+    def _control_de_lista(self, marco, nombre):
+        if nombre == "sonda_categorias":
+            libro = [control for control in _controles(marco)
+                     if isinstance(control, wx.Listbook)][0]
+            return libro.GetListView()
+        clase = self.TIPOS[nombre]
+        return [control for control in _controles(marco)
+                if isinstance(control, clase)][0]
+
+    def _elementos_y_elegido(self, control):
+        if isinstance(control, wx.ListBox):
+            textos = [control.GetString(i)
+                      for i in range(control.GetCount())]
+            return textos, control.GetSelection()
+        textos = [control.GetItemText(i)
+                  for i in range(control.GetItemCount())]
+        return textos, control.GetFirstSelected()
+
+    def test_cada_lista_tiene_tres_elementos_y_el_primero_elegido(self):
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                control = self._control_de_lista(
+                    self.construir(nombre), nombre)
+                textos, elegido = self._elementos_y_elegido(control)
+                self.assertEqual(textos, ["Uno", "Dos", "Tres"])
+                self.assertEqual(elegido, 0)
+
+    def test_las_listas_llevan_el_nombre_de_sonda(self):
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                control = self._control_de_lista(
+                    self.construir(nombre), nombre)
+                self.assertEqual(control.GetName(), "Lista de sonda")
+
+    def test_la_sonda_de_ayuda_pone_tooltip_sin_anotar(self):
+        with mock.patch.object(nombre_msaa, "poner") as poner:
+            marco = self.construir("sonda_lista_box_ayuda")
+        lista = self._control_de_lista(marco, "sonda_lista_box_ayuda")
+        self.assertEqual(lista.GetName(), "Lista de sonda")
+        self.assertEqual(lista.GetToolTip().GetTip(), "Lista de sonda")
+        self.assertNotIn(mock.call(lista.GetHandle(), "Lista de sonda"),
+                         poner.call_args_list)
+
+    def test_la_sonda_msaa_anota_el_nombre_sin_tooltip_ni_ayuda(self):
+        with mock.patch.object(nombre_msaa, "poner",
+                               return_value=True) as poner:
+            marco = self.construir("sonda_lista_box_msaa")
+        lista = self._control_de_lista(marco, "sonda_lista_box_msaa")
+        self.assertEqual(lista.GetName(), "Lista de sonda")
+        self.assertIsNone(lista.GetToolTip())
+        self.assertEqual(lista.GetHelpText(), "")
+        poner.assert_any_call(lista.GetHandle(), "Lista de sonda")
+
+    def test_el_primer_elemento_de_la_vista_tiene_foco(self):
+        lista = self._control_de_lista(
+            self.construir("sonda_lista_vista"), "sonda_lista_vista")
+        estado = lista.GetItemState(
+            0, wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED)
+        self.assertTrue(estado & wx.LIST_STATE_SELECTED)
+        self.assertTrue(estado & wx.LIST_STATE_FOCUSED)
+
+    def test_la_sonda_escribe_los_eventos_de_foco_de_la_lista(self):
+        with tempfile.TemporaryDirectory() as base:
+            ruta = Path(base) / "eventos.txt"
+            with mock.patch.dict(os.environ,
+                                 {"GUYRAPU_SONDA_EVENTOS": str(ruta)}):
+                marco = trampas.construir("sonda_lista_box")
+            marco.Show()
+
+            def enfocar_y_salir():
+                lista = self._control_de_lista(marco, "sonda_lista_box")
+                lista.SetFocus()
+                wx.CallLater(200, wx.GetApp().ExitMainLoop)
+
+            wx.CallLater(100, enfocar_y_salir)
+            wx.GetApp().MainLoop()
+            lineas = ruta.read_text(encoding="utf-8").splitlines()
+            marco.Destroy()
+            wx.Yield()
+            self.assertTrue(any("EVENT_OBJECT_FOCUS" in linea
+                                for linea in lineas), lineas)
+
+    def test_sin_la_variable_no_se_instala_el_hook(self):
+        with mock.patch.dict(os.environ):
+            os.environ.pop("GUYRAPU_SONDA_EVENTOS", None)
+            marco = self.construir("sonda_lista_box")
+        self.assertFalse(hasattr(marco, "eventos_hook"))
 
 
 if __name__ == "__main__":

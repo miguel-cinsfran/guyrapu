@@ -14,7 +14,8 @@ from guyrapu.core import config as cfg
 from guyrapu.core.idioma import N_, _
 from guyrapu.youtube import credenciales
 from guyrapu.ui import opciones_musica, voces_ventana
-from guyrapu.ui.gui import ContadorAccesible, _T, _tc, anunciar
+from guyrapu.ui.deslizador import deslizador_accesible
+from guyrapu.ui.gui import _T, _tc, anunciar
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
 from guyrapu.ui.preferencias_voz_eleven import BloqueElevenLabs
 from guyrapu.ui.preferencias_voz_secundaria import BloqueVozSecundaria
@@ -134,32 +135,27 @@ class PaginaVoz:
         from guyrapu.voice import escala_voz
 
         # Velocidad, volumen y tono como valores absolutos 0..100.
-        vs.Add(fila_label(p, _("Ve&locidad (0 a 100):")), 0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_velocidad = ContadorAccesible(
-            p, min=0, max=100, name=_("Velocidad de la voz"),
-            initial=escala_voz.ajustar_velocidad(
+        vs.Add(fila_label(p, _("Ve&locidad:")), 0, wx.LEFT | wx.RIGHT, 10)
+        self.sp_velocidad = deslizador_accesible(
+            p, minimo=0, maximo=100, paso=5, nombre=_("Velocidad de la voz"),
+            inicial=escala_voz.ajustar_velocidad(
                 int(self._config.get("velocidad_voz", escala_voz.VELOCIDAD_NORMAL)), 0))
-        self.sp_velocidad.SetIncrement(5)
-        _tc(self.sp_velocidad)
         vs.Add(self.sp_velocidad, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         try:
             vol_pct = max(0, min(100, int(round(float(self._config.get("volumen", 1.0)) * 100))))
         except (TypeError, ValueError):
             vol_pct = 100
-        vs.Add(fila_label(p, _("Vol&umen (0 a 100):")), 0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_volumen = ContadorAccesible(
-            p, min=0, max=100, initial=vol_pct, name=_("Volumen de la voz"))
-        self.sp_volumen.SetIncrement(5)
-        _tc(self.sp_volumen)
+        vs.Add(fila_label(p, _("Vol&umen:")), 0, wx.LEFT | wx.RIGHT, 10)
+        self.sp_volumen = deslizador_accesible(
+            p, minimo=0, maximo=100, inicial=vol_pct, paso=5,
+            nombre=_("Volumen de la voz"))
         vs.Add(self.sp_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
-        vs.Add(fila_label(p, _("&Tono (0 a 100):")), 0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_tono = ContadorAccesible(
-            p, min=0, max=100, name=_("Tono de la voz"),
-            initial=max(0, min(100, int(self._config.get("tono", 50)))))
-        self.sp_tono.SetIncrement(5)
-        _tc(self.sp_tono)
+        vs.Add(fila_label(p, _("&Tono:")), 0, wx.LEFT | wx.RIGHT, 10)
+        self.sp_tono = deslizador_accesible(
+            p, minimo=0, maximo=100, paso=5, nombre=_("Tono de la voz"),
+            inicial=max(0, min(100, int(self._config.get("tono", 50)))))
         vs.Add(self.sp_tono, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         self.btn_probar_voz = wx.Button(p, label=_("&Probar voz"), name=_("Probar voz"))

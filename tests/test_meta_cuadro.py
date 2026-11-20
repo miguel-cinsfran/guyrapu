@@ -21,11 +21,11 @@ from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 NOMBRES_ACCESIBLES = (
-    "Nombre", "Qué cuenta", "Objetivo", "Estilo", "Festejo",
+    "Nombre", "Tipo", "Objetivo", "Estilo", "Festejo",
     "Mostrar avance en el vídeo", "Aceptar", "Cancelar")
 
 ETIQUETAS = (
-    "&Nombre:", "&Qué cuenta:", "&Objetivo:", "Esti&lo:", "&Festejo:")
+    "&Nombre:", "&Tipo:", "&Objetivo:", "Esti&lo:", "&Festejo:")
 
 
 class BaseCuadro(unittest.TestCase):

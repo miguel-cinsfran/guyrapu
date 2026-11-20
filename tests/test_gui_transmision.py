@@ -1036,8 +1036,9 @@ class TestConfirmarTransmisionSinVentana(unittest.TestCase):
         self.assertTrue(acepta)
         esperado = (
             "Restream también va a transmitir este directo a: "
-            "YouTube (Canal), Facebook (Página). Para elegir a dónde sale, "
-            "usa un perfil de Restream en Transmitir a. ¿Transmitir igual?"
+            "YouTube (Canal), Facebook (Página). Para elegir los destinos, "
+            "usa un perfil de Restream en Transmitir a. ¿Quieres transmitir "
+            "de todos modos?"
             "\n\n" + obs_prevuelo.frase_revision(revision))
         preguntar.assert_called_once_with(
             mock.sentinel.padre, esperado, "Antes de transmitir",

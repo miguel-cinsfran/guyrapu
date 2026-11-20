@@ -24,5 +24,6 @@ def mensaje(canales):
     destinos = ", ".join(f"{canal.plataforma} ({canal.nombre})"
                          for canal in canales)
     return _("Restream también va a transmitir este directo a: {destinos}. "
-             "Para elegir a dónde sale, usa un perfil de Restream en "
-             "Transmitir a. ¿Transmitir igual?").format(destinos=destinos)
+             "Para elegir los destinos, usa un perfil de Restream en "
+             "Transmitir a. ¿Quieres transmitir de todos modos?").format(
+                 destinos=destinos)

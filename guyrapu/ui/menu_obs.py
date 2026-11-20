@@ -42,7 +42,9 @@ def _agregar_encuadre(frame, m):
     frame.mi_anunciar_encuadre = m.Append(
         wx.ID_ANY, _("Anunciar en&cuadre de cámara") + frame._accel("anunciar_encuadre"))
     frame.mi_avisos_encuadre = m.AppendCheckItem(
-        wx.ID_ANY, _("A&visar si el rostro sale del encuadre") + frame._accel("avisos_encuadre"))
+        wx.ID_ANY,
+        _("A&visar si el rostro queda fuera del encuadre")
+        + frame._accel("avisos_encuadre"))
     frame.mi_avisos_encuadre.Check(bool(frame._config.get("avisar_encuadre", False)))
     frame.mi_camara_visible = m.Append(
         wx.ID_ANY,

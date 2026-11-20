@@ -196,7 +196,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&OBS", "Silenciar &micrófono de OBS", ANY, "check"),
             ("&OBS", "---", None, "sep"),
             ("&OBS", "Anunciar en&cuadre de cámara", ANY, "normal"),
-            ("&OBS", "A&visar si el rostro sale del encuadre", ANY, "check"),
+            ("&OBS", "A&visar si el rostro queda fuera del encuadre", ANY, "check"),
             ("&OBS", "Mo&strar u ocultar la cámara", ANY, "normal"),
             ("&OBS", "---", None, "sep"),
             ("&OBS", "Mos&trar OBS", ANY, "normal"),
@@ -988,7 +988,7 @@ class TestMenuObs(unittest.TestCase):
             ("&OBS", "---", None, "sep"),
             ("&OBS", "Anunciar en&cuadre de cámara	Ctrl+F3",
              ANY, "normal"),
-            ("&OBS", "A&visar si el rostro sale del encuadre\t"
+             ("&OBS", "A&visar si el rostro queda fuera del encuadre\t"
              "Ctrl+Shift+F3", ANY, "check"),
             ("&OBS", "Mo&strar u ocultar la cámara\tAlt+F3",
              ANY, "normal"),

@@ -71,7 +71,7 @@ class TestCambiosDeLectura(unittest.TestCase):
         casilla = dialogo.chk_traducir
         etiqueta = [h for h in panel.GetChildren()
                     if isinstance(h, gui.wx.StaticText)
-                    and h.GetLabel() == "Qué se tra&duce:"][0]
+                    and h.GetLabel() == "Tra&ducir:"][0]
         separacion = etiqueta.GetPosition().y - (
             casilla.GetPosition().y + casilla.GetSize().GetHeight())
         self.assertEqual(separacion, 12)
@@ -136,7 +136,7 @@ class TestDisenoFormato(unittest.TestCase):
     def test_el_grupo_lleva_el_titulo_y_no_hay_etiqueta_suelta(self):
         dialogo = self._dialogo()
         self.assertEqual(dialogo.rb_formato.GetLabel(),
-                         "Qué leer de cada mensaje")
+                         "Formato de lectura")
         textos = []
         pendientes = [dialogo.rb_formato.GetParent()]
         while pendientes:
@@ -144,7 +144,7 @@ class TestDisenoFormato(unittest.TestCase):
             if isinstance(actual, gui.wx.StaticText):
                 textos.append(actual.GetLabel())
             pendientes.extend(actual.GetChildren())
-        self.assertNotIn("Qué leer de cada mensaje:", textos)
+        self.assertNotIn("Formato de lectura:", textos)
 
 
 if __name__ == "__main__":

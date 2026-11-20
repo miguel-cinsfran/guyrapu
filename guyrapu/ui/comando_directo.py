@@ -257,7 +257,7 @@ class ComandoDirecto:
 
     def _finalizar(self, padre):
         if not confirmar_finalizar(padre):
-            anunciar(_("Sigues transmitiendo."))
+            anunciar(_("La transmisión sigue activa."))
             return
         if self._preguntar("activo"):
             self._detener_supervision()
