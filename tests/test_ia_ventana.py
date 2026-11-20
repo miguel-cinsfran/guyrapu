@@ -19,9 +19,11 @@ from guyrapu.ai import consulta
 from guyrapu.ai import conversacion
 from guyrapu.ai import protocolos
 from guyrapu.ai import ventana_ia
+from guyrapu.ui import formulario
 from guyrapu.ui import ia_guardar_conversacion as guardar_conv
 from guyrapu.ui import ia_ventana as ventana
 from guyrapu.ui import lista_acciones
+from guyrapu.ui import tema
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -903,6 +905,63 @@ class TestVentanaIAVentana(unittest.TestCase):
             destino(*args)
         self.assertFalse(dialogo._temporizador.IsRunning())
         self.assertFalse(dialogo._temporizador_melodia.IsRunning())
+
+    def test_abre_con_area_cliente_de_al_menos_640_por_480(self):
+        dialogo = self._ventana()
+        cliente = dialogo.GetClientSize()
+        self.assertGreaterEqual(cliente.width, 640)
+        self.assertGreaterEqual(cliente.height, 480)
+
+    def test_la_conversacion_crece_al_agrandar_la_ventana(self):
+        dialogo = self._ventana()
+        alto = dialogo.lst_conversacion.GetSize().height
+        cliente = dialogo.GetClientSize()
+        dialogo.SetClientSize((cliente.width + 120, cliente.height + 120))
+        self.assertGreater(dialogo.lst_conversacion.GetSize().height, alto)
+
+    def test_enviar_es_el_boton_por_defecto_y_principal(self):
+        dialogo = self._ventana()
+        self.assertIs(dialogo.GetDefaultItem(), dialogo.btn_enviar)
+        self.assertEqual(dialogo.btn_enviar.GetBackgroundColour(),
+                         tema._T.primary)
+        self.assertEqual(dialogo.btn_enviar.GetForegroundColour(),
+                         tema._T.primary_t)
+
+    def test_hueco_entre_el_mensaje_y_las_acciones(self):
+        dialogo = self._ventana()
+        mensaje = dialogo.txt_mensaje
+        self.assertEqual(
+            dialogo.btn_enviar.GetPosition().y - (
+                mensaje.GetPosition().y + mensaje.GetSize().height),
+            formulario.CONTROL_A_ETIQUETA)
+
+    def test_cerrar_va_en_el_pie_y_las_acciones_en_una_fila(self):
+        dialogo = self._ventana()
+        cliente = dialogo.GetClientSize()
+        acciones = [dialogo.btn_enviar, dialogo.btn_captura,
+                    dialogo.btn_copiar, dialogo.btn_nueva]
+        self.assertEqual(len({boton.GetPosition().y for boton in acciones}), 1)
+        self.assertEqual(len({boton.GetSize().width for boton in acciones}), 1)
+        cerrar = dialogo.btn_cerrar
+        self.assertGreater(cerrar.GetPosition().y, acciones[0].GetPosition().y)
+        self.assertEqual(
+            cliente.width - (cerrar.GetPosition().x + cerrar.GetSize().width),
+            formulario.MARGEN)
+        self.assertEqual(
+            cliente.height - (cerrar.GetPosition().y + cerrar.GetSize().height),
+            formulario.MARGEN)
+
+    def test_margenes_y_huecos_son_del_formulario(self):
+        dialogo = self._ventana()
+        self.assertEqual(dialogo.lst_conversacion.GetPosition().x,
+                         formulario.MARGEN)
+        self.assertEqual(dialogo.rotulo_conv.GetPosition().x,
+                         dialogo.lst_conversacion.GetPosition().x)
+        self.assertEqual(
+            dialogo.rotulo_msg.GetPosition().y
+            + dialogo.rotulo_msg.GetSize().height,
+            dialogo.txt_mensaje.GetPosition().y
+            - formulario.ETIQUETA_A_CONTROL)
 
 
 if __name__ == "__main__":

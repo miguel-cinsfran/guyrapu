@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Ventana Preguntar a la IA: conversación sobre capturas de OBS.
 
-Modal con la lista de mensajes, el campo para escribir y sus botones.
 La conversación vive lo que vive la ventana: al cerrarla se pierde.
 """
 
@@ -27,7 +26,7 @@ from guyrapu.core import paths
 from guyrapu.obs.obs_panel import GestorPanelObs
 from guyrapu.ui import ia_privacidad
 from guyrapu.ui import ia_guardar_conversacion as guardar_conv
-from guyrapu.ui import ayuda_manual, paleta, tecla_escape
+from guyrapu.ui import ayuda_manual, botonera, formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.ia_agregar_captura import pedir_captura
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
@@ -84,7 +83,6 @@ class VentanaIA(wx.Dialog):
     def _crear_conversacion(self, vs) -> None:
         """El rótulo y la lista de la conversación, en el sizer vertical."""
         self.rotulo_conv = wx.StaticText(self, label=_("Con&versación:"))
-        vs.Add(self.rotulo_conv, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         self.lst_conversacion = wx.ListBox(
             self, style=wx.LB_SINGLE, name=_("Conversación"))
         nombre_accesible(self.lst_conversacion, _("Conversación"))
@@ -99,18 +97,19 @@ class VentanaIA(wx.Dialog):
                      tecla="ctrl+s", necesita_elemento=False,
                      motivo=lambda: guardar_conv.motivo_vacio(self._charla))),
              _(ventana_ia.FILA_GUIA))
-        vs.Add(self.lst_conversacion, 1, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(vs, self.rotulo_conv, self.lst_conversacion)
+        vs.GetChildren()[-1].SetProportion(1)
 
     def _crear_controles(self) -> None:
+        exterior = wx.BoxSizer(wx.VERTICAL)
         vs = wx.BoxSizer(wx.VERTICAL)
+        exterior.Add(vs, 1, wx.EXPAND | wx.ALL, formulario.MARGEN)
         self._crear_conversacion(vs)
         self.rotulo_msg = wx.StaticText(self, label=_("&Mensaje:"))
-        vs.Add(self.rotulo_msg, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         self.txt_mensaje = wx.TextCtrl(
             self, name=_("Mensaje"), style=wx.TE_PROCESS_ENTER)
         nombre_accesible(self.txt_mensaje, _("Mensaje"))
-        vs.Add(self.txt_mensaje, 0, wx.EXPAND | wx.ALL, 10)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+        formulario.agregar_fila(vs, self.rotulo_msg, self.txt_mensaje)
         self.btn_enviar = wx.Button(self, wx.ID_ANY, _("&Enviar"),
                                     name=_("Enviar"))
         self.btn_captura = wx.Button(self, wx.ID_ANY, _("Agregar &captura"),
@@ -121,11 +120,12 @@ class VentanaIA(wx.Dialog):
                                    name=_("Nueva conversación"))
         self.btn_cerrar = wx.Button(self, wx.ID_CLOSE, _("Ce&rrar"),
                                     name=_("Cerrar"))
-        for boton in (self.btn_enviar, self.btn_captura, self.btn_copiar,
-                      self.btn_nueva, self.btn_cerrar):
-            fila.Add(boton, 0, wx.RIGHT, 6)
-        vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(vs)
+        botones = (self.btn_enviar, self.btn_captura, self.btn_copiar, self.btn_nueva)
+        formulario.agregar_fila(vs, None, botonera.armar(self, botones=botones))
+        formulario.agregar_pie(vs, [self.btn_cerrar])
+        self.SetSizer(exterior)
+        self.SetClientSize((640, 480))
+        self.btn_enviar.SetDefault()
         self._temporizador = wx.Timer(self)
         self.txt_mensaje.Bind(wx.EVT_TEXT_ENTER, self._al_enviar)
         self.btn_enviar.Bind(wx.EVT_BUTTON, self._al_enviar)
