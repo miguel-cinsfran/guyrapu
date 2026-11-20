@@ -50,6 +50,9 @@ def describe_la_unica_ventana(texto) -> bool:
             and re.search(r"\b(?:dos|2)\b", base) is None
             and any(c in base for c in COLORES_MAGENTA))
 
+def lista_cargada(textos) -> bool:
+    return bool(textos) and all("cargando" not in _sin_tildes(t) for t in textos)
+
 _ERRORES = None
 
 def _textos_error() -> tuple:
@@ -195,7 +198,6 @@ def _consultar(ctx, pregunta, espera, rapida=False, ventana=None,
     return (True, respuesta, segundos, respuesta)
 
 def _capturar(ctx, ventana, espera):
-    """«Agregar captura», primera opción y tercera pregunta."""
     try:
         directo_real._control(ventana, "Agregar captura", "Button", 20).invoke()
         dialogo = directo_real._dialogo_hijo(ventana, "Agregar captura", 20)
@@ -203,17 +205,15 @@ def _capturar(ctx, ventana, espera):
         boton = directo_real._control(dialogo, "Capturar", "Button", 10)
     except Exception as f:
         return (False, "", 0, "no abrió la lista ({})".format(f))
-    fin = time.time() + 30
-    while time.time() < fin:
-        try:
-            if combo.texts():
-                break
-        except Exception:
+    for _ in range(60):
+        vistos = combo.texts()
+        if lista_cargada(vistos):
             break
         time.sleep(0.5)
+    else:
+        return (False, "", 0, "la lista Capturar de siguió cargando ({})".format(vistos))
     marca = len(directo_real._leer_anuncios(ctx["anuncios"]))
     try:
-        combo.select(0)
         boton.invoke()
     except Exception as f:
         return (False, "", 0, "no se pudo capturar ({})".format(f))

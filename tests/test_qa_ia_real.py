@@ -53,6 +53,20 @@ class TestDescribeLaUnicaVentana(unittest.TestCase):
             "Todo el vídeo es magenta."))
 
 
+class TestListaCargada(unittest.TestCase):
+
+    def test_lista_vacia_no_pasa(self):
+        self.assertFalse(ia_real.lista_cargada([]))
+
+    def test_solo_cargando_no_pasa(self):
+        self.assertFalse(ia_real.lista_cargada(
+            ["Cargando las fuentes de OBS…"]))
+
+    def test_opciones_reales_pasan(self):
+        self.assertTrue(ia_real.lista_cargada(
+            ["Fotograma del vídeo", "Pantalla completa"]))
+
+
 class TestEsError(unittest.TestCase):
 
     def _errores(self):
