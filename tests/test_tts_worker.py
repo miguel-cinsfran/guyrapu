@@ -621,6 +621,21 @@ class TestMotorLocalPorFabrica(unittest.TestCase):
             worker._cerrar_motor()
 
 
+class TestFabricaDelWorker(unittest.TestCase):
+
+    def test_un_motor_local_distinto_recibe_la_salida_y_el_aviso(self):
+        proveedor = mock.Mock()
+        with mock.patch("guyrapu.voice.proveedores.obtener",
+                        return_value=proveedor):
+            worker = tts_worker.TTSWorker(
+                queue.Queue(), {"salida_voz": "Auriculares"})
+            worker._crear_motor("piper")
+        proveedor.crear.assert_called_once()
+        argumentos = proveedor.crear.call_args
+        self.assertEqual(argumentos.kwargs["salida"], "Auriculares")
+        self.assertEqual(argumentos.kwargs["al_avisar"], worker._avisar)
+
+
 class TestSecundariaConMotorPropio(unittest.TestCase):
     """Pausa y Alt+D llegan al motor secundario que está sonando."""
 
