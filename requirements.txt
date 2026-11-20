@@ -13,7 +13,7 @@ wxPython==4.3.1
 
 # Puente con NVDA, JAWS y otros lectores de pantalla.
 # Va acotado porque es versión 0.x y su API puede cambiar.
-prismatoid>=0.18.3,<0.19
+prismatoid>=0.18.4,<0.19
 
 # ── Voces locales (OPCIONAL) ──────────────────────────────────────────────────
 # Salida de audio de las voces locales por WASAPI.
