@@ -12,6 +12,9 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import wx
+
+from guyrapu.ui import gui_preferencias, preferencias_transmision
 from guyrapu.voice import motores
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.rutas_temporales import redirigir_rutas
@@ -49,6 +52,18 @@ class TestPseudoMusica(unittest.TestCase):
                 pagina, propios=PENDIENTES_OTROS_MODULOS)
 
         self.assertEqual([], sin_marcar)
+
+    def test_el_volumen_es_deslizador_y_el_fundido_sigue_siendo_contador(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_musica
+        self.assertIsInstance(pagina.sp_musica_volumen, wx.Slider)
+        self.assertIsInstance(pagina.sp_musica_cruce, wx.SpinCtrl)
+        pagina.sp_musica_volumen.SetValue(75)
+        with mock.patch.object(gui_preferencias._snd, "reproducir"), \
+                mock.patch.object(preferencias_transmision, "anunciar"), \
+                mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        self.assertEqual(dialogo._config["musica_volumen"], 75)
 
 
 if __name__ == "__main__":

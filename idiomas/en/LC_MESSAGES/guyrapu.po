@@ -15911,24 +15911,24 @@ msgid "Salida de audio de la voz (Phonon y Piper)"
 msgstr "Voice audio output (Phonon and Piper)"
 
 #: guyrapu/ui/preferencias_voz.py
-msgid "Ve&locidad (0 a 100):"
-msgstr "Spee&d (0 to 100):"
+msgid "Ve&locidad:"
+msgstr "Spee&d:"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Velocidad de la voz"
 msgstr "Voice speed"
 
 #: guyrapu/ui/preferencias_voz.py
-msgid "Vol&umen (0 a 100):"
-msgstr "Vol&ume (0 to 100):"
+msgid "Vol&umen:"
+msgstr "Vol&ume:"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Volumen de la voz"
 msgstr "Voice volume"
 
 #: guyrapu/ui/preferencias_voz.py
-msgid "&Tono (0 a 100):"
-msgstr "&Voice pitch (0 to 100):"
+msgid "&Tono:"
+msgstr "&Voice pitch:"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Tono de la voz"
@@ -16019,16 +16019,16 @@ msgid "Voz:"
 msgstr "Voice:"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Veloci&dad (0 a 100):"
-msgstr "S&peed (0 to 100):"
+msgid "Veloci&dad:"
+msgstr "S&peed:"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Velocidad de la voz secundaria"
 msgstr "Secondary voice speed"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Volum&en (0 a 100):"
-msgstr "V&olume (0 to 100):"
+msgid "Volum&en:"
+msgstr "V&olume:"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Volumen de la voz secundaria"

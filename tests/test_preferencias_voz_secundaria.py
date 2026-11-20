@@ -94,10 +94,12 @@ class TestBloqueVozSecundaria(unittest.TestCase):
         dialogo = self._dialogo({"velocidad_secundaria": 25,
                                  "volumen_secundaria": 0.4})
         bloque = self._bloque(dialogo)
+        self.assertIsInstance(bloque.sp_velocidad, gui.wx.Slider)
+        self.assertIsInstance(bloque.sp_volumen, gui.wx.Slider)
         self.assertEqual(bloque.sp_velocidad.GetValue(), 25)
         self.assertEqual(bloque.sp_volumen.GetValue(), 40)
-        self.assertEqual(bloque.sp_velocidad.GetIncrement(), 5)
-        self.assertEqual(bloque.sp_volumen.GetIncrement(), 5)
+        self.assertEqual(bloque.sp_velocidad.GetLineSize(), 5)
+        self.assertEqual(bloque.sp_volumen.GetLineSize(), 5)
 
     def test_guardar_escribe_las_cuatro_claves(self):
         dialogo = self._dialogo()

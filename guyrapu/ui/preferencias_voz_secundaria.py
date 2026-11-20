@@ -13,7 +13,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui.accesibilidad import ContadorAccesible
+from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.gui import caja_de_grupo
 from guyrapu.ui.preferencias_comun import fila_label
 from guyrapu.ui.tema import _T, _tc
@@ -117,23 +117,20 @@ class BloqueVozSecundaria:
 
     def _crear_ajustes(self, padre):
         fila = wx.BoxSizer(wx.VERTICAL)
-        fila.Add(fila_label(padre, _("Veloci&dad (0 a 100):")), 0, wx.BOTTOM, 6)
-        self.sp_velocidad = ContadorAccesible(
-            padre, min=0, max=100,
-            name=_("Velocidad de la voz secundaria"),
-            initial=escala_voz.ajustar_velocidad(
+        fila.Add(fila_label(padre, _("Veloci&dad:")), 0, wx.BOTTOM, 6)
+        self.sp_velocidad = deslizador_accesible(
+            padre, minimo=0, maximo=100, paso=5,
+            nombre=_("Velocidad de la voz secundaria"),
+            inicial=escala_voz.ajustar_velocidad(
                 int(self._config.get("velocidad_secundaria",
                                      escala_voz.VELOCIDAD_NORMAL)), 0))
-        self.sp_velocidad.SetIncrement(5)
-        _tc(self.sp_velocidad)
         fila.Add(self.sp_velocidad, 0, wx.BOTTOM, 6)
 
-        fila.Add(fila_label(padre, _("Volum&en (0 a 100):")), 0, wx.BOTTOM, 6)
-        self.sp_volumen = ContadorAccesible(
-            padre, min=0, max=100, initial=_porcentaje_de_volumen(self._config),
-            name=_("Volumen de la voz secundaria"))
-        self.sp_volumen.SetIncrement(5)
-        _tc(self.sp_volumen)
+        fila.Add(fila_label(padre, _("Volum&en:")), 0, wx.BOTTOM, 6)
+        self.sp_volumen = deslizador_accesible(
+            padre, minimo=0, maximo=100, paso=5,
+            inicial=_porcentaje_de_volumen(self._config),
+            nombre=_("Volumen de la voz secundaria"))
         fila.Add(self.sp_volumen, 0, wx.BOTTOM, 6)
         return fila
 

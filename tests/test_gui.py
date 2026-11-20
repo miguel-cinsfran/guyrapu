@@ -2127,9 +2127,11 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
         orden = [h.GetName() for h in pagina.GetChildren()
                  if h.GetName() in esperados]
         self.assertEqual(orden, esperados)
-        self.assertEqual(dialogo.pagina_voz.sp_velocidad.GetIncrement(), 5)
-        self.assertEqual(dialogo.pagina_voz.sp_volumen.GetIncrement(), 5)
-        self.assertEqual(dialogo.pagina_voz.sp_tono.GetIncrement(), 5)
+        for control in (dialogo.pagina_voz.sp_velocidad,
+                        dialogo.pagina_voz.sp_volumen,
+                        dialogo.pagina_voz.sp_tono):
+            self.assertIsInstance(control, gui.wx.Slider)
+            self.assertEqual(control.GetLineSize(), 5)
 
     def test_pagina_musica_despues_de_reproductor_con_sus_controles_en_orden(self):
         dialogo = self.dialogo
