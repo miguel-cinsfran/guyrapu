@@ -507,28 +507,34 @@ class TestVueltaALaLista(unittest.TestCase):
 
 
 HABLA_VIEJA = "Preferencias diálogo Categorías lista General 1 de 18"
+HABLA_TRAS_HUECO = "Buscar voz edición Alt+ b en blanco 25 voces"
 
 
 class ClienteConHablaInicial(ClienteFalso):
-    """Suelta habla vieja en las primeras consultas, como NVDA al abrir."""
+    """Suelta habla vieja en las consultas dadas, como NVDA al abrir."""
 
-    def __init__(self, nombres, siempre=False):
+    def __init__(self, nombres, habla=None, siempre=False):
         super().__init__(nombres)
         self.eventos = []
         self.consultas = 0
+        self.consultas_primero = None
         self.siempre = siempre
+        self.habla = dict(habla or {1: HABLA_VIEJA, 2: HABLA_VIEJA})
 
     def marca(self):
         return len(self.eventos)
 
     def desde(self, indice):
         self.consultas += 1
-        if self.siempre or self.consultas <= 2:
-            self.eventos.append({"tipo": "habla", "texto": HABLA_VIEJA,
+        texto = HABLA_VIEJA if self.siempre else self.habla.get(self.consultas)
+        if texto:
+            self.eventos.append({"tipo": "habla", "texto": texto,
                                  "hora": 0.1})
         return list(self.eventos[int(indice):])
 
     def paso(self, tecla, silencio_ms=400, tope_ms=10000):
+        if self.consultas_primero is None:
+            self.consultas_primero = self.consultas
         antes = self.marca()
         datos = super().paso(tecla, silencio_ms, tope_ms)
         texto = datos["eventos"][0]["texto"]
@@ -556,6 +562,18 @@ class TestEsperaDeSilencio(unittest.TestCase):
                                    dormir=lambda _segundos: None)
         self.assertGreaterEqual(cliente.consultas, 40)
         self.assertEqual(datos["pasos"][0]["fase"], "ida")
+
+    def test_un_hueco_breve_no_termina_la_espera(self):
+        nombres = ["Uno", "Dos"]
+        cliente = ClienteConHablaInicial(
+            nombres, habla={1: HABLA_VIEJA, 3: HABLA_TRAS_HUECO})
+        datos = recorrido.conducir(cliente, ventana(nombres),
+                                   dormir=lambda _segundos: None)
+        self.assertGreater(cliente.consultas_primero, 2)
+        habla = " ".join(str(evento.get("texto") or "")
+                         for paso in datos["pasos"]
+                         for evento in paso["habla"])
+        self.assertNotIn(HABLA_TRAS_HUECO, habla)
 
 
 class TestPadreEnTranscripcion(unittest.TestCase):
