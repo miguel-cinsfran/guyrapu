@@ -140,7 +140,7 @@ class DialogoDisparador(wx.Dialog):
             panel, _("Nom&bre del regalo:"),
             _("Vacío para cualquier regalo. Escribe el nombre como lo lee "
               "Guyrapu"))
-        formulario.agregar_fila(vs, rotulo, self.txt_regalo, hueco=0)
+        formulario.agregar_fila(vs, rotulo, self.txt_regalo)
 
     def _crear_que(self, panel, columna):
         vs = formulario.agregar_seccion(columna, panel, _(SECCION_QUE))
@@ -178,8 +178,7 @@ class DialogoDisparador(wx.Dialog):
         rotulo = fila_label(panel, _("Espera por pers&ona (segundos):"))
         self.sp_persona = self._contador(
             panel, _("Espera por pers&ona (segundos):"), 0, 3600, 30)
-        formulario.agregar_fila(
-            vs, rotulo, self.sp_persona, numerico=True, hueco=0)
+        formulario.agregar_fila(vs, rotulo, self.sp_persona, numerico=True)
 
     def _nombres_de_medios(self):
         return [str(medio.get("nombre", "")) for medio in self._medios]
@@ -336,7 +335,7 @@ class DialogoNombre(wx.Dialog):
             panel, name=nombre_de_etiqueta(_("&Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
         self.txt_nombre.SetValue(nombre)
-        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre)
         self.btn_aceptar = wx.Button(
             panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_cancelar = wx.Button(

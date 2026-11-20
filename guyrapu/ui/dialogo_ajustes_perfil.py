@@ -127,7 +127,7 @@ class DialogoAjustesPerfil(wx.Dialog):
             style=wx.RA_SPECIFY_ROWS, name=_("Orientación"))
         nombre_accesible(self.rad_orientacion, _("Orientación"))
         self.rad_orientacion.SetSelection(1 if vertical else 0)
-        formulario.agregar_fila(caja, None, self.rad_orientacion, hueco=0)
+        formulario.agregar_fila(caja, None, self.rad_orientacion)
         self.cho_lienzo = self._eleccion(caja, zona, _("&Lienzo:"))
         self.cho_salida = self._eleccion(caja, zona, _("&Salida:"))
         self._poner_resoluciones(vertical, (ajustes.ancho_lienzo,

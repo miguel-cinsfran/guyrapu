@@ -116,8 +116,7 @@ class DialogoEleccion(DialogoBase):
             self.aviso_vacio = wx.StaticText(self._panel, label=self._vacio)
             self.aviso_vacio.Wrap(
                 formulario.ANCHO_MINIMO - 2 * formulario.MARGEN)
-            formulario.agregar_fila(
-                self.vertical, None, self.aviso_vacio, hueco=0)
+            formulario.agregar_fila(self.vertical, None, self.aviso_vacio)
 
     def _enfocar(self):
         if self._opciones:
@@ -181,8 +180,7 @@ class DialogoJuego(DialogoBase):
         self.aviso_vacio = wx.StaticText(self._panel, label=self._vacio)
         self.aviso_vacio.Wrap(
             formulario.ANCHO_MINIMO - 2 * formulario.MARGEN)
-        formulario.agregar_fila(
-            self.vertical, None, self.aviso_vacio, hueco=0)
+        formulario.agregar_fila(self.vertical, None, self.aviso_vacio)
         self._mostrar_ventana(self._modo == "window")
 
     def _enfocar(self):

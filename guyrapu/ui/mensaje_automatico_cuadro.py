@@ -86,7 +86,7 @@ class DialogoMensaje(wx.Dialog):
             formulario.agregar_fila(vs, rotulo, control, numerico=True)
         self.chk_activo = wx.CheckBox(
             panel, label=_("Acti&vo"), name=nombre_de_etiqueta(_("Activo")))
-        formulario.agregar_casillas(vs, (self.chk_activo,), hueco=0)
+        formulario.agregar_casillas(vs, (self.chk_activo,))
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(mensaje)
@@ -189,7 +189,7 @@ class DialogoNombre(wx.Dialog):
             panel, name=nombre_de_etiqueta(_("Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
         self.txt_nombre.SetValue(nombre)
-        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre)
         self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_cancelar = wx.Button(
             panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))

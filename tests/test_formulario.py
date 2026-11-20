@@ -65,7 +65,7 @@ class TestMedidas(BaseMedidas):
 
     def test_margen_y_huecos_de_una_fila_con_real_geometria(self):
         rotulo, campo = self._fila("&Uno:", wx.TextCtrl(self.panel))
-        _, segundo = self._fila("&Dos:", wx.TextCtrl(self.panel), hueco=0)
+        _, segundo = self._fila("&Dos:", wx.TextCtrl(self.panel))
         aceptar = wx.Button(self.panel, wx.ID_OK, "&Aceptar")
         cancelar = wx.Button(self.panel, wx.ID_CANCEL, "&Cancelar")
         formulario.agregar_pie(self.contenido, [aceptar, cancelar])
@@ -84,7 +84,7 @@ class TestMedidas(BaseMedidas):
     def test_el_titulo_de_seccion_separa_veinte_pixeles(self):
         columna = wx.BoxSizer(wx.VERTICAL)
         _, anterior = self._fila("&Uno:", wx.TextCtrl(self.panel),
-                                 sizer=columna, hueco=0)
+                                 sizer=columna)
         formulario.agregar_seccion(columna, self.panel, "Sección")
         self.contenido.Add(columna, 0, wx.EXPAND)
         self._medir()
@@ -96,7 +96,7 @@ class TestMedidas(BaseMedidas):
         columna = wx.BoxSizer(wx.VERTICAL)
         seccion = formulario.agregar_seccion(columna, self.panel, "Sección")
         rotulo, campo = self._fila("&Uno:", wx.TextCtrl(self.panel),
-                                   sizer=seccion, hueco=0)
+                                   sizer=seccion)
         self.contenido.Add(columna, 0, wx.EXPAND)
         self._medir()
         caja = self._caja()
@@ -121,14 +121,14 @@ class TestMedidas(BaseMedidas):
 
     def test_el_campo_numerico_no_se_estira(self):
         _, numero = self._fila("&Número:", wx.SpinCtrl(
-            self.panel, min=0, max=100, initial=1), numerico=True, hueco=0)
+            self.panel, min=0, max=100, initial=1), numerico=True)
         self._medir()
         self.assertEqual(numero.GetSize().width, 96)
 
     def test_las_casillas_se_separan_ocho_pixeles(self):
         una = wx.CheckBox(self.panel, label="Una")
         otra = wx.CheckBox(self.panel, label="Otra")
-        formulario.agregar_casillas(self.contenido, (una, otra), hueco=0)
+        formulario.agregar_casillas(self.contenido, (una, otra))
         self._medir()
         self.assertEqual(otra.GetPosition().x - (
             una.GetPosition().x + una.GetSize().width), 8)
@@ -150,6 +150,54 @@ class TestMedidas(BaseMedidas):
         self._medir()
         self.assertGreaterEqual(self.cuadro.GetSize().width,
                                 formulario.ANCHO_MINIMO)
+
+    def test_el_hueco_entre_dos_filas_va_arriba_de_la_segunda(self):
+        _, primero = self._fila("&Uno:", wx.TextCtrl(self.panel))
+        rotulo, _ = self._fila("&Dos:", wx.TextCtrl(self.panel))
+        self._medir()
+        self.assertEqual(
+            rotulo.GetPosition().y - (
+                primero.GetPosition().y + primero.GetSize().height),
+            formulario.CONTROL_A_ETIQUETA)
+
+    def test_la_primera_fila_de_un_sizer_vacio_no_tiene_hueco_arriba(self):
+        rotulo, _ = self._fila("&Uno:", wx.TextCtrl(self.panel))
+        self._medir()
+        self.assertEqual(rotulo.GetPosition().y, formulario.MARGEN)
+
+    def test_la_nota_separa_del_control_de_arriba(self):
+        _, control = self._fila("&Uno:", wx.TextCtrl(self.panel))
+        nota = wx.StaticText(self.panel, label="Ayuda")
+        formulario.agregar_nota(self.contenido, nota)
+        self._medir()
+        self.assertEqual(
+            nota.GetPosition().y - (
+                control.GetPosition().y + control.GetSize().height),
+            formulario.ETIQUETA_A_CONTROL)
+        self.assertGreaterEqual(nota.GetSize().width,
+                                self.panel.GetClientSize().width
+                                - 2 * formulario.MARGEN)
+
+    def test_el_contenido_de_la_seccion_tambien_separa_abajo(self):
+        columna = wx.BoxSizer(wx.VERTICAL)
+        seccion = formulario.agregar_seccion(columna, self.panel, "Sección")
+        _, campo = self._fila("&Uno:", wx.TextCtrl(self.panel), sizer=seccion)
+        self.contenido.Add(columna, 0, wx.EXPAND)
+        self._medir()
+        interior = columna.GetChildren()[0].GetSizer().GetChildren()[0]
+        self.assertEqual(interior.GetFlag() & wx.BOTTOM, wx.BOTTOM)
+        self.assertEqual(interior.GetBorder(), formulario.MARGEN_DE_SECCION)
+        caja = self._caja()
+        self.assertGreaterEqual(
+            caja.GetPosition().y + caja.GetSize().height - (
+                campo.GetPosition().y + campo.GetSize().height),
+            formulario.MARGEN_DE_SECCION)
+
+    def test_el_marco_no_pasa_del_alto_maximo(self):
+        self.contenido.Add((-1, 1000), 0, wx.EXPAND)
+        self._medir()
+        self.assertLessEqual(self.cuadro.GetSize().height,
+                             formulario.ALTO_MAXIMO)
 
 
 class BaseCuadros(unittest.TestCase):

@@ -26,7 +26,7 @@ def _rotulo(padre, contenido, texto, crear_control):
     control = crear_control()
     control.SetName(nombre_de_etiqueta(texto))
     nombre_accesible(control, control.GetName())
-    formulario.agregar_fila(contenido, rotulo, control, hueco=0)
+    formulario.agregar_fila(contenido, rotulo, control)
     return rotulo, control
 
 
@@ -114,7 +114,7 @@ class DialogoPerfilRestream(wx.Dialog):
             self._textos[identificador] = texto
             casillas.append(casilla)
         if casillas:
-            formulario.agregar_casillas(interior, casillas, hueco=0)
+            formulario.agregar_casillas(interior, casillas)
         else:
             texto = (_("Sin cuenta de Restream. Conéctala en la pestaña "
                        "Cuenta.") if self._sin_cuenta else _(
@@ -150,7 +150,7 @@ class DialogoPerfilRestream(wx.Dialog):
                                   if perfil is not None else False)
         self.chk_youtube.Bind(
             wx.EVT_CHECKBOX, lambda evento: self._actualizar_chat())
-        formulario.agregar_casillas(contenido, [self.chk_youtube], hueco=0)
+        formulario.agregar_casillas(contenido, [self.chk_youtube])
 
         self._rotulo_chat = wx.StaticText(
             panel, label=_("&Chat que lee Guyrapu:"))
@@ -161,8 +161,7 @@ class DialogoPerfilRestream(wx.Dialog):
         nombre_accesible(self.cho_chat, _("Chat que lee Guyrapu"))
         chat = perfil.chat if perfil is not None else "ambos"
         self.cho_chat.SetSelection({"ambos": 0, "tiktok": 2}.get(chat, 1))
-        formulario.agregar_fila(contenido, self._rotulo_chat, self.cho_chat,
-                                hueco=0)
+        formulario.agregar_fila(contenido, self._rotulo_chat, self.cho_chat)
         self._actualizar_chat()
 
     def _actualizar_chat(self):

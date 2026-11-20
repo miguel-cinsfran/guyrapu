@@ -75,11 +75,9 @@ class DialogoComando(wx.Dialog):
         formulario.agregar_fila(vs, rotulo, self.txt_alias)
         rotulo = fila_label(panel, _("&Respuesta:"))
         self.txt_respuesta = self._campo(panel, _("&Respuesta:"))
-        formulario.agregar_fila(
-            vs, rotulo, self.txt_respuesta,
-            hueco=formulario.ETIQUETA_A_CONTROL)
+        formulario.agregar_fila(vs, rotulo, self.txt_respuesta)
         self.ayuda = wx.StaticText(panel, label=_(AYUDA_VARIABLES))
-        formulario.agregar_fila(vs, None, self.ayuda)
+        formulario.agregar_nota(vs, self.ayuda)
         rotulo = fila_label(panel, _("Dónde &sale:"))
         self.cho_destino = wx.Choice(
             panel, choices=_destinos(),
@@ -121,8 +119,7 @@ class DialogoComando(wx.Dialog):
         self.chk_en_lista = wx.CheckBox(
             panel, label=_("&Mostrar en la lista de comandos"),
             name=nombre_de_etiqueta(_("&Mostrar en la lista de comandos")))
-        formulario.agregar_casillas(
-            vs, (self.chk_activo, self.chk_en_lista), hueco=0)
+        formulario.agregar_casillas(vs, (self.chk_activo, self.chk_en_lista))
 
     def _campo(self, panel, etiqueta):
         campo = wx.TextCtrl(panel, name=nombre_de_etiqueta(etiqueta))
@@ -238,7 +235,7 @@ class DialogoPalabra(wx.Dialog):
             panel, name=nombre_de_etiqueta(_("&Palabra:")))
         nombre_accesible(self.txt_palabra, self.txt_palabra.GetName())
         self.txt_palabra.SetValue(palabra)
-        formulario.agregar_fila(caja, rotulo, self.txt_palabra, hueco=0)
+        formulario.agregar_fila(caja, rotulo, self.txt_palabra)
         self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_cancelar = wx.Button(
             panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))

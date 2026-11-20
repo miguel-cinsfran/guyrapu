@@ -63,13 +63,13 @@ class DialogoActualizacion(wx.Dialog):
             (380, 3 * self.txt_estado.GetCharHeight() + 12))
         # Traductores: nombre del cuadro de estado.
         nombre_accesible(self.txt_estado, _("Estado"))
-        formulario.agregar_fila(vs, None, self.txt_estado, hueco=0)
+        formulario.agregar_fila(vs, None, self.txt_estado)
 
         # Traductores: nombre de la barra de progreso.
         self.gauge = wx.Gauge(panel, range=100, name=_("Progreso"))
         # Traductores: nombre de la barra de progreso.
         nombre_accesible(self.gauge, _("Progreso"))
-        formulario.agregar_fila(vs, None, self.gauge, hueco=0)
+        formulario.agregar_fila(vs, None, self.gauge)
         self._espera = EsperaSonora(self)
 
     def _crear_novedades(self, panel, vs) -> None:
@@ -88,7 +88,7 @@ class DialogoActualizacion(wx.Dialog):
         self.txt_notas.SetMinSize((ancho60, alto_notas))
         # Traductores: nombre del cuadro de novedades.
         nombre_accesible(self.txt_notas, _("Novedades"))
-        formulario.agregar_fila(vs, None, self.txt_notas, hueco=0)
+        formulario.agregar_fila(vs, None, self.txt_notas)
         self.txt_notas.Hide()
 
     def _crear_botones(self, panel, vs) -> None:

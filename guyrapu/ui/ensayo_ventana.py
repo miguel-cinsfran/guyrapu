@@ -81,8 +81,7 @@ class VentanaEnsayo(wx.Dialog):
                       opciones=[_("Mensaje"), _("Super Chat"), _("Regalo")])
         self.cho_tipo.SetSelection(0)
         self._agregar(vs, panel, _("Canti&dad:"), "txt_cantidad", wx.TextCtrl)
-        self._agregar(vs, panel, _("M&ensaje:"), "txt_mensaje", wx.TextCtrl,
-                      hueco=0)
+        self._agregar(vs, panel, _("M&ensaje:"), "txt_mensaje", wx.TextCtrl)
         self.btn_enviar = self._boton(panel, _("En&viar"))
         self.btn_enviar.SetDefault()
         self.btn_enviar.Bind(wx.EVT_BUTTON, self._enviar)
@@ -91,14 +90,13 @@ class VentanaEnsayo(wx.Dialog):
         formulario.agregar_pie(vs, [self.btn_enviar, self.btn_cerrar])
         formulario.ajustar_tamano(self, panel, vs)
 
-    def _agregar(self, vs, panel, etiqueta, nombre, clase, opciones=(),
-                 hueco=formulario.CONTROL_A_ETIQUETA):
+    def _agregar(self, vs, panel, etiqueta, nombre, clase, opciones=()):
         rotulo = fila_label(panel, etiqueta)
         control = clase(panel, choices=list(opciones), name=nombre) \
             if opciones else clase(panel, name=nombre)
         nombre_accesible(control, nombre_de_etiqueta(etiqueta))
         setattr(self, nombre, control)
-        formulario.agregar_fila(vs, rotulo, control, hueco=hueco)
+        formulario.agregar_fila(vs, rotulo, control)
 
     def _boton(self, panel, etiqueta):
         boton = wx.Button(panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))

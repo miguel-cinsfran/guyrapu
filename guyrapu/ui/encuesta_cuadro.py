@@ -89,7 +89,7 @@ class DialogoEncuesta(wx.Dialog):
                 self._usuario, self._por_tipo, "encuesta"),
             name=nombre_de_etiqueta(_("&Estilo:")))
         nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
-        formulario.agregar_fila(vs, rotulo, self.cho_estilo, hueco=0)
+        formulario.agregar_fila(vs, rotulo, self.cho_estilo)
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)

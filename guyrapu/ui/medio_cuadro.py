@@ -63,13 +63,12 @@ class DialogoMedio(wx.Dialog):
         self.txt_duracion = self._campo_lectura(panel, "D&uración:")
         larga = (self._datos["tipo"] in ("sonido", "video")
                  and self._datos["duracion"] > 15)
-        hueco = (formulario.CONTROL_A_ETIQUETA if larga else 0)
-        formulario.agregar_fila(vs, rotulo, self.txt_duracion, hueco=hueco)
+        formulario.agregar_fila(vs, rotulo, self.txt_duracion)
         self._cargar()
         if larga:
             self.aviso = wx.StaticText(panel, label=_(AVISO_LARGO))
             self.aviso.Wrap(formulario.ANCHO_MINIMO - 2 * formulario.MARGEN)
-            formulario.agregar_fila(vs, None, self.aviso, hueco=0)
+            formulario.agregar_nota(vs, self.aviso)
         self.btn_aceptar = wx.Button(
             panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_cancelar = wx.Button(

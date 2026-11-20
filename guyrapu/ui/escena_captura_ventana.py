@@ -43,7 +43,7 @@ class DialogoCapturarVentana(wx.Dialog):
             self.aviso_vacio = wx.StaticText(self._panel, label=self._vacio)
             self.aviso_vacio.Wrap(
                 formulario.ANCHO_MINIMO - 2 * formulario.MARGEN)
-            formulario.agregar_fila(vertical, None, self.aviso_vacio, hueco=0)
+            formulario.agregar_fila(vertical, None, self.aviso_vacio)
         self._crear_botones(self._panel)
         formulario.agregar_pie(
             vertical, [self.btn_aceptar, self.btn_cancelar])

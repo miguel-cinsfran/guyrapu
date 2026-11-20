@@ -103,9 +103,9 @@ class DialogoPruebaEquipo(wx.Dialog):
             nombre_accesible(self.chk_vertical, self.chk_vertical.GetName())
             detalle += " " + _(DETALLE_VERTICAL)
         self.txt_detalle.SetValue(detalle)
-        formulario.agregar_fila(caja, None, self.txt_detalle, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_detalle)
         if self.chk_vertical is not None:
-            formulario.agregar_casillas(caja, (self.chk_vertical,), hueco=0)
+            formulario.agregar_casillas(caja, (self.chk_vertical,))
         self.btn_empezar = _boton(panel, _("&Iniciar"), self._empezar)
         self.btn_cancelar = wx.Button(
             panel, wx.ID_CANCEL, _("&Cancelar"),
@@ -145,7 +145,7 @@ class DialogoResultadoPrueba(wx.Dialog):
         nombre_accesible(self.txt_resultado, _("Resultado de la prueba"))
         self.txt_resultado.SetMinSize((-1, 120))
         self.txt_resultado.SetValue(texto_resultado(resultado))
-        formulario.agregar_fila(caja, None, self.txt_resultado, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_resultado)
         if resultado.aguantaron is None or resultado.aguanta_tal_cual:
             self.btn_cerrar = _boton(panel, _("&Cerrar"), self._cerrar)
             botones = [self.btn_cerrar]

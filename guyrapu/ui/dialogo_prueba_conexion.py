@@ -81,7 +81,7 @@ class DialogoPruebaConexion(wx.Dialog):
             "con {tasa} kbps. La prueba tarda como mucho {segundos} "
             "segundos.").format(perfil=perfil, tasa=bitrate,
                                 segundos=segundos_maximos))
-        formulario.agregar_fila(caja, None, self.txt_detalle, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_detalle)
         self.btn_empezar = _boton(panel, _("&Iniciar"), self._empezar)
         self.btn_cancelar = wx.Button(
             panel, wx.ID_CANCEL, _("&Cancelar"),
@@ -117,7 +117,7 @@ class DialogoResultadoPruebaConexion(wx.Dialog):
         nombre_accesible(self.txt_resultado, _("Resultado de la prueba"))
         self.txt_resultado.SetMinSize((-1, 120))
         self.txt_resultado.SetValue(texto_resultado(resultado))
-        formulario.agregar_fila(caja, None, self.txt_resultado, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_resultado)
         if resultado.puede_guardar:
             self.btn_guardar = _boton(panel, _("&Guardar en el perfil"),
                                       self._al_guardar)

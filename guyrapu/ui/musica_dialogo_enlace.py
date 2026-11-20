@@ -48,7 +48,7 @@ class DialogoEnlace(wx.Dialog):
         rotulo = wx.StaticText(panel, label=_("Enlace &de YouTube:"))
         self.txt_enlace = wx.TextCtrl(panel, name=_("Enlace de YouTube"))
         nombre_accesible(self.txt_enlace, _("Enlace de YouTube"))
-        formulario.agregar_fila(vs, rotulo, self.txt_enlace, hueco=0)
+        formulario.agregar_fila(vs, rotulo, self.txt_enlace)
 
         self.btn_ahora = self._boton(
             panel, _("Reproducir &ahora"), _("Reproducir ahora"))

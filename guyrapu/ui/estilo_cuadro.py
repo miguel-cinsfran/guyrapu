@@ -115,17 +115,15 @@ class DialogoEstilo(wx.Dialog):
             self._base.get("color_fondo", ""))
         self.cho_color_fondo = self._color_fondo.control
         self.sp_opacidad = self._fila_contador(
-            columna, panel, _("O&pacidad del fondo:"), 0, 100, 0, hueco=0)
+            columna, panel, _("O&pacidad del fondo:"), 0, 100, 0)
         return columna
 
-    def _fila_contador(self, columna, panel, rotulo, minimo, maximo, inicial,
-                       hueco=formulario.CONTROL_A_ETIQUETA):
+    def _fila_contador(self, columna, panel, rotulo, minimo, maximo, inicial):
         etiqueta = fila_label(panel, rotulo)
         control = ContadorAccesible(
             panel, min=minimo, max=maximo, initial=inicial,
             name=nombre_de_etiqueta(rotulo))
-        formulario.agregar_fila(columna, etiqueta, control, numerico=True,
-                                hueco=hueco)
+        formulario.agregar_fila(columna, etiqueta, control, numerico=True)
         return control
 
     def _fila_eleccion(self, columna, panel, rotulo, opciones):
@@ -168,7 +166,7 @@ class DialogoEstilo(wx.Dialog):
             panel, label=_("So&mbra"),
             name=nombre_de_etiqueta(_("Sombra")))
         formulario.agregar_casillas(
-            columna, (self.chk_esquinas, self.chk_sombra), hueco=0)
+            columna, (self.chk_esquinas, self.chk_sombra))
         return columna
 
     def _campo_color(self, columna, panel, rotulo, codigo):
@@ -277,7 +275,7 @@ class DialogoNombre(wx.Dialog):
             panel, name=nombre_de_etiqueta(_("Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
         self.txt_nombre.SetValue(nombre)
-        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre)
         self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"),
                                      name=_("Aceptar"))
         self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("&Cancelar"),

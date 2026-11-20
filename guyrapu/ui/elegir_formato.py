@@ -53,7 +53,7 @@ class DialogoFormato(wx.Dialog):
             name=_("Formatos"))
         self.lista.SetMinSize((-1, 4 * self.lista.GetCharHeight() + 12))
         nombre_accesible(self.lista, _("Formatos"))
-        formulario.agregar_fila(vs, rotulo, self.lista, hueco=0)
+        formulario.agregar_fila(vs, rotulo, self.lista)
 
         self.btn_descargar = wx.Button(
             panel, wx.ID_OK, _("&Descargar"), name=_("Descargar"))

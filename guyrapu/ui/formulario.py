@@ -28,19 +28,25 @@ ANCHO_MINIMO_BOTON = 96
 ALTO_MAXIMO = 728
 
 
-def agregar_fila(sizer, rotulo, control, *, expandir=True,
-                 numerico=False, hueco=CONTROL_A_ETIQUETA):
+def agregar_fila(sizer, rotulo, control, *, expandir=True, numerico=False):
     """Agrega el rótulo y su control, ya creados en ese orden, con el ritmo común."""
+    alto = CONTROL_A_ETIQUETA if sizer.GetChildren() else 0
     if rotulo is not None:
-        sizer.Add(rotulo, 0, wx.BOTTOM, ETIQUETA_A_CONTROL)
+        sizer.Add(rotulo, 0, wx.TOP, alto)
     if numerico:
         control.SetMinSize((ANCHO_NUMERICO, -1))
-        banderas = wx.BOTTOM
+        banderas = wx.TOP
     elif expandir:
-        banderas = wx.EXPAND | wx.BOTTOM
+        banderas = wx.EXPAND | wx.TOP
     else:
-        banderas = wx.BOTTOM
-    sizer.Add(control, 0, banderas, hueco)
+        banderas = wx.TOP
+    borde = alto if rotulo is None else ETIQUETA_A_CONTROL
+    sizer.Add(control, 0, banderas, borde)
+
+
+def agregar_nota(sizer, nota):
+    """Agrega el texto que acompaña al control de arriba, a lo ancho."""
+    sizer.Add(nota, 0, wx.EXPAND | wx.TOP, ETIQUETA_A_CONTROL)
 
 
 def agregar_seccion_con_caja(columna, panel, titulo):
@@ -51,7 +57,8 @@ def agregar_seccion_con_caja(columna, panel, titulo):
     columna.Add(sizer, 0, wx.EXPAND | wx.TOP, alto)
     interior = wx.BoxSizer(wx.VERTICAL)
     sizer.Add(interior, 0,
-              wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, MARGEN_DE_SECCION)
+              wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT | wx.BOTTOM,
+              MARGEN_DE_SECCION)
     return interior, sizer
 
 
@@ -61,13 +68,14 @@ def agregar_seccion(columna, panel, titulo):
     return interior
 
 
-def agregar_casillas(sizer, casillas, *, hueco=CONTROL_A_ETIQUETA):
+def agregar_casillas(sizer, casillas):
     """Casillas seguidas, en dos columnas y con el hueco común."""
     columnas = 1 if len(casillas) == 1 else 2
     grilla = wx.GridSizer(0, columnas, ENTRE_CASILLAS, ENTRE_CASILLAS)
     for casilla in casillas:
         grilla.Add(casilla, 0, wx.EXPAND)
-    sizer.Add(grilla, 0, wx.EXPAND | wx.BOTTOM, hueco)
+    alto = CONTROL_A_ETIQUETA if sizer.GetChildren() else 0
+    sizer.Add(grilla, 0, wx.EXPAND | wx.TOP, alto)
 
 
 def agregar_pie(contenido, botones):
@@ -105,5 +113,6 @@ def ajustar_tamano(cuadro, panel, contenido):
     ancho = max(ANCHO_MINIMO, ancho)
     cuadro.SetMinSize((ancho, -1))
     cuadro.SetMaxSize((-1, ALTO_MAXIMO))
-    cuadro.SetClientSize((ancho, min(alto, ALTO_MAXIMO)))
+    borde = cuadro.GetSize().height - cuadro.GetClientSize().height
+    cuadro.SetClientSize((ancho, min(alto, ALTO_MAXIMO - borde)))
     cuadro.Layout()

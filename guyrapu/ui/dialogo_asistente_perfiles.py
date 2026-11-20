@@ -66,7 +66,7 @@ class DialogoAsistentePerfiles(wx.Dialog):
         nombre_accesible(self.txt_explicacion, self.txt_explicacion.GetName())
         self.txt_explicacion.SetValue(_(EXPLICACION))
         self.txt_explicacion.SetMinSize((-1, 90))
-        formulario.agregar_fila(caja, None, self.txt_explicacion, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_explicacion)
         self.casillas = {}
         casillas = []
         for clave, rotulo, marcada in CASILLAS:
@@ -134,7 +134,7 @@ class DialogoResumenAsistente(wx.Dialog):
         nombre_accesible(self.txt_resumen, _("Resumen de la preparación"))
         self.txt_resumen.SetMinSize((-1, 160))
         self.txt_resumen.SetValue(texto)
-        formulario.agregar_fila(caja, None, self.txt_resumen, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_resumen)
         self.btn_cerrar = _boton(panel, _("&Cerrar"), self._cerrar)
         self.btn_cerrar.SetDefault()
         formulario.agregar_pie(caja, [self.btn_cerrar])

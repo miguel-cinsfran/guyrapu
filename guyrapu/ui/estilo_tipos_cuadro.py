@@ -37,7 +37,7 @@ class DialogoTipos(wx.Dialog):
             casilla = wx.CheckBox(panel, label=_(nombre), name=_(nombre))
             casilla.SetValue(tipo in marcados)
             self._casillas[tipo] = casilla
-        formulario.agregar_casillas(vs, self._casillas.values(), hueco=0)
+        formulario.agregar_casillas(vs, self._casillas.values())
         self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"),
                                      name=_("Aceptar"))
         self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("&Cancelar"),

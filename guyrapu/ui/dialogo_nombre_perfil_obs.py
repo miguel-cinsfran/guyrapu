@@ -28,7 +28,7 @@ class DialogoNombrePerfil(wx.Dialog):
         self.txt_nombre = wx.TextCtrl(
             panel, name=nombre_de_etiqueta(_("&Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
-        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre)
         if con_orientacion:
             self.rad_orientacion = wx.RadioBox(
                 panel, label=_("Orientación"),
@@ -36,10 +36,9 @@ class DialogoNombrePerfil(wx.Dialog):
                 style=wx.RA_SPECIFY_ROWS, name=_("Orientación"))
             nombre_accesible(self.rad_orientacion, _("Orientación"))
             self.rad_orientacion.SetSelection(0)
-            formulario.agregar_fila(caja, None, self.rad_orientacion,
-                                    hueco=0)
+            formulario.agregar_fila(caja, None, self.rad_orientacion)
         self.txt_error = wx.StaticText(panel, label="")
-        formulario.agregar_fila(caja, None, self.txt_error, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_error)
         self.btn_aceptar = wx.Button(
             panel, wx.ID_OK, accion or _("C&rear"),
             name=nombre_de_etiqueta(accion or _("C&rear")))

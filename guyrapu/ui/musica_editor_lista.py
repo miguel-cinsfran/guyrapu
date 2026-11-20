@@ -106,7 +106,7 @@ class DialogoEditorLista(wx.Dialog):
             panel, _("Canciones de la lista"), 120)
         self._lista_acciones = ListaConAcciones(
             self.lb_lista, self._acciones_lista(), _(TEXTO_LISTA_VACIA))
-        formulario.agregar_fila(vs, rotulo, self.lb_lista, hueco=0)
+        formulario.agregar_fila(vs, rotulo, self.lb_lista)
 
     def _acciones_lista(self):
         """Las entradas del menú de la lista propia, con su tecla."""

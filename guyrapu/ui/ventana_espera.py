@@ -50,7 +50,7 @@ class VentanaEspera(wx.Dialog):
 
     def _armar(self):
         caja = wx.BoxSizer(wx.VERTICAL)
-        formulario.agregar_fila(caja, None, self.txt_estado, hueco=0)
+        formulario.agregar_fila(caja, None, self.txt_estado)
         if self._btn is not None:
             formulario.agregar_pie(caja, [self._btn])
         formulario.ajustar_tamano(self, self._panel, caja)

@@ -31,7 +31,7 @@ class PanelRedactar(wx.Panel):
         # Traductores: botón para enviar el mensaje.
         self.boton = wx.Button(self, label=_("E&nviar"), name=_("Enviar mensaje al chat"))
         if en_dialogo:
-            formulario.agregar_fila(vs, self.etiqueta, self.texto, hueco=0)
+            formulario.agregar_fila(vs, self.etiqueta, self.texto)
             self.btn_cancelar = wx.Button(
                 self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
             formulario.agregar_pie(vs, [self.boton, self.btn_cancelar])
