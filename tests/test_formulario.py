@@ -43,6 +43,10 @@ class BaseMedidas(unittest.TestCase):
                                 **opciones)
         return rotulo, control
 
+    def _caja(self):
+        return next(hijo for hijo in self.panel.GetChildren()
+                    if isinstance(hijo, wx.StaticBox))
+
 
 class TestMedidas(BaseMedidas):
 
@@ -81,12 +85,31 @@ class TestMedidas(BaseMedidas):
         columna = wx.BoxSizer(wx.VERTICAL)
         _, anterior = self._fila("&Uno:", wx.TextCtrl(self.panel),
                                  sizer=columna, hueco=0)
-        seccion = formulario.agregar_seccion(columna, self.panel, "Sección")
+        formulario.agregar_seccion(columna, self.panel, "Sección")
         self.contenido.Add(columna, 0, wx.EXPAND)
         self._medir()
-        caja = seccion.GetStaticBox()
+        caja = self._caja()
         self.assertEqual(caja.GetPosition().y - (
             anterior.GetPosition().y + anterior.GetSize().height), 20)
+
+    def test_el_contenido_de_la_seccion_separa_ocho_pixeles_del_borde(self):
+        columna = wx.BoxSizer(wx.VERTICAL)
+        seccion = formulario.agregar_seccion(columna, self.panel, "Sección")
+        rotulo, campo = self._fila("&Uno:", wx.TextCtrl(self.panel),
+                                   sizer=seccion, hueco=0)
+        self.contenido.Add(columna, 0, wx.EXPAND)
+        self._medir()
+        caja = self._caja()
+        interior = columna.GetChildren()[0].GetSizer().GetChildren()[0]
+        self.assertEqual(interior.GetBorder(), 8)
+        self.assertEqual(interior.GetFlag() & (wx.TOP | wx.LEFT | wx.RIGHT),
+                         wx.TOP | wx.LEFT | wx.RIGHT)
+        # wx devuelve el par (vertical, horizontal) del borde de la caja.
+        borde = caja.GetBordersForSizer()[1]
+        self.assertEqual(
+            rotulo.GetPosition().x - caja.GetPosition().x - borde, 8)
+        self.assertEqual(caja.GetPosition().x + caja.GetSize().width - borde - (
+            campo.GetPosition().x + campo.GetSize().width), 8)
 
     def test_el_campo_numerico_no_se_estira(self):
         _, numero = self._fila("&Número:", wx.SpinCtrl(

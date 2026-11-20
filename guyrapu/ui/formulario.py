@@ -17,6 +17,7 @@ ANTES_DE_TITULO = 20
 ENTRE_COLUMNAS = 16
 ENTRE_CASILLAS = 8
 ENTRE_BOTONES = 8
+MARGEN_DE_SECCION = 8
 ANTES_DEL_PIE = 16
 
 ANCHO_MINIMO = 440
@@ -43,12 +44,15 @@ def agregar_fila(sizer, rotulo, control, *, expandir=True,
 
 
 def agregar_seccion(columna, panel, titulo):
-    """Agrega una caja de grupo con el título de la app y devuelve su sizer."""
+    """Agrega una caja con el título de la app y devuelve su contenido."""
     caja = wx.StaticBox(panel, label=titulo)
     sizer = wx.StaticBoxSizer(caja, wx.VERTICAL)
     alto = ANTES_DE_TITULO if columna.GetChildren() else 0
     columna.Add(sizer, 0, wx.EXPAND | wx.TOP, alto)
-    return sizer
+    interior = wx.BoxSizer(wx.VERTICAL)
+    sizer.Add(interior, 0,
+              wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, MARGEN_DE_SECCION)
+    return interior
 
 
 def agregar_casillas(sizer, casillas, *, hueco=CONTROL_A_ETIQUETA):
