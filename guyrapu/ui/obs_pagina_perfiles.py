@@ -15,6 +15,7 @@ from guyrapu.core.idioma import _
 from guyrapu.obs import codificadores_obs, obs_cliente, perfiles_obs
 from guyrapu.obs import salidas_audio
 from guyrapu.obs import usos_perfil
+from guyrapu.ui import botonera
 from guyrapu.ui import confirmar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.dialogo_ajustes_perfil import DialogoAjustesPerfil
@@ -51,11 +52,10 @@ class PaginaPerfiles(wx.Panel):
         etiquetas = self._etiquetas()
         self._crear_lista_acciones(etiquetas)
         self._crear_botones(etiquetas)
-        fila = wx.WrapSizer(wx.HORIZONTAL, flags=0)
-        for boton in (self.btn_usar, self.btn_usar_para, self.btn_nuevo,
-                      self.btn_duplicar, self.btn_eliminar, self.btn_editar,
-                      self.btn_preparar):
-            fila.Add(boton, 0, wx.RIGHT | wx.BOTTOM, 6)
+        fila = botonera.armar(self, botones=(
+            self.btn_usar, self.btn_usar_para, self.btn_nuevo,
+            self.btn_duplicar, self.btn_eliminar, self.btn_editar,
+            self.btn_preparar))
         caja.Add(fila, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 6)
         self.SetSizer(caja)
 

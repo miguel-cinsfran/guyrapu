@@ -154,6 +154,9 @@ SUPERFICIES = {
 # Módulos que dibujan interfaz sin escena a propósito: cada uno lleva su
 # motivo como valor y no cuenta como huérfano en `superficies_sin_escenario()`.
 SIN_ESCENARIO: dict[str, str] = {
+    "botonera.py": (
+        "pieza de armado de la fila de botones; la recorren los escenarios "
+        "de las páginas que la usan."),
     "formulario.py": (
         "pieza de armado de los cuadros; no abre ventana y la recorren los "
         "escenarios de los cuadros que la usan."),

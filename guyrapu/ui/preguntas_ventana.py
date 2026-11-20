@@ -12,10 +12,11 @@ import wx
 
 from guyrapu.core import plataformas
 from guyrapu.core.idioma import N_, _
+from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, preguntas_en_vivo
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
-from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
+from guyrapu.ui.preferencias_comun import fila_label
 
 VACIO = N_(
     "No hay preguntas. El público las hace con el comando pregunta y el texto.")
@@ -71,15 +72,7 @@ class PanelPreguntas(wx.Panel):
         self.lista.SetFocus()
 
     def _fila_de_botones(self):
-        fila = wx.WrapSizer(wx.HORIZONTAL, flags=0)
-        for accion in self._acciones:
-            boton = wx.Button(self, label=accion.etiqueta,
-                              name=nombre_de_etiqueta(accion.etiqueta))
-            boton.Bind(wx.EVT_BUTTON,
-                       lambda _evento, clave=accion.clave:
-                       self._lista.ejecutar(clave))
-            fila.Add(boton, 0, wx.RIGHT | wx.BOTTOM, 6)
-        return fila
+        return botonera.armar(self, self._acciones, self._lista)
 
     def _textos(self):
         return [_fila(pregunta) for pregunta in self._preguntas]

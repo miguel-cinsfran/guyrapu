@@ -15,10 +15,11 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, comandos, comandos_guardados
 from guyrapu.interaction import descripcion_comando, paquetes
 from guyrapu.obs import estilos_aviso
+from guyrapu.ui import botonera
 from guyrapu.ui import comando_cuadro, confirmar
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
-from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
+from guyrapu.ui.preferencias_comun import fila_label
 
 VACIO = N_("No hay comandos. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
@@ -71,15 +72,7 @@ class PanelComandos(wx.Panel):
         self.lista.SetFocus()
 
     def _fila_de_botones(self):
-        fila = wx.WrapSizer(wx.HORIZONTAL, flags=0)
-        for accion in self._acciones:
-            boton = wx.Button(self, label=accion.etiqueta,
-                              name=nombre_de_etiqueta(accion.etiqueta))
-            boton.Bind(wx.EVT_BUTTON,
-                       lambda _evento, clave=accion.clave:
-                       self._lista.ejecutar(clave))
-            fila.Add(boton, 0, wx.RIGHT | wx.BOTTOM, 6)
-        return fila
+        return botonera.armar(self, self._acciones, self._lista)
 
     def _textos(self):
         return [descripcion_comando.fila(comandos_guardados.a_comando(comando))

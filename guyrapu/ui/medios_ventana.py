@@ -17,6 +17,7 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import (
     ajustes_interaccion, coleccion, medios, medios_guardados, paquetes)
 from guyrapu.music import consultas_vlc
+from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, medio_cuadro, medios_medicion
 from guyrapu.ui.accesibilidad import (
     ContadorAccesible, anunciar, nombre_accesible)
@@ -107,15 +108,7 @@ class PanelMedios(wx.Panel):
         self.lista.SetFocus()
 
     def _fila_de_botones(self):
-        fila = wx.WrapSizer(wx.HORIZONTAL, flags=0)
-        for accion in self._acciones:
-            boton = wx.Button(self, label=accion.etiqueta,
-                              name=nombre_de_etiqueta(accion.etiqueta))
-            boton.Bind(wx.EVT_BUTTON,
-                       lambda _evento, clave=accion.clave:
-                       self._lista.ejecutar(clave))
-            fila.Add(boton, 0, wx.RIGHT | wx.BOTTOM, 6)
-        return fila
+        return botonera.armar(self, self._acciones, self._lista)
 
     def _textos(self):
         return [medios.fila(medio) for medio in self._medios]
