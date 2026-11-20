@@ -30,10 +30,11 @@ class TestVentanas(unittest.TestCase):
     def test_la_tabla_tiene_una_entrada_por_ventana_con_sus_campos(self):
         self.assertEqual(
             [entrada["nombre"] for entrada in ventanas_app.VENTANAS],
-            ["preferencias", "interaccion", "comandos", "estilos",
-             "historial", "descargas", "musica", "ia", "voces", "obs",
-             "palabras", "encuestas", "preguntas",
-             "medios", "preferencias_interfaz", "preferencias_sonidos",
+             ["preferencias", "interaccion", "comandos", "estilos",
+              "historial", "descargas", "musica", "ia", "voces", "obs",
+              "ensayo", "palabras", "encuestas", "preguntas",
+              "medios", "disparador", "preferencias_interfaz",
+              "preferencias_sonidos",
              "preferencias_atajos", "preferencias_voces",
              "preferencias_lectura", "preferencias_cola_de_lectura",
              "preferencias_eventos_del_directo", "preferencias_filtros",
@@ -58,11 +59,15 @@ class TestVentanas(unittest.TestCase):
                 campos.add("primero_lista")
             if "valor_variable" in entrada:
                 campos.add("valor_variable")
+            if "titulo_menu" in entrada:
+                campos.add("titulo_menu")
+            if "pulsar" in entrada:
+                campos.add("pulsar")
             self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
         self.assertEqual(
-            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 31)
+            len({entrada["nombre"] for entrada in ventanas_app.VENTANAS}), 33)
         self.assertEqual(ventanas_app.VENTANAS[0]["titulo"], "Preferencias")
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
@@ -105,6 +110,22 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(entrada["titulo"], "Panel de OBS")
         self.assertEqual(entrada["primero"], "Estado")
         self.assertEqual(entrada["valor_variable"], ["Estado"])
+
+    def test_ensayo_y_disparador_estan_en_la_tabla_con_su_menu_y_primero(self):
+        por_nombre = {entrada["nombre"]: entrada
+                      for entrada in ventanas_app.VENTANAS}
+        ensayo = por_nombre["ensayo"]
+        self.assertEqual(ensayo["menu"], "Interacción > Probar sin directo…")
+        self.assertEqual(ensayo["titulo"], "Prueba sin directo")
+        self.assertEqual(ensayo["primero"], "Autor:")
+        disparador = por_nombre["disparador"]
+        self.assertEqual(disparador["menu"],
+                         "Interacción > Abrir Interacción…")
+        self.assertEqual(disparador["titulo"], "Agregar disparador")
+        self.assertEqual(disparador["titulo_menu"], "Interacción")
+        self.assertEqual(disparador["pagina"], "Disparadores")
+        self.assertEqual(disparador["pulsar"], "Agregar")
+        self.assertEqual(disparador["primero"], "Nombre:")
 
     def test_historial_activa_conectar_y_eliminar_con_el_vacio(self):
         historial = next(entrada for entrada in ventanas_app.VENTANAS
@@ -291,6 +312,43 @@ class TestVentana(unittest.TestCase):
             app._ventana(BancoFalso(True), mock.Mock(), entrada,
                          7, set(), False)
         self.assertEqual(visto["acciones"], entrada["acciones"])
+
+    def test_espera_la_ventana_del_menu_que_declara_la_entrada(self):
+        banco = mock.Mock()
+        banco.pedir.return_value = {"datos": {}}
+        banco.esperar_ventana.return_value = {"visible": True}
+        banco.al_frente.return_value = True
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "disparador")
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              return_value={"pasos": []}),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(banco, mock.Mock(), entrada, 7, set(), False)
+        banco.esperar_ventana.assert_called_once_with(
+            "Interacción", segundos=15.0)
+
+    def test_pasa_el_boton_a_pulsar_de_la_entrada_a_conducir(self):
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "disparador")
+        visto = {}
+
+        def conducir(_cliente, datos):
+            visto["pulsar"] = datos.get("pulsar")
+            return {"pasos": []}
+
+        with (
+            mock.patch.object(app.recorrido, "conducir",
+                              side_effect=conducir),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(BancoFalso(True), mock.Mock(), entrada, 7, set(), False)
+        self.assertEqual(visto["pulsar"], "Agregar")
 
     def test_pasa_el_primero_lista_de_la_entrada_a_conducir(self):
         entrada = next(item for item in ventanas_app.VENTANAS

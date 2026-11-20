@@ -217,9 +217,9 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
         raise InstrumentoRoto(
             f"no se pudo traer al frente la app para «{entrada['titulo']}»")
     banco.pedir("menu_click", etiqueta=entrada["menu"], tiempo=10.0)
-    if banco.esperar_ventana(entrada["titulo"], segundos=15.0) is None:
-        raise InstrumentoRoto(
-            f"no se abrió la ventana «{entrada['titulo']}»")
+    titulo_menu = entrada.get("titulo_menu") or entrada["titulo"]
+    if banco.esperar_ventana(titulo_menu, segundos=15.0) is None:
+        raise InstrumentoRoto(f"no se abrió la ventana «{titulo_menu}»")
     if not banco.al_frente():
         raise InstrumentoRoto(
             f"no se pudo traer al frente la ventana «{entrada['titulo']}»")
@@ -230,6 +230,8 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     }
     if entrada.get("primero_lista"):
         datos_ventana["primero_lista"] = entrada["primero_lista"]
+    if entrada.get("pulsar"):
+        datos_ventana["pulsar"] = entrada["pulsar"]
     if entrada.get("pagina"):
         datos_ventana["pagina"] = entrada["pagina"]
         datos_ventana["paginas"] = (entrada["paginas"] if "paginas" in entrada

@@ -535,7 +535,8 @@ class TestApp(unittest.TestCase):
             self.assertIn(("menu_click", {"etiqueta": entrada["menu"],
                                           "tiempo": 10.0}),
                           resultado.app.ordenes)
-            self.assertIn(("ventanas", {"titulo": entrada["titulo"]}),
+            titulo_menu = entrada.get("titulo_menu") or entrada["titulo"]
+            self.assertIn(("ventanas", {"titulo": titulo_menu}),
                           resultado.app.ordenes)
             self.assertIn(("cerrar_ventana", {"ventana": entrada["titulo"],
                                               "tiempo": 10.0}),

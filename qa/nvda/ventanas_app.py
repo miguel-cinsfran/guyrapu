@@ -116,6 +116,12 @@ VENTANAS = (
         "valor_variable": ["Estado"],
     },
     {
+        "nombre": "ensayo",
+        "menu": "Interacción > Probar sin directo…",
+        "titulo": "Prueba sin directo",
+        "primero": "Autor:",
+    },
+    {
         "nombre": "palabras",
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Interacción",
@@ -143,6 +149,15 @@ VENTANAS = (
         "titulo": "Interacción",
         "primero": "No hay medios. Usa Agregar para crear uno.",
         "pagina": "Medios",
+    },
+    {
+        "nombre": "disparador",
+        "menu": "Interacción > Abrir Interacción…",
+        "titulo": "Agregar disparador",
+        "titulo_menu": "Interacción",
+        "primero": "Nombre:",
+        "pagina": "Disparadores",
+        "pulsar": "Agregar",
     },
     {
         "nombre": "preferencias_interfaz",

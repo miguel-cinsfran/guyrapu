@@ -176,6 +176,9 @@ def conducir(cliente, ventana, tope=TOPE_PASOS, tope_foco_s=20.0,
     lector = Sonidos(os.environ.get(VAR_SONIDOS))
     lector.nuevos()
     pasos = _pasos_de_pagina(cliente, ventana, pid, tope, lector)
+    if ventana.get("pulsar"):
+        _ir_a(cliente, ventana["pulsar"], pid, tope, lector)
+        pasos.append(_paso(cliente, "space", "pulsar", pid, lector))
     nombre = ventana["primero"]
     lista = ventana.get("primero_lista")
     primero = _esperar_foco(cliente, nombre, tope_foco_s, dormir, lista)

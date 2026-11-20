@@ -411,6 +411,42 @@ class TestEsperaDeFoco(unittest.TestCase):
                 self._esperar(foco)
 
 
+class TestPulsar(unittest.TestCase):
+
+    def test_pulsa_el_boton_despues_de_la_pagina_y_antes_del_primer_foco(self):
+        primero = {"nombre": "Nombre:", "pid": 7}
+        llamadas = []
+
+        def paso(_cliente, tecla, fase, *_args, **_kwargs):
+            llamadas.append(fase)
+            return {"tecla": tecla, "fase": fase, "foco": primero,
+                    "habla": [], "agotado": False, "ms_habla": 0}
+
+        def ir_a(_cliente, nombre, *_args, **_kwargs):
+            llamadas.append(("ir_a", nombre))
+
+        with (
+            mock.patch.object(
+                recorrido, "_pasos_de_pagina",
+                side_effect=lambda *_a: llamadas.append("pagina") or []),
+            mock.patch.object(recorrido, "_ir_a", side_effect=ir_a),
+            mock.patch.object(recorrido, "_paso", side_effect=paso),
+            mock.patch.object(
+                recorrido, "_esperar_foco",
+                side_effect=lambda *_a: (
+                    llamadas.append("esperar_foco") or primero)),
+        ):
+            datos = recorrido.conducir(mock.Mock(), {
+                "pid": 7, "primero": "Nombre:", "pulsar": "Agregar",
+            }, tope=1, tope_foco_s=0.01)
+        self.assertEqual(llamadas[:3], ["pagina", ("ir_a", "Agregar"),
+                                        "pulsar"])
+        self.assertLess(llamadas.index("pulsar"),
+                        llamadas.index("esperar_foco"))
+        self.assertTrue(any(paso["fase"] == "pulsar"
+                            for paso in datos["pasos"]))
+
+
 class TestCierreDelCiclo(unittest.TestCase):
 
     def test_sin_lista_no_cierra_en_otro_control_del_mismo_nombre(self):
