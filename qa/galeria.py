@@ -71,13 +71,15 @@ def main(argv=None):
     carpeta.mkdir(parents=True, exist_ok=True)
     lineas = []
     siguiente = 1
+    fallidas = 0
     for nombre, clase, variante, _armar in elegidas:
         nuevas = _una_muestra(siguiente, nombre, clase, variante, carpeta)
         lineas.extend(nuevas)
+        fallidas += sum("FALLIDA:" in linea for linea in nuevas)
         siguiente += len(nuevas)
     (carpeta / "indice.md").write_text(_indice(lineas), encoding="utf-8")
-    print(f"{len(lineas)} capturas en {carpeta}")
-    return 0
+    print(f"{len(lineas)} capturas, {fallidas} fallidas en {carpeta}")
+    return 1 if fallidas else 0
 
 
 def _una_muestra(numero, nombre, clase, variante, carpeta):
@@ -131,6 +133,7 @@ def _hijo(args):
             _silenciar(contexto)
             ventana = armar(datos)
             ventana.ShowWithoutActivating()
+            _aplicar_layout(ventana)
             lineas = _capturar(ventana, nombre, clase, variante,
                                args._carpeta, args._numero)
     del app
@@ -161,6 +164,29 @@ def _silenciar(pila):
         sound_player.silenciar_todo(True)
     except Exception as exc:
         logger.debug("No se pudieron callar los sonidos: %s", exc)
+
+
+def _aplicar_layout(ventana):
+    """Corre los sizers: mostrar la ventana no basta para que wx los aplique.
+
+    Sin esto los controles quedan en su tamaño mínimo y amontonados en el
+    origen, aunque `IsShownOnScreen` diga que están visibles. Medido el
+    20/11/2026 con la galería completa.
+    """
+    import wx
+    ventana.Layout()
+    for control in _descendientes(ventana):
+        sizer = getattr(control, "GetSizer", None)
+        if callable(sizer) and sizer():
+            control.Layout()
+    wx.SafeYield()
+
+
+def _descendientes(ventana):
+    hijos = list(ventana.GetChildren())
+    for hijo in hijos:
+        yield hijo
+        yield from _descendientes(hijo)
 
 
 def _libros(ventana):
@@ -202,15 +228,24 @@ def _capturar(ventana, nombre, clase, variante, salida, numero):
             perezoso = getattr(ventana, "_libro_perezoso", None)
             if perezoso is not None:
                 perezoso.construir(i)
+            _aplicar_layout(ventana)
         n = numero + desplazamiento
         archivo = f"{n:02d}_{nombre}_{capturas.plegar(pagina or 'base')}.png"
         ruta = Path(salida) / archivo
         cap._dejar_pintar(ventana)
         ancho, alto = cap._guardar_png(ventana, ruta)
-        _escribir_json(ventana, ruta.with_suffix(".json"), nombre, clase,
-                       variante, pagina, archivo, ancho, alto)
-        lineas.append(geo.linea_indice(n, nombre, clase, variante,
-                                       pagina, archivo, ancho, alto))
+        contenido = _escribir_json(ventana, ruta.with_suffix(".json"),
+                                   nombre, clase, variante, pagina, archivo,
+                                   ancho, alto)
+        motivo = geo.motivo_invalido(contenido["controles"],
+                                     _colores_imagen(ruta),
+                                     contenido["tamano"])
+        if motivo:
+            lineas.append(geo.linea_fallida(n, nombre, clase, variante,
+                                            motivo))
+        else:
+            lineas.append(geo.linea_indice(n, nombre, clase, variante,
+                                           pagina, archivo, ancho, alto))
     return lineas
 
 
@@ -226,6 +261,21 @@ def _escribir_json(ventana, ruta, nombre, clase, variante, pagina, png,
         controles=_controles(ventana, origen, _ppi()))
     ruta.write_text(json.dumps(contenido, ensure_ascii=False, indent=2),
                     encoding="utf-8")
+    return contenido
+
+
+def _colores_imagen(ruta):
+    """Muestra de píxeles del PNG, para detectar una imagen casi de un color."""
+    import wx
+    imagen = wx.Image(str(ruta))
+    if not imagen.IsOk():
+        return []
+    ancho_, alto_ = imagen.GetWidth(), imagen.GetHeight()
+    paso = max(8, min(ancho_, alto_) // 40)
+    return [(imagen.GetRed(x, y), imagen.GetGreen(x, y),
+             imagen.GetBlue(x, y))
+            for y in range(0, alto_, paso)
+            for x in range(0, ancho_, paso)]
 
 
 def _ppi():
@@ -319,6 +369,29 @@ class VerificacionGaleria(unittest.TestCase):
               f"{time.monotonic() - inicio:.1f} s, {destino}")
         self.assertEqual(codigo, 0)
         self.assertGreaterEqual(len(capturas), 3)
+
+    def test_galeria_completa(self):
+        import collections
+        import visual_reglas
+
+        inicio = time.monotonic()
+        codigo = main([])
+        destino = max((_QA / "salida" / "galeria").glob("20*"),
+                      key=lambda ruta: ruta.name)
+        texto = (destino / "indice.md").read_text(encoding="utf-8")
+        lineas = [linea for linea in texto.splitlines()
+                  if linea.startswith("- ")]
+        fallidas = [linea for linea in lineas if "FALLIDA:" in linea]
+        hallazgos, _ = visual_reglas.analizar(
+            visual_reglas.leer_carpeta(destino))
+        conteo = collections.Counter(h["regla"] for h in hallazgos)
+        print("COMPLETA " + json.dumps({
+            "carpeta": destino.name, "capturas": len(lineas),
+            "fallidas": len(fallidas), "segundos": round(time.monotonic() - inicio, 1),
+            "motivos": [linea.split("FALLIDA: ", 1)[-1] for linea in fallidas],
+            "hallazgos": dict(sorted(conteo.items())),
+        }, ensure_ascii=False))
+        self.assertEqual(codigo, 0)
 
 
 if __name__ == "__main__":

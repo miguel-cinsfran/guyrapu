@@ -10,6 +10,9 @@ y pasa por estas funciones antes de escribir el archivo. Contrato con
 
 from __future__ import annotations
 
+from collections import Counter
+from itertools import combinations
+
 
 def color_hex(color) -> str:
     """El color efectivo en `#RRGGBB`, con mayúsculas y dos cifras por canal."""
@@ -101,3 +104,64 @@ def linea_indice(numero, muestra, clase, variante, pagina, png, ancho,
     """Una línea del índice, por cada imagen que salió."""
     return (f"- {numero:02d} · {png} · {muestra} · {clase} · {variante} · "
             f"{pagina or '—'} · {ancho}x{alto}")
+
+
+def linea_fallida(numero, muestra, clase, variante, motivo) -> str:
+    """Una línea del índice para la captura que no sirve, con su motivo."""
+    base = linea_indice(numero, muestra, clase, variante, "", "", 0, 0)
+    return base + " · FALLIDA: " + str(motivo)
+
+
+def controles_con_area(controles):
+    """Controles visibles que ocupan algo más que un punto."""
+    return [c for c in controles
+            if c["visible"] and c["rect"][2] > 0 and c["rect"][3] > 0]
+
+
+def _casi_encima(a, b):
+    """Si dos rectángulos se pisan casi por completo."""
+    comun_x = min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0])
+    comun_y = min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1])
+    comun = max(0, comun_x) * max(0, comun_y)
+    menor = min(max(0, a[2]) * max(0, a[3]),
+                max(0, b[2]) * max(0, b[3]))
+    return menor > 0 and comun >= menor * 0.9
+
+
+def _amontonados(controles):
+    """Cuántos controles comparten posición o se pisan casi enteros."""
+    grupos = {}
+    for c in controles:
+        grupos.setdefault(c["padre"], []).append(c)
+    tocados = set()
+    for grupo in grupos.values():
+        for a, b in combinations(grupo, 2):
+            if a["rect"][:2] == b["rect"][:2] or _casi_encima(a["rect"],
+                                                              b["rect"]):
+                tocados.add(id(a))
+                tocados.add(id(b))
+    return len(tocados)
+
+
+def motivo_invalido(controles, colores=None, tamano=None) -> str | None:
+    """Por qué no sirve esta captura, o None si sirve.
+
+    Un layout que no corrió deja los controles en el origen y sin tamaño:
+    siguen siendo visibles para wx, pero la imagen no muestra la ventana.
+    La ventana de nivel superior no es un control y no se cuenta.
+    """
+    utiles = controles_con_area(controles)
+    if (tamano and utiles
+            and utiles[0]["rect"] == [0, 0, tamano[0], tamano[1]]):
+        utiles = utiles[1:]
+    if len(utiles) < 4:
+        return f"solo {len(utiles)} controles visibles con área"
+    amontonados = _amontonados(utiles)
+    if amontonados * 2 > len(utiles):
+        return (f"{amontonados} de {len(utiles)} controles amontonados "
+                "en la misma posición")
+    if colores:
+        comunidad = Counter(colores).most_common(1)[0][1] / len(colores)
+        if comunidad >= 0.98:
+            return f"la imagen es casi de un color ({comunidad:.0%})"
+    return None

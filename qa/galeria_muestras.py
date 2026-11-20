@@ -208,10 +208,11 @@ def _voces(datos):
         (voces_ventana.paquetes_instalacion, "instalados", _Instalados([])),
         (voces_ventana.red, "pedir_texto", _catalogo()),
         (voces_ventana.diagnostico, "crear_hilo", HiloInmediato),
-        (voces_ventana.voces_disponibles, "idioma_actual", "es"),
     )
     for objeto, nombre, nuevo in parches:
         datos.pila.enter_context(mock.patch.object(objeto, nombre, nuevo))
+    datos.pila.enter_context(mock.patch.object(
+        voces_ventana.voces_disponibles, "idioma_actual", return_value="es"))
     datos.pila.enter_context(mock.patch.object(
         voces_ventana.wx, "CallAfter",
         lambda funcion, *a, **k: funcion(*a, **k)))

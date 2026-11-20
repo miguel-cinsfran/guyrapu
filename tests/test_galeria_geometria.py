@@ -51,6 +51,62 @@ class FuenteSinPixeles(Fuente):
         return type("Tamano", (), {"GetWidth": lambda self: 0})()
 
 
+def control_captura(id, x=20, y=20, ancho=80, alto=24, padre=None):
+    """Control mínimo, con los campos que mira la comprobación de captura."""
+    return {"id": id, "padre": padre, "visible": True,
+            "rect": [x, y, ancho, alto]}
+
+
+class TestCapturaValida(unittest.TestCase):
+    """La comprobación se prueba con datos a mano, sin ventanas."""
+
+    def test_menos_de_cuatro_controles_con_area(self):
+        controles = [control_captura(i, x=20 + i * 90) for i in range(3)]
+        self.assertIn("solo 3 controles",
+                      geometria.motivo_invalido(controles))
+
+    def test_los_controles_sin_area_no_cuentan(self):
+        controles = [control_captura(i, x=20 + i * 90) for i in range(2)]
+        controles += [control_captura(i + 2, ancho=0) for i in range(3)]
+        self.assertIn("solo 2 controles",
+                      geometria.motivo_invalido(controles))
+
+    def test_la_mayoria_en_la_misma_posicion(self):
+        controles = [control_captura(i, x=20, y=20) for i in range(3)]
+        controles += [control_captura(i, x=200) for i in range(3, 5)]
+        self.assertIn("amontonados", geometria.motivo_invalido(controles))
+
+    def test_casi_encima_tambien_cuenta(self):
+        controles = [control_captura(1, x=20, y=20),
+                     control_captura(2, x=21, y=20),
+                     control_captura(3, x=20, y=21),
+                     control_captura(4, x=300, y=300)]
+        self.assertIn("amontonados", geometria.motivo_invalido(controles))
+
+    def test_imagen_casi_de_un_color(self):
+        controles = [control_captura(i, x=20 + i * 90) for i in range(4)]
+        colores = [(255, 255, 255)] * 99 + [(0, 0, 0)]
+        self.assertIn("casi de un color",
+                      geometria.motivo_invalido(controles, colores))
+
+    def test_captura_valida_no_da_motivo(self):
+        controles = [control_captura(i, x=20 + i * 90) for i in range(5)]
+        colores = [(255, 255, 255)] * 60 + [(0, 0, 0)] * 40
+        self.assertIsNone(geometria.motivo_invalido(controles, colores))
+
+    def test_la_ventana_no_cuenta_como_control_amontonado(self):
+        controles = [control_captura(99, x=0, y=0, ancho=500, alto=400)]
+        controles += [control_captura(i, x=20 + i * 90) for i in range(4)]
+        self.assertIsNone(geometria.motivo_invalido(
+            controles, tamano=[500, 400]))
+
+    def test_linea_fallida_lleva_el_motivo(self):
+        linea = geometria.linea_fallida(3, "musica", "VentanaMusica",
+                                        "con_datos", "solo 1 control")
+        self.assertIn("FALLIDA: solo 1 control", linea)
+        self.assertIn("VentanaMusica", linea)
+
+
 class TestGeometriaCapturas(unittest.TestCase):
 
     def test_color_hex_con_ceros_y_mayusculas(self):
