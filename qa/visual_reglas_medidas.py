@@ -183,12 +183,15 @@ def es_pieza_interna(control, por_id):
 
 
 def contenedor_medible(control, por_id, cliente):
-    """El rectángulo que limita al control, o None si su padre se desplaza."""
+    """El rectángulo que limita al control, o None si algún ancestro se desplaza."""
     padre = _padre(control, por_id)
     if padre is None:
         return [0, 0, *cliente]
-    if padre["clase"] in CONTENEDORES_CON_DESPLAZAMIENTO:
-        return None
+    actual = padre
+    while actual is not None:
+        if actual["clase"] in CONTENEDORES_CON_DESPLAZAMIENTO:
+            return None
+        actual = _padre(actual, por_id)
     return padre["rect"]
 
 

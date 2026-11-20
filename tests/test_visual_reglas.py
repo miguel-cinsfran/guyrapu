@@ -195,6 +195,29 @@ class TestControlConDesplazamiento(Base):
         self.assertIsNone(self.uno(self._ventana(), "margen"))
 
 
+class TestNietoEnContenedorConDesplazamiento(Base):
+
+    def _ventana(self, clase):
+        contenedor = control(
+            id=1, clase=clase, nombre="Contenedor", etiqueta="",
+            rect=[172, 10, 640, 498])
+        caja = control(
+            id=2, padre=1, clase="wxStaticBox", nombre="Atajos",
+            etiqueta="", rect=[180, 577, 607, 270])
+        boton = control(
+            id=3, padre=2, clase="wxButton", nombre="Abrir preferencias",
+            etiqueta="Abrir preferencias", rect=[189, 598, 589, 23])
+        return muestra([contenedor, caja, boton], cliente=[822, 560])
+
+    def test_un_nieto_no_da_margen_si_un_ancestro_se_desplaza(self):
+        self.assertIsNone(
+            self.uno(self._ventana("wxScrolledWindow"), "margen"))
+
+    def test_el_nieto_si_da_margen_sin_ancestro_que_se_desplace(self):
+        self.assertIsNotNone(
+            self.uno(self._ventana("wxPanel"), "margen"))
+
+
 class TestPiezasInternas(Base):
 
     def test_el_campo_de_un_selector_no_da_recorte_y_el_selector_si(self):
