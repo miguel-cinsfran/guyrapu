@@ -8,10 +8,16 @@ y que no se nombran en ningún registro.
 """
 
 import ast
+import contextlib
 import importlib.util
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+
+from tests.rutas_temporales import redirigir_rutas
+from tests.ventanas_prueba import app_de_prueba, destruir
 
 _RAIZ = Path(__file__).resolve().parent.parent
 _QA = _RAIZ / "qa"
@@ -125,6 +131,38 @@ class TestCoberturaDeLaGaleria(unittest.TestCase):
                   if str(motivo or "").strip() == "falta la muestra"]
         self.assertEqual(viejos, [],
                          "sin armar: " + ", ".join(sorted(viejos)))
+
+
+class TestMuestraConChatDeLaGaleria(unittest.TestCase):
+
+    def setUp(self):
+        app_de_prueba()
+        self.temporal = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporal.cleanup)
+        self.pila = contextlib.ExitStack()
+        self.addCleanup(self.pila.close)
+        self.pila.enter_context(redirigir_rutas(self.temporal.name))
+
+    def _armar(self, nombre):
+        entrada = next(e for e in registro.MUESTRAS if e[0] == nombre)
+        ventana = entrada[3](SimpleNamespace(pila=self.pila))
+        ventana.ShowWithoutActivating()
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def test_p1_la_muestra_con_chat_deja_la_zona_visible_en_las_tres_paginas(self):
+        con_chat = self._armar("principal_con_chat")
+        sin_chat = self._armar("principal_desconectada")
+        self.assertTrue(con_chat._zona.IsShown())
+        self.assertFalse(sin_chat._zona.IsShown())
+        self.assertEqual(
+            [con_chat.nb.GetPageText(i)
+             for i in range(con_chat.nb.GetPageCount())],
+            ["Chat del directo", "Comentarios", "Información"])
+        for i in range(con_chat.nb.GetPageCount()):
+            con_chat.nb.SetSelection(i)
+            self.assertTrue(con_chat._zona.IsShown(),
+                            con_chat.nb.GetPageText(i))
 
 
 if __name__ == "__main__":

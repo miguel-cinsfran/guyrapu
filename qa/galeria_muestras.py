@@ -97,6 +97,7 @@ def _principal(datos, con_chat=False):
                                  threading.Event())
     if con_chat:
         frame._conectado = True
+        frame._mostrar_zona(True)
         datos.pila.enter_context(mock.patch.object(
             chat_vivo.wx, "CallLater", return_value=mock.Mock()))
         for autor, texto in (("Ana", "¡Hola a todos!"),
