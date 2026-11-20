@@ -155,6 +155,7 @@ class TestMuestraConChatDeLaGaleria(unittest.TestCase):
         sin_chat = self._armar("principal_desconectada")
         self.assertTrue(con_chat._zona.IsShown())
         self.assertFalse(sin_chat._zona.IsShown())
+        self.assertIn("Desconectar", con_chat.btn_conectar.GetLabel())
         self.assertEqual(
             [con_chat.nb.GetPageText(i)
              for i in range(con_chat.nb.GetPageCount())],

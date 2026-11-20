@@ -82,7 +82,8 @@ def _padre_interaccion():
 
 
 def _principal(datos, con_chat=False):
-    from guyrapu.ui import chat_vivo, gui
+    from guyrapu.core.idioma import _
+    from guyrapu.ui import chat_vivo, gui, gui_construccion
 
     config = {
         "atajos_raw": {}, "filtro_activo": "todos",
@@ -98,6 +99,8 @@ def _principal(datos, con_chat=False):
     if con_chat:
         frame._conectado = True
         frame._mostrar_zona(True)
+        frame._set_conectado_ui(True)
+        gui_construccion.fijar_tipo(frame, _("Directo de YouTube"))
         datos.pila.enter_context(mock.patch.object(
             chat_vivo.wx, "CallLater", return_value=mock.Mock()))
         for autor, texto in (("Ana", "¡Hola a todos!"),
