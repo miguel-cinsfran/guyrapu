@@ -7,13 +7,13 @@ import unittest
 
 from guyrapu.voice.proveedores.base import MotorNoDisponible
 from guyrapu.voice.proveedores.prism import MotorPrism
+from tests.voces_reales import elegir_voz_que_suena
 
 FRASE_UNO = "Primera frase de prueba, uno, dos, tres, cuatro, cinco."
 FRASE_DOS = "Segunda frase de prueba, seis, siete, ocho, nueve, diez."
 PLAZO_HABLA = 8.0
 PLAZO_PARADA = 1.0
 MARGEN_COLA = 1.5
-UMBRAL_VOZ = 0.5
 
 
 def _esperar(motor, estado, plazo):
@@ -34,32 +34,10 @@ class _VocesReales(unittest.TestCase):
         self.addCleanup(motor.cerrar)
         motor.fijar_volumen(0)
         try:
-            self._elegir_voz(motor)
+            elegir_voz_que_suena(motor)
         except AssertionError as exc:
-            self.skipTest(f"Sin voces {id_motor} con habla sostenida: {exc}")
+            self.skipTest(f"Sin voces {id_motor} que suenen: {exc}")
         return motor
-
-    def _elegir_voz(self, motor):
-        # SAPI2SR enciende `speaking` un instante sin producir audio: hace falta
-        # una voz que siga hablando para medir la cola y el audio en memoria.
-        probadas = []
-        for indice, nombre in enumerate(motor.voces() or ["la que trae"]):
-            if not motor.elegir_voz(indice):
-                continue
-            probadas.append(nombre)
-            motor.parar()
-            if not motor.hablar(FRASE_UNO) or not _esperar(
-                    motor, True, PLAZO_HABLA):
-                continue
-            inicio = time.monotonic()
-            while motor.hablando() and time.monotonic() - inicio < UMBRAL_VOZ:
-                time.sleep(0.01)
-            if motor.hablando():
-                motor.parar()
-                _esperar(motor, False, PLAZO_PARADA)
-                return
-            motor.parar()
-        raise AssertionError(", ".join(probadas) or "sin voces elegibles")
 
     def _duracion(self, motor, frase):
         if not motor.hablar(frase) or not _esperar(motor, True, PLAZO_HABLA):
@@ -131,6 +109,15 @@ class TestPrismMemoriaReal(_VocesReales):
         motor = self._preparar("sapi")
         self.assertTrue(self._en_memoria(motor),
                         "speak_to_memory no devolvió audio en SAPI")
+
+
+class TestElegirVozReal(_VocesReales):
+
+    def test_sapi_queda_voz_con_audio(self):
+        motor = self._preparar("sapi")
+        nombre = motor._backend.get_voice_name(motor._backend.voice)
+        self.assertTrue(self._en_memoria(motor),
+                        f"La voz elegida {nombre} no da audio")
 
 
 if __name__ == "__main__":
