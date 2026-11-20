@@ -15,12 +15,15 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos, disparadores, disparadores_guardados
 from guyrapu.interaction import estilo_elegido, medios_guardados
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar disparador")
 TITULO_EDITAR = N_("Editar disparador")
+SECCION_CUANDO = N_("Cuándo salta")
+SECCION_QUE = N_("Qué muestra")
+SECCION_ALCANCE = N_("Quién y cada cuánto")
 AYUDA_TARJETA = N_(
     "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.")
 
@@ -73,12 +76,24 @@ class DialogoDisparador(wx.Dialog):
 
     def _crear_controles(self, datos):
         panel = wx.Panel(self, name="PanelDisparador")
-        vs = wx.BoxSizer(wx.VERTICAL)
-        self._crear_cuando(panel, vs)
-        self._crear_que(panel, vs)
-        self._crear_alcance(panel, vs)
-        vs.Add(self._botones(panel), 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        panel.SetSizer(vs)
+        contenido = wx.BoxSizer(wx.VERTICAL)
+        izquierda = wx.BoxSizer(wx.VERTICAL)
+        derecha = wx.BoxSizer(wx.VERTICAL)
+        self._crear_cuando(panel, izquierda)
+        self._crear_que(panel, derecha)
+        self._crear_alcance(panel, derecha)
+        formulario.columnas(contenido, izquierda, derecha)
+        self.btn_aceptar = wx.Button(
+            panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
+        self.btn_cancelar = wx.Button(
+            panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
+        self.btn_aceptar.SetDefault()
+        self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
+        self.btn_cancelar.Bind(
+            wx.EVT_BUTTON, lambda _evento: self.EndModal(wx.ID_CANCEL))
+        formulario.agregar_pie(
+            contenido, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, contenido)
         self._nombrar_etiquetas(panel)
         self._cargar(datos)
 
@@ -95,97 +110,76 @@ class DialogoDisparador(wx.Dialog):
                     continue
                 nombre_accesible(hijo, hijos[indice + 1].GetName())
 
-    def _crear_cuando(self, panel, vs):
-        vs.Add(fila_label(panel, _("&Nombre:")), 0, wx.ALL, 8)
+    def _crear_cuando(self, panel, columna):
+        vs = formulario.agregar_seccion(columna, panel, _(SECCION_CUANDO))
+        rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = self._campo(panel, _("&Nombre:"))
-        vs.Add(self.txt_nombre, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("C&uándo:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_nombre)
+        rotulo = fila_label(panel, _("C&uándo:"))
         self.cho_cuando = self._eleccion(panel, _("C&uándo:"), _cuandos())
-        vs.Add(self.cho_cuando, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Número del ata&jo, Ctrl+Alt+Mayús:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_cuando)
+        rotulo = fila_label(panel, _("Número del ata&jo, Ctrl+Alt+Mayús:"))
         self.sp_atajo = self._contador(
             panel, _("Número del ata&jo, Ctrl+Alt+Mayús:"), 1, 9, 1)
-        vs.Add(self.sp_atajo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Co&mandos del chat:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.sp_atajo, numerico=True)
+        rotulo = fila_label(panel, _("Co&mandos del chat:"))
         self.txt_comandos = self._campo(panel, _("Co&mandos del chat:"))
-        vs.Add(self.txt_comandos, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Palabras o emojis del c&hat:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_comandos)
+        rotulo = fila_label(panel, _("Palabras o emojis del c&hat:"))
         self.txt_palabras = self._campo(
             panel, _("Palabras o emojis del c&hat:"))
-        vs.Add(self.txt_palabras, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Evento:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_palabras)
+        rotulo = fila_label(panel, _("&Evento:"))
         self.cho_evento = self._eleccion(panel, _("&Evento:"), _eventos())
-        vs.Add(self.cho_evento, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Cantidad mín&ima:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_evento)
+        rotulo = fila_label(panel, _("Cantidad mín&ima:"))
         self.txt_minimo = self._campo(panel, _("Cantidad mín&ima:"))
-        vs.Add(self.txt_minimo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Nom&bre del regalo:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_minimo)
+        rotulo = fila_label(panel, _("Nom&bre del regalo:"))
         self.txt_regalo = self._campo(
             panel, _("Nom&bre del regalo:"),
             _("Vacío para cualquier regalo. Escribe el nombre como lo lee "
               "Guyrapu"))
-        vs.Add(self.txt_regalo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
-               8)
+        formulario.agregar_fila(vs, rotulo, self.txt_regalo, hueco=0)
 
-    def _crear_que(self, panel, vs):
-        vs.Add(fila_label(panel, _("Me&dio:")), 0, wx.LEFT | wx.RIGHT, 8)
+    def _crear_que(self, panel, columna):
+        vs = formulario.agregar_seccion(columna, panel, _(SECCION_QUE))
+        rotulo = fila_label(panel, _("Me&dio:"))
         self.cho_medio = self._eleccion(
             panel, _("Me&dio:"), [_("Ninguno")] + self._nombres_de_medios())
-        vs.Add(self.cho_medio, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Texto de la tarjeta:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_medio)
+        rotulo = fila_label(panel, _("&Texto de la tarjeta:"))
         self.txt_tarjeta = self._campo(
             panel, _("&Texto de la tarjeta:"), _(AYUDA_TARJETA))
-        vs.Add(self.txt_tarjeta, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Esti&lo:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_tarjeta)
+        rotulo = fila_label(panel, _("Esti&lo:"))
         self.cho_estilo = self._eleccion(
             panel, _("Esti&lo:"), estilo_elegido.opciones(
                 self._usuario, self._por_tipo, "disparador"))
-        vs.Add(self.cho_estilo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Segundos en pantalla:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_estilo)
+        rotulo = fila_label(panel, _("&Segundos en pantalla:"))
         self.sp_segundos = self._contador(
             panel, _("&Segundos en pantalla:"), 3, 60, 8)
-        vs.Add(self.sp_segundos, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        formulario.agregar_fila(vs, rotulo, self.sp_segundos, numerico=True)
 
-    def _crear_alcance(self, panel, vs):
-        vs.Add(fila_label(panel, _("Pe&rmiso:")), 0, wx.LEFT | wx.RIGHT, 8)
+    def _crear_alcance(self, panel, columna):
+        vs = formulario.agregar_seccion(columna, panel, _(SECCION_ALCANCE))
+        rotulo = fila_label(panel, _("Pe&rmiso:"))
         self.cho_permiso = self._eleccion(
             panel, _("Pe&rmiso:"), _permisos())
-        vs.Add(self.cho_permiso, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Nombres &permitidos:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_permiso)
+        rotulo = fila_label(panel, _("Nombres &permitidos:"))
         self.txt_nombres = self._campo(panel, _("Nombres &permitidos:"))
-        vs.Add(self.txt_nombres, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Espera &general (segundos):")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_nombres)
+        rotulo = fila_label(panel, _("Espera &general (segundos):"))
         self.sp_espera = self._contador(
             panel, _("Espera &general (segundos):"), 0, 3600, 5)
-        vs.Add(self.sp_espera, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Espera por pers&ona (segundos):")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.sp_espera, numerico=True)
+        rotulo = fila_label(panel, _("Espera por pers&ona (segundos):"))
         self.sp_persona = self._contador(
             panel, _("Espera por pers&ona (segundos):"), 0, 3600, 30)
-        vs.Add(self.sp_persona, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        formulario.agregar_fila(
+            vs, rotulo, self.sp_persona, numerico=True, hueco=0)
 
     def _nombres_de_medios(self):
         return [str(medio.get("nombre", "")) for medio in self._medios]
@@ -208,20 +202,6 @@ class DialogoDisparador(wx.Dialog):
             panel, min=minimo, max=maximo, initial=inicial, name=nombre)
         nombre_accesible(control, nombre)
         return control
-
-    def _botones(self, panel):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_aceptar = wx.Button(
-            panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
-        self.btn_cancelar = wx.Button(
-            panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
-        self.btn_aceptar.SetDefault()
-        self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
-        self.btn_cancelar.Bind(
-            wx.EVT_BUTTON, lambda _evento: self.EndModal(wx.ID_CANCEL))
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        return fila
 
     def _cargar(self, datos):
         disparador = disparadores_guardados.a_disparador(datos or {})
@@ -349,24 +329,21 @@ class DialogoNombre(wx.Dialog):
     def __init__(self, padre, nombre):
         super().__init__(padre, title=_("Cambiar nombre"),
                          name="DialogoNombreDisparador")
+        panel = wx.Panel(self, name="PanelNombreDisparador")
         caja = wx.BoxSizer(wx.VERTICAL)
-        caja.Add(fila_label(self, _("&Nombre:")), 0, wx.ALL, 8)
+        rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = wx.TextCtrl(
-            self, name=nombre_de_etiqueta(_("&Nombre:")))
+            panel, name=nombre_de_etiqueta(_("&Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
         self.txt_nombre.SetValue(nombre)
-        caja.Add(self.txt_nombre, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
         self.btn_aceptar = wx.Button(
-            self, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
+            panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
+            panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
         self.btn_aceptar.SetDefault()
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((360, -1))
+        formulario.agregar_pie(caja, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, caja)
         self.Centre()
         paleta.pintar_ventana(self)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)

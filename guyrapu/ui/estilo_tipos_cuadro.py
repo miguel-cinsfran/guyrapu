@@ -12,7 +12,7 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 
 TITULO = N_("Establecer como predeterminado")
 
@@ -36,14 +36,8 @@ class DialogoTipos(wx.Dialog):
         for tipo, nombre in estilos_aviso.TIPOS:
             casilla = wx.CheckBox(panel, label=_(nombre), name=_(nombre))
             casilla.SetValue(tipo in marcados)
-            vs.Add(casilla, 0, wx.ALL, 8)
             self._casillas[tipo] = casilla
-        vs.Add(self._botones(panel), 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        panel.SetSizer(vs)
-        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
-
-    def _botones(self, panel):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+        formulario.agregar_casillas(vs, self._casillas.values(), hueco=0)
         self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"),
                                      name=_("Aceptar"))
         self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("&Cancelar"),
@@ -52,9 +46,9 @@ class DialogoTipos(wx.Dialog):
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
         self.btn_cancelar.Bind(
             wx.EVT_BUTTON, lambda _evento: self.EndModal(wx.ID_CANCEL))
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        return fila
+        formulario.agregar_pie(vs, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, vs)
+        self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
 
     def marcados(self) -> set[str]:
         """Los tipos que quedan marcados."""

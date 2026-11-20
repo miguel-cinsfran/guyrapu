@@ -15,7 +15,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import encuestas, encuestas_guardadas
 from guyrapu.interaction import estilo_elegido
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
@@ -61,50 +61,37 @@ class DialogoEncuesta(wx.Dialog):
     def _crear_controles(self, datos):
         panel = wx.Panel(self, name="PanelEncuesta")
         vs = wx.BoxSizer(wx.VERTICAL)
-
-        vs.Add(fila_label(panel, _("&Pregunta:")), 0, wx.ALL, 8)
+        rotulo = fila_label(panel, _("&Pregunta:"))
         self.txt_pregunta = self._campo(panel, "&Pregunta:")
-        vs.Add(self.txt_pregunta, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
-               8)
-
-        vs.Add(fila_label(panel, _("&Respuestas, una por línea:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_pregunta)
+        rotulo = fila_label(panel, _("&Respuestas, una por línea:"))
         self.txt_respuestas = wx.TextCtrl(
             panel, style=wx.TE_MULTILINE,
             name=nombre_de_etiqueta(_("&Respuestas, una por línea:")))
         nombre_accesible(self.txt_respuestas, self.txt_respuestas.GetName())
         self.txt_respuestas.SetMinSize((-1, 120))
-        vs.Add(self.txt_respuestas, 1,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Duración:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_respuestas)
+        rotulo = fila_label(panel, _("&Duración:"))
         self.cho_duracion = wx.Choice(
             panel, choices=[_(texto) for _segundos, texto in DURACIONES],
             name=nombre_de_etiqueta(_("&Duración:")))
         nombre_accesible(self.cho_duracion, self.cho_duracion.GetName())
-        vs.Add(self.cho_duracion, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Mostrar resultado en:")), 0,
-               wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_duracion)
+        rotulo = fila_label(panel, _("&Mostrar resultado en:"))
         self.cho_destino = wx.Choice(
             panel, choices=[_(texto) for _clave, texto in DESTINOS],
             name=nombre_de_etiqueta(_("&Mostrar resultado en:")))
         nombre_accesible(self.cho_destino, self.cho_destino.GetName())
-        vs.Add(self.cho_destino, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Estilo:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_destino)
+        rotulo = fila_label(panel, _("&Estilo:"))
         self.cho_estilo = wx.Choice(
             panel, choices=estilo_elegido.opciones(
                 self._usuario, self._por_tipo, "encuesta"),
             name=nombre_de_etiqueta(_("&Estilo:")))
         nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
-        vs.Add(self.cho_estilo, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(self._botones(panel), 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        panel.SetSizer(vs)
+        formulario.agregar_fila(vs, rotulo, self.cho_estilo, hueco=0)
+        formulario.agregar_pie(vs, self._botones(panel))
+        formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)
 
     def _campo(self, panel, etiqueta):
@@ -113,7 +100,6 @@ class DialogoEncuesta(wx.Dialog):
         return campo
 
     def _botones(self, panel):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"),
                                      name=_("Aceptar"))
         self.btn_cancelar = wx.Button(
@@ -122,9 +108,7 @@ class DialogoEncuesta(wx.Dialog):
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
         self.btn_cancelar.Bind(
             wx.EVT_BUTTON, lambda _evento: self.EndModal(wx.ID_CANCEL))
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        return fila
+        return [self.btn_aceptar, self.btn_cancelar]
 
     def _cargar(self, datos):
         encuesta = encuestas_guardadas.normalizar(datos or {})

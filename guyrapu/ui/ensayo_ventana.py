@@ -14,7 +14,8 @@ from guyrapu.core import plataformas
 from guyrapu.core.idioma import _
 from guyrapu.interaction import ensayo
 from guyrapu.ui import (
-    encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo, tecla_escape)
+    encuesta_en_vivo, formulario, gui_envio_chat, preguntas_en_vivo,
+    tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.paleta import pintar_ventana
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -80,29 +81,24 @@ class VentanaEnsayo(wx.Dialog):
                       opciones=[_("Mensaje"), _("Super Chat"), _("Regalo")])
         self.cho_tipo.SetSelection(0)
         self._agregar(vs, panel, _("Canti&dad:"), "txt_cantidad", wx.TextCtrl)
-        self._agregar(vs, panel, _("M&ensaje:"), "txt_mensaje", wx.TextCtrl)
-        botones = wx.BoxSizer(wx.HORIZONTAL)
+        self._agregar(vs, panel, _("M&ensaje:"), "txt_mensaje", wx.TextCtrl,
+                      hueco=0)
         self.btn_enviar = self._boton(panel, _("En&viar"))
         self.btn_enviar.SetDefault()
         self.btn_enviar.Bind(wx.EVT_BUTTON, self._enviar)
         self.btn_cerrar = self._boton(panel, _("Ce&rrar"))
         self.btn_cerrar.Bind(wx.EVT_BUTTON, self._cerrar)
-        botones.Add(self.btn_enviar, 0, wx.RIGHT, 6)
-        botones.Add(self.btn_cerrar, 0)
-        vs.Add(botones, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        panel.SetSizer(vs)
-        exterior = wx.BoxSizer(wx.VERTICAL)
-        exterior.Add(panel, 1, wx.EXPAND)
-        self.SetSizer(exterior)
-        self.Fit()
+        formulario.agregar_pie(vs, [self.btn_enviar, self.btn_cerrar])
+        formulario.ajustar_tamano(self, panel, vs)
 
-    def _agregar(self, vs, panel, etiqueta, nombre, clase, opciones=()):
-        vs.Add(fila_label(panel, etiqueta), 0, wx.LEFT | wx.RIGHT | wx.TOP, 8)
+    def _agregar(self, vs, panel, etiqueta, nombre, clase, opciones=(),
+                 hueco=formulario.CONTROL_A_ETIQUETA):
+        rotulo = fila_label(panel, etiqueta)
         control = clase(panel, choices=list(opciones), name=nombre) \
             if opciones else clase(panel, name=nombre)
         nombre_accesible(control, nombre_de_etiqueta(etiqueta))
         setattr(self, nombre, control)
-        vs.Add(control, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
+        formulario.agregar_fila(vs, rotulo, control, hueco=hueco)
 
     def _boton(self, panel, etiqueta):
         boton = wx.Button(panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))

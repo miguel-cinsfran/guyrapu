@@ -147,6 +147,18 @@ class TestCuadro(BaseVentana):
         self.assertEqual(cuadro.chk_en_lista.GetName(),
                          "Mostrar en la lista de comandos")
 
+    def test_la_ayuda_va_cuatro_pixeles_debajo_de_la_respuesta(self):
+        cuadro = self._cuadro()
+        cuadro.Layout()
+        respuesta = cuadro.txt_respuesta.GetRect()
+        ayuda = cuadro.ayuda.GetRect()
+        self.assertEqual(ayuda.y - respuesta.y - respuesta.height, 4)
+        self.assertFalse(respuesta.Intersects(ayuda))
+        hijos = list(cuadro.GetChildren()[0].GetChildren())
+        siguiente = hijos[hijos.index(cuadro.ayuda) + 1]
+        self.assertEqual(
+            siguiente.GetPosition().y - ayuda.y - ayuda.height, 12)
+
     def test_el_comando_de_lista_no_tiene_la_casilla_y_acepta_la_variable(self):
         datos = _datos(nombre="commands", respuesta="Comandos: {lista}.",
                        lista=True)

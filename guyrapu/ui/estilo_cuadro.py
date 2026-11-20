@@ -14,7 +14,7 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import confirmar, estilo_opciones, paleta, tecla_escape
+from guyrapu.ui import confirmar, estilo_opciones, formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import (ContadorAccesible, anunciar,
                                       nombre_accesible)
 from guyrapu.ui.preferencias_comun import (EleccionTexto, fila_label,
@@ -57,125 +57,9 @@ class DialogoEstilo(wx.Dialog):
     def _crear_controles(self):
         panel = wx.Panel(self, name="PanelEstiloVideo")
         vs = wx.BoxSizer(wx.VERTICAL)
-        columnas = wx.BoxSizer(wx.HORIZONTAL)
-        columnas.Add(self._columna_izquierda(panel), 1,
-                     wx.EXPAND | wx.RIGHT, 10)
-        columnas.Add(self._columna_derecha(panel), 1, wx.EXPAND)
-        vs.Add(columnas, 1, wx.EXPAND | wx.ALL, 8)
-        vs.Add(self._botones(panel), 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        panel.SetSizer(vs)
-        self._cargar()
-
-    def _columna_izquierda(self, panel):
-        columna = wx.BoxSizer(wx.VERTICAL)
-        self.txt_nombre = wx.TextCtrl(
-            panel, name=nombre_de_etiqueta(_("Nombre:")))
-        nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
-        self._fila(columna, panel, _("&Nombre:"), self.txt_nombre)
-
-        self._fuente = estilo_opciones.Fuente(
-            panel, _("&Fuente:"), self._base.get("fuente", ""))
-        self.cho_fuente = self._fuente.control
-        self._fila(columna, panel, _("&Fuente:"), self.cho_fuente)
-
-        self.sp_tamano = wx.SpinCtrlDouble(
-            panel, min=2, max=15, initial=5, inc=0.5,
-            name=nombre_de_etiqueta(_("&Tamaño (% del lado menor del vídeo):")))
-        self.sp_tamano.SetDigits(1)
-        self._fila(columna, panel, _("&Tamaño (% del lado menor del vídeo):"),
-                   self.sp_tamano)
-
-        self.chk_negrita = wx.CheckBox(
-            panel, label=_("Ne&grita"),
-            name=nombre_de_etiqueta(_("Negrita")))
-        self._fila(columna, panel, None, self.chk_negrita)
-
-        self._color_texto = self._campo_color(
-            columna, panel, _("Color del te&xto:"),
-            self._base.get("color_texto", ""))
-        self.cho_color_texto = self._color_texto.control
-
-        self._color_contorno = self._campo_color(
-            columna, panel, _("Color del c&ontorno:"),
-            self._base.get("color_contorno", ""))
-        self.cho_color_contorno = self._color_contorno.control
-
-        self.sp_ancho = ContadorAccesible(
-            panel, min=0, max=12, initial=0,
-            name=nombre_de_etiqueta(_("Anc&ho del contorno:")))
-        self._fila(columna, panel, _("Anc&ho del contorno:"), self.sp_ancho)
-
-        self._color_fondo = self._campo_color(
-            columna, panel, _("Color del fon&do:"),
-            self._base.get("color_fondo", ""))
-        self.cho_color_fondo = self._color_fondo.control
-
-        self.sp_opacidad = ContadorAccesible(
-            panel, min=0, max=100, initial=0,
-            name=nombre_de_etiqueta(_("O&pacidad del fondo:")))
-        self._fila(columna, panel, _("O&pacidad del fondo:"), self.sp_opacidad)
-        return columna
-
-    def _columna_derecha(self, panel):
-        columna = wx.BoxSizer(wx.VERTICAL)
-        self.cho_alineacion = EleccionTexto(
-            panel, estilo_opciones.opciones_alineacion(),
-            name=nombre_de_etiqueta(_("A&lineación:")))
-        self._fila(columna, panel, _("A&lineación:"), self.cho_alineacion)
-
-        self.cho_zona = EleccionTexto(
-            panel, estilo_opciones.opciones_zona(),
-            name=nombre_de_etiqueta(_("&Zona:")))
-        self._fila(columna, panel, _("&Zona:"), self.cho_zona)
-
-        self.cho_entrada = EleccionTexto(
-            panel, estilo_opciones.opciones_entrada(),
-            name=nombre_de_etiqueta(_("Animación de &entrada:")))
-        self._fila(columna, panel, _("Animación de &entrada:"),
-                   self.cho_entrada)
-
-        self.sp_ms_entrada = wx.SpinCtrlDouble(
-            panel, min=100, max=1000, initial=350, inc=50,
-            name=nombre_de_etiqueta(_("Du&ración de la entrada:")))
-        self.sp_ms_entrada.SetDigits(0)
-        self._fila(columna, panel, _("Du&ración de la entrada:"),
-                   self.sp_ms_entrada)
-
-        self.cho_salida = EleccionTexto(
-            panel, estilo_opciones.opciones_salida(),
-            name=nombre_de_etiqueta(_("Animación de &salida:")))
-        self._fila(columna, panel, _("Animación de &salida:"), self.cho_salida)
-
-        self.sp_ms_salida = wx.SpinCtrlDouble(
-            panel, min=100, max=1000, initial=250, inc=50,
-            name=nombre_de_etiqueta(_("D&uración de la salida:")))
-        self.sp_ms_salida.SetDigits(0)
-        self._fila(columna, panel, _("D&uración de la salida:"),
-                   self.sp_ms_salida)
-
-        self.chk_esquinas = wx.CheckBox(
-            panel, label=_("Es&quinas redondeadas"),
-            name=nombre_de_etiqueta(_("Esquinas redondeadas")))
-        self._fila(columna, panel, None, self.chk_esquinas)
-
-        self.chk_sombra = wx.CheckBox(
-            panel, label=_("So&mbra"),
-            name=nombre_de_etiqueta(_("Sombra")))
-        self._fila(columna, panel, None, self.chk_sombra)
-        return columna
-
-    def _campo_color(self, columna, panel, rotulo, codigo):
-        color = estilo_opciones.Color(panel, rotulo, codigo)
-        self._fila(columna, panel, rotulo, color.control)
-        return color
-
-    def _fila(self, columna, panel, rotulo, control):
-        if rotulo is not None:
-            columna.Add(fila_label(panel, rotulo), 0, wx.TOP, 4)
-        columna.Add(control, 0, wx.EXPAND | wx.BOTTOM, 4)
-
-    def _botones(self, panel):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+        izquierda = self._columna_izquierda(panel)
+        derecha = self._columna_derecha(panel)
+        formulario.columnas(vs, izquierda, derecha)
         self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"),
                                      name=_("Aceptar"))
         self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("&Cancelar"),
@@ -184,9 +68,114 @@ class DialogoEstilo(wx.Dialog):
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
         self.btn_cancelar.Bind(
             wx.EVT_BUTTON, lambda _evento: self.EndModal(wx.ID_CANCEL))
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        return fila
+        formulario.agregar_pie(vs, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, vs)
+        self._cargar()
+
+    def _columna_izquierda(self, panel):
+        columna = wx.BoxSizer(wx.VERTICAL)
+        rotulo = fila_label(panel, _("&Nombre:"))
+        self.txt_nombre = wx.TextCtrl(
+            panel, name=nombre_de_etiqueta(_("Nombre:")))
+        nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
+        formulario.agregar_fila(columna, rotulo, self.txt_nombre)
+
+        rotulo = fila_label(panel, _("&Fuente:"))
+        self._fuente = estilo_opciones.Fuente(
+            panel, _("&Fuente:"), self._base.get("fuente", ""))
+        self.cho_fuente = self._fuente.control
+        formulario.agregar_fila(columna, rotulo, self.cho_fuente)
+
+        rotulo = fila_label(panel, _("&Tamaño (% del lado menor del vídeo):"))
+        self.sp_tamano = wx.SpinCtrlDouble(
+            panel, min=2, max=15, initial=5, inc=0.5,
+            name=nombre_de_etiqueta(_("&Tamaño (% del lado menor del vídeo):")))
+        self.sp_tamano.SetDigits(1)
+        formulario.agregar_fila(
+            columna, rotulo, self.sp_tamano, numerico=True)
+
+        self.chk_negrita = wx.CheckBox(
+            panel, label=_("Ne&grita"),
+            name=nombre_de_etiqueta(_("Negrita")))
+        formulario.agregar_fila(columna, None, self.chk_negrita)
+
+        self._color_texto = self._campo_color(
+            columna, panel, _("Color del te&xto:"),
+            self._base.get("color_texto", ""))
+        self.cho_color_texto = self._color_texto.control
+        self._color_contorno = self._campo_color(
+            columna, panel, _("Color del c&ontorno:"),
+            self._base.get("color_contorno", ""))
+        self.cho_color_contorno = self._color_contorno.control
+
+        self.sp_ancho = self._fila_contador(
+            columna, panel, _("Anc&ho del contorno:"), 0, 12, 0)
+        self._color_fondo = self._campo_color(
+            columna, panel, _("Color del fon&do:"),
+            self._base.get("color_fondo", ""))
+        self.cho_color_fondo = self._color_fondo.control
+        self.sp_opacidad = self._fila_contador(
+            columna, panel, _("O&pacidad del fondo:"), 0, 100, 0, hueco=0)
+        return columna
+
+    def _fila_contador(self, columna, panel, rotulo, minimo, maximo, inicial,
+                       hueco=formulario.CONTROL_A_ETIQUETA):
+        etiqueta = fila_label(panel, rotulo)
+        control = ContadorAccesible(
+            panel, min=minimo, max=maximo, initial=inicial,
+            name=nombre_de_etiqueta(rotulo))
+        formulario.agregar_fila(columna, etiqueta, control, numerico=True,
+                                hueco=hueco)
+        return control
+
+    def _fila_eleccion(self, columna, panel, rotulo, opciones):
+        etiqueta = fila_label(panel, rotulo)
+        control = EleccionTexto(panel, opciones,
+                                name=nombre_de_etiqueta(rotulo))
+        formulario.agregar_fila(columna, etiqueta, control)
+        return control
+
+    def _fila_numero(self, columna, panel, rotulo, minimo, maximo, inicial):
+        etiqueta = fila_label(panel, rotulo)
+        control = wx.SpinCtrlDouble(
+            panel, min=minimo, max=maximo, initial=inicial, inc=50,
+            name=nombre_de_etiqueta(rotulo))
+        control.SetDigits(0)
+        formulario.agregar_fila(columna, etiqueta, control, numerico=True)
+        return control
+
+    def _columna_derecha(self, panel):
+        columna = wx.BoxSizer(wx.VERTICAL)
+        self.cho_alineacion = self._fila_eleccion(
+            columna, panel, _("A&lineación:"),
+            estilo_opciones.opciones_alineacion())
+        self.cho_zona = self._fila_eleccion(
+            columna, panel, _("&Zona:"), estilo_opciones.opciones_zona())
+        self.cho_entrada = self._fila_eleccion(
+            columna, panel, _("Animación de &entrada:"),
+            estilo_opciones.opciones_entrada())
+        self.sp_ms_entrada = self._fila_numero(
+            columna, panel, _("Du&ración de la entrada:"), 100, 1000, 350)
+        self.cho_salida = self._fila_eleccion(
+            columna, panel, _("Animación de &salida:"),
+            estilo_opciones.opciones_salida())
+        self.sp_ms_salida = self._fila_numero(
+            columna, panel, _("D&uración de la salida:"), 100, 1000, 250)
+        self.chk_esquinas = wx.CheckBox(
+            panel, label=_("Es&quinas redondeadas"),
+            name=nombre_de_etiqueta(_("Esquinas redondeadas")))
+        self.chk_sombra = wx.CheckBox(
+            panel, label=_("So&mbra"),
+            name=nombre_de_etiqueta(_("Sombra")))
+        formulario.agregar_casillas(
+            columna, (self.chk_esquinas, self.chk_sombra), hueco=0)
+        return columna
+
+    def _campo_color(self, columna, panel, rotulo, codigo):
+        etiqueta = fila_label(panel, rotulo)
+        color = estilo_opciones.Color(panel, rotulo, codigo)
+        formulario.agregar_fila(columna, etiqueta, color.control)
+        return color
 
     def _cargar(self):
         self.txt_nombre.SetValue(self._base.get("nombre", ""))
@@ -281,24 +270,21 @@ class DialogoNombre(wx.Dialog):
     def __init__(self, padre, nombre):
         super().__init__(padre, title=_("Cambiar nombre"),
                          name="DialogoNombreEstilo")
+        panel = wx.Panel(self, name="PanelNombreEstilo")
         caja = wx.BoxSizer(wx.VERTICAL)
-        caja.Add(fila_label(self, _("&Nombre:")), 0, wx.ALL, 8)
+        rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = wx.TextCtrl(
-            self, name=nombre_de_etiqueta(_("Nombre:")))
+            panel, name=nombre_de_etiqueta(_("Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
         self.txt_nombre.SetValue(nombre)
-        caja.Add(self.txt_nombre, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_aceptar = wx.Button(self, wx.ID_OK, _("&Aceptar"),
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
+        self.btn_aceptar = wx.Button(panel, wx.ID_OK, _("&Aceptar"),
                                      name=_("Aceptar"))
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("&Cancelar"),
+        self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("&Cancelar"),
                                       name=_("Cancelar"))
         self.btn_aceptar.SetDefault()
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((360, -1))
+        formulario.agregar_pie(caja, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, caja)
         self.Centre()
         paleta.pintar_ventana(self)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)

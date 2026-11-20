@@ -16,7 +16,7 @@ from guyrapu.interaction import estilo_elegido, medios_guardados, metas
 from guyrapu.interaction import metas_guardadas
 from guyrapu.interaction.texto import normalizar
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
@@ -56,40 +56,33 @@ class DialogoMeta(wx.Dialog):
     def _crear_controles(self, datos):
         panel = wx.Panel(self, name="PanelMeta")
         vs = wx.BoxSizer(wx.VERTICAL)
-        vs.Add(fila_label(panel, _("&Nombre:")), 0, wx.ALL, 8)
+        rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = self._campo(panel, _("&Nombre:"))
-        vs.Add(self.txt_nombre, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Qué cuenta:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.txt_nombre)
+        rotulo = fila_label(panel, _("&Qué cuenta:"))
         self.cho_que_cuenta = self._eleccion(
             panel, _("&Qué cuenta:"), _que_cuenta())
-        vs.Add(self.cho_que_cuenta, 0, wx.EXPAND | wx.LEFT | wx.RIGHT
-               | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Objetivo:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_que_cuenta)
+        rotulo = fila_label(panel, _("&Objetivo:"))
         self.sp_objetivo = self._contador(
             panel, _("&Objetivo:"), 0, OBJETIVO_MAXIMO, 1)
-        vs.Add(self.sp_objetivo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("Esti&lo:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.sp_objetivo, numerico=True)
+        rotulo = fila_label(panel, _("Esti&lo:"))
         self.cho_estilo = self._eleccion(
             panel, _("Esti&lo:"), estilo_elegido.opciones(
                 self._usuario, self._por_tipo, "meta"))
-        vs.Add(self.cho_estilo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(fila_label(panel, _("&Festejo:")), 0, wx.LEFT | wx.RIGHT, 8)
+        formulario.agregar_fila(vs, rotulo, self.cho_estilo)
+        rotulo = fila_label(panel, _("&Festejo:"))
         self.cho_festejo = self._eleccion(
             panel, _("&Festejo:"), [_("Ninguno")] + self._nombres_de_medios())
-        vs.Add(self.cho_festejo, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
+        formulario.agregar_fila(vs, rotulo, self.cho_festejo)
         etiqueta = _("Mostrar a&vance en el vídeo")
         self.chk_en_video = wx.CheckBox(
             panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
         nombre_accesible(self.chk_en_video, self.chk_en_video.GetName())
-        vs.Add(self.chk_en_video, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
-
-        vs.Add(self._botones(panel), 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        panel.SetSizer(vs)
+        formulario.agregar_casillas(vs, (self.chk_en_video,), hueco=0)
+        formulario.agregar_pie(vs, self._botones(panel))
+        formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)
 
     def _nombres_de_medios(self):
@@ -114,7 +107,6 @@ class DialogoMeta(wx.Dialog):
         return control
 
     def _botones(self, panel):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_aceptar = wx.Button(
             panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_cancelar = wx.Button(
@@ -123,9 +115,7 @@ class DialogoMeta(wx.Dialog):
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._aceptar)
         self.btn_cancelar.Bind(
             wx.EVT_BUTTON, lambda _evento: self.EndModal(wx.ID_CANCEL))
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        return fila
+        return [self.btn_aceptar, self.btn_cancelar]
 
     def _cargar(self, datos):
         meta = metas_guardadas.a_meta(datos or {})
@@ -203,24 +193,21 @@ class DialogoNombre(wx.Dialog):
     def __init__(self, padre, nombre):
         super().__init__(padre, title=_("Cambiar nombre"),
                          name="DialogoNombreMeta")
+        panel = wx.Panel(self, name="PanelNombreMeta")
         caja = wx.BoxSizer(wx.VERTICAL)
-        caja.Add(fila_label(self, _("&Nombre:")), 0, wx.ALL, 8)
+        rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = wx.TextCtrl(
-            self, name=nombre_de_etiqueta(_("&Nombre:")))
+            panel, name=nombre_de_etiqueta(_("&Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
         self.txt_nombre.SetValue(nombre)
-        caja.Add(self.txt_nombre, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
         self.btn_aceptar = wx.Button(
-            self, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
+            panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
+            panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
         self.btn_aceptar.SetDefault()
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 8)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((360, -1))
+        formulario.agregar_pie(caja, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, caja)
         self.Centre()
         paleta.pintar_ventana(self)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)

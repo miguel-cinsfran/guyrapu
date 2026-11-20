@@ -10100,6 +10100,18 @@ msgid "Editar disparador"
 msgstr "Edit trigger"
 
 #: guyrapu/ui/disparador_cuadro.py
+msgid "Cuándo salta"
+msgstr "When it triggers"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Qué muestra"
+msgstr "What it shows"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Quién y cada cuánto"
+msgstr "Who and how often"
+
+#: guyrapu/ui/disparador_cuadro.py
 #, python-brace-format
 msgid "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}."
 msgstr "You can use {usuario}, {cantidad}, {regalo}, {texto} and {contador}."
@@ -13816,28 +13828,28 @@ msgid "Segundos en pantalla"
 msgstr "Seconds on screen"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Intervalo mínimo, en minutos"
-msgstr "Minimum interval, in minutes"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Intervalo máximo, en minutos"
-msgstr "Maximum interval, in minutes"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Mensajes del chat entre uno y otro"
-msgstr "Chat messages in between"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Intervalo m&ínimo, en minutos:"
 msgstr "M&inimum interval, in minutes:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Intervalo mínimo, en minutos"
+msgstr "Minimum interval, in minutes"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Intervalo má&ximo, en minutos:"
 msgstr "Interval ma&ximum, in minutes:"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Intervalo máximo, en minutos"
+msgstr "Maximum interval, in minutes"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Mensajes del c&hat entre uno y otro:"
 msgstr "Chat messa&ges in between:"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Mensajes del chat entre uno y otro"
+msgstr "Chat messages in between"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Acti&vo"
