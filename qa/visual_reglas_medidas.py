@@ -29,6 +29,19 @@ def visibles(controles):
     return [c for c in controles if c["visible"]]
 
 
+def controles_medibles(controles, tamano):
+    """El árbol menos la ventana de nivel superior, que no es un control.
+
+    La galería escribe primero la ventana y su rectángulo es el tamaño total.
+    Sus hijos directos siguen teniendo `padre` nulo y se comparan contra
+    `[0, 0, *cliente]`, no contra la ventana.
+    """
+    if (controles and controles[0]["padre"] is None
+            and controles[0]["rect"] == [0, 0, *tamano]):
+        return list(controles[1:])
+    return list(controles)
+
+
 def area_interseccion(a, b):
     comun_x = min(derecha(a), derecha(b)) - max(a[0], b[0])
     comun_y = min(abajo(a), abajo(b)) - max(a[1], b[1])

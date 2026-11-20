@@ -278,6 +278,46 @@ class TestVacio(Base):
         self.assertIsNone(self.uno(muestra([grande]), "vacio"))
 
 
+def raiz():
+    """La ventana de nivel superior: mide el total, no el área cliente."""
+    return control(id=99, clase="wxDialog", nombre="Ventana", etiqueta="",
+                   rect=[0, 0, 500, 400], texto_px=[0, 0])
+
+
+class TestRaizNoEsControl(Base):
+    """La ventana no entra en las reglas de posición; sus hijos sí."""
+
+    def test_no_da_recorte_por_ser_mas_grande_que_el_area_cliente(self):
+        ventana = muestra([raiz(), control(id=1)])
+        self.assertIsNone(self.uno(ventana, "recorte"))
+
+    def test_hijo_directo_se_mide_contra_el_area_cliente(self):
+        fuera = control(id=1, rect=[396, 20, 10, 24])
+        self.assertIsNotNone(self.uno(muestra([raiz(), fuera]), "recorte"))
+
+    def test_no_da_solape_con_sus_hijos(self):
+        ventana = muestra([raiz(), control(id=1)])
+        self.assertIsNone(self.uno(ventana, "solape"))
+
+    def test_no_da_ritmo_en_la_columna_de_x_cero(self):
+        hijos = [control(id=i + 1, rect=[0, y, 100, 20])
+                 for i, y in enumerate((22, 50, 78))]
+        self.assertIsNone(self.uno(muestra([raiz(), *hijos]), "ritmo"))
+
+    def test_no_da_casi_alineados_con_un_hijo(self):
+        cerca = control(id=1, rect=[3, 450, 100, 24])
+        self.assertIsNone(self.uno(muestra([raiz(), cerca]),
+                                   "casi_alineados"))
+
+    def test_no_da_margen_negativo(self):
+        self.assertIsNone(self.uno(muestra([raiz(), control(id=1)]),
+                                   "margen"))
+
+    def test_el_resumen_no_cuenta_el_margen_de_la_ventana(self):
+        _, resumen = visual.analizar([muestra([raiz(), control(id=1)])])
+        self.assertEqual(resumen["margenes"], [(20, 1)])
+
+
 class TestLineaDeComando(Base):
 
     def test_uno_con_error_y_linea_con_muestra_pagina_y_control(self):

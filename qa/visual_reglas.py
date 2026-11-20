@@ -22,6 +22,7 @@ for _carpeta in (str(_RAIZ), str(_RAIZ / "qa")):
 from guyrapu.obs.overlay_datos import relacion_de_contraste  # noqa: E402
 from visual_reglas_medidas import abajo, area, area_interseccion  # noqa: E402
 from visual_reglas_medidas import apilados, cabe_dentro, columnas  # noqa: E402
+from visual_reglas_medidas import controles_medibles  # noqa: E402
 from visual_reglas_medidas import derecha, envolvente, hermanos  # noqa: E402
 from visual_reglas_medidas import huecos, margen_exterior  # noqa: E402
 from visual_reglas_medidas import texto_cabe, visibles  # noqa: E402
@@ -124,10 +125,11 @@ def regla_contraste(ventana):
 
 
 def regla_recorte(ventana):
-    por_id = {c["id"]: c for c in visibles(ventana["controles"])}
+    medibles = visibles(controles_medibles(ventana["controles"], ventana["tamano"]))
+    por_id = {c["id"]: c for c in medibles}
     cliente = ventana["cliente"]
     hallazgos = []
-    for c in visibles(ventana["controles"]):
+    for c in medibles:
         padre = por_id.get(c["padre"]) if c["padre"] is not None else None
         contenedor = padre["rect"] if padre else [0, 0, *cliente]
         if not cabe_dentro(c["rect"], contenedor):
@@ -145,7 +147,7 @@ def regla_recorte(ventana):
 
 def regla_solape(ventana):
     hallazgos = []
-    for hermanos_ in hermanos(ventana["controles"]).values():
+    for hermanos_ in hermanos(controles_medibles(ventana["controles"], ventana["tamano"])).values():
         for a, b in itertools.combinations(hermanos_, 2):
             area_comun = area_interseccion(a["rect"], b["rect"])
             if area_comun >= SOLAPE_MINIMO_PX2:
@@ -183,7 +185,7 @@ def regla_fuera_de_pantalla(ventana):
 
 def regla_casi_alineados(ventana):
     hallazgos = []
-    for hermanos_ in hermanos(ventana["controles"]).values():
+    for hermanos_ in hermanos(controles_medibles(ventana["controles"], ventana["tamano"])).values():
         for a, b in itertools.combinations(hermanos_, 2):
             if not apilados(a["rect"], b["rect"]):
                 continue
@@ -200,7 +202,7 @@ def regla_casi_alineados(ventana):
 
 def regla_ritmo(ventana):
     hallazgos = []
-    for grupo in columnas(ventana["controles"]).values():
+    for grupo in columnas(controles_medibles(ventana["controles"], ventana["tamano"])).values():
         if len(grupo) < 2:
             continue
         huecos_ = huecos(grupo)
@@ -222,7 +224,7 @@ def regla_ritmo(ventana):
 def regla_margen(ventana):
     ancho_, alto_ = ventana["cliente"]
     hallazgos = []
-    for c in visibles(ventana["controles"]):
+    for c in visibles(controles_medibles(ventana["controles"], ventana["tamano"])):
         x, y, ancho_c, alto_c = c["rect"]
         distancia = min(x, y, ancho_ - x - ancho_c, alto_ - y - alto_c)
         if distancia < MARGEN_MIN_PX:
@@ -331,7 +333,7 @@ def resumen_de(ventanas):
     margenes = {}
     familias, tamanos, colores = set(), set(), set()
     for ventana in ventanas:
-        controles = visibles(ventana["controles"])
+        controles = visibles(controles_medibles(ventana["controles"], ventana["tamano"]))
         margen = margen_exterior(controles, ventana["cliente"])
         if margen is not None:
             margenes[margen] = margenes.get(margen, 0) + 1
