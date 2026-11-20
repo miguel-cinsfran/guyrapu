@@ -5,8 +5,7 @@
 Prepara y restaura las cuatro colecciones de datos de la app y comprueba al
 aire el comando, el disparador, la encuesta, las preguntas y la meta. Todo lo
 que toca la app o el escritorio recibe adaptadores: acá solo se decide qué se
-envía, qué se lee y qué se anota. No importa `directo_real.py` para no armar
-un import circular.
+envía, qué se lee y qué se anota.
 """
 
 from __future__ import annotations
@@ -24,6 +23,7 @@ _RUTA_QA = str(Path(__file__).resolve().parent)
 if _RUTA_QA not in sys.path:
     sys.path.insert(0, _RUTA_QA)
 from directo_chat import mensaje_en_respuesta  # noqa: E402
+from directo_real import ARRANQUE_NORMAL  # noqa: E402
 
 DATOS = ("comandos", "disparadores", "encuestas", "metas")
 MARCA = "QA_DIRECTO_INTERACCION"
@@ -310,7 +310,7 @@ class Interaccion:
     @property
     def arranque(self) -> str:
         if not self.activo:
-            return "import main\nmain.main()"
+            return ARRANQUE_NORMAL
         return ("import sys\n"
                 "sys.path.insert(0, os.path.join(REPO, 'qa'))\n"
                 "import sonda as _qa_sonda\n"

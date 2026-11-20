@@ -610,6 +610,10 @@ class TestArmarLanzador(unittest.TestCase):
         compile(fuente, "lanzador", "exec")
         self.assertNotIn("{arranque}", fuente)
 
+    def test_sin_arranque_termina_en_main_main(self):
+        fuente = directo_real.armar_lanzador(r"C:\x")
+        self.assertTrue(fuente.rstrip().endswith("main.main()"))
+
 
 class TestVolumenPrueba(unittest.TestCase):
 

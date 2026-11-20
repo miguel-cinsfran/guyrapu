@@ -94,6 +94,7 @@ ERRORES_AL_AIRE = ("no se pudo", "error", "falló", "no tiene")
 OK_AL_AIRE = "directo iniciado en"
 OK_CHAT = "conectado al directo"
 OK_FIN = ("detenid", "finaliz", "terminó")
+ARRANQUE_NORMAL = "import main\nmain.main()"
 
 # Auxiliar de wx para decodificar PNG sin ventanas: guarda la instancia
 # para que el recolector no la libere mientras se usa la imagen.
@@ -267,7 +268,6 @@ def fraccion_de_color(pixeles, colores, tolerancia) -> float:
 
 
 def panel_visible(pixeles, colores) -> bool:
-    """Si el panel se ve en la captura: al menos un 2 % propio."""
     lista = list(pixeles or [])
     libres = 1 - fraccion_de_color(lista, colores, TOLERANCIA_COLOR)
     return bool(lista) and libres >= UMBRAL_PANEL_VISIBLE
@@ -435,7 +435,7 @@ _rep.ReproductorPanel.__init__ = _rep_init
 """
 
 
-def armar_lanzador(repo: str, arranque: str = "") -> str:
+def armar_lanzador(repo: str, arranque: str = ARRANQUE_NORMAL) -> str:
     """Lanzador con la raíz y el arranque ya puestos en su lugar."""
     return _LANZADOR.format(repo=repo, arranque=arranque)
 
