@@ -188,7 +188,7 @@ def crear(clave_elevenlabs=None, salida=None, al_avisar=None):
         raise MotorNoDisponible(_(_MSG_SIN_VOCES))
     from guyrapu.voice.motor_local import MotorLocal
     return MotorLocal(SintetizadorPhonon(_ptts()), salida=salida,
-                      al_avisar=al_avisar)
+                      al_avisar=al_avisar, motor=_ID)
 
 
 _CAPACIDADES = Capacidades(streaming=True, tono=True, nube=False)

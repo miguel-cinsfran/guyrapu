@@ -5,6 +5,8 @@
 import importlib.util
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
 
 _RUTA = Path(__file__).resolve().parent.parent / "qa" / "voces_real.py"
 _paquete = importlib.util.spec_from_file_location("voces_real_qa", _RUTA)
@@ -92,6 +94,39 @@ class TestLineaFinal(unittest.TestCase):
                 linea, codigo = voces_real.linea_final(paso, "motivo de prueba")
                 self.assertEqual(codigo, 1)
                 self.assertEqual(linea, f"VOCES_REAL {paso}: motivo de prueba")
+
+
+class TestHablarConElMotorDelProveedor(unittest.TestCase):
+
+    def _proveedor(self, motor):
+        return SimpleNamespace(id="piper", crear=mock.Mock(return_value=motor))
+
+    def test_el_motor_del_proveedor_lee_la_frase_y_lleva_su_nombre(self):
+        capturador = SimpleNamespace(trozos=[[0.0, 0.5]])
+        motor = mock.Mock()
+        motor.motor = "piper"
+        motor.elegir_voz.return_value = True
+        motor.hablar.return_value = True
+        motor.hablando.return_value = False
+        motor._reproductor = capturador
+        proveedor = self._proveedor(motor)
+        with mock.patch.object(voces_real, "PROVEEDORES", (proveedor,)):
+            trozos = voces_real._hablar(
+                _paquete("voz-piper", proveedor="piper"))
+        proveedor.crear.assert_called_once_with()
+        motor.elegir_voz.assert_called_once_with(0)
+        motor.hablar.assert_called_once_with(voces_real.FRASE)
+        motor.cerrar.assert_called_once_with()
+        self.assertEqual(trozos, [[0.0, 0.5]])
+
+    def test_un_motor_con_otro_nombre_se_rechaza(self):
+        motor = mock.Mock()
+        motor.motor = "sapi"
+        proveedor = self._proveedor(motor)
+        with mock.patch.object(voces_real, "PROVEEDORES", (proveedor,)), \
+                self.assertRaisesRegex(RuntimeError, "piper"):
+            voces_real._hablar(_paquete("voz-piper", proveedor="piper"))
+        motor.hablar.assert_not_called()
 
 
 if __name__ == "__main__":

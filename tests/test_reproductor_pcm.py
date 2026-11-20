@@ -155,7 +155,7 @@ class SintetizadorSilencio:
 class TestMotorLocalReal(unittest.TestCase):
 
     def test_suena_se_corta_y_se_cierra_sin_errores(self):
-        motor = motor_local.MotorLocal(SintetizadorSilencio())
+        motor = motor_local.MotorLocal(SintetizadorSilencio(), motor="phonon")
         try:
             self.assertTrue(motor.hablar("silencio"))
             time.sleep(0.05)

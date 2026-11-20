@@ -109,11 +109,16 @@ class ReproductorFalso:
 
 class TestMotorLocal(unittest.TestCase):
 
+    def test_crear_sin_nombre_de_motor_falla(self):
+        with self.assertRaises(TypeError):
+            motor_local.MotorLocal(SintetizadorFalso(), ReproductorFalso())
+
     def test_hablar_deja_hablando_en_true_antes_de_volver(self):
         listo = threading.Event()
         sintetizador = SintetizadorFalso(
             trozos=[np.zeros(TROZO, np.float32)], espera=listo)
-        motor = motor_local.MotorLocal(sintetizador, ReproductorFalso())
+        motor = motor_local.MotorLocal(
+            sintetizador, ReproductorFalso(), motor="phonon")
         try:
             self.assertTrue(motor.hablar("hola"))
             self.assertTrue(motor.hablando())
@@ -126,7 +131,7 @@ class TestMotorLocal(unittest.TestCase):
         sintetizador = SintetizadorFalso(
             trozos=[np.zeros(TROZO, np.float32)] * 100, pausa=0.005)
         reproductor = ReproductorFalso()
-        motor = motor_local.MotorLocal(sintetizador, reproductor)
+        motor = motor_local.MotorLocal(sintetizador, reproductor, motor="phonon")
         try:
             self.assertTrue(motor.hablar("una frase larga"))
             self.assertTrue(_esperar(lambda: reproductor.encolados > 0))
@@ -143,7 +148,7 @@ class TestMotorLocal(unittest.TestCase):
         sintetizador = SintetizadorFalso(
             trozos=[np.zeros(TROZO, np.float32)] * 2, error_en=1)
         reproductor = ReproductorFalso()
-        motor = motor_local.MotorLocal(sintetizador, reproductor)
+        motor = motor_local.MotorLocal(sintetizador, reproductor, motor="phonon")
         errores = []
         anterior = threading.excepthook
         threading.excepthook = lambda datos: errores.append(datos.exc_value)
@@ -160,7 +165,7 @@ class TestMotorLocal(unittest.TestCase):
         sintetizador = SintetizadorFalso(
             rango_velocidad=(1.0, 2.0), por_velocidad=True)
         reproductor = ReproductorFalso()
-        motor = motor_local.MotorLocal(sintetizador, reproductor)
+        motor = motor_local.MotorLocal(sintetizador, reproductor, motor="phonon")
         try:
             motor.fijar_velocidad(100)
             self.assertTrue(motor.hablar("hola"))
@@ -180,7 +185,7 @@ class TestMotorLocal(unittest.TestCase):
                 sintetizador = SintetizadorFalso(
                     trozos=[entrada], ganancia_voz=0.5)
                 reproductor = ReproductorFalso()
-                motor = motor_local.MotorLocal(sintetizador, reproductor)
+                motor = motor_local.MotorLocal(sintetizador, reproductor, motor="phonon")
                 try:
                     motor.fijar_velocidad(50)
                     motor.fijar_volumen(volumen)
@@ -207,7 +212,7 @@ class TestMotorLocal(unittest.TestCase):
             with self.subTest(tono=tono, velocidad=velocidad):
                 sintetizador = SintetizadorFalso(trozos=[entrada])
                 reproductor = ReproductorFalso()
-                motor = motor_local.MotorLocal(sintetizador, reproductor)
+                motor = motor_local.MotorLocal(sintetizador, reproductor, motor="phonon")
                 try:
                     motor.fijar_tono(tono)
                     motor.fijar_velocidad(velocidad)
@@ -223,7 +228,7 @@ class TestMotorLocal(unittest.TestCase):
 
     def test_hablar_vacio_o_cerrado_devuelve_false(self):
         motor = motor_local.MotorLocal(
-            SintetizadorFalso(), ReproductorFalso())
+            SintetizadorFalso(), ReproductorFalso(), motor="phonon")
         self.assertFalse(motor.hablar(""))
         self.assertFalse(motor.hablar(None))
         motor.cerrar()

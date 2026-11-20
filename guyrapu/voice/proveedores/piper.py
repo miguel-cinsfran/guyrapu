@@ -174,7 +174,7 @@ def crear(clave_elevenlabs=None, salida=None, al_avisar=None):
 
     return MotorLocal(SintetizadorPiper(
         entradas, (PiperVoice, SynthesisConfig)), salida=salida,
-        al_avisar=al_avisar)
+        al_avisar=al_avisar, motor="piper")
 
 
 def listar_voces(fabrica_contexto=None) -> list[str]:

@@ -261,6 +261,7 @@ class TestSintetizador(BasePhonon):
             motor = phonon.crear()
         try:
             self.assertIsInstance(motor, motor_local.MotorLocal)
+            self.assertEqual(motor.motor, "phonon")
             self.assertIsInstance(
                 motor._sintetizador, phonon.SintetizadorPhonon)
         finally:

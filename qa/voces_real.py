@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Banco real de voces: descarga el catálogo, instala la voz más chica y sintetiza.
 
-Usa el catálogo publicado, la descarga con la firma de la app y el
-sintetizador del proveedor, sin dobles. La carpeta de voces se sustituye por
-una de temporal mientras corre, así nada se escribe en la de la app. Se corre
-a mano, con red:
+Usa el catálogo publicado, la descarga con la firma de la app y el motor que
+arma el proveedor, sin dobles. El reproductor captura el audio sin abrir la
+salida. La carpeta de voces se sustituye por una de temporal mientras corre,
+así nada se escribe en la de la app. Se corre a mano, con red:
 
     python qa/voces_real.py
 """
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import sys
 import tempfile
+import time
 from pathlib import Path
 from unittest import mock
 
@@ -22,6 +23,7 @@ sys.path.insert(0, str(RAIZ))
 
 from guyrapu.core import (config, paquetes_catalogo,  # noqa: E402
                           paquetes_instalacion, paths, red)
+from guyrapu.voice import motor_local  # noqa: E402
 from guyrapu.voice.proveedores import PROVEEDORES  # noqa: E402
 
 FRASE = "Hola, esto es una prueba de voz."
@@ -54,28 +56,72 @@ def linea_final(paso, motivo):
     return (f"VOCES_REAL {paso}: {motivo}", 1)
 
 
-def _sintetizador(paquete):
-    """El sintetizador del proveedor del paquete, sin abrir salida de audio."""
+class _ReproductorCapturador:
+    """Guarda los trozos del motor sin abrir la salida de audio."""
+
+    def __init__(self):
+        self.trozos = []
+        self._sonando = False
+
+    @property
+    def sonando(self):
+        return self._sonando
+
+    def empezar(self, tasa):
+        pass
+
+    def encolar(self, trozo):
+        self.trozos.append(trozo)
+        self._sonando = True
+
+    def terminar(self):
+        self._sonando = False
+
+    def cortar(self):
+        self.trozos.clear()
+        self._sonando = False
+
+    def pausar(self):
+        pass
+
+    def reanudar(self):
+        pass
+
+    def cerrar(self):
+        self._sonando = False
+
+
+def _motor(paquete):
+    """El motor del proveedor, como lo arma la app, sin abrir salida de audio."""
     proveedor = paquete.get("proveedor")
-    if proveedor == "piper":
-        from piper import PiperVoice, SynthesisConfig
-        from guyrapu.voice.proveedores.piper import SintetizadorPiper, _entradas
-        return SintetizadorPiper(_entradas(), (PiperVoice, SynthesisConfig))
-    if proveedor == "phonon":
-        from guyrapu.voice.proveedores.phonon import SintetizadorPhonon, _ptts
-        return SintetizadorPhonon(_ptts())
-    raise RuntimeError(f"el proveedor {proveedor} no carga voces instaladas")
+    registrados = {p.id: p for p in PROVEEDORES}
+    if proveedor not in registrados:
+        raise RuntimeError(f"el proveedor {proveedor} no carga voces instaladas")
+    with mock.patch.object(motor_local.reproductor_pcm, "ReproductorPCM",
+                           _ReproductorCapturador):
+        motor = registrados[proveedor].crear()
+    if motor.motor != proveedor:
+        raise RuntimeError(
+            f"el motor {motor.motor} no corresponde al proveedor {proveedor}")
+    return motor
 
 
 def _hablar(paquete):
-    """Los trozos de una frase corta, con la voz recién instalada."""
-    sintetizador = _sintetizador(paquete)
-    if not sintetizador.elegir_voz(0):
+    """Los trozos de una frase corta, con el motor de la voz recién instalada."""
+    motor = _motor(paquete)
+    if not motor.elegir_voz(0):
         raise RuntimeError("el proveedor no pudo cargar la voz instalada")
+    reproductor = motor._reproductor
     try:
-        return list(sintetizador.sintetizar(FRASE, 1.0))
+        motor.hablar(FRASE)
+        limite = time.monotonic() + 10.0
+        while motor.hablando() and time.monotonic() < limite:
+            time.sleep(0.01)
+        if motor.hablando():
+            raise RuntimeError("la voz no terminó de hablar")
+        return list(reproductor.trozos)
     finally:
-        sintetizador.cerrar()
+        motor.cerrar()
 
 
 def _correr():

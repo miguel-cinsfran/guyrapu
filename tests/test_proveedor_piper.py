@@ -186,6 +186,7 @@ class TestProveedorPiper(unittest.TestCase):
         motor = self._crear(modulo)
         try:
             self.assertIsInstance(motor, motor_local.MotorLocal)
+            self.assertEqual(motor.motor, "piper")
             self.assertIsInstance(motor._sintetizador,
                                   proveedor_piper.SintetizadorPiper)
         finally:

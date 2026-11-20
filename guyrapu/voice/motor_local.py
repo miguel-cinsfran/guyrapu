@@ -98,7 +98,8 @@ class MotorLocal:
     """Un motor con la interfaz de `MotorPrism` sobre un sintetizador de trozos."""
 
     def __init__(self, sintetizador, reproductor=None, salida=None,
-                 al_avisar=None):
+                 al_avisar=None, *, motor):
+        self.motor = motor
         self._sintetizador = sintetizador
         if reproductor is not None:
             self._reproductor = reproductor

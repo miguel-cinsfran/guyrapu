@@ -62,7 +62,7 @@ class TestMotorLocalConSalida(unittest.TestCase):
                     motor_local.reproductor_pcm, "ReproductorPCM",
                     side_effect=ReproductorFalso) as reproductor:
             motor = motor_local.MotorLocal(
-                SintetizadorFalso(), salida="Auriculares")
+                SintetizadorFalso(), salida="Auriculares", motor="phonon")
         self.assertEqual(reproductor.call_args.args[0], "Auriculares")
         self.assertEqual(motor._reproductor.dispositivo, "Auriculares")
 
@@ -76,7 +76,7 @@ class TestMotorLocalConSalida(unittest.TestCase):
                     side_effect=ReproductorFalso) as reproductor:
             motor_local.MotorLocal(
                 SintetizadorFalso(), salida="No existe",
-                al_avisar=avisos.append)
+                al_avisar=avisos.append, motor="phonon")
         self.assertEqual(len(avisos), 1)
         self.assertIn("No existe", avisos[0])
         self.assertIn("No se encontró la salida de audio de la voz", avisos[0])

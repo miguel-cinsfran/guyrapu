@@ -8,11 +8,15 @@ import time
 import unittest
 from unittest import mock
 
+import numpy as np
+
 from tests.pseudo_prueba import con_pseudo
+from tests.test_motor_local import ReproductorFalso, SintetizadorFalso, TASA
 from guyrapu.core.idioma import _
 from guyrapu.voice import caida_elevenlabs
 from guyrapu.voice import elevenlabs
 from guyrapu.voice import gestor_motores
+from guyrapu.voice import motor_local
 from guyrapu.voice import motores
 from guyrapu.voice import tts_worker
 from guyrapu.voice.tts_worker import sanitizar, construir_tts
@@ -570,6 +574,51 @@ class TestRespaldoMotorLocal(unittest.TestCase):
         worker._hablar("uno")
         self.assertEqual(fabrica.creados, ["sapi"])
         self.assertEqual(avisos, [])
+
+
+class TestMotorLocalPorFabrica(unittest.TestCase):
+    """El motor local de los proveedores se lee por EleccionMotor y cae a Windows."""
+
+    def _worker(self, sintetizador):
+        reproductor = ReproductorFalso()
+        local = motor_local.MotorLocal(sintetizador, reproductor,
+                                       motor="phonon")
+        sapi = MotorFalso()
+        sapi.duracion = 0.02
+        fabrica = FabricaFalsa({"phonon": local, "sapi": sapi})
+        worker = tts_worker.TTSWorker(
+            queue.Queue(), {"motor": "phonon"}, fabrica_motor=fabrica)
+        worker._abrir_motor()
+        worker._avisos = []
+        worker.al_avisar = worker._avisos.append
+        return worker, local, reproductor, sapi
+
+    def test_el_motor_local_de_la_fabrica_lee_el_mensaje(self):
+        entrada = (0.2 * np.sin(
+            2 * np.pi * 440 * np.arange(TASA // 50) / TASA)).astype(np.float32)
+        worker, local, reproductor, _sapi = self._worker(
+            SintetizadorFalso(trozos=[entrada]))
+        try:
+            worker._hablar("hola")
+            self.assertGreater(reproductor.encolados, 0)
+            self.assertTrue(any(muestra != 0 for trozo in reproductor.trozos
+                                for muestra in trozo))
+            self.assertTrue(reproductor.terminado)
+        finally:
+            local.cerrar()
+            worker._cerrar_motor()
+
+    def test_un_fallo_del_sintetizador_cae_al_respaldo_de_windows(self):
+        worker, local, _reproductor, sapi = self._worker(
+            SintetizadorFalso(error_en=0))
+        local.hablar = mock.Mock(return_value=False)
+        try:
+            worker._hablar("hola")
+            self.assertEqual([t for t, _ in sapi.hablados], ["hola"])
+            self.assertEqual(len(worker._avisos), 1)
+        finally:
+            local.cerrar()
+            worker._cerrar_motor()
 
 
 class TestSecundariaConMotorPropio(unittest.TestCase):
