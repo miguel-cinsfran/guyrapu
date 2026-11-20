@@ -39,6 +39,10 @@ class TestDescribeLaUnicaVentana(unittest.TestCase):
         self.assertTrue(ia_real.describe_la_unica_ventana(
             "Se ve una ventana de color. Ocupa todo el vídeo con magenta."))
 
+    def test_una_ventana_sin_nombrar_color_pasa(self):
+        self.assertTrue(ia_real.describe_la_unica_ventana(
+            "Se ve una ventana de color en toda la pantalla."))
+
     def test_dos_ventanas_no_pasa(self):
         self.assertFalse(ia_real.describe_la_unica_ventana(
             "Se ven dos ventanas: una verde a la izquierda y una magenta "

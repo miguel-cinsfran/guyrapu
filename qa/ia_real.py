@@ -32,7 +32,6 @@ PREGUNTA_RAPIDA = "(consulta rápida con la instrucción de Preferencias)"
 PREGUNTA_VENTANAS = "¿Cuántas ventanas de color se ven y dónde está cada una?"
 PREGUNTA_PANEL = "¿Qué texto se lee en el panel de chat?"
 PREGUNTA_CAMBIO = "¿Cambió algo respecto de la captura anterior?"
-COLORES_MAGENTA = ("magenta", "fucsia", "rosa", "violeta", "morado")
 
 def _sin_tildes(texto) -> str:
     """Minúsculas sin tildes, para comparar sin importar el acento."""
@@ -42,13 +41,14 @@ def _sin_tildes(texto) -> str:
 def nombra_colores(texto) -> bool:
     """Si nombra al menos uno de los colores de las ventanas de prueba."""
     base = _sin_tildes(texto)
-    return any(c in base for c in ("verde", *COLORES_MAGENTA))
+    return any(c in base for c in ("verde", "magenta", "fucsia", "rosa",
+                                   "violeta", "morado"))
 
 def describe_la_unica_ventana(texto) -> bool:
     base = _sin_tildes(texto)
     return (re.search(r"\b(?:una|un|1)\b", base) is not None
             and re.search(r"\b(?:dos|2)\b", base) is None
-            and any(c in base for c in COLORES_MAGENTA))
+            and "verde" not in base)
 
 def lista_cargada(textos) -> bool:
     return bool(textos) and all("cargando" not in _sin_tildes(t) for t in textos)
