@@ -175,18 +175,21 @@ class TestVentanaAjenaPorTitulo(unittest.TestCase):
                 raise OSError("sin Win32")
         self.assertIsNone(musica_globales._pid_de_hwnd(Usuario(), 987))
 
-    def test_pulsar_alt_manda_abajo_y_arriba(self):
+    def test_pulsar_f24_manda_abajo_y_arriba_y_nunca_alt(self):
         class Usuario:
             def __init__(self):
                 self.pulsadas = []
             def keybd_event(self, tecla, extra, flags, info):
                 self.pulsadas.append((tecla, extra, flags, info))
         usuario = Usuario()
-        musica_globales._pulsar_alt(usuario)
+        musica_globales._pulsar_f24(usuario)
         self.assertEqual(usuario.pulsadas,
-                         [(musica_globales.VK_MENU, 0, 0, 0),
-                          (musica_globales.VK_MENU, 0,
+                         [(musica_globales.VK_F24, 0, 0, 0),
+                          (musica_globales.VK_F24, 0,
                            musica_globales.TECLA_ARRIBA, 0)])
+        teclas = [tecla for tecla, _extra, _flags, _info in usuario.pulsadas]
+        self.assertEqual(set(teclas), {musica_globales.VK_F24})
+        self.assertNotIn(0x12, teclas)
 
     def test_pedir_cierre_manda_wm_close_a_la_ventana(self):
         posteados = []

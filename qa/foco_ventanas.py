@@ -4,7 +4,7 @@
 
 Windows no deja pasar al frente una ventana lanzada desde una tarea
 programada solo con `Raise`. El banco usa estos ayudantes: una pulsación
-suelta de Alt, `SetForegroundWindow` con reintentos y el primer control que
+suelta de F24, `SetForegroundWindow` con reintentos y el primer control que
 puede tomar foco dentro de un contenedor.
 """
 
@@ -17,7 +17,7 @@ from ctypes import wintypes
 
 logger = logging.getLogger(__name__)
 
-VK_MENU = 0x12
+VK_F24 = 0x87
 TECLA_ARRIBA = 0x0002
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 NOTIFICACION_CLASE = "windows.ui.core.corewindow"
@@ -69,18 +69,19 @@ def pid_al_frente():
         return None
 
 
-def pulsar_alt(usuario) -> None:
-    """Pulsación suelta de Alt para levantar el bloqueo del primer plano.
+def pulsar_f24(usuario) -> None:
+    """Pulsación suelta de F24 para levantar el bloqueo del primer plano.
 
-    Windows le niega el primer plano a un proceso que no es el del
-    frente; esa pulsación lo levanta. Es lo que hace `pywinauto` en
-    `set_focus`.
+    Windows le niega el primer plano a un proceso que no es el del frente;
+    esa pulsación lo levanta. F24 no la usa ninguna aplicación ni NVDA, a
+    diferencia de Alt, que abre el menú de sistema si la ventana ya está al
+    frente cuando llega la tecla, que es asíncrona.
     """
     try:
-        usuario.keybd_event(VK_MENU, 0, 0, 0)
-        usuario.keybd_event(VK_MENU, 0, TECLA_ARRIBA, 0)
+        usuario.keybd_event(VK_F24, 0, 0, 0)
+        usuario.keybd_event(VK_F24, 0, TECLA_ARRIBA, 0)
     except Exception as exc:
-        logger.debug("no se pudo pulsar Alt: %s", exc)
+        logger.debug("no se pudo pulsar F24: %s", exc)
 
 
 def arbol_de_procesos() -> dict:
@@ -208,7 +209,7 @@ def traer_al_frente(hwnd, pid: int, segundos: float = 10.0,
     if hwnd is None or pid is None:
         return False
     plano = plano or describir_primer_plano
-    pulsar = pulsar or pulsar_alt
+    pulsar = pulsar or pulsar_f24
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
         if es_proceso_o_descendiente(plano().get("pid"), pid):

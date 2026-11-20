@@ -33,8 +33,8 @@ from typing import NamedTuple
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from foco_ventanas import (
-    TECLA_ARRIBA, VK_MENU, pid_al_frente as _pid_al_frente,
-    pulsar_alt as _pulsar_alt, traer_al_frente as _traer_al_frente)
+    TECLA_ARRIBA, VK_F24, pid_al_frente as _pid_al_frente,
+    pulsar_f24 as _pulsar_f24, traer_al_frente as _traer_al_frente)
 
 from guyrapu.core import config_predeterminada
 from guyrapu.music import anuncios as anuncios_musica
