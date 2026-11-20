@@ -47,8 +47,10 @@ def listar_voces(fabrica_contexto=None) -> list[str]:
 PROVEEDOR_ELEVENLABS = Proveedor(
     id="elevenlabs",
     nombre=N_("ElevenLabs, en la nube"),
+    nombre_corto="ElevenLabs",
     licencia=_LICENCIA,
-    capacidades=Capacidades(streaming=False, tono=False, nube=True),
+    capacidades=Capacidades(streaming=False, tono=False, nube=True,
+                            local=False),
     crear=crear,
     listar_voces=listar_voces,
 )

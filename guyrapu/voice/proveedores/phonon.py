@@ -191,11 +191,12 @@ def crear(clave_elevenlabs=None, salida=None, al_avisar=None):
                       al_avisar=al_avisar, motor=_ID)
 
 
-_CAPACIDADES = Capacidades(streaming=True, tono=True, nube=False)
+_CAPACIDADES = Capacidades(streaming=True, tono=True, nube=False, local=True)
 
 PROVEEDOR_PHONON = Proveedor(
     id=_ID,
     nombre=N_("Phonon, voces locales"),
+    nombre_corto="Phonon",
     licencia=_LICENCIA,
     capacidades=_CAPACIDADES,
     crear=crear,

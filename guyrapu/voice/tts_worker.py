@@ -148,7 +148,7 @@ class TTSWorker(threading.Thread):
     def _crear_motor(self, motor, clave_elevenlabs=None):
         """Crea el motor con la salida de audio de la voz de la configuración."""
         salida = self.config.get("salida_voz") or ""
-        if motor in ("phonon", "piper"):
+        if proveedores.es_local(motor):
             creado = proveedores.obtener(motor).crear(
                 clave_elevenlabs, salida=salida, al_avisar=self._avisar)
         else:

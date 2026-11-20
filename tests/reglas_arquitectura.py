@@ -86,6 +86,20 @@ def detectar_traduccion(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+_NOMBRES_LOCALES = ("phonon", "piper")
+
+
+def detectar_nombres_de_motores_locales(archivo: str,
+                                        arbol: ast.Module) -> list[Hallazgo]:
+    """Los ids de los motores locales solo viven en su proveedor y fuente."""
+    hallazgos = [
+        Hallazgo(archivo, nodo.lineno)
+        for nodo in ast.walk(arbol)
+        if isinstance(nodo, ast.Constant) and nodo.value in _NOMBRES_LOCALES
+    ]
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
 def _traduccion(archivo: str) -> bool:
     return archivo.startswith("guyrapu/translation/")
 
@@ -260,5 +274,14 @@ REGLAS = (
         detectar=detectar_traduccion,
         pendientes={},
         ambito=_traduccion,
+    ),
+    Regla(
+        id="R19",
+        prohibido="phonon y piper solo son literales en su proveedor y su fuente",
+        detectar=detectar_nombres_de_motores_locales,
+        pendientes={},
+        duenos=("guyrapu/voice/proveedores/phonon.py",
+                "guyrapu/voice/proveedores/piper.py"),
+        ambito=_paquete,
     ),
 )

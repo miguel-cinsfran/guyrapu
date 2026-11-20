@@ -28,33 +28,14 @@ if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
 from guyrapu.core.config import APP_VERSION, USER_AGENT  # noqa: E402
-from scripts import uso_voces  # noqa: E402
 
 
 URL_CONTENIDO = "https://github.com/miguel-cinsfran/guyrapu-contenido"
 URL_SUBIR = URL_CONTENIDO + "/releases/download/modelos-1/"
 BASE_HF = "https://huggingface.co"
-URL_JENNY = "https://github.com/dioco-group/jenny-tts-dataset"
 CACHE = RAIZ / ".cache-voces"
 TIEMPO_ESPERA = 60
 SUBIR = CACHE / "subir"
-
-PHONON = {
-    "es": ("gradium/phonon-40m-es", "e5e052b26e31abd5918ade71d3135e69d51a66f8",
-           "es-ES", "CC BY-NC 4.0", "Phonon español"),
-    "pt": ("gradium/phonon-40m-pt", "4cbfd742a1555d60eb5399c6d296e9f2e07389e9",
-           "pt-BR", "CC BY-NC 4.0", "Phonon portugués"),
-    "en": ("gradium/phonon-31m-en", "92741c5b07d085ff840e26fea8ce43110b87852f",
-           "en-US", "Apache 2.0", "Phonon inglés"),
-}
-VOCES_PHONON = ("gradium/phonon-voices",
-                "0ee17205f254b5abc43b266c8a0f215565c352f7")
-PIPER = ("rhasspy/piper-voices", "6b9cfaacb4fb2e02a9621227e3c1a48bec9710c3")
-ARCHIVOS_MODELO = ("config.json", "model.q8.gguf", "tokenizer.json",
-                   "default-voice.safetensors")
-ORDEN_CALIDAD = {"high": 0, "medium": 1, "low": 2, "x_low": 3}
-VERSION_AVISO_USO = "3.0.0-beta.6"
-MAX_HABLANTES = 25
 
 
 def token_huggingface() -> str | None:
@@ -157,26 +138,6 @@ def _arbol(repo: str, revision: str, token: str | None) -> dict:
     return entradas
 
 
-def nombre_piper(nombre: str) -> str:
-    return ("Jenny (Dioco)" if (nombre or "").lower() == "jenny_dioco"
-            else str(nombre).replace("_", " ").title())
-
-
-def _grupos_piper(voices: dict) -> dict:
-    grupos = {}
-    for entrada in voices.values():
-        idioma = entrada.get("language") if isinstance(entrada, dict) else None
-        if not isinstance(idioma, dict) or idioma.get("family") not in ("es", "en", "pt"):
-            continue
-        clave = (idioma.get("code"), entrada.get("name"))
-        actual = grupos.get(clave)
-        if (actual is None
-                or ORDEN_CALIDAD.get(entrada.get("quality"), 99)
-                < ORDEN_CALIDAD.get(actual.get("quality"), 99)):
-            grupos[clave] = entrada
-    return grupos
-
-
 def _paquete(identificador, proveedor, nombre, idioma, licencia, origen,
              repo, voces, archivos, enlace=None) -> dict:
     return {
@@ -193,138 +154,6 @@ def _paquete(identificador, proveedor, nombre, idioma, licencia, origen,
         "voces": voces,
         "archivos": archivos,
     }
-
-
-def _voces_piper(nombre, idioma, muestra, archivo, hablantes):
-    mapa = hablantes if isinstance(hablantes, dict) else {}
-    pares = sorted(((str(clave), int(valor)) for clave, valor in mapa.items()
-                    if isinstance(valor, int)), key=lambda par: par[1])
-    modelo = nombre_piper(nombre)
-    comun = {"idioma": idioma, "muestra": muestra, "archivo": archivo}
-    if not 2 <= len(pares) <= MAX_HABLANTES:
-        return [dict(comun, nombre=modelo, genero=None)]
-    generos = ({"M": "male", "F": "female"}
-               if {clave for clave, _ in pares} == {"M", "F"} else {})
-    voces = []
-    for clave, hablante in pares:
-        if generos:
-            voz = dict(comun, nombre=modelo, genero=generos[clave])
-        else:
-            voz = dict(comun, nombre=f"{modelo} {clave}", genero=None)
-        voz["hablante"] = hablante
-        voces.append(voz)
-    return voces
-
-
-def _paquete_piper(clave, entrada, metadatos, repo, revision) -> dict:
-    code, nombre = clave
-    tarjeta = next((ruta for ruta in entrada.get("files") or {}
-                    if ruta.endswith("MODEL_CARD")), None)
-    texto = (pedir_texto(url_origen(repo, revision, tarjeta))
-             if tarjeta else None)
-    licencia = uso_voces.licencia(nombre, texto)
-    categoria = uso_voces.uso(nombre, texto)
-    enlace = URL_JENNY if nombre_piper(nombre) == "Jenny (Dioco)" else f"{BASE_HF}/{repo}/blob/{revision}/{tarjeta}"
-    pares = sorted(((ruta, Path(ruta).name)
-                    for ruta in entrada.get("files") or {}
-                    if ruta.endswith(".onnx") or ruta.endswith(".onnx.json")),
-                   key=lambda par: par[1])
-    archivos = [preparar_archivo(repo, revision, ruta, metadatos[ruta],
-                                 CACHE, SUBIR) for ruta, _ in pares]
-    calidad = entrada.get("quality")
-    familia = str(code or "").split("_")[0]
-    muestra = ("https://rhasspy.github.io/piper-samples/samples/"
-               f"{familia}/{code}/{urllib.parse.quote(str(nombre), safe='')}/{calidad}/speaker_0.mp3")
-    crudo = re.sub(r"[^a-z0-9-]+", "-",
-                   f"{code}-{nombre}-{calidad}".lower())
-    idioma = str(code or "").replace("_", "-")
-    paquete = _paquete(
-        "piper-" + re.sub(r"-+", "-", crudo).strip("-"), "piper",
-        f"Piper {nombre_piper(nombre)}", idioma, licencia,
-        f"Piper, {repo}, {entrada.get('key')}", repo,
-        _voces_piper(nombre, idioma, muestra, pares[0][1],
-                     entrada.get("speaker_id_map")),
-        archivos, enlace)
-    paquete["uso"] = categoria
-    if categoria != uso_voces.LIBRE:
-        paquete["guyrapu_minima"] = VERSION_AVISO_USO
-    return paquete
-
-
-def paquetes_piper(token) -> list[dict]:
-    repo, revision = PIPER
-    with _abrir(url_origen(repo, revision, "voices.json"), token) as respuesta:
-        voices = json.load(respuesta)
-    metadatos = _arbol(repo, revision, token)
-    entradas = []
-    for clave, entrada in sorted(_grupos_piper(voices).items()):
-        paquete = _paquete_piper(clave, entrada, metadatos, repo, revision)
-        entradas.append({"paquete": paquete, "repo": repo,
-                         "revision": revision})
-    return entradas
-
-
-def _muestras(arbol: dict) -> dict:
-    clips = sorted((ruta for ruta in arbol if ruta.endswith(".ogg")),
-                   key=lambda ruta: (-arbol[ruta].get("size", 0), ruta))
-    return {ruta.rsplit("/", 1)[0].rsplit("_", 1)[-1]: ruta for ruta in reversed(clips)}
-
-
-def _paquete_phonon(idioma, datos, voces, metadatos_modelo,
-                    metadatos_voces, muestras) -> dict:
-    repo, revision, idioma_app, licencia, nombre = datos
-    archivos = [preparar_archivo(
-        repo, revision, ruta, metadatos_modelo[ruta], CACHE, SUBIR,
-        nombre=f"phonon-{idioma}-{Path(ruta).name}")
-        for ruta in ARCHIVOS_MODELO]
-    voces_paquete = []
-    for voz in voces:
-        ruta = voz.get("filename")
-        if not isinstance(ruta, str) or ruta not in metadatos_voces:
-            continue
-        archivos.append(preparar_archivo(
-            *VOCES_PHONON, ruta, metadatos_voces[ruta], CACHE, SUBIR))
-        partes = str(voz.get("locale") or "").split("-")
-        idioma_voz = ("-".join([partes[0].lower()]
-                               + [parte.upper() for parte in partes[1:]])
-                      if len(partes) > 1 else (voz.get("language") or ""))
-        muestra = muestras.get(voz.get("voice_id"))
-        voces_paquete.append({
-            "nombre": str(voz.get("name") or "Voz"),
-            "idioma": idioma_voz,
-            "genero": voz.get("gender"),
-            "muestra": (url_origen(*VOCES_PHONON, muestra)
-                        if muestra else None),
-            "archivo": ruta,
-        })
-    return _paquete(
-        f"phonon-{idioma}", "phonon", nombre, idioma_app, licencia,
-        f"Gradium, {repo}", repo, voces_paquete, archivos)
-
-
-def paquetes_phonon(token) -> list[dict]:
-    arbol_voces = _arbol(*VOCES_PHONON, token)
-    texto = pedir_texto(url_origen(*VOCES_PHONON, "voices.jsonl"), token)
-    voces = []
-    for linea in texto.splitlines():
-        try:
-            voz = json.loads(linea)
-        except ValueError:
-            continue
-        if isinstance(voz, dict) and voz.get("language") in PHONON:
-            voces.append(voz)
-    muestras = _muestras(arbol_voces)
-    entradas = []
-    for idioma, datos in PHONON.items():
-        repo, revision = datos[0], datos[1]
-        metadatos_modelo = _arbol(repo, revision, token)
-        paquete = _paquete_phonon(
-            idioma, datos, [voz for voz in voces
-                            if voz.get("language") == idioma],
-            metadatos_modelo, arbol_voces, muestras)
-        entradas.append({"paquete": paquete, "repo": repo,
-                         "revision": revision})
-    return entradas
 
 
 def escribir_catalogo(salida, entradas) -> None:
@@ -355,6 +184,13 @@ def escribir_catalogo(salida, entradas) -> None:
                                           encoding="utf-8")
 
 
+# Las fuentes importan estas funciones comunes: importarlas aquí, después de
+# definirlas, evita el ciclo cuando se carga una fuente antes que este módulo.
+from scripts import fuente_phonon, fuente_piper  # noqa: E402
+
+FUENTES = (fuente_phonon, fuente_piper)
+
+
 def main(argv) -> int:
     if len(argv) != 1:
         print("Uso: python scripts/armar_catalogo.py SALIDA", file=sys.stderr)
@@ -365,7 +201,9 @@ def main(argv) -> int:
               "phonon-40m-pt lo piden.", file=sys.stderr)
         return 1
     try:
-        entradas = paquetes_phonon(token) + paquetes_piper(token)
+        entradas = []
+        for fuente in FUENTES:
+            entradas.extend(fuente.paquetes(token))
     except (urllib.error.HTTPError, urllib.error.URLError, OSError,
             ValueError) as error:
         print(f"No se pudo armar el catálogo: {error}", file=sys.stderr)

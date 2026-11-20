@@ -13,6 +13,7 @@ from typing import NamedTuple
 
 from guyrapu.core import paquetes_catalogo
 from guyrapu.core.idioma import N_, _, idioma_actual, ngettext
+from guyrapu.voice import proveedores
 
 _MEGA = 1024 * 1024
 
@@ -61,7 +62,10 @@ _USO_DETALLE = {
         "qué datos parte."),
 }
 
-_ORDEN_MOTOR = {"phonon": 0, "piper": 1}
+def _orden_motor(codigo) -> int:
+    """Puesto del motor en el registro; los que no están van al final."""
+    ids = tuple(proveedor.id for proveedor in proveedores.PROVEEDORES)
+    return ids.index(codigo) if codigo in ids else len(ids)
 
 
 class PaqueteVoz(NamedTuple):
@@ -116,6 +120,9 @@ def motor_de(entrada) -> str:
 
 
 def nombre_motor(entrada) -> str:
+    proveedor = proveedores.obtener(motor_de(entrada))
+    if proveedor is not None:
+        return proveedor.nombre_corto
     return motor_de(entrada).capitalize()
 
 
@@ -303,8 +310,7 @@ def opciones_motor(entradas) -> list[tuple[str, str]]:
             nombres[codigo] = nombre_motor(entrada)
 
     def _orden(codigo):
-        return (_ORDEN_MOTOR.get(codigo, len(_ORDEN_MOTOR)),
-                nombres[codigo].casefold())
+        return (_orden_motor(codigo), nombres[codigo].casefold())
 
     opciones = [(_("Todos los motores"), "")]
     opciones.extend((nombres[codigo], codigo)
@@ -333,7 +339,6 @@ def ordenar(entradas) -> list[PaqueteVoz]:
         motor = motor_de(entrada)
         return (0 if base == interfaz else 1,
                 nombre_idioma(base).casefold(),
-                _ORDEN_MOTOR.get(motor, len(_ORDEN_MOTOR)),
-                nombre_corto(entrada).casefold())
+                 _orden_motor(motor), nombre_corto(entrada).casefold())
 
     return sorted(entradas, key=_clave)

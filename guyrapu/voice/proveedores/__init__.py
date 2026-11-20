@@ -4,6 +4,9 @@
 
 Importar el paquete no importa Prism ni ptts: las bibliotecas de los motores
 locales se cargan recién al crear uno.
+Para sumar un motor local hacen falta su proveedor con `local=True` en
+`PROVEEDORES`, su módulo fuente y esa fuente en `FUENTES` de
+`scripts/armar_catalogo.py`.
 """
 
 from __future__ import annotations
@@ -23,3 +26,9 @@ def obtener(id):
         if proveedor.id == id:
             return proveedor
     return None
+
+
+def es_local(id) -> bool:
+    """Verdadero si el motor registrado con ese id corre en la PC."""
+    return any(proveedor.id == id and proveedor.capacidades.local
+               for proveedor in PROVEEDORES)

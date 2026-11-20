@@ -227,11 +227,12 @@ def listar_voces_onecore(fabrica_contexto=None) -> list[str]:
     return _listar_voces("onecore", fabrica_contexto)
 
 
-_CAPACIDADES = Capacidades(streaming=False, tono=True, nube=False)
+_CAPACIDADES = Capacidades(streaming=False, tono=True, nube=False, local=False)
 
 PROVEEDOR_SAPI = Proveedor(
     id="sapi",
     nombre=_NOMBRES["sapi"],
+    nombre_corto="SAPI",
     licencia=_LICENCIA,
     capacidades=_CAPACIDADES,
     crear=crear_sapi,
@@ -241,6 +242,7 @@ PROVEEDOR_SAPI = Proveedor(
 PROVEEDOR_ONECORE = Proveedor(
     id="onecore",
     nombre=_NOMBRES["onecore"],
+    nombre_corto="OneCore",
     licencia=_LICENCIA,
     capacidades=_CAPACIDADES,
     crear=crear_onecore,

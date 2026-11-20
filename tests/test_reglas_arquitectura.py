@@ -29,11 +29,11 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_dieciocho_reglas_estan_en_la_tabla(self):
+    def test_las_diecinueve_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
                          ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
                           "R9", "R10", "R11", "R12", "R13", "R14", "R15",
-                          "R16", "R17", "R18"])
+                          "R16", "R17", "R18", "R19"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -130,6 +130,16 @@ class TestDetectores(unittest.TestCase):
             import os
             """)
         self.assertEqual([1, 2, 3, 6, 7], _lineas(hallazgos))
+
+    def test_nombres_de_motores_locales(self):
+        hallazgos = _hallazgos(reglas.detectar_nombres_de_motores_locales, """\
+            _ID = "phonon"
+            motor = ("piper", "sapi")
+            # "phonon" en un comentario
+            texto = "Phonon, voces locales"
+            otro = "phonon-40m-es"
+            """)
+        self.assertEqual([1, 2], _lineas(hallazgos))
 
     def test_ambito_de_paquetes(self):
         regla = next(regla for regla in reglas.REGLAS if regla.id == "R17")
@@ -510,6 +520,19 @@ class TestDetectores(unittest.TestCase):
         self.assertEqual(referencia, segunda)
         tercera = detectores.hallazgos_por_archivo(regla)
         self.assertEqual(referencia, tercera)
+
+
+class TestFuentesDeMotoresLocales(unittest.TestCase):
+
+    def test_cada_motor_local_tiene_una_fuente_y_al_reves(self):
+        from guyrapu.voice import proveedores
+        from scripts import armar_catalogo
+
+        locales = {proveedor.id for proveedor in proveedores.PROVEEDORES
+                   if proveedor.capacidades.local}
+        fuentes = {fuente.ID for fuente in armar_catalogo.FUENTES}
+        self.assertTrue(locales)
+        self.assertEqual(locales, fuentes)
 
 
 if __name__ == "__main__":

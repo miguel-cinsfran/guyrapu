@@ -51,6 +51,7 @@ class Capacidades:
     streaming: bool
     tono: bool
     nube: bool
+    local: bool
 
 
 @dataclass(frozen=True)
@@ -59,6 +60,7 @@ class Proveedor:
 
     id: str
     nombre: str
+    nombre_corto: str
     licencia: str
     capacidades: Capacidades
     crear: Callable[..., Motor]

@@ -207,8 +207,9 @@ def listar_voces(fabrica_contexto=None) -> list[str]:
 PROVEEDOR_PIPER = Proveedor(
     id="piper",
     nombre=_NOMBRE,
+    nombre_corto="Piper",
     licencia=_LICENCIA,
-    capacidades=Capacidades(streaming=True, tono=True, nube=False),
+    capacidades=Capacidades(streaming=True, tono=True, nube=False, local=True),
     crear=crear,
     listar_voces=listar_voces,
 )

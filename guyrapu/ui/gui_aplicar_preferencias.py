@@ -48,12 +48,13 @@ def _reconstruir_atajos_y_menu(frame):
 
 def _aplicar_voz(frame, voces_actuales):
     from guyrapu.ui import gui as _gui
+    from guyrapu.voice import proveedores
     # Preferencias puede haber cambiado el motor o la voz: aplicarlo en
     # caliente. Con el motor nuevo hay que repoblar la lista de voces.
     try:
         motor_cfg = frame._config.get("motor") or "sapi"
         motor_actual = frame._worker.motor_activo() or ""
-        cambia_salida = (motor_cfg in ("phonon", "piper")
+        cambia_salida = (proveedores.es_local(motor_cfg)
                          and (frame._config.get("salida_voz") or "")
                          != (frame._worker.salida_voz or ""))
         if motor_cfg != motor_actual or cambia_salida:
