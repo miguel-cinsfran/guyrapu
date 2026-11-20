@@ -1,30 +1,30 @@
-tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=upArrow fase=pagina dijo='Estilos 8 de 9' foco={nombre='Estilos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=upArrow fase=pagina dijo='Medios 7 de 9' foco={nombre='Medios', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=upArrow fase=pagina dijo='Metas 6 de 9' foco={nombre='Metas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=upArrow fase=pagina dijo='Disparadores 5 de 9' foco={nombre='Disparadores', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=upArrow fase=pagina dijo='Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=upArrow fase=pagina dijo='Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Encuestas guardadas lista Alt+ n No hay encuestas. Usa Agregar para crear una.' foco={nombre='No hay encuestas. Usa Agregar para crear una.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
-tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
-tecla=tab fase=ida dijo='Iniciar botón Alt+ a' foco={nombre='Iniciar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
-tecla=tab fase=ida dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+d'}
-tecla=tab fase=ida dijo='Escuchar botón Alt+ h' foco={nombre='Escuchar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+h'}
-tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
-tecla=tab fase=ida dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
-tecla=tab fase=ida dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
-tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=tab fase=ida dijo='Páginas de interacción lista Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Encuestas guardadas lista Alt+ n No hay encuestas. Usa Agregar para crear una.' foco={nombre='No hay encuestas. Usa Agregar para crear una.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=shift+tab fase=vuelta dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+i'}
-tecla=shift+tab fase=vuelta dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
-tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
-tecla=shift+tab fase=vuelta dijo='Escuchar botón Alt+ h' foco={nombre='Escuchar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+h'}
-tecla=shift+tab fase=vuelta dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+d'}
-tecla=shift+tab fase=vuelta dijo='Iniciar botón Alt+ a' foco={nombre='Iniciar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+a'}
-tecla=shift+tab fase=vuelta dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
-tecla=shift+tab fase=vuelta dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=vuelta dijo='Encuestas guardadas lista Alt+ n No hay encuestas. Usa Agregar para crear una.' foco={nombre='No hay encuestas. Usa Agregar para crear una.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Estilos 8 de 9' foco={nombre='Estilos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Medios 7 de 9' foco={nombre='Medios', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Metas 6 de 9' foco={nombre='Metas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Disparadores 5 de 9' foco={nombre='Disparadores', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Encuestas guardadas lista Alt+ n No hay encuestas. Usa Agregar para crear una.' foco={nombre='No hay encuestas. Usa Agregar para crear una.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
+tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
+tecla=tab fase=ida dijo='Iniciar botón Alt+ a' foco={nombre='Iniciar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
+tecla=tab fase=ida dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+d'}
+tecla=tab fase=ida dijo='Escuchar botón Alt+ h' foco={nombre='Escuchar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+h'}
+tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
+tecla=tab fase=ida dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
+tecla=tab fase=ida dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
+tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Páginas de interacción lista Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Encuestas guardadas lista Alt+ n No hay encuestas. Usa Agregar para crear una.' foco={nombre='No hay encuestas. Usa Agregar para crear una.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
+tecla=shift+tab fase=vuelta dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
+tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
+tecla=shift+tab fase=vuelta dijo='Escuchar botón Alt+ h' foco={nombre='Escuchar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+h'}
+tecla=shift+tab fase=vuelta dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+d'}
+tecla=shift+tab fase=vuelta dijo='Iniciar botón Alt+ a' foco={nombre='Iniciar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
+tecla=shift+tab fase=vuelta dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
+tecla=shift+tab fase=vuelta dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=vuelta dijo='Encuestas guardadas lista Alt+ n No hay encuestas. Usa Agregar para crear una.' foco={nombre='No hay encuestas. Usa Agregar para crear una.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}

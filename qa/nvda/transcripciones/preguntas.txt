@@ -1,17 +1,17 @@
-tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Preguntas del público lista Alt+ p No hay preguntas. El público las hace con el comando pregunta y el texto.' foco={nombre='No hay preguntas. El público las hace con el comando pregunta y el texto.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Mostrar en el vídeo botón Alt+ m' foco={nombre='Mostrar en el vídeo', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
-tecla=tab fase=ida dijo='Marcar como respondida botón Alt+ r' foco={nombre='Marcar como respondida', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
-tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
-tecla=tab fase=ida dijo='Vaciar cola botón Alt+ v' foco={nombre='Vaciar cola', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
-tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=tab fase=ida dijo='Páginas de interacción lista Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Preguntas del público lista Alt+ p No hay preguntas. El público las hace con el comando pregunta y el texto.' foco={nombre='No hay preguntas. El público las hace con el comando pregunta y el texto.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=shift+tab fase=vuelta dijo='Vaciar cola botón Alt+ v' foco={nombre='Vaciar cola', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
-tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
-tecla=shift+tab fase=vuelta dijo='Marcar como respondida botón Alt+ r' foco={nombre='Marcar como respondida', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
-tecla=shift+tab fase=vuelta dijo='Mostrar en el vídeo botón Alt+ m' foco={nombre='Mostrar en el vídeo', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
-tecla=shift+tab fase=vuelta dijo='Preguntas del público lista Alt+ p No hay preguntas. El público las hace con el comando pregunta y el texto.' foco={nombre='No hay preguntas. El público las hace con el comando pregunta y el texto.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Preguntas del público lista Alt+ p No hay preguntas. El público las hace con el comando pregunta y el texto.' foco={nombre='No hay preguntas. El público las hace con el comando pregunta y el texto.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Mostrar en el vídeo botón Alt+ m' foco={nombre='Mostrar en el vídeo', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+m'}
+tecla=tab fase=ida dijo='Marcar como respondida botón Alt+ r' foco={nombre='Marcar como respondida', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
+tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
+tecla=tab fase=ida dijo='Vaciar cola botón Alt+ v' foco={nombre='Vaciar cola', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
+tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Páginas de interacción lista Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Preguntas del público lista Alt+ p No hay preguntas. El público las hace con el comando pregunta y el texto.' foco={nombre='No hay preguntas. El público las hace con el comando pregunta y el texto.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Vaciar cola botón Alt+ v' foco={nombre='Vaciar cola', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
+tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
+tecla=shift+tab fase=vuelta dijo='Marcar como respondida botón Alt+ r' foco={nombre='Marcar como respondida', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
+tecla=shift+tab fase=vuelta dijo='Mostrar en el vídeo botón Alt+ m' foco={nombre='Mostrar en el vídeo', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+m'}
+tecla=shift+tab fase=vuelta dijo='Preguntas del público lista Alt+ p No hay preguntas. El público las hace con el comando pregunta y el texto.' foco={nombre='No hay preguntas. El público las hace con el comando pregunta y el texto.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}

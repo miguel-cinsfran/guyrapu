@@ -1,17 +1,3 @@
-tecla=shift+tab fase=pagina dijo='Preferencias diálogo Categorías lista General 1 de 18 Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
-tecla=shift+tab fase=pagina dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=pagina dijo='Restablecer todas las preferencias… botón Alt+ p' foco={nombre='Restablecer todas las preferencias…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
-tecla=shift+tab fase=pagina dijo='Importar preferencias… botón Alt+ m' foco={nombre='Importar preferencias…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+m'}
-tecla=shift+tab fase=pagina dijo='Exportar preferencias… botón Alt+ x' foco={nombre='Exportar preferencias…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+x'}
-tecla=shift+tab fase=pagina dijo='Abrir carpeta de datos botón Alt+ t' foco={nombre='Abrir carpeta de datos', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+t'}
-tecla=shift+tab fase=pagina dijo='Guardar un registro detallado para diagnosticar errores casilla de verificación marcado Alt+ d' foco={nombre='Guardar un registro detallado para diagnosticar errores', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+d'}
-tecla=shift+tab fase=pagina dijo='Reproducir sonido de inicio casilla de verificación marcado Alt+ i' foco={nombre='Reproducir sonido de inicio', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+i'}
-tecla=shift+tab fase=pagina dijo='Preguntar antes de salir si hay un chat conectado o una transmisión en curso casilla de verificación marcado Alt+ s' foco={nombre='Preguntar antes de salir si hay un chat conectado o una transmisión en curso', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+s'}
-tecla=shift+tab fase=pagina dijo='Canal de actualización: cuadro combinado Estable contraído Alt+ z' foco={nombre='Canal de actualización:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Estable', atajo='Alt+z'}
-tecla=shift+tab fase=pagina dijo='Buscar actualizaciones al iniciar casilla de verificación marcado Alt+ a' foco={nombre='Buscar actualizaciones al iniciar', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+a'}
-tecla=shift+tab fase=pagina dijo='Mostrar avisos importantes también en un cuadro de mensaje casilla de verificación sin marcar Alt+ v' foco={nombre='Mostrar avisos importantes también en un cuadro de mensaje', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
-tecla=shift+tab fase=pagina dijo='Idioma: cuadro combinado Idioma de Windows contraído Alt+ o' foco={nombre='Idioma:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Idioma de Windows', atajo='Alt+o'}
-tecla=shift+tab fase=pagina dijo='Categorías lista General 1 de 18' foco={nombre='General', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
