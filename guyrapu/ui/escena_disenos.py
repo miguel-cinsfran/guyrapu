@@ -163,13 +163,12 @@ class DisenoEscenaDialog(wx.Dialog):
             caja, [self.btn_aplicar, self.btn_guardar,
                    self.btn_eliminar, self.btn_cancelar])
 
-    def _rehacer_lista(self, seleccion=0):
+    def _rehacer_lista(self):
         nombres = [_(fabrica.nombre) for fabrica in self._fabrica]
         nombres.extend(nombre for nombre, _diseno in self._guardados)
         self.cho_diseno.Set(nombres)
         if nombres:
-            self.cho_diseno.SetSelection(
-                max(0, min(seleccion, len(nombres) - 1)))
+            self.cho_diseno.SetSelection(0)
 
     def _cargar_diseno(self, indice):
         if not 0 <= indice < len(self._fabrica) + len(self._guardados):
