@@ -171,29 +171,35 @@ def es_notificacion(plano) -> bool:
             or str(plano.get("clase") or "").casefold() == NOTIFICACION_CLASE)
 
 
-def esperar_frente(intentar, segundos=25.0, plano=None, dormir=time.sleep) -> bool:
+def esperar_frente(intentar, segundos=25.0, plano=None, dormir=time.sleep,
+                   pid=None, arbol=None) -> bool:
     """Reintenta hasta que `intentar` dé el frente, esperando notificaciones.
 
-    `intentar` dice si la ventana está al frente. Mientras el primer plano sea
-    una notificación de Windows se espera a que se vaya sola.
+    Si `pid` está al frente, o lo está un descendiente suyo, se da por bueno
+    sin tocar nada: forzar el frente abre el menú de sistema de la ventana.
     """
     plano = plano or describir_primer_plano
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
-        if not es_notificacion(plano()):
-            if intentar():
-                return True
+        actual = plano()
+        if es_notificacion(actual):
+            dormir(0.2)
+            continue
+        if pid is not None and es_proceso_o_descendiente(
+                actual.get("pid"), pid, arbol):
+            return True
+        if intentar():
+            return True
         dormir(0.2)
     return False
 
 
-def traer_al_frente(hwnd, pid: int, segundos: float = 10.0) -> bool:
+def traer_al_frente(hwnd, pid: int, segundos: float = 10.0,
+                    plano=None, pulsar=None) -> bool:
     """Lleva al frente la ventana y espera que Windows confirme.
 
-    Comprueba con `GetForegroundWindow` que el primer plano es del pid
-    dueño de la ventana e intenta `SetForegroundWindow` con su hwnd si
-    no, con una pulsación suelta de Alt antes de cada intento para
-    levantar el bloqueo del primer plano. Devuelve si quedó al frente.
+    Si el frente ya es del pid o de un descendiente no se hace nada: pulsar
+    Alt sobre una ventana que ya está al frente abre su menú de sistema.
     """
     try:
         usuario = ctypes.windll.user32
@@ -201,17 +207,16 @@ def traer_al_frente(hwnd, pid: int, segundos: float = 10.0) -> bool:
         return False
     if hwnd is None or pid is None:
         return False
+    plano = plano or describir_primer_plano
+    pulsar = pulsar or pulsar_alt
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
-        if es_proceso_o_descendiente(pid_al_frente(), pid):
+        if es_proceso_o_descendiente(plano().get("pid"), pid):
             return True
-        pulsar_alt(usuario)
+        pulsar(usuario)
         try:
             usuario.SetForegroundWindow(hwnd)
         except Exception as exc:
             logger.debug("no se pudo poner la ventana al frente: %s", exc)
         time.sleep(0.3)
-    try:
-        return pid_al_frente() == pid
-    except Exception:
-        return False
+    return es_proceso_o_descendiente(plano().get("pid"), pid)

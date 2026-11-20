@@ -47,7 +47,8 @@ def al_frente(pid, segundos=25.0, plano=None, dormir=time.sleep) -> bool:
         usuario.SetForegroundWindow(hwnd)
         return False
 
-    return foco_ventanas.esperar_frente(intentar, segundos, plano, dormir)
+    return foco_ventanas.esperar_frente(intentar, segundos, plano, dormir,
+                                        pid=pid)
 
 
 def motivo_sin_frente() -> str:

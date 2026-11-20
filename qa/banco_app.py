@@ -288,7 +288,7 @@ class Aplicacion:
         """
         return foco_ventanas.esperar_frente(
             lambda: bool(self.pedir("frente").get("datos", {}).get("activa")),
-            segundos)
+            segundos, pid=self.proceso.pid)
 
     def hilos(self) -> list[str]:
         """Los hilos vivos de la aplicación, por nombre."""

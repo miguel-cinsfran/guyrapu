@@ -216,6 +216,29 @@ class TestEsperarFrente(unittest.TestCase):
         self.assertEqual(len(intentos), 1)
         self.assertEqual(dormir.call_count, 2)
 
+    def test_no_intenta_el_frente_si_ya_es_del_pid(self):
+        intentos = []
+        self.assertTrue(foco_ventanas.esperar_frente(
+            lambda: intentos.append(1), plano=lambda: {"pid": 100},
+            dormir=mock.Mock(), pid=100))
+        self.assertEqual(intentos, [])
+
+    def test_no_pulsa_alt_si_el_frente_ya_es_del_pid(self):
+        pulsos = []
+        self.assertTrue(foco_ventanas.traer_al_frente(
+            123, 100, plano=lambda: {"pid": 100},
+            pulsar=lambda usuario: pulsos.append(1)))
+        self.assertEqual(pulsos, [])
+
+    def test_no_pulsa_alt_si_el_frente_es_del_hijo_del_pid(self):
+        pulsos = []
+        with mock.patch.object(foco_ventanas, "arbol_de_procesos",
+                               return_value={200: 100}):
+            self.assertTrue(foco_ventanas.traer_al_frente(
+                123, 100, plano=lambda: {"pid": 200},
+                pulsar=lambda usuario: pulsos.append(1)))
+        self.assertEqual(pulsos, [])
+
     def test_sin_notificacion_llama_al_primer_intento(self):
         plano = {"proceso": "guyrapu", "titulo": "Canario del carril",
                  "clase": "wxWindowNR"}
