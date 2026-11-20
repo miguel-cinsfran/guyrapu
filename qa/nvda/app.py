@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 from qa import banco_app, foco_ventanas, sonda
@@ -26,6 +27,8 @@ from qa.nvda.recorrido import InstrumentoRoto
 RAIZ = Path(__file__).resolve().parent.parent.parent
 
 COD_TRANSCRIPCION = 7
+INTENTOS = 3
+ESPERA_REINTENTO = 3
 VAR_DATOS = "GUYRAPU_QA_DATOS"
 
 
@@ -35,6 +38,18 @@ class TranscripcionCambiada(RuntimeError):
     def __init__(self, lineas):
         super().__init__("cambió una transcripción aprobada")
         self.lineas = lineas
+
+
+class _SinFrente(RuntimeError):
+    """El frente no se pudo tomar; lleva quién lo tenía y si se abrió."""
+
+    def __init__(self, mensaje, abierta):
+        self.plano = foco_ventanas.describir_primer_plano()
+        if not abierta:
+            mensaje += (f": primer plano {self.plano['proceso']!r} "
+                        f"«{self.plano['titulo']}»")
+        super().__init__(mensaje)
+        self.abierta = abierta
 
 
 class _GrabadorSonidos(logging.Handler):
@@ -208,7 +223,7 @@ def _paginas_de_interaccion() -> list:
             for _clave, etiqueta in interaccion_ventana.PAGINAS]
 
 
-def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
+def _intentar_ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     from qa.nvda.correr import _lineas_de_ventana
 
     nombre = entrada["nombre"]
@@ -216,17 +231,17 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     # el SetFocus de su __init__ no llega al lector. Medido el 19/11/2026 con
     # Música y un terminal en primer plano.
     if not banco.al_frente():
-        plano = foco_ventanas.describir_primer_plano()
-        raise InstrumentoRoto(
-            f"no se pudo traer al frente la app para «{entrada['titulo']}»: "
-            f"primer plano {plano['proceso']!r} «{plano['titulo']}»")
+        raise _SinFrente(
+            f"no se pudo traer al frente la app para «{entrada['titulo']}»",
+            False)
     banco.pedir("menu_click", etiqueta=entrada["menu"], tiempo=10.0)
     titulo_menu = entrada.get("titulo_menu") or entrada["titulo"]
     if banco.esperar_ventana(titulo_menu, segundos=15.0) is None:
         raise InstrumentoRoto(f"no se abrió la ventana «{titulo_menu}»")
     if not banco.al_frente():
-        raise InstrumentoRoto(
-            f"no se pudo traer al frente la ventana «{entrada['titulo']}»")
+        raise _SinFrente(
+            f"no se pudo traer al frente la ventana «{entrada['titulo']}»",
+            True)
     datos_ventana = {
         "nombre": nombre,
         "pid": pid,
@@ -256,6 +271,24 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
         lineas.extend(diferencia.splitlines())
         return lineas, True
     return lineas, False
+
+
+def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
+    """Recorre la ventana y reintenta si el primer plano se pierde."""
+    for intento in range(INTENTOS):
+        try:
+            return _intentar_ventana(
+                banco, cliente, entrada, pid, catalogo, aprobar)
+        except _SinFrente as falla:
+            if intento == INTENTOS - 1:
+                raise InstrumentoRoto(str(falla)) from None
+            plano = falla.plano
+            print(f"reintento de {entrada['nombre']}: primer plano "
+                  f"{plano['proceso']} «{plano['titulo']}»", flush=True)
+            if falla.abierta:
+                banco.pedir("cerrar_ventana", ventana=entrada["titulo"],
+                            tiempo=10.0)
+            time.sleep(ESPERA_REINTENTO)
 
 
 def recorrer(cliente, args, iniciales=(), revisar=None) -> list:

@@ -10,6 +10,7 @@ la línea que cambió y que aprobar deje la nueva como aprobada.
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from qa.nvda import transcripcion
 
@@ -49,7 +50,7 @@ class TestFormato(unittest.TestCase):
         self.assertIn("ida", texto)
         self.assertIn("Categorías", texto)
         self.assertIn("LIST", texto)
-        self.assertIn("focused", texto)
+        self.assertNotIn("focused", texto)
         self.assertIn("General", texto)
         self.assertIn("Alt+C", texto)
 
@@ -57,7 +58,7 @@ class TestFormato(unittest.TestCase):
         self.assertEqual(
             transcripcion.texto(datos()),
             "tecla=tab fase=ida dijo='Categorías' foco={nombre='Categorías', "
-            "rol='LIST', estados=['focusable', 'focused'], valor='General', "
+            "rol='LIST', estados=['focusable'], valor='General', "
             "atajo='Alt+C'}\n")
 
     def test_la_linea_lleva_la_espera_y_los_sonidos_al_final(self):
@@ -82,6 +83,33 @@ class TestFormato(unittest.TestCase):
         self.assertEqual(transcripcion.texto(uno), transcripcion.texto(otro))
         self.assertNotIn("77", transcripcion.texto(otro))
         self.assertNotIn("99", transcripcion.texto(otro))
+
+    def test_rutas_temporales_distintas_dan_el_mismo_texto(self):
+        corto = datos()
+        ruta_corta = (r"C:\Users\MIGUEL~1\AppData\Local\Temp"
+                      r"\tmpf0wi2qp_\datos\musica")
+        corto["pasos"][0]["habla"] = [{"texto": f"Carpeta de música {ruta_corta}"}]
+        corto["pasos"][0]["foco"]["valor"] = ruta_corta
+        largo = datos()
+        ruta_larga = (r"C:\Users\Miguelito\AppData\Local\Temp"
+                      r"\tmps5qmma2l\datos\musica")
+        largo["pasos"][0]["habla"] = [{"texto": f"Carpeta de música {ruta_larga}"}]
+        largo["pasos"][0]["foco"]["valor"] = ruta_larga
+        texto = transcripcion.texto(corto)
+        self.assertEqual(texto, transcripcion.texto(largo))
+        self.assertIn(r"<temporal>\\datos\\musica", texto)
+        self.assertNotIn("tmpf0wi2qp_", texto)
+        self.assertNotIn("MIGUEL~1", texto)
+        self.assertNotIn("Miguelito", texto)
+
+    def test_focused_no_cambia_la_linea_porque_el_foco_ya_esta_dicho(self):
+        con_foco = datos()
+        con_foco["pasos"][0]["foco"]["estados"] = ["FOCUSABLE", "FOCUSED"]
+        sin_foco = datos()
+        sin_foco["pasos"][0]["foco"]["estados"] = ["FOCUSABLE"]
+        self.assertEqual(transcripcion.texto(con_foco),
+                         transcripcion.texto(sin_foco))
+        self.assertNotIn("FOCUSED", transcripcion.texto(con_foco))
 
     def test_el_nombre_del_foco_repetido_al_final_se_escribe_una_vez(self):
         simple = datos("No hay palabras.")
@@ -187,6 +215,41 @@ class TestComparacion(unittest.TestCase):
                 "")
             self.assertEqual(
                 transcripcion.leer("preferencias", carpeta), "nueva\n")
+
+    def test_una_distinta_deja_la_candidata_con_el_texto_exacto(self):
+        with tempfile.TemporaryDirectory() as base:
+            aprobadas = Path(base) / "aprobadas"
+            candidatas = Path(base) / "candidatas"
+            transcripcion.escribir("musica", "aprobada\n", aprobadas)
+            nueva = "nueva\ncon dos líneas\n"
+            with mock.patch.object(transcripcion, "CANDIDATAS", candidatas):
+                diferencia = transcripcion.comparar(
+                    "musica", nueva, carpeta=aprobadas)
+                self.assertTrue(diferencia)
+                self.assertEqual(
+                    (candidatas / "musica.txt").read_text(encoding="utf-8"),
+                    nueva)
+
+    def test_la_igual_o_aprobar_no_deja_candidata(self):
+        with tempfile.TemporaryDirectory() as base:
+            aprobadas = Path(base) / "aprobadas"
+            candidatas = Path(base) / "candidatas"
+            transcripcion.escribir("musica", "aprobada\n", aprobadas)
+            with mock.patch.object(transcripcion, "CANDIDATAS", candidatas):
+                transcripcion.escribir("musica", "vieja candidata\n",
+                                       candidatas)
+                self.assertEqual(
+                    transcripcion.comparar("musica", "aprobada\n",
+                                           carpeta=aprobadas), "")
+                self.assertFalse((candidatas / "musica.txt").exists())
+                transcripcion.escribir("musica", "vieja candidata\n",
+                                       candidatas)
+                self.assertEqual(
+                    transcripcion.comparar("musica", "nueva\n", aprobar=True,
+                                           carpeta=aprobadas), "")
+                self.assertFalse((candidatas / "musica.txt").exists())
+                self.assertEqual(
+                    transcripcion.leer("musica", aprobadas), "nueva\n")
 
 
 if __name__ == "__main__":

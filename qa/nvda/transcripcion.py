@@ -10,9 +10,14 @@ la nueva difiere. Es puro: no toca NVDA, ni Windows, ni ventanas.
 from __future__ import annotations
 
 import difflib
+import re
 from pathlib import Path
 
 CARPETA = Path(__file__).resolve().parent / "transcripciones"
+CANDIDATAS = Path(__file__).resolve().parents[2] / "qa" / "salida" / "nvda" / "candidatas"
+
+_TEMPORAL = re.compile(r"[A-Za-z]:\\(?:[^\\]+\\)*Temp\\tmp[^\\]*",
+                       re.IGNORECASE)
 
 
 def _sin_repeticion_final(dicho, nombre):
@@ -44,14 +49,22 @@ def _habla(paso, variable=False) -> str:
     return dicho
 
 
+def _sin_temporal(valor):
+    """Escribe <temporal> la ruta de la carpeta que cambia en cada corrida."""
+    if not isinstance(valor, str):
+        return valor
+    return _TEMPORAL.sub("<temporal>", valor)
+
+
 def _linea(paso, valor_variable=()) -> str:
     foco = paso.get("foco") or {}
     variable = foco.get("nombre") in valor_variable
-    estados = sorted(str(estado) for estado in foco.get("estados") or ())
+    estados = sorted(str(estado) for estado in foco.get("estados") or ()
+                     if str(estado).casefold() != "focused")
     rol = foco.get("rol_nombre") or foco.get("rol")
-    valor = "" if variable else foco.get("valor")
+    valor = "" if variable else _sin_temporal(foco.get("valor"))
     linea = (f"tecla={paso.get('tecla')} fase={paso.get('fase')} "
-             f"dijo={_habla(paso, variable)!r} "
+             f"dijo={_sin_temporal(_habla(paso, variable))!r} "
              f"foco={{nombre={foco.get('nombre')!r}, "
              f"rol={rol!r}, estados={estados!r}, "
              f"valor={valor!r}, atajo={foco.get('atajo')!r}}}")
@@ -102,9 +115,15 @@ def escribir(nombre, contenido, carpeta=None) -> Path:
 
 
 def comparar(nombre, nueva, aprobar=False, carpeta=None) -> str:
-    """Guarda la primera, o la nueva si se aprueba, y devuelve el diff."""
+    """Guarda la aprobada y deja la nueva como candidata si cambió."""
     aprobada = leer(nombre, carpeta)
     if aprobar or aprobada is None:
         escribir(nombre, nueva, carpeta)
+        _ruta(nombre, CANDIDATAS).unlink(missing_ok=True)
         return ""
-    return diferencia(aprobada, nueva)
+    diff = diferencia(aprobada, nueva)
+    if diff:
+        escribir(nombre, nueva, CANDIDATAS)
+    else:
+        _ruta(nombre, CANDIDATAS).unlink(missing_ok=True)
+    return diff

@@ -275,6 +275,18 @@ class BancoFalso:
         return self.resultado_frente
 
 
+class BancoFrenteInestable(BancoFalso):
+    """Contesta el frente con la serie de estados dada."""
+
+    def __init__(self, estados):
+        super().__init__()
+        self.estados = list(estados)
+
+    def al_frente(self):
+        self.llamadas.append("al_frente")
+        return self.estados.pop(0) if self.estados else True
+
+
 class TestVentana(unittest.TestCase):
 
     def test_lleva_la_app_al_frente_antes_de_abrir_el_menu(self):
@@ -529,6 +541,56 @@ class TestVentana(unittest.TestCase):
                       mensaje)
         self.assertIn("ShellExperienceHost", mensaje)
         self.assertIn("Notificación", mensaje)
+        conducir.assert_not_called()
+
+    def test_reintenta_la_ventana_y_cierra_la_que_se_abrio(self):
+        banco = BancoFrenteInestable([True, False, True, True])
+
+        def conducir(_cliente, _datos):
+            banco.llamadas.append("conducir")
+            return {"pasos": []}
+
+        with (
+            mock.patch("time.sleep") as dormir,
+            mock.patch.object(app.recorrido, "conducir", side_effect=conducir),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar", return_value=""),
+            mock.patch.object(app.foco_ventanas, "describir_primer_plano",
+                              return_value={"proceso": "node.exe",
+                                            "titulo": "Terminal"}),
+            mock.patch("builtins.print") as imprimir,
+        ):
+            app._ventana(banco, mock.Mock(), ventanas_app.VENTANAS[0],
+                         7, set(), False)
+        self.assertEqual(banco.llamadas.count("conducir"), 1)
+        self.assertEqual(banco.llamadas.count("al_frente"), 4)
+        self.assertEqual(dormir.call_args_list, [mock.call(3)])
+        imprimir.assert_called_once_with(
+            "reintento de preferencias: primer plano node.exe «Terminal»",
+            flush=True)
+        self.assertLess(banco.llamadas.index("cerrar_ventana"),
+                        banco.llamadas.index("conducir"))
+
+    def test_agotados_los_reintentos_sale_instrumento_roto(self):
+        banco = BancoFrenteInestable([False, False, False])
+        with (
+            mock.patch("time.sleep") as dormir,
+            mock.patch.object(app.recorrido, "conducir") as conducir,
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar", return_value=""),
+            mock.patch.object(app.foco_ventanas, "describir_primer_plano",
+                              return_value={"proceso": "node.exe",
+                                            "titulo": "Terminal"}),
+            mock.patch("builtins.print"),
+        ):
+            with self.assertRaises(app.InstrumentoRoto) as capturado:
+                app._ventana(banco, mock.Mock(), ventanas_app.VENTANAS[0],
+                             7, set(), False)
+        self.assertIn("no se pudo traer al frente la app para «Preferencias»",
+                      str(capturado.exception))
+        self.assertEqual(banco.llamadas.count("al_frente"), 3)
+        self.assertEqual(dormir.call_count, 2)
+        self.assertNotIn("cerrar_ventana", banco.llamadas)
         conducir.assert_not_called()
 
 
