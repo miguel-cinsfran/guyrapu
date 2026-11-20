@@ -54,10 +54,34 @@ def cabe_dentro(rect, contenedor):
             and abajo(rect) <= abajo(contenedor))
 
 
+# Viven fuera del área cliente: no se recortan contra ella ni dejan margen.
+BARRAS_FUERA_DEL_CLIENTE = frozenset((
+    "wxStatusBar", "wxToolBar", "wxMenuBar"))
+
+
+def medibles_de(ventana):
+    """Controles medibles de una ventana: sin la raíz ni las barras."""
+    controles = controles_medibles(ventana["controles"], ventana["tamano"])
+    return [c for c in visibles(controles)
+            if c["clase"] not in BARRAS_FUERA_DEL_CLIENTE]
+
+
 def hermanos(controles):
     grupos = {}
     for c in visibles(controles):
         grupos.setdefault(c["padre"], []).append(c)
+    return grupos
+
+
+def hermanos_por_clase(controles):
+    """Hermanos agrupados por clase, además de por padre.
+
+    Un texto y un campo difieren uno o dos píxeles por el borde nativo del
+    campo: eso no es una desalineación de quien diseñó la ventana.
+    """
+    grupos = {}
+    for c in visibles(controles):
+        grupos.setdefault((c["padre"], c["clase"]), []).append(c)
     return grupos
 
 

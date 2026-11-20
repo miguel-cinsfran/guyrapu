@@ -232,11 +232,19 @@ def _capturar(ventana, nombre, clase, variante, salida, numero):
         n = numero + desplazamiento
         archivo = f"{n:02d}_{nombre}_{capturas.plegar(pagina or 'base')}.png"
         ruta = Path(salida) / archivo
-        cap._dejar_pintar(ventana)
+        cap.pintar_completo(ventana, (ventana, *_descendientes(ventana)))
         ancho, alto = cap._guardar_png(ventana, ruta)
         contenido = _escribir_json(ventana, ruta.with_suffix(".json"),
                                    nombre, clase, variante, pagina, archivo,
                                    ancho, alto)
+        esquina = ventana.GetPosition()
+        cliente = ventana.ClientToScreen((0, 0))
+        desplazamiento = (cliente.x - esquina.x, cliente.y - esquina.y)
+        if cap.botones_sin_pintar(wx.Image(str(ruta)), contenido["controles"],
+                                  desplazamiento):
+            logger.debug("Botón sin pintar en %s, se repite la captura", ruta)
+            cap.pintar_completo(ventana, (ventana, *_descendientes(ventana)))
+            ancho, alto = cap._guardar_png(ventana, ruta)
         motivo = geo.motivo_invalido(contenido["controles"],
                                      _colores_imagen(ruta),
                                      contenido["tamano"])
@@ -344,13 +352,7 @@ def _etiqueta(control):
 
 
 def _medida(control, etiqueta):
-    if not etiqueta:
-        return [0, 0]
-    lineas = str(etiqueta).split("\n")
-    medidas = [control.GetFullTextExtent(linea) for linea in lineas]
-    ancho = max(int(m[0]) for m in medidas)
-    alto = sum(int(m[1]) for m in medidas)
-    return [ancho, alto]
+    return geo.medida_de_etiqueta(etiqueta, control.GetFullTextExtent)
 
 
 class VerificacionGaleria(unittest.TestCase):
@@ -382,14 +384,16 @@ class VerificacionGaleria(unittest.TestCase):
         lineas = [linea for linea in texto.splitlines()
                   if linea.startswith("- ")]
         fallidas = [linea for linea in lineas if "FALLIDA:" in linea]
-        hallazgos, _ = visual_reglas.analizar(
-            visual_reglas.leer_carpeta(destino))
+        hallazgos, _ = visual_reglas.analizar(visual_reglas.leer_carpeta(destino))
         conteo = collections.Counter(h["regla"] for h in hallazgos)
+        errores = [h for h in hallazgos if h["gravedad"] == "error"]
         print("COMPLETA " + json.dumps({
             "carpeta": destino.name, "capturas": len(lineas),
             "fallidas": len(fallidas), "segundos": round(time.monotonic() - inicio, 1),
             "motivos": [linea.split("FALLIDA: ", 1)[-1] for linea in fallidas],
             "hallazgos": dict(sorted(conteo.items())),
+            "errores": len(errores),
+            "primeros_errores": [visual_reglas.formatear_hallazgo(h) for h in errores[:10]],
         }, ensure_ascii=False))
         self.assertEqual(codigo, 0)
 

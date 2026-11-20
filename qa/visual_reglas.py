@@ -24,8 +24,8 @@ from visual_reglas_medidas import abajo, area, area_interseccion  # noqa: E402
 from visual_reglas_medidas import apilados, cabe_dentro, columnas  # noqa: E402
 from visual_reglas_medidas import controles_medibles  # noqa: E402
 from visual_reglas_medidas import derecha, envolvente, hermanos  # noqa: E402
-from visual_reglas_medidas import huecos, margen_exterior  # noqa: E402
-from visual_reglas_medidas import texto_cabe, visibles  # noqa: E402
+from visual_reglas_medidas import hermanos_por_clase, medibles_de  # noqa: E402
+from visual_reglas_medidas import huecos, margen_exterior, texto_cabe, visibles  # noqa: E402
 
 ERROR = "error"
 AVISO = "aviso"
@@ -45,10 +45,10 @@ GRAVEDAD_COLOR_AJENO = AVISO
 GRAVEDAD_VACIO = AVISO
 
 UMBRAL_CONTRASTE = 4.5
-# Espacio que wx reserva además del texto: el borde del control y, en casillas
-# y opciones, la caja que va delante. Medido el 19/11/2026.
+# Casillas y opciones llevan la caja delante y los botones un borde. El texto
+# estático no dibuja borde: su medida ya es la del texto. Medido el 20/11/2026.
 RELLENO_POR_CLASE = {
-    "wxStaticText": 4, "wxButton": 8,
+    "wxStaticText": 0, "wxButton": 8,
     "wxCheckBox": 20, "wxRadioButton": 20,
 }
 SOLAPE_MINIMO_PX2 = 1
@@ -125,7 +125,7 @@ def regla_contraste(ventana):
 
 
 def regla_recorte(ventana):
-    medibles = visibles(controles_medibles(ventana["controles"], ventana["tamano"]))
+    medibles = medibles_de(ventana)
     por_id = {c["id"]: c for c in medibles}
     cliente = ventana["cliente"]
     hallazgos = []
@@ -185,7 +185,8 @@ def regla_fuera_de_pantalla(ventana):
 
 def regla_casi_alineados(ventana):
     hallazgos = []
-    for hermanos_ in hermanos(controles_medibles(ventana["controles"], ventana["tamano"])).values():
+    for hermanos_ in hermanos_por_clase(controles_medibles(
+            ventana["controles"], ventana["tamano"])).values():
         for a, b in itertools.combinations(hermanos_, 2):
             if not apilados(a["rect"], b["rect"]):
                 continue
@@ -224,7 +225,7 @@ def regla_ritmo(ventana):
 def regla_margen(ventana):
     ancho_, alto_ = ventana["cliente"]
     hallazgos = []
-    for c in visibles(controles_medibles(ventana["controles"], ventana["tamano"])):
+    for c in medibles_de(ventana):
         x, y, ancho_c, alto_c = c["rect"]
         distancia = min(x, y, ancho_ - x - ancho_c, alto_ - y - alto_c)
         if distancia < MARGEN_MIN_PX:

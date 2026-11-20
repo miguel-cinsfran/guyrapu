@@ -14,6 +14,8 @@ import logging
 import time
 from ctypes import wintypes
 
+from galeria_geometria import es_region_plana
+
 logger = logging.getLogger(__name__)
 
 # La bandera 2 de `PrintWindow`: dibuja fuera de pantalla, con la ventana
@@ -133,6 +135,48 @@ def _dejar_pintar(ventana) -> None:
         except Exception as exc:
             logger.debug("No se pudo actualizar al pintar: %s", exc)
         time.sleep(0.01)
+
+
+def pintar_completo(ventana, controles):
+    """Fuerza el pintado de la ventana y de todo su árbol antes de capturar.
+
+    Un botón que se crea al abrir una página a veces sigue siendo un
+    rectángulo liso cuando `PrintWindow` corre. Refrescar y actualizar cada
+    control, ceder el bucle y esperar el pintado lo evita.
+    """
+    import wx
+    for control in controles:
+        try:
+            control.Refresh()
+        except Exception as exc:
+            logger.debug("No se pudo refrescar un control: %s", exc)
+        try:
+            control.Update()
+        except Exception as exc:
+            logger.debug("No se pudo actualizar un control: %s", exc)
+    wx.SafeYield()
+    _dejar_pintar(ventana)
+
+
+def botones_sin_pintar(imagen, controles, desplazamiento):
+    """Botones con etiqueta cuyo rectángulo salió liso en el PNG."""
+    dx, dy = desplazamiento
+    ancho_img, alto_img = imagen.GetWidth(), imagen.GetHeight()
+    planos = []
+    for c in controles:
+        if not (c["visible"] and c["clase"] == "wxButton"
+                and c["etiqueta"].strip()):
+            continue
+        x, y, ancho_c, alto_c = c["rect"]
+        paso_x, paso_y = max(2, ancho_c // 8), max(2, alto_c // 8)
+        pixeles = [
+            (imagen.GetRed(xx, yy), imagen.GetGreen(xx, yy),
+             imagen.GetBlue(xx, yy))
+            for yy in range(y + dy, min(y + dy + alto_c, alto_img), paso_y)
+            for xx in range(x + dx, min(x + dx + ancho_c, ancho_img), paso_x)]
+        if pixeles and es_region_plana(pixeles):
+            planos.append(c["nombre"])
+    return planos
 
 
 def _guardar_png(ventana, ruta) -> tuple:

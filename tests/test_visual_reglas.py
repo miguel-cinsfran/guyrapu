@@ -109,6 +109,10 @@ class TestRecorte(Base):
                         rect=[20, 110, 100, 24])
         self.assertIsNone(self.uno(muestra([padre, hijo, boton]), "recorte"))
 
+    def test_una_etiqueta_que_cabe_no_lleva_relleno_de_borde(self):
+        etiqueta = control(id=1, texto_px=[64, 15], rect=[20, 20, 65, 24])
+        self.assertIsNone(self.uno(muestra([etiqueta]), "recorte"))
+
 
 class TestSolape(Base):
 
@@ -126,6 +130,21 @@ class TestSolape(Base):
         ventana = muestra([visible, oculto])
         self.assertIsNone(self.uno(ventana, "solape"))
         self.assertIsNone(self.uno(ventana, "margen"))
+
+
+def barra():
+    """Una barra de estado, dibujada fuera del área cliente."""
+    return control(id=5, clase="wxStatusBar", nombre="BarraEstado",
+                   etiqueta="", rect=[0, 618, 500, 23], texto_px=[0, 0])
+
+
+class TestBarrasFueraDelCliente(Base):
+
+    def test_la_barra_no_da_recorte(self):
+        self.assertIsNone(self.uno(muestra([control(), barra()]), "recorte"))
+
+    def test_la_barra_no_da_margen(self):
+        self.assertIsNone(self.uno(muestra([control(), barra()]), "margen"))
 
 
 class TestLetraChica(Base):
@@ -169,6 +188,13 @@ class TestCasiAlineados(Base):
                  control(id=2, rect=[30, 60, 100, 24])]
         self.assertIsNone(self.uno(muestra(alineados), "casi_alineados"))
         self.assertIsNone(self.uno(muestra(lejos), "casi_alineados"))
+
+    def test_clases_distintas_no_son_casi_alineados(self):
+        texto = control(id=1, rect=[20, 20, 100, 24])
+        campo = control(id=2, clase="wxTextCtrl", etiqueta="",
+                        rect=[22, 60, 100, 24])
+        self.assertIsNone(self.uno(muestra([texto, campo]),
+                                   "casi_alineados"))
 
 
 class TestRitmo(Base):

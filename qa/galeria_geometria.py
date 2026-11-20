@@ -46,6 +46,21 @@ def fuente_diccionario(fuente, ppi=None) -> dict:
     }
 
 
+def medida_de_etiqueta(etiqueta, medir) -> list:
+    """Ancho y alto de la etiqueta tal como se dibuja, sin letra de acceso.
+
+    wx no pinta el `&` del mnemónico, así que medir la etiqueta cruda da un
+    ancho mayor que el del control. La comprobación compara esta medida con
+    el rectángulo: tiene que usar el mismo texto que ve el usuario.
+    """
+    texto = sin_ampersand(etiqueta)
+    if not texto:
+        return [0, 0]
+    medidas = [medir(linea) for linea in texto.split("\n")]
+    return [max(int(m[0]) for m in medidas),
+            sum(int(m[1]) for m in medidas)]
+
+
 def rect_relativo(rect, origen) -> list:
     """El rectángulo en píxeles, con el origen en el área cliente de arriba."""
     x, y, ancho, alto = rect
@@ -116,6 +131,15 @@ def controles_con_area(controles):
     """Controles visibles que ocupan algo más que un punto."""
     return [c for c in controles
             if c["visible"] and c["rect"][2] > 0 and c["rect"][3] > 0]
+
+
+def es_region_plana(colores) -> bool:
+    """Si una muestra de píxeles es toda del mismo color.
+
+    Un botón con etiqueta no puede salir como un rectángulo liso: si ocurre,
+    el pintado no alcanzó y la captura hay que repetirla.
+    """
+    return bool(colores) and len(set(colores)) == 1
 
 
 def _casi_encima(a, b):

@@ -100,6 +100,13 @@ class TestCapturaValida(unittest.TestCase):
         self.assertIsNone(geometria.motivo_invalido(
             controles, tamano=[500, 400]))
 
+    def test_region_plana_detecta_un_boton_sin_pintar(self):
+        self.assertTrue(geometria.es_region_plana(
+            [(240, 240, 240)] * 12))
+        self.assertFalse(geometria.es_region_plana(
+            [(240, 240, 240)] * 11 + [(28, 38, 41)]))
+        self.assertFalse(geometria.es_region_plana([]))
+
     def test_linea_fallida_lleva_el_motivo(self):
         linea = geometria.linea_fallida(3, "musica", "VentanaMusica",
                                         "con_datos", "solo 1 control")
@@ -126,6 +133,19 @@ class TestGeometriaCapturas(unittest.TestCase):
         self.assertEqual(
             geometria.fuente_diccionario(FuenteSinPixeles(), (96, 96))["px"],
             12)
+
+    def test_la_medida_ignora_la_letra_de_acceso(self):
+        # La biblioteca mide el texto dibujado: la letra de acceso no se pinta.
+        medir = lambda linea: (7 * len(linea), 15)
+        self.assertEqual(
+            geometria.medida_de_etiqueta("&Enlace o ID:", medir), [84, 15])
+        self.assertEqual(
+            geometria.medida_de_etiqueta("Enlace o ID:", medir), [84, 15])
+
+    def test_la_medida_suma_las_lineas_de_una_etiqueta_partida(self):
+        medir = lambda linea: (7 * len(linea), 15)
+        self.assertEqual(
+            geometria.medida_de_etiqueta("&Una\ndos", medir), [21, 30])
 
     def test_rect_relativo_al_origen_del_cliente(self):
         self.assertEqual(geometria.rect_relativo((300, 220, 80, 25),
