@@ -99,8 +99,8 @@ class TestVentanas(unittest.TestCase):
         entrada = por_nombre["voces"]
         self.assertEqual(entrada["menu"], "Voz > Administrar voces…")
         self.assertEqual(entrada["titulo"], "Administrar voces")
-        self.assertEqual(entrada["primero"], "Paquetes de voces")
-        self.assertEqual(entrada["primero_lista"], "Paquetes de voces")
+        self.assertEqual(entrada["primero"], "Motor de voz")
+        self.assertEqual(entrada["primero_lista"], "Motor de voz")
 
     def test_obs_abre_el_panel_y_recorre_la_pestana_general(self):
         por_nombre = {entrada["nombre"]: entrada
@@ -388,7 +388,7 @@ class TestVentana(unittest.TestCase):
         ):
             app._ventana(BancoFalso(True), mock.Mock(), entrada,
                          7, set(), False)
-        self.assertEqual(visto["primero_lista"], "Paquetes de voces")
+        self.assertEqual(visto["primero_lista"], "Motor de voz")
 
     def test_la_transcripcion_de_obs_ignora_el_valor_del_estado(self):
         entrada = next(item for item in ventanas_app.VENTANAS

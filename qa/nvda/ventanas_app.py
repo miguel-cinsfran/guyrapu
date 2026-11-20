@@ -104,8 +104,8 @@ VENTANAS = (
         "nombre": "voces",
         "menu": "Voz > Administrar voces…",
         "titulo": "Administrar voces",
-        "primero": "Paquetes de voces",
-        "primero_lista": "Paquetes de voces",
+        "primero": "Motor de voz",
+        "primero_lista": "Motor de voz",
     },
     {
         "nombre": "obs",

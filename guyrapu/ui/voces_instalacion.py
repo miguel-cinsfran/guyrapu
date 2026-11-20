@@ -10,20 +10,89 @@ from guyrapu.ui import confirmar
 from guyrapu.voice import sound_player as _snd
 logger = diagnostico.obtener_logger(__name__)
 
-def empezar(paquete, accion, nombre, crear_espera, poner_espera,
-            al_progreso, al_terminar):
+def titulo(accion, cantidad, nombre=""):
+    """El título de la espera: el nombre si es uno, la cuenta si son varios."""
+    if cantidad == 1:
+        return (_("Instalar {nombre}") if accion == "instalar"
+                else _("Actualizar {nombre}")).format(nombre=nombre)
+    if accion == "instalar":
+        return ngettext("Instalar {n} paquete de voces",
+                        "Instalar {n} paquetes de voces", cantidad).format(
+                            n=cantidad)
+    return ngettext("Actualizar {n} paquete de voces",
+                    "Actualizar {n} paquetes de voces", cantidad).format(
+                        n=cantidad)
+
+
+def texto_descarga(nombre, indice, cantidad):
+    """El estado antes de cada paquete, con su puesto en el lote."""
+    if cantidad == 1:
+        return _("Descargando {nombre}.").format(nombre=nombre)
+    return _("Descargando {nombre}, {i} de {n}.").format(
+        nombre=nombre, i=indice, n=cantidad)
+
+
+def texto_final(cantidad, correctas, fallidos, cancelada, accion, nombre):
+    """El único texto al terminar y su sonido, como hoy si es uno solo."""
+    if cancelada:
+        return _("Instalación cancelada."), None
+    if cantidad == 1:
+        if correctas:
+            frase = (_("Actualización completada: {nombre}.")
+                     if accion == "actualizar"
+                     else _("Instalación completada: {nombre}."))
+            return frase.format(nombre=nombre), "listo"
+        motivo = fallidos[0][1] if fallidos else ""
+        return (_("No se pudo instalar {nombre}: {motivo}. Revisa la "
+                  "conexión a internet y vuelve a intentarlo.").format(
+                      nombre=nombre,
+                      motivo=motivo or _("motivo desconocido")), "error")
+    if not fallidos:
+        return ngettext("{n} paquete instalado.", "{n} paquetes instalados.",
+                        cantidad).format(n=cantidad), "listo"
+    nombres = ", ".join(nombre for nombre, _motivo in fallidos)
+    return (_("{ok} de {n} paquetes instalados. No se pudo instalar: "
+              "{nombres}.").format(ok=correctas, n=cantidad, nombres=nombres),
+            "error")
+
+
+def empezar(paquetes, accion, crear_espera, poner_espera, al_progreso,
+            al_preparar, al_terminar):
+    """Instala los paquetes en orden en un hilo, con una sola espera."""
     parada = threading.Event()
-    titulo = (_("Instalar {nombre}") if accion == "instalar"
-              else _("Actualizar {nombre}")).format(nombre=nombre)
+    cantidad = len(paquetes)
+    nombre = voces_disponibles.nombre(paquetes[0]) if cantidad == 1 else ""
+    titulo_ = titulo(accion, cantidad, nombre)
     espera = crear_espera(
-        titulo, _("Descargando {nombre}.").format(nombre=nombre), parada)
+        titulo_, texto_descarga(nombre, 1, cantidad), parada)
     poner_espera(espera)
-    def aviso(porcentaje):
-        wx.CallAfter(al_progreso, porcentaje, nombre)
     def trabajar():
-        resultado = paquetes_instalacion.instalar(paquete, aviso, parada.is_set)
-        wx.CallAfter(al_terminar, resultado, accion, nombre)
-    diagnostico.crear_hilo(trabajar, titulo).start()
+        correctas = 0
+        fallidos = []
+        cancelada = False
+        for indice, paquete in enumerate(paquetes, 1):
+            if parada.is_set():
+                cancelada = True
+                break
+            nombre_paquete = voces_disponibles.nombre(paquete)
+            wx.CallAfter(espera.estado,
+                         texto_descarga(nombre_paquete, indice, cantidad))
+            wx.CallAfter(al_preparar)
+            def aviso(porcentaje, nombre=nombre_paquete):
+                wx.CallAfter(al_progreso, porcentaje, nombre)
+            resultado = paquetes_instalacion.instalar(
+                paquete.catalogo, aviso, parada.is_set)
+            if resultado.cancelada:
+                cancelada = True
+                break
+            if resultado.correcta:
+                correctas += 1
+            else:
+                fallidos.append((nombre_paquete, resultado.motivo))
+        texto, sonido = texto_final(
+            cantidad, correctas, fallidos, cancelada, accion, nombre)
+        wx.CallAfter(al_terminar, texto, sonido)
+    diagnostico.crear_hilo(trabajar, titulo_).start()
     try:
         espera.ShowModal()
     finally:
@@ -45,25 +114,13 @@ def aviso_porcentaje(espera, ultimo, porcentaje, nombre):
             logger.debug("la espera ya no existe: %s", error)
     return porcentaje
 
-def terminar_instalacion(espera, resultado, accion, nombre):
+def terminar_instalacion(espera, texto, sonido):
     if espera is None:
         return
     try:
-        if resultado.cancelada:
-            espera.terminar(_("Instalación cancelada."))
-        elif resultado.correcta:
-            frase = (_("Actualización completada: {nombre}.")
-                     if accion == "actualizar"
-                     else _("Instalación completada: {nombre}."))
-            espera.terminar(frase.format(nombre=nombre))
-            _snd.reproducir("listo")
-        else:
-            espera.terminar(
-                _("No se pudo instalar {nombre}: {motivo}. Revisa la "
-                  "conexión a internet y vuelve a intentarlo.").format(
-                      nombre=nombre,
-                      motivo=resultado.motivo or _("motivo desconocido")),
-                error=True)
+        espera.terminar(texto, error=sonido == "error")
+        if sonido:
+            _snd.reproducir(sonido)
     except RuntimeError as error:
         logger.debug("la espera ya no existe: %s", error)
 
@@ -100,6 +157,11 @@ def eliminar(padre, entradas, indice, anunciar, error, al_cambiar):
                 nombre=nombre,
                 motivo=resultado.motivo or _("motivo desconocido")))
             return False
-        anunciar(_("Paquete eliminado: {nombre}.").format(nombre=nombre))
+    if len(entradas) == 1:
+        anunciar(_("Paquete eliminado: {nombre}.").format(
+            nombre=voces_disponibles.nombre(entradas[0])))
+    else:
+        anunciar(ngettext("{n} paquete eliminado.", "{n} paquetes eliminados.",
+                          len(entradas)).format(n=len(entradas)))
     al_cambiar(entradas[0], indice)
     return True

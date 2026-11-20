@@ -16632,13 +16632,27 @@ msgstr "Update {nombre}"
 
 #: guyrapu/ui/voces_instalacion.py
 #, python-brace-format
+msgid "Instalar {n} paquete de voces"
+msgid_plural "Instalar {n} paquetes de voces"
+msgstr[0] "Install {n} voice pack"
+msgstr[1] "Install {n} voice packs"
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Actualizar {n} paquete de voces"
+msgid_plural "Actualizar {n} paquetes de voces"
+msgstr[0] "Update {n} voice pack"
+msgstr[1] "Update {n} voice packs"
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
 msgid "Descargando {nombre}."
 msgstr "Downloading {nombre}."
 
 #: guyrapu/ui/voces_instalacion.py
 #, python-brace-format
-msgid "Descargando {nombre}: {porcentaje} por ciento"
-msgstr "Downloading {nombre}: {porcentaje} percent"
+msgid "Descargando {nombre}, {i} de {n}."
+msgstr "Downloading {nombre}, {i} of {n}."
 
 #: guyrapu/ui/voces_instalacion.py
 msgid "Instalación cancelada."
@@ -16662,6 +16676,23 @@ msgid ""
 msgstr ""
 "Could not install {nombre}: {motivo}. Check the internet connection and try"
 " again."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "{n} paquete instalado."
+msgid_plural "{n} paquetes instalados."
+msgstr[0] "{n} voice pack installed."
+msgstr[1] "{n} voice packs installed."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "{ok} de {n} paquetes instalados. No se pudo instalar: {nombres}."
+msgstr "{ok} of {n} voice packs installed. Could not install: {nombres}."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "Descargando {nombre}: {porcentaje} por ciento"
+msgstr "Downloading {nombre}: {porcentaje} percent"
 
 #: guyrapu/ui/voces_instalacion.py guyrapu/ui/voces_ventana.py
 #, python-brace-format
@@ -16706,6 +16737,13 @@ msgstr "Could not remove {nombre}: {motivo}."
 #, python-brace-format
 msgid "Paquete eliminado: {nombre}."
 msgstr "Voice pack removed: {nombre}."
+
+#: guyrapu/ui/voces_instalacion.py
+#, python-brace-format
+msgid "{n} paquete eliminado."
+msgid_plural "{n} paquetes eliminados."
+msgstr[0] "{n} voice pack removed."
+msgstr[1] "{n} voice packs removed."
 
 #: guyrapu/ui/voces_ventana.py
 msgid "Administrar voces"

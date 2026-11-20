@@ -415,8 +415,8 @@ class TestEliminar(BaseVentana):
         dialogo._eliminar_voces()
         self.assertEqual([llamada.args[0] for llamada in borrar.call_args_list],
                          ["piper-a", "piper-b"])
-        preguntar.assert_called_once()
         self.assertIn("2 paquetes de voces", preguntar.call_args.args[1])
+        self.anuncios.assert_any_call("2 paquetes eliminados.")
 
     def test_si_sigue_en_el_catalogo_la_fila_queda_disponible(self):
         dialogo = self._con_instalado(en_catalogo=True)

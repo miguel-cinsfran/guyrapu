@@ -50,7 +50,6 @@ class VentanaVoces(wx.Dialog):
                          name="VentanaVoces", size=(820, 700))
         self._vivo = True
         self._espera = None
-        self._ultimo_porcentaje = None
         self._idioma_tocado = False
         self._cargando, self._fallo = True, False
         self._valores_idioma = [""]
@@ -298,24 +297,27 @@ class VentanaVoces(wx.Dialog):
         evento.Skip()
 
     def _accion_voces(self, accion):
-        for paquete in self._paquetes_elegidos():
-            nombre = voces_disponibles.nombre(paquete)
+        paquetes = []
+        for entrada in self._paquetes_elegidos():
+            nombre = voces_disponibles.nombre(entrada)
             if accion == "instalar":
-                if paquete.instalado is not None:
+                if entrada.instalado is not None:
                     anunciar(_("{nombre} ya está instalado.").format(nombre=nombre))
                     continue
-                if paquete.catalogo is None:
+                if entrada.catalogo is None:
                     continue
             else:
-                if paquete.instalado is None:
+                if entrada.instalado is None:
                     anunciar(_("{nombre} no está instalado.").format(nombre=nombre))
                     continue
-                if (paquete.catalogo is None
-                        or voces_disponibles.estado_codigo(paquete) != "actualizable"):
+                if (entrada.catalogo is None
+                        or voces_disponibles.estado_codigo(entrada) != "actualizable"):
                     anunciar(_("No hay actualización disponible para {nombre}.").format(
                         nombre=nombre))
                     continue
-            self._empezar(paquete.catalogo, accion, nombre)
+            paquetes.append(entrada)
+        if paquetes:
+            self._empezar(paquetes, accion)
         self._rehacer()
         self.lista_voces.SetFocus()
 
@@ -334,13 +336,14 @@ class VentanaVoces(wx.Dialog):
         self._recargar_instalados()
         self._rehacer_filtros()
 
-    def _empezar(self, paquete, accion, nombre):
+    def _empezar(self, paquetes, accion):
         if self._espera is not None:
             return
         self._ultimo_porcentaje = None
         voces_instalacion.empezar(
-            paquete, accion, nombre, self._crear_espera, self._poner_espera,
-            self._aviso_porcentaje, self._terminar_instalacion)
+            paquetes, accion, self._crear_espera, self._poner_espera,
+            self._aviso_porcentaje, self._preparar_paquete,
+            self._terminar_instalacion)
         if self._vivo:
             self._recargar_instalados()
             self._rehacer_filtros()
@@ -349,13 +352,15 @@ class VentanaVoces(wx.Dialog):
     def _poner_espera(self, espera):
         self._espera = espera
 
+    def _preparar_paquete(self):
+        self._ultimo_porcentaje = None
+
     def _aviso_porcentaje(self, porcentaje, nombre):
         self._ultimo_porcentaje = voces_instalacion.aviso_porcentaje(
             self._espera, self._ultimo_porcentaje, porcentaje, nombre)
 
-    def _terminar_instalacion(self, resultado, accion, nombre):
-        voces_instalacion.terminar_instalacion(
-            self._espera, resultado, accion, nombre)
+    def _terminar_instalacion(self, texto, sonido):
+        voces_instalacion.terminar_instalacion(self._espera, texto, sonido)
 
     def _vista_previa(self):
         fila = self._voz_elegida()
