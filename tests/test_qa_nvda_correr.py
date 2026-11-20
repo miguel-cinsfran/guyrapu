@@ -677,7 +677,7 @@ class TestApp(unittest.TestCase):
             "vieja\n")
 
     def test_ventana_recorre_solo_la_elegida(self):
-        resultado = self._correr(ventana="interaccion")
+        resultado = self._correr(ventana=["interaccion"])
         self.assertEqual([datos["nombre"] for datos in resultado.conducidos],
                          ["interaccion"])
         self.assertFalse(any(
@@ -692,7 +692,7 @@ class TestApp(unittest.TestCase):
         args = ejecutar.call_args.args[0]
         self.assertTrue(args.app)
         self.assertTrue(args.aprobar)
-        self.assertEqual(args.ventana, "interaccion")
+        self.assertEqual(args.ventana, ["interaccion"])
 
 
 class TestPrism(unittest.TestCase):

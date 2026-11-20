@@ -186,8 +186,10 @@ class Aplicacion(banco_app.Aplicacion):
 def agregar_argumentos(analizador) -> None:
     analizador.add_argument("--aprobar", action="store_true",
                             help="aprueba las transcripciones nuevas")
-    analizador.add_argument("--ventana",
-                            help="recorre solo esa ventana de la aplicación")
+    analizador.add_argument("--ventana", action="extend", nargs="+",
+                            metavar="NOMBRE",
+                            help="recorre esas ventanas de la aplicación, "
+                                 "en el orden dado")
 
 
 def _pid(banco) -> int:
@@ -258,12 +260,13 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
 
 def recorrer(cliente, args, iniciales=(), revisar=None) -> list:
     seleccion = list(ventanas_app.VENTANAS)
-    pedida = getattr(args, "ventana", None)
-    if pedida:
-        seleccion = [entrada for entrada in seleccion
-                     if entrada["nombre"] == pedida]
-        if not seleccion:
-            raise InstrumentoRoto(f"no hay ventana «{pedida}»")
+    pedidas = getattr(args, "ventana", None) or ()
+    if pedidas:
+        conocidas = {entrada["nombre"]: entrada for entrada in seleccion}
+        for nombre in pedidas:
+            if nombre not in conocidas:
+                raise InstrumentoRoto(f"no hay ventana «{nombre}»")
+        seleccion = [conocidas[nombre] for nombre in pedidas]
     aprobar = bool(getattr(args, "aprobar", False))
     catalogo = reglas.leer_catalogo_ingles()
     lineas = list(iniciales)

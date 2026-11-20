@@ -211,8 +211,28 @@ class TestVentanas(unittest.TestCase):
                     mock.patch.object(app, "_ventana", side_effect=ventana),
                 ):
                     app.recorrer(mock.Mock(), SimpleNamespace(
-                        ventana=pedida, aprobar=False))
+                        ventana=[pedida], aprobar=False))
                 self.assertEqual(conducidas, [pedida])
+
+    def test_dos_ventanas_se_recorren_las_dos_en_el_orden_dado(self):
+        banco = mock.Mock()
+        banco.pedir.return_value = {"datos": {"pid": 7}}
+        banco.esperar_lista.return_value = True
+        conducidas = []
+
+        def ventana(_banco, _cliente, entrada, _pid, _catalogo, _aprobar):
+            conducidas.append(entrada["nombre"])
+            return [], False
+
+        with (
+            mock.patch.object(app, "Aplicacion", return_value=banco),
+            mock.patch.object(app.reglas, "leer_catalogo_ingles",
+                              return_value=set()),
+            mock.patch.object(app, "_ventana", side_effect=ventana),
+        ):
+            app.recorrer(mock.Mock(), SimpleNamespace(
+                ventana=["obs", "ensayo"], aprobar=False))
+        self.assertEqual(conducidas, ["obs", "ensayo"])
 
     def test_ventana_comandos_elige_solo_esa(self):
         banco = mock.Mock()
@@ -231,7 +251,7 @@ class TestVentanas(unittest.TestCase):
             mock.patch.object(app, "_ventana", side_effect=ventana),
         ):
             app.recorrer(mock.Mock(), SimpleNamespace(
-                ventana="comandos", aprobar=False))
+                ventana=["comandos"], aprobar=False))
         self.assertEqual(conducidas, ["comandos"])
 
 
