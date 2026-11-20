@@ -21,7 +21,7 @@ from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.tema import _T, _tc
-from guyrapu.ui.preferencias_comun import ANCHO_NOTA, crear_panel
+from guyrapu.ui.preferencias_comun import ANCHO_NOTA, crear_panel, fila_label
 from guyrapu.voice import sound_player as _snd
 from guyrapu.youtube import credenciales
 from guyrapu.youtube import youtube_api
@@ -77,16 +77,13 @@ class PaginaApi:
             vs.Add(aviso, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         datos = credenciales.cargar()
-        grid = wx.FlexGridSizer(3, 2, 8, 8)
-        grid.AddGrowableCol(1, 1)
-        self.txt_api = self._fila_api(p, grid, _("Cla&ve de API:"), _("Clave de API de YouTube"),
-                                      datos.get("api_key", ""))
-        self.txt_cid = self._fila_api(p, grid, _("ID de cliente &OAuth:"),
-                                      _("ID de cliente OAuth"), datos.get("oauth_client_id", ""))
-        self.txt_secret = self._fila_api(p, grid, _("&Secreto de cliente OAuth:"),
-                                         _("Secreto de cliente OAuth"),
-                                         datos.get("oauth_client_secret", ""), password=True)
-        vs.Add(grid, 0, wx.EXPAND | wx.ALL, 10)
+        self.txt_api = self._fila_api(p, vs, _("Cla&ve de API:"), _("Clave de API de YouTube"),
+                                       datos.get("api_key", ""))
+        self.txt_cid = self._fila_api(p, vs, _("ID de cliente &OAuth:"),
+                                       _("ID de cliente OAuth"), datos.get("oauth_client_id", ""))
+        self.txt_secret = self._fila_api(p, vs, _("&Secreto de cliente OAuth:"),
+                                          _("Secreto de cliente OAuth"),
+                                          datos.get("oauth_client_secret", ""), password=True)
 
         self.lbl_estado_api = wx.StaticText(p, name="EstadoSesion", label="")
         self.lbl_estado_api.SetForegroundColour(_T.accent)
@@ -114,14 +111,12 @@ class PaginaApi:
         self.btn_api_logout.Bind(wx.EVT_BUTTON, self._api_logout)
         self.btn_api_guia.Bind(wx.EVT_BUTTON, lambda e: webbrowser.open(URL_GUIA))
 
-    def _fila_api(self, p, grid, etiqueta, nombre, valor, password=False):
-        lbl = wx.StaticText(p, label=etiqueta)
-        lbl.SetForegroundColour(_T.text)
+    def _fila_api(self, p, vs, etiqueta, nombre, valor, password=False):
+        vs.Add(fila_label(p, etiqueta), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         estilo = wx.TE_PASSWORD if password else 0
         txt = wx.TextCtrl(p, value=valor or "", style=estilo, name=nombre)
         _tc(txt)
-        grid.Add(lbl, 0, wx.ALIGN_CENTER_VERTICAL)
-        grid.Add(txt, 1, wx.EXPAND)
+        vs.Add(txt, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         return txt
 
     def _api_refrescar_estado(self):

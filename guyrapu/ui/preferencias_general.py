@@ -21,7 +21,7 @@ from guyrapu.core import instancia
 from guyrapu.core import paths
 from guyrapu.core import preferencias_archivo
 from guyrapu.core.idioma import _
-from guyrapu.ui import confirmar
+from guyrapu.ui import botonera, confirmar
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.preferencias_comun import EleccionTexto, crear_panel, fila_label
 from guyrapu.ui.tema import _tc
@@ -141,19 +141,19 @@ class PaginaGeneral:
         self.btn_abrir_datos = wx.Button(
             p, label=_("Abrir carpeta de da&tos"),
             name=_("Abrir carpeta de datos"))
-        vs.Add(self.btn_abrir_datos, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.btn_exportar_prefs = wx.Button(
             p, label=_("E&xportar preferencias…"),
             name=_("Exportar preferencias"))
-        vs.Add(self.btn_exportar_prefs, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.btn_importar_prefs = wx.Button(
             p, label=_("I&mportar preferencias…"),
             name=_("Importar preferencias"))
-        vs.Add(self.btn_importar_prefs, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.btn_restablecer_prefs = wx.Button(
             p, label=_("Restablecer todas las &preferencias…"),
             name=_("Restablecer todas las preferencias"))
-        vs.Add(self.btn_restablecer_prefs, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        fila = botonera.armar(
+            p, botones=(self.btn_abrir_datos, self.btn_exportar_prefs,
+                        self.btn_importar_prefs, self.btn_restablecer_prefs))
+        vs.Add(fila, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.btn_abrir_datos.Bind(wx.EVT_BUTTON, self._abrir_datos)
         self.btn_exportar_prefs.Bind(wx.EVT_BUTTON, self._exportar_prefs)
         self.btn_importar_prefs.Bind(wx.EVT_BUTTON, self._importar_prefs)

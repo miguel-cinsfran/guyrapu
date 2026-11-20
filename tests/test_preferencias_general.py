@@ -257,5 +257,54 @@ class TestCuadroSoloSiCambiaElIdioma(unittest.TestCase):
                 self.assertEqual(ofrecer.call_count, esperado)
 
 
+class TestDisenoDeLosBotones(unittest.TestCase):
+    """Los cuatro botones de archivo en una fila partible y del mismo ancho.
+
+    Abre ventanas.
+    """
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ruta = Path(self.tmp.name)
+        (self.ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                               encoding="utf-8")
+        parche = redirigir_rutas(self.ruta)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+
+    def _dialogo(self):
+        with mock.patch.object(motores, "listar_voces",
+                               return_value=["Voz de prueba"]):
+            dialogo = armar_preferencias({}, "General")
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    @staticmethod
+    def _botones(dialogo):
+        pagina = dialogo.pagina_general
+        return (pagina.btn_abrir_datos, pagina.btn_exportar_prefs,
+                pagina.btn_importar_prefs, pagina.btn_restablecer_prefs)
+
+    def test_los_cuatro_botones_estan_en_la_misma_fila_partible(self):
+        dialogo = self._dialogo()
+        botones = self._botones(dialogo)
+        fila = botones[0].GetContainingSizer()
+        self.assertIsInstance(fila, gui.wx.WrapSizer)
+        for boton in botones[1:]:
+            self.assertIs(boton.GetContainingSizer(), fila)
+        self.assertEqual([hijo.GetWindow() for hijo in fila.GetChildren()],
+                         list(botones))
+
+    def test_los_cuatro_botones_miden_lo_mismo(self):
+        dialogo = self._dialogo()
+        botones = self._botones(dialogo)
+        pagina = pagina_por_titulo(dialogo, "General")
+        pagina.SetSize((760, 900))
+        pagina.Layout()
+        self.assertEqual(len({boton.GetSize().width for boton in botones}), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
