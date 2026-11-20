@@ -132,6 +132,79 @@ class TestSolape(Base):
         self.assertIsNone(self.uno(ventana, "margen"))
 
 
+class TestControlConDesplazamiento(Base):
+
+    def _ventana(self):
+        desplazable = control(
+            id=1, clase="wxScrolledWindow", nombre="Desplazable",
+            etiqueta="", rect=[172, 10, 640, 498])
+        casilla = control(
+            id=2, padre=1, clase="wxCheckBox", nombre="Casilla",
+            etiqueta="", rect=[182, 621, 117, 15])
+        return muestra([desplazable, casilla], cliente=[822, 560])
+
+    def test_un_hijo_no_da_recorte_por_salir_del_area_visible(self):
+        self.assertIsNone(self.uno(self._ventana(), "recorte"))
+
+    def test_un_hijo_no_da_margen_contra_el_area_cliente(self):
+        self.assertIsNone(self.uno(self._ventana(), "margen"))
+
+
+class TestPiezasInternas(Base):
+
+    def test_el_campo_de_un_selector_no_da_recorte_y_el_selector_si(self):
+        panel = control(id=1, clase="wxPanel", etiqueta="",
+                        rect=[0, 0, 400, 300])
+        selector = control(
+            id=2, padre=1, clase="wxDirPickerCtrl", nombre="Carpeta",
+            etiqueta="", rect=[20, 280, 300, 25])
+        campo = control(
+            id=3, padre=2, clase="wxTextCtrl", nombre="Campo",
+            etiqueta="", rect=[22, 305, 200, 23])
+        recortes = [h for h in self.hallazgos(muestra([panel, selector, campo]))
+                    if h["regla"] == "recorte"]
+        self.assertEqual([h["control"] for h in recortes], ["Carpeta"])
+
+    def test_la_lista_de_categorias_de_un_libro_no_da_recorte(self):
+        libro = control(id=1, clase="wxListbook", etiqueta="",
+                        rect=[10, 10, 802, 498])
+        lista = control(
+            id=2, padre=1, clase="wxListView", nombre="Categorías",
+            etiqueta="", rect=[12, 12, 157, 498])
+        ventana = muestra([libro, lista], cliente=[822, 560])
+        self.assertIsNone(self.uno(ventana, "recorte"))
+
+    def test_las_piezas_de_un_contador_no_dan_solape(self):
+        panel = control(id=1, clase="wxPanel", etiqueta="",
+                        rect=[0, 0, 400, 300])
+        contador = control(
+            id=2, padre=1, clase="wxSpinCtrlDouble", etiqueta="",
+            rect=[8, 122, 212, 23])
+        texto = control(
+            id=3, padre=2, clase="wxTextCtrl", etiqueta="",
+            rect=[10, 124, 194, 23])
+        boton = control(
+            id=4, padre=2, clase="wxSpinButton", etiqueta="",
+            rect=[202, 122, 18, 23])
+        self.assertIsNone(self.uno(
+            muestra([panel, contador, texto, boton]), "solape"))
+
+    def test_la_lista_y_el_orden_de_participacion_siguen_dando_solape(self):
+        panel = control(id=1, clase="wxPanel", etiqueta="",
+                        rect=[0, 0, 504, 381])
+        lista = control(
+            id=2, padre=1, clase="wxListBox", nombre="Participación",
+            etiqueta="", rect=[10, 34, 488, 287])
+        orden = control(
+            id=3, padre=1, clase="wxChoice", nombre="Ordenar por",
+            etiqueta="", rect=[84, 319, 77, 23])
+        hallazgo = self.uno(muestra([panel, lista, orden],
+                                    tamano=[504, 381], cliente=[504, 381]),
+                            "solape")
+        self.assertIsNotNone(hallazgo)
+        self.assertEqual(hallazgo["control"], "Participación y Ordenar por")
+
+
 def barra():
     """Una barra de estado, dibujada fuera del área cliente."""
     return control(id=5, clase="wxStatusBar", nombre="BarraEstado",

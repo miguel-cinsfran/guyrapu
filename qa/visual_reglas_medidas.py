@@ -58,6 +58,31 @@ def cabe_dentro(rect, contenedor):
 BARRAS_FUERA_DEL_CLIENTE = frozenset((
     "wxStatusBar", "wxToolBar", "wxMenuBar"))
 
+# Sus hijos son piezas internas y el borde nativo las saca unos píxeles del
+# padre. El control compuesto sí se mide. Medido el 20/11/2026.
+CONTENEDORES = frozenset((
+    "wxPanel", "wxFrame", "wxDialog", "wxWindow", "wxScrolledWindow",
+    "wxScrolledCanvas", "wxStaticBox", "wxRadioBox",
+    "wxNotebook", "wxListbook", "wxTreebook", "wxChoicebook",
+    "wxAuiNotebook",
+))
+
+# La lista de pestañas o categorías de un libro es una pieza interna aunque
+# el libro sea un contenedor. Medido el 20/11/2026.
+LIBROS = frozenset((
+    "wxNotebook", "wxListbook", "wxTreebook", "wxChoicebook",
+    "wxAuiNotebook",
+))
+LISTAS_DE_LIBRO = frozenset((
+    "wxListView", "wxListCtrl", "wxTreeCtrl", "wxChoice", "wxListBox",
+))
+
+# Lo que cuelga de estos se ve al desplazar: no está recortado y no guarda
+# una distancia fija al borde del área cliente. Medido el 20/11/2026.
+CONTENEDORES_CON_DESPLAZAMIENTO = frozenset((
+    "wxScrolledWindow", "wxScrolledCanvas",
+))
+
 
 def medibles_de(ventana):
     """Controles medibles de una ventana: sin la raíz ni las barras."""
@@ -119,6 +144,61 @@ def margen_exterior(controles, cliente):
     return min(min(c["rect"][0], c["rect"][1],
                    cliente[0] - derecha(c["rect"]),
                    cliente[1] - abajo(c["rect"])) for c in controles)
+
+
+def _por_id(controles):
+    return {c["id"]: c for c in controles}
+
+
+def _padre(control, por_id):
+    if control["padre"] is None:
+        return None
+    return por_id.get(control["padre"])
+
+
+def es_pieza_interna(control, por_id):
+    """Si el control es parte de un compuesto y no un control suelto."""
+    padre = _padre(control, por_id)
+    if padre is None:
+        return False
+    if padre["clase"] not in CONTENEDORES:
+        return True
+    return (padre["clase"] in LIBROS
+            and control["clase"] in LISTAS_DE_LIBRO)
+
+
+def contenedor_medible(control, por_id, cliente):
+    """El rectángulo que limita al control, o None si su padre se desplaza."""
+    padre = _padre(control, por_id)
+    if padre is None:
+        return [0, 0, *cliente]
+    if padre["clase"] in CONTENEDORES_CON_DESPLAZAMIENTO:
+        return None
+    return padre["rect"]
+
+
+def para_recorte(ventana):
+    """Medibles de recorte y su índice por id, sin piezas internas."""
+    medibles = medibles_de(ventana)
+    por_id = _por_id(medibles)
+    utiles = [c for c in medibles if not es_pieza_interna(c, por_id)]
+    return utiles, por_id
+
+
+def para_solape(ventana):
+    """Controles de solape, sin las piezas internas de los compuestos."""
+    controles = controles_medibles(ventana["controles"], ventana["tamano"])
+    por_id = _por_id(controles)
+    return [c for c in controles if not es_pieza_interna(c, por_id)]
+
+
+def para_margen(ventana):
+    """Controles de margen, sin los que cuelgan de un padre que se desplaza."""
+    medibles = medibles_de(ventana)
+    por_id = _por_id(medibles)
+    cliente = ventana["cliente"]
+    return [c for c in medibles
+            if contenedor_medible(c, por_id, cliente) is not None]
 
 
 def texto_cabe(control, relleno):

@@ -24,7 +24,8 @@ from visual_reglas_medidas import abajo, area, area_interseccion  # noqa: E402
 from visual_reglas_medidas import apilados, cabe_dentro, columnas  # noqa: E402
 from visual_reglas_medidas import controles_medibles  # noqa: E402
 from visual_reglas_medidas import derecha, envolvente, hermanos  # noqa: E402
-from visual_reglas_medidas import hermanos_por_clase, medibles_de  # noqa: E402
+from visual_reglas_medidas import contenedor_medible, para_margen, para_recorte  # noqa: E402
+from visual_reglas_medidas import hermanos_por_clase, para_solape  # noqa: E402
 from visual_reglas_medidas import huecos, margen_exterior, texto_cabe, visibles  # noqa: E402
 
 ERROR = "error"
@@ -125,14 +126,11 @@ def regla_contraste(ventana):
 
 
 def regla_recorte(ventana):
-    medibles = medibles_de(ventana)
-    por_id = {c["id"]: c for c in medibles}
-    cliente = ventana["cliente"]
+    medibles, por_id = para_recorte(ventana)
     hallazgos = []
     for c in medibles:
-        padre = por_id.get(c["padre"]) if c["padre"] is not None else None
-        contenedor = padre["rect"] if padre else [0, 0, *cliente]
-        if not cabe_dentro(c["rect"], contenedor):
+        contenedor = contenedor_medible(c, por_id, ventana["cliente"])
+        if contenedor is not None and not cabe_dentro(c["rect"], contenedor):
             detalle = "fuera del rectángulo de su padre"
             hallazgos.append(nuevo(ventana, GRAVEDAD_RECORTE, "recorte",
                                    c["nombre"], detalle))
@@ -147,7 +145,7 @@ def regla_recorte(ventana):
 
 def regla_solape(ventana):
     hallazgos = []
-    for hermanos_ in hermanos(controles_medibles(ventana["controles"], ventana["tamano"])).values():
+    for hermanos_ in hermanos(para_solape(ventana)).values():
         for a, b in itertools.combinations(hermanos_, 2):
             area_comun = area_interseccion(a["rect"], b["rect"])
             if area_comun >= SOLAPE_MINIMO_PX2:
@@ -225,7 +223,7 @@ def regla_ritmo(ventana):
 def regla_margen(ventana):
     ancho_, alto_ = ventana["cliente"]
     hallazgos = []
-    for c in medibles_de(ventana):
+    for c in para_margen(ventana):
         x, y, ancho_c, alto_c = c["rect"]
         distancia = min(x, y, ancho_ - x - ancho_c, alto_ - y - alto_c)
         if distancia < MARGEN_MIN_PX:
