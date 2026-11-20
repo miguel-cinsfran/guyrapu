@@ -14,6 +14,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from qa import foco_ventanas
 from qa.nvda import recorrido, transcripcion
 
 
@@ -356,6 +357,14 @@ class TestPrimerPlano(unittest.TestCase):
             recorrido.conducir(cliente, ventana(["Uno"]))
         self.assertIn("Ventana ajena", str(capturado.exception))
         self.assertEqual(cliente.pasos, [])
+
+    def test_el_primer_plano_del_hijo_de_la_app_deja_seguir(self):
+        cliente = mock.Mock()
+        cliente.foco_completo.return_value = {
+            "primer_plano": {"pid": 99, "nombre": "Guyrapu"}}
+        with mock.patch.object(foco_ventanas, "arbol_de_procesos",
+                               return_value={99: 7}):
+            recorrido._comprobar_primer_plano(cliente, 7)
 
     def test_el_primer_plano_de_la_ventana_deja_seguir(self):
         datos = recorrido.conducir(

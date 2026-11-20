@@ -13,6 +13,7 @@ from __future__ import annotations
 import ctypes
 import logging
 import time
+from ctypes import wintypes
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,22 @@ TECLA_ARRIBA = 0x0002
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 NOTIFICACION_CLASE = "windows.ui.core.corewindow"
 NOTIFICACION_PROCESO = "shellexperiencehost"
+TH32CS_SNAPPROCESS = 0x00000002
+
+
+class _PROCESSENTRY32W(ctypes.Structure):
+    _fields_ = [
+        ("dwSize", wintypes.DWORD),
+        ("cntUsage", wintypes.DWORD),
+        ("th32ProcessID", wintypes.DWORD),
+        ("th32DefaultHeapID", ctypes.POINTER(ctypes.c_ulong)),
+        ("th32ModuleID", wintypes.DWORD),
+        ("cntThreads", wintypes.DWORD),
+        ("th32ParentProcessID", wintypes.DWORD),
+        ("pcPriClassBase", ctypes.c_long),
+        ("dwFlags", wintypes.DWORD),
+        ("szExeFile", wintypes.WCHAR * 260),
+    ]
 
 
 def primer_foco(ventana):
@@ -64,6 +81,47 @@ def pulsar_alt(usuario) -> None:
         usuario.keybd_event(VK_MENU, 0, TECLA_ARRIBA, 0)
     except Exception as exc:
         logger.debug("no se pudo pulsar Alt: %s", exc)
+
+
+def arbol_de_procesos() -> dict:
+    """Mapa de pid a pid padre, vacío si Windows no lo entrega."""
+    kernel = ctypes.windll.kernel32
+    instantanea = kernel.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    if instantanea in (None, -1):
+        return {}
+    padres = {}
+    try:
+        entrada = _PROCESSENTRY32W()
+        entrada.dwSize = ctypes.sizeof(entrada)
+        if not kernel.Process32FirstW(instantanea, ctypes.byref(entrada)):
+            return {}
+        while True:
+            padres[entrada.th32ProcessID] = entrada.th32ParentProcessID
+            if not kernel.Process32NextW(instantanea, ctypes.byref(entrada)):
+                break
+    finally:
+        kernel.CloseHandle(instantanea)
+    return padres
+
+
+def es_proceso_o_descendiente(pid, raiz, arbol=None) -> bool:
+    """Si pid es la raíz o cuelga de ella por la cadena de padres.
+
+    El python de un venv es un lanzador y la ventana la tiene su hijo.
+    """
+    if pid is None or raiz is None:
+        return False
+    if int(pid) == int(raiz):
+        return True
+    arbol = arbol_de_procesos() if arbol is None else arbol
+    actual = int(pid)
+    vistos = set()
+    while actual and actual not in vistos:
+        if actual == int(raiz):
+            return True
+        vistos.add(actual)
+        actual = arbol.get(actual, 0)
+    return False
 
 
 def nombre_proceso(pid) -> str:
@@ -145,7 +203,7 @@ def traer_al_frente(hwnd, pid: int, segundos: float = 10.0) -> bool:
         return False
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
-        if pid_al_frente() == pid:
+        if es_proceso_o_descendiente(pid_al_frente(), pid):
             return True
         pulsar_alt(usuario)
         try:

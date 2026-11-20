@@ -19,7 +19,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from qa import foco_ventanas
-from qa.nvda import correr, devolver, nvda_local, seguridad, ventanas_app
+from qa.nvda import canario, correr, devolver, nvda_local, seguridad, ventanas_app
 
 INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
 
@@ -225,6 +225,32 @@ class TestEsperarFrente(unittest.TestCase):
         dormir.assert_not_called()
 
 
+class UsuarioFalso:
+    """user32 falso: la ventana pedida es del hijo del pid lanzador."""
+
+    def __init__(self, dueno):
+        self.dueno = dueno
+        self.f24 = 0
+        self.levantadas = 0
+        self.foreground = 999
+
+    def FindWindowW(self, clase, titulo):
+        return 123
+
+    def GetWindowThreadProcessId(self, hwnd, puntero):
+        puntero._obj.value = self.dueno
+
+    def GetForegroundWindow(self):
+        return self.foreground
+
+    def keybd_event(self, *args):
+        self.f24 += 1
+
+    def SetForegroundWindow(self, hwnd):
+        self.foreground = hwnd
+        self.levantadas += 1
+
+
 class TestFrenteCanario(unittest.TestCase):
 
     def _correr(self, al_frente, frente_ok=True):
@@ -249,6 +275,25 @@ class TestFrenteCanario(unittest.TestCase):
             resultado = al_frente(cliente, mock.Mock(cortado=False))
         popen.return_value.wait.assert_called_once()
         return cliente, llamadas, resultado
+
+    def test_acepta_la_ventana_del_hijo_del_pid_lanzador(self):
+        usuario = UsuarioFalso(200)
+        plano = lambda: {"proceso": "guyrapu", "titulo": "Canario del carril"}
+        with (
+            mock.patch.object(correr.canario.ctypes, "windll",
+                              SimpleNamespace(user32=usuario)),
+            mock.patch.object(foco_ventanas, "arbol_de_procesos",
+                              return_value={200: 100}),
+        ):
+            self.assertTrue(canario.al_frente(
+                100, plano=plano, dormir=mock.Mock()))
+        self.assertEqual(usuario.levantadas, 1)
+
+    def test_rechaza_una_ventana_de_otro_arbol_de_procesos(self):
+        self.assertFalse(foco_ventanas.es_proceso_o_descendiente(
+            200, 100, arbol={200: 300, 300: 400}))
+        self.assertTrue(foco_ventanas.es_proceso_o_descendiente(
+            200, 100, arbol={200: 100}))
 
     def test_trae_el_canario_al_frente_antes_de_esperar_el_foco(self):
         _cliente, llamadas, _resultado = self._correr(correr._canario)

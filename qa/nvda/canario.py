@@ -38,7 +38,7 @@ def al_frente(pid, segundos=25.0, plano=None, dormir=time.sleep) -> bool:
             return False
         dueño = ctypes.c_ulong()
         usuario.GetWindowThreadProcessId(hwnd, ctypes.byref(dueño))
-        if int(dueño.value) != int(pid):
+        if not foco_ventanas.es_proceso_o_descendiente(dueño.value, pid):
             return False
         if usuario.GetForegroundWindow() == hwnd:
             return True

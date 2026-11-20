@@ -20,6 +20,7 @@ import tempfile
 import time
 from pathlib import Path
 
+from qa import foco_ventanas
 from qa.nvda.reglas import identidad
 
 TOPE_PASOS = 40
@@ -53,7 +54,7 @@ class Sonidos:
 def _comprobar_primer_plano(cliente, pid) -> None:
     respuesta = cliente.foco_completo()
     plano = respuesta.get("primer_plano") or {}
-    if int(plano.get("pid") or 0) != int(pid):
+    if not foco_ventanas.es_proceso_o_descendiente(plano.get("pid"), pid):
         raise InstrumentoRoto(
             f"tomó el primer plano «{plano.get('nombre')}» "
             f"(proceso {plano.get('pid')})")
