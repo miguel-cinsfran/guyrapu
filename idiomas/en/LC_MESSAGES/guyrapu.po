@@ -845,6 +845,11 @@ msgstr "Live stream elapsed time"
 
 #. Traductores: rótulo en Preferencias del componente de F2.
 #: guyrapu/capture/componentes_estado.py
+msgid "Retraso del reproductor respecto al directo"
+msgstr "Player lag behind the live stream"
+
+#. Traductores: rótulo en Preferencias del componente de F2.
+#: guyrapu/capture/componentes_estado.py
 msgid "Mensajes leídos"
 msgstr "Read messages"
 
@@ -1159,8 +1164,8 @@ msgstr "TikTok live stream"
 #. Traductores: parte del estado F2 (tipo de conexión).
 #. Traductores: superficie donde se ve el vídeo.
 #: guyrapu/capture/estado_sesion.py guyrapu/player/reproductor.py
-#: guyrapu/ui/dialogo_ajustes_perfil.py guyrapu/ui/encuesta_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/dialogo_ajustes_perfil.py
+#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Vídeo"
 msgstr "Video"
 
@@ -2219,7 +2224,8 @@ msgid "Transmisión y directo"
 msgstr "Broadcast and live stream"
 
 #. Traductores: familia de los sonidos del chat.
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Chat"
 msgstr "Chat"
 
@@ -3464,6 +3470,11 @@ msgstr "Panic on: nothing is shown on the video."
 msgid "En el vídeo: {texto}."
 msgstr "On the video: {texto}."
 
+#. Traductores: estado de F2 sin piezas en el vídeo.
+#: guyrapu/interaction/cola_pantalla.py guyrapu/ui/comando_en_directo.py
+msgid "No hay nada en el vídeo."
+msgstr "Nothing on the video."
+
 #. Traductores: estado de F2; {n} son las piezas en cola.
 #: guyrapu/interaction/cola_pantalla.py
 #, python-brace-format
@@ -3588,6 +3599,18 @@ msgstr "Command {palabra}."
 #, python-brace-format
 msgid "Responde: {respuesta}."
 msgstr "It replies: {respuesta}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid ""
+"Se muestra {destino}, con el estilo {estilo} y {segundos} segundos en "
+"pantalla."
+msgstr "Shows {destino}, with the {estilo} style and {segundos} seconds on screen."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Se muestra {destino}."
+msgstr "Shows {destino}."
 
 #: guyrapu/interaction/descripcion_comando.py
 #, python-brace-format
@@ -3897,6 +3920,13 @@ msgid "Público de prueba"
 msgstr "Test audience"
 
 #: guyrapu/interaction/estado_interaccion.py
+#, python-brace-format
+msgid "1 pregunta en espera."
+msgid_plural "{n} preguntas en espera."
+msgstr[0] "1 question waiting."
+msgstr[1] "{n} questions waiting."
+
+#: guyrapu/interaction/estado_interaccion.py
 msgid "No hay nada de la interacción en curso."
 msgstr "There is no interaction in progress."
 
@@ -3988,6 +4018,11 @@ msgstr "The goal {nombre} already exists."
 msgid "El objetivo tiene que ser un número entero mayor que cero."
 msgstr "The target must be a whole number greater than zero."
 
+#. Traductores: validación de metas del directo (error).
+#: guyrapu/interaction/metas.py
+msgid "Ese tipo de meta no existe."
+msgstr "That goal type does not exist."
+
 #: guyrapu/interaction/paquetes.py
 msgid "estilos"
 msgstr "styles"
@@ -4025,6 +4060,12 @@ msgstr "The package contains a file that Guyrapu does not import: {nombre}."
 #, python-brace-format
 msgid "El paquete supera el tamaño máximo de {megas} MB."
 msgstr "The package exceeds the maximum size of {megas} MB."
+
+#: guyrapu/interaction/paquetes.py
+msgid ""
+"El paquete es de una versión posterior de Guyrapu. Actualiza Guyrapu para "
+"importarlo."
+msgstr "The package is from a later version of Guyrapu. Update Guyrapu to import it."
 
 #: guyrapu/interaction/paquetes.py
 #, python-brace-format
@@ -4602,6 +4643,16 @@ msgstr[1] "{eliminadas} removed"
 #: guyrapu/obs/ajuste_fino.py
 msgid "Moviendo con flechas"
 msgstr "Moving with arrows"
+
+#. Traductores: anuncio al mover con flechas; dice qué teclas mueven, confirman
+#. y terminan el ajuste.
+#: guyrapu/obs/ajuste_fino.py
+msgid ""
+"Flechas para mover, Control para pasos grandes, Mayúsculas para pasos de un"
+" píxel. Intro confirma, Esc deshace, Tab termina el ajuste."
+msgstr ""
+"Arrows move, Ctrl for big steps, Shift for one-pixel steps. Enter confirms,"
+" Esc undoes, Tab finishes the adjustment."
 
 #: guyrapu/obs/ajustes_perfil.py guyrapu/obs/salidas_audio.py
 msgid "Por defecto"
@@ -5671,7 +5722,7 @@ msgid "inferior"
 msgstr "bottom"
 
 #. Traductores: conjunción entre partes de una frase, con sus espacios.
-#. Traductores: conjunción entre los lados por los que se sale del vídeo.
+#. Traductores: conjunción entre los lados por los que queda fuera del vídeo.
 #: guyrapu/obs/obs_disposicion.py guyrapu/obs/revision_escena.py
 #: guyrapu/obs/usos_perfil.py
 msgid " y "
@@ -5681,6 +5732,18 @@ msgstr " and "
 #, python-brace-format, python-format
 msgid "a {porcentaje}% del borde {borde}"
 msgstr "{porcentaje}% from the {borde} edge"
+
+#. Traductores: {salidas} son los lados y {distancias} los porcentajes.
+#: guyrapu/obs/obs_disposicion.py
+#, python-brace-format
+msgid "queda fuera del vídeo {salidas}, y {distancias}"
+msgstr "is outside the video {salidas}, and {distancias}"
+
+#. Traductores: {salidas} son los lados por donde queda fuera.
+#: guyrapu/obs/obs_disposicion.py
+#, python-brace-format
+msgid "queda fuera del vídeo {salidas}"
+msgstr "is outside the video {salidas}"
 
 #: guyrapu/obs/obs_disposicion.py
 #, python-brace-format
@@ -6633,6 +6696,10 @@ msgstr ""
 "It takes up {ancho} percent of the width and {alto} percent of the height "
 "of the video."
 
+#: guyrapu/obs/revision_tarjeta.py
+msgid "La tarjeta queda fuera del 80 por ciento central del vídeo."
+msgstr "The card is outside the central 80 percent of the video."
+
 #: guyrapu/obs/tamano_relativo.py
 msgid "Un quinto del vídeo"
 msgstr "One fifth of the video"
@@ -6946,6 +7013,15 @@ msgid ""
 "audio."
 msgstr "A TikTok live stream cannot be paused. To mute it, use Mute audio."
 
+# ajustan
+#: guyrapu/player/pantalla_completa.py
+msgid ""
+"Vídeo a pantalla completa. Espacio pausa, flechas buscan y ajustan volumen,"
+" Esc vuelve a la ventana."
+msgstr ""
+"Full-screen video. Space pauses, arrows seek and adjust volume, Esc returns"
+" to the window."
+
 #: guyrapu/player/progreso.py
 #, python-brace-format
 msgid ""
@@ -7230,6 +7306,14 @@ msgid "{nuevo} por ciento"
 msgstr "{nuevo} percent"
 
 #: guyrapu/player/reproductor.py
+msgid ""
+"Pantalla completa. Espacio pausa, flechas buscan y ajustan volumen, Esc "
+"vuelve a la ventana."
+msgstr ""
+"Full screen. Space pauses, arrows seek and adjust volume, Esc returns to "
+"the window."
+
+#: guyrapu/player/reproductor.py
 msgid "Pantalla completa desactivada"
 msgstr "Full screen off"
 
@@ -7381,6 +7465,17 @@ msgid "El chat de TikTok se dejó de reconectar porque se desconectaba enseguida
 msgstr ""
 "The TikTok chat stopped reconnecting because it kept disconnecting right "
 "away."
+
+#: guyrapu/restream/destinos_de_mas.py
+#, python-brace-format
+msgid ""
+"Restream también va a transmitir este directo a: {destinos}. Para elegir "
+"los destinos, usa un perfil de Restream en Transmitir a. ¿Quieres "
+"transmitir de todos modos?"
+msgstr ""
+"Restream will also broadcast this live stream to: {destinos}. To choose the"
+" destinations, use a Restream profile in Broadcast to. Do you want to "
+"broadcast anyway?"
 
 #: guyrapu/restream/eventos.py
 #, python-brace-format
@@ -7969,6 +8064,10 @@ msgid "Anunciar encuadre de cámara"
 msgstr "Announce camera framing"
 
 #: guyrapu/ui/atajos_captura.py
+msgid "Avisar si el rostro queda fuera del encuadre"
+msgstr "Notify when the face leaves the frame"
+
+#: guyrapu/ui/atajos_captura.py
 msgid "Mostrar u ocultar la cámara"
 msgstr "Show or hide the camera"
 
@@ -8123,6 +8222,24 @@ msgstr "Previous chat filter"
 #: guyrapu/ui/atajos_captura.py
 msgid "Filtro siguiente del chat"
 msgstr "Next chat filter"
+
+#: guyrapu/ui/atajos_captura.py
+msgid ""
+"Cada familia de atajos tiene su modificador. Ctrl es para el reproductor, "
+"Alt para el chat y Ctrl+Mayús para abrir ventanas. Alt+Mayús es para el "
+"directo y OBS, y Ctrl+Alt para la música. Ctrl+Alt+Mayús es para lo que se "
+"muestra en el vídeo, y las teclas F para la voz. Pulsa un botón y luego la "
+"combinación que quieras. La aplicación comprueba que sirva para esa familia"
+" y que no coincida con otra. F6, Mayús+F6, F9 a F12 y Alt+F4 son fijas, y "
+"se muestran para que no se puedan reemplazar."
+msgstr ""
+"Each shortcut family has its own modifier. Ctrl is for the player, Alt for "
+"the chat, and Ctrl+Shift for opening windows. Alt+Shift is for the live "
+"stream and OBS, and Ctrl+Alt for music. Ctrl+Alt+Shift is for what is shown"
+" on the video, and the F keys for voice. Press a button and then the "
+"combination you want. The application checks that it works for that family "
+"and does not match another. F6, Shift+F6, F9 through F12, and Alt+F4 are "
+"fixed, and they are shown so they cannot be replaced."
 
 #: guyrapu/ui/atajos_captura.py
 #, python-brace-format
@@ -8457,7 +8574,7 @@ msgstr "Show fi&lters"
 msgid "Mostrar filtros"
 msgstr "Show filters"
 
-#: guyrapu/ui/buscador_filtros.py
+#: guyrapu/ui/buscador_filtros.py guyrapu/ui/disparador_cuadro.py
 msgid "Ti&po:"
 msgstr "Ty&pe:"
 
@@ -8542,6 +8659,14 @@ msgstr "The video queue is busy. Try again in a few seconds."
 #: guyrapu/ui/capa_video.py
 msgid "Hay algo en el vídeo. Prueba cuando termine."
 msgstr "There is something on the video. Try again when it finishes."
+
+#: guyrapu/ui/capa_video.py
+msgid ""
+"La escena de Guyrapu está dentro de la escena actual. Elimínala de esa "
+"escena en OBS y vuelve a intentarlo."
+msgstr ""
+"The Guyrapu scene is inside the current scene. Remove it from that scene in"
+" OBS and try again."
 
 #. Traductores: aviso al confirmarse una tarjeta en el vídeo. {nombre} es el
 #. nombre del mensaje automático.
@@ -8864,6 +8989,10 @@ msgstr "You can use {usuario}, {contador} and {texto}."
 msgid "Puedes usar {usuario}, {contador}, {texto} y {lista}."
 msgstr "You can use {usuario}, {contador}, {texto} and {lista}."
 
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Chat y vídeo"
+msgstr "Chat and video"
+
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
 #: guyrapu/ui/gui_menu.py
 msgid "Todos"
@@ -8878,7 +9007,7 @@ msgid "Una lista de nombres"
 msgstr "A list of names"
 
 #: guyrapu/ui/comando_cuadro.py
-msgid "&Palabra:"
+msgid "Pala&bra:"
 msgstr "&Word:"
 
 #: guyrapu/ui/comando_cuadro.py
@@ -8888,6 +9017,14 @@ msgstr "A&lias:"
 #: guyrapu/ui/comando_cuadro.py
 msgid "&Respuesta:"
 msgstr "&Response:"
+
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "&Mostrar en:"
+msgstr "&Show in:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Permiso:"
+msgstr "&Permission:"
 
 #: guyrapu/ui/comando_cuadro.py
 msgid "&Nombres:"
@@ -8913,6 +9050,10 @@ msgstr "&Style:"
 #: guyrapu/ui/comando_cuadro.py
 msgid "Acti&vado"
 msgstr "Acti&vated"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Mostrar en la l&ista de comandos"
+msgstr "Show in command &list"
 
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/dialogo_usos_perfil.py
 #: guyrapu/ui/disparador_cuadro.py guyrapu/ui/encuesta_cuadro.py
@@ -8969,6 +9110,10 @@ msgstr "Cancel"
 msgid "Cambiar palabra"
 msgstr "Change word"
 
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Palabra:"
+msgstr "&Word:"
+
 #: guyrapu/ui/comando_directo.py
 msgid "Revisando OBS antes de transmitir."
 msgstr "Checking OBS before broadcasting."
@@ -8976,6 +9121,10 @@ msgstr "Checking OBS before broadcasting."
 #: guyrapu/ui/comando_directo.py
 msgid "Escribe tu usuario de TikTok en Usuario de TikTok."
 msgstr "Type your TikTok user in TikTok user."
+
+#: guyrapu/ui/comando_directo.py
+msgid "La transmisión sigue activa."
+msgstr "The broadcast is still active."
 
 #: guyrapu/ui/comando_en_directo.py
 msgid "Mensaje del vídeo omitido"
@@ -9004,6 +9153,14 @@ msgstr "{autor} asks: {texto}. {n} left."
 #, python-brace-format
 msgid "Comandos respondidos: {n}, el último {palabra} de {autor}"
 msgstr "Commands answered: {n}, the last {palabra} from {autor}"
+
+#: guyrapu/ui/comandos_en_vivo.py
+msgid ""
+"Queda poca cuota de YouTube: las respuestas de los comandos ya no se "
+"muestran en el chat, solo en el vídeo."
+msgstr ""
+"Little YouTube quota is left: command replies are no longer shown in the "
+"chat, only in the video."
 
 #: guyrapu/ui/comandos_grabacion.py
 msgid "No hay ninguna grabación en curso."
@@ -10029,6 +10186,18 @@ msgid "Editar disparador"
 msgstr "Edit trigger"
 
 #: guyrapu/ui/disparador_cuadro.py
+msgid "Activación"
+msgstr "Activation"
+
+#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/gui.py
+msgid "Contenido"
+msgstr "Content"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Permiso y espera"
+msgstr "Permission and cooldown"
+
+#: guyrapu/ui/disparador_cuadro.py
 #, python-brace-format
 msgid "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}."
 msgstr "You can use {usuario}, {cantidad}, {regalo}, {texto} and {contador}."
@@ -10062,12 +10231,22 @@ msgid "Palabras o emojis del c&hat:"
 msgstr "Words or emojis in c&hat:"
 
 #: guyrapu/ui/disparador_cuadro.py
+msgid "E&vento:"
+msgstr "E&vent:"
+
+#: guyrapu/ui/disparador_cuadro.py
 msgid "Cantidad mín&ima:"
 msgstr "M&inimum amount:"
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Nom&bre del regalo:"
 msgstr "Gift &name:"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid ""
+"Déjalo vacío para cualquier regalo. Escribe el nombre tal como lo lee "
+"Guyrapu."
+msgstr "Leave it empty for any gift. Enter the name exactly as Guyrapu reads it."
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Me&dio:"
@@ -10092,6 +10271,10 @@ msgstr "&Seconds on screen:"
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Pe&rmiso:"
 msgstr "Pe&rmission:"
+
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Nombres p&ermitidos:"
+msgstr "Allow&ed names:"
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Espera &general (segundos):"
@@ -10399,6 +10582,7 @@ msgstr "Plat&form:"
 
 #. Traductores: opciones del tipo de mensaje de la ventana de ensayo.
 #: guyrapu/ui/ensayo_ventana.py guyrapu/ui/medio_cuadro.py
+#: guyrapu/ui/meta_cuadro.py
 msgid "&Tipo:"
 msgstr "&Type:"
 
@@ -11313,6 +11497,10 @@ msgid "Sombra"
 msgstr "Shadow"
 
 #: guyrapu/ui/estilo_cuadro.py
+msgid "¿Quieres guardar el estilo de todos modos?"
+msgstr "Do you want to save the style anyway?"
+
+#: guyrapu/ui/estilo_cuadro.py
 msgid "Guardar estilo del vídeo"
 msgstr "Save video style"
 
@@ -11474,10 +11662,6 @@ msgstr ""
 #: guyrapu/ui/gui.py guyrapu/ui/gui_preferencias.py
 msgid "Conexión"
 msgstr "Connection"
-
-#: guyrapu/ui/gui.py
-msgid "Contenido"
-msgstr "Content"
 
 #: guyrapu/ui/gui.py
 #, python-brace-format
@@ -13566,6 +13750,10 @@ msgid "Editar medio"
 msgstr "Edit media"
 
 #: guyrapu/ui/medio_cuadro.py
+msgid "Dura más de 15 segundos: al activarlo se detiene a los 15 segundos."
+msgstr "Longer than 15 seconds: when activated, it stops at 15 seconds."
+
+#: guyrapu/ui/medio_cuadro.py
 msgid "Solo se propone la descripción de una imagen o un GIF"
 msgstr "Only an image or a GIF can be described"
 
@@ -13689,10 +13877,6 @@ msgid "Editar mensaje automático"
 msgstr "Edit scheduled message"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Chat y vídeo"
-msgstr "Chat and video"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Nombre del mensaje"
 msgstr "Message name"
 
@@ -13703,6 +13887,10 @@ msgstr "Message &text:"
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Texto del mensaje"
 msgstr "Message text"
+
+#: guyrapu/ui/mensaje_automatico_cuadro.py
+msgid "Mostrar en:"
+msgstr "Show in:"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Estilo:"
@@ -13739,6 +13927,25 @@ msgstr "Chat messages in between"
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Acti&vo"
 msgstr "Acti&ve"
+
+# Necesita
+# intervalo
+# suele
+# nombre
+#: guyrapu/ui/mensajes_automaticos_ventana.py
+msgid ""
+"Los mensajes automáticos se muestran a intervalos en el chat del directo, "
+"en el vídeo o en los dos. Para el chat se necesita la sesión de Google "
+"iniciada y un directo de YouTube conectado. El intervalo mínimo es de 5 "
+"minutos y cada mensaje admite 200 caracteres. YouTube suele bloquear los "
+"enlaces en el chat: escribe el nombre de usuario en lugar del enlace "
+"completo."
+msgstr ""
+"Scheduled messages are shown at intervals in the live chat, in the video, "
+"or in both. The chat requires a signed-in Google session and a connected "
+"YouTube live stream. The minimum interval is 5 minutes and each message "
+"allows 200 characters. YouTube often blocks links in the chat: write the "
+"user name instead of the full link."
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "No hay mensajes automáticos. Usa Agregar para crear uno."
@@ -13902,6 +14109,10 @@ msgstr "{plataforma} does not allow moderation from Guyrapu"
 #: guyrapu/ui/menu_obs.py
 msgid "Anunciar en&cuadre de cámara"
 msgstr "Announce camera &framing"
+
+#: guyrapu/ui/menu_obs.py guyrapu/ui/preferencias_camara.py
+msgid "A&visar si el rostro queda fuera del encuadre"
+msgstr "Notify when the face &leaves the frame"
 
 #: guyrapu/ui/menu_obs.py
 msgid "Mo&strar u ocultar la cámara"
@@ -15435,12 +15646,20 @@ msgid "Traducir chat"
 msgstr "Translate chat"
 
 #: guyrapu/ui/preferencias_lectura.py
+msgid "Tra&ducir:"
+msgstr "Trans&late:"
+
+#: guyrapu/ui/preferencias_lectura.py
 msgid "La voz y la lista"
 msgstr "The voice and the list"
 
 #: guyrapu/ui/preferencias_lectura.py
 msgid "Solo la voz"
 msgstr "Voice only"
+
+#: guyrapu/ui/preferencias_lectura.py
+msgid "Traducir"
+msgstr "Translate"
 
 #: guyrapu/ui/preferencias_lectura.py
 msgid "&Idioma original:"
@@ -15515,6 +15734,10 @@ msgid "Fundido entre canciones, en segundos"
 msgstr "Crossfade between songs, in seconds"
 
 #: guyrapu/ui/preferencias_musica.py
+msgid "Anunciar al cambiar &de canción:"
+msgstr "Announce when the so&ng changes:"
+
+#: guyrapu/ui/preferencias_musica.py
 msgid "Nada"
 msgstr "Nothing"
 
@@ -15529,6 +15752,10 @@ msgstr "The title and the artist"
 #: guyrapu/ui/preferencias_musica.py
 msgid "Solo el artista"
 msgstr "The artist only"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Anunciar al cambiar de canción"
+msgstr "Announce when the song changes"
 
 #: guyrapu/ui/preferencias_musica.py
 msgid "A&nunciar pausa, reanudación y vuelta al comienzo"
@@ -15772,12 +15999,24 @@ msgid "Salida de audio de la voz (Phonon y Piper)"
 msgstr "Voice audio output (Phonon and Piper)"
 
 #: guyrapu/ui/preferencias_voz.py
+msgid "Ve&locidad:"
+msgstr "Spee&d:"
+
+#: guyrapu/ui/preferencias_voz.py
 msgid "Velocidad de la voz"
 msgstr "Voice speed"
 
 #: guyrapu/ui/preferencias_voz.py
+msgid "Vol&umen:"
+msgstr "Vol&ume:"
+
+#: guyrapu/ui/preferencias_voz.py
 msgid "Volumen de la voz"
 msgstr "Voice volume"
+
+#: guyrapu/ui/preferencias_voz.py
+msgid "&Tono:"
+msgstr "&Voice pitch:"
 
 #: guyrapu/ui/preferencias_voz.py
 msgid "Tono de la voz"
@@ -15868,8 +16107,16 @@ msgid "Voz:"
 msgstr "Voice:"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Veloci&dad:"
+msgstr "S&peed:"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Velocidad de la voz secundaria"
 msgstr "Secondary voice speed"
+
+#: guyrapu/ui/preferencias_voz_secundaria.py
+msgid "Volum&en:"
+msgstr "V&olume:"
 
 #: guyrapu/ui/preferencias_voz_secundaria.py
 msgid "Volumen de la voz secundaria"
@@ -16980,249 +17227,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: rótulo en Preferencias del componente de F2.
-#: guyrapu/capture/componentes_estado.py
-msgid "Retraso del reproductor respecto al directo"
-msgstr "Player lag behind the live stream"
-
-#. Traductores: estado de F2 sin piezas en el vídeo.
-#: guyrapu/interaction/cola_pantalla.py guyrapu/ui/comando_en_directo.py
-msgid "No hay nada en el vídeo."
-msgstr "Nothing on the video."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid ""
-"Se muestra {destino}, con el estilo {estilo} y {segundos} segundos en "
-"pantalla."
-msgstr "Shows {destino}, with the {estilo} style and {segundos} seconds on screen."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Se muestra {destino}."
-msgstr "Shows {destino}."
-
-#: guyrapu/interaction/estado_interaccion.py
-#, python-brace-format
-msgid "1 pregunta en espera."
-msgid_plural "{n} preguntas en espera."
-msgstr[0] "1 question waiting."
-msgstr[1] "{n} questions waiting."
-
-#. Traductores: validación de metas del directo (error).
-#: guyrapu/interaction/metas.py
-msgid "Ese tipo de meta no existe."
-msgstr "That goal type does not exist."
-
-#: guyrapu/interaction/paquetes.py
-msgid ""
-"El paquete es de una versión posterior de Guyrapu. Actualiza Guyrapu para "
-"importarlo."
-msgstr "The package is from a later version of Guyrapu. Update Guyrapu to import it."
-
-#. Traductores: anuncio al mover con flechas; dice qué teclas mueven, confirman
-#. y terminan el ajuste.
-#: guyrapu/obs/ajuste_fino.py
-msgid ""
-"Flechas para mover, Control para pasos grandes, Mayúsculas para pasos de un"
-" píxel. Intro confirma, Esc deshace, Tab termina el ajuste."
-msgstr ""
-"Arrows move, Ctrl for big steps, Shift for one-pixel steps. Enter confirms,"
-" Esc undoes, Tab finishes the adjustment."
-
-#. Traductores: {salidas} son los lados y {distancias} los porcentajes.
-#: guyrapu/obs/obs_disposicion.py
-#, python-brace-format
-msgid "queda fuera del vídeo {salidas}, y {distancias}"
-msgstr "is outside the video {salidas}, and {distancias}"
-
-#. Traductores: {salidas} son los lados por donde queda fuera.
-#: guyrapu/obs/obs_disposicion.py
-#, python-brace-format
-msgid "queda fuera del vídeo {salidas}"
-msgstr "is outside the video {salidas}"
-
-#: guyrapu/obs/revision_tarjeta.py
-msgid "La tarjeta queda fuera del 80 por ciento central del vídeo."
-msgstr "The card is outside the central 80 percent of the video."
-
-# ajustan
-#: guyrapu/player/pantalla_completa.py
-msgid ""
-"Vídeo a pantalla completa. Espacio pausa, flechas buscan y ajustan volumen,"
-" Esc vuelve a la ventana."
-msgstr ""
-"Full-screen video. Space pauses, arrows seek and adjust volume, Esc returns"
-" to the window."
-
-#: guyrapu/player/reproductor.py
-msgid ""
-"Pantalla completa. Espacio pausa, flechas buscan y ajustan volumen, Esc "
-"vuelve a la ventana."
-msgstr ""
-"Full screen. Space pauses, arrows seek and adjust volume, Esc returns to "
-"the window."
-
-#: guyrapu/restream/destinos_de_mas.py
-#, python-brace-format
-msgid ""
-"Restream también va a transmitir este directo a: {destinos}. Para elegir "
-"los destinos, usa un perfil de Restream en Transmitir a. ¿Quieres "
-"transmitir de todos modos?"
-msgstr ""
-"Restream will also broadcast this live stream to: {destinos}. To choose the"
-" destinations, use a Restream profile in Broadcast to. Do you want to "
-"broadcast anyway?"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Avisar si el rostro queda fuera del encuadre"
-msgstr "Notify when the face leaves the frame"
-
-#: guyrapu/ui/atajos_captura.py
-msgid ""
-"Cada familia de atajos tiene su modificador. Ctrl es para el reproductor, "
-"Alt para el chat y Ctrl+Mayús para abrir ventanas. Alt+Mayús es para el "
-"directo y OBS, y Ctrl+Alt para la música. Ctrl+Alt+Mayús es para lo que se "
-"muestra en el vídeo, y las teclas F para la voz. Pulsa un botón y luego la "
-"combinación que quieras. La aplicación comprueba que sirva para esa familia"
-" y que no coincida con otra. F6, Mayús+F6, F9 a F12 y Alt+F4 son fijas, y "
-"se muestran para que no se puedan reemplazar."
-msgstr ""
-"Each shortcut family has its own modifier. Ctrl is for the player, Alt for "
-"the chat, and Ctrl+Shift for opening windows. Alt+Shift is for the live "
-"stream and OBS, and Ctrl+Alt for music. Ctrl+Alt+Shift is for what is shown"
-" on the video, and the F keys for voice. Press a button and then the "
-"combination you want. The application checks that it works for that family "
-"and does not match another. F6, Shift+F6, F9 through F12, and Alt+F4 are "
-"fixed, and they are shown so they cannot be replaced."
-
-#: guyrapu/ui/capa_video.py
-msgid ""
-"La escena de Guyrapu está dentro de la escena actual. Elimínala de esa "
-"escena en OBS y vuelve a intentarlo."
-msgstr ""
-"The Guyrapu scene is inside the current scene. Remove it from that scene in"
-" OBS and try again."
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Pala&bra:"
-msgstr "&Word:"
-
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "&Mostrar en:"
-msgstr "&Show in:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "&Permiso:"
-msgstr "&Permission:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Mostrar en la l&ista de comandos"
-msgstr "Show in command &list"
-
-#: guyrapu/ui/comando_directo.py
-msgid "La transmisión sigue activa."
-msgstr "The broadcast is still active."
-
-#: guyrapu/ui/comandos_en_vivo.py
-msgid ""
-"Queda poca cuota de YouTube: las respuestas de los comandos ya no se "
-"muestran en el chat, solo en el vídeo."
-msgstr ""
-"Little YouTube quota is left: command replies are no longer shown in the "
-"chat, only in the video."
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Activación"
-msgstr "Activation"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Permiso y espera"
-msgstr "Permission and cooldown"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "E&vento:"
-msgstr "E&vent:"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid ""
-"Déjalo vacío para cualquier regalo. Escribe el nombre tal como lo lee "
-"Guyrapu."
-msgstr "Leave it empty for any gift. Enter the name exactly as Guyrapu reads it."
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Nombres p&ermitidos:"
-msgstr "Allow&ed names:"
-
-#: guyrapu/ui/estilo_cuadro.py
-msgid "¿Quieres guardar el estilo de todos modos?"
-msgstr "Do you want to save the style anyway?"
-
-#: guyrapu/ui/medio_cuadro.py
-msgid "Dura más de 15 segundos: al activarlo se detiene a los 15 segundos."
-msgstr "Longer than 15 seconds: when activated, it stops at 15 seconds."
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Mostrar en:"
-msgstr "Show in:"
-
-# Necesita
-# intervalo
-# suele
-# nombre
-#: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid ""
-"Los mensajes automáticos se muestran a intervalos en el chat del directo, "
-"en el vídeo o en los dos. Para el chat se necesita la sesión de Google "
-"iniciada y un directo de YouTube conectado. El intervalo mínimo es de 5 "
-"minutos y cada mensaje admite 200 caracteres. YouTube suele bloquear los "
-"enlaces en el chat: escribe el nombre de usuario en lugar del enlace "
-"completo."
-msgstr ""
-"Scheduled messages are shown at intervals in the live chat, in the video, "
-"or in both. The chat requires a signed-in Google session and a connected "
-"YouTube live stream. The minimum interval is 5 minutes and each message "
-"allows 200 characters. YouTube often blocks links in the chat: write the "
-"user name instead of the full link."
-
-#: guyrapu/ui/menu_obs.py guyrapu/ui/preferencias_camara.py
-msgid "A&visar si el rostro queda fuera del encuadre"
-msgstr "Notify when the face &leaves the frame"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Tra&ducir:"
-msgstr "Trans&late:"
-
-#: guyrapu/ui/preferencias_lectura.py
-msgid "Traducir"
-msgstr "Translate"
-
-#: guyrapu/ui/preferencias_musica.py
-msgid "Anunciar al cambiar &de canción:"
-msgstr "Announce when the so&ng changes:"
-
-#: guyrapu/ui/preferencias_musica.py
-msgid "Anunciar al cambiar de canción"
-msgstr "Announce when the song changes"
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "Ve&locidad:"
-msgstr "Spee&d:"
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "Vol&umen:"
-msgstr "Vol&ume:"
-
-#: guyrapu/ui/preferencias_voz.py
-msgid "&Tono:"
-msgstr "&Voice pitch:"
-
-#: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Veloci&dad:"
-msgstr "S&peed:"
-
-#: guyrapu/ui/preferencias_voz_secundaria.py
-msgid "Volum&en:"
-msgstr "V&olume:"
 
