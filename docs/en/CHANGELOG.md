@@ -1,7 +1,178 @@
-<!-- original: es/CHANGELOG.md 4da6274e9ed84f1250c73d7f793f4cffa083d459 -->
+<!-- original: es/CHANGELOG.md b58af5def709392acaf02faedcd1f234602bc02f -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 6, November 2026
+
+### Interaction
+
+- The *Interaction* window brings scheduled messages, chat commands, polls,
+  questions, triggers, goals, media, video styles and blocked words together
+  on pages. Open it with *Open Interaction…* or `Ctrl+Shift+A`, and it opens
+  on the last page you used.
+- Each scheduled message has a name and can appear in the chat, on the video
+  or in both. You can duplicate, sort, preview, export and import them. The
+  ones on the video come in with an animation, stay for their time and leave
+  one at a time. `F2` says what is on the video.
+- Chat commands answer back: when the audience types one, the reply appears
+  on the video and, if the command asks for it, in the YouTube chat. *Pause
+  chat commands* or `Ctrl+Alt+Shift+C` stops all commands at once, and `F2`
+  says how many Guyrapu answered and which was the last one. The list of
+  commands the audience asks for is edited like any other command, with its
+  word, `!commands` by default and `!comandos` in Spanish and Portuguese.
+- Polls are set up in Interaction with a question, options, duration and
+  where the result appears. The audience votes with `!1`, `!2` and so on from
+  any chat. Polls appear on the video with their votes and their time, and
+  close with `Ctrl+Alt+Shift+E` or on their own when the time runs out.
+- The audience leaves questions with `!pregunta` or `!q`. The *Questions* page
+  shows the queue, lets you display one on the video and `Ctrl+Alt+Shift+R`
+  reads the next one from any program.
+- Triggers respond to chat commands, live events, specific TikTok gifts and
+  words or emojis in messages. They show their media on the video, alone or
+  with a card that says how much arrived, which gift it was, what the person
+  wrote and how many times it appeared. Each one can have a global shortcut,
+  `Ctrl+Alt+Shift` plus a number from 1 to 9.
+- Goals count likes, followers, members, gifts or Super Chats, announce when
+  they are reached with a sound and a card on the video, and can show their
+  fixed progress, for example «Followers: 12 of 50».
+- *Media* holds images, GIFs, videos and sounds with their description and
+  duration. You can hear them before using them, *Describe image* asks the AI
+  for a sentence about the image, sounds and videos are matched in volume
+  when added, and a general volume balances them with the voice and the game.
+- Video styles are created, duplicated, exported and imported, and each one
+  can be the default for scheduled messages, chat commands, triggers, polls
+  or goals. *Test* builds the card off air and says where it appears and
+  whether there are font or contrast problems.
+- Blocked words are hidden in the name and text of the audience that command
+  replies show, and text made almost entirely of symbols is not displayed.
+- *Test without a live stream* sends messages, Super Chats and gifts without
+  going on air, and shows in OBS how commands, triggers, polls and goals
+  respond, without posting anything in the chats.
+- The global `Ctrl+Alt+Shift` shortcuts pause, skip and clear what appears on
+  the video, mute the media, turn on panic mode, turn scheduled messages on
+  or off and announce the interaction status, even when another program has
+  the focus.
+
+### Chat
+
+- *Search chat* finds text in the messages and jumps to the message. *Chat
+  participation* shows how many messages each person wrote, adds up their
+  gifts and Super Chats, can be sorted by gifts and saves the summary when
+  the live stream ends.
+- *Translate chat* reads and shows messages in other languages translated,
+  with the original language at the end. It is off by default.
+- YouTube Super Chats and stickers sound according to their amount, with the
+  three TikTok gift sounds: small, medium and large.
+- Messages that are commands or votes have their own reading mode and appear
+  in the list without being read by default.
+- On TikTok, names with decorative letters are read as plain text, each new
+  follower is announced once per live stream and comments are not repeated
+  when it reconnects.
+- The discarded messages notice says they are in the chat list and that `F10`
+  raises the voice speed to keep up.
+
+### Voices and sounds
+
+- Phonon and Piper appear as voice engines in *Preferences, Voices* when you
+  have voices downloaded. The secondary voice can use another engine, *Test
+  voice* works with all of them and local voices say their language. If a
+  local voice fails, the message is read with the Windows voice and a notice
+  is given once.
+- With Phonon or Piper you choose the audio output for the chat voice, for
+  example headphones, so it does not go into the live stream. The *Voice*
+  menu no longer has a submenu for choosing a voice: the voice is chosen in
+  Preferences.
+- The sound «Song finished» is called «End of the music queue», and the
+  setting for changing songs is in *Preferences, Sounds* as «Song changed».
+  If you had it checked you still hear it; in new installations that sound
+  and the end of the queue sound are off.
+- More waits sound while they last and play a done or error sound when they
+  finish, and the wait sound does not sound like the disconnected sound.
+- *Voice licenses*, in the *Help* menu, opens the license of each voice pack
+  you can download in the browser.
+
+### OBS panel and broadcasting
+
+- *Broadcast live* and *End live stream* from the panel do the same as the
+  main buttons, including closing the YouTube live stream. *Pause recording*
+  warns when there is no recording in progress.
+- If OBS takes a while to connect or stops responding for a moment, Guyrapu
+  warns and keeps looking after the live stream instead of giving up, and
+  with a live stream on air problem notices do not open a box over the game.
+- If the connection to YouTube is lost, Guyrapu warns when closing and ends
+  the live stream on its own when the connection comes back, even if the
+  application is closed. When broadcasting to YouTube and TikTok at the same
+  time, *Copy live stream link* copies both links.
+- Before broadcasting, if the NVDA screen curtain would leave a screen
+  capture black, Guyrapu warns and offers to change the method to Windows 10.
+- The commands *Create vertical version*, *Test computer*, *Test connection*,
+  *Open live stream*, *Open the page* and *Mute music* are shorter.
+- In the menu for transforming a source, «Fill the video» is called «Stretch
+  to the video», as in OBS.
+- *Recordings and clips* plays a sound at the edge, searches as you type,
+  opens on double-click and shows the key of each menu action. Scenes also
+  have an edge sound and double-click.
+
+### Music
+
+- You can select several songs at once with Shift and the arrow keys,
+  Ctrl+Space or Ctrl+A, and add or remove them together. *All songs* has a
+  menu with *Add all to the playlist*, and Ctrl+A selects all.
+- Multimedia keys control the music while there are songs in the queue and
+  the Windows media panel shows what is playing. Turn it off in Preferences,
+  Music.
+- `F2` renames the selected playlist, replaying a YouTube song starts at once
+  and a song that does not open asks for the address again before skipping
+  it.
+- The box that offers to match volume when you open Music has *Do not ask
+  again* instead of a checkbox.
+
+### Artificial intelligence
+
+- *Add capture* also takes the frame from the player, with OBS open or
+  closed, and `Ctrl+Shift+F2` describes it without OBS. In audio-only mode it
+  says so.
+- `Ctrl+S` or the conversation menu saves the whole conversation to a text
+  file. `Ctrl+C` copies the selected message and the list plays a sound at
+  the edges.
+- The AI quotes text in an image exactly as it is written, and replies are
+  more consistent from one query to the next with the models that allow it.
+
+### Accessibility and lists
+
+- Buttons and lists that are loading or waiting stay in the Tab order and
+  say their state instead of disappearing, in Preferences, Restream, OBS,
+  Downloads, Music, artificial intelligence, comments and source dialogs.
+- The context menu of lists shows the key of each action, and actions that
+  cannot be used stay in it and say why. `Shift+F10` opens the menu in the
+  comments list. With a chat connected, the link field stays in the Tab order
+  and you can read it; to change it you have to disconnect.
+- Lists play a sound at the edges and search as you type, among them
+  *Sounds*, *Recordings and clips*, *Recent items*, the AI conversation and
+  the History.
+- `F1` opens the manual at the section for the open window. Fixed shortcuts
+  in Preferences can be reached with `Tab` and say they cannot be changed.
+  The results of tests and the summary of the profile assistant close with
+  Escape.
+
+### Other changes
+
+- The estimated YouTube quota is kept up to date on its own with the costs
+  Google publishes, once a week.
+- If the process that joins the video and audio of a live stream crashes, the
+  player reconnects on its own instead of staying silent.
+- When you open the history, OBS, Restream or the profile settings, the focus
+  lands on the first useful control.
+- Commands that open a dialog end with an ellipsis, and the *Cancel* and
+  *Close* buttons have access keys.
+- NVDA says the name of the results list and the downloads list in the
+  Download manager.
+- If a download stops making progress for two minutes, Guyrapu stops it and
+  warns with an error, and *Retry* resumes it. If the connection is lost, the
+  error says so without showing a code.
+- *Show more* in the search and *Load more* and *Reload comments* can always
+  be reached with `Tab` and say when there is nothing more.
 
 ## 3.0.0 beta 5, November 2026
 

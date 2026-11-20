@@ -1,5 +1,181 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 6, noviembre de 2026
+
+### Interacción
+
+- La ventana *Interacción* reúne en páginas los mensajes automáticos, los
+  comandos del chat, las encuestas, las preguntas, los disparadores, las
+  metas, los medios, los estilos del vídeo y las palabras bloqueadas. Se abre
+  con *Abrir Interacción…* o `Ctrl+Mayús+A` y recuerda la última página.
+- Cada mensaje automático tiene nombre y elige si sale en el chat, en el
+  vídeo o en los dos. Se pueden duplicar, ordenar, escuchar, exportar e
+  importar. Los del vídeo entran animados en OBS, quedan sus segundos, salen
+  uno por vez y respetan la cantidad mínima de mensajes del chat entre uno y
+  otro. `F2` dice qué hay en el vídeo.
+- Los comandos del chat contestan: cuando el público escribe uno, la
+  respuesta sale en el vídeo y, si el comando lo pide, en el chat de YouTube.
+  *Pausar comandos* o `Ctrl+Alt+Mayús+C` deja de contestar todos a la vez, y
+  `F2` dice cuántos respondió Guyrapu y cuál fue el último. La lista de
+  comandos que pide el público se edita como uno más, con su palabra, de
+  fábrica `!commands`, y `!comandos` en español y portugués.
+- Las encuestas se preparan en Interacción con pregunta, opciones, duración y
+  destino del resultado. El público vota con `!1`, `!2` y así desde cualquier
+  chat, se ven en el vídeo con sus votos y su tiempo, y se cierran con
+  `Ctrl+Alt+Mayús+E` o solas al cumplirse el tiempo.
+- El público deja preguntas con `!pregunta` o `!q`. La página *Preguntas*
+  muestra la cola, permite mostrar una en el vídeo y `Ctrl+Alt+Mayús+R` lee la
+  siguiente desde cualquier programa.
+- Los disparadores responden a comandos del chat, eventos del directo, regalos
+  concretos de TikTok y palabras o emojis en los mensajes. Muestran su medio
+  en el vídeo, solo o con una tarjeta que dice cuánto llegó, qué regalo fue,
+  qué escribió la persona y cuántas veces salió. Pueden tener un atajo global
+  `Ctrl+Alt+Mayús` más un número del 1 al 9.
+- Las metas cuentan me gusta, seguidores, miembros, regalos o Super Chats,
+  avisan al cumplirse con un sonido y una tarjeta en el vídeo, y pueden
+  mostrar su avance fijo, por ejemplo «Seguidores: 12 de 50».
+- *Medios* reúne imágenes, GIF, vídeos y sonidos con su descripción y su
+  duración. Se escuchan antes de usarlos, *Describir imagen* pide una frase a
+  la inteligencia artificial, los sonidos y vídeos se igualan al agregarlos y
+  un volumen general los equilibra con la voz y el juego.
+- Los estilos del vídeo se crean, se duplican, se exportan y se importan, y
+  cada uno puede ser el predeterminado de los mensajes automáticos, los
+  comandos, los disparadores, las encuestas o las metas. *Probar* arma la
+  tarjeta fuera del aire y dice dónde sale y si tiene problemas de fuente o
+  de contraste.
+- Las palabras bloqueadas se tapan en el nombre y el texto del público que
+  muestran las respuestas de los comandos, y un texto hecho casi todo de
+  símbolos no se muestra.
+- *Probar sin directo* ensaya mensajes, Super Chats y regalos sin salir al
+  aire y muestra en OBS cómo responden los comandos, los disparadores, la
+  encuesta y las metas, sin publicar nada en los chats.
+- Los atajos globales `Ctrl+Alt+Mayús` pausan, omiten y vacían lo que sale en
+  el vídeo, silencian los medios, activan el modo pánico, activan o desactivan
+  los mensajes automáticos y dicen el estado de la interacción, aunque el
+  foco esté en otro programa.
+
+### Chat
+
+- *Buscar en el chat* encuentra un texto en los mensajes y lleva al mensaje.
+  *Participación en el chat* muestra cuántos mensajes escribió cada persona,
+  suma sus regalos y Super Chats, se puede ordenar por regalos y guarda el
+  resumen al terminar el directo.
+- *Traducir chat* lee y muestra traducidos los mensajes en otro idioma,
+  con el idioma original al final. Viene desactivada.
+- Los Super Chats y stickers de YouTube suenan según su monto, con los tres
+  sonidos de los regalos de TikTok: chico, mediano y grande.
+- Los mensajes que son comandos o votos tienen su modo de lectura y de
+  fábrica se ven en la lista sin leerse.
+- En TikTok, los nombres con letras decorativas se leen como texto normal,
+  cada persona que sigue se anuncia una vez por directo y al reconectar no se
+  repiten comentarios.
+- El aviso de mensajes descartados dice que están en la lista del chat y que
+  `F10` sube la velocidad de la voz para seguir el ritmo.
+
+### Voces y sonidos
+
+- Phonon y Piper aparecen como motores en *Preferencias, Voces* cuando tienes
+  voces descargadas. La voz secundaria puede usar otro motor, *Probar voz*
+  funciona con todos y las voces locales dicen su idioma. Si una voz local
+  falla, el mensaje se lee con la voz de Windows y avisa una vez.
+- Con Phonon o Piper se elige la salida de audio de la voz del chat, por
+  ejemplo los auriculares, para que no entre al directo. El menú *Voz* ya no
+  tiene submenú para elegir voz: la voz se elige en Preferencias.
+- El sonido «Canción terminada» se llama «Fin de la cola de música», y la
+  casilla de pasar de canción está en *Preferencias, Sonidos* como «Canción
+  cambiada». Quien la tenía marcada sigue oyéndola; en instalaciones nuevas
+  ese sonido y el del fin de la cola vienen desactivados.
+- Más esperas suenan mientras duran y suenan listo o error al terminar, y el
+  sonido de espera no se parece al de desconectado.
+- *Licencias de las voces*, en el menú *Ayuda*, abre en el navegador la
+  licencia de cada paquete de voces que se puede descargar.
+
+### Panel de OBS y transmisión
+
+- *Transmitir en directo* y *Finalizar directo* desde el panel hacen lo mismo
+  que los botones principales, incluso cerrar el directo de YouTube. *Pausar
+  grabación* avisa cuando no hay grabación en curso.
+- Si OBS tarda en conectar o deja de responder, Guyrapu avisa y sigue cuidando
+  el directo en vez de abandonarlo, y con el directo en el aire los avisos de
+  problemas no abren un cuadro encima del juego.
+- Si se pierde la conexión con YouTube, Guyrapu avisa al cerrarse y finaliza
+  el directo solo cuando vuelve la conexión, aunque la aplicación esté
+  cerrada. Al transmitir a YouTube y TikTok a la vez, *Copiar enlace del
+  directo* copia los dos enlaces.
+- Antes de transmitir, si la cortina de pantalla de NVDA dejaría negra una
+  captura, Guyrapu lo avisa y ofrece cambiar el método a Windows 10.
+- Los comandos *Crear versión vertical*, *Probar equipo*, *Probar conexión*,
+  *Abrir directo*, *Abrir página* y *Silenciar música* son más cortos.
+- En el menú de transformar una fuente, «Llenar el vídeo» se llama «Estirar al
+  vídeo», como en OBS.
+- *Grabaciones y clips* suena al llegar a la orilla, busca al teclear, abre
+  con doble clic y muestra la tecla de cada acción del menú. Las escenas
+  también tienen orilla y doble clic.
+
+### Música
+
+- Se pueden elegir varias canciones a la vez con Mayús y las flechas,
+  Ctrl+Espacio o Ctrl+A, y agregarlas o eliminarlas juntas. *Todas las
+  canciones* tiene menú con *Agregar todas a la lista* y Ctrl+A selecciona
+  todas.
+- Las teclas multimedia manejan la música mientras haya temas en la cola y el
+  panel de medios de Windows muestra qué suena. Se desactiva en Preferencias,
+  Música.
+- `F2` cambia el nombre de la lista elegida, volver a escuchar un tema de
+  YouTube empieza al instante y un tema que no abre vuelve a pedir la
+  dirección antes de saltarse.
+- El cuadro que propone igualar el volumen al abrir Música tiene *No volver a
+  preguntar* en vez de una casilla.
+
+### Inteligencia artificial
+
+- *Agregar captura* también toma el fotograma del reproductor, con OBS abierto
+  o cerrado, y `Ctrl+Mayús+F2` lo describe sin OBS. En modo solo audio lo
+  dice.
+- `Ctrl+S` o el menú de la conversación guardan la conversación entera en un
+  archivo de texto. `Ctrl+C` copia el mensaje elegido y la lista suena al
+  llegar a la orilla.
+- La inteligencia artificial cita tal como está escrito el texto que se lee
+  en la imagen, y las respuestas salen más parejas entre consultas con los
+  modelos que lo permiten.
+
+### Accesibilidad y listas
+
+- Los botones y listas que cargan o esperan siguen en el recorrido con `Tab` y
+  dicen su estado en vez de desaparecer, en Preferencias, Restream, OBS,
+  Descargas, Música, inteligencia artificial, comentarios y cuadros de
+  fuentes.
+- El menú contextual de las listas muestra la tecla de cada acción, y las
+  acciones que no se pueden usar siguen en él y dicen por qué. `Mayús+F10`
+  abre el menú en la lista de comentarios. Con un chat conectado, el campo
+  del enlace sigue en el recorrido con `Tab` y se puede leer; para cambiarlo
+  hay que desconectar.
+- Las listas suenan al llegar a la orilla y buscan al teclear, entre ellas
+  *Sonidos*, *Grabaciones y clips*, *Recientes*, la conversación con la
+  inteligencia artificial y el Historial.
+- `F1` abre el manual en la sección de la ventana abierta. Los atajos fijos
+  de Preferencias se alcanzan con `Tab` y dicen que no se pueden cambiar. Los
+  resultados de las pruebas y el resumen del asistente de perfiles se cierran
+  con Escape.
+
+### Otros cambios
+
+- La cuota estimada de YouTube se mantiene al día sola con los costos que
+  publica Google, una vez por semana.
+- Si el proceso que une el vídeo y el audio de un directo se cae, el
+  reproductor reconecta solo en vez de quedarse en silencio.
+- Al abrir el historial, OBS, Restream o los ajustes de perfil, el foco queda
+  en el primer control útil.
+- Los comandos que abren un cuadro terminan en puntos suspensivos, y los
+  botones *Cancelar* y *Cerrar* tienen letra de acceso.
+- NVDA dice el nombre de la lista de resultados y de la lista de descargas
+  del Administrador de descargas.
+- Si una descarga deja de avanzar durante dos minutos, Guyrapu la corta y
+  avisa con un error, y *Reintentar* la retoma. Si se pierde la conexión, el
+  error lo dice sin mostrar un código.
+- *Mostrar más* del buscador y *Cargar más* y *Recargar comentarios* se
+  alcanzan siempre con `Tab` y dicen cuando no hay más.
+
 ## 3.0.0 beta 5, noviembre de 2026
 
 - Los sonidos cambiaron y hay que volver a aprenderlos. Ahora se agrupan por

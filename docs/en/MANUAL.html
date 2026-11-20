@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md 0ec884058ae4d3a368311c2325164faf294f8459 -->
+<!-- original: es/MANUAL.md d78d761f9a6845bffb79a56defa6bc9424d8f28e -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -227,7 +227,7 @@ See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
 controls OBS Studio and Restream from the keyboard. It is designed for
 people who are blind or have low vision and stream, and it is tested
 with NVDA.</p>
-<p>Version 3.0.0 beta 5 · Windows 10 and 11 · <a
+<p>Version 3.0.0 beta 6 · Windows 10 and 11 · <a
 href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
 <p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
@@ -244,6 +244,27 @@ opened.</p>
 and <em>Player</em>. In <em>Content</em> are the <em>Live chat</em>,
 <em>Comments</em> and <em>Information</em> tabs. Every change of region
 or tab is announced.</p>
+<p>Menu commands that open a dialog end with an ellipsis. <em>Go to the
+live chat</em>, <em>Go to comments</em> and <em>Go to the player</em>
+are written in lower case after “Go to”. Test dialogs have the
+<em>Start</em> button, and in music the command is <em>Rename
+playlist</em>. The <em>Cancel</em> and <em>Close</em> buttons have
+access keys, like the other commands.</p>
+<p><code>F1</code> opens the manual at the section for the open window.
+When you open the history, OBS, Restream or the profile settings, the
+focus lands on the first useful control.</p>
+<p>Buttons and lists that are loading or waiting stay in the Tab order
+and say what is happening: <em>Load lists</em> says it is loading,
+<em>Capture</em> says whether it is loading the sources or capturing,
+<em>Send</em> says it is waiting, <em>Check key</em> says it is
+checking, and <em>Quality</em> says when the format has no quality.
+<em>OK</em> says why there is nothing to choose in source dialogs, and
+an empty list says why. OBS actions without a connection stay in the Tab
+order, say “no connection with OBS” and warn that OBS is not connected
+when you press them. With a chat connected, the link field stays in the
+Tab order and you can read it; to change it you have to disconnect.
+Waits sound while they last and play a done or error sound at the
+end.</p>
 <table>
 <thead>
 <tr>
@@ -265,7 +286,13 @@ or tab is announced.</p>
 <h2 id="the-chat"><a id="chat"></a>The chat</h2>
 <p>Each message is read with the chosen voice and has a sound according
 to who writes (channel owner, moderator, verified account or member) and
-according to what it is (Super Chat, membership or TikTok gift).</p>
+according to what it is (Super Chat, membership or TikTok gift). YouTube
+Super Chats and stickers sound according to their amount, with the same
+three TikTok gift sounds: small, medium and large.</p>
+<p>With <em>Translate chat</em>, in the <em>Chat</em> menu and in
+<em>Preferences</em>, on the <em>Reading</em> category, messages in
+other languages are read and shown translated, with the original
+language at the end. It is off by default.</p>
 <p>If the chat drops on its own in the middle of a live stream, it
 sounds like a disconnection, and when it comes back, like a
 reconnection. It is different from connecting or disconnecting it by
@@ -274,9 +301,26 @@ hand.</p>
 when you type a few letters the focus jumps to the first author that
 starts that way. The context menu copies the message, mutes the author
 for the session and assigns an alias. With the Google session started,
-it also puts the author in timeout or hides them from the channel.</p>
+it also puts the author in timeout or hides them from the channel. A
+sound plays at the beginning or the end of the list. The menu shows the
+key of each action, and <code>Shift+F10</code> opens it too.</p>
+<p>Messages that are commands, such as <code>!discord</code>, or votes,
+such as <code>!1</code>, have their own reading mode in
+<em>Preferences</em>, on the <em>Live events</em> category. By default
+they appear in the list without being read.</p>
+<p>When the chat is full, the discarded messages notice says they are in
+the chat list and that <code>F10</code> raises the voice speed to keep
+up. It does not recommend reading only the name.</p>
+<p><em>Search chat…</em>, in the <em>Chat</em> menu or with
+<code>Alt+B</code>, finds text in the messages of the live stream and
+jumps to the message. <em>Chat participation…</em>, in the same menu or
+with <code>Alt+P</code>, shows how many messages each person wrote, adds
+up their gifts and Super Chats, can be sorted by gifts and saves the
+summary as text, to thank people at the end of the live stream.</p>
 <p>On TikTok, Guyrapu only reads: TikTok does not offer an official way
-to comment or moderate.</p>
+to comment or moderate. Names with decorative letters are read as plain
+text, each new follower is announced once per live stream and comments
+are not repeated when it reconnects.</p>
 <p>With a Restream profile that reads the YouTube chat and the TikTok
 chat, both arrive in the same list and each row says which platform it
 is from. When the live stream starts, the TikTok chat may take a while
@@ -367,20 +411,41 @@ message accepts up to 200 characters.</p>
 </tbody>
 </table>
 <p>On a published video, the <em>Comments</em> tab reads the comments,
-and with the Google session it lets you comment and reply.</p>
+and with the Google session it lets you comment and reply. <em>Load
+more</em> and <em>Reload comments</em> can always be reached with
+<code>Tab</code> and say why they cannot do anything. In the list,
+<em>Reply…</em> always appears: without a Google session it says why it
+cannot be used, and <code>Shift+F10</code> opens the menu with the key
+of each action.</p>
 <h2 id="voices-and-sounds"><a id="voces"></a>Voices and sounds</h2>
-<p>Guyrapu reads with three voice engines: SAPI 5 and OneCore, which
-come with Windows, and ElevenLabs, which requires an account. The
-engine, the voice, the speed, the volume and the pitch are chosen in
-<em>Preferences</em>, on the <em>Voices</em> category, where <em>Test
-voice</em> plays a sample. If ElevenLabs fails because of the network or
-a lack of balance, Guyrapu reads with the <em>Backup Windows voice</em>
-and warns you once.</p>
+<p>Guyrapu reads with SAPI 5 and OneCore, which come with Windows, and
+with ElevenLabs, which requires an account. If you have Phonon or Piper
+voices downloaded, those engines also appear in <em>Preferences</em>, on
+the <em>Voices</em> category. The engine, the voice, the speed, the
+volume and the pitch are chosen there, where <em>Test voice</em> plays a
+sample with any engine and local voices say their language. The
+secondary voice can use another engine. If a local voice fails or
+ElevenLabs fails because of the network or a lack of balance, Guyrapu
+reads with the <em>Backup Windows voice</em> and warns you once. With
+Phonon or Piper you also choose the audio output of the chat voice, for
+example headphones, so it does not go into the live stream. The voice is
+chosen in <em>Preferences</em>, on the <em>Voices</em> category: the
+<em>Voice</em> menu has no submenu for choosing a voice.</p>
 <p>Each type of message, event and notice has its sound. In the
 <em>Sounds</em> category you choose the theme, <em>Default</em> or
 <em>Soft</em>, and turn off each sound separately. The page shows the
-sounds grouped by family and says the family of each one. In English,
-the names come translated.</p>
+sounds grouped by family and says the family of each one. It has a
+context menu with <em>Play sound</em>, plays a sound at the edge with
+the arrows and searches as you type, like the other lists. In English,
+the names come translated. Waits sound while they last and play a done
+or error sound at the end: loading the live stream lists of YouTube,
+adding a capture to the AI, asking OBS for the microphone, connecting
+Restream, signing in to YouTube, checking keys in <em>Preferences</em>,
+loading the music folder and checking for updates. The wait sound plays
+when connecting and in the other waits, and does not sound like the
+disconnected sound.</p>
+<p><em>Voice licenses</em>, in the <em>Help</em> menu, opens the license
+of each voice pack you can download in the browser.</p>
 <h3 id="sound-families">Sound families</h3>
 <p>The families appear in this order, and each one says what kind of
 notice plays with it:</p>
@@ -474,11 +539,15 @@ file. <em>Download stalled</em> plays <code>descarga_quieta.wav</code>,
 <em>The AI is analyzing</em> plays <code>ia_analizando.wav</code> and
 <em>AI response</em> plays <code>ia_respuesta.wav</code>.</li>
 <li><em>Music</em>: what happens with the songs. <em>Song changed</em>
-plays <code>musica_tema.wav</code>, <em>Song finished</em> plays
-<code>musica_fin.wav</code>, <em>Error playing the song</em> plays
+plays <code>musica_tema.wav</code>, <em>End of the music queue</em>
+plays <code>musica_fin.wav</code>, <em>Error playing the song</em> plays
 <code>musica_fallo.wav</code>, <em>Volume matching</em> plays
 <code>musica_igualando.wav</code> and <em>Volume matching complete</em>
-plays <code>musica_igualada.wav</code>.</li>
+plays <code>musica_igualada.wav</code>. <em>Song changed</em> is set in
+<em>Preferences</em>, on the <em>Sounds</em> category, and not on
+<em>Music</em>. If you had it checked you still hear it; in new
+installations that sound and the end of the music queue sound are
+off.</li>
 <li><em>Indicators</em>: the notices of the lists, the framing and the
 microphone. <em>Start or end of a list</em> plays
 <code>orilla.wav</code>, <em>Face outside the frame</em> plays
@@ -504,7 +573,9 @@ change only the sounds you want.</p>
 <em>Player</em> menu. In a live stream, each jump says the distance to
 the live stream, for example “40 seconds behind the live stream”, and on
 YouTube you can go back up to an hour. If the connection fails, Guyrapu
-reconnects at the same point.</p>
+reconnects at the same point. If the process that joins the video and
+the audio crashes, Guyrapu opens it again on its own and keeps playing
+instead of staying silent.</p>
 <p><em>Play sound only, without the picture</em>, in
 <em>Preferences</em>, on the <em>Player</em> category, is checked:
 without the picture, jumps are almost immediate.</p>
@@ -523,19 +594,37 @@ and to add to the queue or to a playlist.</li>
 <li><em>Open link…</em> adds a YouTube video or playlist to the
 queue.</li>
 </ul>
+<p>In <em>Songs</em>, in the queue and in the search results you can
+select several songs with <code>Shift</code> and the arrows,
+<code>Ctrl+Space</code> or <code>Ctrl+A</code>. <em>Play</em>, <em>Add
+to the queue</em>, <em>Add to the playlist</em> and <em>Delete</em> act
+on all of them with one announcement. Actions that need a single row
+stay in the menu and say why they cannot be used. <code>F2</code>
+renames the playlist chosen in <em>Collections</em>. Replaying a YouTube
+song starts at once. If a song does not open with the stored address,
+Guyrapu asks for it again before skipping it.</p>
+<p><em>Mute music</em>, in the <em>Music</em> menu, does the same as
+<code>Ctrl+Alt+M</code>. With <em>Use keyboard media keys</em>, the
+play, pause and next or previous song keys control the music while there
+are songs in the queue, and the Windows media panel shows what is
+playing. Turn it off in <em>Preferences</em>, on the <em>Music</em>
+category.</p>
 <p>When you create or edit a playlist, a dialog with two lists opens. In
 <em>Playlist songs</em>, <code>Delete</code> removes the song and
 <code>Alt+Up Arrow</code> and <code>Alt+Down Arrow</code> move it.
 <em>All songs</em> shows the folder with a checkbox for each song,
 checked for the ones already in the playlist: checking or unchecking it
-adds or removes the song. In both, <code>Enter</code> plays the
-song.</p>
+adds or removes the song. Its menu has the Applications key and <em>Add
+all to the playlist</em>, which adds all the songs shown by the search
+at once, and <code>Ctrl+A</code> selects all. In both lists,
+<code>Enter</code> plays the song.</p>
 <p><em>Match song volume</em> makes them all sound at a similar volume.
 Each file is measured once, with the <em>Match the volume</em> button in
 the <em>Music</em> window, and it is not modified. When it finishes, a
-sound plays and it says how many songs were matched. Between one song
-and the next there is a crossfade, which is adjusted in <em>Crossfade
-between songs, in seconds</em>.</p>
+sound plays and it says how many songs were matched. When you open
+Music, the box that offers to match has the <em>Do not ask again</em>
+button. Between one song and the next there is a crossfade, which is
+adjusted in <em>Crossfade between songs, in seconds</em>.</p>
 <p>With <em>Use music shortcuts in any application</em>, the music
 shortcuts also work in OBS or in a game, and those keys stop reaching
 the other applications.</p>
@@ -557,7 +646,10 @@ href="#restream">Restream</a>.</li>
 vertically or recording, assign them on the <em>Profiles</em> tab of the
 <em>OBS panel</em>. See <a href="#obs-profiles">OBS profiles</a>.</li>
 </ul>
-<p>If OBS is closed, Guyrapu opens it in the notification area.</p>
+<p>If OBS is closed, Guyrapu opens it in the notification area. Before
+broadcasting, if the NVDA screen curtain would leave a screen capture
+black, Guyrapu warns, says how to fix it and offers to change the
+capture method to Windows 10.</p>
 <h3 id="starting-the-live-stream"><a id="transmitir"></a>Starting the
 live stream</h3>
 <ol type="1">
@@ -585,7 +677,12 @@ it.</li>
 </ol>
 <p>If the internet connection is lost, YouTube waits for it to come back
 without ending the live stream. Closing Guyrapu does not interrupt the
-live stream, and when you open it again it recognizes it.</p>
+live stream, and when you open it again it recognizes it. If Guyrapu
+closed with no connection and a YouTube live stream still open, it warns
+when you open it again and ends the live stream on its own when the
+connection comes back, even if the application stays closed. When you
+broadcast to YouTube and TikTok at the same time, <em>Copy live stream
+link</em> copies both links, one below the other.</p>
 <p>During the live stream, the button is called <em>End live stream</em>
 and asks for confirmation, with <em>Keep broadcasting</em> chosen by
 default. When it ends, Guyrapu says how many frames were dropped,
@@ -627,11 +724,13 @@ NVDA still works.</p>
 <h3 id="general">General</h3>
 <p><em>Status</em> summarizes the broadcast, the recording, the current
 scene, the microphone and the computer usage. <em>Show OBS</em> brings
-the OBS window to the front, also from the notification area. If OBS is
-not responding, it warns instead of waiting for it, with the
-disconnection sound, and with the reconnection sound when it comes back.
-The panel keeps responding while it waits for OBS and can be closed at
-any time. <em>Close OBS</em>, also in the <em>OBS</em> menu, closes OBS
+the OBS window to the front, also from the notification area. If OBS
+takes a while to connect or stops responding for a moment, it warns and
+keeps looking after the live stream instead of giving up, with the
+disconnection sound and the reconnection sound when it comes back. The
+panel keeps responding while it waits for OBS and can be closed at any
+time. With a live stream on air, problem notices do not open a box over
+the game. <em>Close OBS</em>, also in the <em>OBS</em> menu, closes OBS
 without forcing it, so it does not ask about safe mode when you open it
 again. If OBS is broadcasting or recording, it does not close it and
 warns.</p>
@@ -648,14 +747,16 @@ connection supports, and offers to save it in the profile. It needs the
 Google session.</p>
 <p>The computer and connection tests show their progress in a window,
 with a wait sound, and if they fail they leave the error written in it.
-In the connection test, if an attempt fails with an OBS error, Guyrapu
-tries again and continues with the next one. If the YouTube session
-expired, it says so and explains how to start it again.</p>
+The result closes with <code>Esc</code>. In the connection test, if an
+attempt fails with an OBS error, Guyrapu tries again and continues with
+the next one. If the YouTube session expired, it says so and explains
+how to start it again.</p>
 <h3 id="scene">Scene</h3>
 <p>The <em>Scenes</em> list shows each scene, whether it is the current
 one and how many sources it has. Browsing it does not change what is
 broadcast: <em>Change scene</em> puts the chosen scene on air, and
-<em>Add scene…</em> creates a new one.</p>
+<em>Add scene…</em> creates a new one. It plays a sound at the edge and
+double-click changes the scene.</p>
 <p><em>Create vertical version</em>, in the context menu of a scene,
 creates a copy with the same name followed by “vertical”, with the same
 sources and a vertical layout. When broadcasting vertically, that copy
@@ -680,9 +781,11 @@ lets you choose which source goes in each place, the corner, the split
 and the chat. <em>Fit</em> decides what happens if the aspect ratio does
 not match: <em>Fit</em> shows the whole source, <em>Cover</em> crops the
 edges and <em>Automatic</em> fills with the camera and fits the rest.
-<em>Save as…</em> saves your own layout. On a vertical canvas, <em>Split
-in two</em> stacks the sources at the top and bottom, and the chat in a
-strip goes at the bottom.</p>
+<em>Save as…</em> saves your own layout. In the menu for transforming a
+source, <em>Stretch to the video</em> makes it grow to fill the video,
+as in OBS. On a vertical canvas, <em>Split in two</em> stacks the
+sources at the top and bottom, and the chat in a strip goes at the
+bottom.</p>
 <p><em>Undo all changes</em> returns the scene to how it was when the
 panel was opened.</p>
 <table>
@@ -802,7 +905,7 @@ horizontally, another one vertically and another one for recording,
 checks which settings work well on your PC, assigns them and says what
 it did. The profiles you already had do not change. It shows its
 progress in a window, with a wait sound, and if it fails it leaves the
-error written in it.</li>
+error written in it. The summary closes with <code>Esc</code>.</li>
 </ul>
 <p>When broadcasting or recording without a live stream, Guyrapu
 switches OBS to the assigned profile, and at the end it goes back to the
@@ -818,7 +921,9 @@ the buttons.</p>
 <h3 id="broadcast">Broadcast</h3>
 <p><em>Broadcast live</em> opens the <em>Broadcast to</em> dialog, the
 same as the button in the main window, and <em>Restream…</em> opens the
-Restream window.</p>
+Restream window. During the live stream, <em>End live stream</em> ends
+it in the same way as that button, including the YouTube live
+stream.</p>
 <h3 id="audio">Audio</h3>
 <p>The <em>Audio sources</em> list shows each source with its status and
 its filters. If there are no audio sources, the list says so. The
@@ -837,11 +942,14 @@ the OBS monitoring device. Use headphones to avoid feedback.</li>
 <h3 id="recording">Recording</h3>
 <p><em>Start recording</em> and <em>Stop recording</em> record without
 broadcasting, and <em>Pause recording</em> pauses the recording in
-progress. The <em>Recordings and clips</em> list brings together the
-recordings and the clips, from newest to oldest. Its context menu opens
-the file or its folder, copies the path or removes it from the list
-without deleting the file. If OBS converts the recording to MP4 at the
-end, the list shows the MP4.</p>
+progress: if there is none, it warns in the same way as the menu
+command. The <em>Recordings and clips</em> list brings together the
+recordings and the clips, from newest to oldest. It plays a sound at the
+edge, searches as you type and double-click opens the recording. Its
+context menu opens the file or its folder, copies the path or removes it
+from the list without deleting the file, and shows the key of each
+action. If OBS converts the recording to MP4 at the end, the list shows
+the MP4.</p>
 <h2 id="restream"><a id="restream"></a>Restream</h2>
 <p>Restream sends a single broadcast to several platforms at once. The
 Restream window opens with <em>Restream…</em>, in the <em>Broadcast</em>
@@ -898,9 +1006,9 @@ stops both.</p>
 <p><em>Show</em> chooses between upcoming events, those that are live
 and the history. <em>Event detail</em> shows its status, its times, its
 destinations and the description. The context menu copies the event
-links or information, opens the live stream and adds the statistics to
-the detail. If there are no events for the chosen filter, the list says
-so.</p>
+links or information, offers <em>Open live stream</em> and adds the
+statistics to the detail. If there are no events for the chosen filter,
+the list says so.</p>
 <h3 id="warnings-during-the-live-stream">Warnings during the live
 stream</h3>
 <p>With a Restream profile, Guyrapu warns with its own sound when
@@ -927,32 +1035,145 @@ without turning off the device.</li>
 <p>In <em>Preferences</em>, on the <em>Camera</em> category, you choose
 the OBS camera, the guide sound and whether left and right are
 inverted.</p>
-<h2 id="scheduled-messages">Scheduled messages</h2>
+<h2 id="interaction">Interaction</h2>
+<p>The <em>Interaction</em> window brings together what the audience
+sees and hears in the live stream. Open it with <em>Open
+Interaction…</em>, in the <em>Interaction</em> menu, or with
+<code>Ctrl+Shift+A</code>, and it opens again on the last page you used.
+It has a list of pages and, on the right, the list and the actions of
+the chosen one. The pages are <em>Scheduled messages</em>,
+<em>Commands</em>, <em>Polls</em>, <em>Questions</em>,
+<em>Triggers</em>, <em>Goals</em>, <em>Media</em>, <em>Styles</em> and
+<em>Blocked words</em>.</p>
+<h3 id="scheduled-messages">Scheduled messages</h3>
 <p>Scheduled messages are sent to the chat every so often, for example
-your social networks every ten minutes. They are configured in
-<em>Preferences</em>, on the <em>Scheduled messages</em> category, and
-they work on your own YouTube live stream with the Google session
-started. YouTube usually blocks links: type the user name instead. If
-YouTube returns an error, the messages stop and Guyrapu warns you
-once.</p>
+your social networks every ten minutes. Each message has a name and can
+appear in the chat, on the video or in both. You can duplicate, sort,
+preview, export and import them. The ones that choose the video come in
+with an animation in OBS, stay for their time and leave one at a time,
+and respect the minimum number of chat messages between one and another.
+<code>F2</code> says what is on the video. They work on your own YouTube
+live stream with the Google session started. YouTube usually blocks
+links: type the user name instead. If YouTube returns an error, the
+messages stop and Guyrapu warns you once. The list says when it is
+empty, and <code>Delete</code> or its context menu remove the chosen
+message.</p>
+<h3 id="commands">Commands</h3>
+<p>Commands are the ones the audience can use in the chat. They are
+created with their reply, where it appears, who can use them and how
+long they wait. When someone types a command, the reply appears on the
+video and, if the command asks for it, in the YouTube chat.
+<code>F2</code> says how many commands Guyrapu answered and which was
+the last one. <em>Pause commands</em>, in the <em>Interaction</em> menu,
+or <code>Ctrl+Alt+Shift+C</code> from any program, stops answering all
+of them at once. The list of commands the audience asks for is edited
+like one more command: its word, <code>!commands</code> by default and
+<code>!comandos</code> in Spanish and Portuguese, its text, where it
+appears and its style, and each command chooses whether it appears in
+the list.</p>
+<h3 id="polls">Polls</h3>
+<p>In <em>Polls</em> you prepare the question, the options, the duration
+and where the result appears. Polls are started from Interaction. The
+audience votes with <code>!1</code>, <code>!2</code> and so on from any
+chat. Polls appear on the video with their votes and their time, and
+close by hand with <code>Ctrl+Alt+Shift+E</code> or on their own when
+the time runs out.</p>
+<h3 id="questions">Questions</h3>
+<p>The audience leaves questions by typing <code>!pregunta</code> or
+<code>!q</code> in the chat. Guyrapu keeps them in order, one per
+person, and warns once when the queue is full. The <em>Questions</em>
+page shows the queue up to date and lets you display one on the video,
+mark it as answered, delete it or clear the queue. Each question has its
+own style. <code>Ctrl+Alt+Shift+R</code> reads the oldest one from any
+program.</p>
+<h3 id="triggers">Triggers</h3>
+<p>A trigger shows a card or a media item when someone uses a chat
+command or a live event arrives, such as a Super Chat from a certain
+amount, a gift from a certain amount or a specific TikTok gift by name.
+It can also fire when a chat message says a word or has an emoji, with
+its waits and its permission. Triggers are created and edited on the
+page. Their card can say how much arrived, which gift it was, what the
+person wrote and how many times it appeared, with
+<code>{cantidad}</code>, <code>{regalo}</code>, <code>{texto}</code> and
+<code>{contador}</code>. Each one can have a global shortcut,
+<code>Ctrl+Alt+Shift</code> plus a number from 1 to 9, to fire it from
+any program.</p>
+<h3 id="goals">Goals</h3>
+<p>In <em>Goals</em> you prepare the goals of the live stream: what they
+count, how much is needed and the style and celebration they use. They
+count likes, followers, members, gifts or Super Chats. When they are
+reached, a sound and a card with its celebration appear on the video. A
+goal can show its fixed progress on the video, for example «Followers:
+12 of 50», and it is updated as they arrive.</p>
+<h3 id="media">Media</h3>
+<p><em>Media</em> is a library of images, GIFs, videos and sounds with
+their description and duration, which you can hear before using them. In
+the dialog of a media item, <em>Describe image</em> asks the artificial
+intelligence for a sentence about what the image or GIF shows, so that
+<code>F2</code> and the list say what the audience sees. Sounds and
+videos are matched in volume when added, so that none sounds much louder
+than another. The page has a general volume for all the media that
+appear on the video, to balance them with the voice and the game.
+Triggers show or play their media item, alone or with their card.</p>
+<h3 id="styles">Styles</h3>
+<p>In <em>Styles</em> you create, duplicate, export and import styles
+for the messages on the video, with font, colors by name, background,
+area and animation. Each style can be the default for scheduled
+messages, commands, triggers, polls or goals, and each item can use the
+default for its type. <em>Test</em>, on this page and on <em>Scheduled
+messages</em>, builds the card off air and says where it appears, how
+much space it takes and whether there are font or contrast problems.</p>
+<h3 id="blocked-words">Blocked words</h3>
+<p>In <em>Blocked words</em> you type the words that are hidden in the
+name and text of the audience shown by command replies. Text made almost
+entirely of symbols is not displayed.</p>
+<h3 id="test-without-a-live-stream">Test without a live stream</h3>
+<p><em>Test without a live stream…</em>, in the <em>Interaction</em>
+menu, rehearses the interaction without going on air. Type the author,
+choose the platform and the type, and send messages, Super Chats or
+gifts. They go through the same route as live messages, appear in the
+chat list and are handled by commands, triggers, the poll and the goals.
+What goes to the video appears in OBS as in a live stream, without
+posting in the chats and without the voice reading it. Closing the
+window ends the rehearsal and discards what it left. You cannot connect
+a live stream while the window is open.</p>
+<h3 id="global-shortcuts">Global shortcuts</h3>
+<p>The global <code>Ctrl+Alt+Shift</code> shortcuts of the interaction
+work even when another program has the focus: they pause, skip and clear
+what appears on the video, mute the media, turn on panic mode, turn
+scheduled messages on or off, pause commands, close the poll, read the
+next question and announce the interaction status. They are in the table
+<a href="#keyboard-shortcuts">Keyboard shortcuts</a>, in the family
+<em>Live stream interaction</em>.</p>
 <h2 id="downloads-and-history"><a id="descargas"></a>Downloads and
 history</h2>
 <p>The <em>Download manager</em> downloads videos, audio or YouTube
 playlists in MP4, WebM, MP3 or M4A, two at a time. What is downloaded
 goes to the Downloads folder, next to the application. On the <em>Search
 on YouTube</em> tab, Space plays a result in the music without
-downloading it. If downloads fail, use <em>Update yt-dlp…</em>, in the
-<em>Tools</em> menu.</p>
+downloading it. <em>Show more</em> can always be reached with
+<code>Tab</code> and says when there are no more results. NVDA says the
+name of the results list and the downloads list. If a download stops
+making progress for two minutes, Guyrapu stops it and warns with an
+error, and <em>Retry</em> resumes it: if the connection was lost, the
+error says so instead of showing a code. Actions that do not work with
+the chosen download stay in the menu and say why. If downloads fail, use
+<em>Update yt-dlp…</em>, in the <em>Tools</em> menu.</p>
 <p>The <em>Live stream history</em> shows what you watched, with a tab
-for YouTube and another for TikTok.</p>
+for YouTube and another for TikTok. Each list has a context menu, and an
+empty tab says there are no entries for that platform.</p>
 <h2 id="spoken-status">Spoken status</h2>
 <p><em>Announce status</em>, in the <em>View</em> menu, summarizes the
 connection, the live stream, the viewers, the messages read and the
-donations. When you broadcast to YouTube and TikTok at the same time,
-the viewers are those of both platforms. What is included is chosen in
-<em>Preferences</em>, on the <em>Status (F2)</em> category. Twice in a
-row, it opens the <em>Session status</em> window, with each piece of
-data on one line.</p>
+donations, with short and consistent sentences. When you broadcast to
+YouTube and TikTok at the same time, the viewers are those of both
+platforms. What is included is chosen in <em>Preferences</em>, on the
+<em>Status (F2)</em> category. Twice in a row, it opens the <em>Session
+status</em> window, with each piece of data on one line.
+<code>Ctrl+Alt+Shift+I</code> says how the live stream interaction is
+going: the poll with its votes, the battle, the goal, what appears on
+the video and how many questions are waiting. If there is nothing, it
+says so.</p>
 <h2 id="asking-the-ai"><a id="ia"></a>Asking the AI</h2>
 <p>An artificial intelligence looks at an OBS screenshot and says what
 it sees, for example whether a source comes out black. It requires OBS
@@ -967,9 +1188,21 @@ Guyrapu expects, it warns you and offers to use it anyway, in case the
 provider changed the format.</p>
 <p><em>Ask the AI about the picture…</em>, in the <em>View</em> menu,
 opens a window where <em>Add screenshot</em> chooses the scene or a
-source, and the question is typed in <em>Message</em>. <em>Quick
+source, and also the frame of the video shown in the player, with OBS
+open or closed. The question is typed in <em>Message</em>. <em>Quick
 query</em> sends the current scene and reads the response without
-opening any window.</p>
+opening any window. <code>Ctrl+F2</code> and <code>Ctrl+Shift+F2</code>
+say the scene and its notices with short and consistent sentences, and
+the quick query warns if it is canceled. With OBS closed,
+<code>Ctrl+Shift+F2</code> describes the frame shown in the player; in
+audio-only mode there is no picture and it says so.</p>
+<p>The conversation has a context menu, <code>Ctrl+C</code> copies the
+chosen message and a sound plays at the beginning or the end of the
+list. <code>Ctrl+S</code>, or <em>Save conversation…</em> in the menu of
+the <em>Conversation</em> list, saves the whole conversation to a text
+file. The AI quotes text in an image exactly as it is written, such as a
+sign, an alert or the chat inside the video. With the models that allow
+it, replies are more consistent from one query to the next.</p>
 <p>The screenshot and what you type are sent to the provider, and the
 first send asks for confirmation. A black screenshot, such as the one
 left by the NVDA screen curtain, is not sent. In that case, change the
@@ -983,8 +1216,9 @@ category, press <em>Sign in</em> and authorize in the browser. The
 YouTube and Restream sessions are saved encrypted with your Windows
 account: if you copy the application folder to another computer, you
 will have to start them again. YouTube's daily quota is shared among
-those who use Guyrapu. To have your own, see the <a
-href="../CONFIGURACION_API.html">API setup guide</a>.</p>
+those who use Guyrapu. The estimated quota is kept up to date on its own
+with the costs Google publishes, once a week. To have your own, see the
+<a href="../CONFIGURACION_API.html">API setup guide</a>.</p>
 <h2 id="preferences"><a id="preferencias"></a>Preferences</h2>
 <p><em>Preferences…</em>, in the <em>Tools</em> menu, brings together
 the configuration by categories, and the changes are applied when you
@@ -1000,8 +1234,10 @@ application.</p>
 <p>In the <em>Shortcuts</em> category, each action has a button with its
 shortcut. Press the button and then the new combination. If the
 combination is already in use or does not belong to that family, Guyrapu
-says why and keeps waiting. <em>Reset shortcuts to factory defaults</em>
-returns to the original shortcuts.</p>
+says why and keeps waiting. Fixed shortcuts can also be reached with
+<code>Tab</code>: their combination is read and, when you activate them,
+that they cannot be changed. <em>Reset shortcuts to factory
+defaults</em> returns to the original shortcuts.</p>
 <table>
 <thead>
 <tr>
@@ -1023,8 +1259,10 @@ returns to the original shortcuts.</p>
 <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
 <p>Each family of shortcuts uses its own modifier keys. They all also
 appear in the menu bar, next to their command. In action lists, typing
-the first letters jumps to the item that starts that way, and a sound
-plays when you reach the beginning or the end.</p>
+the first letters jumps to the item that starts that way, a sound plays
+when you reach the beginning or the end, and the context menu shows the
+key of each action. <code>Shift+F10</code> opens that menu in the lists
+that have it.</p>
 <h3 id="fixed">Fixed</h3>
 <table>
 <thead>
@@ -1036,7 +1274,7 @@ plays when you reach the beginning or the end.</p>
 <tbody>
 <tr>
 <td><code>F1</code></td>
-<td>Open the manual</td>
+<td>Open the manual at the section for the window</td>
 </tr>
 <tr>
 <td><code>F6</code> / <code>Shift+F6</code></td>
@@ -1332,16 +1570,8 @@ plays when you reach the beginning or the end.</p>
 </tr>
 </tbody>
 </table>
-<p>In the <em>Interaction</em> menu, <em>Test without a live
-stream…</em> opens the rehearsal window when no live stream is
-connected. Type the author, choose the platform and the type, and send
-messages, Super Chats or gifts: they go through the same route as live
-messages, appear in the chat list and are handled by commands, triggers,
-the poll and the goals. What goes to the video appears in OBS as it does
-in a live stream, without posting to any chat and without the voice
-reading it. Closing the window ends the rehearsal and discards what it
-left behind. You cannot connect a live stream while the window is
-open.</p>
+<p>The rehearsal <em>Test without a live stream…</em> and the global
+shortcuts are explained in <a href="#interaction">Interaction</a>.</p>
 <h3 id="music-ctrlalt">Music (Ctrl+Alt)</h3>
 <table>
 <thead>
@@ -1438,10 +1668,10 @@ sounds and Guyrapu says which one.</p>
 there is a new version, shows what is new and installs it. Guyrapu
 closes and opens again in about a minute, and keeps the
 <code>data</code> folder, the downloads and your own sounds. If the new
-version does not open, it goes back to the previous one on its own.
-<em>Update channel</em>, in <em>Preferences</em>, on the
-<em>General</em> category, chooses whether only stable versions are
-offered or beta versions too.</p>
+version does not open, it goes back to the previous one on its own. The
+update dialog offers <em>Open the page</em>. <em>Update channel</em>, in
+<em>Preferences</em>, on the <em>General</em> category, chooses whether
+only stable versions are offered or beta versions too.</p>
 <h2 id="common-problems">Common problems</h2>
 <h3 id="no-voices">No voices</h3>
 <p>Add a voice in <em>Settings, Time &amp; language, Speech</em>, or

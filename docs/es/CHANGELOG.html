@@ -217,6 +217,202 @@
 </head>
 <body>
 <h1 id="novedades-de-guyrapu">Novedades de Guyrapu</h1>
+<h2 id="300-beta-6-noviembre-de-2026">3.0.0 beta 6, noviembre de
+2026</h2>
+<h3 id="interacción">Interacción</h3>
+<ul>
+<li>La ventana <em>Interacción</em> reúne en páginas los mensajes
+automáticos, los comandos del chat, las encuestas, las preguntas, los
+disparadores, las metas, los medios, los estilos del vídeo y las
+palabras bloqueadas. Se abre con <em>Abrir Interacción…</em> o
+<code>Ctrl+Mayús+A</code> y recuerda la última página.</li>
+<li>Cada mensaje automático tiene nombre y elige si sale en el chat, en
+el vídeo o en los dos. Se pueden duplicar, ordenar, escuchar, exportar e
+importar. Los del vídeo entran animados en OBS, quedan sus segundos,
+salen uno por vez y respetan la cantidad mínima de mensajes del chat
+entre uno y otro. <code>F2</code> dice qué hay en el vídeo.</li>
+<li>Los comandos del chat contestan: cuando el público escribe uno, la
+respuesta sale en el vídeo y, si el comando lo pide, en el chat de
+YouTube. <em>Pausar comandos</em> o <code>Ctrl+Alt+Mayús+C</code> deja
+de contestar todos a la vez, y <code>F2</code> dice cuántos respondió
+Guyrapu y cuál fue el último. La lista de comandos que pide el público
+se edita como uno más, con su palabra, de fábrica
+<code>!commands</code>, y <code>!comandos</code> en español y
+portugués.</li>
+<li>Las encuestas se preparan en Interacción con pregunta, opciones,
+duración y destino del resultado. El público vota con <code>!1</code>,
+<code>!2</code> y así desde cualquier chat, se ven en el vídeo con sus
+votos y su tiempo, y se cierran con <code>Ctrl+Alt+Mayús+E</code> o
+solas al cumplirse el tiempo.</li>
+<li>El público deja preguntas con <code>!pregunta</code> o
+<code>!q</code>. La página <em>Preguntas</em> muestra la cola, permite
+mostrar una en el vídeo y <code>Ctrl+Alt+Mayús+R</code> lee la siguiente
+desde cualquier programa.</li>
+<li>Los disparadores responden a comandos del chat, eventos del directo,
+regalos concretos de TikTok y palabras o emojis en los mensajes.
+Muestran su medio en el vídeo, solo o con una tarjeta que dice cuánto
+llegó, qué regalo fue, qué escribió la persona y cuántas veces salió.
+Pueden tener un atajo global <code>Ctrl+Alt+Mayús</code> más un número
+del 1 al 9.</li>
+<li>Las metas cuentan me gusta, seguidores, miembros, regalos o Super
+Chats, avisan al cumplirse con un sonido y una tarjeta en el vídeo, y
+pueden mostrar su avance fijo, por ejemplo «Seguidores: 12 de 50».</li>
+<li><em>Medios</em> reúne imágenes, GIF, vídeos y sonidos con su
+descripción y su duración. Se escuchan antes de usarlos, <em>Describir
+imagen</em> pide una frase a la inteligencia artificial, los sonidos y
+vídeos se igualan al agregarlos y un volumen general los equilibra con
+la voz y el juego.</li>
+<li>Los estilos del vídeo se crean, se duplican, se exportan y se
+importan, y cada uno puede ser el predeterminado de los mensajes
+automáticos, los comandos, los disparadores, las encuestas o las metas.
+<em>Probar</em> arma la tarjeta fuera del aire y dice dónde sale y si
+tiene problemas de fuente o de contraste.</li>
+<li>Las palabras bloqueadas se tapan en el nombre y el texto del público
+que muestran las respuestas de los comandos, y un texto hecho casi todo
+de símbolos no se muestra.</li>
+<li><em>Probar sin directo</em> ensaya mensajes, Super Chats y regalos
+sin salir al aire y muestra en OBS cómo responden los comandos, los
+disparadores, la encuesta y las metas, sin publicar nada en los
+chats.</li>
+<li>Los atajos globales <code>Ctrl+Alt+Mayús</code> pausan, omiten y
+vacían lo que sale en el vídeo, silencian los medios, activan el modo
+pánico, activan o desactivan los mensajes automáticos y dicen el estado
+de la interacción, aunque el foco esté en otro programa.</li>
+</ul>
+<h3 id="chat">Chat</h3>
+<ul>
+<li><em>Buscar en el chat</em> encuentra un texto en los mensajes y
+lleva al mensaje. <em>Participación en el chat</em> muestra cuántos
+mensajes escribió cada persona, suma sus regalos y Super Chats, se puede
+ordenar por regalos y guarda el resumen al terminar el directo.</li>
+<li><em>Traducir chat</em> lee y muestra traducidos los mensajes en otro
+idioma, con el idioma original al final. Viene desactivada.</li>
+<li>Los Super Chats y stickers de YouTube suenan según su monto, con los
+tres sonidos de los regalos de TikTok: chico, mediano y grande.</li>
+<li>Los mensajes que son comandos o votos tienen su modo de lectura y de
+fábrica se ven en la lista sin leerse.</li>
+<li>En TikTok, los nombres con letras decorativas se leen como texto
+normal, cada persona que sigue se anuncia una vez por directo y al
+reconectar no se repiten comentarios.</li>
+<li>El aviso de mensajes descartados dice que están en la lista del chat
+y que <code>F10</code> sube la velocidad de la voz para seguir el
+ritmo.</li>
+</ul>
+<h3 id="voces-y-sonidos">Voces y sonidos</h3>
+<ul>
+<li>Phonon y Piper aparecen como motores en <em>Preferencias, Voces</em>
+cuando tienes voces descargadas. La voz secundaria puede usar otro
+motor, <em>Probar voz</em> funciona con todos y las voces locales dicen
+su idioma. Si una voz local falla, el mensaje se lee con la voz de
+Windows y avisa una vez.</li>
+<li>Con Phonon o Piper se elige la salida de audio de la voz del chat,
+por ejemplo los auriculares, para que no entre al directo. El menú
+<em>Voz</em> ya no tiene submenú para elegir voz: la voz se elige en
+Preferencias.</li>
+<li>El sonido «Canción terminada» se llama «Fin de la cola de música», y
+la casilla de pasar de canción está en <em>Preferencias, Sonidos</em>
+como «Canción cambiada». Quien la tenía marcada sigue oyéndola; en
+instalaciones nuevas ese sonido y el del fin de la cola vienen
+desactivados.</li>
+<li>Más esperas suenan mientras duran y suenan listo o error al
+terminar, y el sonido de espera no se parece al de desconectado.</li>
+<li><em>Licencias de las voces</em>, en el menú <em>Ayuda</em>, abre en
+el navegador la licencia de cada paquete de voces que se puede
+descargar.</li>
+</ul>
+<h3 id="panel-de-obs-y-transmisión">Panel de OBS y transmisión</h3>
+<ul>
+<li><em>Transmitir en directo</em> y <em>Finalizar directo</em> desde el
+panel hacen lo mismo que los botones principales, incluso cerrar el
+directo de YouTube. <em>Pausar grabación</em> avisa cuando no hay
+grabación en curso.</li>
+<li>Si OBS tarda en conectar o deja de responder, Guyrapu avisa y sigue
+cuidando el directo en vez de abandonarlo, y con el directo en el aire
+los avisos de problemas no abren un cuadro encima del juego.</li>
+<li>Si se pierde la conexión con YouTube, Guyrapu avisa al cerrarse y
+finaliza el directo solo cuando vuelve la conexión, aunque la aplicación
+esté cerrada. Al transmitir a YouTube y TikTok a la vez, <em>Copiar
+enlace del directo</em> copia los dos enlaces.</li>
+<li>Antes de transmitir, si la cortina de pantalla de NVDA dejaría negra
+una captura, Guyrapu lo avisa y ofrece cambiar el método a Windows
+10.</li>
+<li>Los comandos <em>Crear versión vertical</em>, <em>Probar
+equipo</em>, <em>Probar conexión</em>, <em>Abrir directo</em>, <em>Abrir
+página</em> y <em>Silenciar música</em> son más cortos.</li>
+<li>En el menú de transformar una fuente, «Llenar el vídeo» se llama
+«Estirar al vídeo», como en OBS.</li>
+<li><em>Grabaciones y clips</em> suena al llegar a la orilla, busca al
+teclear, abre con doble clic y muestra la tecla de cada acción del menú.
+Las escenas también tienen orilla y doble clic.</li>
+</ul>
+<h3 id="música">Música</h3>
+<ul>
+<li>Se pueden elegir varias canciones a la vez con Mayús y las flechas,
+Ctrl+Espacio o Ctrl+A, y agregarlas o eliminarlas juntas. <em>Todas las
+canciones</em> tiene menú con <em>Agregar todas a la lista</em> y Ctrl+A
+selecciona todas.</li>
+<li>Las teclas multimedia manejan la música mientras haya temas en la
+cola y el panel de medios de Windows muestra qué suena. Se desactiva en
+Preferencias, Música.</li>
+<li><code>F2</code> cambia el nombre de la lista elegida, volver a
+escuchar un tema de YouTube empieza al instante y un tema que no abre
+vuelve a pedir la dirección antes de saltarse.</li>
+<li>El cuadro que propone igualar el volumen al abrir Música tiene
+<em>No volver a preguntar</em> en vez de una casilla.</li>
+</ul>
+<h3 id="inteligencia-artificial">Inteligencia artificial</h3>
+<ul>
+<li><em>Agregar captura</em> también toma el fotograma del reproductor,
+con OBS abierto o cerrado, y <code>Ctrl+Mayús+F2</code> lo describe sin
+OBS. En modo solo audio lo dice.</li>
+<li><code>Ctrl+S</code> o el menú de la conversación guardan la
+conversación entera en un archivo de texto. <code>Ctrl+C</code> copia el
+mensaje elegido y la lista suena al llegar a la orilla.</li>
+<li>La inteligencia artificial cita tal como está escrito el texto que
+se lee en la imagen, y las respuestas salen más parejas entre consultas
+con los modelos que lo permiten.</li>
+</ul>
+<h3 id="accesibilidad-y-listas">Accesibilidad y listas</h3>
+<ul>
+<li>Los botones y listas que cargan o esperan siguen en el recorrido con
+<code>Tab</code> y dicen su estado en vez de desaparecer, en
+Preferencias, Restream, OBS, Descargas, Música, inteligencia artificial,
+comentarios y cuadros de fuentes.</li>
+<li>El menú contextual de las listas muestra la tecla de cada acción, y
+las acciones que no se pueden usar siguen en él y dicen por qué.
+<code>Mayús+F10</code> abre el menú en la lista de comentarios. Con un
+chat conectado, el campo del enlace sigue en el recorrido con
+<code>Tab</code> y se puede leer; para cambiarlo hay que
+desconectar.</li>
+<li>Las listas suenan al llegar a la orilla y buscan al teclear, entre
+ellas <em>Sonidos</em>, <em>Grabaciones y clips</em>,
+<em>Recientes</em>, la conversación con la inteligencia artificial y el
+Historial.</li>
+<li><code>F1</code> abre el manual en la sección de la ventana abierta.
+Los atajos fijos de Preferencias se alcanzan con <code>Tab</code> y
+dicen que no se pueden cambiar. Los resultados de las pruebas y el
+resumen del asistente de perfiles se cierran con Escape.</li>
+</ul>
+<h3 id="otros-cambios">Otros cambios</h3>
+<ul>
+<li>La cuota estimada de YouTube se mantiene al día sola con los costos
+que publica Google, una vez por semana.</li>
+<li>Si el proceso que une el vídeo y el audio de un directo se cae, el
+reproductor reconecta solo en vez de quedarse en silencio.</li>
+<li>Al abrir el historial, OBS, Restream o los ajustes de perfil, el
+foco queda en el primer control útil.</li>
+<li>Los comandos que abren un cuadro terminan en puntos suspensivos, y
+los botones <em>Cancelar</em> y <em>Cerrar</em> tienen letra de
+acceso.</li>
+<li>NVDA dice el nombre de la lista de resultados y de la lista de
+descargas del Administrador de descargas.</li>
+<li>Si una descarga deja de avanzar durante dos minutos, Guyrapu la
+corta y avisa con un error, y <em>Reintentar</em> la retoma. Si se
+pierde la conexión, el error lo dice sin mostrar un código.</li>
+<li><em>Mostrar más</em> del buscador y <em>Cargar más</em> y
+<em>Recargar comentarios</em> se alcanzan siempre con <code>Tab</code> y
+dicen cuando no hay más.</li>
+</ul>
 <h2 id="300-beta-5-noviembre-de-2026">3.0.0 beta 5, noviembre de
 2026</h2>
 <ul>
@@ -243,7 +439,7 @@ en uso ya no cambia el perfil de OBS ni lo deja cargando.</li>
 cuadro de reiniciar cuando los perfiles tienen distinta frecuencia de
 audio.</li>
 </ul>
-<h3 id="inteligencia-artificial">Inteligencia artificial</h3>
+<h3 id="inteligencia-artificial-1">Inteligencia artificial</h3>
 <ul>
 <li>Al actualizar la lista de modelos de la inteligencia artificial,
 Guyrapu avisa si el modelo elegido no responde con tu clave o es de
@@ -281,7 +477,7 @@ los nombres salen traducidos.</li>
 suena con el de su familia en ese tema o, si no está, con el del tema
 predeterminado, en vez de quedar en silencio.</li>
 </ul>
-<h3 id="música">Música</h3>
+<h3 id="música-1">Música</h3>
 <ul>
 <li>Cuando la igualación del volumen termina, se avisa con un sonido y
 cuántas canciones quedaron igualadas.</li>
@@ -368,7 +564,7 @@ terminar vuelve la escena que había.</li>
 franja va abajo. Hay un reparto nuevo, a la medida de la primera fuente,
 y en <em>Automático</em> la cámara llena su lugar.</li>
 </ul>
-<h3 id="chat">Chat</h3>
+<h3 id="chat-1">Chat</h3>
 <ul>
 <li>Con un perfil de Restream que tiene YouTube y TikTok, <em>Chat que
 lee Guyrapu</em> ofrece <em>YouTube y TikTok</em>, elegida de entrada en
@@ -398,7 +594,7 @@ lista.</li>
 carpeta de la grabación. Si OBS convierte la grabación a MP4 al
 terminar, la lista muestra y abre el MP4.</li>
 </ul>
-<h3 id="otros-cambios">Otros cambios</h3>
+<h3 id="otros-cambios-1">Otros cambios</h3>
 <ul>
 <li>Las sesiones de YouTube y de Restream y las claves guardadas en la
 aplicación se guardan cifradas con tu cuenta de Windows. Si copias la
@@ -551,7 +747,7 @@ reúne la cola y el historial. <code>Intro</code> descarga un vídeo y
 <em>Preferencias</em>, <em>Descargas</em>, se elige la carpeta, el
 nombre de los archivos y el canal de actualización de yt-dlp.</li>
 </ul>
-<h3 id="otros-cambios-1">Otros cambios</h3>
+<h3 id="otros-cambios-2">Otros cambios</h3>
 <ul>
 <li>También está en inglés. El idioma se elige en <em>Preferencias</em>,
 <em>General</em>, y se aplica al reiniciar.</li>
@@ -589,7 +785,7 @@ la biblioteca de canciones.</p>
 otra aplicación tiene que publicar la suya con la misma licencia. Las
 versiones hasta la 2.5.0 siguen con la licencia MIT.</li>
 </ul>
-<h3 id="música-1">Música</h3>
+<h3 id="música-2">Música</h3>
 <ul>
 <li>La música y el reproductor ya no comparten el volumen. Antes,
 silenciar el vídeo o el directo con <code>Ctrl+M</code> callaba también
@@ -662,7 +858,7 @@ tiene elegido qué capturar.</li>
 <li>El primer envío pide confirmación, porque la captura y lo que
 escribas salen de tu equipo hacia el proveedor.</li>
 </ul>
-<h3 id="música-2">Música</h3>
+<h3 id="música-3">Música</h3>
 <ul>
 <li>Hay un fundido entre canciones. El final de una canción se mezcla
 con el principio de la siguiente, y se salta el silencio que muchos
@@ -789,7 +985,7 @@ habitual.</li>
 <h2 id="240-octubre-de-2026">2.4.0, octubre de 2026</h2>
 <p>Música mientras transmites, sin abrir otra aplicación en el
 equipo.</p>
-<h3 id="música-3">Música</h3>
+<h3 id="música-4">Música</h3>
 <ul>
 <li>El menú <em>Música</em> tiene sus atajos. Con
 <code>Ctrl+Alt+Espacio</code> puedes reproducir o pausar.
@@ -881,7 +1077,7 @@ un número. Al capturarlo, la aplicación revisa tu teclado: si
 teclado latinoamericano, te lo dice y te pide otra. Así puedes seguir
 escribiendo ese carácter en el chat.</li>
 </ul>
-<h3 id="chat-1">Chat</h3>
+<h3 id="chat-2">Chat</h3>
 <ul>
 <li>Una pérdida de conexión ya no cierra el directo. Antes, si se
 interrumpía la conexión con el chat, al volver sola la aplicación leía
@@ -925,7 +1121,7 @@ siempre.</li>
 para niños que crea la aplicación. Antes decía que no había ningún
 directo conectado.</li>
 </ul>
-<h3 id="chat-2">Chat</h3>
+<h3 id="chat-3">Chat</h3>
 <ul>
 <li>El chat deja de reintentar un directo que ya terminó. Si el chat
 quedaba conectado a un directo que había terminado, repetía sin fin
@@ -1237,7 +1433,7 @@ conectar los últimos mensajes del directo. Ya se descartaban los de
 antes de la conexión, y ahora también los que TikTok marca como
 antiguos.</li>
 </ul>
-<h3 id="otros-cambios-2">Otros cambios</h3>
+<h3 id="otros-cambios-3">Otros cambios</h3>
 <ul>
 <li><code>F3</code> dice el autor del último mensaje leído.</li>
 <li>La aplicación ya no se cierra sola al finalizar un directo. Lo

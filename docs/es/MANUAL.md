@@ -4,7 +4,7 @@ Guyrapu lee en voz alta el chat de los directos de YouTube y TikTok, y
 maneja OBS Studio y Restream desde el teclado. Está pensado para personas
 ciegas o con baja visión que transmiten, y se prueba con NVDA.
 
-Versión 3.0.0 beta 5 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
+Versión 3.0.0 beta 6 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
 
 ## Instalación
 
@@ -25,6 +25,28 @@ La ventana tiene tres regiones: *Conexión*, *Contenido* y *Reproductor*. En
 *Contenido* están las pestañas *Chat del directo*, *Comentarios* e
 *Información*. Cada cambio de región o de pestaña se anuncia.
 
+Los comandos del menú que abren un cuadro terminan en puntos suspensivos.
+*Ir al chat del directo*, *Ir a comentarios* e *Ir al reproductor* se escriben en
+minúscula después de «Ir a». Los cuadros de prueba tienen el botón *Iniciar*,
+y en música el comando es *Cambiar nombre de la lista*. Los botones *Cancelar*
+y *Cerrar* tienen letra de acceso, como el resto de los comandos.
+
+`F1` abre el manual en la sección de la ventana abierta. Cuando abres el
+historial, OBS, Restream o los ajustes de perfil, el foco queda en el primer
+control útil.
+
+Los botones y las listas que están cargando o esperando siguen en el recorrido
+con `Tab` y dicen qué pasa: *Cargar listas* dice que está cargando, *Capturar*
+dice si carga las fuentes o está capturando, *Enviar* dice que espera,
+*Comprobar clave* dice que se está comprobando, y *Calidad* dice
+cuando el formato no tiene calidad. *Aceptar* dice por qué no hay nada para
+elegir en los cuadros de fuentes, y una lista vacía dice por qué. Las acciones
+de OBS sin conexión siguen en el recorrido, dicen «sin conexión con OBS» y al
+pulsarlas avisan que OBS no está conectado. Con un chat conectado, el campo
+del enlace sigue en el recorrido con `Tab` y se puede leer; para cambiarlo hay
+que desconectar. Las esperas suenan mientras duran y suenan listo o error al
+terminar.
+
 | Tecla en la lista Recientes | Acción |
 |---|---|
 | `Intro` | Abrir el directo |
@@ -34,7 +56,13 @@ La ventana tiene tres regiones: *Conexión*, *Contenido* y *Reproductor*. En
 
 Cada mensaje se lee con la voz elegida y lleva un sonido según quién
 escribe (propietario del canal, moderador, cuenta verificada o miembro) y
-según lo que es (Super Chat, membresía o regalo de TikTok).
+según lo que es (Super Chat, membresía o regalo de TikTok). Los Super Chats y
+los stickers de YouTube suenan según su monto, con los mismos tres sonidos de
+los regalos de TikTok: chico, mediano y grande.
+
+Con *Traducir chat*, en el menú *Chat* y en *Preferencias*, categoría
+*Lectura*, los mensajes en otro idioma se leen y se muestran traducidos, con
+el idioma original al final. Viene desactivada.
 
 Si el chat se interrumpe solo en pleno directo, suena como una desconexión, y
 al volver, como una reconexión. Es distinto de conectarlo o desconectarlo a
@@ -44,10 +72,27 @@ En la lista del chat, las flechas pasan de un mensaje a otro, y al escribir
 unas letras el foco salta al primer autor que empieza así. El menú
 contextual copia el mensaje, silencia al autor durante la sesión y le asigna
 un alias. Con la sesión de Google iniciada, también suspende al autor o lo
-oculta del canal.
+oculta del canal. Al llegar al principio o al final suena un aviso. El menú
+muestra la tecla de cada acción y `Mayús+F10` también lo abre.
+
+Los mensajes que son un comando, como `!discord`, o un voto, como `!1`, tienen
+su propio modo de lectura en *Preferencias*, categoría *Eventos del directo*.
+De fábrica se ven en la lista sin leerse.
+
+Cuando el chat va lleno, el aviso de mensajes descartados dice que los
+mensajes están en la lista del chat y que `F10` sube la velocidad de la voz
+para seguir el ritmo. No recomienda leer solo el nombre.
+
+*Buscar en el chat…*, en el menú *Chat* o con `Alt+B`, encuentra un texto en
+los mensajes del directo y lleva al mensaje. *Participación en el chat…*, en
+el mismo menú o con `Alt+P`, muestra cuántos mensajes escribió cada persona,
+suma sus regalos y Super Chats y permite ordenar por regalos y guardar el
+resumen como texto, para agradecer al terminar el directo.
 
 En TikTok, Guyrapu solo lee: TikTok no ofrece una forma oficial de comentar
-ni de moderar.
+ni de moderar. Los nombres con letras decorativas se leen como texto normal,
+cada persona que sigue se anuncia una sola vez por directo y al reconectar no
+se repiten comentarios.
 
 Con un perfil de Restream que lee el chat de YouTube y el de TikTok, los dos
 llegan a la misma lista y cada fila dice de qué plataforma es. Al empezar el
@@ -111,21 +156,40 @@ hasta 200 caracteres.
 | `Mayús+Intro` | Insertar un salto de línea |
 
 En un vídeo publicado, la pestaña *Comentarios* lee los comentarios, y con
-la sesión de Google permite comentar y responder.
+la sesión de Google permite comentar y responder. *Cargar más* y *Recargar
+comentarios* se alcanzan siempre con `Tab` y dicen por qué no pueden hacer
+nada. En la
+lista, *Responder…* aparece siempre: sin sesión de Google dice por qué no se
+puede usar, y `Mayús+F10` abre el menú con la tecla de cada acción.
 
 ## <a id="voces"></a>Voces y sonidos
 
-Guyrapu lee con tres motores de voz: SAPI 5 y OneCore, que vienen con
-Windows, y ElevenLabs, que requiere una cuenta. El motor, la voz, la
-velocidad, el volumen y el tono se eligen en *Preferencias*, categoría
-*Voces*, donde *Probar voz* reproduce una muestra. Si ElevenLabs falla por
-la red o por falta de saldo, Guyrapu lee con la *Voz de Windows de
-respaldo* y lo avisa una vez.
+Guyrapu lee con SAPI 5 y OneCore, que vienen con Windows, y con ElevenLabs,
+que requiere una cuenta. Si tienes voces de Phonon o de Piper descargadas,
+esos motores aparecen también en *Preferencias*, categoría *Voces*. El
+motor, la voz, la velocidad, el volumen y el tono se eligen ahí, donde
+*Probar voz* reproduce una muestra con cualquier motor y las voces locales
+dicen su idioma. La voz secundaria puede usar otro motor. Si una voz local
+falla o ElevenLabs falla por la red o por falta de saldo, Guyrapu lee con la
+*Voz de Windows de respaldo* y lo avisa una vez. Con Phonon o Piper se elige
+también la salida de audio de la voz del chat, por ejemplo los auriculares,
+para que no entre al directo. La voz se elige en *Preferencias*, categoría
+*Voces*: el menú *Voz* no tiene submenú para elegir voz.
 
 Cada tipo de mensaje, evento y aviso tiene su sonido. En la categoría
 *Sonidos* se elige el tema, *Predeterminado* o *Suave*, y se desactiva cada
 sonido por separado. La página muestra los sonidos agrupados por familia y
-dice la familia de cada uno. En inglés, los nombres salen traducidos.
+dice la familia de cada uno. Tiene menú contextual con *Reproducir sonido*,
+suena al llegar al borde con las flechas y busca al teclear, como las demás
+listas. En inglés, los nombres salen traducidos. Las esperas suenan mientras
+duran y suenan listo o error al terminar: cargar las listas del directo de
+YouTube, agregar una captura a la IA, pedir el micrófono a OBS, conectar
+Restream, iniciar sesión en YouTube, comprobar claves en *Preferencias*,
+cargar la carpeta de música y buscar actualizaciones. El sonido de espera suena
+al conectar y en las demás esperas, y no se parece al de desconectado.
+
+*Licencias de las voces*, en el menú *Ayuda*, abre en el navegador la licencia
+de cada paquete de voces que se puede descargar.
 
 ### Las familias de sonidos
 
@@ -198,10 +262,13 @@ suena con ella:
   está analizando* suena con `ia_analizando.wav` y *Respuesta de la IA* con
   `ia_respuesta.wav`.
 - *Música*: lo que pasa con las canciones. *Canción cambiada* suena con
-  `musica_tema.wav`, *Canción terminada* con `musica_fin.wav`, *Error al
-  reproducir la canción* con `musica_fallo.wav`, *Igualación del volumen* con
-  `musica_igualando.wav` y *Igualación del volumen completada* con
-  `musica_igualada.wav`.
+  `musica_tema.wav`, *Fin de la cola de música* con `musica_fin.wav`, *Error
+  al reproducir la canción* con `musica_fallo.wav`, *Igualación del volumen*
+  con `musica_igualando.wav` y *Igualación del volumen completada* con
+  `musica_igualada.wav`. *Canción cambiada* se ajusta en *Preferencias*,
+  categoría *Sonidos*, y no en *Música*. Quien la tenía marcada sigue oyéndola;
+  en las instalaciones nuevas, ese sonido y el del fin de la cola de música
+  vienen desactivados.
 - *Indicadores*: los avisos de las listas, el encuadre y el micrófono.
   *Principio o final de una lista* suena con `orilla.wav`, *Rostro fuera del
   encuadre* con `encuadre_fuera.wav`, *Rostro de vuelta en el encuadre* con
@@ -226,7 +293,8 @@ El vídeo del directo se reproduce dentro de Guyrapu, con los comandos del
 menú *Reproductor*. En un directo, cada salto dice la distancia al directo,
 por ejemplo «40 segundos por detrás del directo», y en YouTube se puede
 retroceder hasta una hora. Si la conexión falla, Guyrapu reconecta en el
-mismo punto.
+mismo punto. Si el proceso que une el vídeo y el audio se cae, lo vuelve a
+abrir solo y sigue reproduciendo en vez de quedarse en silencio.
 
 *Reproducir solo el audio, sin imagen*, en *Preferencias*, categoría
 *Reproductor*, viene marcada: sin imagen, los saltos son casi inmediatos.
@@ -245,18 +313,37 @@ la ventana *Música*:
 - *Mostrar cola* muestra lo que va a sonar.
 - *Abrir enlace…* agrega a la cola un vídeo o una lista de YouTube.
 
+En *Canciones*, en la cola y en los resultados del buscador se pueden elegir
+varias canciones con `Mayús` y las flechas, `Ctrl+Espacio` o `Ctrl+A`.
+*Reproducir*, *Agregar a la cola*, *Agregar a la lista* y *Eliminar* actúan
+sobre todas con un solo anuncio. Las acciones que piden una sola fila siguen
+en el menú y dicen por qué no se pueden usar. `F2` cambia el nombre de la
+lista elegida en *Colecciones*. Volver a escuchar un tema de YouTube empieza
+al instante. Si un tema no abre con la dirección guardada, Guyrapu la vuelve
+a pedir antes de saltarlo.
+
+*Silenciar música*, en el menú *Música*, hace lo mismo que `Ctrl+Alt+M`. Con
+*Usar teclas multimedia del teclado*, las teclas de reproducir, pausar y
+canción siguiente o anterior manejan la música mientras haya temas en la
+cola, y el panel de medios de Windows muestra qué suena. Se desactiva en
+*Preferencias*, categoría *Música*.
+
 Al crear o editar una lista se abre un cuadro con dos listas. En
 *Canciones de la lista*, `Supr` quita la canción y `Alt+Flecha arriba` y
 `Alt+Flecha abajo` la mueven. *Todas las canciones* muestra la carpeta con
 una casilla por canción, marcada en las que ya están en la lista: al
-marcarla o desmarcarla, la canción se agrega o se quita. En las dos,
-`Intro` reproduce la canción.
+marcarla o desmarcarla, la canción se agrega o se quita. Su menú tiene la
+tecla Aplicaciones y *Agregar todas a la lista*, que suma de una vez las
+canciones que muestra la búsqueda, y `Ctrl+A` selecciona todas. En las dos
+listas, `Intro` reproduce la canción.
 
 *Igualar volumen de las canciones* hace que todas suenen con un volumen
 parecido. Cada archivo se mide una vez, con el botón *Igualar volumen* de
 la ventana *Música*, y no se modifica. Al terminar, suena un sonido y dice
-cuántas canciones quedaron igualadas. Entre una canción y la siguiente hay
-un fundido, que se ajusta en *Fundido entre canciones, en segundos*.
+cuántas canciones quedaron igualadas. Al abrir Música, el cuadro que propone
+igualar tiene el botón *No volver a preguntar*. Entre una canción y la
+siguiente hay un fundido, que se ajusta en *Fundido entre canciones, en
+segundos*.
 
 Con *Usar atajos de música en cualquier aplicación*, los atajos de música
 funcionan también en OBS o en un juego, y esas teclas dejan de llegar a las
@@ -281,7 +368,10 @@ varias plataformas a la vez con Restream.
   vertical o al grabar, asígnalos en la pestaña *Perfiles* del *Panel de
   OBS*. Consulta [Perfiles de OBS](#perfiles-de-obs).
 
-Si OBS está cerrado, Guyrapu lo abre en el área de notificación.
+Si OBS está cerrado, Guyrapu lo abre en el área de notificación. Antes de
+transmitir, si la cortina de pantalla de NVDA dejaría negra una captura de
+pantalla, Guyrapu lo avisa, dice cómo arreglarlo y ofrece cambiar el método
+de captura a Windows 10.
 
 ### <a id="transmitir"></a>Iniciar el directo
 
@@ -305,7 +395,11 @@ Si OBS está cerrado, Guyrapu lo abre en el área de notificación.
 
 Si se pierde la conexión a internet, YouTube espera a que vuelva sin
 terminar el directo. Cerrar Guyrapu no interrumpe el directo, y al volver a
-abrirlo lo reconoce.
+abrirlo lo reconoce. Si Guyrapu se cerró sin conexión con un directo de
+YouTube abierto, al volver lo avisa y lo finaliza solo cuando vuelve la
+conexión, aunque la aplicación siga cerrada. Cuando transmites a YouTube y
+TikTok a la vez, *Copiar enlace del directo* copia los dos enlaces, uno
+debajo del otro.
 
 Durante el directo, el botón se llama *Finalizar directo* y pide
 confirmación, con *Seguir transmitiendo* elegido de entrada. Al terminar,
@@ -356,26 +450,29 @@ haciendo en OBS, y el complemento de OBS para NVDA sigue funcionando.
 
 *Estado* resume la transmisión, la grabación, la escena actual, el
 micrófono y el uso del equipo. *Mostrar OBS* trae al frente la ventana de
-OBS, también desde el área de notificación. Si OBS no responde, lo avisa en
-vez de esperarlo, con el sonido de desconexión, y con el de reconexión cuando
-vuelve. El panel sigue respondiendo mientras espera a OBS y se puede cerrar
-en cualquier momento. *Cerrar OBS*, también en el menú *OBS*, cierra OBS sin
+OBS, también desde el área de notificación. Si OBS tarda en conectar o deja
+de responder un momento, avisa y sigue cuidando el directo en vez de
+abandonarlo, con el sonido de desconexión y el de reconexión cuando vuelve.
+El panel sigue respondiendo mientras espera a OBS y se puede cerrar en
+cualquier momento. Con el directo en el aire, los avisos de problemas no
+abren un cuadro encima del juego. *Cerrar OBS*, también en el menú *OBS*, cierra OBS sin
 forzarlo, así no pregunta por el modo seguro al volver a abrirlo. Si OBS
 está transmitiendo o grabando, no lo cierra y avisa.
 
-*Probar el equipo…* graba unos segundos con el perfil en uso para ver si la
+*Probar equipo…* graba unos segundos con el perfil en uso para ver si la
 PC pierde fotogramas. Si los pierde, prueba ajustes más livianos hasta dar
 con unos que funcionan y ofrece guardarlos en el perfil. Con el plugin
 Vertical Canvas de Aitum en OBS, el cuadro ofrece incluir el lienzo
 vertical, para saber si la PC puede transmitir en las dos orientaciones a
 la vez. Las grabaciones de la prueba se borran al terminar.
 
-*Probar la conexión…* hace un directo privado de prueba en YouTube, que
+*Probar conexión…* hace un directo privado de prueba en YouTube, que
 nadie ve y que se borra solo, para saber qué tasa de bits admite tu
 conexión, y ofrece guardarla en el perfil. Necesita la sesión de Google.
 
 Las pruebas del equipo y de la conexión muestran su avance en una ventana,
-con un sonido de espera, y si fallan dejan el error escrito en ella. En la
+con un sonido de espera, y si fallan dejan el error escrito en ella. El
+resultado se cierra con `Esc`. En la
 prueba de la conexión, si un intento falla por un error de OBS, Guyrapu
 vuelve a intentarlo y sigue con el siguiente. Si la sesión de YouTube
 caducó, lo dice y explica cómo volver a iniciarla.
@@ -384,9 +481,10 @@ caducó, lo dice y explica cómo volver a iniciarla.
 
 La lista *Escenas* muestra cada escena, si es la actual y cuántas fuentes
 tiene. Recorrerla no cambia lo que se emite: *Cambiar escena* pone al aire
-la escena elegida, y *Agregar escena…* crea una nueva.
+la escena elegida, y *Agregar escena…* crea una nueva. Suena al llegar a la
+orilla y el doble clic cambia de escena.
 
-*Crear la versión vertical*, en el menú contextual de una escena, crea una
+*Crear versión vertical*, en el menú contextual de una escena, crea una
 copia con el mismo nombre seguido de «vertical», con las mismas fuentes y
 un diseño vertical. Al transmitir en vertical, esa copia sale al aire, y al
 terminar vuelve la escena que había.
@@ -411,7 +509,9 @@ cuadro se elige qué fuente va en cada lugar, la esquina, el reparto y el
 chat. *Ajuste*
 decide qué pasa si la proporción no coincide: *Ajustar* muestra la fuente
 entera, *Cubrir* recorta los bordes y *Automático* llena con la cámara y
-ajusta lo demás. *Guardar como…* guarda un diseño propio. En un lienzo
+ajusta lo demás. *Guardar como…* guarda un diseño propio. En el menú de
+transformar una fuente, *Estirar al vídeo* la agranda para llenar el vídeo,
+como en OBS. En un lienzo
 vertical, *Dividida en dos* apila las fuentes arriba y abajo, y el chat en
 franja va abajo.
 
@@ -461,7 +561,7 @@ para qué se usa: transmitir en horizontal, transmitir en vertical o grabar.
   en vertical y otro para grabar, comprueba qué ajustes funcionan bien en
   tu PC, los deja asignados y dice qué hizo. Los perfiles que ya tenías no
   cambian. Muestra su avance en una ventana, con un sonido de espera, y si
-  falla deja el error escrito en ella.
+  falla deja el error escrito en ella. El resumen se cierra con `Esc`.
 
 Al transmitir o grabar sin directo, Guyrapu pasa OBS al perfil asignado, y
 al terminar vuelve al que tenía. Editar los ajustes de un perfil que no está
@@ -477,7 +577,9 @@ los botones.
 ### Transmisión
 
 *Transmitir en directo* abre el cuadro *Transmitir a*, igual que el botón de
-la ventana principal, y *Restream…* abre la ventana de Restream.
+la ventana principal, y *Restream…* abre la ventana de Restream. Durante el
+directo, *Finalizar directo* lo termina igual que ese botón, incluso el
+directo de YouTube.
 
 ### Audio
 
@@ -497,11 +599,13 @@ sobre la fuente elegida:
 ### Grabación
 
 *Iniciar grabación* y *Detener grabación* graban sin transmitir, y *Pausar
-grabación* pausa la grabación en curso. La lista *Grabaciones y clips*
-reúne lo grabado y los clips, del más nuevo al más antiguo. Su menú
-contextual abre el archivo o su carpeta, copia la ruta o lo elimina de la
-lista sin borrar el archivo. Si OBS convierte la grabación a MP4 al
-terminar, la lista muestra el MP4.
+grabación* pausa la grabación en curso: si no hay ninguna, avisa lo mismo
+que el comando del menú. La lista *Grabaciones y clips* reúne lo grabado y
+los clips, del más nuevo al más antiguo. Suena al llegar a la orilla, busca
+al teclear y el doble clic abre la grabación. El menú contextual abre el
+archivo o su carpeta, copia la ruta o lo elimina de la lista sin borrar el
+archivo, y muestra la tecla de cada acción. Si OBS convierte la grabación a
+MP4 al terminar, la lista muestra el MP4.
 
 ## <a id="restream"></a>Restream
 
@@ -554,7 +658,7 @@ cerrado. La primera vez, Guyrapu agrega al plugin la salida «Guyrapu»: si
 OBS está abierto, lo dice, lo cierra y lo vuelve a abrir.
 
 Antes de salir al aire, Guyrapu copia al lienzo vertical las versiones
-verticales de tus escenas, las que crea *Crear la versión vertical*.
+verticales de tus escenas, las que crea *Crear versión vertical*.
 Durante el directo, cuando cambias de escena, el vertical pasa a la
 versión vertical de esa escena, y si no la tiene, lo dice una vez. Si el
 vertical se interrumpe, suena un aviso y el horizontal sigue: Guyrapu lo vuelve
@@ -566,7 +670,7 @@ detiene los dos.
 *Mostrar* elige entre los eventos próximos, los que están en directo y el
 historial. *Detalle del evento* muestra su estado, sus horarios, sus
 destinos y la descripción. El menú contextual copia los enlaces o la
-información del evento, abre el directo y agrega las estadísticas al
+información del evento, ofrece *Abrir directo* y agrega las estadísticas al
 detalle. Si no hay eventos para el filtro elegido, la lista lo dice.
 
 ### Avisos durante el directo
@@ -597,33 +701,158 @@ Los comandos están en el menú *OBS*:
 En *Preferencias*, categoría *Cámara*, se elige la cámara de OBS, el sonido
 de la guía y si se invierten izquierda y derecha.
 
-## Mensajes automáticos
+## Interacción
+
+La ventana *Interacción* reúne lo que el público ve y oye en el directo. Se
+abre con *Abrir Interacción…*, en el menú *Interacción*, o con
+`Ctrl+Mayús+A`, y vuelve a abrirse en la última página usada. Tiene una
+lista de páginas y, a la derecha, la lista y las acciones de la elegida. Las
+páginas son *Mensajes automáticos*, *Comandos*, *Encuestas*, *Preguntas*,
+*Disparadores*, *Metas*, *Medios*, *Estilos* y *Palabras bloqueadas*.
+
+### Mensajes automáticos
 
 Los mensajes automáticos se envían al chat cada cierto tiempo, por ejemplo
-tus redes cada diez minutos. Se configuran en *Preferencias*, categoría
-*Mensajes automáticos*, y funcionan en tu propio directo de YouTube con la
-sesión de Google iniciada. YouTube suele bloquear los enlaces: escribe el
-nombre de usuario en su lugar. Si YouTube devuelve un error, los mensajes
-se detienen y Guyrapu lo avisa una vez.
+tus redes cada diez minutos. Cada mensaje tiene nombre y se elige si sale en
+el chat, en el vídeo o en los dos. Se pueden duplicar, ordenar, escuchar,
+exportar e importar. Los que eligen el vídeo entran animados en OBS, quedan
+sus segundos y salen uno por vez, y respetan la cantidad mínima de mensajes
+del chat entre uno y otro. `F2` dice qué hay en el vídeo. Funcionan en tu
+propio directo de YouTube con la sesión de Google iniciada. YouTube suele
+bloquear los enlaces: escribe el nombre de usuario en su lugar. Si YouTube
+devuelve un error, los mensajes se detienen y Guyrapu lo avisa una vez. La
+lista dice cuando está vacía, y `Supr` o su menú contextual eliminan el
+mensaje elegido.
+
+### Comandos
+
+Los comandos son los que el público puede usar en el chat. Se crean con su
+respuesta, dónde sale, quién puede usarlo y sus esperas. Cuando alguien
+escribe un comando, la respuesta sale en el vídeo y, si el comando lo pide,
+en el chat de YouTube. `F2` dice cuántos comandos respondió Guyrapu y cuál
+fue el último. *Pausar comandos*, en el menú *Interacción*, o
+`Ctrl+Alt+Mayús+C` desde cualquier programa, deja de contestar todos a la
+vez. La lista de comandos que pide el público se edita como uno más: su
+palabra, de fábrica `!commands`, y `!comandos` en español y portugués, su
+texto, dónde sale y su estilo, y cada comando elige si aparece en ella.
+
+### Encuestas
+
+En *Encuestas* se prepara la pregunta, las opciones, la duración y dónde
+sale el resultado. Las encuestas se inician desde Interacción. El público
+vota con `!1`, `!2` y así desde cualquier chat. Se ven en el vídeo con sus
+votos y su tiempo, y se cierran a mano con `Ctrl+Alt+Mayús+E` o solas al
+cumplirse el tiempo.
+
+### Preguntas
+
+El público deja preguntas escribiendo `!pregunta` o `!q` en el chat.
+Guyrapu las guarda en orden, una por persona, y avisa una sola vez cuando la
+cola se llena. La página *Preguntas* muestra la cola al día y permite mostrar
+una en el vídeo, marcarla como respondida, eliminarla o vaciar la cola. Cada
+pregunta tiene su estilo propio. `Ctrl+Alt+Mayús+R` lee la más vieja desde
+cualquier programa.
+
+### Disparadores
+
+Un disparador muestra una tarjeta o un medio cuando alguien usa un comando
+del chat o llega un evento del directo, como un Super Chat desde cierta
+cantidad, un regalo desde cierta cantidad o un regalo concreto de TikTok por
+su nombre. También puede saltar cuando un mensaje del chat dice una palabra
+o trae un emoji, con sus esperas y su permiso. Los disparadores se crean y se
+editan en la página. Su tarjeta puede decir cuánto llegó, qué regalo fue, qué
+escribió la persona y cuántas veces salió, con `{cantidad}`, `{regalo}`,
+`{texto}` y `{contador}`. Cada uno puede tener un atajo global,
+`Ctrl+Alt+Mayús` más un número del 1 al 9, para dispararlo desde cualquier
+programa.
+
+### Metas
+
+En *Metas* se preparan las metas del directo: qué cuentan, cuánto hace falta
+y con qué estilo y festejo se muestran. Cuentan me gusta, seguidores,
+miembros, regalos o Super Chats. Al cumplirse lo avisan con un sonido y una
+tarjeta en el vídeo con su festejo. Una meta puede mostrar su avance fijo en
+el vídeo, por ejemplo «Seguidores: 12 de 50», y se pone al día mientras
+llegan.
+
+### Medios
+
+*Medios* es una biblioteca de imágenes, GIF, vídeos y sonidos con su
+descripción y su duración, que se escuchan antes de usarlos. En el cuadro de
+un medio, *Describir imagen* le pide a la inteligencia artificial una frase
+sobre lo que muestra la imagen o el GIF, para que `F2` y la lista digan qué
+ve el público. Los sonidos y vídeos se igualan de volumen al agregarlos, para
+que no suene uno mucho más fuerte que otro. La página tiene un volumen
+general para todos los medios que salen en el vídeo, para equilibrarlos con
+la voz y el juego. Los disparadores muestran o hacen sonar su medio, solo o
+con su tarjeta.
+
+### Estilos
+
+En *Estilos* se crean, se duplican, se exportan y se importan estilos para
+los mensajes del vídeo, con fuente, colores por nombre, fondo, zona y
+animación. Cada estilo puede ser el predeterminado de los mensajes
+automáticos, los comandos, los disparadores, las encuestas o las metas, y
+cada elemento puede usar el predeterminado de su tipo. *Probar*, en esta
+página y en *Mensajes automáticos*, arma la tarjeta fuera del aire y dice
+dónde sale, cuánto ocupa y si tiene algún problema de fuente o de
+contraste.
+
+### Palabras bloqueadas
+
+En *Palabras bloqueadas* se escriben las palabras que se tapan en el nombre
+y el texto del público que muestran las respuestas de los comandos. Un texto
+hecho casi todo de símbolos no se muestra.
+
+### Probar sin directo
+
+*Probar sin directo…*, en el menú *Interacción*, ensaya la interacción sin
+salir al aire. Se escribe el autor, se elige la plataforma y el tipo, y se
+envían mensajes, Super Chats o regalos. Pasan por el mismo reparto que los
+del directo, aparecen en la lista del chat y atienden los comandos, los
+disparadores, la encuesta y las metas. Lo que va al vídeo se ve en OBS como
+en un directo, sin publicar nada en los chats y sin que la voz lo lea. Al
+cerrar la ventana termina el ensayo y se descarta lo que dejó. Con la
+ventana abierta no se puede conectar un directo.
+
+### Atajos globales
+
+Los atajos globales `Ctrl+Alt+Mayús` de la interacción funcionan aunque el
+foco esté en otro programa: pausan, omiten y vacían lo que sale en el vídeo,
+silencian los medios, activan el modo pánico, activan o desactivan los mensajes
+automáticos, pausan los comandos, cierran la encuesta, leen la siguiente
+pregunta y dicen el estado de la interacción. Están en la tabla
+[Atajos de teclado](#atajos-de-teclado), en la familia *Interacción en
+directo*.
 
 ## <a id="descargas"></a>Descargas e historial
 
 El *Administrador de descargas* descarga vídeos, audio o listas de YouTube
 en MP4, WebM, MP3 o M4A, dos a la vez. Lo descargado queda en la carpeta
 Descargas, junto a la aplicación. En la pestaña *Buscar en YouTube*,
-Espacio reproduce un resultado en la música sin descargarlo. Si las
-descargas fallan, usa *Actualizar yt-dlp…*, en el menú *Herramientas*.
+Espacio reproduce un resultado en la música sin descargarlo. *Mostrar más*
+se alcanza siempre con `Tab` y dice cuando no hay más resultados. NVDA dice
+el nombre de la lista de resultados y de la lista de descargas. Si una
+descarga deja de avanzar durante dos minutos, Guyrapu la corta y avisa con
+un error, y *Reintentar* la retoma: si se perdió la conexión, el error lo
+dice en vez de mostrar un código. Las acciones que no sirven para la
+descarga elegida siguen en el menú y dicen por qué. Si las descargas fallan,
+usa *Actualizar yt-dlp…*, en el menú *Herramientas*.
 
 El *Historial de directos* muestra lo que viste, con una pestaña para
-YouTube y otra para TikTok.
+YouTube y otra para TikTok. Cada lista tiene menú contextual, y una pestaña
+vacía dice que no hay entradas de esa plataforma.
 
 ## Estado por voz
 
 *Anunciar estado*, en el menú *Ver*, resume la conexión, el directo, los
-espectadores, los mensajes leídos y las donaciones. Cuando transmites a
-YouTube y TikTok a la vez, los espectadores son los de las dos plataformas.
-Qué se incluye se elige en *Preferencias*, categoría *Estado (F2)*. Dos veces
-seguidas, abre la ventana *Estado de la sesión*, con cada dato en una línea.
+espectadores, los mensajes leídos y las donaciones, con frases cortas y
+uniformes. Cuando transmites a YouTube y TikTok a la vez, los espectadores
+son los de las dos plataformas. Qué se incluye se elige en *Preferencias*,
+categoría *Estado (F2)*. Dos veces seguidas, abre la ventana *Estado de la
+sesión*, con cada dato en una línea. `Ctrl+Alt+Mayús+I` dice cómo va la
+interacción del directo: la encuesta con sus votos, la batalla, la meta, lo
+que sale en el vídeo y cuántas preguntas esperan. Si no hay nada, lo dice.
 
 ## <a id="ia"></a>Preguntar a la IA
 
@@ -639,9 +868,22 @@ espera, avisa y ofrece usarla de todos modos, por si el proveedor cambió el
 formato.
 
 *Preguntar a la IA sobre la imagen…*, en el menú *Ver*, abre una ventana
-donde *Agregar captura* elige la escena o una fuente, y la pregunta se
-escribe en *Mensaje*. *Consulta rápida a la IA* envía la escena actual y
-lee la respuesta sin abrir ninguna ventana.
+donde *Agregar captura* elige la escena o una fuente, y también el fotograma
+del vídeo que muestra el reproductor, con OBS abierto o cerrado. La pregunta
+se escribe en *Mensaje*. *Consulta rápida a la IA* envía la escena actual y
+lee la respuesta sin abrir ninguna ventana. `Ctrl+F2` y `Ctrl+Mayús+F2`
+dicen la escena y sus avisos con frases cortas y uniformes, y la consulta
+rápida avisa si se cancela. Con OBS cerrado, `Ctrl+Mayús+F2` describe el
+fotograma que se ve en el reproductor; en modo solo audio no hay imagen y lo
+dice.
+
+La conversación tiene menú contextual, `Ctrl+C` copia el mensaje elegido y
+suena la orilla al llegar al principio o al final. `Ctrl+S`, o *Guardar
+conversación…* en el menú de la lista *Conversación*, guarda la conversación
+entera en un archivo de texto. La IA cita tal como está escrito el texto que
+se lee en la imagen, como un cartel, una alerta o el chat dentro del vídeo.
+Con los modelos que lo permiten, las respuestas salen más parejas entre una
+consulta y la siguiente.
 
 La captura y lo que escribas se envían al proveedor, y el primer envío pide
 confirmación. Una captura en negro, como la que deja la cortina de pantalla
@@ -656,9 +898,11 @@ crear el directo de YouTube. Sin ella, todo lo demás funciona.
 Para iniciarla, abre *Preferencias*, categoría *YouTube*, pulsa *Iniciar
 sesión* y autoriza en el navegador. Las sesiones de YouTube y de Restream
 se guardan cifradas con tu cuenta de Windows: si copias la carpeta de la
-aplicación a otro equipo, tendrás que volver a iniciarlas. La cuota diaria de YouTube se comparte
-entre quienes usan Guyrapu. Para tener una propia, consulta la [guía de
-configuración de la API](../CONFIGURACION_API.md).
+aplicación a otro equipo, tendrás que volver a iniciarlas. La cuota diaria
+de YouTube se comparte entre quienes usan Guyrapu. La cuota estimada se
+mantiene al día sola con los costos que publica Google, una vez por semana.
+Para tener una propia, consulta la [guía de configuración de la
+API](../CONFIGURACION_API.md).
 
 ## <a id="preferencias"></a>Preferencias
 
@@ -677,8 +921,10 @@ Las preferencias se guardan en `config.ini` y `sounds.ini`, en la carpeta
 
 En la categoría *Atajos*, cada acción tiene un botón con su atajo. Pulsa el
 botón y después la combinación nueva. Si la combinación ya está en uso o no
-corresponde a esa familia, Guyrapu dice por qué y sigue esperando.
-*Restablecer atajos de fábrica* vuelve a los atajos originales.
+corresponde a esa familia, Guyrapu dice por qué y sigue esperando. Los atajos
+fijos se alcanzan con `Tab`: se oye su combinación y, al activarlos, que no
+se pueden cambiar. *Restablecer atajos de fábrica* vuelve a los atajos
+originales.
 
 | Tecla al cambiar un atajo | Acción |
 |---|---|
@@ -689,14 +935,15 @@ corresponde a esa familia, Guyrapu dice por qué y sigue esperando.
 
 Cada familia de atajos usa sus propias teclas modificadoras. Todos figuran
 también en la barra de menús, junto a su comando. En las listas con
-acciones, escribir las primeras letras salta al elemento que empieza así, y
-al llegar al principio o al final suena un aviso.
+acciones, escribir las primeras letras salta al elemento que empieza así, al
+llegar al principio o al final suena un aviso y el menú contextual muestra la
+tecla de cada acción. `Mayús+F10` abre ese menú en las listas que lo tienen.
 
 ### Fijos
 
 | Atajo | Acción |
 |---|---|
-| `F1` | Abrir el manual |
+| `F1` | Abrir el manual en la sección de la ventana |
 | `F6` / `Mayús+F6` | Región siguiente o anterior |
 | `Ctrl+Tab` | Cambiar de pestaña |
 | `Alt+F4` | Salir |
@@ -784,14 +1031,8 @@ al llegar al principio o al final suena un aviso.
 | `Ctrl+Alt+Mayús+R` | Leer la siguiente pregunta |
 | `Ctrl+Alt+Mayús+I` | Estado de la interacción |
 
-En el menú *Interacción*, *Probar sin directo…* abre la ventana de ensayo
-cuando no hay ningún directo conectado. Escribe el autor, elige la plataforma
-y el tipo, y envía mensajes, Super Chats o regalos: pasan por el mismo reparto
-que los del directo, aparecen en la lista del chat y atienden los comandos, los
-disparadores, la encuesta y las metas. Lo que va al vídeo se ve en OBS como en
-un directo, sin publicar nada en los chats y sin que la voz lo lea. Al cerrar
-la ventana termina el ensayo y se descarta lo que dejó. Con la ventana abierta
-no se puede conectar un directo.
+El ensayo *Probar sin directo…* y los atajos globales se explican en
+[Interacción](#interacción).
 
 ### Música (Ctrl+Alt)
 
@@ -833,7 +1074,8 @@ combinaciones, suena un tono y Guyrapu dice cuál.
 nueva, muestra sus novedades y la instala. Guyrapu se cierra y vuelve a
 abrirse en alrededor de un minuto, y conserva la carpeta `data`, las
 descargas y los sonidos propios. Si la versión nueva no abre, vuelve sola a
-la anterior. *Canal de actualización*, en *Preferencias*, categoría
+la anterior. El cuadro de actualización ofrece *Abrir página*. *Canal de
+actualización*, en *Preferencias*, categoría
 *General*, elige si se ofrecen solo versiones estables o también las beta.
 
 ## Problemas frecuentes

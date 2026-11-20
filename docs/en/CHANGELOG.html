@@ -216,13 +216,204 @@
   </style>
 </head>
 <body>
-<!-- original: es/CHANGELOG.md 4da6274e9ed84f1250c73d7f793f4cffa083d459 -->
+<!-- original: es/CHANGELOG.md b58af5def709392acaf02faedcd1f234602bc02f -->
 
 <h1 id="whats-new-in-guyrapu">What's new in Guyrapu</h1>
 <p>This is a translation of the Spanish original, made with artificial
 intelligence. If you find an error, report it at <a
 href="https://github.com/miguel-cinsfran/guyrapu/issues">https://github.com/miguel-cinsfran/guyrapu/issues</a>.
 See the <a href="../es/CHANGELOG.html">original in Spanish</a>.</p>
+<h2 id="300-beta-6-november-2026">3.0.0 beta 6, November 2026</h2>
+<h3 id="interaction">Interaction</h3>
+<ul>
+<li>The <em>Interaction</em> window brings scheduled messages, chat
+commands, polls, questions, triggers, goals, media, video styles and
+blocked words together on pages. Open it with <em>Open Interaction…</em>
+or <code>Ctrl+Shift+A</code>, and it opens on the last page you
+used.</li>
+<li>Each scheduled message has a name and can appear in the chat, on the
+video or in both. You can duplicate, sort, preview, export and import
+them. The ones on the video come in with an animation, stay for their
+time and leave one at a time. <code>F2</code> says what is on the
+video.</li>
+<li>Chat commands answer back: when the audience types one, the reply
+appears on the video and, if the command asks for it, in the YouTube
+chat. <em>Pause chat commands</em> or <code>Ctrl+Alt+Shift+C</code>
+stops all commands at once, and <code>F2</code> says how many Guyrapu
+answered and which was the last one. The list of commands the audience
+asks for is edited like any other command, with its word,
+<code>!commands</code> by default and <code>!comandos</code> in Spanish
+and Portuguese.</li>
+<li>Polls are set up in Interaction with a question, options, duration
+and where the result appears. The audience votes with <code>!1</code>,
+<code>!2</code> and so on from any chat. Polls appear on the video with
+their votes and their time, and close with <code>Ctrl+Alt+Shift+E</code>
+or on their own when the time runs out.</li>
+<li>The audience leaves questions with <code>!pregunta</code> or
+<code>!q</code>. The <em>Questions</em> page shows the queue, lets you
+display one on the video and <code>Ctrl+Alt+Shift+R</code> reads the
+next one from any program.</li>
+<li>Triggers respond to chat commands, live events, specific TikTok
+gifts and words or emojis in messages. They show their media on the
+video, alone or with a card that says how much arrived, which gift it
+was, what the person wrote and how many times it appeared. Each one can
+have a global shortcut, <code>Ctrl+Alt+Shift</code> plus a number from 1
+to 9.</li>
+<li>Goals count likes, followers, members, gifts or Super Chats,
+announce when they are reached with a sound and a card on the video, and
+can show their fixed progress, for example «Followers: 12 of 50».</li>
+<li><em>Media</em> holds images, GIFs, videos and sounds with their
+description and duration. You can hear them before using them,
+<em>Describe image</em> asks the AI for a sentence about the image,
+sounds and videos are matched in volume when added, and a general volume
+balances them with the voice and the game.</li>
+<li>Video styles are created, duplicated, exported and imported, and
+each one can be the default for scheduled messages, chat commands,
+triggers, polls or goals. <em>Test</em> builds the card off air and says
+where it appears and whether there are font or contrast problems.</li>
+<li>Blocked words are hidden in the name and text of the audience that
+command replies show, and text made almost entirely of symbols is not
+displayed.</li>
+<li><em>Test without a live stream</em> sends messages, Super Chats and
+gifts without going on air, and shows in OBS how commands, triggers,
+polls and goals respond, without posting anything in the chats.</li>
+<li>The global <code>Ctrl+Alt+Shift</code> shortcuts pause, skip and
+clear what appears on the video, mute the media, turn on panic mode,
+turn scheduled messages on or off and announce the interaction status,
+even when another program has the focus.</li>
+</ul>
+<h3 id="chat">Chat</h3>
+<ul>
+<li><em>Search chat</em> finds text in the messages and jumps to the
+message. <em>Chat participation</em> shows how many messages each person
+wrote, adds up their gifts and Super Chats, can be sorted by gifts and
+saves the summary when the live stream ends.</li>
+<li><em>Translate chat</em> reads and shows messages in other languages
+translated, with the original language at the end. It is off by
+default.</li>
+<li>YouTube Super Chats and stickers sound according to their amount,
+with the three TikTok gift sounds: small, medium and large.</li>
+<li>Messages that are commands or votes have their own reading mode and
+appear in the list without being read by default.</li>
+<li>On TikTok, names with decorative letters are read as plain text,
+each new follower is announced once per live stream and comments are not
+repeated when it reconnects.</li>
+<li>The discarded messages notice says they are in the chat list and
+that <code>F10</code> raises the voice speed to keep up.</li>
+</ul>
+<h3 id="voices-and-sounds">Voices and sounds</h3>
+<ul>
+<li>Phonon and Piper appear as voice engines in <em>Preferences,
+Voices</em> when you have voices downloaded. The secondary voice can use
+another engine, <em>Test voice</em> works with all of them and local
+voices say their language. If a local voice fails, the message is read
+with the Windows voice and a notice is given once.</li>
+<li>With Phonon or Piper you choose the audio output for the chat voice,
+for example headphones, so it does not go into the live stream. The
+<em>Voice</em> menu no longer has a submenu for choosing a voice: the
+voice is chosen in Preferences.</li>
+<li>The sound «Song finished» is called «End of the music queue», and
+the setting for changing songs is in <em>Preferences, Sounds</em> as
+«Song changed». If you had it checked you still hear it; in new
+installations that sound and the end of the queue sound are off.</li>
+<li>More waits sound while they last and play a done or error sound when
+they finish, and the wait sound does not sound like the disconnected
+sound.</li>
+<li><em>Voice licenses</em>, in the <em>Help</em> menu, opens the
+license of each voice pack you can download in the browser.</li>
+</ul>
+<h3 id="obs-panel-and-broadcasting">OBS panel and broadcasting</h3>
+<ul>
+<li><em>Broadcast live</em> and <em>End live stream</em> from the panel
+do the same as the main buttons, including closing the YouTube live
+stream. <em>Pause recording</em> warns when there is no recording in
+progress.</li>
+<li>If OBS takes a while to connect or stops responding for a moment,
+Guyrapu warns and keeps looking after the live stream instead of giving
+up, and with a live stream on air problem notices do not open a box over
+the game.</li>
+<li>If the connection to YouTube is lost, Guyrapu warns when closing and
+ends the live stream on its own when the connection comes back, even if
+the application is closed. When broadcasting to YouTube and TikTok at
+the same time, <em>Copy live stream link</em> copies both links.</li>
+<li>Before broadcasting, if the NVDA screen curtain would leave a screen
+capture black, Guyrapu warns and offers to change the method to Windows
+10.</li>
+<li>The commands <em>Create vertical version</em>, <em>Test
+computer</em>, <em>Test connection</em>, <em>Open live stream</em>,
+<em>Open the page</em> and <em>Mute music</em> are shorter.</li>
+<li>In the menu for transforming a source, «Fill the video» is called
+«Stretch to the video», as in OBS.</li>
+<li><em>Recordings and clips</em> plays a sound at the edge, searches as
+you type, opens on double-click and shows the key of each menu action.
+Scenes also have an edge sound and double-click.</li>
+</ul>
+<h3 id="music">Music</h3>
+<ul>
+<li>You can select several songs at once with Shift and the arrow keys,
+Ctrl+Space or Ctrl+A, and add or remove them together. <em>All
+songs</em> has a menu with <em>Add all to the playlist</em>, and Ctrl+A
+selects all.</li>
+<li>Multimedia keys control the music while there are songs in the queue
+and the Windows media panel shows what is playing. Turn it off in
+Preferences, Music.</li>
+<li><code>F2</code> renames the selected playlist, replaying a YouTube
+song starts at once and a song that does not open asks for the address
+again before skipping it.</li>
+<li>The box that offers to match volume when you open Music has <em>Do
+not ask again</em> instead of a checkbox.</li>
+</ul>
+<h3 id="artificial-intelligence">Artificial intelligence</h3>
+<ul>
+<li><em>Add capture</em> also takes the frame from the player, with OBS
+open or closed, and <code>Ctrl+Shift+F2</code> describes it without OBS.
+In audio-only mode it says so.</li>
+<li><code>Ctrl+S</code> or the conversation menu saves the whole
+conversation to a text file. <code>Ctrl+C</code> copies the selected
+message and the list plays a sound at the edges.</li>
+<li>The AI quotes text in an image exactly as it is written, and replies
+are more consistent from one query to the next with the models that
+allow it.</li>
+</ul>
+<h3 id="accessibility-and-lists">Accessibility and lists</h3>
+<ul>
+<li>Buttons and lists that are loading or waiting stay in the Tab order
+and say their state instead of disappearing, in Preferences, Restream,
+OBS, Downloads, Music, artificial intelligence, comments and source
+dialogs.</li>
+<li>The context menu of lists shows the key of each action, and actions
+that cannot be used stay in it and say why. <code>Shift+F10</code> opens
+the menu in the comments list. With a chat connected, the link field
+stays in the Tab order and you can read it; to change it you have to
+disconnect.</li>
+<li>Lists play a sound at the edges and search as you type, among them
+<em>Sounds</em>, <em>Recordings and clips</em>, <em>Recent items</em>,
+the AI conversation and the History.</li>
+<li><code>F1</code> opens the manual at the section for the open window.
+Fixed shortcuts in Preferences can be reached with <code>Tab</code> and
+say they cannot be changed. The results of tests and the summary of the
+profile assistant close with Escape.</li>
+</ul>
+<h3 id="other-changes">Other changes</h3>
+<ul>
+<li>The estimated YouTube quota is kept up to date on its own with the
+costs Google publishes, once a week.</li>
+<li>If the process that joins the video and audio of a live stream
+crashes, the player reconnects on its own instead of staying
+silent.</li>
+<li>When you open the history, OBS, Restream or the profile settings,
+the focus lands on the first useful control.</li>
+<li>Commands that open a dialog end with an ellipsis, and the
+<em>Cancel</em> and <em>Close</em> buttons have access keys.</li>
+<li>NVDA says the name of the results list and the downloads list in the
+Download manager.</li>
+<li>If a download stops making progress for two minutes, Guyrapu stops
+it and warns with an error, and <em>Retry</em> resumes it. If the
+connection is lost, the error says so without showing a code.</li>
+<li><em>Show more</em> in the search and <em>Load more</em> and
+<em>Reload comments</em> can always be reached with <code>Tab</code> and
+say when there is nothing more.</li>
+</ul>
 <h2 id="300-beta-5-november-2026">3.0.0 beta 5, November 2026</h2>
 <ul>
 <li>The sounds changed and you have to learn them again. They are now
@@ -247,7 +438,7 @@ panel</em> no longer changes the OBS profile or leaves it loading.</li>
 <li>Changing profiles from Guyrapu no longer leaves OBS waiting with a
 restart dialog when the profiles have a different audio frequency.</li>
 </ul>
-<h3 id="artificial-intelligence">Artificial intelligence</h3>
+<h3 id="artificial-intelligence-1">Artificial intelligence</h3>
 <ul>
 <li>When the list of artificial intelligence models is updated, Guyrapu
 warns if the chosen model does not respond with your key or is paid,
@@ -286,7 +477,7 @@ come translated.</li>
 plays the one of its family in that theme or, if that is missing, the
 one of the default theme, instead of staying silent.</li>
 </ul>
-<h3 id="music">Music</h3>
+<h3 id="music-1">Music</h3>
 <ul>
 <li>When volume matching finishes, a sound plays and it says how many
 songs were matched.</li>
@@ -373,7 +564,7 @@ two</em> stacks the sources at the top and bottom, and the chat in a
 strip goes at the bottom. There is a new layout, sized to the first
 source, and in <em>Automatic</em> the camera fills its place.</li>
 </ul>
-<h3 id="chat">Chat</h3>
+<h3 id="chat-1">Chat</h3>
 <ul>
 <li>With a Restream profile that has YouTube and TikTok, <em>Chat that
 Guyrapu reads</em> offers <em>YouTube and TikTok</em>, chosen by default
@@ -401,7 +592,7 @@ song can no longer be repeated in a playlist.</li>
 recording folder. If OBS converts the recording to MP4 at the end, the
 list shows and opens the MP4.</li>
 </ul>
-<h3 id="other-changes">Other changes</h3>
+<h3 id="other-changes-1">Other changes</h3>
 <ul>
 <li>The YouTube and Restream sessions and the keys saved in the
 application are saved encrypted with your Windows account. If you copy
@@ -552,7 +743,7 @@ the queue and the history. <code>Enter</code> downloads a video and
 <em>Preferences</em>, <em>Downloads</em>, you choose the folder, the
 file name and the yt-dlp update channel.</li>
 </ul>
-<h3 id="other-changes-1">Other changes</h3>
+<h3 id="other-changes-2">Other changes</h3>
 <ul>
 <li>It is also in English. The language is chosen in
 <em>Preferences</em>, <em>General</em>, and applies on restart.</li>
@@ -589,7 +780,7 @@ up to three times in ten minutes.</li>
 code in another program must publish theirs under the same license.
 Versions up to 2.5.0 remain under the MIT license.</li>
 </ul>
-<h3 id="music-1">Music</h3>
+<h3 id="music-2">Music</h3>
 <ul>
 <li>Music and the player no longer share the volume. Before, muting the
 video or the live stream with Ctrl+M also muted the music, and pausing
@@ -658,7 +849,7 @@ capture.</li>
 <li>The first send asks for confirmation, because the screenshot and
 what you type leave your computer toward the provider.</li>
 </ul>
-<h3 id="music-2">Music</h3>
+<h3 id="music-3">Music</h3>
 <ul>
 <li>Crossfade between songs. The end of a song blends with the beginning
 of the next, and the silence that many files have at the start and end
@@ -773,7 +964,7 @@ immediately. From 2.3.4 or 2.4.0 it updates the usual way.</li>
 </ul>
 <h2 id="240-october-2026">2.4.0, October 2026</h2>
 <p>Music while you stream, without opening another program.</p>
-<h3 id="music-3">Music</h3>
+<h3 id="music-4">Music</h3>
 <ul>
 <li>A Music menu with its shortcuts. Ctrl+Alt+Spacebar plays or pauses,
 Ctrl+Alt+Right arrow and Ctrl+Alt+Left arrow go to the next or previous
@@ -851,7 +1042,7 @@ something, such as the at sign on the Latin American keyboard, it tells
 you and asks for another one, so you can keep typing that character in
 the chat.</li>
 </ul>
-<h3 id="chat-1">Chat</h3>
+<h3 id="chat-2">Chat</h3>
 <ul>
 <li>A connection drop no longer closes the live stream. Before, if the
 connection to the chat dropped, when it came back on its own the
@@ -890,7 +1081,7 @@ the link of the private or made-for-kids live stream that the
 application creates. Before it said that no live stream was
 connected.</li>
 </ul>
-<h3 id="chat-2">Chat</h3>
+<h3 id="chat-3">Chat</h3>
 <ul>
 <li>The chat stops retrying a live stream that already ended. If the
 chat stayed connected to a live stream that had ended, it repeated
@@ -1198,7 +1389,7 @@ messages of the live stream when connecting. Messages from before the
 connection were already discarded, and now also those that TikTok marks
 as old.</li>
 </ul>
-<h3 id="other-changes-2">Other changes</h3>
+<h3 id="other-changes-3">Other changes</h3>
 <ul>
 <li><code>F3</code> says the author of the last message read.</li>
 <li>The application no longer closes on its own when ending a live
