@@ -32,6 +32,7 @@ PREGUNTA_RAPIDA = "(consulta rápida con la instrucción de Preferencias)"
 PREGUNTA_VENTANAS = "¿Cuántas ventanas de color se ven y dónde está cada una?"
 PREGUNTA_PANEL = "¿Qué texto se lee en el panel de chat?"
 PREGUNTA_CAMBIO = "¿Cambió algo respecto de la captura anterior?"
+COLORES_MAGENTA = ("magenta", "fucsia", "rosa", "violeta", "morado")
 
 def _sin_tildes(texto) -> str:
     """Minúsculas sin tildes, para comparar sin importar el acento."""
@@ -41,14 +42,13 @@ def _sin_tildes(texto) -> str:
 def nombra_colores(texto) -> bool:
     """Si nombra al menos uno de los colores de las ventanas de prueba."""
     base = _sin_tildes(texto)
-    return any(c in base for c in ("verde", "magenta", "fucsia", "rosa",
-                                   "violeta", "morado"))
+    return any(c in base for c in ("verde", *COLORES_MAGENTA))
 
-def tiene_dos(texto) -> bool:
-    """Si dice dos ventanas: «dos» en letras o «2» solo, sin contar 12."""
+def describe_la_unica_ventana(texto) -> bool:
     base = _sin_tildes(texto)
-    return (re.search(r"\bdos\b", base) is not None
-            or re.search(r"(?<!\d)2(?!\d)", base) is not None)
+    return (re.search(r"\b(?:una|un|1)\b", base) is not None
+            and re.search(r"\b(?:dos|2)\b", base) is None
+            and any(c in base for c in COLORES_MAGENTA))
 
 _ERRORES = None
 
@@ -336,8 +336,8 @@ def _recorrer(ctx, pasos, espera) -> tuple[list, int]:
                       "no abrió «Preguntar a la IA» ({})".format(f), 0, False))
         return (pasos, 1)
     for nombre, pregunta, comprueba, mala in (
-            ("Pregunta por las ventanas", PREGUNTA_VENTANAS, tiene_dos,
-             "no dice cuántas ventanas"),
+            ("Pregunta por las ventanas", PREGUNTA_VENTANAS,
+             describe_la_unica_ventana, "no describe la única ventana que se ve"),
             ("Pregunta por el panel", PREGUNTA_PANEL, None, "")):
         bien, respuesta, segundos, nota = _consultar(
             ctx, pregunta, espera, ventana=ventana, comprueba=comprueba,

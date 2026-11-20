@@ -33,22 +33,24 @@ class TestNombraColores(unittest.TestCase):
         self.assertFalse(ia_real.nombra_colores(""))
 
 
-class TestTieneDos(unittest.TestCase):
+class TestDescribeLaUnicaVentana(unittest.TestCase):
 
-    def test_dos_en_letras_pasa(self):
-        self.assertTrue(ia_real.tiene_dos("se ven dos ventanas"))
+    def test_una_ventana_magenta_pasa(self):
+        self.assertTrue(ia_real.describe_la_unica_ventana(
+            "Se ve una ventana de color. Ocupa todo el vídeo con magenta."))
 
-    def test_dos_en_numero_pasa(self):
-        self.assertTrue(ia_real.tiene_dos("hay 2 ventanas"))
+    def test_dos_ventanas_no_pasa(self):
+        self.assertFalse(ia_real.describe_la_unica_ventana(
+            "Se ven dos ventanas: una verde a la izquierda y una magenta "
+            "a la derecha"))
 
-    def test_dosis_no_pasa(self):
-        self.assertFalse(ia_real.tiene_dos("una dosis de color"))
+    def test_una_ventana_verde_no_pasa(self):
+        self.assertFalse(ia_real.describe_la_unica_ventana(
+            "Se ve una ventana verde"))
 
-    def test_doce_no_pasa(self):
-        self.assertFalse(ia_real.tiene_dos("hay 12 ventanas"))
-
-    def test_vacio_no_pasa(self):
-        self.assertFalse(ia_real.tiene_dos(""))
+    def test_magenta_sin_cantidad_no_pasa(self):
+        self.assertFalse(ia_real.describe_la_unica_ventana(
+            "Todo el vídeo es magenta."))
 
 
 class TestEsError(unittest.TestCase):
