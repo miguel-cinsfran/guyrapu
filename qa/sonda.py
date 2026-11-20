@@ -33,6 +33,7 @@ import os
 import threading
 import time
 from pathlib import Path
+from captura_ventana import _dejar_pintar, _guardar_png
 from foco_ventanas import primer_foco
 from sonda_listas import (
     clase_visible, describir_filas, es_lista_activable,
@@ -319,12 +320,6 @@ def _iterar(ventana):
         yield from _iterar(h)
 
 
-# La bandera 2 de `PrintWindow`: dibuja fuera de pantalla, con la ventana
-# tapada y con la cortina de pantalla de NVDA, que ennegrece cualquier
-# captura de la pantalla física. `ImageGrab` o `mss` no sirven acá.
-PW_RENDERFULLCONTENT = 2
-
-
 def _todos_los_libros(ventana):
     """Cada cuaderno de pestañas que cuelgue de esta ventana.
 
@@ -349,126 +344,6 @@ def _todos_los_libros(ventana):
 
     _recorrer(ventana)
     return libros
-
-
-def _dibujar_ventana_a_rgb(ventana):
-    """Dibuja la ventana con `PrintWindow` y devuelve `(ancho, alto, rgb)`.
-
-    Los bytes salen BGRA de 32 bits de arriba hacia abajo y se pasan a RGB
-    con `capturas.bgra_a_rgb`, que es lo que espera `wx.Image`. Libera
-    siempre el bitmap y los DC, en un `finally`.
-    """
-    import ctypes
-    from ctypes import wintypes
-    user32 = ctypes.windll.user32
-    gdi32 = ctypes.windll.gdi32
-    hwnd = ventana.GetHandle()
-    rect = wintypes.RECT()
-    if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
-        raise RuntimeError("no se pudo leer el rectángulo de la ventana")
-    ancho = rect.right - rect.left
-    alto = rect.bottom - rect.top
-    if ancho <= 0 or alto <= 0:
-        raise RuntimeError(f"tamaño inválido: {ancho}x{alto}")
-
-    class _Cabecera(ctypes.Structure):
-        _fields_ = [("biSize", wintypes.DWORD),
-                    ("biWidth", wintypes.LONG),
-                    ("biHeight", wintypes.LONG),
-                    ("biPlanes", wintypes.WORD),
-                    ("biBitCount", wintypes.WORD),
-                    ("biCompression", wintypes.DWORD),
-                    ("biSizeImage", wintypes.DWORD),
-                    ("biXPelsPerMeter", wintypes.LONG),
-                    ("biYPelsPerMeter", wintypes.LONG),
-                    ("biClrUsed", wintypes.DWORD),
-                    ("biClrImportant", wintypes.DWORD)]
-
-    class _Info(ctypes.Structure):
-        _fields_ = [("bmiHeader", _Cabecera),
-                    ("bmiColors", wintypes.DWORD * 3)]
-
-    hdc_pantalla = user32.GetDC(None)
-    if not hdc_pantalla:
-        raise RuntimeError("no se pudo pedir el DC de pantalla")
-    try:
-        hdc_mem = gdi32.CreateCompatibleDC(hdc_pantalla)
-        if not hdc_mem:
-            raise RuntimeError("no se pudo crear el DC compatible")
-        try:
-            hbmp = gdi32.CreateCompatibleBitmap(hdc_pantalla, ancho, alto)
-            if not hbmp:
-                raise RuntimeError("no se pudo crear el bitmap")
-            try:
-                anterior = gdi32.SelectObject(hdc_mem, hbmp)
-                try:
-                    if not user32.PrintWindow(hwnd, hdc_mem,
-                                             PW_RENDERFULLCONTENT):
-                        raise RuntimeError("PrintWindow devolvió falso")
-                    info = _Info()
-                    info.bmiHeader.biSize = ctypes.sizeof(_Cabecera)
-                    info.bmiHeader.biWidth = ancho
-                    # Alto negativo: de arriba hacia abajo.
-                    info.bmiHeader.biHeight = -alto
-                    info.bmiHeader.biPlanes = 1
-                    info.bmiHeader.biBitCount = 32
-                    info.bmiHeader.biCompression = 0
-                    bufer = ctypes.create_string_buffer(ancho * alto * 4)
-                    if not gdi32.GetDIBits(hdc_mem, hbmp, 0, alto, bufer,
-                                           ctypes.byref(info), 0):
-                        raise RuntimeError("GetDIBits devolvió cero")
-                    import capturas
-                    rgb = capturas.bgra_a_rgb(bufer.raw)
-                finally:
-                    gdi32.SelectObject(hdc_mem, anterior)
-            finally:
-                gdi32.DeleteObject(hbmp)
-        finally:
-            gdi32.DeleteDC(hdc_mem)
-    finally:
-        user32.ReleaseDC(None, hdc_pantalla)
-    return ancho, alto, rgb
-
-
-def _dejar_pintar(ventana) -> None:
-    """Deja que la ventana se pinte antes de capturarla.
-
-    Cede el bucle durante 400 ms: rondas de `SafeYield()` y `Update()`
-    con `time.sleep(0.01)` entre ellas. Sin la espera real la captura
-    sale en negro porque el pintado no alcanza a llegar.
-    """
-    import wx
-    try:
-        ventana.Refresh()
-    except Exception:
-        pass
-    try:
-        ventana.Update()
-    except Exception:
-        pass
-    inicio = time.monotonic()
-    while time.monotonic() - inicio < 0.4:
-        try:
-            wx.SafeYield()
-        except Exception:
-            break
-        try:
-            ventana.Update()
-        except Exception:
-            pass
-        time.sleep(0.01)
-
-
-def _guardar_png(ventana, ruta) -> tuple:
-    """Guarda la ventana en `ruta` como PNG y devuelve su tamaño."""
-    import wx
-    ancho, alto, rgb = _dibujar_ventana_a_rgb(ventana)
-    imagen = wx.Image(ancho, alto, bytes(rgb))
-    if not imagen.IsOk():
-        raise RuntimeError("la imagen quedó vacía")
-    if not imagen.SaveFile(str(ruta), wx.BITMAP_TYPE_PNG):
-        raise RuntimeError(f"no se pudo guardar {ruta}")
-    return ancho, alto
 
 
 # ── Servidor de órdenes ──────────────────────────────────────────────────────
