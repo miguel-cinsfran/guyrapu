@@ -43,6 +43,24 @@ _ESTADOS = {
     "fuera_del_catalogo": N_("instalado"),
 }
 
+_USO_FILA = {
+    "no_comercial": N_("uso no comercial"),
+    "investigacion": N_("solo investigación"),
+    "sin_confirmar": N_("uso sin confirmar"),
+}
+
+_USO_DETALLE = {
+    "libre": N_("Uso: libre, también comercial."),
+    "no_comercial": N_(
+        "Uso: solo no comercial. Un directo con ingresos es uso comercial."),
+    "investigacion": N_(
+        "Uso: solo investigación. La voz parte de datos con licencia de "
+        "investigación."),
+    "sin_confirmar": N_(
+        "Uso: sin confirmar. La ficha de la voz no indica su licencia o de "
+        "qué datos parte."),
+}
+
 _ORDEN_MOTOR = {"phonon": 0, "piper": 1}
 
 
@@ -192,7 +210,14 @@ def fila(entrada) -> str:
             ngettext("{n} voz", "{n} voces", len(listado)).format(
                 n=len(listado)))
     partes.extend((tamano(entrada), estado(entrada)))
+    aviso = _USO_FILA.get(paquetes_catalogo.uso_de(_ficha(entrada)))
+    if aviso:
+        partes.append(_(aviso))
     return ", ".join(parte for parte in partes if parte)
+
+
+def nombre_genero(genero) -> str:
+    return _(_GENEROS.get(str(genero or "").lower(), ""))
 
 
 def fila_voz(voz) -> str:
@@ -234,8 +259,7 @@ def detalles(entrada) -> str:
         "{} {}".format(_("Estado:"), estado(entrada)),
         "{} {}".format(_("Licencia:"), str(ficha.get("licencia") or "")),
     ]
-    if "NC" in str(ficha.get("licencia") or ""):
-        lineas.append(_("Esta licencia no permite el uso comercial."))
+    lineas.append(_(_USO_DETALLE[paquetes_catalogo.uso_de(ficha)]))
     lineas.append("{} {}".format(
         _("Enlace de la licencia:"), str(ficha.get("licencia_url") or "")))
     return "\n".join(lineas)

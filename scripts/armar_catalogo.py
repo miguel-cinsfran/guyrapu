@@ -28,6 +28,7 @@ if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
 from guyrapu.core.config import APP_VERSION, USER_AGENT  # noqa: E402
+from scripts import uso_voces  # noqa: E402
 
 
 URL_CONTENIDO = "https://github.com/miguel-cinsfran/guyrapu-contenido"
@@ -52,12 +53,8 @@ PIPER = ("rhasspy/piper-voices", "6b9cfaacb4fb2e02a9621227e3c1a48bec9710c3")
 ARCHIVOS_MODELO = ("config.json", "model.q8.gguf", "tokenizer.json",
                    "default-voice.safetensors")
 ORDEN_CALIDAD = {"high": 0, "medium": 1, "low": 2, "x_low": 3}
-_NO_LIBRE = re.compile(r"\b(nc|non[- ]?commercial)\b", re.IGNORECASE)
-_LICENCIA = re.compile(r"^\s*\*\s*License:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
-_LIBRES = ("public domain", "cc0", "cc by", "attribution", "apache",
-           "unlicense", "licenses/by/", "licenses/by sa/", "publicdomain/")
-_ENTRENAMIENTO = re.compile(r"^##\s+Training\s*$(.*?)(?=^##\s|\Z)", re.M | re.S | re.I)
-_BASE_NO_LIBRE = re.compile(r"fine?[- ]?tuned from [^\n]*(lessac|ryan)", re.I)
+VERSION_AVISO_USO = "3.0.0-beta.6"
+MAX_HABLANTES = 25
 
 
 def token_huggingface() -> str | None:
@@ -160,39 +157,6 @@ def _arbol(repo: str, revision: str, token: str | None) -> dict:
     return entradas
 
 
-def licencia_piper(nombre: str, texto: str) -> str | None:
-    """La licencia de un MODEL_CARD si deja repartir la voz, o None."""
-    if (nombre or "").strip().lower() == "lessac":
-        return None
-    if (nombre or "").strip().lower() == "jenny_dioco":
-        return "Licencia propia de Dioco: uso comercial permitido, citando la voz como Jenny (Dioco)"
-    encontrado = _LICENCIA.search(texto or "")
-    if not encontrado:
-        return None
-    licencia = encontrado.group(1).strip()
-    bajo = re.sub(r"[-_]+", " ", licencia.lower())
-    if "see url" in bajo or "see license file" in bajo:
-        return None
-    if _NO_LIBRE.search(bajo):
-        return None
-    return licencia if any(clave in bajo for clave in _LIBRES) else None
-
-
-def base_piper(texto: str, aceptadas=()) -> str | None:
-    """Motivo por el que el modelo base no es libre, o None si lo es."""
-    seccion = _ENTRENAMIENTO.search(texto or "")
-    if seccion is None:
-        return "base desconocida"
-    base = seccion.group(1).lower()
-    if no_libre := _BASE_NO_LIBRE.search(base):
-        return "base no libre: " + no_libre.group(1)
-    if any(clave in base for clave in ("scratch", "hifi_tts_92", "rdh", "brycebeattie.com")):
-        return None
-    if any(nombre in base for nombre in aceptadas):
-        return None
-    return "base desconocida"
-
-
 def nombre_piper(nombre: str) -> str:
     return ("Jenny (Dioco)" if (nombre or "").lower() == "jenny_dioco"
             else str(nombre).replace("_", " ").title())
@@ -231,21 +195,36 @@ def _paquete(identificador, proveedor, nombre, idioma, licencia, origen,
     }
 
 
-def _paquete_piper(clave, entrada, metadatos, repo, revision,
-                   descartes, aceptadas) -> dict | None:
+def _voces_piper(nombre, idioma, muestra, archivo, hablantes):
+    mapa = hablantes if isinstance(hablantes, dict) else {}
+    pares = sorted(((str(clave), int(valor)) for clave, valor in mapa.items()
+                    if isinstance(valor, int)), key=lambda par: par[1])
+    modelo = nombre_piper(nombre)
+    comun = {"idioma": idioma, "muestra": muestra, "archivo": archivo}
+    if not 2 <= len(pares) <= MAX_HABLANTES:
+        return [dict(comun, nombre=modelo, genero=None)]
+    generos = ({"M": "male", "F": "female"}
+               if {clave for clave, _ in pares} == {"M", "F"} else {})
+    voces = []
+    for clave, hablante in pares:
+        if generos:
+            voz = dict(comun, nombre=modelo, genero=generos[clave])
+        else:
+            voz = dict(comun, nombre=f"{modelo} {clave}", genero=None)
+        voz["hablante"] = hablante
+        voces.append(voz)
+    return voces
+
+
+def _paquete_piper(clave, entrada, metadatos, repo, revision) -> dict:
     code, nombre = clave
     tarjeta = next((ruta for ruta in entrada.get("files") or {}
                     if ruta.endswith("MODEL_CARD")), None)
     texto = (pedir_texto(url_origen(repo, revision, tarjeta))
              if tarjeta else None)
-    licencia = licencia_piper(nombre, texto)
+    licencia = uso_voces.licencia(nombre, texto)
+    categoria = uso_voces.uso(nombre, texto)
     enlace = URL_JENNY if nombre_piper(nombre) == "Jenny (Dioco)" else f"{BASE_HF}/{repo}/blob/{revision}/{tarjeta}"
-    motivo = ("lessac" if (nombre or "").strip().lower() == "lessac"
-              else "licencia no permitida" if licencia is None
-              else base_piper(texto, aceptadas))
-    if motivo is not None:
-        descartes.append((clave, motivo))
-        return None
     pares = sorted(((ruta, Path(ruta).name)
                     for ruta in entrada.get("files") or {}
                     if ruta.endswith(".onnx") or ruta.endswith(".onnx.json")),
@@ -258,31 +237,30 @@ def _paquete_piper(clave, entrada, metadatos, repo, revision,
                f"{familia}/{code}/{urllib.parse.quote(str(nombre), safe='')}/{calidad}/speaker_0.mp3")
     crudo = re.sub(r"[^a-z0-9-]+", "-",
                    f"{code}-{nombre}-{calidad}".lower())
-    return _paquete(
+    idioma = str(code or "").replace("_", "-")
+    paquete = _paquete(
         "piper-" + re.sub(r"-+", "-", crudo).strip("-"), "piper",
-        f"Piper {nombre_piper(nombre)}",
-        str(code or "").replace("_", "-"), licencia,
+        f"Piper {nombre_piper(nombre)}", idioma, licencia,
         f"Piper, {repo}, {entrada.get('key')}", repo,
-        [{"nombre": nombre_piper(nombre),
-          "idioma": str(code or "").replace("_", "-"), "genero": None,
-          "muestra": muestra, "archivo": pares[0][1]}],
+        _voces_piper(nombre, idioma, muestra, pares[0][1],
+                     entrada.get("speaker_id_map")),
         archivos, enlace)
+    paquete["uso"] = categoria
+    if categoria != uso_voces.LIBRE:
+        paquete["guyrapu_minima"] = VERSION_AVISO_USO
+    return paquete
 
 
-def paquetes_piper(token, descartes) -> list[dict]:
+def paquetes_piper(token) -> list[dict]:
     repo, revision = PIPER
     with _abrir(url_origen(repo, revision, "voices.json"), token) as respuesta:
         voices = json.load(respuesta)
     metadatos = _arbol(repo, revision, token)
     entradas = []
-    aceptadas = set()
     for clave, entrada in sorted(_grupos_piper(voices).items()):
-        paquete = _paquete_piper(clave, entrada, metadatos, repo, revision,
-                                 descartes, aceptadas)
-        if paquete is not None:
-            aceptadas.add(str(clave[1]).lower())
-            entradas.append({"paquete": paquete, "repo": repo,
-                             "revision": revision})
+        paquete = _paquete_piper(clave, entrada, metadatos, repo, revision)
+        entradas.append({"paquete": paquete, "repo": repo,
+                         "revision": revision})
     return entradas
 
 
@@ -367,6 +345,7 @@ def escribir_catalogo(salida, entradas) -> None:
             f"{paquete['nombre']} ({paquete['id']})",
             f"  Origen: {paquete['origen']}",
             f"  Licencia: {paquete['licencia']}",
+            f"  Uso: {paquete.get('uso', 'libre')}",
             f"  Más información: {paquete['licencia_url']}",
             f"  Repositorio: {BASE_HF}/{entrada['repo']}",
             f"  Revisión: {entrada['revision']}",
@@ -385,16 +364,13 @@ def main(argv) -> int:
         print("Falta el token de Hugging Face: los modelos phonon-40m-es y "
               "phonon-40m-pt lo piden.", file=sys.stderr)
         return 1
-    descartes = []
     try:
-        entradas = paquetes_phonon(token) + paquetes_piper(token, descartes)
+        entradas = paquetes_phonon(token) + paquetes_piper(token)
     except (urllib.error.HTTPError, urllib.error.URLError, OSError,
             ValueError) as error:
         print(f"No se pudo armar el catálogo: {error}", file=sys.stderr)
         return 1
     escribir_catalogo(argv[0], entradas)
-    for (code, nombre), motivo in descartes:
-        print(f"Descartada {code} {nombre}: {motivo}")
     return 0
 
 

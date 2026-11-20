@@ -114,6 +114,37 @@ class TestLeer(unittest.TestCase):
         self.assertIn("más nueva", descartes[0])
 
 
+class TestUso(unittest.TestCase):
+
+    def test_las_cuatro_categorias_declaradas(self):
+        for uso in ("libre", "no_comercial", "investigacion",
+                    "sin_confirmar"):
+            with self.subTest(uso=uso):
+                paquete = _paquete()
+                paquete["uso"] = uso
+                self.assertEqual(paquetes_catalogo.uso_de(paquete), uso)
+
+    def test_un_uso_desconocido_es_sin_confirmar(self):
+        paquete = _paquete()
+        paquete["uso"] = "otro"
+        self.assertEqual(paquetes_catalogo.uso_de(paquete), "sin_confirmar")
+
+    def test_sin_uso_usa_la_licencia_como_antes(self):
+        paquete = _paquete()
+        paquete["licencia"] = "CC BY-NC 4.0"
+        self.assertEqual(paquetes_catalogo.uso_de(paquete), "no_comercial")
+        paquete["licencia"] = "CC BY 4.0"
+        self.assertEqual(paquetes_catalogo.uso_de(paquete), "libre")
+
+    def test_un_paquete_con_uso_y_hablante_se_lee(self):
+        paquete = _paquete()
+        paquete["uso"] = "investigacion"
+        paquete["voces"][0]["hablante"] = 1
+        validos, descartes = _leer(paquete)
+        self.assertEqual(descartes, [])
+        self.assertEqual(len(validos), 1)
+
+
 class TestEstado(unittest.TestCase):
 
     def test_sin_instalar(self):

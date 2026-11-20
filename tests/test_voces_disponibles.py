@@ -16,8 +16,9 @@ def _voz(nombre, idioma, genero=None):
 
 
 def _paquete(identificador, proveedor, nombre, idioma, voces, megas,
-             licencia="CC BY 4.0", licencia_url="https://ejemplo.test/lic"):
-    return {
+             licencia="CC BY 4.0", licencia_url="https://ejemplo.test/lic",
+             uso=None):
+    paquete = {
         "id": identificador,
         "tipo": "voz",
         "proveedor": proveedor,
@@ -29,6 +30,9 @@ def _paquete(identificador, proveedor, nombre, idioma, voces, megas,
         "voces": voces,
         "archivos": [{"bytes": megas * MEGA}],
     }
+    if uso is not None:
+        paquete["uso"] = uso
+    return paquete
 
 
 def _entrada(paquete, instalado=None):
@@ -236,16 +240,52 @@ class TestFilasYDetalles(unittest.TestCase):
         self.assertIn("Tamaño: 25 MB", detalles)
         self.assertIn("Estado: disponible", detalles)
         self.assertIn("Licencia: CC BY-NC 4.0", detalles)
-        self.assertIn("Esta licencia no permite el uso comercial.", detalles)
+        self.assertIn("Uso: solo no comercial. Un directo con ingresos es "
+                      "uso comercial.", detalles)
         self.assertIn("Enlace de la licencia: https://ejemplo.test/cc-by-nc",
                       detalles)
 
-    def test_sin_nc_no_aparece_la_linea_de_uso_comercial(self):
+    def test_sin_nc_dice_que_el_uso_es_libre(self):
         paquete = _paquete(
             "piper-davefx", "piper", "Piper Davefx", "es-ES",
             [_voz("Davefx", "es-ES")], 61, licencia="CC BY 4.0")
         detalles = voces_disponibles.detalles(_entrada(paquete))
-        self.assertNotIn("Esta licencia no permite el uso comercial.", detalles)
+        self.assertIn("Uso: libre, también comercial.", detalles)
+
+
+class TestUsoEnFilaYDetalles(unittest.TestCase):
+
+    def test_la_fila_termina_con_el_aviso_de_uso(self):
+        casos = (
+            ("no_comercial", "uso no comercial"),
+            ("investigacion", "solo investigación"),
+            ("sin_confirmar", "uso sin confirmar"),
+        )
+        for uso, aviso in casos:
+            with self.subTest(uso=uso):
+                paquete = _paquete(
+                    "piper-voz", "piper", "Piper Voz", "es-ES",
+                    [_voz("Voz", "es-ES")], 10, uso=uso)
+                fila = voces_disponibles.fila(_entrada(paquete))
+                self.assertTrue(fila.endswith(", " + aviso), fila)
+
+    def test_los_detalles_dicen_el_uso_de_cada_categoria(self):
+        lineas = {
+            "libre": "Uso: libre, también comercial.",
+            "no_comercial": "Uso: solo no comercial. Un directo con ingresos "
+                            "es uso comercial.",
+            "investigacion": "Uso: solo investigación. La voz parte de datos "
+                             "con licencia de investigación.",
+            "sin_confirmar": "Uso: sin confirmar. La ficha de la voz no "
+                             "indica su licencia o de qué datos parte.",
+        }
+        for uso, linea in lineas.items():
+            with self.subTest(uso=uso):
+                paquete = _paquete(
+                    "piper-voz", "piper", "Piper Voz", "es-ES",
+                    [_voz("Voz", "es-ES")], 10, uso=uso)
+                self.assertIn(linea,
+                              voces_disponibles.detalles(_entrada(paquete)))
 
 
 if __name__ == "__main__":

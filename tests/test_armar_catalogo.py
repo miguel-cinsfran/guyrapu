@@ -135,44 +135,7 @@ class TestAbrir(unittest.TestCase):
                                      esperado)
 
 
-class TestBasePiper(unittest.TestCase):
-
-    def _base(self, cuerpo, aceptadas=()):
-        return armar_catalogo.base_piper("## Training\n" + cuerpo + "\n",
-                                         aceptadas)
-
-    def test_acepta_las_bases_libres(self):
-        for cuerpo in (
-                "Trained from scratch on train-clean-360.",
-                "Finetuned from the U.S. English hifi_tts_92 base model.",
-                "Finetuned from the rdh base model (medium quality).",
-                "See: https://brycebeattie.com/files/tts/"):
-            with self.subTest(cuerpo=cuerpo):
-                self.assertIsNone(self._base(cuerpo))
-        self.assertIsNone(self._base(
-            "Finetuned from Spanish davefx voice (medium quality).",
-            {"davefx"}))
-        self.assertEqual(self._base("Finetuned from otra voz voice."),
-                         "base desconocida")
-
-    def test_deja_fuera_lessac_y_ryan(self):
-        casos = (
-            ("Finetuned from U.S. English lessac voice (medium quality).",
-             "base no libre: lessac"),
-            ("Fine-tuned from English lessac medium on train-clean-360.",
-             "base no libre: lessac"),
-            ("Finetuned from U.S. English Ryan voice (low quality).",
-             "base no libre: ryan"),
-        )
-        for cuerpo, motivo in casos:
-            with self.subTest(cuerpo=cuerpo):
-                self.assertEqual(self._base(cuerpo), motivo)
-
-    def test_base_desconocida(self):
-        self.assertEqual(self._base("See URL above"), "base desconocida")
-        self.assertEqual(armar_catalogo.base_piper("sin seccion"),
-                         "base desconocida")
-        self.assertEqual(armar_catalogo.base_piper(None), "base desconocida")
+class TestNombrePiper(unittest.TestCase):
 
     def test_el_nombre_de_jenny_es_el_pedido(self):
         self.assertEqual(armar_catalogo.nombre_piper("jenny_dioco"),
@@ -180,42 +143,12 @@ class TestBasePiper(unittest.TestCase):
         self.assertEqual(armar_catalogo.nombre_piper("davefx"), "Davefx")
 
 
-class TestLicenciaPiper(unittest.TestCase):
-
-    def test_acepta_las_que_se_pueden_repartir(self):
-        for licencia in ("public domain", "CC0", "CC BY 4.0",
-                         "CC-BY-SA 4.0 International",
-                         "Attribution-ShareAlike 4.0 International",
-                         "https://creativecommons.org/licenses/by/4.0/",
-                         "http://creativecommons.org/licenses/by/3.0/",
-                         "https://creativecommons.org/publicdomain/zero/1.0/",
-                         "Apache 2.0", "Unlicense"):
-            with self.subTest(licencia=licencia):
-                self.assertIsNotNone(
-                    armar_catalogo.licencia_piper("daniela", _tarjeta(licencia)))
-
-    def test_jenny_dioco_entra_aunque_diga_see_url(self):
-        self.assertEqual(
-            armar_catalogo.licencia_piper("jenny_dioco", _tarjeta("See URL")),
-            "Licencia propia de Dioco: uso comercial permitido, "
-            "citando la voz como Jenny (Dioco)")
-
-    def test_deja_fuera_nc_see_url_y_lessac(self):
-        for licencia in ("CC BY-NC 4.0", "CC BY-NC-SA 4.0",
-                         "https://creativecommons.org/licenses/by-nc/4.0/",
-                         "http://creativecommons.org/licenses/by-nc-sa/4.0/",
-                         "See URL", "See LICENSE file"):
-            with self.subTest(licencia=licencia):
-                self.assertIsNone(
-                    armar_catalogo.licencia_piper("voz", _tarjeta(licencia)))
-        self.assertIsNone(
-            armar_catalogo.licencia_piper("lessac", _tarjeta("public domain")))
-
-
 class TestPaquetesArmados(unittest.TestCase):
 
     def _piper(self, nombre, licencia,
-               tarjeta="es/es_ES/voz/medium/MODEL_CARD"):
+               tarjeta="es/es_ES/voz/medium/MODEL_CARD",
+               entrenamiento="Trained from scratch on train-clean-360.",
+               hablantes=None):
         entrada = {
             "language": {"family": "es", "code": "es_ES"},
             "name": nombre,
@@ -223,10 +156,11 @@ class TestPaquetesArmados(unittest.TestCase):
             "key": "es/es_ES/voz/medium",
             "files": {tarjeta: {}, "voz.onnx": {}, "voz.onnx.json": {}},
         }
+        if hablantes is not None:
+            entrada["speaker_id_map"] = hablantes
         archivo = {"url": "https://ejemplo.com/voz.onnx", "bytes": 1,
                    "sha256": "a" * 64, "ruta": "voz.onnx"}
-        texto = _tarjeta(licencia) + (
-            "\n## Training\n\nTrained from scratch on train-clean-360.\n")
+        texto = _tarjeta(licencia) + f"\n## Training\n\n{entrenamiento}\n"
         with mock.patch.object(armar_catalogo, "pedir_texto",
                                return_value=texto), \
              mock.patch.object(armar_catalogo, "preparar_archivo",
@@ -234,7 +168,7 @@ class TestPaquetesArmados(unittest.TestCase):
             return armar_catalogo._paquete_piper(
                 ("es_ES", nombre), entrada,
                 {"voz.onnx": {}, "voz.onnx.json": {}},
-                "rhasspy/piper-voices", "rev", [], set())
+                "rhasspy/piper-voices", "rev")
 
     def _phonon(self):
         archivo = {"url": "https://ejemplo.com/phonon.onnx", "bytes": 1,
@@ -278,3 +212,57 @@ class TestPaquetesArmados(unittest.TestCase):
                     {"voz"}, {"piper", "phonon"})
                 self.assertEqual(descartes, [])
                 self.assertEqual(validos, [paquete])
+
+    def test_todas_las_voces_entran_aunque_tengan_restricciones(self):
+        casos = (
+            ("daniela", "Attribution-ShareAlike 4.0 International",
+             "Finetuned from U.S. English lessac voice (high quality)."),
+            ("mls_10246", "CC BY 4.0",
+             "Finetuned from U.S. English Ryan voice (low quality)."),
+            ("claude", "apache-2.0", "See URL above"),
+            ("amy", "See URL", "Trained from scratch on train-clean-360."),
+        )
+        for nombre, licencia, entrenamiento in casos:
+            with self.subTest(voz=nombre):
+                self.assertIsNotNone(self._piper(
+                    nombre, licencia, entrenamiento=entrenamiento))
+
+    def test_la_restriccion_lleva_uso_y_version_minima(self):
+        paquete = self._piper(
+            "daniela", "Attribution-ShareAlike 4.0 International",
+            entrenamiento="Finetuned from U.S. English lessac voice (high quality).")
+        self.assertEqual(paquete["uso"], "investigacion")
+        self.assertEqual(paquete["guyrapu_minima"], "3.0.0-beta.6")
+        libre = self._piper("davefx", "CC BY 4.0")
+        self.assertEqual(libre["uso"], "libre")
+        self.assertEqual(libre["guyrapu_minima"], APP_VERSION)
+
+    def test_un_modelo_con_varios_hablantes_da_una_voz_por_hablante(self):
+        casos = (
+            ({"M": 0, "F": 1},
+             [("Sharvard", "male", 0), ("Sharvard", "female", 1)]),
+            ({"Prudence": 2, "Lucie": 0},
+             [("Semaine Lucie", None, 0), ("Semaine Prudence", None, 2)]),
+            ({f"V{n}": n for n in range(26)},
+             [("Semaine", None, None)]),
+        )
+        for hablantes, esperado in casos:
+            with self.subTest(hablantes=len(hablantes)):
+                nombre = "sharvard" if hablantes.get("M") == 0 else "semaine"
+                paquete = self._piper(nombre, "CC BY 4.0",
+                                      hablantes=hablantes)
+                self.assertEqual(
+                    [(voz["nombre"], voz["genero"], voz.get("hablante"))
+                     for voz in paquete["voces"]], esperado)
+
+    def test_licencias_incluye_el_uso(self):
+        paquete = self._piper(
+            "mls_10246", "CC BY 4.0",
+            entrenamiento="Finetuned from U.S. English Ryan voice (low quality).")
+        with tempfile.TemporaryDirectory() as temporal:
+            salida = Path(temporal) / "salida"
+            armar_catalogo.escribir_catalogo(salida, [{
+                "paquete": paquete, "repo": "rhasspy/piper-voices",
+                "revision": "rev"}])
+            texto = (salida / "LICENCIAS.txt").read_text(encoding="utf-8")
+        self.assertIn("Uso: no_comercial", texto)

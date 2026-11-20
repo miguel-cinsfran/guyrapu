@@ -166,6 +166,21 @@ def leer(texto, version_app, tipos, proveedores):
     return _sin_repetidos(validos, descartes), descartes
 
 
+_USOS = ("libre", "no_comercial", "investigacion", "sin_confirmar")
+
+
+def uso_de(paquete) -> str:
+    """La categoría de uso del paquete, tal como la entiende esta versión."""
+    declarado = paquete.get("uso")
+    if isinstance(declarado, str) and declarado in _USOS:
+        return declarado
+    if declarado is not None:
+        return "sin_confirmar"
+    if "NC" in str(paquete.get("licencia") or ""):
+        return "no_comercial"
+    return "libre"
+
+
 def estado(paquete, instalado) -> str:
     """Estado de un paquete del catálogo frente a su ficha instalada."""
     if paquete is None:

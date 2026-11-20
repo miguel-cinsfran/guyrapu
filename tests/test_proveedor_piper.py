@@ -105,6 +105,19 @@ def _ficha(identificador, nombre, idioma="es-AR", proveedor="piper"):
     }
 
 
+def _ficha_multihablante():
+    ficha = _ficha("a-sharvard", "Sharvard", "es-ES")
+    ficha["voces"] = [
+        {"nombre": "Sharvard", "idioma": "es-ES", "genero": "male",
+         "hablante": 0, "muestra": None,
+         "archivo": "a-sharvard.onnx"},
+        {"nombre": "Sharvard", "idioma": "es-ES", "genero": "female",
+         "hablante": 1, "muestra": None,
+         "archivo": "a-sharvard.onnx"},
+    ]
+    return ficha
+
+
 class TestProveedorPiper(unittest.TestCase):
 
     def setUp(self):
@@ -159,6 +172,37 @@ class TestProveedorPiper(unittest.TestCase):
         self.assertEqual(proveedor_piper.listar_voces(),
                          ["Daniela, español (Argentina)",
                           "Daniela, español (Argentina), 2"])
+
+    def test_un_paquete_con_dos_hablantes_lista_dos_voces(self):
+        self._instalar(_ficha_multihablante())
+        self.assertEqual(proveedor_piper.listar_voces(),
+                         ["Sharvard, masculina, español (España)",
+                          "Sharvard, femenina, español (España)"])
+
+    def test_elegir_el_segundo_hablante_sintetiza_con_su_id(self):
+        self._instalar(_ficha_multihablante())
+        modulo, estado = _modulo_piper()
+        motor = self._crear(modulo)
+        try:
+            sintetizador = motor._sintetizador
+            self.assertTrue(sintetizador.elegir_voz(1))
+            list(sintetizador.sintetizar("hola", 1.0))
+            self.assertEqual(estado["voces"][0].configuraciones[-1].kwargs,
+                             {"length_scale": 1.0, "speaker_id": 1})
+        finally:
+            motor.cerrar()
+
+    def test_dos_hablantes_del_mismo_modelo_comparten_la_carga(self):
+        self._instalar(_ficha_multihablante())
+        modulo, estado = _modulo_piper()
+        motor = self._crear(modulo)
+        try:
+            sintetizador = motor._sintetizador
+            self.assertTrue(sintetizador.elegir_voz(0))
+            self.assertTrue(sintetizador.elegir_voz(1))
+            self.assertEqual(len(estado["cargadas"]), 1)
+        finally:
+            motor.cerrar()
 
     def test_la_voz_usa_su_propio_idioma(self):
         ficha = _ficha("a-daniela", "Daniela", "es-AR")

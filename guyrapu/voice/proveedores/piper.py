@@ -58,22 +58,35 @@ def _entradas():
         voces = ficha.get("voces")
         if not isinstance(voces, list) or not voces:
             continue
-        voz = voces[0]
-        if not isinstance(voz, dict) or not str(voz.get("nombre", "")).strip():
-            continue
         modelo = _onnx(ficha)
-        if modelo is not None:
+        if modelo is None:
+            continue
+        for voz in voces:
+            if not isinstance(voz, dict) or not str(voz.get("nombre", "")).strip():
+                continue
             entradas.append((ficha, voz, modelo))
     return entradas
 
 
 def _nombres(entradas):
-    nombres = []
-    vistos = {}
+    bases = []
     for ficha, voz, _modelo in entradas:
         nombre = str(voz.get("nombre", "")).strip()
         idioma = voz.get("idioma") or ficha.get("idioma")
-        texto = f"{nombre}, {voces_disponibles.nombre_idioma(idioma)}"
+        bases.append((nombre, idioma, voz))
+    cuentas = {}
+    for nombre, idioma, _voz in bases:
+        clave = (nombre, str(idioma))
+        cuentas[clave] = cuentas.get(clave, 0) + 1
+    nombres = []
+    vistos = {}
+    for nombre, idioma, voz in bases:
+        lugar = voces_disponibles.nombre_idioma(idioma)
+        if cuentas[(nombre, str(idioma))] > 1:
+            genero = voces_disponibles.nombre_genero(voz.get("genero"))
+            texto = f"{nombre}, {genero}, {lugar}" if genero else f"{nombre}, {lugar}"
+        else:
+            texto = f"{nombre}, {lugar}"
         cuenta = vistos.get(texto, 0) + 1
         vistos[texto] = cuenta
         nombres.append(texto if cuenta == 1 else f"{texto}, {cuenta}")
@@ -120,6 +133,7 @@ class SintetizadorPiper:
         self._clases = clases
         self._voz = None
         self._indice = None
+        self._modelo = None
         self.tasa = _TASA_PREDETERMINADA
 
     def voces(self) -> list[str]:
@@ -135,15 +149,20 @@ class SintetizadorPiper:
         if idx == self._indice and self._voz is not None:
             return True
         PiperVoice, _SynthesisConfig = self._clases
-        try:
-            voz = _cargar(PiperVoice, self._entradas[idx][2])
-        except Exception as exc:
-            logger.warning("No se pudo cargar la voz de Piper %s: %s",
-                           self._entradas[idx][2], exc)
-            return False
-        # Solo se conserva la voz elegida: cada modelo ocupa decenas de MB.
+        modelo = self._entradas[idx][2]
+        if self._voz is not None and self._modelo == modelo:
+            voz = self._voz
+        else:
+            try:
+                voz = _cargar(PiperVoice, modelo)
+            except Exception as exc:
+                logger.warning("No se pudo cargar la voz de Piper %s: %s",
+                               modelo, exc)
+                return False
+        # Solo se conserva el modelo elegido: cada uno ocupa decenas de MB.
         self._voz = voz
         self._indice = idx
+        self._modelo = modelo
         self.tasa = int(voz.config.sample_rate)
         return True
 
@@ -152,14 +171,18 @@ class SintetizadorPiper:
         if voz is None:
             return
         _PiperVoice, SynthesisConfig = self._clases
-        configuracion = SynthesisConfig(
-            length_scale=1.0 / float(velocidad_propia))
+        parametros = {"length_scale": 1.0 / float(velocidad_propia)}
+        hablante = self._entradas[self._indice][1].get("hablante")
+        if hablante is not None:
+            parametros["speaker_id"] = int(hablante)
+        configuracion = SynthesisConfig(**parametros)
         for trozo in voz.synthesize(texto, configuracion):
             yield _a_float32(trozo)
 
     def cerrar(self) -> None:
         self._voz = None
         self._indice = None
+        self._modelo = None
 
 
 def crear(clave_elevenlabs=None, salida=None, al_avisar=None):

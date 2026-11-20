@@ -2859,6 +2859,40 @@ msgstr "Installed"
 msgid "actualización disponible"
 msgstr "Update available"
 
+#: guyrapu/core/voces_disponibles.py
+msgid "uso no comercial"
+msgstr "non-commercial use"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "solo investigación"
+msgstr "research only"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "uso sin confirmar"
+msgstr "use not confirmed"
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Uso: libre, también comercial."
+msgstr "Use: free, commercial use allowed."
+
+#: guyrapu/core/voces_disponibles.py
+msgid "Uso: solo no comercial. Un directo con ingresos es uso comercial."
+msgstr "Use: non-commercial only. A live stream with income is commercial use."
+
+#: guyrapu/core/voces_disponibles.py
+msgid ""
+"Uso: solo investigación. La voz parte de datos con licencia de "
+"investigación."
+msgstr "Use: research only. The voice comes from data with a research license."
+
+#: guyrapu/core/voces_disponibles.py
+msgid ""
+"Uso: sin confirmar. La ficha de la voz no indica su licencia o de qué datos"
+" parte."
+msgstr ""
+"Use: not confirmed. The voice's model card does not state its license or "
+"the data it comes from."
+
 #. Traductores: tamaño menor a un megabyte.
 #: guyrapu/core/voces_disponibles.py guyrapu/downloads/formatos_reales.py
 #: guyrapu/music/pregunta_igualar.py
@@ -2906,10 +2940,6 @@ msgstr "Status:"
 #: guyrapu/core/voces_disponibles.py
 msgid "Licencia:"
 msgstr "License:"
-
-#: guyrapu/core/voces_disponibles.py
-msgid "Esta licencia no permite el uso comercial."
-msgstr "This license does not allow commercial use."
 
 #: guyrapu/core/voces_disponibles.py
 msgid "Enlace de la licencia:"
@@ -8979,7 +9009,6 @@ msgstr "Show in command &list"
 msgid "&Aceptar"
 msgstr "&Accept"
 
-#. Traductores: botón para cerrar sin publicar.
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/comandos_ventana.py
 #: guyrapu/ui/confirmar_transmision.py guyrapu/ui/descargas_acciones.py
 #: guyrapu/ui/dialogo_asistente_perfiles.py
