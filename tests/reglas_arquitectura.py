@@ -103,6 +103,18 @@ def detectar_zipfile(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+def detectar_deslizador(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if (isinstance(nodo, ast.Call)
+                and isinstance(nodo.func, ast.Attribute)
+                and nodo.func.attr == "Slider"
+                and isinstance(nodo.func.value, ast.Name)
+                and nodo.func.value.id == "wx"):
+            hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
 REGLAS = (
     Regla(
         id="R1",
@@ -260,5 +272,13 @@ REGLAS = (
         detectar=detectar_traduccion,
         pendientes={},
         ambito=_traduccion,
+    ),
+    Regla(
+        id="R19",
+        prohibido="el nivel en un rango va por deslizador_accesible",
+        detectar=detectar_deslizador,
+        pendientes={},
+        duenos=("guyrapu/ui/deslizador.py", "guyrapu/player/reproductor.py"),
+        ambito=_paquete,
     ),
 )

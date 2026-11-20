@@ -5,12 +5,17 @@
 Abre ventanas.
 """
 
+import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import wx
 
+from guyrapu.ui import gui_preferencias
 from guyrapu.ui.deslizador import deslizador_accesible
+from guyrapu.voice import motores
+from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 
@@ -32,6 +37,30 @@ class TestDeslizador(unittest.TestCase):
                           control.GetValue()), (0, 100, 40))
         self.assertEqual(control.GetLineSize(), 5)
         poner.assert_called_once_with(control, "Velocidad de la voz")
+
+
+class TestNivelesDePreferencias(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        parche = redirigir_rutas(Path(self.tmp.name))
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        with mock.patch.object(motores, "listar_voces",
+                               return_value=["Voz de prueba"]):
+            self.dialogo = gui_preferencias.PreferenciasDialog(None, {})
+        self.addCleanup(destruir, self.dialogo)
+
+    def test_ningun_nivel_de_voz_o_musica_es_un_contador(self):
+        contadores = []
+        for pagina in self.dialogo._paginas():
+            for control in pagina.GetChildren():
+                if (control.GetName().startswith(
+                        ("Velocidad", "Volumen", "Tono"))
+                        and isinstance(control, wx.SpinCtrl)):
+                    contadores.append(control.GetName())
+        self.assertEqual([], contadores)
 
 
 if __name__ == "__main__":
