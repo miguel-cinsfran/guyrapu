@@ -25,7 +25,7 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.gui import copiar_al_portapapeles
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
-from guyrapu.ui.tema import _T, _tc, _pintar, _titulo
+from guyrapu.ui.tema import _T, _tc, _pintar, _titulo, fuente_de_lista
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -91,8 +91,7 @@ class ComentariosPanel(wx.Panel):
                              name=_("Lista de comentarios"))
         _tc(self.lb)
         pt = int(self._config.get("tamanio_fuente_chat", 12))
-        self.lb.SetFont(wx.Font(pt, wx.FONTFAMILY_DEFAULT,
-                                wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+        self.lb.SetFont(fuente_de_lista(pt))
         # Leer/copiar/responder van por Enter, Ctrl+C y la tecla Aplicaciones
         # (menú contextual), igual que el chat del live: no hacen falta botones.
         self.lb.SetToolTip(_("Intro lee el comentario con la voz. Ctrl+C copia. "

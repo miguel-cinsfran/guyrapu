@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.ui import gui
+from guyrapu.ui import gui_aplicar_preferencias
 from guyrapu.ui import gui_cierre
 from guyrapu.ui import gui_construccion
 from guyrapu.ui import gui_sesion
@@ -706,6 +707,38 @@ class TestVentanaReal(unittest.TestCase):
         self.assertAlmostEqual(frame.GetMinClientSize().height, esperado, delta=4)
         # La ventana se agrandó para que quepa todo (o ya cabía).
         self.assertGreaterEqual(frame.GetClientSize().height, esperado - 4)
+
+    def test_con_el_reproductor_a_la_vista_el_minimo_de_la_zona_es_la_suma(self):
+        frame = self._ventana()
+        frame._mostrar_zona(True)
+        minimo = frame._zona.GetSizer().GetMinSize().height
+        self.assertLess(minimo, 600)
+
+    def test_el_alto_sobrante_va_al_cuaderno_y_no_al_reproductor(self):
+        frame = self._ventana()
+        frame._mostrar_zona(True)
+        frame.SetSize((900, 700)); gui.wx.Yield()
+        reproductor = frame._rep_panel.GetSize().height
+        cuaderno = frame.nb.GetSize().height
+        frame.SetSize((900, 950)); gui.wx.Yield()
+        self.assertEqual(frame._rep_panel.GetSize().height, reproductor)
+        self.assertGreater(frame.nb.GetSize().height, cuaderno)
+
+    def test_la_lista_del_chat_usa_la_letra_de_la_interfaz(self):
+        frame = self._ventana()
+        de_interfaz = gui.wx.SystemSettings.GetFont(
+            gui.wx.SYS_DEFAULT_GUI_FONT).GetFaceName()
+        self.assertEqual(frame.lb_chat.GetFont().GetFaceName(), de_interfaz)
+
+    def test_la_fuente_del_chat_cambia_al_aplicar_preferencias(self):
+        frame = self._ventana()
+        frame._config["tamanio_fuente_chat"] = 16
+        with mock.patch.object(gui, "anunciar"):
+            gui_aplicar_preferencias.aplicar_en_caliente(frame)
+        de_interfaz = gui.wx.SystemSettings.GetFont(
+            gui.wx.SYS_DEFAULT_GUI_FONT).GetFaceName()
+        self.assertEqual(frame.lb_chat.GetFont().GetFaceName(), de_interfaz)
+        self.assertEqual(frame.lb_chat.GetFont().GetPointSize(), 16)
 
     def test_el_piso_no_sigue_al_ancho_de_la_ventana(self):
         # La etiqueta sin partir no debe empujar el mínimo hasta el ancho actual.

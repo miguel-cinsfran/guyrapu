@@ -83,3 +83,10 @@ def _titulo(w, color=None):
     """Etiqueta de sección: color de acento y seminegrita, para jerarquía."""
     _pintar(w, fg=color or _T.accent)
     w.SetFont(w.GetFont().Bold())
+
+
+def fuente_de_lista(puntos):
+    """Letra de la interfaz con el tamaño que elige el usuario para las listas."""
+    fuente = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
+    fuente.SetPointSize(puntos)
+    return fuente

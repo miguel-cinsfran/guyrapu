@@ -15,6 +15,7 @@ from __future__ import annotations
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.ui import encuadre_camara
+from guyrapu.ui import tema
 
 
 logger = diagnostico.obtener_logger(__name__)
@@ -124,7 +125,6 @@ def _fijar_volumen_y_tono(frame):
 
 
 def _aplicar_interfaz_y_vista(frame):
-    from guyrapu.ui import gui as _gui
     frame._chat_acciones._marcar_filtro()
     frame._sincronizar_checks()
     try:
@@ -141,8 +141,7 @@ def _aplicar_interfaz_y_vista(frame):
     # Tamaño de fuente del chat.
     try:
         pt = int(frame._config.get("tamanio_fuente_chat", 12))
-        frame.lb_chat.SetFont(_gui.wx.Font(pt, _gui.wx.FONTFAMILY_DEFAULT,
-                                           _gui.wx.FONTSTYLE_NORMAL, _gui.wx.FONTWEIGHT_NORMAL))
+        frame.lb_chat.SetFont(tema.fuente_de_lista(pt))
     except Exception as exc:
         logger.debug("aplicar fuente del chat desde preferencias: %s", exc, exc_info=True)
     # Panel de información del vídeo: mostrar u ocultar la pestaña.

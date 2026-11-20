@@ -65,6 +65,11 @@ class TestComentariosPanel(unittest.TestCase):
         etiqueta = self.panel.FindWindowByName("EtiquetaListaComentarios")
         self.assertEqual(etiqueta.GetFont().GetWeight(), wx.FONTWEIGHT_BOLD)
 
+    def test_la_lista_usa_la_letra_de_la_interfaz(self):
+        de_interfaz = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        self.assertEqual(self.panel.lb.GetFont().GetFaceName(),
+                         de_interfaz.GetFaceName())
+
     def test_comentar_llega_al_envio(self):
         self.panel.set_video("video", autocargar=False)
         self.panel._enviar_escritura = mock.Mock()

@@ -25,7 +25,7 @@ from guyrapu.ui.barra_estado import anchos_barra_estado
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
 from guyrapu.ui.chat_vivo import ControladorChat
 from guyrapu.ui.gui_redactar import PanelRedactar
-from guyrapu.ui.tema import _T, _pintar, _tc, _titulo
+from guyrapu.ui.tema import _T, _pintar, _tc, _titulo, fuente_de_lista
 from guyrapu.youtube import cuota_pagina
 
 logger = diagnostico.obtener_logger(__name__)
@@ -131,14 +131,15 @@ def _zona_contenido(frame, panel, vs, ComentariosPanel, ReproductorPanel):
     # queden aplastados por el reproductor en ventanas bajas: 170 dejaba
     # ver 2-3 mensajes; con esto se ven varios más sin tocar el reproductor.
     frame.nb.SetMinSize((-1, 260))
-    zvs.Add(frame.nb, 4, wx.EXPAND | wx.BOTTOM, 10)
+    zvs.Add(frame.nb, 1, wx.EXPAND | wx.BOTTOM, 10)
 
-    # Proporción 4/1 para lo que sobra, pero a 860x700 mandan los mínimos, que ya superan los 700.
+    # Con proporciones en los dos, wx divide el mínimo entre las partes y lo
+    # infla: el reproductor manda el piso de toda la zona. Solo el cuaderno crece.
     frame._rep_panel = ReproductorPanel(frame._zona, frame._config)
     # Al alternar los botones del reproductor (desde su interruptor o el menú),
     # sincronizamos la casilla del menú y persistimos la preferencia.
     frame._rep_panel.on_botones_toggle = frame._on_botones_rep_cambio
-    zvs.Add(frame._rep_panel, 1, wx.EXPAND)
+    zvs.Add(frame._rep_panel, 0, wx.EXPAND)
 
     frame._zona.SetSizer(zvs)
     vs.Add(frame._zona, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
@@ -160,8 +161,7 @@ def construir_pagina_chat(frame, parent) -> wx.Panel:
     frame.lb_chat = wx.ListBox(
         pag, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Chat del directo"))
     pt = int(frame._config.get("tamanio_fuente_chat", 12))
-    frame.lb_chat.SetFont(wx.Font(
-        pt, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+    frame.lb_chat.SetFont(fuente_de_lista(pt))
     frame.lb_chat.SetToolTip(
         _("Mensajes del chat. Intro copia el mensaje. "
           "La tecla de aplicaciones abre el menú contextual."))
