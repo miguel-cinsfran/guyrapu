@@ -165,13 +165,15 @@ puede usar, y `Mayús+F10` abre el menú con la tecla de cada acción.
 ## <a id="voces"></a>Voces y sonidos
 
 Guyrapu lee con SAPI 5 y OneCore, que vienen con Windows, y con ElevenLabs,
-que requiere una cuenta. Si tienes voces de Phonon o de Piper descargadas,
-esos motores aparecen también en *Preferencias*, categoría *Voces*. El
-motor, la voz, la velocidad, el volumen y el tono se eligen ahí, donde
-*Probar voz* reproduce una muestra con cualquier motor y las voces locales
-dicen su idioma. La voz secundaria puede usar otro motor. Si una voz local
-falla o ElevenLabs falla por la red o por falta de saldo, Guyrapu lee con la
-*Voz de Windows de respaldo* y lo avisa una vez. Con Phonon o Piper se elige
+que requiere una cuenta. Las voces de Phonon y de Piper se instalan desde
+*Administrar voces*, en el menú *Voz* o desde el botón del mismo nombre en
+*Preferencias*, categoría *Voces*, y aparecen en esa categoría una vez
+instaladas. El motor y la voz se eligen ahí. La velocidad, el volumen y el
+tono se ajustan con un deslizador, y *Probar voz* reproduce una muestra con
+cualquier motor. Las voces locales dicen su idioma. La voz secundaria puede
+usar otro motor. Si una voz local falla o ElevenLabs falla por la red o por
+falta de saldo, Guyrapu lee con la *Voz de Windows de respaldo* y lo avisa una
+vez. Con Phonon o Piper se elige
 también la salida de audio de la voz del chat, por ejemplo los auriculares,
 para que no entre al directo. La voz se elige en *Preferencias*, categoría
 *Voces*: el menú *Voz* no tiene submenú para elegir voz.
@@ -190,6 +192,43 @@ al conectar y en las demás esperas, y no se parece al de desconectado.
 
 *Licencias de las voces*, en el menú *Ayuda*, abre en el navegador la licencia
 de cada paquete de voces que se puede descargar.
+
+### Administrar voces
+
+*Administrar voces…*, en el menú *Voz*, abre la ventana del mismo nombre.
+También se abre desde el botón *Administrar voces…* de *Preferencias*,
+categoría *Voces*. Con `Tab` se recorren los controles en este orden:
+*Idioma*, *Motor de voz*, *Buscar voz*, *Voces*, *Detalles*, *Instalar*,
+*Actualizar*, *Eliminar*, *Vista previa de voz* y *Cerrar*. En *Buscar voz*,
+la flecha abajo baja a la lista de voces sin salir del cuadro. En *Voces* la
+selección es múltiple: `Intro` oye la vista previa y `Supr` elimina los
+paquetes elegidos.
+
+Para instalar una o varias voces, selecciónalas en *Voces* y pulsa *Instalar*.
+Las voces elegidas se descargan e instalan juntas, con una sola espera que
+se puede cancelar. Con Phonon se instalan todas las voces del idioma juntas,
+porque el paquete es el idioma entero. *Actualizar* y *Eliminar* actúan sobre
+los paquetes ya instalados, y *Eliminar* pide confirmación.
+
+Cada fila de *Voces* dice el nombre de la voz, su género, su idioma, la
+calidad o la edad que publica el motor, el estado del paquete y un aviso
+cuando la licencia limita el uso. *Detalles* muestra el nombre del paquete,
+el motor, la calidad de cada voz de Piper, la edad de cada voz de Phonon, el
+idioma, la cantidad de voces, el tamaño, el estado, la licencia y el uso.
+La calidad de Piper puede ser muy baja, baja, media o alta. La edad de
+Phonon puede ser joven, adulto joven, adulto, mediana edad o adulto mayor.
+
+El uso de cada paquete aparece en la fila como aviso y en *Detalles* con una
+frase: «Uso: libre, también comercial.», «Uso: solo no comercial. Un directo
+con ingresos es uso comercial.», «Uso: solo investigación. La voz parte de
+datos con licencia de investigación.» o «Uso: sin confirmar. La ficha de la
+voz no indica su licencia o de qué datos parte.». La licencia de cada
+paquete está en *Detalles*, con su enlace, y en *Licencias de las voces*, del
+menú *Ayuda*.
+
+*Vista previa de voz* reproduce la muestra de la voz elegida, igual que
+`Intro` en la lista. En Phonon, la vista previa usa la muestra más larga de
+cada voz.
 
 ### Las familias de sonidos
 
@@ -336,6 +375,9 @@ marcarla o desmarcarla, la canción se agrega o se quita. Su menú tiene la
 tecla Aplicaciones y *Agregar todas a la lista*, que suma de una vez las
 canciones que muestra la búsqueda, y `Ctrl+A` selecciona todas. En las dos
 listas, `Intro` reproduce la canción.
+
+El volumen de la música se ajusta con un deslizador en *Preferencias*,
+categoría *Música*, igual que el volumen del reproductor.
 
 *Igualar volumen de las canciones* hace que todas suenen con un volumen
 parecido. Cada archivo se mide una vez, con el botón *Igualar volumen* de
@@ -782,10 +824,10 @@ descripción y su duración, que se escuchan antes de usarlos. En el cuadro de
 un medio, *Describir imagen* le pide a la inteligencia artificial una frase
 sobre lo que muestra la imagen o el GIF, para que `F2` y la lista digan qué
 ve el público. Los sonidos y vídeos se igualan de volumen al agregarlos, para
-que no suene uno mucho más fuerte que otro. La página tiene un volumen
-general para todos los medios que salen en el vídeo, para equilibrarlos con
-la voz y el juego. Los disparadores muestran o hacen sonar su medio, solo o
-con su tarjeta.
+que no suene uno mucho más fuerte que otro. La página tiene un deslizador de
+volumen general para todos los medios que salen en el vídeo, para
+equilibrarlos con la voz y el juego. Los disparadores muestran o hacen sonar
+su medio, solo o con su tarjeta.
 
 ### Estilos
 

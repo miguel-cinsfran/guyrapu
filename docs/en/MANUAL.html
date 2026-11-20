@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md d78d761f9a6845bffb79a56defa6bc9424d8f28e -->
+<!-- original: es/MANUAL.md 82221b1b6003ab7727ef10e99750179b53c3caa5 -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -419,17 +419,19 @@ cannot be used, and <code>Shift+F10</code> opens the menu with the key
 of each action.</p>
 <h2 id="voices-and-sounds"><a id="voces"></a>Voices and sounds</h2>
 <p>Guyrapu reads with SAPI 5 and OneCore, which come with Windows, and
-with ElevenLabs, which requires an account. If you have Phonon or Piper
-voices downloaded, those engines also appear in <em>Preferences</em>, on
-the <em>Voices</em> category. The engine, the voice, the speed, the
-volume and the pitch are chosen there, where <em>Test voice</em> plays a
-sample with any engine and local voices say their language. The
-secondary voice can use another engine. If a local voice fails or
-ElevenLabs fails because of the network or a lack of balance, Guyrapu
-reads with the <em>Backup Windows voice</em> and warns you once. With
-Phonon or Piper you also choose the audio output of the chat voice, for
-example headphones, so it does not go into the live stream. The voice is
-chosen in <em>Preferences</em>, on the <em>Voices</em> category: the
+with ElevenLabs, which requires an account. Phonon and Piper voices are
+installed from <em>Manage voices</em>, in the <em>Voice</em> menu or
+from the button of the same name in <em>Preferences</em>, on the
+<em>Voices</em> category, and appear in that category once installed.
+The engine and the voice are chosen there. The speed, the volume and the
+pitch are adjusted with a slider, and <em>Test voice</em> plays a sample
+with any engine. Local voices say their language. The secondary voice
+can use another engine. If a local voice fails or ElevenLabs fails
+because of the network or a lack of balance, Guyrapu reads with the
+<em>Backup Windows voice</em> and warns you once. With Phonon or Piper
+you also choose the audio output of the chat voice, for example
+headphones, so it does not go into the live stream. The voice is chosen
+in <em>Preferences</em>, on the <em>Voices</em> category: the
 <em>Voice</em> menu has no submenu for choosing a voice.</p>
 <p>Each type of message, event and notice has its sound. In the
 <em>Sounds</em> category you choose the theme, <em>Default</em> or
@@ -446,6 +448,43 @@ when connecting and in the other waits, and does not sound like the
 disconnected sound.</p>
 <p><em>Voice licenses</em>, in the <em>Help</em> menu, opens the license
 of each voice pack you can download in the browser.</p>
+<h3 id="manage-voices">Manage voices</h3>
+<p><em>Manage voices…</em>, in the <em>Voice</em> menu, opens the window
+of the same name. You can also open it with the <em>Manage voices…</em>
+button in <em>Preferences</em>, on the <em>Voices</em> category. With
+<code>Tab</code> you move through the controls in this order:
+<em>Language</em>, <em>Voice engine</em>, <em>Search voice</em>,
+<em>Voices</em>, <em>Details</em>, <em>Install</em>, <em>Update</em>,
+<em>Remove</em>, <em>Preview voice</em> and <em>Close</em>. In
+<em>Search voice</em>, the down arrow moves to the voice list without
+leaving the box. In <em>Voices</em> you can select several rows:
+<code>Enter</code> plays the preview and <code>Delete</code> removes the
+chosen packs.</p>
+<p>To install one or several voices, select them in <em>Voices</em> and
+choose <em>Install</em>. The chosen voices are downloaded and installed
+together, with a single wait that you can cancel. Phonon installs all
+the voices for the language together, because the pack is the whole
+language. <em>Update</em> and <em>Remove</em> act on the packs already
+installed, and <em>Remove</em> asks for confirmation.</p>
+<p>Each row in <em>Voices</em> says the name of the voice, its gender,
+its language, the quality or age published by the engine, the status of
+the pack and a notice when the license limits use. <em>Details</em>
+shows the name of the pack, its engine, the quality of each Piper voice,
+the age of each Phonon voice, the language, the number of voices, the
+size, the status, the license and the use. The quality of Piper voices
+can be very low, low, medium or high. The age of Phonon voices can be
+young, young adult, adult, middle-aged or older adult.</p>
+<p>The use of each pack appears in the row as a notice and in
+<em>Details</em> with a sentence: «Use: free, commercial use allowed.»,
+«Use: non-commercial only. A live stream with income is commercial
+use.», «Use: research only. The voice comes from data with a research
+license.» or «Use: not confirmed. The voice's model card does not state
+its license or the data it comes from.». The license of each pack is in
+<em>Details</em>, with its link, and in <em>Voice licenses</em>, in the
+<em>Help</em> menu.</p>
+<p><em>Preview voice</em> plays the sample of the chosen voice, like
+<code>Enter</code> in the list. With Phonon, the preview uses the
+longest sample of each voice.</p>
 <h3 id="sound-families">Sound families</h3>
 <p>The families appear in this order, and each one says what kind of
 notice plays with it:</p>
@@ -618,6 +657,8 @@ adds or removes the song. Its menu has the Applications key and <em>Add
 all to the playlist</em>, which adds all the songs shown by the search
 at once, and <code>Ctrl+A</code> selects all. In both lists,
 <code>Enter</code> plays the song.</p>
+<p>The music volume is adjusted with a slider in <em>Preferences</em>,
+on the <em>Music</em> category, like the player volume.</p>
 <p><em>Match song volume</em> makes them all sound at a similar volume.
 Each file is measured once, with the <em>Match the volume</em> button in
 the <em>Music</em> window, and it is not modified. When it finishes, a
@@ -1112,9 +1153,9 @@ the dialog of a media item, <em>Describe image</em> asks the artificial
 intelligence for a sentence about what the image or GIF shows, so that
 <code>F2</code> and the list say what the audience sees. Sounds and
 videos are matched in volume when added, so that none sounds much louder
-than another. The page has a general volume for all the media that
-appear on the video, to balance them with the voice and the game.
-Triggers show or play their media item, alone or with their card.</p>
+than another. The page has a volume slider for all the media that appear
+on the video, to balance them with the voice and the game. Triggers show
+or play their media item, alone or with their card.</p>
 <h3 id="styles">Styles</h3>
 <p>In <em>Styles</em> you create, duplicate, export and import styles
 for the messages on the video, with font, colors by name, background,

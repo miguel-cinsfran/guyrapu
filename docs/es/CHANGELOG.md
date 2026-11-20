@@ -53,6 +53,9 @@
   el vídeo, silencian los medios, activan el modo pánico, activan o desactivan
   los mensajes automáticos y dicen el estado de la interacción, aunque el
   foco esté en otro programa.
+- Los cuadros de comandos, disparadores, metas y mensajes automáticos dicen
+  *Tipo:* en lugar de «Qué cuenta:» y *Mostrar en:* en lugar de «Dónde
+  sale:».
 
 ### Chat
 
@@ -89,6 +92,18 @@
   sonido de espera no se parece al de desconectado.
 - *Licencias de las voces*, en el menú *Ayuda*, abre en el navegador la
   licencia de cada paquete de voces que se puede descargar.
+- Hay más voces de Piper, entre ellas Daniela (Argentina) y Claude (México),
+  de calidad alta, y la voz femenina de Sharvard. Cada voz dice si su licencia
+  limita el uso, por ejemplo «uso no comercial».
+- *Administrar voces*, en el menú *Voz*, se recorre como *Música*: primero el
+  motor de voz, después *Buscar voz* y la lista de sus voces. Desde la lista
+  se instalan una o varias juntas, con una sola espera que se puede cancelar.
+  *Administrar voces* dice la calidad de cada voz de Piper y la edad de cada
+  voz de Phonon, como las publica cada motor, y la vista previa de Phonon usa
+  la muestra más larga de cada voz.
+- La velocidad, el volumen y el tono de las voces, y el volumen de la música
+  y de los medios, se ajustan con un deslizador, como el volumen del
+  reproductor.
 
 ### Panel de OBS y transmisión
 

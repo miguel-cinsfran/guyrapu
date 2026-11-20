@@ -1,4 +1,4 @@
-<!-- original: es/CHANGELOG.md 668f2c3a53dccbef2799bef67938552860fa5ada -->
+<!-- original: es/CHANGELOG.md 4171270767e4fa0ba3cac78a577bca3de903f1cc -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
@@ -53,6 +53,8 @@ This is a translation of the Spanish original, made with artificial intelligence
   the video, mute the media, turn on panic mode, turn scheduled messages on
   or off and announce the interaction status, even when another program has
   the focus.
+- The command, trigger, goal and scheduled message dialogs use *Type:* and
+  *Show in:* in place of the earlier labels.
 
 ### Chat
 
@@ -91,6 +93,17 @@ This is a translation of the Spanish original, made with artificial intelligence
   finish, and the wait sound does not sound like the disconnected sound.
 - *Voice licenses*, in the *Help* menu, opens the license of each voice pack
   you can download in the browser.
+- More Piper voices are available, including Daniela (Argentina) and Claude
+  (Mexico), both high quality, and the female Sharvard voice. Each voice says
+  whether its license limits use, for example «non-commercial use».
+- *Manage voices*, in the *Voice* menu, is laid out like *Music*: first the
+  voice engine, then *Search voice* and the list of its voices. From the list
+  you install one or several voices together, with a single wait that you can
+  cancel. *Manage voices* says the quality of each Piper voice and the age of
+  each Phonon voice, as published by each engine, and the Phonon preview uses
+  the longest sample of each voice.
+- The speed, the volume and the pitch of the voices, and the volume of the
+  music and the media, are adjusted with a slider, like the player volume.
 
 ### OBS panel and broadcasting
 

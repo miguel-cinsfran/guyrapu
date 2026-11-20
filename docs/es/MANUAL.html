@@ -412,18 +412,20 @@ no se puede usar, y <code>Mayús+F10</code> abre el menú con la tecla de
 cada acción.</p>
 <h2 id="voces-y-sonidos"><a id="voces"></a>Voces y sonidos</h2>
 <p>Guyrapu lee con SAPI 5 y OneCore, que vienen con Windows, y con
-ElevenLabs, que requiere una cuenta. Si tienes voces de Phonon o de
-Piper descargadas, esos motores aparecen también en
-<em>Preferencias</em>, categoría <em>Voces</em>. El motor, la voz, la
-velocidad, el volumen y el tono se eligen ahí, donde <em>Probar voz</em>
-reproduce una muestra con cualquier motor y las voces locales dicen su
-idioma. La voz secundaria puede usar otro motor. Si una voz local falla
-o ElevenLabs falla por la red o por falta de saldo, Guyrapu lee con la
-<em>Voz de Windows de respaldo</em> y lo avisa una vez. Con Phonon o
-Piper se elige también la salida de audio de la voz del chat, por
-ejemplo los auriculares, para que no entre al directo. La voz se elige
-en <em>Preferencias</em>, categoría <em>Voces</em>: el menú <em>Voz</em>
-no tiene submenú para elegir voz.</p>
+ElevenLabs, que requiere una cuenta. Las voces de Phonon y de Piper se
+instalan desde <em>Administrar voces</em>, en el menú <em>Voz</em> o
+desde el botón del mismo nombre en <em>Preferencias</em>, categoría
+<em>Voces</em>, y aparecen en esa categoría una vez instaladas. El motor
+y la voz se eligen ahí. La velocidad, el volumen y el tono se ajustan
+con un deslizador, y <em>Probar voz</em> reproduce una muestra con
+cualquier motor. Las voces locales dicen su idioma. La voz secundaria
+puede usar otro motor. Si una voz local falla o ElevenLabs falla por la
+red o por falta de saldo, Guyrapu lee con la <em>Voz de Windows de
+respaldo</em> y lo avisa una vez. Con Phonon o Piper se elige también la
+salida de audio de la voz del chat, por ejemplo los auriculares, para
+que no entre al directo. La voz se elige en <em>Preferencias</em>,
+categoría <em>Voces</em>: el menú <em>Voz</em> no tiene submenú para
+elegir voz.</p>
 <p>Cada tipo de mensaje, evento y aviso tiene su sonido. En la categoría
 <em>Sonidos</em> se elige el tema, <em>Predeterminado</em> o
 <em>Suave</em>, y se desactiva cada sonido por separado. La página
@@ -440,6 +442,43 @@ esperas, y no se parece al de desconectado.</p>
 <p><em>Licencias de las voces</em>, en el menú <em>Ayuda</em>, abre en
 el navegador la licencia de cada paquete de voces que se puede
 descargar.</p>
+<h3 id="administrar-voces">Administrar voces</h3>
+<p><em>Administrar voces…</em>, en el menú <em>Voz</em>, abre la ventana
+del mismo nombre. También se abre desde el botón <em>Administrar
+voces…</em> de <em>Preferencias</em>, categoría <em>Voces</em>. Con
+<code>Tab</code> se recorren los controles en este orden:
+<em>Idioma</em>, <em>Motor de voz</em>, <em>Buscar voz</em>,
+<em>Voces</em>, <em>Detalles</em>, <em>Instalar</em>,
+<em>Actualizar</em>, <em>Eliminar</em>, <em>Vista previa de voz</em> y
+<em>Cerrar</em>. En <em>Buscar voz</em>, la flecha abajo baja a la lista
+de voces sin salir del cuadro. En <em>Voces</em> la selección es
+múltiple: <code>Intro</code> oye la vista previa y <code>Supr</code>
+elimina los paquetes elegidos.</p>
+<p>Para instalar una o varias voces, selecciónalas en <em>Voces</em> y
+pulsa <em>Instalar</em>. Las voces elegidas se descargan e instalan
+juntas, con una sola espera que se puede cancelar. Con Phonon se
+instalan todas las voces del idioma juntas, porque el paquete es el
+idioma entero. <em>Actualizar</em> y <em>Eliminar</em> actúan sobre los
+paquetes ya instalados, y <em>Eliminar</em> pide confirmación.</p>
+<p>Cada fila de <em>Voces</em> dice el nombre de la voz, su género, su
+idioma, la calidad o la edad que publica el motor, el estado del paquete
+y un aviso cuando la licencia limita el uso. <em>Detalles</em> muestra
+el nombre del paquete, el motor, la calidad de cada voz de Piper, la
+edad de cada voz de Phonon, el idioma, la cantidad de voces, el tamaño,
+el estado, la licencia y el uso. La calidad de Piper puede ser muy baja,
+baja, media o alta. La edad de Phonon puede ser joven, adulto joven,
+adulto, mediana edad o adulto mayor.</p>
+<p>El uso de cada paquete aparece en la fila como aviso y en
+<em>Detalles</em> con una frase: «Uso: libre, también comercial.», «Uso:
+solo no comercial. Un directo con ingresos es uso comercial.», «Uso:
+solo investigación. La voz parte de datos con licencia de
+investigación.» o «Uso: sin confirmar. La ficha de la voz no indica su
+licencia o de qué datos parte.». La licencia de cada paquete está en
+<em>Detalles</em>, con su enlace, y en <em>Licencias de las voces</em>,
+del menú <em>Ayuda</em>.</p>
+<p><em>Vista previa de voz</em> reproduce la muestra de la voz elegida,
+igual que <code>Intro</code> en la lista. En Phonon, la vista previa usa
+la muestra más larga de cada voz.</p>
 <h3 id="las-familias-de-sonidos">Las familias de sonidos</h3>
 <p>Las familias aparecen en este orden, y cada una dice qué clase de
 aviso suena con ella:</p>
@@ -618,6 +657,9 @@ desmarcarla, la canción se agrega o se quita. Su menú tiene la tecla
 Aplicaciones y <em>Agregar todas a la lista</em>, que suma de una vez
 las canciones que muestra la búsqueda, y <code>Ctrl+A</code> selecciona
 todas. En las dos listas, <code>Intro</code> reproduce la canción.</p>
+<p>El volumen de la música se ajusta con un deslizador en
+<em>Preferencias</em>, categoría <em>Música</em>, igual que el volumen
+del reproductor.</p>
 <p><em>Igualar volumen de las canciones</em> hace que todas suenen con
 un volumen parecido. Cada archivo se mide una vez, con el botón
 <em>Igualar volumen</em> de la ventana <em>Música</em>, y no se
@@ -1104,10 +1146,10 @@ el cuadro de un medio, <em>Describir imagen</em> le pide a la
 inteligencia artificial una frase sobre lo que muestra la imagen o el
 GIF, para que <code>F2</code> y la lista digan qué ve el público. Los
 sonidos y vídeos se igualan de volumen al agregarlos, para que no suene
-uno mucho más fuerte que otro. La página tiene un volumen general para
-todos los medios que salen en el vídeo, para equilibrarlos con la voz y
-el juego. Los disparadores muestran o hacen sonar su medio, solo o con
-su tarjeta.</p>
+uno mucho más fuerte que otro. La página tiene un deslizador de volumen
+general para todos los medios que salen en el vídeo, para equilibrarlos
+con la voz y el juego. Los disparadores muestran o hacen sonar su medio,
+solo o con su tarjeta.</p>
 <h3 id="estilos">Estilos</h3>
 <p>En <em>Estilos</em> se crean, se duplican, se exportan y se importan
 estilos para los mensajes del vídeo, con fuente, colores por nombre,

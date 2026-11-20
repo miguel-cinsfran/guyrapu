@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md d78d761f9a6845bffb79a56defa6bc9424d8f28e -->
+<!-- original: es/MANUAL.md 82221b1b6003ab7727ef10e99750179b53c3caa5 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -92,11 +92,23 @@ On a published video, the *Comments* tab reads the comments, and with the Google
 
 ## <a id="voces"></a>Voices and sounds
 
-Guyrapu reads with SAPI 5 and OneCore, which come with Windows, and with ElevenLabs, which requires an account. If you have Phonon or Piper voices downloaded, those engines also appear in *Preferences*, on the *Voices* category. The engine, the voice, the speed, the volume and the pitch are chosen there, where *Test voice* plays a sample with any engine and local voices say their language. The secondary voice can use another engine. If a local voice fails or ElevenLabs fails because of the network or a lack of balance, Guyrapu reads with the *Backup Windows voice* and warns you once. With Phonon or Piper you also choose the audio output of the chat voice, for example headphones, so it does not go into the live stream. The voice is chosen in *Preferences*, on the *Voices* category: the *Voice* menu has no submenu for choosing a voice.
+Guyrapu reads with SAPI 5 and OneCore, which come with Windows, and with ElevenLabs, which requires an account. Phonon and Piper voices are installed from *Manage voices*, in the *Voice* menu or from the button of the same name in *Preferences*, on the *Voices* category, and appear in that category once installed. The engine and the voice are chosen there. The speed, the volume and the pitch are adjusted with a slider, and *Test voice* plays a sample with any engine. Local voices say their language. The secondary voice can use another engine. If a local voice fails or ElevenLabs fails because of the network or a lack of balance, Guyrapu reads with the *Backup Windows voice* and warns you once. With Phonon or Piper you also choose the audio output of the chat voice, for example headphones, so it does not go into the live stream. The voice is chosen in *Preferences*, on the *Voices* category: the *Voice* menu has no submenu for choosing a voice.
 
 Each type of message, event and notice has its sound. In the *Sounds* category you choose the theme, *Default* or *Soft*, and turn off each sound separately. The page shows the sounds grouped by family and says the family of each one. It has a context menu with *Play sound*, plays a sound at the edge with the arrows and searches as you type, like the other lists. In English, the names come translated. Waits sound while they last and play a done or error sound at the end: loading the live stream lists of YouTube, adding a capture to the AI, asking OBS for the microphone, connecting Restream, signing in to YouTube, checking keys in *Preferences*, loading the music folder and checking for updates. The wait sound plays when connecting and in the other waits, and does not sound like the disconnected sound.
 
 *Voice licenses*, in the *Help* menu, opens the license of each voice pack you can download in the browser.
+
+### Manage voices
+
+*Manage voices…*, in the *Voice* menu, opens the window of the same name. You can also open it with the *Manage voices…* button in *Preferences*, on the *Voices* category. With `Tab` you move through the controls in this order: *Language*, *Voice engine*, *Search voice*, *Voices*, *Details*, *Install*, *Update*, *Remove*, *Preview voice* and *Close*. In *Search voice*, the down arrow moves to the voice list without leaving the box. In *Voices* you can select several rows: `Enter` plays the preview and `Delete` removes the chosen packs.
+
+To install one or several voices, select them in *Voices* and choose *Install*. The chosen voices are downloaded and installed together, with a single wait that you can cancel. Phonon installs all the voices for the language together, because the pack is the whole language. *Update* and *Remove* act on the packs already installed, and *Remove* asks for confirmation.
+
+Each row in *Voices* says the name of the voice, its gender, its language, the quality or age published by the engine, the status of the pack and a notice when the license limits use. *Details* shows the name of the pack, its engine, the quality of each Piper voice, the age of each Phonon voice, the language, the number of voices, the size, the status, the license and the use. The quality of Piper voices can be very low, low, medium or high. The age of Phonon voices can be young, young adult, adult, middle-aged or older adult.
+
+The use of each pack appears in the row as a notice and in *Details* with a sentence: «Use: free, commercial use allowed.», «Use: non-commercial only. A live stream with income is commercial use.», «Use: research only. The voice comes from data with a research license.» or «Use: not confirmed. The voice's model card does not state its license or the data it comes from.». The license of each pack is in *Details*, with its link, and in *Voice licenses*, in the *Help* menu.
+
+*Preview voice* plays the sample of the chosen voice, like `Enter` in the list. With Phonon, the preview uses the longest sample of each voice.
 
 ### Sound families
 
@@ -143,6 +155,8 @@ In *Songs*, in the queue and in the search results you can select several songs 
 *Mute music*, in the *Music* menu, does the same as `Ctrl+Alt+M`. With *Use keyboard media keys*, the play, pause and next or previous song keys control the music while there are songs in the queue, and the Windows media panel shows what is playing. Turn it off in *Preferences*, on the *Music* category.
 
 When you create or edit a playlist, a dialog with two lists opens. In *Playlist songs*, `Delete` removes the song and `Alt+Up Arrow` and `Alt+Down Arrow` move it. *All songs* shows the folder with a checkbox for each song, checked for the ones already in the playlist: checking or unchecking it adds or removes the song. Its menu has the Applications key and *Add all to the playlist*, which adds all the songs shown by the search at once, and `Ctrl+A` selects all. In both lists, `Enter` plays the song.
+
+The music volume is adjusted with a slider in *Preferences*, on the *Music* category, like the player volume.
 
 *Match song volume* makes them all sound at a similar volume. Each file is measured once, with the *Match the volume* button in the *Music* window, and it is not modified. When it finishes, a sound plays and it says how many songs were matched. When you open Music, the box that offers to match has the *Do not ask again* button. Between one song and the next there is a crossfade, which is adjusted in *Crossfade between songs, in seconds*.
 
@@ -373,7 +387,7 @@ In *Goals* you prepare the goals of the live stream: what they count, how much i
 
 ### Media
 
-*Media* is a library of images, GIFs, videos and sounds with their description and duration, which you can hear before using them. In the dialog of a media item, *Describe image* asks the artificial intelligence for a sentence about what the image or GIF shows, so that `F2` and the list say what the audience sees. Sounds and videos are matched in volume when added, so that none sounds much louder than another. The page has a general volume for all the media that appear on the video, to balance them with the voice and the game. Triggers show or play their media item, alone or with their card.
+*Media* is a library of images, GIFs, videos and sounds with their description and duration, which you can hear before using them. In the dialog of a media item, *Describe image* asks the artificial intelligence for a sentence about what the image or GIF shows, so that `F2` and the list say what the audience sees. Sounds and videos are matched in volume when added, so that none sounds much louder than another. The page has a volume slider for all the media that appear on the video, to balance them with the voice and the game. Triggers show or play their media item, alone or with their card.
 
 ### Styles
 
