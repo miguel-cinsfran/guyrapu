@@ -1,9 +1,6 @@
-tecla=shift+tab fase=pagina dijo='Activar mensajes automáticos casilla de verificación sin marcar Alt+ v' foco={nombre='Activar mensajes automáticos', rol='CHECKBOX', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+v'}
-tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Mensajes automáticos 1 de 9' foco={nombre='Mensajes automáticos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Comandos 2 de 9' foco={nombre='Comandos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Encuestas 3 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Disparadores 5 de 9' foco={nombre='Disparadores', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Medios 7 de 9' foco={nombre='Medios', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Metas 6 de 9' foco={nombre='Metas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=upArrow fase=pagina dijo='Disparadores 5 de 9' foco={nombre='Disparadores', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=tab fase=pagina dijo='Disparadores guardados lista Alt+ a No hay disparadores. Usa Agregar para crear uno.' foco={nombre='No hay disparadores. Usa Agregar para crear uno.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=space fase=pulsar dijo='Agregar disparador diálogo Cuándo salta agrupación Nombre edición Alt+ n en blanco' foco={nombre='Nombre', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+n'}
 tecla=tab fase=ida dijo='Cuándo cuadro combinado Comando del chat contraído Alt+ u' foco={nombre='Cuándo', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE', 'FOCUSED'], valor='Comando del chat', atajo='Alt+u'}

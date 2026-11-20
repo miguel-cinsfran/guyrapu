@@ -1,4 +1,4 @@
-tecla=shift+tab fase=pagina dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=pagina dijo='Preferencias diálogo Categorías lista General 1 de 18 Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
 tecla=shift+tab fase=pagina dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
 tecla=shift+tab fase=pagina dijo='Restablecer todas las preferencias… botón Alt+ p' foco={nombre='Restablecer todas las preferencias…', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+p'}
 tecla=shift+tab fase=pagina dijo='Importar preferencias… botón Alt+ m' foco={nombre='Importar preferencias…', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
