@@ -131,6 +131,39 @@ class TestSolape(Base):
         self.assertIsNone(self.uno(ventana, "solape"))
         self.assertIsNone(self.uno(ventana, "margen"))
 
+    def test_una_caja_no_pisa_el_campo_que_encierra(self):
+        caja = control(id=1, clase="wxStaticBox", nombre="Agregar disparador",
+                       etiqueta="", rect=[16, 16, 300, 450])
+        nombre = control(id=2, nombre="Nombre", rect=[23, 55, 290, 23])
+        vecina = control(id=3, clase="wxStaticBox", nombre="OBS",
+                         etiqueta="", rect=[332, 16, 316, 242])
+        self.assertIsNone(self.uno(
+            muestra([caja, nombre, vecina]), "solape"))
+
+    def test_dos_cajas_que_se_pisan_si_saltan(self):
+        caja = control(id=1, clase="wxStaticBox", nombre="Agregar disparador",
+                       etiqueta="", rect=[16, 16, 300, 450])
+        otra = control(id=2, clase="wxStaticBox", nombre="Otra caja",
+                       etiqueta="", rect=[300, 16, 316, 242])
+        hallazgo = self.uno(muestra([caja, otra]), "solape")
+        self.assertIsNotNone(hallazgo)
+        self.assertEqual(hallazgo["control"],
+                         "Agregar disparador y Otra caja")
+        interior = control(id=3, clase="wxStaticBox", nombre="Caja interior",
+                           etiqueta="", rect=[23, 55, 290, 23])
+        hallazgo = self.uno(muestra([caja, interior]), "solape")
+        self.assertIsNotNone(hallazgo)
+        self.assertEqual(hallazgo["control"],
+                         "Agregar disparador y Caja interior")
+
+    def test_un_campo_que_cruza_la_caja_si_salta(self):
+        caja = control(id=1, clase="wxStaticBox", nombre="Agregar disparador",
+                       etiqueta="", rect=[16, 16, 300, 450])
+        campo = control(id=2, nombre="Nombre", rect=[300, 55, 290, 23])
+        hallazgo = self.uno(muestra([caja, campo]), "solape")
+        self.assertIsNotNone(hallazgo)
+        self.assertEqual(hallazgo["control"], "Agregar disparador y Nombre")
+
 
 class TestControlConDesplazamiento(Base):
 

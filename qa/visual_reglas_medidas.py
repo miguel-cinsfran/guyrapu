@@ -54,6 +54,21 @@ def cabe_dentro(rect, contenedor):
             and abajo(rect) <= abajo(contenedor))
 
 
+def area_solape(a, b):
+    """Área que se pisan dos hermanos.
+
+    La caja de grupo es hermana de los controles que encierra y los contiene
+    enteros, así que no cuenta como solape con ellos.
+    """
+    if (a["clase"] == "wxStaticBox" and b["clase"] != "wxStaticBox"
+            and cabe_dentro(b["rect"], a["rect"])):
+        return 0
+    if (b["clase"] == "wxStaticBox" and a["clase"] != "wxStaticBox"
+            and cabe_dentro(a["rect"], b["rect"])):
+        return 0
+    return area_interseccion(a["rect"], b["rect"])
+
+
 # Viven fuera del área cliente: no se recortan contra ella ni dejan margen.
 BARRAS_FUERA_DEL_CLIENTE = frozenset((
     "wxStatusBar", "wxToolBar", "wxMenuBar"))

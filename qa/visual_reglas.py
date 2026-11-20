@@ -20,7 +20,7 @@ for _carpeta in (str(_RAIZ), str(_RAIZ / "qa")):
         sys.path.insert(0, _carpeta)
 
 from guyrapu.obs.overlay_datos import relacion_de_contraste  # noqa: E402
-from visual_reglas_medidas import abajo, area, area_interseccion  # noqa: E402
+from visual_reglas_medidas import abajo, area, area_solape  # noqa: E402
 from visual_reglas_medidas import apilados, cabe_dentro, columnas  # noqa: E402
 from visual_reglas_medidas import controles_medibles  # noqa: E402
 from visual_reglas_medidas import derecha, envolvente, hermanos  # noqa: E402
@@ -147,7 +147,7 @@ def regla_solape(ventana):
     hallazgos = []
     for hermanos_ in hermanos(para_solape(ventana)).values():
         for a, b in itertools.combinations(hermanos_, 2):
-            area_comun = area_interseccion(a["rect"], b["rect"])
+            area_comun = area_solape(a, b)
             if area_comun >= SOLAPE_MINIMO_PX2:
                 control = f"{a['nombre']} y {b['nombre']}"
                 detalle = f"se pisan {area_comun} px²"
