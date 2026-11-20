@@ -186,11 +186,16 @@ def _nombres(pasos):
     return [paso["foco"]["nombre"] for paso in pasos]
 
 
+def _sin_dormir(_segundos):
+    pass
+
+
 class TestIda(unittest.TestCase):
 
     def test_la_ida_vuelve_a_la_primera_parada(self):
         cliente = ClienteFalso(["Uno", "Dos", "Tres"])
-        datos = recorrido.conducir(cliente, ventana(["Uno", "Dos", "Tres"]))
+        datos = recorrido.conducir(cliente, ventana(["Uno", "Dos", "Tres"]),
+                                   dormir=_sin_dormir)
         ida = [p for p in datos["pasos"] if p["fase"] == "ida"]
         self.assertEqual(_nombres(ida), ["Dos", "Tres", "Uno"])
         self.assertEqual(datos["primero"]["nombre"], "Uno")
@@ -198,7 +203,7 @@ class TestIda(unittest.TestCase):
     def test_la_ida_se_corta_en_el_tope_si_no_vuelve(self):
         cliente = ClienteSinVuelta(["Control 0"])
         datos = recorrido.conducir(
-            cliente, ventana(["Control 0"]), tope=3)
+            cliente, ventana(["Control 0"]), tope=3, dormir=_sin_dormir)
         ida = [p for p in datos["pasos"] if p["fase"] == "ida"]
         self.assertEqual(len(ida), 3)
         self.assertNotEqual(_nombres(ida)[-1], "Control 0")
@@ -208,7 +213,8 @@ class TestVuelta(unittest.TestCase):
 
     def test_la_vuelta_da_las_mismas_paradas_al_reves(self):
         nombres = ["Uno", "Dos", "Tres"]
-        datos = recorrido.conducir(ClienteFalso(nombres), ventana(nombres))
+        datos = recorrido.conducir(ClienteFalso(nombres), ventana(nombres),
+                                   dormir=_sin_dormir)
         vuelta = [p for p in datos["pasos"] if p["fase"] == "vuelta"]
         self.assertEqual(_nombres(vuelta), ["Tres", "Dos", "Uno"])
 
@@ -219,7 +225,8 @@ class TestAccion(unittest.TestCase):
         nombres = ["Uno", "Dos", "Tres"]
         datos = recorrido.conducir(
             ClienteFalso(nombres), ventana(
-                nombres, [{"control": "Dos", "gesto": "space"}]))
+                nombres, [{"control": "Dos", "gesto": "space"}]),
+            dormir=_sin_dormir)
         accion = [p for p in datos["pasos"] if p["fase"] == "accion"]
         self.assertEqual(len(accion), 1)
         self.assertEqual(accion[0]["tecla"], "space")
@@ -228,14 +235,16 @@ class TestAccion(unittest.TestCase):
 
     def test_guarda_los_milisegundos_hasta_la_ultima_habla(self):
         nombres = ["Uno", "Dos"]
-        datos = recorrido.conducir(ClienteFalso(nombres), ventana(nombres))
+        datos = recorrido.conducir(ClienteFalso(nombres), ventana(nombres),
+                                   dormir=_sin_dormir)
         self.assertEqual(datos["pasos"][0]["ms_habla"], 50)
 
     def test_la_espera_toma_la_marca_antes_del_gesto(self):
         nombres = ["Uno", "Dos"]
         cliente = ClienteFalso(nombres)
         datos = recorrido.conducir(cliente, ventana(nombres, [{
-            "control": "Dos", "gesto": "space", "espera": "listo"}]))
+            "control": "Dos", "gesto": "space", "espera": "listo"}]),
+            dormir=_sin_dormir)
         frase, desde, plazo, al_esperar = cliente.esperas[0]
         self.assertEqual(frase, "listo")
         self.assertEqual(plazo, 5.0)
@@ -249,7 +258,8 @@ class TestAccion(unittest.TestCase):
         nombres = ["Uno"]
         cliente = ClienteFalso(nombres)
         recorrido.conducir(cliente, ventana(
-            nombres, [{"control": "Uno", "gesto": "space"}]))
+            nombres, [{"control": "Uno", "gesto": "space"}]),
+            dormir=_sin_dormir)
         self.assertEqual(cliente.esperas, [])
 
     def test_los_sonidos_nuevos_se_ponen_en_cada_paso(self):
@@ -268,7 +278,8 @@ class TestAccion(unittest.TestCase):
             cliente.paso = con_sonido
             with mock.patch.dict(os.environ,
                                  {recorrido.VAR_SONIDOS: str(ruta)}):
-                datos = recorrido.conducir(cliente, ventana(nombres))
+                datos = recorrido.conducir(cliente, ventana(nombres),
+                                           dormir=_sin_dormir)
         self.assertEqual(datos["pasos"][0]["sonidos"], ["listo"])
         self.assertTrue(all("anterior" not in p["sonidos"]
                             for p in datos["pasos"]))
@@ -349,7 +360,7 @@ class TestPagina(unittest.TestCase):
                     "primero": f"primero de {destino}",
                     "pagina": destino,
                     "paginas": self.PAGINAS,
-                }, tope=10)
+                }, tope=10, dormir=_sin_dormir)
                 pagina = [paso["tecla"] for paso in datos["pasos"]
                           if paso["fase"] == "pagina"]
                 self.assertEqual(pagina, ["shift+tab"] + flechas + ["tab"])
@@ -365,7 +376,7 @@ class TestPagina(unittest.TestCase):
                 "primero": "primero de Palabras bloqueadas",
                 "pagina": "Palabras bloqueadas",
                 "paginas": self.PAGINAS[:4],
-            }, tope=10)
+            }, tope=10, dormir=_sin_dormir)
         self.assertIn("Palabras bloqueadas", str(capturado.exception))
         self.assertEqual(cliente.pasos, [])
 
@@ -375,7 +386,8 @@ class TestPrimerPlano(unittest.TestCase):
     def test_un_primer_plano_ajeno_corta_con_instrumento_roto(self):
         cliente = ClienteFalso(["Uno"], ajeno=True)
         with self.assertRaises(recorrido.InstrumentoRoto) as capturado:
-            recorrido.conducir(cliente, ventana(["Uno"]))
+            recorrido.conducir(cliente, ventana(["Uno"]),
+                               dormir=_sin_dormir)
         self.assertIn("Ventana ajena", str(capturado.exception))
         self.assertEqual(cliente.pasos, [])
 
@@ -389,7 +401,7 @@ class TestPrimerPlano(unittest.TestCase):
 
     def test_el_primer_plano_de_la_ventana_deja_seguir(self):
         datos = recorrido.conducir(
-            ClienteFalso(["Uno"]), ventana(["Uno"]))
+            ClienteFalso(["Uno"]), ventana(["Uno"]), dormir=_sin_dormir)
         self.assertEqual(len(datos["pasos"]), 2)
 
 
@@ -399,7 +411,7 @@ class TestEsperaDeFoco(unittest.TestCase):
         cliente = ClienteFalso(["Otro"])
         with self.assertRaises(recorrido.InstrumentoRoto) as capturado:
             recorrido.conducir(cliente, ventana(["Esperado"]),
-                               tope_foco_s=0.01)
+                               tope_foco_s=0.01, dormir=_sin_dormir)
         mensaje = str(capturado.exception)
         self.assertIn("nombre='Otro'", mensaje)
         self.assertIn("rol=None", mensaje)
@@ -424,7 +436,8 @@ class TestEsperaDeFoco(unittest.TestCase):
         datos = recorrido.conducir(
             ClienteConFila(["Phonon, español"]),
             {"nombre": "voces", "pid": 7, "primero": "Paquetes de voces",
-             "primero_lista": "Paquetes de voces"}, tope_foco_s=0.01)
+             "primero_lista": "Paquetes de voces"}, tope_foco_s=0.01,
+            dormir=_sin_dormir)
         self.assertEqual(datos["primero"]["rol_nombre"], "LISTITEM")
         self.assertEqual(datos["primero"]["nombre"], "Phonon, español")
 
@@ -471,7 +484,7 @@ class TestPulsar(unittest.TestCase):
         ):
             datos = recorrido.conducir(cliente, {
                 "pid": 7, "primero": "Nombre", "pulsar": "Agregar",
-            }, tope=1, tope_foco_s=0.01)
+            }, tope=1, tope_foco_s=0.01, dormir=_sin_dormir)
         self.assertEqual(llamadas[:3], ["pagina", ("ir_a", "Agregar"),
                                         "pulsar"])
         self.assertLess(llamadas.index("pulsar"),
@@ -486,7 +499,7 @@ class TestCierreDelCiclo(unittest.TestCase):
         datos = recorrido.conducir(
             ClienteConMismoNombre(),
             {"nombre": "prueba", "pid": 7, "primero": "Uno"}, tope=4,
-            tope_foco_s=0.01)
+            tope_foco_s=0.01, dormir=_sin_dormir)
         ida = [p for p in datos["pasos"] if p["fase"] == "ida"]
         self.assertEqual(len(ida), 2)
 
@@ -498,7 +511,7 @@ class TestVueltaALaLista(unittest.TestCase):
             ClienteFilaDistinta(),
             {"nombre": "voces", "pid": 7, "primero": "Paquetes de voces",
              "primero_lista": "Paquetes de voces"}, tope=6,
-            tope_foco_s=0.01)
+            tope_foco_s=0.01, dormir=_sin_dormir)
         ida = [p for p in datos["pasos"] if p["fase"] == "ida"]
         vuelta = [p for p in datos["pasos"] if p["fase"] == "vuelta"]
         self.assertEqual(len(ida), 2)
@@ -549,7 +562,7 @@ class TestEsperaDeSilencio(unittest.TestCase):
         nombres = ["Uno", "Dos"]
         cliente = ClienteConHablaInicial(nombres)
         datos = recorrido.conducir(cliente, ventana(nombres),
-                                   dormir=lambda _segundos: None)
+                                   dormir=_sin_dormir)
         habla = " ".join(str(evento.get("texto") or "")
                          for paso in datos["pasos"]
                          for evento in paso["habla"])
@@ -559,7 +572,7 @@ class TestEsperaDeSilencio(unittest.TestCase):
         nombres = ["Uno", "Dos"]
         cliente = ClienteConHablaInicial(nombres, siempre=True)
         datos = recorrido.conducir(cliente, ventana(nombres),
-                                   dormir=lambda _segundos: None)
+                                   dormir=_sin_dormir)
         self.assertGreaterEqual(cliente.consultas, 40)
         self.assertEqual(datos["pasos"][0]["fase"], "ida")
 
@@ -568,7 +581,7 @@ class TestEsperaDeSilencio(unittest.TestCase):
         cliente = ClienteConHablaInicial(
             nombres, habla={1: HABLA_VIEJA, 3: HABLA_TRAS_HUECO})
         datos = recorrido.conducir(cliente, ventana(nombres),
-                                   dormir=lambda _segundos: None)
+                                   dormir=_sin_dormir)
         self.assertGreater(cliente.consultas_primero, 2)
         habla = " ".join(str(evento.get("texto") or "")
                          for paso in datos["pasos"]
