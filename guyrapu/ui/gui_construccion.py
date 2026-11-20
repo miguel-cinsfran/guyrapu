@@ -91,7 +91,7 @@ def _barra_superior(frame, panel, vs):
     frame._boton_directo = BotonDirecto(
         panel, frame.btn_conectar, frame, comando_directo.ComandoDirecto(frame))
     row.Add(frame._boton_directo.boton, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 8)
-    vs.Add(row, 0, wx.EXPAND | wx.ALL, 12)
+    vs.Add(row, 0, wx.EXPAND | wx.ALL, 10)
 
     frame.lbl_tipo = wx.StaticText(panel, label=frame._texto_tipo, name="TipoVideo")
     _pintar(frame.lbl_tipo, fg=_T.dim)

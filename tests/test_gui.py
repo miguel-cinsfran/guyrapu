@@ -829,6 +829,11 @@ class TestVentanaReal(unittest.TestCase):
         self.assertEqual([True] * len(menus),
                          [item.IsEnabled() for item in menus])
 
+    def test_la_etiqueta_del_enlace_arranca_en_el_mismo_borde_que_el_tipo(self):
+        frame = self._ventana()
+        self.assertEqual(frame.FindWindowByName("EtiquetaURL").GetPosition().x,
+                         frame.lbl_tipo.GetPosition().x)
+
 
 class TestArranqueDeCostosPublicados(unittest.TestCase):
     """La ventana arranca la lectura semanal de la tabla de costos."""
