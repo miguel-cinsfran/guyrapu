@@ -9,7 +9,7 @@ from unittest import mock
 import wx
 
 from guyrapu.core.idioma import _
-from guyrapu.ui import espera_sonora, ventana_espera
+from guyrapu.ui import espera_sonora, formulario, ventana_espera
 from guyrapu.ui.ventana_espera import VentanaEspera
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -112,6 +112,31 @@ class TestVentanaEspera(unittest.TestCase):
         cuadro._al_cerrar(evento)
         self.assertFalse(cuadro._espera._timer.IsRunning())
         self.assertTrue(evento.saltado)
+
+
+class TestGeometria(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def test_la_ventana_usa_las_medidas_comunes(self):
+        cuadro = VentanaEspera(None, _(TITULO), "", threading.Event())
+        self.addCleanup(destruir, cuadro)
+        cuadro.Show()
+        wx.Yield()
+        ancho, alto = cuadro.GetClientSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO,
+                                f"tamaño {ancho} x {alto}")
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO,
+                             f"tamaño {ancho} x {alto}")
+        panel = cuadro._btn.GetParent()
+        self.assertEqual(panel.GetClientSize().width - (
+            cuadro._btn.GetPosition().x + cuadro._btn.GetSize().width),
+            formulario.MARGEN)
+        self.assertGreater(cuadro._btn.GetPosition().y,
+                           cuadro.txt_estado.GetPosition().y)
+        self.assertEqual(cuadro.txt_estado.GetSize().width,
+                         panel.GetClientSize().width - 2 * formulario.MARGEN)
 
 
 if __name__ == "__main__":

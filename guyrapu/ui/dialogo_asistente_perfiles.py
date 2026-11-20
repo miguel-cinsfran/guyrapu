@@ -16,7 +16,7 @@ import wx
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import asistente_perfiles
 from guyrapu.restream import transmitir
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape, tema
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 from guyrapu.ui.ventana_espera import VentanaEspera
@@ -58,45 +58,45 @@ class DialogoAsistentePerfiles(wx.Dialog):
         self.Centre()
 
     def _crear_controles(self):
+        panel = wx.Panel(self, name="PanelAsistentePerfiles")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_explicacion = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO,
+            panel, style=_PROPIEDADES_TEXTO,
             name=nombre_de_etiqueta(_("Cómo funciona")))
         nombre_accesible(self.txt_explicacion, self.txt_explicacion.GetName())
         self.txt_explicacion.SetValue(_(EXPLICACION))
-        self.txt_explicacion.SetMinSize((-1, 70))
-        caja.Add(self.txt_explicacion, 0, wx.EXPAND | wx.ALL, 8)
+        self.txt_explicacion.SetMinSize((-1, 90))
+        formulario.agregar_fila(caja, None, self.txt_explicacion, hueco=0)
         self.casillas = {}
+        casillas = []
         for clave, rotulo, marcada in CASILLAS:
             casilla = wx.CheckBox(
-                self, label=_(rotulo), name=nombre_de_etiqueta(_(rotulo)))
+                panel, label=_(rotulo), name=nombre_de_etiqueta(_(rotulo)))
             nombre_accesible(casilla, casilla.GetName())
             casilla.SetValue(marcada)
             self.casillas[clave] = casilla
-            caja.Add(casilla, 0, wx.ALL, 6)
+            casillas.append(casilla)
         self.chk_probar = wx.CheckBox(
-            self, label=_("Probar cada perfil con el e&quipo"),
+            panel, label=_("Probar cada perfil con el e&quipo"),
             name=nombre_de_etiqueta(_("Probar cada perfil con el e&quipo")))
         nombre_accesible(self.chk_probar, self.chk_probar.GetName())
         self.chk_probar.SetValue(True)
-        caja.Add(self.chk_probar, 0, wx.ALL, 6)
-        caja.Add(self._fila_botones(), 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((480, -1))
+        casillas.append(self.chk_probar)
+        formulario.agregar_casillas(caja, casillas)
+        self._fila_botones(panel, caja)
+        formulario.ajustar_tamano(self, panel, caja)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         next(iter(self.casillas.values())).SetFocus()
 
-    def _fila_botones(self):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_preparar = _boton(self, _("&Preparar"), self._al_preparar)
+    def _fila_botones(self, panel, caja):
+        self.btn_preparar = _boton(panel, _("&Preparar"), self._al_preparar)
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cancelar"),
+            panel, wx.ID_CANCEL, _("&Cancelar"),
             name=nombre_de_etiqueta(_("&Cancelar")))
         nombre_accesible(self.btn_cancelar, self.btn_cancelar.GetName())
         self.btn_preparar.SetDefault()
-        fila.Add(self.btn_preparar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        return fila
+        tema.boton_principal(self.btn_preparar)
+        formulario.agregar_pie(caja, [self.btn_preparar, self.btn_cancelar])
 
     def usos(self):
         """Las claves de los tres usos que quedaron marcadas."""
@@ -126,19 +126,19 @@ class DialogoResumenAsistente(wx.Dialog):
     def __init__(self, padre, texto):
         super().__init__(padre, title=_("Resumen de la preparación"),
                          name="DialogoResumenAsistente")
+        panel = wx.Panel(self, name="PanelResumenAsistente")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_resumen = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO,
+            panel, style=_PROPIEDADES_TEXTO,
             name=_("Resumen de la preparación"))
         nombre_accesible(self.txt_resumen, _("Resumen de la preparación"))
         self.txt_resumen.SetMinSize((-1, 160))
         self.txt_resumen.SetValue(texto)
-        caja.Add(self.txt_resumen, 1, wx.EXPAND | wx.ALL, 10)
-        self.btn_cerrar = _boton(self, _("&Cerrar"), self._cerrar)
+        formulario.agregar_fila(caja, None, self.txt_resumen, hueco=0)
+        self.btn_cerrar = _boton(panel, _("&Cerrar"), self._cerrar)
         self.btn_cerrar.SetDefault()
-        caja.Add(self.btn_cerrar, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((540, -1))
+        formulario.agregar_pie(caja, [self.btn_cerrar])
+        formulario.ajustar_tamano(self, panel, caja)
         self.Centre()
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.txt_resumen.SetFocus()

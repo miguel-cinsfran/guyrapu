@@ -5,9 +5,13 @@
 import dataclasses
 import unittest
 
+import wx
+
 from tests.ventanas_prueba import app_de_prueba, destruir
+from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil
 from guyrapu.obs import textos_perfil
+from guyrapu.ui import formulario, tema
 from guyrapu.ui.dialogo_ajustes_perfil import DialogoAjustesPerfil
 
 
@@ -124,6 +128,44 @@ class TestResoluciones(BaseDialogo):
         salida = dialogo.cho_salida.GetValue()
         self.assertTrue(salida[0] <= 1280 and salida[1] <= 720)
         self.assertEqual(dialogo.ajustes().ancho_salida, salida[0])
+
+
+class TestGeometria(BaseDialogo):
+
+    def test_el_cuadro_usa_las_medidas_comunes(self):
+        dialogo = self._dialogo()
+        self.addCleanup(destruir, dialogo)
+        dialogo.Show()
+        wx.Yield()
+        ancho, alto = dialogo.GetClientSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO,
+                                f"tamaño {ancho} x {alto}")
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO,
+                             f"tamaño {ancho} x {alto}")
+        zona = dialogo.cho_lienzo.GetParent()
+        titulos = [hijo.GetLabel() for hijo in zona.GetChildren()
+                   if isinstance(hijo, wx.StaticBox)]
+        self.assertEqual(titulos, [_("Vídeo"), _("Transmisión"),
+                                   _("Grabación"), _("Audio")])
+        hermanos = zona.GetChildren()
+        rotulo = hermanos[hermanos.index(dialogo.cho_lienzo) - 1]
+        self.assertIsInstance(rotulo, wx.StaticText,
+                              f"tamaño {ancho} x {alto}")
+        self.assertLess(rotulo.GetPosition().y + rotulo.GetSize().height,
+                        dialogo.cho_lienzo.GetPosition().y)
+        self.assertEqual(dialogo.btn_guardar.GetSize().width,
+                         dialogo.btn_cancelar.GetSize().width)
+        self.assertEqual(dialogo.btn_cancelar.GetPosition().x - (
+            dialogo.btn_guardar.GetPosition().x
+            + dialogo.btn_guardar.GetSize().width),
+            formulario.ENTRE_BOTONES)
+        panel = dialogo.btn_guardar.GetParent()
+        self.assertEqual(panel.GetClientSize().width - (
+            dialogo.btn_cancelar.GetPosition().x
+            + dialogo.btn_cancelar.GetSize().width), formulario.MARGEN)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(dialogo.btn_guardar.GetBackgroundColour(),
+                             tema._T.primary)
 
 
 if __name__ == "__main__":

@@ -16,15 +16,12 @@ import wx
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import ajustes_perfil
 from guyrapu.obs import textos_perfil
-from guyrapu.ui import paleta
+from guyrapu.ui import formulario, paleta, tema
 from guyrapu.ui.accesibilidad import (
     ContadorAccesible,
     nombre_accesible,
 )
-from guyrapu.ui.preferencias_comun import (
-    fila_campo,
-    nombre_de_etiqueta,
-)
+from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 
 TEXTO_AVANZADO = N_(
     "Este perfil está en modo Avanzado. El codificador, la tasa de bits de vídeo "
@@ -80,29 +77,49 @@ class DialogoAjustesPerfil(wx.Dialog):
         wx.CallAfter(self.rad_orientacion.SetFocus)
 
     def _crear(self, ajustes):
-        caja = wx.BoxSizer(wx.VERTICAL)
-        zona = wx.ScrolledWindow(self, style=wx.TAB_TRAVERSAL | wx.VSCROLL)
-        zona.SetScrollRate(0, 20)
+        panel = wx.Panel(self, name="PanelAjustesPerfil")
         contenido = wx.BoxSizer(wx.VERTICAL)
-        self._crear_video(zona, contenido, ajustes)
-        self._crear_transmision(zona, contenido, ajustes)
-        self._crear_grabacion(zona, contenido, ajustes)
-        self._crear_audio(zona, contenido, ajustes)
-        zona.SetSizer(contenido)
-        caja.Add(zona, 1, wx.EXPAND)
-        self._crear_botones(caja)
-        self.SetSizer(caja)
-        self.SetMinSize((520, 420))
-        self.SetSize((600, 640))
+        zona = wx.ScrolledWindow(panel, style=wx.TAB_TRAVERSAL | wx.VSCROLL)
+        zona.SetScrollRate(0, 20)
+        secciones = wx.BoxSizer(wx.VERTICAL)
+        self._crear_video(zona, secciones, ajustes)
+        self._crear_transmision(zona, secciones, ajustes)
+        self._crear_grabacion(zona, secciones, ajustes)
+        self._crear_audio(zona, secciones, ajustes)
+        zona.SetSizer(secciones)
+        zona.SetMinSize((-1, secciones.GetMinSize().height))
+        contenido.Add(zona, 1, wx.EXPAND)
+        self._crear_botones(panel, contenido)
+        formulario.ajustar_tamano(self, panel, contenido)
         self.btn_guardar.SetDefault()
+        tema.boton_principal(self.btn_guardar)
 
-    @staticmethod
-    def _caja(zona, titulo):
-        return wx.StaticBoxSizer(wx.StaticBox(zona, label=titulo),
-                                 wx.VERTICAL)
+    def _eleccion(self, caja, zona, texto, normalizar=None):
+        rotulo = wx.StaticText(zona, label=_(texto))
+        control = (_Eleccion(zona, texto, normalizar) if normalizar
+                   else _Eleccion(zona, texto))
+        formulario.agregar_fila(caja, rotulo, control)
+        return control
+
+    def _numerico(self, caja, zona, texto, minimo, maximo, inicial):
+        rotulo = wx.StaticText(zona, label=_(texto))
+        control = ContadorAccesible(
+            zona, min=minimo, max=maximo, initial=int(inicial),
+            name=nombre_de_etiqueta(texto))
+        formulario.agregar_fila(caja, rotulo, control, numerico=True)
+        return control
+
+    def _campo_texto(self, caja, zona, texto, valor, estilo=0):
+        rotulo = wx.StaticText(zona, label=_(texto))
+        control = wx.TextCtrl(
+            zona, value=valor, style=estilo,
+            name=nombre_de_etiqueta(texto))
+        nombre_accesible(control, control.GetName())
+        formulario.agregar_fila(caja, rotulo, control)
+        return control
 
     def _crear_video(self, zona, contenido, ajustes):
-        caja = self._caja(zona, _("Vídeo"))
+        caja = formulario.agregar_seccion(contenido, zona, _("Vídeo"))
         vertical = ajustes.alto_lienzo > ajustes.ancho_lienzo
         self.rad_orientacion = wx.RadioBox(
             zona, label=_("Orientación"),
@@ -110,164 +127,110 @@ class DialogoAjustesPerfil(wx.Dialog):
             style=wx.RA_SPECIFY_ROWS, name=_("Orientación"))
         nombre_accesible(self.rad_orientacion, _("Orientación"))
         self.rad_orientacion.SetSelection(1 if vertical else 0)
-        caja.Add(self.rad_orientacion, 0, wx.ALL, 4)
-        self.rot_lienzo = wx.StaticText(zona, label=_("&Lienzo:"))
-        self.cho_lienzo = _Eleccion(zona, _("&Lienzo:"))
-        self.rot_salida = wx.StaticText(zona, label=_("&Salida:"))
-        self.cho_salida = _Eleccion(zona, _("&Salida:"))
+        formulario.agregar_fila(caja, None, self.rad_orientacion, hueco=0)
+        self.cho_lienzo = self._eleccion(caja, zona, _("&Lienzo:"))
+        self.cho_salida = self._eleccion(caja, zona, _("&Salida:"))
         self._poner_resoluciones(vertical, (ajustes.ancho_lienzo,
                                             ajustes.alto_lienzo),
                                  (ajustes.ancho_salida,
                                   ajustes.alto_salida))
-        fila_campo(caja, self.rot_lienzo, self.cho_lienzo)
-        fila_campo(caja, self.rot_salida, self.cho_salida)
-        self.rot_fps = wx.StaticText(zona, label=_("&Fotogramas por segundo:"))
-        self.cho_fps = _Eleccion(zona, _("&Fotogramas por segundo:"), int)
+        self.cho_fps = self._eleccion(
+            caja, zona, _("&Fotogramas por segundo:"), int)
         self.cho_fps.fijar_opciones(textos_perfil.opciones_fps())
         self.cho_fps.SetValue(ajustes.fps)
-        fila_campo(caja, self.rot_fps, self.cho_fps)
         if self._avanzado:
             self._crear_avanzado(zona, caja)
         else:
             self._crear_codificacion(zona, caja, ajustes)
-        contenido.Add(caja, 0, wx.EXPAND | wx.ALL, 6)
 
     def _crear_codificacion(self, zona, caja, ajustes):
-        self.rot_codificador = wx.StaticText(
-            zona, label=_("&Codificador:"))
-        self.cho_codificador = _Eleccion(zona, _("&Codificador:"))
+        self.cho_codificador = self._eleccion(caja, zona, _("&Codificador:"))
         self.cho_codificador.fijar_opciones(
             textos_perfil.opciones_codificador(self._codificadores))
         self.cho_codificador.SetValue(ajustes.codificador)
-        fila_campo(caja, self.rot_codificador, self.cho_codificador)
-        self.rot_bitrate_video = wx.StaticText(
-            zona, label=_("Tasa de bits de vídeo (&kbps):"))
-        self.sp_bitrate_video = ContadorAccesible(
-            zona, min=1, max=100000, initial=int(ajustes.bitrate_video),
-            name=nombre_de_etiqueta(_("Tasa de bits de vídeo (&kbps):")))
-        fila_campo(caja, self.rot_bitrate_video, self.sp_bitrate_video)
-        self.rot_preset = wx.StaticText(zona, label=_("Pr&eset:"))
-        self.cho_preset = _Eleccion(zona, _("Pr&eset:"))
+        self.sp_bitrate_video = self._numerico(
+            caja, zona, _("Tasa de bits de vídeo (&kbps):"), 1, 100000,
+            ajustes.bitrate_video)
+        self.cho_preset = self._eleccion(caja, zona, _("Pr&eset:"))
         self._poner_presets(ajustes.codificador, ajustes.preset)
-        fila_campo(caja, self.rot_preset, self.cho_preset)
 
     def _crear_avanzado(self, zona, caja):
         self.txt_avanzado = wx.StaticText(zona, label=_(TEXTO_AVANZADO))
-        caja.Add(self.txt_avanzado, 0, wx.ALL, 6)
+        formulario.agregar_fila(caja, None, self.txt_avanzado)
         self.btn_pasar_sencillo = wx.Button(
             zona, label=_("&Cambiar a modo Sencillo"),
             name=nombre_de_etiqueta(_("&Cambiar a modo Sencillo")))
         nombre_accesible(self.btn_pasar_sencillo,
                          self.btn_pasar_sencillo.GetName())
         self.btn_pasar_sencillo.Bind(wx.EVT_BUTTON, self._al_pasar_sencillo)
-        caja.Add(self.btn_pasar_sencillo, 0, wx.ALL, 6)
+        formulario.agregar_fila(caja, None, self.btn_pasar_sencillo)
 
     def _crear_transmision(self, zona, contenido, ajustes):
-        caja = self._caja(zona, _("Transmisión"))
-        self.rot_servidor = wx.StaticText(zona, label=_("Se&rvidor:"))
+        caja = formulario.agregar_seccion(contenido, zona, _("Transmisión"))
         estilo = 0 if self._personalizado else wx.TE_READONLY
-        self.txt_servidor = wx.TextCtrl(
-            zona, value=ajustes.servidor, style=estilo,
-            name=nombre_de_etiqueta(_("Se&rvidor:")))
-        nombre_accesible(self.txt_servidor, self.txt_servidor.GetName())
-        fila_campo(caja, self.rot_servidor, self.txt_servidor)
-        self.rot_clave = wx.StaticText(zona, label=_("Cl&ave:"))
-        self.txt_clave = wx.TextCtrl(
-            zona, value=ajustes.clave, style=wx.TE_PASSWORD,
-            name=nombre_de_etiqueta(_("Cl&ave:")))
-        nombre_accesible(self.txt_clave, self.txt_clave.GetName())
-        fila_campo(caja, self.rot_clave, self.txt_clave)
+        self.txt_servidor = self._campo_texto(
+            caja, zona, _("Se&rvidor:"), ajustes.servidor, estilo)
+        self.txt_clave = self._campo_texto(
+            caja, zona, _("Cl&ave:"), ajustes.clave, wx.TE_PASSWORD)
         self.chk_dinamico = self._casilla(
             zona, _("Tasa de bits &dinámica"), ajustes.bitrate_dinamico)
-        caja.Add(self.chk_dinamico, 0, wx.ALL, 6)
         self.chk_reconectar = self._casilla(
             zona, _("Rec&onectar"), ajustes.reconectar)
-        caja.Add(self.chk_reconectar, 0, wx.ALL, 6)
-        self.rot_espera = wx.StaticText(
-            zona, label=_("Espera de recone&xión:"))
-        self.sp_espera = ContadorAccesible(
-            zona, min=0, max=600, initial=int(ajustes.espera_reconexion),
-            name=nombre_de_etiqueta(_("Espera de recone&xión:")))
-        fila_campo(caja, self.rot_espera, self.sp_espera)
-        self.rot_reintentos = wx.StaticText(zona, label=_("Re&intentos:"))
-        self.sp_reintentos = ContadorAccesible(
-            zona, min=0, max=1000, initial=int(ajustes.reintentos),
-            name=nombre_de_etiqueta(_("Re&intentos:")))
-        fila_campo(caja, self.rot_reintentos, self.sp_reintentos)
-        contenido.Add(caja, 0, wx.EXPAND | wx.ALL, 6)
+        formulario.agregar_casillas(
+            caja, (self.chk_dinamico, self.chk_reconectar))
+        self.sp_espera = self._numerico(
+            caja, zona, _("Espera de recone&xión:"), 0, 600,
+            ajustes.espera_reconexion)
+        self.sp_reintentos = self._numerico(
+            caja, zona, _("Re&intentos:"), 0, 1000, ajustes.reintentos)
 
     def _crear_grabacion(self, zona, contenido, ajustes):
-        caja = self._caja(zona, _("Grabación"))
-        self.rot_carpeta = wx.StaticText(zona, label=_("Car&peta:"))
-        self.txt_carpeta = wx.TextCtrl(
-            zona, value=ajustes.carpeta_grabacion,
-            name=nombre_de_etiqueta(_("Car&peta:")))
-        nombre_accesible(self.txt_carpeta, self.txt_carpeta.GetName())
-        fila_campo(caja, self.rot_carpeta, self.txt_carpeta)
-        self.rot_formato = wx.StaticText(zona, label=_("For&mato:"))
-        self.cho_formato = _Eleccion(zona, _("For&mato:"))
+        caja = formulario.agregar_seccion(contenido, zona, _("Grabación"))
+        self.txt_carpeta = self._campo_texto(
+            caja, zona, _("Car&peta:"), ajustes.carpeta_grabacion)
+        self.cho_formato = self._eleccion(caja, zona, _("For&mato:"))
         self.cho_formato.fijar_opciones(textos_perfil.opciones_formato())
         self.cho_formato.SetValue(ajustes.formato_grabacion)
-        fila_campo(caja, self.rot_formato, self.cho_formato)
-        self.rot_calidad = wx.StaticText(
-            zona, label=_("Calidad de &grabación:"))
-        self.cho_calidad = _Eleccion(zona, _("Calidad de &grabación:"))
+        self.cho_calidad = self._eleccion(
+            caja, zona, _("Calidad de &grabación:"))
         self.cho_calidad.fijar_opciones(textos_perfil.opciones_calidad())
         self.cho_calidad.SetValue(ajustes.calidad_grabacion)
-        fila_campo(caja, self.rot_calidad, self.cho_calidad)
         self.chk_buffer = self._casilla(
             zona, _("B&úfer de clips"), ajustes.buffer_clips)
-        caja.Add(self.chk_buffer, 0, wx.ALL, 6)
-        self.rot_segundos = wx.StaticText(
-            zona, label=_("&Tiempo del búfer:"))
-        self.sp_segundos = ContadorAccesible(
-            zona, min=0, max=3600, initial=int(ajustes.segundos_buffer),
-            name=nombre_de_etiqueta(_("&Tiempo del búfer:")))
-        fila_campo(caja, self.rot_segundos, self.sp_segundos)
-        contenido.Add(caja, 0, wx.EXPAND | wx.ALL, 6)
+        formulario.agregar_casillas(caja, (self.chk_buffer,))
+        self.sp_segundos = self._numerico(
+            caja, zona, _("&Tiempo del búfer:"), 0, 3600,
+            ajustes.segundos_buffer)
 
     def _crear_audio(self, zona, contenido, ajustes):
-        caja = self._caja(zona, _("Audio"))
-        self.rot_bitrate_audio = wx.StaticText(
-            zona, label=_("Tasa de &bits de audio:"))
-        self.cho_bitrate_audio = _Eleccion(
-            zona, _("Tasa de &bits de audio:"), int)
+        caja = formulario.agregar_seccion(contenido, zona, _("Audio"))
+        self.cho_bitrate_audio = self._eleccion(
+            caja, zona, _("Tasa de &bits de audio:"), int)
         self.cho_bitrate_audio.fijar_opciones(
             textos_perfil.opciones_bitrate_audio())
         self.cho_bitrate_audio.SetValue(ajustes.bitrate_audio)
-        fila_campo(caja, self.rot_bitrate_audio, self.cho_bitrate_audio)
-        self.rot_muestreo = wx.StaticText(zona, label=_("Muestreo (H&z):"))
-        self.cho_muestreo = _Eleccion(zona, _("Muestreo (H&z):"), int)
+        self.cho_muestreo = self._eleccion(
+            caja, zona, _("Muestreo (H&z):"), int)
         self.cho_muestreo.fijar_opciones(textos_perfil.opciones_muestreo())
         self.cho_muestreo.SetValue(ajustes.muestreo)
-        fila_campo(caja, self.rot_muestreo, self.cho_muestreo)
-        self.rot_canales = wx.StaticText(zona, label=_("Ca&nales:"))
-        self.cho_canales = _Eleccion(zona, _("Ca&nales:"))
+        self.cho_canales = self._eleccion(caja, zona, _("Ca&nales:"))
         self.cho_canales.fijar_opciones(textos_perfil.opciones_canales())
         self.cho_canales.SetValue(ajustes.canales)
-        fila_campo(caja, self.rot_canales, self.cho_canales)
-        self.rot_monitoreo = wx.StaticText(
-            zona, label=_("Dispositivo de escuc&ha del monitoreo:"))
-        self.cho_monitoreo = _Eleccion(
-            zona, _("Dispositivo de escuc&ha del monitoreo:"))
+        self.cho_monitoreo = self._eleccion(
+            caja, zona, _("Dispositivo de escuc&ha del monitoreo:"))
         self.cho_monitoreo.fijar_opciones(
             self._opciones_monitoreo(ajustes))
         self.cho_monitoreo.SetValue(ajustes.monitoreo_id)
-        fila_campo(caja, self.rot_monitoreo, self.cho_monitoreo)
-        contenido.Add(caja, 0, wx.EXPAND | wx.ALL, 6)
 
-    def _crear_botones(self, caja):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        fila.AddStretchSpacer(1)
+    def _crear_botones(self, panel, contenido):
         self.btn_guardar = wx.Button(
-            self, wx.ID_OK, _("Guardar &y cerrar"),
+            panel, wx.ID_OK, _("Guardar &y cerrar"),
             name=nombre_de_etiqueta(_("Guardar &y cerrar")))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("Cancelar y &volver"),
+            panel, wx.ID_CANCEL, _("Cancelar y &volver"),
             name=nombre_de_etiqueta(_("Cancelar y &volver")))
-        fila.Add(self.btn_guardar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        formulario.agregar_pie(contenido,
+                               [self.btn_guardar, self.btn_cancelar])
         self._enlazar_eventos()
 
     def _casilla(self, padre, etiqueta, valor):

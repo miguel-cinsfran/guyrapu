@@ -11,7 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape, tema
 from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 
@@ -33,19 +33,21 @@ class DialogoUsosPerfil(wx.Dialog):
         self.Centre()
 
     def _crear_controles(self, nombre, config):
+        panel = wx.Panel(self, name="PanelUsosPerfil")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.casillas = {}
+        casillas = []
         for clave, rotulo in ROTULOS:
             etiqueta = self._etiqueta(clave, rotulo, nombre, config)
             casilla = wx.CheckBox(
-                self, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+                panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
             nombre_accesible(casilla, casilla.GetName())
             casilla.SetValue((config.get(clave) or "") == nombre)
             self.casillas[clave] = casilla
-            caja.Add(casilla, 0, wx.ALL, 6)
-        caja.Add(self._fila_botones(), 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((420, -1))
+            casillas.append(casilla)
+        formulario.agregar_casillas(caja, casillas)
+        self._fila_botones(panel, caja)
+        formulario.ajustar_tamano(self, panel, caja)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         next(iter(self.casillas.values())).SetFocus()
 
@@ -57,20 +59,18 @@ class DialogoUsosPerfil(wx.Dialog):
                 ahora=_("(ahora: {nombre})").format(nombre=otro))
         return _(rotulo)
 
-    def _fila_botones(self):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+    def _fila_botones(self, panel, caja):
         self.btn_aceptar = wx.Button(
-            self, wx.ID_OK, _("&Aceptar"),
+            panel, wx.ID_OK, _("&Aceptar"),
             name=nombre_de_etiqueta(_("&Aceptar")))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cancelar"),
+            panel, wx.ID_CANCEL, _("&Cancelar"),
             name=nombre_de_etiqueta(_("&Cancelar")))
         for boton in (self.btn_aceptar, self.btn_cancelar):
             nombre_accesible(boton, boton.GetName())
         self.btn_aceptar.SetDefault()
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        return fila
+        tema.boton_principal(self.btn_aceptar)
+        formulario.agregar_pie(caja, [self.btn_aceptar, self.btn_cancelar])
 
     def marcados(self):
         """Clave de uso a si su casilla quedó marcada."""

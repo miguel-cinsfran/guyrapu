@@ -8,8 +8,9 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import perfiles_obs
+from guyrapu.ui import formulario, paleta, tema
 from guyrapu.ui.accesibilidad import nombre_accesible
-from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
+from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 
 class DialogoNombrePerfil(wx.Dialog):
@@ -21,38 +22,35 @@ class DialogoNombrePerfil(wx.Dialog):
                          name="DialogoNombrePerfil")
         self._existentes = {str(nombre) for nombre in existentes}
         self._con_orientacion = con_orientacion
+        panel = wx.Panel(self, name="PanelNombrePerfil")
         caja = wx.BoxSizer(wx.VERTICAL)
-        self.rot_nombre = wx.StaticText(self, label=_("&Nombre:"))
+        rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = wx.TextCtrl(
-            self, name=nombre_de_etiqueta(_("&Nombre:")))
+            panel, name=nombre_de_etiqueta(_("&Nombre:")))
         nombre_accesible(self.txt_nombre, self.txt_nombre.GetName())
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        fila.Add(self.rot_nombre, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
-        fila.Add(self.txt_nombre, 1, wx.EXPAND | wx.ALL, 6)
-        caja.Add(fila, 0, wx.EXPAND)
+        formulario.agregar_fila(caja, rotulo, self.txt_nombre, hueco=0)
         if con_orientacion:
             self.rad_orientacion = wx.RadioBox(
-                self, label=_("Orientación"),
+                panel, label=_("Orientación"),
                 choices=[_("Horizontal"), _("Vertical")], majorDimension=2,
                 style=wx.RA_SPECIFY_ROWS, name=_("Orientación"))
             nombre_accesible(self.rad_orientacion, _("Orientación"))
             self.rad_orientacion.SetSelection(0)
-            caja.Add(self.rad_orientacion, 0, wx.ALL, 6)
-        self.txt_error = wx.StaticText(self, label="")
-        caja.Add(self.txt_error, 0, wx.LEFT | wx.RIGHT, 8)
-        fila_botones = wx.BoxSizer(wx.HORIZONTAL)
+            formulario.agregar_fila(caja, None, self.rad_orientacion,
+                                    hueco=0)
+        self.txt_error = wx.StaticText(panel, label="")
+        formulario.agregar_fila(caja, None, self.txt_error, hueco=0)
         self.btn_aceptar = wx.Button(
-            self, wx.ID_OK, accion or _("C&rear"),
+            panel, wx.ID_OK, accion or _("C&rear"),
             name=nombre_de_etiqueta(accion or _("C&rear")))
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cancelar"),
+            panel, wx.ID_CANCEL, _("&Cancelar"),
             name=nombre_de_etiqueta(_("&Cancelar")))
         self.btn_aceptar.SetDefault()
-        fila_botones.Add(self.btn_aceptar, 0, wx.RIGHT, 6)
-        fila_botones.Add(self.btn_cancelar, 0)
-        caja.Add(fila_botones, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((420, -1))
+        tema.boton_principal(self.btn_aceptar)
+        formulario.agregar_pie(caja, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, caja)
+        paleta.pintar_ventana(self)
         self.Centre()
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._al_aceptar)
         self.txt_nombre.SetFocus()

@@ -8,6 +8,7 @@ from unittest import mock
 import wx
 
 from tests.ventanas_prueba import app_de_prueba, destruir
+from guyrapu.ui import formulario, tema
 from guyrapu.ui.dialogo_usos_perfil import DialogoUsosPerfil
 
 
@@ -72,6 +73,35 @@ class TestEscape(BaseDialogo):
         with mock.patch.object(dialogo, "EndModal") as fin:
             dialogo._al_tecla(evento)
         fin.assert_called_once_with(wx.ID_CANCEL)
+
+
+class TestGeometria(BaseDialogo):
+
+    def test_el_cuadro_usa_las_medidas_comunes(self):
+        dialogo = self._dialogo()
+        dialogo.Show()
+        wx.Yield()
+        ancho, alto = dialogo.GetClientSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO,
+                                f"tamaño {ancho} x {alto}")
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO,
+                             f"tamaño {ancho} x {alto}")
+        self.assertEqual(dialogo.btn_aceptar.GetSize().width,
+                         dialogo.btn_cancelar.GetSize().width)
+        self.assertEqual(dialogo.btn_cancelar.GetPosition().x - (
+            dialogo.btn_aceptar.GetPosition().x
+            + dialogo.btn_aceptar.GetSize().width),
+            formulario.ENTRE_BOTONES)
+        panel = dialogo.btn_aceptar.GetParent()
+        self.assertEqual(panel.GetClientSize().width - (
+            dialogo.btn_cancelar.GetPosition().x
+            + dialogo.btn_cancelar.GetSize().width), formulario.MARGEN)
+        self.assertGreater(dialogo.btn_aceptar.GetPosition().y,
+                           next(iter(dialogo.casillas.values())
+                                ).GetPosition().y)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(dialogo.btn_aceptar.GetBackgroundColour(),
+                             tema._T.primary)
 
 
 if __name__ == "__main__":

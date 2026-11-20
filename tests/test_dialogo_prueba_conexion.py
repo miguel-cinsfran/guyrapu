@@ -10,7 +10,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, obs_cliente, prueba_conexion
-from guyrapu.ui import dialogo_prueba_conexion
+from guyrapu.ui import dialogo_prueba_conexion, formulario, tema
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 
@@ -281,6 +281,56 @@ class TestFalloDelPanel(unittest.TestCase):
         general.mostrar.assert_called_once_with(["listo"])
         anunciar.assert_called_once_with("listo")
         avisar.assert_not_called()
+
+
+class TestGeometria(BaseCuadro):
+
+    def _tamaño(self, cuadro):
+        self.addCleanup(destruir, cuadro)
+        cuadro.Show()
+        wx.Yield()
+        ancho, alto = cuadro.GetClientSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO,
+                                f"tamaño {ancho} x {alto}")
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO,
+                             f"tamaño {ancho} x {alto}")
+
+    def _pie(self, cuadro, *botones):
+        panel = botones[0].GetParent()
+        for anterior, boton in zip(botones, botones[1:]):
+            self.assertEqual(boton.GetSize().width, anterior.GetSize().width)
+            self.assertEqual(boton.GetPosition().x - (
+                anterior.GetPosition().x + anterior.GetSize().width),
+                formulario.ENTRE_BOTONES)
+        self.assertEqual(panel.GetClientSize().width - (
+            botones[-1].GetPosition().x + botones[-1].GetSize().width),
+            formulario.MARGEN)
+
+    def test_la_prueba_usa_las_medidas_comunes(self):
+        cuadro = dialogo_prueba_conexion.DialogoPruebaConexion(
+            None, "Casa", 2500, 60)
+        self._tamaño(cuadro)
+        panel = cuadro.btn_empezar.GetParent()
+        self.assertEqual(cuadro.txt_detalle.GetSize().width,
+                         panel.GetClientSize().width - 2 * formulario.MARGEN)
+        self._pie(cuadro, cuadro.btn_empezar, cuadro.btn_cancelar)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(cuadro.btn_empezar.GetBackgroundColour(),
+                             tema._T.primary)
+
+    def test_el_resultado_usa_las_medidas_comunes(self):
+        pasos = (prueba_conexion.PasoRed(2500, 5, 100),
+                 prueba_conexion.PasoRed(1300, 0, 100))
+        cuadro = dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+            None, _resultado(1300, pasos=pasos))
+        self._tamaño(cuadro)
+        panel = cuadro.btn_guardar.GetParent()
+        self.assertEqual(cuadro.txt_resultado.GetSize().width,
+                         panel.GetClientSize().width - 2 * formulario.MARGEN)
+        self._pie(cuadro, cuadro.btn_guardar, cuadro.btn_dejar)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(cuadro.btn_guardar.GetBackgroundColour(),
+                             tema._T.primary)
 
 
 if __name__ == "__main__":

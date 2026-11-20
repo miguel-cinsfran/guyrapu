@@ -15,7 +15,7 @@ import wx
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import (escalones_equipo, lienzo_vertical, perfiles_obs,
                          prueba_equipo, prueba_vertical)
-from guyrapu.ui import tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape, tema
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 from guyrapu.ui.ventana_espera import VentanaEspera
@@ -88,34 +88,33 @@ class DialogoPruebaEquipo(wx.Dialog):
                  vertical=False):
         super().__init__(padre, title=_("Probar equipo"),
                          name="DialogoPruebaEquipo")
+        panel = wx.Panel(self, name="PanelPruebaEquipo")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_detalle = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO, name=_("Detalle de la prueba"))
+            panel, style=_PROPIEDADES_TEXTO, name=_("Detalle de la prueba"))
         nombre_accesible(self.txt_detalle, _("Detalle de la prueba"))
         self.txt_detalle.SetMinSize((-1, 120))
         detalle = _texto_detalle(perfil, ajustes, segundos_maximos)
         self.chk_vertical = None
         if vertical:
             self.chk_vertical = wx.CheckBox(
-                self, label=_(ROTULO_VERTICAL),
+                panel, label=_(ROTULO_VERTICAL),
                 name=nombre_de_etiqueta(_(ROTULO_VERTICAL)))
             nombre_accesible(self.chk_vertical, self.chk_vertical.GetName())
             detalle += " " + _(DETALLE_VERTICAL)
         self.txt_detalle.SetValue(detalle)
-        caja.Add(self.txt_detalle, 1, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(caja, None, self.txt_detalle, hueco=0)
         if self.chk_vertical is not None:
-            caja.Add(self.chk_vertical, 0, wx.LEFT | wx.RIGHT, 10)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_empezar = _boton(self, _("&Iniciar"), self._empezar)
+            formulario.agregar_casillas(caja, (self.chk_vertical,), hueco=0)
+        self.btn_empezar = _boton(panel, _("&Iniciar"), self._empezar)
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cancelar"),
+            panel, wx.ID_CANCEL, _("&Cancelar"),
             name=nombre_de_etiqueta(_("&Cancelar")))
         self.btn_empezar.SetDefault()
-        fila.Add(self.btn_empezar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((460, -1))
+        tema.boton_principal(self.btn_empezar)
+        formulario.agregar_pie(caja, [self.btn_empezar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, caja)
+        paleta.pintar_ventana(self)
         self.Centre()
         self.btn_empezar.SetFocus()
 
@@ -138,29 +137,29 @@ class DialogoResultadoPrueba(wx.Dialog):
                          name="DialogoResultadoPrueba")
         self._resultado = resultado
         self._guardar = False
+        panel = wx.Panel(self, name="PanelResultadoPrueba")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_resultado = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO,
+            panel, style=_PROPIEDADES_TEXTO,
             name=_("Resultado de la prueba"))
         nombre_accesible(self.txt_resultado, _("Resultado de la prueba"))
         self.txt_resultado.SetMinSize((-1, 120))
         self.txt_resultado.SetValue(texto_resultado(resultado))
-        caja.Add(self.txt_resultado, 1, wx.EXPAND | wx.ALL, 10)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+        formulario.agregar_fila(caja, None, self.txt_resultado, hueco=0)
         if resultado.aguantaron is None or resultado.aguanta_tal_cual:
-            self.btn_cerrar = _boton(self, _("&Cerrar"), self._cerrar)
-            fila.Add(self.btn_cerrar, 0)
+            self.btn_cerrar = _boton(panel, _("&Cerrar"), self._cerrar)
+            botones = [self.btn_cerrar]
         else:
-            self.btn_guardar = _boton(self, _("&Guardar en el perfil"),
+            self.btn_guardar = _boton(panel, _("&Guardar en el perfil"),
                                       self._al_guardar)
-            self.btn_dejar = _boton(self, _("&Dejar como estaba"),
+            self.btn_dejar = _boton(panel, _("&Dejar como estaba"),
                                     self._cerrar)
             self.btn_guardar.SetDefault()
-            fila.Add(self.btn_guardar, 0, wx.RIGHT, 6)
-            fila.Add(self.btn_dejar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((520, -1))
+            tema.boton_principal(self.btn_guardar)
+            botones = [self.btn_guardar, self.btn_dejar]
+        formulario.agregar_pie(caja, botones)
+        formulario.ajustar_tamano(self, panel, caja)
+        paleta.pintar_ventana(self)
         self.Centre()
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.txt_resultado.SetFocus()

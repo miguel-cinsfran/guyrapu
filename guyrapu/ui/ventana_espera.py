@@ -13,6 +13,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import _
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
@@ -35,23 +36,27 @@ class VentanaEspera(wx.Dialog):
         self._espera.empezar()
 
     def _crear_controles(self, titulo, texto_inicial):
-        caja = wx.BoxSizer(wx.VERTICAL)
+        self._panel = wx.Panel(self, name="PanelEspera")
         self.txt_estado = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO, name=titulo)
+            self._panel, style=_PROPIEDADES_TEXTO, name=titulo)
         nombre_accesible(self.txt_estado, titulo)
         self.txt_estado.SetMinSize((-1, 100))
         self.txt_estado.SetValue(texto_inicial)
-        caja.Add(self.txt_estado, 1, wx.EXPAND | wx.ALL, 10)
         if self._parada is not None:
             self._btn = self._crear_boton(_("&Cancelar"))
-            caja.Add(self._btn, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((480, -1))
+        self._armar()
         self.Centre()
         self.txt_estado.SetFocus()
 
+    def _armar(self):
+        caja = wx.BoxSizer(wx.VERTICAL)
+        formulario.agregar_fila(caja, None, self.txt_estado, hueco=0)
+        if self._btn is not None:
+            formulario.agregar_pie(caja, [self._btn])
+        formulario.ajustar_tamano(self, self._panel, caja)
+
     def _crear_boton(self, etiqueta):
-        control = wx.Button(self, wx.ID_CANCEL, etiqueta,
+        control = wx.Button(self._panel, wx.ID_CANCEL, etiqueta,
                             name=nombre_de_etiqueta(etiqueta))
         nombre_accesible(control, control.GetName())
         control.Bind(wx.EVT_BUTTON, self._al_boton)
@@ -86,9 +91,7 @@ class VentanaEspera(wx.Dialog):
     def _poner_cerrar(self):
         if self._btn is None:
             self._btn = self._crear_boton(_("&Cerrar"))
-            self.GetSizer().Add(self._btn, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-            self.Layout()
-            self.Fit()
+            self._armar()
         else:
             self._btn.SetLabel(_("&Cerrar"))
             nombre_accesible(self._btn, nombre_de_etiqueta(_("&Cerrar")))

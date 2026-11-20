@@ -11,6 +11,7 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, asistente_perfiles
 from guyrapu.ui import dialogo_asistente_perfiles as modulo
+from guyrapu.ui import formulario, tema
 
 
 def _perfil(nombre, uso):
@@ -182,6 +183,57 @@ class TestAnteriores(unittest.TestCase):
         progreso.terminar.assert_called_once_with(
             _(modulo.MENSAJE_CANCELADO), error=False)
         anunciar.assert_not_called()
+
+
+class TestGeometria(unittest.TestCase):
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def _tamaño(self, cuadro):
+        self.addCleanup(destruir, cuadro)
+        cuadro.Show()
+        wx.Yield()
+        ancho, alto = cuadro.GetClientSize()
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO,
+                                f"tamaño {ancho} x {alto}")
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO,
+                             f"tamaño {ancho} x {alto}")
+
+    def test_el_asistente_usa_las_medidas_comunes(self):
+        cuadro = modulo.DialogoAsistentePerfiles(None)
+        self._tamaño(cuadro)
+        self.assertEqual(cuadro.btn_preparar.GetSize().width,
+                         cuadro.btn_cancelar.GetSize().width)
+        self.assertEqual(cuadro.btn_cancelar.GetPosition().x - (
+            cuadro.btn_preparar.GetPosition().x
+            + cuadro.btn_preparar.GetSize().width),
+            formulario.ENTRE_BOTONES)
+        panel = cuadro.btn_preparar.GetParent()
+        self.assertEqual(panel.GetClientSize().width - (
+            cuadro.btn_cancelar.GetPosition().x
+            + cuadro.btn_cancelar.GetSize().width), formulario.MARGEN)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(cuadro.btn_preparar.GetBackgroundColour(),
+                             tema._T.primary)
+
+    def test_el_resumen_usa_las_medidas_comunes(self):
+        cuadro = self._resumen()
+        self._tamaño(cuadro)
+        panel = cuadro.btn_cerrar.GetParent()
+        self.assertEqual(panel.GetClientSize().width - (
+            cuadro.btn_cerrar.GetPosition().x
+            + cuadro.btn_cerrar.GetSize().width), formulario.MARGEN)
+        self.assertGreater(cuadro.btn_cerrar.GetPosition().y,
+                           cuadro.txt_resumen.GetPosition().y)
+        self.assertEqual(cuadro.txt_resumen.GetSize().width,
+                         panel.GetClientSize().width - 2 * formulario.MARGEN)
+
+    def _resumen(self):
+        resultado = asistente_perfiles.ResultadoAsistente((
+            _perfil("Guyrapu horizontal", "perfil_horizontal"),))
+        texto = "\n".join(asistente_perfiles.lineas_resumen(resultado))
+        return modulo.DialogoResumenAsistente(None, texto)
 
 
 if __name__ == "__main__":

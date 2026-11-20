@@ -15,7 +15,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import perfiles_obs, prueba_conexion
-from guyrapu.ui import tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape, tema
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 from guyrapu.ui.ventana_espera import VentanaEspera
@@ -69,9 +69,10 @@ class DialogoPruebaConexion(wx.Dialog):
     def __init__(self, padre, perfil, bitrate, segundos_maximos):
         super().__init__(padre, title=_("Probar conexión"),
                          name="DialogoPruebaConexion")
+        panel = wx.Panel(self, name="PanelPruebaConexion")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_detalle = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO, name=_("Detalle de la prueba"))
+            panel, style=_PROPIEDADES_TEXTO, name=_("Detalle de la prueba"))
         nombre_accesible(self.txt_detalle, _("Detalle de la prueba"))
         self.txt_detalle.SetMinSize((-1, 130))
         self.txt_detalle.SetValue(_(
@@ -80,18 +81,16 @@ class DialogoPruebaConexion(wx.Dialog):
             "con {tasa} kbps. La prueba tarda como mucho {segundos} "
             "segundos.").format(perfil=perfil, tasa=bitrate,
                                 segundos=segundos_maximos))
-        caja.Add(self.txt_detalle, 1, wx.EXPAND | wx.ALL, 10)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_empezar = _boton(self, _("&Iniciar"), self._empezar)
+        formulario.agregar_fila(caja, None, self.txt_detalle, hueco=0)
+        self.btn_empezar = _boton(panel, _("&Iniciar"), self._empezar)
         self.btn_cancelar = wx.Button(
-            self, wx.ID_CANCEL, _("&Cancelar"),
+            panel, wx.ID_CANCEL, _("&Cancelar"),
             name=nombre_de_etiqueta(_("&Cancelar")))
         self.btn_empezar.SetDefault()
-        fila.Add(self.btn_empezar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((480, -1))
+        tema.boton_principal(self.btn_empezar)
+        formulario.agregar_pie(caja, [self.btn_empezar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, panel, caja)
+        paleta.pintar_ventana(self)
         self.Centre()
         self.btn_empezar.SetFocus()
 
@@ -110,29 +109,29 @@ class DialogoResultadoPruebaConexion(wx.Dialog):
                          name="DialogoResultadoPruebaConexion")
         self._resultado = resultado
         self._guardar = False
+        panel = wx.Panel(self, name="PanelResultadoConexion")
         caja = wx.BoxSizer(wx.VERTICAL)
         self.txt_resultado = wx.TextCtrl(
-            self, style=_PROPIEDADES_TEXTO,
+            panel, style=_PROPIEDADES_TEXTO,
             name=_("Resultado de la prueba"))
         nombre_accesible(self.txt_resultado, _("Resultado de la prueba"))
         self.txt_resultado.SetMinSize((-1, 120))
         self.txt_resultado.SetValue(texto_resultado(resultado))
-        caja.Add(self.txt_resultado, 1, wx.EXPAND | wx.ALL, 10)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+        formulario.agregar_fila(caja, None, self.txt_resultado, hueco=0)
         if resultado.puede_guardar:
-            self.btn_guardar = _boton(self, _("&Guardar en el perfil"),
+            self.btn_guardar = _boton(panel, _("&Guardar en el perfil"),
                                       self._al_guardar)
-            self.btn_dejar = _boton(self, _("&Dejar como estaba"),
+            self.btn_dejar = _boton(panel, _("&Dejar como estaba"),
                                     self._cerrar)
             self.btn_guardar.SetDefault()
-            fila.Add(self.btn_guardar, 0, wx.RIGHT, 6)
-            fila.Add(self.btn_dejar, 0)
+            tema.boton_principal(self.btn_guardar)
+            botones = [self.btn_guardar, self.btn_dejar]
         else:
-            self.btn_cerrar = _boton(self, _("&Cerrar"), self._cerrar)
-            fila.Add(self.btn_cerrar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(caja)
-        self.SetMinSize((520, -1))
+            self.btn_cerrar = _boton(panel, _("&Cerrar"), self._cerrar)
+            botones = [self.btn_cerrar]
+        formulario.agregar_pie(caja, botones)
+        formulario.ajustar_tamano(self, panel, caja)
+        paleta.pintar_ventana(self)
         self.Centre()
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.txt_resultado.SetFocus()
