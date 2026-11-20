@@ -230,19 +230,6 @@ def nombre_genero(genero) -> str:
     return _(_GENEROS.get(str(genero or "").lower(), ""))
 
 
-def fila_voz(voz) -> str:
-    partes = [str(voz.get("nombre") or "")]
-    genero = _GENEROS.get(str(voz.get("genero") or "").lower())
-    if genero:
-        partes.append(_(genero))
-    partes.append(nombre_idioma(str(voz.get("idioma") or "")))
-    return ", ".join(parte for parte in partes if parte)
-
-
-def filas_voces(entrada) -> list[str]:
-    return [fila_voz(voz) for voz in voces(entrada)]
-
-
 def _idiomas_distintos(entrada) -> list[str]:
     idiomas = []
     vistos = set()

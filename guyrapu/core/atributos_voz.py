@@ -16,7 +16,7 @@ from guyrapu.core.idioma import N_, _
 @dataclass(frozen=True)
 class Atributo:
     clave: str
-    rótulo: str
+    rotulo: str
     valores: dict[str, str]
     en_fila: bool
 
@@ -55,13 +55,13 @@ def _conocidos(atributos, solo_fila):
 
 def textos_fila(atributos) -> list[str]:
     """Los atributos de fila conocidos, con su valor traducido."""
-    return ["{} {}".format(_(atributo.rótulo).lower(),
+    return ["{} {}".format(_(atributo.rotulo).lower(),
                            _(atributo.valores[valor]))
             for atributo, valor in _conocidos(atributos, True)]
 
 
 def lineas_detalles(atributos, motor) -> list[str]:
     """Una línea por atributo conocido, con el nombre del motor."""
-    return [_(_DETALLE).format(atributo=_(atributo.rótulo), motor=motor,
+    return [_(_DETALLE).format(atributo=_(atributo.rotulo), motor=motor,
                                valor=_(atributo.valores[valor]))
             for atributo, valor in _conocidos(atributos, False)]

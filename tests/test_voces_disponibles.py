@@ -213,19 +213,6 @@ class TestFiltros(unittest.TestCase):
 
 class TestFilasYDetalles(unittest.TestCase):
 
-    def test_fila_de_voz_con_genero(self):
-        self.assertEqual(
-            voces_disponibles.fila_voz(_voz("Noa", "es-ES", "female")),
-            "Noa, femenina, español (España)")
-        self.assertEqual(
-            voces_disponibles.fila_voz(_voz("Marc", "en-US", "male")),
-            "Marc, masculina, inglés (Estados Unidos)")
-
-    def test_fila_de_voz_sin_genero(self):
-        self.assertEqual(
-            voces_disponibles.fila_voz(_voz("Davefx", "es-ES")),
-            "Davefx, español (España)")
-
     def test_los_detalles_traen_licencia_enlace_y_uso_comercial(self):
         paquete = _paquete(
             "phonon-es", "phonon", "Phonon español", "es",
