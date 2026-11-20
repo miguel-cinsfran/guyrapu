@@ -34,7 +34,7 @@ from tests.test_preferencias_musica import (
     PENDIENTES_OTROS_MODULOS as PENDIENTES_MUSICA)
 from tests.test_preferencias_voz import (
     PENDIENTES_OTROS_MODULOS as PENDIENTES_VOZ)
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import app_de_prueba, armar_preferencias, destruir
 
 
 # Textos que arma otro módulo y aparecen en el recorrido del diálogo
@@ -157,10 +157,9 @@ class TestPaginaObsClips(unittest.TestCase):
         catalogo_vacio.start()
         self.addCleanup(catalogo_vacio.stop)
 
-    def _dialogo(self, configuracion=None):
+    def _dialogo(self, configuracion=None, titulos=("OBS",)):
         with mock.patch.object(motores, "listar_voces", return_value=[]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, *titulos)
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -174,20 +173,22 @@ class TestPaginaObsClips(unittest.TestCase):
         self.assertEqual(pagina.cho_clips.GetName(), "Clips")
 
     def test_el_boton_administrar_voces_tiene_su_nombre(self):
-        pagina = self._dialogo().pagina_voz
+        pagina = self._dialogo(titulos=("Voces",)).pagina_voz
         self.assertEqual(pagina.btn_voces.GetLabel(), "Admi&nistrar voces…")
         self.assertEqual(pagina.btn_voces.GetName(), "Administrar voces…")
 
     def test_la_pagina_voces_no_repite_letras_con_administrar(self):
         from tests.letras_acceso import letras_repetidas
 
-        pagina = self._dialogo().pagina_voz
+        pagina = self._dialogo(titulos=("Voces",)).pagina_voz
         self.assertEqual(letras_repetidas(pagina._pag_voz_panel), {})
 
     def test_la_pagina_obs_no_repite_letras_de_acceso(self):
         from tests.letras_acceso import letras_repetidas
 
-        dialogo = self._dialogo()
+        with mock.patch.object(motores, "listar_voces", return_value=[]):
+            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+        self.addCleanup(destruir, dialogo)
         pagina = next(dialogo.nb.GetPage(i)
                       for i in range(dialogo.nb.GetPageCount())
                       if dialogo.nb.GetPageText(i) == "OBS")
@@ -386,8 +387,7 @@ class TestPaginaVocesMotor(unittest.TestCase):
     def _dialogo(self, configuracion=None, voces=()):
         with mock.patch.object(motores, "listar_voces",
                                return_value=list(voces)):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Voces")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -438,13 +438,14 @@ class TestPaginaDescargas(unittest.TestCase):
 
     def _dialogo(self, configuracion=None):
         with mock.patch.object(motores, "listar_voces", return_value=[]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Descargas")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
     def test_pagina_descargas_tras_musica_con_nueve_controles(self):
-        dialogo = self._dialogo()
+        with mock.patch.object(motores, "listar_voces", return_value=[]):
+            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+        self.addCleanup(destruir, dialogo)
         textos = [dialogo.nb.GetPageText(i)
                   for i in range(dialogo.nb.GetPageCount())]
         self.assertEqual(textos[textos.index("Música") + 1], "Descargas")
@@ -713,8 +714,7 @@ class TestCasillaTeclasMultimedia(unittest.TestCase):
         with mock.patch.object(motores, "listar_voces", return_value=[]), \
                 mock.patch.object(reproductor_pcm, "listar_salidas",
                                   return_value=[]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Música")
         self.addCleanup(destruir, dialogo)
         return dialogo
 

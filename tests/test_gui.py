@@ -53,7 +53,8 @@ from guyrapu.ui.lista_chat import MensajeChat, ListaChat
 from guyrapu.ui.sesion_conectada import SesionConectada
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.rutas_temporales import redirigir_rutas
-from tests.ventanas_prueba import app_de_prueba, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                  pagina_por_titulo)
 
 
 class TestInicioGui(unittest.TestCase):
@@ -1716,6 +1717,12 @@ class TestCategoriasDePreferencias(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         return dialogo
 
+    def _parcial(self, configuracion, *titulos):
+        with mock.patch.object(motores, "listar_voces", return_value=["Voz de prueba"]):
+            dialogo = armar_preferencias(configuracion, *titulos)
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
     @staticmethod
     def _buscar(raiz, nombre):
         pendientes = [raiz]
@@ -1727,11 +1734,11 @@ class TestCategoriasDePreferencias(unittest.TestCase):
         return None
 
     def test_casilla_solo_audio_dice_sin_imagen_y_se_traduce(self):
-        self.assertEqual(self._dialogo().chk_solo_audio.GetLabel(),
+        self.assertEqual(self._parcial({}, "Reproductor").chk_solo_audio.GetLabel(),
                          "Reproducir &solo el audio, sin imagen")
         from tests.letras_acceso import ingles
         with ingles():
-            self.assertEqual(self._dialogo().chk_solo_audio.GetLabel(),
+            self.assertEqual(self._parcial({}, "Player").chk_solo_audio.GetLabel(),
                              "Play s&ound only, without the picture")
 
     def test_abre_con_el_foco_en_la_lista_de_categorias(self):
@@ -1739,18 +1746,16 @@ class TestCategoriasDePreferencias(unittest.TestCase):
         self.assertIs(gui.wx.Window.FindFocus(), dialogo.lista_categorias)
 
     def test_salida_guardada_se_conserva_sin_consultar_vlc(self):
-        with mock.patch.object(motores, "listar_voces", return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, {"musica_salida": "vieja",
-                       "musica_salida_nombre": "Salida vieja"})
-        self.addCleanup(destruir, dialogo)
+        dialogo = self._parcial(
+            {"musica_salida": "vieja", "musica_salida_nombre": "Salida vieja"},
+            "Música")
 
         self.assertEqual(dialogo.pagina_musica.cho_musica_salida.GetStrings(),
                          ["Salida predeterminada", "Salida vieja"])
         self.assertEqual(dialogo.pagina_musica.cho_musica_salida.GetSelection(), 1)
 
     def test_buscar_salidas_lanza_hilo_sin_consultar_al_construir(self):
-        dialogo = self._dialogo()
+        dialogo = self._parcial({}, "Música")
         self.assertEqual(dialogo.pagina_musica.cho_musica_salida.GetStrings(),
                          ["Salida predeterminada"])
         hilo = mock.Mock()
@@ -1777,7 +1782,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
                          ["Salida predeterminada", "Altavoces"])
 
     def test_salidas_encontradas_anuncia_cuantas_hallo(self):
-        dialogo = self._dialogo()
+        dialogo = self._parcial({}, "Música")
         with mock.patch.object(preferencias_musica, "anunciar") as anunciar:
             dialogo.pagina_musica._salidas_encontradas(
                 [("altavoces", "Altavoces"), ("auriculares", "Auriculares")])
@@ -1785,7 +1790,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
         self.assertEqual(dialogo.pagina_musica.cho_musica_salida.GetSelection(), 0)
 
     def test_sin_salidas_anuncia_que_no_hallo_ninguna(self):
-        dialogo = self._dialogo()
+        dialogo = self._parcial({}, "Música")
         with mock.patch.object(preferencias_musica, "anunciar") as anunciar:
             dialogo.pagina_musica._salidas_encontradas([])
         anunciar.assert_called_once_with("No se encontraron salidas de audio")
@@ -1793,28 +1798,24 @@ class TestCategoriasDePreferencias(unittest.TestCase):
                          ["Salida predeterminada"])
 
     def test_una_sola_salida_se_anuncia_en_singular(self):
-        dialogo = self._dialogo()
+        dialogo = self._parcial({}, "Música")
         with mock.patch.object(preferencias_musica, "anunciar") as anunciar:
             dialogo.pagina_musica._salidas_encontradas([("altavoces", "Altavoces")])
         anunciar.assert_called_once_with("Se encontró 1 salida de audio")
 
     def test_la_guardada_no_encontrada_no_suma(self):
-        with mock.patch.object(motores, "listar_voces", return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, {"musica_salida": "vieja",
-                       "musica_salida_nombre": "Salida vieja"})
-        self.addCleanup(destruir, dialogo)
+        dialogo = self._parcial(
+            {"musica_salida": "vieja", "musica_salida_nombre": "Salida vieja"},
+            "Música")
 
         with mock.patch.object(preferencias_musica, "anunciar") as anunciar:
             dialogo.pagina_musica._salidas_encontradas([("altavoces", "Altavoces")])
         anunciar.assert_called_once_with("Se encontró 1 salida de audio")
 
     def test_la_elegida_se_conserva_al_rehacer_la_lista(self):
-        with mock.patch.object(motores, "listar_voces", return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, {"musica_salida": "vieja",
-                       "musica_salida_nombre": "Salida vieja"})
-        self.addCleanup(destruir, dialogo)
+        dialogo = self._parcial(
+            {"musica_salida": "vieja", "musica_salida_nombre": "Salida vieja"},
+            "Música")
 
         with mock.patch.object(preferencias_musica, "anunciar"):
             dialogo.pagina_musica._salidas_encontradas([("altavoces", "Altavoces")])
@@ -1824,14 +1825,14 @@ class TestCategoriasDePreferencias(unittest.TestCase):
                          "Salida vieja")
 
     def test_salidas_encontradas_ignora_el_dialogo_destruido(self):
-        dialogo = self._dialogo()
+        dialogo = self._parcial({}, "Música")
         with mock.patch.object(gui_preferencias.PreferenciasDialog, "__bool__",
                                lambda self: False, create=True), \
                 mock.patch.object(preferencias_musica, "anunciar"):
             dialogo.pagina_musica._salidas_encontradas([("altavoces", "Altavoces")])
 
     def test_respuestas_de_hilos_ignoran_el_dialogo_destruido(self):
-        dialogo = self._dialogo()
+        dialogo = self._parcial({}, "YouTube", "Inteligencia artificial")
         with mock.patch.object(gui_preferencias.PreferenciasDialog, "__bool__",
                                lambda self: False, create=True), \
                 mock.patch.object(preferencias_api, "anunciar") as anunciar_api, \
@@ -2225,12 +2226,12 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
                 mock.patch.object(
                     preferencias_ia.catalogo, "cargar",
                     return_value=muestra or _catalogo_de_prueba()):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "Inteligencia artificial")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
     def _pagina(self, dialogo):
-        return next(p for p in dialogo._paginas() if p.GetName() == "PagIA")
+        return pagina_por_titulo(dialogo, "Inteligencia artificial")
 
     @staticmethod
     def _indice_proveedor(ident):
@@ -2245,8 +2246,7 @@ class TestPaginaInteligenciaArtificial(unittest.TestCase):
 
     @staticmethod
     def _orden_de_tab(dialogo):
-        pagina = next(p for p in dialogo._paginas()
-                      if p.GetName() == "PagIA")
+        pagina = pagina_por_titulo(dialogo, "Inteligencia artificial")
         orden = []
         for hijo in pagina.GetChildren():
             if not hijo.IsShown() or isinstance(hijo, gui.wx.StaticText):
@@ -3062,8 +3062,7 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
     def _dialogo(self, configuracion=None):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, "Voces")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -3092,7 +3091,7 @@ class TestPreferenciasElevenLabs(unittest.TestCase):
 
     @staticmethod
     def _pagina_voz(dialogo):
-        return next(p for p in dialogo._paginas() if p.GetName() == "PagVoz")
+        return pagina_por_titulo(dialogo, "Voces")
 
     def test_controles_elevenlabs_visibles_solo_con_ese_motor(self):
         dialogo = self._dialogo({"motor": "elevenlabs"})
@@ -3385,9 +3384,9 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
         parche.__enter__()
         self.addCleanup(parche.__exit__, None, None, None)
 
-    def _dialogo(self, configuracion=None):
+    def _dialogo(self, configuracion=None, *titulos):
         with mock.patch.object(motores, "listar_voces", return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, configuracion or {})
+            dialogo = armar_preferencias(configuracion or {}, *titulos)
         self.addCleanup(destruir, dialogo)
         return dialogo
 
@@ -3405,8 +3404,8 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
 
     def test_motor_sin_voces_no_escribe_motor_ni_voz_y_avisa(self):
         with mock.patch.object(motores, "listar_voces", return_value=[]):
-            dialogo = gui_preferencias.PreferenciasDialog(
-                None, {"motor": "onecore", "voz": "Voz vieja", "volumen": 0.5})
+            dialogo = armar_preferencias(
+                {"motor": "onecore", "voz": "Voz vieja", "volumen": 0.5}, "Voces")
         self.addCleanup(destruir, dialogo)
         with mock.patch.object(gui_preferencias.cfg, "guardar_opciones") as guardar, \
                 mock.patch.object(gui_preferencias._snd, "reproducir"), \
@@ -3437,7 +3436,7 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
     def test_guardar_calla_la_fila_destildada_en_sounds_ini(self):
         (self.ruta / "sounds.ini").write_text(
             "[sonidos]\nvolumen = 0.7\ntema = default\n", encoding="utf-8")
-        dialogo = self._dialogo()
+        dialogo = self._dialogo({}, "Sonidos")
         dialogo.pagina_sonidos._lista.CheckItem(0, False)
         with mock.patch.object(gui_preferencias._snd, "reproducir"), \
                 mock.patch.object(gui_preferencias._snd, "cargar"), \
@@ -3448,7 +3447,8 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
         self.assertIn(f"{eventos_sonido.EVENTOS[0]} =", texto)
 
     def test_guardar_escribe_las_ocho_claves_nuevas(self):
-        dialogo = self._dialogo()
+        dialogo = self._dialogo({}, "General", "Cola de lectura", "Conexión",
+                               "OBS")
         dialogo.rb_estrategia.SetSelection(0)
         dialogo.sp_cola_maxima.SetValue(42)
         dialogo.sp_umbral_nombre.SetValue(7)
@@ -3479,7 +3479,7 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
                 (0, "todas", "Leer todos los mensajes"),
                 (1, "limite", "Descartar los más antiguos si se acumulan")):
             with self.subTest(clave=clave):
-                dialogo = self._dialogo()
+                dialogo = self._dialogo({}, "Cola de lectura")
                 dialogo.rb_estrategia.SetSelection(seleccion)
                 self._guardar(dialogo)
                 estrategia = self._opciones_guardadas().get("cola", "estrategia")
@@ -3487,7 +3487,8 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
                 self.assertNotEqual(estrategia, etiqueta)
 
     def test_cambiar_el_puerto_con_el_panel_encendido_avisa_donde_se_aplica(self):
-        dialogo = self._dialogo({"overlay_activo": True, "overlay_puerto": 8730})
+        dialogo = self._dialogo({"overlay_activo": True, "overlay_puerto": 8730},
+                               "OBS")
         dialogo.sp_puerto_overlay.SetValue(9000)
 
         self._guardar(dialogo)
@@ -3502,7 +3503,7 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
                 ({"overlay_activo": True, "overlay_puerto": 8730}, 8730),
                 ({"overlay_activo": False, "overlay_puerto": 8730}, 9000)):
             with self.subTest(configuracion=configuracion, puerto=puerto):
-                dialogo = self._dialogo(dict(configuracion))
+                dialogo = self._dialogo(dict(configuracion), "OBS")
                 dialogo.sp_puerto_overlay.SetValue(puerto)
                 self._guardar(dialogo)
                 self.assertEqual(dialogo.avisos, ["Preferencias guardadas."])
@@ -3512,7 +3513,7 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
             config._CONFIG_FALLBACK.replace(
                 "microfono =", "microfono = Mic/Aux"),
             encoding="utf-8")
-        dialogo = self._dialogo({"obs_microfono": "Mic/Aux"})
+        dialogo = self._dialogo({"obs_microfono": "Mic/Aux"}, "OBS")
         with (
                 mock.patch.object(gui_preferencias.cfg,
                                   "guardar_opciones") as guardar,
@@ -3530,7 +3531,7 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
                          "Mic/Aux")
 
     def test_musica_guarda_carpeta_salida_y_memoria(self):
-        dialogo = self._dialogo()
+        dialogo = self._dialogo({}, "Música")
         dialogo.pagina_musica.dir_musica_carpeta.SetPath("C:\\Música\\Rock and Roll")
         dialogo.chk_musica_aleatorio.SetValue(True)
         dialogo.chk_musica_retomar.SetValue(False)
@@ -3569,7 +3570,7 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
 
     def test_musica_con_salida_predeterminada_guarda_vacio(self):
         dialogo = self._dialogo({"musica_salida": "vieja",
-                                 "musica_salida_nombre": "Salida vieja"})
+                                 "musica_salida_nombre": "Salida vieja"}, "Música")
         dialogo.pagina_musica.cho_musica_salida.SetSelection(0)
 
         self._guardar(dialogo)
@@ -3594,7 +3595,7 @@ class TestGuardadoDeNuevasPreferencias(unittest.TestCase):
         sonar.assert_any_call("error")
 
     def test_escritura_ok_anuncia_preferencias_guardadas(self):
-        dialogo = self._dialogo()
+        dialogo = self._dialogo({}, "Inteligencia artificial")
         with mock.patch.object(gui_preferencias.cfg, "guardar_opciones",
                                return_value=True) as guardar, \
                 mock.patch.object(gui_preferencias._snd, "reproducir") as sonar, \
@@ -3628,12 +3629,12 @@ class TestPreferenciasArchivoBotones(unittest.TestCase):
     def _dialogo(self):
         with mock.patch.object(motores, "listar_voces",
                                return_value=["Voz de prueba"]):
-            dialogo = gui_preferencias.PreferenciasDialog(None, {})
+            dialogo = armar_preferencias({}, "General")
         self.addCleanup(destruir, dialogo)
         return dialogo
 
     def _pagina_general(self, dialogo):
-        return next(p for p in dialogo._paginas() if p.GetName() == "PagGeneral")
+        return pagina_por_titulo(dialogo, "General")
 
     def test_general_tiene_los_cuatro_botones_despues_de_las_casillas(self):
         dialogo = self._dialogo()
