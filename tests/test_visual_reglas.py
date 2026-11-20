@@ -120,6 +120,13 @@ class TestSolape(Base):
         controles = [control(id=1), control(id=2, rect=[130, 20, 100, 24])]
         self.assertIsNone(self.uno(muestra(controles), "solape"))
 
+    def test_un_control_invisible_no_cuenta_para_solape_ni_margen(self):
+        visible = control(id=1, rect=[20, 20, 100, 24])
+        oculto = control(id=2, visible=False, rect=[4, 20, 100, 24])
+        ventana = muestra([visible, oculto])
+        self.assertIsNone(self.uno(ventana, "solape"))
+        self.assertIsNone(self.uno(ventana, "margen"))
+
 
 class TestLetraChica(Base):
 
