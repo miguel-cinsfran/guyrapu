@@ -304,22 +304,25 @@ class TestInstalarYActualizar(BaseVentana):
                          "Instalación completada: Piper Davefx.")
         self.assertEqual(self.sonido.call_args_list, [mock.call("listo")])
 
-    def test_instalar_dos_voces_de_paquetes_distintos(self):
-        dialogo = self._dos_piper()
-        instalados = []
-
-        def instalar(paquete, aviso=None, cancelar=None):
-            instalados.append(paquete["id"])
-            self.instalados.fichas.append(dict(
-                paquete, instalado="2026-11-14T12:00:00-03:00"))
-            return paquetes_instalacion.ResultadoInstalacion(
-                True, "paquete instalado")
-        self._parchear(voces_ventana.paquetes_instalacion, "instalar",
-                       mock.Mock(side_effect=instalar))
-        self._parchear(voces_ventana, "VentanaEspera", EsperaFalsa)
-        _elegir_voces(dialogo, 0, 1)
-        dialogo._voces.ejecutar("instalar")
-        self.assertEqual(instalados, ["piper-a", "piper-b"])
+    def test_instalar_varias_voces_agrupa_por_paquete(self):
+        fon = _paquete("phonon-es", "phonon", "Phonon", "es",
+                       [_voz("Noa", "es-ES"), _voz("Marc", "es-ES")])
+        a = _paquete("piper-a", "piper", "Piper A", "es-ES", [_voz("Ana", "es-ES")])
+        b = _paquete("piper-b", "piper", "Piper B", "es-ES", [_voz("Bruno", "es-ES")])
+        for paquetes, esperados in (
+                ((fon,), ["phonon-es"]), ((a, b), ["piper-a", "piper-b"])):
+            with self.subTest(esperados=esperados):
+                instalados = []
+                def instalar(paquete, aviso=None, cancelar=None):
+                    instalados.append(paquete["id"])
+                    return paquetes_instalacion.ResultadoInstalacion(True, "ok")
+                self._parchear(voces_ventana.paquetes_instalacion, "instalar",
+                               mock.Mock(side_effect=instalar))
+                self._parchear(voces_ventana, "VentanaEspera", EsperaFalsa)
+                dialogo = self._dialogo(paquetes=paquetes)
+                _elegir_voces(dialogo, 0, 1)
+                dialogo._voces.ejecutar("instalar")
+                self.assertEqual(instalados, esperados)
 
     def test_instalar_con_ya_instalado_no_llama(self):
         paquete = self._paquete_base()
