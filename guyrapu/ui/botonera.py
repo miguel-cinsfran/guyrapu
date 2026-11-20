@@ -11,7 +11,8 @@ import wx
 
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
 
-HUECO = 6
+ANCHO_MINIMO = 96
+HUECO = 8
 
 
 def armar(panel, acciones=(), lista=None, *, botones=None):
@@ -29,6 +30,9 @@ def armar(panel, acciones=(), lista=None, *, botones=None):
                        lambda _evento, clave=accion.clave:
                        lista.ejecutar(clave))
             botones.append(boton)
+    ancho = max([ANCHO_MINIMO]
+                + [boton.GetBestSize().GetWidth() for boton in botones])
     for boton in botones:
+        boton.SetMinSize((ancho, -1))
         fila.Add(boton, 0, wx.RIGHT | wx.BOTTOM, HUECO)
     return fila
