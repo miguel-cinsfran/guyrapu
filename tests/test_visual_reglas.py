@@ -353,6 +353,44 @@ class TestRitmo(Base):
         regulares = [control(id=i + 1, rect=[20, y, 100, 20]) for i, y in
                      enumerate((20, 48, 76))]
         self.assertIsNone(self.uno(muestra(regulares), "ritmo"))
+        panel = control(id=1, clase="wxPanel", etiqueta="",
+                        rect=[0, 0, 500, 300])
+        rotulo = control(id=2, padre=1, rect=[24, 72, 60, 15])
+        campo = control(id=3, padre=1, clase="wxTextCtrl", etiqueta="",
+                        rect=[24, 80, 400, 23])
+        self.assertIsNone(self.uno(
+            muestra([panel, rotulo, campo]), "ritmo"))
+
+    def test_rotulos_en_cajas_distintas_no_forman_columna(self):
+        caja = control(id=1, clase="wxStaticBox", nombre="Caja",
+                       etiqueta="", rect=[16, 16, 300, 450])
+        rotulo = control(id=2, padre=1, rect=[24, 72, 60, 15])
+        otra = control(id=3, clase="wxStaticBox", nombre="Otra caja",
+                       etiqueta="", rect=[332, 16, 316, 450])
+        otro_rotulo = control(id=4, padre=3, rect=[24, 110, 60, 15])
+        ventana = muestra([caja, rotulo, otra, otro_rotulo],
+                          cliente=[822, 561])
+        self.assertIsNone(self.uno(ventana, "ritmo"))
+
+    def test_huecos_multiplos_del_paso_entre_hermanos_no_dan_aviso(self):
+        panel = control(id=1, clase="wxPanel", etiqueta="",
+                        rect=[0, 0, 500, 300])
+        rotulo = control(id=2, padre=1, rect=[24, 72, 60, 15])
+        campo = control(id=3, padre=1, clase="wxTextCtrl", etiqueta="",
+                        rect=[24, 91, 400, 23])
+        siguiente = control(id=4, padre=1, rect=[24, 126, 60, 15])
+        ventana = muestra([panel, rotulo, campo, siguiente])
+        self.assertIsNone(self.uno(ventana, "ritmo"))
+
+    def test_huecos_no_multiplos_del_paso_entre_hermanos_si_dan_aviso(self):
+        panel = control(id=1, clase="wxPanel", etiqueta="",
+                        rect=[0, 0, 500, 300])
+        rotulo = control(id=2, padre=1, rect=[24, 72, 60, 15])
+        campo = control(id=3, padre=1, clase="wxTextCtrl", etiqueta="",
+                        rect=[24, 92, 400, 23])
+        siguiente = control(id=4, padre=1, rect=[24, 126, 60, 15])
+        ventana = muestra([panel, rotulo, campo, siguiente])
+        self.assertIsNotNone(self.uno(ventana, "ritmo"))
 
 
 class TestMargen(Base):
@@ -366,6 +404,16 @@ class TestMargen(Base):
     def test_no_salta(self):
         self.assertIsNone(self.uno(muestra([control(rect=[8, 8, 100, 24])]),
                                    "margen"))
+
+    def test_un_panel_que_llena_el_cliente_no_da_margen_y_su_hijo_si(self):
+        panel = control(id=1, clase="wxPanel", nombre="PanelPrincipal",
+                        etiqueta="", rect=[0, 0, 822, 561])
+        campo = control(id=2, padre=1, clase="wxTextCtrl", nombre="Campo",
+                        etiqueta="", rect=[4, 10, 300, 23])
+        ventana = muestra([panel, campo], tamano=[822, 590], cliente=[822, 561])
+        margenes = [h for h in self.hallazgos(ventana)
+                    if h["regla"] == "margen"]
+        self.assertEqual([h["control"] for h in margenes], ["Campo"])
 
 
 class TestPie(Base):

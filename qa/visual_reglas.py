@@ -21,7 +21,7 @@ for _carpeta in (str(_RAIZ), str(_RAIZ / "qa")):
 
 from guyrapu.obs.overlay_datos import relacion_de_contraste  # noqa: E402
 from visual_reglas_medidas import abajo, area, area_solape  # noqa: E402
-from visual_reglas_medidas import apilados, cabe_dentro, columnas  # noqa: E402
+from visual_reglas_medidas import apilados, cabe_dentro, para_ritmo  # noqa: E402
 from visual_reglas_medidas import controles_medibles  # noqa: E402
 from visual_reglas_medidas import derecha, envolvente, hermanos  # noqa: E402
 from visual_reglas_medidas import contenedor_medible, para_margen, para_recorte  # noqa: E402
@@ -201,7 +201,7 @@ def regla_casi_alineados(ventana):
 
 def regla_ritmo(ventana):
     hallazgos = []
-    for grupo in columnas(controles_medibles(ventana["controles"], ventana["tamano"])).values():
+    for grupo in para_ritmo(ventana).values():
         if len(grupo) < 2:
             continue
         huecos_ = huecos(grupo)

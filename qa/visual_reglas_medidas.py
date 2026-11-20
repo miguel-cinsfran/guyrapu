@@ -128,15 +128,17 @@ def hermanos_por_clase(controles):
 def columnas(controles):
     grupos = {}
     for c in visibles(controles):
-        grupos.setdefault(c["rect"][0], []).append(c)
+        grupos.setdefault((c["padre"], c["rect"][0]), []).append(c)
     for grupo in grupos.values():
         grupo.sort(key=lambda c: c["rect"][1])
     return grupos
 
 
 def huecos(columna):
+    """Huecos entre consecutivos apilados; el solape lo mide otra regla."""
     return [siguiente["rect"][1] - abajo(anterior["rect"])
-            for anterior, siguiente in zip(columna, columna[1:])]
+            for anterior, siguiente in zip(columna, columna[1:])
+            if apilados(anterior["rect"], siguiente["rect"])]
 
 
 def apilados(a, b):
@@ -211,12 +213,23 @@ def para_solape(ventana):
 
 
 def para_margen(ventana):
-    """Controles de margen, sin los que cuelgan de un padre que se desplaza."""
+    """Controles sueltos de margen, sin los que cuelgan de un padre que se desplaza."""
     medibles = medibles_de(ventana)
     por_id = _por_id(medibles)
     cliente = ventana["cliente"]
-    return [c for c in medibles
+    sueltos = [c for c in medibles if c["clase"] not in CONTENEDORES]
+    return [c for c in sueltos
             if contenedor_medible(c, por_id, cliente) is not None]
+
+
+def para_ritmo(ventana):
+    """Columnas de controles sueltos, agrupadas por padre y borde izquierdo."""
+    controles = controles_medibles(ventana["controles"], ventana["tamano"])
+    por_id = _por_id(controles)
+    utiles = [c for c in controles
+              if c["clase"] not in CONTENEDORES
+              and not es_pieza_interna(c, por_id)]
+    return columnas(utiles)
 
 
 def texto_cabe(control, relleno):
