@@ -1798,6 +1798,63 @@ class TestVentanaObs(unittest.TestCase):
         self.assertFalse(hasattr(self.dialogo, "btn_ayuda"))
         self.assertTrue(hasattr(self.dialogo, "btn_cerrar"))
 
+    def test_diseno_de_las_listas_de_escena_y_fuentes(self):
+        escena = self.dialogo._pagina_escena
+        fuentes = self.dialogo._pagina_fuentes
+        self.dialogo.Layout()
+        for pagina, rotulo, lista in (
+                (escena, escena.rotulo_escenas, escena.lst_escenas),
+                (fuentes, fuentes.rotulo_fuentes, fuentes.lst_fuentes)):
+            with self.subTest(pagina=pagina.GetName()):
+                pagina.Layout()
+                self.assertEqual(
+                    rotulo.GetPosition().y + rotulo.GetSize().height,
+                    lista.GetPosition().y - 4)
+                self.assertEqual(
+                    rotulo.GetPosition().x, lista.GetPosition().x)
+                self.assertEqual(lista.GetPosition().x, 8)
+                self.assertEqual(
+                    lista.GetSize().width,
+                    pagina.GetClientSize().width - 16)
+
+    def test_botones_de_escena_y_fuentes_en_una_fila(self):
+        escena = self.dialogo._pagina_escena
+        fuentes = self.dialogo._pagina_fuentes
+        self.dialogo.Layout()
+        for pagina, lista, botones in (
+                (escena, escena.lst_escenas,
+                 (escena.btn_cambiar, escena.btn_agregar)),
+                (fuentes, fuentes.lst_fuentes,
+                 (fuentes.btn_diseno, fuentes.btn_agregar,
+                  fuentes.btn_restaurar))):
+            with self.subTest(pagina=pagina.GetName()):
+                pagina.Layout()
+                self.assertEqual(
+                    botones[0].GetPosition().y, botones[-1].GetPosition().y)
+                self.assertEqual(
+                    botones[0].GetPosition().y
+                    - (lista.GetPosition().y + lista.GetSize().height), 8)
+                for anterior, siguiente in zip(botones, botones[1:]):
+                    self.assertEqual(
+                        siguiente.GetPosition().x
+                        - (anterior.GetPosition().x
+                           + anterior.GetSize().width), 8)
+
+    def test_orden_de_tab_de_escena_y_fuentes(self):
+        escena = self.dialogo._pagina_escena
+        fuentes = self.dialogo._pagina_fuentes
+        for actual, esperado in (
+                (escena.lst_escenas, escena.btn_cambiar),
+                (escena.btn_cambiar, escena.btn_agregar),
+                (escena.btn_agregar, fuentes.lst_fuentes),
+                (fuentes.lst_fuentes, fuentes.btn_diseno),
+                (fuentes.btn_diseno, fuentes.btn_agregar),
+                (fuentes.btn_agregar, fuentes.btn_restaurar)):
+            with self.subTest(desde=actual.GetName()):
+                actual.SetFocus()
+                actual.Navigate()
+                self.assertIs(wx.Window.FindFocus(), esperado)
+
 
 if __name__ == "__main__":
     unittest.main()

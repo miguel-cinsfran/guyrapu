@@ -14,7 +14,7 @@ from guyrapu.ui import (
     escena_acciones_fuente, escena_agregar_fuente, escena_disenos,
     escena_menu_fuente, escena_version_vertical, lista_acciones)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui.preferencias_comun import boton, fila_campo, nombre_de_etiqueta
+from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 
 
 def _boton_obs(pagina, etiqueta):
@@ -51,7 +51,7 @@ class PaginaFuentes(wx.Panel):
         self.SetSizer(caja)
 
     def _crear_lista(self, caja):
-        rotulo_fuentes = wx.StaticText(self, label=_("&Fuentes:"))
+        self.rotulo_fuentes = wx.StaticText(self, label=_("&Fuentes:"))
         self.lst_fuentes = wx.ListBox(
             self, name=nombre_de_etiqueta(_("&Fuentes:")))
         nombre_accesible(self.lst_fuentes, self.lst_fuentes.GetName())
@@ -60,17 +60,20 @@ class PaginaFuentes(wx.Panel):
             self.lst_fuentes,
             _("Esta escena no tiene fuentes. Usa Agregar fuente… para "
               "sumar una."))
-        fila_campo(caja, rotulo_fuentes, self.lst_fuentes)
+        caja.Add(self.rotulo_fuentes, 0, wx.LEFT | wx.TOP, 8)
+        caja.AddSpacer(4)
+        caja.Add(self.lst_fuentes, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
 
     def _crear_botones(self, caja):
         self.btn_diseno = _boton_obs(self, _("&Aplicar diseño…"))
-        caja.Add(self.btn_diseno, 0, wx.ALL, 8)
         self.btn_agregar = boton(
             self, _("Agregar f&uente…"),
             nombre_de_etiqueta(_("Agregar f&uente…")))
-        caja.Add(self.btn_agregar, 0, wx.ALL, 8)
         self.btn_restaurar = _boton_obs(self, _("Deshacer todos los cambi&os"))
-        caja.Add(self.btn_restaurar, 0, wx.ALL, 8)
+        fila = wx.WrapSizer(wx.HORIZONTAL, flags=0)
+        for control in (self.btn_diseno, self.btn_agregar, self.btn_restaurar):
+            fila.Add(control, 0, wx.RIGHT, 8)
+        caja.Add(fila, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 8)
 
     def _enlazar_eventos(self):
         self.lst_fuentes.Bind(wx.EVT_KEY_DOWN, self._tecla_fuente)

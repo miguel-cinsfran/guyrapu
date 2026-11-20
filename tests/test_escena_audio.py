@@ -608,5 +608,54 @@ class TestPaginaAudioTeclas(BaseAudio):
         anunciar.assert_called_once_with(TEXTO_VACIO_AUDIO)
 
 
+class TestDisenoAudio(BaseAudio):
+    def setUp(self):
+        super().setUp()
+        self.pagina = self._crear()
+        self._sembrar(self.pagina)
+        self.marco.Layout()
+        self.pagina.Layout()
+
+    def test_diseno_de_la_lista_y_la_fila_de_audio(self):
+        pagina = self.pagina
+        rotulo = pagina.rotulo_audio
+        lista = pagina.lst_audio
+        self.assertEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            lista.GetPosition().y - 4)
+        self.assertEqual(rotulo.GetPosition().x, lista.GetPosition().x)
+        self.assertEqual(lista.GetPosition().x, 8)
+        self.assertEqual(
+            lista.GetSize().width, pagina.GetClientSize().width - 16)
+
+    def test_la_fila_de_audio_conserva_el_orden_y_el_espacio(self):
+        pagina = self.pagina
+        controles = (
+            pagina.chk_silenciar, pagina.btn_microfono, pagina.btn_probar,
+            pagina.btn_filtros, pagina.chk_escuchar)
+        self.assertEqual(
+            [control.GetPosition().x for control in controles],
+            sorted(control.GetPosition().x for control in controles))
+        self.assertEqual(
+            min(control.GetPosition().y for control in controles)
+            - (pagina.lst_audio.GetPosition().y
+               + pagina.lst_audio.GetSize().height), 8)
+        for anterior, siguiente in zip(controles, controles[1:]):
+            self.assertEqual(
+                siguiente.GetPosition().x
+                - (anterior.GetPosition().x + anterior.GetSize().width), 8)
+
+    def test_orden_de_tab_de_la_pagina_de_audio(self):
+        pagina = self.pagina
+        controles = (
+            pagina.lst_audio, pagina.chk_silenciar, pagina.btn_microfono,
+            pagina.btn_probar, pagina.btn_filtros, pagina.chk_escuchar)
+        for actual, esperado in zip(controles, controles[1:]):
+            with self.subTest(desde=actual.GetName()):
+                actual.SetFocus()
+                actual.Navigate()
+                self.assertIs(wx.Window.FindFocus(), esperado)
+
+
 if __name__ == "__main__":
     unittest.main()

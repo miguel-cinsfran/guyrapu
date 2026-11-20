@@ -14,8 +14,7 @@ from guyrapu.ui import (
     escena_escucha, escena_filtros, fila_audio, gui_microfono,
     lista_acciones)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
-from guyrapu.ui.preferencias_comun import (
-    boton, fila_campo, nombre_de_etiqueta)
+from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 from guyrapu.voice import sound_player
 
 
@@ -50,7 +49,8 @@ class PaginaAudio(wx.Panel):
         self.chk_silenciar = self._crear_casilla(_("Si&lenciar"))
         self._crear_botones()
         self.chk_escuchar = self._crear_casilla(_("&Escuchar"))
-        caja.Add(self._crear_fila(), 0, wx.ALL, 8)
+        caja.Add(self._crear_fila(), 0,
+                 wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 8)
         self.SetSizer(caja)
         self.acciones = (
             self.lst_audio, self.chk_silenciar, self.btn_microfono,
@@ -71,7 +71,9 @@ class PaginaAudio(wx.Panel):
         self.lst_audio.SetMinSize((-1, 120))
         self.lista_vacia = lista_acciones.ListaConVacio(
             self.lst_audio, _("OBS no tiene fuentes de audio."))
-        fila_campo(caja, self.rotulo_audio, self.lst_audio)
+        caja.Add(self.rotulo_audio, 0, wx.LEFT | wx.TOP, 8)
+        caja.AddSpacer(4)
+        caja.Add(self.lst_audio, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
 
     def _crear_botones(self):
         etiquetas = (_("Elegir &micrófono…"), _("&Probar nivel"),
@@ -90,11 +92,11 @@ class PaginaAudio(wx.Panel):
 
     def _crear_fila(self):
         fila = wx.BoxSizer(wx.HORIZONTAL)
-        fila.Add(self.chk_silenciar, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
-        fila.Add(self.btn_microfono, 0, wx.ALL, 6)
-        fila.Add(self.btn_probar, 0, wx.ALL, 6)
-        fila.Add(self.btn_filtros, 0, wx.ALL, 6)
-        fila.Add(self.chk_escuchar, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
+        fila.Add(self.chk_silenciar, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 8)
+        fila.Add(self.btn_microfono, 0, wx.RIGHT, 8)
+        fila.Add(self.btn_probar, 0, wx.RIGHT, 8)
+        fila.Add(self.btn_filtros, 0, wx.RIGHT, 8)
+        fila.Add(self.chk_escuchar, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 8)
         return fila
 
     def _enlazar_eventos(self):

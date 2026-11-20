@@ -15,8 +15,7 @@ from guyrapu.ui import confirmar, escena_menu_escena, escena_version_vertical
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.escena_pagina_fuentes import PaginaFuentes
 from guyrapu.ui.lista_acciones import ListaConAcciones
-from guyrapu.ui.preferencias_comun import (
-    boton, fila_campo, nombre_de_etiqueta)
+from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 
 
 class PaginaEscena(wx.Panel):
@@ -44,24 +43,28 @@ class PaginaEscena(wx.Panel):
         self.SetSizer(caja)
 
     def _crear_lista(self, caja):
-        rotulo = wx.StaticText(self, label=_("&Escenas:"))
+        self.rotulo_escenas = wx.StaticText(self, label=_("&Escenas:"))
         self.lst_escenas = wx.ListBox(
             self, name=nombre_de_etiqueta(_("&Escenas:")))
         nombre_accesible(self.lst_escenas, self.lst_escenas.GetName())
         self.lst_escenas.SetMinSize((-1, 120))
-        fila_campo(caja, rotulo, self.lst_escenas)
+        caja.Add(self.rotulo_escenas, 0, wx.LEFT | wx.TOP, 8)
+        caja.AddSpacer(4)
+        caja.Add(self.lst_escenas, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
 
     def _crear_botones(self, caja):
         self.btn_cambiar = boton(
             self, _("Cambiar e&scena"),
             nombre_de_etiqueta(_("Cambiar e&scena")))
         self.btn_cambiar._etiqueta_base = _("Cambiar e&scena")
-        caja.Add(self.btn_cambiar, 0, wx.ALL, 8)
         self.btn_agregar = boton(
             self, _("A&gregar escena…"),
             nombre_de_etiqueta(_("A&gregar escena…")))
         self.btn_agregar._etiqueta_base = _("A&gregar escena…")
-        caja.Add(self.btn_agregar, 0, wx.ALL, 8)
+        fila = wx.WrapSizer(wx.HORIZONTAL, flags=0)
+        fila.Add(self.btn_cambiar, 0, wx.RIGHT, 8)
+        fila.Add(self.btn_agregar, 0, wx.RIGHT, 8)
+        caja.Add(fila, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 8)
 
     def _enlazar_eventos(self):
         self._lista = ListaConAcciones(
