@@ -16,7 +16,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import unicodedata
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -24,6 +23,8 @@ sys.path.insert(0, str(RAIZ))
 sys.path.insert(0, str(RAIZ / "qa"))
 
 import directo_real
+from ia_respuestas import (es_error, lista_cargada, nombra_colores,
+                           sin_tildes as _sin_tildes)
 from guyrapu.core.config import APP_NAME  # noqa: E402
 from conducir import contestar_salir_si_aparece
 
@@ -33,50 +34,11 @@ PREGUNTA_VENTANAS = "¿Cuántas ventanas de color se ven y dónde está cada una
 PREGUNTA_PANEL = "¿Qué texto se lee en el panel de chat?"
 PREGUNTA_CAMBIO = "¿Cambió algo respecto de la captura anterior?"
 
-def _sin_tildes(texto) -> str:
-    """Minúsculas sin tildes, para comparar sin importar el acento."""
-    base = unicodedata.normalize("NFD", str(texto or ""))
-    return "".join(x for x in base if unicodedata.category(x) != "Mn").lower()
-
-def nombra_colores(texto) -> bool:
-    """Si nombra al menos uno de los colores de las ventanas de prueba."""
-    base = _sin_tildes(texto)
-    return any(c in base for c in ("verde", "magenta", "fucsia", "rosa",
-                                   "violeta", "morado"))
-
 def describe_la_unica_ventana(texto) -> bool:
     base = _sin_tildes(texto)
     return (re.search(r"\b(?:una|un|1)\b", base) is not None
             and re.search(r"\b(?:dos|2)\b", base) is None
             and "verde" not in base)
-
-def lista_cargada(textos) -> bool:
-    return bool(textos) and all("cargando" not in _sin_tildes(t) for t in textos)
-
-_ERRORES = None
-
-def _textos_error() -> tuple:
-    """Frases de `consulta` que anuncian una falla, para comparar."""
-    global _ERRORES
-    if _ERRORES is None:
-        from guyrapu.ai import consulta
-        dic = getattr(consulta, "_TEXTOS", getattr(consulta, "_ERRORES", None))
-        lista = list(dic.values()) if isinstance(dic, dict) else []
-        lista.extend(getattr(consulta, n, "") for n in
-                     ("TEXTO_SIN_NIVEL_GRATUITO", "_MSG_PROVEEDOR",
-                      "_MSG_MODELO", "_MSG_DIRECCION"))
-        lista.extend(("Agrega una captura antes de preguntar.",
-                      "Escribe una pregunta.",
-                      "No se pudo completar la consulta. Vuelve a intentarlo.",
-                      "Falta la clave de"))
-        _ERRORES = tuple(str(f) for f in lista if f)
-    return _ERRORES
-
-def es_error(texto) -> bool:
-    """Si el anuncio es una falla de la consulta, no una respuesta."""
-    base = _sin_tildes(texto)
-    return bool(base.strip()) and any(
-        p and p in base for p in map(_sin_tildes, _textos_error()))
 
 def modelo_permitido(proveedor, modelo) -> bool:
     """OpenRouter solo usa gratis («:free»); el resto vale todo."""
