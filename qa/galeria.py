@@ -324,7 +324,8 @@ def _controles(ventana, origen, ppi):
 
 
 def _describir_control(control, padre, ventana, origen, ppi):
-    pos = control.GetScreenPosition()
+    pos = (origen if control is ventana else
+           control.GetParent().ClientToScreen(control.GetPosition()))
     tamano = control.GetSize()
     etiqueta = _etiqueta(control)
     fuente = control.GetFont()
