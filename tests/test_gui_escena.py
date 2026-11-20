@@ -1920,6 +1920,28 @@ class TestGeometriaDeLosCuadros(unittest.TestCase):
                      (cuadro.rotulo_ventana, cuadro.cho_ventana)],
             [cuadro.btn_aceptar, cuadro.btn_cancelar], cuadro.btn_aceptar)
 
+    def test_la_fila_de_ventana_deja_el_hueco_bajo_capturar(self):
+        cuadro = escena_propiedades.DialogoJuego(
+            None, (("Champions", "champions"),),
+            {"modo": "window", "ventana": "champions"})
+        self.addCleanup(destruir, cuadro)
+        cuadro.Layout()
+        self.assertEqual(
+            cuadro.rotulo_ventana.GetPosition().y - (
+                cuadro.cho_modo.GetPosition().y
+                + cuadro.cho_modo.GetSize().height),
+            formulario.CONTROL_A_ETIQUETA)
+
+    def test_la_fila_de_ancho_deja_el_hueco_bajo_tamano(self):
+        cuadro = escena_tamano.TamanoFuenteDialog(None, 29, 69)
+        self.addCleanup(destruir, cuadro)
+        cuadro.Layout()
+        self.assertEqual(
+            cuadro.rotulo_ancho.GetPosition().y - (
+                cuadro.cho_tamano.GetPosition().y
+                + cuadro.cho_tamano.GetSize().height),
+            formulario.CONTROL_A_ETIQUETA)
+
     def test_geometria_de_archivo(self):
         cuadro = escena_propiedades.DialogoArchivo(None, "imagen", {})
         self._comprobar(

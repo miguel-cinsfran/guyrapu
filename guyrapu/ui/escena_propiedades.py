@@ -175,7 +175,7 @@ class DialogoJuego(DialogoBase):
         self.fila_ventana = wx.BoxSizer(wx.VERTICAL)
         formulario.agregar_fila(
             self.fila_ventana, self.rotulo_ventana, self.cho_ventana)
-        self.vertical.Add(self.fila_ventana, 0, wx.EXPAND)
+        formulario.agregar_bloque(self.vertical, self.fila_ventana)
         self._vacio = _("No hay ventanas para capturar.")
         self.aviso_vacio = wx.StaticText(self._panel, label=self._vacio)
         self.aviso_vacio.Wrap(
@@ -190,6 +190,7 @@ class DialogoJuego(DialogoBase):
         self.rotulo_ventana.Show(mostrar)
         self.cho_ventana.Show(mostrar)
         self.fila_ventana.ShowItems(mostrar)
+        self.vertical.Show(self.fila_ventana, mostrar)
         vacia = mostrar and not self._ventanas
         self.aviso_vacio.Show(bool(vacia))
         if hasattr(self, "btn_aceptar"):

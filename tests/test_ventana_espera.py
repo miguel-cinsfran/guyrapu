@@ -10,6 +10,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.ui import espera_sonora, formulario, ventana_espera
+from guyrapu.ui.tema import _T
 from guyrapu.ui.ventana_espera import VentanaEspera
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -137,6 +138,12 @@ class TestGeometria(unittest.TestCase):
                            cuadro.txt_estado.GetPosition().y)
         self.assertEqual(cuadro.txt_estado.GetSize().width,
                          panel.GetClientSize().width - 2 * formulario.MARGEN)
+
+    def test_el_fondo_es_el_de_la_paleta(self):
+        cuadro = VentanaEspera(None, _(TITULO), "", threading.Event())
+        self.addCleanup(destruir, cuadro)
+        self.assertEqual(cuadro.GetBackgroundColour(), _T.bg)
+        self.assertEqual(cuadro._panel.GetBackgroundColour(), _T.bg)
 
 
 if __name__ == "__main__":

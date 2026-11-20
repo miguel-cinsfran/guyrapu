@@ -77,7 +77,7 @@ class TamanoFuenteDialog(wx.Dialog):
         self._fila_ancho = wx.BoxSizer(wx.VERTICAL)
         formulario.agregar_fila(
             self._fila_ancho, self.rotulo_ancho, self.sp_ancho, numerico=True)
-        vertical.Add(self._fila_ancho, 0, wx.EXPAND)
+        formulario.agregar_bloque(vertical, self._fila_ancho)
 
     def _crear_proporcion(self, vertical):
         self.chk_proporcion = wx.CheckBox(
@@ -97,7 +97,7 @@ class TamanoFuenteDialog(wx.Dialog):
         self._fila_alto = wx.BoxSizer(wx.VERTICAL)
         formulario.agregar_fila(
             self._fila_alto, self.rotulo_alto, self.sp_alto, numerico=True)
-        vertical.Add(self._fila_alto, 0, wx.EXPAND)
+        formulario.agregar_bloque(vertical, self._fila_alto)
 
     def _crear_botones(self, vertical):
         self.btn_aceptar = wx.Button(
@@ -154,6 +154,7 @@ class TamanoFuenteDialog(wx.Dialog):
         mostrar_control(control, visible, self.chk_proporcion)
         fila.Show(rotulo, visible)
         fila.Show(control, visible)
+        self._contenido.Show(fila, visible)
 
     def tamano_elegido(self):
         return self._elegido

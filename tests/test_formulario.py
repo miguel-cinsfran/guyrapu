@@ -178,6 +178,33 @@ class TestMedidas(BaseMedidas):
                                 self.panel.GetClientSize().width
                                 - 2 * formulario.MARGEN)
 
+    def test_agregar_bloque_deja_el_hueco_entre_filas(self):
+        _, anterior = self._fila("&Uno:", wx.TextCtrl(self.panel))
+        bloque = wx.BoxSizer(wx.VERTICAL)
+        rotulo, _ = self._fila("&Dos:", wx.TextCtrl(self.panel), sizer=bloque)
+        formulario.agregar_bloque(self.contenido, bloque)
+        self._medir()
+        self.assertEqual(
+            rotulo.GetPosition().y - (
+                anterior.GetPosition().y + anterior.GetSize().height),
+            formulario.CONTROL_A_ETIQUETA)
+
+    def test_agregar_bloque_junto_usa_el_hueco_de_etiqueta(self):
+        _, anterior = self._fila("&Uno:", wx.TextCtrl(self.panel))
+        bloque = wx.StaticText(self.panel, label="Nota")
+        formulario.agregar_bloque(self.contenido, bloque, junto=True)
+        self._medir()
+        self.assertEqual(
+            bloque.GetPosition().y - (
+                anterior.GetPosition().y + anterior.GetSize().height),
+            formulario.ETIQUETA_A_CONTROL)
+
+    def test_agregar_bloque_primero_no_tiene_hueco(self):
+        bloque = wx.StaticText(self.panel, label="Nota")
+        formulario.agregar_bloque(self.contenido, bloque)
+        self._medir()
+        self.assertEqual(bloque.GetPosition().y, formulario.MARGEN)
+
     def test_el_contenido_de_la_seccion_tambien_separa_abajo(self):
         columna = wx.BoxSizer(wx.VERTICAL)
         seccion = formulario.agregar_seccion(columna, self.panel, "Sección")

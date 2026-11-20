@@ -559,6 +559,27 @@ class TestDisenioComun(unittest.TestCase):
         self.assertEqual(cuadro.btn_capturar.GetBackgroundColour(),
                          tema._T.primary)
 
+    def test_la_vista_previa_tiene_borde_y_el_pie_usa_el_ancho_comun(self):
+        cuadro = agregar.DialogoAgregarCaptura(None, ClienteDoble())
+        self.addCleanup(destruir, cuadro)
+        self.assertTrue(cuadro.bmp_vista.GetWindowStyle() & wx.BORDER_SIMPLE)
+        self.assertEqual(cuadro.bmp_vista.GetName(), "Vista previa")
+        self.assertFalse(cuadro.bmp_vista.AcceptsFocusFromKeyboard())
+        botones = [cuadro.btn_capturar, cuadro.btn_cancelar]
+        self.assertEqual(botones[0].GetSize().width, botones[1].GetSize().width)
+        base = [wx.Button(cuadro.panel, wx.ID_OK, "Captu&rar"),
+                wx.Button(cuadro.panel, wx.ID_CANCEL, "Ca&ncelar")]
+        esperado = max([formulario.ANCHO_MINIMO_BOTON]
+                       + [boton.GetBestSize().width for boton in base])
+        for boton in base:
+            boton.Destroy()
+        self.assertEqual(botones[0].GetMinSize().width, esperado)
+        cliente = cuadro.GetClientSize()
+        self.assertEqual(
+            cliente.width - (botones[-1].GetPosition().x
+                             + botones[-1].GetSize().width),
+            formulario.MARGEN)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -88,16 +88,16 @@ class DialogoAgregarCaptura(wx.Dialog):
 
         self.bmp_vista = wx.StaticBitmap(
             panel, bitmap=wx.NullBitmap, size=(ANCHO_VISTA, ALTO_VISTA),
-            name=_("Vista previa"))
+            style=wx.BORDER_SIMPLE, name=_("Vista previa"))
         self.bmp_vista.SetMinSize((ANCHO_VISTA, ALTO_VISTA))
         nombre_accesible(self.bmp_vista, _("Vista previa"))
         formulario.agregar_fila(vs, None, self.bmp_vista)
 
         self.btn_capturar = wx.Button(panel, wx.ID_OK, _("Captu&rar"), name=_("Capturar"))
         self.btn_capturar.SetDefault()
-        self._fijar_motivo(TEXTO_CARGANDO_MOTIVO)
         self.btn_cancelar = wx.Button(panel, wx.ID_CANCEL, _("Ca&ncelar"), name=_("Cancelar"))
         formulario.agregar_pie(vs, [self.btn_capturar, self.btn_cancelar])
+        self._fijar_motivo(TEXTO_CARGANDO_MOTIVO)
         formulario.ajustar_tamano(self, panel, vs)
         self._temporizador = wx.Timer(self)
         self.cho_fuente.Bind(wx.EVT_CHOICE, self._al_elegir)

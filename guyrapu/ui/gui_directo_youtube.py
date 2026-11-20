@@ -233,9 +233,9 @@ class DialogoDirectoYoutube(wx.Dialog):
             zona, label=_("Elegir &miniatura…"), name=_("Elegir miniatura"))
         self.btn_quitar_miniatura = wx.Button(
             zona, label=_("El&iminar miniatura"), name=_("Eliminar miniatura"))
-        fila_miniatura.Add(self.btn_elegir_miniatura, 0, wx.RIGHT, 6)
+        fila_miniatura.Add(self.btn_elegir_miniatura, 0, wx.RIGHT, formulario.ENTRE_BOTONES)
         fila_miniatura.Add(self.btn_quitar_miniatura, 0)
-        contenido.Add(fila_miniatura, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_bloque(contenido, fila_miniatura, junto=True)
 
         self._opciones_lista, seleccion_lista = opciones_lista(
             None, lista, lista_titulo)
@@ -248,8 +248,7 @@ class DialogoDirectoYoutube(wx.Dialog):
         formulario.agregar_fila(contenido, rotulo_lista, self.cho_lista)
         self.btn_cargar_listas = wx.Button(
             zona, label=_("Ca&rgar listas"), name=_("Cargar listas"))
-        contenido.Add(self.btn_cargar_listas, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM,
-                      formulario.CONTROL_A_ETIQUETA)
+        formulario.agregar_bloque(contenido, self.btn_cargar_listas, junto=True)
 
         from guyrapu.obs import obs_prevuelo
         texto_revision = (obs_prevuelo.frase_revision(revision)

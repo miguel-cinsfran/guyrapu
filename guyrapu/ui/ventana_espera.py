@@ -13,7 +13,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import _
-from guyrapu.ui import formulario
+from guyrapu.ui import formulario, paleta
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
@@ -30,6 +30,7 @@ class VentanaEspera(wx.Dialog):
         self._terminada = False
         self._btn = None
         self._crear_controles(titulo, texto_inicial)
+        paleta.pintar_ventana(self)
         self._espera = EsperaSonora(self)
         self.Bind(wx.EVT_CLOSE, self._al_cerrar)
         self.Bind(wx.EVT_WINDOW_DESTROY, self._al_destruir)

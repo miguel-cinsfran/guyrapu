@@ -813,6 +813,31 @@ class TestDisenioComun(unittest.TestCase):
         self.assertEqual(cuadro.btn_crear.GetBackgroundColour(),
                          tema._T.primary)
 
+    def test_los_botones_de_la_miniatura_no_pisan_el_campo(self):
+        cuadro = directo.DialogoDirectoYoutube(None, titulo="Hola")
+        self.addCleanup(destruir, cuadro)
+        cuadro.Layout()
+        campo = cuadro.txt_miniatura
+        self.assertEqual(
+            cuadro.btn_elegir_miniatura.GetPosition().y - (
+                campo.GetPosition().y + campo.GetSize().height),
+            formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(
+            cuadro.btn_quitar_miniatura.GetPosition().x - (
+                cuadro.btn_elegir_miniatura.GetPosition().x
+                + cuadro.btn_elegir_miniatura.GetSize().width),
+            formulario.ENTRE_BOTONES)
+
+    def test_cargar_listas_va_junto_a_la_lista(self):
+        cuadro = directo.DialogoDirectoYoutube(None, titulo="Hola")
+        self.addCleanup(destruir, cuadro)
+        cuadro.Layout()
+        self.assertEqual(
+            cuadro.btn_cargar_listas.GetPosition().y - (
+                cuadro.cho_lista.GetPosition().y
+                + cuadro.cho_lista.GetSize().height),
+            formulario.ETIQUETA_A_CONTROL)
+
 
 if __name__ == "__main__":
     unittest.main()
