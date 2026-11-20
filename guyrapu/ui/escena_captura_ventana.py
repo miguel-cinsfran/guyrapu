@@ -9,10 +9,10 @@ import wx
 from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
 from guyrapu.obs import consultas_transmision
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.preferencias_comun import (
-    boton, fila_campo, lista_con_nombre, nombre_de_etiqueta)
+    boton, fila_label, lista_con_nombre, nombre_de_etiqueta)
 
 
 class DialogoCapturarVentana(wx.Dialog):
@@ -28,20 +28,26 @@ class DialogoCapturarVentana(wx.Dialog):
         self.cho_ventana.SetFocus()
 
     def _crear_controles(self, opciones, actual):
+        self._panel = wx.Panel(self)
         vertical = wx.BoxSizer(wx.VERTICAL)
-        self.rotulo_ventana = wx.StaticText(self, label=_("&Ventana:"))
+        self.rotulo_ventana = fila_label(self._panel, _("&Ventana:"))
         self.cho_ventana = lista_con_nombre(
-            self, _("&Ventana:"), [texto for texto, _valor in opciones or ()])
+            self._panel, _("&Ventana:"),
+            [texto for texto, _valor in opciones or ()])
         self.cho_ventana.SetSelection(self._seleccion(actual))
-        fila_campo(vertical, self.rotulo_ventana, self.cho_ventana)
+        formulario.agregar_fila(
+            vertical, self.rotulo_ventana, self.cho_ventana)
         self.aviso_vacio = None
         self._vacio = _("No hay ventanas para capturar.")
         if not opciones:
-            self.aviso_vacio = wx.StaticText(
-                self, label=self._vacio)
-            vertical.Add(self.aviso_vacio, 0, wx.ALL, 6)
-        self._crear_botones(vertical)
-        self.SetSizerAndFit(vertical)
+            self.aviso_vacio = wx.StaticText(self._panel, label=self._vacio)
+            self.aviso_vacio.Wrap(
+                formulario.ANCHO_MINIMO - 2 * formulario.MARGEN)
+            formulario.agregar_fila(vertical, None, self.aviso_vacio, hueco=0)
+        self._crear_botones(self._panel)
+        formulario.agregar_pie(
+            vertical, [self.btn_aceptar, self.btn_cancelar])
+        formulario.ajustar_tamano(self, self._panel, vertical)
         self._enlazar_eventos()
 
     def _seleccion(self, actual):
@@ -49,18 +55,14 @@ class DialogoCapturarVentana(wx.Dialog):
             return self._valores.index(actual)
         return wx.NOT_FOUND
 
-    def _crear_botones(self, vertical):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
+    def _crear_botones(self, panel):
         self.btn_aceptar = boton(
-            self, _("&Aceptar"), nombre_de_etiqueta(_("&Aceptar")),
+            panel, _("&Aceptar"), nombre_de_etiqueta(_("&Aceptar")),
             wx.ID_OK)
         self.btn_aceptar.SetDefault()
         self.btn_cancelar = boton(
-            self, _("&Cancelar"), nombre_de_etiqueta(_("&Cancelar")),
+            panel, _("&Cancelar"), nombre_de_etiqueta(_("&Cancelar")),
             wx.ID_CANCEL)
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 8)
-        fila.Add(self.btn_cancelar, 0)
-        vertical.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
         if not self._valores:
             self.btn_aceptar.SetLabel(redaccion.etiqueta_con_motivo(
                 _("&Aceptar"), self._vacio.rstrip(".")))

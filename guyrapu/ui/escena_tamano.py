@@ -12,10 +12,10 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_disposicion, tamano_relativo
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible
 from guyrapu.ui.preferencias_comun import (
-    fila_campo, lista_con_nombre, mostrar_control, nombre_de_etiqueta)
+    fila_label, lista_con_nombre, mostrar_control, nombre_de_etiqueta)
 
 
 class TamanoFuenteDialog(wx.Dialog):
@@ -32,12 +32,13 @@ class TamanoFuenteDialog(wx.Dialog):
         self.cho_tamano.SetFocus()
 
     def _crear_controles(self, porcentaje_ancho, porcentaje_alto):
-        vertical = wx.BoxSizer(wx.VERTICAL)
-        self._crear_campos(vertical, porcentaje_ancho, porcentaje_alto)
-        self._crear_botones(vertical)
-        self.SetSizerAndFit(vertical)
+        self._panel = wx.Panel(self)
+        self._contenido = wx.BoxSizer(wx.VERTICAL)
+        self._crear_campos(self._contenido, porcentaje_ancho, porcentaje_alto)
+        self._crear_botones(self._contenido)
         self._elegir_comun(porcentaje_ancho)
         self._actualizar_visibilidad()
+        formulario.ajustar_tamano(self, self._panel, self._contenido)
         self._enlazar_eventos()
 
     def _crear_campos(self, vertical, porcentaje_ancho, porcentaje_alto):
@@ -48,56 +49,63 @@ class TamanoFuenteDialog(wx.Dialog):
         self._crear_alto(vertical, porcentaje_ancho, porcentaje_alto)
 
     def _crear_posicion(self, vertical):
-        self.rotulo_posicion = wx.StaticText(self, label=_("&Posición:"))
+        self.rotulo_posicion = fila_label(self._panel, _("&Posición:"))
         self.cho_posicion = lista_con_nombre(
-            self, _("&Posición:"),
+            self._panel, _("&Posición:"),
             [_("Donde está ahora")]
             + [_(obs_disposicion.etiqueta_anclaje(nombre))
                for nombre in obs_disposicion.ANCLAJES])
         self.cho_posicion.SetSelection(0)
-        fila_campo(vertical, self.rotulo_posicion, self.cho_posicion)
+        formulario.agregar_fila(
+            vertical, self.rotulo_posicion, self.cho_posicion)
 
     def _crear_tamano(self, vertical):
         opciones = [_(nombre) for _clave, nombre, _fraccion
                     in tamano_relativo.COMUNES]
         opciones.append(_("Personalizado"))
-        self.rotulo_tamano = wx.StaticText(self, label=_("&Tamaño:"))
-        self.cho_tamano = lista_con_nombre(self, _("&Tamaño:"), opciones)
-        fila_campo(vertical, self.rotulo_tamano, self.cho_tamano)
+        self.rotulo_tamano = fila_label(self._panel, _("&Tamaño:"))
+        self.cho_tamano = lista_con_nombre(self._panel, _("&Tamaño:"), opciones)
+        formulario.agregar_fila(
+            vertical, self.rotulo_tamano, self.cho_tamano)
 
     def _crear_ancho(self, vertical, porcentaje_ancho):
-        self.rotulo_ancho = wx.StaticText(self, label=_("A&ncho:"))
+        self.rotulo_ancho = fila_label(self._panel, _("A&ncho:"))
         self.sp_ancho = ContadorAccesible(
-            self, min=5, max=100, initial=self._en_rango(porcentaje_ancho),
+            self._panel, min=5, max=100,
+            initial=self._en_rango(porcentaje_ancho),
             name=_("Ancho en porcentaje del vídeo"))
-        self._fila_ancho = fila_campo(
-            vertical, self.rotulo_ancho, self.sp_ancho)
+        self._fila_ancho = wx.BoxSizer(wx.VERTICAL)
+        formulario.agregar_fila(
+            self._fila_ancho, self.rotulo_ancho, self.sp_ancho, numerico=True)
+        vertical.Add(self._fila_ancho, 0, wx.EXPAND)
 
     def _crear_proporcion(self, vertical):
         self.chk_proporcion = wx.CheckBox(
-            self, label=_("&Mantener proporción"),
+            self._panel, label=_("&Mantener proporción"),
             name=nombre_de_etiqueta(_("&Mantener proporción")))
         self.chk_proporcion.SetValue(True)
-        vertical.Add(self.chk_proporcion, 0, wx.ALL, 6)
+        formulario.agregar_fila(vertical, None, self.chk_proporcion)
 
     def _crear_alto(self, vertical, porcentaje_ancho, porcentaje_alto):
-        self.rotulo_alto = wx.StaticText(self, label=_("A&lto:"))
+        self.rotulo_alto = fila_label(self._panel, _("A&lto:"))
         self.sp_alto = ContadorAccesible(
-            self, min=5, max=100,
+            self._panel, min=5, max=100,
             initial=self._en_rango(porcentaje_alto
                                    if porcentaje_alto is not None
                                    else porcentaje_ancho),
             name=_("Alto en porcentaje del vídeo"))
-        self._fila_alto = fila_campo(vertical, self.rotulo_alto, self.sp_alto)
+        self._fila_alto = wx.BoxSizer(wx.VERTICAL)
+        formulario.agregar_fila(
+            self._fila_alto, self.rotulo_alto, self.sp_alto, numerico=True)
+        vertical.Add(self._fila_alto, 0, wx.EXPAND)
 
     def _crear_botones(self, vertical):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_aceptar = wx.Button(self, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
+        self.btn_aceptar = wx.Button(
+            self._panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_aceptar.SetDefault()
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 8)
-        fila.Add(self.btn_cancelar, 0)
-        vertical.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        self.btn_cancelar = wx.Button(
+            self._panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
+        formulario.agregar_pie(vertical, [self.btn_aceptar, self.btn_cancelar])
 
     def _enlazar_eventos(self):
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._al_aceptar)

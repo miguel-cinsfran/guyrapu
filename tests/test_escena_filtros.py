@@ -11,7 +11,7 @@ from unittest import mock
 import wx
 
 from guyrapu.obs.filtros_microfono import Estado
-from guyrapu.ui import escena_filtros
+from guyrapu.ui import escena_filtros, formulario, tema
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 
@@ -55,6 +55,34 @@ class TestEscenaFiltros(unittest.TestCase):
         self.dialogo.ProcessEvent(evento)
         self.dialogo.EndModal.assert_called_once_with(wx.ID_CANCEL)
         self.assertIsNone(self.dialogo.estado_elegido())
+
+    def test_geometria_del_cuadro(self):
+        self.dialogo.Layout()
+        ancho, alto = self.dialogo.GetSize()
+        mensaje = f"Tamaño {ancho} x {alto}"
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO, mensaje)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO, mensaje)
+        rotulo = self.dialogo.rotulo_ganancia
+        control = self.dialogo.cho_ganancia
+        self.assertLessEqual(
+            rotulo.GetPosition().y + rotulo.GetSize().height,
+            control.GetPosition().y)
+        botones = [self.dialogo.btn_aceptar, self.dialogo.btn_cancelar]
+        self.assertEqual(botones[0].GetSize().width,
+                         botones[1].GetSize().width)
+        panel = botones[-1].GetParent()
+        self.assertEqual(
+            panel.GetClientSize().width - botones[-1].GetPosition().x
+            - botones[-1].GetSize().width, formulario.MARGEN)
+        self.assertEqual(
+            panel.GetClientSize().height - botones[-1].GetPosition().y
+            - botones[-1].GetSize().height, formulario.MARGEN)
+        self.assertGreaterEqual(
+            botones[-1].GetPosition().y,
+            control.GetPosition().y + control.GetSize().height)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(self.dialogo.btn_aceptar.GetBackgroundColour(),
+                             tema._T.primary)
 
 
 if __name__ == "__main__":

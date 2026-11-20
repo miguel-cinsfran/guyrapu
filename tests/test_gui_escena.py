@@ -24,12 +24,14 @@ from guyrapu.ui import escena_pagina_fuentes
 from guyrapu.ui import escena_version_vertical
 from guyrapu.ui import escena_propiedades
 from guyrapu.ui import escena_tamano
+from guyrapu.ui import formulario
 from guyrapu.ui import gui_grabaciones
 from guyrapu.ui import obs_ventana
 from guyrapu.ui import gui_microfono
 from guyrapu.ui import lista_acciones
 from guyrapu.ui import mover_con_flechas
 from guyrapu.ui import operaciones_obs
+from guyrapu.ui import tema
 from tests.test_gui_transmision import (
     Evento, EventoTecla, GestorFalso, HiloInmediato)
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -1854,6 +1856,91 @@ class TestVentanaObs(unittest.TestCase):
                 actual.SetFocus()
                 actual.Navigate()
                 self.assertIs(wx.Window.FindFocus(), esperado)
+
+
+class TestGeometriaDeLosCuadros(unittest.TestCase):
+    """Geometría real de los cuadros del panel de OBS, en la PC de pruebas."""
+
+    def setUp(self):
+        self.app = app_de_prueba()
+
+    def _comprobar(self, cuadro, filas, botones, principal):
+        self.addCleanup(destruir, cuadro)
+        cuadro.Layout()
+        ancho, alto = cuadro.GetSize()
+        mensaje = f"Tamaño {ancho} x {alto}"
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO, mensaje)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO, mensaje)
+        for rotulo, control in filas:
+            if control.IsShown():
+                self.assertLessEqual(
+                    rotulo.GetPosition().y + rotulo.GetSize().height,
+                    control.GetPosition().y)
+        for anterior, siguiente in zip(botones, botones[1:]):
+            self.assertEqual(anterior.GetSize().width,
+                             siguiente.GetSize().width)
+        ultimo = botones[-1]
+        panel = ultimo.GetParent()
+        self.assertEqual(
+            panel.GetClientSize().width - ultimo.GetPosition().x
+            - ultimo.GetSize().width, formulario.MARGEN)
+        self.assertEqual(
+            panel.GetClientSize().height - ultimo.GetPosition().y
+            - ultimo.GetSize().height, formulario.MARGEN)
+        visibles = [control for _rotulo, control in filas if control.IsShown()]
+        self.assertGreaterEqual(
+            ultimo.GetPosition().y,
+            max(control.GetPosition().y + control.GetSize().height
+                for control in visibles))
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(principal.GetBackgroundColour(), tema._T.primary)
+            self.assertEqual(principal.GetForegroundColour(), tema._T.primary_t)
+
+    def test_geometria_de_capturar_ventana(self):
+        cuadro = escena_captura_ventana.DialogoCapturarVentana(
+            None, (("Champions", "champions"),), "")
+        self._comprobar(
+            cuadro, [(cuadro.rotulo_ventana, cuadro.cho_ventana)],
+            [cuadro.btn_aceptar, cuadro.btn_cancelar], cuadro.btn_aceptar)
+
+    def test_geometria_de_capturar_pantalla(self):
+        cuadro = escena_propiedades.DialogoEleccion(
+            None, "Captura de pantalla", "DialogoPantalla", "&Pantalla:",
+            (("HP", "hp"),), "hp", "No hay pantallas para capturar.")
+        self._comprobar(
+            cuadro, [(cuadro.rotulo, cuadro.lista)],
+            [cuadro.btn_aceptar, cuadro.btn_cancelar], cuadro.btn_aceptar)
+
+    def test_geometria_de_capturar_juego(self):
+        cuadro = escena_propiedades.DialogoJuego(
+            None, (("Champions", "champions"),),
+            {"modo": "window", "ventana": "champions"})
+        self._comprobar(
+            cuadro, [(cuadro.rotulo_modo, cuadro.cho_modo),
+                     (cuadro.rotulo_ventana, cuadro.cho_ventana)],
+            [cuadro.btn_aceptar, cuadro.btn_cancelar], cuadro.btn_aceptar)
+
+    def test_geometria_de_archivo(self):
+        cuadro = escena_propiedades.DialogoArchivo(None, "imagen", {})
+        self._comprobar(
+            cuadro, [(cuadro.rotulo_archivo, cuadro.txt_archivo)],
+            [cuadro.btn_aceptar, cuadro.btn_cancelar], cuadro.btn_aceptar)
+
+    def test_geometria_de_texto(self):
+        cuadro = escena_propiedades.DialogoTexto(None, {})
+        self._comprobar(
+            cuadro, [(cuadro.rotulo_texto, cuadro.txt_texto),
+                     (cuadro.rotulo_tamano, cuadro.spin_tamano)],
+            [cuadro.btn_aceptar, cuadro.btn_cancelar], cuadro.btn_aceptar)
+
+    def test_geometria_de_tamano_y_posicion(self):
+        cuadro = escena_tamano.TamanoFuenteDialog(None, 29, 69)
+        self._comprobar(
+            cuadro, [(cuadro.rotulo_posicion, cuadro.cho_posicion),
+                     (cuadro.rotulo_tamano, cuadro.cho_tamano),
+                     (cuadro.rotulo_ancho, cuadro.sp_ancho),
+                     (cuadro.rotulo_alto, cuadro.sp_alto)],
+            [cuadro.btn_aceptar, cuadro.btn_cancelar], cuadro.btn_aceptar)
 
 
 if __name__ == "__main__":

@@ -13,12 +13,12 @@ import wx
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.obs import disenos_fabrica, disenos_guardados, obs_disposicion
 from guyrapu.obs.disenos_escena import ESQUINAS, Diseno
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.disenos_nombres import buscar_guardado as _buscar_guardado
 from guyrapu.ui.disenos_nombres import pedir_nombre as _pedir_nombre
 from guyrapu.ui.preferencias_comun import (
-    boton, fila_campo, lista_con_nombre, nombre_de_etiqueta)
+    boton, fila_label, lista_con_nombre, nombre_de_etiqueta)
 
 _OPCIONES_AJUSTE = (("", N_("Automático")), ("ajustar", N_("Ajustar")),
                     ("llenar", N_("Cubrir")))
@@ -74,9 +74,12 @@ class DisenoEscenaDialog(wx.Dialog):
                                 if fuente.tipo != "chat"]
         self._lugares = {}
         self._opciones = {}
+        self._panel = wx.Panel(self)
+        self._contenido = wx.BoxSizer(wx.VERTICAL)
         self._crear_controles()
         self._rehacer_lista()
         self._cargar_diseno(0)
+        formulario.ajustar_tamano(self, self._panel, self._contenido)
         paleta.pintar_ventana(self)
         self.Centre()
         self.cho_diseno.SetFocus()
@@ -85,15 +88,17 @@ class DisenoEscenaDialog(wx.Dialog):
         return self._elegido
 
     def _crear_controles(self):
-        caja = wx.BoxSizer(wx.VERTICAL)
-        self.cho_diseno = lista_con_nombre(self, _("&Diseño:"))
-        fila_campo(
-            caja, wx.StaticText(self, label=_("&Diseño:")), self.cho_diseno)
+        caja = self._contenido
+        self.cho_diseno = lista_con_nombre(self._panel, _("&Diseño:"))
+        self.rotulo_diseno = fila_label(self._panel, _("&Diseño:"))
+        formulario.agregar_fila(caja, self.rotulo_diseno, self.cho_diseno)
+        tabla = (_ETIQUETAS_LUGAR_VERTICAL if self._vertical
+                 else _ETIQUETAS_LUGAR)
         for lugar in ("principal", "secundaria", "izquierda", "derecha"):
-            self._crear_lugar(caja, lugar, *self._etiquetas_lugar(lugar))
+            self._crear_lugar(caja, lugar, *tabla.get(
+                lugar, _ETIQUETAS_LUGAR[lugar]))
         self._crear_opciones(caja)
         self._crear_botones(caja)
-        self.SetSizerAndFit(caja)
         self.cho_diseno.Bind(wx.EVT_CHOICE, self._al_elegir_diseno)
         self.cho_chat.Bind(wx.EVT_CHOICE, self._al_cambiar_chat)
         self.btn_aplicar.Bind(wx.EVT_BUTTON, self._al_aplicar)
@@ -102,26 +107,24 @@ class DisenoEscenaDialog(wx.Dialog):
         self.btn_cancelar.Bind(wx.EVT_BUTTON, self._al_cancelar)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
 
-    def _etiquetas_lugar(self, lugar):
-        tabla = _ETIQUETAS_LUGAR_VERTICAL if self._vertical else _ETIQUETAS_LUGAR
-        return tabla.get(lugar, _ETIQUETAS_LUGAR[lugar])
-
     def _crear_lugar(self, caja, lugar, etiqueta, nombre_ajuste):
         etiqueta = _(etiqueta)
         nombre_ajuste = _(nombre_ajuste)
-        rotulo = wx.StaticText(self, label=etiqueta)
-        control = lista_con_nombre(self, etiqueta, self._nombres_fuente)
-        fila = fila_campo(caja, rotulo, control)
-        rotulo_ajuste = wx.StaticText(self, label=_("Ajuste:"))
+        rotulo = fila_label(self._panel, etiqueta)
+        control = lista_con_nombre(
+            self._panel, etiqueta, self._nombres_fuente)
+        formulario.agregar_fila(caja, rotulo, control)
+        rotulo_ajuste = fila_label(self._panel, _("Ajuste:"))
         ajuste = wx.Choice(
-            self, choices=[_(texto) for _valor, texto in _OPCIONES_AJUSTE],
+            self._panel,
+            choices=[_(texto) for _valor, texto in _OPCIONES_AJUSTE],
             name=nombre_ajuste)
         nombre_accesible(ajuste, nombre_ajuste)
-        fila_ajuste = fila_campo(caja, rotulo_ajuste, ajuste)
+        formulario.agregar_fila(caja, rotulo_ajuste, ajuste)
         setattr(self, "cho_" + lugar, control)
         setattr(self, "cho_ajuste_" + lugar, ajuste)
         self._lugares[lugar] = (
-            fila, rotulo, control, fila_ajuste, rotulo_ajuste, ajuste)
+            caja, rotulo, control, caja, rotulo_ajuste, ajuste)
 
     def _crear_opciones(self, caja):
         self.cho_esquina = self._opcion(
@@ -136,30 +139,29 @@ class DisenoEscenaDialog(wx.Dialog):
             caja, "esquina_chat", _("Esquina del c&hat:"), _OPCIONES_ESQUINA)
 
     def _opcion(self, caja, clave, etiqueta, opciones):
-        rotulo = wx.StaticText(self, label=etiqueta)
+        rotulo = fila_label(self._panel, etiqueta)
         control = lista_con_nombre(
-            self, etiqueta, [_(texto) for _valor, texto in opciones])
-        fila = fila_campo(caja, rotulo, control)
-        self._opciones[clave] = (fila, rotulo, control)
+            self._panel, etiqueta, [_(texto) for _valor, texto in opciones])
+        formulario.agregar_fila(caja, rotulo, control)
+        self._opciones[clave] = (caja, rotulo, control)
         return control
 
     def _crear_botones(self, caja):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_aplicar = boton(
-            self, _("&Aceptar"), nombre_de_etiqueta(_("&Aceptar")), wx.ID_OK)
+            self._panel, _("&Aceptar"),
+            nombre_de_etiqueta(_("&Aceptar")), wx.ID_OK)
         self.btn_aplicar.SetDefault()
         self.btn_guardar = boton(
-            self, _("&Guardar como…"),
+            self._panel, _("&Guardar como…"),
             nombre_de_etiqueta(_("&Guardar como…")))
         self.btn_eliminar = boton(
-            self, _("Eli&minar"), nombre_de_etiqueta(_("Eli&minar")))
+            self._panel, _("Eli&minar"), nombre_de_etiqueta(_("Eli&minar")))
         self.btn_cancelar = boton(
-            self, _("Cance&lar"), nombre_de_etiqueta(_("Cance&lar")),
+            self._panel, _("Cance&lar"), nombre_de_etiqueta(_("Cance&lar")),
             wx.ID_CANCEL)
-        for control in (self.btn_aplicar, self.btn_guardar, self.btn_eliminar,
-                        self.btn_cancelar):
-            fila.Add(control, 0, wx.RIGHT, 8)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        formulario.agregar_pie(
+            caja, [self.btn_aplicar, self.btn_guardar,
+                   self.btn_eliminar, self.btn_cancelar])
 
     def _rehacer_lista(self, seleccion=0):
         nombres = [_(fabrica.nombre) for fabrica in self._fabrica]

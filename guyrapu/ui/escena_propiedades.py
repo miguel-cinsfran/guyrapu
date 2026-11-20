@@ -10,10 +10,11 @@ import wx
 
 from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _
-from guyrapu.ui import agregar_camara, escena_captura_ventana, paleta, tecla_escape
+from guyrapu.ui import (agregar_camara, escena_captura_ventana, formulario,
+                        paleta, tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import (
-    boton, fila_campo, lista_con_nombre, nombre_de_etiqueta)
+    boton, fila_label, lista_con_nombre, nombre_de_etiqueta)
 
 _COMODIN_IMAGEN = "*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.webp"
 _COMODIN_MULTIMEDIA = (
@@ -32,10 +33,11 @@ class DialogoBase(wx.Dialog):
         self._etiqueta_aceptar = aceptar or _("&Aceptar")
         self._etiqueta_cancelar = cancelar or _("&Cancelar")
         self._valores = None
+        self._panel = wx.Panel(self)
         self.vertical = wx.BoxSizer(wx.VERTICAL)
         self._crear_controles()
         self._crear_botones()
-        self.SetSizerAndFit(self.vertical)
+        formulario.ajustar_tamano(self, self._panel, self.vertical)
         self._enlazar_eventos()
         paleta.pintar_ventana(self)
         self.Centre()
@@ -48,23 +50,21 @@ class DialogoBase(wx.Dialog):
         raise NotImplementedError
 
     def _enfocar(self):
-        for hijo in self.GetChildren():
+        for hijo in self._panel.GetChildren():
             if isinstance(hijo, (wx.Choice, wx.TextCtrl, wx.SpinCtrl)):
                 hijo.SetFocus()
                 return
 
     def _crear_botones(self):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
         self.btn_aceptar = boton(
-            self, self._etiqueta_aceptar,
+            self._panel, self._etiqueta_aceptar,
             nombre_de_etiqueta(self._etiqueta_aceptar), wx.ID_OK)
         self.btn_aceptar.SetDefault()
         self.btn_cancelar = boton(
-            self, self._etiqueta_cancelar,
+            self._panel, self._etiqueta_cancelar,
             nombre_de_etiqueta(self._etiqueta_cancelar), wx.ID_CANCEL)
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 8)
-        fila.Add(self.btn_cancelar, 0)
-        self.vertical.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        formulario.agregar_pie(
+            self.vertical, [self.btn_aceptar, self.btn_cancelar])
 
     def _enlazar_eventos(self):
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._al_aceptar)
@@ -102,19 +102,22 @@ class DialogoEleccion(DialogoBase):
         super().__init__(padre, titulo, nombre, aceptar, cancelar)
 
     def _crear_controles(self):
-        self.rotulo = wx.StaticText(self, label=self._etiqueta)
+        self.rotulo = fila_label(self._panel, self._etiqueta)
         self.lista = lista_con_nombre(
-            self, self._etiqueta,
+            self._panel, self._etiqueta,
             [texto for texto, _valor in self._opciones])
         if self._actual in self._lista_valores:
             self.lista.SetSelection(self._lista_valores.index(self._actual))
         elif self._lista_valores:
             self.lista.SetSelection(0)
-        fila_campo(self.vertical, self.rotulo, self.lista)
+        formulario.agregar_fila(self.vertical, self.rotulo, self.lista)
         self.aviso_vacio = None
         if not self._opciones:
-            self.aviso_vacio = wx.StaticText(self, label=self._vacio)
-            self.vertical.Add(self.aviso_vacio, 0, wx.ALL, 6)
+            self.aviso_vacio = wx.StaticText(self._panel, label=self._vacio)
+            self.aviso_vacio.Wrap(
+                formulario.ANCHO_MINIMO - 2 * formulario.MARGEN)
+            formulario.agregar_fila(
+                self.vertical, None, self.aviso_vacio, hueco=0)
 
     def _enfocar(self):
         if self._opciones:
@@ -154,27 +157,32 @@ class DialogoJuego(DialogoBase):
         super().__init__(padre, _("Captura de juego"), "DialogoJuego")
 
     def _crear_controles(self):
-        self.rotulo_modo = wx.StaticText(self, label=_("Cap&turar:"))
+        self.rotulo_modo = fila_label(self._panel, _("Cap&turar:"))
         self.cho_modo = lista_con_nombre(
-            self, _("Cap&turar:"), [_("Cualquier juego a pantalla completa"),
-                                    _("Una ventana")])
+            self._panel, _("Cap&turar:"),
+            [_("Cualquier juego a pantalla completa"), _("Una ventana")])
         self.cho_modo.SetSelection(1 if self._modo == "window" else 0)
-        fila_campo(self.vertical, self.rotulo_modo, self.cho_modo)
-        self.rotulo_ventana = wx.StaticText(self, label=_("&Ventana:"))
+        formulario.agregar_fila(
+            self.vertical, self.rotulo_modo, self.cho_modo)
+        self.rotulo_ventana = fila_label(self._panel, _("&Ventana:"))
         self.cho_ventana = lista_con_nombre(
-            self, _("&Ventana:"),
+            self._panel, _("&Ventana:"),
             [texto for texto, _valor in self._ventanas])
         if self._ventana in self._valores_ventana:
             self.cho_ventana.SetSelection(
                 self._valores_ventana.index(self._ventana))
         elif self._valores_ventana:
             self.cho_ventana.SetSelection(0)
-        self.fila_ventana = fila_campo(
-            self.vertical, self.rotulo_ventana, self.cho_ventana)
+        self.fila_ventana = wx.BoxSizer(wx.VERTICAL)
+        formulario.agregar_fila(
+            self.fila_ventana, self.rotulo_ventana, self.cho_ventana)
+        self.vertical.Add(self.fila_ventana, 0, wx.EXPAND)
         self._vacio = _("No hay ventanas para capturar.")
-        self.aviso_vacio = wx.StaticText(
-            self, label=self._vacio)
-        self.vertical.Add(self.aviso_vacio, 0, wx.ALL, 6)
+        self.aviso_vacio = wx.StaticText(self._panel, label=self._vacio)
+        self.aviso_vacio.Wrap(
+            formulario.ANCHO_MINIMO - 2 * formulario.MARGEN)
+        formulario.agregar_fila(
+            self.vertical, None, self.aviso_vacio, hueco=0)
         self._mostrar_ventana(self._modo == "window")
 
     def _enfocar(self):
@@ -233,22 +241,24 @@ class DialogoArchivo(DialogoBase):
                          else _("Imagen"), "DialogoArchivo")
 
     def _crear_controles(self):
-        self.rotulo_archivo = wx.StaticText(self, label=_("Arch&ivo:"))
+        self.rotulo_archivo = fila_label(self._panel, _("Arch&ivo:"))
         self.txt_archivo = wx.TextCtrl(
-            self, value=self._archivo,
+            self._panel, value=self._archivo,
             name=nombre_de_etiqueta(_("Arch&ivo:")))
         nombre_accesible(self.txt_archivo, self.txt_archivo.GetName())
         self.btn_examinar = boton(
-            self, _("&Examinar…"), nombre_de_etiqueta(_("&Examinar…")))
-        fila_campo(self.vertical, self.rotulo_archivo, self.txt_archivo,
-                   boton=self.btn_examinar)
+            self._panel, _("&Examinar…"), nombre_de_etiqueta(_("&Examinar…")))
+        campo = wx.BoxSizer(wx.HORIZONTAL)
+        campo.Add(self.txt_archivo, 1, wx.EXPAND)
+        campo.Add(self.btn_examinar, 0, wx.LEFT, 8)
+        formulario.agregar_fila(self.vertical, self.rotulo_archivo, campo)
         self.chk_repetir = None
         if self._clave == "multimedia":
             self.chk_repetir = wx.CheckBox(
-                self, label=_("&Repetir"),
+                self._panel, label=_("&Repetir"),
                 name=nombre_de_etiqueta(_("&Repetir")))
             self.chk_repetir.SetValue(self._repetir)
-            self.vertical.Add(self.chk_repetir, 0, wx.ALL, 10)
+            formulario.agregar_fila(self.vertical, None, self.chk_repetir)
 
     def _enfocar(self):
         self.txt_archivo.SetFocus()
@@ -288,20 +298,22 @@ class DialogoTexto(DialogoBase):
         super().__init__(padre, _("Texto"), "DialogoTexto")
 
     def _crear_controles(self):
-        self.rotulo_texto = wx.StaticText(self, label=_("&Texto:"))
+        self.rotulo_texto = fila_label(self._panel, _("&Texto:"))
         self.txt_texto = wx.TextCtrl(
-            self, value=self._texto,
+            self._panel, value=self._texto,
             name=nombre_de_etiqueta(_("&Texto:")))
         nombre_accesible(self.txt_texto, self.txt_texto.GetName())
-        fila_campo(self.vertical, self.rotulo_texto, self.txt_texto)
-        self.rotulo_tamano = wx.StaticText(
-            self, label=_("Tamaño de letra:"))
+        formulario.agregar_fila(
+            self.vertical, self.rotulo_texto, self.txt_texto)
+        self.rotulo_tamano = fila_label(self._panel, _("Tamaño de letra:"))
         self.spin_tamano = wx.SpinCtrl(
-            self, min=_TAMANO_MINIMO, max=_TAMANO_MAXIMO,
+            self._panel, min=_TAMANO_MINIMO, max=_TAMANO_MAXIMO,
             initial=self._tamano,
             name=nombre_de_etiqueta(_("Tamaño de letra:")))
         nombre_accesible(self.spin_tamano, self.spin_tamano.GetName())
-        fila_campo(self.vertical, self.rotulo_tamano, self.spin_tamano)
+        formulario.agregar_fila(
+            self.vertical, self.rotulo_tamano, self.spin_tamano,
+            numerico=True)
 
     def _enfocar(self):
         self.txt_texto.SetFocus()

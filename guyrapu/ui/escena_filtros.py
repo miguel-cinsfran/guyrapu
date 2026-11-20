@@ -12,9 +12,9 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs.filtros_microfono import GANANCIAS, Estado
-from guyrapu.ui import paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.preferencias_comun import (
-    fila_campo, lista_con_nombre, nombre_de_etiqueta)
+    fila_label, lista_con_nombre, nombre_de_etiqueta)
 
 
 class FiltrosMicrofonoDialog(wx.Dialog):
@@ -32,33 +32,34 @@ class FiltrosMicrofonoDialog(wx.Dialog):
         self.chk_ruido.SetFocus()
 
     def _crear_controles(self, estado):
+        self._panel = wx.Panel(self)
         caja = wx.BoxSizer(wx.VERTICAL)
         self.chk_ruido = self._casilla(
             _("&Eliminación de ruido"), estado.eliminacion)
         self.chk_puerta = self._casilla(
             _("&Puerta anti-ruidos"), estado.puerta)
-        caja.Add(self.chk_ruido, 0, wx.ALL, 6)
-        caja.Add(self.chk_puerta, 0, wx.ALL, 6)
+        formulario.agregar_casillas(caja, (self.chk_ruido, self.chk_puerta))
         self._crear_ganancia(caja, estado)
         self._crear_botones(caja)
-        self.SetSizerAndFit(caja)
+        formulario.ajustar_tamano(self, self._panel, caja)
         self.btn_aceptar.Bind(wx.EVT_BUTTON, self._al_aceptar)
         self.btn_cancelar.Bind(wx.EVT_BUTTON, self._al_cancelar)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
 
     def _casilla(self, etiqueta, valor):
         casilla = wx.CheckBox(
-            self, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+            self._panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
         casilla.SetValue(bool(valor))
         return casilla
 
     def _crear_ganancia(self, caja, estado):
         etiqueta = _("&Ganancia:")
-        self.rotulo_ganancia = wx.StaticText(self, label=etiqueta)
+        self.rotulo_ganancia = fila_label(self._panel, etiqueta)
         self.cho_ganancia = lista_con_nombre(
-            self, etiqueta, [_(nombre) for _db, nombre in GANANCIAS])
+            self._panel, etiqueta, [_(nombre) for _db, nombre in GANANCIAS])
         self.cho_ganancia.SetSelection(self._indice_de(estado.ganancia_db))
-        fila_campo(caja, self.rotulo_ganancia, self.cho_ganancia)
+        formulario.agregar_fila(
+            caja, self.rotulo_ganancia, self.cho_ganancia)
 
     @staticmethod
     def _indice_de(db):
@@ -68,13 +69,12 @@ class FiltrosMicrofonoDialog(wx.Dialog):
         return 0
 
     def _crear_botones(self, caja):
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_aceptar = wx.Button(self, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
+        self.btn_aceptar = wx.Button(
+            self._panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
         self.btn_aceptar.SetDefault()
-        self.btn_cancelar = wx.Button(self, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
-        fila.Add(self.btn_aceptar, 0, wx.RIGHT, 8)
-        fila.Add(self.btn_cancelar, 0)
-        caja.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
+        self.btn_cancelar = wx.Button(
+            self._panel, wx.ID_CANCEL, _("&Cancelar"), name=_("Cancelar"))
+        formulario.agregar_pie(caja, [self.btn_aceptar, self.btn_cancelar])
 
     def estado_elegido(self):
         return self._elegido

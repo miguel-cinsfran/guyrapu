@@ -14,6 +14,8 @@ from guyrapu.obs import disenos_escena, disenos_fabrica, disenos_guardados
 from guyrapu.obs.fuente_chat import NOMBRE_FUENTE
 from guyrapu.ui import disenos_nombres
 from guyrapu.ui import escena_disenos
+from guyrapu.ui import formulario
+from guyrapu.ui import tema
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -336,6 +338,46 @@ class DisenoEscenaDialogTest(unittest.TestCase):
         dialogo.EndModal.assert_not_called()
         foco.assert_called_once_with()
         self.assertEqual(self.anuncios, ["Falta la fuente inferior."])
+
+    def test_geometria_y_pie_del_cuadro(self):
+        dialogo = self._dialogo()
+        dialogo.Layout()
+        ancho, alto = dialogo.GetSize()
+        mensaje = f"Tamaño {ancho} x {alto}"
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO, mensaje)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO, mensaje)
+        pares = [(dialogo.rotulo_diseno, dialogo.cho_diseno)]
+        for lugar in ("principal", "secundaria", "izquierda", "derecha"):
+            grupo = dialogo._lugares[lugar]
+            for rotulo, control in ((grupo[1], grupo[2]), (grupo[4], grupo[5])):
+                if control.IsShown():
+                    pares.append((rotulo, control))
+        for grupo in dialogo._opciones.values():
+            if grupo[2].IsShown():
+                pares.append((grupo[1], grupo[2]))
+        for rotulo, control in pares:
+            self.assertLessEqual(
+                rotulo.GetPosition().y + rotulo.GetSize().height,
+                control.GetPosition().y)
+        botones = [dialogo.btn_aplicar, dialogo.btn_guardar,
+                   dialogo.btn_eliminar, dialogo.btn_cancelar]
+        self.assertEqual([boton.GetLabel() for boton in botones],
+                         ["&Aceptar", "&Guardar como…", "Eli&minar",
+                          "Cance&lar"])
+        for anterior, siguiente in zip(botones, botones[1:]):
+            self.assertEqual(anterior.GetPosition().y, siguiente.GetPosition().y)
+            self.assertEqual(anterior.GetSize().width,
+                             siguiente.GetSize().width)
+        panel = botones[-1].GetParent()
+        self.assertEqual(
+            panel.GetClientSize().width - botones[-1].GetPosition().x
+            - botones[-1].GetSize().width, formulario.MARGEN)
+        self.assertEqual(
+            panel.GetClientSize().height - botones[-1].GetPosition().y
+            - botones[-1].GetSize().height, formulario.MARGEN)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(dialogo.btn_aplicar.GetBackgroundColour(),
+                             tema._T.primary)
 
 
 if __name__ == "__main__":

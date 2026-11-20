@@ -16,7 +16,7 @@ try:
 except Exception:
     _HAY_WX = False
 
-from guyrapu.ui import gui_microfono
+from guyrapu.ui import formulario, gui_microfono, tema
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -203,10 +203,49 @@ class TestMicrofonoObsDialogVentana(unittest.TestCase):
                 self.assertGreaterEqual(
                     combinado.GetMinSize().GetWidth(), 320)
 
+    def test_geometria_del_cuadro(self):
+        dialogo = self._dialogo()
+        dialogo.Layout()
+        ancho, alto = dialogo.GetSize()
+        mensaje = f"Tamaño {ancho} x {alto}"
+        self.assertGreaterEqual(ancho, formulario.ANCHO_MINIMO, mensaje)
+        self.assertLessEqual(alto, formulario.ALTO_MAXIMO, mensaje)
+        for rotulo, control in ((dialogo.rotulo_fuente, dialogo.cho_fuente),
+                                (dialogo.rotulo_dispositivo,
+                                 dialogo.cho_dispositivo)):
+            self.assertLessEqual(
+                rotulo.GetPosition().y + rotulo.GetSize().height,
+                control.GetPosition().y)
+        botones = [dialogo.btn_aplicar, dialogo.btn_cerrar]
+        self.assertEqual(botones[0].GetSize().width,
+                         botones[1].GetSize().width)
+        panel = botones[-1].GetParent()
+        self.assertEqual(
+            panel.GetClientSize().width - botones[-1].GetPosition().x
+            - botones[-1].GetSize().width, formulario.MARGEN)
+        self.assertEqual(
+            panel.GetClientSize().height - botones[-1].GetPosition().y
+            - botones[-1].GetSize().height, formulario.MARGEN)
+        self.assertGreaterEqual(
+            botones[-1].GetPosition().y,
+            dialogo.cho_dispositivo.GetPosition().y
+            + dialogo.cho_dispositivo.GetSize().height)
+        if not tema.ALTO_CONTRASTE:
+            self.assertEqual(dialogo.btn_aplicar.GetBackgroundColour(),
+                             tema._T.primary)
+
+    def _interactivos(self, ventana):
+        encontrados = []
+        for hijo in ventana.GetChildren():
+            if (hijo.AcceptsFocus() and hijo.IsShown()
+                    and not isinstance(hijo, wx.Panel)):
+                encontrados.append(hijo)
+            encontrados.extend(self._interactivos(hijo))
+        return encontrados
+
     def test_orden_de_tab_foco_y_botones(self):
         dialogo = self._dialogo()
-        focos = [hijo for hijo in dialogo.GetChildren()
-                 if hijo.AcceptsFocus() and hijo.IsShown()]
+        focos = self._interactivos(dialogo)
         self.assertEqual(
             focos, [dialogo.cho_fuente, dialogo.cho_dispositivo,
                     dialogo.btn_aplicar, dialogo.btn_cerrar])

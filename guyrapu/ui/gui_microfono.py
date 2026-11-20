@@ -21,8 +21,9 @@ from guyrapu.obs import obs_audio
 from guyrapu.obs import obs_cliente
 from guyrapu.obs import obs_entradas_audio
 from guyrapu.ui.accesibilidad import anunciar
-from guyrapu.ui import ayuda_manual, paleta, tecla_escape
+from guyrapu.ui import ayuda_manual, formulario, paleta, tecla_escape
 from guyrapu.ui.espera_sonora import EsperaSonora
+from guyrapu.ui.preferencias_comun import fila_label
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
@@ -158,31 +159,29 @@ class MicrofonoObsDialog(wx.Dialog):
                          name="DialogoMicrofonoObs")
         self._padre = padre
         self._valores = []
+        panel = wx.Panel(self)
         vs = wx.BoxSizer(wx.VERTICAL)
-        self.rotulo_fuente = wx.StaticText(self, label=_("&Fuente de OBS:"))
-        vs.Add(self.rotulo_fuente, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        self.rotulo_fuente = fila_label(panel, _("&Fuente de OBS:"))
         self.cho_fuente = wx.Choice(
-            self, choices=list(fuentes), name=_("Fuente de OBS"))
+            panel, choices=list(fuentes), name=_("Fuente de OBS"))
         self.cho_fuente.SetMinSize((320, -1))
         if fuente:
             self.cho_fuente.SetStringSelection(fuente)
-        vs.Add(self.cho_fuente, 0, wx.EXPAND | wx.ALL, 10)
-        self.rotulo_dispositivo = wx.StaticText(
-            self, label=_("&Dispositivo:"))
-        vs.Add(self.rotulo_dispositivo, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        formulario.agregar_fila(vs, self.rotulo_fuente, self.cho_fuente)
+        self.rotulo_dispositivo = fila_label(panel, _("&Dispositivo:"))
         self.cho_dispositivo = wx.Choice(
-            self, choices=[], name=_("Dispositivo"))
+            panel, choices=[], name=_("Dispositivo"))
         self.cho_dispositivo.SetMinSize((320, -1))
-        vs.Add(self.cho_dispositivo, 0, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_fila(
+            vs, self.rotulo_dispositivo, self.cho_dispositivo)
         self._cargar_dispositivos(pares, actual)
-        fila = wx.BoxSizer(wx.HORIZONTAL)
-        self.btn_aplicar = wx.Button(self, wx.ID_ANY, _("&Aplicar"), name=_("Aplicar"))
+        self.btn_aplicar = wx.Button(
+            panel, wx.ID_ANY, _("&Aplicar"), name=_("Aplicar"))
         self.btn_aplicar.SetDefault()
-        self.btn_cerrar = wx.Button(self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
-        fila.Add(self.btn_aplicar, 0, wx.RIGHT, 6)
-        fila.Add(self.btn_cerrar, 0)
-        vs.Add(fila, 0, wx.ALIGN_RIGHT | wx.ALL, 10)
-        self.SetSizerAndFit(vs)
+        self.btn_cerrar = wx.Button(
+            panel, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
+        formulario.agregar_pie(vs, [self.btn_aplicar, self.btn_cerrar])
+        formulario.ajustar_tamano(self, panel, vs)
         self.cho_fuente.Bind(wx.EVT_CHOICE, self._al_cambiar_fuente)
         self.btn_aplicar.Bind(wx.EVT_BUTTON, self._al_aplicar)
         self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
