@@ -55,6 +55,18 @@ class TestLeer(unittest.TestCase):
         self.assertEqual([paquete["id"] for paquete in paquetes],
                          ["piper-es-ar-daniela-high"])
 
+    def test_atributos_de_texto_se_aceptan_y_otros_se_descartan(self):
+        paquete = _paquete()
+        paquete["voces"][0]["atributos"] = {"calidad": "high"}
+        self.assertEqual(_leer(paquete)[1], [])
+        for malos in ("alta", ["alta"], {"calidad": 3}):
+            with self.subTest(atributos=malos):
+                paquete = _paquete()
+                paquete["voces"][0]["atributos"] = malos
+                paquetes, descartes = _leer(paquete)
+                self.assertEqual(paquetes, [])
+                self.assertIn("atributos", descartes[0])
+
     def test_formato_mas_nuevo_da_catalogo_vacio(self):
         texto = json.dumps({"formato": 2, "paquetes": [_paquete()]})
         paquetes, descartes = paquetes_catalogo.leer(

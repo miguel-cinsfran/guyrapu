@@ -245,6 +245,20 @@ class TestFilasYDetalles(unittest.TestCase):
         self.assertIn("Enlace de la licencia: https://ejemplo.test/cc-by-nc",
                       detalles)
 
+    def test_los_detalles_dicen_los_atributos_de_la_voz_elegida(self):
+        piper = _paquete(
+            "piper-davefx", "piper", "Piper Davefx", "es-ES",
+            [dict(_voz("Davefx", "es-ES"), atributos={"calidad": "high"})], 10)
+        fon = _paquete(
+            "phonon-es", "phonon", "Phonon español", "es",
+            [dict(_voz("Noa", "es-ES"), atributos={"edad": "Young Adult"}),
+             dict(_voz("Marc", "es-MX"), atributos={"edad": "Adult"})], 25)
+        self.assertIn("Calidad según Piper: alta.",
+                      voces_disponibles.detalles(_entrada(piper)))
+        detalles = voces_disponibles.detalles(_entrada(fon), 1)
+        self.assertIn("Edad según Phonon: adulto.", detalles)
+        self.assertNotIn("Edad según Phonon: adulto joven.", detalles)
+
     def test_sin_nc_dice_que_el_uso_es_libre(self):
         paquete = _paquete(
             "piper-davefx", "piper", "Piper Davefx", "es-ES",

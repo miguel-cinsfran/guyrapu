@@ -65,10 +65,19 @@ def _archivo_valido(archivo) -> bool:
     return _ruta_valida(archivo.get("ruta"))
 
 
+def _atributos_validos(atributos) -> bool:
+    return (isinstance(atributos, dict)
+            and all(isinstance(clave, str) and isinstance(valor, str)
+                    for clave, valor in atributos.items()))
+
+
 def _voz_valida(voz) -> bool:
     if not isinstance(voz, dict):
         return False
     if not _texto(voz.get("nombre")) or not _texto(voz.get("idioma")):
+        return False
+    atributos = voz.get("atributos")
+    if atributos is not None and not _atributos_validos(atributos):
         return False
     if voz.get("genero") is not None and not isinstance(voz.get("genero"), str):
         return False
@@ -109,6 +118,9 @@ def _motivo(paquete, version_app, tipos, proveedores):
     voces = paquete.get("voces")
     if not isinstance(voces, list):
         return "las voces del paquete no son una lista"
+    if any(isinstance(voz, dict) and voz.get("atributos") is not None
+           and not _atributos_validos(voz["atributos"]) for voz in voces):
+        return "los atributos de una voz no son un diccionario de textos"
     if any(not _voz_valida(voz) for voz in voces):
         return "una voz del paquete no es válida"
     return None

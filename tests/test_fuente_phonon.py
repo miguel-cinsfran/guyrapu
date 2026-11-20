@@ -47,6 +47,22 @@ class TestPaquetesArmados(unittest.TestCase):
             return fuente_phonon._paquete_phonon(
                 "es", fuente_phonon.PHONON["es"], [], metadatos, {}, {})
 
+    def test_la_voz_lleva_la_edad_que_publica_el_motor(self):
+        archivo = {"url": "https://ejemplo.com/noa.onnx", "bytes": 1,
+                   "sha256": "b" * 64, "ruta": "noa.onnx"}
+        voces = [{"name": "Noa", "filename": "noa.onnx", "language": "es",
+                  "age": "Young Adult",
+                  "description": "Descripción en inglés"}]
+        metadatos = {ruta: {} for ruta in fuente_phonon.ARCHIVOS_MODELO}
+        with mock.patch.object(armar_catalogo, "preparar_archivo",
+                               return_value=archivo):
+            paquete = fuente_phonon._paquete_phonon(
+                "es", fuente_phonon.PHONON["es"], voces, metadatos,
+                {"noa.onnx": {}}, {})
+        self.assertEqual(paquete["voces"][0]["atributos"],
+                         {"edad": "Young Adult"})
+        self.assertNotIn("descripcion", paquete["voces"][0])
+
     def test_los_paquetes_de_phonon_conservan_su_enlace(self):
         paquete = self._phonon()
         self.assertEqual(paquete["licencia_url"],

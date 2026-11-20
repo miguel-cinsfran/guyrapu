@@ -57,14 +57,17 @@ def _paquete_phonon(idioma, datos, voces, metadatos_modelo,
                                + [parte.upper() for parte in partes[1:]])
                       if len(partes) > 1 else (voz.get("language") or ""))
         muestra = muestras.get(voz.get("voice_id"))
-        voces_paquete.append({
+        datos_voz = {
             "nombre": str(voz.get("name") or "Voz"),
             "idioma": idioma_voz,
             "genero": voz.get("gender"),
             "muestra": (base.url_origen(*VOCES_PHONON, muestra)
                         if muestra else None),
             "archivo": ruta,
-        })
+        }
+        if isinstance(voz.get("age"), str) and voz["age"]:
+            datos_voz["atributos"] = {"edad": voz["age"]}
+        voces_paquete.append(datos_voz)
     return base._paquete(
         f"phonon-{idioma}", ID, nombre, idioma_app, licencia,
         f"Gradium, {repo}", repo, voces_paquete, archivos)

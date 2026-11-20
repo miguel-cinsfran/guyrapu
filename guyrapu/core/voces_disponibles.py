@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
+from guyrapu.core import atributos_voz
 from guyrapu.core import paquetes_catalogo
 from guyrapu.core.idioma import N_, _, idioma_actual, ngettext
 from guyrapu.voice import proveedores
@@ -255,17 +256,23 @@ def _idiomas_distintos(entrada) -> list[str]:
     return idiomas
 
 
-def detalles(entrada) -> str:
+def detalles(entrada, indice=0) -> str:
     ficha = _ficha(entrada)
     listado = voces(entrada)
     idiomas = _inicial(", ".join(_idiomas_distintos(entrada)))
+    motor = nombre_motor(entrada)
+    voz = listado[indice] if 0 <= indice < len(listado) else None
     lineas = [
         "{} {}".format(_("Nombre:"), nombre(entrada)),
-        "{} {}".format(_("Motor de voz:"), nombre_motor(entrada)),
+        "{} {}".format(_("Motor de voz:"), motor),
+    ]
+    lineas.extend(atributos_voz.lineas_detalles(
+        voz.get("atributos") if voz is not None else None, motor))
+    lineas.extend((
         "{} {}".format(_("Idioma:"), idiomas),
         "{} {}".format(_("Voces:"), len(listado)),
         "{} {}".format(_("Tamaño:"), tamano(entrada)),
-    ]
+    ))
     if len(listado) > 1:
         lineas.append(_("Phonon instala todas las voces del idioma juntas."))
     lineas.extend((

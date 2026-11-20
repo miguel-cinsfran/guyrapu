@@ -47,12 +47,13 @@ def _grupos_piper(voices: dict) -> dict:
     return grupos
 
 
-def _voces_piper(nombre, idioma, muestra, archivo, hablantes):
+def _voces_piper(nombre, idioma, muestra, archivo, hablantes, calidad):
     mapa = hablantes if isinstance(hablantes, dict) else {}
     pares = sorted(((str(clave), int(valor)) for clave, valor in mapa.items()
                     if isinstance(valor, int)), key=lambda par: par[1])
     modelo = nombre_piper(nombre)
-    comun = {"idioma": idioma, "muestra": muestra, "archivo": archivo}
+    comun = {"idioma": idioma, "muestra": muestra, "archivo": archivo,
+             "atributos": {"calidad": calidad}}
     if not 2 <= len(pares) <= MAX_HABLANTES:
         return [dict(comun, nombre=modelo, genero=None)]
     generos = ({"M": "male", "F": "female"}
@@ -99,7 +100,7 @@ def _paquete_piper(clave, entrada, metadatos, repo, revision) -> dict:
         f"Piper {nombre_piper(nombre)}", idioma, licencia,
         f"Piper, {repo}, {entrada.get('key')}", repo,
         _voces_piper(nombre, idioma, muestra, pares[0][1],
-                     entrada.get("speaker_id_map")),
+                     entrada.get("speaker_id_map"), calidad),
         archivos, enlace)
     paquete["uso"] = categoria
     if categoria != uso_voces.LIBRE:

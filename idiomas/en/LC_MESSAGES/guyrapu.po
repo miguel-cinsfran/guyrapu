@@ -2018,6 +2018,56 @@ msgstr "Window and navigation (fixed)"
 msgid "Recientes y filtro del chat (fijos)"
 msgstr "Recent chat messages and filter (fixed)"
 
+#: guyrapu/core/atributos_voz.py guyrapu/obs/textos_perfil.py
+#: guyrapu/ui/gui_descargas.py
+msgid "Calidad"
+msgstr "Quality"
+
+#: guyrapu/core/atributos_voz.py
+msgid "muy baja"
+msgstr "very low"
+
+#: guyrapu/core/atributos_voz.py
+msgid "baja"
+msgstr "low"
+
+#: guyrapu/core/atributos_voz.py
+msgid "media"
+msgstr "medium"
+
+#: guyrapu/core/atributos_voz.py
+msgid "alta"
+msgstr "high"
+
+#: guyrapu/core/atributos_voz.py
+msgid "Edad"
+msgstr "Age"
+
+#: guyrapu/core/atributos_voz.py
+msgid "joven"
+msgstr "young"
+
+#: guyrapu/core/atributos_voz.py
+msgid "adulto joven"
+msgstr "young adult"
+
+#: guyrapu/core/atributos_voz.py
+msgid "adulto"
+msgstr "adult"
+
+#: guyrapu/core/atributos_voz.py
+msgid "mediana edad"
+msgstr "middle-aged"
+
+#: guyrapu/core/atributos_voz.py
+msgid "adulto mayor"
+msgstr "older adult"
+
+#: guyrapu/core/atributos_voz.py
+#, python-brace-format
+msgid "{atributo} según {motor}: {valor}."
+msgstr "{atributo} according to {motor}: {valor}."
+
 #: guyrapu/core/avisos_preferencias.py
 msgid "Preferencias guardadas."
 msgstr "Preferences saved."
@@ -6748,10 +6798,6 @@ msgstr "Speed"
 #: guyrapu/obs/textos_perfil.py
 msgid "Equilibrado"
 msgstr "Balanced"
-
-#: guyrapu/obs/textos_perfil.py guyrapu/ui/gui_descargas.py
-msgid "Calidad"
-msgstr "Quality"
 
 #: guyrapu/obs/textos_perfil.py
 msgid "La más rápida"

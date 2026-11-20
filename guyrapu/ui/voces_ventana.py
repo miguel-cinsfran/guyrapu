@@ -260,7 +260,7 @@ class VentanaVoces(wx.Dialog):
     def _mostrar_seleccion(self):
         fila = self._voz_elegida()
         self.txt_detalles.SetValue(
-            voces_disponibles.detalles(fila.paquete) if fila is not None else "")
+            voces_disponibles.detalles(fila.paquete, fila.indice) if fila is not None else "")
 
     def _al_cambiar_idioma(self, _evento=None):
         self._idioma_tocado = True

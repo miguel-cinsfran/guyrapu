@@ -7,6 +7,7 @@ from __future__ import annotations
 import unicodedata
 from typing import NamedTuple
 
+from guyrapu.core import atributos_voz
 from guyrapu.core import voces_disponibles
 from guyrapu.core.idioma import ngettext
 
@@ -61,8 +62,9 @@ def filas_voces(entradas, motor, texto="") -> list[FilaVoz]:
             if buscado and buscado not in _normalizar(nombre):
                 continue
             genero = voces_disponibles.nombre_genero(voz.get("genero"))
+            atributos = atributos_voz.textos_fila(voz.get("atributos"))
             filas.append(FilaVoz(
-                ", ".join(parte for parte in (nombre, genero, estado, aviso)
-                          if parte),
+                ", ".join(parte for parte in
+                          (nombre, genero, *atributos, estado, aviso) if parte),
                 entrada, indice))
     return filas

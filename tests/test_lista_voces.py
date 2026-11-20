@@ -87,6 +87,20 @@ class TestFilasDeVoces(unittest.TestCase):
              "Marc, instalado, uso no comercial",
              "Lia, instalado, uso no comercial"])
 
+    def test_la_fila_dice_la_calidad_pero_no_la_edad(self):
+        alta = dict(_voz("Ana", "female"), atributos={"calidad": "high"})
+        joven = dict(_voz("Noa"), atributos={"edad": "Young Adult"})
+        piper = _paquete("piper-a", "piper", [alta])
+        fon = _paquete("phonon-es", "phonon", [joven])
+        self.assertEqual(
+            [fila.texto for fila in lista_voces.filas_voces(
+                _entradas([piper]), "piper")],
+            ["Ana, femenina, calidad alta, disponible"])
+        self.assertEqual(
+            [fila.texto for fila in lista_voces.filas_voces(
+                _entradas([fon]), "phonon")],
+            ["Noa, disponible"])
+
     def test_la_busqueda_ignora_tildes_y_mayusculas(self):
         paquete = _paquete("piper-a", "piper", [_voz("Ángela"), _voz("Bruno")])
         entradas = _entradas([paquete])

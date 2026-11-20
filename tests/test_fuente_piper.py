@@ -53,6 +53,11 @@ class TestPaquetesArmados(unittest.TestCase):
                 {"voz.onnx": {}, "voz.onnx.json": {}},
                 "rhasspy/piper-voices", "rev")
 
+    def test_cada_voz_lleva_la_calidad_que_publica_el_motor(self):
+        paquete = self._piper("daniela", "CC BY 4.0")
+        self.assertEqual([voz.get("atributos") for voz in paquete["voces"]],
+                         [{"calidad": "medium"}])
+
     def test_una_voz_de_piper_enlaza_su_model_card(self):
         paquete = self._piper("daniela", "CC BY 4.0",
                               "es/es_ES/daniela/medium/MODEL_CARD")
