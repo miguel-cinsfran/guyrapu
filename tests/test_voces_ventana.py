@@ -226,7 +226,8 @@ class TestListasYFiltros(BaseVentana):
         self.assertEqual(
             [dialogo.lista_voces.GetString(i)
              for i in range(dialogo.lista_voces.GetCount())],
-            ["Ana, femenina, disponible", "Bruno, masculina, instalado"])
+            ["Ana, femenina, español (España), disponible",
+             "Bruno, masculina, español (España), instalado"])
 
     def test_detalles_de_una_voz_de_phonon_dicen_que_instala_todas(self):
         paquete = _paquete(
@@ -247,7 +248,7 @@ class TestListasYFiltros(BaseVentana):
         self.assertEqual(
             [dialogo.lista_voces.GetString(i)
              for i in range(dialogo.lista_voces.GetCount())],
-            ["Ángela, disponible"])
+            ["Ángela, español (España), disponible"])
         tecla = _Tecla(wx.WXK_DOWN)
         dialogo._tecla_buscar(tecla)
         self.assertFalse(tecla.saltada)
@@ -268,7 +269,8 @@ class TestListasYFiltros(BaseVentana):
                          "Phonon, 1 voz, 0 instaladas")
         dialogo.lista_motores.SetSelection(1)
         dialogo._al_elegir_motor(mock.Mock())
-        self.assertEqual(dialogo.lista_voces.GetString(0), "Elena, disponible")
+        self.assertEqual(dialogo.lista_voces.GetString(0),
+                         "Elena, inglés (Estados Unidos), disponible")
 
 
 class TestInstalarYActualizar(BaseVentana):

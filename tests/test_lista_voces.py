@@ -66,6 +66,14 @@ class TestFilasDeVoces(unittest.TestCase):
         idioma.instalar("es")
         self.addCleanup(idioma._reiniciar)
 
+    def test_la_fila_dice_el_idioma_de_la_voz_despues_del_genero(self):
+        fon = _paquete("phonon-es", "phonon", [_voz("Noa", "female")],
+                       uso="no_comercial")
+        filas = lista_voces.filas_voces(_entradas([fon]), "phonon")
+        self.assertEqual(
+            [fila.texto for fila in filas],
+            ["Noa, femenina, español (España), disponible, uso no comercial"])
+
     def test_piper_con_dos_paquetes_y_uno_instalado(self):
         ana = _paquete("piper-a", "piper", [_voz("Ana", "female")])
         bruno = _paquete("piper-b", "piper", [_voz("Bruno", "male")])
@@ -73,7 +81,8 @@ class TestFilasDeVoces(unittest.TestCase):
             _entradas([ana, bruno], [_instalado(bruno)]), "piper")
         self.assertEqual(
             [fila.texto for fila in filas],
-            ["Ana, femenina, disponible", "Bruno, masculina, instalado"])
+            ["Ana, femenina, español (España), disponible",
+             "Bruno, masculina, español (España), instalado"])
 
     def test_un_paquete_de_phonon_da_una_fila_por_voz(self):
         fon = _paquete("phonon-es", "phonon",
@@ -83,9 +92,9 @@ class TestFilasDeVoces(unittest.TestCase):
             _entradas([fon], [_instalado(fon)]), "phonon")
         self.assertEqual(
             [fila.texto for fila in filas],
-            ["Noa, instalado, uso no comercial",
-             "Marc, instalado, uso no comercial",
-             "Lia, instalado, uso no comercial"])
+            ["Noa, español (España), instalado, uso no comercial",
+             "Marc, español (España), instalado, uso no comercial",
+             "Lia, español (España), instalado, uso no comercial"])
 
     def test_la_fila_dice_la_calidad_pero_no_la_edad(self):
         alta = dict(_voz("Ana", "female"), atributos={"calidad": "high"})
@@ -95,11 +104,11 @@ class TestFilasDeVoces(unittest.TestCase):
         self.assertEqual(
             [fila.texto for fila in lista_voces.filas_voces(
                 _entradas([piper]), "piper")],
-            ["Ana, femenina, calidad alta, disponible"])
+            ["Ana, femenina, español (España), calidad alta, disponible"])
         self.assertEqual(
             [fila.texto for fila in lista_voces.filas_voces(
                 _entradas([fon]), "phonon")],
-            ["Noa, disponible"])
+            ["Noa, español (España), disponible"])
 
     def test_la_busqueda_ignora_tildes_y_mayusculas(self):
         paquete = _paquete("piper-a", "piper", [_voz("Ángela"), _voz("Bruno")])
@@ -107,11 +116,11 @@ class TestFilasDeVoces(unittest.TestCase):
         self.assertEqual(
             [fila.texto for fila in lista_voces.filas_voces(
                 entradas, "piper", "ANGELA")],
-            ["Ángela, disponible"])
+            ["Ángela, español (España), disponible"])
         self.assertEqual(
             [fila.texto for fila in lista_voces.filas_voces(
                 entradas, "piper", "bruno")],
-            ["Bruno, disponible"])
+            ["Bruno, español (España), disponible"])
 
     def test_cada_fila_da_su_paquete_y_su_indice(self):
         fon = _paquete("phonon-es", "phonon", [_voz("Noa"), _voz("Marc")])

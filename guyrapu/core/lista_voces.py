@@ -62,9 +62,10 @@ def filas_voces(entradas, motor, texto="") -> list[FilaVoz]:
             if buscado and buscado not in _normalizar(nombre):
                 continue
             genero = voces_disponibles.nombre_genero(voz.get("genero"))
+            idioma = voces_disponibles.nombre_idioma(voz.get("idioma"))
             atributos = atributos_voz.textos_fila(voz.get("atributos"))
             filas.append(FilaVoz(
                 ", ".join(parte for parte in
-                          (nombre, genero, *atributos, estado, aviso) if parte),
+                          (nombre, genero, idioma, *atributos, estado, aviso) if parte),
                 entrada, indice))
     return filas
