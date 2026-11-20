@@ -101,7 +101,7 @@ ETIQUETAS = {
     "describir_escena": N_("Describir escena de OBS"),
     "consulta_rapida_ia": N_("Preguntar a la IA sobre la escena"),
     "anunciar_encuadre": N_("Anunciar encuadre de cámara"),
-    "avisos_encuadre": N_("Avisar si el rostro sale del encuadre"),
+    "avisos_encuadre": N_("Avisar si el rostro queda fuera del encuadre"),
     "camara_visible": N_("Mostrar u ocultar la cámara"),
     "region_siguiente": N_("Región siguiente"), "region_anterior": N_("Región anterior"),
     # Música (Ctrl+Alt)
@@ -150,7 +150,7 @@ NOTA_PAGINA = N_(
     "Cada familia de atajos tiene su modificador. Ctrl es para el "
     "reproductor, Alt para el chat y Ctrl+Mayús para abrir ventanas. "
     "Alt+Mayús es para el directo y OBS, y Ctrl+Alt para la música. "
-    "Ctrl+Alt+Mayús es para lo que sale en el vídeo, y las teclas F para la "
+    "Ctrl+Alt+Mayús es para lo que se muestra en el vídeo, y las teclas F para la "
     "voz. Pulsa un botón y luego la combinación que "
     "quieras. La aplicación comprueba que sirva para esa familia y que no "
     "coincida con otra. F6, Mayús+F6, F9 a F12 y Alt+F4 son fijas, y se "

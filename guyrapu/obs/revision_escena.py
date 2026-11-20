@@ -93,7 +93,7 @@ def _lados(rect, ancho, alto) -> str:
         salidas.append(_("por arriba"))
     if rect[1] + rect[3] > alto:
         salidas.append(_("por abajo"))
-    # Traductores: conjunción entre los lados por los que se sale del vídeo.
+    # Traductores: conjunción entre los lados por los que queda fuera del vídeo.
     return _(" y ").join(salidas)
 
 

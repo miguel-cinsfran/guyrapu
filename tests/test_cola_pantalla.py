@@ -269,7 +269,7 @@ class TestColaPantalla(unittest.TestCase):
         self.assertIs(ocultar[0].pieza, segunda)
         self.assertEqual(ocultar[0].accion, "ocultar")
         cola.oculta(segunda, 2)
-        self.assertEqual(cola.describir(), "Nada en el vídeo.")
+        self.assertEqual(cola.describir(), "No hay nada en el vídeo.")
 
     def test_un_comando_va_delante_de_los_mensajes_y_detras_de_otro_comando(self):
         cola = ColaPantalla()
@@ -353,10 +353,10 @@ class TestColaPantalla(unittest.TestCase):
 
     def test_frase_sin_nada_y_con_el_sonido_silenciado(self):
         cola = ColaPantalla()
-        self.assertEqual(cola.describir(), "Nada en el vídeo.")
+        self.assertEqual(cola.describir(), "No hay nada en el vídeo.")
         cola.silenciar(True)
         self.assertEqual(cola.describir(),
-                         "Nada en el vídeo. Sonido de los medios silenciado.")
+                         "No hay nada en el vídeo. Sonido de los medios silenciado.")
 
 
 class TestVideoLibre(unittest.TestCase):

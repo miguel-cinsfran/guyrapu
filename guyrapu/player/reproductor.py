@@ -1627,7 +1627,7 @@ class ReproductorPanel(wx.Panel):
                 buscar_porcentaje=self._buscar_porcentaje))
             self._fijar_salida(self._fs.video.GetHandle())
             anunciar(_("Pantalla completa. Espacio pausa, flechas buscan y ajustan "
-                      "volumen, Esc sale."))
+                       "volumen, Esc vuelve a la ventana."))
         else:
             self._fijar_salida(self._video.GetHandle())
             self._fs.Destroy()

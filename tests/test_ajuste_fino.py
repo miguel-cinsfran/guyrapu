@@ -55,7 +55,7 @@ class TestAjusteFino(unittest.TestCase):
         self.assertEqual(ajuste_fino.texto_de_entrada(),
                          "Flechas para mover, Control para pasos grandes, "
                          "Mayúsculas para pasos de un píxel. Intro confirma, Esc deshace, "
-                         "Tab sale.")
+                         "Tab termina el ajuste.")
 
     def test_texto_de_entrada_sale_marcado(self):
         with con_pseudo():

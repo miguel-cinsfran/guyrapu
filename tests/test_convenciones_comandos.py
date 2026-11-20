@@ -194,7 +194,7 @@ FALTAS_CONOCIDAS = [
     "«Shift» en la tecla de «Pausar o reanudar grabación»",
     "«Shift» en la tecla de «Guardar clip»",
     "«Shift» en la tecla de «Avisar si OBS se sobrecarga»",
-    "«Shift» en la tecla de «Avisar si el rostro sale del encuadre»",
+    "«Shift» en la tecla de «Avisar si el rostro queda fuera del encuadre»",
     "«Shift» en la tecla de «Elegir música…»",
     "«Shift» en la tecla de «Avanzar 10 segundos»",
     "«Shift» en la tecla de «Retroceder 10 segundos»",

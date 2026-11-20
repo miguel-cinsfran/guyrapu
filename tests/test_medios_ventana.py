@@ -351,7 +351,7 @@ class TestCuadro(BaseVentana):
         self.assertIsNotNone(cuadro.aviso)
         self.assertEqual(
             cuadro.aviso.GetLabel(),
-            "Dura más de 15 segundos: al dispararlo se detiene a los 15")
+            "Dura más de 15 segundos: al activarlo se detiene a los 15 segundos.")
 
     def test_quince_segundos_no_muestra_el_aviso(self):
         self.assertIsNone(self._cuadro(_datos(duracion=15)).aviso)

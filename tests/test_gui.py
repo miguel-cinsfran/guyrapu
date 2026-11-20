@@ -2139,7 +2139,7 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
         pagina = next(p for p in dialogo._paginas() if p.GetName() == "PagMusica")
         esperados = ["Carpeta de música", "MusicaAleatorio", "Repetir la música",
                      "MusicaRetomar", "Fundido entre canciones, en segundos",
-                     "Qué anunciar al pasar de canción",
+                     "Anunciar al cambiar de canción",
                      "MusicaDecirPausa", "Volumen de la música",
                      "Preguntar al abrir Música si igualar el volumen",
                      "Salida de audio de la música", "Buscar salidas de audio",
@@ -2161,7 +2161,7 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
             "&Repetir:",
             "Recordar ú&ltima lista al abrir",
             "&Fundido entre canciones, en segundos:",
-            "Anunciar al pasar &de canción:",
+            "Anunciar al cambiar &de canción:",
             "A&nunciar pausa, reanudación y vuelta al comienzo",
             "&Volumen de la música:",
             "&Igualar volumen de las canciones",

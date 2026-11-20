@@ -159,7 +159,7 @@ class TestValidar(unittest.TestCase):
 
     def test_que_cuenta_fuera_de_las_claves(self):
         error = metas.validar(_meta(que_cuenta="espectadores"), [])
-        self.assertIn("contar", error)
+        self.assertEqual(error, "Ese tipo de meta no existe.")
 
 
 if __name__ == "__main__":

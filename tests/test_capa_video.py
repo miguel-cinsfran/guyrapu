@@ -232,7 +232,7 @@ class TestMostrarYOcultar(Base):
         salida = self.animador.ordenes[-1][0]
         self.assertEqual(salida["cuadros"][0], [0, 0.0, 0.0, 1.0])
         self.assertEqual(salida["cuadros"][-1], [250, 0.0, 0.0, 0.0])
-        self.assertEqual(self.capa.describir(), "Nada en el vídeo.")
+        self.assertEqual(self.capa.describir(), "No hay nada en el vídeo.")
 
     def test_una_falla_en_la_salida_y_el_reintento_quita_la_escena(self):
         self.capa.agregar(self._mensaje())
@@ -472,8 +472,8 @@ class TestProbar(Base):
         self.escena.en_programa = True
         self._probar()
         self.assertEqual(self.revisiones, [
-            ("La escena de Guyrapu está en la escena que sale al aire. "
-             "Quítala de esa escena en OBS y vuelve a probar.", True)])
+            ("La escena de Guyrapu está dentro de la escena actual. "
+             "Elimínala de esa escena en OBS y vuelve a intentarlo.", True)])
         self.assertEqual(self.eventos, [])
         self.assertEqual(self.cliente.llamadas, [])
 
@@ -555,7 +555,7 @@ class TestEncuestaFija(Base):
         self.capa.quitar_encuesta()
         self._atender()
         self.assertEqual(self.escena.ocultaciones, 1)
-        self.assertEqual(self.capa.describir(), "Nada en el vídeo.")
+        self.assertEqual(self.capa.describir(), "No hay nada en el vídeo.")
 
 
 class TestMetasFijas(Base):
@@ -701,7 +701,7 @@ class TestEstadoParaAcciones(Base):
         self.assertFalse(self.capa.vaciar())
         self.capa.agregar(self._mensaje())
         self.assertTrue(self.capa.vaciar())
-        self.assertEqual(self.capa.describir(), "Nada en el vídeo.")
+        self.assertEqual(self.capa.describir(), "No hay nada en el vídeo.")
 
 
 class _SesionFalsa:

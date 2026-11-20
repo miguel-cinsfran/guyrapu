@@ -48,7 +48,7 @@ def revisar(tarjeta, ancho, alto, estilo) -> str:
               alto=_por_ciento(tarjeta.alto, alto)),
     ]
     if _se_sale_del_centro(tarjeta, ancho, alto):
-        frases.append(_("La tarjeta se sale del 80 por ciento central del "
+        frases.append(_("La tarjeta queda fuera del 80 por ciento central del "
                         "vídeo."))
     if tarjeta.aviso_fuente:
         frases.append(tarjeta.aviso_fuente)

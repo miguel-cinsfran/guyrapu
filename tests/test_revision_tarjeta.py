@@ -32,9 +32,9 @@ class TestRevisionTarjeta(unittest.TestCase):
         frase = revision_tarjeta.revisar(
             _tarjeta(x=100), 1600, 900, _estilo())
         self.assertIn(
-            "La tarjeta se sale del 80 por ciento central del vídeo.", frase)
+            "La tarjeta queda fuera del 80 por ciento central del vídeo.", frase)
         self.assertTrue(frase.endswith(
-            "La tarjeta se sale del 80 por ciento central del vídeo."))
+            "La tarjeta queda fuera del 80 por ciento central del vídeo."))
 
     def test_p4_la_fuente_y_el_contraste_salen_despues_en_ese_orden(self):
         estilo = _estilo(color_texto="#FFFF00", color_fondo="#FFFFFF",

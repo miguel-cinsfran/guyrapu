@@ -93,7 +93,7 @@ def etiqueta_boton(activo, etiqueta_base) -> str:
 
 def texto_de_entrada() -> str:
     """Devuelve el anuncio al entrar en el modo."""
-    # Traductores: anuncio al mover con flechas; dice qué teclas mueven, confirman y salen.
+    # Traductores: anuncio al mover con flechas; dice qué teclas mueven, confirman y terminan el ajuste.
     return _("Flechas para mover, Control para pasos grandes, "
              "Mayúsculas para pasos de un píxel. Intro confirma, Esc deshace, "
-             "Tab sale.")
+             "Tab termina el ajuste.")

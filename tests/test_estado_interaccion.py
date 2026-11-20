@@ -16,11 +16,11 @@ class TestTextoEstadoInteraccion(unittest.TestCase):
         self.assertEqual(
             texto,
             "Encuesta en curso: ¿A o B?. Opciones: A, B; Meta: M, 1 de 2; "
-            "En el vídeo: Aviso; Esperan 3 preguntas.")
+            "En el vídeo: Aviso; 3 preguntas en espera.")
 
     def test_preguntas_en_singular(self):
         texto = estado_interaccion.texto("", "", "", "", 1)
-        self.assertEqual(texto, "Espera 1 pregunta.")
+        self.assertEqual(texto, "1 pregunta en espera.")
 
     def test_cero_preguntas_no_agrega_frase(self):
         texto = estado_interaccion.texto("Encuesta en curso: X", "", "", "", 0)

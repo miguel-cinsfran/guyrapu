@@ -225,7 +225,7 @@ class DialogoEstilo(wx.Dialog):
         aviso = estilos_aviso.aviso_contraste(estilo)
         if aviso and not confirmar.preguntar(
                 self,
-                _("¿Quieres guardar el estilo igual?") + "\n\n" + aviso,
+                _("¿Quieres guardar el estilo de todos modos?") + "\n\n" + aviso,
                 _("Guardar estilo del vídeo"), _("&Sí"), _("&No"),
                 predeterminado_si=False):
             return

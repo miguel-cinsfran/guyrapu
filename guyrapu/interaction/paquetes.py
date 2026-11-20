@@ -191,7 +191,7 @@ def leer(ruta, tipo, extensiones=(), tope_mb=50) -> Paquete:
                 _("El paquete está dañado y no se puede leer."))
         if formato > FORMATO:
             raise PaqueteRechazado(
-                _("El paquete es de una versión más nueva de Guyrapu. "
+                _("El paquete es de una versión posterior de Guyrapu. "
                   "Actualiza Guyrapu para importarlo."))
         tipo_paquete = manifiesto.get("tipo")
         if not isinstance(tipo_paquete, str):

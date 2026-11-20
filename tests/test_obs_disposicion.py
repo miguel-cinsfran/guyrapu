@@ -51,42 +51,42 @@ class GeometriaTest(unittest.TestCase):
                                  ancho=460, alto=620, lienzo_ancho=1600,
                                  lienzo_alto=900)
         self.assertEqual(obs.describir(snap, ("posicion",)),
-                         "Se sale del vídeo por la izquierda, y a 2% del borde inferior.")
+                         "Queda fuera del vídeo por la izquierda, y a 2% del borde inferior.")
 
     def test_posicion_fuera_por_la_derecha(self):
         snap = obs.SnapshotPanel(conectado=True, izquierda=1500, arriba=262,
                                  ancho=460, alto=620, lienzo_ancho=1600,
                                  lienzo_alto=900)
         self.assertEqual(obs.describir(snap, ("posicion",)),
-                         "Se sale del vídeo por la derecha, y a 2% del borde inferior.")
+                         "Queda fuera del vídeo por la derecha, y a 2% del borde inferior.")
 
     def test_posicion_fuera_por_arriba(self):
         snap = obs.SnapshotPanel(conectado=True, izquierda=32, arriba=-200,
                                  ancho=460, alto=620, lienzo_ancho=1600,
                                  lienzo_alto=900)
         self.assertEqual(obs.describir(snap, ("posicion",)),
-                         "Se sale del vídeo por arriba, y a 2% del borde izquierdo.")
+                         "Queda fuera del vídeo por arriba, y a 2% del borde izquierdo.")
 
     def test_posicion_fuera_por_abajo(self):
         snap = obs.SnapshotPanel(conectado=True, izquierda=32, arriba=500,
                                  ancho=460, alto=620, lienzo_ancho=1600,
                                  lienzo_alto=900)
         self.assertEqual(obs.describir(snap, ("posicion",)),
-                         "Se sale del vídeo por abajo, y a 2% del borde izquierdo.")
+                         "Queda fuera del vídeo por abajo, y a 2% del borde izquierdo.")
 
     def test_posicion_sale_por_la_derecha_y_mantiene_la_distancia_vertical(self):
         snap = obs.SnapshotPanel(conectado=True, izquierda=1500, arriba=45,
                                  ancho=460, alto=300, lienzo_ancho=1600,
                                  lienzo_alto=900)
         self.assertEqual(obs.describir(snap, ("posicion",)),
-                         "Se sale del vídeo por la derecha, y a 5% del borde superior.")
+                         "Queda fuera del vídeo por la derecha, y a 5% del borde superior.")
 
     def test_posicion_sale_por_dos_bordes(self):
         snap = obs.SnapshotPanel(conectado=True, izquierda=1500, arriba=800,
                                  ancho=460, alto=300, lienzo_ancho=1600,
                                  lienzo_alto=900)
         self.assertEqual(obs.describir(snap, ("posicion",)),
-                         "Se sale del vídeo por la derecha y por abajo.")
+                         "Queda fuera del vídeo por la derecha y por abajo.")
 
     def test_posicion_sin_anclaje_nombra_los_dos_bordes(self):
         snap = obs.SnapshotPanel(conectado=True, izquierda=48, arriba=45,
@@ -286,8 +286,8 @@ class DescripcionTest(unittest.TestCase):
         frase = obs.describir(snap, ("posicion", "fuera"))
         self.assertEqual(frase, "Queda fuera del vídeo el 65% de la fuente. "
                                 "Para ajustarla al vídeo, usa Aplicar diseño. "
-                                "Se sale del vídeo por la izquierda, y a 2% del borde inferior.")
-        self.assertEqual(frase.lower().count("fuera"), 1)
+                                "Queda fuera del vídeo por la izquierda, y a 2% del borde inferior.")
+        self.assertEqual(frase.lower().count("fuera"), 2)
 
     def test_orden_corto_de_p3(self):
         s = obs.SnapshotPanel(
@@ -405,13 +405,13 @@ class TestFrasesFijadas(unittest.TestCase):
                                  lienzo_ancho=1600, lienzo_alto=900)
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "corto"),
                          "Juego, no es la escena actual; Se ve completa; "
-                         "Se sale del vídeo por la izquierda y por abajo; "
+                         "Queda fuera del vídeo por la izquierda y por abajo; "
                          "29% del ancho y 69% del alto.")
         self.assertEqual(obs.describir(snap, obs.COMPONENTES, "largo"),
                          "OBS: conectado\n"
                          "Escena: Juego, no es la escena actual\n"
                          "Se ve completa\n"
-                         "Posición: se sale del vídeo por la izquierda y por abajo\n"
+                         "Posición: queda fuera del vídeo por la izquierda y por abajo\n"
                          "Tamaño: 29% del ancho y 69% del alto del vídeo (460 por 620 píxeles)\n"
                          "El fondo del panel es transparente. Solo se ven las tarjetas de los mensajes, "
                          "apiladas contra el borde inferior.")

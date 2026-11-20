@@ -60,9 +60,9 @@ class DialogoMensaje(wx.Dialog):
         self.txt_texto = self._campo(panel, _("Texto del mensaje"))
         self.txt_texto.SetMaxLength(programados.MAX_CARACTERES)
         formulario.agregar_fila(vs, rotulo, self.txt_texto)
-        rotulo = fila_label(panel, _("Dónde se &muestra:"))
+        rotulo = fila_label(panel, _("&Mostrar en:"))
         self.cho_destino = wx.Choice(
-            panel, choices=_destinos(), name=nombre_de_etiqueta(_("Dónde se muestra:")))
+            panel, choices=_destinos(), name=nombre_de_etiqueta(_("Mostrar en:")))
         nombre_accesible(self.cho_destino, self.cho_destino.GetName())
         formulario.agregar_fila(vs, rotulo, self.cho_destino)
         rotulo = fila_label(panel, _("&Estilo:"))

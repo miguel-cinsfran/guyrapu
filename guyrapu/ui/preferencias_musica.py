@@ -102,12 +102,12 @@ class PaginaMusica:
         vs.Add(self.sp_musica_cruce, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _musica_anuncios(self, p, vs):
-        vs.Add(fila_label(p, _("Anunciar al pasar &de canción:")), 0, wx.LEFT | wx.RIGHT, 10)
-        # Traductores: no decir nada al pasar de canción.
+        vs.Add(fila_label(p, _("Anunciar al cambiar &de canción:")), 0, wx.LEFT | wx.RIGHT, 10)
+        # Traductores: no decir nada al cambiar de canción.
         self.cho_musica_decir = EleccionTexto(
             p, (("nada", _("Nada")), ("titulo", _("El título")),
                 ("titulo_artista", _("El título y el artista")), ("artista", _("Solo el artista"))),
-            normalizar=musica_decir.normalizar, name=_("Qué anunciar al pasar de canción"))
+            normalizar=musica_decir.normalizar, name=_("Anunciar al cambiar de canción"))
         _tc(self.cho_musica_decir)
         vs.Add(self.cho_musica_decir, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.chk_musica_decir_pausa = wx.CheckBox(

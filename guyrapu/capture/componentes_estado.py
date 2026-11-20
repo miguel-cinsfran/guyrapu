@@ -65,7 +65,7 @@ ETIQUETAS = {
     # Traductores: rótulo en Preferencias del componente de F2.
     "tiempo_directo": N_("Tiempo que lleva el directo"),
     # Traductores: rótulo en Preferencias del componente de F2.
-    "desfase_directo": N_("Cuánto por detrás del directo va el reproductor"),
+    "desfase_directo": N_("Retraso del reproductor respecto al directo"),
     # Traductores: rótulo en Preferencias del componente de F2.
     "mensajes_leidos": N_("Mensajes leídos"),
     # Traductores: rótulo en Preferencias del componente de F2.

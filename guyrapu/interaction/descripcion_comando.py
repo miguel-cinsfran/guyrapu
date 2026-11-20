@@ -73,12 +73,12 @@ def escuchar(comando: Comando, estilo: str) -> str:
     partes.append(_("Responde: {respuesta}.").format(
         respuesta=respuesta_de_ejemplo(comando)))
     if comando.destino in ("video", "ambos"):
-        partes.append(_("Sale {destino}, con el estilo {estilo} y "
+        partes.append(_("Se muestra {destino}, con el estilo {estilo} y "
                        "{segundos} segundos en pantalla.").format(
                            destino=_destino(comando.destino), estilo=estilo,
                            segundos=comando.segundos))
     else:
-        partes.append(_("Sale {destino}.").format(
+        partes.append(_("Se muestra {destino}.").format(
             destino=_destino(comando.destino)))
     partes.append(_("Puede usarlo: {quien}.").format(quien=_quien(comando)))
     partes.append(_("Espera {general} segundos entre usos y {persona} "

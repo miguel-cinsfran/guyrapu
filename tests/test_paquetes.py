@@ -121,7 +121,7 @@ class PaquetesTest(unittest.TestCase):
     def test_rechaza_una_version_mas_nueva(self):
         self._paquete(formato=2)
         self.assertEqual(
-            "El paquete es de una versión más nueva de Guyrapu. "
+            "El paquete es de una versión posterior de Guyrapu. "
             "Actualiza Guyrapu para importarlo.",
             self._rechazo())
 
