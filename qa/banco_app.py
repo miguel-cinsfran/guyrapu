@@ -26,6 +26,7 @@ from guyrapu.core.config import APP_NAME  # noqa: E402
 from sonda import VAR_DESTINO, VAR_ORDENES, VAR_RESULTADOS  # noqa: E402
 
 import capturas  # noqa: E402
+import foco_ventanas  # noqa: E402
 import fugas_banco  # noqa: E402
 
 TIEMPO_ORDEN = 20.0
@@ -276,7 +277,7 @@ class Aplicacion:
         datos = self.pedir("navegar", ventana=ventana).get("datos", {})
         return bool(datos.get("movido"))
 
-    def al_frente(self, segundos: float = 5.0) -> bool:
+    def al_frente(self, segundos: float = 25.0) -> bool:
         """Trae la ventana al frente y espera a que Windows lo confirme.
 
         `wx.UIActionSimulator` escribe en la ventana que el sistema tenga al
@@ -285,12 +286,9 @@ class Aplicacion:
         21/08/2026 eso hizo que el banco diera por mudo el volumen del
         reproductor, que anuncia perfectamente.
         """
-        limite = time.time() + segundos
-        while time.time() < limite:
-            if self.pedir("frente").get("datos", {}).get("activa"):
-                return True
-            time.sleep(0.2)
-        return False
+        return foco_ventanas.esperar_frente(
+            lambda: bool(self.pedir("frente").get("datos", {}).get("activa")),
+            segundos)
 
     def hilos(self) -> list[str]:
         """Los hilos vivos de la aplicación, por nombre."""

@@ -119,7 +119,7 @@ def _canario(cliente, vigilante) -> list:
     lineas = []
     try:
         if not canario.al_frente(proceso.pid):
-            raise InstrumentoRoto("no se pudo traer al frente la ventana canario")
+            raise InstrumentoRoto(canario.motivo_sin_frente())
         _esperar_foco(cliente, "Nombre:", vigilante)
         inicial = _unir_habla(cliente.desde(0))
         if "Canario listo" not in inicial:

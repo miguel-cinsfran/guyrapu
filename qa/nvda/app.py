@@ -19,7 +19,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from qa import banco_app, sonda
+from qa import banco_app, foco_ventanas, sonda
 from qa.nvda import recorrido, reglas, transcripcion, ventanas_app
 from qa.nvda.recorrido import InstrumentoRoto
 
@@ -214,8 +214,10 @@ def _ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     # el SetFocus de su __init__ no llega al lector. Medido el 19/11/2026 con
     # Música y un terminal en primer plano.
     if not banco.al_frente():
+        plano = foco_ventanas.describir_primer_plano()
         raise InstrumentoRoto(
-            f"no se pudo traer al frente la app para «{entrada['titulo']}»")
+            f"no se pudo traer al frente la app para «{entrada['titulo']}»: "
+            f"primer plano {plano['proceso']!r} «{plano['titulo']}»")
     banco.pedir("menu_click", etiqueta=entrada["menu"], tiempo=10.0)
     titulo_menu = entrada.get("titulo_menu") or entrada["titulo"]
     if banco.esperar_ventana(titulo_menu, segundos=15.0) is None:

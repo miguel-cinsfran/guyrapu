@@ -496,12 +496,19 @@ class TestVentana(unittest.TestCase):
             mock.patch.object(app.reglas, "analizar", return_value=[]),
             mock.patch.object(app.transcripcion, "comparar",
                               return_value=""),
+            mock.patch.object(
+                app.foco_ventanas, "describir_primer_plano",
+                return_value={"proceso": "ShellExperienceHost",
+                              "titulo": "Notificación"}),
         ):
             with self.assertRaises(app.InstrumentoRoto) as capturado:
                 app._ventana(banco, mock.Mock(), ventanas_app.VENTANAS[0],
                              7, set(), False)
+        mensaje = str(capturado.exception)
         self.assertIn("no se pudo traer al frente la app para «Preferencias»",
-                      str(capturado.exception))
+                      mensaje)
+        self.assertIn("ShellExperienceHost", mensaje)
+        self.assertIn("Notificación", mensaje)
         conducir.assert_not_called()
 
 

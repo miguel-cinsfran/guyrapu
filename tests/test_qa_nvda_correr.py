@@ -18,6 +18,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
+from qa import foco_ventanas
 from qa.nvda import correr, devolver, nvda_local, seguridad, ventanas_app
 
 INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
@@ -195,6 +196,35 @@ class TestRespaldo(unittest.TestCase):
         cerrar.assert_not_called()
 
 
+class TestEsperarFrente(unittest.TestCase):
+
+    def test_espera_a_que_se_vaya_la_notificacion_y_luego_trae_la_ventana(self):
+        aviso = {"proceso": "ShellExperienceHost", "titulo": "Notificación",
+                 "clase": "Windows.UI.Core.CoreWindow"}
+        canario = {"proceso": "guyrapu", "titulo": "Canario del carril",
+                   "clase": "wxWindowNR"}
+        planos = iter([aviso, aviso, canario])
+        intentos = []
+
+        def intentar():
+            intentos.append(1)
+            return True
+
+        dormir = mock.Mock()
+        self.assertTrue(foco_ventanas.esperar_frente(
+            intentar, plano=lambda: next(planos), dormir=dormir))
+        self.assertEqual(len(intentos), 1)
+        self.assertEqual(dormir.call_count, 2)
+
+    def test_sin_notificacion_llama_al_primer_intento(self):
+        plano = {"proceso": "guyrapu", "titulo": "Canario del carril",
+                 "clase": "wxWindowNR"}
+        dormir = mock.Mock()
+        self.assertTrue(foco_ventanas.esperar_frente(
+            lambda: True, plano=lambda: plano, dormir=dormir))
+        dormir.assert_not_called()
+
+
 class TestFrenteCanario(unittest.TestCase):
 
     def _correr(self, al_frente, frente_ok=True):
@@ -211,6 +241,10 @@ class TestFrenteCanario(unittest.TestCase):
                 correr, "_esperar_foco",
                 side_effect=lambda *a, **k: llamadas.append("esperar_foco")),
             mock.patch.object(correr, "_paso_canario", return_value="paso"),
+            mock.patch.object(
+                correr.canario, "motivo_sin_frente",
+                return_value="no se pudo traer al frente: primer plano "
+                             "'ShellExperienceHost' «Notificación»"),
         ):
             resultado = al_frente(cliente, mock.Mock(cortado=False))
         popen.return_value.wait.assert_called_once()
@@ -223,7 +257,10 @@ class TestFrenteCanario(unittest.TestCase):
     def test_si_al_frente_falla_lo_dice_y_no_espera_el_foco(self):
         with self.assertRaises(correr.InstrumentoRoto) as capturado:
             self._correr(correr._canario, frente_ok=False)
-        self.assertIn("frente", str(capturado.exception))
+        mensaje = str(capturado.exception)
+        self.assertIn("frente", mensaje)
+        self.assertIn("ShellExperienceHost", mensaje)
+        self.assertIn("Notificación", mensaje)
 
 
 class TestPasoCanario(unittest.TestCase):

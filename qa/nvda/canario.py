@@ -28,23 +28,33 @@ VK_F24 = 0x87
 TECLA_ARRIBA = 0x0002
 
 
-def al_frente(pid, segundos=6.0) -> bool:
+def al_frente(pid, segundos=25.0, plano=None, dormir=time.sleep) -> bool:
     """Trae al frente la ventana canario con el truco de F24 del carril."""
     usuario = ctypes.windll.user32
-    limite = time.monotonic() + segundos
-    while time.monotonic() < limite:
+
+    def intentar():
         hwnd = usuario.FindWindowW(None, TITULO)
-        if hwnd:
-            dueño = ctypes.c_ulong()
-            usuario.GetWindowThreadProcessId(hwnd, ctypes.byref(dueño))
-            if int(dueño.value) == int(pid):
-                if usuario.GetForegroundWindow() == hwnd:
-                    return True
-                usuario.keybd_event(VK_F24, 0, 0, 0)
-                usuario.keybd_event(VK_F24, 0, TECLA_ARRIBA, 0)
-                usuario.SetForegroundWindow(hwnd)
-        time.sleep(0.2)
-    return False
+        if not hwnd:
+            return False
+        dueño = ctypes.c_ulong()
+        usuario.GetWindowThreadProcessId(hwnd, ctypes.byref(dueño))
+        if int(dueño.value) != int(pid):
+            return False
+        if usuario.GetForegroundWindow() == hwnd:
+            return True
+        usuario.keybd_event(VK_F24, 0, 0, 0)
+        usuario.keybd_event(VK_F24, 0, TECLA_ARRIBA, 0)
+        usuario.SetForegroundWindow(hwnd)
+        return False
+
+    return foco_ventanas.esperar_frente(intentar, segundos, plano, dormir)
+
+
+def motivo_sin_frente() -> str:
+    """El mensaje con el proceso y título que tenían el primer plano."""
+    plano = foco_ventanas.describir_primer_plano()
+    return ("no se pudo traer al frente la ventana canario: "
+            f"primer plano {plano['proceso']!r} «{plano['titulo']}»")
 
 
 def _al_mostrar(evento, marco, campo, lector):
