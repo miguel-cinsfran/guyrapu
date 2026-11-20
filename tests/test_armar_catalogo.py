@@ -115,6 +115,31 @@ class TestPrepararArchivo(unittest.TestCase):
                       (salida / "catalogo.json").read_text(encoding="utf-8"))
 
 
+class TestMuestras(unittest.TestCase):
+
+    def test_la_muestra_es_el_clip_mas_largo(self):
+        arbol = {
+            f"audios/voz_noa/{nombre}.ogg": {"size": tamano}
+            for nombre, tamano in (
+                ("exclamation_02", 14586),
+                ("happy_01", 17958),
+                ("question_01", 18774),
+                ("support_01", 16737),
+                ("support_04", 26207),
+            )
+        }
+        self.assertEqual(armar_catalogo._muestras(arbol),
+                         {"noa": "audios/voz_noa/support_04.ogg"})
+
+    def test_a_igual_tamano_gana_el_primer_nombre(self):
+        arbol = {
+            f"audios/voz_noa/{nombre}.ogg": {"size": 100}
+            for nombre in ("support_04", "exclamation_02")
+        }
+        self.assertEqual(armar_catalogo._muestras(arbol),
+                         {"noa": "audios/voz_noa/exclamation_02.ogg"})
+
+
 class TestAbrir(unittest.TestCase):
 
     def test_solo_manda_el_token_a_huggingface(self):

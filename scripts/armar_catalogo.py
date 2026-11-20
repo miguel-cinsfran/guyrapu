@@ -265,9 +265,9 @@ def paquetes_piper(token) -> list[dict]:
 
 
 def _muestras(arbol: dict) -> dict:
-    rutas = sorted((ruta for ruta in arbol if ruta.endswith(".ogg")),
-                   reverse=True)
-    return {ruta.rsplit("/", 1)[0].rsplit("_", 1)[-1]: ruta for ruta in rutas}
+    clips = sorted((ruta for ruta in arbol if ruta.endswith(".ogg")),
+                   key=lambda ruta: (-arbol[ruta].get("size", 0), ruta))
+    return {ruta.rsplit("/", 1)[0].rsplit("_", 1)[-1]: ruta for ruta in reversed(clips)}
 
 
 def _paquete_phonon(idioma, datos, voces, metadatos_modelo,
