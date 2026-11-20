@@ -87,6 +87,19 @@ class TestContraste(Base):
     def test_no_salta(self):
         self.assertIsNone(self.uno(muestra([control()]), "contraste"))
 
+    def test_solo_se_mide_la_etiqueta_que_se_dibuja(self):
+        ventana = control(id=1, clase="wxWindow", nombre="Vídeo",
+                          etiqueta="Vídeo", fg="#000000", bg="#000000")
+        self.assertIsNone(self.uno(muestra([ventana]), "contraste"))
+        caja = control(id=1, clase="wxStaticBox", nombre="Caja",
+                       etiqueta="Caja", fg="#000000", bg="#000000")
+        texto = control(id=2, clase="wxStaticText", nombre="Texto",
+                        etiqueta="Texto", fg="#000000", bg="#000000",
+                        rect=[20, 60, 100, 24])
+        encontrados = [h["control"] for h in self.hallazgos(muestra([caja, texto]))
+                       if h["regla"] == "contraste"]
+        self.assertEqual(encontrados, ["Caja", "Texto"])
+
 
 class TestRecorte(Base):
 

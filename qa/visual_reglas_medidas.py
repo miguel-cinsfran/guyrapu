@@ -82,6 +82,11 @@ CONTENEDORES = frozenset((
     "wxAuiNotebook",
 ))
 
+# La caja de grupo y la caja de opciones dibujan su título; los demás
+# contenedores solo prestan su nombre accesible, que no se ve. Medido el
+# 20/11/2026.
+CONTENEDORES_SIN_TITULO = CONTENEDORES - {"wxStaticBox", "wxRadioBox"}
+
 # La lista de pestañas o categorías de un libro es una pieza interna aunque
 # el libro sea un contenedor. Medido el 20/11/2026.
 LIBROS = frozenset((

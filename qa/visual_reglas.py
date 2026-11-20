@@ -20,7 +20,7 @@ for _carpeta in (str(_RAIZ), str(_RAIZ / "qa")):
         sys.path.insert(0, _carpeta)
 
 from guyrapu.obs.overlay_datos import relacion_de_contraste  # noqa: E402
-from visual_reglas_medidas import abajo, area, area_solape  # noqa: E402
+from visual_reglas_medidas import CONTENEDORES_SIN_TITULO, abajo, area, area_solape  # noqa: E402
 from visual_reglas_medidas import apilados, cabe_dentro, para_ritmo  # noqa: E402
 from visual_reglas_medidas import controles_medibles  # noqa: E402
 from visual_reglas_medidas import derecha, envolvente, hermanos  # noqa: E402
@@ -114,7 +114,7 @@ def leer_carpeta(carpeta):
 def regla_contraste(ventana):
     hallazgos = []
     for c in visibles(ventana["controles"]):
-        if not c["etiqueta"].strip():
+        if not c["etiqueta"].strip() or c["clase"] in CONTENEDORES_SIN_TITULO:
             continue
         relacion = relacion_de_contraste(c["fg"], c["bg"])
         if relacion < UMBRAL_CONTRASTE:
