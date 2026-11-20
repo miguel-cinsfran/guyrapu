@@ -267,19 +267,10 @@ def fraccion_de_color(pixeles, colores, tolerancia) -> float:
 
 
 def panel_visible(pixeles, colores) -> bool:
-    """Si el panel se ve en la captura: al menos un 2 % propio.
-
-    Pasa cuando al menos el 2 % de los píxeles no es de ninguno de los colores
-    de las ventanas de prueba (si todo es verde o magenta, se sigue viendo la
-    ventana, no el panel).
-    """
+    """Si el panel se ve en la captura: al menos un 2 % propio."""
     lista = list(pixeles or [])
-    if not lista:
-        return False
-    tapados = sum(1 for pixel in lista
-                  if _coincide_alguno(pixel, colores, TOLERANCIA_COLOR))
-    libres = len(lista) - tapados
-    return libres / len(lista) >= UMBRAL_PANEL_VISIBLE
+    libres = 1 - fraccion_de_color(lista, colores, TOLERANCIA_COLOR)
+    return bool(lista) and libres >= UMBRAL_PANEL_VISIBLE
 
 
 def rectangulo_del_panel(transformacion, ancho_captura, ancho_lienzo,
