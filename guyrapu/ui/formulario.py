@@ -43,8 +43,8 @@ def agregar_fila(sizer, rotulo, control, *, expandir=True,
     sizer.Add(control, 0, banderas, hueco)
 
 
-def agregar_seccion(columna, panel, titulo):
-    """Agrega una caja con el título de la app y devuelve su contenido."""
+def agregar_seccion_con_caja(columna, panel, titulo):
+    """Agrega una caja con el título de la app y devuelve su contenido y su caja."""
     caja = wx.StaticBox(panel, label=titulo)
     sizer = wx.StaticBoxSizer(caja, wx.VERTICAL)
     alto = ANTES_DE_TITULO if columna.GetChildren() else 0
@@ -52,6 +52,12 @@ def agregar_seccion(columna, panel, titulo):
     interior = wx.BoxSizer(wx.VERTICAL)
     sizer.Add(interior, 0,
               wx.EXPAND | wx.TOP | wx.LEFT | wx.RIGHT, MARGEN_DE_SECCION)
+    return interior, sizer
+
+
+def agregar_seccion(columna, panel, titulo):
+    """Agrega una caja con el título de la app y devuelve su contenido."""
+    interior, _sizer = agregar_seccion_con_caja(columna, panel, titulo)
     return interior
 
 

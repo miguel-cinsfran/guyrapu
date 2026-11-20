@@ -96,9 +96,10 @@ class DialogoPerfilRestream(wx.Dialog):
         self.cho_orientacion.SetSelection(ORIENTACIONES.index(orientacion))
 
     def _agregar_destinos(self, panel, contenido):
-        sizer = formulario.agregar_seccion(contenido, panel, _("Destinos"))
-        caja = sizer.GetStaticBox()
-        self._caja_canales = sizer
+        interior, caja_sizer = formulario.agregar_seccion_con_caja(
+            contenido, panel, _("Destinos"))
+        caja = caja_sizer.GetStaticBox()
+        self._caja_canales = caja_sizer
         casillas = []
         for identificador, texto in self._canales:
             casilla = wx.CheckBox(caja, label=texto.replace("&", "&&"),
@@ -113,12 +114,12 @@ class DialogoPerfilRestream(wx.Dialog):
             self._textos[identificador] = texto
             casillas.append(casilla)
         if casillas:
-            formulario.agregar_casillas(sizer, casillas, hueco=0)
+            formulario.agregar_casillas(interior, casillas, hueco=0)
         else:
             texto = (_("Sin cuenta de Restream. Conéctala en la pestaña "
                        "Cuenta.") if self._sin_cuenta else _(
                  "No hay destinos. Agrégalos en la pestaña Destinos."))
-            sizer.Add(wx.StaticText(caja, label=texto), 0, wx.EXPAND)
+            interior.Add(wx.StaticText(caja, label=texto), 0, wx.EXPAND)
         self._nota_sobrantes = self._crear_nota_sobrantes(panel, contenido)
 
     def _crear_nota_sobrantes(self, panel, contenido):

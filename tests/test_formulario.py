@@ -111,6 +111,14 @@ class TestMedidas(BaseMedidas):
         self.assertEqual(caja.GetPosition().x + caja.GetSize().width - borde - (
             campo.GetPosition().x + campo.GetSize().width), 8)
 
+    def test_agregar_seccion_con_caja_devuelve_el_interior_y_su_caja(self):
+        columna = wx.BoxSizer(wx.VERTICAL)
+        interior, caja_sizer = formulario.agregar_seccion_con_caja(
+            columna, self.panel, "Destinos")
+        self.assertIsInstance(caja_sizer, wx.StaticBoxSizer)
+        self.assertEqual(caja_sizer.GetStaticBox().GetLabel(), "Destinos")
+        self.assertIs(caja_sizer.GetChildren()[0].GetSizer(), interior)
+
     def test_el_campo_numerico_no_se_estira(self):
         _, numero = self._fila("&Número:", wx.SpinCtrl(
             self.panel, min=0, max=100, initial=1), numerico=True, hueco=0)
