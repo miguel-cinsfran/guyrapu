@@ -3,9 +3,9 @@
 """Las ventanas de prueba del carril: una limpia y una trampa por regla.
 
 Cada trampa viola a propósito una sola regla de `reglas.py`, y la limpia
-cumple todas. Las sondas muestran una clase de lista cada una para medir
-qué lee NVDA al llegar a ella con Tab. No se registran en la app ni se
-alcanzan desde ella.
+cumple todas. Las sondas comparan clases de lista y formas de poner el
+nombre para medir qué lee NVDA al llegar a ellas con Tab. No se registran
+en la app ni se alcanzan desde ella.
 
 La tabla `VENTANAS` declara el primer control y las acciones de cada una, que
 es lo que lee `recorrido.py`. El módulo se puede importar sin wx: las
@@ -70,6 +70,8 @@ VENTANAS = {
     "sonda_lista_box": _sonda("sonda_lista_box"),
     "sonda_lista_box_nombre": _sonda("sonda_lista_box_nombre"),
     "sonda_lista_box_pieza": _sonda("sonda_lista_box_pieza"),
+    "sonda_lista_box_ayuda": _sonda("sonda_lista_box_ayuda"),
+    "sonda_lista_box_msaa": _sonda("sonda_lista_box_msaa"),
     "sonda_lista_vista": _sonda("sonda_lista_vista"),
     "sonda_categorias": _sonda("sonda_categorias"),
 }
@@ -255,13 +257,37 @@ def _construir_sonda_lista_box_pieza(wx, panel, caja, marco):
     return antes
 
 
+def _construir_sonda_lista_box_ayuda(wx, panel, caja, marco):
+    from guyrapu.ui.accesibilidad import nombre_accesible as poner
+
+    antes = _boton_antes(wx, panel, caja)
+    lista = wx.ListBox(panel, choices=["Uno", "Dos", "Tres"])
+    poner(lista, "Lista de sonda", msaa=False)
+    lista.SetSelection(0)
+    caja.Add(lista, 0, wx.EXPAND | wx.ALL, 6)
+    return antes
+
+
+def _construir_sonda_lista_box_msaa(wx, panel, caja, marco):
+    from guyrapu.core import nombre_msaa
+
+    antes = _boton_antes(wx, panel, caja)
+    lista = wx.ListBox(panel, choices=["Uno", "Dos", "Tres"])
+    lista.SetName("Lista de sonda")
+    nombre_msaa.poner(lista.GetHandle(), "Lista de sonda")
+    lista.SetSelection(0)
+    caja.Add(lista, 0, wx.EXPAND | wx.ALL, 6)
+    return antes
+
+
 def _construir_sonda_lista_vista(wx, panel, caja, marco):
     antes = _boton_antes(wx, panel, caja)
     lista = wx.ListCtrl(panel, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
     lista.InsertColumn(0, "Elemento")
     for indice, texto in enumerate(("Uno", "Dos", "Tres")):
         lista.InsertItem(indice, texto)
-    lista.Select(0)
+    estado = wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED
+    lista.SetItemState(0, estado, estado)
     nombre_accesible(lista, "Lista de sonda")
     caja.Add(lista, 0, wx.EXPAND | wx.ALL, 6)
     return antes
@@ -297,6 +323,8 @@ _CONSTRUCTORES = {
     "sonda_lista_box": _construir_sonda_lista_box,
     "sonda_lista_box_nombre": _construir_sonda_lista_box_nombre,
     "sonda_lista_box_pieza": _construir_sonda_lista_box_pieza,
+    "sonda_lista_box_ayuda": _construir_sonda_lista_box_ayuda,
+    "sonda_lista_box_msaa": _construir_sonda_lista_box_msaa,
     "sonda_lista_vista": _construir_sonda_lista_vista,
     "sonda_categorias": _construir_sonda_categorias,
 }

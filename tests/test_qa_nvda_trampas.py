@@ -11,6 +11,7 @@ from unittest import mock
 
 import wx
 
+from guyrapu.core import nombre_msaa
 from qa.nvda import reglas, trampas
 
 TRAMPAS = [nombre for nombre, datos in trampas.VENTANAS.items()
@@ -284,12 +285,14 @@ class TestSondas(Base):
         "sonda_lista_box": wx.ListBox,
         "sonda_lista_box_nombre": wx.ListBox,
         "sonda_lista_box_pieza": wx.ListBox,
+        "sonda_lista_box_ayuda": wx.ListBox,
+        "sonda_lista_box_msaa": wx.ListBox,
         "sonda_lista_vista": wx.ListCtrl,
         "sonda_categorias": wx.Listbook,
     }
 
-    def test_hay_cinco_sondas_de_una_clase_de_lista_cada_una(self):
-        self.assertEqual(len(SONDAS), 5)
+    def test_hay_siete_sondas_de_una_clase_de_lista_cada_una(self):
+        self.assertEqual(len(SONDAS), 7)
         self.assertEqual(sorted(SONDAS), sorted(self.TIPOS))
         for nombre in SONDAS:
             with self.subTest(ventana=nombre):
@@ -340,6 +343,33 @@ class TestSondas(Base):
                 control = self._control_de_lista(
                     self.construir(nombre), nombre)
                 self.assertEqual(control.GetName(), "Lista de sonda")
+
+    def test_la_sonda_de_ayuda_pone_tooltip_sin_anotar(self):
+        with mock.patch.object(nombre_msaa, "poner") as poner:
+            marco = self.construir("sonda_lista_box_ayuda")
+        lista = self._control_de_lista(marco, "sonda_lista_box_ayuda")
+        self.assertEqual(lista.GetName(), "Lista de sonda")
+        self.assertEqual(lista.GetToolTip().GetTip(), "Lista de sonda")
+        self.assertNotIn(mock.call(lista.GetHandle(), "Lista de sonda"),
+                         poner.call_args_list)
+
+    def test_la_sonda_msaa_anota_el_nombre_sin_tooltip_ni_ayuda(self):
+        with mock.patch.object(nombre_msaa, "poner",
+                               return_value=True) as poner:
+            marco = self.construir("sonda_lista_box_msaa")
+        lista = self._control_de_lista(marco, "sonda_lista_box_msaa")
+        self.assertEqual(lista.GetName(), "Lista de sonda")
+        self.assertIsNone(lista.GetToolTip())
+        self.assertEqual(lista.GetHelpText(), "")
+        poner.assert_any_call(lista.GetHandle(), "Lista de sonda")
+
+    def test_el_primer_elemento_de_la_vista_tiene_foco(self):
+        lista = self._control_de_lista(
+            self.construir("sonda_lista_vista"), "sonda_lista_vista")
+        estado = lista.GetItemState(
+            0, wx.LIST_STATE_SELECTED | wx.LIST_STATE_FOCUSED)
+        self.assertTrue(estado & wx.LIST_STATE_SELECTED)
+        self.assertTrue(estado & wx.LIST_STATE_FOCUSED)
 
 
 if __name__ == "__main__":
