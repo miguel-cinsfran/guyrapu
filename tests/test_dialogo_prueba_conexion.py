@@ -10,7 +10,7 @@ import wx
 
 from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, obs_cliente, prueba_conexion
-from guyrapu.ui import dialogo_prueba_conexion, formulario, tema
+from guyrapu.ui import dialogo_prueba_conexion, formulario, paleta, tema
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 
@@ -331,6 +331,28 @@ class TestGeometria(BaseCuadro):
         if not tema.ALTO_CONTRASTE:
             self.assertEqual(cuadro.btn_guardar.GetBackgroundColour(),
                              tema._T.primary)
+
+    def test_iniciar_lleva_el_color_de_la_accion_principal(self):
+        with mock.patch.object(paleta, "pintar_ventana"):
+            cuadro = dialogo_prueba_conexion.DialogoPruebaConexion(
+                None, "Casa", 2500, 60)
+        self.addCleanup(destruir, cuadro)
+        if tema.ALTO_CONTRASTE:
+            self.skipTest("Windows está en alto contraste")
+        self.assertEqual(cuadro.btn_empezar.GetBackgroundColour(),
+                         tema._T.primary)
+
+    def test_guardar_en_el_perfil_lleva_el_color_de_la_accion_principal(self):
+        pasos = (prueba_conexion.PasoRed(2500, 5, 100),
+                 prueba_conexion.PasoRed(1300, 0, 100))
+        with mock.patch.object(paleta, "pintar_ventana"):
+            cuadro = dialogo_prueba_conexion.DialogoResultadoPruebaConexion(
+                None, _resultado(1300, pasos=pasos))
+        self.addCleanup(destruir, cuadro)
+        if tema.ALTO_CONTRASTE:
+            self.skipTest("Windows está en alto contraste")
+        self.assertEqual(cuadro.btn_guardar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ from unittest import mock
 import wx
 
 from tests.ventanas_prueba import app_de_prueba, destruir
-from guyrapu.ui import formulario, tema
+from guyrapu.ui import formulario, paleta, tema
 from guyrapu.ui.dialogo_usos_perfil import DialogoUsosPerfil
 
 
@@ -102,6 +102,14 @@ class TestGeometria(BaseDialogo):
         if not tema.ALTO_CONTRASTE:
             self.assertEqual(dialogo.btn_aceptar.GetBackgroundColour(),
                              tema._T.primary)
+
+    def test_aceptar_lleva_el_color_de_la_accion_principal(self):
+        with mock.patch.object(paleta, "pintar_ventana"):
+            dialogo = self._dialogo()
+        if tema.ALTO_CONTRASTE:
+            self.skipTest("Windows está en alto contraste")
+        self.assertEqual(dialogo.btn_aceptar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

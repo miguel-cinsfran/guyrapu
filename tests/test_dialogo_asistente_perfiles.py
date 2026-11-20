@@ -11,7 +11,7 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.core.idioma import _
 from guyrapu.obs import ajustes_perfil, asistente_perfiles
 from guyrapu.ui import dialogo_asistente_perfiles as modulo
-from guyrapu.ui import formulario, tema
+from guyrapu.ui import formulario, paleta, tema
 
 
 def _perfil(nombre, uso):
@@ -216,6 +216,15 @@ class TestGeometria(unittest.TestCase):
         if not tema.ALTO_CONTRASTE:
             self.assertEqual(cuadro.btn_preparar.GetBackgroundColour(),
                              tema._T.primary)
+
+    def test_preparar_lleva_el_color_de_la_accion_principal(self):
+        with mock.patch.object(paleta, "pintar_ventana"):
+            cuadro = modulo.DialogoAsistentePerfiles(None)
+        self.addCleanup(destruir, cuadro)
+        if tema.ALTO_CONTRASTE:
+            self.skipTest("Windows está en alto contraste")
+        self.assertEqual(cuadro.btn_preparar.GetBackgroundColour(),
+                         tema._T.primary)
 
     def test_el_resumen_usa_las_medidas_comunes(self):
         cuadro = self._resumen()

@@ -9,7 +9,7 @@ from unittest import mock
 import wx
 
 from guyrapu.obs import ajustes_perfil, obs_cliente, prueba_equipo
-from guyrapu.ui import dialogo_prueba_equipo, formulario, tema
+from guyrapu.ui import dialogo_prueba_equipo, formulario, paleta, tema
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 
@@ -341,6 +341,27 @@ class TestGeometria(BaseCuadro):
         if not tema.ALTO_CONTRASTE:
             self.assertEqual(cuadro.btn_guardar.GetBackgroundColour(),
                              tema._T.primary)
+
+    def test_iniciar_lleva_el_color_de_la_accion_principal(self):
+        with mock.patch.object(paleta, "pintar_ventana"):
+            cuadro = dialogo_prueba_equipo.DialogoPruebaEquipo(
+                None, "Casa", _ajustes(), 48)
+        self.addCleanup(destruir, cuadro)
+        if tema.ALTO_CONTRASTE:
+            self.skipTest("Windows está en alto contraste")
+        self.assertEqual(cuadro.btn_empezar.GetBackgroundColour(),
+                         tema._T.primary)
+
+    def test_guardar_en_el_perfil_lleva_el_color_de_la_accion_principal(self):
+        resultado = _resultado(replace(_ajustes(), fps=30))
+        with mock.patch.object(paleta, "pintar_ventana"):
+            cuadro = dialogo_prueba_equipo.DialogoResultadoPrueba(
+                None, resultado)
+        self.addCleanup(destruir, cuadro)
+        if tema.ALTO_CONTRASTE:
+            self.skipTest("Windows está en alto contraste")
+        self.assertEqual(cuadro.btn_guardar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":

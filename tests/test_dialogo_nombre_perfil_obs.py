@@ -3,10 +3,11 @@
 """Pruebas del cuadro del nombre de un perfil de OBS. Abre ventanas con wx."""
 
 import unittest
+from unittest import mock
 
 import wx
 
-from guyrapu.ui import formulario, tema
+from guyrapu.ui import formulario, paleta, tema
 from guyrapu.ui.dialogo_nombre_perfil_obs import DialogoNombrePerfil
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -46,6 +47,16 @@ class TestGeometria(unittest.TestCase):
         if not tema.ALTO_CONTRASTE:
             self.assertEqual(cuadro.btn_aceptar.GetBackgroundColour(),
                              tema._T.primary)
+
+    def test_crear_lleva_el_color_de_la_accion_principal(self):
+        with mock.patch.object(paleta, "pintar_ventana"):
+            cuadro = DialogoNombrePerfil(
+                None, existentes=(), con_orientacion=True, accion="C&rear")
+        self.addCleanup(destruir, cuadro)
+        if tema.ALTO_CONTRASTE:
+            self.skipTest("Windows está en alto contraste")
+        self.assertEqual(cuadro.btn_aceptar.GetBackgroundColour(),
+                         tema._T.primary)
 
 
 if __name__ == "__main__":
