@@ -32,6 +32,9 @@ class ClienteFalso:
     def marca(self):
         return len(self.pasos)
 
+    def desde(self, indice):
+        return []
+
     def esperar_frase(self, frase, desde, plazo_s=5.0):
         self.esperas.append((frase, desde, plazo_s, len(self.pasos)))
         return {"oida": True,
@@ -105,6 +108,12 @@ class ClienteFilaDistinta:
         ]
         self.pos = 0
 
+    def marca(self):
+        return self.pos
+
+    def desde(self, indice):
+        return []
+
     def foco_completo(self):
         return {"ok": True, "foco": self.focos[self.pos],
                 "primer_plano": {"pid": 7, "nombre": "Ventana del carril"}}
@@ -129,6 +138,12 @@ class ClienteConMismoNombre:
              "pid": 7, "estados": [], "atajo": ""},
         ]
         self.pos = 0
+
+    def marca(self):
+        return self.pos
+
+    def desde(self, indice):
+        return []
 
     def foco_completo(self):
         return {"ok": True, "foco": self.focos[self.pos],
@@ -270,6 +285,12 @@ class ClienteDePaginas:
         self.entro = False
         self.pid = pid
         self.pasos = []
+
+    def marca(self):
+        return len(self.pasos)
+
+    def desde(self, indice):
+        return []
 
     def _foco(self):
         if self.en_lista:
@@ -434,6 +455,9 @@ class TestPulsar(unittest.TestCase):
         def ir_a(_cliente, nombre, *_args, **_kwargs):
             llamadas.append(("ir_a", nombre))
 
+        cliente = mock.Mock()
+        cliente.marca.return_value = 0
+        cliente.desde.return_value = []
         with (
             mock.patch.object(
                 recorrido, "_pasos_de_pagina",
@@ -445,7 +469,7 @@ class TestPulsar(unittest.TestCase):
                 side_effect=lambda *_a: (
                     llamadas.append("esperar_foco") or primero)),
         ):
-            datos = recorrido.conducir(mock.Mock(), {
+            datos = recorrido.conducir(cliente, {
                 "pid": 7, "primero": "Nombre", "pulsar": "Agregar",
             }, tope=1, tope_foco_s=0.01)
         self.assertEqual(llamadas[:3], ["pagina", ("ir_a", "Agregar"),
@@ -480,6 +504,58 @@ class TestVueltaALaLista(unittest.TestCase):
         self.assertEqual(len(ida), 2)
         self.assertEqual(len(vuelta), 2)
         self.assertEqual(datos["primero_lista"], "Paquetes de voces")
+
+
+HABLA_VIEJA = "Preferencias diálogo Categorías lista General 1 de 18"
+
+
+class ClienteConHablaInicial(ClienteFalso):
+    """Suelta habla vieja en las primeras consultas, como NVDA al abrir."""
+
+    def __init__(self, nombres, siempre=False):
+        super().__init__(nombres)
+        self.eventos = []
+        self.consultas = 0
+        self.siempre = siempre
+
+    def marca(self):
+        return len(self.eventos)
+
+    def desde(self, indice):
+        self.consultas += 1
+        if self.siempre or self.consultas <= 2:
+            self.eventos.append({"tipo": "habla", "texto": HABLA_VIEJA,
+                                 "hora": 0.1})
+        return list(self.eventos[int(indice):])
+
+    def paso(self, tecla, silencio_ms=400, tope_ms=10000):
+        antes = self.marca()
+        datos = super().paso(tecla, silencio_ms, tope_ms)
+        texto = datos["eventos"][0]["texto"]
+        self.eventos.append({"tipo": "habla", "texto": texto, "hora": 1.05})
+        datos["eventos"] = self.desde(antes)
+        return datos
+
+
+class TestEsperaDeSilencio(unittest.TestCase):
+
+    def test_el_primer_paso_no_incluye_lo_dicho_al_abrir(self):
+        nombres = ["Uno", "Dos"]
+        cliente = ClienteConHablaInicial(nombres)
+        datos = recorrido.conducir(cliente, ventana(nombres),
+                                   dormir=lambda _segundos: None)
+        habla = " ".join(str(evento.get("texto") or "")
+                         for paso in datos["pasos"]
+                         for evento in paso["habla"])
+        self.assertNotIn(HABLA_VIEJA, habla)
+
+    def test_si_nvda_no_calla_termina_en_el_tope_y_el_recorrido_sigue(self):
+        nombres = ["Uno", "Dos"]
+        cliente = ClienteConHablaInicial(nombres, siempre=True)
+        datos = recorrido.conducir(cliente, ventana(nombres),
+                                   dormir=lambda _segundos: None)
+        self.assertGreaterEqual(cliente.consultas, 40)
+        self.assertEqual(datos["pasos"][0]["fase"], "ida")
 
 
 class TestPadreEnTranscripcion(unittest.TestCase):

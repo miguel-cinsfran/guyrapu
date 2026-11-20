@@ -10,6 +10,9 @@ nombrado y manda el gesto.
 Antes de cada tecla se comprueba que la ventana en primer plano sea del
 proceso recorrido. Si la tomó otra, es instrumento roto, nunca un hallazgo
 de la app.
+
+Antes de la primera tecla se espera a que NVDA calle, y lo dicho en esa
+espera se descarta para que dos corridas den la misma transcripción.
 """
 
 from __future__ import annotations
@@ -25,6 +28,9 @@ from qa.nvda.reglas import identidad
 
 TOPE_PASOS = 40
 VAR_SONIDOS = "GUYRAPU_QA_SONIDOS"
+INTERVALO_SILENCIO_S = 0.2
+SILENCIO_S = 0.8
+TOPE_SILENCIO_S = 8.0
 
 
 class InstrumentoRoto(RuntimeError):
@@ -170,12 +176,36 @@ def _pasos_de_pagina(cliente, ventana, pid, tope, lector=None) -> list:
     return _elegir_pagina(cliente, ventana, pid, tope, lector)
 
 
+def _esperar_silencio(cliente, dormir, intervalo_s=INTERVALO_SILENCIO_S,
+                      silencio_s=SILENCIO_S, tope_s=TOPE_SILENCIO_S) -> None:
+    """Deja que NVDA termine de hablar antes de la primera tecla.
+
+    Lo dicho en esta espera no se guarda: el primer paso toma su marca
+    después, así que no hereda el habla con que se abrió la ventana.
+    """
+    indice = cliente.marca()
+    tope = max(1, round(tope_s / intervalo_s))
+    silencio = max(1, round(silencio_s / intervalo_s))
+    quietos = 0
+    for _ in range(tope):
+        dormir(intervalo_s)
+        if any(evento.get("tipo") == "habla"
+               for evento in cliente.desde(indice)):
+            indice = cliente.marca()
+            quietos = 0
+        else:
+            quietos += 1
+            if quietos >= silencio:
+                return
+
+
 def conducir(cliente, ventana, tope=TOPE_PASOS, tope_foco_s=20.0,
              dormir=time.sleep) -> dict:
     """La ida, la vuelta y las acciones de una ventana ya abierta."""
     pid = int(ventana["pid"])
     lector = Sonidos(os.environ.get(VAR_SONIDOS))
     lector.nuevos()
+    _esperar_silencio(cliente, dormir)
     pasos = _pasos_de_pagina(cliente, ventana, pid, tope, lector)
     if ventana.get("pulsar"):
         _ir_a(cliente, ventana["pulsar"], pid, tope, lector)
