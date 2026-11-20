@@ -64,7 +64,8 @@ class VentanaParticipacion(wx.Dialog):
         nombre_accesible(self.lb_participacion, _("Participación"))
         self.lista_vacia = ListaConVacio(
             self.lb_participacion, _(TEXTO_VACIO))
-        vs.Add(self.lb_participacion, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)
+        vs.Add(self.lb_participacion, 1,
+               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 8)
 
         self._crear_orden(panel, vs)
         self._crear_botones(panel, vs)

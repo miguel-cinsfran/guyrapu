@@ -112,6 +112,14 @@ class TestVentanaParticipacion(unittest.TestCase):
         self.assertEqual(list(dialogo.cb_orden.GetStrings()),
                          ["Mensajes", "Regalos"])
 
+    def test_hay_8_px_entre_la_lista_y_la_fila_de_orden(self):
+        dialogo = self._abrir()
+        dialogo.Layout()
+        lista = dialogo.lb_participacion
+        separacion = (dialogo.cb_orden.GetPosition().y
+                      - lista.GetPosition().y - lista.GetSize().y)
+        self.assertEqual(separacion, 8)
+
     def test_el_boton_de_resumenes_existe_con_su_nombre(self):
         dialogo = self._abrir()
         self.assertEqual(dialogo.btn_resumenes.GetName(),
