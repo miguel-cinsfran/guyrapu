@@ -1,14 +1,14 @@
-tecla=tab fase=ida dijo='Enviar botón Alt+ e' foco={nombre='Enviar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
-tecla=tab fase=ida dijo='Agregar captura botón Alt+ c' foco={nombre='Agregar captura', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=tab fase=ida dijo='Copiar respuesta botón Alt+ o' foco={nombre='Copiar respuesta', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+o'}
-tecla=tab fase=ida dijo='Nueva conversación botón Alt+ n' foco={nombre='Nueva conversación', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+n'}
-tecla=tab fase=ida dijo='Cerrar botón Alt+ r' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
-tecla=tab fase=ida dijo='Conversación lista Alt+ v Sin mensajes. Agrega una captura y escribe tu pregunta.' foco={nombre='Sin mensajes. Agrega una captura y escribe tu pregunta.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Mensaje edición Alt+ m en blanco' foco={nombre='Mensaje', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
-tecla=shift+tab fase=vuelta dijo='Conversación lista Alt+ v Sin mensajes. Agrega una captura y escribe tu pregunta.' foco={nombre='Sin mensajes. Agrega una captura y escribe tu pregunta.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ r' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+r'}
-tecla=shift+tab fase=vuelta dijo='Nueva conversación botón Alt+ n' foco={nombre='Nueva conversación', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+n'}
-tecla=shift+tab fase=vuelta dijo='Copiar respuesta botón Alt+ o' foco={nombre='Copiar respuesta', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+o'}
-tecla=shift+tab fase=vuelta dijo='Agregar captura botón Alt+ c' foco={nombre='Agregar captura', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=shift+tab fase=vuelta dijo='Enviar botón Alt+ e' foco={nombre='Enviar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
-tecla=shift+tab fase=vuelta dijo='Mensaje edición Alt+ m en blanco' foco={nombre='Mensaje', rol='EDITABLETEXT', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+m'}
+tecla=tab fase=ida dijo='Enviar botón Alt+ e' foco={nombre='Enviar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
+tecla=tab fase=ida dijo='Agregar captura botón Alt+ c' foco={nombre='Agregar captura', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Copiar respuesta botón Alt+ o' foco={nombre='Copiar respuesta', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+o'}
+tecla=tab fase=ida dijo='Nueva conversación botón Alt+ n' foco={nombre='Nueva conversación', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
+tecla=tab fase=ida dijo='Cerrar botón Alt+ r' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
+tecla=tab fase=ida dijo='Conversación lista Alt+ v Sin mensajes. Agrega una captura y escribe tu pregunta.' foco={nombre='Sin mensajes. Agrega una captura y escribe tu pregunta.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Mensaje edición Alt+ m en blanco' foco={nombre='Mensaje', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='', atajo='Alt+m'}
+tecla=shift+tab fase=vuelta dijo='Conversación lista Alt+ v Sin mensajes. Agrega una captura y escribe tu pregunta.' foco={nombre='Sin mensajes. Agrega una captura y escribe tu pregunta.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ r' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
+tecla=shift+tab fase=vuelta dijo='Nueva conversación botón Alt+ n' foco={nombre='Nueva conversación', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
+tecla=shift+tab fase=vuelta dijo='Copiar respuesta botón Alt+ o' foco={nombre='Copiar respuesta', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+o'}
+tecla=shift+tab fase=vuelta dijo='Agregar captura botón Alt+ c' foco={nombre='Agregar captura', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Enviar botón Alt+ e' foco={nombre='Enviar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
+tecla=shift+tab fase=vuelta dijo='Mensaje edición Alt+ m en blanco' foco={nombre='Mensaje', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='', atajo='Alt+m'}

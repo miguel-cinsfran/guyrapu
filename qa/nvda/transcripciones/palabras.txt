@@ -1,15 +1,15 @@
-tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Estilos 8 de 9' foco={nombre='Estilos', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Palabras bloqueadas lista Alt+ b No hay palabras bloqueadas. Usa Agregar para escribir una.' foco={nombre='No hay palabras bloqueadas. Usa Agregar para escribir una.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
-tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
-tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
-tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=tab fase=ida dijo='Páginas de interacción lista Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Palabras bloqueadas lista Alt+ b No hay palabras bloqueadas. Usa Agregar para escribir una.' foco={nombre='No hay palabras bloqueadas. Usa Agregar para escribir una.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+c'}
-tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+l'}
-tecla=shift+tab fase=vuelta dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+e'}
-tecla=shift+tab fase=vuelta dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE', 'FOCUSED'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=vuelta dijo='Palabras bloqueadas lista Alt+ b No hay palabras bloqueadas. Usa Agregar para escribir una.' foco={nombre='No hay palabras bloqueadas. Usa Agregar para escribir una.', rol='LISTITEM', estados=['FOCUSABLE', 'FOCUSED', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Estilos 8 de 9' foco={nombre='Estilos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Palabras bloqueadas lista Alt+ b No hay palabras bloqueadas. Usa Agregar para escribir una.' foco={nombre='No hay palabras bloqueadas. Usa Agregar para escribir una.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
+tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
+tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
+tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Páginas de interacción lista Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Palabras bloqueadas lista Alt+ b No hay palabras bloqueadas. Usa Agregar para escribir una.' foco={nombre='No hay palabras bloqueadas. Usa Agregar para escribir una.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Palabras bloqueadas 9 de 9' foco={nombre='Palabras bloqueadas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
+tecla=shift+tab fase=vuelta dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
+tecla=shift+tab fase=vuelta dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
+tecla=shift+tab fase=vuelta dijo='Palabras bloqueadas lista Alt+ b No hay palabras bloqueadas. Usa Agregar para escribir una.' foco={nombre='No hay palabras bloqueadas. Usa Agregar para escribir una.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
