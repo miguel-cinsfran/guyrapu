@@ -140,6 +140,18 @@ class TestSolape(Base):
         self.assertIsNone(self.uno(
             muestra([caja, nombre, vecina]), "solape"))
 
+    def test_la_caja_va_primera_y_no_pisa_el_campo_que_encierra(self):
+        caja = control(id=1, clase="wxStaticBox", nombre="Agregar disparador",
+                       etiqueta="", rect=[16, 16, 300, 450])
+        campo = control(id=2, nombre="Nombre", rect=[23, 55, 290, 23])
+        self.assertIsNone(self.uno(muestra([caja, campo]), "solape"))
+
+    def test_la_caja_va_segunda_y_no_pisa_el_campo_que_encierra(self):
+        caja = control(id=1, clase="wxStaticBox", nombre="Agregar disparador",
+                       etiqueta="", rect=[16, 16, 300, 450])
+        campo = control(id=2, nombre="Nombre", rect=[23, 55, 290, 23])
+        self.assertIsNone(self.uno(muestra([campo, caja]), "solape"))
+
     def test_dos_cajas_que_se_pisan_si_saltan(self):
         caja = control(id=1, clase="wxStaticBox", nombre="Agregar disparador",
                        etiqueta="", rect=[16, 16, 300, 450])
