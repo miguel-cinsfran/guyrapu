@@ -25,7 +25,7 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.gui import copiar_al_portapapeles
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
-from guyrapu.ui.tema import _T, _tc, _pintar
+from guyrapu.ui.tema import _T, _tc, _pintar, _titulo
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -85,7 +85,7 @@ class ComentariosPanel(wx.Panel):
         vs.Add(row, 0, wx.EXPAND | wx.ALL, 8)
 
         lbl = wx.StaticText(self, label=_("Co&mentarios:"), name="EtiquetaListaComentarios")
-        _pintar(lbl, fg=_T.accent)
+        _titulo(lbl)
         vs.Add(lbl, 0, wx.LEFT | wx.RIGHT, 8)
         self.lb = wx.ListBox(self, style=wx.LB_SINGLE | wx.LB_HSCROLL,
                              name=_("Lista de comentarios"))

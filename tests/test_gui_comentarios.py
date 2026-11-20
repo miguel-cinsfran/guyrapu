@@ -61,6 +61,10 @@ class TestComentariosPanel(unittest.TestCase):
             self.frame, queue.Queue(), {"tamanio_fuente_chat": 12})
         self.addCleanup(destruir, self.panel)
 
+    def test_el_titulo_de_lista_es_negrita_como_el_del_chat(self):
+        etiqueta = self.panel.FindWindowByName("EtiquetaListaComentarios")
+        self.assertEqual(etiqueta.GetFont().GetWeight(), wx.FONTWEIGHT_BOLD)
+
     def test_comentar_llega_al_envio(self):
         self.panel.set_video("video", autocargar=False)
         self.panel._enviar_escritura = mock.Mock()
