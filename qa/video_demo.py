@@ -126,7 +126,7 @@ def copiar_programa(destino) -> None:
 
 def _lanzar(copia, anuncios, chat):
     ruta = Path(copia).parent / "lanzador_video.py"
-    ruta.write_text(dr._LANZADOR.format(repo=str(copia)), encoding="utf-8")
+    ruta.write_text(dr.armar_lanzador(repo=str(copia)), encoding="utf-8")
     entorno = dict(os.environ, GUYRAPU_IDIOMA="en",
                    DIRECTO_REAL_ANUNCIOS=str(anuncios),
                    DIRECTO_REAL_CHAT=str(chat))

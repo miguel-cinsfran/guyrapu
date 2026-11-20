@@ -248,7 +248,7 @@ def _levantar(ctx) -> str:
         open(entorno["DIRECTO_REAL_CHAT"], "w").close()
         with open(os.path.join(tmpdir, "app.py"), "w",
                   encoding="utf-8") as f:
-            f.write(directo_real._LANZADOR.format(repo=str(RAIZ)))
+            f.write(directo_real.armar_lanzador(repo=str(RAIZ)))
         ctx["ventanas"] = directo_real._abrir_ventanas_prueba()
         ctx["app"] = subprocess.Popen(
             [sys.executable, os.path.join(tmpdir, "app.py")],

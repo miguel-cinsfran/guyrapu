@@ -36,10 +36,11 @@ from directo_comun import (  # noqa: E402
     esperar_anuncio, imprimir, limpiar,
 )
 from directo_real import (  # noqa: E402
-    OK_FIN, _LANZADOR, _buscar_video_por_titulo,
+    OK_FIN, _buscar_video_por_titulo,
     _cliente_youtube, _control, _dialogo_hijo, _esperar_estado,
     _guardar_token_si_renovo, _leer_anuncios, _leer_valor, _limpiar_sentinel,
-    _obs_en_ejecucion, _ventana, armar_titulo, extraer_id_video,
+    _obs_en_ejecucion, _ventana, armar_lanzador, armar_titulo,
+    extraer_id_video,
 )
 
 PREFIJO_OPCION = "restream:"
@@ -140,7 +141,7 @@ def _lanzar_app(estado, anotar) -> bool:
     open(estado["ruta_chat"], "w").close()
     ruta_lanzador = os.path.join(tmpdir, "app_directo_restream.py")
     with open(ruta_lanzador, "w", encoding="utf-8") as archivo:
-        archivo.write(_LANZADOR.format(repo=str(estado["raiz"])))
+        archivo.write(armar_lanzador(repo=str(estado["raiz"])))
     entorno = dict(os.environ,
                    DIRECTO_REAL_ANUNCIOS=estado["ruta_anuncios"],
                    DIRECTO_REAL_CHAT=estado["ruta_chat"])

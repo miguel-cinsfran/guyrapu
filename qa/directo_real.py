@@ -435,6 +435,11 @@ _rep.ReproductorPanel.__init__ = _rep_init
 """
 
 
+def armar_lanzador(repo: str, arranque: str = "") -> str:
+    """Lanzador con la raíz y el arranque ya puestos en su lugar."""
+    return _LANZADOR.format(repo=repo, arranque=arranque)
+
+
 def _leer_anuncios(ruta: str) -> str:
     try:
         with open(ruta, encoding="utf-8") as f:
@@ -1137,8 +1142,7 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
                    "ya estaba abierto, no se toca el sentinel")
 
         with open(ruta_lanzador, "w", encoding="utf-8") as f:
-            f.write(_LANZADOR.format(repo=str(raiz),
-                                     arranque=inter.arranque))
+            f.write(armar_lanzador(repo=str(raiz), arranque=inter.arranque))
         try:
             ventanas_prueba = _abrir_ventanas_prueba()
             anotar("ventanas de prueba", True,

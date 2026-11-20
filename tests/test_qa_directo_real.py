@@ -603,6 +603,14 @@ class TestRegistroDeAvisosImportantes(unittest.TestCase):
         self.assertEqual(dichos, [aviso])
 
 
+class TestArmarLanzador(unittest.TestCase):
+
+    def test_sin_arranque_compila_y_no_deja_el_marcador(self):
+        fuente = directo_real.armar_lanzador(r"C:\x")
+        compile(fuente, "lanzador", "exec")
+        self.assertNotIn("{arranque}", fuente)
+
+
 class TestVolumenPrueba(unittest.TestCase):
 
     def test_constante_al_doce_por_ciento(self):
