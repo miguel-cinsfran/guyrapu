@@ -19,9 +19,12 @@ from types import SimpleNamespace
 from unittest import mock
 
 from qa import foco_ventanas
-from qa.nvda import canario, correr, devolver, nvda_local, seguridad, ventanas_app
+from qa.nvda import (canario, correr, devolver, nvda_local, seguridad,
+                     trampas, ventanas_app)
 
 INSTALADO = r"C:\Program Files\NVDA\nvda.exe"
+SONDAS = [nombre for nombre, datos in trampas.VENTANAS.items()
+          if datos.get("sonda")]
 
 
 class TestGuardia(unittest.TestCase):
@@ -447,6 +450,46 @@ class TestReglas(unittest.TestCase):
         error = self._reglas(analizar)
         self.assertIn("sin_nombre", str(error))
         self.assertIn("paso 2", str(error))
+
+    def _recorrer_reglas(self, analizar):
+        vistos = []
+        lineas = []
+        with (
+            mock.patch.object(correr.reglas, "leer_catalogo_ingles",
+                              return_value=set()),
+            mock.patch.object(correr.reglas, "analizar",
+                              side_effect=analizar),
+            mock.patch.object(
+                correr.recorrido, "recorrer",
+                side_effect=lambda datos, cliente: (
+                    vistos.append(datos["nombre"]) or self._datos(
+                        datos["nombre"]))),
+        ):
+            try:
+                lineas = correr._reglas(mock.Mock(), mock.Mock(cortado=False))
+            except correr.ReglasFallidas as capturado:
+                lineas = capturado.lineas
+        return vistos, lineas
+
+    def test_las_cinco_sondas_se_recorren_y_sus_hallazgos_se_escriben(self):
+        def analizar(datos, catalogo):
+            nombre = datos["ventana"]
+            if nombre.startswith("sonda_"):
+                return [self._hallazgo(nombre, "nombre_repetido")]
+            return []
+
+        vistos, lineas = self._recorrer_reglas(analizar)
+        for nombre in SONDAS:
+            self.assertIn(nombre, vistos)
+        self.assertTrue(any("hallazgo nombre_repetido" in linea
+                            for linea in lineas))
+
+    def test_un_nombre_repetido_en_una_sonda_no_entra_en_los_fallos(self):
+        hallazgo = self._hallazgo("sonda_lista_box", "nombre_repetido")
+        por_ventana = {regla: [self._hallazgo(regla, regla)]
+                       for regla in correr.reglas.NIVELES}
+        por_ventana["sonda_lista_box"] = [hallazgo]
+        self.assertEqual(correr._fallos_de_reglas(por_ventana), [])
 
     def test_un_primer_plano_ajeno_corta_y_el_informe_lo_dice(self):
         args = SimpleNamespace(canario=True)

@@ -220,7 +220,7 @@ def _fallos_de_reglas(por_ventana) -> list:
 def _reglas(cliente, vigilante, iniciales=()) -> list:
     catalogo = reglas.leer_catalogo_ingles()
     nombres = ["limpia"] + [nombre for nombre, datos in trampas.VENTANAS.items()
-                            if datos["regla"]]
+                             if datos["regla"] or datos.get("sonda")]
     lineas = list(iniciales)
     lineas.append("== reglas del carril ==")
     por_ventana = {}

@@ -3,7 +3,9 @@
 """Las ventanas de prueba del carril: una limpia y una trampa por regla.
 
 Cada trampa viola a propósito una sola regla de `reglas.py`, y la limpia
-cumple todas. No se registran en la app ni se alcanzan desde ella.
+cumple todas. Las sondas muestran una clase de lista cada una para medir
+qué lee NVDA al llegar a ella con Tab. No se registran en la app ni se
+alcanzan desde ella.
 
 La tabla `VENTANAS` declara el primer control y las acciones de cada una, que
 es lo que lee `recorrido.py`. El módulo se puede importar sin wx: las
@@ -38,6 +40,12 @@ def _datos(nombre, regla, primero, acciones=(), titulo=""):
     }
 
 
+def _sonda(nombre):
+    datos = _datos(nombre, None, "Antes")
+    datos["sonda"] = True
+    return datos
+
+
 VENTANAS = {
     "limpia": _datos(
         "limpia", None, "Nombre completo",
@@ -59,6 +67,11 @@ VENTANAS = {
         "foco_perdido", "foco_perdido", "Deshabilitar",
         [{"control": "Deshabilitar", "gesto": "space"}]),
     "recorrido": _datos("recorrido", "recorrido", "Entrada"),
+    "sonda_lista_box": _sonda("sonda_lista_box"),
+    "sonda_lista_box_nombre": _sonda("sonda_lista_box_nombre"),
+    "sonda_lista_box_pieza": _sonda("sonda_lista_box_pieza"),
+    "sonda_lista_vista": _sonda("sonda_lista_vista"),
+    "sonda_categorias": _sonda("sonda_categorias"),
 }
 
 
@@ -203,6 +216,74 @@ def _construir_limpia(wx, panel, caja, marco):
     return nombre
 
 
+def _boton_antes(wx, panel, caja):
+    boton = wx.Button(panel, label="Antes")
+    nombre_accesible(boton, "Antes")
+    caja.Add(boton, 0, wx.ALL, 6)
+    return boton
+
+
+def _construir_sonda_lista_box(wx, panel, caja, marco):
+    antes = _boton_antes(wx, panel, caja)
+    lista = wx.ListBox(panel, choices=["Uno", "Dos", "Tres"],
+                       name="Lista de sonda")
+    lista.SetSelection(0)
+    caja.Add(lista, 0, wx.EXPAND | wx.ALL, 6)
+    return antes
+
+
+def _construir_sonda_lista_box_nombre(wx, panel, caja, marco):
+    antes = _boton_antes(wx, panel, caja)
+    lista = wx.ListBox(panel, choices=["Uno", "Dos", "Tres"])
+    nombre_accesible(lista, "Lista de sonda")
+    lista.SetSelection(0)
+    caja.Add(lista, 0, wx.EXPAND | wx.ALL, 6)
+    return antes
+
+
+def _construir_sonda_lista_box_pieza(wx, panel, caja, marco):
+    from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
+
+    antes = _boton_antes(wx, panel, caja)
+    lista = wx.ListBox(panel, style=wx.LB_SINGLE | wx.LB_HSCROLL,
+                       name="ListaSonda")
+    nombre_accesible(lista, "Lista de sonda")
+    acciones = (Accion("editar", "&Editar", lambda: None, tecla="intro"),)
+    pieza = ListaConAcciones(lista, acciones, "No hay elementos.")
+    pieza.fijar(["Uno", "Dos", "Tres"], 0)
+    caja.Add(lista, 0, wx.EXPAND | wx.ALL, 6)
+    return antes
+
+
+def _construir_sonda_lista_vista(wx, panel, caja, marco):
+    antes = _boton_antes(wx, panel, caja)
+    lista = wx.ListCtrl(panel, style=wx.LC_REPORT | wx.LC_SINGLE_SEL)
+    lista.InsertColumn(0, "Elemento")
+    for indice, texto in enumerate(("Uno", "Dos", "Tres")):
+        lista.InsertItem(indice, texto)
+    lista.Select(0)
+    nombre_accesible(lista, "Lista de sonda")
+    caja.Add(lista, 0, wx.EXPAND | wx.ALL, 6)
+    return antes
+
+
+def _construir_sonda_categorias(wx, panel, caja, marco):
+    antes = _boton_antes(wx, panel, caja)
+    libro = wx.Listbook(panel)
+    nombre_accesible(libro.GetListView(), "Lista de sonda")
+    for texto in ("Uno", "Dos", "Tres"):
+        pagina = wx.Panel(libro)
+        boton = wx.Button(pagina, label=texto)
+        nombre_accesible(boton, texto)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(boton, 0, wx.ALL, 6)
+        pagina.SetSizer(sizer)
+        libro.AddPage(pagina, texto)
+    libro.SetSelection(0)
+    caja.Add(libro, 1, wx.EXPAND | wx.ALL, 6)
+    return antes
+
+
 _CONSTRUCTORES = {
     "limpia": _construir_limpia,
     "sin_nombre": _construir_sin_nombre,
@@ -213,6 +294,11 @@ _CONSTRUCTORES = {
     "paso_mudo": _construir_paso_mudo,
     "foco_perdido": _construir_foco_perdido,
     "recorrido": _construir_recorrido,
+    "sonda_lista_box": _construir_sonda_lista_box,
+    "sonda_lista_box_nombre": _construir_sonda_lista_box_nombre,
+    "sonda_lista_box_pieza": _construir_sonda_lista_box_pieza,
+    "sonda_lista_vista": _construir_sonda_lista_vista,
+    "sonda_categorias": _construir_sonda_categorias,
 }
 
 

@@ -15,6 +15,8 @@ from qa.nvda import reglas, trampas
 
 TRAMPAS = [nombre for nombre, datos in trampas.VENTANAS.items()
            if datos["regla"]]
+SONDAS = [nombre for nombre, datos in trampas.VENTANAS.items()
+          if datos.get("sonda")]
 
 
 def setUpModule():
@@ -275,6 +277,69 @@ class TestRecorrido(Base):
                   if campo.GetWindowStyle() & wx.TE_MULTILINE
                   and not campo.GetWindowStyle() & wx.TE_PROCESS_TAB]
         self.assertTrue(libres)
+
+
+class TestSondas(Base):
+    TIPOS = {
+        "sonda_lista_box": wx.ListBox,
+        "sonda_lista_box_nombre": wx.ListBox,
+        "sonda_lista_box_pieza": wx.ListBox,
+        "sonda_lista_vista": wx.ListCtrl,
+        "sonda_categorias": wx.Listbook,
+    }
+
+    def test_hay_cinco_sondas_de_una_clase_de_lista_cada_una(self):
+        self.assertEqual(len(SONDAS), 5)
+        self.assertEqual(sorted(SONDAS), sorted(self.TIPOS))
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                datos = trampas.VENTANAS[nombre]
+                self.assertTrue(datos["sonda"])
+                self.assertIsNone(datos["regla"])
+                self.assertEqual(datos["primero"], "Antes")
+                marco = self.construir(nombre)
+                self.assertTrue(any(
+                    isinstance(control, self.TIPOS[nombre])
+                    for control in _controles(marco)))
+
+    def test_el_primer_control_de_cada_sonda_es_antes(self):
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                self.assertTrue(_con_nombre(self.construir(nombre), "Antes"))
+
+    def _control_de_lista(self, marco, nombre):
+        if nombre == "sonda_categorias":
+            libro = [control for control in _controles(marco)
+                     if isinstance(control, wx.Listbook)][0]
+            return libro.GetListView()
+        clase = self.TIPOS[nombre]
+        return [control for control in _controles(marco)
+                if isinstance(control, clase)][0]
+
+    def _elementos_y_elegido(self, control):
+        if isinstance(control, wx.ListBox):
+            textos = [control.GetString(i)
+                      for i in range(control.GetCount())]
+            return textos, control.GetSelection()
+        textos = [control.GetItemText(i)
+                  for i in range(control.GetItemCount())]
+        return textos, control.GetFirstSelected()
+
+    def test_cada_lista_tiene_tres_elementos_y_el_primero_elegido(self):
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                control = self._control_de_lista(
+                    self.construir(nombre), nombre)
+                textos, elegido = self._elementos_y_elegido(control)
+                self.assertEqual(textos, ["Uno", "Dos", "Tres"])
+                self.assertEqual(elegido, 0)
+
+    def test_las_listas_llevan_el_nombre_de_sonda(self):
+        for nombre in SONDAS:
+            with self.subTest(ventana=nombre):
+                control = self._control_de_lista(
+                    self.construir(nombre), nombre)
+                self.assertEqual(control.GetName(), "Lista de sonda")
 
 
 if __name__ == "__main__":
