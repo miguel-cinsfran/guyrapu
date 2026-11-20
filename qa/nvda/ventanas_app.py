@@ -54,7 +54,7 @@ VENTANAS = (
         "nombre": "comandos",
         "menu": "Interacción > Comandos del chat…",
         "titulo": "Interacción",
-        "primero": "No hay comandos. Usa Agregar para crear uno.",
+        "primero": "!commands, en el vídeo, todos",
     },
     {
         "nombre": "estilos",
