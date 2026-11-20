@@ -235,8 +235,7 @@ def _capturar(ventana, nombre, clase, variante, salida, numero):
         cap.pintar_completo(ventana, (ventana, *_descendientes(ventana)))
         ancho, alto = cap._guardar_png(ventana, ruta)
         contenido = _escribir_json(ventana, ruta.with_suffix(".json"),
-                                   nombre, clase, variante, pagina, archivo,
-                                   ancho, alto)
+                                   nombre, clase, variante, pagina, archivo)
         esquina = ventana.GetPosition()
         cliente = ventana.ClientToScreen((0, 0))
         desplazamiento = (cliente.x - esquina.x, cliente.y - esquina.y)
@@ -257,8 +256,7 @@ def _capturar(ventana, nombre, clase, variante, salida, numero):
     return lineas
 
 
-def _escribir_json(ventana, ruta, nombre, clase, variante, pagina, png,
-                   ancho, alto):
+def _escribir_json(ventana, ruta, nombre, clase, variante, pagina, png):
     origen = ventana.ClientToScreen((0, 0))
     pantalla = _area_de_trabajo()
     contenido = geo.captura_diccionario(
