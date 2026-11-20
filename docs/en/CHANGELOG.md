@@ -1,4 +1,4 @@
-<!-- original: es/CHANGELOG.md b58af5def709392acaf02faedcd1f234602bc02f -->
+<!-- original: es/CHANGELOG.md 668f2c3a53dccbef2799bef67938552860fa5ada -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
@@ -155,6 +155,25 @@ This is a translation of the Spanish original, made with artificial intelligence
   in Preferences can be reached with `Tab` and say they cannot be changed.
   The results of tests and the summary of the profile assistant close with
   Escape.
+
+### Window layout
+
+- The dialogs for chat commands, scheduled messages, polls, video styles,
+  media, goals and triggers, and *Test without a live stream*, are wider and
+  all follow the same layout. The triggers dialog is split into three sections.
+- In the OBS panel, the *Scene* and *Audio* tabs put the label above each list
+  and the buttons in a row, like the rest of the application. The buttons on
+  the *Interaction* and *OBS profiles* pages have the same width and form even
+  columns.
+- The OBS profiles and tests dialogs are wider and more orderly, with the main
+  action highlighted. The same goes for the dialogs to add sources, apply
+  layouts, set up the OBS microphone and change a source's size.
+- The dialogs to write a comment, open a link, edit a music playlist, choose a
+  format, broadcast with *Restream* and the new version notice are wider, with
+  a clearer layout and the main button easy to see. *Ask the AI* opens larger
+  and keeps the conversation in view. The connected main window can be made
+  smaller on short screens, and the chat uses the same font as the rest of the
+  window.
 
 ### Other changes
 

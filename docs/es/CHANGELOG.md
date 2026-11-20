@@ -158,6 +158,26 @@
   resultados de las pruebas y el resumen del asistente de perfiles se cierran
   con Escape.
 
+### Diseño de las ventanas
+
+- Los cuadros de comandos, mensajes automáticos, encuestas, estilos, medios,
+  metas y disparadores, y *Probar sin directo*, son más amplios y siguen todos
+  la misma forma. El cuadro de disparadores se divide en tres secciones.
+- En el panel de OBS, las pestañas *Escena* y *Audio* ponen la etiqueta encima
+  de cada lista y los botones en fila, como en el resto de la aplicación. Los
+  botones de *Interacción* y de *Perfiles de OBS* tienen el mismo ancho y forman
+  columnas parejas.
+- Los cuadros de perfiles y de pruebas del panel de OBS son más amplios y
+  ordenados, con la acción principal destacada. Lo mismo pasa con los cuadros
+  para agregar fuentes, aplicar diseños, configurar el micrófono y cambiar el
+  tamaño de una fuente.
+- Los cuadros para redactar un comentario, abrir un enlace, editar una lista de
+  música, elegir un formato, transmitir con *Restream* y el aviso de versión
+  nueva son más amplios, con un orden más claro y el botón principal bien
+  visible. *Preguntar a la IA* abre más grande y deja la conversación a la
+  vista. La ventana principal conectada se puede achicar en pantallas bajas y
+  el chat usa la misma letra que el resto de la ventana.
+
 ### Otros cambios
 
 - La cuota estimada de YouTube se mantiene al día sola con los costos que
