@@ -15,7 +15,7 @@ TASA = 16000
 TROZO = int(TASA * 0.02)
 
 
-def _esperar(condicion, plazo=3.0):
+def _esperar(condicion, plazo=10.0):
     limite = time.monotonic() + plazo
     while time.monotonic() < limite:
         if condicion():
