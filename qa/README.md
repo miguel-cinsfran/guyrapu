@@ -375,3 +375,28 @@ un control tenga nombre no quiere decir que se anuncie bien. El carril de
 NVDA comprueba qué texto produce un NVDA portátil al recorrer una ventana,
 no cómo suena ni lo que va a la línea braille. Eso lo comprueba una persona
 con el lector puesto, y no hay forma de automatizarlo desde acá.
+
+## Reglas visuales de la galería
+
+`qa/visual_reglas.py` revisa las geometrías que guarda la galería, sin abrir
+ventanas ni importar wx. Lee cada `*.json` de una carpeta y escribe una línea
+por hallazgo, en este orden: gravedad, regla, muestra con su página, control y
+medida. Termina con 1 si hay errores y con 0 si solo hay avisos o nada.
+
+    python qa/visual_reglas.py qa/salida/galeria/2026-11-19
+    python qa/visual_reglas.py CARPETA --json informe.json
+
+Los errores son contraste (menos de 4,5:1 con la fórmula WCAG de
+`relacion_de_contraste`), recorte, solape, letra de menos de 12 px y ventana
+que no entra en 1366×728. Los avisos son bordes izquierdos que difieren entre
+1 y 6 px, huecos que no son múltiplos de 4 px o más de tres huecos distintos
+en una columna, controles a menos de 8 px del borde, botones de pie fuera de
+fila o de tamaño, más de dos botones principales, varias familias de letra o
+más de dos pesos, colores ajenos a la paleta y una envolvente que ocupa menos
+de la mitad del área cliente.
+
+El resumen final reúne las ventanas: margen exterior medido y cuántas lo
+usan, familias y tamaños de letra presentes, y colores fuera de la paleta. Los
+colores que wx toma del sistema no cuentan como ajenos. Las medidas geométricas
+viven en `qa/visual_reglas_medidas.py` y cada regla, con su gravedad y su
+umbral, está en `qa/visual_reglas.py`.
