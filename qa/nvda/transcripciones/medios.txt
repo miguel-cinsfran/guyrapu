@@ -1,8 +1,10 @@
-tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Preguntas 4 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Disparadores 5 de 9' foco={nombre='Disparadores', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=pagina dijo='Activar mensajes automáticos casilla de verificación sin marcar Alt+ v' foco={nombre='Activar mensajes automáticos', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+v'}
+tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Mensajes automáticos 3 de 9' foco={nombre='Mensajes automáticos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Encuestas 4 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=downArrow fase=pagina dijo='Preguntas 5 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=downArrow fase=pagina dijo='Metas 6 de 9' foco={nombre='Metas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=downArrow fase=pagina dijo='Medios 7 de 9' foco={nombre='Medios', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Medios guardados lista Alt+ m No hay medios. Usa Agregar para crear uno.' foco={nombre='No hay medios. Usa Agregar para crear uno.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=pagina dijo='Medios guardados lista Alt+ m No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.' foco={nombre='No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Volumen de los medios en el vídeo deslizador 100 Alt+ v' foco={nombre='Volumen de los medios en el vídeo', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+v'}
 tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
@@ -11,11 +13,15 @@ tecla=tab fase=ida dijo='Escuchar botón Alt+ h' foco={nombre='Escuchar', rol='B
 tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
 tecla=tab fase=ida dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=tab fase=ida dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
+tecla=tab fase=ida dijo='Abrir carpeta botón Alt+ a' foco={nombre='Abrir carpeta', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
+tecla=tab fase=ida dijo='Probar sin directo botón Alt+ t' foco={nombre='Probar sin directo', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+t'}
 tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=tab fase=ida dijo='Páginas de interacción lista Medios 7 de 9' foco={nombre='Medios', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Medios guardados lista Alt+ m No hay medios. Usa Agregar para crear uno.' foco={nombre='No hay medios. Usa Agregar para crear uno.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Medios guardados lista Alt+ m No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.' foco={nombre='No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Medios 7 de 9' foco={nombre='Medios', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Probar sin directo botón Alt+ t' foco={nombre='Probar sin directo', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+t'}
+tecla=shift+tab fase=vuelta dijo='Abrir carpeta botón Alt+ a' foco={nombre='Abrir carpeta', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
 tecla=shift+tab fase=vuelta dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
 tecla=shift+tab fase=vuelta dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
@@ -24,4 +30,4 @@ tecla=shift+tab fase=vuelta dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar
 tecla=shift+tab fase=vuelta dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
 tecla=shift+tab fase=vuelta dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=shift+tab fase=vuelta dijo='Volumen de los medios en el vídeo deslizador 100 Alt+ v' foco={nombre='Volumen de los medios en el vídeo', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+v'}
-tecla=shift+tab fase=vuelta dijo='Medios guardados lista Alt+ m No hay medios. Usa Agregar para crear uno.' foco={nombre='No hay medios. Usa Agregar para crear uno.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Medios guardados lista Alt+ m No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.' foco={nombre='No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
