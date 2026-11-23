@@ -45,8 +45,10 @@ def _numero(valor) -> str:
 
 def fila(comando: Comando) -> str:
     """La línea de la lista: palabra, dónde sale, quién puede usarlo."""
-    partes = [_con_signo(comando.nombre), _destino(comando.destino),
-              _quien(comando)]
+    partes = [_con_signo(comando.nombre), _destino(comando.destino)]
+    if comando.medio:
+        partes.append(_("con el medio {medio}").format(medio=comando.medio))
+    partes.append(_quien(comando))
     if not comando.activo:
         partes.append(_("pausado"))
     return ", ".join(partes)
@@ -60,6 +62,19 @@ def respuesta_de_ejemplo(comando: Comando) -> str:
             .replace("{texto}", ""))
 
 
+def _partes_de_respuesta(comando: Comando) -> list[str]:
+    if not (comando.respuesta or "").strip():
+        return []
+    return [_("Responde: {respuesta}.").format(
+        respuesta=respuesta_de_ejemplo(comando))]
+
+
+def _parte_del_medio(comando: Comando) -> list[str]:
+    if not comando.medio:
+        return []
+    return [_("Muestra el medio {medio}.").format(medio=comando.medio)]
+
+
 def escuchar(comando: Comando, estilo: str) -> str:
     """La frase que cuenta un comando entero al pedir Escuchar."""
     palabra = _con_signo(comando.nombre)
@@ -70,8 +85,8 @@ def escuchar(comando: Comando, estilo: str) -> str:
             alias=", ".join(_con_signo(alias) for alias in comando.alias)))
     else:
         partes.append(_("Comando {palabra}.").format(palabra=palabra))
-    partes.append(_("Responde: {respuesta}.").format(
-        respuesta=respuesta_de_ejemplo(comando)))
+    partes.extend(_partes_de_respuesta(comando))
+    partes.extend(_parte_del_medio(comando))
     if comando.destino in ("video", "ambos"):
         partes.append(_("Se muestra {destino}, con el estilo {estilo} y "
                        "{segundos} segundos en pantalla.").format(

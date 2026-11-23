@@ -59,6 +59,7 @@ class Comando:
     nombre: str
     alias: tuple[str, ...]
     respuesta: str
+    medio: str = ""
     destino: str = "video"
     permiso: str = "todos"
     nombres: tuple[str, ...] = ()
@@ -207,11 +208,15 @@ def _error_de_repetido(comando: Comando, otros) -> str:
     return ""
 
 
+def _error_de_respuesta(comando: Comando) -> str:
+    if not (comando.respuesta or "").strip() and not (comando.medio or "").strip():
+        # Traductores: validación de comandos del chat (error).
+        return _("El comando necesita una respuesta o un medio.")
+    return ""
+
+
 def _error_de_variables(comando: Comando) -> str:
     respuesta = comando.respuesta or ""
-    if not respuesta.strip():
-        # Traductores: validación de comandos del chat (error).
-        return _("El comando necesita una respuesta.")
     permitidas = VARIABLES + (("lista",) if comando.lista else ())
     desconocidas = [variable for variable in _VARIABLE_RE.findall(respuesta)
                     if variable not in permitidas]
@@ -248,6 +253,7 @@ def validar(comando: Comando, otros) -> str:
     """Un texto de error, o "" si el comando se puede guardar."""
     return (_error_de_nombre(comando)
             or _error_de_repetido(comando, otros)
+            or _error_de_respuesta(comando)
             or _error_de_variables(comando)
             or _error_de_longitud(comando)
             or _error_de_lista(comando))

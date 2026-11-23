@@ -17,7 +17,8 @@ from guyrapu.core import diagnostico, paths
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
-    atencion, comandos, comandos_guardados, ensayo, filtro_publico)
+    atencion, comandos, comandos_guardados, ensayo, filtro_publico,
+    medio_en_video)
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
 from guyrapu.youtube import cuota
@@ -97,12 +98,21 @@ class ComandosEnVivo:
         if not palabra.startswith("!"):
             palabra = "!" + palabra
         self._ultimo = (palabra, registro.autor)
-        if respuesta.al_video and ensayo.en_vivo_o_ensayo(self._frame):
-            gui_envio_chat.capa_de_video(self._frame).agregar_comando(respuesta)
-        if respuesta.al_chat:
+        self._poner_en_video(respuesta)
+        if respuesta.al_chat and respuesta.texto.strip():
             gui_envio_chat.enviar_respuesta_chat(self._frame, respuesta.texto)
         if respuesta.freno_cuota:
             self._avisar_cuota()
+
+    def _poner_en_video(self, respuesta) -> None:
+        if not ensayo.en_vivo_o_ensayo(self._frame):
+            return
+        medio = medio_en_video.resolver(respuesta.medio)
+        texto = respuesta.texto if respuesta.al_video else ""
+        if not texto and medio is None:
+            return
+        gui_envio_chat.capa_de_video(self._frame).agregar_comando(
+            respuesta, medio)
 
     def enviar_respuesta(self, texto) -> bool:
         """Manda un texto al chat con el mismo freno de cuota de los comandos."""

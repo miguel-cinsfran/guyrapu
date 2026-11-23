@@ -14,7 +14,7 @@ from unittest import mock
 import wx
 
 from guyrapu.core import paths
-from guyrapu.interaction import comandos_guardados, paquetes
+from guyrapu.interaction import comandos_guardados, medios_guardados, paquetes
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import comando_cuadro
 from guyrapu.ui import comandos_ventana
@@ -28,7 +28,7 @@ from qa import escenarios_comandos  # noqa: E402
 
 def _datos(nombre="discord", **cambios):
     datos = {
-        "nombre": nombre, "alias": ["dc"], "respuesta": "Hola",
+        "nombre": nombre, "alias": ["dc"], "respuesta": "Hola", "medio": "",
         "destino": "video", "permiso": "todos", "nombres": [],
         "espera_general": 5.0, "espera_persona": 30.0, "activo": True,
         "estilo": "clasico", "segundos": 8,
@@ -146,6 +146,30 @@ class TestCuadro(BaseVentana):
         self.assertEqual(cuadro.chk_en_lista.GetName(),
                          "Mostrar en la lista de comandos")
 
+    def test_la_eleccion_de_medio_va_despues_de_la_respuesta_y_su_nota(self):
+        cuadro = self._cuadro()
+        hijos = list(cuadro.GetChildren()[0].GetChildren())
+        rotulo = hijos[hijos.index(cuadro.ayuda) + 1]
+        self.assertIsInstance(rotulo, wx.StaticText)
+        self.assertIs(hijos[hijos.index(rotulo) + 1], cuadro.cho_medio)
+
+    def test_la_eleccion_de_medio_trae_ninguno_y_los_medios_por_nombre(self):
+        medios_guardados.guardar(paths.medios(), [{
+            "nombre": "fuegos", "descripcion": "", "tipo": "video",
+            "archivo": "fuegos.mp4", "duracion": 12, "ganancia_db": None}])
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.cho_medio.GetStrings(), ["Ninguno", "fuegos"])
+        self.assertEqual(cuadro.cho_medio.GetName(), "Medio")
+        self.assertEqual(cuadro.cho_medio.GetSelection(), 0)
+
+    def test_carga_y_guarda_el_medio_elegido(self):
+        medios_guardados.guardar(paths.medios(), [{
+            "nombre": "fuegos", "descripcion": "", "tipo": "video",
+            "archivo": "fuegos.mp4", "duracion": 12, "ganancia_db": None}])
+        cuadro = self._cuadro(_datos(medio="fuegos"))
+        self.assertEqual(cuadro.cho_medio.GetStringSelection(), "fuegos")
+        self.assertEqual(cuadro.datos()["medio"], "fuegos")
+
     def test_un_comando_de_video_y_chat_muestra_chat_y_video_y_guarda_igual(self):
         cuadro = self._cuadro(_datos(destino="ambos"))
         self.assertEqual(cuadro.cho_destino.GetStringSelection(), "Chat y vídeo")
@@ -222,7 +246,7 @@ class TestCuadro(BaseVentana):
         cuadro.chk_en_lista.SetValue(False)
         self.assertEqual(cuadro.datos(), {
             "nombre": "sorteo", "alias": ["sorteo", "sort"],
-            "respuesta": "Hola {usuario}", "destino": "ambos",
+            "respuesta": "Hola {usuario}", "medio": "", "destino": "ambos",
             "permiso": "lista", "nombres": ["Ana María", "Beto"],
             "espera_general": 10.0, "espera_persona": 40.0,
             "activo": False, "estilo": "banda", "segundos": 15,

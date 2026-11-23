@@ -34,6 +34,14 @@ def _lista(**cambios):
     return comandos.Comando(**datos)
 
 
+class TestMedio(unittest.TestCase):
+
+    def test_la_respuesta_lleva_el_nombre_del_medio_del_comando(self):
+        respuesta = atencion.Atencion([_comando(medio="fuegos")]).atender(
+            _evento("!saludo"), 0)
+        self.assertEqual(respuesta.medio, "fuegos")
+
+
 class TestPermisoYEsperas(unittest.TestCase):
 
     def test_un_comando_activo_responde_y_anota_el_uso(self):

@@ -15,7 +15,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos
-from guyrapu.interaction import comandos_guardados, estilo_elegido
+from guyrapu.interaction import comandos_guardados, estilo_elegido, medios_guardados
 from guyrapu.interaction.texto import normalizar
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import formulario, paleta, tecla_escape
@@ -38,6 +38,10 @@ def _permisos():
     return [_("Todos"), _("Solo moderadores"), _("Una lista de nombres")]
 
 
+def _medios():
+    return medios_guardados.cargar(paths.medios())
+
+
 def _nombre_invalido(nombre: str) -> bool:
     limpio = normalizar(nombre)
     return not limpio or limpio.isdecimal() or len(limpio.split()) > 1
@@ -56,6 +60,7 @@ class DialogoComando(wx.Dialog):
         self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
         self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
         self._estilos = estilos_aviso.todos(self._usuario)
+        self._medios = _medios()
         self._crear_controles(datos)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Fit()
@@ -77,6 +82,7 @@ class DialogoComando(wx.Dialog):
         formulario.agregar_fila(vs, rotulo, self.txt_respuesta)
         self.ayuda = wx.StaticText(panel, label=_(AYUDA_VARIABLES))
         formulario.agregar_nota(vs, self.ayuda)
+        self._crear_medio(panel, vs)
         rotulo = fila_label(panel, _("&Mostrar en:"))
         self.cho_destino = wx.Choice(
             panel, choices=_destinos(),
@@ -96,6 +102,31 @@ class DialogoComando(wx.Dialog):
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)
+
+    def _crear_medio(self, panel, vs):
+        rotulo = fila_label(panel, _("Me&dio:"))
+        self.cho_medio = wx.Choice(
+            panel, choices=[_("Ninguno")] + self._nombres_de_medios(),
+            name=nombre_de_etiqueta(_("Me&dio:")))
+        nombre_accesible(self.cho_medio, self.cho_medio.GetName())
+        formulario.agregar_fila(vs, rotulo, self.cho_medio)
+
+    def _nombres_de_medios(self):
+        return [str(medio.get("nombre", "")) for medio in self._medios]
+
+    def _elegir_medio(self, nombre):
+        nombres = self._nombres_de_medios()
+        try:
+            indice = nombres.index(nombre) + 1
+        except ValueError:
+            indice = 0
+        self.cho_medio.SetSelection(indice)
+
+    def _medio_elegido(self):
+        indice = self.cho_medio.GetSelection()
+        if indice <= 0:
+            return ""
+        return self._nombres_de_medios()[indice - 1]
 
     def _crear_aspecto(self, panel, vs):
         for rotulo_texto, atributo, limites in (
@@ -147,6 +178,7 @@ class DialogoComando(wx.Dialog):
         self.txt_palabra.SetValue(comando.nombre)
         self.txt_alias.SetValue(", ".join(comando.alias))
         self.txt_respuesta.SetValue(comando.respuesta)
+        self._elegir_medio(comando.medio)
         self.cho_destino.SetSelection(comandos.DESTINOS.index(comando.destino))
         self.cho_permiso.SetSelection(comandos.PERMISOS.index(comando.permiso))
         self.txt_nombres.SetValue(", ".join(comando.nombres))
@@ -169,6 +201,7 @@ class DialogoComando(wx.Dialog):
             nombre=self.txt_palabra.GetValue(),
             alias=comandos.separar_alias(self.txt_alias.GetValue()),
             respuesta=self.txt_respuesta.GetValue(),
+            medio=self._medio_elegido(),
             destino=comandos.DESTINOS[self.cho_destino.GetSelection()],
             permiso=comandos.PERMISOS[self.cho_permiso.GetSelection()],
             nombres=comandos.separar_nombres(self.txt_nombres.GetValue()),

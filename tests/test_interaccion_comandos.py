@@ -183,6 +183,7 @@ class TestCampos(unittest.TestCase):
 
     def test_los_campos_nuevos_tienen_su_valor_de_fabrica(self):
         comando = comandos.Comando("hola", (), "Hola")
+        self.assertEqual(comando.medio, "")
         self.assertEqual(comando.estilo, "")
         self.assertEqual(comando.segundos, 8)
         self.assertEqual(comando.destino, "video")
@@ -285,8 +286,13 @@ class TestValidar(unittest.TestCase):
             [self._comando(nombre="saludo", alias=("hi",))]))
 
     def test_respuesta_vacia(self):
-        self.assertTrue(comandos.validar(
-            self._comando(respuesta="   "), []))
+        error = comandos.validar(self._comando(respuesta="   "), [])
+        self.assertEqual(error,
+                         "El comando necesita una respuesta o un medio.")
+
+    def test_con_medio_y_sin_respuesta_se_guarda(self):
+        comando = comandos.Comando("hola", (), "", medio="fuegos")
+        self.assertEqual("", comandos.validar(comando, []))
 
     def test_un_nombre_con_el_signo_es_valido(self):
         self.assertEqual("", comandos.validar(

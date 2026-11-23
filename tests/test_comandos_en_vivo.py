@@ -10,16 +10,18 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_TEXTO
-from guyrapu.interaction import comandos_guardados, filtro_publico
+from guyrapu.interaction import (
+    comandos_guardados, filtro_publico, medios_guardados)
 from guyrapu.ui import chat_vivo, comandos_en_vivo, encuesta_en_vivo
 from guyrapu.ui import gui, gui_envio_chat, preguntas_en_vivo
+from guyrapu.ui.capa_video import CapaVideo
 from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
 
 
 def _datos(nombre="discord", respuesta="Hola", destino="video", **cambios):
     datos = {
-        "nombre": nombre, "alias": [], "respuesta": respuesta,
+        "nombre": nombre, "alias": [], "respuesta": respuesta, "medio": "",
         "destino": destino, "permiso": "todos", "nombres": [],
         "espera_general": 5.0, "espera_persona": 30.0, "activo": True,
         "estilo": "clasico", "segundos": 8,
@@ -53,6 +55,22 @@ class _Frame:
         return self._sesion_api
 
 
+class _CapaQueGuardaPiezas:
+    """Usa el armado real de la capa sin crear ventanas."""
+
+    def __init__(self):
+        self.piezas = []
+        self._en_cola = 0
+
+    def agregar_comando(self, respuesta, medio=None):
+        return CapaVideo.agregar_comando(self, respuesta, medio)
+
+    def _agregar(self, pieza):
+        self.piezas.append(pieza)
+        self._en_cola += 1
+        return True
+
+
 class Base(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -72,6 +90,18 @@ class Base(unittest.TestCase):
 
     def _guardar(self, *comandos):
         comandos_guardados.guardar(paths.comandos(), list(comandos))
+
+    def _guardar_medios(self, *medios):
+        medios_guardados.guardar(paths.medios(), list(medios))
+        carpeta = paths.carpeta_medios()
+        carpeta.mkdir(parents=True, exist_ok=True)
+        for medio in medios:
+            (carpeta / medio["archivo"]).write_bytes(b"x")
+
+    def _capa_con_piezas(self):
+        capa = _CapaQueGuardaPiezas()
+        self.frame._capa_video = capa
+        return capa
 
     def _encolar(self, texto, plataforma="youtube", autor="Ana"):
         with mock.patch.object(chat_vivo.wx, "CallLater",
@@ -114,6 +144,58 @@ class TestRespuestaEnElChat(Base):
             self._encolar("!discord")
         self.assertEqual(enviado, [("LCID", "Sígueme, Ana (1)")])
         self.frame._capa_video.agregar_comando.assert_not_called()
+
+
+class TestMedioDelComando(Base):
+
+    def _fuegos(self):
+        return {"nombre": "fuegos", "tipo": "video", "archivo": "fuegos.mp4",
+                "duracion": 12, "ganancia_db": -6.0}
+
+    def test_un_comando_con_medio_pone_la_pieza_con_el_medio_y_la_duracion(self):
+        self._guardar_medios(self._fuegos())
+        self._guardar(_datos(medio="fuegos"))
+        capa = self._capa_con_piezas()
+        self._encolar("!discord")
+        self.assertEqual(len(capa.piezas), 1)
+        pieza = capa.piezas[0]
+        self.assertEqual((pieza.tipo, pieza.texto, pieza.segundos),
+                         ("comando", "Hola", 12))
+        self.assertEqual(pieza.datos["medio"], {
+            "ruta": str(paths.carpeta_medios() / "fuegos.mp4"),
+            "tipo": "video", "duracion": 12, "ganancia_db": -6.0,
+        })
+
+    def test_con_mostrar_en_chat_la_pieza_lleva_el_medio_y_texto_vacio_y_al_chat_la_respuesta(self):
+        self._guardar_medios(self._fuegos())
+        self._guardar(_datos(medio="fuegos", destino="chat"))
+        capa = self._capa_con_piezas()
+        enviado = []
+        cliente = mock.Mock()
+        cliente.token_actualizado.return_value = None
+        cliente.enviar_mensaje_live.side_effect = (
+            lambda lcid, texto: enviado.append((lcid, texto)))
+        with mock.patch.object(gui, "diagnostico") as diagnostico, \
+                mock.patch.object(gui, "youtube_api") as api, \
+                mock.patch.object(gui, "credenciales"):
+            api.ClienteYouTube.return_value = cliente
+            api.sesion_caducada.return_value = False
+            diagnostico.crear_hilo.side_effect = _hilo_inmediato
+            self._encolar("!discord")
+        self.assertEqual(len(capa.piezas), 1)
+        pieza = capa.piezas[0]
+        self.assertEqual((pieza.texto, pieza.segundos), ("", 12))
+        self.assertIn("medio", pieza.datos)
+        self.assertEqual(enviado, [("LCID", "Hola")])
+
+    def test_un_medio_que_ya_no_esta_deja_la_respuesta_como_sin_medio(self):
+        self._guardar(_datos(medio="fuegos"))
+        capa = self._capa_con_piezas()
+        self._encolar("!discord")
+        pieza = capa.piezas[0]
+        self.assertEqual((pieza.tipo, pieza.texto, pieza.segundos),
+                         ("comando", "Hola", 8))
+        self.assertNotIn("medio", pieza.datos)
 
 
 class TestFrenoDeCuota(Base):

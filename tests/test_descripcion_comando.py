@@ -34,6 +34,12 @@ class TestFila(unittest.TestCase):
             "!sorteo, en el vídeo y en el chat, una lista de nombres: Ana, Beto")
 
 
+    def test_dice_el_medio_despues_de_donde_se_muestra(self):
+        comando = comandos.Comando("grito", (), "Hola", medio="fuegos")
+        self.assertEqual(descripcion_comando.fila(comando),
+                         "!grito, en el vídeo, con el medio fuegos, todos")
+
+
 class TestEscuchar(unittest.TestCase):
 
     def test_cuenta_el_comando_entero_con_datos_de_ejemplo(self):
@@ -70,6 +76,18 @@ class TestEscuchar(unittest.TestCase):
             "Puede usarlo: una lista de nombres: Ana, Beto. "
             "Espera 5 segundos entre usos y 30 segundos por persona. "
             "Pausado.")
+
+
+    def test_nombra_el_medio_despues_de_la_respuesta(self):
+        comando = comandos.Comando("grito", (), "Hola", medio="fuegos")
+        texto = descripcion_comando.escuchar(comando, "Clásico")
+        self.assertIn("Responde: Hola. Muestra el medio fuegos.", texto)
+
+    def test_sin_respuesta_no_dice_responde_y_si_dice_el_medio(self):
+        comando = comandos.Comando("grito", (), "", medio="fuegos")
+        texto = descripcion_comando.escuchar(comando, "Clásico")
+        self.assertNotIn("Responde:", texto)
+        self.assertIn("Muestra el medio fuegos.", texto)
 
 
 if __name__ == "__main__":

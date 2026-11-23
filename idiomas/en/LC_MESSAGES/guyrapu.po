@@ -3525,8 +3525,8 @@ msgstr "The command {nombre} already exists."
 
 #. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
-msgid "El comando necesita una respuesta."
-msgstr "The command needs a response."
+msgid "El comando necesita una respuesta o un medio."
+msgstr "The command needs a response or a media item."
 
 #. Traductores: validación de comandos del chat (error). {variable} es la
 #. variable desconocida y las demás son las que se pueden usar.
@@ -3581,9 +3581,24 @@ msgid "todos"
 msgstr "everyone"
 
 #: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "con el medio {medio}"
+msgstr "with the media item {medio}"
+
+#: guyrapu/interaction/descripcion_comando.py
 #: guyrapu/interaction/descripcion_disparador.py
 msgid "pausado"
 msgstr "paused"
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Responde: {respuesta}."
+msgstr "It replies: {respuesta}."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Muestra el medio {medio}."
+msgstr "Shows the media item {medio}."
 
 #: guyrapu/interaction/descripcion_comando.py
 #, python-brace-format
@@ -3594,11 +3609,6 @@ msgstr "Command {palabra}, with aliases {alias}."
 #, python-brace-format
 msgid "Comando {palabra}."
 msgstr "Command {palabra}."
-
-#: guyrapu/interaction/descripcion_comando.py
-#, python-brace-format
-msgid "Responde: {respuesta}."
-msgstr "It replies: {respuesta}."
 
 #: guyrapu/interaction/descripcion_comando.py
 #, python-brace-format
@@ -9030,6 +9040,15 @@ msgstr "&Permission:"
 msgid "&Nombres:"
 msgstr "&Names:"
 
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
+msgid "Me&dio:"
+msgstr "Me&dia item:"
+
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
+#: guyrapu/ui/meta_cuadro.py
+msgid "Ninguno"
+msgstr "None"
+
 #: guyrapu/ui/comando_cuadro.py
 msgid "Espera entre &usos (segundos):"
 msgstr "Wait between &uses (seconds):"
@@ -10247,14 +10266,6 @@ msgid ""
 "Déjalo vacío para cualquier regalo. Escribe el nombre tal como lo lee "
 "Guyrapu."
 msgstr "Leave it empty for any gift. Enter the name exactly as Guyrapu reads it."
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Me&dio:"
-msgstr "Me&dia item:"
-
-#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/meta_cuadro.py
-msgid "Ninguno"
-msgstr "None"
 
 #: guyrapu/ui/disparador_cuadro.py
 msgid "&Texto de la tarjeta:"

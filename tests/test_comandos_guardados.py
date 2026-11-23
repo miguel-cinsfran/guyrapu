@@ -14,7 +14,7 @@ from guyrapu.interaction import comandos, comandos_guardados
 def _datos(**cambios):
     datos = {
         "nombre": "discord", "alias": ["dc"], "respuesta": "Hola {usuario}",
-        "destino": "chat", "permiso": "lista", "nombres": ["Ana"],
+        "medio": "", "destino": "chat", "permiso": "lista", "nombres": ["Ana"],
         "espera_general": 5.0, "espera_persona": 30.0, "activo": True,
         "estilo": "clasico", "segundos": 8, "lista": False, "en_lista": True,
     }
@@ -44,6 +44,7 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(comando.segundos, 8)
         self.assertFalse(comando.lista)
         self.assertTrue(comando.en_lista)
+        self.assertEqual(comando.medio, "")
 
     def test_los_campos_nuevos_se_convierten_con_tolerancia(self):
         comando = comandos_guardados.a_comando({
@@ -95,6 +96,19 @@ class TestArchivo(unittest.TestCase):
         self.ruta = Path(self.tmp.name) / "comandos.json"
         idioma.instalar("es")
         self.addCleanup(idioma._reiniciar)
+
+    def test_el_medio_se_guarda_y_se_lee_con_el_comando(self):
+        comandos_guardados.guardar(self.ruta, [
+            comandos.Comando("grito", (), "", medio="fuegos")])
+        cargado = comandos_guardados.cargar(self.ruta)[-1]
+        self.assertEqual(cargado["medio"], "fuegos")
+
+    def test_un_comando_guardado_sin_el_campo_carga_con_el_medio_vacio(self):
+        anterior = _datos()
+        anterior.pop("medio")
+        self.ruta.write_text(json.dumps([anterior]), encoding="utf-8")
+        cargado = comandos_guardados.cargar(self.ruta)[-1]
+        self.assertEqual(cargado["medio"], "")
 
     def test_ida_y_vuelta_por_el_archivo(self):
         comandos_guardados.guardar(self.ruta, [_datos()])

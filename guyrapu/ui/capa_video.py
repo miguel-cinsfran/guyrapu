@@ -15,7 +15,7 @@ import wx
 
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
-from guyrapu.interaction import ajustes_interaccion
+from guyrapu.interaction import ajustes_interaccion, medio_en_video
 from guyrapu.interaction.cola_pantalla import ColaPantalla, Pieza
 from guyrapu.obs import animador as animador_obs
 from guyrapu.obs import escena_guyrapu, estilos_aviso, medio_obs, obs_cliente
@@ -74,13 +74,16 @@ class CapaVideo:
         )
         return self._agregar(pieza)
 
-    def agregar_comando(self, respuesta):
+    def agregar_comando(self, respuesta, medio=None):
         """Suma la respuesta de un comando a la cola como pieza propia."""
+        datos, segundos = medio_en_video.con_medio(
+            {"estilo": respuesta.estilo, "nombre": respuesta.nombre},
+            respuesta.segundos, medio)
         pieza = Pieza(
             tipo="comando",
-            texto=respuesta.texto,
-            segundos=respuesta.segundos,
-            datos={"estilo": respuesta.estilo, "nombre": respuesta.nombre},
+            texto=respuesta.texto if respuesta.al_video else "",
+            segundos=segundos,
+            datos=datos,
         )
         return self._agregar(pieza)
 

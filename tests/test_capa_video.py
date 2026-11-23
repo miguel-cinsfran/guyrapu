@@ -265,7 +265,7 @@ class TestRespuestaDeComando(Base):
     def _respuesta(self, estilo="banda", segundos=5):
         return types.SimpleNamespace(
             texto="Nuestro Discord: Ana", estilo=estilo,
-            segundos=segundos, nombre="discord")
+            segundos=segundos, nombre="discord", al_video=True)
 
     def test_agrega_una_pieza_de_comando_con_su_estilo_y_segundos(self):
         self.assertTrue(self.capa.agregar_comando(self._respuesta()))
@@ -274,6 +274,14 @@ class TestRespuestaDeComando(Base):
                          ("comando", "Nuestro Discord: Ana", 5))
         self.assertEqual(pieza.datos,
                          {"estilo": "banda", "nombre": "discord"})
+
+    def test_el_medio_va_en_la_misma_pieza_y_dura_lo_que_el_archivo(self):
+        medio = {"ruta": "fuegos.mp4", "tipo": "video", "duracion": 12,
+                 "ganancia_db": None}
+        self.capa.agregar_comando(self._respuesta(segundos=5), medio)
+        pieza = self.capa.cola.ordenes(0)[0].pieza
+        self.assertEqual(pieza.segundos, 12)
+        self.assertEqual(pieza.datos["medio"], medio)
 
     def test_una_pieza_con_estilo_vacio_usa_el_predeterminado_de_comandos(self):
         with tempfile.TemporaryDirectory() as carpeta, \

@@ -34,6 +34,7 @@ class Respuesta:
     segundos: int
     nombre: str
     freno_cuota: bool = False
+    medio: str = ""
 
 
 class Atencion:
@@ -100,7 +101,8 @@ class Atencion:
         if al_chat:
             self._recordar(texto, ahora)
         return Respuesta(texto, al_video, al_chat, comando.estilo,
-                         comando.segundos, comando.nombre, freno)
+                         comando.segundos, comando.nombre, freno,
+                         comando.medio)
 
     def _destinos(self, destino, evento, ahora, chat_disponible,
                   cuota_baja):
