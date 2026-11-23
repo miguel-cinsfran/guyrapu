@@ -355,11 +355,13 @@ class ControladorChat:
         self._pendientes.clear()
 
     def vaciar(self) -> None:
-        """Tira lo pendiente y borra el modelo y la participación."""
+        """Deja el chat en limpio, con la línea de vacío como única fila."""
         self.descartar()
         self.modelo.limpiar()
         self.participacion.limpiar()
         self._traducciones.clear()
+        self.lista.Clear()
+        poner_linea_vacia(self.lista)
 
     def reconstruir(self) -> None:
         # Que lo que acaba de llegar (aún en cola, sin pasar por el modelo) no

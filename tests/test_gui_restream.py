@@ -732,7 +732,7 @@ class PruebaVentanaRestream(unittest.TestCase):
         self.assertEqual(1, pagina.lista.GetCount())
         self.assertEqual(
             "No hay destinos. Aquí aparecen los canales de tu cuenta de "
-            "Restream. Usa Agregar destino… para sumar uno.",
+            "Restream. Usa Agregar destino… para agregar uno.",
             pagina.lista.GetString(0))
 
     def test_p6_espacio_activa_o_desactiva(self):
@@ -1584,9 +1584,9 @@ class PruebaPaginaEventos(unittest.TestCase):
 
         self.assertEqual(1, pagina.lista.GetCount())
         self.assertEqual(
-            "No hay eventos. Aquí aparecen los directos programados de tu "
-            "cuenta de Restream. No se pudieron leer. Usa Actualizar para "
-            "reintentar.",
+            "No se pudieron leer los eventos de Restream. Aquí aparecen los "
+            "directos programados de tu cuenta. Usa Actualizar para volver a "
+            "intentarlo.",
             pagina.lista.GetString(0))
 
     def test_p7_un_fallo_de_red_suena_y_se_anuncia(self):

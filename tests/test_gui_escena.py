@@ -38,7 +38,7 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 
 TEXTO_VACIO_FUENTES = (
     "No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
-    "elegida en OBS. Usa Agregar fuente… para sumar una.")
+    "elegida en OBS. Usa Agregar fuente… para agregar una.")
 
 
 def _items_del_menu(menu):

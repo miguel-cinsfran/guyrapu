@@ -803,8 +803,6 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         # lo hace, pero así garantizamos que nunca quede nada del vídeo anterior.
         self.chat_vivo.vaciar()
         self._sc_totales.clear()
-        try:    self.lb_chat.Clear()
-        except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)
         es_live = deteccion.tiene_chat_en_vivo(tipo)
         autoplay = bool(self._config.get("autoplay_reproductor", True))
         # Comentarios: autocargar solo cuando no hay chat en vivo (en un directo
@@ -844,8 +842,6 @@ class VentanaPrincipal(chat_adicional.MixinChatAdicional, wx.Frame):
         if not reconexion:
             self.chat_vivo.vaciar()
             self._sc_totales.clear()
-            try:    self.lb_chat.Clear()
-            except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)
         try:    self._com_panel.mostrar_no_disponible(
                     _("Los comentarios no están disponibles en los directos de TikTok."))
         except Exception as error: logger.debug("no se pudo mostrar el aviso: %s", error)

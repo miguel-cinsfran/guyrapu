@@ -28,7 +28,7 @@ SIN_CUENTA = N_(
 # Traductores: fila sin destinos; «Agregar destino…» es el botón de la página.
 VACIO = N_(
     "No hay destinos. Aquí aparecen los canales de tu cuenta de Restream. "
-    "Usa Agregar destino… para sumar uno.")
+    "Usa Agregar destino… para agregar uno.")
 
 # Página donde Restream agrega los canales de la cuenta.
 URL_DESTINOS = "https://app.restream.io/channels"

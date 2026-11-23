@@ -17309,15 +17309,6 @@ msgstr ""
 "There are no scenes. The OBS scenes and which one is current appear here. "
 "Connect OBS or use Add scene… to create one."
 
-#. Traductores: fila de una escena sin fuentes; «Agregar fuente…» es el botón.
-#: guyrapu/ui/escena_pagina_fuentes.py
-msgid ""
-"No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
-"elegida en OBS. Usa Agregar fuente… para sumar una."
-msgstr ""
-"There are no sources in this scene. The sources of the selected scene in "
-"OBS appear here. Use Add source… to add one."
-
 #. Traductores: fila de la lista sin grabaciones ni clips guardados.
 #: guyrapu/ui/gui_grabaciones.py
 msgid ""
@@ -17436,15 +17427,6 @@ msgstr ""
 "There is no Restream account. The channels connected to your account appear"
 " here. Connect your account in the Account tab to see them."
 
-#. Traductores: fila sin destinos; «Agregar destino…» es el botón de la página.
-#: guyrapu/ui/restream_pagina_destinos.py
-msgid ""
-"No hay destinos. Aquí aparecen los canales de tu cuenta de Restream. Usa "
-"Agregar destino… para sumar uno."
-msgstr ""
-"There are no destinations. The channels of your Restream account appear "
-"here. Use Add destination… to add one."
-
 #. Traductores: fila sin cuenta de Restream; «Cuenta» es el nombre de la
 #. pestaña.
 #: guyrapu/ui/restream_pagina_eventos.py
@@ -17464,16 +17446,6 @@ msgstr ""
 "There are no events. The scheduled live streams in your Restream account "
 "appear here. Use Refresh to read them again."
 
-#. Traductores: fila cuando falla la lectura; «Actualizar» es el botón de la
-#. página.
-#: guyrapu/ui/restream_pagina_eventos.py
-msgid ""
-"No hay eventos. Aquí aparecen los directos programados de tu cuenta de "
-"Restream. No se pudieron leer. Usa Actualizar para reintentar."
-msgstr ""
-"There are no events. The scheduled live streams in your Restream account "
-"appear here. They could not be read. Use Refresh to retry."
-
 #. Traductores: fila sin perfiles de Restream; «Nuevo perfil…» es el botón.
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid ""
@@ -17482,4 +17454,32 @@ msgid ""
 msgstr ""
 "There are no Restream profiles. The live templates saved on this computer "
 "appear here. Use New profile… to create one."
+
+#. Traductores: fila de una escena sin fuentes; «Agregar fuente…» es el botón.
+#: guyrapu/ui/escena_pagina_fuentes.py
+msgid ""
+"No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
+"elegida en OBS. Usa Agregar fuente… para agregar una."
+msgstr ""
+"There are no sources in this scene. The sources of the selected scene in "
+"OBS appear here. Use Add source… to add one."
+
+#. Traductores: fila sin destinos; «Agregar destino…» es el botón de la página.
+#: guyrapu/ui/restream_pagina_destinos.py
+msgid ""
+"No hay destinos. Aquí aparecen los canales de tu cuenta de Restream. Usa "
+"Agregar destino… para agregar uno."
+msgstr ""
+"There are no destinations. The channels of your Restream account appear "
+"here. Use Add destination… to add one."
+
+#. Traductores: fila cuando falla la lectura; «Actualizar» es el botón de la
+#. página.
+#: guyrapu/ui/restream_pagina_eventos.py
+msgid ""
+"No se pudieron leer los eventos de Restream. Aquí aparecen los directos "
+"programados de tu cuenta. Usa Actualizar para volver a intentarlo."
+msgstr ""
+"The Restream events could not be read. The scheduled live streams in your "
+"account appear here. Use Refresh to try again."
 

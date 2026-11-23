@@ -19,7 +19,7 @@ from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 # Traductores: fila de una escena sin fuentes; «Agregar fuente…» es el botón.
 VACIO = N_(
     "No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
-    "elegida en OBS. Usa Agregar fuente… para sumar una.")
+    "elegida en OBS. Usa Agregar fuente… para agregar una.")
 
 
 def _boton_obs(pagina, etiqueta):

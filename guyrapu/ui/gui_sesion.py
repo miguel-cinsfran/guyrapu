@@ -154,8 +154,6 @@ def reiniciar_datos_sesion(ventana) -> None:
     # de la sesión que se cierra; no debe colarse en la siguiente).
     guardar_resumen_sesion(ventana)
     ventana.chat_vivo.vaciar()
-    try:    ventana.lb_chat.Clear()
-    except Exception as error: logger.debug("no se pudo limpiar el chat: %s", error)
     ventana._sc_totales.clear()
     # Panel de información del vídeo.
     ventana._metadatos = {}

@@ -981,7 +981,11 @@ class TestConfigurarTiktokReconexionVentana(unittest.TestCase):
         frame.configurar_tiktok("manu", self.URL_A)
         gui.wx.Yield()
         frame._rep_panel.set_flujo.assert_called_once_with(self.URL_A, autoplay=True)
-        self.assertEqual(frame.lb_chat.GetCount(), 0)
+        self.assertEqual(frame.lb_chat.GetCount(), 1)
+        self.assertEqual(
+            frame.lb_chat.GetString(0),
+            "No hay mensajes en el chat. Aquí aparecen los mensajes y avisos "
+            "del directo a medida que llegan. Conecta un directo para verlos.")
         self.assertEqual(frame.chat_vivo.modelo.todos, [])
         self.assertEqual(frame._sc_totales, {})
         self.assertEqual(frame.nb.GetSelection(), gui.PAG_CHAT)
@@ -1030,7 +1034,11 @@ class TestConfigurarTiktokReconexionVentana(unittest.TestCase):
         frame.configurar_tiktok("otro", self.URL_C)
         gui.wx.Yield()
         frame._rep_panel.set_flujo.assert_called_once_with(self.URL_C, autoplay=True)
-        self.assertEqual(frame.lb_chat.GetCount(), 0)
+        self.assertEqual(frame.lb_chat.GetCount(), 1)
+        self.assertEqual(
+            frame.lb_chat.GetString(0),
+            "No hay mensajes en el chat. Aquí aparecen los mensajes y avisos "
+            "del directo a medida que llegan. Conecta un directo para verlos.")
         self.assertEqual(frame.nb.GetSelection(), gui.PAG_CHAT)
         self.assertEqual(frame.sesion.usuario_tiktok, "otro")
 

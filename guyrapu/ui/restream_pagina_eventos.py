@@ -37,8 +37,8 @@ VACIO = N_(
     "Restream. Usa Actualizar para volver a leerlos.")
 # Traductores: fila cuando falla la lectura; «Actualizar» es el botón de la página.
 FALLO = N_(
-    "No hay eventos. Aquí aparecen los directos programados de tu cuenta de "
-    "Restream. No se pudieron leer. Usa Actualizar para reintentar.")
+    "No se pudieron leer los eventos de Restream. Aquí aparecen los directos "
+    "programados de tu cuenta. Usa Actualizar para volver a intentarlo.")
 
 TIPOS_POR_INDICE = (
     eventos_restream.TIPO_PROXIMOS,

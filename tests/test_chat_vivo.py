@@ -234,6 +234,14 @@ class TestControladorChat(unittest.TestCase):
             control._procesar(_registro(texto="hola"))
         self.assertTrue(control.participacion.vacia())
 
+    def test_vaciar_deja_solo_la_linea_de_vacio(self):
+        lista = _ListaFilas()
+        control = _controlador(lista=lista, filtro=None)
+        control._procesar(_registro(texto="hola"))
+        control._procesar(_registro(texto="chau"))
+        control.vaciar()
+        self.assertEqual(lista.filas, [_(chat_vivo.VACIO_CHAT)])
+
     def test_vaciar_limpia_participacion_y_modelo(self):
         control = _controlador()
         with mock.patch.object(chat_vivo._snd, "reproducir"):
