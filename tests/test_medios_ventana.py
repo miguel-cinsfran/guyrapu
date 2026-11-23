@@ -87,9 +87,9 @@ class TestPagina(BaseVentana):
         self.assertEqual(panel.lista.GetString(0),
                          "No hay medios. Aquí aparecen las imágenes, los GIF, "
                          "los vídeos y los sonidos de la carpeta Medios, junto "
-                         "a la aplicación. Sirven para mostrarlos o hacerlos "
-                         "sonar en el vídeo. Copia archivos en esa carpeta o "
-                         "usa Agregar.")
+                         "a la aplicación. Los comandos y los disparadores "
+                         "los muestran o los hacen sonar en el vídeo. Copia "
+                         "archivos en esa carpeta o usa Agregar.")
 
     def test_la_fila_dice_nombre_tipo_y_duracion(self):
         panel = self._panel([_datos()])

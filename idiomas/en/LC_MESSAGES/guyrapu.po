@@ -17231,16 +17231,6 @@ msgid "Sin título"
 msgstr "Untitled"
 
 #: guyrapu/ui/medios_ventana.py
-msgid ""
-"No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los "
-"sonidos de la carpeta Medios, junto a la aplicación. Sirven para mostrarlos"
-" o hacerlos sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar."
-msgstr ""
-"There are no media items. Images, GIFs, videos and sounds from the Media "
-"folder, next to the application, appear here. You can show them or play "
-"them in the video. Copy files into that folder or use Add."
-
-#: guyrapu/ui/medios_ventana.py
 msgid "Abrir carpeta"
 msgstr "Open folder"
 
@@ -17267,4 +17257,15 @@ msgid ""
 msgstr ""
 "Do you want to delete the media item «{nombre}»? Its file in the Media "
 "folder will also be deleted."
+
+#: guyrapu/ui/medios_ventana.py
+msgid ""
+"No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los "
+"sonidos de la carpeta Medios, junto a la aplicación. Los comandos y los "
+"disparadores los muestran o los hacen sonar en el vídeo. Copia archivos en "
+"esa carpeta o usa Agregar."
+msgstr ""
+"There are no media items. Images, GIFs, videos and sounds from the Media "
+"folder, next to the application, appear here. Commands and triggers show "
+"them or play them in the video. Copy files into that folder or use Add."
 

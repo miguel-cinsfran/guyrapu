@@ -28,9 +28,9 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 from guyrapu.voice import sound_player
 
 VACIO = N_(
-    "No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y "
-    "los sonidos de la carpeta Medios, junto a la aplicación. Sirven para "
-    "mostrarlos o hacerlos sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.")
+    "No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta "
+    "Medios, junto a la aplicación. Los comandos y los disparadores los muestran o los hacen "
+    "sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 PLAZO_DURACION = 1.4
 
