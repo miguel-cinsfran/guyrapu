@@ -126,3 +126,25 @@ class ManualDelPaqueteTest(unittest.TestCase):
         self.assertIn("User manual", pagina)
         self.assertNotIn("docs/pt/MANUAL.html", pagina)
         self.assertIn("Los enlaces valen desde la raíz del paquete", pagina)
+
+
+class VersionEnDocumentosTest(unittest.TestCase):
+
+    def test_los_documentos_anoncian_la_version_de_la_aplicacion(self):
+        from guyrapu.core import config
+        from guyrapu.core.version_legible import version_legible
+
+        legible = version_legible(config.APP_VERSION)
+        raiz = Path(__file__).resolve().parent.parent
+        for idioma in ("es", "en"):
+            manual = (raiz / "docs" / idioma / "MANUAL.md").read_text(
+                encoding="utf-8")
+            changelog = (raiz / "docs" / idioma / "CHANGELOG.md").read_text(
+                encoding="utf-8")
+            with self.subTest(idioma=idioma):
+                linea = next(linea for linea in manual.splitlines()
+                             if linea.startswith(("Versión ", "Version ")))
+                self.assertIn(legible, linea)
+                titulo = next(linea for linea in changelog.splitlines()
+                              if linea.startswith("## "))
+                self.assertIn(legible, titulo)

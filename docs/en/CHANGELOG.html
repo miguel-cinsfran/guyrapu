@@ -216,15 +216,53 @@
   </style>
 </head>
 <body>
-<!-- original: es/CHANGELOG.md 4171270767e4fa0ba3cac78a577bca3de903f1cc -->
+<!-- original: es/CHANGELOG.md 5b2c469037c4f27bc171034cfe89606d5c5554b7 -->
 
 <h1 id="whats-new-in-guyrapu">What's new in Guyrapu</h1>
 <p>This is a translation of the Spanish original, made with artificial
 intelligence. If you find an error, report it at <a
 href="https://github.com/miguel-cinsfran/guyrapu/issues">https://github.com/miguel-cinsfran/guyrapu/issues</a>.
 See the <a href="../es/CHANGELOG.html">original in Spanish</a>.</p>
-<h2 id="300-beta-6-november-2026">3.0.0 beta 6, November 2026</h2>
+<h2 id="300-beta-7-november-2026">3.0.0 beta 7, November 2026</h2>
 <h3 id="interaction">Interaction</h3>
+<ul>
+<li>The pages are split by when something comes out: <em>Commands</em>
+for what the audience types, <em>Alerts</em> for what happens in the
+live stream and <em>Scheduled messages</em> for what comes out on its
+own every so often. Then come <em>Polls</em>, <em>Questions</em> and
+<em>Goals</em>, and last <em>Media</em>, <em>Styles</em> and <em>Blocked
+words</em>.</li>
+<li><em>Triggers</em> is now <em>Alerts</em>. What used to answer
+commands, words or shortcuts moved only to <em>Commands</em>, and alerts
+keep the events of the live stream.</li>
+<li>Commands accept the word at the beginning or anywhere in the
+message, aliases, permissions, cooldowns and a
+<code>Ctrl+Alt+Shift</code> shortcut with a number from 1 to 9,
+including <em>Shortcut only</em>.</li>
+<li>Commands, alerts and scheduled messages share the <em>Content</em>
+section, with <em>Text</em>, <em>Show in</em>, <em>Media item</em>,
+<em>Seconds on screen</em> and <em>Style</em>. To save you need text or
+a media item.</li>
+<li>Commands and scheduled messages can show a media item from the Media
+folder. Alerts can also write in the chat.</li>
+<li><em>Test without a live stream</em> says in <em>Results</em> what
+responded to each send and, if nothing responded, the reason.</li>
+</ul>
+<h3 id="media">Media</h3>
+<ul>
+<li>Media live in the Media folder, next to the application, with the
+<em>Open folder</em> button. Images, GIFs, videos and sounds are
+supported. Media from earlier versions moves on its own.</li>
+</ul>
+<h3 id="accessibility">Accessibility</h3>
+<ul>
+<li><code>F1</code> and the <em>Help</em> button open the manual at the
+section of each Interaction page.</li>
+<li>Empty lists say what appears in them and how to add the first
+item.</li>
+</ul>
+<h2 id="300-beta-6-november-2026">3.0.0 beta 6, November 2026</h2>
+<h3 id="interaction-1">Interaction</h3>
 <ul>
 <li>The <em>Interaction</em> window brings scheduled messages, chat
 commands, polls, questions, triggers, goals, media, video styles and

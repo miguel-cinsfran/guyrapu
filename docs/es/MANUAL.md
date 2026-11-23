@@ -4,7 +4,7 @@ Guyrapu lee en voz alta el chat de los directos de YouTube y TikTok, y
 maneja OBS Studio y Restream desde el teclado. Está pensado para personas
 ciegas o con baja visión que transmiten, y se prueba con NVDA.
 
-Versión 3.0.0 beta 6 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
+Versión 3.0.0 beta 7 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
 
 ## Instalación
 
@@ -284,8 +284,9 @@ suena con ella:
   del canal* con `nuevo_miembro.wav`, *Nuevo seguidor del directo* con
   `seguir.wav`, *Alguien compartió el directo* con `compartir.wav`, *Cofre de
   regalos recibido* con `cofre.wav`, *Me gusta del directo* con `me_gusta.wav`,
-  *Regalo chico recibido* con `regalo_chico.wav`, *Regalo mediano recibido*
-  con `regalo_mediano.wav`, *Regalo grande recibido* con `regalo_grande.wav`,
+  *Regalo o Super Chat chico* con `regalo_chico.wav`, *Regalo o Super Chat
+  mediano* con `regalo_mediano.wav`, *Regalo o Super Chat grande* con
+  `regalo_grande.wav`,
   *Alguien entró al directo* con `entrada.wav`, *Encuesta abierta* con
   `encuesta.wav`, *Encuesta terminada* con `encuesta_fin.wav`, *Meta cumplida*
   con `meta.wav`, *Batalla iniciada* con `batalla.wav` y *Batalla terminada*
@@ -334,6 +335,10 @@ por ejemplo «40 segundos por detrás del directo», y en YouTube se puede
 retroceder hasta una hora. Si la conexión falla, Guyrapu reconecta en el
 mismo punto. Si el proceso que une el vídeo y el audio se cae, lo vuelve a
 abrir solo y sigue reproduciendo en vez de quedarse en silencio.
+
+Con el foco en el vídeo, las teclas del `0` al `9` llevan la posición al 0,
+10, 20 y así hasta el 90 % del vídeo, como en YouTube. Guyrapu anuncia la
+posición a la que se movió.
 
 *Reproducir solo el audio, sin imagen*, en *Preferencias*, categoría
 *Reproductor*, viene marcada: sin imagen, los saltos son casi inmediatos.
@@ -552,7 +557,7 @@ chat. *Ajuste*
 decide qué pasa si la proporción no coincide: *Ajustar* muestra la fuente
 entera, *Cubrir* recorta los bordes y *Automático* llena con la cámara y
 ajusta lo demás. *Guardar como…* guarda un diseño propio. En el menú de
-transformar una fuente, *Estirar al vídeo* la agranda para llenar el vídeo,
+transformar una fuente, *Ajustar al vídeo* la agranda para llenar el vídeo,
 como en OBS. En un lienzo
 vertical, *Dividida en dos* apila las fuentes arriba y abajo, y el chat en
 franja va abajo.
@@ -735,7 +740,7 @@ Los comandos están en el menú *OBS*:
   inicia la guía con pitidos, que suenan del lado hacia el que tienes que
   moverte, más agudos para subir y más graves para bajar. En el centro
   suena una confirmación.
-- *Avisar si el rostro sale del encuadre* avisa con un sonido cuando el
+- *Avisar si el rostro queda fuera del encuadre* avisa con un sonido cuando el
   rostro sale y con otro cuando vuelve.
 - *Mostrar u ocultar la cámara* oculta la cámara de la escena sin
   desactivar el dispositivo.
@@ -748,114 +753,197 @@ de la guía y si se invierten izquierda y derecha.
 La ventana *Interacción* reúne lo que el público ve y oye en el directo. Se
 abre con *Abrir Interacción…*, en el menú *Interacción*, o con
 `Ctrl+Mayús+A`, y vuelve a abrirse en la última página usada. Tiene una
-lista de páginas y, a la derecha, la lista y las acciones de la elegida. Las
-páginas son *Mensajes automáticos*, *Comandos*, *Encuestas*, *Preguntas*,
-*Disparadores*, *Metas*, *Medios*, *Estilos* y *Palabras bloqueadas*.
+lista de páginas a la izquierda y, a la derecha, la lista y las acciones de
+la página elegida.
 
-### <a id="mensajes-automaticos"></a>Mensajes automáticos
+Las páginas se reparten por cuándo sale algo. *Comandos* contiene lo que
+escribe el público, *Alertas* lo que pasa en el directo y *Mensajes
+automáticos* lo que sale solo cada tanto. Después vienen *Encuestas*,
+*Preguntas* y *Metas*, y al final *Medios*, *Estilos* y *Palabras
+bloqueadas*. Para abrir la ayuda de la página que tienes delante, pulsa
+`F1` o el botón *Ayuda*. Las listas vacías dicen qué aparece en ellas y
+cómo agregar el primer elemento.
 
-Los mensajes automáticos se envían al chat cada cierto tiempo, por ejemplo
-tus redes cada diez minutos. Cada mensaje tiene nombre y se elige si sale en
-el chat, en el vídeo o en los dos. Se pueden duplicar, ordenar, escuchar,
-exportar e importar. Los que eligen el vídeo entran animados en OBS, quedan
-sus segundos y salen uno por vez, y respetan la cantidad mínima de mensajes
-del chat entre uno y otro. `F2` dice qué hay en el vídeo. Funcionan en tu
-propio directo de YouTube con la sesión de Google iniciada. YouTube suele
-bloquear los enlaces: escribe el nombre de usuario en su lugar. Si YouTube
-devuelve un error, los mensajes se detienen y Guyrapu lo avisa una vez. La
-lista dice cuando está vacía, y `Supr` o su menú contextual eliminan el
-mensaje elegido.
+### <a id="contenido"></a>Contenido
+
+Los cuadros de comandos, alertas y mensajes automáticos comparten la
+sección *Contenido*. Tiene cinco campos en este orden: *Texto*, *Mostrar
+en*, *Medio*, *Segundos en pantalla* y *Estilo*. En *Texto* escribes lo que
+sale y puedes usar variables. *Mostrar en* elige *Vídeo*, *Chat* o *Chat y
+vídeo*. *Medio* elige un archivo de la carpeta Medios o *Ninguno*.
+*Segundos en pantalla* fija cuánto queda en el vídeo, y *Estilo* elige su
+aspecto. Para guardar hace falta un texto o un medio. Si solo va al chat,
+hace falta el texto y no puede superar los 200 caracteres.
 
 ### <a id="comandos"></a>Comandos
 
-Los comandos son los que el público puede usar en el chat. Se crean con su
-respuesta, dónde sale, quién puede usarlo y sus esperas. Cuando alguien
-escribe un comando, la respuesta sale en el vídeo y, si el comando lo pide,
-en el chat de YouTube. `F2` dice cuántos comandos respondió Guyrapu y cuál
-fue el último. *Pausar comandos*, en el menú *Interacción*, o
-`Ctrl+Alt+Mayús+C` desde cualquier programa, deja de contestar todos a la
-vez. La lista de comandos que pide el público se edita como uno más: su
-palabra, de fábrica `!commands`, y `!comandos` en español y portugués, su
-texto, dónde sale y su estilo, y cada comando elige si aparece en ella.
+Los comandos son lo que escribe el público en el chat. Para crear
+`!hola`, ve a *Comandos*, llega a *Agregar* con `Tab` y pulsa `Intro`. En
+*Palabra* escribe `!hola`, en *Texto* escribe `Hola, gracias por estar
+aquí` y en *Mostrar en* elige *Chat y vídeo*. Pulsa *Aceptar* y Guyrapu
+anuncia «Comando agregado». Cuando alguien escriba `!hola`, el público ve
+la tarjeta en el vídeo y el texto en el chat, y la voz lee el mensaje del
+chat. `F2` dice cuántos comandos respondió Guyrapu y cuál fue el último.
 
-### <a id="encuestas"></a>Encuestas
+Un comando también puede salir solo como sonido. Crea `!aplausos` con
+*Palabra* `!aplausos`, deja *Texto* vacío y elige `aplauso.wav` en *Medio*.
+En *Mostrar en* deja *Vídeo*. El público oye el sonido en el vídeo y no ve
+ninguna tarjeta. Copia el archivo en la carpeta Medios antes de abrir el
+cuadro para que aparezca en la lista.
 
-En *Encuestas* se prepara la pregunta, las opciones, la duración y dónde
-sale el resultado. Las encuestas se inician desde Interacción. El público
-vota con `!1`, `!2` y así desde cualquier chat. Se ven en el vídeo con sus
-votos y su tiempo, y se cierran a mano con `Ctrl+Alt+Mayús+E` o solas al
-cumplirse el tiempo.
+En *Ubicación* eliges *Al principio del mensaje* o *En cualquier parte del
+mensaje*. En *Alias* escribes otras palabras separadas por comas, como
+`hola, saludo`, que responden igual. En *Permiso* eliges *Todos*, *Solo
+moderadores*, *Una lista de nombres* o *Solo con el atajo*. Las esperas
+*Espera entre usos (segundos):* y *Espera por persona (segundos):* limitan
+las respuestas. En *Atajo* eliges *Ninguno* o `Ctrl+Alt+Mayús` más un número
+del 1 al 9, y el comando responde desde cualquier aplicación. Con *Solo con
+el atajo*, el comando no responde al chat y solo responde a esa tecla. Lo
+que estaba en «Disparadores» como comando, palabra o atajo pasó solo a esta
+página.
 
-### <a id="preguntas"></a>Preguntas
-
-El público deja preguntas escribiendo `!pregunta` o `!q` en el chat.
-Guyrapu las guarda en orden, una por persona, y avisa una sola vez cuando la
-cola se llena. La página *Preguntas* muestra la cola al día y permite mostrar
-una en el vídeo, marcarla como respondida, eliminarla o vaciar la cola. Cada
-pregunta tiene su estilo propio. `Ctrl+Alt+Mayús+R` lee la más vieja desde
-cualquier programa.
+*Pausar comandos*, en el menú *Interacción*, o `Ctrl+Alt+Mayús+C` desde
+cualquier aplicación, deja de contestar todos a la vez. La lista de comandos
+que pide el público se edita como uno más: su palabra, de fábrica
+`!commands`, y `!comandos` en español y portugués, su texto, dónde sale y
+su estilo, y cada comando elige si aparece en ella.
 
 ### <a id="alertas"></a>Alertas
 
-Un disparador muestra una tarjeta o un medio cuando alguien usa un comando
-del chat o llega un evento del directo, como un Super Chat desde cierta
-cantidad, un regalo desde cierta cantidad o un regalo concreto de TikTok por
-su nombre. También puede saltar cuando un mensaje del chat dice una palabra
-o trae un emoji, con sus esperas y su permiso. Los disparadores se crean y se
-editan en la página. Su tarjeta puede decir cuánto llegó, qué regalo fue, qué
-escribió la persona y cuántas veces salió, con `{cantidad}`, `{regalo}`,
-`{texto}` y `{contador}`. Cada uno puede tener un atajo global,
-`Ctrl+Alt+Mayús` más un número del 1 al 9, para dispararlo desde cualquier
-programa.
+Las alertas responden a lo que pasa en el directo: un Super Chat, una
+membresía, un seguidor o un regalo de TikTok. Antes se llamaban
+«Disparadores». Para crear una alerta de Super Chat, ve a
+*Alertas* y pulsa *Agregar*. En *Nombre* escribe `Gracias por el Super
+Chat`, en *Evento* elige *Super Chats y regalos* y en *Cantidad mínima*
+escribe `5`. En *Texto* escribe `Gracias, {usuario}, por {cantidad}.`, en
+*Medio* elige una imagen de la carpeta Medios y en *Mostrar en* elige *Chat
+y vídeo*. Pulsa *Aceptar*.
+
+Cuando llegue un Super Chat de 5 o más, el público ve la imagen y la
+tarjeta en el vídeo y el texto en el chat. Guyrapu escribe la tarjeta en el
+chat y la voz lee el Super Chat. En *Probar sin directo*, la lista
+*Resultados* dice «Respondió la alerta Gracias por el Super Chat». En
+*Permiso y espera* eliges quién puede activarla y cada cuánto tiempo, y en
+la tarjeta puedes usar `{usuario}`, `{cantidad}`, `{regalo}`, `{texto}` y
+`{contador}`. La parte de los antiguos disparadores que respondía a
+comandos, palabras o atajos está ahora en *Comandos*.
+
+### <a id="mensajes-automaticos"></a>Mensajes automáticos
+
+Los mensajes automáticos salen solos cada cierto tiempo, por ejemplo tus
+redes cada diez minutos. Para crear uno con imagen, ve a *Mensajes
+automáticos*, pulsa *Agregar* y en *Nombre* escribe `Redes`. En *Texto*
+escribe `Sígueme en @tucanal`, en *Medio* elige `redes.png` y en *Mostrar
+en* elige *Chat y vídeo*. En *Intervalo mínimo, en minutos* deja `10` y
+pulsa *Aceptar*. Con la sesión de Google iniciada y un directo de YouTube
+conectado, el público ve la imagen y el texto en el vídeo y el texto en el
+chat, y la voz lee el mensaje. `F2` dice qué hay en el vídeo.
+
+También puedes duplicarlos, ordenarlos, escucharlos, exportarlos e
+importarlos. Los que eligen el vídeo entran animados en OBS, quedan sus
+segundos y salen uno por vez, y respetan *Mensajes del chat entre uno y
+otro*. YouTube suele bloquear los enlaces: escribe el nombre de usuario en
+su lugar. Si YouTube devuelve un error, los mensajes se detienen y Guyrapu
+lo avisa una vez. `Supr` o el menú contextual eliminan el mensaje elegido.
+
+### <a id="encuestas"></a>Encuestas
+
+En *Encuestas* preparas la pregunta, las opciones, la duración y dónde sale
+el resultado. Por ejemplo, escribe `¿Qué juego sigue?`, agrega `Uno` y
+`Dos`, pon `2` en la duración y elige *Vídeo*. Inicia la encuesta desde
+Interacción. El público ve la pregunta en el vídeo con los votos y el
+tiempo, y vota escribiendo `!1` o `!2` desde cualquier chat. Con
+`Ctrl+Alt+Mayús+I` oyes la encuesta con sus votos, y `Ctrl+Alt+Mayús+E` la
+cierra antes de tiempo.
+
+### <a id="preguntas"></a>Preguntas
+
+El público deja preguntas escribiendo `!pregunta` o `!q` en el chat. Por
+ejemplo, escribe `!pregunta ¿Cómo se llama tu canal?` y la pregunta entra en
+la cola, una por persona. La página *Preguntas* muestra la cola al día.
+Selecciona la pregunta y pulsa *Mostrar en el vídeo*: el público la ve en la
+tarjeta. Con `Ctrl+Alt+Mayús+R` oyes la más antigua desde cualquier aplicación.
+También puedes marcarla como respondida, eliminarla o vaciar la cola. Cada
+pregunta tiene su estilo propio.
 
 ### <a id="metas"></a>Metas
 
-En *Metas* se preparan las metas del directo: qué cuentan, cuánto hace falta
-y con qué estilo y festejo se muestran. Cuentan me gusta, seguidores,
-miembros, regalos o Super Chats. Al cumplirse lo avisan con un sonido y una
-tarjeta en el vídeo con su festejo. Una meta puede mostrar su avance fijo en
-el vídeo, por ejemplo «Seguidores: 12 de 50», y se pone al día mientras
-llegan.
+En *Metas* preparas las metas del directo: qué cuentan, cuánto hace falta y
+con qué estilo y festejo se muestran. Cuentan me gusta, seguidores,
+miembros, regalos o Super Chats. Por ejemplo, crea una meta de seguidores con
+objetivo `50`. Al cumplirse, suena un aviso y el público ve una tarjeta en el
+vídeo con el festejo. Puedes mostrar el avance fijo, por ejemplo
+«Seguidores: 12 de 50», y se pone al día mientras llegan.
 
 ### <a id="medios"></a>Medios
 
-*Medios* es una biblioteca de imágenes, GIF, vídeos y sonidos con su
-descripción y su duración, que se escuchan antes de usarlos. En el cuadro de
-un medio, *Describir imagen* le pide a la inteligencia artificial una frase
-sobre lo que muestra la imagen o el GIF, para que `F2` y la lista digan qué
-ve el público. Los sonidos y vídeos se igualan de volumen al agregarlos, para
-que no suene uno mucho más fuerte que otro. La página tiene un deslizador de
-volumen general para todos los medios que salen en el vídeo, para
-equilibrarlos con la voz y el juego. Los disparadores muestran o hacen sonar
-su medio, solo o con su tarjeta.
+La carpeta *Medios* está junto a la aplicación, como la carpeta Música. El
+botón *Abrir carpeta* de esta página la abre en el Explorador. Copia ahí un
+archivo de imagen (`.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`), de vídeo
+(`.mp4`, `.webm`, `.mov`, `.mkv`) o de sonido (`.wav`, `.mp3`, `.ogg`,
+`.m4a`) y aparece en la lista al volver a la página. Por ejemplo, copia
+`aplauso.wav` y pulsa *Escuchar*: oyes el nombre y la descripción del medio y
+se reproduce el sonido o el vídeo. Pulsa *Escuchar* otra vez o `Esc` para
+detenerlo.
+El público lo oye o lo ve cuando un comando o una alerta lo muestra en el
+vídeo. Los medios de versiones anteriores se mudan solos a esta carpeta la
+primera vez que abres la aplicación.
+
+*Describir imagen* pide a la inteligencia artificial una frase sobre lo que
+muestra la imagen o el GIF, para que `F2` y la lista digan qué ve el
+público. Los sonidos y vídeos se igualan de volumen al agregarlos. El
+deslizador *Volumen de los medios en el vídeo* los equilibra con la voz y el
+juego. También puedes agregar, editar, duplicar, exportar e importar
+medios; *Eliminar* quita también el archivo de la carpeta.
 
 ### <a id="estilos"></a>Estilos
 
-En *Estilos* se crean, se duplican, se exportan y se importan estilos para
-los mensajes del vídeo, con fuente, colores por nombre, fondo, zona y
-animación. Cada estilo puede ser el predeterminado de los mensajes
-automáticos, los comandos, los disparadores, las encuestas o las metas, y
-cada elemento puede usar el predeterminado de su tipo. *Probar*, en esta
-página y en *Mensajes automáticos*, arma la tarjeta fuera del aire y dice
-dónde sale, cuánto ocupa y si tiene algún problema de fuente o de
+En *Estilos* creas, duplicas, exportas e importas estilos para los mensajes
+del vídeo, con fuente, colores por nombre, fondo, zona y animación. Por
+ejemplo, crea un estilo con fuente grande y fondo azul, y pulsa *Establecer
+como predeterminado…* para usarlo en los comandos. Cada estilo puede ser el
+predeterminado de los mensajes automáticos, los comandos, las alertas, las
+encuestas o las metas, y cada elemento puede usar el de su tipo. *Probar*,
+en esta página y en *Mensajes automáticos*, arma la tarjeta fuera del aire
+y dice dónde sale, cuánto ocupa y si tiene algún problema de fuente o de
 contraste.
 
 ### <a id="palabras-bloqueadas"></a>Palabras bloqueadas
 
-En *Palabras bloqueadas* se escriben las palabras que se tapan en el nombre
-y el texto del público que muestran las respuestas de los comandos. Un texto
-hecho casi todo de símbolos no se muestra.
+En *Palabras bloqueadas* escribes las palabras que se tapan en el nombre y
+el texto del público que muestran las respuestas de los comandos. Por
+ejemplo, agrega `spam`: si alguien escribe `!hola spam`, la tarjeta del
+comando muestra `***` en lugar de la palabra. Un texto hecho casi todo de
+símbolos no se muestra.
 
 ### <a id="probar-sin-directo"></a>Probar sin directo
 
-*Probar sin directo…*, en el menú *Interacción*, ensaya la interacción sin
-salir al aire. Se escribe el autor, se elige la plataforma y el tipo, y se
-envían mensajes, Super Chats o regalos. Pasan por el mismo reparto que los
-del directo, aparecen en la lista del chat y atienden los comandos, los
-disparadores, la encuesta y las metas. Lo que va al vídeo se ve en OBS como
-en un directo, sin publicar nada en los chats y sin que la voz lo lea. Al
-cerrar la ventana termina el ensayo y se descarta lo que dejó. Con la
-ventana abierta no se puede conectar un directo.
+*Probar sin directo…*, en el menú *Interacción*, y el botón *Probar sin
+directo* de la ventana ensayan la interacción sin salir al aire. No se puede
+abrir con un directo conectado. En *Plataforma* eliges YouTube o TikTok. El
+*Tipo* cambia con la plataforma: en YouTube tienes *Mensaje*, *Super Chat* y
+*Membresía*; en TikTok, *Mensaje*, *Regalo*, *Seguidor nuevo*, *Me gusta* y
+*Directo compartido*. En YouTube aparece además *Rol*, con *Público*,
+*Moderador* y *Propietario del canal*. Escribes el autor y lo que pida el
+tipo, por ejemplo cantidad y mensaje para un Super Chat, y pulsas *Enviar*.
+
+La lista *Resultados* guarda una línea por envío con la hora, lo que
+enviaste y lo que respondió. Por ejemplo: «Respondió el comando !hola.»,
+«Respondió la alerta Gracias por el Super Chat.», «Voto contado en la
+encuesta», «Pregunta agregada a la página Preguntas.» o «La meta avanzó a 12
+de 50.». Si nada responde, el motivo dice por qué:
+
+- «ningún comando ni alerta usa ese mensaje» o «ninguna alerta usa ese
+  evento», cuando no hay nada que coincida.
+- «el comando … está en espera, faltan … segundos», cuando su espera aún no
+  terminó. Lo mismo se dice de una alerta.
+- «el comando … es solo para …», cuando el permiso no incluye al autor, y
+  «el comando … está en pausa» o «los comandos están en pausa», cuando
+  están detenidos.
+
+Lo que va al vídeo se ve en OBS como en un directo, sin publicar nada en los
+chats y sin que la voz lo lea. Al cerrar la ventana termina el ensayo y se
+descarta lo que dejó.
 
 ### Atajos globales
 
@@ -1055,7 +1143,7 @@ tecla de cada acción. `Mayús+F10` abre ese menú en las listas que lo tienen.
 | `Ctrl+F2` | Describir la escena de OBS |
 | `Ctrl+Mayús+F2` | Consulta rápida a la IA |
 | `Ctrl+F3` | Anunciar el encuadre de cámara. Dos veces, guía con pitidos |
-| `Ctrl+Mayús+F3` | Avisar si el rostro sale del encuadre |
+| `Ctrl+Mayús+F3` | Avisar si el rostro queda fuera del encuadre |
 | `Alt+F3` | Mostrar u ocultar la cámara |
 
 ### Interacción en directo (Ctrl+Alt+Mayús)

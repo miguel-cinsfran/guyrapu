@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md 824bc042c63afb1e046db4bbf85a364429a78a4d -->
+<!-- original: es/MANUAL.md dcacb54fbe742fffb7ed46e6ec2333d8a1c59b0e -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -227,7 +227,7 @@ See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
 controls OBS Studio and Restream from the keyboard. It is designed for
 people who are blind or have low vision and stream, and it is tested
 with NVDA.</p>
-<p>Version 3.0.0 beta 6 · Windows 10 and 11 · <a
+<p>Version 3.0.0 beta 7 · Windows 10 and 11 · <a
 href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
 <p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
@@ -555,9 +555,9 @@ a verified account</em> plays <code>mensaje_verificado.wav</code>,
 <code>seguir.wav</code>, <em>Someone shared the live stream</em> plays
 <code>compartir.wav</code>, <em>Gift chest received</em> plays
 <code>cofre.wav</code>, <em>Live stream like</em> plays
-<code>me_gusta.wav</code>, <em>Small gift received</em> plays
-<code>regalo_chico.wav</code>, <em>Medium gift received</em> plays
-<code>regalo_mediano.wav</code>, <em>Large gift received</em> plays
+<code>me_gusta.wav</code>, <em>Small gift or Super Chat</em> plays
+<code>regalo_chico.wav</code>, <em>Medium gift or Super Chat</em> plays
+<code>regalo_mediano.wav</code>, <em>Large gift or Super Chat</em> plays
 <code>regalo_grande.wav</code>, <em>Someone joined the live stream</em>
 plays <code>entrada.wav</code>, <em>Poll opened</em> plays
 <code>encuesta.wav</code>, <em>Poll ended</em> plays
@@ -615,6 +615,10 @@ YouTube you can go back up to an hour. If the connection fails, Guyrapu
 reconnects at the same point. If the process that joins the video and
 the audio crashes, Guyrapu opens it again on its own and keeps playing
 instead of staying silent.</p>
+<p>With the focus on the video, the <code>0</code> through
+<code>9</code> keys move the position to 0, 10, 20 and up to 90 percent
+of the video, as on YouTube. Guyrapu announces the position it moved
+to.</p>
 <p><em>Play sound only, without the picture</em>, in
 <em>Preferences</em>, on the <em>Player</em> category, is checked:
 without the picture, jumps are almost immediate.</p>
@@ -642,7 +646,7 @@ stay in the menu and say why they cannot be used. <code>F2</code>
 renames the playlist chosen in <em>Collections</em>. Replaying a YouTube
 song starts at once. If a song does not open with the stored address,
 Guyrapu asks for it again before skipping it.</p>
-<p><em>Mute music</em>, in the <em>Music</em> menu, does the same as
+<p><em>Mute the music</em>, in the <em>Music</em> menu, does the same as
 <code>Ctrl+Alt+M</code>. With <em>Use keyboard media keys</em>, the
 play, pause and next or previous song keys control the music while there
 are songs in the queue, and the Windows media panel shows what is
@@ -745,9 +749,9 @@ warning plays. To record without broadcasting, use the <em>OBS</em> menu
 or the <em>Recording</em> tab of the <em>OBS panel</em>.</p>
 <p><em>Save clip</em> saves the last 30 or 60 seconds, according to the
 <em>Clips</em> list in <em>Preferences</em>, on the <em>OBS</em>
-category. With <em>Allow !clip in chat</em>, anyone in the chat saves a
-clip by typing <code>!clip</code>, with a wait between clips that is
-chosen in the same category.</p>
+category. With <em>Allow {comando} in chat</em>, anyone in the chat
+saves a clip by typing <code>!clip</code>, with a wait between clips
+that is chosen in the same category.</p>
 <p>When you stop a recording or save a clip, Guyrapu says the file
 name.</p>
 <h3 id="chat-on-video">Chat on video</h3>
@@ -823,10 +827,9 @@ and the chat. <em>Fit</em> decides what happens if the aspect ratio does
 not match: <em>Fit</em> shows the whole source, <em>Cover</em> crops the
 edges and <em>Automatic</em> fills with the camera and fits the rest.
 <em>Save as…</em> saves your own layout. In the menu for transforming a
-source, <em>Stretch to the video</em> makes it grow to fill the video,
-as in OBS. On a vertical canvas, <em>Split in two</em> stacks the
-sources at the top and bottom, and the chat in a strip goes at the
-bottom.</p>
+source, <em>Fit to the video</em> makes it grow to fill the video, as in
+OBS. On a vertical canvas, <em>Split in two</em> stacks the sources at
+the top and bottom, and the chat in a strip goes at the bottom.</p>
 <p><em>Undo all changes</em> returns the scene to how it was when the
 panel was opened.</p>
 <table>
@@ -981,7 +984,7 @@ the OBS monitoring device. Use headphones to avoid feedback.</li>
 <li><em>Choose a device…</em> sets the microphone device.</li>
 </ul>
 <h3 id="recording">Recording</h3>
-<p><em>Start recording</em> and <em>Stop recording</em> record without
+<p><em>Begin recording</em> and <em>Stop recording</em> record without
 broadcasting, and <em>Pause recording</em> pauses the recording in
 progress: if there is none, it warns in the same way as the menu
 command. The <em>Recordings and clips</em> list brings together the
@@ -1047,9 +1050,9 @@ stops both.</p>
 <p><em>Show</em> chooses between upcoming events, those that are live
 and the history. <em>Event detail</em> shows its status, its times, its
 destinations and the description. The context menu copies the event
-links or information, offers <em>Open live stream</em> and adds the
-statistics to the detail. If there are no events for the chosen filter,
-the list says so.</p>
+links or information, offers <em>Open live</em> and adds the statistics
+to the detail. If there are no events for the chosen filter, the list
+says so.</p>
 <h3 id="warnings-during-the-live-stream">Warnings during the live
 stream</h3>
 <p>With a Restream profile, Guyrapu warns with its own sound when
@@ -1068,8 +1071,8 @@ computer and is not sent anywhere.</p>
 it starts the guide with beeps, which sound from the side you have to
 move to, higher for up and lower for down. In the center a confirmation
 sounds.</li>
-<li><em>Warn when the face leaves the frame</em> warns with a sound when
-the face leaves and with another when it comes back.</li>
+<li><em>Notify when the face leaves the frame</em> warns with a sound
+when the face leaves and with another when it comes back.</li>
 <li><em>Show or hide the camera</em> hides the camera from the scene
 without turning off the device.</li>
 </ul>
@@ -1081,106 +1084,204 @@ inverted.</p>
 sees and hears in the live stream. Open it with <em>Open
 Interaction…</em>, in the <em>Interaction</em> menu, or with
 <code>Ctrl+Shift+A</code>, and it opens again on the last page you used.
-It has a list of pages and, on the right, the list and the actions of
-the chosen one. The pages are <em>Scheduled messages</em>,
-<em>Commands</em>, <em>Polls</em>, <em>Questions</em>,
-<em>Triggers</em>, <em>Goals</em>, <em>Media</em>, <em>Styles</em> and
-<em>Blocked words</em>.</p>
-<h3 id="scheduled-messages"><a id="mensajes-automaticos"></a>Scheduled
-messages</h3>
-<p>Scheduled messages are sent to the chat every so often, for example
-your social networks every ten minutes. Each message has a name and can
-appear in the chat, on the video or in both. You can duplicate, sort,
-preview, export and import them. The ones that choose the video come in
-with an animation in OBS, stay for their time and leave one at a time,
-and respect the minimum number of chat messages between one and another.
-<code>F2</code> says what is on the video. They work on your own YouTube
-live stream with the Google session started. YouTube usually blocks
-links: type the user name instead. If YouTube returns an error, the
-messages stop and Guyrapu warns you once. The list says when it is
-empty, and <code>Delete</code> or its context menu remove the chosen
-message.</p>
+It has a list of pages on the left and, on the right, the list and the
+actions of the chosen page.</p>
+<p>The pages are split by when something comes out. <em>Commands</em>
+holds what the audience types, <em>Alerts</em> what happens in the live
+stream, and <em>Scheduled messages</em> what comes out on its own every
+so often. Then come <em>Polls</em>, <em>Questions</em> and
+<em>Goals</em>, and last <em>Media</em>, <em>Styles</em> and <em>Blocked
+words</em>. To open the help for the page in front of you, press
+<code>F1</code> or the <em>Help</em> button. Empty lists say what
+appears in them and how to add the first item.</p>
+<h3 id="content"><a id="contenido"></a>Content</h3>
+<p>The command, alert and scheduled message dialogs share the
+<em>Content</em> section. It has five fields in this order:
+<em>Text</em>, <em>Show in</em>, <em>Media item</em>, <em>Seconds on
+screen</em> and <em>Style</em>. In <em>Text</em> you write what comes
+out and can use variables. <em>Show in</em> chooses <em>Video</em>,
+<em>Chat</em> or <em>Chat and video</em>. <em>Media item</em> chooses a
+file from the Media folder or <em>None</em>. <em>Seconds on screen</em>
+sets how long it stays on the video, and <em>Style</em> chooses how it
+looks. To save you need text or a media item. If it only goes to the
+chat, you need text and it cannot exceed 200 characters.</p>
 <h3 id="commands"><a id="comandos"></a>Commands</h3>
-<p>Commands are the ones the audience can use in the chat. They are
-created with their reply, where it appears, who can use them and how
-long they wait. When someone types a command, the reply appears on the
-video and, if the command asks for it, in the YouTube chat.
-<code>F2</code> says how many commands Guyrapu answered and which was
-the last one. <em>Pause commands</em>, in the <em>Interaction</em> menu,
-or <code>Ctrl+Alt+Shift+C</code> from any program, stops answering all
+<p>Commands are what the audience types in the chat. To create
+<code>!hola</code>, go to <em>Commands</em>, reach <em>Add</em> with
+<code>Tab</code> and press <code>Enter</code>. In <em>Word</em> type
+<code>!hola</code>, in <em>Text</em> type
+<code>Hello, thanks for being here</code> and in <em>Show in</em> choose
+<em>Chat and video</em>. Press <em>OK</em> and Guyrapu announces
+“Command added”. When someone types <code>!hola</code>, the audience
+sees the card on the video and the text in the chat, and the voice reads
+the chat message. <code>F2</code> says how many commands Guyrapu
+answered and which was the last one.</p>
+<p>A command can also come out as sound only. Create
+<code>!applause</code> with <em>Word</em> <code>!applause</code>, leave
+<em>Text</em> empty and choose <code>applause.wav</code> in <em>Media
+item</em>. Leave <em>Show in</em> as <em>Video</em>. The audience hears
+the sound on the video and sees no card. Copy the file into the Media
+folder before you open the dialog so it appears in the list.</p>
+<p>In <em>Location</em> you choose <em>At the beginning of the
+message</em> or <em>Anywhere in the message</em>. In <em>Alias</em> you
+type other words separated by commas, such as
+<code>hello, greeting</code>, that answer the same way. In
+<em>Permission</em> you choose <em>All</em>, <em>Moderators only</em>,
+<em>A list of names</em> or <em>Shortcut only</em>. The cooldowns
+<em>Wait between uses (seconds):</em> and <em>Wait per person
+(seconds):</em> limit the answers. In <em>Shortcut</em> you choose
+<em>None</em> or <code>Ctrl+Alt+Shift</code> plus a number from 1 to 9,
+and the command answers from any application. With <em>Shortcut
+only</em>, the command does not answer the chat and only answers that
+key. What used to be in "Triggers" as a command, word or shortcut moved
+only to this page.</p>
+<p><em>Pause commands</em>, in the <em>Interaction</em> menu, or
+<code>Ctrl+Alt+Shift+C</code> from any application, stops answering all
 of them at once. The list of commands the audience asks for is edited
-like one more command: its word, <code>!commands</code> by default and
+like any other command: its word, <code>!commands</code> by default and
 <code>!comandos</code> in Spanish and Portuguese, its text, where it
 appears and its style, and each command chooses whether it appears in
 the list.</p>
+<h3 id="alerts"><a id="alertas"></a>Alerts</h3>
+<p>Alerts respond to what happens in the live stream: a Super Chat, a
+membership, a new follower or a TikTok gift. They used to be called
+"Triggers". To create a Super Chat alert, go to <em>Alerts</em> and
+press <em>Add</em>. In <em>Name</em> type
+<code>Thanks for the Super Chat</code>, in <em>Event</em> choose
+<em>Super Chats and gifts</em> and in <em>Minimum amount</em> type
+<code>5</code>. In <em>Text</em> type
+<code>Thanks, {usuario}, for {cantidad}.</code>, in <em>Media item</em>
+choose an image from the Media folder and in <em>Show in</em> choose
+<em>Chat and video</em>. Press <em>OK</em>.</p>
+<p>When a Super Chat of 5 or more arrives, the audience sees the image
+and the card on the video and the text in the chat. Guyrapu writes the
+card in the chat and the voice reads the Super Chat. In <em>Test without
+a live stream</em>, the <em>Results</em> list says "The alert Thanks for
+the Super Chat responded". In <em>Permission and cooldown</em> you
+choose who can trigger it and how often, and the card can use
+<code>{usuario}</code>, <code>{cantidad}</code>, <code>{regalo}</code>,
+<code>{texto}</code> and <code>{contador}</code>. The part of the old
+triggers that answered commands, words or shortcuts is now in
+<em>Commands</em>.</p>
+<h3 id="scheduled-messages"><a id="mensajes-automaticos"></a>Scheduled
+messages</h3>
+<p>Scheduled messages come out on their own every so often, for example
+your social networks every ten minutes. To create one with an image, go
+to <em>Scheduled messages</em>, press <em>Add</em> and in <em>Name</em>
+type <code>Social networks</code>. In <em>Text</em> type
+<code>Follow me at @yourchannel</code>, in <em>Media item</em> choose
+<code>networks.png</code> and in <em>Show in</em> choose <em>Chat and
+video</em>. Leave <code>10</code> in <em>Minimum interval, in
+minutes</em> and press <em>OK</em>. With the Google session started and
+a YouTube live stream connected, the audience sees the image and the
+text on the video and the text in the chat, and the voice reads the
+message. <code>F2</code> says what is on the video.</p>
+<p>You can also duplicate, sort, preview, export and import them. The
+ones that choose the video come in with an animation in OBS, stay for
+their time and leave one at a time, and respect <em>Chat messages in
+between</em>. YouTube usually blocks links: type the user name instead.
+If YouTube returns an error, the messages stop and Guyrapu warns you
+once. <code>Delete</code> or the context menu remove the chosen
+message.</p>
 <h3 id="polls"><a id="encuestas"></a>Polls</h3>
 <p>In <em>Polls</em> you prepare the question, the options, the duration
-and where the result appears. Polls are started from Interaction. The
-audience votes with <code>!1</code>, <code>!2</code> and so on from any
-chat. Polls appear on the video with their votes and their time, and
-close by hand with <code>Ctrl+Alt+Shift+E</code> or on their own when
-the time runs out.</p>
+and where the result appears. For example, type
+<code>Which game is next?</code>, add <code>One</code> and
+<code>Two</code>, set <code>2</code> as the duration and choose
+<em>Video</em>. Start the poll from Interaction. The audience sees the
+question on the video with the votes and the time, and votes by typing
+<code>!1</code> or <code>!2</code> from any chat. With
+<code>Ctrl+Alt+Shift+I</code> you hear the poll with its votes, and
+<code>Ctrl+Alt+Shift+E</code> closes it early.</p>
 <h3 id="questions"><a id="preguntas"></a>Questions</h3>
 <p>The audience leaves questions by typing <code>!pregunta</code> or
-<code>!q</code> in the chat. Guyrapu keeps them in order, one per
-person, and warns once when the queue is full. The <em>Questions</em>
-page shows the queue up to date and lets you display one on the video,
-mark it as answered, delete it or clear the queue. Each question has its
-own style. <code>Ctrl+Alt+Shift+R</code> reads the oldest one from any
-program.</p>
-<h3 id="alerts"><a id="alertas"></a>Alerts</h3>
-<p>A trigger shows a card or a media item when someone uses a chat
-command or a live event arrives, such as a Super Chat from a certain
-amount, a gift from a certain amount or a specific TikTok gift by name.
-It can also fire when a chat message says a word or has an emoji, with
-its waits and its permission. Triggers are created and edited on the
-page. Their card can say how much arrived, which gift it was, what the
-person wrote and how many times it appeared, with
-<code>{cantidad}</code>, <code>{regalo}</code>, <code>{texto}</code> and
-<code>{contador}</code>. Each one can have a global shortcut,
-<code>Ctrl+Alt+Shift</code> plus a number from 1 to 9, to fire it from
-any program.</p>
+<code>!q</code> in the chat. For example, type
+<code>!pregunta What is your channel called?</code> and the question
+goes into the queue, one per person. The <em>Questions</em> page shows
+the queue up to date. Select the question and press <em>Show on the
+video</em>: the audience sees it in the card. With
+<code>Ctrl+Alt+Shift+R</code> you hear the oldest one from any program.
+You can also mark it as answered, delete it or clear the queue. Each
+question has its own style.</p>
 <h3 id="goals"><a id="metas"></a>Goals</h3>
 <p>In <em>Goals</em> you prepare the goals of the live stream: what they
 count, how much is needed and the style and celebration they use. They
-count likes, followers, members, gifts or Super Chats. When they are
-reached, a sound and a card with its celebration appear on the video. A
-goal can show its fixed progress on the video, for example «Followers:
-12 of 50», and it is updated as they arrive.</p>
+count likes, followers, members, gifts or Super Chats. For example,
+create a follower goal with a target of <code>50</code>. When it is
+reached, a sound plays and the audience sees a card on the video with
+its celebration. You can show its fixed progress, for example
+«Followers: 12 of 50», and it is updated as they arrive.</p>
 <h3 id="media"><a id="medios"></a>Media</h3>
-<p><em>Media</em> is a library of images, GIFs, videos and sounds with
-their description and duration, which you can hear before using them. In
-the dialog of a media item, <em>Describe image</em> asks the artificial
-intelligence for a sentence about what the image or GIF shows, so that
-<code>F2</code> and the list say what the audience sees. Sounds and
-videos are matched in volume when added, so that none sounds much louder
-than another. The page has a volume slider for all the media that appear
-on the video, to balance them with the voice and the game. Triggers show
-or play their media item, alone or with their card.</p>
+<p>The <em>Media</em> folder sits next to the application, like the
+Music folder. The <em>Open folder</em> button on this page opens it in
+File Explorer. Copy in an image file (<code>.png</code>,
+<code>.jpg</code>, <code>.jpeg</code>, <code>.bmp</code>,
+<code>.gif</code>), a video file (<code>.mp4</code>, <code>.webm</code>,
+<code>.mov</code>, <code>.mkv</code>) or a sound file
+(<code>.wav</code>, <code>.mp3</code>, <code>.ogg</code>,
+<code>.m4a</code>) and it appears in the list when you come back to the
+page. For example, copy <code>applause.wav</code> and press
+<em>Listen</em>: you hear the name and the description of the media
+item, and the sound or video plays. Press <em>Listen</em> again or
+<code>Esc</code> to stop it. The audience hears or sees it when a
+command or an alert shows it on the video. Media from earlier versions
+moves to this folder on its own the first time you open the
+application.</p>
+<p><em>Describe image</em> asks the artificial intelligence for a
+sentence about what the image or GIF shows, so that <code>F2</code> and
+the list say what the audience sees. Sounds and videos are matched in
+volume when added. The <em>Volume of the media in the video</em> slider
+balances them with the voice and the game. You can also add, edit,
+duplicate, export and import media items; <em>Delete</em> also removes
+the file from the folder.</p>
 <h3 id="styles"><a id="estilos"></a>Styles</h3>
 <p>In <em>Styles</em> you create, duplicate, export and import styles
 for the messages on the video, with font, colors by name, background,
-area and animation. Each style can be the default for scheduled
-messages, commands, triggers, polls or goals, and each item can use the
-default for its type. <em>Test</em>, on this page and on <em>Scheduled
-messages</em>, builds the card off air and says where it appears, how
-much space it takes and whether there are font or contrast problems.</p>
+area and animation. For example, create a style with a large font and a
+blue background, and press <em>Set as default…</em> to use it in
+commands. Each style can be the default for scheduled messages,
+commands, alerts, polls or goals, and each item can use the one for its
+type. <em>Test</em>, on this page and on <em>Scheduled messages</em>,
+builds the card off air and says where it appears, how much space it
+takes and whether there are font or contrast problems.</p>
 <h3 id="blocked-words"><a id="palabras-bloqueadas"></a>Blocked
 words</h3>
 <p>In <em>Blocked words</em> you type the words that are hidden in the
-name and text of the audience shown by command replies. Text made almost
+name and text of the audience shown by command replies. For example, add
+<code>spam</code>: if someone types <code>!hola spam</code>, the command
+card shows <code>***</code> instead of the word. Text made almost
 entirely of symbols is not displayed.</p>
 <h3 id="test-without-a-live-stream"><a id="probar-sin-directo"></a>Test
 without a live stream</h3>
 <p><em>Test without a live stream…</em>, in the <em>Interaction</em>
-menu, rehearses the interaction without going on air. Type the author,
-choose the platform and the type, and send messages, Super Chats or
-gifts. They go through the same route as live messages, appear in the
-chat list and are handled by commands, triggers, the poll and the goals.
-What goes to the video appears in OBS as in a live stream, without
+menu, and the <em>Test without a live stream</em> button in the window
+rehearse the interaction without going on air. You cannot open it with a
+live stream connected. In <em>Platform</em> you choose YouTube or
+TikTok. The <em>Type</em> changes with the platform: in YouTube you have
+<em>Message</em>, <em>Super Chat</em> and <em>Membership</em>; in
+TikTok, <em>Message</em>, <em>Gift</em>, <em>New follower</em>,
+<em>Likes</em> and <em>Shared live streams</em>. In YouTube
+<em>Role</em> also appears, with <em>Public</em>, <em>Moderator</em> and
+<em>Channel owner</em>. Type the author and what the type asks for, for
+example amount and message for a Super Chat, and press
+<em>Send</em>.</p>
+<p>The <em>Results</em> list keeps a line for each send with the time,
+what you sent and what responded. For example: "The command !hola
+responded.", "The alert Thanks for the Super Chat responded.", "Vote
+counted in the poll", "Question added to the Questions page." or "Goal
+advanced to 12 of 50.". If nothing responded, the reason says why:</p>
+<ul>
+<li>"no command or alert uses that message." or "no alert uses that
+event.", when nothing matches.</li>
+<li>"the command is in cooldown, seconds left.", when its cooldown has
+not ended. The same is said of an alert.</li>
+<li>"the command is only for a permission.", when the permission does
+not include the author, and "the command is paused." or "commands are
+paused.", when they are stopped.</li>
+</ul>
+<p>What goes to the video appears in OBS as in a live stream, without
 posting in the chats and without the voice reading it. Closing the
-window ends the rehearsal and discards what it left. You cannot connect
-a live stream while the window is open.</p>
+window ends the rehearsal and discards what it left.</p>
 <h3 id="global-shortcuts">Global shortcuts</h3>
 <p>The global <code>Ctrl+Alt+Shift</code> shortcuts of the interaction
 work even when another program has the focus: they pause, skip and clear
@@ -1188,7 +1289,7 @@ what appears on the video, mute the media, turn on panic mode, turn
 scheduled messages on or off, pause commands, close the poll, read the
 next question and announce the interaction status. They are in the table
 <a href="#keyboard-shortcuts">Keyboard shortcuts</a>, in the family
-<em>Live stream interaction</em>.</p>
+<em>Live interaction</em>.</p>
 <h2 id="downloads-and-history"><a id="descargas"></a>Downloads and
 history</h2>
 <p>The <em>Download manager</em> downloads videos, audio or YouTube
@@ -1233,8 +1334,8 @@ provider changed the format.</p>
 <p><em>Ask the AI about the picture…</em>, in the <em>View</em> menu,
 opens a window where <em>Add screenshot</em> chooses the scene or a
 source, and also the frame of the video shown in the player, with OBS
-open or closed. The question is typed in <em>Message</em>. <em>Quick
-query</em> sends the current scene and reads the response without
+open or closed. The question is typed in <em>Message</em>. <em>Quick AI
+question</em> sends the current scene and reads the response without
 opening any window. <code>Ctrl+F2</code> and <code>Ctrl+Shift+F2</code>
 say the scene and its notices with short and consistent sentences, and
 the quick query warns if it is canceled. With OBS closed,
@@ -1268,7 +1369,7 @@ with the costs Google publishes, once a week. To have your own, see the
 the configuration by categories, and the changes are applied when you
 press <em>Save</em>. In <em>General</em> you choose the language and the
 update channel, and you export, import or reset the preferences.
-<em>Show important notices also in a message box</em> also shows the
+<em>Also show important notices in a message box</em> also shows the
 result of what you do in a box. Each category is prepared the first time
 you choose it, so the window opens faster.</p>
 <p>Preferences are saved in <code>config.ini</code> and
@@ -1554,7 +1655,7 @@ that have it.</p>
 </tr>
 <tr>
 <td><code>Ctrl+Shift+F3</code></td>
-<td>Warn when the face leaves the frame</td>
+<td>Notify when the face leaves the frame</td>
 </tr>
 <tr>
 <td><code>Alt+F3</code></td>

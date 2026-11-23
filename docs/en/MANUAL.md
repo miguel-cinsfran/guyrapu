@@ -1,11 +1,11 @@
-<!-- original: es/MANUAL.md 824bc042c63afb1e046db4bbf85a364429a78a4d -->
+<!-- original: es/MANUAL.md dcacb54fbe742fffb7ed46e6ec2333d8a1c59b0e -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
 
 Guyrapu reads the chat of YouTube and TikTok live streams aloud, and controls OBS Studio and Restream from the keyboard. It is designed for people who are blind or have low vision and stream, and it is tested with NVDA.
 
-Version 3.0.0 beta 6 · Windows 10 and 11 · [News](CHANGELOG.md)
+Version 3.0.0 beta 7 · Windows 10 and 11 · [News](CHANGELOG.md)
 
 ## Installation
 
@@ -123,7 +123,7 @@ The families appear in this order, and each one says what kind of notice plays w
 - *Disconnected*: something live drops or stops responding. *Broadcast problem* plays `transmision_problema.wav`, and the rest of the family uses the same file: *Reconnecting the live stream*, *Live stream with repeated interruptions*, *Restream destination disconnected*, *No Restream signal*, *Chat disconnected*, *OBS is not responding* and *Playback interrupted*.
 - *Reconnected*: that same thing comes back. *Broadcast restored* plays `transmision_recuperada.wav`, and the rest of the family uses the same file: *Restream destination back*, *Restream signal restored*, *Chat reconnected* and *OBS is responding again*.
 - *Broadcast and live stream*: the state of the broadcast and the live stream. *Live stream in progress* plays `al_aire.wav`, *Broadcast stopped* plays `transmision_detenida.wav`, *Live stream ended* plays `fin_directo.wav`, *TikTok live stream paused* plays `directo_pausado.wav` and *TikTok live stream continues* plays `directo_reanudado.wav`. *Live stream close confirmed* and *Playback finished* use the one of their family, `fin_directo.wav`.
-- *Chat*: the messages and events of the chat. *New chat message* plays `mensaje_nuevo.wav`, *TikTok message* plays `mensaje_tiktok.wav`, *Channel owner message* plays `mensaje_propietario.wav`, *Moderator message* plays `mensaje_moderador.wav`, *Message from a verified account* plays `mensaje_verificado.wav`, *Message from a channel member* plays `mensaje_miembro.wav`, *Super Chat* plays `superchat.wav`, *New channel member* plays `nuevo_miembro.wav`, *New live stream follower* plays `seguir.wav`, *Someone shared the live stream* plays `compartir.wav`, *Gift chest received* plays `cofre.wav`, *Live stream like* plays `me_gusta.wav`, *Small gift received* plays `regalo_chico.wav`, *Medium gift received* plays `regalo_mediano.wav`, *Large gift received* plays `regalo_grande.wav`, *Someone joined the live stream* plays `entrada.wav`, *Poll opened* plays `encuesta.wav`, *Poll ended* plays `encuesta_fin.wav`, *Goal reached* plays `meta.wav`, *Battle started* plays `batalla.wav` and *Battle ended* plays `batalla_fin.wav`.
+- *Chat*: the messages and events of the chat. *New chat message* plays `mensaje_nuevo.wav`, *TikTok message* plays `mensaje_tiktok.wav`, *Channel owner message* plays `mensaje_propietario.wav`, *Moderator message* plays `mensaje_moderador.wav`, *Message from a verified account* plays `mensaje_verificado.wav`, *Message from a channel member* plays `mensaje_miembro.wav`, *Super Chat* plays `superchat.wav`, *New channel member* plays `nuevo_miembro.wav`, *New live stream follower* plays `seguir.wav`, *Someone shared the live stream* plays `compartir.wav`, *Gift chest received* plays `cofre.wav`, *Live stream like* plays `me_gusta.wav`, *Small gift or Super Chat* plays `regalo_chico.wav`, *Medium gift or Super Chat* plays `regalo_mediano.wav`, *Large gift or Super Chat* plays `regalo_grande.wav`, *Someone joined the live stream* plays `entrada.wav`, *Poll opened* plays `encuesta.wav`, *Poll ended* plays `encuesta_fin.wav`, *Goal reached* plays `meta.wav`, *Battle started* plays `batalla.wav` and *Battle ended* plays `batalla_fin.wav`.
 - *Downloads*: the progress and result of downloads. *Download progress* plays `descarga_avance.wav`, and *Download started* and *Processing download* use the same file. *Download stalled* plays `descarga_quieta.wav`, *Download completed* plays `descarga_completada.wav`, *Download failed* plays `descarga_fallida.wav`, *Partial download* uses `descarga_fallida.wav` and *Download queue finished* plays `cola_descargas_terminada.wav`.
 - *Artificial intelligence*: the queries and answers of the AI. *The AI is analyzing* plays `ia_analizando.wav` and *AI response* plays `ia_respuesta.wav`.
 - *Music*: what happens with the songs. *Song changed* plays `musica_tema.wav`, *End of the music queue* plays `musica_fin.wav`, *Error playing the song* plays `musica_fallo.wav`, *Volume matching* plays `musica_igualando.wav` and *Volume matching complete* plays `musica_igualada.wav`. *Song changed* is set in *Preferences*, on the *Sounds* category, and not on *Music*. If you had it checked you still hear it; in new installations that sound and the end of the music queue sound are off.
@@ -137,6 +137,8 @@ To make your own theme, copy the `sounds/themes/default` folder with another nam
 ## Player
 
 The live stream video plays inside Guyrapu, with the commands in the *Player* menu. In a live stream, each jump says the distance to the live stream, for example “40 seconds behind the live stream”, and on YouTube you can go back up to an hour. If the connection fails, Guyrapu reconnects at the same point. If the process that joins the video and the audio crashes, Guyrapu opens it again on its own and keeps playing instead of staying silent.
+
+With the focus on the video, the `0` through `9` keys move the position to 0, 10, 20 and up to 90 percent of the video, as on YouTube. Guyrapu announces the position it moved to.
 
 *Play sound only, without the picture*, in *Preferences*, on the *Player* category, is checked: without the picture, jumps are almost immediate.
 
@@ -152,7 +154,7 @@ Guyrapu plays music while you stream. It uses the Music folder next to the appli
 
 In *Songs*, in the queue and in the search results you can select several songs with `Shift` and the arrows, `Ctrl+Space` or `Ctrl+A`. *Play*, *Add to the queue*, *Add to the playlist* and *Delete* act on all of them with one announcement. Actions that need a single row stay in the menu and say why they cannot be used. `F2` renames the playlist chosen in *Collections*. Replaying a YouTube song starts at once. If a song does not open with the stored address, Guyrapu asks for it again before skipping it.
 
-*Mute music*, in the *Music* menu, does the same as `Ctrl+Alt+M`. With *Use keyboard media keys*, the play, pause and next or previous song keys control the music while there are songs in the queue, and the Windows media panel shows what is playing. Turn it off in *Preferences*, on the *Music* category.
+*Mute the music*, in the *Music* menu, does the same as `Ctrl+Alt+M`. With *Use keyboard media keys*, the play, pause and next or previous song keys control the music while there are songs in the queue, and the Windows media panel shows what is playing. Turn it off in *Preferences*, on the *Music* category.
 
 When you create or edit a playlist, a dialog with two lists opens. In *Playlist songs*, `Delete` removes the song and `Alt+Up Arrow` and `Alt+Down Arrow` move it. *All songs* shows the folder with a checkbox for each song, checked for the ones already in the playlist: checking or unchecking it adds or removes the song. Its menu has the Applications key and *Add all to the playlist*, which adds all the songs shown by the search at once, and `Ctrl+A` selects all. In both lists, `Enter` plays the song.
 
@@ -206,7 +208,7 @@ During the live stream, the button is called *End live stream* and asks for conf
 
 With *Record while broadcasting* checked, in the *Broadcast* menu, OBS records for as long as the live stream lasts. If the recording cannot start, the live stream continues and a warning plays. To record without broadcasting, use the *OBS* menu or the *Recording* tab of the *OBS panel*.
 
-*Save clip* saves the last 30 or 60 seconds, according to the *Clips* list in *Preferences*, on the *OBS* category. With *Allow !clip in chat*, anyone in the chat saves a clip by typing `!clip`, with a wait between clips that is chosen in the same category.
+*Save clip* saves the last 30 or 60 seconds, according to the *Clips* list in *Preferences*, on the *OBS* category. With *Allow {comando} in chat*, anyone in the chat saves a clip by typing `!clip`, with a wait between clips that is chosen in the same category.
 
 When you stop a recording or save a clip, Guyrapu says the file name.
 
@@ -245,7 +247,7 @@ factory layouts, *Full screen*, *Picture-in-picture* and *Split in two*, and
 the dialog lets you choose which source goes in each place, the corner, the
 split and the chat. *Fit* decides what happens if the aspect ratio does not
 match: *Fit* shows the whole source, *Cover* crops the edges and *Automatic*
-fills with the camera and fits the rest. *Save as…* saves your own layout. In the menu for transforming a source, *Stretch to the video* makes it grow to fill the video, as in OBS.
+fills with the camera and fits the rest. *Save as…* saves your own layout. In the menu for transforming a source, *Fit to the video* makes it grow to fill the video, as in OBS.
 On a vertical canvas, *Split in two* stacks the sources at the top and
 bottom, and the chat in a strip goes at the bottom.
 
@@ -307,7 +309,7 @@ The *Audio sources* list shows each source with its status and its filters. If t
 
 ### Recording
 
-*Start recording* and *Stop recording* record without broadcasting, and *Pause recording* pauses the recording in progress: if there is none, it warns in the same way as the menu command. The *Recordings and clips* list brings together the recordings and the clips, from newest to oldest. It plays a sound at the edge, searches as you type and double-click opens the recording. Its context menu opens the file or its folder, copies the path or removes it from the list without deleting the file, and shows the key of each action. If OBS converts the recording to MP4 at the end, the list shows the MP4.
+*Begin recording* and *Stop recording* record without broadcasting, and *Pause recording* pauses the recording in progress: if there is none, it warns in the same way as the menu command. The *Recordings and clips* list brings together the recordings and the clips, from newest to oldest. It plays a sound at the edge, searches as you type and double-click opens the recording. Its context menu opens the file or its folder, copies the path or removes it from the list without deleting the file, and shows the key of each action. If OBS converts the recording to MP4 at the end, the list shows the MP4.
 
 ## <a id="restream"></a>Restream
 
@@ -339,7 +341,7 @@ Before going on air, Guyrapu copies the vertical versions of your scenes to the 
 
 ### Events
 
-*Show* chooses between upcoming events, those that are live and the history. *Event detail* shows its status, its times, its destinations and the description. The context menu copies the event links or information, offers *Open live stream* and adds the statistics to the detail. If there are no events for the chosen filter, the list says so.
+*Show* chooses between upcoming events, those that are live and the history. *Event detail* shows its status, its times, its destinations and the description. The context menu copies the event links or information, offers *Open live* and adds the statistics to the detail. If there are no events for the chosen filter, the list says so.
 
 ### Warnings during the live stream
 
@@ -352,58 +354,85 @@ If the current scene has a camera, Guyrapu says how it sees you: how many faces 
 The commands are in the *OBS* menu:
 
 - *Announce camera framing* says the framing. Twice in a row, it starts the guide with beeps, which sound from the side you have to move to, higher for up and lower for down. In the center a confirmation sounds.
-- *Warn when the face leaves the frame* warns with a sound when the face leaves and with another when it comes back.
+- *Notify when the face leaves the frame* warns with a sound when the face leaves and with another when it comes back.
 - *Show or hide the camera* hides the camera from the scene without turning off the device.
 
 In *Preferences*, on the *Camera* category, you choose the OBS camera, the guide sound and whether left and right are inverted.
 
 ## Interaction
 
-The *Interaction* window brings together what the audience sees and hears in the live stream. Open it with *Open Interaction…*, in the *Interaction* menu, or with `Ctrl+Shift+A`, and it opens again on the last page you used. It has a list of pages and, on the right, the list and the actions of the chosen one. The pages are *Scheduled messages*, *Commands*, *Polls*, *Questions*, *Triggers*, *Goals*, *Media*, *Styles* and *Blocked words*.
+The *Interaction* window brings together what the audience sees and hears in the live stream. Open it with *Open Interaction…*, in the *Interaction* menu, or with `Ctrl+Shift+A`, and it opens again on the last page you used. It has a list of pages on the left and, on the right, the list and the actions of the chosen page.
 
-### <a id="mensajes-automaticos"></a>Scheduled messages
+The pages are split by when something comes out. *Commands* holds what the audience types, *Alerts* what happens in the live stream, and *Scheduled messages* what comes out on its own every so often. Then come *Polls*, *Questions* and *Goals*, and last *Media*, *Styles* and *Blocked words*. To open the help for the page in front of you, press `F1` or the *Help* button. Empty lists say what appears in them and how to add the first item.
 
-Scheduled messages are sent to the chat every so often, for example your social networks every ten minutes. Each message has a name and can appear in the chat, on the video or in both. You can duplicate, sort, preview, export and import them. The ones that choose the video come in with an animation in OBS, stay for their time and leave one at a time, and respect the minimum number of chat messages between one and another. `F2` says what is on the video. They work on your own YouTube live stream with the Google session started. YouTube usually blocks links: type the user name instead. If YouTube returns an error, the messages stop and Guyrapu warns you once. The list says when it is empty, and `Delete` or its context menu remove the chosen message.
+### <a id="contenido"></a>Content
+
+The command, alert and scheduled message dialogs share the *Content* section. It has five fields in this order: *Text*, *Show in*, *Media item*, *Seconds on screen* and *Style*. In *Text* you write what comes out and can use variables. *Show in* chooses *Video*, *Chat* or *Chat and video*. *Media item* chooses a file from the Media folder or *None*. *Seconds on screen* sets how long it stays on the video, and *Style* chooses how it looks. To save you need text or a media item. If it only goes to the chat, you need text and it cannot exceed 200 characters.
 
 ### <a id="comandos"></a>Commands
 
-Commands are the ones the audience can use in the chat. They are created with their reply, where it appears, who can use them and how long they wait. When someone types a command, the reply appears on the video and, if the command asks for it, in the YouTube chat. `F2` says how many commands Guyrapu answered and which was the last one. *Pause commands*, in the *Interaction* menu, or `Ctrl+Alt+Shift+C` from any program, stops answering all of them at once. The list of commands the audience asks for is edited like one more command: its word, `!commands` by default and `!comandos` in Spanish and Portuguese, its text, where it appears and its style, and each command chooses whether it appears in the list.
+Commands are what the audience types in the chat. To create `!hola`, go to *Commands*, reach *Add* with `Tab` and press `Enter`. In *Word* type `!hola`, in *Text* type `Hello, thanks for being here` and in *Show in* choose *Chat and video*. Press *OK* and Guyrapu announces “Command added”. When someone types `!hola`, the audience sees the card on the video and the text in the chat, and the voice reads the chat message. `F2` says how many commands Guyrapu answered and which was the last one.
 
-### <a id="encuestas"></a>Polls
+A command can also come out as sound only. Create `!applause` with *Word* `!applause`, leave *Text* empty and choose `applause.wav` in *Media item*. Leave *Show in* as *Video*. The audience hears the sound on the video and sees no card. Copy the file into the Media folder before you open the dialog so it appears in the list.
 
-In *Polls* you prepare the question, the options, the duration and where the result appears. Polls are started from Interaction. The audience votes with `!1`, `!2` and so on from any chat. Polls appear on the video with their votes and their time, and close by hand with `Ctrl+Alt+Shift+E` or on their own when the time runs out.
+In *Location* you choose *At the beginning of the message* or *Anywhere in the message*. In *Alias* you type other words separated by commas, such as `hello, greeting`, that answer the same way. In *Permission* you choose *All*, *Moderators only*, *A list of names* or *Shortcut only*. The cooldowns *Wait between uses (seconds):* and *Wait per person (seconds):* limit the answers. In *Shortcut* you choose *None* or `Ctrl+Alt+Shift` plus a number from 1 to 9, and the command answers from any application. With *Shortcut only*, the command does not answer the chat and only answers that key. What used to be in "Triggers" as a command, word or shortcut moved only to this page.
 
-### <a id="preguntas"></a>Questions
-
-The audience leaves questions by typing `!pregunta` or `!q` in the chat. Guyrapu keeps them in order, one per person, and warns once when the queue is full. The *Questions* page shows the queue up to date and lets you display one on the video, mark it as answered, delete it or clear the queue. Each question has its own style. `Ctrl+Alt+Shift+R` reads the oldest one from any program.
+*Pause commands*, in the *Interaction* menu, or `Ctrl+Alt+Shift+C` from any application, stops answering all of them at once. The list of commands the audience asks for is edited like any other command: its word, `!commands` by default and `!comandos` in Spanish and Portuguese, its text, where it appears and its style, and each command chooses whether it appears in the list.
 
 ### <a id="alertas"></a>Alerts
 
-A trigger shows a card or a media item when someone uses a chat command or a live event arrives, such as a Super Chat from a certain amount, a gift from a certain amount or a specific TikTok gift by name. It can also fire when a chat message says a word or has an emoji, with its waits and its permission. Triggers are created and edited on the page. Their card can say how much arrived, which gift it was, what the person wrote and how many times it appeared, with `{cantidad}`, `{regalo}`, `{texto}` and `{contador}`. Each one can have a global shortcut, `Ctrl+Alt+Shift` plus a number from 1 to 9, to fire it from any program.
+Alerts respond to what happens in the live stream: a Super Chat, a membership, a new follower or a TikTok gift. They used to be called "Triggers". To create a Super Chat alert, go to *Alerts* and press *Add*. In *Name* type `Thanks for the Super Chat`, in *Event* choose *Super Chats and gifts* and in *Minimum amount* type `5`. In *Text* type `Thanks, {usuario}, for {cantidad}.`, in *Media item* choose an image from the Media folder and in *Show in* choose *Chat and video*. Press *OK*.
+
+When a Super Chat of 5 or more arrives, the audience sees the image and the card on the video and the text in the chat. Guyrapu writes the card in the chat and the voice reads the Super Chat. In *Test without a live stream*, the *Results* list says "The alert Thanks for the Super Chat responded". In *Permission and cooldown* you choose who can trigger it and how often, and the card can use `{usuario}`, `{cantidad}`, `{regalo}`, `{texto}` and `{contador}`. The part of the old triggers that answered commands, words or shortcuts is now in *Commands*.
+
+### <a id="mensajes-automaticos"></a>Scheduled messages
+
+Scheduled messages come out on their own every so often, for example your social networks every ten minutes. To create one with an image, go to *Scheduled messages*, press *Add* and in *Name* type `Social networks`. In *Text* type `Follow me at @yourchannel`, in *Media item* choose `networks.png` and in *Show in* choose *Chat and video*. Leave `10` in *Minimum interval, in minutes* and press *OK*. With the Google session started and a YouTube live stream connected, the audience sees the image and the text on the video and the text in the chat, and the voice reads the message. `F2` says what is on the video.
+
+You can also duplicate, sort, preview, export and import them. The ones that choose the video come in with an animation in OBS, stay for their time and leave one at a time, and respect *Chat messages in between*. YouTube usually blocks links: type the user name instead. If YouTube returns an error, the messages stop and Guyrapu warns you once. `Delete` or the context menu remove the chosen message.
+
+### <a id="encuestas"></a>Polls
+
+In *Polls* you prepare the question, the options, the duration and where the result appears. For example, type `Which game is next?`, add `One` and `Two`, set `2` as the duration and choose *Video*. Start the poll from Interaction. The audience sees the question on the video with the votes and the time, and votes by typing `!1` or `!2` from any chat. With `Ctrl+Alt+Shift+I` you hear the poll with its votes, and `Ctrl+Alt+Shift+E` closes it early.
+
+### <a id="preguntas"></a>Questions
+
+The audience leaves questions by typing `!pregunta` or `!q` in the chat. For example, type `!pregunta What is your channel called?` and the question goes into the queue, one per person. The *Questions* page shows the queue up to date. Select the question and press *Show on the video*: the audience sees it in the card. With `Ctrl+Alt+Shift+R` you hear the oldest one from any program. You can also mark it as answered, delete it or clear the queue. Each question has its own style.
 
 ### <a id="metas"></a>Goals
 
-In *Goals* you prepare the goals of the live stream: what they count, how much is needed and the style and celebration they use. They count likes, followers, members, gifts or Super Chats. When they are reached, a sound and a card with its celebration appear on the video. A goal can show its fixed progress on the video, for example «Followers: 12 of 50», and it is updated as they arrive.
+In *Goals* you prepare the goals of the live stream: what they count, how much is needed and the style and celebration they use. They count likes, followers, members, gifts or Super Chats. For example, create a follower goal with a target of `50`. When it is reached, a sound plays and the audience sees a card on the video with its celebration. You can show its fixed progress, for example «Followers: 12 of 50», and it is updated as they arrive.
 
 ### <a id="medios"></a>Media
 
-*Media* is a library of images, GIFs, videos and sounds with their description and duration, which you can hear before using them. In the dialog of a media item, *Describe image* asks the artificial intelligence for a sentence about what the image or GIF shows, so that `F2` and the list say what the audience sees. Sounds and videos are matched in volume when added, so that none sounds much louder than another. The page has a volume slider for all the media that appear on the video, to balance them with the voice and the game. Triggers show or play their media item, alone or with their card.
+The *Media* folder sits next to the application, like the Music folder. The *Open folder* button on this page opens it in File Explorer. Copy in an image file (`.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`), a video file (`.mp4`, `.webm`, `.mov`, `.mkv`) or a sound file (`.wav`, `.mp3`, `.ogg`, `.m4a`) and it appears in the list when you come back to the page. For example, copy `applause.wav` and press *Listen*: you hear the name and the description of the media item, and the sound or video plays. Press *Listen* again or `Esc` to stop it. The audience hears or sees it when a command or an alert shows it on the video. Media from earlier versions moves to this folder on its own the first time you open the application.
+
+*Describe image* asks the artificial intelligence for a sentence about what the image or GIF shows, so that `F2` and the list say what the audience sees. Sounds and videos are matched in volume when added. The *Volume of the media in the video* slider balances them with the voice and the game. You can also add, edit, duplicate, export and import media items; *Delete* also removes the file from the folder.
 
 ### <a id="estilos"></a>Styles
 
-In *Styles* you create, duplicate, export and import styles for the messages on the video, with font, colors by name, background, area and animation. Each style can be the default for scheduled messages, commands, triggers, polls or goals, and each item can use the default for its type. *Test*, on this page and on *Scheduled messages*, builds the card off air and says where it appears, how much space it takes and whether there are font or contrast problems.
+In *Styles* you create, duplicate, export and import styles for the messages on the video, with font, colors by name, background, area and animation. For example, create a style with a large font and a blue background, and press *Set as default…* to use it in commands. Each style can be the default for scheduled messages, commands, alerts, polls or goals, and each item can use the one for its type. *Test*, on this page and on *Scheduled messages*, builds the card off air and says where it appears, how much space it takes and whether there are font or contrast problems.
 
 ### <a id="palabras-bloqueadas"></a>Blocked words
 
-In *Blocked words* you type the words that are hidden in the name and text of the audience shown by command replies. Text made almost entirely of symbols is not displayed.
+In *Blocked words* you type the words that are hidden in the name and text of the audience shown by command replies. For example, add `spam`: if someone types `!hola spam`, the command card shows `***` instead of the word. Text made almost entirely of symbols is not displayed.
 
 ### <a id="probar-sin-directo"></a>Test without a live stream
 
-*Test without a live stream…*, in the *Interaction* menu, rehearses the interaction without going on air. Type the author, choose the platform and the type, and send messages, Super Chats or gifts. They go through the same route as live messages, appear in the chat list and are handled by commands, triggers, the poll and the goals. What goes to the video appears in OBS as in a live stream, without posting in the chats and without the voice reading it. Closing the window ends the rehearsal and discards what it left. You cannot connect a live stream while the window is open.
+*Test without a live stream…*, in the *Interaction* menu, and the *Test without a live stream* button in the window rehearse the interaction without going on air. You cannot open it with a live stream connected. In *Platform* you choose YouTube or TikTok. The *Type* changes with the platform: in YouTube you have *Message*, *Super Chat* and *Membership*; in TikTok, *Message*, *Gift*, *New follower*, *Likes* and *Shared live streams*. In YouTube *Role* also appears, with *Public*, *Moderator* and *Channel owner*. Type the author and what the type asks for, for example amount and message for a Super Chat, and press *Send*.
+
+The *Results* list keeps a line for each send with the time, what you sent and what responded. For example: "The command !hola responded.", "The alert Thanks for the Super Chat responded.", "Vote counted in the poll", "Question added to the Questions page." or "Goal advanced to 12 of 50.". If nothing responded, the reason says why:
+
+- "no command or alert uses that message." or "no alert uses that event.", when nothing matches.
+- "the command is in cooldown, seconds left.", when its cooldown has not ended. The same is said of an alert.
+- "the command is only for a permission.", when the permission does not include the author, and "the command is paused." or "commands are paused.", when they are stopped.
+
+What goes to the video appears in OBS as in a live stream, without posting in the chats and without the voice reading it. Closing the window ends the rehearsal and discards what it left.
+
 
 ### Global shortcuts
 
-The global `Ctrl+Alt+Shift` shortcuts of the interaction work even when another program has the focus: they pause, skip and clear what appears on the video, mute the media, turn on panic mode, turn scheduled messages on or off, pause commands, close the poll, read the next question and announce the interaction status. They are in the table [Keyboard shortcuts](#keyboard-shortcuts), in the family *Live stream interaction*.
+The global `Ctrl+Alt+Shift` shortcuts of the interaction work even when another program has the focus: they pause, skip and clear what appears on the video, mute the media, turn on panic mode, turn scheduled messages on or off, pause commands, close the poll, read the next question and announce the interaction status. They are in the table [Keyboard shortcuts](#keyboard-shortcuts), in the family *Live interaction*.
 
 ## <a id="descargas"></a>Downloads and history
 
@@ -421,7 +450,7 @@ An artificial intelligence looks at an OBS screenshot and says what it sees, for
 
 In *Preferences*, on the *Artificial intelligence* category, you choose the provider, such as Google Gemini, OpenAI, Anthropic or OpenRouter, save the key and choose the model. When the list of models is updated, Guyrapu tests the chosen model with your key and warns if it does not respond or if it is paid. The key is kept in the Windows Credential Manager. If the key does not have the format Guyrapu expects, it warns you and offers to use it anyway, in case the provider changed the format.
 
-*Ask the AI about the picture…*, in the *View* menu, opens a window where *Add screenshot* chooses the scene or a source, and also the frame of the video shown in the player, with OBS open or closed. The question is typed in *Message*. *Quick query* sends the current scene and reads the response without opening any window. `Ctrl+F2` and `Ctrl+Shift+F2` say the scene and its notices with short and consistent sentences, and the quick query warns if it is canceled. With OBS closed, `Ctrl+Shift+F2` describes the frame shown in the player; in audio-only mode there is no picture and it says so.
+*Ask the AI about the picture…*, in the *View* menu, opens a window where *Add screenshot* chooses the scene or a source, and also the frame of the video shown in the player, with OBS open or closed. The question is typed in *Message*. *Quick AI question* sends the current scene and reads the response without opening any window. `Ctrl+F2` and `Ctrl+Shift+F2` say the scene and its notices with short and consistent sentences, and the quick query warns if it is canceled. With OBS closed, `Ctrl+Shift+F2` describes the frame shown in the player; in audio-only mode there is no picture and it says so.
 
 The conversation has a context menu, `Ctrl+C` copies the chosen message and a sound plays at the beginning or the end of the list. `Ctrl+S`, or *Save conversation…* in the menu of the *Conversation* list, saves the whole conversation to a text file. The AI quotes text in an image exactly as it is written, such as a sign, an alert or the chat inside the video. With the models that allow it, replies are more consistent from one query to the next.
 
@@ -435,7 +464,7 @@ To start it, open *Preferences*, on the *YouTube* category, press *Sign in* and 
 
 ## <a id="preferencias"></a>Preferences
 
-*Preferences…*, in the *Tools* menu, brings together the configuration by categories, and the changes are applied when you press *Save*. In *General* you choose the language and the update channel, and you export, import or reset the preferences. *Show important notices also in a message box* also shows the result of what you do in a box. Each category is prepared the first time you choose it, so the window opens faster.
+*Preferences…*, in the *Tools* menu, brings together the configuration by categories, and the changes are applied when you press *Save*. In *General* you choose the language and the update channel, and you export, import or reset the preferences. *Also show important notices in a message box* also shows the result of what you do in a box. Each category is prepared the first time you choose it, so the window opens faster.
 
 Preferences are saved in `config.ini` and `sounds.ini`, in the `data` folder next to the application.
 
@@ -526,7 +555,7 @@ Each family of shortcuts uses its own modifier keys. They all also appear in the
 | `Ctrl+F2` | Describe the OBS scene |
 | `Ctrl+Shift+F2` | Quick query |
 | `Ctrl+F3` | Announce camera framing. Twice, guide with beeps |
-| `Ctrl+Shift+F3` | Warn when the face leaves the frame |
+| `Ctrl+Shift+F3` | Notify when the face leaves the frame |
 | `Alt+F3` | Show or hide the camera |
 
 ### Live stream interaction (Ctrl+Alt+Shift)

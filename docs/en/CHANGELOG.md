@@ -1,7 +1,27 @@
-<!-- original: es/CHANGELOG.md 4171270767e4fa0ba3cac78a577bca3de903f1cc -->
+<!-- original: es/CHANGELOG.md 5b2c469037c4f27bc171034cfe89606d5c5554b7 -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 7, November 2026
+
+### Interaction
+
+- The pages are split by when something comes out: *Commands* for what the audience types, *Alerts* for what happens in the live stream and *Scheduled messages* for what comes out on its own every so often. Then come *Polls*, *Questions* and *Goals*, and last *Media*, *Styles* and *Blocked words*.
+- *Triggers* is now *Alerts*. What used to answer commands, words or shortcuts moved only to *Commands*, and alerts keep the events of the live stream.
+- Commands accept the word at the beginning or anywhere in the message, aliases, permissions, cooldowns and a `Ctrl+Alt+Shift` shortcut with a number from 1 to 9, including *Shortcut only*.
+- Commands, alerts and scheduled messages share the *Content* section, with *Text*, *Show in*, *Media item*, *Seconds on screen* and *Style*. To save you need text or a media item.
+- Commands and scheduled messages can show a media item from the Media folder. Alerts can also write in the chat.
+- *Test without a live stream* says in *Results* what responded to each send and, if nothing responded, the reason.
+
+### Media
+
+- Media live in the Media folder, next to the application, with the *Open folder* button. Images, GIFs, videos and sounds are supported. Media from earlier versions moves on its own.
+
+### Accessibility
+
+- `F1` and the *Help* button open the manual at the section of each Interaction page.
+- Empty lists say what appears in them and how to add the first item.
 
 ## 3.0.0 beta 6, November 2026
 

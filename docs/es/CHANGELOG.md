@@ -1,5 +1,41 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 7, noviembre de 2026
+
+### Interacción
+
+- Las páginas se reparten por cuándo sale algo: *Comandos* para lo que
+  escribe el público, *Alertas* para lo que pasa en el directo y *Mensajes
+  automáticos* para lo que sale solo cada tanto. Después vienen *Encuestas*,
+  *Preguntas* y *Metas*, y al final *Medios*, *Estilos* y *Palabras
+  bloqueadas*.
+- *Disparadores* se llama *Alertas*. Lo que antes respondía a comandos,
+  palabras o atajos pasó solo a *Comandos*, y las alertas siguen con los
+  eventos del directo.
+- Los comandos admiten la palabra al principio o en cualquier parte del
+  mensaje, alias, permiso, esperas y un atajo `Ctrl+Alt+Mayús` con un número
+  del 1 al 9, también *Solo con el atajo*.
+- Comandos, alertas y mensajes automáticos comparten la sección *Contenido*,
+  con *Texto*, *Mostrar en*, *Medio*, *Segundos en pantalla* y *Estilo*.
+  Para guardar hace falta un texto o un medio.
+- Los comandos y los mensajes automáticos pueden mostrar un medio de la
+  carpeta Medios. Las alertas también pueden escribir en el chat.
+- *Probar sin directo* dice en *Resultados* qué respondió a cada envío y, si
+  nada respondió, el motivo.
+
+### Medios
+
+- Los medios viven en la carpeta Medios, junto a la aplicación, con el botón
+  *Abrir carpeta*. Se admiten imágenes, GIF, vídeos y sonidos. Los medios de
+  versiones anteriores se mudan solos.
+
+### Accesibilidad
+
+- `F1` y el botón *Ayuda* abren el manual en la sección de cada página de
+  Interacción.
+- Las listas vacías dicen qué aparece en ellas y cómo agregar el primer
+  elemento.
+
 ## 3.0.0 beta 6, noviembre de 2026
 
 ### Interacción
