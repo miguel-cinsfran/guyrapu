@@ -65,10 +65,10 @@ class TestContratos(BaseVentana):
             _de_evento("regalo", tarjeta="Gracias")])
         self.assertEqual(panel.lista.GetCount(), 2)
         self.assertEqual(panel.lista.GetString(0),
-                         "aplauso, cuando llega Super Chats y regalos")
+                         "aplauso, cuando llega Super Chats y regalos, en el vídeo")
         self.assertEqual(
             panel.lista.GetString(1),
-            "regalo, cuando llega Super Chats y regalos desde 5")
+            "regalo, cuando llega Super Chats y regalos desde 5, en el vídeo")
 
     def test_la_lista_vacia_y_el_archivo_danado_dicen_que_hacer(self):
         panel = self._panel([])
@@ -192,7 +192,7 @@ class TestAcciones(BaseVentana):
             disparadores_guardados.cargar(paths.disparadores())[0]["activo"])
         self.assertEqual(
             panel.lista.GetString(0),
-            "A, cuando llega Super Chats y regalos, pausado")
+            "A, cuando llega Super Chats y regalos, en el vídeo, pausado")
         decir.assert_called_once_with("Pausado")
 
     def test_escuchar_anuncia_la_frase(self):
@@ -203,7 +203,8 @@ class TestAcciones(BaseVentana):
             panel._escuchar()
         decir.assert_called_once_with(
             "A: cuando llega Super Chats y regalos, muestra el medio "
-            "aplauso.gif y la tarjeta «Gracias por el apoyo».")
+            "aplauso.gif y la tarjeta «Gracias por el apoyo». "
+            "Se muestra en el vídeo.")
 
     def test_eliminar_pide_confirmacion_con_no_predeterminado(self):
         panel = self._panel([_datos("A"), _datos("B", evento="cofre")])

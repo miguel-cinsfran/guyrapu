@@ -13,7 +13,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.capture import programados
-from guyrapu.interaction import coleccion, paquetes
+from guyrapu.interaction import coleccion, descripcion_disparador, paquetes
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import botonera
 from guyrapu.ui import confirmar
@@ -213,15 +213,17 @@ class PanelMensajesAutomaticos(wx.Panel):
             return
         mensaje = self._mensajes[indice]
         texto = mensaje.get("texto", "")
+        medio = descripcion_disparador.medio(mensaje.get("medio", ""))
         if mensaje.get("destino") not in ("video", "ambos"):
-            anunciar(texto)
+            anunciar(" ".join(parte for parte in (texto, medio) if parte))
             return
         usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
         por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
         estilo = estilos_aviso.buscar_para(
             mensaje.get("estilo", ""), "mensaje", usuario, por_tipo)
         anunciar(_("{texto}. Estilo: {estilo}.").format(
-            texto=texto, estilo=_(estilo.get("nombre", ""))))
+            texto=f"{texto}. {medio}" if medio else texto,
+            estilo=_(estilo.get("nombre", ""))))
 
     def _probar(self):
         indice = self._elegido()

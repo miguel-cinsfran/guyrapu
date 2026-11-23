@@ -9,6 +9,7 @@ un disparador guardado.
 from __future__ import annotations
 
 from guyrapu.core.idioma import _
+from guyrapu.interaction import descripcion_comando
 from guyrapu.interaction.disparadores import NOMBRES_EVENTOS, Disparador
 
 
@@ -30,20 +31,28 @@ def _cuando(disparador: Disparador) -> str:
         evento=nombre, minimo=_numero(disparador.minimo))
 
 
+def medio(nombre) -> str:
+    """Cómo se nombra un medio al describir lo que sale."""
+    nombre = (nombre or "").strip()
+    # Traductores: descripción de lo que sale. {medio} es el nombre del medio.
+    return _("muestra el medio {medio}").format(medio=nombre) if nombre else ""
+
+
 def _que(disparador: Disparador) -> str:
-    medio = (disparador.medio or "").strip()
+    medio_elegido = (disparador.medio or "").strip()
     tarjeta = (disparador.tarjeta or "").strip()
-    if medio and tarjeta:
+    if medio_elegido and tarjeta:
         return _("muestra el medio {medio} y la tarjeta «{tarjeta}»").format(
-            medio=medio, tarjeta=tarjeta)
-    if medio:
-        return _("muestra el medio {medio}").format(medio=medio)
+            medio=medio_elegido, tarjeta=tarjeta)
+    if medio_elegido:
+        return medio(medio_elegido)
     return _("muestra la tarjeta «{tarjeta}»").format(tarjeta=tarjeta)
 
 
 def fila(disparador: Disparador) -> str:
-    """La línea de la lista: nombre, cuándo y si está en pausa."""
-    partes = [disparador.nombre, _cuando(disparador)]
+    """La línea de la lista: nombre, cuándo, dónde sale y si está en pausa."""
+    partes = [disparador.nombre, _cuando(disparador),
+              descripcion_comando.destino(disparador.destino)]
     if not disparador.activo:
         partes.append(_("pausado"))
     return ", ".join(partes)
@@ -54,6 +63,9 @@ def escuchar(disparador: Disparador) -> str:
     frase = _("{nombre}: {cuando}, {que}.").format(
         nombre=disparador.nombre, cuando=_cuando(disparador),
         que=_que(disparador))
+    # Traductores: descripción de la alerta. {destino} es en el vídeo, en el chat o en el vídeo y en el chat.
+    frase += " " + _("Se muestra {destino}.").format(
+        destino=descripcion_comando.destino(disparador.destino))
     if not disparador.activo:
         frase += " " + _("En pausa.")
     return frase

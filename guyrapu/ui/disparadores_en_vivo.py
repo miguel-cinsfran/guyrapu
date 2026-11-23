@@ -14,11 +14,11 @@ from __future__ import annotations
 
 from guyrapu.core import diagnostico, paths
 from guyrapu.interaction import (
-    comandos, conversion_disparadores, disparadores, disparadores_guardados,
-    ensayo, filtro_publico, medio_en_video)
+    atencion, comandos, conversion_disparadores, disparadores,
+    disparadores_guardados, ensayo, filtro_publico, medio_en_video)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
-from guyrapu.ui import gui_envio_chat
+from guyrapu.ui import comandos_en_vivo, gui_envio_chat
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -52,6 +52,7 @@ class DisparadoresEnVivo:
         self._palabras_bloqueadas = []
         self._esperas = comandos.Esperas()
         self._contadores: dict[str, int] = {}
+        self._ultimo_chat = None
         self._cargado = False
         self._mtime = None
         self._cargado_palabras = False
@@ -65,7 +66,7 @@ class DisparadoresEnVivo:
         logrados = disparadores.cumplidos(
             self._disparadores, evento, self._esperas, ahora)
         for disparador in logrados:
-            self._poner(disparador, evento)
+            self._poner(disparador, evento, ahora)
         informe = ensayo.informe(self._frame)
         if informe is not None:
             for disparador in logrados:
@@ -74,7 +75,7 @@ class DisparadoresEnVivo:
                 informe.motivo(disparadores.motivo(
                     self._disparadores, evento, self._esperas, ahora))
 
-    def _poner(self, disparador, evento) -> None:
+    def _poner(self, disparador, evento, ahora) -> None:
         tarjeta = (disparador.tarjeta or "").strip()
         medio = medio_en_video.resolver(disparador.medio)
         if not tarjeta and medio is None:
@@ -86,12 +87,26 @@ class DisparadoresEnVivo:
                 disparador, evento, contador, self._palabras_bloqueadas)
         else:
             texto = ""
+        al_video, al_chat = self._destinos(disparador, evento, ahora)
+        if al_chat and texto.strip():
+            gui_envio_chat.enviar_respuesta_chat(self._frame, texto)
+        if not al_video:
+            return
         segundos = disparador.segundos
         datos = {"estilo": disparador.estilo, "nombre": disparador.nombre}
         datos, segundos = medio_en_video.con_medio(datos, segundos, medio)
         pieza = Pieza(tipo="disparador", texto=texto, segundos=segundos,
                       datos=datos)
         gui_envio_chat.capa_de_video(self._frame).agregar_pieza(pieza)
+
+    def _destinos(self, disparador, evento, ahora):
+        if disparador.destino == "video":
+            return True, False
+        disponibles = gui_envio_chat.destinos_disponibles(self._frame)
+        al_video, al_chat, _freno, self._ultimo_chat = atencion.repartir(
+            disparador.destino, evento, ahora, "chat" in disponibles,
+            comandos_en_vivo._cuota_baja(), self._ultimo_chat)
+        return al_video, al_chat
 
     def _recargar(self) -> None:
         """Vuelve a leer los disparadores y las palabras si cambiaron."""

@@ -9,16 +9,20 @@ import math
 import re
 
 from guyrapu.core import archivos
-from guyrapu.capture.redaccion import MAXIMO_CHAT as MAX_CARACTERES
+from guyrapu.capture import redaccion
 from guyrapu.core.idioma import _, ngettext
+from guyrapu.interaction import contenido, descripcion_disparador
 
 
 MINUTOS_MINIMOS = 5  # Piso de prudencia contra el antispam.
 SEGUNDOS_ENTRE_ENVIOS = 60  # Si dos vencen a la vez, el segundo espera.
+# La usan el cuadro y las pruebas.
+MAX_CARACTERES = redaccion.MAXIMO_CHAT
 
 VALORES_POR_DEFECTO = {
     "nombre": "",
     "texto": "",
+    "medio": "",
     "minutos_min": 10,
     "minutos_max": 10,
     "activo": False,
@@ -32,15 +36,17 @@ VALORES_POR_DEFECTO = {
 _URL_RE = re.compile(r"(?:https?://|www\.)", re.IGNORECASE)
 
 
-def validar_mensaje(texto: str, minutos_min: int, minutos_max: int) -> tuple[str, str]:
+def validar_mensaje(texto: str, medio: str, destino: str,
+                    minutos_min: int, minutos_max: int) -> tuple[str, str]:
     """Valida un mensaje y devuelve un error y un aviso, en ese orden."""
-    if not texto.strip():
-        # Traductores: validación de mensajes programados (error).
-        return _("El mensaje no puede estar vacío."), ""
-    if len(texto) > MAX_CARACTERES:
+    # Traductores: validación de mensajes programados (error).
+    error = contenido.validar(
+        texto, medio, destino, nombre=_("El mensaje automático"),
         # Traductores: validación de mensajes programados (error). {actual} es el largo y {maximo} el tope.
-        return (_("El mensaje tiene {actual} caracteres y el máximo es "
-                  "{maximo}.").format(actual=len(texto), maximo=MAX_CARACTERES)), ""
+        error_largo=_("El mensaje tiene {actual} caracteres y el máximo es "
+                      "{maximo}."))
+    if error:
+        return error, ""
     if minutos_min < MINUTOS_MINIMOS:
         # Traductores: validación de mensajes programados (error). {minimo} es el mínimo.
         return _("El intervalo mínimo son {minimo} minutos.").format(minimo=MINUTOS_MINIMOS), ""
@@ -153,8 +159,10 @@ def describir_mensaje(mensaje: dict) -> str:
     nombre = str(mensaje.get("nombre", "")).strip() or _nombre_del_texto(
         str(mensaje.get("texto", "")))
     # Traductores: línea de la lista de mensajes programados. {nombre} es el nombre, {estado} es activo o pausado, {destino} es chat, vídeo o chat y vídeo, e {intervalo} la frecuencia.
-    return _("{nombre}: {estado}, {destino}, {intervalo}").format(
+    fila = _("{nombre}: {estado}, {destino}, {intervalo}").format(
         nombre=nombre, estado=estado, destino=destino, intervalo=intervalo)
+    medio = descripcion_disparador.medio(mensaje.get("medio", ""))
+    return fila + (", " + medio if medio else "")
 
 
 def describir_proximo(mensajes: list[dict], ahora: float) -> str:

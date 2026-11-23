@@ -30,10 +30,11 @@ def _atajo(comando: Comando) -> str:
     return _("Ctrl+Alt+Mayús+{n}").format(n=comando.atajo)
 
 
-def _destino(destino: str) -> str:
+def destino(valor: str) -> str:
+    """Las palabras con que se dice dónde se muestra algo."""
     return {"video": _("en el vídeo"), "chat": _("en el chat"),
             "ambos": _("en el vídeo y en el chat")}.get(
-                destino, _("en el vídeo"))
+                valor, _("en el vídeo"))
 
 
 def _quien(comando: Comando) -> str:
@@ -61,7 +62,7 @@ def fila(comando: Comando) -> str:
     partes = [_nombre(comando, comando.nombre)]
     if comando.ubicacion == "cualquiera":
         partes.append(_("en cualquier parte del mensaje"))
-    partes.append(_destino(comando.destino))
+    partes.append(destino(comando.destino))
     if comando.medio:
         partes.append(_("con el medio {medio}").format(medio=comando.medio))
     partes.append(_quien(comando))
@@ -112,11 +113,11 @@ def escuchar(comando: Comando, estilo: str) -> str:
     if comando.destino in ("video", "ambos"):
         partes.append(_("Se muestra {destino}, con el estilo {estilo} y "
                        "{segundos} segundos en pantalla.").format(
-                           destino=_destino(comando.destino), estilo=estilo,
+                           destino=destino(comando.destino), estilo=estilo,
                            segundos=comando.segundos))
     else:
         partes.append(_("Se muestra {destino}.").format(
-            destino=_destino(comando.destino)))
+            destino=destino(comando.destino)))
     partes.append(_("Puede usarlo: {quien}.").format(quien=_quien(comando)))
     partes.append(_("Espera {general} segundos entre usos y {persona} "
                    "segundos por persona.").format(

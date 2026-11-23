@@ -26,13 +26,13 @@ NOMBRES_ACCESIBLES = (
     "Nombre del regalo. Déjalo vacío para cualquier regalo. Escribe el nombre "
     "tal como lo lee Guyrapu.",
     "Texto. Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.",
-    "Medio", "Segundos en pantalla", "Estilo",
+    "Mostrar en", "Medio", "Segundos en pantalla", "Estilo",
     "Permiso", "Nombres permitidos", "Espera general (segundos)",
     "Espera por persona (segundos)", "Aceptar", "Cancelar")
 
 ETIQUETAS = (
     "&Nombre:", "E&vento:", "Cantidad mín&ima:", "Nom&bre del regalo:",
-    "&Texto:", "Me&dio:", "&Segundos en pantalla:", "&Estilo:",
+    "&Texto:", "&Mostrar en:", "Me&dio:", "&Segundos en pantalla:", "&Estilo:",
     "Pe&rmiso:", "Nombres &permitidos:", "Espera &general (segundos):",
     "Espera por pers&ona (segundos):")
 
@@ -75,14 +75,16 @@ class TestCampos(BaseCuadro):
     def test_la_seccion_contenido_tiene_sus_rotulos_en_orden(self):
         self.assertEqual(
             tuple(self._cuadro()._contenido.rotulos()),
-            ("&Texto:", "Me&dio:", "&Segundos en pantalla:", "&Estilo:"))
+            ("&Texto:", "&Mostrar en:", "Me&dio:", "&Segundos en pantalla:",
+             "&Estilo:"))
 
     def test_cada_control_tiene_el_nombre_accesible_de_su_rotulo(self):
         cuadro = self._cuadro()
         controles = (
             cuadro.txt_nombre, cuadro.cho_evento,
             cuadro.txt_minimo, cuadro.txt_regalo,
-            cuadro.txt_tarjeta, cuadro.cho_medio, cuadro.sp_segundos,
+            cuadro.txt_tarjeta, cuadro.cho_destino, cuadro.cho_medio,
+            cuadro.sp_segundos,
             cuadro.cho_estilo, cuadro.cho_permiso, cuadro.txt_nombres,
             cuadro.sp_espera, cuadro.sp_persona, cuadro.btn_aceptar,
             cuadro.btn_cancelar)
@@ -189,6 +191,10 @@ class TestCampos(BaseCuadro):
         self.assertEqual(cuadro.cho_medio.GetStrings(),
                          ["Ninguno", "aplauso.gif"])
 
+    def test_p1_mostrar_en_ofrece_las_mismas_opciones_del_comando(self):
+        self.assertEqual(self._cuadro().cho_destino.GetStrings(),
+                         ["Vídeo", "Chat", "Chat y vídeo"])
+
     def test_los_segundos_y_las_esperas_tienen_sus_topes(self):
         cuadro = self._cuadro()
         self.assertEqual(
@@ -225,6 +231,7 @@ class TestDatos(BaseCuadro):
             disparadores.EVENTOS_DE_ALERTA.index("superchat"))
         cuadro.txt_minimo.SetValue("5")
         cuadro.cho_medio.SetSelection(1)
+        cuadro.cho_destino.SetSelection(2)
         cuadro.txt_tarjeta.SetValue("Gracias")
         cuadro._elegir_estilo("banda")
         cuadro.sp_segundos.SetValue(15)
@@ -235,19 +242,27 @@ class TestDatos(BaseCuadro):
         self.assertEqual(cuadro.datos(), {
             "nombre": "regalo", "cuando": "evento", "evento": "superchat",
             "minimo": 5.0, "regalo": "", "medio": "aplauso.gif",
-            "tarjeta": "Gracias", "estilo": "banda", "segundos": 15,
+            "destino": "ambos", "tarjeta": "Gracias", "estilo": "banda",
+            "segundos": 15,
             "permiso": "lista", "nombres": ["Ana", "Beto"],
             "espera_general": 10.0, "espera_persona": 40.0, "activo": True})
 
     def test_abrir_y_devolver_el_modelo_conserva_todo_el_contenido(self):
         datos = {"nombre": "aviso", "cuando": "evento", "evento": "superchat",
-                 "medio": "aplauso.gif", "tarjeta": "Gracias {usuario}",
+                 "medio": "aplauso.gif", "destino": "chat",
+                 "tarjeta": "Gracias {usuario}",
                  "estilo": "banda", "segundos": 25}
         disparador = self._cuadro(datos)._disparador_de_campos()
         self.assertEqual(disparador.tarjeta, "Gracias {usuario}")
         self.assertEqual(disparador.medio, "aplauso.gif")
+        self.assertEqual(disparador.destino, "chat")
         self.assertEqual(disparador.estilo, "banda")
         self.assertEqual(disparador.segundos, 25)
+
+    def test_p1_una_alerta_vieja_se_abre_en_el_video(self):
+        cuadro = self._cuadro({"nombre": "aviso", "tarjeta": "Gracias"})
+        self.assertEqual(cuadro.cho_destino.GetSelection(), 0)
+        self.assertEqual(cuadro.datos()["destino"], "video")
 
     def test_p3_el_cuadro_carga_y_guarda_el_regalo(self):
         cuadro = self._cuadro({
@@ -315,6 +330,13 @@ class TestValidacion(BaseCuadro):
         with mock.patch.object(cuadro.txt_tarjeta, "SetFocus") as foco:
             self._aceptar_con_error(cuadro)
         foco.assert_called_once()
+
+    def test_p5_con_solo_medio_y_destino_chat_pide_un_texto(self):
+        cuadro = self._cuadro({"nombre": "aviso", "medio": "aplauso.gif",
+                               "destino": "chat"})
+        decir = self._aceptar_con_error(cuadro)
+        self.assertEqual(decir.call_args.args[0],
+                         "Para mostrarlo en el chat, escribe un texto.")
 
     def test_p6_una_variable_que_no_existe_muestra_su_error(self):
         cuadro = self._cuadro()

@@ -13,7 +13,7 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _
 from guyrapu.capture import programados
-from guyrapu.interaction import estilo_elegido
+from guyrapu.interaction import estilo_elegido, medios_guardados
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import formulario, paleta, seccion_contenido, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
@@ -29,6 +29,10 @@ def _destinos():
     return [_("Chat"), _("Vídeo"), _("Chat y vídeo")]
 
 
+def _medios():
+    return medios_guardados.cargar(paths.medios())
+
+
 class DialogoMensaje(wx.Dialog):
     """Nombre, texto, destino, estilo, tiempos y actividad de un mensaje."""
 
@@ -41,6 +45,7 @@ class DialogoMensaje(wx.Dialog):
         self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
         self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
         self._estilos = estilos_aviso.todos(self._usuario)
+        self._medios = _medios()
         self._opciones = estilo_elegido.opciones(
             self._usuario, self._por_tipo, "mensaje")
         self._crear_controles(mensaje)
@@ -77,13 +82,25 @@ class DialogoMensaje(wx.Dialog):
 
     def _crear_contenido(self, panel, vs):
         self._contenido = seccion_contenido.SeccionContenido(
-            panel, vs, ("texto", "mostrar_en", "segundos", "estilo"),
-            destinos=_destinos(), estilos=self._opciones, segundos=10)
+            panel, vs,
+            ("texto", "mostrar_en", "medio", "segundos", "estilo"),
+            destinos=_destinos(), medios=self._nombres_de_medios(),
+            estilos=self._opciones, segundos=10)
         self.txt_texto = self._contenido.txt_texto
         self.cho_destino = self._contenido.cho_destino
+        self.cho_medio = self._contenido.cho_medio
         self.sp_segundos = self._contenido.sp_segundos
         self.cho_estilo = self._contenido.cho_estilo
         self.txt_texto.SetMaxLength(programados.MAX_CARACTERES)
+
+    def _nombres_de_medios(self):
+        return [str(medio.get("nombre", "")) for medio in self._medios]
+
+    def _medio_elegido(self):
+        indice = self.cho_medio.GetSelection()
+        if indice <= 0:
+            return ""
+        return self._nombres_de_medios()[indice - 1]
 
     def _campo(self, panel, nombre):
         campo = wx.TextCtrl(panel, name=nombre)
@@ -111,6 +128,7 @@ class DialogoMensaje(wx.Dialog):
         self._contenido.poner({
             "texto": mensaje.get("texto", ""),
             "mostrar_en": _DESTINOS.index(mensaje.get("destino", "chat")),
+            "medio": mensaje.get("medio", ""),
             "segundos": mensaje.get("segundos_pantalla", 10),
         })
         self._elegir_estilo(
@@ -133,9 +151,12 @@ class DialogoMensaje(wx.Dialog):
             self.txt_nombre.SetFocus()
             return
         texto = self.txt_texto.GetValue()
+        medio = self._medio_elegido()
+        destino = _DESTINOS[self.cho_destino.GetSelection()]
         minimo = self.sp_min.GetValue()
         maximo = self.sp_max.GetValue()
-        error, aviso = programados.validar_mensaje(texto, minimo, maximo)
+        error, aviso = programados.validar_mensaje(
+            texto, medio, destino, minimo, maximo)
         if error:
             anunciar(error)
             self._foco_del_error(texto, minimo)
@@ -158,6 +179,7 @@ class DialogoMensaje(wx.Dialog):
             "nombre": self.txt_nombre.GetValue().strip(),
             "texto": self.txt_texto.GetValue(),
             "destino": _DESTINOS[self.cho_destino.GetSelection()],
+            "medio": self._medio_elegido(),
             "estilo": estilo_elegido.clave_de(
                 self.cho_estilo.GetSelection(), self._estilos),
             "segundos_pantalla": self.sp_segundos.GetValue(),

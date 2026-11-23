@@ -167,11 +167,11 @@ class Base(unittest.TestCase):
             animador=self.animador, medio=self.medio, reloj=lambda: self.ahora)
 
     def _mensaje(self, texto="Hola", nombre="Saludo", destino="video",
-                 estilo="tarjeta", segundos=10):
+                 estilo="tarjeta", segundos=10, medio=""):
         return {"texto": texto, "nombre": nombre, "destino": destino,
                 "estilo": estilo, "segundos_pantalla": segundos,
-                "activo": True, "proximo": 0.0, "minutos_min": 10,
-                "minutos_max": 10, "mensajes_entre": 0}
+                "medio": medio, "activo": True, "proximo": 0.0,
+                "minutos_min": 10, "minutos_max": 10, "mensajes_entre": 0}
 
     def _esperar(self):
         import time
@@ -198,6 +198,18 @@ class TestAgregar(Base):
                          ("mensaje", "Hola", 7))
         self.assertEqual(pieza.datos, {"estilo": "tarjeta",
                                        "nombre": "Saludo"})
+
+    def test_p4_un_mensaje_con_medio_lleva_el_medio_en_la_misma_pieza(self):
+        medio = {"ruta": "fuegos.mp4", "tipo": "video", "duracion": 12,
+                 "ganancia_db": None}
+        with mock.patch.object(capa_video.medio_en_video, "resolver",
+                               return_value=medio) as resolver:
+            self.assertTrue(self.capa.agregar(
+                self._mensaje(segundos=5, medio="fuegos")))
+        resolver.assert_called_once_with("fuegos")
+        pieza = self.capa.cola.ordenes(0)[0].pieza
+        self.assertEqual(pieza.segundos, 12)
+        self.assertEqual(pieza.datos["medio"], medio)
 
 
 class TestMostrarYOcultar(Base):

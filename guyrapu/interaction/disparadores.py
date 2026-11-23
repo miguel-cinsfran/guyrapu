@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core.idioma import N_, _
-from guyrapu.interaction import comandos, filtro_publico, informe_ensayo
+from guyrapu.interaction import comandos, contenido, filtro_publico, informe_ensayo
 from guyrapu.interaction.texto import normalizar
 
 CUANDOS = ("evento",)
@@ -51,6 +51,7 @@ class Disparador:
     minimo: float | None = None
     regalo: str = ""
     medio: str = ""
+    destino: str = "video"
     tarjeta: str = ""
     estilo: str = ""
     segundos: int = 8
@@ -190,11 +191,14 @@ def _error_de_evento(disparador: Disparador, _otros) -> tuple[str, str]:
 
 
 def _error_de_que(disparador: Disparador, _otros) -> tuple[str, str]:
-    if not (disparador.medio or "").strip() \
-            and not (disparador.tarjeta or "").strip():
-        # Traductores: validación de alertas del directo (error).
-        return "tarjeta", _("La alerta necesita un texto o un medio.")
-    return "", ""
+    # Traductores: validación de alertas del directo (error).
+    mensaje = contenido.validar(
+        disparador.tarjeta, disparador.medio, disparador.destino,
+        nombre=_("La alerta"),
+        # Traductores: validación de alertas del directo (error). {actual} es el largo y {maximo} el tope del chat.
+        error_largo=_("La tarjeta tiene {actual} caracteres y el máximo para el "
+                      "chat es {maximo}."))
+    return ("tarjeta", mensaje) if mensaje else ("", "")
 
 
 def variables_desconocidas(tarjeta) -> list[str]:

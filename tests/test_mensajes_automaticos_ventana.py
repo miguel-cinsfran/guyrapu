@@ -25,9 +25,11 @@ from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
 
-def _mensaje(nombre, texto=None, destino="chat", activo=True, estilo="clasico"):
+def _mensaje(nombre, texto=None, destino="chat", activo=True, estilo="clasico",
+             medio=""):
     return {
-        "nombre": nombre, "texto": texto or nombre, "minutos_min": 10,
+        "nombre": nombre, "texto": texto or nombre, "medio": medio,
+        "minutos_min": 10,
         "minutos_max": 10, "activo": activo, "proximo": 0.0,
         "destino": destino, "estilo": estilo, "segundos_pantalla": 10,
         "mensajes_entre": 0,
@@ -125,7 +127,17 @@ class TestContratos(BaseVentana):
         cuadro = self._cuadro()
         self.assertEqual(
             tuple(cuadro._contenido.rotulos()),
-            ("&Texto:", "&Mostrar en:", "&Segundos en pantalla:", "&Estilo:"))
+            ("&Texto:", "&Mostrar en:", "Me&dio:", "&Segundos en pantalla:",
+             "&Estilo:"))
+
+    def test_p3_el_cuadro_ofrece_la_eleccion_de_medio(self):
+        self.assertEqual(self._cuadro().cho_medio.GetStrings(), ["Ninguno"])
+
+    def test_p3_un_mensaje_guardado_sin_medio_se_abre_sin_medio(self):
+        cuadro = self._cuadro({"nombre": "aviso", "texto": "Hola",
+                               "destino": "video"})
+        self.assertEqual(cuadro.cho_medio.GetSelection(), 0)
+        self.assertEqual(cuadro.datos()["medio"], "")
 
     def test_abrir_y_devolver_el_modelo_conserva_todo_el_contenido(self):
         mensaje = _mensaje("aviso", texto="Hola {usuario}", destino="ambos",
@@ -166,7 +178,8 @@ class TestContratos(BaseVentana):
                 mock.patch.object(cuadro.txt_texto, "SetFocus") as foco:
             cuadro._aceptar(None)
         cerrar.assert_not_called()
-        decir.assert_called_once_with("El mensaje no puede estar vacío.")
+        decir.assert_called_once_with(
+            "El mensaje automático necesita un texto o un medio.")
         foco.assert_called_once()
         cuadro.txt_texto.SetValue("Hola")
         with mock.patch.object(cuadro.sp_min, "GetValue", return_value=10), \
@@ -261,6 +274,15 @@ class TestAcciones(BaseVentana):
         with mock.patch.object(mensajes_automaticos_ventana, "anunciar") as decir:
             panel._escuchar()
         decir.assert_called_once_with("Hola. Estilo: Banda.")
+
+    def test_p6_escuchar_nombra_el_medio_con_las_palabras_de_la_alerta(self):
+        panel = self._panel([_mensaje(
+            "A", texto="Hola", destino="video", medio="aplauso.gif")])
+        panel.lista.SetSelection(0)
+        with mock.patch.object(mensajes_automaticos_ventana, "anunciar") as decir:
+            panel._escuchar()
+        decir.assert_called_once_with(
+            "Hola. muestra el medio aplauso.gif. Estilo: Clásico.")
 
     def test_escuchar_solo_el_texto_si_no_sale_en_el_video(self):
         panel = self._panel([_mensaje("A", texto="Hola", destino="chat")])

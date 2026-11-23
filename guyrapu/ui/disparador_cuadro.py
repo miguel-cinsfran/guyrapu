@@ -36,6 +36,10 @@ def _permisos():
     return [_("Todos"), _("Solo moderadores"), _("Una lista de nombres")]
 
 
+def _destinos():
+    return [_("Vídeo"), _("Chat"), _("Chat y vídeo")]
+
+
 def _medios():
     return medios_guardados.cargar(paths.medios())
 
@@ -124,11 +128,14 @@ class DialogoDisparador(wx.Dialog):
 
     def _crear_contenido(self, panel, columna):
         self._contenido = seccion_contenido.SeccionContenido(
-            panel, columna, ("texto", "medio", "segundos", "estilo"),
-            ayuda=_(AYUDA_TARJETA), medios=self._nombres_de_medios(),
+            panel, columna,
+            ("texto", "mostrar_en", "medio", "segundos", "estilo"),
+            ayuda=_(AYUDA_TARJETA), destinos=_destinos(),
+            medios=self._nombres_de_medios(),
             estilos=estilo_elegido.opciones(
                 self._usuario, self._por_tipo, "disparador"))
         self.txt_tarjeta = self._contenido.txt_texto
+        self.cho_destino = self._contenido.cho_destino
         self.cho_medio = self._contenido.cho_medio
         self.sp_segundos = self._contenido.sp_segundos
         self.cho_estilo = self._contenido.cho_estilo
@@ -184,6 +191,7 @@ class DialogoDisparador(wx.Dialog):
         self.txt_regalo.SetValue(disparador.regalo)
         self._contenido.poner({
             "texto": disparador.tarjeta,
+            "mostrar_en": comandos.DESTINOS.index(disparador.destino),
             "medio": disparador.medio,
             "segundos": disparador.segundos,
         })
@@ -231,6 +239,7 @@ class DialogoDisparador(wx.Dialog):
             regalo=(self.txt_regalo.GetValue().strip()
                     if evento == "superchat" else ""),
             medio=self._medio_elegido(),
+            destino=comandos.DESTINOS[self.cho_destino.GetSelection()],
             tarjeta=self.txt_tarjeta.GetValue(),
             estilo=estilo_elegido.clave_de(
                 self.cho_estilo.GetSelection(), self._estilos),

@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 
 from guyrapu.core import archivos
-from guyrapu.interaction.comandos import PERMISOS, separar_nombres
+from guyrapu.interaction.comandos import DESTINOS, PERMISOS, separar_nombres
 from guyrapu.interaction.disparadores import (
     CUANDOS, EVENTOS_DEL_DIRECTO, Disparador)
 
@@ -68,6 +68,7 @@ def a_disparador(datos: dict) -> Disparador:
         minimo=_opcional(datos.get("minimo")),
         regalo=_texto(datos.get("regalo")),
         medio=_texto(datos.get("medio")),
+        destino=_elegido(datos.get("destino"), DESTINOS, "video"),
         tarjeta=_texto(datos.get("tarjeta")),
         estilo=_estilo(datos),
         segundos=_numero(datos.get("segundos"), 8, int),
@@ -88,6 +89,7 @@ def desde_disparador(disparador: Disparador) -> dict:
         "minimo": disparador.minimo,
         "regalo": disparador.regalo,
         "medio": disparador.medio,
+        "destino": disparador.destino,
         "tarjeta": disparador.tarjeta,
         "estilo": disparador.estilo,
         "segundos": disparador.segundos,

@@ -17,23 +17,31 @@ class TestConstantes(unittest.TestCase):
 
 class TestValidarMensaje(unittest.TestCase):
     def test_acepta_mensaje_valido(self):
-        self.assertEqual(programados.validar_mensaje("Sígueme", 10, 15), ("", ""))
+        self.assertEqual(
+            programados.validar_mensaje("Sígueme", "", "chat", 10, 15), ("", ""))
 
     def test_rechaza_texto_vacio(self):
-        self.assertEqual(programados.validar_mensaje("  ", 10, 10)[0],
-                         "El mensaje no puede estar vacío.")
+        self.assertEqual(
+            programados.validar_mensaje("  ", "", "chat", 10, 10)[0],
+            "El mensaje automático necesita un texto o un medio.")
 
     def test_rechaza_texto_largo(self):
-        error, _ = programados.validar_mensaje("x" * 201, 10, 10)
+        error, _ = programados.validar_mensaje("x" * 201, "", "chat", 10, 10)
         self.assertEqual(error, "El mensaje tiene 201 caracteres y el máximo es 200.")
 
     def test_rechaza_minimo_bajo(self):
-        error, _ = programados.validar_mensaje("Hola", 4, 10)
+        error, _ = programados.validar_mensaje("Hola", "", "chat", 4, 10)
         self.assertEqual(error, "El intervalo mínimo son 5 minutos.")
 
     def test_rechaza_maximo_menor(self):
-        error, _ = programados.validar_mensaje("Hola", 10, 9)
+        error, _ = programados.validar_mensaje("Hola", "", "chat", 10, 9)
         self.assertEqual(error, "El intervalo máximo no puede ser menor que el mínimo.")
+
+    def test_p5_un_medio_solo_no_basta_si_el_destino_es_el_chat(self):
+        error, _ = programados.validar_mensaje("", "fuegos", "chat", 10, 10)
+        self.assertEqual(error, "Para mostrarlo en el chat, escribe un texto.")
+        self.assertEqual(
+            programados.validar_mensaje("", "fuegos", "video", 10, 10)[0], "")
 
     def test_avisa_url_sin_rechazar(self):
         aviso_esperado = ("YouTube suele bloquear los enlaces en el chat del directo. "
@@ -41,7 +49,7 @@ class TestValidarMensaje(unittest.TestCase):
         for prefijo in ("http://", "https://", "www."):
             with self.subTest(prefijo=prefijo):
                 error, aviso = programados.validar_mensaje(
-                    f"Visita {prefijo}ejemplo.com", 10, 10)
+                    f"Visita {prefijo}ejemplo.com", "", "chat", 10, 10)
                 self.assertEqual(error, "")
                 self.assertEqual(aviso, aviso_esperado)
 
@@ -214,6 +222,13 @@ class TestDescribirMensaje(unittest.TestCase):
             "nombre": "Ahora", "destino": "ambos", "texto": "Ahora",
         }), "Ahora: Pausado, chat y vídeo, cada 1 minuto")
 
+    def test_p6_la_fila_nombra_el_medio_con_las_palabras_de_la_alerta(self):
+        self.assertEqual(programados.describir_mensaje({
+            "activo": True, "minutos_min": 10, "minutos_max": 10,
+            "nombre": "Música", "destino": "video", "texto": "Hola",
+            "medio": "fuegos.mp3",
+        }), "Música: Activo, vídeo, cada 10 minutos, muestra el medio fuegos.mp3")
+
     def test_sin_nombre_usa_el_comienzo_del_texto(self):
         self.assertEqual(programados.describir_mensaje({
             "minutos_min": 10, "minutos_max": 10, "texto": "x" * 61,
@@ -244,7 +259,7 @@ class TestAlmacenamiento(unittest.TestCase):
     def test_cargar_filtra_y_completa_elementos(self):
         self.ruta.write_text('[{"texto": "Hola"}, "basura"]', encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
-            "nombre": "Hola", "texto": "Hola", "minutos_min": 10,
+            "nombre": "Hola", "texto": "Hola", "medio": "", "minutos_min": 10,
             "minutos_max": 10, "activo": False, "proximo": 0.0,
             "destino": "chat", "estilo": "clasico", "segundos_pantalla": 10,
             "mensajes_entre": 0,
@@ -256,7 +271,7 @@ class TestAlmacenamiento(unittest.TestCase):
             '[{"texto": 5, "minutos_min": "10", "minutos_max": "15.0",'
             ' "activo": "true", "proximo": "0"}]', encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
-            "nombre": "5", "texto": "5", "minutos_min": 10,
+            "nombre": "5", "texto": "5", "medio": "", "minutos_min": 10,
             "minutos_max": 15, "activo": True, "proximo": 0.0,
             "destino": "chat", "estilo": "clasico", "segundos_pantalla": 10,
             "mensajes_entre": 0,
@@ -267,13 +282,14 @@ class TestAlmacenamiento(unittest.TestCase):
             '[{"texto": null, "minutos_min": "muchos", "activo": null, "proximo": []}]',
             encoding="utf-8")
         self.assertEqual(programados.cargar(self.ruta), [{
-            "nombre": "", "texto": "", "minutos_min": 10, "minutos_max": 10,
-            "activo": False, "proximo": 0.0, "destino": "chat",
-            "estilo": "clasico", "segundos_pantalla": 10, "mensajes_entre": 0,
+            "nombre": "", "texto": "", "medio": "", "minutos_min": 10,
+            "minutos_max": 10, "activo": False, "proximo": 0.0,
+            "destino": "chat", "estilo": "clasico", "segundos_pantalla": 10,
+            "mensajes_entre": 0,
         }])
 
     def test_guardar_y_cargar_conserva_los_mensajes(self):
-        mensajes = [{"nombre": "Redes", "texto": "Redes",
+        mensajes = [{"nombre": "Redes", "texto": "Redes", "medio": "",
                      "minutos_min": 10, "minutos_max": 12,
                      "activo": True, "proximo": 600.0, "destino": "chat",
                      "estilo": "clasico", "segundos_pantalla": 10,
@@ -354,12 +370,17 @@ class TestDestinoYEstilo(unittest.TestCase):
             (mensaje["nombre"], mensaje["destino"], mensaje["estilo"],
              mensaje["segundos_pantalla"], mensaje["mensajes_entre"]),
             ("Hola", "chat", "clasico", 10, 0))
+        self.assertEqual(mensaje["medio"], "")
+
+    def test_un_mensaje_guardado_sin_medio_se_abre_sin_medio(self):
+        self.ruta.write_text('[{"texto": "Hola"}]', encoding="utf-8")
+        self.assertEqual(programados.cargar(self.ruta)[0]["medio"], "")
 
     def test_guardar_y_cargar_conserva_las_claves_nuevas(self):
         mensaje = {
-            "nombre": "Hola", "texto": "Hola", "minutos_min": 10,
-            "minutos_max": 10, "activo": True, "proximo": 600.0,
-            "destino": "ambos", "estilo": "banda",
+            "nombre": "Hola", "texto": "Hola", "medio": "fuegos",
+            "minutos_min": 10, "minutos_max": 10, "activo": True,
+            "proximo": 600.0, "destino": "ambos", "estilo": "banda",
             "segundos_pantalla": 25, "mensajes_entre": 7,
         }
         programados.guardar(self.ruta, [mensaje])
@@ -497,7 +518,8 @@ class TestValidacionPseudo(unittest.TestCase):
         for texto, minimo, maximo in casos:
             with self.subTest(texto=texto[:5], minimo=minimo, maximo=maximo):
                 with con_pseudo():
-                    error, _aviso = programados.validar_mensaje(texto, minimo, maximo)
+                    error, _aviso = programados.validar_mensaje(
+                        texto, "", "chat", minimo, maximo)
                 self.assertTrue(error)
                 self.assertIn("[¡", error)
 

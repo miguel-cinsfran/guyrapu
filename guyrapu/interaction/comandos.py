@@ -14,6 +14,7 @@ from dataclasses import dataclass, replace
 
 from guyrapu.core.idioma import _, idioma_actual
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR, ROL_PROPIETARIO
+from guyrapu.interaction import contenido
 from guyrapu.interaction.evento import EventoDirecto, persona
 from guyrapu.interaction.texto import normalizar
 
@@ -21,7 +22,7 @@ DESTINOS = ("video", "chat", "ambos")
 PERMISOS = ("todos", "moderadores", "lista", "solo_atajo")
 UBICACIONES = ("principio", "cualquiera")
 VARIABLES = ("usuario", "contador", "texto")
-MAXIMO_CHAT = 200
+MAXIMO_CHAT = contenido.MAXIMO_CHAT
 
 _VARIABLE_RE = re.compile(r"\{([^{}]*)\}")
 
@@ -281,10 +282,13 @@ def _error_de_repetido(comando: Comando, otros) -> str:
 
 
 def _error_de_respuesta(comando: Comando) -> str:
-    if not (comando.respuesta or "").strip() and not (comando.medio or "").strip():
-        # Traductores: validación de comandos del chat (error).
-        return _("El comando necesita un texto o un medio.")
-    return ""
+    # Traductores: validación de comandos del chat (error).
+    return contenido.validar(
+        comando.respuesta, comando.medio, comando.destino,
+        nombre=_("El comando"),
+        # Traductores: validación de comandos del chat (error). {actual} es el largo y {maximo} el tope del chat.
+        error_largo=_("La respuesta tiene {actual} caracteres y el máximo para el "
+                      "chat es {maximo}."))
 
 
 def _error_de_variables(comando: Comando) -> str:
@@ -300,16 +304,6 @@ def _error_de_variables(comando: Comando) -> str:
                      usuario="{" + VARIABLES[0] + "}",
                      contador="{" + VARIABLES[1] + "}",
                      texto="{" + VARIABLES[2] + "}")
-    return ""
-
-
-def _error_de_longitud(comando: Comando) -> str:
-    respuesta = comando.respuesta or ""
-    if comando.destino in ("chat", "ambos") and len(respuesta) > MAXIMO_CHAT:
-        # Traductores: validación de comandos del chat (error). {actual} es el largo y {maximo} el tope del chat.
-        return _("La respuesta tiene {actual} caracteres y el máximo para el "
-                 "chat es {maximo}.").format(
-                     actual=len(respuesta), maximo=MAXIMO_CHAT)
     return ""
 
 
@@ -329,5 +323,4 @@ def validar(comando: Comando, otros) -> str:
             or _error_de_permiso(comando)
             or _error_de_respuesta(comando)
             or _error_de_variables(comando)
-            or _error_de_longitud(comando)
             or _error_de_lista(comando))

@@ -65,12 +65,16 @@ class CapaVideo:
 
     def agregar(self, mensaje):
         """Suma el mensaje a la cola como una pieza del vídeo."""
+        datos, segundos = medio_en_video.con_medio(
+            {"estilo": mensaje.get("estilo", "clasico"),
+             "nombre": mensaje.get("nombre", "")},
+            mensaje.get("segundos_pantalla", 10),
+            medio_en_video.resolver(mensaje.get("medio")))
         pieza = Pieza(
             tipo="mensaje",
             texto=str(mensaje.get("texto", "")),
-            segundos=mensaje.get("segundos_pantalla", 10),
-            datos={"estilo": mensaje.get("estilo", "clasico"),
-                   "nombre": mensaje.get("nombre", "")},
+            segundos=segundos,
+            datos=datos,
         )
         return self._agregar(pieza)
 

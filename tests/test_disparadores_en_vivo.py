@@ -8,22 +8,23 @@ import unittest
 from unittest import mock
 
 from guyrapu.core import paths
-from guyrapu.core.config import TIPO_SUPERCHAT
+from guyrapu.core.config import TIPO_MIEMBRO, TIPO_SUPERCHAT
 from guyrapu.interaction import (
     disparadores_guardados, filtro_publico, informe_ensayo, medios_guardados)
-from guyrapu.ui import disparadores_en_vivo
+from guyrapu.ui import comandos_en_vivo, disparadores_en_vivo, gui_envio_chat
 from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
 
 
 def _datos(nombre="regalo", medio="", tarjeta="Ríe {usuario}",
-           estilo="clasico", segundos=8, permiso="todos", nombres=(),
-           espera_general=5.0, espera_persona=0.0, activo=True,
-           evento="superchat", minimo=None, regalo=""):
+            estilo="clasico", segundos=8, permiso="todos", nombres=(),
+            espera_general=5.0, espera_persona=0.0, activo=True,
+            evento="superchat", minimo=None, regalo="", destino="video"):
     return {
         "nombre": nombre, "cuando": "evento", "evento": evento,
         "minimo": minimo, "regalo": regalo, "medio": medio,
-        "tarjeta": tarjeta, "estilo": estilo, "segundos": segundos,
+        "destino": destino, "tarjeta": tarjeta, "estilo": estilo,
+        "segundos": segundos,
         "permiso": permiso, "nombres": list(nombres),
         "espera_general": espera_general, "espera_persona": espera_persona,
         "activo": activo,
@@ -47,6 +48,10 @@ class _Frame:
     def __init__(self, conectado=True):
         self._conectado = conectado
         self._capa_video = mock.Mock()
+        self.sesion = mock.Mock(
+            chat_propio=True, conexion_propia=True, es_tiktok=False,
+            live_chat_id="C1")
+        self._sesion_api_disponible = mock.Mock(return_value=True)
 
 
 class Base(unittest.TestCase):
@@ -325,6 +330,67 @@ class TestEnsayo(Base):
         self.assertEqual(
             self.frame._informe_ensayo.texto("ninguna alerta usa ese evento."),
             "Nada respondió: ninguna alerta usa ese evento.")
+
+
+class TestAlertaAlChat(Base):
+    """La alerta con «Mostrar en» chat reparte como el comando."""
+
+    def setUp(self):
+        super().setUp()
+        cuota = mock.patch.object(comandos_en_vivo, "_cuota_baja",
+                                  return_value=False)
+        cuota.start()
+        self.addCleanup(cuota.stop)
+        enviar = mock.patch.object(gui_envio_chat, "enviar_respuesta_chat")
+        self.enviar = enviar.start()
+        self.addCleanup(enviar.stop)
+
+    def _alerta(self, **cambios):
+        datos = {"nombre": "gracias", "destino": "chat",
+                 "tarjeta": "Gracias {usuario}", "espera_general": 0,
+                 "espera_persona": 0}
+        datos.update(cambios)
+        self._guardar(_datos(**datos))
+
+    def test_p2_con_chat_disponible_escribe_el_texto_con_las_variables(self):
+        self._alerta()
+        self._atender(ahora=0)
+        self.enviar.assert_called_once_with(self.frame, "Gracias Ana")
+        self.frame._capa_video.agregar_pieza.assert_not_called()
+
+    def test_p2_sin_chat_disponible_lo_muestra_en_el_video(self):
+        self._alerta()
+        self.frame.sesion.es_tiktok = True
+        self._atender(ahora=0)
+        self.enviar.assert_not_called()
+        self.assertEqual(self._textos(), ["Gracias Ana"])
+
+    def test_p2_con_la_cuota_baja_lo_muestra_en_el_video(self):
+        self._alerta()
+        with mock.patch.object(comandos_en_vivo, "_cuota_baja",
+                               return_value=True):
+            self._atender(ahora=0)
+        self.enviar.assert_not_called()
+        self.assertEqual(self._textos(), ["Gracias Ana"])
+
+    def test_p2_dos_alertas_al_chat_con_menos_de_treinta_segundos(self):
+        self._guardar(
+            _datos(nombre="uno", destino="chat", tarjeta="Uno {contador}",
+                   espera_general=0, evento="superchat"),
+            _datos(nombre="dos", destino="chat", tarjeta="Dos {contador}",
+                   espera_general=0, evento="miembro"))
+        self._atender(ahora=0)
+        self._atender(_registro(tipo=TIPO_MIEMBRO), ahora=10)
+        self.enviar.assert_called_once_with(self.frame, "Uno 1")
+        self.assertEqual(self._textos(), ["Dos 1"])
+
+    def test_p7_en_ensayo_no_escribe_en_el_chat_real(self):
+        self._alerta()
+        self.frame._conectado = False
+        self.frame._ensayo = True
+        self._atender(ahora=0)
+        self.enviar.assert_not_called()
+        self.assertEqual(self._textos(), ["Gracias Ana"])
 
 
 if __name__ == "__main__":

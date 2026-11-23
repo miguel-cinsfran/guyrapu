@@ -12,7 +12,8 @@ from guyrapu.interaction import disparadores, disparadores_guardados, paquetes
 def _datos(**cambios):
     datos = {
         "nombre": "aplauso", "cuando": "evento", "evento": "superchat",
-        "minimo": None, "regalo": "", "medio": "fuegos", "tarjeta": "",
+        "minimo": None, "regalo": "", "medio": "fuegos", "destino": "video",
+        "tarjeta": "",
         "estilo": "clasico", "segundos": 8, "permiso": "todos",
         "nombres": [], "espera_general": 5.0, "espera_persona": 30.0,
         "activo": True,
@@ -53,6 +54,20 @@ class TestConversion(unittest.TestCase):
         self.assertTrue(disparador.activo)
         self.assertEqual(disparador.estilo, "clasico")
         self.assertEqual(disparador.segundos, 8)
+
+    def test_una_alerta_guardada_sin_destino_se_abre_en_el_video(self):
+        datos = _datos()
+        del datos["destino"]
+        disparador = disparadores_guardados.a_disparador(datos)
+        self.assertEqual(disparador.destino, "video")
+        self.assertEqual(
+            disparadores_guardados.desde_disparador(disparador)["destino"],
+            "video")
+
+    def test_un_destino_desconocido_pasa_a_video(self):
+        self.assertEqual(
+            disparadores_guardados.a_disparador({"destino": "otro"}).destino,
+            "video")
 
     def test_los_tipos_se_fuerzan_y_lo_raro_cae_a_su_defecto(self):
         disparador = disparadores_guardados.a_disparador({

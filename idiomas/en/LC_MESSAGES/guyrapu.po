@@ -1170,7 +1170,8 @@ msgstr "TikTok live stream"
 #. Traductores: superficie donde se ve el vídeo.
 #: guyrapu/capture/estado_sesion.py guyrapu/player/reproductor.py
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/dialogo_ajustes_perfil.py
-#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/encuesta_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Vídeo"
 msgstr "Video"
 
@@ -1466,10 +1467,9 @@ msgstr "Goal: {descripcion}, {progreso} of {objetivo}"
 msgid "Meta: {progreso} de {objetivo}"
 msgstr "Goal: {progreso} of {objetivo}"
 
-#. Traductores: validación de mensajes programados (error).
 #: guyrapu/capture/programados.py
-msgid "El mensaje no puede estar vacío."
-msgstr "The message cannot be empty."
+msgid "El mensaje automático"
+msgstr "The scheduled message"
 
 #. Traductores: validación de mensajes programados (error). {actual} es el
 #. largo y {maximo} el tope.
@@ -2230,7 +2230,7 @@ msgstr "Broadcast and live stream"
 
 #. Traductores: familia de los sonidos del chat.
 #: guyrapu/core/eventos_sonido.py guyrapu/ui/comando_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Chat"
 msgstr "Chat"
 
@@ -3576,10 +3576,16 @@ msgstr "Choose a shortcut for a command that only uses the shortcut."
 msgid "El comando {nombre} ya existe."
 msgstr "The command {nombre} already exists."
 
-#. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
-msgid "El comando necesita un texto o un medio."
-msgstr "The command needs text or a media item."
+msgid "El comando"
+msgstr "The command"
+
+#. Traductores: validación de comandos del chat (error). {actual} es el largo y
+#. {maximo} el tope del chat.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "La respuesta tiene {actual} caracteres y el máximo para el chat es {maximo}."
+msgstr "The response has {actual} characters and the maximum for chat is {maximo}."
 
 #. Traductores: validación de comandos del chat (error). {variable} es la
 #. variable desconocida y las demás son las que se pueden usar.
@@ -3592,17 +3598,22 @@ msgstr ""
 "The variable {variable} does not exist. You can use {usuario}, {contador} "
 "and {texto}."
 
-#. Traductores: validación de comandos del chat (error). {actual} es el largo y
-#. {maximo} el tope del chat.
-#: guyrapu/interaction/comandos.py
-#, python-brace-format
-msgid "La respuesta tiene {actual} caracteres y el máximo para el chat es {maximo}."
-msgstr "The response has {actual} characters and the maximum for chat is {maximo}."
-
 #. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
 msgid "La lista de nombres no puede estar vacía."
 msgstr "The list of names cannot be empty."
+
+#. Traductores: regla de contenido compartida. {nombre} es el comando, la
+#. alerta o el mensaje automático.
+#: guyrapu/interaction/contenido.py
+#, python-brace-format
+msgid "{nombre} necesita un texto o un medio."
+msgstr "{nombre} needs a text or a media item."
+
+#. Traductores: regla de contenido compartida, cuando solo va al chat.
+#: guyrapu/interaction/contenido.py
+msgid "Para mostrarlo en el chat, escribe un texto."
+msgstr "To show it in the chat, enter text."
 
 #. Traductores: descripción del comando. {n} es el número del atajo.
 #: guyrapu/interaction/descripcion_comando.py guyrapu/ui/comando_cuadro.py
@@ -3688,7 +3699,10 @@ msgid ""
 "pantalla."
 msgstr "Shows {destino}, with the {estilo} style and {segundos} seconds on screen."
 
+#. Traductores: descripción de la alerta. {destino} es en el vídeo, en el chat
+#. o en el vídeo y en el chat.
 #: guyrapu/interaction/descripcion_comando.py
+#: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
 msgid "Se muestra {destino}."
 msgstr "Shows {destino}."
@@ -3727,15 +3741,16 @@ msgstr "when {evento} arrives"
 msgid "cuando llega {evento} desde {minimo}"
 msgstr "when {evento} arrives with at least {minimo}"
 
-#: guyrapu/interaction/descripcion_disparador.py
-#, python-brace-format
-msgid "muestra el medio {medio} y la tarjeta «{tarjeta}»"
-msgstr "shows the media item {medio} and the card \"{tarjeta}\""
-
+#. Traductores: descripción de lo que sale. {medio} es el nombre del medio.
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
 msgid "muestra el medio {medio}"
 msgstr "shows the media item {medio}"
+
+#: guyrapu/interaction/descripcion_disparador.py
+#, python-brace-format
+msgid "muestra el medio {medio} y la tarjeta «{tarjeta}»"
+msgstr "shows the media item {medio} and the card \"{tarjeta}\""
 
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
@@ -3844,10 +3859,16 @@ msgstr "The event {evento} does not exist."
 msgid "El mínimo no puede ser negativo."
 msgstr "The minimum cannot be negative."
 
-#. Traductores: validación de alertas del directo (error).
 #: guyrapu/interaction/disparadores.py
-msgid "La alerta necesita un texto o un medio."
-msgstr "The alert needs text or a media item."
+msgid "La alerta"
+msgstr "The alert"
+
+#. Traductores: validación de alertas del directo (error). {actual} es el largo
+#. y {maximo} el tope del chat.
+#: guyrapu/interaction/disparadores.py
+#, python-brace-format
+msgid "La tarjeta tiene {actual} caracteres y el máximo para el chat es {maximo}."
+msgstr "The card has {actual} characters and the maximum for chat is {maximo}."
 
 #. Traductores: validación de alertas del directo (error). {variable} es la
 #. variable desconocida y las demás son las que se pueden usar.
@@ -9155,7 +9176,8 @@ msgstr "You can use {usuario}, {contador} and {texto}."
 msgid "Puedes usar {usuario}, {contador}, {texto} y {lista}."
 msgstr "You can use {usuario}, {contador}, {texto} and {lista}."
 
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
+#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Chat y vídeo"
 msgstr "Chat and video"
 
