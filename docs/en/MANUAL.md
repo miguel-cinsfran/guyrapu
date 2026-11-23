@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 638f2fe29ac0ab536b8e755a005812973ccfaac0 -->
+<!-- original: es/MANUAL.md 824bc042c63afb1e046db4bbf85a364429a78a4d -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -361,43 +361,43 @@ In *Preferences*, on the *Camera* category, you choose the OBS camera, the guide
 
 The *Interaction* window brings together what the audience sees and hears in the live stream. Open it with *Open Interaction…*, in the *Interaction* menu, or with `Ctrl+Shift+A`, and it opens again on the last page you used. It has a list of pages and, on the right, the list and the actions of the chosen one. The pages are *Scheduled messages*, *Commands*, *Polls*, *Questions*, *Triggers*, *Goals*, *Media*, *Styles* and *Blocked words*.
 
-### Scheduled messages
+### <a id="mensajes-automaticos"></a>Scheduled messages
 
 Scheduled messages are sent to the chat every so often, for example your social networks every ten minutes. Each message has a name and can appear in the chat, on the video or in both. You can duplicate, sort, preview, export and import them. The ones that choose the video come in with an animation in OBS, stay for their time and leave one at a time, and respect the minimum number of chat messages between one and another. `F2` says what is on the video. They work on your own YouTube live stream with the Google session started. YouTube usually blocks links: type the user name instead. If YouTube returns an error, the messages stop and Guyrapu warns you once. The list says when it is empty, and `Delete` or its context menu remove the chosen message.
 
-### Commands
+### <a id="comandos"></a>Commands
 
 Commands are the ones the audience can use in the chat. They are created with their reply, where it appears, who can use them and how long they wait. When someone types a command, the reply appears on the video and, if the command asks for it, in the YouTube chat. `F2` says how many commands Guyrapu answered and which was the last one. *Pause commands*, in the *Interaction* menu, or `Ctrl+Alt+Shift+C` from any program, stops answering all of them at once. The list of commands the audience asks for is edited like one more command: its word, `!commands` by default and `!comandos` in Spanish and Portuguese, its text, where it appears and its style, and each command chooses whether it appears in the list.
 
-### Polls
+### <a id="encuestas"></a>Polls
 
 In *Polls* you prepare the question, the options, the duration and where the result appears. Polls are started from Interaction. The audience votes with `!1`, `!2` and so on from any chat. Polls appear on the video with their votes and their time, and close by hand with `Ctrl+Alt+Shift+E` or on their own when the time runs out.
 
-### Questions
+### <a id="preguntas"></a>Questions
 
 The audience leaves questions by typing `!pregunta` or `!q` in the chat. Guyrapu keeps them in order, one per person, and warns once when the queue is full. The *Questions* page shows the queue up to date and lets you display one on the video, mark it as answered, delete it or clear the queue. Each question has its own style. `Ctrl+Alt+Shift+R` reads the oldest one from any program.
 
-### Triggers
+### <a id="alertas"></a>Alerts
 
 A trigger shows a card or a media item when someone uses a chat command or a live event arrives, such as a Super Chat from a certain amount, a gift from a certain amount or a specific TikTok gift by name. It can also fire when a chat message says a word or has an emoji, with its waits and its permission. Triggers are created and edited on the page. Their card can say how much arrived, which gift it was, what the person wrote and how many times it appeared, with `{cantidad}`, `{regalo}`, `{texto}` and `{contador}`. Each one can have a global shortcut, `Ctrl+Alt+Shift` plus a number from 1 to 9, to fire it from any program.
 
-### Goals
+### <a id="metas"></a>Goals
 
 In *Goals* you prepare the goals of the live stream: what they count, how much is needed and the style and celebration they use. They count likes, followers, members, gifts or Super Chats. When they are reached, a sound and a card with its celebration appear on the video. A goal can show its fixed progress on the video, for example «Followers: 12 of 50», and it is updated as they arrive.
 
-### Media
+### <a id="medios"></a>Media
 
 *Media* is a library of images, GIFs, videos and sounds with their description and duration, which you can hear before using them. In the dialog of a media item, *Describe image* asks the artificial intelligence for a sentence about what the image or GIF shows, so that `F2` and the list say what the audience sees. Sounds and videos are matched in volume when added, so that none sounds much louder than another. The page has a volume slider for all the media that appear on the video, to balance them with the voice and the game. Triggers show or play their media item, alone or with their card.
 
-### Styles
+### <a id="estilos"></a>Styles
 
 In *Styles* you create, duplicate, export and import styles for the messages on the video, with font, colors by name, background, area and animation. Each style can be the default for scheduled messages, commands, triggers, polls or goals, and each item can use the default for its type. *Test*, on this page and on *Scheduled messages*, builds the card off air and says where it appears, how much space it takes and whether there are font or contrast problems.
 
-### Blocked words
+### <a id="palabras-bloqueadas"></a>Blocked words
 
 In *Blocked words* you type the words that are hidden in the name and text of the audience shown by command replies. Text made almost entirely of symbols is not displayed.
 
-### Test without a live stream
+### <a id="probar-sin-directo"></a>Test without a live stream
 
 *Test without a live stream…*, in the *Interaction* menu, rehearses the interaction without going on air. Type the author, choose the platform and the type, and send messages, Super Chats or gifts. They go through the same route as live messages, appear in the chat list and are handled by commands, triggers, the poll and the goals. What goes to the video appears in OBS as in a live stream, without posting in the chats and without the voice reading it. Closing the window ends the rehearsal and discards what it left. You cannot connect a live stream while the window is open.
 

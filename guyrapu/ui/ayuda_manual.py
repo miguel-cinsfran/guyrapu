@@ -35,6 +35,16 @@ ANCLAS = {
     "microfono": "microfono",
     "voces": "voces",
     "chat": "chat",
+    "comandos": "comandos",
+    "disparadores": "alertas",
+    "mensajes": "mensajes-automaticos",
+    "encuestas": "encuestas",
+    "preguntas": "preguntas",
+    "metas": "metas",
+    "medios": "medios",
+    "estilos": "estilos",
+    "palabras": "palabras-bloqueadas",
+    "ensayo": "probar-sin-directo",
 }
 
 

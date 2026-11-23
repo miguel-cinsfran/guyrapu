@@ -752,7 +752,7 @@ lista de páginas y, a la derecha, la lista y las acciones de la elegida. Las
 páginas son *Mensajes automáticos*, *Comandos*, *Encuestas*, *Preguntas*,
 *Disparadores*, *Metas*, *Medios*, *Estilos* y *Palabras bloqueadas*.
 
-### Mensajes automáticos
+### <a id="mensajes-automaticos"></a>Mensajes automáticos
 
 Los mensajes automáticos se envían al chat cada cierto tiempo, por ejemplo
 tus redes cada diez minutos. Cada mensaje tiene nombre y se elige si sale en
@@ -766,7 +766,7 @@ devuelve un error, los mensajes se detienen y Guyrapu lo avisa una vez. La
 lista dice cuando está vacía, y `Supr` o su menú contextual eliminan el
 mensaje elegido.
 
-### Comandos
+### <a id="comandos"></a>Comandos
 
 Los comandos son los que el público puede usar en el chat. Se crean con su
 respuesta, dónde sale, quién puede usarlo y sus esperas. Cuando alguien
@@ -778,7 +778,7 @@ vez. La lista de comandos que pide el público se edita como uno más: su
 palabra, de fábrica `!commands`, y `!comandos` en español y portugués, su
 texto, dónde sale y su estilo, y cada comando elige si aparece en ella.
 
-### Encuestas
+### <a id="encuestas"></a>Encuestas
 
 En *Encuestas* se prepara la pregunta, las opciones, la duración y dónde
 sale el resultado. Las encuestas se inician desde Interacción. El público
@@ -786,7 +786,7 @@ vota con `!1`, `!2` y así desde cualquier chat. Se ven en el vídeo con sus
 votos y su tiempo, y se cierran a mano con `Ctrl+Alt+Mayús+E` o solas al
 cumplirse el tiempo.
 
-### Preguntas
+### <a id="preguntas"></a>Preguntas
 
 El público deja preguntas escribiendo `!pregunta` o `!q` en el chat.
 Guyrapu las guarda en orden, una por persona, y avisa una sola vez cuando la
@@ -795,7 +795,7 @@ una en el vídeo, marcarla como respondida, eliminarla o vaciar la cola. Cada
 pregunta tiene su estilo propio. `Ctrl+Alt+Mayús+R` lee la más vieja desde
 cualquier programa.
 
-### Disparadores
+### <a id="alertas"></a>Alertas
 
 Un disparador muestra una tarjeta o un medio cuando alguien usa un comando
 del chat o llega un evento del directo, como un Super Chat desde cierta
@@ -808,7 +808,7 @@ escribió la persona y cuántas veces salió, con `{cantidad}`, `{regalo}`,
 `Ctrl+Alt+Mayús` más un número del 1 al 9, para dispararlo desde cualquier
 programa.
 
-### Metas
+### <a id="metas"></a>Metas
 
 En *Metas* se preparan las metas del directo: qué cuentan, cuánto hace falta
 y con qué estilo y festejo se muestran. Cuentan me gusta, seguidores,
@@ -817,7 +817,7 @@ tarjeta en el vídeo con su festejo. Una meta puede mostrar su avance fijo en
 el vídeo, por ejemplo «Seguidores: 12 de 50», y se pone al día mientras
 llegan.
 
-### Medios
+### <a id="medios"></a>Medios
 
 *Medios* es una biblioteca de imágenes, GIF, vídeos y sonidos con su
 descripción y su duración, que se escuchan antes de usarlos. En el cuadro de
@@ -829,7 +829,7 @@ volumen general para todos los medios que salen en el vídeo, para
 equilibrarlos con la voz y el juego. Los disparadores muestran o hacen sonar
 su medio, solo o con su tarjeta.
 
-### Estilos
+### <a id="estilos"></a>Estilos
 
 En *Estilos* se crean, se duplican, se exportan y se importan estilos para
 los mensajes del vídeo, con fuente, colores por nombre, fondo, zona y
@@ -840,13 +840,13 @@ página y en *Mensajes automáticos*, arma la tarjeta fuera del aire y dice
 dónde sale, cuánto ocupa y si tiene algún problema de fuente o de
 contraste.
 
-### Palabras bloqueadas
+### <a id="palabras-bloqueadas"></a>Palabras bloqueadas
 
 En *Palabras bloqueadas* se escriben las palabras que se tapan en el nombre
 y el texto del público que muestran las respuestas de los comandos. Un texto
 hecho casi todo de símbolos no se muestra.
 
-### Probar sin directo
+### <a id="probar-sin-directo"></a>Probar sin directo
 
 *Probar sin directo…*, en el menú *Interacción*, ensaya la interacción sin
 salir al aire. Se escribe el autor, se elige la plataforma y el tipo, y se

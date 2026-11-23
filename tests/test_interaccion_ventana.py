@@ -16,9 +16,9 @@ from guyrapu.ui import (
     atajos_captura, botonera_atajos, comando_comandos_chat, comando_estilos,
     comando_interaccion, comando_mensajes_automaticos, comandos_ventana,
     disparadores_ventana, encuestas_ventana, ensayo_ventana, estilos_ventana,
-    gui, interaccion_ventana, medios_ventana, mensajes_automaticos_ventana,
-    menu_interaccion, metas_ventana, palabras_bloqueadas_ventana,
-    preguntas_ventana)
+    gui, gui_menu, interaccion_ventana, medios_ventana,
+    mensajes_automaticos_ventana, menu_interaccion, metas_ventana,
+    palabras_bloqueadas_ventana, preguntas_ventana)
 from tests.letras_acceso import letras_repetidas, repetidas_con_lo_de_fuera
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -113,13 +113,38 @@ class TestPaginas(BaseVentana):
             ventana.libro.GetPage(8),
             palabras_bloqueadas_ventana.PanelPalabrasBloqueadas)
 
-    def test_p1_los_botones_son_probar_sin_directo_y_cerrar_en_ese_orden(self):
-        ventana = self._ventana()
+    def test_p2_el_boton_ayuda_va_despues_de_cerrar_y_abre_la_pagina(self):
+        ventana = self._ventana("estilos")
         botones = [hijo for hijo in ventana.GetChildren()
                    if isinstance(hijo, wx.Button)]
-        self.assertEqual(botones, [ventana.btn_probar, ventana.btn_cerrar])
+        self.assertEqual(botones, [ventana.btn_probar, ventana.btn_cerrar,
+                                   ventana.btn_ayuda])
         self.assertEqual([boton.GetLabel() for boton in botones],
-                         ["Probar sin direc&to", "&Cerrar"])
+                         ["Probar sin direc&to", "&Cerrar", "A&yuda"])
+        self.assertEqual([boton.GetName() for boton in botones],
+                         ["Probar sin directo", "Cerrar", "Ayuda"])
+        with mock.patch.object(gui_menu, "abrir_documento_paquete") as abrir:
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     ventana.btn_ayuda.GetId())
+            evento.SetEventObject(ventana.btn_ayuda)
+            ventana.btn_ayuda.GetEventHandler().ProcessEvent(evento)
+        abrir.assert_called_once_with(ventana, "MANUAL", mock.ANY, "estilos")
+
+    def test_p1_f1_abre_la_pagina_a_la_vista_con_el_foco_dentro_de_ella(self):
+        ventana = self._ventana("disparadores")
+        ventana.Show()
+        try:
+            lista = ventana.libro.GetCurrentPage().lista
+            lista.SetFocus()
+            self.assertIs(wx.Window.FindFocus(), lista)
+            evento = wx.KeyEvent(wx.EVT_CHAR_HOOK.typeId)
+            evento.SetKeyCode(wx.WXK_F1)
+            with mock.patch.object(gui_menu, "abrir_documento_paquete") as abrir:
+                ventana.GetEventHandler().ProcessEvent(evento)
+            abrir.assert_called_once_with(ventana, "MANUAL", mock.ANY,
+                                          "alertas")
+        finally:
+            ventana.Hide()
 
     def test_cerrar_sigue_cerrando(self):
         ventana = self._ventana()

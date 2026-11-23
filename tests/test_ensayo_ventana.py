@@ -17,7 +17,7 @@ from guyrapu.core.idioma import _
 from guyrapu.interaction import disparadores_guardados
 from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR
-from guyrapu.ui import chat_vivo, ensayo_ventana, gui_sesion
+from guyrapu.ui import chat_vivo, ensayo_ventana, gui_menu, gui_sesion
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -152,6 +152,30 @@ class TestCerrar(Base):
         frame._encuesta_en_vivo._descartar.assert_called_once_with()
         frame._preguntas_en_vivo.cola.vaciar.assert_called_once_with()
         self.assertTrue(ventana.cerrado)
+
+
+class TestAyuda(Base):
+    def test_p3_f1_abre_el_manual_en_probar_sin_directo(self):
+        ventana = self._ventana(self._frame())
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_F1
+        with mock.patch.object(gui_menu, "abrir_documento_paquete") as abrir:
+            ventana._al_tecla(evento)
+        abrir.assert_called_once_with(ventana, "MANUAL", mock.ANY,
+                                      "probar-sin-directo")
+
+    def test_p5_escape_cierra_y_las_demas_teclas_siguen(self):
+        frame = self._frame()
+        ventana = self._ventana(frame)
+        evento = mock.Mock()
+        evento.GetKeyCode.return_value = wx.WXK_ESCAPE
+        ventana._al_tecla(evento)
+        self.assertTrue(ventana.cerrado)
+        otra = self._ventana(self._frame())
+        otro_evento = mock.Mock()
+        otro_evento.GetKeyCode.return_value = wx.WXK_F2
+        otra._al_tecla(otro_evento)
+        otro_evento.Skip.assert_called_once_with()
 
 
 class TestConectarConEnsayo(Base):

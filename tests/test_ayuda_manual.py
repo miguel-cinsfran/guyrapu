@@ -48,6 +48,13 @@ class TestAnclas(unittest.TestCase):
                             and f'<a id="{ancla}"></a>' in linea
                             for linea in lineas), ancla)
 
+    def test_p4_todas_las_paginas_de_interaccion_estan_en_el_registro(self):
+        from guyrapu.ui import interaccion_ventana
+        for clave, _etiqueta in interaccion_ventana.PAGINAS:
+            with self.subTest(pagina=clave):
+                self.assertIn(clave, ayuda_manual.ANCLAS)
+        self.assertIn("ensayo", ayuda_manual.ANCLAS)
+
     def test_p5_las_ventanas_fuera_de_la_lista_no_tienen_ancla(self):
         for clave in ("encuadre", "mensajes_automaticos"):
             self.assertNotIn(clave, ayuda_manual.ANCLAS)

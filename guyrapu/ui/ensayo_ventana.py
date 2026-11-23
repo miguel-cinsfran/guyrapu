@@ -14,8 +14,8 @@ from guyrapu.core import plataformas
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import ensayo, informe_ensayo
 from guyrapu.ui import (
-    encuesta_en_vivo, formulario, gui_envio_chat, lista_acciones,
-    preguntas_en_vivo, tecla_escape)
+    ayuda_manual, encuesta_en_vivo, formulario, gui_envio_chat,
+    lista_acciones, preguntas_en_vivo, tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.paleta import pintar_ventana
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
@@ -173,6 +173,8 @@ class VentanaEnsayo(wx.Dialog):
         self._vacia.fijar(self._resultados)
 
     def _al_tecla(self, evento):
+        if ayuda_manual.atender_f1(self, evento, "ensayo"):
+            return
         if tecla_escape.es_escape(evento.GetKeyCode()):
             self._cerrar()
             return

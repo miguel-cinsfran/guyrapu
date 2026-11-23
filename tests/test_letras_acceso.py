@@ -29,7 +29,7 @@ from guyrapu.core.idioma import _
 from guyrapu.downloads import descargas, formatos_reales
 from guyrapu.obs import ajustes_perfil, disenos_escena, prueba_conexion, prueba_equipo
 from guyrapu.obs.filtros_microfono import Estado
-from guyrapu.ui import descargas_listas, operaciones_obs, elegir_formato, gui, gui_comentarios, gui_descargas, gui_directo_youtube, gui_grabaciones, gui_historial, gui_microfono, gui_transmision, gui_preferencias, control_grabacion, mover_con_flechas
+from guyrapu.ui import descargas_listas, operaciones_obs, elegir_formato, gui, gui_comentarios, gui_descargas, gui_directo_youtube, gui_grabaciones, gui_historial, gui_microfono, gui_transmision, gui_preferencias, control_grabacion, interaccion_ventana, mover_con_flechas
 from guyrapu.ui import escena_disenos
 from guyrapu.ui import escena_filtros
 from guyrapu.ui import escena_captura_ventana
@@ -606,6 +606,36 @@ class TestLetrasAccesoRestream(unittest.TestCase):
                 dialogo, dialogo.nb).items():
             with self.subTest(pagina=pagina):
                 self.assertEqual(repetidas, {})
+
+
+class TestLetrasAccesoInteraccion(unittest.TestCase):
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        parche = redirigir_rutas(self.tmp.name)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+
+    def _ventana(self):
+        padre = wx.Frame(None)
+        self.addCleanup(destruir, padre)
+        padre._config = {}
+        padre.mi_programados_activo = mock.Mock()
+        padre.programador = mock.Mock()
+        ventana = interaccion_ventana.VentanaInteraccion(padre)
+        self.addCleanup(destruir, ventana)
+        return ventana
+
+    def test_el_boton_ayuda_tiene_nombre_y_letra_libre(self):
+        ventana = self._ventana()
+        self.assertEqual(ventana.btn_ayuda.GetLabel(), _("A&yuda"))
+        self.assertEqual(ventana.btn_ayuda.GetName(), _("Ayuda"))
+        self.assertEqual(letras_repetidas(ventana), {})
+        self.assertEqual(
+            repetidas_con_lo_de_fuera(ventana, ventana.libro),
+            {_(etiqueta): {} for _clave, etiqueta in
+             interaccion_ventana.PAGINAS})
 
 
 class TestLetrasAccesoPrincipal(unittest.TestCase):

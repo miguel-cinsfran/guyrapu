@@ -13,7 +13,8 @@ import wx
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import conversion_disparadores
-from guyrapu.ui import ensayo_ventana, formulario, paleta, tecla_escape
+from guyrapu.ui import (ayuda_manual, ensayo_ventana, formulario, paleta,
+                        tecla_escape)
 from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.comandos_ventana import PanelComandos
 from guyrapu.ui.disparadores_ventana import PanelDisparadores
@@ -69,7 +70,11 @@ class VentanaInteraccion(wx.Dialog):
         self.btn_cerrar = wx.Button(
             self, wx.ID_CANCEL, _("&Cerrar"), name=_("Cerrar"))
         self.btn_cerrar.Bind(wx.EVT_BUTTON, self._al_cerrar)
-        formulario.agregar_pie(vs, [self.btn_probar, self.btn_cerrar])
+        self.btn_ayuda = wx.Button(
+            self, label=_("A&yuda"), name=_("Ayuda"))
+        self.btn_ayuda.Bind(wx.EVT_BUTTON, self._al_ayuda)
+        formulario.agregar_pie(vs, [self.btn_probar, self.btn_cerrar,
+                                    self.btn_ayuda])
         self.SetSizer(vs)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Bind(wx.EVT_CLOSE, self._al_cerrar)
@@ -101,6 +106,8 @@ class VentanaInteraccion(wx.Dialog):
         return PAGINAS[self.libro.GetSelection()][0]
 
     def _al_tecla(self, evento):
+        if ayuda_manual.atender_f1(self, evento, self.pagina_actual()):
+            return
         if (tecla_escape.es_escape(evento.GetKeyCode())
                 and self._paginas["medios"].detener_escucha()):
             return
@@ -108,6 +115,9 @@ class VentanaInteraccion(wx.Dialog):
 
     def _al_probar(self, _evento):
         ensayo_ventana.abrir(self.GetParent())
+
+    def _al_ayuda(self, _evento):
+        ayuda_manual.abrir(self, self.pagina_actual())
 
     def _al_cerrar(self, _evento):
         self._paginas["medios"].soltar()

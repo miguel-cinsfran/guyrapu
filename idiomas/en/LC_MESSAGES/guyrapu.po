@@ -13076,7 +13076,7 @@ msgstr "&Check for updates…"
 msgid "&Acerca de…"
 msgstr "&About…"
 
-#: guyrapu/ui/gui_menu.py
+#: guyrapu/ui/gui_menu.py guyrapu/ui/interaccion_ventana.py
 msgid "A&yuda"
 msgstr "&Help"
 
@@ -13876,6 +13876,10 @@ msgstr "&Test without a live stream"
 #: guyrapu/ui/interaccion_ventana.py
 msgid "Probar sin directo"
 msgstr "Test without a live stream"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Ayuda"
+msgstr "Help"
 
 #: guyrapu/ui/lista_acciones.py
 #, python-brace-format
