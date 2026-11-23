@@ -36,10 +36,11 @@ def _leer(ruta) -> list:
     try:
         with open(ruta, "r", encoding="utf-8") as archivo:
             datos = json.load(archivo)
-    except Exception:
+    except FileNotFoundError:
         return []
-    return [dato for dato in datos if isinstance(dato, dict)] \
-        if isinstance(datos, list) else []
+    if not isinstance(datos, list):
+        raise ValueError(f"{ruta} no contiene una lista")
+    return [dato for dato in datos if isinstance(dato, dict)]
 
 
 def _nombres_de(datos: dict) -> list[str]:

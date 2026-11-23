@@ -5,6 +5,7 @@
 import json
 import tempfile
 import unittest
+from unittest import mock
 
 from guyrapu.core import idioma
 from guyrapu.interaction import conversion_disparadores
@@ -140,6 +141,39 @@ class TestEnDisco(unittest.TestCase):
         self.assertEqual(antes, (ruta_disparadores.read_bytes(),
                                  ruta_comandos.read_bytes(),
                                  copia.read_bytes()))
+
+    def test_un_archivo_de_comandos_roto_no_convierte_ni_escribe(self):
+        from guyrapu.core import paths
+        ruta_disparadores = paths.disparadores()
+        ruta_comandos = paths.comandos()
+        copia = ruta_disparadores.with_name("disparadores.anterior.json")
+        viejos = [_viejo("risas", "comando", comandos=["risa"])]
+        self._escribir(ruta_disparadores, viejos)
+        contenido = b"{esto no es json"
+        ruta_comandos.write_bytes(contenido)
+        antes_disparadores = ruta_disparadores.read_bytes()
+
+        with mock.patch.object(conversion_disparadores.logger,
+                               "exception") as registrar:
+            conversion_disparadores.convertir_en_disco()
+
+        registrar.assert_called_once()
+        self.assertEqual(contenido, ruta_comandos.read_bytes())
+        self.assertEqual(antes_disparadores, ruta_disparadores.read_bytes())
+        self.assertFalse(copia.exists())
+
+    def test_un_archivo_de_comandos_ausente_cuenta_como_vacio(self):
+        from guyrapu.core import paths
+        ruta_disparadores = paths.disparadores()
+        ruta_comandos = paths.comandos()
+        self._escribir(ruta_disparadores, [_viejo(
+            "risas", "comando", comandos=["risa"])])
+        with mock.patch.object(conversion_disparadores.logger, "exception") as registrar:
+            conversion_disparadores.convertir_en_disco()
+        registrar.assert_not_called()
+        self.assertEqual(
+            [comando["nombre"] for comando in self._leer(ruta_comandos)],
+            ["risa"])
 
     def test_sin_disparadores_viejos_no_escribe_la_copia(self):
         from guyrapu.core import paths
