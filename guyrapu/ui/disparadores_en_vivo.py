@@ -20,7 +20,7 @@ from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
 from guyrapu.interaction import (
     comandos, disparadores, disparadores_guardados, ensayo, filtro_publico,
-    medios_guardados)
+    medio_en_video)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
@@ -106,7 +106,7 @@ class DisparadoresEnVivo:
 
     def _poner(self, disparador, evento) -> None:
         tarjeta = (disparador.tarjeta or "").strip()
-        medio = self._medio(disparador.medio)
+        medio = medio_en_video.resolver(disparador.medio)
         if not tarjeta and medio is None:
             return
         contador = self._contadores.get(disparador.nombre, 0) + 1
@@ -118,19 +118,10 @@ class DisparadoresEnVivo:
             texto = ""
         segundos = disparador.segundos
         datos = {"estilo": disparador.estilo, "nombre": disparador.nombre}
-        if medio is not None:
-            datos["medio"] = medio
-            if medio["tipo"] in ("sonido", "video") and medio["duracion"]:
-                segundos = max(1, medio["duracion"])
+        datos, segundos = medio_en_video.con_medio(datos, segundos, medio)
         pieza = Pieza(tipo="disparador", texto=texto, segundos=segundos,
                       datos=datos)
         gui_envio_chat.capa_de_video(self._frame).agregar_pieza(pieza)
-
-    def _medio(self, nombre):
-        """El medio de la biblioteca con ese nombre, o None si ya no está."""
-        return medios_guardados.medio_para_video(
-            medios_guardados.cargar(paths.medios()),
-            paths.carpeta_medios(), nombre)
 
     def _recargar(self) -> None:
         """Vuelve a leer los disparadores y las palabras si cambiaron."""

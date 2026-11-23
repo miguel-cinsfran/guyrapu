@@ -19,7 +19,7 @@ import wx
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
-    ensayo, medios_guardados, metas, metas_guardadas)
+    ensayo, medio_en_video, metas, metas_guardadas)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
@@ -101,13 +101,10 @@ class MetasEnVivo:
 
     def _poner(self, progreso) -> None:
         meta = progreso.meta
-        medio = self._medio(meta.festejo)
+        medio = medio_en_video.resolver(meta.festejo)
         segundos = SEGUNDOS
         datos = {"estilo": meta.estilo, "nombre": meta.nombre}
-        if medio is not None:
-            datos["medio"] = medio
-            if medio["tipo"] in ("sonido", "video") and medio["duracion"]:
-                segundos = max(1, medio["duracion"])
+        datos, segundos = medio_en_video.con_medio(datos, segundos, medio)
         pieza = Pieza(tipo="meta", texto=metas.texto(meta, progreso.valor),
                       segundos=segundos, datos=datos)
         gui_envio_chat.capa_de_video(self._frame).agregar_pieza(pieza)
@@ -169,12 +166,6 @@ class MetasEnVivo:
         if self._llamada is not None:
             self._llamada.Stop()
             self._llamada = None
-
-    def _medio(self, nombre):
-        """El medio de la biblioteca con ese nombre, o None si ya no está."""
-        return medios_guardados.medio_para_video(
-            medios_guardados.cargar(paths.medios()),
-            paths.carpeta_medios(), nombre)
 
     def _recargar(self) -> None:
         """Vuelve a leer las metas si el archivo cambió, sin perder el avance."""
