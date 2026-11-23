@@ -182,10 +182,12 @@ class DialogoDisparador(wx.Dialog):
             "" if disparador.minimo is None
             else _numero(disparador.minimo))
         self.txt_regalo.SetValue(disparador.regalo)
-        self._elegir_medio(disparador.medio)
-        self.txt_tarjeta.SetValue(disparador.tarjeta)
+        self._contenido.poner({
+            "texto": disparador.tarjeta,
+            "medio": disparador.medio,
+            "segundos": disparador.segundos,
+        })
         self._elegir_estilo(disparador.estilo if datos else "")
-        self.sp_segundos.SetValue(disparador.segundos)
         self.cho_permiso.SetSelection(
             comandos.PERMISOS.index(disparador.permiso))
         self.txt_nombres.SetValue(", ".join(disparador.nombres))
@@ -199,17 +201,9 @@ class DialogoDisparador(wx.Dialog):
             indice = 0
         self.cho_evento.SetSelection(indice)
 
-    def _elegir_medio(self, nombre):
-        nombres = self._nombres_de_medios()
-        try:
-            indice = nombres.index(nombre) + 1
-        except ValueError:
-            indice = 0
-        self.cho_medio.SetSelection(indice)
-
     def _elegir_estilo(self, clave):
-        self.cho_estilo.SetSelection(
-            estilo_elegido.indice_de(clave, self._estilos))
+        self._contenido.poner(
+            {"estilo": estilo_elegido.indice_de(clave, self._estilos)})
 
     def _minimo_de_campo(self):
         texto = self.txt_minimo.GetValue().strip()

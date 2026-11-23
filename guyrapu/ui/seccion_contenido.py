@@ -111,15 +111,15 @@ class SeccionContenido:
 
     def poner(self, valores):
         """Pone en los controles los valores recibidos, por nombre de campo."""
-        if "texto" in self.campos:
-            self.txt_texto.SetValue(valores.get("texto", ""))
-        if "mostrar_en" in self.campos:
-            self.cho_destino.SetSelection(valores.get("mostrar_en", 0))
-        if "medio" in self.campos:
-            medio = valores.get("medio", "")
+        if "texto" in valores:
+            self.txt_texto.SetValue(valores["texto"])
+        if "mostrar_en" in valores:
+            self.cho_destino.SetSelection(valores["mostrar_en"])
+        if "medio" in valores:
+            medio = valores["medio"]
             indice = self._medios.index(medio) + 1 if medio in self._medios else 0
             self.cho_medio.SetSelection(indice)
-        if "segundos" in self.campos:
-            self.sp_segundos.SetValue(valores.get("segundos", self._segundos))
-        if "estilo" in self.campos:
-            self.cho_estilo.SetSelection(valores.get("estilo", 0))
+        if "segundos" in valores:
+            self.sp_segundos.SetValue(valores["segundos"])
+        if "estilo" in valores:
+            self.cho_estilo.SetSelection(valores["estilo"])

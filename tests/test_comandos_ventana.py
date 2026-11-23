@@ -195,6 +195,19 @@ class TestCuadro(BaseVentana):
         self.assertEqual(cuadro.cho_medio.GetStringSelection(), "fuegos")
         self.assertEqual(cuadro.datos()["medio"], "fuegos")
 
+    def test_abrir_y_devolver_el_modelo_conserva_todo_el_contenido(self):
+        medios_guardados.guardar(paths.medios(), [{
+            "nombre": "fuegos", "descripcion": "", "tipo": "video",
+            "archivo": "fuegos.mp4", "duracion": 12, "ganancia_db": None}])
+        datos = _datos("aviso", respuesta="Hola {usuario}", medio="fuegos",
+                       destino="chat", estilo="banda", segundos=25)
+        comando = self._cuadro(datos)._comando_de_campos()
+        self.assertEqual(comando.respuesta, "Hola {usuario}")
+        self.assertEqual(comando.medio, "fuegos")
+        self.assertEqual(comando.destino, "chat")
+        self.assertEqual(comando.estilo, "banda")
+        self.assertEqual(comando.segundos, 25)
+
     def test_un_comando_de_video_y_chat_muestra_chat_y_video_y_guarda_igual(self):
         cuadro = self._cuadro(_datos(destino="ambos"))
         self.assertEqual(cuadro.cho_destino.GetStringSelection(), "Chat y vídeo")

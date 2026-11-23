@@ -108,12 +108,13 @@ class DialogoMensaje(wx.Dialog):
 
     def _cargar(self, mensaje):
         self.txt_nombre.SetValue(mensaje.get("nombre", ""))
-        self.txt_texto.SetValue(mensaje.get("texto", ""))
-        self.cho_destino.SetSelection(
-            _DESTINOS.index(mensaje.get("destino", "chat")))
+        self._contenido.poner({
+            "texto": mensaje.get("texto", ""),
+            "mostrar_en": _DESTINOS.index(mensaje.get("destino", "chat")),
+            "segundos": mensaje.get("segundos_pantalla", 10),
+        })
         self._elegir_estilo(
             mensaje.get("estilo", "clasico") if mensaje else "")
-        self.sp_segundos.SetValue(mensaje.get("segundos_pantalla", 10))
         self.sp_min.SetValue(mensaje.get("minutos_min", 10))
         self.sp_max.SetValue(mensaje.get(
             "minutos_max", mensaje.get("minutos_min", 10)))
@@ -121,8 +122,8 @@ class DialogoMensaje(wx.Dialog):
         self.chk_activo.SetValue(mensaje.get("activo", True))
 
     def _elegir_estilo(self, clave):
-        self.cho_estilo.SetSelection(
-            estilo_elegido.indice_de(clave, self._estilos))
+        self._contenido.poner(
+            {"estilo": estilo_elegido.indice_de(clave, self._estilos)})
 
     def _aceptar(self, _evento):
         nombre = self.txt_nombre.GetValue()

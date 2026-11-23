@@ -239,6 +239,16 @@ class TestDatos(BaseCuadro):
             "permiso": "lista", "nombres": ["Ana", "Beto"],
             "espera_general": 10.0, "espera_persona": 40.0, "activo": True})
 
+    def test_abrir_y_devolver_el_modelo_conserva_todo_el_contenido(self):
+        datos = {"nombre": "aviso", "cuando": "evento", "evento": "superchat",
+                 "medio": "aplauso.gif", "tarjeta": "Gracias {usuario}",
+                 "estilo": "banda", "segundos": 25}
+        disparador = self._cuadro(datos)._disparador_de_campos()
+        self.assertEqual(disparador.tarjeta, "Gracias {usuario}")
+        self.assertEqual(disparador.medio, "aplauso.gif")
+        self.assertEqual(disparador.estilo, "banda")
+        self.assertEqual(disparador.segundos, 25)
+
     def test_p3_el_cuadro_carga_y_guarda_el_regalo(self):
         cuadro = self._cuadro({
             "nombre": "leon", "cuando": "evento", "evento": "superchat",

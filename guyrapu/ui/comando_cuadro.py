@@ -138,14 +138,6 @@ class DialogoComando(wx.Dialog):
     def _nombres_de_medios(self):
         return [str(medio.get("nombre", "")) for medio in self._medios]
 
-    def _elegir_medio(self, nombre):
-        nombres = self._nombres_de_medios()
-        try:
-            indice = nombres.index(nombre) + 1
-        except ValueError:
-            indice = 0
-        self.cho_medio.SetSelection(indice)
-
     def _medio_elegido(self):
         indice = self.cho_medio.GetSelection()
         if indice <= 0:
@@ -193,9 +185,13 @@ class DialogoComando(wx.Dialog):
         comando = comandos_guardados.a_comando(datos or {})
         self.txt_palabra.SetValue(comando.nombre)
         self.txt_alias.SetValue(", ".join(comando.alias))
-        self.txt_respuesta.SetValue(comando.respuesta)
-        self._elegir_medio(comando.medio)
-        self.cho_destino.SetSelection(comandos.DESTINOS.index(comando.destino))
+        self._contenido.poner({
+            "texto": comando.respuesta,
+            "mostrar_en": comandos.DESTINOS.index(comando.destino),
+            "medio": comando.medio,
+            "segundos": comando.segundos,
+        })
+        self._elegir_estilo(comando.estilo if datos else "")
         self.cho_permiso.SetSelection(comandos.PERMISOS.index(comando.permiso))
         self.txt_nombres.SetValue(", ".join(comando.nombres))
         self.cho_ubicacion.SetSelection(
@@ -203,16 +199,14 @@ class DialogoComando(wx.Dialog):
         self.cho_atajo.SetSelection(comando.atajo)
         self.sp_espera.SetValue(int(comando.espera_general))
         self.sp_persona.SetValue(int(comando.espera_persona))
-        self._elegir_estilo(comando.estilo if datos else "")
-        self.sp_segundos.SetValue(comando.segundos)
         self.chk_activo.SetValue(comando.activo)
         self.chk_en_lista.SetValue(comando.en_lista)
         if self._es_lista:
             self.chk_en_lista.Hide()
 
     def _elegir_estilo(self, clave):
-        self.cho_estilo.SetSelection(
-            estilo_elegido.indice_de(clave, self._estilos))
+        self._contenido.poner(
+            {"estilo": estilo_elegido.indice_de(clave, self._estilos)})
 
     def _comando_de_campos(self):
         return comandos.Comando(
