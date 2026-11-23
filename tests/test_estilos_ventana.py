@@ -76,8 +76,8 @@ class TestVentana(BaseVentana):
     def test_p1_lista_la_fabrica_primero_y_despues_el_usuario(self):
         panel = self._panel([_estilo("Mío")])
         self.assertEqual(self._textos(panel), [
-            "Clásico (de fábrica), predeterminado de mensajes automáticos, "
-            "comandos, disparadores, encuestas, metas y preguntas",
+            "Clásico (de fábrica), predeterminado de comandos, alertas, "
+            "mensajes automáticos, encuestas, metas y preguntas",
             "Banda (de fábrica)", "Tarjeta (de fábrica)",
             "Alto contraste (de fábrica)", "Mío"])
 

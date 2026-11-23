@@ -87,7 +87,7 @@ class TestPagina(BaseVentana):
         self.assertEqual(panel.lista.GetString(0),
                          "No hay medios. Aquí aparecen las imágenes, los GIF, "
                          "los vídeos y los sonidos de la carpeta Medios, junto "
-                         "a la aplicación. Los comandos y los disparadores "
+                          "a la aplicación. Los comandos y las alertas "
                          "los muestran o los hacen sonar en el vídeo. Copia "
                          "archivos en esa carpeta o usa Agregar.")
 

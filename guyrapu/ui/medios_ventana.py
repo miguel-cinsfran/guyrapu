@@ -29,7 +29,7 @@ from guyrapu.voice import sound_player
 
 VACIO = N_(
     "No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta "
-    "Medios, junto a la aplicación. Los comandos y los disparadores los muestran o los hacen "
+    "Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen "
     "sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 PLAZO_DURACION = 1.4

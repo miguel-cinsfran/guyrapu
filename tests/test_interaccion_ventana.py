@@ -90,20 +90,19 @@ class TestPaginas(BaseVentana):
         self.assertEqual(
             [ventana.libro.GetPageText(indice)
              for indice in range(ventana.libro.GetPageCount())],
-            ["Mensajes automáticos", "Comandos", "Encuestas", "Preguntas",
-             "Disparadores", "Metas", "Medios", "Estilos",
-             "Palabras bloqueadas"])
-        self.assertIsInstance(
-            ventana.libro.GetPage(0),
-            mensajes_automaticos_ventana.PanelMensajesAutomaticos)
-        self.assertIsInstance(ventana.libro.GetPage(1),
+            ["Comandos", "Alertas", "Mensajes automáticos", "Encuestas",
+             "Preguntas", "Metas", "Medios", "Estilos", "Palabras bloqueadas"])
+        self.assertIsInstance(ventana.libro.GetPage(0),
                               comandos_ventana.PanelComandos)
-        self.assertIsInstance(ventana.libro.GetPage(2),
-                              encuestas_ventana.PanelEncuestas)
-        self.assertIsInstance(ventana.libro.GetPage(3),
-                              preguntas_ventana.PanelPreguntas)
-        self.assertIsInstance(ventana.libro.GetPage(4),
+        self.assertIsInstance(ventana.libro.GetPage(1),
                               disparadores_ventana.PanelDisparadores)
+        self.assertIsInstance(
+            ventana.libro.GetPage(2),
+            mensajes_automaticos_ventana.PanelMensajesAutomaticos)
+        self.assertIsInstance(ventana.libro.GetPage(3),
+                              encuestas_ventana.PanelEncuestas)
+        self.assertIsInstance(ventana.libro.GetPage(4),
+                              preguntas_ventana.PanelPreguntas)
         self.assertIsInstance(ventana.libro.GetPage(5),
                               metas_ventana.PanelMetas)
         self.assertIsInstance(ventana.libro.GetPage(6),
@@ -162,19 +161,19 @@ class TestPaginas(BaseVentana):
         self.assertEqual(
             [ventana.libro.GetPage(indice).lista.GetName()
              for indice in range(ventana.libro.GetPageCount())],
-            ["Mensajes automáticos guardados", "Comandos del chat guardados",
-             "Encuestas guardadas", "Preguntas del público",
-             "Disparadores guardados", "Metas guardadas", "Medios guardados",
-             "Estilos del vídeo guardados", "Palabras bloqueadas"])
+             ["Comandos del chat guardados", "Alertas guardadas",
+              "Mensajes automáticos guardados", "Encuestas guardadas",
+              "Preguntas del público", "Metas guardadas", "Medios guardados",
+              "Estilos del vídeo guardados", "Palabras bloqueadas"])
 
     def test_las_letras_no_se_repiten_en_el_dialogo_ni_en_sus_paginas(self):
         ventana = self._ventana()
         self.assertEqual(letras_repetidas(ventana), {})
         self.assertEqual(
             repetidas_con_lo_de_fuera(ventana, ventana.libro),
-            {"Mensajes automáticos": {}, "Comandos": {}, "Encuestas": {},
-             "Preguntas": {}, "Disparadores": {}, "Metas": {}, "Medios": {},
-             "Estilos": {}, "Palabras bloqueadas": {}})
+             {"Comandos": {}, "Alertas": {}, "Mensajes automáticos": {},
+              "Encuestas": {}, "Preguntas": {}, "Metas": {}, "Medios": {},
+              "Estilos": {}, "Palabras bloqueadas": {}})
 
 
 class TestPaginaRecordada(BaseVentana):
@@ -193,12 +192,12 @@ class TestPaginaRecordada(BaseVentana):
         self.assertEqual(ventana.libro.GetCurrentPage().GetName(),
                          "PanelEstilos")
 
-    def test_p2_un_valor_desconocido_abre_en_mensajes(self):
+    def test_p2_un_valor_desconocido_abre_en_comandos(self):
         for guardada in ("raro", ""):
             with self.subTest(guardada=guardada):
                 ventana = self._ventana(
                     configuracion={"interaccion_pagina": guardada})
-                self.assertEqual(ventana.pagina_actual(), "mensajes")
+                self.assertEqual(ventana.pagina_actual(), "comandos")
 
     def test_p2_la_pagina_pedida_gana_sobre_la_guardada(self):
         ventana = self._ventana(
@@ -294,7 +293,7 @@ class TestCableado(BaseVentana):
                 if fn in abren:
                     fn(*args)
         self.assertEqual(abiertas,
-                         ["mensajes", "mensajes", "comandos", "estilos"])
+                         ["comandos", "mensajes", "comandos", "estilos"])
 
     def test_p7_la_accion_conserva_su_nombre_y_cambia_la_etiqueta(self):
         self.assertEqual(

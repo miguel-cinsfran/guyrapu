@@ -27,11 +27,11 @@ from guyrapu.ui.preferencias_comun import ajustar_ancho_categorias
 from guyrapu.ui.preguntas_ventana import PanelPreguntas
 
 PAGINAS = (
-    ("mensajes", N_("Mensajes automáticos")),
     ("comandos", N_("Comandos")),
+    ("disparadores", N_("Alertas")),
+    ("mensajes", N_("Mensajes automáticos")),
     ("encuestas", N_("Encuestas")),
     ("preguntas", N_("Preguntas")),
-    ("disparadores", N_("Disparadores")),
     ("metas", N_("Metas")),
     ("medios", N_("Medios")),
     ("estilos", N_("Estilos")),

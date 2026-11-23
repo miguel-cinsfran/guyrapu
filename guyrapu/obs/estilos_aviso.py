@@ -39,9 +39,9 @@ _CLAVES_ZONA = {clave for clave, _nombre in ZONAS}
 
 # Traductores: tipos de elemento que pueden usar un estilo predeterminado.
 TIPOS = (
-    ("mensaje", N_("Mensajes automáticos")),
     ("comando", N_("Comandos")),
-    ("disparador", N_("Disparadores")),
+    ("disparador", N_("Alertas")),
+    ("mensaje", N_("Mensajes automáticos")),
     ("encuesta", N_("Encuestas")),
     ("meta", N_("Metas")),
     ("pregunta", N_("Preguntas")),

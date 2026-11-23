@@ -121,9 +121,9 @@ class TestVentanas(unittest.TestCase):
         disparador = por_nombre["disparador"]
         self.assertEqual(disparador["menu"],
                          "Interacción > Abrir Interacción…")
-        self.assertEqual(disparador["titulo"], "Agregar disparador")
+        self.assertEqual(disparador["titulo"], "Agregar alerta")
         self.assertEqual(disparador["titulo_menu"], "Interacción")
-        self.assertEqual(disparador["pagina"], "Disparadores")
+        self.assertEqual(disparador["pagina"], "Alertas")
         self.assertEqual(disparador["pulsar"], "Agregar")
         self.assertEqual(disparador["primero"], "Nombre")
 

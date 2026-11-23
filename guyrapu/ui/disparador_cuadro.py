@@ -19,8 +19,8 @@ from guyrapu.ui import formulario, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
-TITULO_AGREGAR = N_("Agregar disparador")
-TITULO_EDITAR = N_("Editar disparador")
+TITULO_AGREGAR = N_("Agregar alerta")
+TITULO_EDITAR = N_("Editar alerta")
 SECCION_CUANDO = N_("Activación")
 SECCION_QUE = N_("Contenido")
 SECCION_ALCANCE = N_("Permiso y espera")
@@ -30,7 +30,7 @@ AYUDA_TARJETA = N_(
 
 def _eventos():
     return [_(disparadores.NOMBRES_EVENTOS[clave])
-            for clave in disparadores.EVENTOS_DEL_DIRECTO]
+            for clave in disparadores.EVENTOS_DE_ALERTA]
 
 
 def _permisos():
@@ -204,7 +204,7 @@ class DialogoDisparador(wx.Dialog):
 
     def _elegir_evento(self, clave):
         try:
-            indice = disparadores.EVENTOS_DEL_DIRECTO.index(clave)
+            indice = disparadores.EVENTOS_DE_ALERTA.index(clave)
         except ValueError:
             indice = 0
         self.cho_evento.SetSelection(indice)
@@ -237,7 +237,7 @@ class DialogoDisparador(wx.Dialog):
         return self._nombres_de_medios()[indice - 1]
 
     def _disparador_de_campos(self):
-        evento = disparadores.EVENTOS_DEL_DIRECTO[
+        evento = disparadores.EVENTOS_DE_ALERTA[
             self.cho_evento.GetSelection()]
         return disparadores.Disparador(
             nombre=self.txt_nombre.GetValue(),

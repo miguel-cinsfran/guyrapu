@@ -352,7 +352,7 @@ class TestErrorYCampo(unittest.TestCase):
     def test_el_primer_error_dice_su_campo_y_su_mensaje(self):
         disparador = _de_evento(nombre="   ", medio="", tarjeta="")
         self.assertEqual(
-            ("nombre", "El disparador necesita un nombre."),
+            ("nombre", "La alerta necesita un nombre."),
             disparadores.error_y_campo(disparador, []))
 
     def test_cada_error_sabe_su_campo(self):

@@ -32,6 +32,9 @@ NOMBRES_EVENTOS = {
     "meta": N_("Metas"),
     "batalla": N_("Batallas"),
 }
+EVENTOS_SIN_ALERTA = ("encuesta", "meta")
+EVENTOS_DE_ALERTA = tuple(tipo for tipo in EVENTOS_DEL_DIRECTO
+                          if tipo not in EVENTOS_SIN_ALERTA)
 
 _NUMERO_RE = re.compile(r"\d+(?:[.,]\d+)*")
 _DECIMAL_RE = re.compile(r"[.,]\d{2}$")
@@ -141,20 +144,20 @@ def texto_de_tarjeta(disparador: Disparador, evento, contador,
 
 def _error_de_nombre(disparador: Disparador, otros) -> tuple[str, str]:
     if not normalizar(disparador.nombre):
-        # Traductores: validación de disparadores del directo (error).
-        return "nombre", _("El disparador necesita un nombre.")
+        # Traductores: validación de alertas del directo (error).
+        return "nombre", _("La alerta necesita un nombre.")
     for otro in otros:
         if normalizar(otro.nombre) == normalizar(disparador.nombre):
-            # Traductores: validación de disparadores del directo (error). {nombre} es el disparador que ya existe.
-            return "nombre", _("El disparador {nombre} ya existe.").format(
+            # Traductores: validación de alertas del directo (error). {nombre} es la alerta que ya existe.
+            return "nombre", _("La alerta {nombre} ya existe.").format(
                 nombre=disparador.nombre)
     return "", ""
 
 
 def _error_de_cuando(disparador: Disparador, _otros) -> tuple[str, str]:
     if disparador.cuando not in CUANDOS:
-        # Traductores: validación de disparadores del directo (error).
-        return "nombre", _("Ese tipo de disparador todavía no existe.")
+        # Traductores: validación de alertas del directo (error).
+        return "nombre", _("Ese tipo de alerta todavía no existe.")
     return "", ""
 
 
@@ -162,11 +165,11 @@ def _error_de_evento(disparador: Disparador, _otros) -> tuple[str, str]:
     if disparador.cuando != "evento":
         return "", ""
     if disparador.evento not in EVENTOS_DEL_DIRECTO:
-        # Traductores: validación de disparadores del directo (error). {evento} es el nombre del evento desconocido.
+        # Traductores: validación de alertas del directo (error). {evento} es el nombre del evento desconocido.
         return "evento", _("El evento {evento} no existe.").format(
             evento=disparador.evento)
     if disparador.minimo is not None and disparador.minimo < 0:
-        # Traductores: validación de disparadores del directo (error).
+        # Traductores: validación de alertas del directo (error).
         return "minimo", _("El mínimo no puede ser negativo.")
     return "", ""
 
@@ -174,8 +177,8 @@ def _error_de_evento(disparador: Disparador, _otros) -> tuple[str, str]:
 def _error_de_que(disparador: Disparador, _otros) -> tuple[str, str]:
     if not (disparador.medio or "").strip() \
             and not (disparador.tarjeta or "").strip():
-        # Traductores: validación de disparadores del directo (error).
-        return "tarjeta", _("El disparador necesita un medio o una tarjeta de texto.")
+        # Traductores: validación de alertas del directo (error).
+        return "tarjeta", _("La alerta necesita un medio o una tarjeta de texto.")
     return "", ""
 
 
@@ -188,7 +191,7 @@ def variables_desconocidas(tarjeta) -> list[str]:
 def _error_de_variables(disparador: Disparador, _otros) -> tuple[str, str]:
     desconocidas = variables_desconocidas(disparador.tarjeta)
     if desconocidas:
-        # Traductores: validación de disparadores del directo (error). {variable} es la variable desconocida y las demás son las que se pueden usar.
+        # Traductores: validación de alertas del directo (error). {variable} es la variable desconocida y las demás son las que se pueden usar.
         return "tarjeta", _("La variable {variable} no existe. Puedes usar {usuario}, "
                  "{cantidad}, {regalo}, {texto} y {contador}.").format(
                      variable="{" + desconocidas[0] + "}",

@@ -4,7 +4,7 @@
 
 Puro salvo la función que toca el disco. Única razón para cambiar: cómo un
 disparador de comando, palabra o atajo pasa a ser un comando. Los eventos del
-directo no se tocan.
+directo siguen, salvo los de meta y encuesta, que se quitan.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from pathlib import Path
 
 from guyrapu.core import archivos, diagnostico, paths
 from guyrapu.interaction import comandos_guardados
+from guyrapu.interaction.disparadores import EVENTOS_SIN_ALERTA
 from guyrapu.interaction.texto import normalizar
 
 logger = diagnostico.obtener_logger(__name__)
@@ -41,6 +42,12 @@ def _leer(ruta) -> list:
     if not isinstance(datos, list):
         raise ValueError(f"{ruta} no contiene una lista")
     return [dato for dato in datos if isinstance(dato, dict)]
+
+
+def _hay_algo_que_convertir(datos: list) -> bool:
+    return any(dato.get("cuando") in TIPOS_VIEJOS
+               or dato.get("evento") in EVENTOS_SIN_ALERTA
+               for dato in datos)
 
 
 def _nombres_de(datos: dict) -> list[str]:
@@ -112,7 +119,11 @@ def convertir(datos_comandos, datos_disparadores) -> Resultado:
         if not isinstance(dato, dict):
             continue
         if dato.get("cuando") not in TIPOS_VIEJOS:
-            resultado.disparadores.append(dato)
+            if dato.get("evento") in EVENTOS_SIN_ALERTA:
+                resultado.descartados.append(
+                    str(dato.get("nombre") or dato.get("cuando")))
+            else:
+                resultado.disparadores.append(dato)
             continue
         nuevo = _comando_de(dato)
         if nuevo is None:
@@ -141,8 +152,7 @@ def convertir_en_disco(ruta_comandos=None, ruta_disparadores=None):
                          else ruta_disparadores)
     try:
         anteriores = _leer(ruta_disparadores)
-        if not any(dato.get("cuando") in TIPOS_VIEJOS
-                   for dato in anteriores):
+        if not _hay_algo_que_convertir(anteriores):
             return None
         resultado = convertir(_leer(ruta_comandos), anteriores)
         copia = Path(ruta_disparadores).with_name(NOMBRE_COPIA)
@@ -153,8 +163,8 @@ def convertir_en_disco(ruta_comandos=None, ruta_disparadores=None):
         archivos.escribir_json_atomico(ruta_disparadores,
                                        resultado.disparadores, indent=2)
         for descartado in resultado.descartados:
-            logger.info("Disparador viejo que no entró: %s", descartado)
+            logger.info("Alerta que no entró en la conversión: %s", descartado)
         return resultado
     except Exception:
-        logger.exception("No se pudieron convertir los disparadores viejos")
+        logger.exception("No se pudieron convertir las alertas viejas")
         return None

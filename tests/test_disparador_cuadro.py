@@ -132,7 +132,7 @@ class TestCampos(BaseCuadro):
     def test_p3_el_regalo_nunca_se_deshabilita(self):
         cuadro = self._cuadro()
         cuadro.cho_evento.SetSelection(
-            disparadores.EVENTOS_DEL_DIRECTO.index("cofre"))
+            disparadores.EVENTOS_DE_ALERTA.index("cofre"))
         self.assertTrue(cuadro.txt_regalo.IsEnabled())
 
     def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
@@ -172,7 +172,12 @@ class TestCampos(BaseCuadro):
         self.assertEqual(
             cuadro.cho_evento.GetStrings(),
             [_(disparadores.NOMBRES_EVENTOS[clave])
-             for clave in disparadores.EVENTOS_DEL_DIRECTO])
+             for clave in disparadores.EVENTOS_DE_ALERTA])
+
+    def test_el_cuadro_no_ofrece_encuestas_ni_metas(self):
+        cuadro = self._cuadro()
+        self.assertNotIn(_("Encuestas"), cuadro.cho_evento.GetStrings())
+        self.assertNotIn(_("Metas"), cuadro.cho_evento.GetStrings())
 
     def test_el_medio_trae_la_biblioteca_y_ninguno(self):
         cuadro = self._cuadro()
@@ -212,7 +217,7 @@ class TestDatos(BaseCuadro):
         cuadro = self._cuadro()
         cuadro.txt_nombre.SetValue("regalo")
         cuadro.cho_evento.SetSelection(
-            disparadores.EVENTOS_DEL_DIRECTO.index("superchat"))
+            disparadores.EVENTOS_DE_ALERTA.index("superchat"))
         cuadro.txt_minimo.SetValue("5")
         cuadro.cho_medio.SetSelection(1)
         cuadro.txt_tarjeta.SetValue("Gracias")
@@ -240,7 +245,7 @@ class TestDatos(BaseCuadro):
         cuadro = self._cuadro()
         cuadro.txt_nombre.SetValue("regalo")
         cuadro.cho_evento.SetSelection(
-            disparadores.EVENTOS_DEL_DIRECTO.index("cofre"))
+            disparadores.EVENTOS_DE_ALERTA.index("cofre"))
         cuadro.txt_regalo.SetValue("Lion")
         cuadro.txt_tarjeta.SetValue("Gracias")
         self.assertEqual(cuadro.datos()["regalo"], "")
@@ -282,7 +287,7 @@ class TestValidacion(BaseCuadro):
         cuadro = self._cuadro()
         cuadro.txt_nombre.SetValue("regalo")
         cuadro.cho_evento.SetSelection(
-            disparadores.EVENTOS_DEL_DIRECTO.index("superchat"))
+            disparadores.EVENTOS_DE_ALERTA.index("superchat"))
         cuadro.txt_minimo.SetValue("-1")
         cuadro.txt_tarjeta.SetValue("Gracias")
         with mock.patch.object(cuadro.txt_minimo, "SetFocus") as foco:

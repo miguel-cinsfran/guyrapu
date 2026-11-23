@@ -60,9 +60,8 @@ VENTANAS = (
         "nombre": "estilos",
         "menu": "Interacción > Estilos del vídeo…",
         "titulo": "Interacción",
-        "primero": ("Clásico (de fábrica), predeterminado de mensajes "
-                    "automáticos, comandos, disparadores, encuestas, metas y "
-                    "preguntas"),
+        "primero": ("Clásico (de fábrica), predeterminado de comandos, alertas, "
+                    "mensajes automáticos, encuestas, metas y preguntas"),
     },
     {
         "nombre": "historial",
@@ -153,10 +152,10 @@ VENTANAS = (
     {
         "nombre": "disparador",
         "menu": "Interacción > Abrir Interacción…",
-        "titulo": "Agregar disparador",
+        "titulo": "Agregar alerta",
         "titulo_menu": "Interacción",
         "primero": "Nombre",
-        "pagina": "Disparadores",
+        "pagina": "Alertas",
         "pulsar": "Agregar",
     },
     {

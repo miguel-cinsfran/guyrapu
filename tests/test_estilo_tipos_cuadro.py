@@ -28,7 +28,7 @@ class TestCuadro(unittest.TestCase):
         cuadro = self._cuadro()
         self.assertEqual(
             [casilla.GetLabel() for casilla in cuadro._casillas.values()],
-            ["Mensajes automáticos", "Comandos", "Disparadores", "Encuestas",
+            ["Comandos", "Alertas", "Mensajes automáticos", "Encuestas",
              "Metas", "Preguntas"])
 
     def test_cada_casilla_tiene_su_rotulo_como_nombre_accesible(self):
@@ -53,7 +53,7 @@ class TestCuadro(unittest.TestCase):
         cuadro.Show()
         try:
             self.assertIs(wx.Window.FindFocus(),
-                          cuadro._casillas["mensaje"])
+                          cuadro._casillas["comando"])
         finally:
             cuadro.Hide()
 

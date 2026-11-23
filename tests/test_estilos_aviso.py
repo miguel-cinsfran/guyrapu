@@ -152,8 +152,13 @@ class TestPorTipo(unittest.TestCase):
     def test_los_seis_tipos_son_las_claves_de_la_pieza(self):
         self.assertEqual(
             [clave for clave, _nombre in estilos_aviso.TIPOS],
-            ["mensaje", "comando", "disparador", "encuesta", "meta",
+            ["comando", "disparador", "mensaje", "encuesta", "meta",
              "pregunta"])
+
+    def test_alertas_es_el_tipo_segundo_despues_de_comandos(self):
+        self.assertEqual(estilos_aviso.TIPOS[:2],
+                         (("comando", "Comandos"),
+                          ("disparador", "Alertas")))
 
 
 class TestZonas(unittest.TestCase):

@@ -20,7 +20,10 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
 
-VACIO = N_("No hay disparadores. Usa Agregar para crear uno.")
+VACIO = N_(
+    "No hay alertas. Una alerta muestra una tarjeta o un medio en el vídeo "
+    "cuando llega un regalo, Super Chat, miembro o seguidor. "
+    "Usa Agregar para crear una.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 
@@ -54,12 +57,12 @@ class PanelDisparadores(wx.Panel):
 
     def _crear_controles(self):
         vs = wx.BoxSizer(wx.VERTICAL)
-        vs.Add(fila_label(self, _("Lista de disp&aradores:")), 0,
+        vs.Add(fila_label(self, _("Lista de &alertas:")), 0,
                wx.LEFT | wx.RIGHT | wx.TOP, 10)
         self.lista = wx.ListBox(
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL,
             name="ListaDisparadores")
-        nombre_accesible(self.lista, _("Disparadores guardados"))
+        nombre_accesible(self.lista, _("Alertas guardadas"))
         self._acciones = _acciones(self)
         self._lista = ListaConAcciones(self.lista, self._acciones, _(VACIO))
         self._lista.fijar(self._textos())
@@ -96,7 +99,7 @@ class PanelDisparadores(wx.Panel):
         self._disparadores.append(datos)
         self._guardar()
         self._fijar(len(self._disparadores) - 1)
-        anunciar(_("Disparador agregado"))
+        anunciar(_("Alerta agregada"))
 
     def _editar(self):
         indice = self._elegido()
@@ -111,7 +114,7 @@ class PanelDisparadores(wx.Panel):
         self._disparadores[indice] = datos
         self._guardar()
         self._fijar(indice)
-        anunciar(_("Disparador guardado"))
+        anunciar(_("Alerta guardada"))
 
     def _renombrar(self):
         indice = self._elegido()
@@ -153,7 +156,7 @@ class PanelDisparadores(wx.Panel):
         self._disparadores.insert(indice + 1, copia)
         self._guardar()
         self._fijar(indice + 1)
-        anunciar(_("Disparador duplicado"))
+        anunciar(_("Alerta duplicada"))
 
     def _pausar(self):
         indice = self._elegido()
@@ -181,19 +184,19 @@ class PanelDisparadores(wx.Panel):
         nombre = str(disparador.get("nombre", ""))
         if not confirmar.preguntar(
                 self,
-                _("¿Quieres eliminar el disparador «{nombre}»?").format(
+                _("¿Quieres eliminar la alerta «{nombre}»?").format(
                     nombre=nombre),
-                _("Eliminar disparador"), _("&Eliminar"), _("&Cancelar"),
+                _("Eliminar alerta"), _("&Eliminar"), _("&Cancelar"),
                 predeterminado_si=False):
             return
         self._disparadores.pop(indice)
         self._guardar()
         self._fijar(min(indice, len(self._disparadores) - 1))
-        anunciar(_("Disparador eliminado"))
+        anunciar(_("Alerta eliminada"))
 
     def _exportar(self):
         if not self._disparadores:
-            anunciar(_("No hay disparadores para exportar."))
+            anunciar(_("No hay alertas para exportar."))
             return
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
@@ -205,7 +208,7 @@ class PanelDisparadores(wx.Panel):
                 self,
                 _("No se pudo escribir el paquete:\n\n{exc}").format(
                     exc=exc),
-                _("Exportar disparadores"), _("Aceptar"),
+                _("Exportar alertas"), _("Aceptar"),
                 icono=confirmar.ICON_ERROR)
 
     def _importar(self):
@@ -216,7 +219,7 @@ class PanelDisparadores(wx.Panel):
             paquete = paquetes.leer(ruta, "disparadores")
         except paquetes.PaqueteRechazado as exc:
             confirmar.avisar(
-                self, str(exc), _("Importar disparadores"),
+                self, str(exc), _("Importar alertas"),
                 _("Aceptar"), icono=confirmar.ICON_ERROR)
             return
         self._incorporar(paquete.elementos)
@@ -236,17 +239,17 @@ class PanelDisparadores(wx.Panel):
                        in enumerate(self._disparadores)
                        if id(disparador) not in anteriores), 0)
         self._fijar(indice)
-        anunciar(ngettext("Se importó un disparador.",
-                          "Se importaron {n} disparadores.",
+        anunciar(ngettext("Se importó una alerta.",
+                          "Se importaron {n} alertas.",
                           len(nuevos)).format(n=len(nuevos)))
 
     def _preguntar_reemplazo(self, repetidos):
         return confirmar.preguntar(
             self,
-            _("Ya hay disparadores llamados {nombres}. "
+            _("Ya hay alertas llamadas {nombres}. "
               "¿Quieres reemplazarlos?").format(
                   nombres=", ".join(repetidos)),
-            _("Importar disparadores"), _("&Sí"), _("&No"),
+            _("Importar alertas"), _("&Sí"), _("&No"),
             predeterminado_si=False)
 
     def _pedir_ruta(self, guardar):
@@ -254,8 +257,8 @@ class PanelDisparadores(wx.Panel):
                   else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
         dialogo = wx.FileDialog(
             self,
-            _("Exportar disparadores") if guardar
-            else _("Importar disparadores"),
+            _("Exportar alertas") if guardar
+            else _("Importar alertas"),
             wildcard=_(WILDCARD), style=estilo)
         try:
             if dialogo.ShowModal() != wx.ID_OK:

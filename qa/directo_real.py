@@ -373,8 +373,8 @@ def _ayuda() -> argparse.ArgumentParser:
                              "la app, con la tarea GuyrapuCorteRed ya "
                              "lanzada (0 sin corte, tope 30)")
     parser.add_argument("--interaccion", action="store_true",
-                        help="probar comandos, disparadores, encuestas, "
-                             "preguntas y metas con la sonda de órdenes")
+                         help="probar comandos, alertas, encuestas, "
+                              "preguntas y metas con la sonda de órdenes")
     return parser
 
 

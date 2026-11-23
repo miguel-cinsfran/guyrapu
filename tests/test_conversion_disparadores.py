@@ -82,6 +82,17 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(resultado.comandos, [])
         self.assertEqual(resultado.disparadores, [evento])
 
+    def test_las_alertas_de_meta_y_encuesta_se_quitan_y_queda_superchat(self):
+        meta = _viejo("meta de regalos", "evento", evento="meta")
+        encuesta = _viejo("encuesta de risa", "evento", evento="encuesta")
+        superchat = _viejo("regalo", "evento", evento="superchat", minimo=5)
+        resultado = conversion_disparadores.convertir(
+            [], [meta, encuesta, superchat])
+        self.assertEqual(resultado.disparadores, [superchat])
+        self.assertEqual(resultado.comandos, [])
+        self.assertEqual(resultado.descartados,
+                         ["meta de regalos", "encuesta de risa"])
+
     def test_lo_que_choca_con_un_comando_se_queda_suyo_y_toma_el_medio(self):
         existente = _comando(nombre="risa", respuesta="Mía")
         resultado = conversion_disparadores.convertir(
@@ -187,6 +198,29 @@ class TestEnDisco(unittest.TestCase):
 
         self.assertFalse(copia.exists())
         self.assertEqual(antes, ruta_disparadores.stat().st_mtime_ns)
+
+    def test_quita_alertas_de_meta_y_encuesta_con_copia_y_registro(self):
+        from guyrapu.core import paths
+        ruta_disparadores = paths.disparadores()
+        ruta_comandos = paths.comandos()
+        copia = ruta_disparadores.with_name("disparadores.anterior.json")
+        meta = _viejo("meta de regalos", "evento", evento="meta")
+        encuesta = _viejo("encuesta de risa", "evento", evento="encuesta")
+        superchat = _viejo("regalo", "evento", evento="superchat")
+        actuales = [meta, encuesta, superchat]
+        self._escribir(ruta_disparadores, actuales)
+        self._escribir(ruta_comandos, [])
+
+        with mock.patch.object(conversion_disparadores.logger,
+                               "info") as registrar:
+            conversion_disparadores.convertir_en_disco()
+
+        self.assertEqual(self._leer(copia), actuales)
+        self.assertEqual(self._leer(ruta_disparadores), [superchat])
+        self.assertEqual(self._leer(ruta_comandos), [])
+        self.assertEqual(
+            [llamada.args[1] for llamada in registrar.call_args_list],
+            ["meta de regalos", "encuesta de risa"])
 
 
 if __name__ == "__main__":

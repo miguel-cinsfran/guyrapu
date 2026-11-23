@@ -74,12 +74,16 @@ class TestContratos(BaseVentana):
         panel = self._panel([])
         self.assertEqual(
             panel.lista.GetString(0),
-            "No hay disparadores. Usa Agregar para crear uno.")
+            "No hay alertas. Una alerta muestra una tarjeta o un medio en el vídeo "
+            "cuando llega un regalo, Super Chat, miembro o seguidor. "
+            "Usa Agregar para crear una.")
         paths.disparadores().write_text("{roto", encoding="utf-8")
         panel = self._panel()
         self.assertEqual(
             panel.lista.GetString(0),
-            "No hay disparadores. Usa Agregar para crear uno.")
+            "No hay alertas. Una alerta muestra una tarjeta o un medio en el vídeo "
+            "cuando llega un regalo, Super Chat, miembro o seguidor. "
+            "Usa Agregar para crear una.")
 
     def test_los_botones_del_panel_estan_encendidos(self):
         panel = self._panel([])
@@ -93,7 +97,9 @@ class TestContratos(BaseVentana):
         with mock.patch("guyrapu.ui.lista_acciones.anunciar") as decir:
             panel._lista.ejecutar("editar")
         decir.assert_called_once_with(
-            "No hay disparadores. Usa Agregar para crear uno.")
+            "No hay alertas. Una alerta muestra una tarjeta o un medio en el vídeo "
+            "cuando llega un regalo, Super Chat, miembro o seguidor. "
+            "Usa Agregar para crear una.")
 
 
 class TestAcciones(BaseVentana):
@@ -141,7 +147,7 @@ class TestAcciones(BaseVentana):
         self.assertEqual(self._nombres_en_disco(), ["A", "B"])
         self.assertEqual(panel.lista.GetSelection(), 1)
         self.assertIs(panel.lista, wx.Window.FindFocus())
-        decir.assert_called_once_with("Disparador agregado")
+        decir.assert_called_once_with("Alerta agregada")
 
     def test_editar_guarda_y_deja_el_foco_en_el_mismo(self):
         panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
@@ -155,7 +161,7 @@ class TestAcciones(BaseVentana):
             disparadores_guardados.cargar(paths.disparadores())[1]["tarjeta"],
             "Nueva")
         self.assertEqual(panel.lista.GetSelection(), 1)
-        decir.assert_called_once_with("Disparador guardado")
+        decir.assert_called_once_with("Alerta guardada")
 
     def test_renombrar_repite_la_validacion(self):
         panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
@@ -175,7 +181,7 @@ class TestAcciones(BaseVentana):
         self.assertEqual(self._nombres_en_disco(),
                          ["A", "A (copia)", "B"])
         self.assertEqual(panel.lista.GetSelection(), 1)
-        decir.assert_called_once_with("Disparador duplicado")
+        decir.assert_called_once_with("Alerta duplicada")
 
     def test_pausar_cambia_el_estado_y_la_fila(self):
         panel = self._panel([_datos("A")])
@@ -209,7 +215,7 @@ class TestAcciones(BaseVentana):
         self.assertFalse(preguntar.call_args.kwargs["predeterminado_si"])
         self.assertEqual(self._nombres_en_disco(), ["B"])
         self.assertEqual(panel.lista.GetSelection(), 0)
-        decir.assert_called_once_with("Disparador eliminado")
+        decir.assert_called_once_with("Alerta eliminada")
 
     def test_eliminar_el_ultimo_deja_el_foco_en_el_anterior(self):
         panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
@@ -227,7 +233,7 @@ class TestAcciones(BaseVentana):
             panel._exportar()
         pedir.assert_not_called()
         decir.assert_called_once_with(
-            "No hay disparadores para exportar.")
+            "No hay alertas para exportar.")
 
     def test_exportar_e_importar_pausan_lo_importado(self):
         panel = self._panel([_datos("A")])
