@@ -19,6 +19,11 @@ from guyrapu.ui.descargas_acciones import AccionesDescarga
 from guyrapu.ui.gui import nombre_accesible, _T, _tc
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 
+# Traductores: fila sin descargas; «Buscar» y «Mostrar» son controles de la página.
+VACIO = N_(
+    "No hay descargas. Aquí aparecen las descargas en curso y las terminadas. "
+    "Usa Buscar para descargar vídeos o cambia el filtro Mostrar.")
+
 _ESTADOS_FINALES = ("completado", "parcial", "cancelado", "error")
 _ETIQUETAS_ESTADO = {"en_cola": N_("en cola"), "descargando": N_("descargando"),
                      "completado": N_("completado"), "parcial": N_("con errores"),
@@ -185,7 +190,7 @@ class PaginaDescargas(wx.Panel):
         self.lista.InsertColumn(2, _("Nombre"), width=320)
         self.lista.InsertColumn(3, _("Fecha"), width=140)
         self._lista_acciones = ListaConAcciones(
-            self.lista, _acciones(self), _("No hay descargas en esta vista."))
+            self.lista, _acciones(self), _(VACIO))
         return self.lista
 
     def _seccion_botones(self):

@@ -15,11 +15,20 @@ from types import SimpleNamespace
 
 import wx
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.ui import confirmar, restream_menus
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import ListaConVacio
 from guyrapu.ui.preferencias_comun import fila_horizontal
+
+# Traductores: fila sin cuenta de Restream; «Cuenta» es el nombre de la pestaña.
+SIN_CUENTA = N_(
+    "No hay cuenta de Restream. Aquí aparecen los canales conectados a tu "
+    "cuenta. Conecta tu cuenta en la pestaña Cuenta para verlos.")
+# Traductores: fila sin destinos; «Agregar destino…» es el botón de la página.
+VACIO = N_(
+    "No hay destinos. Aquí aparecen los canales de tu cuenta de Restream. "
+    "Usa Agregar destino… para sumar uno.")
 
 # Página donde Restream agrega los canales de la cuenta.
 URL_DESTINOS = "https://app.restream.io/channels"
@@ -107,8 +116,8 @@ class PaginaDestinos(wx.Panel):
 
     def _texto_vacio(self):
         if not self._conectada():
-            return _("Sin cuenta de Restream. Conéctala en la pestaña Cuenta.")
-        return _("No hay destinos. Usa Agregar destino… para sumar uno.")
+            return _(SIN_CUENTA)
+        return _(VACIO)
 
     def _conectada(self):
         if self._esta_conectada is None:

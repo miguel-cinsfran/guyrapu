@@ -23,7 +23,8 @@ from guyrapu.ui.accesibilidad import (
     enlazar_anuncio_de_pestana, nombre_accesible)
 from guyrapu.ui.barra_estado import anchos_barra_estado
 from guyrapu.ui.busqueda_teclado import instalar_busqueda_tipo
-from guyrapu.ui.chat_vivo import ControladorChat
+from guyrapu.ui.chat_vivo import (
+    ControladorChat, filas_de_chat, poner_linea_vacia)
 from guyrapu.ui.gui_redactar import PanelRedactar
 from guyrapu.ui.tema import _T, _pintar, _tc, _titulo, fuente_de_lista
 from guyrapu.youtube import cuota_pagina
@@ -176,6 +177,7 @@ def construir_pagina_chat(frame, parent) -> wx.Panel:
         config=frame._config, varios_chats=chat_adicional.activo)
     frame._chat_acciones.lb_chat = frame.lb_chat
     frame._chat_acciones.chat_vivo = frame.chat_vivo
+    poner_linea_vacia(frame.lb_chat)
     vs.Add(frame.lb_chat, 1, wx.EXPAND | wx.ALL, 8)
 
     frame._panel_redactar = PanelRedactar(
@@ -249,10 +251,7 @@ def enlazar_eventos(frame):
     frame.lb_chat.Bind(wx.EVT_LISTBOX_DCLICK,
                        lambda e: frame._chat_acciones._copiar_mensaje())
     enlazar_eventos_chat(frame)
-    instalar_busqueda_tipo(
-        frame.lb_chat,
-        lambda: [frame.lb_chat.GetString(i)
-                 for i in range(frame.lb_chat.GetCount())])
+    instalar_busqueda_tipo(frame.lb_chat, lambda: filas_de_chat(frame.lb_chat))
 
 
 def enlazar_eventos_chat(frame):

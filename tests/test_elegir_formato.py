@@ -134,6 +134,14 @@ class TestDialogoFormato(unittest.TestCase):
         self.dialogo.lista.SetSelection(1)
         self.assertEqual(self.dialogo.elegida(), self.opciones[1])
 
+    def test_la_linea_vacia_no_se_puede_descargar(self):
+        cuadro = elegir_formato.DialogoFormato(None, [])
+        self.addCleanup(destruir, cuadro)
+        self.assertEqual(cuadro.lista.GetCount(), 1)
+        self.assertEqual(cuadro.lista.GetString(0), elegir_formato.VACIO)
+        self.assertEqual(cuadro.lista.GetSelection(), 0)
+        self.assertIsNone(cuadro.elegida())
+
     def test_orden_de_tab_lista_descargar_cancelar(self):
         orden = [c for c in self.dialogo.panel.GetChildren()
                  if c in (self.dialogo.lista, self.dialogo.btn_descargar,
@@ -248,23 +256,25 @@ class TestConsultaFormatos(unittest.TestCase):
         anunciar.assert_called_once_with("Cargando formatos")
         sonido.assert_called_once_with("formatos_cargando")
 
-    def test_sin_datos_anuncia_el_fallo_sin_abrir(self):
+    def test_sin_datos_anuncia_el_fallo_y_abre_la_lista_vacia(self):
         creados, anunciar, sonido = self._dobles(
             info=None, opciones=[], padre=mock.sentinel.padre)
         agregar = mock.Mock()
         elegir_formato.ConsultaFormatos(agregar).pedir(self.resultado)
-        self.assertEqual(creados, [])
+        self.assertEqual(len(creados), 1)
+        self.assertEqual(creados[0][1], [])
         agregar.assert_not_called()
         anunciar.assert_called_with("No se pudieron cargar los formatos.")
         sonido.assert_called_with("formatos_fallidos")
 
-    def test_lista_vacia_anuncia_el_fallo(self):
+    def test_lista_vacia_anuncia_el_fallo_y_abre_la_lista_vacia(self):
         creados, anunciar, sonido = self._dobles(
             info={"formats": []}, opciones=[],
             padre=mock.sentinel.padre)
         agregar = mock.Mock()
         elegir_formato.ConsultaFormatos(agregar).pedir(self.resultado)
-        self.assertEqual(creados, [])
+        self.assertEqual(len(creados), 1)
+        self.assertEqual(creados[0][1], [])
         agregar.assert_not_called()
         sonido.assert_called_with("formatos_fallidos")
 

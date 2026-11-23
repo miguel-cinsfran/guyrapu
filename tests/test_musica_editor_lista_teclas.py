@@ -44,8 +44,9 @@ class Evento:
 A = Tema("C:/Musica/a.mp3", "A")
 B = Tema("C:/Musica/b.mp3", "B")
 C = Tema("C:/Musica/c.mp3", "C")
-VACIA = ("La lista no tiene canciones. Marca las casillas de Todas las "
-         "canciones para agregarlas.")
+VACIA = ("La lista no tiene canciones. Aquí aparecen las canciones que "
+         "guardes en ella. Marca las casillas de Todas las canciones para "
+         "agregarlas.")
 
 
 @unittest.skipUnless(_HAY_WX, "wxPython no está instalado")
@@ -335,7 +336,9 @@ class TestEditorTeclas(unittest.TestCase):
         with mock.patch.object(lista_acciones, "anunciar") as anunciar:
             self._ejecutar_todas(musica_menus.ACCION_AGREGAR_TODAS_A_LISTA)
         anunciar.assert_called_once_with(
-            "Ninguna canción coincide con la búsqueda.")
+            "Ninguna canción coincide con «zzz». Aquí aparecen los temas de la "
+            "carpeta que puedes agregar a la lista. Prueba con otro texto en "
+            "Buscar canciones.")
 
     def test_marcar_con_fijar_no_agrega_ni_anuncia(self):
         dialogo = self._abrir(carpeta=(A, B), lista=(A,))
@@ -349,7 +352,9 @@ class TestEditorTeclas(unittest.TestCase):
         dialogo = self._abrir(carpeta=())
         self.assertEqual(
             self._filas(dialogo.lb_todas),
-            ["No hay canciones en la carpeta de música."])
+            ["No hay canciones en la carpeta de música. Aquí aparecen los temas "
+             "que puedes marcar para agregarlos a la lista. Elige una carpeta "
+             "en Preferencias, categoría Música."])
 
     def test_sin_coincidencias_la_linea_vacia_lo_dice(self):
         dialogo = self._abrir(carpeta=(A, B))
@@ -357,7 +362,9 @@ class TestEditorTeclas(unittest.TestCase):
         dialogo._aplicar_filtro()
         self.assertEqual(
             self._filas(dialogo.lb_todas),
-            ["Ninguna canción coincide con la búsqueda."])
+            ["Ninguna canción coincide con «zzz». Aquí aparecen los temas de la "
+             "carpeta que puedes agregar a la lista. Prueba con otro texto en "
+             "Buscar canciones."])
 
     def test_escape_cancela_el_cuadro(self):
         dialogo = self._abrir(carpeta=(A,), lista=(A,))

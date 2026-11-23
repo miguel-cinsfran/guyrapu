@@ -58,7 +58,9 @@ class TestDialogoEstado(unittest.TestCase):
         self.addCleanup(destruir, dialogo)
         self.assertEqual(dialogo.lista.GetCount(), 1)
         self.assertEqual(dialogo.lista.GetString(0),
-                         "Sin información de estado.")
+                         "No hay información de estado. Aquí aparecen el "
+                         "directo, el chat, OBS y la música. Conecta un "
+                         "directo o abre OBS para verlo.")
 
     def test_las_lineas_son_una_foto_del_momento(self):
         lineas = ["Uno"]

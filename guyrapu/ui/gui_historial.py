@@ -16,7 +16,7 @@ import wx
 
 from guyrapu.capture import redaccion
 from guyrapu.core import historial
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.ui.accesibilidad import (
     anunciar, enlazar_anuncio_de_pestana, nombre_accesible)
 from guyrapu.ui import ayuda_manual, paleta
@@ -26,6 +26,12 @@ from guyrapu.ui.tema import _T, _pintar
 logger = diagnostico.obtener_logger(__name__)
 
 _PLATAFORMAS = [("YouTube", "youtube"), ("TikTok", "tiktok")]
+
+# Traductores: fila sin entradas en una pestaña; {plataforma} es YouTube o TikTok.
+VACIO = N_(
+    "No hay entradas de {plataforma}. Aquí aparecen los directos y vídeos de "
+    "{plataforma} que hayas visto. Conecta un directo o abre un vídeo para verlos "
+    "aquí.")
 
 
 class HistorialDialog(wx.Dialog):
@@ -86,9 +92,7 @@ class HistorialDialog(wx.Dialog):
         lb = wx.ListBox(pag, style=wx.LB_SINGLE | wx.LB_HSCROLL,
                         name=nombre)
         nombre_accesible(lb, nombre)
-        # Traductores: fila que dice que la pestaña del historial no tiene
-        # entradas; {plataforma} es el nombre de la plataforma de la pestaña.
-        vacio = _("No hay entradas de {plataforma}.").format(plataforma=titulo)
+        vacio = _(VACIO).format(plataforma=titulo)
         self._piezas[plat] = ListaConAcciones(lb, (
             Accion("conectar", _("&Conectar"), lambda: self._conectar(),
                    tecla="intro"),
@@ -117,7 +121,8 @@ class HistorialDialog(wx.Dialog):
                 indice = min(elegido, len(entradas) - 1)
             self._piezas[plat].fijar(
                 [historial.etiqueta(e) for e in entradas], indice)
-        motivo = historial.motivo_sin_entradas(any(self._entradas.values()))
+        motivo = ("" if any(self._entradas.values())
+                  else _(historial.MOTIVO_VACIO))
         self.btn_conectar.SetLabel(
             redaccion.etiqueta_con_motivo(_("&Conectar"), motivo))
         self.btn_quitar.SetLabel(
@@ -125,7 +130,7 @@ class HistorialDialog(wx.Dialog):
 
     def _motivo_sin_seleccion(self) -> str:
         if not any(self._entradas.values()):
-            return f"{historial.motivo_sin_entradas(False)}."
+            return f"{_(historial.MOTIVO_VACIO)}."
         return _("Sin selección")
 
     def _seleccionada(self):

@@ -18,8 +18,14 @@ from guyrapu.ui.lista_acciones import ListaConVacio
 
 # Traductores: título del cuadro que busca en los mensajes del chat.
 TITULO = N_("Buscar en el chat")
-TEXTO_ESCRIBE = N_("Escribe para buscar en los mensajes del chat.")
-TEXTO_SIN_COINCIDENCIAS = N_("No hay mensajes con «{texto}».")
+# Traductores: fila sin texto escrito; «Buscar en el chat» es el campo de texto.
+TEXTO_ESCRIBE = N_(
+    "No hay mensajes. Aquí aparecen los mensajes del chat que coinciden con lo "
+    "que escribas. Escribe un texto en Buscar en el chat para verlos.")
+# Traductores: fila sin coincidencias; {texto} es lo escrito en el campo.
+TEXTO_SIN_COINCIDENCIAS = N_(
+    "No hay mensajes con «{texto}». Aquí aparecen los mensajes del chat que "
+    "coinciden con tu búsqueda. Prueba con otro texto en Buscar en el chat.")
 TEXTO_NINGUNO = N_("Ningún mensaje coincide")
 TEXTO_UNO = N_("1 mensaje coincide")
 TEXTO_VARIOS = N_("{n} mensajes coinciden")

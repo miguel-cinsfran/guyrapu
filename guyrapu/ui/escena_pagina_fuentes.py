@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import wx
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.obs import (
     aplicar_diseno, chat_en_video, consultas_transmision, disenos_fabrica,
     disenos_guardados, obs_disposicion)
@@ -15,6 +15,11 @@ from guyrapu.ui import (
     escena_menu_fuente, escena_version_vertical, lista_acciones)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
+
+# Traductores: fila de una escena sin fuentes; «Agregar fuente…» es el botón.
+VACIO = N_(
+    "No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
+    "elegida en OBS. Usa Agregar fuente… para sumar una.")
 
 
 def _boton_obs(pagina, etiqueta):
@@ -57,9 +62,7 @@ class PaginaFuentes(wx.Panel):
         nombre_accesible(self.lst_fuentes, self.lst_fuentes.GetName())
         self.lst_fuentes.SetMinSize((-1, 120))
         self.lista_vacia = lista_acciones.ListaConVacio(
-            self.lst_fuentes,
-            _("Esta escena no tiene fuentes. Usa Agregar fuente… para "
-              "sumar una."))
+            self.lst_fuentes, _(VACIO))
         caja.Add(self.rotulo_fuentes, 0, wx.LEFT | wx.TOP, 8)
         caja.AddSpacer(4)
         caja.Add(self.lst_fuentes, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)

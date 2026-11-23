@@ -11,7 +11,7 @@ import time
 
 import wx
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.downloads import busqueda_youtube
 from guyrapu.downloads.busqueda_youtube import (
     CANTIDAD_DEFECTO, Filtros, clasificar_entrada, es_enlace_de_lista, ordenar)
@@ -29,6 +29,19 @@ from guyrapu.ui.lista_acciones import ListaConAcciones
 from guyrapu.ui.tema import boton_principal
 
 _CANTIDADES = tuple(str(n) for n in busqueda_youtube.CANTIDADES)
+
+# Traductores: fila antes de buscar; «Buscar» es el botón de la búsqueda.
+VACIO = N_(
+    "No hay resultados. Aquí aparecen los vídeos de YouTube que coinciden con "
+    "tu búsqueda. Escribe un texto y usa Buscar.")
+# Traductores: fila mientras llegan los resultados de la búsqueda.
+CARGANDO = N_(
+    "Buscando vídeos. Aquí aparecerán los resultados de YouTube. "
+    "Espera a que termine la búsqueda.")
+# Traductores: fila sin resultados; {texto} es lo escrito en el campo.
+SIN_RESULTADOS = N_(
+    "No hay resultados para «{texto}». Aquí aparecen los vídeos de YouTube "
+    "que coinciden con tu búsqueda. Prueba con otro texto y usa Buscar.")
 
 
 def _celdas(resultados) -> list:
@@ -122,7 +135,7 @@ class PaginaBuscador(wx.Panel):
                 lambda resultado: self._ver_contenido_de(resultado),
                 self.agregar_a_la_cola,
                 lambda resultado: self._escucha.alternar(resultado)),
-            _("Sin resultados"))
+            _(VACIO))
         entregar_intro(self.lista, self._on_activar)
         vs.Add(self.lista, 1, wx.EXPAND | wx.ALL, 8)
 
@@ -199,8 +212,7 @@ class PaginaBuscador(wx.Panel):
     def _lanzar(self, mas: bool) -> None:
         if not mas:
             self.txt_detalles.SetValue("")
-            self._lista_acciones.fijar([])
-            self.lista.DeleteAllItems()
+            self._lista_acciones.fijar([], vacio=_(CARGANDO))
         self._tandas.pedir(
             lambda inicio, cantidad: busqueda_youtube.buscar(
                 self._texto, self._filtros, inicio, cantidad),
@@ -236,6 +248,8 @@ class PaginaBuscador(wx.Panel):
     def _volver_primera(self, nuevos, foco_en_mas):
         self._resultados = ordenar(self._resultados, self._filtros.orden)
         if not nuevos:
+            self._lista_acciones.fijar(
+                [], vacio=_(SIN_RESULTADOS).format(texto=self._texto))
             self.txt_detalles.SetValue(_("Sin resultados"))
             buscador_tandas.sonar("busqueda_sin_resultados")
             anunciar(_("Sin resultados"))

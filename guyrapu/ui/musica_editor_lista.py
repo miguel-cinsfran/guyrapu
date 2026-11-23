@@ -24,9 +24,20 @@ MAX_NOMBRE = 60
 TITULO_NUEVA = N_("Nueva lista")
 TITULO_EDITAR = N_("Editar lista")
 TEXTO_NOMBRE_LARGO = N_("El nombre no puede tener más de 60 caracteres")
+# Traductores: fila de «Canciones de la lista» sin temas.
 TEXTO_LISTA_VACIA = N_(
-    "La lista no tiene canciones. "
-    "Marca las casillas de Todas las canciones para agregarlas.")
+    "La lista no tiene canciones. Aquí aparecen las canciones que guardes en "
+    "ella. Marca las casillas de Todas las canciones para agregarlas.")
+# Traductores: fila de «Todas las canciones» sin temas en la carpeta de música.
+TEXTO_TODAS_VACIO = N_(
+    "No hay canciones en la carpeta de música. Aquí aparecen los temas que "
+    "puedes marcar para agregarlos a la lista. Elige una carpeta en "
+    "Preferencias, categoría Música.")
+# Traductores: fila sin coincidencias; {texto} es lo escrito en Buscar canciones.
+TEXTO_TODAS_SIN_COINCIDENCIAS = N_(
+    "Ninguna canción coincide con «{texto}». Aquí aparecen los temas de la "
+    "carpeta que puedes agregar a la lista. Prueba con otro texto en Buscar "
+    "canciones.")
 ACCION_CANCELAR = "cancelar"
 
 _TECLAS_EDITADA = {
@@ -133,7 +144,7 @@ class DialogoEditorLista(wx.Dialog):
             panel, _("Todas las canciones"), 180)
         self.lb_todas.EnableCheckBoxes(True)
         self._todas_acciones = ListaConAcciones(
-            self.lb_todas, self._acciones_todas(), "")
+            self.lb_todas, self._acciones_todas(), _(TEXTO_TODAS_VACIO))
         formulario.agregar_fila(vs, rotulo, self.lb_todas)
 
     def _acciones_todas(self):
@@ -189,11 +200,11 @@ class DialogoEditorLista(wx.Dialog):
             [vista.fila_tema(tema) for tema in self._lista.temas])
 
     def _aplicar_filtro(self):
+        texto = self.txt_buscar.GetValue()
         self._visibles_todas = list(vista.filtrar_lista(
-            self._temas_carpeta, self.txt_buscar.GetValue()))
-        vacio = (_("Ninguna canción coincide con la búsqueda.")
-                 if self.txt_buscar.GetValue()
-                 else _("No hay canciones en la carpeta de música."))
+            self._temas_carpeta, texto))
+        vacio = (_(TEXTO_TODAS_SIN_COINCIDENCIAS).format(texto=texto)
+                 if texto else _(TEXTO_TODAS_VACIO))
         self._actualizando_todas = True
         try:
             self._todas_acciones.fijar(

@@ -21,7 +21,7 @@ from guyrapu.core import paths
 from guyrapu.core import config as cfg
 from guyrapu.core import sonidos_tema
 from guyrapu.core.eventos_sonido import CATALOGO, FAMILIAS, NOMBRES
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.core.sonidos_ini import con_silenciados, silenciados
 from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
@@ -30,6 +30,11 @@ from guyrapu.ui.tema import _T, _pintar, _tc
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
+
+# Traductores: fila de la lista de sonidos sin eventos que mostrar.
+VACIO = N_(
+    "No hay sonidos. Aquí aparecen los avisos de la app con su familia. "
+    "La app los carga al abrir Preferencias.")
 
 
 def _leer_texto(ruta: Path) -> str:
@@ -165,7 +170,7 @@ class PaginaSonidos:
         etiqueta_oir = _("&Reproducir sonido")
         self._pieza = ListaConAcciones(self._lista, (
             Accion("oir", etiqueta_oir, self._on_oir),
-        ), "")
+        ), _(VACIO))
         vs.Add(self._lista, 1, wx.EXPAND | wx.ALL, 10)
 
     def _on_tamanio_lista(self, event):

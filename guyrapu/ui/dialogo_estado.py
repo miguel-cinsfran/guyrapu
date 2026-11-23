@@ -16,7 +16,10 @@ from guyrapu.ui import formulario, paleta
 from guyrapu.ui.accesibilidad import nombre_accesible
 
 TITULO = N_("Estado de la sesión")
-SIN_ESTADO = N_("Sin información de estado.")
+# Traductores: fila cuando el cuadro de estado no tiene líneas que mostrar.
+SIN_ESTADO = N_(
+    "No hay información de estado. Aquí aparecen el directo, el chat, OBS y la "
+    "música. Conecta un directo o abre OBS para verlo.")
 CERRAR = N_("Cerrar")
 
 

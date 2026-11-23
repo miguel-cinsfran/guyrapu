@@ -305,8 +305,11 @@ class TestRecientesVentana(unittest.TestCase):
     def test_sin_historial_no_muestra_ni_lista_ni_rotulo(self):
         _m, _p, _s, _z, recientes, _c = self._marco([])
         self.assertFalse(recientes.caja.IsShown())
-        self.assertEqual("El historial está vacío",
-                         recientes.lista.GetString(0))
+        self.assertEqual(
+            "No hay historial. Aquí aparecen los directos y vídeos que hayas "
+            "visto desde Guyrapu. Conecta un directo o abre un vídeo para verlos "
+            "aquí.",
+            recientes.lista.GetString(0))
 
     def test_al_desconectar_recarga_con_el_historial_al_dia(self):
         marco, panel, sizer, zona, recientes, _ = self._marco(self._entradas(2))

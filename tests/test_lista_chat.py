@@ -9,6 +9,7 @@ menú contextual (copiar, silenciar, banear) caía sobre el mensaje equivocado.
 
 import unittest
 
+from guyrapu.core.idioma import _
 from guyrapu.core.config import (
     TIPO_TEXTO, TIPO_SUPERCHAT, TIPO_STICKER, TIPO_MIEMBRO, TIPO_ENTRADA,
     TIPO_SEGUIR, TIPO_COMPARTIR, TIPO_COFRE, TIPO_ME_GUSTA,
@@ -242,6 +243,19 @@ class TestTextoReciente(unittest.TestCase):
 
     def test_lista_vacia_avisa_que_no_hay_mensajes(self):
         self.assertEqual(texto_reciente([], 1),
+                         "Todavía no hay mensajes en el chat.")
+
+    def test_la_linea_de_vacio_no_cuenta_para_el_modelo(self):
+        from guyrapu.ui.chat_vivo import VACIO_CHAT, filas_de_chat
+
+        class _Lista:
+            def GetCount(self):
+                return 1
+
+            def GetString(self, indice):
+                return _(VACIO_CHAT)
+
+        self.assertEqual(texto_reciente(filas_de_chat(_Lista()), 2),
                          "Todavía no hay mensajes en el chat.")
 
     def test_con_menos_filas_que_n_dice_cuantos_hay(self):

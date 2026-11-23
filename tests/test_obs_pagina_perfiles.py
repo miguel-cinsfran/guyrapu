@@ -237,7 +237,8 @@ class TestPestana(BasePagina):
         self.assertEqual(self.pagina.lista.GetCount(), 1)
         self.assertEqual(
             self.pagina.lista.GetString(0),
-            _("No hay perfiles en OBS. Usa Nuevo… para crear uno."))
+            _("No hay perfiles en OBS. Aquí aparecen los perfiles guardados "
+              "en OBS. Usa Nuevo… para crear uno."))
         self.assertEqual(self.pagina.lista.GetSelection(), 0)
         self.assertEqual(self.pagina._elegido(), "")
 
@@ -484,7 +485,8 @@ class TestEliminar(BasePagina):
             self._pulsar(self.pagina.btn_eliminar)
         preguntar.assert_not_called()
         self.assertIn(
-            _("No hay perfiles en OBS. Usa Nuevo… para crear uno."),
+            _("No hay perfiles en OBS. Aquí aparecen los perfiles guardados "
+              "en OBS. Usa Nuevo… para crear uno."),
             self.anuncios)
 
     def test_un_perfil_asignado_avisa_antes_y_deja_el_uso_vacio(self):

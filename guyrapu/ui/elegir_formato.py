@@ -16,6 +16,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.downloads import formatos_reales, ytdlp_bin
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui import formulario, paleta
+from guyrapu.ui.lista_acciones import ListaConVacio
 from guyrapu.voice import sound_player as _snd
 
 logger = diagnostico.obtener_logger(__name__)
@@ -23,6 +24,10 @@ logger = diagnostico.obtener_logger(__name__)
 TITULO = N_("Elegir formato")
 TEXTO_CARGANDO = N_("Cargando formatos")
 TEXTO_FALLO = N_("No se pudieron cargar los formatos.")
+# Traductores: fila del cuadro sin formatos; «Cancelar» es el botón del cuadro.
+VACIO = N_(
+    "No hay formatos. Aquí aparecen las opciones de vídeo y audio del vídeo "
+    "elegido. Usa Cancelar y vuelve a abrir el cuadro desde el buscador.")
 
 
 def _sonar(evento: str) -> None:
@@ -48,9 +53,9 @@ class DialogoFormato(wx.Dialog):
         vs = wx.BoxSizer(wx.VERTICAL)
 
         rotulo = wx.StaticText(panel, label=_("&Formatos:"))
-        self.lista = wx.ListBox(
-            panel, choices=[o.etiqueta for o in self._opciones],
-            name=_("Formatos"))
+        self.lista = wx.ListBox(panel, name=_("Formatos"))
+        self.lista_vacia = ListaConVacio(self.lista, _(VACIO))
+        self.lista_vacia.fijar([o.etiqueta for o in self._opciones])
         self.lista.SetMinSize((-1, 4 * self.lista.GetCharHeight() + 12))
         nombre_accesible(self.lista, _("Formatos"))
         formulario.agregar_fila(vs, rotulo, self.lista)
@@ -115,7 +120,6 @@ class ConsultaFormatos:
         if not opciones:
             anunciar(_(TEXTO_FALLO))
             _sonar("formatos_fallidos")
-            return
         if padre is None:
             return
         try:

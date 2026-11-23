@@ -18,6 +18,7 @@ from guyrapu.core import comando_clip
 from guyrapu.core import diagnostico
 from guyrapu.core import plataformas
 from guyrapu.core import sonidos_eventos
+from guyrapu.core.idioma import N_, _
 from guyrapu.core.avisos_tiktok import (
     con_sonido, evento_de_mensaje, modo_evento, pasa_filtro,
 )
@@ -39,8 +40,38 @@ from guyrapu.voice import sound_player as _snd
 # vuelcan juntos cada tanto. Ver ControladorChat.encolar / volcar.
 MS_VOLCADO_CHAT = 120
 
+# Traductores: única fila del chat sin mensajes; dice qué aparece y cómo se llena.
+VACIO_CHAT = N_(
+    "No hay mensajes en el chat. Aquí aparecen los mensajes y avisos del directo "
+    "a medida que llegan. Conecta un directo para verlos.")
+
 
 logger = diagnostico.obtener_logger(__name__)
+
+
+def es_linea_vacia(texto) -> bool:
+    """Reconoce la fila de vacío para no contarla ni leerla como mensaje."""
+    return texto == _(VACIO_CHAT)
+
+
+def filas_de_chat(lista) -> list[str]:
+    """Solo las filas de la lista que son mensajes, sin la línea de vacío."""
+    return [texto for texto in (lista.GetString(i)
+                                for i in range(lista.GetCount()))
+            if not es_linea_vacia(texto)]
+
+
+def poner_linea_vacia(lista) -> None:
+    """Deja la línea de vacío elegida cuando el chat no tiene mensajes."""
+    if lista.GetCount() == 0:
+        lista.Append(_(VACIO_CHAT))
+        lista.SetSelection(0)
+
+
+def sacar_linea_vacia(lista) -> None:
+    """Quita la línea de vacío antes de que entre el primer mensaje."""
+    if lista.GetCount() == 1 and es_linea_vacia(lista.GetString(0)):
+        lista.Delete(0)
 
 
 class ControladorChat:
@@ -212,6 +243,7 @@ class ControladorChat:
             self._reproducir(registro)
 
         if visible:
+            sacar_linea_vacia(self.lista)
             self.lista.Append(self._texto_fila(registro))
         return visible
 
@@ -296,6 +328,7 @@ class ControladorChat:
         # vista) y algo se añadió de verdad.
         if hubo_visible and wx.Window.FindFocus() is not self.lista:
             self.lista.SetFirstItem(self.lista.GetCount() - 1)
+        poner_linea_vacia(self.lista)
 
     def volcar_ya(self) -> None:
         """Vuelca ya lo encolado, sin esperar el temporizador. Se usa antes de
@@ -337,5 +370,8 @@ class ControladorChat:
         visibles = self.modelo.reconstruir(
             lambda it: not self._autor_oculto(it.autor)
             and pasa_filtro(self.filtro, it.tipo))
+        if visibles:
+            sacar_linea_vacia(self.lista)
         for registro in visibles:
             self.lista.Append(self._texto_fila(registro))
+        poner_linea_vacia(self.lista)

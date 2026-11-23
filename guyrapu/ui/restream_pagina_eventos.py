@@ -15,7 +15,7 @@ from types import SimpleNamespace
 import wx
 
 from guyrapu.core import diagnostico
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.restream import eventos as eventos_restream
 from guyrapu.restream.api import ErrorApi
 from guyrapu.ui import restream_menus
@@ -26,6 +26,19 @@ from guyrapu.ui.preferencias_comun import CampoEstado, fila_horizontal
 from guyrapu.voice import sound_player as _snd
 
 abrir_navegador = webbrowser.open
+
+# Traductores: fila sin cuenta de Restream; «Cuenta» es el nombre de la pestaña.
+SIN_CUENTA = N_(
+    "No hay eventos. Aquí aparecen los directos programados en tu cuenta de "
+    "Restream. Conecta tu cuenta en la pestaña Cuenta para verlos.")
+# Traductores: fila de eventos vacía de verdad.
+VACIO = N_(
+    "No hay eventos. Aquí aparecen los directos programados en tu cuenta de "
+    "Restream. Usa Actualizar para volver a leerlos.")
+# Traductores: fila cuando falla la lectura; «Actualizar» es el botón de la página.
+FALLO = N_(
+    "No hay eventos. Aquí aparecen los directos programados de tu cuenta de "
+    "Restream. No se pudieron leer. Usa Actualizar para reintentar.")
 
 TIPOS_POR_INDICE = (
     eventos_restream.TIPO_PROXIMOS,
@@ -76,7 +89,7 @@ class PaginaEventos(wx.Panel):
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name=_("Eventos"))
         nombre_accesible(self.lista, _("Eventos"))
         self.lista_vacia = ListaConVacio(
-            self.lista, _("No hay eventos para mostrar."))
+            self.lista, _(VACIO))
         self.lista_vacia.fijar([])
         self.lista.Bind(wx.EVT_LISTBOX, self._al_elegir)
         self.lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
@@ -233,9 +246,7 @@ class PaginaEventos(wx.Panel):
 
     def _sin_cuenta(self):
         self._eventos = []
-        self.lista_vacia.fijar(
-            [], vacio=_("Sin cuenta de Restream. Conéctala en la pestaña "
-                        "Cuenta."))
+        self.lista_vacia.fijar([], vacio=_(SIN_CUENTA))
         self.detalle.SetValue(_(
             "Conecta una cuenta de Restream en la pestaña Cuenta."))
 
@@ -246,7 +257,7 @@ class PaginaEventos(wx.Panel):
         self.lista_vacia.fijar(
             [eventos_restream.fila(evento, tipo)
              for evento in self._eventos],
-            vacio=_("No hay eventos para mostrar."))
+            vacio=_(VACIO))
         self._mostrar_detalle(None)
 
     def _fallo_lectura(self, error):
@@ -256,9 +267,7 @@ class PaginaEventos(wx.Panel):
             texto = _("No se pudieron leer los eventos de Restream. "
                       "Vuelve a intentarlo.")
         self._eventos = []
-        self.lista_vacia.fijar(
-            [], vacio=_("No se pudieron leer los eventos. Pulsa Actualizar "
-                        "para reintentar."))
+        self.lista_vacia.fijar([], vacio=_(FALLO))
         self.detalle.SetValue(texto)
         _snd.reproducir("error")
         anunciar(texto)

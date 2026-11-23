@@ -27,8 +27,6 @@ MONTAJES_DE_LA_PIEZA = ("_armar_canciones", "_armar_cola", "_armar_colecciones")
 PENDIENTES = {
     "dialogo_estado.py": (
         "lista de solo lectura sin acciones, en dialogo_estado.py:39"),
-    "elegir_formato.py": (
-        "lista de solo lectura para elegir un formato, en elegir_formato.py:52"),
     "gui_construccion.py": "todavía no pasó a la pieza común",
 }
 

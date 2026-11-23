@@ -25,7 +25,10 @@ from guyrapu.voice import sound_player
 
 logger = diagnostico.obtener_logger(__name__)
 
-_NO_HAY = N_("No hay grabaciones ni clips guardados.")
+# Traductores: fila de la lista sin grabaciones ni clips guardados.
+_NO_HAY = N_(
+    "No hay grabaciones ni clips. Aquí aparecen los archivos que graba OBS. "
+    "Inicia una grabación o guarda un clip para verlos aquí.")
 _ABRIR = N_("&Abrir")
 _ABRIR_CARPETA = N_("Abrir ca&rpeta")
 _COPIAR_RUTA = N_("&Copiar ruta")

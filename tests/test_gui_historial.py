@@ -141,13 +141,17 @@ class PruebasHistorialDialog(unittest.TestCase):
         solo_youtube = self._dialogo([
             entrada("youtube", "yt", "https://youtube.com/watch?v=yt")])
         self.assertEqual(
-            ["No hay entradas de TikTok."],
+            ["No hay entradas de TikTok. Aquí aparecen los directos y vídeos "
+             "de TikTok que hayas visto. Conecta un directo o abre un vídeo "
+             "para verlos aquí."],
             list(solo_youtube._listas["tiktok"].GetStrings()))
 
         solo_tiktok = self._dialogo([
             entrada("tiktok", "tk", "https://tiktok.com/@tk/live")])
         self.assertEqual(
-            ["No hay entradas de YouTube."],
+            ["No hay entradas de YouTube. Aquí aparecen los directos y vídeos "
+             "de YouTube que hayas visto. Conecta un directo o abre un vídeo "
+             "para verlos aquí."],
             list(solo_tiktok._listas["youtube"].GetStrings()))
 
     def test_conectar_con_historial_vacio_anuncia_el_motivo(self):
@@ -199,7 +203,10 @@ class PruebasHistorialDialog(unittest.TestCase):
             self._tecla(gui_historial.wx.wxEVT_CHAR_HOOK,
                         gui_historial.wx.WXK_RETURN, lista)
 
-        anunciar.assert_called_once_with("No hay entradas de YouTube.")
+        anunciar.assert_called_once_with(
+            "No hay entradas de YouTube. Aquí aparecen los directos y vídeos "
+            "de YouTube que hayas visto. Conecta un directo o abre un vídeo "
+            "para verlos aquí.")
         end_modal.assert_not_called()
 
     def test_quitar_la_ultima_entrada_deja_el_motivo_en_las_etiquetas(self):
@@ -386,8 +393,11 @@ class PruebasHistorialDialog(unittest.TestCase):
         with mock.patch.object(gui_historial, "anunciar") as anunciar:
             dialogo._quitar()
 
-        self.assertEqual(["No hay entradas de YouTube."],
-                         list(dialogo._listas["youtube"].GetStrings()))
+        self.assertEqual(
+            ["No hay entradas de YouTube. Aquí aparecen los directos y vídeos "
+             "de YouTube que hayas visto. Conecta un directo o abre un vídeo "
+             "para verlos aquí."],
+            list(dialogo._listas["youtube"].GetStrings()))
         self.assertEqual([tiktok], historial.cargar(self.ruta))
         anunciar.assert_called_once_with("Entrada eliminada del historial")
 

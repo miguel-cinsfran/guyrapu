@@ -77,7 +77,10 @@ class TestConsulta(unittest.TestCase):
         self.assertTrue(l[0]["directo"])
 
     def test_motivo_sin_entradas_avisa_solo_sin_entradas(self):
-        self.assertEqual(h.motivo_sin_entradas(False), "El historial está vacío")
+        self.assertEqual(h.motivo_sin_entradas(False),
+                         "No hay historial. Aquí aparecen los directos y vídeos "
+                         "que hayas visto desde Guyrapu. Conecta un directo o "
+                         "abre un vídeo para verlos aquí.")
         self.assertEqual(h.motivo_sin_entradas(True), "")
 
 

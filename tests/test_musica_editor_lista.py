@@ -179,8 +179,8 @@ class TestEditorPseudo(unittest.TestCase):
 
 
 TEXTO_LISTA_VACIA = (
-    "La lista no tiene canciones. "
-    "Marca las casillas de Todas las canciones para agregarlas.")
+    "La lista no tiene canciones. Aquí aparecen las canciones que guardes en "
+    "ella. Marca las casillas de Todas las canciones para agregarlas.")
 A = Tema("C:/Musica/a.mp3", "A")
 B = Tema("C:/Musica/b.mp3", "B")
 

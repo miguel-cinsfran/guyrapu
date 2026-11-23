@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import wx
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.obs import consultas_transmision
 from guyrapu.obs import escenas_obs
 from guyrapu.obs import nombres_escena
@@ -16,6 +16,11 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.escena_pagina_fuentes import PaginaFuentes
 from guyrapu.ui.lista_acciones import ListaConAcciones
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
+
+# Traductores: fila sin escenas; «Agregar escena…» es el botón de la página.
+VACIO = N_(
+    "No hay escenas. Aquí aparecen las escenas de OBS y cuál está actual. "
+    "Conecta OBS o usa Agregar escena… para crear una.")
 
 
 class PaginaEscena(wx.Panel):
@@ -73,7 +78,7 @@ class PaginaEscena(wx.Panel):
                 self._cambiar_al_aire, self._cambiar_nombre, self._duplicar,
                 self._eliminar, self._guardar_imagen,
                 self._crear_version_vertical, self._motivo),
-            _("No hay escenas."))
+            _(VACIO))
         self.lst_escenas.Bind(wx.EVT_LISTBOX, self._elegir_escena)
         self.btn_cambiar.Bind(wx.EVT_BUTTON, self._cambiar_al_aire)
         self.btn_agregar.Bind(wx.EVT_BUTTON, self._agregar)

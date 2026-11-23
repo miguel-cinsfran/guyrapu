@@ -272,16 +272,42 @@ def detalles(entrada, indice=0) -> str:
     return "\n".join(lineas)
 
 
+# Traductores: fila de carga en las listas de motores y voces.
+VACIO_CARGANDO = N_(
+    "Cargando paquetes de voces. Aquí aparecen los motores y las voces "
+    "disponibles. Espera a que termine la carga.")
+# Traductores: fila cuando el idioma elegido deja la lista vacía.
+VACIO_FILTRO = N_(
+    "No hay paquetes de voces con este filtro. Aquí aparecen los motores y las "
+    "voces del idioma elegido. Prueba con otro idioma.")
+# Traductores: fila cuando falló la consulta del catálogo.
+VACIO_FALLO = N_(
+    "No hay paquetes de voces instalados. Aquí aparecen los motores y las "
+    "voces disponibles. Revisa la conexión y vuelve a abrir esta ventana.")
+# Traductores: fila sin paquetes instalados.
+VACIO_SIN_PAQUETES = N_(
+    "No hay paquetes de voces. Aquí aparecen los motores y las voces "
+    "disponibles. Instala un paquete de voces para verlos.")
+# Traductores: fila de «Voces» sin coincidencias; {texto} es lo escrito en Buscar voz.
+VACIO_BUSQUEDA = N_(
+    "No hay voces que coincidan con «{texto}». Aquí aparecen las voces del "
+    "motor y del idioma elegidos. Prueba con otro texto en Buscar voz.")
+
+
 def texto_vacio(cargando, fallo, con_filtro) -> str:
     """La línea de una lista sin paquetes, según lo que esté pasando."""
     if cargando:
-        return _("Cargando paquetes de voces…")
+        return _(VACIO_CARGANDO)
     if con_filtro:
-        return _("No hay paquetes de voces con este filtro.")
+        return _(VACIO_FILTRO)
     if fallo:
-        return _("No hay paquetes de voces instalados. Revisa la conexión a "
-                 "internet y vuelve a abrir esta ventana.")
-    return _("No hay paquetes de voces.")
+        return _(VACIO_FALLO)
+    return _(VACIO_SIN_PAQUETES)
+
+
+def texto_vacio_con_busqueda(texto: str) -> str:
+    """La línea de «Voces» cuando la búsqueda no coincide."""
+    return _(VACIO_BUSQUEDA).format(texto=texto)
 
 
 def opciones_idioma(entradas) -> list[tuple[str, str]]:

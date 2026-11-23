@@ -108,21 +108,24 @@ class TestPanelGrabaciones(unittest.TestCase):
         panel = self._panel()
         self.assertEqual(panel._lista.GetCount(), 1)
         self.assertEqual(panel._lista.GetString(0),
-                         "No hay grabaciones ni clips guardados.")
+                         "No hay grabaciones ni clips. Aquí aparecen los archivos que graba OBS. "
+                         "Inicia una grabación o guarda un clip para verlos aquí.")
         for tipo, codigo in ((wx.wxEVT_CHAR_HOOK, wx.WXK_RETURN),
                              (wx.wxEVT_KEY_DOWN, wx.WXK_DELETE)):
             with self.subTest(codigo=codigo):
                 lista_acciones.anunciar.reset_mock()
                 self._tecla(panel, tipo, codigo)
                 lista_acciones.anunciar.assert_called_once_with(
-                    "No hay grabaciones ni clips guardados.")
+                    "No hay grabaciones ni clips. Aquí aparecen los archivos que graba OBS. "
+                         "Inicia una grabación o guarda un clip para verlos aquí.")
         with mock.patch.object(panel, "_abrir_carpeta") as abrir_carpeta, \
                 mock.patch.object(panel, "_copiar_ruta") as copiar:
             for clave in ("abrir_carpeta", "copiar_ruta"):
                 lista_acciones.anunciar.reset_mock()
                 panel._lista_acciones.ejecutar(clave)
                 lista_acciones.anunciar.assert_called_once_with(
-                    "No hay grabaciones ni clips guardados.")
+                    "No hay grabaciones ni clips. Aquí aparecen los archivos que graba OBS. "
+                         "Inicia una grabación o guarda un clip para verlos aquí.")
             abrir_carpeta.assert_not_called()
             copiar.assert_not_called()
 

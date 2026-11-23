@@ -24,10 +24,14 @@ TITULO = N_("Música")
 TITULO_NUEVA = N_("Nueva lista")
 TITULO_RENOMBRAR = N_("Cambiar nombre de la lista")
 TEXTO_NOMBRE = N_("Nombre de la lista:")
+# Traductores: fila de la cola sin temas; Ctrl+Intro agrega el tema elegido.
 TEXTO_COLA_VACIA = N_(
-    "La cola está vacía. Elige un tema y pulsa Ctrl+Intro para agregarlo.")
+    "La cola está vacía. Aquí aparecen las canciones que van a sonar. "
+    "Elige un tema y pulsa Ctrl+Intro para agregarlo.")
+# Traductores: fila de «Canciones» sin temas que mostrar.
 TEXTO_SIN_CANCIONES = N_(
-    "No hay canciones. Cambia la búsqueda, los filtros o la carpeta.")
+    "No hay canciones. Aquí aparecen los temas de la carpeta de música o de la "
+    "lista elegida. Cambia la búsqueda, los filtros o la carpeta.")
 MOTIVO_NO_SUENA = N_("No suena ningún tema")
 MOTIVO_COLA_VACIA = N_("La cola está vacía")
 MOTIVO_SOLO_EN_LISTA_PROPIA = N_("Solo en una lista propia")

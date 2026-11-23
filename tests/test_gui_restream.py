@@ -478,7 +478,9 @@ class PruebaVentanaRestream(unittest.TestCase):
         pagina = dialogo._pagina_perfiles
         self.assertEqual(1, pagina.lista_perfiles.GetCount())
         self.assertEqual(
-            "No hay perfiles de Restream. Usa Nuevo perfil… para crear uno.",
+            "No hay perfiles de Restream. Aquí aparecen las plantillas de "
+            "directo guardadas en esta instalación. Usa Nuevo perfil… para "
+            "crear uno.",
             pagina.lista_perfiles.GetString(0))
         self.assertEqual(0, pagina.lista_perfiles.GetSelection())
 
@@ -718,7 +720,8 @@ class PruebaVentanaRestream(unittest.TestCase):
         pagina = dialogo._pagina_destinos
         self.assertEqual(1, pagina.lista.GetCount())
         self.assertEqual(
-            "Sin cuenta de Restream. Conéctala en la pestaña Cuenta.",
+            "No hay cuenta de Restream. Aquí aparecen los canales conectados "
+            "a tu cuenta. Conecta tu cuenta en la pestaña Cuenta para verlos.",
             pagina.lista.GetString(0))
 
     def test_destinos_con_cuenta_y_vacios_muestran_el_motivo(self):
@@ -728,7 +731,8 @@ class PruebaVentanaRestream(unittest.TestCase):
         self.assertTrue(_esperar(lambda: pagina.leidos))
         self.assertEqual(1, pagina.lista.GetCount())
         self.assertEqual(
-            "No hay destinos. Usa Agregar destino… para sumar uno.",
+            "No hay destinos. Aquí aparecen los canales de tu cuenta de "
+            "Restream. Usa Agregar destino… para sumar uno.",
             pagina.lista.GetString(0))
 
     def test_p6_espacio_activa_o_desactiva(self):
@@ -1539,7 +1543,9 @@ class PruebaPaginaEventos(unittest.TestCase):
 
         self.assertEqual(1, pagina.lista.GetCount())
         self.assertEqual(
-            "Sin cuenta de Restream. Conéctala en la pestaña Cuenta.",
+            "No hay eventos. Aquí aparecen los directos programados en tu "
+            "cuenta de Restream. Conecta tu cuenta en la pestaña Cuenta para "
+            "verlos.",
             pagina.lista.GetString(0))
         self.assertEqual(
             "Conecta una cuenta de Restream en la pestaña Cuenta.",
@@ -1557,7 +1563,9 @@ class PruebaPaginaEventos(unittest.TestCase):
         pagina.al_mostrarse()
         self.assertTrue(_esperar(lambda: llamadas))
         self.assertEqual(
-            "No hay eventos para mostrar.", pagina.lista.GetString(0))
+            "No hay eventos. Aquí aparecen los directos programados en tu "
+            "cuenta de Restream. Usa Actualizar para volver a leerlos.",
+            pagina.lista.GetString(0))
 
     def test_p4_al_fallar_la_lectura_la_lista_dice_el_motivo(self):
         error = ErrorApi()
@@ -1576,7 +1584,8 @@ class PruebaPaginaEventos(unittest.TestCase):
 
         self.assertEqual(1, pagina.lista.GetCount())
         self.assertEqual(
-            "No se pudieron leer los eventos. Pulsa Actualizar para "
+            "No hay eventos. Aquí aparecen los directos programados de tu "
+            "cuenta de Restream. No se pudieron leer. Usa Actualizar para "
             "reintentar.",
             pagina.lista.GetString(0))
 

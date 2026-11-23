@@ -7,7 +7,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.capture import redaccion
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.obs import (
     filtros_microfono, nivel_microfono, prueba_microfono)
 from guyrapu.ui import (
@@ -16,6 +16,11 @@ from guyrapu.ui import (
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import boton, nombre_de_etiqueta
 from guyrapu.voice import sound_player
+
+# Traductores: fila de la pestaña Audio sin fuentes de OBS.
+VACIO = N_(
+    "No hay fuentes de audio. Aquí aparecen las fuentes de OBS que se pueden "
+    "silenciar o escuchar. Conecta OBS con una fuente de audio para verla aquí.")
 
 
 class PaginaAudio(wx.Panel):
@@ -70,7 +75,7 @@ class PaginaAudio(wx.Panel):
         nombre_accesible(self.lst_audio, self.lst_audio.GetName())
         self.lst_audio.SetMinSize((-1, 120))
         self.lista_vacia = lista_acciones.ListaConVacio(
-            self.lst_audio, _("OBS no tiene fuentes de audio."))
+            self.lst_audio, _(VACIO))
         caja.Add(self.rotulo_audio, 0, wx.LEFT | wx.TOP, 8)
         caja.AddSpacer(4)
         caja.Add(self.lst_audio, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 8)

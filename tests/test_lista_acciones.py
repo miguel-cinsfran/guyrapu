@@ -74,6 +74,19 @@ class PruebaPartePura(unittest.TestCase):
         anunciar.assert_not_called()
         self.assertEqual(llamadas, ["responder"])
 
+    def test_texto_vacio_en_blanco_al_crear_lanza_value_error(self):
+        for texto in ("", "   "):
+            with self.subTest(texto=texto):
+                with self.assertRaises(ValueError):
+                    lista_acciones.ListaConVacio(mock.Mock(), texto)
+
+    def test_vacio_en_blanco_al_fijar_lanza_value_error(self):
+        pieza = lista_acciones.ListaConVacio(mock.Mock(), "Sin elementos.")
+        for texto in ("", "   "):
+            with self.subTest(texto=texto):
+                with self.assertRaises(ValueError):
+                    pieza.fijar([], vacio=texto)
+
 
 class PruebaListaConVacio(unittest.TestCase):
 

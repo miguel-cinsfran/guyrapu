@@ -81,7 +81,7 @@ class VentanaVoces(wx.Dialog):
         self.lista_motores.Bind(wx.EVT_LISTBOX, self._al_elegir_motor)
         self._motores_pieza = ListaConAcciones(
             self.lista_motores, (),
-            _("No hay motores de voz para este idioma."))
+            voces_disponibles.texto_vacio(True, False, False))
         vs.Add(self.lista_motores, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         vs.Add(fila_label(self, _("&Buscar voz:")), 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_buscar = wx.TextCtrl(self, name=_("Buscar voz"))
@@ -95,7 +95,7 @@ class VentanaVoces(wx.Dialog):
         nombre_accesible(self.lista_voces, _("Voces"))
         self._voces = ListaVocesConAcciones(
             self.lista_voces, self._acciones_voces(),
-            _("No hay voces que coincidan con la búsqueda."))
+            voces_disponibles.texto_vacio(True, False, False))
         vs.Add(self.lista_voces, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         vs.Add(fila_label(self, _("De&talles:")), 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_detalles = wx.TextCtrl(
@@ -231,7 +231,7 @@ class VentanaVoces(wx.Dialog):
 
     def _texto_vacio_voces(self):
         if self._buscado:
-            return _("No hay voces que coincidan con la búsqueda.")
+            return voces_disponibles.texto_vacio_con_busqueda(self._buscado)
         return voces_disponibles.texto_vacio(
             self._cargando, self._fallo, bool(self._idioma()))
 

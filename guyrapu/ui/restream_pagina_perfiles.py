@@ -12,7 +12,7 @@ from dataclasses import replace
 
 import wx
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.obs import nombres_escena
 from guyrapu.restream import perfiles, resumen_cuenta
 from guyrapu.ui import confirmar
@@ -23,6 +23,11 @@ from guyrapu.ui.restream_perfil import (
     DialogoNombrePerfil,
     DialogoPerfilRestream,
 )
+
+# Traductores: fila sin perfiles de Restream; «Nuevo perfil…» es el botón.
+VACIO = N_(
+    "No hay perfiles de Restream. Aquí aparecen las plantillas de directo "
+    "guardadas en esta instalación. Usa Nuevo perfil… para crear uno.")
 
 
 class PaginaPerfiles(wx.Panel):
@@ -75,8 +80,7 @@ class PaginaPerfiles(wx.Panel):
                 Accion("eliminar", etiquetas["eliminar"],
                        lambda: self.eliminar(), tecla="suprimir"),
             ),
-            _("No hay perfiles de Restream. Usa Nuevo perfil… para crear "
-              "uno."))
+            _(VACIO))
 
     def _crear_botones(self, etiquetas):
         self.btn_nuevo = wx.Button(

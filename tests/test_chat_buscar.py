@@ -102,7 +102,9 @@ class TestCuadroBuscarChat(unittest.TestCase):
         dialogo = self._abrir()
         self.assertTrue(dialogo.lista_vacia.vacia())
         self.assertEqual(dialogo.lb_resultados.GetString(0),
-                         "Escribe para buscar en los mensajes del chat.")
+                         "No hay mensajes. Aquí aparecen los mensajes del chat "
+                         "que coinciden con lo que escribas. Escribe un texto "
+                         "en Buscar en el chat para verlos.")
 
     def test_sin_coincidencias_muestra_el_texto_buscado(self):
         self._agregar(_mensaje("Ana", "hola", "12:00"))
@@ -111,7 +113,9 @@ class TestCuadroBuscarChat(unittest.TestCase):
         dialogo._al_escribir(Evento())
         self.assertTrue(dialogo.lista_vacia.vacia())
         self.assertEqual(dialogo.lb_resultados.GetString(0),
-                         "No hay mensajes con «zzz».")
+                         "No hay mensajes con «zzz». Aquí aparecen los "
+                         "mensajes del chat que coinciden con tu búsqueda. "
+                         "Prueba con otro texto en Buscar en el chat.")
 
     # ── Intro lleva al mensaje en la lista del chat ──────────────────────
 
@@ -160,7 +164,9 @@ class TestCuadroBuscarChat(unittest.TestCase):
             dialogo._tecla_dialogo(Evento(wx.WXK_ESCAPE))
         self.assertEqual(dialogo.txt_buscar.GetValue(), "")
         self.assertEqual(dialogo.lb_resultados.GetString(0),
-                         "Escribe para buscar en los mensajes del chat.")
+                         "No hay mensajes. Aquí aparecen los mensajes del chat "
+                         "que coinciden con lo que escribas. Escribe un texto "
+                         "en Buscar en el chat para verlos.")
         anunciar.assert_called_once_with("Búsqueda vaciada")
 
     def test_escape_con_el_campo_vacio_cierra(self):

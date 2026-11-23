@@ -7,7 +7,10 @@ Sin wx: la ventana solo muestra lo que estas funciones devuelven.
 
 from guyrapu.core.idioma import N_, _
 
-FILA_GUIA = N_("Sin mensajes. Agrega una captura y escribe tu pregunta.")
+# Traductores: fila de la conversación vacía de Preguntar a la IA.
+FILA_GUIA = N_(
+    "No hay mensajes. Aquí aparecen tu pregunta y la respuesta de la IA. "
+    "Agrega una captura y escribe tu pregunta para empezar.")
 TEXTO_ANALIZANDO = N_("Analizando…")
 TEXTO_CANCELADA = N_("Consulta cancelada.")
 # Traductores: motivo que llevan las etiquetas de Enviar y Agregar captura

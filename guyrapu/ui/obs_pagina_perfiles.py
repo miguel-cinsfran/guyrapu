@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import wx
 
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 from guyrapu.obs import codificadores_obs, obs_cliente, perfiles_obs
 from guyrapu.obs import salidas_audio
 from guyrapu.obs import usos_perfil
@@ -24,6 +24,11 @@ from guyrapu.ui.dialogo_nombre_perfil_obs import DialogoNombrePerfil
 from guyrapu.ui.dialogo_usos_perfil import DialogoUsosPerfil
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import nombre_de_etiqueta
+
+# Traductores: fila sin perfiles en OBS; «Nuevo…» es el botón de la página.
+VACIO = N_(
+    "No hay perfiles en OBS. Aquí aparecen los perfiles guardados en OBS. "
+    "Usa Nuevo… para crear uno.")
 
 
 class PaginaPerfiles(wx.Panel):
@@ -89,7 +94,7 @@ class PaginaPerfiles(wx.Panel):
                        lambda: self.preparar_perfiles(),
                        necesita_elemento=False),
             ),
-            _("No hay perfiles en OBS. Usa Nuevo… para crear uno."))
+            _(VACIO))
 
     def _crear_botones(self, etiquetas):
         self.btn_usar = self._boton(

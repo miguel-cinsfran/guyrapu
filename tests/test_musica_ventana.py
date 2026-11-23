@@ -1664,8 +1664,8 @@ class TestVentanaMusica(unittest.TestCase):
         self.assertEqual(self.ventana.lb_cola.GetCount(), 1)
         self.assertEqual(
             self.ventana.lb_cola.GetString(0),
-            "La cola está vacía. Elige un tema y pulsa Ctrl+Intro "
-            "para agregarlo.")
+            "La cola está vacía. Aquí aparecen las canciones que van a sonar. "
+            "Elige un tema y pulsa Ctrl+Intro para agregarlo.")
 
     def test_el_menu_con_la_cola_vacia_conserva_sus_acciones_y_motivos(self):
         self._abrir(ControlFalso(biblioteca=_biblioteca_de("Rock")))

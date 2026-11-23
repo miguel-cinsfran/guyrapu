@@ -42,6 +42,13 @@ def _texto_de(fila):
     return fila[0] if isinstance(fila, tuple) else fila
 
 
+def _validar_texto_vacio(texto):
+    """Rechaza el blanco: una lista muda no se distingue de una rota."""
+    if not texto or not texto.strip():
+        raise ValueError("El texto de vacío no puede estar en blanco")
+    return texto
+
+
 class ListaConVacio:
     """Deja el caso vacío elegido en una lista y da el índice real."""
 
@@ -53,8 +60,8 @@ class ListaConVacio:
         self._varias = bool(
             self._control is not None
             and not self._control.GetWindowStyleFlag() & wx.LC_SINGLE_SEL)
-        self._texto_vacio = texto_vacio
-        self._texto_vacio_inicial = texto_vacio
+        self._texto_vacio = _validar_texto_vacio(texto_vacio)
+        self._texto_vacio_inicial = self._texto_vacio
         self._textos = []
         self._claves = []
         self._lista.Bind(wx.EVT_KEY_DOWN, self._al_tecla)
@@ -91,7 +98,7 @@ class ListaConVacio:
 
     def fijar(self, textos, elegido=None, vacio=None, marcadas=()):
         """Reemplaza a Clear y Append y deja el caso vacío elegido."""
-        self._texto_vacio = (
+        self._texto_vacio = _validar_texto_vacio(
             self._texto_vacio_inicial if vacio is None else vacio)
         self._textos = list(textos)
         self._claves = []

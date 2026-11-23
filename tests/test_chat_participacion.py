@@ -96,7 +96,9 @@ class TestVentanaParticipacion(unittest.TestCase):
         dialogo = self._abrir()
         self.assertTrue(dialogo.lista_vacia.vacia())
         self.assertEqual(dialogo.lb_participacion.GetString(0),
-                         "Todavía no hay mensajes en este directo.")
+                         "No hay mensajes en este directo. Aquí aparece cuántos "
+                         "mensajes y regalos escribió cada persona. Conecta un "
+                         "directo y espera a que lleguen mensajes.")
 
     def test_muestra_las_lineas_ordenadas(self):
         self._sumar("Beto", "B")
@@ -179,7 +181,9 @@ class TestVentanaParticipacion(unittest.TestCase):
             dialogo._guardar()
         crear.assert_not_called()
         anunciar.assert_called_once_with(
-            "Todavía no hay mensajes en este directo.")
+            "No hay mensajes en este directo. Aquí aparece cuántos mensajes y "
+            "regalos escribió cada persona. Conecta un directo y espera a que "
+            "lleguen mensajes.")
 
     def test_si_falla_avisa_con_el_sonido_de_error(self):
         self._sumar()

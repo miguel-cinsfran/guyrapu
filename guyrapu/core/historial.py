@@ -23,11 +23,18 @@ from pathlib import Path
 
 from guyrapu.core import archivos
 from guyrapu.core import diagnostico
-from guyrapu.core.idioma import _
+from guyrapu.core.idioma import N_, _
 
 logger = diagnostico.obtener_logger(__name__)
 
 MAX_ENTRADAS = 100
+
+# Traductores: fila de «Recientes» sin historial; sale en la lista de inicio.
+VACIO = N_(
+    "No hay historial. Aquí aparecen los directos y vídeos que hayas visto "
+    "desde Guyrapu. Conecta un directo o abre un vídeo para verlos aquí.")
+# Traductores: motivo breve que se agrega a la etiqueta de un botón del historial.
+MOTIVO_VACIO = N_("El historial está vacío")
 
 
 def upsert(lista: list, plataforma: str, clave: str, url: str, titulo: str,
@@ -72,12 +79,8 @@ def fecha_mostrada(texto: str | None) -> str:
 
 
 def motivo_sin_entradas(hay_entradas: bool) -> str:
-    """Motivo del historial vacío para la etiqueta de un botón, o ""."""
-    if hay_entradas:
-        return ""
-    # Traductores: motivo que se agrega a la etiqueta de un botón del
-    # historial cuando no hay entradas; va en minúscula y sin punto.
-    return _("El historial está vacío")
+    """La fila del historial vacío, o "" si hay entradas."""
+    return "" if hay_entradas else _(VACIO)
 
 
 def etiqueta(entrada: dict) -> str:

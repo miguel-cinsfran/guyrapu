@@ -36,8 +36,9 @@ from tests.test_gui_transmision import (
     Evento, EventoTecla, GestorFalso, HiloInmediato)
 from tests.ventanas_prueba import app_de_prueba, destruir
 
-TEXTO_VACIO_FUENTES = ("Esta escena no tiene fuentes. Usa Agregar fuente… "
-                       "para sumar una.")
+TEXTO_VACIO_FUENTES = (
+    "No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
+    "elegida en OBS. Usa Agregar fuente… para sumar una.")
 
 
 def _items_del_menu(menu):
@@ -679,7 +680,9 @@ class TestVentanaObs(unittest.TestCase):
         self.gestor.escena_resultante = ""
         dialogo = self._crear()
         pagina = dialogo._pagina_escena
-        self.assertEqual(pagina.lst_escenas.GetStrings(), ["No hay escenas."])
+        self.assertEqual(pagina.lst_escenas.GetStrings(), [
+            "No hay escenas. Aquí aparecen las escenas de OBS y cuál está "
+            "actual. Conecta OBS o usa Agregar escena… para crear una."])
         self.assertEqual(pagina.lst_escenas.GetSelection(), 0)
         self.assertEqual(pagina.escena(), "")
 

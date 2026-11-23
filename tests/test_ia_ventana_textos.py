@@ -21,7 +21,8 @@ class TestTextosVentanaIA(unittest.TestCase):
     def test_constantes(self):
         self.assertEqual(
             ventana_ia.FILA_GUIA,
-            "Sin mensajes. Agrega una captura y escribe tu pregunta.")
+            "No hay mensajes. Aquí aparecen tu pregunta y la respuesta de la "
+            "IA. Agrega una captura y escribe tu pregunta para empezar.")
         self.assertEqual(ventana_ia.TEXTO_ANALIZANDO, "Analizando…")
         self.assertEqual(ventana_ia.TEXTO_CANCELADA, "Consulta cancelada.")
         self.assertEqual(ventana_ia.MOTIVO_ESPERANDO,
@@ -64,7 +65,8 @@ class TestTextosMarcados(unittest.TestCase):
             guia = _(ventana_ia.FILA_GUIA)
         self.assertEqual(
             guia,
-            "[¡Sin mensajes. Agrega una captura y escribe tu pregunta.!]")
+            "[¡No hay mensajes. Aquí aparecen tu pregunta y la respuesta de la "
+            "IA. Agrega una captura y escribe tu pregunta para empezar.!]")
 
     def test_captura_agregada_nombra_la_fuente_marcada(self):
         with con_pseudo():

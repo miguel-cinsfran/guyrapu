@@ -496,7 +496,9 @@ class TestPaginaUnica(unittest.TestCase):
         pagina._on_filtro(None)
         self.assertEqual(pagina.lista.GetItemCount(), 1)
         self.assertEqual(pagina.lista.GetItemText(0, 0),
-                         "No hay descargas en esta vista.")
+                         "No hay descargas. Aquí aparecen las descargas en "
+                         "curso y las terminadas. Usa Buscar para descargar "
+                         "vídeos o cambia el filtro Mostrar.")
         self.assertEqual(
             [pagina.lista.GetItemText(0, columna) for columna in range(1, 4)],
             ["", "", ""])
@@ -1153,7 +1155,12 @@ class TestBuscador(unittest.TestCase):
         pagina = dialogo.pagina_buscador
         pagina.campo.SetValue("zzz sin nada")
         pagina._on_buscar(None)
-        self.assertEqual(pagina.lista.GetItemCount(), 0)
+        self.assertEqual(pagina.lista.GetItemCount(), 1)
+        self.assertEqual(
+            pagina.lista.GetItemText(0, 0),
+            "No hay resultados para «zzz sin nada». Aquí aparecen los vídeos "
+            "de YouTube que coinciden con tu búsqueda. Prueba con otro texto "
+            "y usa Buscar.")
         self.assertEqual(pagina.txt_detalles.GetValue(), "Sin resultados")
         self.assertIn("Sin resultados", self._dichos())
         self.assertTrue(pagina.btn_mas.IsEnabled())

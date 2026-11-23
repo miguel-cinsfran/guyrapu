@@ -21,6 +21,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.music import anuncios
 from guyrapu.ui import atajos_globales
 from guyrapu.ui.atajos_globales import combinacion_ctrl_mayus
+from guyrapu.ui.chat_vivo import filas_de_chat
 from guyrapu.ui.lista_chat import texto_reciente
 from guyrapu.voice import sound_player as _snd
 
@@ -93,9 +94,7 @@ class LecturaRecientes:
     def leer(self, n: int) -> None:
         """Anuncia el mensaje `n` desde el final de la lista del chat."""
         from guyrapu.ui import gui as _gui
-        filas = [self._lista.GetString(i)
-                 for i in range(self._lista.GetCount())]
-        texto = texto_reciente(filas, n)
+        texto = texto_reciente(filas_de_chat(self._lista), n)
         if (self._config.get("lectura_recientes") == "voz"
                 and self._cola is not None):
             self._cola.adelantar({"texto_tts": texto, "autor": ""})

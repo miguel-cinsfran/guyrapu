@@ -22,10 +22,16 @@ logger = diagnostico.obtener_logger(__name__)
 
 # La clave de «Biblioteca» no puede chocar con el nombre de una lista.
 CLAVE_BIBLIOTECA = object()
-TEXTO_CARGANDO = N_("Cargando la carpeta…")
+# Traductores: fila de «Colecciones» mientras se lee la carpeta de música.
+TEXTO_CARGANDO = N_(
+    "Cargando la carpeta. Aquí aparecen la biblioteca y tus listas de música. "
+    "Espera a que termine la carga.")
 # Traductores: motivo del botón «Cambiar carpeta» mientras se carga la carpeta.
 MOTIVO_CARGANDO = N_("Cargando la carpeta")
-TEXTO_SIN_CARPETA = N_("No hay carpeta de música")
+# Traductores: fila de «Colecciones» sin carpeta elegida.
+TEXTO_SIN_CARPETA = N_(
+    "No hay carpeta de música. Aquí aparecen la biblioteca y tus listas de "
+    "música. Elige una carpeta en Preferencias, categoría Música.")
 
 
 def _anunciar_ventana(texto) -> None:

@@ -24,7 +24,10 @@ from guyrapu.voice import sound_player as _snd
 
 # Traductores: título de la ventana con la participación del chat.
 TITULO = N_("Participación en el chat")
-TEXTO_VACIO = N_("Todavía no hay mensajes en este directo.")
+# Traductores: fila de un directo sin mensajes en la lista de participación.
+TEXTO_VACIO = N_(
+    "No hay mensajes en este directo. Aquí aparece cuántos mensajes y regalos "
+    "escribió cada persona. Conecta un directo y espera a que lleguen mensajes.")
 TITULO_GUARDAR = N_("Guardar participación")
 # Traductores: traduce solo «Archivos de texto»; no cambies «(*.txt)|*.txt».
 FILTRO = N_("Archivos de texto (*.txt)|*.txt")

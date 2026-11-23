@@ -16,7 +16,8 @@ from tests.pseudo_prueba import con_pseudo
 from guyrapu.core.atajos import ATAJOS_FIJOS_DEFAULTS
 from guyrapu.core.config import APP_NAME
 from guyrapu.core.idioma import _
-from guyrapu.ui import atajos_globales, chat_acciones, chat_recientes, gui
+from guyrapu.ui import (
+    atajos_globales, chat_acciones, chat_recientes, chat_vivo, gui)
 from guyrapu.ui.atajos_globales import AtajosGlobales, combinacion_ctrl_mayus
 from guyrapu.ui.gui_menu import FILTROS
 from guyrapu.voice.cola_tts import ColaTTS
@@ -126,6 +127,15 @@ class TestLecturaRecientes(unittest.TestCase):
         with mock.patch.object(gui, "anunciar") as anunciar:
             lector.leer(1)
         anunciar.assert_called_once_with("Todavía no hay mensajes en el chat.")
+
+    def test_la_linea_de_vacio_no_cuenta_como_mensaje(self):
+        lector = _recientes({}, [_(chat_vivo.VACIO_CHAT)])
+        with mock.patch.object(gui, "anunciar") as anunciar:
+            lector.leer(1)
+            lector.leer(2)
+        self.assertEqual(
+            [llamada.args[0] for llamada in anunciar.call_args_list],
+            ["Todavía no hay mensajes en el chat."] * 2)
 
     def test_con_voz_adelanta_en_la_cola_y_no_anuncia(self):
         cola = ColaTTS()

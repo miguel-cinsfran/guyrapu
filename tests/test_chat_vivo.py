@@ -10,6 +10,7 @@ from guyrapu.core.config import (
     TIPO_ENTRADA, TIPO_ME_GUSTA, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
 from guyrapu.core.avisos_tiktok import TIPOS_AVISO
+from guyrapu.core.idioma import _
 from guyrapu.ui import chat_vivo
 from guyrapu.translation.proveedores.base import Traduccion
 from guyrapu.ui.chat_vivo import ControladorChat
@@ -37,6 +38,38 @@ def _controlador(lista=None, maximo=500, activo=True, filtro="__filtro__",
     if filtro != "__filtro__":
         control.filtro = filtro
     return control
+
+
+class _ListaFilas:
+    """Lista de chat falsa con filas reales, para probar la línea de vacío."""
+
+    def __init__(self):
+        self.filas = []
+        self.seleccion = -1
+
+    def GetCount(self):
+        return len(self.filas)
+
+    def GetString(self, indice):
+        return self.filas[indice]
+
+    def GetSelection(self):
+        return self.seleccion
+
+    def Append(self, texto):
+        self.filas.append(texto)
+
+    def Delete(self, indice):
+        del self.filas[indice]
+
+    def Clear(self):
+        self.filas.clear()
+
+    def SetSelection(self, indice):
+        self.seleccion = indice
+
+    def GetTopLevelParent(self):
+        return mock.Mock()
 
 
 class TestRecibidos(unittest.TestCase):
@@ -232,6 +265,24 @@ class TestControladorChat(unittest.TestCase):
             control.reconstruir()
         control.lista.Clear.assert_called_once_with()
         control.lista.Append.assert_called_once_with("Ana: visto, 12:00")
+
+    def test_sin_mensajes_muestra_la_linea_y_el_primero_la_quita(self):
+        lista = _ListaFilas()
+        chat_vivo.poner_linea_vacia(lista)
+        self.assertEqual(lista.filas, [_(chat_vivo.VACIO_CHAT)])
+        self.assertEqual(lista.seleccion, 0)
+        control = _controlador(lista=lista, filtro=None)
+        control._procesar(_registro())
+        self.assertEqual(lista.filas, ["Ana: hola, 12:00"])
+
+    def test_reconstruir_sin_visibles_deja_la_linea_de_vacio(self):
+        lista = _ListaFilas()
+        control = _controlador(lista=lista, filtro=TIPO_TEXTO)
+        with mock.patch.object(chat_vivo._snd, "reproducir"):
+            control._procesar(_registro(tipo=TIPO_SUPERCHAT, texto="tapado",
+                                        monto="$5"))
+        control.reconstruir()
+        self.assertEqual(lista.filas, [_(chat_vivo.VACIO_CHAT)])
 
     def test_evento_en_lista_entra_a_la_lista_sin_sonar(self):
         control = _controlador(config={"evento_entrada": "lista"})

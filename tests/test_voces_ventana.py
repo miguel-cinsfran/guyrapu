@@ -193,7 +193,9 @@ class TestControles(BaseVentana):
         dialogo = self._dialogo(hilo=HiloQuieto)
         self.assertEqual(dialogo.lista_motores.GetCount(), 1)
         self.assertEqual(dialogo.lista_motores.GetString(0),
-                         "Cargando paquetes de voces…")
+                         "Cargando paquetes de voces. Aquí aparecen los motores "
+                         "y las voces disponibles. Espera a que termine la "
+                         "carga.")
 
 
 class TestListasYFiltros(BaseVentana):
@@ -406,7 +408,9 @@ class TestEliminar(BaseVentana):
         borrar.assert_called_once_with("piper-davefx", "voz")
         self.anuncios.assert_called_with("Paquete eliminado: Piper Davefx.")
         self.assertEqual(dialogo.lista_voces.GetString(0),
-                         "No hay paquetes de voces.")
+                         "No hay paquetes de voces. Aquí aparecen los motores "
+                         "y las voces disponibles. Instala un paquete de voces "
+                         "para verlos.")
 
     def test_eliminar_varias_pide_una_sola_confirmacion(self):
         dialogo = self._dos_piper(("piper-a", "piper-b"))

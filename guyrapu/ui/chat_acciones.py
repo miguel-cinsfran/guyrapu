@@ -21,6 +21,7 @@ from guyrapu.core.idioma import _
 from guyrapu.translation.proveedores.base import Traduccion
 from guyrapu.ui import confirmar, menu_moderacion
 from guyrapu.ui.accesibilidad import anunciar
+from guyrapu.ui.chat_vivo import VACIO_CHAT, es_linea_vacia, filas_de_chat
 from guyrapu.ui.gui_menu import FILTROS
 from guyrapu.ui.lista_chat import texto_fila
 from guyrapu.voice import sound_player as _snd
@@ -62,7 +63,8 @@ class AccionesChat:
                        _NOMBRES_FILTRO[idx] if idx < len(_NOMBRES_FILTRO) else "todos")
         self._marcar_filtro()
         anunciar(_("Filtro: {filtro}. {n} mensajes").format(
-            filtro=_(FILTROS[idx][0]), n=self.lb_chat.GetCount()))
+            filtro=_(FILTROS[idx][0]),
+            n=len(filas_de_chat(self.lb_chat))))
 
     def _indice_filtro(self) -> int:
         for indice, (_nombre, valor) in enumerate(FILTROS):
@@ -126,6 +128,12 @@ class AccionesChat:
             self._copiar_mensaje()
         else:
             event.Skip()
+
+    def _fila_vacia_elegida(self):
+        seleccion = self.lb_chat.GetSelection()
+        if seleccion is None or seleccion == wx.NOT_FOUND:
+            return False
+        return es_linea_vacia(self.lb_chat.GetString(seleccion))
 
     def _on_chat_menu(self, event):
         self._mostrar_menu_chat()
@@ -330,6 +338,9 @@ class AccionesChat:
     def _get_selected_data(self):
         idx = self.lb_chat.GetSelection()
         if idx == wx.NOT_FOUND:
+            return None
+        if self._fila_vacia_elegida():
+            anunciar(_(VACIO_CHAT))
             return None
         return self.chat_vivo.modelo.dato_en_fila(idx)
 

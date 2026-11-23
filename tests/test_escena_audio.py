@@ -22,7 +22,9 @@ TEXTO_INICIO = ("Probando Mic/Aux. Prueba del micrófono iniciada. "
 TEXTO_SILENCIADO = ("La fuente Mic/Aux está silenciada en OBS. "
                     "Desmárcala y vuelve a probar.")
 AVISO_SIN_FUENTE = "Elige una fuente de audio."
-TEXTO_VACIO_AUDIO = "OBS no tiene fuentes de audio."
+TEXTO_VACIO_AUDIO = (
+    "No hay fuentes de audio. Aquí aparecen las fuentes de OBS que se pueden "
+    "silenciar o escuchar. Conecta OBS con una fuente de audio para verla aquí.")
 
 
 class GestorFalso:
