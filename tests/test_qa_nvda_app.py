@@ -9,6 +9,7 @@ carril.
 """
 
 import configparser
+import ctypes
 import logging
 import os
 import subprocess
@@ -19,10 +20,17 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from guyrapu.core import paths
+from guyrapu.ai import claves
+from guyrapu.core import migracion_nombre, paths
 from guyrapu.ui import accesibilidad, gui
 from guyrapu.voice import sound_player
 from qa.nvda import app, recorrido, ventanas_app
+
+_DESTINO_ORIGINAL = claves._destino
+
+
+def tearDownModule():
+    claves._destino = _DESTINO_ORIGINAL
 
 
 class TestVentanas(unittest.TestCase):
@@ -648,7 +656,56 @@ class TestDobleLector(unittest.TestCase):
         grabador.braille.assert_called_once_with("Mensaje")
 
 
+class _AdvapiFalsa:
+    """Anota cada nombre pedido y dice que no hay ninguna credencial."""
+
+    def __init__(self):
+        self.nombres = []
+
+    def CredReadW(self, nombre, tipo, banderas, puntero):
+        self.nombres.append(nombre)
+        ctypes.set_last_error(claves._NO_ENCONTRADO)
+        return False
+
+
+class TestAislarClaves(unittest.TestCase):
+
+    def _aislar(self):
+        self.addCleanup(setattr, claves, "_destino", claves._destino)
+        app._aislar_claves()
+
+    def test_el_destino_del_carril_usa_un_espacio_propio(self):
+        self._aislar()
+        destino = claves._destino("openai", claves.PREFIJO)
+        self.assertTrue(destino.startswith("GuyrapuCarril/"))
+        self.assertTrue(destino.endswith("Guyrapu/ia/openai"))
+
+    def test_el_destino_del_carril_sigue_validando_el_proveedor(self):
+        self._aislar()
+        with self.assertRaises(ValueError):
+            claves._destino("mal/proveedor", claves.PREFIJO)
+
+    def test_la_migracion_solo_pide_nombres_del_carril(self):
+        self._aislar()
+        falsa = _AdvapiFalsa()
+        with mock.patch.object(claves, "_advapi32", return_value=falsa):
+            migracion_nombre.migrar_credenciales()
+        self.assertTrue(falsa.nombres)
+        self.assertTrue(all(nombre.startswith("GuyrapuCarril/")
+                            for nombre in falsa.nombres))
+
+
 class TestPreparar(unittest.TestCase):
+
+    def test_preparar_aísla_también_las_claves_de_ia(self):
+        with (
+            mock.patch.object(app, "_aislar_claves") as aislar,
+            mock.patch.object(gui, "_lector_init"),
+            mock.patch.object(accesibilidad, "_lector_init"),
+            mock.patch.object(app.sonda, "instalar"),
+        ):
+            app.preparar()
+        aislar.assert_called_once_with()
 
     def test_la_carpeta_de_datos_del_carril_queda_aislada(self):
         with tempfile.TemporaryDirectory() as base:

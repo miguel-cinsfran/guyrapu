@@ -30,6 +30,7 @@ COD_TRANSCRIPCION = 7
 INTENTOS = 3
 ESPERA_REINTENTO = 3
 VAR_DATOS = "GUYRAPU_QA_DATOS"
+ESPACIO_CREDENCIALES = "GuyrapuCarril/"
 
 
 class TranscripcionCambiada(RuntimeError):
@@ -136,9 +137,22 @@ def _aislar_datos() -> None:
     paths.carpeta_datos = lambda: carpeta
 
 
+def _aislar_claves() -> None:
+    """Apunta las claves de IA al espacio del carril, sin tocar las reales."""
+    from guyrapu.ai import claves
+
+    original = claves._destino
+
+    def _destino_carril(proveedor, prefijo):
+        return ESPACIO_CREDENCIALES + original(proveedor, prefijo)
+
+    claves._destino = _destino_carril
+
+
 def preparar() -> None:
-    """Aísla los datos, instala la sonda y deja el lector real tras un doble."""
+    """Aísla datos y claves, instala la sonda y deja el lector real tras un doble."""
     _aislar_datos()
+    _aislar_claves()
     ruta_sonidos = os.environ.get(recorrido.VAR_SONIDOS)
     if ruta_sonidos:
         logger_sonidos = logging.getLogger("guyrapu.sound_player")
