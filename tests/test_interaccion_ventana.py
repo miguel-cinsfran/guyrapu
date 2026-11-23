@@ -130,6 +130,18 @@ class TestPaginas(BaseVentana):
             ventana.btn_ayuda.GetEventHandler().ProcessEvent(evento)
         abrir.assert_called_once_with(ventana, "MANUAL", mock.ANY, "estilos")
 
+    def test_p1_el_pie_tiene_diez_pixeles_de_margen_a_la_derecha_y_abajo(self):
+        ventana = self._ventana()
+        ventana.Layout()
+        cliente = ventana.GetClientSize()
+        ayuda = ventana.btn_ayuda
+        self.assertEqual(
+            cliente.width - ayuda.GetPosition().x - ayuda.GetSize().width, 10)
+        for boton in (ventana.btn_probar, ventana.btn_cerrar, ayuda):
+            self.assertEqual(
+                cliente.height - boton.GetPosition().y - boton.GetSize().height,
+                10)
+
     def test_p1_f1_abre_la_pagina_a_la_vista_con_el_foco_dentro_de_ella(self):
         ventana = self._ventana("disparadores")
         ventana.Show()

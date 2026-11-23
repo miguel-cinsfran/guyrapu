@@ -3732,6 +3732,10 @@ msgid "el regalo {regalo}"
 msgstr "the gift {regalo}"
 
 #: guyrapu/interaction/descripcion_disparador.py
+msgid "sin evento"
+msgstr "no event"
+
+#: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
 msgid "cuando llega {evento}"
 msgstr "when {evento} arrives"
@@ -10436,14 +10440,6 @@ msgid "Editar alerta"
 msgstr "Edit alert"
 
 #: guyrapu/ui/disparador_cuadro.py
-msgid "Activación"
-msgstr "Activation"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Permiso y espera"
-msgstr "Permission and cooldown"
-
-#: guyrapu/ui/disparador_cuadro.py
 #, python-brace-format
 msgid "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}."
 msgstr "You can use {usuario}, {cantidad}, {regalo}, {texto} and {contador}."
@@ -11881,6 +11877,14 @@ msgstr "and {cantidad} more filters"
 #: guyrapu/ui/fila_audio.py
 msgid "sin filtros"
 msgstr "no filters"
+
+#: guyrapu/ui/formulario.py
+msgid "Activación"
+msgstr "Activation"
+
+#: guyrapu/ui/formulario.py
+msgid "Permiso y espera"
+msgstr "Permission and cooldown"
 
 #: guyrapu/ui/gui.py
 msgid ""

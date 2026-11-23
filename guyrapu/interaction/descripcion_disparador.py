@@ -21,6 +21,8 @@ def _numero(valor) -> str:
 
 
 def _cuando(disparador: Disparador) -> str:
+    if not disparador.evento:
+        return _("sin evento")
     if disparador.evento == "superchat" and disparador.regalo:
         nombre = _("el regalo {regalo}").format(regalo=disparador.regalo)
     else:

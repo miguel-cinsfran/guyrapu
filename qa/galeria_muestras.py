@@ -50,7 +50,8 @@ def _sembrar_interaccion():
     encuestas_guardadas.guardar(paths.encuestas(), [
         {"pregunta": "¿Qué les gustó?"}, {"pregunta": "¿Seguimos?"}])
     disparadores_guardados.guardar(paths.disparadores(), [
-        {"nombre": "Aplausos"}, {"nombre": "Suscripción"}])
+        {"nombre": "Aplausos", "evento": "superchat"},
+        {"nombre": "Suscripción", "evento": "miembro"}])
     metas_guardadas.guardar(paths.metas(), [
         {"nombre": "Mil seguidores"}, {"nombre": "Diez mil seguidores"}])
     medios_guardados.guardar(paths.medios(), [

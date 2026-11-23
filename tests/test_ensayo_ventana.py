@@ -14,7 +14,7 @@ import wx
 
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
-from guyrapu.interaction import disparadores_guardados
+from guyrapu.interaction import disparadores_guardados, ensayo
 from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR
 from guyrapu.ui import chat_vivo, ensayo_ventana, gui_menu, gui_sesion
@@ -97,6 +97,27 @@ class TestCampos(Base):
         self.assertEqual(ventana.cho_tipo.GetStringSelection(), "Mensaje")
         self.assertEqual(ventana.txt_cantidad.GetValue(), "")
         self.assertEqual(ventana.txt_mensaje.GetValue(), "")
+
+    def test_p4_rol_arranca_en_publico_y_vuelve_al_primero_al_cambiar_de_plataforma(self):
+        ventana = self._ventana(self._frame())
+        primero = _(ensayo.ROLES[0][0])
+        self.assertEqual(ventana.cho_rol.GetSelection(), 0)
+        self.assertEqual(ventana.cho_rol.GetStringSelection(), primero)
+        ventana.cho_rol.SetSelection(1)
+        ventana.cho_plataforma.SetSelection(1)
+        ventana._actualizar_tipos()
+        ventana.cho_plataforma.SetSelection(0)
+        ventana._actualizar_tipos()
+        self.assertEqual(ventana.cho_rol.GetSelection(), 0)
+        self.assertEqual(ventana.cho_rol.GetStringSelection(), primero)
+
+    def test_p5_la_lista_resultados_ocupa_el_alto_que_sobra(self):
+        ventana = self._ventana(self._frame())
+        panel = ventana.GetChildren()[0]
+        contenido = panel.GetSizer().GetChildren()[0].GetSizer()
+        item = contenido.GetChildren()[-1]
+        self.assertIs(item.GetWindow(), ventana.lista_resultados)
+        self.assertEqual(item.GetProportion(), 1)
 
 
 class TestEnviar(Base):

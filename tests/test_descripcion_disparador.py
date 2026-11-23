@@ -35,6 +35,12 @@ class TestFila(unittest.TestCase):
             descripcion_disparador.fila(_evento(activo=False)),
             "regalo, cuando llega Super Chats y regalos, en el vídeo, pausado")
 
+    def test_la_fila_dice_sin_evento_cuando_el_evento_esta_vacio(self):
+        self.assertEqual(
+            descripcion_disparador.fila(
+                _evento(nombre="Aplausos", evento="", minimo=5)),
+            "Aplausos, sin evento, en el vídeo")
+
 
 class TestEscuchar(unittest.TestCase):
 

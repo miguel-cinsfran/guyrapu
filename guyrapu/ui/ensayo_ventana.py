@@ -102,6 +102,7 @@ class VentanaEnsayo(wx.Dialog):
         formulario.agregar_pie(vs, [self.btn_enviar, self.btn_cerrar])
         self._agregar(vs, panel, _("Res&ultados:"), "lista_resultados",
                       wx.ListBox)
+        vs.GetChildren()[-1].SetProportion(1)
         self.lista_resultados.SetMinSize((-1, 110))
         self._vacia = lista_acciones.ListaConVacio(
             self.lista_resultados, _(VACIO_RESULTADOS))
@@ -143,6 +144,7 @@ class VentanaEnsayo(wx.Dialog):
         tipos = ensayo.tipos_de(self._plataforma())
         self.cho_tipo.SetItems([_(tipo.rotulo) for tipo in tipos])
         self.cho_tipo.SetSelection(0)
+        self.cho_rol.SetSelection(0)
         self._actualizar_campos()
 
     def _actualizar_campos(self):

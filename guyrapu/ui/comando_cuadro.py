@@ -81,7 +81,21 @@ class DialogoComando(wx.Dialog):
 
     def _crear_controles(self, datos):
         panel = wx.Panel(self, name="PanelComando")
-        vs = wx.BoxSizer(wx.VERTICAL)
+        contenido = wx.BoxSizer(wx.VERTICAL)
+        izquierda = wx.BoxSizer(wx.VERTICAL)
+        derecha = wx.BoxSizer(wx.VERTICAL)
+        self._crear_activacion(panel, izquierda)
+        formulario.agregar_casillas(izquierda, self._crear_casillas(panel))
+        self._crear_contenido(panel, derecha)
+        self._crear_permiso_espera(panel, derecha)
+        formulario.columnas(contenido, izquierda, derecha)
+        formulario.agregar_pie(contenido, self._botones(panel))
+        formulario.ajustar_tamano(self, panel, contenido)
+        self._cargar(datos)
+
+    def _crear_activacion(self, panel, columna):
+        vs = formulario.agregar_seccion(
+            columna, panel, _(formulario.SECCION_CUANDO))
         rotulo = fila_label(panel, _("Pala&bra:"))
         self.txt_palabra = self._campo(panel, _("Pala&bra:"))
         formulario.agregar_fila(vs, rotulo, self.txt_palabra)
@@ -89,7 +103,11 @@ class DialogoComando(wx.Dialog):
         self.txt_alias = self._campo(panel, _("A&lias:"))
         formulario.agregar_fila(vs, rotulo, self.txt_alias)
         self._crear_ubicacion(panel, vs)
-        self._crear_contenido(panel, vs)
+        self._crear_atajo(panel, vs)
+
+    def _crear_permiso_espera(self, panel, columna):
+        vs = formulario.agregar_seccion(
+            columna, panel, _(formulario.SECCION_ALCANCE))
         rotulo = fila_label(panel, _("&Permiso:"))
         self.cho_permiso = wx.Choice(
             panel, choices=_permisos(),
@@ -99,11 +117,7 @@ class DialogoComando(wx.Dialog):
         rotulo = fila_label(panel, _("&Nombres:"))
         self.txt_nombres = self._campo(panel, _("&Nombres:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombres)
-        self._crear_atajo(panel, vs)
-        self._crear_aspecto(panel, vs)
-        formulario.agregar_pie(vs, self._botones(panel))
-        formulario.ajustar_tamano(self, panel, vs)
-        self._cargar(datos)
+        self._crear_esperas(panel, vs)
 
     def _crear_contenido(self, panel, vs):
         self._contenido = seccion_contenido.SeccionContenido(
@@ -144,7 +158,7 @@ class DialogoComando(wx.Dialog):
             return ""
         return self._nombres_de_medios()[indice - 1]
 
-    def _crear_aspecto(self, panel, vs):
+    def _crear_esperas(self, panel, vs):
         for rotulo_texto, atributo, limites in (
                  (_("Espera ent&re usos (segundos):"), "sp_espera", (0, 3600, 5)),
                  (_("Espera por pers&ona (segundos):"), "sp_persona", (0, 3600, 30))):
@@ -152,12 +166,14 @@ class DialogoComando(wx.Dialog):
             control = self._contador(panel, rotulo_texto, *limites)
             setattr(self, atributo, control)
             formulario.agregar_fila(vs, rotulo, control, numerico=True)
+
+    def _crear_casillas(self, panel):
         self.chk_activo = wx.CheckBox(
             panel, label=_("Acti&vado"), name=nombre_de_etiqueta(_("Acti&vado")))
         self.chk_en_lista = wx.CheckBox(
             panel, label=_("Mostrar en la l&ista de comandos"),
             name=nombre_de_etiqueta(_("Mostrar en la l&ista de comandos")))
-        formulario.agregar_casillas(vs, (self.chk_activo, self.chk_en_lista))
+        return self.chk_activo, self.chk_en_lista
 
     def _campo(self, panel, etiqueta):
         campo = wx.TextCtrl(panel, name=nombre_de_etiqueta(etiqueta))

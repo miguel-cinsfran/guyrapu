@@ -73,8 +73,10 @@ class VentanaInteraccion(wx.Dialog):
         self.btn_ayuda = wx.Button(
             self, label=_("A&yuda"), name=_("Ayuda"))
         self.btn_ayuda.Bind(wx.EVT_BUTTON, self._al_ayuda)
-        formulario.agregar_pie(vs, [self.btn_probar, self.btn_cerrar,
-                                    self.btn_ayuda])
+        pie = wx.BoxSizer(wx.VERTICAL)
+        formulario.agregar_pie(pie, [self.btn_probar, self.btn_cerrar,
+                                     self.btn_ayuda])
+        vs.Add(pie, 0, wx.EXPAND | wx.RIGHT | wx.BOTTOM, 10)
         self.SetSizer(vs)
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Bind(wx.EVT_CLOSE, self._al_cerrar)

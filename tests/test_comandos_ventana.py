@@ -18,6 +18,7 @@ from guyrapu.interaction import comandos_guardados, medios_guardados, paquetes
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import comando_cuadro
 from guyrapu.ui import comandos_ventana
+from guyrapu.ui import formulario
 from tests.letras_acceso import letras_repetidas
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -157,7 +158,41 @@ class TestCuadro(BaseVentana):
         self.assertEqual(cuadro.chk_en_lista.GetName(),
                          "Mostrar en la lista de comandos")
 
-    def test_la_ubicacion_va_despues_de_los_alias_y_el_atajo_tras_los_nombres(
+    def test_p2_las_secciones_van_en_dos_columnas(self):
+        cuadro = self._cuadro()
+        panel = cuadro.GetChildren()[0]
+        cajas = [hijo for hijo in panel.GetChildren()
+                 if isinstance(hijo, wx.StaticBox)]
+        self.assertEqual([caja.GetLabel() for caja in cajas],
+                         ["Activación", "Contenido", "Permiso y espera"])
+        self.assertLess(cajas[0].GetPosition().x, cajas[1].GetPosition().x)
+        self.assertEqual(cajas[1].GetPosition().x, cajas[2].GetPosition().x)
+
+    def test_p3_el_orden_de_tab_sigue_el_orden_visual(self):
+        cuadro = self._cuadro()
+        hijos = [hijo for hijo in cuadro.GetChildren()[0].GetChildren()
+                 if not isinstance(hijo, (wx.StaticText, wx.StaticBox))]
+        self.assertEqual(hijos, [
+            cuadro.txt_palabra, cuadro.txt_alias, cuadro.cho_ubicacion,
+            cuadro.cho_atajo, cuadro.chk_activo, cuadro.chk_en_lista,
+            cuadro.txt_respuesta, cuadro.cho_destino, cuadro.cho_medio,
+            cuadro.sp_segundos, cuadro.cho_estilo, cuadro.cho_permiso,
+            cuadro.txt_nombres, cuadro.sp_espera, cuadro.sp_persona,
+            cuadro.btn_aceptar, cuadro.btn_cancelar])
+
+    def test_p2_el_cuadro_cabe_y_aceptar_se_ve(self):
+        cuadro = self._cuadro()
+        cuadro.Layout()
+        cliente = cuadro.GetClientSize()
+        self.assertLessEqual(cliente.height, formulario.ALTO_MAXIMO)
+        self.assertLessEqual(
+            cuadro.btn_aceptar.GetPosition().y
+            + cuadro.btn_aceptar.GetSize().height, cliente.height)
+        self.assertLessEqual(
+            cuadro.btn_aceptar.GetPosition().x
+            + cuadro.btn_aceptar.GetSize().width, cliente.width)
+
+    def test_la_ubicacion_va_despues_de_los_alias_y_el_atajo_antes_de_los_nombres(
             self):
         cuadro = self._cuadro()
         hijos = list(cuadro.GetChildren()[0].GetChildren())
@@ -166,7 +201,7 @@ class TestCuadro(BaseVentana):
         nombres = next(h for h in hijos if h.GetName() == "Nombres")
         atajo = next(h for h in hijos if h.GetName() == "Atajo")
         self.assertEqual(hijos.index(ubicacion), hijos.index(alias) + 2)
-        self.assertLess(hijos.index(nombres), hijos.index(atajo))
+        self.assertLess(hijos.index(atajo), hijos.index(nombres))
 
     def test_mostrar_en_va_despues_de_la_respuesta_y_su_nota(self):
         cuadro = self._cuadro()
