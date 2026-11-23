@@ -18,6 +18,9 @@
 - Comandos, alertas y mensajes automáticos comparten la sección *Contenido*,
   con *Texto*, *Mostrar en*, *Medio*, *Segundos en pantalla* y *Estilo*.
   Para guardar hace falta un texto o un medio.
+- El cuadro del comando se ordena en dos columnas, como el de la alerta:
+  *Activación* a la izquierda y *Contenido* y *Permiso y espera* a la
+  derecha. Entra entero en pantallas de 768 píxeles de alto.
 - Los comandos y los mensajes automáticos pueden mostrar un medio de la
   carpeta Medios. Las alertas también pueden escribir en el chat.
 - *Probar sin directo* dice en *Resultados* qué respondió a cada envío y, si

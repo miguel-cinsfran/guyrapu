@@ -11,6 +11,7 @@ This is a translation of the Spanish original, made with artificial intelligence
 - *Triggers* is now *Alerts*. What used to answer commands, words or shortcuts moved only to *Commands*, and alerts keep the events of the live stream.
 - Commands accept the word at the beginning or anywhere in the message, aliases, permissions, cooldowns and a `Ctrl+Alt+Shift` shortcut with a number from 1 to 9, including *Shortcut only*.
 - Commands, alerts and scheduled messages share the *Content* section, with *Text*, *Show in*, *Media item*, *Seconds on screen* and *Style*. To save you need text or a media item.
+- The command dialog box is laid out in two columns, like the alert one: *Activation* on the left and *Content* and *Permission and cooldown* on the right. It fits whole on screens 768 pixels high.
 - Commands and scheduled messages can show a media item from the Media folder. Alerts can also write in the chat.
 - *Test without a live stream* says in *Results* what responded to each send and, if nothing responded, the reason.
 
