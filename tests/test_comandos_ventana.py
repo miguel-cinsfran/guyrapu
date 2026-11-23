@@ -131,7 +131,15 @@ class TestCuadro(BaseVentana):
                          ["Vídeo", "Chat", "Chat y vídeo"])
         self.assertEqual(cuadro.cho_permiso.GetStrings(),
                          ["Todos", "Solo moderadores",
-                          "Una lista de nombres"])
+                          "Una lista de nombres", "Solo con el atajo"])
+        self.assertEqual(cuadro.cho_ubicacion.GetStrings(),
+                         ["Al principio del mensaje",
+                          "En cualquier parte del mensaje"])
+        self.assertEqual(cuadro.cho_atajo.GetStrings(),
+                         ["Ninguno"] + [f"Ctrl+Alt+Mayús+{n}"
+                                        for n in range(1, 10)])
+        self.assertEqual(cuadro.cho_ubicacion.GetName(), "Ubicación")
+        self.assertEqual(cuadro.cho_atajo.GetName(), "Atajo")
         self.assertEqual((cuadro.sp_segundos.GetMin(),
                           cuadro.sp_segundos.GetMax()), (3, 60))
         self.assertEqual((cuadro.sp_espera.GetMin(),
@@ -145,6 +153,17 @@ class TestCuadro(BaseVentana):
         self.assertTrue(cuadro.chk_en_lista.GetValue())
         self.assertEqual(cuadro.chk_en_lista.GetName(),
                          "Mostrar en la lista de comandos")
+
+    def test_la_ubicacion_va_despues_de_los_alias_y_el_atajo_tras_los_nombres(
+            self):
+        cuadro = self._cuadro()
+        hijos = list(cuadro.GetChildren()[0].GetChildren())
+        alias = next(h for h in hijos if h.GetName() == "Alias")
+        ubicacion = next(h for h in hijos if h.GetName() == "Ubicación")
+        nombres = next(h for h in hijos if h.GetName() == "Nombres")
+        atajo = next(h for h in hijos if h.GetName() == "Atajo")
+        self.assertEqual(hijos.index(ubicacion), hijos.index(alias) + 2)
+        self.assertLess(hijos.index(nombres), hijos.index(atajo))
 
     def test_la_eleccion_de_medio_va_despues_de_la_respuesta_y_su_nota(self):
         cuadro = self._cuadro()
@@ -238,6 +257,8 @@ class TestCuadro(BaseVentana):
         cuadro.cho_destino.SetSelection(2)
         cuadro.cho_permiso.SetSelection(2)
         cuadro.txt_nombres.SetValue("Ana María, Beto")
+        cuadro.cho_ubicacion.SetSelection(1)
+        cuadro.cho_atajo.SetSelection(4)
         cuadro.sp_espera.SetValue(10)
         cuadro.sp_persona.SetValue(40)
         cuadro._elegir_estilo("banda")
@@ -250,7 +271,8 @@ class TestCuadro(BaseVentana):
             "permiso": "lista", "nombres": ["Ana María", "Beto"],
             "espera_general": 10.0, "espera_persona": 40.0,
             "activo": False, "estilo": "banda", "segundos": 15,
-            "lista": False, "en_lista": False})
+            "lista": False, "en_lista": False,
+            "ubicacion": "cualquiera", "atajo": 4})
         with mock.patch.object(cuadro, "EndModal") as cerrar:
             cuadro._aceptar(None)
         cerrar.assert_called_once_with(wx.ID_OK)
@@ -296,6 +318,21 @@ class TestCuadro(BaseVentana):
         with mock.patch.object(cuadro.txt_nombres, "SetFocus") as foco:
             self._aceptar_con_error(cuadro)
         foco.assert_called_once()
+
+    def test_un_atajo_repetido_manda_el_foco_al_atajo(self):
+        otro = _datos(nombre="otro", alias=[], atajo=3)
+        cuadro = self._cuadro(_datos(nombre="risa", alias=[], atajo=3), [otro])
+        with mock.patch.object(cuadro.cho_atajo, "SetFocus") as foco:
+            decir = self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+        self.assertIn("Ctrl+Alt+Mayús+3", decir.call_args.args[0])
+
+    def test_solo_con_el_atajo_sin_atajo_manda_el_foco_al_atajo(self):
+        cuadro = self._cuadro(_datos(permiso="solo_atajo"))
+        with mock.patch.object(cuadro.cho_atajo, "SetFocus") as foco:
+            decir = self._aceptar_con_error(cuadro)
+        foco.assert_called_once()
+        self.assertIn("Elige un atajo", decir.call_args.args[0])
 
 class TestAcciones(BaseVentana):
 

@@ -17,6 +17,7 @@ def _datos(**cambios):
         "medio": "", "destino": "chat", "permiso": "lista", "nombres": ["Ana"],
         "espera_general": 5.0, "espera_persona": 30.0, "activo": True,
         "estilo": "clasico", "segundos": 8, "lista": False, "en_lista": True,
+        "ubicacion": "principio", "atajo": 0,
     }
     datos.update(cambios)
     return datos
@@ -51,6 +52,19 @@ class TestConversion(unittest.TestCase):
             "lista": "true", "en_lista": "false"})
         self.assertTrue(comando.lista)
         self.assertFalse(comando.en_lista)
+
+    def test_la_ubicacion_y_el_atajo_cargan_con_sus_valores_de_fabrica(self):
+        comando = comandos_guardados.a_comando({})
+        self.assertEqual(comando.ubicacion, "principio")
+        self.assertEqual(comando.atajo, 0)
+        otro = comandos_guardados.a_comando({
+            "ubicacion": "cualquiera", "atajo": "3"})
+        self.assertEqual(otro.ubicacion, "cualquiera")
+        self.assertEqual(otro.atajo, 3)
+        raro = comandos_guardados.a_comando({
+            "ubicacion": "otro", "atajo": "no"})
+        self.assertEqual(raro.ubicacion, "principio")
+        self.assertEqual(raro.atajo, 0)
 
     def test_los_tipos_se_fuerzan_y_lo_raro_cae_a_su_defecto(self):
         comando = comandos_guardados.a_comando({
@@ -135,6 +149,13 @@ class TestArchivo(unittest.TestCase):
         cargado = comandos_guardados.cargar(self.ruta)
         self.assertTrue(cargado[0]["lista"])
         self.assertFalse(cargado[1]["en_lista"])
+
+    def test_la_ubicacion_y_el_atajo_sobreviven_guardar_y_cargar(self):
+        comandos_guardados.guardar(self.ruta, [comandos.Comando(
+            "risa", (), "Risas", ubicacion="cualquiera", atajo=4)])
+        cargado = comandos_guardados.cargar(self.ruta)[-1]
+        self.assertEqual(cargado["ubicacion"], "cualquiera")
+        self.assertEqual(cargado["atajo"], 4)
 
     def test_guarda_un_comando_de_verdad(self):
         comando = comandos.Comando(

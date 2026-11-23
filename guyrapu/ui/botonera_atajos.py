@@ -1,10 +1,10 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Atajos globales de los disparadores: Ctrl+Alt+Mayús más un número.
+"""Atajos globales de los comandos: Ctrl+Alt+Mayús más un número.
 
 Se registran al arrancar, con la ventana principal abierta, y valen en
 cualquier programa. Si otro programa ya usa uno, se dice una vez con su
-nombre. El número se elige en cada disparador.
+nombre. El número se elige en cada comando.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import wx
 
 from guyrapu.core import diagnostico
 from guyrapu.music import anuncios
-from guyrapu.ui import atajos_globales, disparadores_en_vivo
+from guyrapu.ui import atajos_globales, comandos_en_vivo
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.voice import sound_player as _snd
 
@@ -48,10 +48,10 @@ def combinacion_ctrl_alt_mayus_numero(
 
 
 class BotoneraAtajos:
-    """Las nueve combinaciones globales que disparan los disparadores.
+    """Las nueve combinaciones globales que llaman a los comandos.
 
     `frame` es la ventana principal: de ella salen la ventana que registra
-    las combinaciones y la instancia de disparadores en vivo. Nunca lanza:
+    las combinaciones y la instancia de comandos en vivo. Nunca lanza:
     registrar o soltar puede fallar y se informa con el aviso.
     """
 
@@ -59,7 +59,7 @@ class BotoneraAtajos:
         self._ventana = frame
         self._acciones = {
             accion: (lambda numero=numero:
-                     disparadores_en_vivo.disparar(frame, numero))
+                     comandos_en_vivo.disparar(frame, numero))
             for numero, accion in enumerate(ORDEN, start=1)}
         self._globales = atajos_globales.AtajosGlobales(
             frame, self._acciones, orden=ORDEN, base_ids=BASE_IDS,
@@ -70,7 +70,7 @@ class BotoneraAtajos:
             wx.CallAfter(self.activar_arranque)
         except Exception:
             logger.debug(
-                "No se pudieron activar los atajos de los disparadores")
+                "No se pudieron activar los atajos de los comandos")
 
     def _textos(self) -> dict:
         """Las nueve combinaciones, acción → texto guardado."""
@@ -83,7 +83,7 @@ class BotoneraAtajos:
             fallidos = self._globales.activar(self._textos())
         except Exception:
             logger.exception(
-                "No se pudieron activar los atajos de los disparadores")
+                "No se pudieron activar los atajos de los comandos")
             return
         if fallidos:
             self._avisar(anuncios.aviso_atajos_globales_fallo(fallidos))

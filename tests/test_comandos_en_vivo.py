@@ -432,5 +432,66 @@ class TestEnsayo(Base):
         self.frame._capa_video.agregar_comando.assert_not_called()
 
 
+class TestUbicacionEnCualquierParte(Base):
+
+    def test_una_palabra_en_cualquier_parte_deja_su_pieza(self):
+        self._guardar(_datos(nombre="risa", respuesta="Risas",
+                             ubicacion="cualquiera"))
+        self._encolar("qué risa jaja")
+        self.frame._capa_video.agregar_comando.assert_called_once()
+        respuesta = self.frame._capa_video.agregar_comando.call_args.args[0]
+        self.assertEqual(respuesta.texto, "Risas")
+
+    def test_un_comando_con_signo_no_lo_cumple(self):
+        self._guardar(_datos(nombre="risa", respuesta="Risas",
+                             ubicacion="cualquiera"))
+        self._encolar("!risa")
+        self.frame._capa_video.agregar_comando.assert_not_called()
+
+
+class TestAtajoDelComando(Base):
+
+    def _guardar_solo_con_atajo(self):
+        self._guardar(_datos(nombre="risa", respuesta="Risas",
+                             permiso="solo_atajo", atajo=3))
+
+    def test_el_atajo_pone_la_pieza_como_si_lo_pidiera_el_dueno(self):
+        self._guardar_solo_con_atajo()
+        with mock.patch.object(comandos_en_vivo, "anunciar_con_sonido") as avisar:
+            comandos_en_vivo.disparar(self.frame, 3, ahora=0)
+        self.frame._capa_video.agregar_comando.assert_called_once()
+        avisar.assert_not_called()
+
+    def test_el_mismo_comando_escrito_en_el_chat_no_responde(self):
+        self._guardar_solo_con_atajo()
+        self._encolar("!risa")
+        self.frame._capa_video.agregar_comando.assert_not_called()
+
+    def test_sin_comando_en_ese_numero_avisa_con_el_sonido_de_error(self):
+        self._guardar_solo_con_atajo()
+        with mock.patch.object(comandos_en_vivo, "anunciar_con_sonido") as avisar:
+            comandos_en_vivo.disparar(self.frame, 2, ahora=0)
+        avisar.assert_called_once_with(
+            "Ningún comando usa Ctrl+Alt+Mayús+2", "error")
+
+    def test_sin_directo_ni_prueba_avisa_y_no_hace_nada_mas(self):
+        self._guardar_solo_con_atajo()
+        self.frame._conectado = False
+        with mock.patch.object(comandos_en_vivo, "anunciar_con_sonido") as avisar:
+            comandos_en_vivo.disparar(self.frame, 3, ahora=0)
+        avisar.assert_called_once_with(
+            "Conecta un directo para usar los atajos de los comandos", "error")
+        self.frame._capa_video.agregar_comando.assert_not_called()
+
+    def test_con_la_prueba_sin_directo_el_atajo_funciona(self):
+        self._guardar_solo_con_atajo()
+        self.frame._conectado = False
+        self.frame._ensayo = True
+        with mock.patch.object(comandos_en_vivo, "anunciar_con_sonido") as avisar:
+            comandos_en_vivo.disparar(self.frame, 3, ahora=0)
+        self.frame._capa_video.agregar_comando.assert_called_once()
+        avisar.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

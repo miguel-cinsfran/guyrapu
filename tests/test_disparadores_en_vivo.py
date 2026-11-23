@@ -1,6 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""La unión entre los disparadores del directo y la tarjeta del vídeo."""
+"""La unión entre los disparadores de evento y la tarjeta del vídeo."""
 
 import os
 import tempfile
@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 from guyrapu.core import paths
-from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
+from guyrapu.core.config import TIPO_SUPERCHAT
 from guyrapu.interaction import (
     disparadores_guardados, filtro_publico, medios_guardados)
 from guyrapu.ui import disparadores_en_vivo
@@ -16,18 +16,17 @@ from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
 
 
-def _datos(nombre="risa", cuando="comando", comandos=("risa",), palabras=(),
-            evento="", minimo=None, medio="", tarjeta="Ríe {usuario}",
-            estilo="clasico", segundos=8, permiso="todos", nombres=(),
-            espera_general=5.0, espera_persona=0.0, activo=True, atajo=0):
+def _datos(nombre="regalo", medio="", tarjeta="Ríe {usuario}",
+           estilo="clasico", segundos=8, permiso="todos", nombres=(),
+           espera_general=5.0, espera_persona=0.0, activo=True,
+           evento="superchat", minimo=None, regalo=""):
     return {
-        "nombre": nombre, "cuando": cuando, "comandos": list(comandos),
-        "palabras": list(palabras),
-        "evento": evento, "minimo": minimo, "medio": medio,
+        "nombre": nombre, "cuando": "evento", "evento": evento,
+        "minimo": minimo, "regalo": regalo, "medio": medio,
         "tarjeta": tarjeta, "estilo": estilo, "segundos": segundos,
         "permiso": permiso, "nombres": list(nombres),
         "espera_general": espera_general, "espera_persona": espera_persona,
-        "activo": activo, "atajo": atajo,
+        "activo": activo,
     }
 
 
@@ -37,8 +36,8 @@ def _medio(nombre="fuegos", tipo="video", archivo="fuegos.mp4", duracion=12,
             "duracion": duracion, "ganancia_db": ganancia_db}
 
 
-def _registro(texto="!risa", autor="Ana", plataforma="youtube",
-              tipo=TIPO_TEXTO, monto=""):
+def _registro(texto="", autor="Ana", plataforma="youtube",
+              tipo=TIPO_SUPERCHAT, monto="US$5.00"):
     return MensajeChat(plataforma=plataforma, autor=autor,
                        identificador="C1", texto=texto, hora="12:00",
                        tipo=tipo, monto=monto, rol="")
@@ -90,7 +89,8 @@ class Base(unittest.TestCase):
 
 class TestPiezaDeDisparador(Base):
 
-    def test_un_comando_cumplido_agrega_su_tarjeta_con_estilo_segundos_y_nombre(self):
+    def test_un_evento_cumplido_agrega_su_tarjeta_con_estilo_segundos_y_nombre(
+            self):
         self._guardar(_datos(nombre="risa", tarjeta="Ríe {usuario}",
                              estilo="banda", segundos=12))
         self._atender()
@@ -111,25 +111,6 @@ class TestPiezaDeDisparador(Base):
             self.frame._capa_video.agregar_pieza.call_count, 2)
 
 
-class TestPalabraEnVivo(Base):
-
-    def test_p3_un_mensaje_comun_con_la_palabra_pone_la_tarjeta_entera(self):
-        self._guardar(_datos(
-            nombre="saludo", cuando="palabra", comandos=(),
-            palabras=("hola",), tarjeta="Dijo {texto}",
-            espera_general=0, espera_persona=0))
-        self._atender(_registro(texto="Hola a todos"))
-        self.assertEqual(self._textos(), ["Dijo Hola a todos"])
-
-    def test_p3_un_comando_con_la_palabra_no_pone_la_tarjeta(self):
-        self._guardar(_datos(
-            nombre="saludo", cuando="palabra", comandos=(),
-            palabras=("hola",), tarjeta="Dijo {texto}",
-            espera_general=0, espera_persona=0))
-        self._atender(_registro(texto="!hola"))
-        self.frame._capa_video.agregar_pieza.assert_not_called()
-
-
 class TestContador(Base):
 
     def test_p5_dos_veces_el_mismo_disparador_ponen_uno_y_dos(self):
@@ -144,24 +125,20 @@ class TestEventoDelDirecto(Base):
 
     def test_el_superchat_solo_cumple_desde_el_minimo(self):
         self._guardar(_datos(
-            nombre="regalo", cuando="evento", comandos=(),
-            evento="superchat", minimo=5, tarjeta="Gracias",
+            nombre="regalo", minimo=5, tarjeta="Gracias",
             espera_general=0, espera_persona=0))
-        self._atender(_registro(texto="", tipo=TIPO_SUPERCHAT,
-                                monto="US$4.99"), ahora=0)
+        self._atender(_registro(monto="US$4.99"), ahora=0)
         self.frame._capa_video.agregar_pieza.assert_not_called()
-        self._atender(_registro(texto="", tipo=TIPO_SUPERCHAT,
-                                monto="US$5.00"), ahora=1)
+        self._atender(_registro(monto="US$5.00"), ahora=1)
         self.frame._capa_video.agregar_pieza.assert_called_once()
 
     def test_p3_un_regalo_de_tiktok_pone_el_regalo_y_la_cantidad(self):
         self._guardar(_datos(
-            nombre="regalo", cuando="evento", comandos=(),
-            evento="superchat", tarjeta="{regalo}: {cantidad}",
+            nombre="regalo", regalo="Rosa", tarjeta="{regalo}: {cantidad}",
             espera_general=0, espera_persona=0))
         self._atender(_registro(
-            texto="Rosa x5", tipo=TIPO_SUPERCHAT,
-            monto="500 diamantes", plataforma="tiktok"), ahora=0)
+            texto="Rosa x5", monto="500 diamantes", plataforma="tiktok"),
+            ahora=0)
         self.assertEqual(self._textos(), ["Rosa: 500 diamantes"])
 
 
@@ -286,7 +263,7 @@ class TestSinTarjeta(Base):
 
 class TestRecarga(Base):
 
-    def test_cambiar_el_archivo_entre_dos_mensajes_cambia_lo_que_se_agrega(self):
+    def test_cambiar_el_archivo_entre_dos_eventos_cambia_lo_que_se_agrega(self):
         self._guardar(_datos(tarjeta="Uno", espera_general=0,
                              espera_persona=0))
         self._atender(ahora=0)
@@ -296,7 +273,7 @@ class TestRecarga(Base):
         self._atender(ahora=1)
         self.assertEqual(self._textos(), ["Uno", "Dos"])
 
-    def test_cambiar_las_palabras_entre_dos_mensajes_cambia_la_tarjeta(self):
+    def test_cambiar_las_palabras_entre_dos_eventos_cambia_la_tarjeta(self):
         self._guardar(_datos(tarjeta="Hola {usuario}", espera_general=0,
                              espera_persona=0))
         self._guardar_palabras(["tonto"])
@@ -305,57 +282,6 @@ class TestRecarga(Base):
         self._adelantar(paths.palabras_bloqueadas())
         self._atender(_registro(autor="Tonto"), ahora=1)
         self.assertEqual(self._textos(), ["Hola ***", "Hola Tonto"])
-
-
-class TestAtajoGlobal(Base):
-
-    def _disparar(self, numero, ahora=None):
-        disparadores_en_vivo.disparar(self.frame, numero, ahora)
-
-    def test_p2_dispara_los_activos_con_ese_numero_en_el_orden_de_la_lista(
-            self):
-        self._guardar(
-            _datos(nombre="uno", cuando="atajo", comandos=(), atajo=3,
-                   tarjeta="Uno", permiso="moderadores"),
-            _datos(nombre="dos", cuando="atajo", comandos=(), atajo=4,
-                   tarjeta="Dos"),
-            _datos(nombre="tres", cuando="atajo", comandos=(), atajo=3,
-                   tarjeta="Tres"),
-            _datos(nombre="pausado", cuando="atajo", comandos=(), atajo=3,
-                   tarjeta="Pausado", activo=False))
-        self._disparar(3, ahora=0)
-        self.assertEqual(self._textos(), ["Uno", "Tres"])
-
-    def test_p2_dos_veces_seguidas_con_espera_general_las_dos_disparan(self):
-        self._guardar(_datos(
-            nombre="risa", cuando="atajo", comandos=(), atajo=1,
-            tarjeta="Ríe", espera_general=5, espera_persona=0))
-        self._disparar(1, ahora=10)
-        self._disparar(1, ahora=11)
-        self.assertEqual(self._textos(), ["Ríe", "Ríe"])
-
-    def test_p3_sin_disparador_con_ese_numero_avisa_con_el_sonido_de_error(
-            self):
-        self._guardar(_datos(
-            nombre="risa", cuando="atajo", comandos=(), atajo=1))
-        with mock.patch.object(
-                disparadores_en_vivo, "anunciar_con_sonido") as avisar:
-            self._disparar(2, ahora=0)
-        avisar.assert_called_once_with(
-            "Ningún disparador usa Ctrl+Alt+Mayús+2", "error")
-        self.frame._capa_video.agregar_pieza.assert_not_called()
-
-    def test_p3_sin_directo_conectado_avisa_y_no_hace_nada_mas(self):
-        self._guardar(_datos(
-            nombre="risa", cuando="atajo", comandos=(), atajo=1,
-            tarjeta="Ríe"))
-        self.frame._conectado = False
-        with mock.patch.object(
-                disparadores_en_vivo, "anunciar_con_sonido") as avisar:
-            self._disparar(1, ahora=0)
-        avisar.assert_called_once_with(
-            "Conecta un directo para usar los disparadores", "error")
-        self.frame._capa_video.agregar_pieza.assert_not_called()
 
 
 class TestDesconectado(Base):

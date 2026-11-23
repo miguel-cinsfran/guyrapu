@@ -13,7 +13,7 @@ import json
 from guyrapu.core import archivos
 from guyrapu.core.idioma import idioma_actual
 from guyrapu.interaction.comandos import (
-    DESTINOS, PERMISOS, Comando, asegurar_lista, separar_alias,
+    DESTINOS, PERMISOS, UBICACIONES, Comando, asegurar_lista, separar_alias,
     separar_nombres)
 
 DEFECTOS = {
@@ -28,6 +28,8 @@ DEFECTOS = {
     "activo": True,
     "estilo": "clasico",
     "segundos": 8,
+    "ubicacion": "principio",
+    "atajo": 0,
 }
 
 
@@ -85,6 +87,8 @@ def a_comando(datos: dict) -> Comando:
         segundos=_numero(datos.get("segundos"), 8, int),
         lista=_a_bool(datos.get("lista", False)),
         en_lista=_a_bool(datos.get("en_lista", True)),
+        ubicacion=_elegido(datos.get("ubicacion"), UBICACIONES, "principio"),
+        atajo=_numero(datos.get("atajo"), 0, int),
     )
 
 
@@ -105,6 +109,8 @@ def desde_comando(comando: Comando) -> dict:
         "segundos": comando.segundos,
         "lista": comando.lista,
         "en_lista": comando.en_lista,
+        "ubicacion": comando.ubicacion,
+        "atajo": comando.atajo,
     }
 
 

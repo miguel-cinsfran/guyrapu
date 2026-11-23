@@ -35,7 +35,18 @@ def _destinos():
 
 
 def _permisos():
-    return [_("Todos"), _("Solo moderadores"), _("Una lista de nombres")]
+    return [_("Todos"), _("Solo moderadores"), _("Una lista de nombres"),
+            _("Solo con el atajo")]
+
+
+def _ubicaciones():
+    return [_("Al principio del mensaje"),
+            _("En cualquier parte del mensaje")]
+
+
+def _atajos():
+    return [_("Ninguno")] + [
+        _("Ctrl+Alt+Mayús+{n}").format(n=numero) for numero in range(1, 10)]
 
 
 def _medios():
@@ -77,6 +88,7 @@ class DialogoComando(wx.Dialog):
         rotulo = fila_label(panel, _("A&lias:"))
         self.txt_alias = self._campo(panel, _("A&lias:"))
         formulario.agregar_fila(vs, rotulo, self.txt_alias)
+        self._crear_ubicacion(panel, vs)
         rotulo = fila_label(panel, _("&Respuesta:"))
         self.txt_respuesta = self._campo(panel, _("&Respuesta:"))
         formulario.agregar_fila(vs, rotulo, self.txt_respuesta)
@@ -98,10 +110,27 @@ class DialogoComando(wx.Dialog):
         rotulo = fila_label(panel, _("&Nombres:"))
         self.txt_nombres = self._campo(panel, _("&Nombres:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombres)
+        self._crear_atajo(panel, vs)
         self._crear_aspecto(panel, vs)
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)
+
+    def _crear_ubicacion(self, panel, vs):
+        rotulo = fila_label(panel, _("&Ubicación:"))
+        self.cho_ubicacion = wx.Choice(
+            panel, choices=_ubicaciones(),
+            name=nombre_de_etiqueta(_("&Ubicación:")))
+        nombre_accesible(self.cho_ubicacion, self.cho_ubicacion.GetName())
+        formulario.agregar_fila(vs, rotulo, self.cho_ubicacion)
+
+    def _crear_atajo(self, panel, vs):
+        rotulo = fila_label(panel, _("Ata&jo:"))
+        self.cho_atajo = wx.Choice(
+            panel, choices=_atajos(),
+            name=nombre_de_etiqueta(_("Ata&jo:")))
+        nombre_accesible(self.cho_atajo, self.cho_atajo.GetName())
+        formulario.agregar_fila(vs, rotulo, self.cho_atajo)
 
     def _crear_medio(self, panel, vs):
         rotulo = fila_label(panel, _("Me&dio:"))
@@ -130,7 +159,7 @@ class DialogoComando(wx.Dialog):
 
     def _crear_aspecto(self, panel, vs):
         for rotulo_texto, atributo, limites in (
-                (_("Espera entre &usos (segundos):"), "sp_espera", (0, 3600, 5)),
+                 (_("Espera en&tre usos (segundos):"), "sp_espera", (0, 3600, 5)),
                 (_("Espera por pers&ona (segundos):"), "sp_persona", (0, 3600, 30)),
                 (_("Se&gundos en pantalla:"), "sp_segundos", (3, 60, 8))):
             rotulo = fila_label(panel, rotulo_texto)
@@ -182,6 +211,9 @@ class DialogoComando(wx.Dialog):
         self.cho_destino.SetSelection(comandos.DESTINOS.index(comando.destino))
         self.cho_permiso.SetSelection(comandos.PERMISOS.index(comando.permiso))
         self.txt_nombres.SetValue(", ".join(comando.nombres))
+        self.cho_ubicacion.SetSelection(
+            comandos.UBICACIONES.index(comando.ubicacion))
+        self.cho_atajo.SetSelection(comando.atajo)
         self.sp_espera.SetValue(int(comando.espera_general))
         self.sp_persona.SetValue(int(comando.espera_persona))
         self._elegir_estilo(comando.estilo if datos else "")
@@ -205,6 +237,8 @@ class DialogoComando(wx.Dialog):
             destino=comandos.DESTINOS[self.cho_destino.GetSelection()],
             permiso=comandos.PERMISOS[self.cho_permiso.GetSelection()],
             nombres=comandos.separar_nombres(self.txt_nombres.GetValue()),
+            ubicacion=comandos.UBICACIONES[self.cho_ubicacion.GetSelection()],
+            atajo=self.cho_atajo.GetSelection(),
             espera_general=float(self.sp_espera.GetValue()),
             espera_persona=float(self.sp_persona.GetValue()),
             activo=self.chk_activo.GetValue(),
@@ -235,6 +269,11 @@ class DialogoComando(wx.Dialog):
             return self.txt_palabra
         if any(normalizar(alias) in ajenos for alias in comando.alias):
             return self.txt_alias
+        if (comando.atajo and any(otro.activo and otro.atajo == comando.atajo
+                                  for otro in self._otros)):
+            return self.cho_atajo
+        if comando.permiso == "solo_atajo" and not comando.atajo:
+            return self.cho_atajo
         respuesta = comando.respuesta or ""
         permitidas = (comandos.VARIABLES + ("lista",) if comando.lista
                       else comandos.VARIABLES)

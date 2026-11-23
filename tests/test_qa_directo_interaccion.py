@@ -81,22 +81,19 @@ class TestDatos(unittest.TestCase):
         nuevo = next(c for c in comandos if di.MARCA in c["respuesta"])
         self.assertEqual(nuevo["destino"], "ambos")
         self.assertTrue(nuevo["activo"])
-        from guyrapu.interaction import comandos
-        encontrado = comandos.buscar(
+        from guyrapu.interaction import comandos as modulo_comandos
+        encontrado = modulo_comandos.buscar(
             [comandos_guardados.a_comando(c) for c in comandos_guardados.cargar(
                 self.rutas["comandos"])],
-            comandos.leer("!prueba"))
+            modulo_comandos.leer("!prueba"))
         self.assertIsNotNone(encontrado)
         self.assertEqual(encontrado.respuesta, di.RESPUESTA_PRUEBA)
         self.assertEqual(encontrado.destino, "ambos")
         self.assertTrue(encontrado.activo)
-        disparadores = disparadores_guardados.cargar(
-            self.rutas["disparadores"])
-        disparador = next(d for d in disparadores if di.MARCA in d["nombre"])
-        self.assertEqual(disparador["cuando"], "comando")
-        self.assertIn("risa", disparador["comandos"])
-        self.assertEqual(disparador["tarjeta"], di.TARJETA_RISA)
-        self.assertTrue(disparador["activo"])
+        risa = next(c for c in comandos if c["respuesta"] == di.TARJETA_RISA)
+        self.assertEqual(risa["nombre"], "risa")
+        self.assertEqual(risa["destino"], "video")
+        self.assertTrue(risa["activo"])
         encuestas = encuestas_guardadas.cargar(self.rutas["encuestas"])
         encuesta = next(e for e in encuestas if di.MARCA in e["pregunta"])
         self.assertEqual(encuesta["pregunta"], di.PREGUNTA_ENCUESTA)
@@ -124,8 +121,8 @@ class TestDatos(unittest.TestCase):
     def test_la_restauracion_quitta_lo_que_no_existia(self):
         datos = di.Datos(self.rutas)
         datos.preparar()
-        for ruta in self.rutas.values():
-            self.assertTrue(os.path.exists(ruta))
+        for clave in ("comandos", "encuestas", "metas"):
+            self.assertTrue(os.path.exists(self.rutas[clave]))
         datos.restaurar()
         for ruta in self.rutas.values():
             with self.subTest(ruta=ruta):
@@ -188,21 +185,21 @@ class TestPasoComando(unittest.TestCase):
         self.assertEqual(len(anotar.pasos), 1)
 
 
-class TestPasoDisparador(unittest.TestCase):
+class TestPasoComandoRisa(unittest.TestCase):
 
-    def test_la_tarjeta_del_disparador_aparece(self):
+    def test_la_tarjeta_del_comando_aparece(self):
         anotar = _Anotador()
         enviados = []
         pasos = _pasos(anotar, enviar=enviados.append,
                        texto_video=lambda: di.TARJETA_RISA.lower())
-        self.assertTrue(pasos.disparador())
+        self.assertTrue(pasos.comando_risa())
         self.assertEqual(enviados, ["!risa"])
-        self.assertEqual(anotar.pasos[0][0], "disparador !risa en la tarjeta")
+        self.assertEqual(anotar.pasos[0][0], "comando risa en la tarjeta")
         self.assertTrue(anotar.pasos[0][1])
 
     def test_sin_tarjeta_anota_el_fallo(self):
         anotar = _Anotador()
-        self.assertFalse(_pasos(anotar).disparador())
+        self.assertFalse(_pasos(anotar).comando_risa())
         self.assertFalse(anotar.pasos[0][1])
         self.assertIn("en 0 s", anotar.pasos[0][2])
 
@@ -333,7 +330,7 @@ class TestTodosLosPasos(unittest.TestCase):
 
         pasos = _pasos(_Anotador())
         llamadas = []
-        for nombre in ("comando", "disparador", "encuesta", "pregunta",
+        for nombre in ("comando", "comando_risa", "encuesta", "pregunta",
                        "meta"):
             parche = mock.patch.object(
                 pasos, nombre,
@@ -342,7 +339,7 @@ class TestTodosLosPasos(unittest.TestCase):
             parche.start()
             self.addCleanup(parche.stop)
         self.assertFalse(pasos.todos())
-        self.assertEqual(llamadas, ["comando", "disparador", "encuesta",
+        self.assertEqual(llamadas, ["comando", "comando_risa", "encuesta",
                                     "pregunta", "meta"])
 
 

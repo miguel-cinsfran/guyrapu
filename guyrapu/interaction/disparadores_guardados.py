@@ -63,13 +63,10 @@ def a_disparador(datos: dict) -> Disparador:
     datos = datos if isinstance(datos, dict) else {}
     return Disparador(
         nombre=_texto(datos.get("nombre")),
-        cuando=_elegido(datos.get("cuando"), CUANDOS, "comando"),
-        comandos=_lista(datos.get("comandos"), separar_nombres),
-        palabras=_lista(datos.get("palabras"), separar_nombres),
+        cuando=_elegido(datos.get("cuando"), CUANDOS, "evento"),
         evento=_elegido(datos.get("evento"), EVENTOS_DEL_DIRECTO, ""),
         minimo=_opcional(datos.get("minimo")),
         regalo=_texto(datos.get("regalo")),
-        atajo=_numero(datos.get("atajo"), 0, int),
         medio=_texto(datos.get("medio")),
         tarjeta=_texto(datos.get("tarjeta")),
         estilo=_estilo(datos),
@@ -87,12 +84,9 @@ def desde_disparador(disparador: Disparador) -> dict:
     return {
         "nombre": disparador.nombre,
         "cuando": disparador.cuando,
-        "comandos": list(disparador.comandos),
-        "palabras": list(disparador.palabras),
         "evento": disparador.evento,
         "minimo": disparador.minimo,
         "regalo": disparador.regalo,
-        "atajo": disparador.atajo,
         "medio": disparador.medio,
         "tarjeta": disparador.tarjeta,
         "estilo": disparador.estilo,

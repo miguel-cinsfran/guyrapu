@@ -3638,11 +3638,6 @@ msgstr "Paused."
 
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
-msgid "con Ctrl+Alt+Mayús+{numero}"
-msgstr "with Ctrl+Alt+Shift+{numero}"
-
-#: guyrapu/interaction/descripcion_disparador.py
-#, python-brace-format
 msgid "el regalo {regalo}"
 msgstr "the gift {regalo}"
 
@@ -3655,18 +3650,6 @@ msgstr "when {evento} arrives"
 #, python-brace-format
 msgid "cuando llega {evento} desde {minimo}"
 msgstr "when {evento} arrives with at least {minimo}"
-
-#. Traductores: descripción del disparador. {palabras} es la lista de palabras
-#. y emojis tal como se escribió.
-#: guyrapu/interaction/descripcion_disparador.py
-#, python-brace-format
-msgid "cuando un mensaje dice {palabras}"
-msgstr "when a message says {palabras}"
-
-#: guyrapu/interaction/descripcion_disparador.py
-#, python-brace-format
-msgid "cuando alguien escribe {comandos}"
-msgstr "when someone writes {comandos}"
 
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
@@ -3771,35 +3754,6 @@ msgstr "The trigger {nombre} already exists."
 #: guyrapu/interaction/disparadores.py
 msgid "Ese tipo de disparador todavía no existe."
 msgstr "That type of trigger does not exist yet."
-
-#. Traductores: validación de disparadores del directo (error).
-#: guyrapu/interaction/disparadores.py
-msgid "El disparador de comando necesita al menos un nombre."
-msgstr "The command trigger needs at least one name."
-
-#. Traductores: validación de disparadores del directo (error). {nombre} es el
-#. comando del chat que ya usa otro disparador.
-#: guyrapu/interaction/disparadores.py
-#, python-brace-format
-msgid "El comando {nombre} ya lo usa otro disparador."
-msgstr "The command {nombre} is already used by another trigger."
-
-#. Traductores: validación de disparadores del directo (error).
-#: guyrapu/interaction/disparadores.py
-msgid "El disparador de palabras necesita al menos una palabra o emoji."
-msgstr "The word trigger needs at least one word or emoji."
-
-#. Traductores: validación de disparadores del directo (error).
-#: guyrapu/interaction/disparadores.py
-msgid "El atajo tiene que ser un número del 1 al 9."
-msgstr "The shortcut must be a number from 1 to 9."
-
-#. Traductores: validación de disparadores del directo (error). {nombre} es el
-#. disparador que ya usa ese número.
-#: guyrapu/interaction/disparadores.py
-#, python-brace-format
-msgid "Ese número ya lo usa el disparador {nombre}"
-msgstr "That number is already used by the trigger {nombre}"
 
 #. Traductores: validación de disparadores del directo (error). {evento} es el
 #. nombre del evento desconocido.
@@ -9049,10 +9003,6 @@ msgstr "Me&dia item:"
 msgid "Ninguno"
 msgstr "None"
 
-#: guyrapu/ui/comando_cuadro.py
-msgid "Espera entre &usos (segundos):"
-msgstr "Wait between &uses (seconds):"
-
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
 msgid "Espera por pers&ona (segundos):"
 msgstr "Wait per pers&on (seconds):"
@@ -10222,34 +10172,6 @@ msgid "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}."
 msgstr "You can use {usuario}, {cantidad}, {regalo}, {texto} and {contador}."
 
 #: guyrapu/ui/disparador_cuadro.py
-msgid "Comando del chat"
-msgstr "Chat command"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Evento del directo"
-msgstr "Live event"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Atajo del teclado"
-msgstr "Keyboard shortcut"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Palabra o emoji en el chat"
-msgstr "Word or emoji in chat"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Número del ata&jo, Ctrl+Alt+Mayús:"
-msgstr "Shortc&ut number, Ctrl+Alt+Shift:"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Co&mandos del chat:"
-msgstr "Chat co&mmands:"
-
-#: guyrapu/ui/disparador_cuadro.py
-msgid "Palabras o emojis del c&hat:"
-msgstr "Words or emojis in c&hat:"
-
-#: guyrapu/ui/disparador_cuadro.py
 msgid "E&vento:"
 msgstr "E&vent:"
 
@@ -10297,15 +10219,6 @@ msgstr "&General wait (seconds):"
 #: guyrapu/ui/restream_perfil.py
 msgid "Cambiar nombre"
 msgstr "Rename"
-
-#: guyrapu/ui/disparadores_en_vivo.py
-msgid "Conecta un directo para usar los disparadores"
-msgstr "Connect a live stream to use the triggers"
-
-#: guyrapu/ui/disparadores_en_vivo.py
-#, python-brace-format
-msgid "Ningún disparador usa Ctrl+Alt+Mayús+{numero}"
-msgstr "No trigger uses Ctrl+Alt+Shift+{numero}"
 
 #: guyrapu/ui/disparadores_ventana.py
 msgid "No hay disparadores. Usa Agregar para crear uno."
@@ -17268,4 +17181,72 @@ msgstr ""
 "There are no media items. Images, GIFs, videos and sounds from the Media "
 "folder, next to the application, appear here. Commands and triggers show "
 "them or play them in the video. Copy files into that folder or use Add."
+
+#. Traductores: validación de comandos del chat (error). {n} es el número del
+#. atajo y {nombre} el comando que ya lo usa.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "Ctrl+Alt+Mayús+{n} ya lo usa el comando {nombre}."
+msgstr "Ctrl+Alt+Shift+{n} is already used by command {nombre}."
+
+#. Traductores: validación de comandos del chat (error).
+#: guyrapu/interaction/comandos.py
+msgid "Elige un atajo para un comando que solo usa el atajo."
+msgstr "Choose a shortcut for a command that only uses the shortcut."
+
+#. Traductores: descripción del comando. {n} es el número del atajo.
+#: guyrapu/interaction/descripcion_comando.py guyrapu/ui/comando_cuadro.py
+#, python-brace-format
+msgid "Ctrl+Alt+Mayús+{n}"
+msgstr "Ctrl+Alt+Shift+{n}"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "solo con el atajo"
+msgstr "shortcut only"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "en cualquier parte del mensaje"
+msgstr "anywhere in the message"
+
+#: guyrapu/interaction/descripcion_comando.py
+msgid "Responde cuando la palabra aparece en cualquier parte del mensaje."
+msgstr "Responds when the word appears anywhere in the message."
+
+#: guyrapu/interaction/descripcion_comando.py
+#, python-brace-format
+msgid "Atajo: {atajo}."
+msgstr "Shortcut: {atajo}."
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Solo con el atajo"
+msgstr "Shortcut only"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Al principio del mensaje"
+msgstr "At the beginning of the message"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "En cualquier parte del mensaje"
+msgstr "Anywhere in the message"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "&Ubicación:"
+msgstr "&Location:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Ata&jo:"
+msgstr "&Shortcut:"
+
+#: guyrapu/ui/comando_cuadro.py
+msgid "Espera en&tre usos (segundos):"
+msgstr "Wait be&tween uses (seconds):"
+
+#: guyrapu/ui/comandos_en_vivo.py
+msgid "Conecta un directo para usar los atajos de los comandos"
+msgstr "Connect a live stream to use command shortcuts"
+
+#: guyrapu/ui/comandos_en_vivo.py
+#, python-brace-format
+msgid "Ningún comando usa Ctrl+Alt+Mayús+{numero}"
+msgstr "No command uses Ctrl+Alt+Shift+{numero}"
 

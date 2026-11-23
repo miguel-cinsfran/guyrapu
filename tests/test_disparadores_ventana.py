@@ -1,9 +1,6 @@
 # Copyright (C) 2026 Miguel Ángel Insfrán Caballero. Condiciones adicionales en NOTICE.
 # SPDX-License-Identifier: GPL-3.0-only
-"""Ventana de disparadores: lista, acciones, cuadro y cableado.
-
-Abre ventanas.
-"""
+"""Pruebas de la ventana de disparadores de evento, sin llamar a la app."""
 
 import tempfile
 import unittest
@@ -21,8 +18,8 @@ from tests.ventanas_prueba import app_de_prueba, destruir
 
 def _datos(nombre="aplauso", **cambios):
     datos = {
-        "nombre": nombre, "cuando": "comando", "comandos": ["aplauso"],
-        "evento": "", "minimo": None, "medio": "aplauso.gif",
+        "nombre": nombre, "cuando": "evento", "evento": "superchat",
+        "minimo": None, "medio": "aplauso.gif",
         "tarjeta": "", "estilo": "clasico", "segundos": 8,
         "permiso": "todos", "nombres": [], "espera_general": 5.0,
         "espera_persona": 30.0, "activo": True,
@@ -32,8 +29,7 @@ def _datos(nombre="aplauso", **cambios):
 
 
 def _de_evento(nombre="regalo", **cambios):
-    return _datos(nombre, cuando="evento", comandos=[],
-                  evento="superchat", minimo=5, **cambios)
+    return _datos(nombre, evento="superchat", minimo=5, **cambios)
 
 
 class BaseVentana(unittest.TestCase):
@@ -60,6 +56,7 @@ class BaseVentana(unittest.TestCase):
                 for disparador in disparadores_guardados.cargar(
                     paths.disparadores())]
 
+
 class TestContratos(BaseVentana):
 
     def test_el_panel_lee_los_disparadores_al_abrir(self):
@@ -68,7 +65,7 @@ class TestContratos(BaseVentana):
             _de_evento("regalo", tarjeta="Gracias")])
         self.assertEqual(panel.lista.GetCount(), 2)
         self.assertEqual(panel.lista.GetString(0),
-                         "aplauso, cuando alguien escribe !aplauso")
+                         "aplauso, cuando llega Super Chats y regalos")
         self.assertEqual(
             panel.lista.GetString(1),
             "regalo, cuando llega Super Chats y regalos desde 5")
@@ -136,7 +133,7 @@ class TestAcciones(BaseVentana):
         panel = self._panel([_datos("A")])
         panel.GetTopLevelParent().Show()
         wx.Yield()
-        datos = _datos("B", comandos=["b"])
+        datos = _datos("B", evento="cofre")
         with mock.patch.object(disparador_cuadro, "abrir",
                                return_value=datos), \
                 mock.patch.object(disparadores_ventana, "anunciar") as decir:
@@ -147,9 +144,9 @@ class TestAcciones(BaseVentana):
         decir.assert_called_once_with("Disparador agregado")
 
     def test_editar_guarda_y_deja_el_foco_en_el_mismo(self):
-        panel = self._panel([_datos("A"), _datos("B", comandos=["b"])])
+        panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
         panel.lista.SetSelection(1)
-        datos = _datos("B", comandos=["b"], tarjeta="Nueva")
+        datos = _datos("B", evento="cofre", tarjeta="Nueva")
         with mock.patch.object(disparador_cuadro, "abrir",
                                return_value=datos), \
                 mock.patch.object(disparadores_ventana, "anunciar") as decir:
@@ -161,7 +158,7 @@ class TestAcciones(BaseVentana):
         decir.assert_called_once_with("Disparador guardado")
 
     def test_renombrar_repite_la_validacion(self):
-        panel = self._panel([_datos("A"), _datos("B", comandos=["b"])])
+        panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
         panel.lista.SetSelection(0)
         with mock.patch.object(disparador_cuadro, "pedir_nombre",
                                side_effect=["B", "nuevo"]), \
@@ -171,7 +168,7 @@ class TestAcciones(BaseVentana):
         self.assertIn("B", decir.call_args_list[0].args[0])
 
     def test_duplicar_deja_la_copia_debajo(self):
-        panel = self._panel([_datos("A"), _datos("B", comandos=["b"])])
+        panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
         panel.lista.SetSelection(0)
         with mock.patch.object(disparadores_ventana, "anunciar") as decir:
             panel._duplicar()
@@ -179,34 +176,6 @@ class TestAcciones(BaseVentana):
                          ["A", "A (copia)", "B"])
         self.assertEqual(panel.lista.GetSelection(), 1)
         decir.assert_called_once_with("Disparador duplicado")
-
-    def test_duplicar_un_atajo_activo_deja_la_copia_en_pausa(self):
-        panel = self._panel([_datos(
-            "A", cuando="atajo", comandos=[], atajo=2)])
-        panel.lista.SetSelection(0)
-        with mock.patch.object(disparadores_ventana, "anunciar") as decir:
-            panel._duplicar()
-        copia = disparadores_guardados.cargar(paths.disparadores())[1]
-        self.assertFalse(copia["activo"])
-        self.assertEqual(copia["atajo"], 2)
-        decir.assert_called_once_with(
-            "Disparador duplicado en pausa: usa el mismo atajo")
-
-    def test_reanudar_un_atajo_con_el_numero_ocupado_no_lo_reanuda(self):
-        panel = self._panel([
-            _datos("A", cuando="atajo", comandos=[], atajo=2),
-            _datos("B", cuando="atajo", comandos=[], atajo=2,
-                   activo=False)])
-        panel.lista.SetSelection(1)
-        with mock.patch.object(
-                disparadores_ventana, "anunciar_con_sonido") as avisar:
-            panel._pausar()
-        self.assertFalse(
-            disparadores_guardados.cargar(paths.disparadores())[1]["activo"])
-        self.assertEqual(panel.lista.GetString(1),
-                         "B, con Ctrl+Alt+Mayús+2, pausado")
-        avisar.assert_called_once_with(
-            "Ese número ya lo usa el disparador A", "error")
 
     def test_pausar_cambia_el_estado_y_la_fila(self):
         panel = self._panel([_datos("A")])
@@ -217,7 +186,7 @@ class TestAcciones(BaseVentana):
             disparadores_guardados.cargar(paths.disparadores())[0]["activo"])
         self.assertEqual(
             panel.lista.GetString(0),
-            "A, cuando alguien escribe !aplauso, pausado")
+            "A, cuando llega Super Chats y regalos, pausado")
         decir.assert_called_once_with("Pausado")
 
     def test_escuchar_anuncia_la_frase(self):
@@ -227,11 +196,11 @@ class TestAcciones(BaseVentana):
         with mock.patch.object(disparadores_ventana, "anunciar") as decir:
             panel._escuchar()
         decir.assert_called_once_with(
-            "A: cuando alguien escribe !aplauso, muestra el medio "
+            "A: cuando llega Super Chats y regalos, muestra el medio "
             "aplauso.gif y la tarjeta «Gracias por el apoyo».")
 
     def test_eliminar_pide_confirmacion_con_no_predeterminado(self):
-        panel = self._panel([_datos("A"), _datos("B", comandos=["b"])])
+        panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
         panel.lista.SetSelection(0)
         with mock.patch.object(disparadores_ventana.confirmar, "preguntar",
                                return_value=True) as preguntar, \
@@ -243,7 +212,7 @@ class TestAcciones(BaseVentana):
         decir.assert_called_once_with("Disparador eliminado")
 
     def test_eliminar_el_ultimo_deja_el_foco_en_el_anterior(self):
-        panel = self._panel([_datos("A"), _datos("B", comandos=["b"])])
+        panel = self._panel([_datos("A"), _datos("B", evento="cofre")])
         panel.lista.SetSelection(1)
         with mock.patch.object(disparadores_ventana.confirmar, "preguntar",
                                return_value=True), \

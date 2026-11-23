@@ -224,5 +224,21 @@ class TestFiltroDelPublico(unittest.TestCase):
         self.assertEqual(respuesta.texto, "Hola tonto Ana")
 
 
+class TestListaConUbicacionYAtajo(unittest.TestCase):
+
+    def _respuesta(self, *comandos):
+        return atencion.Atencion([*comandos, _lista()]).atender(
+            _evento("!comandos"), 0)
+
+    def test_los_de_cualquiera_se_nombran_sin_el_signo(self):
+        respuesta = self._respuesta(
+            _comando("risa", "R", ubicacion="cualquiera"))
+        self.assertEqual(respuesta.texto, "Comandos: risa.")
+
+    def test_los_de_solo_con_el_atajo_no_se_nombran(self):
+        self.assertIsNone(self._respuesta(
+            _comando("risa", "R", permiso="solo_atajo", atajo=3)))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -90,5 +90,31 @@ class TestEscuchar(unittest.TestCase):
         self.assertIn("Muestra el medio fuegos.", texto)
 
 
+class TestUbicacionYAtajo(unittest.TestCase):
+
+    def test_la_fila_nombra_la_ubicacion_y_el_atajo(self):
+        comando = comandos.Comando(
+            "risa", (), "Risas", ubicacion="cualquiera", atajo=3)
+        self.assertEqual(descripcion_comando.fila(comando),
+                         "risa, en cualquier parte del mensaje, en el vídeo, "
+                         "todos, Ctrl+Alt+Mayús+3")
+
+    def test_la_fila_de_solo_con_el_atajo_lo_dice(self):
+        comando = comandos.Comando(
+            "risa", (), "Risas", permiso="solo_atajo", atajo=3)
+        self.assertEqual(descripcion_comando.fila(comando),
+                         "!risa, en el vídeo, solo con el atajo, "
+                         "Ctrl+Alt+Mayús+3")
+
+    def test_escuchar_dice_la_ubicacion_y_el_atajo(self):
+        comando = comandos.Comando(
+            "risa", ("jaja",), "Risas", ubicacion="cualquiera", atajo=3)
+        texto = descripcion_comando.escuchar(comando, "Clásico")
+        self.assertIn("Comando risa, con los alias jaja.", texto)
+        self.assertIn("Responde cuando la palabra aparece en cualquier "
+                      "parte del mensaje.", texto)
+        self.assertIn("Atajo: Ctrl+Alt+Mayús+3.", texto)
+
+
 if __name__ == "__main__":
     unittest.main()

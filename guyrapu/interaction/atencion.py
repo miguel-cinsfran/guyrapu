@@ -55,15 +55,27 @@ class Atencion:
         self._palabras_bloqueadas = list(palabras)
 
     def atender(self, evento, ahora, *, chat_disponible=False,
-                cuota_baja=False):
-        """La respuesta que merece el mensaje, o None."""
+                cuota_baja=False, atajo=0):
+        """La respuesta que merece el mensaje o el atajo, o None."""
         if evento.tipo != TIPO_TEXTO or self._es_eco(evento, ahora):
             return None
-        invocacion = comandos.leer(evento.texto)
-        if invocacion is None:
-            return None
-        comando = comandos.buscar(self._comandos, invocacion)
-        if comando is None or not comandos.puede_usarlo(comando, evento):
+        if atajo:
+            comando = next((c for c in self._comandos
+                            if c.activo and c.atajo == atajo), None)
+            invocacion = (comandos.Invocacion(comando.nombre, "")
+                          if comando is not None else None)
+        else:
+            invocacion = comandos.leer(evento.texto)
+            if invocacion is not None:
+                comando = comandos.buscar(self._comandos, invocacion)
+            else:
+                comando = comandos.buscar_en_mensaje(
+                    self._comandos, evento.texto)
+                invocacion = (comandos.Invocacion(comando.nombre, "")
+                              if comando is not None else None)
+            if comando is not None and not comandos.puede_usarlo(comando, evento):
+                comando = None
+        if comando is None or invocacion is None:
             return None
         if comando.lista and not self._lista_de():
             return None
@@ -75,9 +87,11 @@ class Atencion:
 
     def _lista_de(self):
         """Los nombres de los comandos activos que pidieron aparecer."""
-        return ", ".join("!" + comando.nombre for comando in self._comandos
-                         if comando.activo and comando.en_lista
-                         and not comando.lista)
+        return ", ".join(
+            ("" if comando.ubicacion == "cualquiera" else "!")
+            + comando.nombre for comando in self._comandos
+            if comando.activo and comando.en_lista and not comando.lista
+            and comando.permiso != "solo_atajo")
 
     def _respuesta(self, comando, invocacion, evento, ahora,
                    chat_disponible, cuota_baja):

@@ -12,7 +12,7 @@ from unittest import mock
 
 import wx
 
-from guyrapu.ui import botonera_atajos, disparadores_en_vivo
+from guyrapu.ui import botonera_atajos, comandos_en_vivo
 from guyrapu.ui.atajos_captura import atajo_legible
 
 MODS = wx.MOD_CONTROL | wx.MOD_ALT | wx.MOD_SHIFT
@@ -62,7 +62,7 @@ class TestBotoneraAtajos(unittest.TestCase):
 
     def test_cada_combinacion_dispara_su_numero(self):
         _atajos, ventana = self._atajos()
-        with mock.patch.object(disparadores_en_vivo, "disparar") as disparar:
+        with mock.patch.object(comandos_en_vivo, "disparar") as disparar:
             for manejador in ventana.manejadores.values():
                 with mock.patch.object(botonera_atajos.wx, "CallAfter",
                                        side_effect=lambda f: f()):

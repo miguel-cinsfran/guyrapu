@@ -12,15 +12,19 @@ lectura del chat.
 
 from __future__ import annotations
 
+import time
+
 from guyrapu.capture.estado_espectadores import _fmt_num
-from guyrapu.core import diagnostico, paths
+from guyrapu.core import diagnostico, paths, plataformas
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
+from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
 from guyrapu.interaction import (
-    atencion, comandos, comandos_guardados, ensayo, filtro_publico,
-    medio_en_video)
+    atencion, comandos_guardados, conversion_disparadores, ensayo,
+    filtro_publico, medio_en_video)
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
+from guyrapu.ui.accesibilidad import anunciar_con_sonido
 from guyrapu.youtube import cuota
 
 # Con más de 8000 unidades usadas quedan menos de 2000 de las 10 000.
@@ -51,16 +55,27 @@ def enviar_respuesta(frame, texto) -> bool:
     return _en_vivo(frame).enviar_respuesta(texto)
 
 
+def disparar(frame, numero, ahora=None) -> None:
+    """Usa el comando de ese número con la instancia de la ventana."""
+    _en_vivo(frame).disparar(numero, ahora)
+
+
 def _evento(registro):
     return desde_entrante(
         registro.autor, registro.texto, registro.tipo, registro.monto,
         registro.identificador, registro.rol, registro.plataforma)
 
 
+def _evento_del_dueno():
+    return desde_entrante(
+        "", "", TIPO_TEXTO, "", "", ROL_PROPIETARIO, plataformas.YOUTUBE)
+
+
 class ComandosEnVivo:
     """Los comandos de una sesión, con sus respuestas y su freno de cuota."""
 
     def __init__(self, frame):
+        conversion_disparadores.convertir_en_disco()
         self._frame = frame
         self._atencion = atencion.Atencion()
         self._cargado = False
@@ -83,21 +98,43 @@ class ComandosEnVivo:
         if encuesta_en_vivo.votar(self._frame, _evento(registro), ahora):
             return
         if (self._pausados
-                or preguntas_en_vivo.recibir(self._frame, _evento(registro), ahora)
-                or comandos.leer(registro.texto) is None):
+                or preguntas_en_vivo.recibir(self._frame, _evento(registro), ahora)):
             return
         self._recargar()
         respuesta = self._atencion.atender(
             _evento(registro), ahora,
             chat_disponible=self._chat_disponible(),
             cuota_baja=_cuota_baja())
-        if respuesta is None:
+        if respuesta is not None:
+            self._mandar(respuesta, registro.autor)
+
+    def disparar(self, numero, ahora=None) -> None:
+        """Usa el comando de ese número como si lo pidiera el dueño."""
+        if not ensayo.en_vivo_o_ensayo(self._frame):
+            anunciar_con_sonido(
+                _("Conecta un directo para usar los atajos de los comandos"),
+                "error")
             return
+        self._recargar()
+        if ahora is None:
+            ahora = time.monotonic()
+        respuesta = self._atencion.atender(
+            _evento_del_dueno(), ahora, atajo=numero,
+            chat_disponible=self._chat_disponible(),
+            cuota_baja=_cuota_baja())
+        if respuesta is None:
+            anunciar_con_sonido(
+                _("Ningún comando usa Ctrl+Alt+Mayús+{numero}").format(
+                    numero=numero), "error")
+            return
+        self._mandar(respuesta, "")
+
+    def _mandar(self, respuesta, autor) -> None:
         self._respondidos += 1
         palabra = respuesta.nombre
         if not palabra.startswith("!"):
             palabra = "!" + palabra
-        self._ultimo = (palabra, registro.autor)
+        self._ultimo = (palabra, autor)
         self._poner_en_video(respuesta)
         if respuesta.al_chat and respuesta.texto.strip():
             gui_envio_chat.enviar_respuesta_chat(self._frame, respuesta.texto)

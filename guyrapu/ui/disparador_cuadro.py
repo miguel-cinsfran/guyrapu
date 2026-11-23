@@ -28,11 +28,6 @@ AYUDA_TARJETA = N_(
     "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.")
 
 
-def _cuandos():
-    return [_("Comando del chat"), _("Evento del directo"),
-            _("Atajo del teclado"), _("Palabra o emoji en el chat")]
-
-
 def _eventos():
     return [_(disparadores.NOMBRES_EVENTOS[clave])
             for clave in disparadores.EVENTOS_DEL_DIRECTO]
@@ -115,20 +110,6 @@ class DialogoDisparador(wx.Dialog):
         rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = self._campo(panel, _("&Nombre:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombre)
-        rotulo = fila_label(panel, _("Ti&po:"))
-        self.cho_cuando = self._eleccion(panel, _("Ti&po:"), _cuandos())
-        formulario.agregar_fila(vs, rotulo, self.cho_cuando)
-        rotulo = fila_label(panel, _("Número del ata&jo, Ctrl+Alt+Mayús:"))
-        self.sp_atajo = self._contador(
-            panel, _("Número del ata&jo, Ctrl+Alt+Mayús:"), 1, 9, 1)
-        formulario.agregar_fila(vs, rotulo, self.sp_atajo, numerico=True)
-        rotulo = fila_label(panel, _("Co&mandos del chat:"))
-        self.txt_comandos = self._campo(panel, _("Co&mandos del chat:"))
-        formulario.agregar_fila(vs, rotulo, self.txt_comandos)
-        rotulo = fila_label(panel, _("Palabras o emojis del c&hat:"))
-        self.txt_palabras = self._campo(
-            panel, _("Palabras o emojis del c&hat:"))
-        formulario.agregar_fila(vs, rotulo, self.txt_palabras)
         rotulo = fila_label(panel, _("E&vento:"))
         self.cho_evento = self._eleccion(panel, _("E&vento:"), _eventos())
         formulario.agregar_fila(vs, rotulo, self.cho_evento)
@@ -206,11 +187,6 @@ class DialogoDisparador(wx.Dialog):
         disparador = disparadores_guardados.a_disparador(datos or {})
         self._activo = disparador.activo
         self.txt_nombre.SetValue(disparador.nombre)
-        self.cho_cuando.SetSelection(
-            disparadores.CUANDOS.index(disparador.cuando))
-        self.sp_atajo.SetValue(disparador.atajo or 1)
-        self.txt_comandos.SetValue(", ".join(disparador.comandos))
-        self.txt_palabras.SetValue(", ".join(disparador.palabras))
         self._elegir_evento(disparador.evento)
         self.txt_minimo.SetValue(
             "" if disparador.minimo is None
@@ -261,21 +237,13 @@ class DialogoDisparador(wx.Dialog):
         return self._nombres_de_medios()[indice - 1]
 
     def _disparador_de_campos(self):
-        cuando = disparadores.CUANDOS[self.cho_cuando.GetSelection()]
-        evento = (disparadores.EVENTOS_DEL_DIRECTO[
+        evento = disparadores.EVENTOS_DEL_DIRECTO[
             self.cho_evento.GetSelection()]
-            if cuando == "evento" else "")
         return disparadores.Disparador(
             nombre=self.txt_nombre.GetValue(),
-            cuando=cuando,
-            comandos=(comandos.separar_alias(self.txt_comandos.GetValue())
-                      if cuando == "comando" else ()),
-            palabras=(comandos.separar_nombres(
-                self.txt_palabras.GetValue()) if cuando == "palabra" else ()),
+            cuando="evento",
             evento=evento,
-            atajo=self.sp_atajo.GetValue(),
-            minimo=(self._minimo_de_campo()
-                    if cuando == "evento" else None),
+            minimo=self._minimo_de_campo(),
             regalo=(self.txt_regalo.GetValue().strip()
                     if evento == "superchat" else ""),
             medio=self._medio_elegido(),
@@ -302,9 +270,6 @@ class DialogoDisparador(wx.Dialog):
     def _campo_del_error(self, disparador):
         campos = {
             "nombre": self.txt_nombre,
-            "atajo": self.sp_atajo,
-            "comandos": self.txt_comandos,
-            "palabras": self.txt_palabras,
             "evento": self.cho_evento,
             "minimo": self.txt_minimo,
             "tarjeta": self.txt_tarjeta,

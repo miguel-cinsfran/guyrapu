@@ -17,7 +17,8 @@ from guyrapu.interaction.evento import EventoDirecto, persona
 from guyrapu.interaction.texto import normalizar
 
 DESTINOS = ("video", "chat", "ambos")
-PERMISOS = ("todos", "moderadores", "lista")
+PERMISOS = ("todos", "moderadores", "lista", "solo_atajo")
+UBICACIONES = ("principio", "cualquiera")
 VARIABLES = ("usuario", "contador", "texto")
 MAXIMO_CHAT = 200
 
@@ -70,6 +71,8 @@ class Comando:
     segundos: int = 8
     lista: bool = False
     en_lista: bool = True
+    ubicacion: str = "principio"
+    atajo: int = 0
 
     def __post_init__(self):
         object.__setattr__(self, "nombre", _sin_signo(self.nombre))
@@ -77,6 +80,10 @@ class Comando:
                            tuple(_sin_signo(alias) for alias in self.alias))
         object.__setattr__(self, "segundos",
                            max(3, min(60, int(self.segundos))))
+        object.__setattr__(self, "ubicacion",
+                           self.ubicacion if self.ubicacion in UBICACIONES
+                           else "principio")
+        object.__setattr__(self, "atajo", max(0, min(9, int(self.atajo))))
 
 
 def comando_de_lista(codigo: str | None = None) -> Comando:
@@ -120,12 +127,42 @@ def buscar(comandos, invocacion: Invocacion | None) -> Comando | None:
     if invocacion is None:
         return None
     for comando in comandos:
-        if not comando.activo:
+        if not comando.activo or comando.ubicacion != "principio":
             continue
         if normalizar(comando.nombre) == invocacion.nombre:
             return comando
         if any(normalizar(alias) == invocacion.nombre
                for alias in comando.alias):
+            return comando
+    return None
+
+
+def _palabra_en(mensaje: str, palabra: str) -> bool:
+    if not palabra:
+        return False
+    if not (palabra[0].isalnum() and palabra[-1].isalnum()):
+        return palabra in mensaje
+    inicio = 0
+    while (pos := mensaje.find(palabra, inicio)) >= 0:
+        antes = mensaje[pos - 1] if pos else ""
+        fin = pos + len(palabra)
+        despues = mensaje[fin:fin + 1]
+        if not antes.isalnum() and not despues.isalnum():
+            return True
+        inicio = pos + 1
+    return False
+
+
+def buscar_en_mensaje(comandos, mensaje: str) -> Comando | None:
+    """El primer comando de cualquier parte cuyo nombre o alias aparece."""
+    if not mensaje or leer(mensaje) is not None:
+        return None
+    texto = normalizar(mensaje)
+    for comando in comandos:
+        if not comando.activo or comando.ubicacion != "cualquiera":
+            continue
+        if any(_palabra_en(texto, normalizar(nombre))
+               for nombre in _nombres_de(comando)):
             return comando
     return None
 
@@ -136,6 +173,8 @@ def _es_del_equipo(evento: EventoDirecto) -> bool:
 
 def puede_usarlo(comando: Comando, evento: EventoDirecto) -> bool:
     """Si esa persona puede usar el comando según su permiso."""
+    if comando.permiso == "solo_atajo":
+        return False
     if _es_del_equipo(evento):
         return True
     if comando.permiso == "todos":
@@ -190,9 +229,28 @@ def _error_de_nombre(comando: Comando) -> str:
     if any(_solo_cifras(nombre) for nombre in _nombres_de(comando)):
         # Traductores: validación de comandos del chat (error). Las cifras son las de votar encuestas.
         return _("Un comando no puede llamarse solo con números.")
-    if any(len(nombre.split()) > 1 for nombre in _nombres_de(comando)):
+    if (comando.ubicacion != "cualquiera"
+            and any(len(nombre.split()) > 1 for nombre in _nombres_de(comando))):
         # Traductores: validación de comandos del chat (error).
         return _("El nombre de un comando no puede tener espacios.")
+    return ""
+
+
+def _error_de_atajo(comando: Comando, otros) -> str:
+    if not comando.atajo:
+        return ""
+    for otro in otros:
+        if otro.activo and otro.atajo == comando.atajo:
+            # Traductores: validación de comandos del chat (error). {n} es el número del atajo y {nombre} el comando que ya lo usa.
+            return _("Ctrl+Alt+Mayús+{n} ya lo usa el comando {nombre}.").format(
+                n=comando.atajo, nombre=otro.nombre)
+    return ""
+
+
+def _error_de_permiso(comando: Comando) -> str:
+    if comando.permiso == "solo_atajo" and not comando.atajo:
+        # Traductores: validación de comandos del chat (error).
+        return _("Elige un atajo para un comando que solo usa el atajo.")
     return ""
 
 
@@ -253,6 +311,8 @@ def validar(comando: Comando, otros) -> str:
     """Un texto de error, o "" si el comando se puede guardar."""
     return (_error_de_nombre(comando)
             or _error_de_repetido(comando, otros)
+            or _error_de_atajo(comando, otros)
+            or _error_de_permiso(comando)
             or _error_de_respuesta(comando)
             or _error_de_variables(comando)
             or _error_de_longitud(comando)

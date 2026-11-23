@@ -12,19 +12,13 @@ lectura del chat.
 
 from __future__ import annotations
 
-import time
-
-from guyrapu.core import diagnostico, paths, plataformas
-from guyrapu.core.config import TIPO_TEXTO
-from guyrapu.core.idioma import _
-from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
+from guyrapu.core import diagnostico, paths
 from guyrapu.interaction import (
-    comandos, disparadores, disparadores_guardados, ensayo, filtro_publico,
-    medio_en_video)
+    comandos, conversion_disparadores, disparadores, disparadores_guardados,
+    ensayo, filtro_publico, medio_en_video)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
-from guyrapu.ui.accesibilidad import anunciar_con_sonido
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -42,27 +36,17 @@ def atender(frame, registro, ahora) -> None:
     _en_vivo(frame).atender(registro, ahora)
 
 
-def disparar(frame, numero, ahora=None) -> None:
-    """Dispara los disparadores de ese número con la instancia de la ventana."""
-    _en_vivo(frame).disparar(numero, ahora)
-
-
 def _evento(registro):
     return desde_entrante(
         registro.autor, registro.texto, registro.tipo, registro.monto,
         registro.identificador, registro.rol, registro.plataforma)
 
 
-def _evento_del_dueno():
-    return desde_entrante(
-        "", "", TIPO_TEXTO, "", "", ROL_PROPIETARIO,
-        plataformas.YOUTUBE)
-
-
 class DisparadoresEnVivo:
     """Los disparadores de una sesión y su tarjeta en el vídeo."""
 
     def __init__(self, frame):
+        conversion_disparadores.convertir_en_disco()
         self._frame = frame
         self._disparadores = []
         self._palabras_bloqueadas = []
@@ -80,28 +64,6 @@ class DisparadoresEnVivo:
         evento = _evento(registro)
         for disparador in disparadores.cumplidos(
                 self._disparadores, evento, self._esperas, ahora):
-            self._poner(disparador, evento)
-
-    def disparar(self, numero, ahora=None) -> None:
-        """Dispara los activos de ese número como si los pidiera el dueño."""
-        if not self._frame._conectado:
-            anunciar_con_sonido(
-                _("Conecta un directo para usar los disparadores"), "error")
-            return
-        self._recargar()
-        elegidos = disparadores.por_atajo(self._disparadores, numero)
-        if not elegidos:
-            anunciar_con_sonido(
-                _("Ningún disparador usa Ctrl+Alt+Mayús+{numero}").format(
-                    numero=numero), "error")
-            return
-        if ahora is None:
-            ahora = time.monotonic()
-        evento = _evento_del_dueno()
-        for disparador in elegidos:
-            if not self._esperas.libre(disparador, evento, ahora):
-                continue
-            self._esperas.anotar(disparador, evento, ahora)
             self._poner(disparador, evento)
 
     def _poner(self, disparador, evento) -> None:

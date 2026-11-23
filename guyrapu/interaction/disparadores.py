@@ -13,11 +13,10 @@ from dataclasses import dataclass
 
 from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core.idioma import N_, _
-from guyrapu.core.tipos_mensaje import TIPO_TEXTO
 from guyrapu.interaction import comandos, filtro_publico
 from guyrapu.interaction.texto import normalizar
 
-CUANDOS = ("comando", "evento", "atajo", "palabra")
+CUANDOS = ("evento",)
 VARIABLES = ("usuario", "cantidad", "regalo", "texto", "contador")
 EVENTOS_DEL_DIRECTO = tuple(tipo for tipo, _modo in avisos_tiktok.EVENTOS
                             if tipo != "comando")
@@ -39,21 +38,12 @@ _DECIMAL_RE = re.compile(r"[.,]\d{2}$")
 _RACHA_RE = re.compile(r"\s+x\d+$")
 
 
-def _sin_signo(texto: str) -> str:
-    limpio = (texto or "").strip()
-    if limpio.startswith("!"):
-        limpio = limpio[1:].strip()
-    return limpio
-
-
 @dataclass(frozen=True, slots=True)
 class Disparador:
-    """Un disparador con su cuándo, su qué y sus reglas."""
+    """Un disparador de evento del directo con su qué y sus reglas."""
 
     nombre: str
-    cuando: str = "comando"
-    comandos: tuple[str, ...] = ()
-    palabras: tuple[str, ...] = ()
+    cuando: str = "evento"
     evento: str = ""
     minimo: float | None = None
     regalo: str = ""
@@ -66,16 +56,10 @@ class Disparador:
     espera_general: float = 5
     espera_persona: float = 30
     activo: bool = True
-    atajo: int = 0
 
     def __post_init__(self):
-        object.__setattr__(self, "comandos",
-                           tuple(_sin_signo(nombre)
-                                 for nombre in self.comandos))
         object.__setattr__(self, "segundos",
                            max(3, min(60, int(self.segundos))))
-        object.__setattr__(self, "atajo",
-                           max(0, min(9, int(self.atajo))))
 
 
 def cantidad_de(monto) -> float:
@@ -88,14 +72,6 @@ def cantidad_de(monto) -> float:
         entero = re.sub(r"[.,]", "", numero[:-3]) or "0"
         return float(entero + "." + numero[-2:])
     return float(re.sub(r"[.,]", "", numero))
-
-
-def _cumple_comando(disparador: Disparador, evento) -> bool:
-    invocacion = comandos.leer(evento.texto)
-    if invocacion is None:
-        return False
-    return any(normalizar(nombre) == invocacion.nombre
-               for nombre in disparador.comandos)
 
 
 def _es_el_regalo(disparador: Disparador, evento) -> bool:
@@ -116,45 +92,8 @@ def _cumple_evento(disparador: Disparador, evento) -> bool:
     return cantidad_de(evento.monto) >= disparador.minimo
 
 
-def _palabra_en(mensaje: str, palabra: str) -> bool:
-    if not palabra:
-        return False
-    if not (palabra[0].isalnum() and palabra[-1].isalnum()):
-        return palabra in mensaje
-    inicio = 0
-    while (pos := mensaje.find(palabra, inicio)) >= 0:
-        antes = mensaje[pos - 1] if pos else ""
-        fin = pos + len(palabra)
-        despues = mensaje[fin:fin + 1]
-        if not antes.isalnum() and not despues.isalnum():
-            return True
-        inicio = pos + 1
-    return False
-
-
-def _cumple_palabra(disparador: Disparador, evento) -> bool:
-    if evento.tipo != TIPO_TEXTO or comandos.leer(evento.texto) is not None:
-        return False
-    mensaje = normalizar(evento.texto)
-    return any(_palabra_en(mensaje, normalizar(palabra))
-               for palabra in disparador.palabras)
-
-
 def _cumple(disparador: Disparador, evento) -> bool:
-    if disparador.cuando == "comando":
-        return _cumple_comando(disparador, evento)
-    if disparador.cuando == "evento":
-        return _cumple_evento(disparador, evento)
-    if disparador.cuando == "palabra":
-        return _cumple_palabra(disparador, evento)
-    return False
-
-
-def por_atajo(disparadores, numero) -> list[Disparador]:
-    """Los disparadores activos de ese número, en el orden de la lista."""
-    return [disparador for disparador in disparadores
-            if disparador.activo and disparador.cuando == "atajo"
-            and disparador.atajo == numero]
+    return disparador.cuando == "evento" and _cumple_evento(disparador, evento)
 
 
 def cumplidos(disparadores, evento, esperas, ahora) -> list[Disparador]:
@@ -177,15 +116,6 @@ def cumplidos(disparadores, evento, esperas, ahora) -> list[Disparador]:
     return logrados
 
 
-def _texto_publico(disparador: Disparador, evento) -> str:
-    if disparador.cuando == "comando":
-        invocacion = comandos.leer(evento.texto)
-        return invocacion.argumentos if invocacion is not None else ""
-    if disparador.cuando in ("evento", "palabra"):
-        return evento.texto or ""
-    return ""
-
-
 def _nombre_del_regalo(disparador: Disparador, evento) -> str:
     if (disparador.cuando == "evento" and disparador.evento == "superchat"
             and evento.plataforma == plataformas.TIKTOK):
@@ -196,7 +126,7 @@ def _nombre_del_regalo(disparador: Disparador, evento) -> str:
 def texto_de_tarjeta(disparador: Disparador, evento, contador,
                      bloqueadas) -> str:
     """El texto de la tarjeta con sus variables ya llenas."""
-    publico = _texto_publico(disparador, evento)
+    publico = evento.texto or ""
     if filtro_publico.es_casi_todo_simbolos(publico):
         publico = ""
     publico = filtro_publico.tapar(publico, bloqueadas)[:100]
@@ -225,51 +155,6 @@ def _error_de_cuando(disparador: Disparador, _otros) -> tuple[str, str]:
     if disparador.cuando not in CUANDOS:
         # Traductores: validación de disparadores del directo (error).
         return "nombre", _("Ese tipo de disparador todavía no existe.")
-    return "", ""
-
-
-def _error_de_comando(disparador: Disparador, otros) -> tuple[str, str]:
-    if disparador.cuando != "comando":
-        return "", ""
-    propios = {normalizar(nombre) for nombre in disparador.comandos}
-    propios.discard("")
-    if not propios:
-        # Traductores: validación de disparadores del directo (error).
-        return "comandos", _("El disparador de comando necesita al menos un nombre.")
-    for otro in otros:
-        repetidos = propios & {normalizar(nombre)
-                               for nombre in otro.comandos}
-        if repetidos:
-            # Traductores: validación de disparadores del directo (error). {nombre} es el comando del chat que ya usa otro disparador.
-            return "comandos", _("El comando {nombre} ya lo usa otro disparador.").format(
-                nombre=sorted(repetidos)[0])
-    return "", ""
-
-
-def _error_de_palabra(disparador: Disparador, _otros) -> tuple[str, str]:
-    if disparador.cuando != "palabra":
-        return "", ""
-    if not any((palabra or "").strip() for palabra in disparador.palabras):
-        # Traductores: validación de disparadores del directo (error).
-        return "palabras", _("El disparador de palabras necesita al menos "
-                             "una palabra o emoji.")
-    return "", ""
-
-
-def _error_de_atajo(disparador: Disparador, otros) -> tuple[str, str]:
-    if disparador.cuando != "atajo":
-        return "", ""
-    if not 1 <= disparador.atajo <= 9:
-        # Traductores: validación de disparadores del directo (error).
-        return "atajo", _("El atajo tiene que ser un número del 1 al 9.")
-    if not disparador.activo:
-        return "", ""
-    for otro in otros:
-        if (otro.activo and otro.cuando == "atajo"
-                and otro.atajo == disparador.atajo):
-            # Traductores: validación de disparadores del directo (error). {nombre} es el disparador que ya usa ese número.
-            return "atajo", _("Ese número ya lo usa el disparador {nombre}").format(
-                nombre=otro.nombre)
     return "", ""
 
 
@@ -317,8 +202,7 @@ def _error_de_variables(disparador: Disparador, _otros) -> tuple[str, str]:
 
 def error_y_campo(disparador: Disparador, otros) -> tuple[str, str]:
     """El campo y el mensaje del primer error, o ("", "") si no hay ninguno."""
-    comprobaciones = (_error_de_nombre, _error_de_cuando, _error_de_comando,
-                      _error_de_palabra, _error_de_atajo, _error_de_evento,
+    comprobaciones = (_error_de_nombre, _error_de_cuando, _error_de_evento,
                       _error_de_que, _error_de_variables)
     for comprobar in comprobaciones:
         campo, mensaje = comprobar(disparador, otros)

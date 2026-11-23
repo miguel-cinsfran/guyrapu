@@ -3,9 +3,9 @@
 """Los pasos de interacción del directo real.
 
 Prepara y restaura las cuatro colecciones de datos de la app y comprueba al
-aire el comando, el disparador, la encuesta, las preguntas y la meta. Todo lo
-que toca la app o el escritorio recibe adaptadores: acá solo se decide qué se
-envía, qué se lee y qué se anota.
+aire los comandos, la encuesta, las preguntas y la meta. Todo lo que toca la
+app o el escritorio recibe adaptadores: acá solo se decide qué se envía, qué
+se lee y qué se anota.
 """
 
 from __future__ import annotations
@@ -16,8 +16,8 @@ import sys
 import time
 from pathlib import Path
 
-from guyrapu.interaction import (comandos_guardados, disparadores_guardados,
-                                 encuestas_guardadas, metas_guardadas)
+from guyrapu.interaction import (comandos_guardados, encuestas_guardadas,
+                                  metas_guardadas)
 
 _RUTA_QA = str(Path(__file__).resolve().parent)
 if _RUTA_QA not in sys.path:
@@ -66,9 +66,9 @@ def esperar_texto(leer, fragmento, segundos=30) -> tuple[bool, str]:
         time.sleep(1)
 
 
-def _poner(guardados, ruta, campo, datos, convertir=None):
+def _poner(guardados, ruta, campo, datos, convertir=None, marca=MARCA):
     actuales = [d for d in guardados.cargar(ruta)
-                if MARCA not in str(d.get(campo, ""))]
+                if marca not in str(d.get(campo, ""))]
     actuales.append((convertir or guardados.normalizar)(datos))
     guardados.guardar(ruta, actuales)
 
@@ -95,9 +95,9 @@ class Datos:
         _poner(comandos_guardados, self._rutas["comandos"], "respuesta", {
             "nombre": "prueba", "respuesta": RESPUESTA_PRUEBA,
             "destino": "ambos"})
-        _poner(disparadores_guardados, self._rutas["disparadores"], "nombre", {
-            "nombre": "risa " + MARCA, "cuando": "comando",
-            "comandos": ["!risa"], "tarjeta": TARJETA_RISA})
+        _poner(comandos_guardados, self._rutas["comandos"], "respuesta", {
+            "nombre": "risa", "respuesta": TARJETA_RISA,
+            "destino": "video"}, marca=TARJETA_RISA)
         _poner(encuestas_guardadas, self._rutas["encuestas"], "pregunta", {
             "pregunta": PREGUNTA_ENCUESTA,
             "opciones": [OPCION_UNO, OPCION_DOS], "destino": "chat"})
@@ -170,10 +170,10 @@ class Pasos:
         return self._comprobar("comando !prueba en la tarjeta",
                                RESPUESTA_PRUEBA, self.texto_video)
 
-    def disparador(self) -> bool:
+    def comando_risa(self) -> bool:
         if not self._enviar("!risa"):
             return False
-        return self._comprobar("disparador !risa en la tarjeta",
+        return self._comprobar("comando risa en la tarjeta",
                                TARJETA_RISA, self.texto_video)
 
     def encuesta(self) -> bool:
@@ -238,7 +238,7 @@ class Pasos:
                                NOMBRE_META, self.texto_video)
 
     def todos(self) -> bool:
-        bienes = [paso() for paso in (self.comando, self.disparador,
+        bienes = [paso() for paso in (self.comando, self.comando_risa,
                                       self.encuesta, self.pregunta, self.meta)]
         return all(bienes)
 
@@ -333,7 +333,7 @@ class Interaccion:
             for nombre in ARCHIVOS_SONDA:
                 open(self._ruta(nombre), "w").close()
             self._anotar("datos de interacción preparados", True,
-                         "comando, disparador, encuesta y meta de prueba agregados")
+                         "dos comandos, encuesta y meta de prueba agregados")
         except Exception:
             self.restaurar()
             raise

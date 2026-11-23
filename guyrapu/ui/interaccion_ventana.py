@@ -12,6 +12,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
+from guyrapu.interaction import conversion_disparadores
 from guyrapu.ui import paleta, tecla_escape
 from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.comandos_ventana import PanelComandos
@@ -47,6 +48,7 @@ class VentanaInteraccion(wx.Dialog):
     """Las páginas de interacción con una lista para elegirlas."""
 
     def __init__(self, padre, pagina=None):
+        conversion_disparadores.convertir_en_disco()
         super().__init__(
             padre, title=_("Interacción"), name=_("Interacción"),
             size=(760, 640),

@@ -11,9 +11,8 @@ from guyrapu.interaction import disparadores, disparadores_guardados, paquetes
 
 def _datos(**cambios):
     datos = {
-        "nombre": "aplauso", "cuando": "comando", "comandos": ["aplauso"],
-        "palabras": [], "evento": "", "minimo": None, "regalo": "",
-        "atajo": 0, "medio": "fuegos", "tarjeta": "",
+        "nombre": "aplauso", "cuando": "evento", "evento": "superchat",
+        "minimo": None, "regalo": "", "medio": "fuegos", "tarjeta": "",
         "estilo": "clasico", "segundos": 8, "permiso": "todos",
         "nombres": [], "espera_general": 5.0, "espera_persona": 30.0,
         "activo": True,
@@ -29,13 +28,12 @@ class TestConversion(unittest.TestCase):
         disparador = disparadores_guardados.a_disparador(datos)
         self.assertIsInstance(disparador, disparadores.Disparador)
         self.assertEqual(disparador.nombre, "aplauso")
-        self.assertEqual(disparador.comandos, ("aplauso",))
         self.assertEqual(disparadores_guardados.desde_disparador(disparador),
                          datos)
 
     def test_un_disparador_de_evento_con_su_minimo(self):
-        datos = _datos(nombre="regalo", cuando="evento", comandos=[],
-                       evento="superchat", minimo=5, medio="")
+        datos = _datos(nombre="regalo", evento="superchat", minimo=5,
+                       medio="")
         datos["tarjeta"] = "Gracias {usuario}"
         disparador = disparadores_guardados.a_disparador(datos)
         self.assertEqual(disparador.evento, "superchat")
@@ -45,11 +43,9 @@ class TestConversion(unittest.TestCase):
 
     def test_un_disparador_sin_datos_nace_con_los_valores_de_fabrica(self):
         disparador = disparadores_guardados.a_disparador({})
-        self.assertEqual(disparador.cuando, "comando")
-        self.assertEqual(disparador.comandos, ())
+        self.assertEqual(disparador.cuando, "evento")
         self.assertEqual(disparador.evento, "")
         self.assertIsNone(disparador.minimo)
-        self.assertEqual(disparador.atajo, 0)
         self.assertEqual(disparador.medio, "")
         self.assertEqual(disparador.permiso, "todos")
         self.assertEqual((disparador.espera_general, disparador.espera_persona),
@@ -60,16 +56,14 @@ class TestConversion(unittest.TestCase):
 
     def test_los_tipos_se_fuerzan_y_lo_raro_cae_a_su_defecto(self):
         disparador = disparadores_guardados.a_disparador({
-            "nombre": "aplauso", "cuando": "tecla", "comandos": "uno, dos",
-            "evento": "comando", "minimo": "mucho", "permiso": "otro",
-            "nombres": "Ana, Beto", "espera_general": "7",
-            "espera_persona": "no", "activo": "true", "segundos": "90",
+            "nombre": "aplauso", "cuando": "tecla", "evento": "comando",
+            "minimo": "mucho", "permiso": "otro", "nombres": "Ana, Beto",
+            "espera_general": "7", "espera_persona": "no",
+            "activo": "true", "segundos": "90",
         })
-        self.assertEqual(disparador.cuando, "comando")
-        self.assertEqual(disparador.comandos, ("uno", "dos"))
+        self.assertEqual(disparador.cuando, "evento")
         self.assertEqual(disparador.evento, "")
         self.assertIsNone(disparador.minimo)
-        self.assertEqual(disparador.atajo, 0)
         self.assertEqual(disparador.permiso, "todos")
         self.assertEqual(disparador.nombres, ("Ana", "Beto"))
         self.assertEqual(disparador.espera_general, 7)
@@ -108,8 +102,7 @@ class TestArchivo(unittest.TestCase):
         self.ruta = Path(self.tmp.name) / "disparadores.json"
 
     def test_p4_el_regalo_se_guarda_y_se_lee_del_archivo(self):
-        datos = _datos(nombre="leon", cuando="evento", comandos=[],
-                       evento="superchat", regalo="León", medio="")
+        datos = _datos(nombre="leon", regalo="León", medio="")
         disparadores_guardados.guardar(
             self.ruta, [disparadores_guardados.a_disparador(datos)])
         self.assertEqual(disparadores_guardados.cargar(self.ruta), [datos])
@@ -120,35 +113,8 @@ class TestArchivo(unittest.TestCase):
         self.assertEqual(
             disparadores_guardados.a_disparador(sin_regalo).regalo, "")
 
-    def test_p5_el_atajo_se_guarda_y_se_lee_del_archivo(self):
-        datos = _datos(nombre="botonera", cuando="atajo", comandos=[],
-                       atajo=4)
-        disparadores_guardados.guardar(
-            self.ruta, [disparadores_guardados.a_disparador(datos)])
-        self.assertEqual(disparadores_guardados.cargar(self.ruta), [datos])
-
-    def test_p5_un_archivo_sin_atajo_lo_lee_cero(self):
-        sin_atajo = _datos()
-        del sin_atajo["atajo"]
-        self.assertEqual(
-            disparadores_guardados.a_disparador(sin_atajo).atajo, 0)
-
-    def test_p5_las_palabras_se_guardan_y_se_leen_del_archivo(self):
-        datos = _datos(nombre="saludo", cuando="palabra", comandos=[],
-                       palabras=["hola", "🔥"], medio="")
-        disparadores_guardados.guardar(
-            self.ruta, [disparadores_guardados.a_disparador(datos)])
-        self.assertEqual(disparadores_guardados.cargar(self.ruta), [datos])
-
-    def test_p5_un_archivo_sin_palabras_lo_lee_vacio(self):
-        sin_palabras = _datos()
-        del sin_palabras["palabras"]
-        self.assertEqual(
-            disparadores_guardados.a_disparador(sin_palabras).palabras, ())
-
-    def test_p5_los_paquetes_llevan_el_atajo(self):
-        datos = _datos(nombre="botonera", cuando="atajo", comandos=[],
-                       atajo=7)
+    def test_los_paquetes_llevan_el_evento(self):
+        datos = _datos(nombre="regalo", evento="cofre")
         paquetes.exportar(self.ruta.with_suffix(".zip"), "disparadores",
                           [datos])
         paquete = paquetes.leer(self.ruta.with_suffix(".zip"), "disparadores")
@@ -160,7 +126,7 @@ class TestArchivo(unittest.TestCase):
 
     def test_guarda_un_disparador_de_verdad(self):
         disparador = disparadores.Disparador(
-            "regalo", cuando="evento", evento="cofre", minimo=25,
+            "regalo", evento="cofre", minimo=25,
             medio="fuegos", tarjeta="Gracias", estilo="banda", segundos=12,
             permiso="moderadores", espera_general=10, espera_persona=20,
             activo=False)

@@ -356,5 +356,94 @@ class TestValidar(unittest.TestCase):
                              nombres=("Ana",)), []))
 
 
+class TestUbicacion(unittest.TestCase):
+
+    def _comandos(self):
+        return [
+            comandos.Comando("saludo", ("hola",), "Hola"),
+            comandos.Comando("risa", ("jaja",), "Risas",
+                             ubicacion="cualquiera"),
+            comandos.Comando("otra", (), "Otra", ubicacion="cualquiera"),
+        ]
+
+    def test_el_valor_de_fabrica_es_al_principio(self):
+        self.assertEqual(comandos.Comando("hola", (), "Hola").ubicacion,
+                         "principio")
+
+    def test_la_palabra_en_cualquier_parte_ignora_tildes_y_mayusculas(self):
+        encontrado = comandos.buscar_en_mensaje(
+            self._comandos(), "qué RISA jaja")
+        self.assertEqual("risa", encontrado.nombre)
+
+    def test_el_alias_en_cualquier_parte_tambien_cuenta(self):
+        encontrado = comandos.buscar_en_mensaje(
+            self._comandos(), "eso fue un JAJA buenísimo")
+        self.assertEqual("risa", encontrado.nombre)
+
+    def test_un_comando_con_signo_no_se_cumple(self):
+        self.assertIsNone(comandos.buscar_en_mensaje(
+            self._comandos(), "!risa"))
+
+    def test_devuelve_el_primero_de_la_lista(self):
+        primero = comandos.Comando("risa", (), "Primero",
+                                   ubicacion="cualquiera")
+        segundo = comandos.Comando("risa", (), "Segundo",
+                                   ubicacion="cualquiera")
+        self.assertIs(primero, comandos.buscar_en_mensaje(
+            [primero, segundo], "qué risa"))
+
+    def test_un_comando_de_principio_no_responde_a_la_palabra_suelta(self):
+        self.assertIsNone(comandos.buscar_en_mensaje(
+            self._comandos(), "hola a todos"))
+
+    def test_los_de_cualquiera_no_responden_al_signo(self):
+        self.assertIsNone(comandos.buscar(
+            self._comandos(), comandos.leer("!risa")))
+
+    def test_en_cualquiera_puede_tener_espacios_y_emoji(self):
+        comando = comandos.Comando(
+            "🔥 broma", ("ja ja",), "Gracias", ubicacion="cualquiera")
+        self.assertEqual("", comandos.validar(comando, []))
+        self.assertIs(comando, comandos.buscar_en_mensaje(
+            [comando], "vaya 🔥 broma"))
+
+    def test_en_cualquiera_sigue_sin_cifras_ni_repetidos(self):
+        self.assertTrue(comandos.validar(
+            comandos.Comando("1", (), "Uno", ubicacion="cualquiera"), []))
+        self.assertTrue(comandos.validar(
+            comandos.Comando("risa", (), "Uno", ubicacion="cualquiera"),
+            [comandos.Comando("risa", (), "Otro")]))
+
+
+class TestAtajo(unittest.TestCase):
+
+    def test_el_valor_de_fabrica_es_ninguno(self):
+        self.assertEqual(comandos.Comando("hola", (), "Hola").atajo, 0)
+
+    def test_dos_comandos_activos_no_pueden_usar_el_mismo_atajo(self):
+        otro = comandos.Comando("risa", (), "Risas", atajo=3)
+        error = comandos.validar(
+            comandos.Comando("otro", (), "Otro", atajo=3), [otro])
+        self.assertEqual(error,
+                         "Ctrl+Alt+Mayús+3 ya lo usa el comando risa.")
+
+    def test_un_atajo_de_otro_pausado_se_puede_usar(self):
+        otro = comandos.Comando("risa", (), "Risas", atajo=3, activo=False)
+        self.assertEqual("", comandos.validar(
+            comandos.Comando("otro", (), "Otro", atajo=3), [otro]))
+
+    def test_solo_con_el_atajo_necesita_un_atajo(self):
+        comando = comandos.Comando("risa", (), "Risas", permiso="solo_atajo")
+        self.assertEqual(comandos.validar(comando, []),
+                         "Elige un atajo para un comando que solo usa el atajo.")
+
+    def test_solo_con_el_atajo_no_responde_en_el_chat(self):
+        comando = comandos.Comando(
+            "risa", (), "Risas", permiso="solo_atajo", atajo=3)
+        self.assertFalse(comandos.puede_usarlo(comando, _evento(
+            roles=frozenset((ROL_PROPIETARIO,)))))
+        self.assertEqual("", comandos.validar(comando, []))
+
+
 if __name__ == "__main__":
     unittest.main()

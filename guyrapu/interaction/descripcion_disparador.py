@@ -12,10 +12,6 @@ from guyrapu.core.idioma import _
 from guyrapu.interaction.disparadores import NOMBRES_EVENTOS, Disparador
 
 
-def _con_signo(nombre: str) -> str:
-    return f"!{nombre}" if nombre else ""
-
-
 def _numero(valor) -> str:
     numero = float(valor)
     if numero.is_integer():
@@ -24,26 +20,14 @@ def _numero(valor) -> str:
 
 
 def _cuando(disparador: Disparador) -> str:
-    if disparador.cuando == "atajo":
-        return _("con Ctrl+Alt+Mayús+{numero}").format(
-            numero=disparador.atajo)
-    if disparador.cuando == "evento":
-        if disparador.evento == "superchat" and disparador.regalo:
-            nombre = _("el regalo {regalo}").format(regalo=disparador.regalo)
-        else:
-            nombre = _(NOMBRES_EVENTOS.get(disparador.evento, ""))
-        if disparador.minimo is None:
-            return _("cuando llega {evento}").format(evento=nombre)
-        return _("cuando llega {evento} desde {minimo}").format(
-            evento=nombre, minimo=_numero(disparador.minimo))
-    if disparador.cuando == "palabra":
-        palabras = ", ".join(disparador.palabras)
-        # Traductores: descripción del disparador. {palabras} es la lista de palabras y emojis tal como se escribió.
-        return _("cuando un mensaje dice {palabras}").format(
-            palabras=palabras)
-    nombres = ", ".join(_con_signo(nombre)
-                        for nombre in disparador.comandos)
-    return _("cuando alguien escribe {comandos}").format(comandos=nombres)
+    if disparador.evento == "superchat" and disparador.regalo:
+        nombre = _("el regalo {regalo}").format(regalo=disparador.regalo)
+    else:
+        nombre = _(NOMBRES_EVENTOS.get(disparador.evento, ""))
+    if disparador.minimo is None:
+        return _("cuando llega {evento}").format(evento=nombre)
+    return _("cuando llega {evento} desde {minimo}").format(
+        evento=nombre, minimo=_numero(disparador.minimo))
 
 
 def _que(disparador: Disparador) -> str:
