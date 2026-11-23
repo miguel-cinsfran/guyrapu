@@ -72,6 +72,27 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(ventanas_app.VENTANAS[0]["primero"], "General")
         self.assertEqual(ventanas_app.VENTANAS[1]["titulo"], "Interacción")
 
+    def test_el_primero_de_las_listas_vacias_es_el_texto_de_la_app(self):
+        from guyrapu.core.idioma import _
+        from guyrapu.ui import (
+            encuestas_ventana, gui_historial, medios_ventana,
+            mensajes_automaticos_ventana, palabras_bloqueadas_ventana,
+            preguntas_ventana)
+
+        textos = {
+            "interaccion": _(mensajes_automaticos_ventana.VACIO),
+            "historial": _(gui_historial.VACIO).format(plataforma="YouTube"),
+            "palabras": _(palabras_bloqueadas_ventana.VACIO),
+            "encuestas": _(encuestas_ventana.VACIO),
+            "preguntas": _(preguntas_ventana.VACIO),
+            "medios": _(medios_ventana.VACIO),
+        }
+        por_nombre = {entrada["nombre"]: entrada
+                      for entrada in ventanas_app.VENTANAS}
+        for nombre, texto in textos.items():
+            with self.subTest(nombre=nombre):
+                self.assertEqual(por_nombre[nombre]["primero"], texto)
+
     def test_musica_e_ia_estan_en_la_tabla_con_su_menu_titulo_y_primero(self):
         from guyrapu.core.idioma import _
         from guyrapu.ui import ia_ventana, musica_ventana

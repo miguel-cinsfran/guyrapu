@@ -37,6 +37,8 @@ PAGINAS_PREFERENCIAS = (
 # En una lista, el primero es el elemento seleccionado, no la lista. Los
 # primeros de Atajos, Cola de lectura y Lectura salen de los valores de
 # fábrica: el carril abre la app con una carpeta de datos aislada y vacía.
+# Los textos de lista vacía son copias del VACIO de cada módulo de guyrapu/ui:
+# importarlos exigiría wx acá, donde no se usa. test_qa_nvda_app los vigila.
 VENTANAS = (
     {
         "nombre": "preferencias",
@@ -67,7 +69,9 @@ VENTANAS = (
         "nombre": "historial",
         "menu": "Archivo > Historial de directos…",
         "titulo": "Historial de directos",
-        "primero": "No hay entradas de YouTube.",
+        "primero": ("No hay entradas de YouTube. Aquí aparecen los directos y "
+                    "vídeos de YouTube que hayas visto. Conecta un directo o "
+                    "abre un vídeo para verlos aquí."),
         "acciones": [
             {"control": "Conectar (el historial está vacío)",
              "espera": "el historial está vacío"},
@@ -146,7 +150,11 @@ VENTANAS = (
         "nombre": "medios",
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Interacción",
-        "primero": "No hay medios. Usa Agregar para crear uno.",
+        "primero": ("No hay medios. Aquí aparecen las imágenes, los GIF, los "
+                    "vídeos y los sonidos de la carpeta Medios, junto a la "
+                    "aplicación. Los comandos y las alertas los muestran o los "
+                    "hacen sonar en el vídeo. Copia archivos en esa carpeta o "
+                    "usa Agregar."),
         "pagina": "Medios",
     },
     {
