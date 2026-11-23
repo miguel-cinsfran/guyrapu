@@ -36,6 +36,12 @@ def mover(lista: list, indice: int, paso: int) -> int | None:
     return destino
 
 
+def primero_nuevo(combinada: list, anteriores: set, defecto=0) -> int:
+    """La posición del primer elemento que no estaba en `anteriores`, o `defecto`."""
+    return next((posicion for posicion, elemento in enumerate(combinada)
+                 if id(elemento) not in anteriores), defecto)
+
+
 def combinar(existentes: list, nuevos: list, reemplazar: bool) -> list:
     """Combina lo importado con lo que ya hay y devuelve la lista nueva.
 

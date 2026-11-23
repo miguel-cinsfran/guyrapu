@@ -16,6 +16,7 @@ from guyrapu.interaction import coleccion, disparadores, disparadores_guardados
 from guyrapu.interaction import descripcion_disparador, paquetes
 from guyrapu.ui import botonera
 from guyrapu.ui import disparador_cuadro, confirmar
+from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
@@ -24,7 +25,6 @@ VACIO = N_(
     "No hay alertas. Una alerta muestra una tarjeta o un medio en el vídeo "
     "cuando llega un regalo, Super Chat, miembro o seguidor. "
     "Usa Agregar para crear una.")
-WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 
 def _acciones(panel):
@@ -201,26 +201,17 @@ class PanelDisparadores(wx.Panel):
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
             return
-        try:
-            paquetes.exportar(ruta, "disparadores", self._disparadores)
-        except Exception as exc:
-            confirmar.avisar(
-                self,
-                _("No se pudo escribir el paquete:\n\n{exc}").format(
-                    exc=exc),
-                _("Exportar alertas"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquetes_ventana.escribir(
+            self, ruta, "disparadores", self._disparadores,
+            _("Exportar alertas"))
 
     def _importar(self):
         ruta = self._pedir_ruta(guardar=False)
         if not ruta:
             return
-        try:
-            paquete = paquetes.leer(ruta, "disparadores")
-        except paquetes.PaqueteRechazado as exc:
-            confirmar.avisar(
-                self, str(exc), _("Importar alertas"),
-                _("Aceptar"), icono=confirmar.ICON_ERROR)
+        paquete = paquetes_ventana.leer(
+            self, ruta, "disparadores", _("Importar alertas"))
+        if paquete is None:
             return
         self._incorporar(paquete.elementos)
 
@@ -235,9 +226,7 @@ class PanelDisparadores(wx.Panel):
         self._disparadores = coleccion.combinar(
             self._disparadores, nuevos, reemplazar)
         self._guardar()
-        indice = next((posicion for posicion, disparador
-                       in enumerate(self._disparadores)
-                       if id(disparador) not in anteriores), 0)
+        indice = coleccion.primero_nuevo(self._disparadores, anteriores)
         self._fijar(indice)
         anunciar(ngettext("Se importó una alerta.",
                           "Se importaron {n} alertas.",
@@ -253,16 +242,6 @@ class PanelDisparadores(wx.Panel):
             predeterminado_si=False)
 
     def _pedir_ruta(self, guardar):
-        estilo = ((wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) if guardar
-                  else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
-        dialogo = wx.FileDialog(
-            self,
-            _("Exportar alertas") if guardar
-            else _("Importar alertas"),
-            wildcard=_(WILDCARD), style=estilo)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return None
-            return dialogo.GetPath()
-        finally:
-            dialogo.Destroy()
+        return paquetes_ventana.pedir_ruta(
+            self, _("Exportar alertas") if guardar
+            else _("Importar alertas"), guardar)

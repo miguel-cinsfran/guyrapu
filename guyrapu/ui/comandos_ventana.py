@@ -17,6 +17,7 @@ from guyrapu.interaction import descripcion_comando, paquetes
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import botonera
 from guyrapu.ui import comando_cuadro, confirmar
+from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
@@ -25,7 +26,6 @@ VACIO = N_(
     "No hay comandos. Aquí aparecen las palabras que el público escribe en "
     "el chat con un signo de exclamación delante, como hola. "
     "También aparece lo que responde cada una. Usa Agregar para crear uno.")
-WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 MOTIVO_LISTA = N_("La lista de comandos no se puede eliminar ni duplicar")
 
 
@@ -211,24 +211,16 @@ class PanelComandos(wx.Panel):
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
             return
-        try:
-            paquetes.exportar(ruta, "comandos", self._comandos)
-        except Exception as exc:
-            confirmar.avisar(
-                self, _("No se pudo escribir el paquete:\n\n{exc}").format(exc=exc),
-                _("Exportar comandos"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquetes_ventana.escribir(
+            self, ruta, "comandos", self._comandos, _("Exportar comandos"))
 
     def _importar(self):
         ruta = self._pedir_ruta(guardar=False)
         if not ruta:
             return
-        try:
-            paquete = paquetes.leer(ruta, "comandos")
-        except paquetes.PaqueteRechazado as exc:
-            confirmar.avisar(
-                self, str(exc), _("Importar comandos"),
-                _("Aceptar"), icono=confirmar.ICON_ERROR)
+        paquete = paquetes_ventana.leer(
+            self, ruta, "comandos", _("Importar comandos"))
+        if paquete is None:
             return
         self._incorporar(paquete.elementos)
 
@@ -244,9 +236,7 @@ class PanelComandos(wx.Panel):
         self._comandos = coleccion.combinar(
             self._comandos, nuevos, reemplazar)
         self._guardar()
-        indice = next((posicion for posicion, comando
-                       in enumerate(self._comandos)
-                       if id(comando) not in anteriores), 0)
+        indice = coleccion.primero_nuevo(self._comandos, anteriores)
         self._fijar(indice)
         anunciar(ngettext("Se importó un comando.",
                           "Se importaron {n} comandos.",
@@ -261,15 +251,6 @@ class PanelComandos(wx.Panel):
             predeterminado_si=False)
 
     def _pedir_ruta(self, guardar):
-        estilo = ((wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) if guardar
-                  else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
-        dialogo = wx.FileDialog(
-            self,
-            _("Exportar comandos") if guardar else _("Importar comandos"),
-            wildcard=_(WILDCARD), style=estilo)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return None
-            return dialogo.GetPath()
-        finally:
-            dialogo.Destroy()
+        return paquetes_ventana.pedir_ruta(
+            self, _("Exportar comandos") if guardar
+            else _("Importar comandos"), guardar)

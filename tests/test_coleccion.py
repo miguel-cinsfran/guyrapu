@@ -83,5 +83,33 @@ class TestCombinar(unittest.TestCase):
         self.assertEqual(self.existentes, original)
 
 
+class TestPrimeroNuevo(unittest.TestCase):
+
+    def test_el_primero_nuevo_esta_al_principio(self):
+        viejo = {"nombre": "Viejo"}
+        nuevo = {"nombre": "Nuevo"}
+        self.assertEqual(
+            coleccion.primero_nuevo([nuevo, viejo], {id(viejo)}), 0)
+
+    def test_el_primero_nuevo_esta_en_el_medio(self):
+        primero = {"nombre": "Uno"}
+        nuevo = {"nombre": "Nuevo"}
+        ultimo = {"nombre": "Dos"}
+        self.assertEqual(
+            coleccion.primero_nuevo([primero, nuevo, ultimo],
+                                    {id(primero), id(ultimo)}), 1)
+
+    def test_el_primero_nuevo_esta_al_final(self):
+        viejo = {"nombre": "Viejo"}
+        nuevo = {"nombre": "Nuevo"}
+        self.assertEqual(
+            coleccion.primero_nuevo([viejo, nuevo], {id(viejo)}), 1)
+
+    def test_sin_nuevos_devuelve_el_valor_por_defecto(self):
+        viejo = {"nombre": "Viejo"}
+        self.assertEqual(
+            coleccion.primero_nuevo([viejo], {id(viejo)}, 7), 7)
+
+
 if __name__ == "__main__":
     unittest.main()

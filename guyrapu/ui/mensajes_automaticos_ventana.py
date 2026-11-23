@@ -18,6 +18,7 @@ from guyrapu.obs import estilos_aviso
 from guyrapu.ui import botonera
 from guyrapu.ui import confirmar
 from guyrapu.ui import mensaje_automatico_cuadro, probar_aviso
+from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, fila_label
@@ -34,7 +35,6 @@ VACIO = N_(
     "No hay mensajes automáticos. Aquí aparecen los mensajes que se envían "
     "solos cada cierto tiempo, como tus redes. Pueden ir al chat, al vídeo "
     "o a los dos. Usa Agregar para crear uno.")
-WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 
 def _acciones(panel):
@@ -270,24 +270,17 @@ class PanelMensajesAutomaticos(wx.Panel):
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
             return
-        try:
-            paquetes.exportar(ruta, "avisos", self._mensajes)
-        except Exception as exc:
-            confirmar.avisar(
-                self, _("No se pudo escribir el paquete:\n\n{exc}").format(exc=exc),
-                _("Exportar mensajes automáticos"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquetes_ventana.escribir(
+            self, ruta, "avisos", self._mensajes,
+            _("Exportar mensajes automáticos"))
 
     def _importar(self):
         ruta = self._pedir_ruta(guardar=False)
         if not ruta:
             return
-        try:
-            paquete = paquetes.leer(ruta, "avisos")
-        except paquetes.PaqueteRechazado as exc:
-            confirmar.avisar(
-                self, str(exc), _("Importar mensajes automáticos"),
-                _("Aceptar"), icono=confirmar.ICON_ERROR)
+        paquete = paquetes_ventana.leer(
+            self, ruta, "avisos", _("Importar mensajes automáticos"))
+        if paquete is None:
             return
         self._incorporar(paquete.elementos)
 
@@ -303,9 +296,7 @@ class PanelMensajesAutomaticos(wx.Panel):
         self._mensajes = coleccion.combinar(
             self._mensajes, nuevos, reemplazar)
         self._guardar()
-        indice = next((posicion for posicion, mensaje
-                       in enumerate(self._mensajes)
-                       if id(mensaje) not in anteriores), 0)
+        indice = coleccion.primero_nuevo(self._mensajes, anteriores)
         self._fijar(indice)
         anunciar(ngettext("Se importó un mensaje.",
                           "Se importaron {n} mensajes.",
@@ -320,16 +311,6 @@ class PanelMensajesAutomaticos(wx.Panel):
             predeterminado_si=False)
 
     def _pedir_ruta(self, guardar):
-        estilo = ((wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) if guardar
-                  else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
-        dialogo = wx.FileDialog(
-            self,
-            _("Exportar mensajes automáticos") if guardar
-            else _("Importar mensajes automáticos"),
-            wildcard=_(WILDCARD), style=estilo)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return None
-            return dialogo.GetPath()
-        finally:
-            dialogo.Destroy()
+        return paquetes_ventana.pedir_ruta(
+            self, _("Exportar mensajes automáticos") if guardar
+            else _("Importar mensajes automáticos"), guardar)

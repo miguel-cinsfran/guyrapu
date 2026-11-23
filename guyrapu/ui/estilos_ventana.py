@@ -13,10 +13,11 @@ import wx
 from guyrapu.capture import programados
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
-from guyrapu.interaction import coleccion, paquetes
+from guyrapu.interaction import coleccion
 from guyrapu.obs import descripcion_estilo, estilos_aviso
 from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, estilo_cuadro, estilo_tipos_cuadro, probar_aviso
+from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
@@ -24,7 +25,6 @@ from guyrapu.ui.preferencias_comun import fila_label
 VACIO = N_(
     "No hay estilos. Aquí aparecen los estilos que dan forma a lo que se "
     "muestra en el vídeo. Usa Agregar para crear uno.")
-WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 MOTIVO_FABRICA = N_("Los estilos de fábrica no se cambian. Usa Duplicar para "
                     "crear uno propio.")
 
@@ -268,25 +268,17 @@ class PanelEstilos(wx.Panel):
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
             return
-        try:
-            paquetes.exportar(ruta, "estilos", self._usuario)
-        except Exception as exc:
-            confirmar.avisar(
-                self, _("No se pudo escribir el paquete:\n\n{exc}").format(
-                    exc=exc),
-                _("Exportar estilos del vídeo"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquetes_ventana.escribir(
+            self, ruta, "estilos", self._usuario,
+            _("Exportar estilos del vídeo"))
 
     def _importar(self):
         ruta = self._pedir_ruta(guardar=False)
         if not ruta:
             return
-        try:
-            paquete = paquetes.leer(ruta, "estilos")
-        except paquetes.PaqueteRechazado as exc:
-            confirmar.avisar(
-                self, str(exc), _("Importar estilos del vídeo"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquete = paquetes_ventana.leer(
+            self, ruta, "estilos", _("Importar estilos del vídeo"))
+        if paquete is None:
             return
         self._incorporar(paquete.elementos)
 
@@ -305,29 +297,17 @@ class PanelEstilos(wx.Panel):
         anteriores = {id(estilo) for estilo in self._usuario}
         self._usuario = coleccion.combinar(self._usuario, nuevos, False)
         self._guardar()
-        indice = next((len(estilos_aviso.FABRICA) + posicion
-                       for posicion, estilo in enumerate(self._usuario)
-                       if id(estilo) not in anteriores),
-                      len(estilos_aviso.FABRICA))
+        indice = (len(estilos_aviso.FABRICA)
+                  + coleccion.primero_nuevo(self._usuario, anteriores))
         self._fijar(indice)
         anunciar(ngettext("Se importó un estilo.",
                           "Se importaron {n} estilos.",
                           len(nuevos)).format(n=len(nuevos)))
 
     def _pedir_ruta(self, guardar):
-        estilo = ((wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) if guardar
-                  else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
-        dialogo = wx.FileDialog(
-            self,
-            _("Exportar estilos del vídeo") if guardar
-            else _("Importar estilos del vídeo"),
-            wildcard=_(WILDCARD), style=estilo)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return None
-            return dialogo.GetPath()
-        finally:
-            dialogo.Destroy()
+        return paquetes_ventana.pedir_ruta(
+            self, _("Exportar estilos del vídeo") if guardar
+            else _("Importar estilos del vídeo"), guardar)
 
 def _unir(textos) -> str:
     """Lista con comas y «y» final, en formatos completos traducibles."""

@@ -20,6 +20,7 @@ from guyrapu.interaction import (
 from guyrapu.music import consultas_vlc
 from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, medio_cuadro, medios_medicion
+from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
@@ -31,7 +32,6 @@ VACIO = N_(
     "No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta "
     "Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen "
     "sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.")
-WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 PLAZO_DURACION = 1.4
 
 
@@ -318,28 +318,17 @@ class PanelMedios(wx.Panel):
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
             return
-        try:
-            paquetes.exportar(
-                ruta, "medios", self._medios,
-                medios_guardados.rutas(self._carpeta, self._medios))
-        except Exception as exc:
-            confirmar.avisar(
-                self, _("No se pudo escribir el paquete:\n\n{exc}").format(
-                    exc=exc),
-                _("Exportar medios"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquetes_ventana.escribir(
+            self, ruta, "medios", self._medios, _("Exportar medios"),
+            medios_guardados.rutas(self._carpeta, self._medios))
 
     def _importar(self):
         ruta = self._pedir_ruta(guardar=False)
         if not ruta:
             return
-        try:
-            paquete = paquetes.leer(ruta, "medios",
-                                    extensiones=medios.EXTENSIONES)
-        except paquetes.PaqueteRechazado as exc:
-            confirmar.avisar(
-                self, str(exc), _("Importar medios"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquete = paquetes_ventana.leer(
+            self, ruta, "medios", _("Importar medios"), medios.EXTENSIONES)
+        if paquete is None:
             return
         destinos = paquetes.extraer_archivos(ruta, paquete, self._carpeta)
         self._incorporar(paquete.elementos, destinos)
@@ -360,9 +349,7 @@ class PanelMedios(wx.Panel):
         for medio in self._medios:
             if id(medio) not in anteriores:
                 self._medir(medio)
-        indice = next((posicion for posicion, medio
-                       in enumerate(self._medios)
-                       if id(medio) not in anteriores), 0)
+        indice = coleccion.primero_nuevo(self._medios, anteriores)
         self._fijar(indice)
         anunciar(ngettext("Se importó un medio.",
                           "Se importaron {n} medios.",
@@ -388,15 +375,6 @@ class PanelMedios(wx.Panel):
             dialogo.Destroy()
 
     def _pedir_ruta(self, guardar):
-        estilo = ((wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) if guardar
-                  else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
-        dialogo = wx.FileDialog(
-            self,
-            _("Exportar medios") if guardar else _("Importar medios"),
-            wildcard=_(WILDCARD), style=estilo)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return None
-            return dialogo.GetPath()
-        finally:
-            dialogo.Destroy()
+        return paquetes_ventana.pedir_ruta(
+            self, _("Exportar medios") if guardar
+            else _("Importar medios"), guardar)

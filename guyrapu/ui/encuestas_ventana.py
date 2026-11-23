@@ -15,6 +15,7 @@ from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import coleccion, encuestas_guardadas, paquetes
 from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, encuesta_cuadro, encuesta_en_vivo
+from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
@@ -23,7 +24,6 @@ VACIO = N_(
     "No hay encuestas. Aquí aparecen las encuestas listas para iniciar en el "
     "directo. El público vota con un número precedido de un signo de "
     "exclamación, como 1 o 2. Usa Agregar para crear una.")
-WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 
 def _ventana(panel):
@@ -173,25 +173,16 @@ class PanelEncuestas(wx.Panel):
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
             return
-        try:
-            paquetes.exportar(ruta, "encuestas", self._encuestas)
-        except Exception as exc:
-            confirmar.avisar(
-                self, _("No se pudo escribir el paquete:\n\n{exc}").format(
-                    exc=exc),
-                _("Exportar encuestas"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquetes_ventana.escribir(
+            self, ruta, "encuestas", self._encuestas, _("Exportar encuestas"))
 
     def _importar(self):
         ruta = self._pedir_ruta(guardar=False)
         if not ruta:
             return
-        try:
-            paquete = paquetes.leer(ruta, "encuestas")
-        except paquetes.PaqueteRechazado as exc:
-            confirmar.avisar(
-                self, str(exc), _("Importar encuestas"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquete = paquetes_ventana.leer(
+            self, ruta, "encuestas", _("Importar encuestas"))
+        if paquete is None:
             return
         self._incorporar(paquete.elementos)
 
@@ -206,9 +197,7 @@ class PanelEncuestas(wx.Panel):
         for encuesta in self._encuestas:
             encuesta["pregunta"] = encuesta["nombre"]
         self._guardar()
-        indice = next((posicion for posicion, encuesta
-                       in enumerate(self._encuestas)
-                       if id(encuesta) not in anteriores), 0)
+        indice = coleccion.primero_nuevo(self._encuestas, anteriores)
         self._fijar(indice)
         anunciar(ngettext("Se importó una encuesta.",
                           "Se importaron {n} encuestas.",
@@ -223,15 +212,6 @@ class PanelEncuestas(wx.Panel):
             predeterminado_si=False)
 
     def _pedir_ruta(self, guardar):
-        estilo = ((wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) if guardar
-                  else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
-        dialogo = wx.FileDialog(
-            self,
-            _("Exportar encuestas") if guardar else _("Importar encuestas"),
-            wildcard=_(WILDCARD), style=estilo)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return None
-            return dialogo.GetPath()
-        finally:
-            dialogo.Destroy()
+        return paquetes_ventana.pedir_ruta(
+            self, _("Exportar encuestas") if guardar
+            else _("Importar encuestas"), guardar)

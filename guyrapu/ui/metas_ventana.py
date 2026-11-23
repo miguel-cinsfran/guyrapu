@@ -17,6 +17,7 @@ from guyrapu.interaction import metas_guardadas, paquetes
 from guyrapu.obs import estilos_aviso
 from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, meta_cuadro
+from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
@@ -24,7 +25,6 @@ from guyrapu.ui.preferencias_comun import fila_label
 VACIO = N_(
     "No hay metas. Aquí aparecen las metas del directo, como 50 seguidores, "
     "con su avance en el vídeo. Usa Agregar para crear una.")
-WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 
 def _acciones(panel):
@@ -201,26 +201,16 @@ class PanelMetas(wx.Panel):
         ruta = self._pedir_ruta(guardar=True)
         if not ruta:
             return
-        try:
-            paquetes.exportar(ruta, "metas", self._metas)
-        except Exception as exc:
-            confirmar.avisar(
-                self,
-                _("No se pudo escribir el paquete:\n\n{exc}").format(
-                    exc=exc),
-                _("Exportar metas"), _("Aceptar"),
-                icono=confirmar.ICON_ERROR)
+        paquetes_ventana.escribir(
+            self, ruta, "metas", self._metas, _("Exportar metas"))
 
     def _importar(self):
         ruta = self._pedir_ruta(guardar=False)
         if not ruta:
             return
-        try:
-            paquete = paquetes.leer(ruta, "metas")
-        except paquetes.PaqueteRechazado as exc:
-            confirmar.avisar(
-                self, str(exc), _("Importar metas"),
-                _("Aceptar"), icono=confirmar.ICON_ERROR)
+        paquete = paquetes_ventana.leer(
+            self, ruta, "metas", _("Importar metas"))
+        if paquete is None:
             return
         self._incorporar(paquete.elementos)
 
@@ -235,9 +225,7 @@ class PanelMetas(wx.Panel):
         anteriores = {id(meta) for meta in self._metas}
         self._metas = coleccion.combinar(self._metas, nuevos, reemplazar)
         self._guardar()
-        indice = next((posicion for posicion, meta
-                       in enumerate(self._metas)
-                       if id(meta) not in anteriores), 0)
+        indice = coleccion.primero_nuevo(self._metas, anteriores)
         self._fijar(indice)
         anunciar(ngettext("Se importó una meta.",
                           "Se importaron {n} metas.",
@@ -253,16 +241,6 @@ class PanelMetas(wx.Panel):
             predeterminado_si=False)
 
     def _pedir_ruta(self, guardar):
-        estilo = ((wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) if guardar
-                  else (wx.FD_OPEN | wx.FD_FILE_MUST_EXIST))
-        dialogo = wx.FileDialog(
-            self,
-            _("Exportar metas") if guardar
-            else _("Importar metas"),
-            wildcard=_(WILDCARD), style=estilo)
-        try:
-            if dialogo.ShowModal() != wx.ID_OK:
-                return None
-            return dialogo.GetPath()
-        finally:
-            dialogo.Destroy()
+        return paquetes_ventana.pedir_ruta(
+            self, _("Exportar metas") if guardar
+            else _("Importar metas"), guardar)
