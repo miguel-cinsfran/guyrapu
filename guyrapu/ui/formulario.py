@@ -10,6 +10,11 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.core.idioma import N_
+
+SECCION_CUANDO = N_("Activación")
+SECCION_ALCANCE = N_("Permiso y espera")
+
 MARGEN = 16
 ETIQUETA_A_CONTROL = 4
 CONTROL_A_ETIQUETA = 12

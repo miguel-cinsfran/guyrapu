@@ -21,8 +21,6 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar alerta")
 TITULO_EDITAR = N_("Editar alerta")
-SECCION_CUANDO = N_("Activación")
-SECCION_ALCANCE = N_("Permiso y espera")
 AYUDA_TARJETA = N_(
     "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.")
 
@@ -109,7 +107,8 @@ class DialogoDisparador(wx.Dialog):
                 nombre_accesible(hijo, hijos[indice + 1].GetName())
 
     def _crear_cuando(self, panel, columna):
-        vs = formulario.agregar_seccion(columna, panel, _(SECCION_CUANDO))
+        vs = formulario.agregar_seccion(
+            columna, panel, _(formulario.SECCION_CUANDO))
         rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = self._campo(panel, _("&Nombre:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombre)
@@ -141,7 +140,8 @@ class DialogoDisparador(wx.Dialog):
         self.cho_estilo = self._contenido.cho_estilo
 
     def _crear_alcance(self, panel, columna):
-        vs = formulario.agregar_seccion(columna, panel, _(SECCION_ALCANCE))
+        vs = formulario.agregar_seccion(
+            columna, panel, _(formulario.SECCION_ALCANCE))
         rotulo = fila_label(panel, _("Pe&rmiso:"))
         self.cho_permiso = self._eleccion(
             panel, _("Pe&rmiso:"), _permisos())
