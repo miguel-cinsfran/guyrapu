@@ -57,7 +57,9 @@ class TestLista(BaseVentana):
         self.assertEqual(panel.lista.GetCount(), 1)
         self.assertEqual(
             panel.lista.GetString(0),
-            "No hay palabras bloqueadas. Usa Agregar para escribir una.")
+            "No hay palabras bloqueadas. Aquí aparecen las palabras que se "
+            "tapan en lo que el público escribe y se muestra en el vídeo. "
+            "Usa Agregar para escribir una.")
 
     def test_p4_muestra_las_palabras_guardadas(self):
         panel = self._panel(["tonto", "mala palabra"])
@@ -80,7 +82,9 @@ class TestLista(BaseVentana):
                 "guyrapu.ui.lista_acciones.anunciar") as decir:
             panel._lista.ejecutar("editar")
         decir.assert_called_once_with(
-            "No hay palabras bloqueadas. Usa Agregar para escribir una.")
+            "No hay palabras bloqueadas. Aquí aparecen las palabras que se "
+            "tapan en lo que el público escribe y se muestra en el vídeo. "
+            "Usa Agregar para escribir una.")
 
     def test_p4_las_teclas_llegan_a_sus_acciones(self):
         panel = self._panel([])

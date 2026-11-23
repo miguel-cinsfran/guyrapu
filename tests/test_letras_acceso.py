@@ -906,7 +906,21 @@ class TestLetrasAccesoPruebaConexionEnIngles(TestLetrasAccesoPruebaConexion):
 
 
 class TestLetrasAccesoPrincipalEnIngles(TestLetrasAccesoPrincipal):
-    # Gemela en inglés: repite la prueba sin copiarla.
+    # Gemela en inglés: repite las pruebas sin copiarlas.
+
+    @classmethod
+    def setUpClass(cls):
+        cls._ingles = ingles()
+        cls._ingles.__enter__()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._ingles.__exit__(None, None, None)
+        del cls._ingles
+
+
+class TestLetrasAccesoInteraccionEnIngles(TestLetrasAccesoInteraccion):
+    # Gemela en inglés: repite las pruebas sin copiarlas.
 
     @classmethod
     def setUpClass(cls):

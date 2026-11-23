@@ -9372,8 +9372,14 @@ msgid "No hay ninguna grabación en curso."
 msgstr "No recording is in progress."
 
 #: guyrapu/ui/comandos_ventana.py
-msgid "No hay comandos. Usa Agregar para crear uno."
-msgstr "There are no commands. Use Add to create one."
+msgid ""
+"No hay comandos. Aquí aparecen las palabras que el público escribe en el "
+"chat con un signo de exclamación delante, como hola. También aparece lo que"
+" responde cada una. Usa Agregar para crear uno."
+msgstr ""
+"There are no commands. The words the audience types in chat with an "
+"exclamation mark before them, such as hello, appear here. What each one "
+"replies appears here too. Use Add to create one."
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
@@ -9411,7 +9417,7 @@ msgstr "Change &word"
 #: guyrapu/ui/metas_ventana.py guyrapu/ui/obs_pagina_perfiles.py
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "&Duplicar"
-msgstr "&Duplicate"
+msgstr "Duplic&ate"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/metas_ventana.py
@@ -9423,7 +9429,7 @@ msgstr "&Pause or resume"
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
 #: guyrapu/ui/metas_ventana.py
 msgid "Escuc&har"
-msgstr "&Listen"
+msgstr "Liste&n"
 
 #: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
 #: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_menu_escena.py
@@ -9670,7 +9676,7 @@ msgstr "Download manager"
 
 #: guyrapu/ui/descargas_acciones.py guyrapu/ui/medios_ventana.py
 msgid "&Abrir carpeta"
-msgstr "&Open folder"
+msgstr "Open &folder"
 
 #: guyrapu/ui/descargas_acciones.py guyrapu/ui/gui_preferencias.py
 msgid "Ahora &no"
@@ -10492,11 +10498,11 @@ msgstr ""
 #: guyrapu/ui/disparadores_ventana.py guyrapu/ui/estilos_ventana.py
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/metas_ventana.py
 msgid "Cambiar n&ombre"
-msgstr "Re&name"
+msgstr "Rena&me"
 
 #: guyrapu/ui/disparadores_ventana.py
 msgid "Lista de &alertas:"
-msgstr "&Alert list:"
+msgstr "Ale&rt list:"
 
 #: guyrapu/ui/disparadores_ventana.py
 msgid "Alertas guardadas"
@@ -10690,12 +10696,18 @@ msgid "Encuesta abierta: {pregunta}"
 msgstr "Poll opened: {pregunta}"
 
 #: guyrapu/ui/encuestas_ventana.py
-msgid "No hay encuestas. Usa Agregar para crear una."
-msgstr "There are no polls. Use Add to create one."
+msgid ""
+"No hay encuestas. Aquí aparecen las encuestas listas para iniciar en el "
+"directo. El público vota con un número precedido de un signo de "
+"exclamación, como 1 o 2. Usa Agregar para crear una."
+msgstr ""
+"There are no polls. The polls ready to start in the live stream appear "
+"here. The audience votes with a number preceded by an exclamation mark, "
+"such as 1 or 2. Use Add to create one."
 
 #: guyrapu/ui/encuestas_ventana.py
 msgid "Inici&ar"
-msgstr "St&art"
+msgstr "&Start"
 
 #: guyrapu/ui/encuestas_ventana.py
 msgid "Lista de e&ncuestas:"
@@ -11740,8 +11752,12 @@ msgid "Establecer como predeterminado"
 msgstr "Set as default"
 
 #: guyrapu/ui/estilos_ventana.py
-msgid "No hay estilos. Usa Agregar para crear uno."
-msgstr "There are no styles. Use Add to create one."
+msgid ""
+"No hay estilos. Aquí aparecen los estilos que dan forma a lo que se muestra"
+" en el vídeo. Usa Agregar para crear uno."
+msgstr ""
+"There are no styles. The styles that shape what is shown in the video "
+"appear here. Use Add to create one."
 
 #: guyrapu/ui/estilos_ventana.py
 msgid "Los estilos de fábrica no se cambian. Usa Duplicar para crear uno propio."
@@ -11753,7 +11769,7 @@ msgstr "Te&st"
 
 #: guyrapu/ui/estilos_ventana.py
 msgid "Establecer como &predeterminado…"
-msgstr "Set as &default…"
+msgstr "Set as de&fault…"
 
 #: guyrapu/ui/estilos_ventana.py
 msgid "Estilos del &vídeo:"
@@ -12980,7 +12996,7 @@ msgstr "&Stop voice"
 
 #: guyrapu/ui/gui_menu.py guyrapu/ui/preguntas_ventana.py
 msgid "&Vaciar cola"
-msgstr "&Clear queue"
+msgstr "Cl&ear queue"
 
 #: guyrapu/ui/gui_menu.py
 msgid "S&ilenciar lectura"
@@ -14211,8 +14227,14 @@ msgstr ""
 "user name instead of the full link."
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
-msgid "No hay mensajes automáticos. Usa Agregar para crear uno."
-msgstr "There are no scheduled messages. Use Add to create one."
+msgid ""
+"No hay mensajes automáticos. Aquí aparecen los mensajes que se envían solos"
+" cada cierto tiempo, como tus redes. Pueden ir al chat, al vídeo o a los "
+"dos. Usa Agregar para crear uno."
+msgstr ""
+"There are no scheduled messages. The messages sent on their own at set "
+"intervals, such as your social networks, appear here. They can go to chat, "
+"the video or both. Use Add to create one."
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/musica_menus.py
 msgid "&Subir"
@@ -14220,15 +14242,15 @@ msgstr "Move &up"
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Ba&jar"
-msgstr "Move &down"
+msgstr "Move do&wn"
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/menu_interaccion.py
 msgid "Acti&var mensajes automáticos"
-msgstr "&Enable scheduled messages"
+msgstr "Enable scheduled messa&ges"
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Lista de &mensajes:"
-msgstr "&List of messages:"
+msgstr "List o&f messages:"
 
 #: guyrapu/ui/mensajes_automaticos_ventana.py
 msgid "Mensajes automáticos guardados"
@@ -14543,12 +14565,16 @@ msgid "Meta cumplida: {nombre}."
 msgstr "Goal reached: {nombre}."
 
 #: guyrapu/ui/metas_ventana.py
-msgid "No hay metas. Usa Agregar para crear una."
-msgstr "There are no goals. Use Add to create one."
+msgid ""
+"No hay metas. Aquí aparecen las metas del directo, como 50 seguidores, con "
+"su avance en el vídeo. Usa Agregar para crear una."
+msgstr ""
+"There are no goals. The goals of the live stream, such as 50 followers, "
+"with their progress in the video, appear here. Use Add to create one."
 
 #: guyrapu/ui/metas_ventana.py
 msgid "Lista de met&as:"
-msgstr "&List of goals:"
+msgstr "List of &goals:"
 
 #: guyrapu/ui/metas_ventana.py
 msgid "Metas guardadas"
@@ -15203,8 +15229,13 @@ msgid "Consultando OBS"
 msgstr "Asking OBS"
 
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
-msgid "No hay palabras bloqueadas. Usa Agregar para escribir una."
-msgstr "There are no blocked words. Use Add to type one."
+msgid ""
+"No hay palabras bloqueadas. Aquí aparecen las palabras que se tapan en lo "
+"que el público escribe y se muestra en el vídeo. Usa Agregar para escribir "
+"una."
+msgstr ""
+"There are no blocked words. The words masked in what the audience types and"
+" in what is shown in the video appear here. Use Add to type one."
 
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "Esa palabra ya está en la lista."

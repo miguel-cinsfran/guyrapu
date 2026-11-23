@@ -30,7 +30,10 @@ EXPLICACION = N_(
     "minutos y cada mensaje admite 200 caracteres. YouTube suele bloquear los "
     "enlaces en el chat: escribe el nombre de usuario en lugar del enlace "
     "completo.")
-VACIO = N_("No hay mensajes automáticos. Usa Agregar para crear uno.")
+VACIO = N_(
+    "No hay mensajes automáticos. Aquí aparecen los mensajes que se envían "
+    "solos cada cierto tiempo, como tus redes. Pueden ir al chat, al vídeo "
+    "o a los dos. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 

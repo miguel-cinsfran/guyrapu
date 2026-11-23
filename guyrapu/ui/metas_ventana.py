@@ -21,7 +21,9 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
 
-VACIO = N_("No hay metas. Usa Agregar para crear una.")
+VACIO = N_(
+    "No hay metas. Aquí aparecen las metas del directo, como 50 seguidores, "
+    "con su avance en el vídeo. Usa Agregar para crear una.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 

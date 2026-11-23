@@ -71,14 +71,22 @@ class TestPagina(BaseVentana):
         panel = self._panel([])
         self.assertEqual(panel.lista.GetName(), "Encuestas guardadas")
         self.assertEqual(panel.lista.GetCount(), 1)
-        self.assertEqual(panel.lista.GetString(0),
-                         "No hay encuestas. Usa Agregar para crear una.")
+        self.assertEqual(
+            panel.lista.GetString(0),
+            "No hay encuestas. Aquí aparecen las encuestas listas para "
+            "iniciar en el directo. El público vota con un número precedido "
+            "de un signo de exclamación, como 1 o 2. "
+            "Usa Agregar para crear una.")
 
     def test_un_archivo_danado_deja_la_lista_vacia(self):
         paths.encuestas().write_text("{roto", encoding="utf-8")
         panel = self._panel()
-        self.assertEqual(panel.lista.GetString(0),
-                         "No hay encuestas. Usa Agregar para crear una.")
+        self.assertEqual(
+            panel.lista.GetString(0),
+            "No hay encuestas. Aquí aparecen las encuestas listas para "
+            "iniciar en el directo. El público vota con un número precedido "
+            "de un signo de exclamación, como 1 o 2. "
+            "Usa Agregar para crear una.")
 
     def test_la_fila_dice_pregunta_opciones_y_duracion(self):
         panel = self._panel([_datos("¿Qué pizza?")])
@@ -103,7 +111,10 @@ class TestPagina(BaseVentana):
         with mock.patch.object(lista_acciones, "anunciar") as decir:
             panel._lista.ejecutar("iniciar")
         decir.assert_called_once_with(
-            "No hay encuestas. Usa Agregar para crear una.")
+            "No hay encuestas. Aquí aparecen las encuestas listas para "
+            "iniciar en el directo. El público vota con un número precedido "
+            "de un signo de exclamación, como 1 o 2. "
+            "Usa Agregar para crear una.")
 
     def test_iniciar_abre_la_encuesta_elegida(self):
         panel = self._panel([_datos("A"), _datos("B")])

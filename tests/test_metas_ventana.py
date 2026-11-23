@@ -69,12 +69,16 @@ class TestContratos(BaseVentana):
         panel = self._panel([])
         self.assertEqual(
             panel.lista.GetString(0),
-            "No hay metas. Usa Agregar para crear una.")
+            "No hay metas. Aquí aparecen las metas del directo, como 50 "
+            "seguidores, con su avance en el vídeo. Usa Agregar para crear "
+            "una.")
         paths.metas().write_text("{roto", encoding="utf-8")
         panel = self._panel()
         self.assertEqual(
             panel.lista.GetString(0),
-            "No hay metas. Usa Agregar para crear una.")
+            "No hay metas. Aquí aparecen las metas del directo, como 50 "
+            "seguidores, con su avance en el vídeo. Usa Agregar para crear "
+            "una.")
 
     def test_los_botones_del_panel_estan_encendidos(self):
         panel = self._panel([])
@@ -88,7 +92,9 @@ class TestContratos(BaseVentana):
         with mock.patch("guyrapu.ui.lista_acciones.anunciar") as decir:
             panel._lista.ejecutar("editar")
         decir.assert_called_once_with(
-            "No hay metas. Usa Agregar para crear una.")
+            "No hay metas. Aquí aparecen las metas del directo, como 50 "
+            "seguidores, con su avance en el vídeo. Usa Agregar para crear "
+            "una.")
 
 
 class TestAcciones(BaseVentana):

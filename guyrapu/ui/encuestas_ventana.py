@@ -19,7 +19,10 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
 
-VACIO = N_("No hay encuestas. Usa Agregar para crear una.")
+VACIO = N_(
+    "No hay encuestas. Aquí aparecen las encuestas listas para iniciar en el "
+    "directo. El público vota con un número precedido de un signo de "
+    "exclamación, como 1 o 2. Usa Agregar para crear una.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 
 

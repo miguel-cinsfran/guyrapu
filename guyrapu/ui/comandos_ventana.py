@@ -21,7 +21,10 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
 
-VACIO = N_("No hay comandos. Usa Agregar para crear uno.")
+VACIO = N_(
+    "No hay comandos. Aquí aparecen las palabras que el público escribe en "
+    "el chat con un signo de exclamación delante, como hola. "
+    "También aparece lo que responde cada una. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 MOTIVO_LISTA = N_("La lista de comandos no se puede eliminar ni duplicar")
 

@@ -50,7 +50,10 @@ VENTANAS = (
         "nombre": "interaccion",
         "menu": "Interacción > Mensajes automáticos",
         "titulo": "Interacción",
-        "primero": "No hay mensajes automáticos. Usa Agregar para crear uno.",
+        "primero": (
+            "No hay mensajes automáticos. Aquí aparecen los mensajes que se "
+            "envían solos cada cierto tiempo, como tus redes. Pueden ir al "
+            "chat, al vídeo o a los dos. Usa Agregar para crear uno."),
     },
     {
         "nombre": "comandos",
@@ -128,14 +131,21 @@ VENTANAS = (
         "nombre": "palabras",
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Interacción",
-        "primero": "No hay palabras bloqueadas. Usa Agregar para escribir una.",
+        "primero": (
+            "No hay palabras bloqueadas. Aquí aparecen las palabras que se "
+            "tapan en lo que el público escribe y se muestra en el vídeo. "
+            "Usa Agregar para escribir una."),
         "pagina": "Palabras bloqueadas",
     },
     {
         "nombre": "encuestas",
         "menu": "Interacción > Abrir Interacción…",
         "titulo": "Interacción",
-        "primero": "No hay encuestas. Usa Agregar para crear una.",
+        "primero": (
+            "No hay encuestas. Aquí aparecen las encuestas listas para "
+            "iniciar en el directo. El público vota con un número precedido "
+            "de un signo de exclamación, como 1 o 2. Usa Agregar para crear "
+            "una."),
         "pagina": "Encuestas",
     },
     {

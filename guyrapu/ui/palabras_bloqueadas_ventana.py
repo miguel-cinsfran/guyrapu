@@ -20,7 +20,10 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
 
-VACIO = N_("No hay palabras bloqueadas. Usa Agregar para escribir una.")
+VACIO = N_(
+    "No hay palabras bloqueadas. Aquí aparecen las palabras que se tapan en "
+    "lo que el público escribe y se muestra en el vídeo. "
+    "Usa Agregar para escribir una.")
 REPETIDA = N_("Esa palabra ya está en la lista.")
 VACIA = N_("Escribe una palabra o frase.")
 

@@ -112,7 +112,10 @@ class TestContratos(BaseVentana):
         with mock.patch("guyrapu.ui.lista_acciones.anunciar") as decir:
             panel._lista.ejecutar("editar")
         decir.assert_called_once_with(
-            "No hay comandos. Usa Agregar para crear uno.")
+            "No hay comandos. Aquí aparecen las palabras que el público "
+            "escribe en el chat con un signo de exclamación delante, como "
+            "hola. También aparece lo que responde cada una. "
+            "Usa Agregar para crear uno.")
 
     def test_escape_cierra_el_cuadro(self):
         evento = mock.Mock()

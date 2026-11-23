@@ -352,7 +352,9 @@ class TestAcciones(BaseVentana):
         with mock.patch("guyrapu.ui.lista_acciones.anunciar") as decir:
             panel._lista.ejecutar("editar")
         decir.assert_called_once_with(
-            "No hay mensajes automáticos. Usa Agregar para crear uno.")
+            "No hay mensajes automáticos. Aquí aparecen los mensajes que se "
+            "envían solos cada cierto tiempo, como tus redes. Pueden ir al "
+            "chat, al vídeo o a los dos. Usa Agregar para crear uno.")
 
     def test_escape_cierra_el_cuadro(self):
         evento = mock.Mock()

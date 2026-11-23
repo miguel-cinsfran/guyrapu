@@ -21,7 +21,9 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
 
-VACIO = N_("No hay estilos. Usa Agregar para crear uno.")
+VACIO = N_(
+    "No hay estilos. Aquí aparecen los estilos que dan forma a lo que se "
+    "muestra en el vídeo. Usa Agregar para crear uno.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 MOTIVO_FABRICA = N_("Los estilos de fábrica no se cambian. Usa Duplicar para "
                     "crear uno propio.")
