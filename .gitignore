@@ -65,6 +65,9 @@ historial_lives.json
 # Registro y carpeta del gestor de descargas (URLs, rutas y vídeos enteros)
 /historial_descargas.json
 /Descargas/
+# Carpetas del usuario junto al programa: su música y sus medios de la interacción
+/Música/
+/Medios/
 # Datos del usuario desde la 2.1: configuracion, credenciales, historiales, logs y caches.
 /data/
 
