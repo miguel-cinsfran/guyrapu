@@ -1,4 +1,4 @@
-<!-- original: es/CHANGELOG.md 5b2c469037c4f27bc171034cfe89606d5c5554b7 -->
+<!-- original: es/CHANGELOG.md eb6972b442545547c6780b663d0493d40acfe79d -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).

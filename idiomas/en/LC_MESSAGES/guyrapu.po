@@ -3727,13 +3727,13 @@ msgid "Pausado."
 msgstr "Paused."
 
 #: guyrapu/interaction/descripcion_disparador.py
+msgid "sin evento"
+msgstr "no event"
+
+#: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
 msgid "el regalo {regalo}"
 msgstr "the gift {regalo}"
-
-#: guyrapu/interaction/descripcion_disparador.py
-msgid "sin evento"
-msgstr "no event"
 
 #: guyrapu/interaction/descripcion_disparador.py
 #, python-brace-format
@@ -8539,19 +8539,16 @@ msgstr "Captured: {atajo}. It applies when you press Save."
 
 #: guyrapu/ui/aviso_importante.py guyrapu/ui/chat_acciones.py
 #: guyrapu/ui/chat_participacion.py guyrapu/ui/comando_cuadro.py
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparador_cuadro.py
-#: guyrapu/ui/disparadores_ventana.py guyrapu/ui/encuesta_cuadro.py
-#: guyrapu/ui/encuestas_ventana.py guyrapu/ui/escena_filtros.py
-#: guyrapu/ui/escena_tamano.py guyrapu/ui/estilo_cuadro.py
-#: guyrapu/ui/estilo_tipos_cuadro.py guyrapu/ui/estilos_ventana.py
+#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/encuesta_cuadro.py
+#: guyrapu/ui/escena_filtros.py guyrapu/ui/escena_tamano.py
+#: guyrapu/ui/estilo_cuadro.py guyrapu/ui/estilo_tipos_cuadro.py
 #: guyrapu/ui/gui.py guyrapu/ui/gui_cierre.py guyrapu/ui/gui_comentarios.py
 #: guyrapu/ui/gui_envio_chat.py guyrapu/ui/gui_menu.py guyrapu/ui/gui_sesion.py
 #: guyrapu/ui/medio_cuadro.py guyrapu/ui/medio_descripcion_ia.py
 #: guyrapu/ui/medios_ventana.py guyrapu/ui/mensaje_automatico_cuadro.py
-#: guyrapu/ui/mensajes_automaticos_ventana.py guyrapu/ui/meta_cuadro.py
-#: guyrapu/ui/metas_ventana.py guyrapu/ui/preferencias_api.py
-#: guyrapu/ui/preferencias_atajos.py guyrapu/ui/preferencias_general.py
-#: guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/meta_cuadro.py guyrapu/ui/paquetes_ventana.py
+#: guyrapu/ui/preferencias_api.py guyrapu/ui/preferencias_atajos.py
+#: guyrapu/ui/preferencias_general.py guyrapu/ui/voces_ventana.py
 msgid "Aceptar"
 msgstr "OK"
 
@@ -9385,13 +9382,6 @@ msgstr ""
 "exclamation mark before them, such as hello, appear here. What each one "
 "replies appears here too. Use Add to create one."
 
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
-#: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/metas_ventana.py
-msgid "Paquete de Guyrapu (*.zip)|*.zip"
-msgstr "Guyrapu package (*.zip)|*.zip"
-
 #: guyrapu/ui/comandos_ventana.py
 msgid "La lista de comandos no se puede eliminar ni duplicar"
 msgstr "The command list cannot be deleted or duplicated"
@@ -9510,20 +9500,6 @@ msgstr "Command deleted"
 #: guyrapu/ui/comandos_ventana.py
 msgid "No hay comandos para exportar."
 msgstr "There are no commands to export."
-
-#: guyrapu/ui/comandos_ventana.py guyrapu/ui/disparadores_ventana.py
-#: guyrapu/ui/encuestas_ventana.py guyrapu/ui/estilos_ventana.py
-#: guyrapu/ui/medios_ventana.py guyrapu/ui/mensajes_automaticos_ventana.py
-#: guyrapu/ui/metas_ventana.py
-#, python-brace-format
-msgid ""
-"No se pudo escribir el paquete:\n"
-"\n"
-"{exc}"
-msgstr ""
-"The package could not be written:\n"
-"\n"
-"{exc}"
 
 #: guyrapu/ui/comandos_ventana.py
 msgid "Exportar comandos"
@@ -15277,6 +15253,21 @@ msgstr "Delete blocked word"
 #: guyrapu/ui/palabras_bloqueadas_ventana.py
 msgid "Palabra eliminada"
 msgstr "Word deleted"
+
+#: guyrapu/ui/paquetes_ventana.py
+msgid "Paquete de Guyrapu (*.zip)|*.zip"
+msgstr "Guyrapu package (*.zip)|*.zip"
+
+#: guyrapu/ui/paquetes_ventana.py
+#, python-brace-format
+msgid ""
+"No se pudo escribir el paquete:\n"
+"\n"
+"{exc}"
+msgstr ""
+"The package could not be written:\n"
+"\n"
+"{exc}"
 
 #. Traductores: una línea de participación; {nombre} es la persona y {n} la
 #. cantidad de mensajes.
