@@ -10,6 +10,7 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_TEXTO
+from guyrapu.core.sonidos_eventos import ROL_MODERADOR
 from guyrapu.interaction import (
     comandos_guardados, filtro_publico, medios_guardados)
 from guyrapu.ui import chat_vivo, comandos_en_vivo, encuesta_en_vivo
@@ -30,10 +31,10 @@ def _datos(nombre="discord", respuesta="Hola", destino="video", **cambios):
     return datos
 
 
-def _registro(texto, autor="Ana", plataforma="youtube"):
+def _registro(texto, autor="Ana", plataforma="youtube", rol=""):
     return MensajeChat(plataforma=plataforma, autor=autor,
                        identificador="C1", texto=texto, hora="12:00",
-                       tipo=TIPO_TEXTO, monto="", rol="")
+                       tipo=TIPO_TEXTO, monto="", rol=rol)
 
 
 def _hilo_inmediato(objetivo, _nombre):
@@ -103,14 +104,20 @@ class Base(unittest.TestCase):
         self.frame._capa_video = capa
         return capa
 
-    def _encolar(self, texto, plataforma="youtube", autor="Ana"):
+    def _ventana_falsa(self):
+        ventana = types.SimpleNamespace(
+            cerrado=False, agregar_resultado=mock.Mock())
+        self.frame._ventana_ensayo = ventana
+        return ventana
+
+    def _encolar(self, texto, plataforma="youtube", autor="Ana", rol=""):
         with mock.patch.object(chat_vivo.wx, "CallLater",
                                return_value=mock.Mock()), \
                 mock.patch(
                     "guyrapu.capture.traduccion_chat.traduce_lista",
                     return_value=False):
             self.control.encolar(_registro(texto, autor=autor,
-                                           plataforma=plataforma))
+                                           plataforma=plataforma, rol=rol))
 
 
 class TestRespuestaEnElVideo(Base):
@@ -430,6 +437,50 @@ class TestEnsayo(Base):
         self._guardar(_datos(respuesta="Nuestro Discord: {usuario}"))
         self._encolar("!discord")
         self.frame._capa_video.agregar_comando.assert_not_called()
+
+    def test_cada_envio_anuncia_lo_que_respondio_y_lo_deja_en_resultados(self):
+        self._guardar(_datos(nombre="hola", espera_persona=0))
+        ventana = self._ventana_falsa()
+        with mock.patch.object(chat_vivo, "anunciar_con_sonido") as avisar:
+            self._encolar("!hola")
+            self.ahora = 1.0
+            self._encolar("!hola")
+        primero = "Respondió el comando hola."
+        segundo = ("Nada respondió: el comando hola está en espera, "
+                   "faltan 4 segundos.")
+        self.assertEqual(avisar.call_args_list, [
+            mock.call(primero, "listo"), mock.call(segundo, "aviso")])
+        self.assertEqual([llamada.args[1] for llamada in
+                          ventana.agregar_resultado.call_args_list],
+                         [primero, segundo])
+
+    def test_el_rol_de_quien_escribe_decide_el_permiso(self):
+        self._guardar(_datos(nombre="modo", permiso="moderadores"))
+        with mock.patch.object(chat_vivo, "anunciar_con_sonido") as avisar:
+            self._encolar("!modo")
+            self._encolar("!modo", rol=ROL_MODERADOR)
+        self.assertEqual([llamada.args[0] for llamada in avisar.call_args_list],
+                         ["Nada respondió: el comando modo es solo para "
+                          "solo moderadores.",
+                          "Respondió el comando modo."])
+
+    def test_los_comandos_en_pausa_dicen_por_que_no_responden(self):
+        self._guardar(_datos(nombre="hola"))
+        comandos_en_vivo._en_vivo(self.frame).alternar_pausa()
+        with mock.patch.object(chat_vivo, "anunciar_con_sonido") as avisar:
+            self._encolar("!hola")
+        avisar.assert_called_once_with(
+            "Nada respondió: los comandos están en pausa.", "aviso")
+
+    def test_con_un_directo_conectado_no_anota_ni_anuncia(self):
+        self._guardar(_datos(nombre="hola"))
+        self.frame._ensayo = False
+        self.frame._conectado = True
+        ventana = self._ventana_falsa()
+        with mock.patch.object(chat_vivo, "anunciar_con_sonido") as avisar:
+            self._encolar("!hola")
+        avisar.assert_not_called()
+        ventana.agregar_resultado.assert_not_called()
 
 
 class TestUbicacionEnCualquierParte(Base):

@@ -21,7 +21,7 @@ from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
 from guyrapu.interaction import (
     atencion, comandos_guardados, conversion_disparadores, ensayo,
-    filtro_publico, medio_en_video)
+    filtro_publico, informe_ensayo, medio_en_video)
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
 from guyrapu.ui.accesibilidad import anunciar_con_sonido
@@ -95,18 +95,27 @@ class ComandosEnVivo:
     def atender(self, registro, ahora) -> None:
         if registro.tipo != TIPO_TEXTO:
             return
-        if encuesta_en_vivo.votar(self._frame, _evento(registro), ahora):
+        evento = _evento(registro)
+        if encuesta_en_vivo.votar(self._frame, evento, ahora):
             return
-        if (self._pausados
-                or preguntas_en_vivo.recibir(self._frame, _evento(registro), ahora)):
+        informe = ensayo.informe(self._frame)
+        if self._pausados:
+            if informe is not None:
+                informe.motivo(_(informe_ensayo.MOTIVO_PAUSA_GENERAL))
+            return
+        if preguntas_en_vivo.recibir(self._frame, evento, ahora):
             return
         self._recargar()
         respuesta = self._atencion.atender(
-            _evento(registro), ahora,
+            evento, ahora,
             chat_disponible=self._chat_disponible(),
             cuota_baja=_cuota_baja())
         if respuesta is not None:
+            if informe is not None:
+                informe.comando(respuesta.nombre)
             self._mandar(respuesta, registro.autor)
+        elif informe is not None:
+            informe.motivo(self._atencion.motivo(evento, ahora))
 
     def disparar(self, numero, ahora=None) -> None:
         """Usa el comando de ese número como si lo pidiera el dueño."""

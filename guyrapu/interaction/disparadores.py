@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core.idioma import N_, _
-from guyrapu.interaction import comandos, filtro_publico
+from guyrapu.interaction import comandos, filtro_publico, informe_ensayo
 from guyrapu.interaction.texto import normalizar
 
 CUANDOS = ("evento",)
@@ -117,6 +117,21 @@ def cumplidos(disparadores, evento, esperas, ahora) -> list[Disparador]:
         esperas.anotar(disparador, evento, ahora)
         logrados.append(disparador)
     return logrados
+
+
+def motivo(disparadores, evento, esperas, ahora):
+    """Por qué no respondió ninguna alerta, sin consumir esperas ni estado."""
+    for disparador in disparadores:
+        if not disparador.activo or not _cumple(disparador, evento):
+            continue
+        if not comandos.puede_usarlo(disparador, evento):
+            continue
+        segundos = esperas.faltan(disparador, evento, ahora)
+        if segundos:
+            return _(informe_ensayo.MOTIVO_ESPERA_ALERTA).format(
+                nombre=disparador.nombre, segundos=segundos)
+        return ""
+    return ""
 
 
 def _nombre_del_regalo(disparador: Disparador, evento) -> str:

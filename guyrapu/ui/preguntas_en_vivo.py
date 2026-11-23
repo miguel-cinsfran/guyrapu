@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
-from guyrapu.interaction import filtro_publico, preguntas
+from guyrapu.interaction import ensayo, filtro_publico, preguntas
 from guyrapu.interaction.cola_pantalla import Pieza
 
 SEGUNDOS_VIDEO = 15
@@ -31,7 +31,7 @@ def _avisar(frase, sonido):
 def _sesion(frame):
     sesion = getattr(frame, "_preguntas_en_vivo", None)
     if sesion is None:
-        sesion = SesionPreguntas()
+        sesion = SesionPreguntas(frame)
         frame._preguntas_en_vivo = sesion
     return sesion
 
@@ -99,7 +99,8 @@ def mostrar(frame, id) -> bool:
 class SesionPreguntas:
     """Las preguntas de una sesión y las palabras bloqueadas al día."""
 
-    def __init__(self):
+    def __init__(self, frame):
+        self._frame = frame
         self.cola = preguntas.ColaPreguntas()
         self._palabras = []
         self._cargado = False
@@ -109,6 +110,10 @@ class SesionPreguntas:
         self._recargar()
         resultado = self.cola.agregar(
             evento, argumentos, self._palabras, ahora)
+        if resultado == preguntas.SUMADA:
+            informe = ensayo.informe(self._frame)
+            if informe is not None:
+                informe.pregunta()
         if resultado == preguntas.LLENA and self.cola.avisar_llena():
             # Traductores: aviso cuando la cola de preguntas del público ya tiene su máximo.
             _avisar(_("La cola de preguntas está llena."), "preguntas_llena")

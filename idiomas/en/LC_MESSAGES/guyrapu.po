@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: guyrapu/core/eventos_sonido.py guyrapu/ui/ensayo_ventana.py main.py
+#: guyrapu/core/eventos_sonido.py guyrapu/interaction/ensayo.py main.py
 msgid "Super Chat"
 msgstr "Super Chat"
 
@@ -569,6 +569,15 @@ msgstr "Command Code"
 #: guyrapu/ai/proveedores.py
 msgid "Otro compatible con OpenAI"
 msgstr "Other OpenAI-compatible"
+
+#. Traductores: fila de la conversación vacía de Preguntar a la IA.
+#: guyrapu/ai/ventana_ia.py
+msgid ""
+"No hay mensajes. Aquí aparecen tu pregunta y la respuesta de la IA. Agrega "
+"una captura y escribe tu pregunta para empezar."
+msgstr ""
+"There are no messages. Your question and the AI answer appear here. Add a "
+"capture and type your question to start."
 
 #: guyrapu/ai/ventana_ia.py
 msgid "Analizando…"
@@ -2714,6 +2723,21 @@ msgstr "Application start"
 msgid "Actualización disponible"
 msgstr "Update available"
 
+#. Traductores: fila de «Recientes» sin historial; sale en la lista de inicio.
+#: guyrapu/core/historial.py
+msgid ""
+"No hay historial. Aquí aparecen los directos y vídeos que hayas visto desde"
+" Guyrapu. Conecta un directo o abre un vídeo para verlos aquí."
+msgstr ""
+"There is no history. The live streams and videos you have watched from "
+"Guyrapu appear here. Connect to a live stream or open a video to see them."
+
+#. Traductores: motivo breve que se agrega a la etiqueta de un botón del
+#. historial.
+#: guyrapu/core/historial.py
+msgid "El historial está vacío"
+msgstr "The history is empty"
+
 #. Traductores: fecha corta de una fila del historial; se ordena como la
 #. fecha corta de Windows en ese idioma, y en inglés de Estados Unidos es
 #. «{mes}/{dia}/{anio}».
@@ -2721,12 +2745,6 @@ msgstr "Update available"
 #, python-brace-format
 msgid "{dia}/{mes}/{anio}"
 msgstr "{mes}/{dia}/{anio}"
-
-#. Traductores: motivo que se agrega a la etiqueta de un botón del
-#. historial cuando no hay entradas; va en minúscula y sin punto.
-#: guyrapu/core/historial.py
-msgid "El historial está vacío"
-msgstr "The history is empty"
 
 #. Traductores: fila del historial de un directo; {base} es el canal y
 #. el título y {fecha} la fecha corta.
@@ -3003,6 +3021,53 @@ msgstr "License:"
 #: guyrapu/core/voces_disponibles.py
 msgid "Enlace de la licencia:"
 msgstr "License link:"
+
+#. Traductores: fila de carga en las listas de motores y voces.
+#: guyrapu/core/voces_disponibles.py
+msgid ""
+"Cargando paquetes de voces. Aquí aparecen los motores y las voces "
+"disponibles. Espera a que termine la carga."
+msgstr ""
+"Loading voice packs. The available engines and voices appear here. Wait for"
+" loading to finish."
+
+#. Traductores: fila cuando el idioma elegido deja la lista vacía.
+#: guyrapu/core/voces_disponibles.py
+msgid ""
+"No hay paquetes de voces con este filtro. Aquí aparecen los motores y las "
+"voces del idioma elegido. Prueba con otro idioma."
+msgstr ""
+"There are no voice packs with this filter. The engines and voices for the "
+"selected language appear here. Try another language."
+
+#. Traductores: fila cuando falló la consulta del catálogo.
+#: guyrapu/core/voces_disponibles.py
+msgid ""
+"No hay paquetes de voces instalados. Aquí aparecen los motores y las voces "
+"disponibles. Revisa la conexión y vuelve a abrir esta ventana."
+msgstr ""
+"There are no installed voice packs. The available engines and voices appear"
+" here. Check the connection and reopen this window."
+
+#. Traductores: fila sin paquetes instalados.
+#: guyrapu/core/voces_disponibles.py
+msgid ""
+"No hay paquetes de voces. Aquí aparecen los motores y las voces "
+"disponibles. Instala un paquete de voces para verlos."
+msgstr ""
+"There are no voice packs. The available engines and voices appear here. "
+"Install a voice pack to see them."
+
+#. Traductores: fila de «Voces» sin coincidencias; {texto} es lo escrito en
+#. Buscar voz.
+#: guyrapu/core/voces_disponibles.py
+#, python-brace-format
+msgid ""
+"No hay voces que coincidan con «{texto}». Aquí aparecen las voces del motor"
+" y del idioma elegidos. Prueba con otro texto en Buscar voz."
+msgstr ""
+"There are no voices matching «{texto}». The voices for the selected engine "
+"and language appear here. Try another text in Search voice."
 
 #: guyrapu/core/voces_disponibles.py
 msgid "Todos los idiomas"
@@ -3719,7 +3784,8 @@ msgstr "Memberships"
 msgid "Entradas al directo"
 msgstr "Live joins"
 
-#: guyrapu/interaction/disparadores.py guyrapu/interaction/metas.py
+#: guyrapu/interaction/disparadores.py guyrapu/interaction/ensayo.py
+#: guyrapu/interaction/metas.py
 msgid "Me gusta"
 msgstr "Likes"
 
@@ -3727,7 +3793,7 @@ msgstr "Likes"
 msgid "Seguidores nuevos"
 msgstr "New followers"
 
-#: guyrapu/interaction/disparadores.py
+#: guyrapu/interaction/disparadores.py guyrapu/interaction/ensayo.py
 msgid "Directo compartido"
 msgstr "Shared live streams"
 
@@ -3894,6 +3960,35 @@ msgstr "Poll: {pregunta}. Options: {opciones}."
 msgid "Público de prueba"
 msgstr "Test audience"
 
+#. Traductores: privacidad del directo; una sola palabra.
+#: guyrapu/interaction/ensayo.py guyrapu/youtube/emision.py
+msgid "Público"
+msgstr "Public"
+
+#: guyrapu/interaction/ensayo.py
+msgid "Moderador"
+msgstr "Moderator"
+
+#: guyrapu/interaction/ensayo.py
+msgid "Propietario del canal"
+msgstr "Channel owner"
+
+#: guyrapu/interaction/ensayo.py guyrapu/ui/ia_ventana.py
+msgid "Mensaje"
+msgstr "Message"
+
+#: guyrapu/interaction/ensayo.py
+msgid "Membresía"
+msgstr "Membership"
+
+#: guyrapu/interaction/ensayo.py
+msgid "Regalo"
+msgstr "Gift"
+
+#: guyrapu/interaction/ensayo.py
+msgid "Seguidor nuevo"
+msgstr "New follower"
+
 #: guyrapu/interaction/estado_interaccion.py
 #, python-brace-format
 msgid "1 pregunta en espera."
@@ -3916,6 +4011,75 @@ msgstr "Default ({estilo})"
 #: guyrapu/ui/metas_ventana.py
 msgid "nombre"
 msgstr "name"
+
+#. Traductores: partes del resultado de un mensaje de prueba, en este orden.
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "Respondió el comando {nombre}."
+msgstr "The command {nombre} responded."
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "Respondió la alerta {nombre}."
+msgstr "The alert {nombre} responded."
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "Voto contado en la encuesta {nombre}."
+msgstr "Vote counted in the poll {nombre}."
+
+#: guyrapu/interaction/informe_ensayo.py
+msgid "Pregunta agregada a la página Preguntas."
+msgstr "Question added to the Questions page."
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "La meta {nombre} avanzó a {actual} de {objetivo}."
+msgstr "Goal {nombre} advanced to {actual} of {objetivo}."
+
+#. Traductores: resultado cuando nada respondió. {motivo} ya trae su punto.
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "Nada respondió: {motivo}"
+msgstr "Nothing responded: {motivo}"
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "{hora} {enviado}: {resultado}"
+msgstr "{hora} {enviado}: {resultado}"
+
+#. Traductores: motivos de un mensaje que no respondió ninguna parte.
+#: guyrapu/interaction/informe_ensayo.py
+msgid "ningún comando ni alerta usa ese mensaje."
+msgstr "no command or alert uses that message."
+
+#: guyrapu/interaction/informe_ensayo.py
+msgid "ninguna alerta usa ese evento."
+msgstr "no alert uses that event."
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "el comando {nombre} está en espera, faltan {segundos} segundos."
+msgstr "the command {nombre} is in cooldown, {segundos} seconds left."
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "el comando {nombre} es solo para {permiso}."
+msgstr "the command {nombre} is only for {permiso}."
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "el comando {nombre} está en pausa."
+msgstr "the command {nombre} is paused."
+
+#: guyrapu/interaction/informe_ensayo.py
+msgid "los comandos están en pausa."
+msgstr "commands are paused."
+
+#: guyrapu/interaction/informe_ensayo.py
+#, python-brace-format
+msgid "la alerta {nombre} está en espera, faltan {segundos} segundos."
+msgstr "the alert {nombre} is in cooldown, {segundos} seconds left."
 
 #: guyrapu/interaction/medios.py guyrapu/obs/obs_prevuelo.py
 msgid "imagen"
@@ -8771,6 +8935,26 @@ msgstr "{autor} muted"
 msgid "{autor} ya no está silenciado"
 msgstr "{autor} is no longer muted"
 
+#. Traductores: fila sin texto escrito; «Buscar en el chat» es el campo de
+#. texto.
+#: guyrapu/ui/chat_buscar.py
+msgid ""
+"No hay mensajes. Aquí aparecen los mensajes del chat que coinciden con lo "
+"que escribas. Escribe un texto en Buscar en el chat para verlos."
+msgstr ""
+"There are no messages. The chat messages matching what you type appear "
+"here. Type text in Search chat to see them."
+
+#. Traductores: fila sin coincidencias; {texto} es lo escrito en el campo.
+#: guyrapu/ui/chat_buscar.py
+#, python-brace-format
+msgid ""
+"No hay mensajes con «{texto}». Aquí aparecen los mensajes del chat que "
+"coinciden con tu búsqueda. Prueba con otro texto en Buscar en el chat."
+msgstr ""
+"There are no messages with «{texto}». The chat messages matching your "
+"search appear here. Try another text in Search chat."
+
 #: guyrapu/ui/chat_buscar.py
 msgid "Ningún mensaje coincide"
 msgstr "No messages match"
@@ -8801,10 +8985,11 @@ msgstr "Results"
 #: guyrapu/ui/chat_buscar.py guyrapu/ui/chat_participacion.py
 #: guyrapu/ui/dialogo_asistente_perfiles.py guyrapu/ui/dialogo_estado.py
 #: guyrapu/ui/dialogo_prueba_conexion.py guyrapu/ui/dialogo_prueba_equipo.py
-#: guyrapu/ui/gui_actualizacion.py guyrapu/ui/gui_descargas.py
-#: guyrapu/ui/gui_microfono.py guyrapu/ui/ia_ventana.py
-#: guyrapu/ui/interaccion_ventana.py guyrapu/ui/musica_ventana.py
-#: guyrapu/ui/ventana_espera.py guyrapu/ui/voces_ventana.py
+#: guyrapu/ui/ensayo_ventana.py guyrapu/ui/gui_actualizacion.py
+#: guyrapu/ui/gui_descargas.py guyrapu/ui/gui_microfono.py
+#: guyrapu/ui/ia_ventana.py guyrapu/ui/interaccion_ventana.py
+#: guyrapu/ui/musica_ventana.py guyrapu/ui/ventana_espera.py
+#: guyrapu/ui/voces_ventana.py
 msgid "&Cerrar"
 msgstr "&Close"
 
@@ -8816,6 +9001,15 @@ msgstr "&Close"
 #: guyrapu/ui/voces_ventana.py
 msgid "Cerrar"
 msgstr "Close"
+
+#. Traductores: fila de un directo sin mensajes en la lista de participación.
+#: guyrapu/ui/chat_participacion.py
+msgid ""
+"No hay mensajes en este directo. Aquí aparece cuántos mensajes y regalos "
+"escribió cada persona. Conecta un directo y espera a que lleguen mensajes."
+msgstr ""
+"There are no messages in this live stream. How many messages and gifts each"
+" person wrote appears here. Connect to a live stream and wait for messages."
 
 #: guyrapu/ui/chat_participacion.py
 msgid "Guardar participación"
@@ -8901,6 +9095,16 @@ msgstr "Recent chat messages in any application"
 #, python-brace-format
 msgid "Mensajes recientes del chat solo en {app}"
 msgstr "Recent chat messages only in {app}"
+
+#. Traductores: única fila del chat sin mensajes; dice qué aparece y cómo se
+#. llena.
+#: guyrapu/ui/chat_vivo.py
+msgid ""
+"No hay mensajes en el chat. Aquí aparecen los mensajes y avisos del directo"
+" a medida que llegan. Conecta un directo para verlos."
+msgstr ""
+"There are no messages in the chat. Messages and alerts from the live stream"
+" appear here as they arrive. Connect to a live stream to see them."
 
 #. Traductores: resultado de comprobar la clave; {voces} cuántas voces trae,
 #. {usados} y {limite} los caracteres del mes con miles con punto.
@@ -9533,6 +9737,34 @@ msgstr "{cantidad} downloads removed from the list"
 msgid "No hay descargas terminadas"
 msgstr "No finished downloads"
 
+#. Traductores: fila antes de buscar; «Buscar» es el botón de la búsqueda.
+#: guyrapu/ui/descargas_buscador.py
+msgid ""
+"No hay resultados. Aquí aparecen los vídeos de YouTube que coinciden con tu"
+" búsqueda. Escribe un texto y usa Buscar."
+msgstr ""
+"There are no results. The YouTube videos matching your search appear here. "
+"Type text and use Search."
+
+#. Traductores: fila mientras llegan los resultados de la búsqueda.
+#: guyrapu/ui/descargas_buscador.py
+msgid ""
+"Buscando vídeos. Aquí aparecerán los resultados de YouTube. Espera a que "
+"termine la búsqueda."
+msgstr ""
+"Searching for videos. The YouTube results appear here. Wait for the search "
+"to finish."
+
+#. Traductores: fila sin resultados; {texto} es lo escrito en el campo.
+#: guyrapu/ui/descargas_buscador.py
+#, python-brace-format
+msgid ""
+"No hay resultados para «{texto}». Aquí aparecen los vídeos de YouTube que "
+"coinciden con tu búsqueda. Prueba con otro texto y usa Buscar."
+msgstr ""
+"There are no results for «{texto}». The YouTube videos matching your search"
+" appear here. Try another text and use Search."
+
 #: guyrapu/ui/descargas_buscador.py
 msgid "B&uscar o pegar enlace:"
 msgstr "Search or paste li&nk:"
@@ -9580,6 +9812,16 @@ msgstr "Add ent&ire playlist"
 #: guyrapu/ui/descargas_buscador.py
 msgid "Escribe una búsqueda o un enlace."
 msgstr "Type a search or a link."
+
+#. Traductores: fila sin descargas; «Buscar» y «Mostrar» son controles de la
+#. página.
+#: guyrapu/ui/descargas_listas.py
+msgid ""
+"No hay descargas. Aquí aparecen las descargas en curso y las terminadas. "
+"Usa Buscar para descargar vídeos o cambia el filtro Mostrar."
+msgstr ""
+"There are no downloads. Downloads in progress and completed downloads "
+"appear here. Use Search to download videos or change the Show filter."
 
 #: guyrapu/ui/descargas_listas.py
 msgid "en cola"
@@ -9928,9 +10170,14 @@ msgstr "Preparing the profiles…"
 msgid "Estado de la sesión"
 msgstr "Session status"
 
-#: guyrapu/ui/dialogo_estado.py guyrapu/ui/gui_estado.py
-msgid "Sin información de estado."
-msgstr "No status information."
+#. Traductores: fila cuando el cuadro de estado no tiene líneas que mostrar.
+#: guyrapu/ui/dialogo_estado.py
+msgid ""
+"No hay información de estado. Aquí aparecen el directo, el chat, OBS y la "
+"música. Conecta un directo o abre OBS para verlo."
+msgstr ""
+"There is no status information. The live stream, chat, OBS and music appear"
+" here. Connect to a live stream or open OBS to see it."
 
 #: guyrapu/ui/dialogo_nombre_perfil_obs.py
 msgid "Nombre del perfil"
@@ -10336,6 +10583,16 @@ msgstr "Loading formats"
 msgid "No se pudieron cargar los formatos."
 msgstr "Could not load the formats."
 
+#. Traductores: fila del cuadro sin formatos; «Cancelar» es el botón del
+#. cuadro.
+#: guyrapu/ui/elegir_formato.py
+msgid ""
+"No hay formatos. Aquí aparecen las opciones de vídeo y audio del vídeo "
+"elegido. Usa Cancelar y vuelve a abrir el cuadro desde el buscador."
+msgstr ""
+"There are no formats. The video and audio options for the selected video "
+"appear here. Use Cancel and reopen the dialog from the search."
+
 #: guyrapu/ui/elegir_formato.py
 msgid "&Formatos:"
 msgstr "&Formats:"
@@ -10516,6 +10773,16 @@ msgstr[1] "{n} polls imported."
 msgid "Ya hay encuestas llamadas {nombres}. ¿Quieres reemplazarlas?"
 msgstr "Polls named {nombres} already exist. Replace them?"
 
+#. Traductores: única fila de Resultados sin resultados; dice qué aparece y
+#. cómo se llena.
+#: guyrapu/ui/ensayo_ventana.py
+msgid ""
+"No hay resultados. Aquí aparece lo que respondió a cada mensaje de prueba. "
+"Escribe un mensaje y usa Enviar."
+msgstr ""
+"No results. What responded to each test message appears here. Type a "
+"message and use Send."
+
 #. Traductores: motivo de no poder probar sin directo estando conectado.
 #: guyrapu/ui/ensayo_ventana.py
 msgid "Desconecta el directo para probar sin él."
@@ -10526,26 +10793,25 @@ msgid "Prueba sin directo"
 msgstr "Test without a live stream"
 
 #: guyrapu/ui/ensayo_ventana.py
-msgid "&Autor:"
-msgstr "&Author:"
-
-#: guyrapu/ui/ensayo_ventana.py
 msgid "P&lataforma:"
 msgstr "Plat&form:"
 
-#. Traductores: opciones del tipo de mensaje de la ventana de ensayo.
 #: guyrapu/ui/ensayo_ventana.py guyrapu/ui/medio_cuadro.py
 #: guyrapu/ui/meta_cuadro.py
 msgid "&Tipo:"
 msgstr "&Type:"
 
-#: guyrapu/ui/ensayo_ventana.py guyrapu/ui/ia_ventana.py
-msgid "Mensaje"
-msgstr "Message"
+#: guyrapu/ui/ensayo_ventana.py
+msgid "&Rol:"
+msgstr "&Role:"
 
 #: guyrapu/ui/ensayo_ventana.py
-msgid "Regalo"
-msgstr "Gift"
+msgid "&Autor:"
+msgstr "&Author:"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "&Nombre del regalo:"
+msgstr "Gift &name:"
 
 #: guyrapu/ui/ensayo_ventana.py
 msgid "Canti&dad:"
@@ -10559,14 +10825,9 @@ msgstr "&Message:"
 msgid "En&viar"
 msgstr "&Send"
 
-#: guyrapu/ui/ensayo_ventana.py guyrapu/ui/ia_ventana.py
-msgid "Ce&rrar"
-msgstr "Cl&ose"
-
-#. Traductores: aviso después de enviar un mensaje de prueba.
 #: guyrapu/ui/ensayo_ventana.py
-msgid "Enviado a la prueba."
-msgstr "Sent to the test."
+msgid "Res&ultados:"
+msgstr "Res&ults:"
 
 #: guyrapu/ui/escena_acciones_fuente.py
 msgid "visibilidad"
@@ -11088,6 +11349,15 @@ msgstr "Send &backward"
 msgid "Enviar al fo&ndo"
 msgstr "Send to bac&k"
 
+#. Traductores: fila de la pestaña Audio sin fuentes de OBS.
+#: guyrapu/ui/escena_pagina_audio.py
+msgid ""
+"No hay fuentes de audio. Aquí aparecen las fuentes de OBS que se pueden "
+"silenciar o escuchar. Conecta OBS con una fuente de audio para verla aquí."
+msgstr ""
+"There are no audio sources. The OBS sources you can mute or listen to "
+"appear here. Connect OBS with an audio source to see it here."
+
 #: guyrapu/ui/escena_pagina_audio.py
 msgid "Si&lenciar"
 msgstr "&Mute"
@@ -11137,6 +11407,15 @@ msgstr "Level test for {fuente} stopped."
 #, python-brace-format
 msgid "{fuente}: {resumen}"
 msgstr "{fuente}: {resumen}"
+
+#. Traductores: fila sin escenas; «Agregar escena…» es el botón de la página.
+#: guyrapu/ui/escena_pagina_escena.py
+msgid ""
+"No hay escenas. Aquí aparecen las escenas de OBS y cuál está actual. "
+"Conecta OBS o usa Agregar escena… para crear una."
+msgstr ""
+"There are no scenes. The OBS scenes and which one is current appear here. "
+"Connect OBS or use Add scene… to create one."
 
 #: guyrapu/ui/escena_pagina_escena.py
 msgid "&Escenas:"
@@ -11207,6 +11486,15 @@ msgstr "PNG Image (*.png)|*.png"
 #: guyrapu/ui/escena_pagina_escena.py
 msgid "Imagen guardada"
 msgstr "Image saved"
+
+#. Traductores: fila de una escena sin fuentes; «Agregar fuente…» es el botón.
+#: guyrapu/ui/escena_pagina_fuentes.py
+msgid ""
+"No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
+"elegida en OBS. Usa Agregar fuente… para agregar una."
+msgstr ""
+"There are no sources in this scene. The sources of the selected scene in "
+"OBS appear here. Use Add source… to add one."
 
 #: guyrapu/ui/escena_pagina_fuentes.py
 msgid "&Fuentes:"
@@ -12548,6 +12836,10 @@ msgstr "{autor} hidden on the YouTube channel"
 msgid "Confirmar moderación"
 msgstr "Confirm moderation"
 
+#: guyrapu/ui/gui_estado.py
+msgid "Sin información de estado."
+msgstr "No status information."
+
 #. Traductores: {autor} es el nombre de quien escribió.
 #: guyrapu/ui/gui_estado.py
 #, python-brace-format
@@ -12557,6 +12849,15 @@ msgstr "Last message read from {autor}"
 #: guyrapu/ui/gui_estado.py
 msgid "Todavía no se leyó ningún mensaje."
 msgstr "No message has been read yet."
+
+#. Traductores: fila de la lista sin grabaciones ni clips guardados.
+#: guyrapu/ui/gui_grabaciones.py
+msgid ""
+"No hay grabaciones ni clips. Aquí aparecen los archivos que graba OBS. "
+"Inicia una grabación o guarda un clip para verlos aquí."
+msgstr ""
+"There are no recordings or clips. The files recorded by OBS appear here. "
+"Start a recording or save a clip to see them here."
 
 #: guyrapu/ui/gui_grabaciones.py guyrapu/ui/recientes_inicio.py
 msgid "&Abrir"
@@ -12577,6 +12878,19 @@ msgstr "Recordings and clips"
 #: guyrapu/ui/gui_grabaciones.py
 msgid "Ruta copiada"
 msgstr "Path copied"
+
+#. Traductores: fila sin entradas en una pestaña; {plataforma} es YouTube o
+#. TikTok.
+#: guyrapu/ui/gui_historial.py
+#, python-brace-format
+msgid ""
+"No hay entradas de {plataforma}. Aquí aparecen los directos y vídeos de "
+"{plataforma} que hayas visto. Conecta un directo o abre un vídeo para "
+"verlos aquí."
+msgstr ""
+"There are no {plataforma} entries. The {plataforma} live streams and videos"
+" you have watched appear here. Connect to a live stream or open a video to "
+"see them."
 
 #: guyrapu/ui/gui_historial.py
 msgid "Historial de directos"
@@ -13513,6 +13827,10 @@ msgstr "&New conversation"
 msgid "Nueva conversación"
 msgstr "New conversation"
 
+#: guyrapu/ui/ia_ventana.py
+msgid "Ce&rrar"
+msgstr "Cl&ose"
+
 #: guyrapu/ui/inicio_youtube.py
 msgid ""
 "Para transmitir a YouTube hace falta iniciar sesión con Google, en "
@@ -13557,6 +13875,14 @@ msgstr "Interaction"
 #: guyrapu/ui/interaccion_ventana.py
 msgid "Páginas de interacción"
 msgstr "Interaction pages"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Probar sin direc&to"
+msgstr "&Test without a live stream"
+
+#: guyrapu/ui/interaccion_ventana.py
+msgid "Probar sin directo"
+msgstr "Test without a live stream"
 
 #: guyrapu/ui/lista_acciones.py
 #, python-brace-format
@@ -14335,11 +14661,29 @@ msgstr "Movement undone"
 msgid ". {nombre}"
 msgstr ". {nombre}"
 
+#. Traductores: fila de «Colecciones» mientras se lee la carpeta de música.
+#: guyrapu/ui/musica_colecciones.py
+msgid ""
+"Cargando la carpeta. Aquí aparecen la biblioteca y tus listas de música. "
+"Espera a que termine la carga."
+msgstr ""
+"Loading the folder. The library and your music lists appear here. Wait for "
+"loading to finish."
+
 #. Traductores: motivo del botón «Cambiar carpeta» mientras se carga la
 #. carpeta.
 #: guyrapu/ui/musica_colecciones.py
 msgid "Cargando la carpeta"
 msgstr "Loading the folder"
+
+#. Traductores: fila de «Colecciones» sin carpeta elegida.
+#: guyrapu/ui/musica_colecciones.py
+msgid ""
+"No hay carpeta de música. Aquí aparecen la biblioteca y tus listas de "
+"música. Elige una carpeta en Preferencias, categoría Música."
+msgstr ""
+"There is no music folder. The library and your music lists appear here. "
+"Choose a folder in Preferences, Music category."
 
 #: guyrapu/ui/musica_dialogo_enlace.py
 msgid "Enlace &de YouTube:"
@@ -14385,6 +14729,38 @@ msgstr "Edit playlist"
 #: guyrapu/ui/musica_editor_lista.py
 msgid "El nombre no puede tener más de 60 caracteres"
 msgstr "The name cannot be more than 60 characters"
+
+#. Traductores: fila de «Canciones de la lista» sin temas.
+#: guyrapu/ui/musica_editor_lista.py
+msgid ""
+"La lista no tiene canciones. Aquí aparecen las canciones que guardes en "
+"ella. Marca las casillas de Todas las canciones para agregarlas."
+msgstr ""
+"The list has no songs. The songs you save to it appear here. Select the "
+"check boxes in All songs to add them."
+
+#. Traductores: fila de «Todas las canciones» sin temas en la carpeta de
+#. música.
+#: guyrapu/ui/musica_editor_lista.py
+msgid ""
+"No hay canciones en la carpeta de música. Aquí aparecen los temas que "
+"puedes marcar para agregarlos a la lista. Elige una carpeta en "
+"Preferencias, categoría Música."
+msgstr ""
+"There are no songs in the music folder. The tracks you can mark to add to "
+"the list appear here. Choose a folder in Preferences, Music category."
+
+#. Traductores: fila sin coincidencias; {texto} es lo escrito en Buscar
+#. canciones.
+#: guyrapu/ui/musica_editor_lista.py
+#, python-brace-format
+msgid ""
+"Ninguna canción coincide con «{texto}». Aquí aparecen los temas de la "
+"carpeta que puedes agregar a la lista. Prueba con otro texto en Buscar "
+"canciones."
+msgstr ""
+"No songs match «{texto}». The tracks from the folder you can add to the "
+"list appear here. Try another text in Find songs."
 
 #: guyrapu/ui/musica_editor_lista.py
 msgid "Nombre de la lista"
@@ -14618,6 +14994,24 @@ msgstr "Rename playlist"
 msgid "Nombre de la lista:"
 msgstr "Playlist name:"
 
+#. Traductores: fila de la cola sin temas; Ctrl+Intro agrega el tema elegido.
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid ""
+"La cola está vacía. Aquí aparecen las canciones que van a sonar. Elige un "
+"tema y pulsa Ctrl+Intro para agregarlo."
+msgstr ""
+"The queue is empty. The songs that will play appear here. Choose a song and"
+" press Ctrl+Enter to add it."
+
+#. Traductores: fila de «Canciones» sin temas que mostrar.
+#: guyrapu/ui/musica_ventana_acciones.py
+msgid ""
+"No hay canciones. Aquí aparecen los temas de la carpeta de música o de la "
+"lista elegida. Cambia la búsqueda, los filtros o la carpeta."
+msgstr ""
+"There are no songs. The tracks from the music folder or the selected list "
+"appear here. Change the search, the filters or the folder."
+
 #: guyrapu/ui/musica_ventana_acciones.py
 msgid "No suena ningún tema"
 msgstr "No song is playing"
@@ -14685,6 +15079,15 @@ msgstr "Record whi&le broadcasting"
 #: guyrapu/ui/obs_pagina_grabacion.py
 msgid "Grabar también al transmitir"
 msgstr "Record while broadcasting"
+
+#. Traductores: fila sin perfiles en OBS; «Nuevo…» es el botón de la página.
+#: guyrapu/ui/obs_pagina_perfiles.py
+msgid ""
+"No hay perfiles en OBS. Aquí aparecen los perfiles guardados en OBS. Usa "
+"Nuevo… para crear uno."
+msgstr ""
+"There are no profiles in OBS. The profiles saved in OBS appear here. Use "
+"New… to create one."
 
 #: guyrapu/ui/obs_pagina_perfiles.py
 msgid "Perfiles de OBS"
@@ -15752,6 +16155,15 @@ msgstr "Found {cantidad} audio outputs"
 msgid "No se encontraron salidas de audio"
 msgstr "No audio outputs found"
 
+#. Traductores: fila de la lista de sonidos sin eventos que mostrar.
+#: guyrapu/ui/preferencias_sonidos.py
+msgid ""
+"No hay sonidos. Aquí aparecen los avisos de la app con su familia. La app "
+"los carga al abrir Preferencias."
+msgstr ""
+"There are no sounds. The app alerts and their families appear here. The app"
+" loads them when you open Preferences."
+
 #. Traductores: nombre visible del tema de sonido predeterminado.
 #: guyrapu/ui/preferencias_sonidos.py
 msgid "Predeterminado"
@@ -16295,6 +16707,25 @@ msgstr ""
 msgid "Desconectar cuenta"
 msgstr "Disconnect account"
 
+#. Traductores: fila sin cuenta de Restream; «Cuenta» es el nombre de la
+#. pestaña.
+#: guyrapu/ui/restream_pagina_destinos.py
+msgid ""
+"No hay cuenta de Restream. Aquí aparecen los canales conectados a tu "
+"cuenta. Conecta tu cuenta en la pestaña Cuenta para verlos."
+msgstr ""
+"There is no Restream account. The channels connected to your account appear"
+" here. Connect your account in the Account tab to see them."
+
+#. Traductores: fila sin destinos; «Agregar destino…» es el botón de la página.
+#: guyrapu/ui/restream_pagina_destinos.py
+msgid ""
+"No hay destinos. Aquí aparecen los canales de tu cuenta de Restream. Usa "
+"Agregar destino… para agregar uno."
+msgstr ""
+"There are no destinations. The channels of your Restream account appear "
+"here. Use Add destination… to add one."
+
 #: guyrapu/ui/restream_pagina_destinos.py
 #, python-brace-format
 msgid "{destino}, desactivado"
@@ -16321,11 +16752,6 @@ msgstr "&Refresh"
 msgid "Actualizar"
 msgstr "Refresh"
 
-#: guyrapu/ui/restream_pagina_destinos.py guyrapu/ui/restream_pagina_eventos.py
-#: guyrapu/ui/restream_perfil.py
-msgid "Sin cuenta de Restream. Conéctala en la pestaña Cuenta."
-msgstr "No Restream account. Connect it on the Account tab."
-
 #: guyrapu/ui/restream_pagina_destinos.py
 #, python-brace-format
 msgid ""
@@ -16338,6 +16764,35 @@ msgstr ""
 #: guyrapu/ui/restream_pagina_destinos.py
 msgid "Eliminar destino"
 msgstr "Delete destination"
+
+#. Traductores: fila sin cuenta de Restream; «Cuenta» es el nombre de la
+#. pestaña.
+#: guyrapu/ui/restream_pagina_eventos.py
+msgid ""
+"No hay eventos. Aquí aparecen los directos programados en tu cuenta de "
+"Restream. Conecta tu cuenta en la pestaña Cuenta para verlos."
+msgstr ""
+"There are no events. The scheduled live streams in your Restream account "
+"appear here. Connect your account in the Account tab to see them."
+
+#. Traductores: fila de eventos vacía de verdad.
+#: guyrapu/ui/restream_pagina_eventos.py
+msgid ""
+"No hay eventos. Aquí aparecen los directos programados en tu cuenta de "
+"Restream. Usa Actualizar para volver a leerlos."
+msgstr ""
+"There are no events. The scheduled live streams in your Restream account "
+"appear here. Use Refresh to read them again."
+
+#. Traductores: fila cuando falla la lectura; «Actualizar» es el botón de la
+#. página.
+#: guyrapu/ui/restream_pagina_eventos.py
+msgid ""
+"No se pudieron leer los eventos de Restream. Aquí aparecen los directos "
+"programados de tu cuenta. Usa Actualizar para volver a intentarlo."
+msgstr ""
+"The Restream events could not be read. The scheduled live streams in your "
+"account appear here. Use Refresh to try again."
 
 #: guyrapu/ui/restream_pagina_eventos.py
 msgid "Próximos"
@@ -16387,6 +16842,15 @@ msgstr "Could not read the Restream events. Try again."
 msgid "No se pudieron leer las estadísticas del evento. Vuelve a intentarlo."
 msgstr "Could not read the event statistics. Try again."
 
+#. Traductores: fila sin perfiles de Restream; «Nuevo perfil…» es el botón.
+#: guyrapu/ui/restream_pagina_perfiles.py
+msgid ""
+"No hay perfiles de Restream. Aquí aparecen las plantillas de directo "
+"guardadas en esta instalación. Usa Nuevo perfil… para crear uno."
+msgstr ""
+"There are no Restream profiles. The live templates saved on this computer "
+"appear here. Use New profile… to create one."
+
 #: guyrapu/ui/restream_pagina_perfiles.py
 msgid "Nuevo &perfil…"
 msgstr "New &profile…"
@@ -16434,6 +16898,10 @@ msgstr "&Orientation:"
 #: guyrapu/ui/restream_perfil.py
 msgid "Horizontal y vertical a la vez"
 msgstr "Horizontal and vertical at the same time"
+
+#: guyrapu/ui/restream_perfil.py
+msgid "Sin cuenta de Restream. Conéctala en la pestaña Cuenta."
+msgstr "No Restream account. Connect it on the Account tab."
 
 #: guyrapu/ui/restream_perfil.py
 msgid "No hay destinos. Agrégalos en la pestaña Destinos."
@@ -16912,11 +17380,6 @@ msgstr "Could not start the {nombre} engine: {detalle}"
 msgid "{nombre} no está disponible: la voz secundaria usa la voz de Windows."
 msgstr "{nombre} is not available: the secondary voice uses the Windows voice."
 
-#. Traductores: privacidad del directo; una sola palabra.
-#: guyrapu/youtube/emision.py
-msgid "Público"
-msgstr "Public"
-
 #: guyrapu/youtube/emision.py
 msgid "No listado"
 msgstr "Unlisted"
@@ -17129,357 +17592,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#. Traductores: fila de la conversación vacía de Preguntar a la IA.
-#: guyrapu/ai/ventana_ia.py
-msgid ""
-"No hay mensajes. Aquí aparecen tu pregunta y la respuesta de la IA. Agrega "
-"una captura y escribe tu pregunta para empezar."
-msgstr ""
-"There are no messages. Your question and the AI answer appear here. Add a "
-"capture and type your question to start."
-
-#. Traductores: fila de «Recientes» sin historial; sale en la lista de inicio.
-#: guyrapu/core/historial.py
-msgid ""
-"No hay historial. Aquí aparecen los directos y vídeos que hayas visto desde"
-" Guyrapu. Conecta un directo o abre un vídeo para verlos aquí."
-msgstr ""
-"There is no history. The live streams and videos you have watched from "
-"Guyrapu appear here. Connect to a live stream or open a video to see them."
-
-#. Traductores: fila de carga en las listas de motores y voces.
-#: guyrapu/core/voces_disponibles.py
-msgid ""
-"Cargando paquetes de voces. Aquí aparecen los motores y las voces "
-"disponibles. Espera a que termine la carga."
-msgstr ""
-"Loading voice packs. The available engines and voices appear here. Wait for"
-" loading to finish."
-
-#. Traductores: fila cuando el idioma elegido deja la lista vacía.
-#: guyrapu/core/voces_disponibles.py
-msgid ""
-"No hay paquetes de voces con este filtro. Aquí aparecen los motores y las "
-"voces del idioma elegido. Prueba con otro idioma."
-msgstr ""
-"There are no voice packs with this filter. The engines and voices for the "
-"selected language appear here. Try another language."
-
-#. Traductores: fila cuando falló la consulta del catálogo.
-#: guyrapu/core/voces_disponibles.py
-msgid ""
-"No hay paquetes de voces instalados. Aquí aparecen los motores y las voces "
-"disponibles. Revisa la conexión y vuelve a abrir esta ventana."
-msgstr ""
-"There are no installed voice packs. The available engines and voices appear"
-" here. Check the connection and reopen this window."
-
-#. Traductores: fila sin paquetes instalados.
-#: guyrapu/core/voces_disponibles.py
-msgid ""
-"No hay paquetes de voces. Aquí aparecen los motores y las voces "
-"disponibles. Instala un paquete de voces para verlos."
-msgstr ""
-"There are no voice packs. The available engines and voices appear here. "
-"Install a voice pack to see them."
-
-#. Traductores: fila de «Voces» sin coincidencias; {texto} es lo escrito en
-#. Buscar voz.
-#: guyrapu/core/voces_disponibles.py
-#, python-brace-format
-msgid ""
-"No hay voces que coincidan con «{texto}». Aquí aparecen las voces del motor"
-" y del idioma elegidos. Prueba con otro texto en Buscar voz."
-msgstr ""
-"There are no voices matching «{texto}». The voices for the selected engine "
-"and language appear here. Try another text in Search voice."
-
-#. Traductores: fila sin texto escrito; «Buscar en el chat» es el campo de
-#. texto.
-#: guyrapu/ui/chat_buscar.py
-msgid ""
-"No hay mensajes. Aquí aparecen los mensajes del chat que coinciden con lo "
-"que escribas. Escribe un texto en Buscar en el chat para verlos."
-msgstr ""
-"There are no messages. The chat messages matching what you type appear "
-"here. Type text in Search chat to see them."
-
-#. Traductores: fila sin coincidencias; {texto} es lo escrito en el campo.
-#: guyrapu/ui/chat_buscar.py
-#, python-brace-format
-msgid ""
-"No hay mensajes con «{texto}». Aquí aparecen los mensajes del chat que "
-"coinciden con tu búsqueda. Prueba con otro texto en Buscar en el chat."
-msgstr ""
-"There are no messages with «{texto}». The chat messages matching your "
-"search appear here. Try another text in Search chat."
-
-#. Traductores: fila de un directo sin mensajes en la lista de participación.
-#: guyrapu/ui/chat_participacion.py
-msgid ""
-"No hay mensajes en este directo. Aquí aparece cuántos mensajes y regalos "
-"escribió cada persona. Conecta un directo y espera a que lleguen mensajes."
-msgstr ""
-"There are no messages in this live stream. How many messages and gifts each"
-" person wrote appears here. Connect to a live stream and wait for messages."
-
-#. Traductores: única fila del chat sin mensajes; dice qué aparece y cómo se
-#. llena.
-#: guyrapu/ui/chat_vivo.py
-msgid ""
-"No hay mensajes en el chat. Aquí aparecen los mensajes y avisos del directo"
-" a medida que llegan. Conecta un directo para verlos."
-msgstr ""
-"There are no messages in the chat. Messages and alerts from the live stream"
-" appear here as they arrive. Connect to a live stream to see them."
-
-#. Traductores: fila antes de buscar; «Buscar» es el botón de la búsqueda.
-#: guyrapu/ui/descargas_buscador.py
-msgid ""
-"No hay resultados. Aquí aparecen los vídeos de YouTube que coinciden con tu"
-" búsqueda. Escribe un texto y usa Buscar."
-msgstr ""
-"There are no results. The YouTube videos matching your search appear here. "
-"Type text and use Search."
-
-#. Traductores: fila mientras llegan los resultados de la búsqueda.
-#: guyrapu/ui/descargas_buscador.py
-msgid ""
-"Buscando vídeos. Aquí aparecerán los resultados de YouTube. Espera a que "
-"termine la búsqueda."
-msgstr ""
-"Searching for videos. The YouTube results appear here. Wait for the search "
-"to finish."
-
-#. Traductores: fila sin resultados; {texto} es lo escrito en el campo.
-#: guyrapu/ui/descargas_buscador.py
-#, python-brace-format
-msgid ""
-"No hay resultados para «{texto}». Aquí aparecen los vídeos de YouTube que "
-"coinciden con tu búsqueda. Prueba con otro texto y usa Buscar."
-msgstr ""
-"There are no results for «{texto}». The YouTube videos matching your search"
-" appear here. Try another text and use Search."
-
-#. Traductores: fila sin descargas; «Buscar» y «Mostrar» son controles de la
-#. página.
-#: guyrapu/ui/descargas_listas.py
-msgid ""
-"No hay descargas. Aquí aparecen las descargas en curso y las terminadas. "
-"Usa Buscar para descargar vídeos o cambia el filtro Mostrar."
-msgstr ""
-"There are no downloads. Downloads in progress and completed downloads "
-"appear here. Use Search to download videos or change the Show filter."
-
-#. Traductores: fila cuando el cuadro de estado no tiene líneas que mostrar.
-#: guyrapu/ui/dialogo_estado.py
-msgid ""
-"No hay información de estado. Aquí aparecen el directo, el chat, OBS y la "
-"música. Conecta un directo o abre OBS para verlo."
-msgstr ""
-"There is no status information. The live stream, chat, OBS and music appear"
-" here. Connect to a live stream or open OBS to see it."
-
-#. Traductores: fila del cuadro sin formatos; «Cancelar» es el botón del
-#. cuadro.
-#: guyrapu/ui/elegir_formato.py
-msgid ""
-"No hay formatos. Aquí aparecen las opciones de vídeo y audio del vídeo "
-"elegido. Usa Cancelar y vuelve a abrir el cuadro desde el buscador."
-msgstr ""
-"There are no formats. The video and audio options for the selected video "
-"appear here. Use Cancel and reopen the dialog from the search."
-
-#. Traductores: fila de la pestaña Audio sin fuentes de OBS.
-#: guyrapu/ui/escena_pagina_audio.py
-msgid ""
-"No hay fuentes de audio. Aquí aparecen las fuentes de OBS que se pueden "
-"silenciar o escuchar. Conecta OBS con una fuente de audio para verla aquí."
-msgstr ""
-"There are no audio sources. The OBS sources you can mute or listen to "
-"appear here. Connect OBS with an audio source to see it here."
-
-#. Traductores: fila sin escenas; «Agregar escena…» es el botón de la página.
-#: guyrapu/ui/escena_pagina_escena.py
-msgid ""
-"No hay escenas. Aquí aparecen las escenas de OBS y cuál está actual. "
-"Conecta OBS o usa Agregar escena… para crear una."
-msgstr ""
-"There are no scenes. The OBS scenes and which one is current appear here. "
-"Connect OBS or use Add scene… to create one."
-
-#. Traductores: fila de la lista sin grabaciones ni clips guardados.
-#: guyrapu/ui/gui_grabaciones.py
-msgid ""
-"No hay grabaciones ni clips. Aquí aparecen los archivos que graba OBS. "
-"Inicia una grabación o guarda un clip para verlos aquí."
-msgstr ""
-"There are no recordings or clips. The files recorded by OBS appear here. "
-"Start a recording or save a clip to see them here."
-
-#. Traductores: fila sin entradas en una pestaña; {plataforma} es YouTube o
-#. TikTok.
-#: guyrapu/ui/gui_historial.py
-#, python-brace-format
-msgid ""
-"No hay entradas de {plataforma}. Aquí aparecen los directos y vídeos de "
-"{plataforma} que hayas visto. Conecta un directo o abre un vídeo para "
-"verlos aquí."
-msgstr ""
-"There are no {plataforma} entries. The {plataforma} live streams and videos"
-" you have watched appear here. Connect to a live stream or open a video to "
-"see them."
-
-#. Traductores: fila de «Colecciones» mientras se lee la carpeta de música.
-#: guyrapu/ui/musica_colecciones.py
-msgid ""
-"Cargando la carpeta. Aquí aparecen la biblioteca y tus listas de música. "
-"Espera a que termine la carga."
-msgstr ""
-"Loading the folder. The library and your music lists appear here. Wait for "
-"loading to finish."
-
-#. Traductores: fila de «Colecciones» sin carpeta elegida.
-#: guyrapu/ui/musica_colecciones.py
-msgid ""
-"No hay carpeta de música. Aquí aparecen la biblioteca y tus listas de "
-"música. Elige una carpeta en Preferencias, categoría Música."
-msgstr ""
-"There is no music folder. The library and your music lists appear here. "
-"Choose a folder in Preferences, Music category."
-
-#. Traductores: fila de «Canciones de la lista» sin temas.
-#: guyrapu/ui/musica_editor_lista.py
-msgid ""
-"La lista no tiene canciones. Aquí aparecen las canciones que guardes en "
-"ella. Marca las casillas de Todas las canciones para agregarlas."
-msgstr ""
-"The list has no songs. The songs you save to it appear here. Select the "
-"check boxes in All songs to add them."
-
-#. Traductores: fila de «Todas las canciones» sin temas en la carpeta de
-#. música.
-#: guyrapu/ui/musica_editor_lista.py
-msgid ""
-"No hay canciones en la carpeta de música. Aquí aparecen los temas que "
-"puedes marcar para agregarlos a la lista. Elige una carpeta en "
-"Preferencias, categoría Música."
-msgstr ""
-"There are no songs in the music folder. The tracks you can mark to add to "
-"the list appear here. Choose a folder in Preferences, Music category."
-
-#. Traductores: fila sin coincidencias; {texto} es lo escrito en Buscar
-#. canciones.
-#: guyrapu/ui/musica_editor_lista.py
-#, python-brace-format
-msgid ""
-"Ninguna canción coincide con «{texto}». Aquí aparecen los temas de la "
-"carpeta que puedes agregar a la lista. Prueba con otro texto en Buscar "
-"canciones."
-msgstr ""
-"No songs match «{texto}». The tracks from the folder you can add to the "
-"list appear here. Try another text in Find songs."
-
-#. Traductores: fila de la cola sin temas; Ctrl+Intro agrega el tema elegido.
-#: guyrapu/ui/musica_ventana_acciones.py
-msgid ""
-"La cola está vacía. Aquí aparecen las canciones que van a sonar. Elige un "
-"tema y pulsa Ctrl+Intro para agregarlo."
-msgstr ""
-"The queue is empty. The songs that will play appear here. Choose a song and"
-" press Ctrl+Enter to add it."
-
-#. Traductores: fila de «Canciones» sin temas que mostrar.
-#: guyrapu/ui/musica_ventana_acciones.py
-msgid ""
-"No hay canciones. Aquí aparecen los temas de la carpeta de música o de la "
-"lista elegida. Cambia la búsqueda, los filtros o la carpeta."
-msgstr ""
-"There are no songs. The tracks from the music folder or the selected list "
-"appear here. Change the search, the filters or the folder."
-
-#. Traductores: fila sin perfiles en OBS; «Nuevo…» es el botón de la página.
-#: guyrapu/ui/obs_pagina_perfiles.py
-msgid ""
-"No hay perfiles en OBS. Aquí aparecen los perfiles guardados en OBS. Usa "
-"Nuevo… para crear uno."
-msgstr ""
-"There are no profiles in OBS. The profiles saved in OBS appear here. Use "
-"New… to create one."
-
-#. Traductores: fila de la lista de sonidos sin eventos que mostrar.
-#: guyrapu/ui/preferencias_sonidos.py
-msgid ""
-"No hay sonidos. Aquí aparecen los avisos de la app con su familia. La app "
-"los carga al abrir Preferencias."
-msgstr ""
-"There are no sounds. The app alerts and their families appear here. The app"
-" loads them when you open Preferences."
-
-#. Traductores: fila sin cuenta de Restream; «Cuenta» es el nombre de la
-#. pestaña.
-#: guyrapu/ui/restream_pagina_destinos.py
-msgid ""
-"No hay cuenta de Restream. Aquí aparecen los canales conectados a tu "
-"cuenta. Conecta tu cuenta en la pestaña Cuenta para verlos."
-msgstr ""
-"There is no Restream account. The channels connected to your account appear"
-" here. Connect your account in the Account tab to see them."
-
-#. Traductores: fila sin cuenta de Restream; «Cuenta» es el nombre de la
-#. pestaña.
-#: guyrapu/ui/restream_pagina_eventos.py
-msgid ""
-"No hay eventos. Aquí aparecen los directos programados en tu cuenta de "
-"Restream. Conecta tu cuenta en la pestaña Cuenta para verlos."
-msgstr ""
-"There are no events. The scheduled live streams in your Restream account "
-"appear here. Connect your account in the Account tab to see them."
-
-#. Traductores: fila de eventos vacía de verdad.
-#: guyrapu/ui/restream_pagina_eventos.py
-msgid ""
-"No hay eventos. Aquí aparecen los directos programados en tu cuenta de "
-"Restream. Usa Actualizar para volver a leerlos."
-msgstr ""
-"There are no events. The scheduled live streams in your Restream account "
-"appear here. Use Refresh to read them again."
-
-#. Traductores: fila sin perfiles de Restream; «Nuevo perfil…» es el botón.
-#: guyrapu/ui/restream_pagina_perfiles.py
-msgid ""
-"No hay perfiles de Restream. Aquí aparecen las plantillas de directo "
-"guardadas en esta instalación. Usa Nuevo perfil… para crear uno."
-msgstr ""
-"There are no Restream profiles. The live templates saved on this computer "
-"appear here. Use New profile… to create one."
-
-#. Traductores: fila de una escena sin fuentes; «Agregar fuente…» es el botón.
-#: guyrapu/ui/escena_pagina_fuentes.py
-msgid ""
-"No hay fuentes en esta escena. Aquí aparecen las fuentes de la escena "
-"elegida en OBS. Usa Agregar fuente… para agregar una."
-msgstr ""
-"There are no sources in this scene. The sources of the selected scene in "
-"OBS appear here. Use Add source… to add one."
-
-#. Traductores: fila sin destinos; «Agregar destino…» es el botón de la página.
-#: guyrapu/ui/restream_pagina_destinos.py
-msgid ""
-"No hay destinos. Aquí aparecen los canales de tu cuenta de Restream. Usa "
-"Agregar destino… para agregar uno."
-msgstr ""
-"There are no destinations. The channels of your Restream account appear "
-"here. Use Add destination… to add one."
-
-#. Traductores: fila cuando falla la lectura; «Actualizar» es el botón de la
-#. página.
-#: guyrapu/ui/restream_pagina_eventos.py
-msgid ""
-"No se pudieron leer los eventos de Restream. Aquí aparecen los directos "
-"programados de tu cuenta. Usa Actualizar para volver a intentarlo."
-msgstr ""
-"The Restream events could not be read. The scheduled live streams in your "
-"account appear here. Use Refresh to try again."
 

@@ -15,8 +15,8 @@ from guyrapu.core import config_predeterminada
 from guyrapu.ui import (
     atajos_captura, botonera_atajos, comando_comandos_chat, comando_estilos,
     comando_interaccion, comando_mensajes_automaticos, comandos_ventana,
-    disparadores_ventana, encuestas_ventana, estilos_ventana, gui,
-    interaccion_ventana, medios_ventana, mensajes_automaticos_ventana,
+    disparadores_ventana, encuestas_ventana, ensayo_ventana, estilos_ventana,
+    gui, interaccion_ventana, medios_ventana, mensajes_automaticos_ventana,
     menu_interaccion, metas_ventana, palabras_bloqueadas_ventana,
     preguntas_ventana)
 from tests.letras_acceso import letras_repetidas, repetidas_con_lo_de_fuera
@@ -113,17 +113,32 @@ class TestPaginas(BaseVentana):
             ventana.libro.GetPage(8),
             palabras_bloqueadas_ventana.PanelPalabrasBloqueadas)
 
-    def test_p1_cerrar_es_el_unico_boton_y_cierra(self):
+    def test_p1_los_botones_son_probar_sin_directo_y_cerrar_en_ese_orden(self):
         ventana = self._ventana()
         botones = [hijo for hijo in ventana.GetChildren()
                    if isinstance(hijo, wx.Button)]
-        self.assertEqual(botones, [ventana.btn_cerrar])
-        self.assertEqual(ventana.btn_cerrar.GetLabel(), "&Cerrar")
+        self.assertEqual(botones, [ventana.btn_probar, ventana.btn_cerrar])
+        self.assertEqual([boton.GetLabel() for boton in botones],
+                         ["Probar sin direc&to", "&Cerrar"])
+
+    def test_cerrar_sigue_cerrando(self):
+        ventana = self._ventana()
         evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
                                  ventana.btn_cerrar.GetId())
         with mock.patch.object(ventana, "EndModal") as cerrar:
             ventana.btn_cerrar.GetEventHandler().ProcessEvent(evento)
         cerrar.assert_called_once_with(wx.ID_CANCEL)
+
+    def test_p8_probar_sin_directo_llama_a_la_misma_ventana_con_el_marco(self):
+        padre = self._padre()
+        ventana = interaccion_ventana.VentanaInteraccion(padre)
+        self.addCleanup(destruir, ventana)
+        with mock.patch.object(ensayo_ventana, "abrir") as abrir:
+            evento = wx.CommandEvent(wx.EVT_BUTTON.typeId,
+                                     ventana.btn_probar.GetId())
+            evento.SetEventObject(ventana.btn_probar)
+            ventana.btn_probar.GetEventHandler().ProcessEvent(evento)
+        abrir.assert_called_once_with(padre)
 
     def test_p1_escape_cierra(self):
         evento = mock.Mock()

@@ -22,7 +22,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.core.avisos_tiktok import (
     con_sonido, evento_de_mensaje, modo_evento, pasa_filtro,
 )
-from guyrapu.interaction import ensayo
+from guyrapu.interaction import ensayo, informe_ensayo
 from guyrapu.core.config import (
     TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_STICKER, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
@@ -30,6 +30,7 @@ from guyrapu.translation import idiomas
 from guyrapu.ui import (
     comandos_clips, comandos_en_vivo, disparadores_en_vivo, metas_en_vivo,
 )
+from guyrapu.ui.accesibilidad import anunciar_con_sonido
 from guyrapu.ui.lista_chat import ListaChat, MensajeChat
 from guyrapu.ui.participacion_chat import Participacion
 from guyrapu.voice import sound_player as _snd
@@ -102,10 +103,14 @@ class ControladorChat:
         self.recibidos = 0
 
     def encolar(self, registro: MensajeChat) -> None:
+        frame = self.lista.GetTopLevelParent()
+        informe = ensayo.empezar_informe(frame)
         self._quizas_clip(registro)
         self._quizas_comando(registro)
         self._quizas_disparador(registro)
         self._quizas_meta(registro)
+        if informe is not None:
+            self._terminar_informe(frame, registro, informe)
         self.recibidos += 1 if registro.tipo == TIPO_TEXTO else 0
         if self._modo(registro) == "ocultar":
             return
@@ -116,6 +121,16 @@ class ControladorChat:
         # volcado indefinidamente y no aparecería nada hasta una pausa.
         if self._timer is None:
             self._timer = wx.CallLater(MS_VOLCADO_CHAT, self.volcar)
+
+    def _terminar_informe(self, frame, registro, informe) -> None:
+        general = (informe_ensayo.MOTIVO_EVENTO if registro.tipo != TIPO_TEXTO
+                   else informe_ensayo.MOTIVO_MENSAJE)
+        texto = informe.texto(_(general))
+        anunciar_con_sonido(
+            texto, "listo" if informe.respondio else "aviso")
+        ventana = getattr(frame, "_ventana_ensayo", None)
+        if ventana is not None and not ventana.cerrado:
+            ventana.agregar_resultado(registro, texto)
 
     def _quizas_clip(self, registro: MensajeChat) -> None:
         """Atiende el comando !clip que llega en el hilo de la interfaz."""

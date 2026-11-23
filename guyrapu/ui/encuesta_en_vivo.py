@@ -143,7 +143,10 @@ class SesionEncuesta:
         invocacion = comandos.leer(evento.texto)
         if invocacion is None or not invocacion.nombre.isdecimal():
             return False
-        self.encuesta.votar(evento, momento)
+        if self.encuesta.votar(evento, momento) is not None:
+            informe = ensayo.informe(self._frame)
+            if informe is not None:
+                informe.voto(self.encuesta.pregunta)
         if momento - self._ultima >= ACTUALIZACION:
             self._poner_al_dia(momento)
         return True

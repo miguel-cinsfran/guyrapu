@@ -62,9 +62,17 @@ class DisparadoresEnVivo:
             return
         self._recargar()
         evento = _evento(registro)
-        for disparador in disparadores.cumplidos(
-                self._disparadores, evento, self._esperas, ahora):
+        logrados = disparadores.cumplidos(
+            self._disparadores, evento, self._esperas, ahora)
+        for disparador in logrados:
             self._poner(disparador, evento)
+        informe = ensayo.informe(self._frame)
+        if informe is not None:
+            for disparador in logrados:
+                informe.alerta(disparador.nombre)
+            if not logrados:
+                informe.motivo(disparadores.motivo(
+                    self._disparadores, evento, self._esperas, ahora))
 
     def _poner(self, disparador, evento) -> None:
         tarjeta = (disparador.tarjeta or "").strip()

@@ -80,9 +80,13 @@ class MetasEnVivo:
             return
         self._recargar()
         evento = _evento(registro)
+        informe = ensayo.informe(self._frame)
         for progreso in self._progresos.values():
             if not progreso.meta.activa or not progreso.sumar(evento):
                 continue
+            if informe is not None:
+                informe.meta(progreso.meta.nombre, progreso.valor,
+                             progreso.meta.objetivo)
             if progreso.recien_cumplida():
                 self._cumplida(progreso)
         self._refrescar_fija()

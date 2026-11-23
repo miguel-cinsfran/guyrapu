@@ -70,6 +70,46 @@ class TestPermisoYEsperas(unittest.TestCase):
         self.assertIsNone(atencion_.atender(_evento("!saludo"), 0))
 
 
+class TestMotivo(unittest.TestCase):
+    """El por qué no respondió se consulta sin gastar la espera."""
+
+    def test_el_comando_en_espera_dice_cuantos_segundos_faltan(self):
+        atencion_ = atencion.Atencion([_comando(espera_persona=0)])
+        atencion_.atender(_evento("!saludo"), 0)
+        self.assertEqual(
+            atencion_.motivo(_evento("!saludo"), 1),
+            "el comando saludo está en espera, faltan 4 segundos.")
+        self.assertEqual(
+            atencion_.motivo(_evento("!saludo"), 4.5),
+            "el comando saludo está en espera, faltan 1 segundos.")
+        self.assertIsNotNone(atencion_.atender(_evento("!saludo"), 5))
+
+    def test_el_permiso_y_la_pausa_se_nombran_como_en_la_fila(self):
+        casos = (
+            (_comando(permiso="moderadores"), "Ana",
+             "el comando saludo es solo para solo moderadores."),
+            (_comando(permiso="lista", nombres=("Ana",)), "Bea",
+             "el comando saludo es solo para una lista de nombres: Ana."),
+            (_comando(activo=False), "Ana",
+             "el comando saludo está en pausa."),
+        )
+        for comando, autor, esperado in casos:
+            with self.subTest(comando=comando):
+                self.assertEqual(
+                    atencion.Atencion([comando]).motivo(
+                        _evento("!saludo", autor=autor, autor_id=autor), 0),
+                    esperado)
+
+    def test_sin_comando_o_con_otro_evento_no_hay_motivo_concreto(self):
+        self.assertEqual(atencion.Atencion([]).motivo(_evento("!saludo"), 0), "")
+        evento = _evento("!saludo")
+        objeto = EventoDirecto(
+            plataforma=evento.plataforma, autor_id=evento.autor_id,
+            autor=evento.autor, roles=evento.roles, tipo="me_gusta",
+            texto=evento.texto, monto="")
+        self.assertEqual(atencion.Atencion([]).motivo(objeto, 0), "")
+
+
 class TestVariablesYContador(unittest.TestCase):
 
     def test_reemplaza_usuario_texto_y_contador(self):

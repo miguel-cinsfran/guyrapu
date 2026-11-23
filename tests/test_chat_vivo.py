@@ -637,5 +637,19 @@ class TestTraduccionEnLaLista(unittest.TestCase):
         control.lista.Append.assert_called_once_with("Ana: hola, 12:00")
 
 
+class TestInformeDelEnsayo(unittest.TestCase):
+
+    def test_con_un_directo_conectado_no_se_crea_informe_ni_se_anuncia(self):
+        frame = SimpleNamespace(_ensayo=False, _conectado=True)
+        lista = mock.Mock()
+        lista.GetTopLevelParent.return_value = frame
+        control = _controlador(lista=lista)
+        with mock.patch.object(chat_vivo, "anunciar_con_sonido") as avisar, \
+                mock.patch.object(chat_vivo.wx, "CallLater"):
+            control.encolar(_registro(texto="!hola"))
+        self.assertFalse(hasattr(frame, "_informe_ensayo"))
+        avisar.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

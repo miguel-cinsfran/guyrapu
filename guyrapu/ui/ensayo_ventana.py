@@ -11,17 +11,20 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core import plataformas
-from guyrapu.core.idioma import _
-from guyrapu.interaction import ensayo
+from guyrapu.core.idioma import N_, _
+from guyrapu.interaction import ensayo, informe_ensayo
 from guyrapu.ui import (
-    encuesta_en_vivo, formulario, gui_envio_chat, preguntas_en_vivo,
-    tecla_escape)
+    encuesta_en_vivo, formulario, gui_envio_chat, lista_acciones,
+    preguntas_en_vivo, tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.paleta import pintar_ventana
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 from guyrapu.voice import sound_player as _snd
 
-TIPOS = (ensayo.MENSAJE, ensayo.SUPER_CHAT, ensayo.REGALO)
+# Traductores: única fila de Resultados sin resultados; dice qué aparece y cómo se llena.
+VACIO_RESULTADOS = N_(
+    "No hay resultados. Aquí aparece lo que respondió a cada mensaje de prueba. "
+    "Escribe un mensaje y usa Enviar.")
 
 
 def terminar(frame):
@@ -52,7 +55,7 @@ def abrir(frame):
 
 
 class VentanaEnsayo(wx.Dialog):
-    """Los campos de un mensaje de prueba y sus botones Enviar y Cerrar."""
+    """Los campos del tipo elegido, sus resultados y sus botones."""
 
     def __init__(self, frame):
         super().__init__(
@@ -60,34 +63,49 @@ class VentanaEnsayo(wx.Dialog):
             style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         self._frame = frame
         self.cerrado = False
+        self._resultados = []
         self._crear_controles()
+        self._actualizar_tipos()
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Bind(wx.EVT_CLOSE, self._cerrar)
         pintar_ventana(self)
         self.Centre()
-        self.txt_autor.SetFocus()
+        self.txt_mensaje.SetFocus()
 
     def _crear_controles(self):
         panel = wx.Panel(self, name="PanelEnsayo")
         vs = wx.BoxSizer(wx.VERTICAL)
-        self._agregar(vs, panel, _("&Autor:"), "txt_autor", wx.TextCtrl)
-        self.txt_autor.SetValue(_(ensayo.AUTOR_PREDETERMINADO))
+        self._rotulos = {}
         self._agregar(vs, panel, _("P&lataforma:"), "cho_plataforma", wx.Choice,
                       opciones=[plataformas.nombre(plataformas.YOUTUBE),
                                 plataformas.nombre(plataformas.TIKTOK)])
         self.cho_plataforma.SetSelection(0)
-        # Traductores: opciones del tipo de mensaje de la ventana de ensayo.
-        self._agregar(vs, panel, _("&Tipo:"), "cho_tipo", wx.Choice,
-                      opciones=[_("Mensaje"), _("Super Chat"), _("Regalo")])
-        self.cho_tipo.SetSelection(0)
-        self._agregar(vs, panel, _("Canti&dad:"), "txt_cantidad", wx.TextCtrl)
-        self._agregar(vs, panel, _("M&ensaje:"), "txt_mensaje", wx.TextCtrl)
+        self.cho_plataforma.Bind(wx.EVT_CHOICE, self._al_cambiar_plataforma)
+        self._agregar(vs, panel, _("&Tipo:"), "cho_tipo", wx.Choice)
+        self.cho_tipo.Bind(wx.EVT_CHOICE, self._al_cambiar_tipo)
+        self._agregar(vs, panel, _("&Rol:"), "cho_rol", wx.Choice,
+                      opciones=[_(rotulo) for rotulo, _valor in ensayo.ROLES])
+        self._agregar(vs, panel, _("&Autor:"), "txt_autor", wx.TextCtrl)
+        self.txt_autor.SetValue(_(ensayo.AUTOR_PREDETERMINADO))
+        self._campos = {}
+        for rotulo, nombre in (
+                (_("&Nombre del regalo:"), "txt_regalo"),
+                (_("Canti&dad:"), "txt_cantidad"),
+                (_("M&ensaje:"), "txt_mensaje")):
+            self._agregar(vs, panel, rotulo, nombre, wx.TextCtrl)
+            self._campos[nombre.removeprefix("txt_")] = getattr(self, nombre)
         self.btn_enviar = self._boton(panel, _("En&viar"))
         self.btn_enviar.SetDefault()
         self.btn_enviar.Bind(wx.EVT_BUTTON, self._enviar)
-        self.btn_cerrar = self._boton(panel, _("Ce&rrar"))
+        self.btn_cerrar = self._boton(panel, _("&Cerrar"))
         self.btn_cerrar.Bind(wx.EVT_BUTTON, self._cerrar)
         formulario.agregar_pie(vs, [self.btn_enviar, self.btn_cerrar])
+        self._agregar(vs, panel, _("Res&ultados:"), "lista_resultados",
+                      wx.ListBox)
+        self.lista_resultados.SetMinSize((-1, 110))
+        self._vacia = lista_acciones.ListaConVacio(
+            self.lista_resultados, _(VACIO_RESULTADOS))
+        self._vacia.fijar([])
         formulario.ajustar_tamano(self, panel, vs)
 
     def _agregar(self, vs, panel, etiqueta, nombre, clase, opciones=()):
@@ -96,6 +114,7 @@ class VentanaEnsayo(wx.Dialog):
             if opciones else clase(panel, name=nombre)
         nombre_accesible(control, nombre_de_etiqueta(etiqueta))
         setattr(self, nombre, control)
+        self._rotulos[nombre] = rotulo
         formulario.agregar_fila(vs, rotulo, control)
 
     def _boton(self, panel, etiqueta):
@@ -103,18 +122,55 @@ class VentanaEnsayo(wx.Dialog):
         nombre_accesible(boton, nombre_de_etiqueta(etiqueta))
         return boton
 
-    def _enviar(self, _evento=None):
-        plataforma = (plataformas.YOUTUBE, plataformas.TIKTOK)[
+    def _plataforma(self):
+        return (plataformas.YOUTUBE, plataformas.TIKTOK)[
             self.cho_plataforma.GetSelection()]
-        tipo = TIPOS[self.cho_tipo.GetSelection()]
+
+    def _tipo(self):
+        return ensayo.tipos_de(self._plataforma())[self.cho_tipo.GetSelection()]
+
+    def _rol(self):
+        indice = self.cho_rol.GetSelection()
+        return ensayo.ROLES[max(indice, 0)][1]
+
+    def _al_cambiar_plataforma(self, _evento):
+        self._actualizar_tipos()
+
+    def _al_cambiar_tipo(self, _evento):
+        self._actualizar_campos()
+
+    def _actualizar_tipos(self):
+        tipos = ensayo.tipos_de(self._plataforma())
+        self.cho_tipo.SetItems([_(tipo.rotulo) for tipo in tipos])
+        self.cho_tipo.SetSelection(0)
+        self._actualizar_campos()
+
+    def _actualizar_campos(self):
+        visibles = set(self._tipo().campos)
+        for nombre, control in self._campos.items():
+            control.Show(nombre in visibles)
+            self._rotulos["txt_" + nombre].Show(nombre in visibles)
+        con_rol = ensayo.con_rol(self._plataforma())
+        self.cho_rol.Show(con_rol)
+        self._rotulos["cho_rol"].Show(con_rol)
+        self.GetChildren()[0].Layout()
+
+    def _enviar(self, _evento=None):
         registro = ensayo.registro(
             self.txt_autor.GetValue().strip(), self.txt_mensaje.GetValue(),
-            plataforma, tipo, self.txt_cantidad.GetValue().strip())
+            self._plataforma(), self._tipo().clave,
+            self.txt_cantidad.GetValue().strip(), rol=self._rol(),
+            regalo=self.txt_regalo.GetValue().strip())
         self._frame.chat_vivo.encolar(registro)
         self.txt_mensaje.SetValue("")
         self.txt_mensaje.SetFocus()
-        # Traductores: aviso después de enviar un mensaje de prueba.
-        anunciar(_("Enviado a la prueba."))
+
+    def agregar_resultado(self, registro, texto):
+        """Escribe un resultado al final de la lista, con hora y mensaje."""
+        enviado = registro.texto or registro.autor
+        self._resultados.append(
+            informe_ensayo.fila(registro.hora, enviado, texto))
+        self._vacia.fijar(self._resultados)
 
     def _al_tecla(self, evento):
         if tecla_escape.es_escape(evento.GetKeyCode()):

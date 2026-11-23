@@ -16,7 +16,9 @@ from dataclasses import dataclass
 
 from guyrapu.core import plataformas
 from guyrapu.core.config import TIPO_TEXTO
-from guyrapu.interaction import comandos, filtro_publico
+from guyrapu.core.idioma import _
+from guyrapu.interaction import (
+    comandos, descripcion_comando, filtro_publico, informe_ensayo)
 from guyrapu.interaction.texto import normalizar
 
 ESPERA_CHAT = 30
@@ -85,6 +87,33 @@ class Atencion:
         return self._respuesta(comando, invocacion, evento, ahora,
                                chat_disponible, cuota_baja)
 
+    def motivo(self, evento, ahora):
+        """Por qué no respondió, sin consumir esperas ni cambiar el estado."""
+        if evento.tipo != TIPO_TEXTO or self._eco(evento):
+            return ""
+        comando = self._comando_de(evento)
+        if comando is None:
+            return ""
+        if not comando.activo:
+            return _(informe_ensayo.MOTIVO_PAUSA_COMANDO).format(
+                nombre=comando.nombre)
+        if not comandos.puede_usarlo(comando, evento):
+            return _(informe_ensayo.MOTIVO_PERMISO).format(
+                nombre=comando.nombre,
+                permiso=descripcion_comando._quien(comando))
+        segundos = self._esperas.faltan(comando, evento, ahora)
+        if segundos:
+            return _(informe_ensayo.MOTIVO_ESPERA_COMANDO).format(
+                nombre=comando.nombre, segundos=segundos)
+        return ""
+
+    def _comando_de(self, evento):
+        invocacion = comandos.leer(evento.texto)
+        if invocacion is not None:
+            return comandos.buscar(self._comandos, invocacion, activos=False)
+        return comandos.buscar_en_mensaje(
+            self._comandos, evento.texto, activos=False)
+
     def _lista_de(self):
         """Los nombres de los comandos activos que pidieron aparecer."""
         return ", ".join(
@@ -142,6 +171,9 @@ class Atencion:
         if evento.plataforma != plataformas.YOUTUBE:
             return False
         self._podar(ahora)
+        return self._eco(evento)
+
+    def _eco(self, evento):
         clave = normalizar(evento.texto)
         return any(texto == clave for _instante, texto in self._al_chat)
 

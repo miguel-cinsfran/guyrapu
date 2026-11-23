@@ -8,6 +8,7 @@ encuentran, quién puede usarlos y cuánto esperan entre usos.
 
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass, replace
 
@@ -122,12 +123,12 @@ def separar_nombres(texto: str) -> tuple[str, ...]:
                  if parte.strip())
 
 
-def buscar(comandos, invocacion: Invocacion | None) -> Comando | None:
-    """El primer comando activo que responde a ese nombre o alias."""
+def buscar(comandos, invocacion: Invocacion | None, *, activos=True) -> Comando | None:
+    """El primer comando que responde a ese nombre o alias."""
     if invocacion is None:
         return None
     for comando in comandos:
-        if not comando.activo or comando.ubicacion != "principio":
+        if (activos and not comando.activo) or comando.ubicacion != "principio":
             continue
         if normalizar(comando.nombre) == invocacion.nombre:
             return comando
@@ -153,13 +154,13 @@ def _palabra_en(mensaje: str, palabra: str) -> bool:
     return False
 
 
-def buscar_en_mensaje(comandos, mensaje: str) -> Comando | None:
+def buscar_en_mensaje(comandos, mensaje: str, *, activos=True) -> Comando | None:
     """El primer comando de cualquier parte cuyo nombre o alias aparece."""
     if not mensaje or leer(mensaje) is not None:
         return None
     texto = normalizar(mensaje)
     for comando in comandos:
-        if not comando.activo or comando.ubicacion != "cualquiera":
+        if (activos and not comando.activo) or comando.ubicacion != "cualquiera":
             continue
         if any(_palabra_en(texto, normalizar(nombre))
                for nombre in _nombres_de(comando)):
@@ -212,6 +213,19 @@ class Esperas:
             return
         self._general[comando.nombre] = ahora
         self._persona[(comando.nombre, persona(evento))] = ahora
+
+    def faltan(self, comando: Comando, evento: EventoDirecto, ahora) -> int:
+        """Segundos que faltan para usar el comando, o 0 si ya se puede."""
+        if self.libre(comando, evento, ahora):
+            return 0
+        restantes = []
+        ultimo = self._general.get(comando.nombre)
+        if ultimo is not None:
+            restantes.append(comando.espera_general - (ahora - ultimo))
+        ultimo = self._persona.get((comando.nombre, persona(evento)))
+        if ultimo is not None:
+            restantes.append(comando.espera_persona - (ahora - ultimo))
+        return math.ceil(max(restantes))
 
 
 def _nombres_de(comando: Comando):

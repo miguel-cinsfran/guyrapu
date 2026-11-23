@@ -9,7 +9,8 @@ from unittest import mock
 
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_ME_GUSTA, TIPO_TEXTO
-from guyrapu.interaction import medios_guardados, metas_guardadas
+from guyrapu.interaction import (
+    informe_ensayo, medios_guardados, metas_guardadas)
 from guyrapu.ui import gui_sesion, metas_en_vivo
 from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
@@ -306,6 +307,13 @@ class TestEnsayo(Base):
         self._guardar(_meta(objetivo=1))
         self._atender()
         self.assertEqual(self._piezas(), [])
+
+    def test_el_avance_se_anota_en_el_informe(self):
+        self._guardar(_meta(nombre="Risa", objetivo=3))
+        self.frame._informe_ensayo = informe_ensayo.InformeEnsayo()
+        self._atender(_registro(monto="2"))
+        self.assertEqual(self.frame._informe_ensayo.texto(),
+                         "La meta Risa avanzó a 2 de 3.")
 
 
 if __name__ == "__main__":

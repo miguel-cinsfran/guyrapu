@@ -10,7 +10,7 @@ from unittest import mock
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_SUPERCHAT
 from guyrapu.interaction import (
-    disparadores_guardados, filtro_publico, medios_guardados)
+    disparadores_guardados, filtro_publico, informe_ensayo, medios_guardados)
 from guyrapu.ui import disparadores_en_vivo
 from guyrapu.ui.lista_chat import MensajeChat
 from tests.rutas_temporales import redirigir_rutas
@@ -311,6 +311,20 @@ class TestEnsayo(Base):
         self._guardar(_datos())
         self._atender()
         self.frame._capa_video.agregar_pieza.assert_not_called()
+
+    def test_la_alerta_se_anota_en_el_informe(self):
+        self._guardar(_datos(nombre="Regalo grande"))
+        self.frame._informe_ensayo = informe_ensayo.InformeEnsayo()
+        self._atender()
+        self.assertEqual(self.frame._informe_ensayo.texto(),
+                         "Respondió la alerta Regalo grande.")
+
+    def test_sin_alerta_anota_el_motivo_del_evento(self):
+        self.frame._informe_ensayo = informe_ensayo.InformeEnsayo()
+        self._atender()
+        self.assertEqual(
+            self.frame._informe_ensayo.texto("ninguna alerta usa ese evento."),
+            "Nada respondió: ninguna alerta usa ese evento.")
 
 
 if __name__ == "__main__":

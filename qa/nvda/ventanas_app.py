@@ -118,7 +118,7 @@ VENTANAS = (
         "nombre": "ensayo",
         "menu": "Interacción > Probar sin directo…",
         "titulo": "Prueba sin directo",
-        "primero": "Autor",
+        "primero": "Mensaje",
     },
     {
         "nombre": "palabras",

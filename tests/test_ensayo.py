@@ -7,7 +7,11 @@ from datetime import datetime
 from types import SimpleNamespace
 
 from guyrapu.core import plataformas
-from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
+from guyrapu.core.config import (
+    TIPO_COMPARTIR, TIPO_ME_GUSTA, TIPO_MIEMBRO, TIPO_SEGUIR,
+    TIPO_SUPERCHAT, TIPO_TEXTO)
+from guyrapu.core.idioma import _
+from guyrapu.core.sonidos_eventos import ROL_MODERADOR
 from guyrapu.interaction import ensayo
 
 
@@ -41,6 +45,72 @@ class TestRegistro(unittest.TestCase):
         self.assertEqual(registro.tipo, TIPO_SUPERCHAT)
         self.assertEqual(registro.monto, "100 diamantes")
         self.assertEqual(registro.plataforma, plataformas.TIKTOK)
+
+
+class TestTipos(unittest.TestCase):
+
+    def test_los_tipos_son_los_de_cada_plataforma(self):
+        self.assertEqual(
+            [(_(tipo.rotulo), tipo.clave)
+             for tipo in ensayo.tipos_de(plataformas.YOUTUBE)],
+            [("Mensaje", ensayo.MENSAJE), ("Super Chat", ensayo.SUPER_CHAT),
+             ("Membresía", ensayo.MEMBRESIA)])
+        self.assertEqual(
+            [(_(tipo.rotulo), tipo.clave)
+             for tipo in ensayo.tipos_de(plataformas.TIKTOK)],
+            [("Mensaje", ensayo.MENSAJE), ("Regalo", ensayo.REGALO),
+             ("Seguidor nuevo", ensayo.SEGUIDOR), ("Me gusta", ensayo.ME_GUSTA),
+             ("Directo compartido", ensayo.COMPARTIR)])
+
+    def test_cada_tipo_produce_el_registro_de_su_captura(self):
+        casos = (
+            (plataformas.YOUTUBE, ensayo.MENSAJE, TIPO_TEXTO, "hola", "", "100"),
+            (plataformas.YOUTUBE, ensayo.SUPER_CHAT, TIPO_SUPERCHAT,
+             "hola", "5,00 €", "5,00 €"),
+            (plataformas.YOUTUBE, ensayo.MEMBRESIA, TIPO_MIEMBRO, "", "", "100"),
+            (plataformas.TIKTOK, ensayo.MENSAJE, TIPO_TEXTO, "hola", "", "100"),
+            (plataformas.TIKTOK, ensayo.REGALO, TIPO_SUPERCHAT,
+             "Rosa", "100 diamantes", "100"),
+            (plataformas.TIKTOK, ensayo.SEGUIDOR, TIPO_SEGUIR, "", "", "100"),
+            (plataformas.TIKTOK, ensayo.ME_GUSTA, TIPO_ME_GUSTA, "", "1", "100"),
+            (plataformas.TIKTOK, ensayo.COMPARTIR, TIPO_COMPARTIR, "", "", "100"),
+        )
+        for plataforma, tipo, interno, texto, monto, cantidad in casos:
+            with self.subTest(tipo=tipo, plataforma=plataforma):
+                registro = ensayo.registro(
+                    "Ana", "hola", plataforma, tipo, cantidad, regalo="Rosa")
+                self.assertEqual(registro.tipo, interno)
+                self.assertEqual(registro.texto, texto)
+                self.assertEqual(registro.monto, monto)
+                self.assertEqual(registro.plataforma, plataforma)
+
+    def test_los_campos_de_cada_tipo_son_solo_los_suyos(self):
+        self.assertEqual(
+            {tipo.clave: tipo.campos for tipo in ensayo.TIPOS},
+            {ensayo.MENSAJE: ("mensaje",),
+             ensayo.SUPER_CHAT: ("cantidad", "mensaje"),
+             ensayo.MEMBRESIA: (),
+             ensayo.REGALO: ("regalo", "cantidad"),
+             ensayo.SEGUIDOR: (), ensayo.ME_GUSTA: (),
+             ensayo.COMPARTIR: ()})
+
+
+class TestRol(unittest.TestCase):
+
+    def test_el_rol_llega_al_registro_como_en_la_captura(self):
+        registro = ensayo.registro(
+            "Ana", "hola", plataformas.YOUTUBE, ensayo.MENSAJE,
+            rol=ROL_MODERADOR)
+        self.assertEqual(registro.rol, ROL_MODERADOR)
+        self.assertEqual(
+            ensayo.registro("Ana", "hola", plataformas.YOUTUBE,
+                            ensayo.MENSAJE).rol, "")
+
+    def test_solo_youtube_tiene_rol(self):
+        self.assertTrue(ensayo.con_rol(plataformas.YOUTUBE))
+        self.assertFalse(ensayo.con_rol(plataformas.TIKTOK))
+        self.assertEqual([_(rotulo) for rotulo, _valor in ensayo.ROLES],
+                         ["Público", "Moderador", "Propietario del canal"])
 
 
 class TestDestinos(unittest.TestCase):

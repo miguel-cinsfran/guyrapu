@@ -117,7 +117,7 @@ class TestVentanas(unittest.TestCase):
         ensayo = por_nombre["ensayo"]
         self.assertEqual(ensayo["menu"], "Interacción > Probar sin directo…")
         self.assertEqual(ensayo["titulo"], "Prueba sin directo")
-        self.assertEqual(ensayo["primero"], "Autor")
+        self.assertEqual(ensayo["primero"], "Mensaje")
         disparador = por_nombre["disparador"]
         self.assertEqual(disparador["menu"],
                          "Interacción > Abrir Interacción…")
