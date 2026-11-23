@@ -8,11 +8,15 @@ tecla=tab fase=ida dijo='Establecer como predeterminado… botón Alt+ p' foco={
 tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
 tecla=tab fase=ida dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=tab fase=ida dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
+tecla=tab fase=ida dijo='Probar sin directo botón Alt+ t' foco={nombre='Probar sin directo', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+t'}
 tecla=tab fase=ida dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=tab fase=ida dijo='Ayuda botón Alt+ y' foco={nombre='Ayuda', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+y'}
 tecla=tab fase=ida dijo='Páginas de interacción lista Estilos 8 de 9' foco={nombre='Estilos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Estilos del vídeo guardados lista Alt+ v Clásico (de fábrica), predeterminado de mensajes automáticos, comandos, disparadores, encuestas, metas y preguntas' foco={nombre='Clásico (de fábrica), predeterminado de mensajes automáticos, comandos, disparadores, encuestas, metas y preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Estilos del vídeo guardados lista Alt+ v Clásico (de fábrica), predeterminado de comandos, alertas, mensajes automáticos, encuestas, metas y preguntas' foco={nombre='Clásico (de fábrica), predeterminado de comandos, alertas, mensajes automáticos, encuestas, metas y preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Páginas de interacción lista Estilos 8 de 9' foco={nombre='Estilos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Ayuda botón Alt+ y' foco={nombre='Ayuda', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+y'}
 tecla=shift+tab fase=vuelta dijo='Cerrar botón Alt+ c' foco={nombre='Cerrar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
+tecla=shift+tab fase=vuelta dijo='Probar sin directo botón Alt+ t' foco={nombre='Probar sin directo', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+t'}
 tecla=shift+tab fase=vuelta dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
 tecla=shift+tab fase=vuelta dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
@@ -23,4 +27,4 @@ tecla=shift+tab fase=vuelta dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar
 tecla=shift+tab fase=vuelta dijo='Cambiar nombre botón Alt+ o' foco={nombre='Cambiar nombre', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+o'}
 tecla=shift+tab fase=vuelta dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
 tecla=shift+tab fase=vuelta dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=vuelta dijo='Estilos del vídeo guardados lista Alt+ v Clásico (de fábrica), predeterminado de mensajes automáticos, comandos, disparadores, encuestas, metas y preguntas' foco={nombre='Clásico (de fábrica), predeterminado de mensajes automáticos, comandos, disparadores, encuestas, metas y preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Estilos del vídeo guardados lista Alt+ v Clásico (de fábrica), predeterminado de comandos, alertas, mensajes automáticos, encuestas, metas y preguntas' foco={nombre='Clásico (de fábrica), predeterminado de comandos, alertas, mensajes automáticos, encuestas, metas y preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
