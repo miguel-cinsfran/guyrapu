@@ -39,6 +39,30 @@ class Respuesta:
     medio: str = ""
 
 
+def repartir(destino, evento, ahora, chat_disponible, cuota_baja, ultimo_chat):
+    """A dónde va lo que sale, si la cuota cortó el chat y el último envío.
+
+    Lo comparten las respuestas de los comandos y las alertas: cada una lleva
+    su propio último envío al chat.
+    """
+    pide_chat = destino in ("chat", "ambos")
+    al_video = destino in ("video", "ambos")
+    if not pide_chat:
+        return al_video, False, False, ultimo_chat
+    al_chat = (evento.plataforma == plataformas.YOUTUBE
+               and chat_disponible)
+    freno = False
+    if al_chat and cuota_baja:
+        al_chat = False
+        freno = True
+    elif al_chat and ultimo_chat is not None and (
+            ahora - ultimo_chat < ESPERA_CHAT):
+        al_chat = False
+    if al_chat:
+        ultimo_chat = ahora
+    return al_video or not al_chat, al_chat, freno, ultimo_chat
+
+
 class Atencion:
     """Decide la respuesta de un mensaje y guarda el estado de la sesión."""
 
@@ -150,22 +174,10 @@ class Atencion:
     def _destinos(self, destino, evento, ahora, chat_disponible,
                   cuota_baja):
         """A dónde va la respuesta y si la cuota cortó el envío al chat."""
-        pide_chat = destino in ("chat", "ambos")
-        al_video = destino in ("video", "ambos")
-        if not pide_chat:
-            return al_video, False, False
-        al_chat = (evento.plataforma == plataformas.YOUTUBE
-                   and chat_disponible)
-        freno = False
-        if al_chat and cuota_baja:
-            al_chat = False
-            freno = True
-        elif al_chat and self._ultimo_chat is not None and (
-                ahora - self._ultimo_chat < ESPERA_CHAT):
-            al_chat = False
-        if al_chat:
-            self._ultimo_chat = ahora
-        return al_video or not al_chat, al_chat, freno
+        al_video, al_chat, freno, self._ultimo_chat = repartir(
+            destino, evento, ahora, chat_disponible, cuota_baja,
+            self._ultimo_chat)
+        return al_video, al_chat, freno
 
     def _es_eco(self, evento, ahora):
         if evento.plataforma != plataformas.YOUTUBE:
