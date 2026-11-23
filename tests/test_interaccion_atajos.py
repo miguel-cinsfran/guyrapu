@@ -154,7 +154,8 @@ class TestInteraccionAtajos(unittest.TestCase):
 
     def test_p7_lee_la_mas_vieja_y_dice_cuantas_quedan(self):
         _atajos, ventana = self._atajos()
-        ventana._preguntas_en_vivo = preguntas_en_vivo.SesionPreguntas()
+        ventana._preguntas_en_vivo = preguntas_en_vivo.SesionPreguntas(
+            ventana)
         self._sumar(ventana, "!pregunta Primera", "Ana", "A", 1.0)
         self._sumar(ventana, "!pregunta Segunda", "Beto", "B", 2.0)
         anuncios = []
