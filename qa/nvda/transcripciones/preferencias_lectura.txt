@@ -1,9 +1,3 @@
-tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Lectura 6 de 18' foco={nombre='Lectura', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Formato de lectura agrupación Nombre y mensaje botón de opción marcado' foco={nombre='Nombre y mensaje', rol='RADIOBUTTON', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Omitir emojis en la lista y al leer casilla de verificación marcado Alt+ j' foco={nombre='Omitir emojis en la lista y al leer', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+j'}
 tecla=tab fase=ida dijo='Omitir enlaces al leer casilla de verificación marcado Alt+ n' foco={nombre='Omitir enlaces al leer', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+n'}
 tecla=tab fase=ida dijo='Longitud máxima del mensaje (caracteres): edición Alt+ l seleccionado 200' foco={nombre='Longitud máxima del mensaje (caracteres):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='200', atajo='Alt+l'}

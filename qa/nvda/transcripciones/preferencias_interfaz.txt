@@ -1,5 +1,3 @@
-tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Tamaño de letra del chat (8 a 24): edición Alt+ l seleccionado 12' foco={nombre='Tamaño de letra del chat (8 a 24):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='12', atajo='Alt+l'}
 tecla=tab fase=ida dijo='Mostrar total de Super Chats en la barra de estado casilla de verificación marcado Alt+ s' foco={nombre='Mostrar total de Super Chats en la barra de estado', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+s'}
 tecla=tab fase=ida dijo='Mostrar pestaña de información del vídeo casilla de verificación marcado Alt+ i' foco={nombre='Mostrar pestaña de información del vídeo', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+i'}
 tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}

@@ -1,6 +1,3 @@
-tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Tema de sonido: cuadro combinado Predeterminado contraído Alt+ t' foco={nombre='Tema de sonido:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Predeterminado', atajo='Alt+t'}
 tecla=tab fase=ida dijo='Sonidos lista Alt+ s Acción completada; Familia: Completado casilla de verificación marcado 1 de 118' foco={nombre='Acción completada; Familia: Completado', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Reproducir sonido elegido botón Alt+ r' foco={nombre='Reproducir sonido elegido', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}

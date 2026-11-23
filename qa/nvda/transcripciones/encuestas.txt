@@ -1,8 +1,3 @@
-tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Comandos 1 de 9' foco={nombre='Comandos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Alertas 2 de 9' foco={nombre='Alertas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Mensajes automáticos 3 de 9' foco={nombre='Mensajes automáticos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Encuestas 4 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Encuestas guardadas lista Alt+ n No hay encuestas. Aquí aparecen las encuestas listas para iniciar en el directo. El público vota con un número precedido de un signo de exclamación, como 1 o 2. Usa Agregar para crear una.' foco={nombre='No hay encuestas. Aquí aparecen las encuestas listas para iniciar en el directo. El público vota con un número precedido de un signo de exclamación, como 1 o 2. Usa Agregar para crear una.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
 tecla=tab fase=ida dijo='Iniciar botón Alt+ a' foco={nombre='Iniciar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}

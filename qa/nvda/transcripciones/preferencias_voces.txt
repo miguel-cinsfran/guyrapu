@@ -1,8 +1,3 @@
-tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Motor de voz: cuadro combinado Windows OneCore contraído Alt+ m' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Windows OneCore', atajo='Alt+m'}
 tecla=tab fase=ida dijo='Voz principal: cuadro combinado Microsoft Sabina contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Sabina', atajo='Alt+v'}
 tecla=tab fase=ida dijo='Administrar voces… botón Alt+ n' foco={nombre='Administrar voces…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
 tecla=tab fase=ida dijo='Salida de audio de la voz (Phonon y Piper): cuadro combinado Salida predeterminada contraído Alt+ h' foco={nombre='Salida de audio de la voz (Phonon y Piper):', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Salida predeterminada', atajo='Alt+h'}

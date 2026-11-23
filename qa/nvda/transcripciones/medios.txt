@@ -1,11 +1,3 @@
-tecla=shift+tab fase=pagina dijo='Páginas de interacción lista Comandos 1 de 9' foco={nombre='Comandos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Alertas 2 de 9' foco={nombre='Alertas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Mensajes automáticos 3 de 9' foco={nombre='Mensajes automáticos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Encuestas 4 de 9' foco={nombre='Encuestas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Preguntas 5 de 9' foco={nombre='Preguntas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Metas 6 de 9' foco={nombre='Metas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Medios 7 de 9' foco={nombre='Medios', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Medios guardados lista Alt+ m No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.' foco={nombre='No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los sonidos de la carpeta Medios, junto a la aplicación. Los comandos y las alertas los muestran o los hacen sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Volumen de los medios en el vídeo deslizador 100 Alt+ v' foco={nombre='Volumen de los medios en el vídeo', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+v'}
 tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}

@@ -1,20 +1,3 @@
-tecla=downArrow fase=pagina dijo='Interfaz 2 de 18' foco={nombre='Interfaz', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Sonidos 3 de 18' foco={nombre='Sonidos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Atajos 4 de 18' foco={nombre='Atajos', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Lectura 6 de 18' foco={nombre='Lectura', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Cola de lectura 7 de 18' foco={nombre='Cola de lectura', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Eventos del directo 8 de 18' foco={nombre='Eventos del directo', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Filtros 9 de 18' foco={nombre='Filtros', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Conexión 11 de 18' foco={nombre='Conexión', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='YouTube 12 de 18' foco={nombre='YouTube', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Reproductor 13 de 18' foco={nombre='Reproductor', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Música 14 de 18' foco={nombre='Música', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Descargas 15 de 18' foco={nombre='Descargas', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='Inteligencia artificial 16 de 18' foco={nombre='Inteligencia artificial', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=downArrow fase=pagina dijo='OBS 17 de 18' foco={nombre='OBS', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=pagina dijo='Avisar si OBS se sobrecarga casilla de verificación marcado Alt+ v' foco={nombre='Avisar si OBS se sobrecarga', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+v'}
 tecla=tab fase=ida dijo='Mostrar en el título de la ventana si se transmite o se graba casilla de verificación sin marcar Alt+ t' foco={nombre='Mostrar en el título de la ventana si se transmite o se graba', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+t'}
 tecla=tab fase=ida dijo='Perfil para transmitir en horizontal: cuadro combinado YouTube contraído Alt+ o' foco={nombre='Perfil para transmitir en horizontal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='YouTube', atajo='Alt+o'}
 tecla=tab fase=ida dijo='Perfil para transmitir en vertical: cuadro combinado TikTok contraído Alt+ e' foco={nombre='Perfil para transmitir en vertical:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='TikTok', atajo='Alt+e'}
