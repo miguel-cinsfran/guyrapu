@@ -161,6 +161,42 @@ def _migrar_registro(vieja: Path, nueva: Path, datos: Path,
         resultado.errores.append(f"{nueva.name}: {exc}")
 
 
+def _migrar_carpeta(vieja: Path, nueva: Path,
+                    resultado: ResultadoMigracion) -> None:
+    """Muda la carpeta de medios a la raíz sin pisar lo que ya haya allí."""
+    try:
+        vieja, nueva = Path(vieja), Path(nueva)
+        if vieja == nueva or not vieja.is_dir():
+            return
+        if not nueva.exists() and not nueva.is_symlink():
+            try:
+                nueva.parent.mkdir(parents=True, exist_ok=True)
+                os.replace(vieja, nueva)
+                resultado.movidos.append(nueva.name)
+            except OSError as exc:
+                resultado.errores.append(f"{nueva.name}: {exc}")
+            return
+        for archivo in sorted(vieja.iterdir()):
+            try:
+                if not archivo.is_file():
+                    continue
+                destino = nueva / archivo.name
+                if destino.exists() or destino.is_symlink():
+                    resultado.conflictos.append(archivo.name)
+                    continue
+                os.replace(archivo, destino)
+                resultado.movidos.append(archivo.name)
+            except Exception as exc:
+                resultado.errores.append(f"{archivo.name}: {exc}")
+        try:
+            if not any(vieja.iterdir()):
+                vieja.rmdir()
+        except OSError as exc:
+            resultado.errores.append(f"{vieja.name}: {exc}")
+    except Exception as exc:
+        resultado.errores.append(f"{nueva.name}: {exc}")
+
+
 def anotar_resultado(resultado: ResultadoMigracion | None, registro) -> None:
     """Anota en el registro el resultado de la migración de datos."""
     if resultado is None:
@@ -192,6 +228,7 @@ def migrar(instalacion: Path, datos: Path, rutas: list[Path],
     también lleva el yt-dlp y los registros a sus nombres nuevos, sin
     pisar nada: el binario se copia y se borra el viejo solo si la copia
     quedó con el mismo tamaño, y los registros se renombran con rotados.
+    El tercer grupo, si viene, mueve la carpeta de medios a la raíz.
     """
     resultado = ResultadoMigracion()
     instalacion = Path(instalacion)
@@ -214,9 +251,11 @@ def migrar(instalacion: Path, datos: Path, rutas: list[Path],
                 logger.debug("no se pudo anotar el fallo de migración en el resultado: %s", error)
     _copiar_sounds_ini(instalacion, datos, sounds_ini, resultado)
     if pares_anteriores is not None:
-        binarios, registros = pares_anteriores
+        binarios, registros, *carpetas = pares_anteriores
         for vieja, nueva in binarios:
             _migrar_binario(Path(vieja), Path(nueva), resultado)
         for vieja, nueva in registros:
             _migrar_registro(Path(vieja), Path(nueva), datos, resultado)
+        for vieja, nueva in carpetas[0] if carpetas else ():
+            _migrar_carpeta(Path(vieja), Path(nueva), resultado)
     return resultado

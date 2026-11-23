@@ -34,7 +34,6 @@ RUTAS_DE_DATOS = [
     ("interaccion", "interaccion.json"),
     ("encuestas", "encuestas.json"),
     ("medios", "medios.json"),
-    ("carpeta_medios", "medios"),
     ("palabras_bloqueadas", "palabras_bloqueadas.json"),
     ("estilos_avisos", "estilos_avisos.json"),
     ("fondos_de_avisos", "fondos-avisos"),
@@ -68,6 +67,7 @@ CREAN_CARPETA = {"audio_temporal"}
 RUTAS_DE_INSTALACION = [
     ("descargas_por_defecto", "Descargas"),
     ("musica_por_defecto", "Música"),
+    ("carpeta_medios", "Medios"),
     ("catalogo_ia_empaquetado", "catalogo_ia.json"),
     ("carpeta_sonidos", "sounds"),
     ("carpeta_guia", os.path.join("sounds", "guia")),
@@ -340,10 +340,13 @@ class TestNombresAnteriores(unittest.TestCase):
 
     def test_pares_de_nombres_anteriores(self):
         with tempfile.TemporaryDirectory() as tmp:
-            datos = Path(tmp) / "datos"
+            datos, instalacion = Path(tmp) / "datos", Path(tmp) / "app"
             with mock.patch.object(paths, "carpeta_datos", return_value=datos), \
+                    mock.patch.object(paths, "carpeta_instalacion",
+                                      return_value=instalacion), \
                     mock.patch.dict(os.environ, {"LOCALAPPDATA": tmp}):
-                binarios, registros = paths.pares_de_nombres_anteriores()
+                binarios, registros, carpetas = \
+                    paths.pares_de_nombres_anteriores()
             self.assertEqual(
                 binarios,
                 [(Path(tmp) / "YTChat TTS" / "yt-dlp.exe",
@@ -356,6 +359,20 @@ class TestNombresAnteriores(unittest.TestCase):
                  (datos / "ytchat-debug.log", datos / "guyrapu-debug.log"),
                  (datos / "ytchat-fallos.log", datos / "guyrapu-fallos.log"),
                  (datos / "ytchat.log", datos / "guyrapu.log")])
+            self.assertEqual(
+                carpetas, [(datos / "medios", instalacion / "Medios")])
+
+
+class TestCarpetasDelUsuario(unittest.TestCase):
+    """La lista que comparten la validación del paquete y el instalador."""
+
+    def test_los_nombres_coinciden_con_las_funciones_de_paths(self):
+        self.assertEqual(
+            rutas_actualizacion.CARPETAS_DEL_USUARIO,
+            (paths.carpeta_datos().name,
+             paths.descargas_por_defecto().name,
+             paths.musica_por_defecto().name,
+             paths.carpeta_medios().name))
 
 
 class TestOrdenDeLaApp(unittest.TestCase):

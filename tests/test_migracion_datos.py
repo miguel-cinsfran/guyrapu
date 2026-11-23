@@ -354,6 +354,78 @@ class TestNombresAnteriores(unittest.TestCase):
             self.assertTrue((datos / "ytchat-fallos.log").is_file())
 
 
+class TestMigrarCarpetaMedios(unittest.TestCase):
+    """data/medios pasa a Medios junto al programa, con carpetas reales."""
+
+    def _pares(self, vieja, nueva):
+        return ((), (), [(vieja, nueva)])
+
+    def _migrar(self, base, vieja, nueva):
+        return migracion_datos.migrar(
+            base, base / "data", [], base / "data" / "sounds.ini",
+            self._pares(vieja, nueva))
+
+    def test_sin_carpeta_vieja_no_hace_nada(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            vieja, nueva = base / "data" / "medios", base / "Medios"
+            resultado = self._migrar(base, vieja, nueva)
+            self.assertFalse(nueva.exists())
+            self.assertEqual(resultado.movidos, [])
+            self.assertEqual(resultado.errores, [])
+
+    def test_sin_carpeta_nueva_mueve_la_carpeta_entera(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            vieja, nueva = base / "data" / "medios", base / "Medios"
+            (vieja / "sub").mkdir(parents=True)
+            (vieja / "risa.wav").write_bytes(b"AAA")
+            (vieja / "sub" / "otro.mp3").write_bytes(b"BBB")
+            resultado = self._migrar(base, vieja, nueva)
+            self.assertFalse(vieja.exists())
+            self.assertEqual((nueva / "risa.wav").read_bytes(), b"AAA")
+            self.assertEqual((nueva / "sub" / "otro.mp3").read_bytes(), b"BBB")
+            self.assertIn("Medios", resultado.movidos)
+
+    def test_con_carpeta_nueva_mueve_solo_lo_que_no_choca(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            vieja, nueva = base / "data" / "medios", base / "Medios"
+            vieja.mkdir(parents=True)
+            nueva.mkdir()
+            (vieja / "risa.wav").write_bytes(b"AAA")
+            (vieja / "fuego.png").write_bytes(b"BBB")
+            (nueva / "risa.wav").write_bytes(b"CCC")
+            resultado = self._migrar(base, vieja, nueva)
+            self.assertEqual((vieja / "risa.wav").read_bytes(), b"AAA")
+            self.assertIn("risa.wav", resultado.conflictos)
+            self.assertFalse((vieja / "fuego.png").exists())
+            self.assertEqual((nueva / "fuego.png").read_bytes(), b"BBB")
+            self.assertTrue(vieja.is_dir())
+
+    def test_carpeta_vieja_vacia_se_borra(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            vieja, nueva = base / "data" / "medios", base / "Medios"
+            vieja.mkdir(parents=True)
+            nueva.mkdir()
+            self._migrar(base, vieja, nueva)
+            self.assertFalse(vieja.exists())
+            self.assertTrue(nueva.is_dir())
+
+    def test_fallo_al_mover_no_lanza_y_lo_anota(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            vieja, nueva = base / "data" / "medios", base / "Medios"
+            vieja.mkdir(parents=True)
+            (vieja / "risa.wav").write_bytes(b"AAA")
+            with mock.patch("guyrapu.core.migracion_datos.os.replace",
+                            side_effect=OSError("bloqueado")):
+                resultado = self._migrar(base, vieja, nueva)
+            self.assertTrue(resultado.errores)
+            self.assertEqual((vieja / "risa.wav").read_bytes(), b"AAA")
+
+
 class TestCableadoMain(unittest.TestCase):
 
     def test_migrar_se_llama_antes_que_configurar_logging(self):

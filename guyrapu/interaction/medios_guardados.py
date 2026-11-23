@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import math
 import shutil
+import unicodedata
 from pathlib import Path
 
 from guyrapu.core import archivos, diagnostico
@@ -106,6 +107,45 @@ def provisional(origen, duracion) -> dict:
         "tipo": medios.tipo_de(base.name),
         "duracion": duracion,
     })
+
+
+def _clave_de_orden(nombre) -> str:
+    descompuesto = unicodedata.normalize("NFD", str(nombre))
+    return "".join(c for c in descompuesto
+                   if not unicodedata.combining(c)).lower()
+
+
+def nombres_en_carpeta(carpeta) -> list[str]:
+    """Los nombres de archivo de medios de la carpeta, sin subcarpetas."""
+    try:
+        return sorted(
+            (hijo.name for hijo in Path(carpeta).iterdir()
+             if hijo.is_file() and medios.es_medio(hijo.name)),
+            key=_clave_de_orden)
+    except OSError:
+        return []
+
+
+def sincronizar(guardados, nombres) -> list[dict]:
+    """La lista final a partir de lo guardado y de los archivos presentes."""
+    por_archivo = {}
+    for guardado in guardados:
+        medio = normalizar(guardado)
+        por_archivo[medio["archivo"]] = medio
+    presentes = list(dict.fromkeys(nombres))
+    conservados = [por_archivo[n] for n in presentes if n in por_archivo]
+    nuevos = [provisional(n, 0) for n in presentes if n not in por_archivo]
+    usados = {medio["nombre"] for medio in conservados}
+    for medio in nuevos:
+        base = medio["nombre"]
+        nombre, numero = base, 2
+        while nombre in usados:
+            nombre = f"{base} ({numero})"
+            numero += 1
+        medio["nombre"] = nombre
+        usados.add(nombre)
+    return sorted(conservados + nuevos,
+                  key=lambda medio: _clave_de_orden(medio["nombre"]))
 
 
 def _nombre_libre(carpeta: Path, nombre: str) -> str:

@@ -140,6 +140,59 @@ class TestMedioParaVideo(BaseMedios):
                     [guardado], self.carpeta, nombre))
 
 
+class TestSincronizar(BaseMedios):
+    """La carpeta manda: lo que hay en ella es la lista, sin copias aparte."""
+
+    def setUp(self):
+        super().setUp()
+        self.carpeta.mkdir(parents=True, exist_ok=True)
+
+    def test_nombres_en_carpeta_solo_archivos_de_medio_y_sin_subcarpetas(self):
+        (self.carpeta / "risa.wav").write_bytes(b"AAA")
+        (self.carpeta / "foto.PNG").write_bytes(b"BBB")
+        (self.carpeta / "notas.txt").write_bytes(b"CCC")
+        (self.carpeta / "sub").mkdir()
+        (self.carpeta / "sub" / "otro.mp3").write_bytes(b"DDD")
+        self.assertEqual(
+            medios_guardados.nombres_en_carpeta(self.carpeta),
+            ["foto.PNG", "risa.wav"])
+
+    def test_nombres_en_carpeta_ordenados_sin_tildes_ni_mayusculas(self):
+        for nombre in ("ánimo.png", "Zorro.mp4", "Ébano.wav", "agua.jpg"):
+            (self.carpeta / nombre).write_bytes(b"x")
+        self.assertEqual(
+            medios_guardados.nombres_en_carpeta(self.carpeta),
+            ["agua.jpg", "ánimo.png", "Ébano.wav", "Zorro.mp4"])
+
+    def test_un_archivo_nuevo_aparece_con_su_nombre_sin_extension(self):
+        self.assertEqual(
+            medios_guardados.sincronizar([], ["risa.wav"]),
+            [{"nombre": "risa", "descripcion": "", "tipo": "sonido",
+              "archivo": "risa.wav", "duracion": 0, "ganancia_db": None}])
+
+    def test_un_archivo_que_falta_desaparece(self):
+        guardado = medios_guardados.normalizar(_datos())
+        self.assertEqual(medios_guardados.sincronizar([guardado], []), [])
+
+    def test_nombres_repetidos_llevan_sufijo(self):
+        resultado = medios_guardados.sincronizar([], ["risa.wav", "risa.mp3"])
+        self.assertEqual([medio["nombre"] for medio in resultado],
+                         ["risa", "risa (2)"])
+
+    def test_se_conserva_lo_ya_medido_de_un_archivo_que_sigue(self):
+        guardado = medios_guardados.normalizar(
+            _datos(descripcion="Una risa", duracion=7, ganancia_db=-6.5))
+        self.assertEqual(
+            medios_guardados.sincronizar([guardado], ["risa.wav"]),
+            [guardado])
+
+    def test_orden_sin_tildes_ni_mayusculas(self):
+        nombres = ["Zorro.mp4", "ánimo.png", "Ébano.wav", "agua.jpg"]
+        resultado = medios_guardados.sincronizar([], nombres)
+        self.assertEqual([medio["nombre"] for medio in resultado],
+                         ["agua", "ánimo", "Ébano", "Zorro"])
+
+
 class TestArchivo(BaseMedios):
 
     def test_guardar_y_cargar_conserva_los_campos(self):

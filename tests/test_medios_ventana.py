@@ -6,6 +6,7 @@ Abre ventanas.
 """
 
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -84,7 +85,11 @@ class TestPagina(BaseVentana):
         self.assertEqual(panel.lista.GetName(), "Medios guardados")
         self.assertEqual(panel.lista.GetCount(), 1)
         self.assertEqual(panel.lista.GetString(0),
-                         "No hay medios. Usa Agregar para crear uno.")
+                         "No hay medios. Aquí aparecen las imágenes, los GIF, "
+                         "los vídeos y los sonidos de la carpeta Medios, junto "
+                         "a la aplicación. Sirven para mostrarlos o hacerlos "
+                         "sonar en el vídeo. Copia archivos en esa carpeta o "
+                         "usa Agregar.")
 
     def test_la_fila_dice_nombre_tipo_y_duracion(self):
         panel = self._panel([_datos()])
@@ -236,6 +241,10 @@ class TestPagina(BaseVentana):
                 mock.patch.object(medios_ventana, "anunciar") as decir:
             panel._eliminar()
         self.assertFalse(preguntar.call_args.kwargs["predeterminado_si"])
+        self.assertEqual(
+            preguntar.call_args.args[1],
+            "¿Quieres eliminar el medio «B»? También se elimina su archivo "
+            "de la carpeta Medios.")
         self.assertFalse((paths.carpeta_medios() / "b.wav").exists())
         self.assertEqual([medio["nombre"] for medio in self._en_disco()],
                          ["A"])
@@ -268,6 +277,90 @@ class TestPagina(BaseVentana):
         ruta = paths.carpeta_medios() / guardados[0]["archivo"]
         self.assertEqual(ruta.read_bytes(), b"BBB")
         self.assertEqual(panel.lista.GetSelection(), 0)
+
+
+class TestCarpeta(BaseVentana):
+    """La carpeta es la verdad: se lee al mostrar y al activar la ventana."""
+
+    def _activar(self, panel):
+        evento = wx.ActivateEvent(wx.wxEVT_ACTIVATE, True)
+        panel.GetTopLevelParent().GetEventHandler().ProcessEvent(evento)
+
+    def _esperar(self, condicion):
+        for _ in range(200):
+            wx.Yield()
+            if condicion():
+                return True
+            time.sleep(0.01)
+        return False
+
+    def _archivo(self, nombre):
+        destino = paths.carpeta_medios() / nombre
+        destino.write_bytes(b"AAA")
+        return destino
+
+    def test_copiar_y_borrar_un_archivo_se_ve_al_activar(self):
+        panel = self._panel([])
+        self._mostrada(panel.GetParent())
+        archivo = self._archivo("risa.wav")
+        with mock.patch.object(medios_ventana, "duracion_de", return_value=0):
+            self._activar(panel)
+        self.assertEqual(panel.lista.GetCount(), 1)
+        self.assertIn("risa", panel.lista.GetString(0))
+        guardados = self._en_disco()
+        self.assertEqual([medio["nombre"] for medio in guardados], ["risa"])
+        self.assertEqual(guardados[0]["archivo"], "risa.wav")
+        archivo.unlink()
+        self._activar(panel)
+        self.assertIn("No hay medios.", panel.lista.GetString(0))
+        self.assertEqual(self._en_disco(), [])
+
+    def test_la_activacion_conserva_el_elemento_elegido(self):
+        panel = self._panel([_datos(nombre="A", archivo="a.wav"),
+                             _datos(nombre="B", archivo="b.wav")])
+        panel.lista.SetSelection(1)
+        self._archivo("c.wav")
+        with mock.patch.object(medios_ventana, "duracion_de", return_value=0):
+            self._activar(panel)
+        self.assertEqual(panel.lista.GetSelection(), 1)
+        self.assertEqual([panel.lista.GetString(i)
+                          for i in range(panel.lista.GetCount())][1],
+                         "B, sonido, 3 segundos")
+
+    def test_un_medio_nuevo_se_mide_en_segundo_plano_sin_anunciar(self):
+        panel = self._panel([])
+        self._archivo("risa.wav")
+        inmediato = lambda funcion, *args: funcion(*args)
+        with mock.patch.object(medios_ventana, "duracion_de",
+                               return_value=7) as duracion, \
+             mock.patch.object(medios_ventana, "anunciar") as decir, \
+             mock.patch.object(medios_ventana.wx, "CallAfter",
+                               side_effect=inmediato):
+            self._activar(panel)
+            medida = self._esperar(lambda: self.medir.call_count == 1)
+        self.assertTrue(medida)
+        self.assertEqual(duracion.call_count, 1)
+        self.assertEqual(self.medir.call_args.args[0],
+                         paths.carpeta_medios() / "risa.wav")
+        self.medir.call_args.args[1](None)
+        guardados = self._en_disco()
+        self.assertEqual(guardados[0]["duracion"], 7)
+        self.assertIsNone(guardados[0]["ganancia_db"])
+        decir.assert_not_called()
+
+    def test_el_boton_abrir_carpeta_va_al_final_y_la_abre(self):
+        panel = self._panel([])
+        self.assertEqual(panel.btn_abrir_carpeta.GetLabel(), "&Abrir carpeta")
+        self.assertEqual(panel.btn_abrir_carpeta.GetName(), "Abrir carpeta")
+        self.assertIs([hijo for hijo in panel.GetChildren()
+                       if isinstance(hijo, wx.Button)][-1],
+                      panel.btn_abrir_carpeta)
+        with mock.patch.object(medios_ventana.os, "startfile") as abrir:
+            evento = wx.CommandEvent(wx.wxEVT_BUTTON,
+                                     panel.btn_abrir_carpeta.GetId())
+            panel.btn_abrir_carpeta.GetEventHandler().ProcessEvent(evento)
+        abrir.assert_called_once_with(str(paths.carpeta_medios()))
+        self.assertTrue(paths.carpeta_medios().is_dir())
 
 
 class TestVolumen(BaseVentana):

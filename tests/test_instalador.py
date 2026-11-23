@@ -787,6 +787,19 @@ class TestVocesNoSeTocan(BaseInstalador):
         self.assertEqual(_foto(self.instalacion / "voces"), antes)
 
 
+class TestEntradasAReemplazar(unittest.TestCase):
+    """Las carpetas del usuario nunca entran en la lista a reemplazar."""
+
+    def test_excluye_las_carpetas_del_usuario(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paquete = Path(tmp)
+            for nombre in ("data", "Descargas", "Música", "Medios",
+                           "sounds", "voces", "App.exe"):
+                (paquete / nombre).mkdir()
+            entradas = instalador._entradas_a_reemplazar(paquete, "Viejo.exe")
+        self.assertEqual(set(entradas), {"App.exe", "Viejo.exe", "_internal"})
+
+
 class TestTerminoWindows(unittest.TestCase):
     """En Windows, sin ctypes no se toca os.kill: la señal 0 manda
     CTRL_C_EVENT a la consola en vez de comprobar nada."""

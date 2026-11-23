@@ -108,7 +108,7 @@ def _entradas_a_reemplazar(paquete: Path, ejecutable_viejo: str) -> list[str]:
         if nombre and nombre not in entradas:
             entradas.append(nombre)
     return [nombre for nombre in entradas
-            if nombre not in ("data", "Descargas", "sounds", "voces")]
+            if nombre not in rutas_actualizacion.CARPETAS_DEL_USUARIO + ("sounds", "voces")]
 
 
 def _borrar_entrada(ruta: Path) -> None:

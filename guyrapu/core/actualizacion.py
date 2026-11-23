@@ -278,7 +278,7 @@ def validar_paquete(carpeta: str | os.PathLike, version_esperada: str) -> str:
         raise PaqueteInvalido(_("el paquete no indica un ejecutable que se pueda usar"))
     if not (carpeta / ejecutable).is_file():
         raise PaqueteInvalido(_("el paquete no trae el ejecutable"))
-    for prohibido in ("data", "Descargas"):
+    for prohibido in rutas_actualizacion.CARPETAS_DEL_USUARIO:
         if (carpeta / prohibido).exists():
             raise PaqueteInvalido(
                 _("el paquete trae {nombre}, que es del usuario").format(nombre=prohibido))

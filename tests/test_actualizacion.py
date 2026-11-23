@@ -360,7 +360,7 @@ class TestValidarPaquete(unittest.TestCase):
 
     def test_paquete_con_data_no_vale(self):
         import tempfile
-        for prohibido in ("data", "Descargas"):
+        for prohibido in ("data", "Descargas", "Música", "Medios"):
             with self.subTest(prohibido=prohibido), tempfile.TemporaryDirectory() as tmp:
                 carpeta = self._paquete(
                     Path(tmp), {"version": "2.3.0", "ejecutable": "App.exe"})

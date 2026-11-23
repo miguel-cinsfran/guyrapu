@@ -98,7 +98,6 @@ def comandos() -> Path:
 
 
 def disparadores() -> Path:
-    # Disparadores propios del usuario.
     return carpeta_datos() / "disparadores.json"
 
 
@@ -119,9 +118,8 @@ def medios() -> Path:
 
 
 def carpeta_medios() -> Path:
-    # Las copias de los archivos de la biblioteca de medios, para que sigan
-    # andando si el original se mueve o se borra.
-    return carpeta_datos() / "medios"
+    # Como «Música»: queda a la vista junto al programa
+    return carpeta_instalacion() / "Medios"
 
 
 def palabras_bloqueadas() -> Path:
@@ -231,10 +229,11 @@ def ytdlp_actualizado_anterior() -> Path:
     return base / "YTChat TTS" / NOMBRE_YTDLP
 
 
-def pares_de_nombres_anteriores() -> tuple[list, list]:
+def pares_de_nombres_anteriores() -> tuple[list, list, list]:
     registros = [(carpeta_datos() / f"{p}{s}", nueva()) for p in ("bellbird", "ytchat")
                  for s, nueva in (("-debug.log", log_detallado), ("-fallos.log", log_fallos), (".log", log_principal))]
-    return ([(ytdlp_actualizado_anterior(), ytdlp_actualizado())], registros)
+    return ([(ytdlp_actualizado_anterior(), ytdlp_actualizado())], registros,
+            [(carpeta_datos() / "medios", carpeta_medios())])
 
 
 def cache_audio() -> Path:

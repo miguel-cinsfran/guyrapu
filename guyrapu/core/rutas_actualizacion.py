@@ -12,6 +12,16 @@ from pathlib import Path
 
 from guyrapu.core import paths
 
+# Las carpetas que el usuario crea junto al programa: la validación del
+# paquete las rechaza y el instalador no las reemplaza. Una sola declaración
+# para que los dos lean lo mismo.
+CARPETAS_DEL_USUARIO = (
+    paths.carpeta_datos().name,
+    paths.descargas_por_defecto().name,
+    paths.musica_por_defecto().name,
+    paths.carpeta_medios().name,
+)
+
 
 def carpeta_actualizacion_en(instalacion: Path) -> Path:
     return Path(instalacion) / "data" / "actualizacion"

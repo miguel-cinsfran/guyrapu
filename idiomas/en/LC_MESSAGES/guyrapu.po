@@ -13807,10 +13807,6 @@ msgid "Pidiendo la descripción a la IA…"
 msgstr "Asking the AI for the description…"
 
 #: guyrapu/ui/medios_ventana.py
-msgid "No hay medios. Usa Agregar para crear uno."
-msgstr "There are no media items. Use Add to create one."
-
-#: guyrapu/ui/medios_ventana.py
 msgid "Lista de &medios:"
 msgstr "List of &media:"
 
@@ -13841,11 +13837,6 @@ msgstr "Could not play the media."
 #: guyrapu/ui/medios_ventana.py
 msgid "Escuchar medio"
 msgstr "Listen to media"
-
-#: guyrapu/ui/medios_ventana.py
-#, python-brace-format
-msgid "¿Quieres eliminar el medio «{nombre}»?"
-msgstr "Do you want to delete the media item «{nombre}»?"
 
 #: guyrapu/ui/medios_ventana.py
 msgid "Eliminar medio"
@@ -17238,4 +17229,42 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
+
+#: guyrapu/ui/medios_ventana.py
+msgid ""
+"No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y los "
+"sonidos de la carpeta Medios, junto a la aplicación. Sirven para mostrarlos"
+" o hacerlos sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar."
+msgstr ""
+"There are no media items. Images, GIFs, videos and sounds from the Media "
+"folder, next to the application, appear here. You can show them or play "
+"them in the video. Copy files into that folder or use Add."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Abrir carpeta"
+msgstr "Open folder"
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid ""
+"No se pudo abrir la carpeta de medios:\n"
+"\n"
+"{exc}"
+msgstr ""
+"Could not open the media folder:\n"
+"\n"
+"{exc}"
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Carpeta de medios"
+msgstr "Media folder"
+
+#: guyrapu/ui/medios_ventana.py
+#, python-brace-format
+msgid ""
+"¿Quieres eliminar el medio «{nombre}»? También se elimina su archivo de la "
+"carpeta Medios."
+msgstr ""
+"Do you want to delete the media item «{nombre}»? Its file in the Media "
+"folder will also be deleted."
 

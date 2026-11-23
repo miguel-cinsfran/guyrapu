@@ -8,6 +8,7 @@ al momento. La escucha previa suena con libVLC, sin vídeo.
 
 from __future__ import annotations
 
+import os
 import threading
 
 import wx
@@ -26,7 +27,10 @@ from guyrapu.ui.medio_escucha import EscuchaPrevia
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 from guyrapu.voice import sound_player
 
-VACIO = N_("No hay medios. Usa Agregar para crear uno.")
+VACIO = N_(
+    "No hay medios. Aquí aparecen las imágenes, los GIF, los vídeos y "
+    "los sonidos de la carpeta Medios, junto a la aplicación. Sirven para "
+    "mostrarlos o hacerlos sonar en el vídeo. Copia archivos en esa carpeta o usa Agregar.")
 WILDCARD = N_("Paquete de Guyrapu (*.zip)|*.zip")
 PLAZO_DURACION = 1.4
 
@@ -80,6 +84,8 @@ class PanelMedios(wx.Panel):
         self._medios = medios_guardados.cargar(self._ruta)
         self._escucha = EscuchaPrevia()
         self._crear_controles()
+        self.Bind(wx.EVT_SHOW, self._al_mostrarse)
+        self.GetTopLevelParent().Bind(wx.EVT_ACTIVATE, self._al_activarse)
 
     def _crear_controles(self):
         vs = wx.BoxSizer(wx.VERTICAL)
@@ -107,7 +113,66 @@ class PanelMedios(wx.Panel):
         self.lista.SetFocus()
 
     def _fila_de_botones(self):
-        return botonera.armar(self, self._acciones, self._lista)
+        fila = botonera.armar(self, self._acciones, self._lista)
+        self.btn_abrir_carpeta = wx.Button(
+            self, label=_("&Abrir carpeta"), name=_("Abrir carpeta"))
+        self.btn_abrir_carpeta.Bind(wx.EVT_BUTTON, self._abrir_carpeta)
+        fila.Add(self.btn_abrir_carpeta, 0,
+                 wx.RIGHT | wx.BOTTOM, botonera.HUECO)
+        return fila
+
+    def _abrir_carpeta(self, _evento=None):
+        try:
+            self._carpeta.mkdir(parents=True, exist_ok=True)
+            os.startfile(str(self._carpeta))  # noqa: S606
+        except Exception as exc:
+            sound_player.reproducir("error")
+            confirmar.avisar(
+                self, _("No se pudo abrir la carpeta de medios:\n\n{exc}").format(exc=exc),
+                _("Carpeta de medios"), _("Aceptar"),
+                icono=confirmar.ICON_ERROR)
+
+    def _al_mostrarse(self, evento):
+        if evento.IsShown():
+            self._actualizar()
+        evento.Skip()
+
+    def _al_activarse(self, evento):
+        if evento.Active:
+            self._actualizar()
+        evento.Skip()
+
+    def _actualizar(self):
+        anterior = self._elegido()
+        archivo = (self._medios[anterior]["archivo"]
+                   if anterior is not None else None)
+        anteriores = {medio["archivo"] for medio in self._medios}
+        actualizados = medios_guardados.sincronizar(
+            self._medios, medios_guardados.nombres_en_carpeta(self._carpeta))
+        nuevos = [medio for medio in actualizados
+                  if medio["archivo"] not in anteriores]
+        if actualizados != self._medios:
+            self._medios = actualizados
+            self._guardar()
+        indice = next((posicion for posicion, medio in enumerate(self._medios)
+                       if medio["archivo"] == archivo), None)
+        self._lista.fijar(self._textos(), indice)
+        self._medir_nuevos(nuevos)
+
+    def _medir_nuevos(self, nuevos):
+        pendientes = [m for m in nuevos
+                      if m["tipo"] in ("sonido", "video")
+                      and (not m["duracion"] or m["ganancia_db"] is None)]
+        if not pendientes:
+            return
+
+        def trabajo():
+            for medio in pendientes:
+                ruta = medios_guardados.archivo_de(self._carpeta, medio)
+                duracion = duracion_de(ruta) if not medio["duracion"] else 0
+                wx.CallAfter(self._medir, medio, duracion)
+
+        threading.Thread(target=trabajo, daemon=True).start()
 
     def _textos(self):
         return [medios.fila(medio) for medio in self._medios]
@@ -144,25 +209,28 @@ class PanelMedios(wx.Panel):
         self._medir(self._medios[-1])
         anunciar(_("Medio agregado"))
 
-    def _medir(self, medio):
+    def _medir(self, medio, duracion=0):
         if medio["tipo"] not in ("sonido", "video"):
-            return
-        if medio.get("ganancia_db") is not None:
             return
         archivo = medio["archivo"]
 
         def al_terminar(ganancia):
-            if ganancia is None:
+            if ganancia is None and not duracion:
                 return
-            indice = medios_guardados.indice_de_archivo(
-                self._medios, archivo)
+            indice = medios_guardados.indice_de_archivo(self._medios, archivo)
             if indice is None:
                 return
-            self._medios[indice]["ganancia_db"] = ganancia
+            if duracion:
+                self._medios[indice]["duracion"] = duracion
+            if ganancia is not None:
+                self._medios[indice]["ganancia_db"] = ganancia
             self._guardar()
 
-        medios_medicion.medir(
-            medios_guardados.archivo_de(self._carpeta, medio), al_terminar)
+        if medio.get("ganancia_db") is None:
+            medios_medicion.medir(
+                medios_guardados.archivo_de(self._carpeta, medio), al_terminar)
+        elif duracion:
+            self._guardar()
 
     def _editar(self):
         indice = self._elegido()
@@ -230,10 +298,12 @@ class PanelMedios(wx.Panel):
         medio = self._medios[indice]
         if not confirmar.preguntar(
                 self,
-                _("¿Quieres eliminar el medio «{nombre}»?").format(
+                _("¿Quieres eliminar el medio «{nombre}»? "
+                  "También se elimina su archivo de la carpeta Medios.").format(
                     nombre=medio["nombre"]),
                 _("Eliminar medio"), _("&Eliminar"), _("&Cancelar"),
                 predeterminado_si=False):
+
             return
         medios_guardados.eliminar(self._carpeta, medio)
         self._medios.pop(indice)
