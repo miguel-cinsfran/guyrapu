@@ -25,15 +25,15 @@ NOMBRES_ACCESIBLES = (
     "Nombre", "Evento", "Cantidad mínima",
     "Nombre del regalo. Déjalo vacío para cualquier regalo. Escribe el nombre "
     "tal como lo lee Guyrapu.",
-    "Medio", "Texto de la tarjeta. Puedes usar {usuario}, {cantidad}, "
-    "{regalo}, {texto} y {contador}.", "Estilo", "Segundos en pantalla",
+    "Texto. Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.",
+    "Medio", "Segundos en pantalla", "Estilo",
     "Permiso", "Nombres permitidos", "Espera general (segundos)",
     "Espera por persona (segundos)", "Aceptar", "Cancelar")
 
 ETIQUETAS = (
     "&Nombre:", "E&vento:", "Cantidad mín&ima:", "Nom&bre del regalo:",
-    "Me&dio:", "&Texto de la tarjeta:", "Esti&lo:", "&Segundos en pantalla:",
-    "Pe&rmiso:", "Nombres p&ermitidos:", "Espera &general (segundos):",
+    "&Texto:", "Me&dio:", "&Segundos en pantalla:", "&Estilo:",
+    "Pe&rmiso:", "Nombres &permitidos:", "Espera &general (segundos):",
     "Espera por pers&ona (segundos):")
 
 
@@ -72,13 +72,18 @@ class TestCampos(BaseCuadro):
                      if isinstance(hijo, wx.StaticText)]
         self.assertEqual(tuple(etiquetas), ETIQUETAS)
 
+    def test_la_seccion_contenido_tiene_sus_rotulos_en_orden(self):
+        self.assertEqual(
+            tuple(self._cuadro()._contenido.rotulos()),
+            ("&Texto:", "Me&dio:", "&Segundos en pantalla:", "&Estilo:"))
+
     def test_cada_control_tiene_el_nombre_accesible_de_su_rotulo(self):
         cuadro = self._cuadro()
         controles = (
             cuadro.txt_nombre, cuadro.cho_evento,
             cuadro.txt_minimo, cuadro.txt_regalo,
-            cuadro.cho_medio, cuadro.txt_tarjeta, cuadro.cho_estilo,
-            cuadro.sp_segundos, cuadro.cho_permiso, cuadro.txt_nombres,
+            cuadro.txt_tarjeta, cuadro.cho_medio, cuadro.sp_segundos,
+            cuadro.cho_estilo, cuadro.cho_permiso, cuadro.txt_nombres,
             cuadro.sp_espera, cuadro.sp_persona, cuadro.btn_aceptar,
             cuadro.btn_cancelar)
         self.assertEqual(

@@ -165,12 +165,18 @@ class TestCuadro(BaseVentana):
         self.assertEqual(hijos.index(ubicacion), hijos.index(alias) + 2)
         self.assertLess(hijos.index(nombres), hijos.index(atajo))
 
-    def test_la_eleccion_de_medio_va_despues_de_la_respuesta_y_su_nota(self):
+    def test_mostrar_en_va_despues_de_la_respuesta_y_su_nota(self):
         cuadro = self._cuadro()
         hijos = list(cuadro.GetChildren()[0].GetChildren())
         rotulo = hijos[hijos.index(cuadro.ayuda) + 1]
         self.assertIsInstance(rotulo, wx.StaticText)
-        self.assertIs(hijos[hijos.index(rotulo) + 1], cuadro.cho_medio)
+        self.assertIs(hijos[hijos.index(rotulo) + 1], cuadro.cho_destino)
+
+    def test_la_seccion_contenido_tiene_sus_rotulos_en_orden(self):
+        self.assertEqual(
+            tuple(self._cuadro()._contenido.rotulos()),
+            ("&Texto:", "Puedes usar {usuario}, {contador} y {texto}.",
+             "&Mostrar en:", "Me&dio:", "&Segundos en pantalla:", "&Estilo:"))
 
     def test_la_eleccion_de_medio_trae_ninguno_y_los_medios_por_nombre(self):
         medios_guardados.guardar(paths.medios(), [{

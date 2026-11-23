@@ -119,7 +119,26 @@ class TestContratos(BaseVentana):
         self.assertEqual((cuadro.sp_min.GetMin(), cuadro.sp_min.GetMax()),
                          (5, 240))
         self.assertEqual((cuadro.sp_entre.GetMin(), cuadro.sp_entre.GetMax()),
-                         (0, 100))
+                          (0, 100))
+
+    def test_la_seccion_contenido_tiene_sus_rotulos_en_orden(self):
+        cuadro = self._cuadro()
+        self.assertEqual(
+            tuple(cuadro._contenido.rotulos()),
+            ("&Texto:", "&Mostrar en:", "&Segundos en pantalla:", "&Estilo:"))
+
+    def test_guardar_y_volver_a_abrir_conserva_el_contenido(self):
+        datos = self._cuadro().datos()
+        datos.update({"nombre": "aviso", "texto": "Hola {usuario}",
+                      "destino": "ambos", "estilo": "banda",
+                      "segundos_pantalla": 25})
+        guardados = self._cuadro(datos).datos()
+        abierto = self._cuadro(guardados)
+        self.assertEqual(abierto.txt_texto.GetValue(), "Hola {usuario}")
+        self.assertEqual(abierto.cho_destino.GetStringSelection(), "Chat y vídeo")
+        self.assertEqual(abierto.sp_segundos.GetValue(), 25)
+        self.assertEqual(abierto.datos()["estilo"], "banda")
+        self.assertEqual(abierto.datos(), guardados)
 
     def test_el_cuadro_no_guarda_con_nombre_vacio_o_repetido(self):
         cuadro = self._cuadro()

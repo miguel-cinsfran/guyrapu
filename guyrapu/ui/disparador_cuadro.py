@@ -15,14 +15,13 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import comandos, disparadores, disparadores_guardados
 from guyrapu.interaction import estilo_elegido, medios_guardados
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import formulario, paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, seccion_contenido, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar alerta")
 TITULO_EDITAR = N_("Editar alerta")
 SECCION_CUANDO = N_("Activación")
-SECCION_QUE = N_("Contenido")
 SECCION_ALCANCE = N_("Permiso y espera")
 AYUDA_TARJETA = N_(
     "Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.")
@@ -75,7 +74,7 @@ class DialogoDisparador(wx.Dialog):
         izquierda = wx.BoxSizer(wx.VERTICAL)
         derecha = wx.BoxSizer(wx.VERTICAL)
         self._crear_cuando(panel, izquierda)
-        self._crear_que(panel, derecha)
+        self._crear_contenido(panel, derecha)
         self._crear_alcance(panel, derecha)
         formulario.columnas(contenido, izquierda, derecha)
         self.btn_aceptar = wx.Button(
@@ -123,25 +122,16 @@ class DialogoDisparador(wx.Dialog):
               "como lo lee Guyrapu."))
         formulario.agregar_fila(vs, rotulo, self.txt_regalo)
 
-    def _crear_que(self, panel, columna):
-        vs = formulario.agregar_seccion(columna, panel, _(SECCION_QUE))
-        rotulo = fila_label(panel, _("Me&dio:"))
-        self.cho_medio = self._eleccion(
-            panel, _("Me&dio:"), [_("Ninguno")] + self._nombres_de_medios())
-        formulario.agregar_fila(vs, rotulo, self.cho_medio)
-        rotulo = fila_label(panel, _("&Texto de la tarjeta:"))
-        self.txt_tarjeta = self._campo(
-            panel, _("&Texto de la tarjeta:"), _(AYUDA_TARJETA))
-        formulario.agregar_fila(vs, rotulo, self.txt_tarjeta)
-        rotulo = fila_label(panel, _("Esti&lo:"))
-        self.cho_estilo = self._eleccion(
-            panel, _("Esti&lo:"), estilo_elegido.opciones(
+    def _crear_contenido(self, panel, columna):
+        self._contenido = seccion_contenido.SeccionContenido(
+            panel, columna, ("texto", "medio", "segundos", "estilo"),
+            ayuda=_(AYUDA_TARJETA), medios=self._nombres_de_medios(),
+            estilos=estilo_elegido.opciones(
                 self._usuario, self._por_tipo, "disparador"))
-        formulario.agregar_fila(vs, rotulo, self.cho_estilo)
-        rotulo = fila_label(panel, _("&Segundos en pantalla:"))
-        self.sp_segundos = self._contador(
-            panel, _("&Segundos en pantalla:"), 3, 60, 8)
-        formulario.agregar_fila(vs, rotulo, self.sp_segundos, numerico=True)
+        self.txt_tarjeta = self._contenido.txt_texto
+        self.cho_medio = self._contenido.cho_medio
+        self.sp_segundos = self._contenido.sp_segundos
+        self.cho_estilo = self._contenido.cho_estilo
 
     def _crear_alcance(self, panel, columna):
         vs = formulario.agregar_seccion(columna, panel, _(SECCION_ALCANCE))
@@ -149,8 +139,8 @@ class DialogoDisparador(wx.Dialog):
         self.cho_permiso = self._eleccion(
             panel, _("Pe&rmiso:"), _permisos())
         formulario.agregar_fila(vs, rotulo, self.cho_permiso)
-        rotulo = fila_label(panel, _("Nombres p&ermitidos:"))
-        self.txt_nombres = self._campo(panel, _("Nombres p&ermitidos:"))
+        rotulo = fila_label(panel, _("Nombres &permitidos:"))
+        self.txt_nombres = self._campo(panel, _("Nombres &permitidos:"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombres)
         rotulo = fila_label(panel, _("Espera &general (segundos):"))
         self.sp_espera = self._contador(

@@ -163,6 +163,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "deslizador.py": (
         "pieza de armado de los deslizadores; no abre ventana y la recorren "
         "los escenarios de las ventanas que la usan."),
+    "seccion_contenido.py": (
+        "pieza de armado de la sección Contenido; no abre ventana y la "
+        "recorren los escenarios de los cuadros que la usan."),
     "ajuste_tono.py": "comando del menú Voz que ajusta el tono; no abre ventana.",
     "lista_acciones.py": (
         "da teclas y menú a una lista; la recorren los escenarios de las "

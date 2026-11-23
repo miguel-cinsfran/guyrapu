@@ -18,7 +18,7 @@ from guyrapu.interaction import comandos
 from guyrapu.interaction import comandos_guardados, estilo_elegido, medios_guardados
 from guyrapu.interaction.texto import normalizar
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import formulario, paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, seccion_contenido, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
@@ -89,18 +89,7 @@ class DialogoComando(wx.Dialog):
         self.txt_alias = self._campo(panel, _("A&lias:"))
         formulario.agregar_fila(vs, rotulo, self.txt_alias)
         self._crear_ubicacion(panel, vs)
-        rotulo = fila_label(panel, _("&Respuesta:"))
-        self.txt_respuesta = self._campo(panel, _("&Respuesta:"))
-        formulario.agregar_fila(vs, rotulo, self.txt_respuesta)
-        self.ayuda = wx.StaticText(panel, label=_(AYUDA_VARIABLES))
-        formulario.agregar_nota(vs, self.ayuda)
-        self._crear_medio(panel, vs)
-        rotulo = fila_label(panel, _("&Mostrar en:"))
-        self.cho_destino = wx.Choice(
-            panel, choices=_destinos(),
-            name=nombre_de_etiqueta(_("&Mostrar en:")))
-        nombre_accesible(self.cho_destino, self.cho_destino.GetName())
-        formulario.agregar_fila(vs, rotulo, self.cho_destino)
+        self._crear_contenido(panel, vs)
         rotulo = fila_label(panel, _("&Permiso:"))
         self.cho_permiso = wx.Choice(
             panel, choices=_permisos(),
@@ -115,6 +104,20 @@ class DialogoComando(wx.Dialog):
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)
+
+    def _crear_contenido(self, panel, vs):
+        self._contenido = seccion_contenido.SeccionContenido(
+            panel, vs, ("texto", "mostrar_en", "medio", "segundos", "estilo"),
+            nota=_(AYUDA_LISTA if self._es_lista else AYUDA_VARIABLES),
+            destinos=_destinos(), medios=self._nombres_de_medios(),
+            estilos=estilo_elegido.opciones(
+                self._usuario, self._por_tipo, "comando"))
+        self.txt_respuesta = self._contenido.txt_texto
+        self.cho_destino = self._contenido.cho_destino
+        self.cho_medio = self._contenido.cho_medio
+        self.sp_segundos = self._contenido.sp_segundos
+        self.cho_estilo = self._contenido.cho_estilo
+        self.ayuda = self._contenido.nota
 
     def _crear_ubicacion(self, panel, vs):
         rotulo = fila_label(panel, _("&Ubicación:"))
@@ -131,14 +134,6 @@ class DialogoComando(wx.Dialog):
             name=nombre_de_etiqueta(_("Ata&jo:")))
         nombre_accesible(self.cho_atajo, self.cho_atajo.GetName())
         formulario.agregar_fila(vs, rotulo, self.cho_atajo)
-
-    def _crear_medio(self, panel, vs):
-        rotulo = fila_label(panel, _("Me&dio:"))
-        self.cho_medio = wx.Choice(
-            panel, choices=[_("Ninguno")] + self._nombres_de_medios(),
-            name=nombre_de_etiqueta(_("Me&dio:")))
-        nombre_accesible(self.cho_medio, self.cho_medio.GetName())
-        formulario.agregar_fila(vs, rotulo, self.cho_medio)
 
     def _nombres_de_medios(self):
         return [str(medio.get("nombre", "")) for medio in self._medios]
@@ -159,20 +154,12 @@ class DialogoComando(wx.Dialog):
 
     def _crear_aspecto(self, panel, vs):
         for rotulo_texto, atributo, limites in (
-                 (_("Espera en&tre usos (segundos):"), "sp_espera", (0, 3600, 5)),
-                (_("Espera por pers&ona (segundos):"), "sp_persona", (0, 3600, 30)),
-                (_("Se&gundos en pantalla:"), "sp_segundos", (3, 60, 8))):
+                 (_("Espera ent&re usos (segundos):"), "sp_espera", (0, 3600, 5)),
+                 (_("Espera por pers&ona (segundos):"), "sp_persona", (0, 3600, 30))):
             rotulo = fila_label(panel, rotulo_texto)
             control = self._contador(panel, rotulo_texto, *limites)
             setattr(self, atributo, control)
             formulario.agregar_fila(vs, rotulo, control, numerico=True)
-        rotulo = fila_label(panel, _("&Estilo:"))
-        self.cho_estilo = wx.Choice(
-            panel, choices=estilo_elegido.opciones(
-                self._usuario, self._por_tipo, "comando"),
-            name=nombre_de_etiqueta(_("&Estilo:")))
-        nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
-        formulario.agregar_fila(vs, rotulo, self.cho_estilo)
         self.chk_activo = wx.CheckBox(
             panel, label=_("Acti&vado"), name=nombre_de_etiqueta(_("Acti&vado")))
         self.chk_en_lista = wx.CheckBox(
@@ -221,7 +208,6 @@ class DialogoComando(wx.Dialog):
         self.chk_activo.SetValue(comando.activo)
         self.chk_en_lista.SetValue(comando.en_lista)
         if self._es_lista:
-            self.ayuda.SetLabel(_(AYUDA_LISTA))
             self.chk_en_lista.Hide()
 
     def _elegir_estilo(self, clave):

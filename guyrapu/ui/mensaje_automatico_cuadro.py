@@ -15,7 +15,7 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.capture import programados
 from guyrapu.interaction import estilo_elegido
 from guyrapu.obs import estilos_aviso
-from guyrapu.ui import formulario, paleta, tecla_escape
+from guyrapu.ui import formulario, paleta, seccion_contenido, tecla_escape
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
@@ -56,24 +56,8 @@ class DialogoMensaje(wx.Dialog):
         rotulo = fila_label(panel, _("&Nombre:"))
         self.txt_nombre = self._campo(panel, _("Nombre del mensaje"))
         formulario.agregar_fila(vs, rotulo, self.txt_nombre)
-        rotulo = fila_label(panel, _("&Texto del mensaje:"))
-        self.txt_texto = self._campo(panel, _("Texto del mensaje"))
-        self.txt_texto.SetMaxLength(programados.MAX_CARACTERES)
-        formulario.agregar_fila(vs, rotulo, self.txt_texto)
-        rotulo = fila_label(panel, _("&Mostrar en:"))
-        self.cho_destino = wx.Choice(
-            panel, choices=_destinos(), name=nombre_de_etiqueta(_("Mostrar en:")))
-        nombre_accesible(self.cho_destino, self.cho_destino.GetName())
-        formulario.agregar_fila(vs, rotulo, self.cho_destino)
-        rotulo = fila_label(panel, _("&Estilo:"))
-        self.cho_estilo = wx.Choice(
-            panel, choices=self._opciones,
-            name=nombre_de_etiqueta(_("Estilo:")))
-        nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
-        formulario.agregar_fila(vs, rotulo, self.cho_estilo)
+        self._crear_contenido(panel, vs)
         for visible, nombre, atributo, limites in (
-                (_("&Segundos en pantalla:"), _("Segundos en pantalla"),
-                 "sp_segundos", (3, 60, 10)),
                 (_("Intervalo m&ínimo, en minutos:"), _("Intervalo mínimo, en minutos"),
                  "sp_min", (5, 240, 10)),
                 (_("Intervalo má&ximo, en minutos:"), _("Intervalo máximo, en minutos"),
@@ -90,6 +74,16 @@ class DialogoMensaje(wx.Dialog):
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(mensaje)
+
+    def _crear_contenido(self, panel, vs):
+        self._contenido = seccion_contenido.SeccionContenido(
+            panel, vs, ("texto", "mostrar_en", "segundos", "estilo"),
+            destinos=_destinos(), estilos=self._opciones, segundos=10)
+        self.txt_texto = self._contenido.txt_texto
+        self.cho_destino = self._contenido.cho_destino
+        self.sp_segundos = self._contenido.sp_segundos
+        self.cho_estilo = self._contenido.cho_estilo
+        self.txt_texto.SetMaxLength(programados.MAX_CARACTERES)
 
     def _campo(self, panel, nombre):
         campo = wx.TextCtrl(panel, name=nombre)

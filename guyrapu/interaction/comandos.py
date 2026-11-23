@@ -283,7 +283,7 @@ def _error_de_repetido(comando: Comando, otros) -> str:
 def _error_de_respuesta(comando: Comando) -> str:
     if not (comando.respuesta or "").strip() and not (comando.medio or "").strip():
         # Traductores: validación de comandos del chat (error).
-        return _("El comando necesita una respuesta o un medio.")
+        return _("El comando necesita un texto o un medio.")
     return ""
 
 

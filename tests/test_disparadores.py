@@ -355,6 +355,11 @@ class TestErrorYCampo(unittest.TestCase):
             ("nombre", "La alerta necesita un nombre."),
             disparadores.error_y_campo(disparador, []))
 
+    def test_sin_medio_ni_tarjeta_dice_texto_o_medio(self):
+        self.assertEqual(
+            "La alerta necesita un texto o un medio.",
+            disparadores.validar(_de_evento(medio="", tarjeta=""), []))
+
     def test_cada_error_sabe_su_campo(self):
         casos = (
             (_de_evento(), ""),

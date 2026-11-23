@@ -193,7 +193,7 @@ def _error_de_que(disparador: Disparador, _otros) -> tuple[str, str]:
     if not (disparador.medio or "").strip() \
             and not (disparador.tarjeta or "").strip():
         # Traductores: validación de alertas del directo (error).
-        return "tarjeta", _("La alerta necesita un medio o una tarjeta de texto.")
+        return "tarjeta", _("La alerta necesita un texto o un medio.")
     return "", ""
 
 

@@ -44,7 +44,7 @@ msgstr "All {n} reconnection attempts failed."
 msgid "segundo"
 msgstr "second"
 
-#: main.py
+#: guyrapu/ui/seccion_contenido.py main.py
 msgid "segundos"
 msgstr "seconds"
 
@@ -3578,8 +3578,8 @@ msgstr "The command {nombre} already exists."
 
 #. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
-msgid "El comando necesita una respuesta o un medio."
-msgstr "The command needs a response or a media item."
+msgid "El comando necesita un texto o un medio."
+msgstr "The command needs text or a media item."
 
 #. Traductores: validación de comandos del chat (error). {variable} es la
 #. variable desconocida y las demás son las que se pueden usar.
@@ -3846,8 +3846,8 @@ msgstr "The minimum cannot be negative."
 
 #. Traductores: validación de alertas del directo (error).
 #: guyrapu/interaction/disparadores.py
-msgid "La alerta necesita un medio o una tarjeta de texto."
-msgstr "The alert needs a media item or a text card."
+msgid "La alerta necesita un texto o un medio."
+msgstr "The alert needs text or a media item."
 
 #. Traductores: validación de alertas del directo (error). {variable} es la
 #. variable desconocida y las demás son las que se pueden usar.
@@ -6257,7 +6257,7 @@ msgstr ""
 msgid "navegador"
 msgstr "browser"
 
-#: guyrapu/obs/obs_prevuelo.py
+#: guyrapu/obs/obs_prevuelo.py guyrapu/ui/seccion_contenido.py
 msgid "texto"
 msgstr "text"
 
@@ -9184,8 +9184,8 @@ msgstr "At the beginning of the message"
 msgid "En cualquier parte del mensaje"
 msgstr "Anywhere in the message"
 
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
-#: guyrapu/ui/meta_cuadro.py
+#: guyrapu/ui/comando_cuadro.py guyrapu/ui/meta_cuadro.py
+#: guyrapu/ui/seccion_contenido.py
 msgid "Ninguno"
 msgstr "None"
 
@@ -9196,14 +9196,6 @@ msgstr "&Word:"
 #: guyrapu/ui/comando_cuadro.py
 msgid "A&lias:"
 msgstr "A&lias:"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "&Respuesta:"
-msgstr "&Response:"
-
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "&Mostrar en:"
-msgstr "&Show in:"
 
 #: guyrapu/ui/comando_cuadro.py
 msgid "&Permiso:"
@@ -9221,26 +9213,13 @@ msgstr "&Location:"
 msgid "Ata&jo:"
 msgstr "&Shortcut:"
 
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
-msgid "Me&dio:"
-msgstr "Me&dia item:"
-
 #: guyrapu/ui/comando_cuadro.py
-msgid "Espera en&tre usos (segundos):"
-msgstr "Wait be&tween uses (seconds):"
+msgid "Espera ent&re usos (segundos):"
+msgstr "Wait between &uses (seconds):"
 
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
 msgid "Espera por pers&ona (segundos):"
 msgstr "Wait per pers&on (seconds):"
-
-#: guyrapu/ui/comando_cuadro.py
-msgid "Se&gundos en pantalla:"
-msgstr "S&econds on screen:"
-
-#: guyrapu/ui/comando_cuadro.py guyrapu/ui/encuesta_cuadro.py
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "&Estilo:"
-msgstr "&Style:"
 
 #: guyrapu/ui/comando_cuadro.py
 msgid "Acti&vado"
@@ -10432,10 +10411,6 @@ msgstr "Edit alert"
 msgid "Activación"
 msgstr "Activation"
 
-#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/gui.py
-msgid "Contenido"
-msgstr "Content"
-
 #: guyrapu/ui/disparador_cuadro.py
 msgid "Permiso y espera"
 msgstr "Permission and cooldown"
@@ -10464,23 +10439,11 @@ msgid ""
 msgstr "Leave it empty for any gift. Enter the name exactly as Guyrapu reads it."
 
 #: guyrapu/ui/disparador_cuadro.py
-msgid "&Texto de la tarjeta:"
-msgstr "Card &text:"
-
-#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/meta_cuadro.py
-msgid "Esti&lo:"
-msgstr "St&yle:"
-
-#: guyrapu/ui/disparador_cuadro.py guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "&Segundos en pantalla:"
-msgstr "&Seconds on screen:"
-
-#: guyrapu/ui/disparador_cuadro.py
 msgid "Pe&rmiso:"
 msgstr "Pe&rmission:"
 
 #: guyrapu/ui/disparador_cuadro.py
-msgid "Nombres p&ermitidos:"
+msgid "Nombres &permitidos:"
 msgstr "Allow&ed names:"
 
 #: guyrapu/ui/disparador_cuadro.py
@@ -10693,6 +10656,10 @@ msgstr "&Duration:"
 #: guyrapu/ui/encuesta_cuadro.py
 msgid "&Mostrar resultado en:"
 msgstr "&Show result in:"
+
+#: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/seccion_contenido.py
+msgid "&Estilo:"
+msgstr "&Style:"
 
 #. Traductores: aviso al iniciar una encuesta; {pregunta} es su pregunta.
 #: guyrapu/ui/encuesta_en_vivo.py
@@ -11556,7 +11523,7 @@ msgstr "Files"
 msgid "Elige un archivo que exista."
 msgstr "Choose a file that exists."
 
-#: guyrapu/ui/escena_propiedades.py
+#: guyrapu/ui/escena_propiedades.py guyrapu/ui/seccion_contenido.py
 msgid "&Texto:"
 msgstr "&Text:"
 
@@ -11891,6 +11858,10 @@ msgstr ""
 #: guyrapu/ui/gui.py guyrapu/ui/gui_preferencias.py
 msgid "Conexión"
 msgstr "Connection"
+
+#: guyrapu/ui/gui.py guyrapu/ui/seccion_contenido.py
+msgid "Contenido"
+msgstr "Content"
 
 #: guyrapu/ui/gui.py
 #, python-brace-format
@@ -14167,26 +14138,6 @@ msgid "Nombre del mensaje"
 msgstr "Message name"
 
 #: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "&Texto del mensaje:"
-msgstr "Message &text:"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Texto del mensaje"
-msgstr "Message text"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Mostrar en:"
-msgstr "Show in:"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Estilo:"
-msgstr "Style:"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
-msgid "Segundos en pantalla"
-msgstr "Seconds on screen"
-
-#: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Intervalo m&ínimo, en minutos:"
 msgstr "M&inimum interval, in minutes:"
 
@@ -14547,6 +14498,10 @@ msgstr "Edit goal"
 #: guyrapu/ui/meta_cuadro.py
 msgid "&Objetivo:"
 msgstr "&Goal:"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "Esti&lo:"
+msgstr "St&yle:"
 
 #: guyrapu/ui/meta_cuadro.py
 msgid "&Festejo:"
@@ -16999,6 +16954,18 @@ msgstr "Could not delete the destination. Try again."
 #: guyrapu/ui/restream_ventana.py
 msgid "Destino eliminado."
 msgstr "Destination deleted."
+
+#: guyrapu/ui/seccion_contenido.py
+msgid "&Mostrar en:"
+msgstr "&Show in:"
+
+#: guyrapu/ui/seccion_contenido.py
+msgid "Me&dio:"
+msgstr "Me&dia item:"
+
+#: guyrapu/ui/seccion_contenido.py
+msgid "&Segundos en pantalla:"
+msgstr "&Seconds on screen:"
 
 #: guyrapu/ui/titulo_ventana.py
 msgid "(Transmitiendo y grabando)"
