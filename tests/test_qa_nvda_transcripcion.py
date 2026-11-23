@@ -147,6 +147,50 @@ class TestFormato(unittest.TestCase):
                       transcripcion.texto(caso))
 
 
+class TestFasePagina(unittest.TestCase):
+
+    def _llegada(self, tecla, nombre, habla):
+        return {
+            "tecla": tecla,
+            "fase": "pagina",
+            "habla": [{"texto": habla}],
+            "foco": {"nombre": nombre, "rol_nombre": "LIST",
+                     "estados": ["focusable"]},
+        }
+
+    def _caso(self, llegada=None):
+        caso = datos()
+        ida = caso["pasos"][0]
+        pasos = [ida, dict(ida, fase="vuelta")]
+        if llegada is not None:
+            pasos.insert(0, llegada)
+        caso["pasos"] = pasos
+        return caso
+
+    def test_los_pasos_de_pagina_no_se_escriben(self):
+        caso = self._caso(
+            self._llegada("down", "Páginas", "Páginas de interacción"))
+        texto = transcripcion.texto(caso)
+        self.assertEqual(len(texto.splitlines()), 2)
+        self.assertNotIn("fase=pagina", texto)
+        self.assertIn("fase=ida", texto)
+        self.assertIn("fase=vuelta", texto)
+
+    def test_dos_llegadas_distintas_dan_el_mismo_texto(self):
+        interaccion = self._caso(
+            self._llegada("down", "Páginas", "Páginas de interacción"))
+        preferencias = self._caso(
+            self._llegada("up", "Menú", "Categorías de preferencias"))
+        self.assertEqual(transcripcion.texto(interaccion),
+                         transcripcion.texto(preferencias))
+
+    def test_la_transcripcion_no_quita_los_pasos_de_los_datos(self):
+        llegada = self._llegada("down", "Páginas", "Páginas de interacción")
+        caso = self._caso(llegada)
+        transcripcion.texto(caso)
+        self.assertIn(llegada, caso["pasos"])
+
+
 class TestValorVariable(unittest.TestCase):
 
     def _estado(self, nombre, dicho, valor, rol="EDITABLETEXT"):

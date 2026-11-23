@@ -80,11 +80,14 @@ def _linea(paso, valor_variable=()) -> str:
 def texto(datos, valor_variable=()) -> str:
     """Una línea por paso, sin horas, milisegundos, hwnd ni pid.
 
-    Los nombres en `valor_variable` escriben el habla hasta el atajo y dejan
-    el valor vacío: su contenido cambia según la PC y no es de la app.
+    Los pasos de fase `pagina` no se escriben: solo sirven para llegar a la
+    página que deja abierta la ventana anterior. Los nombres en
+    `valor_variable` escriben el habla hasta el atajo y dejan el valor vacío:
+    su contenido cambia según la PC y no es de la app.
     """
     lineas = [_linea(paso, valor_variable)
-              for paso in datos.get("pasos") or ()]
+              for paso in datos.get("pasos") or ()
+              if paso.get("fase") != "pagina"]
     return "\n".join(lineas) + ("\n" if lineas else "")
 
 
