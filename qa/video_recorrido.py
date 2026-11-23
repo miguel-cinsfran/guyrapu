@@ -14,6 +14,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 
+import antes_de_transmitir
 import directo_real as dr
 import video_chrome
 import video_consentimiento
@@ -311,6 +312,11 @@ def _publicar_comentario(principal, id_video) -> None:
                        f"del video {id_video}")
 
 
+def _anotar(nombre: str, bien: bool, detalle: str = "") -> None:
+    print(("Bien: " if bien else "Falla: ") + nombre
+          + (f". {detalle}" if detalle else ""))
+
+
 def _crear_directo(principal, anuncios, estado) -> None:
     cliente = estado["cliente"]
     previos = set()
@@ -327,7 +333,9 @@ def _crear_directo(principal, anuncios, estado) -> None:
     elegir(dr._control(destino, "Broadcast to", "ComboBox"),
                    ("TikTok", "YouTube"), "YouTube", 4)
     dr._control(destino, "Continue", "Button").invoke()
-    directo = dr._dialogo_hijo(principal, "YouTube live stream", 120)
+    directo = antes_de_transmitir.esperar_directo(
+        principal, "YouTube live stream", 120, _anotar,
+        pregunta="Before broadcasting", dejar="Leave as it is")
     escribir(dr._control(directo, "Live stream title", "Edit"),
                     DEMO_TITULO, 4)
     elegir(dr._control(directo, "Privacy", "ComboBox"),

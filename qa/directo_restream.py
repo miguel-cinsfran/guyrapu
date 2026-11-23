@@ -28,6 +28,8 @@ sys.path.insert(0, str(RAIZ / "qa"))
 from guyrapu.core.config import APP_NAME  # noqa: E402
 from guyrapu.restream import perfiles  # noqa: E402
 
+from antes_de_transmitir import esperar_directo  # noqa: E402
+
 import titulos_restream  # noqa: E402
 from directo_comun import (  # noqa: E402
     NOMBRE_PERFIL, PRIVACIDAD_ESPERADA, armar_perfil,
@@ -179,8 +181,8 @@ def _elegir_destino(estado, anotar) -> bool:
 
 def _armar_y_transmitir(estado, anotar) -> bool:
     try:
-        directo = _dialogo_hijo(estado["principal"],
-                                "Directo con Restream", 180)
+        directo = esperar_directo(estado["principal"],
+                                  "Directo con Restream", 180, anotar)
         titulo = _leer_valor(_control(directo, "Título del directo", "Edit"))
         privacidad = _leer_valor(_control(directo, "Privacidad", "ComboBox"))
         anotar("diálogo del directo", True,

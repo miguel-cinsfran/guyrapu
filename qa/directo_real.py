@@ -47,6 +47,7 @@ sys.path.insert(0, str(RAIZ / "qa"))
 
 from guyrapu.core.config import APP_NAME  # noqa: E402
 
+from antes_de_transmitir import _dialogo_hijo, esperar_directo  # noqa: E402
 from conducir import contestar_salir_si_aparece
 
 PREFIJO_TITULO = "Prueba de Guyrapu"
@@ -480,23 +481,6 @@ def _ventana(titulo_parcial: str, segundos: int = 30):
             pass
         time.sleep(0.5)
     raise RuntimeError(f"no apareció la ventana «{titulo_parcial}»")
-
-
-def _dialogo_hijo(principal, titulo_parcial: str, segundos: int = 20):
-    """Los modales cuelgan de la ventana principal, no salen sueltos."""
-    fin = time.time() + segundos
-    while time.time() < fin:
-        try:
-            for hijo in principal.descendants(control_type="Window"):
-                try:
-                    if titulo_parcial in (hijo.window_text() or ""):
-                        return hijo
-                except Exception:
-                    pass
-        except Exception:
-            pass
-        time.sleep(0.5)
-    return _ventana(titulo_parcial, 5)
 
 
 def _control(raiz, nombre: str, tipo: str | None = None,
@@ -1180,7 +1164,7 @@ def _correr(args) -> tuple[list[tuple[str, bool, str]], int]:
             return (salida, 1)
 
         try:
-            directo = _dialogo_hijo(principal, "Directo de YouTube", 120)
+            directo = esperar_directo(principal, "Directo de YouTube", 120, anotar)
             revision = _leer_valor(
                 _control(directo, "Revisión de OBS", "Edit"))
             titulo_campo = _leer_valor(
