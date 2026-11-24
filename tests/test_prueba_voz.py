@@ -237,19 +237,23 @@ class TestProbarMotor(unittest.TestCase):
         self.assertEqual(motor.consultas_hablando, 0)
 
     def test_motor_no_disponible_anuncia_con_call_after(self):
-        with mock.patch.object(
-                motores, "crear_motor",
-                side_effect=motores.MotorNoDisponible("no")), \
-                mock.patch.object(
-                    prueba_voz.diagnostico, "crear_hilo",
-                    side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
-                mock.patch.object(prueba_voz.wx, "CallAfter") as call_after, \
-                mock.patch.object(prueba_voz, "anunciar") as anunciar:
-            prueba = prueba_voz.PruebaVoz()
-            prueba.probar_motor("sapi", 0, 50, 50, 50)
-
-        call_after.assert_called_once_with(
-            anunciar, "No se pudo iniciar el motor de voz elegido.")
+        casos = (
+            (motores.MotorNoDisponible("no"), "no"),
+            (motores.MotorNoDisponible(),
+             "No se pudo iniciar el motor de voz elegido."),
+        )
+        for error, esperado in casos:
+            with self.subTest(mensaje=str(error)):
+                with mock.patch.object(
+                        motores, "crear_motor", side_effect=error), \
+                        mock.patch.object(
+                            prueba_voz.diagnostico, "crear_hilo",
+                            side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \
+                        mock.patch.object(prueba_voz.wx, "CallAfter") as call_after, \
+                        mock.patch.object(prueba_voz, "anunciar") as anunciar:
+                    prueba = prueba_voz.PruebaVoz()
+                    prueba.probar_motor("sapi", 0, 50, 50, 50)
+                call_after.assert_called_once_with(anunciar, esperado)
 
 
 class TestProbarElevenLabs(unittest.TestCase):
@@ -326,7 +330,7 @@ class TestPseudoTextos(unittest.TestCase):
         with con_pseudo():
             with mock.patch.object(
                     motores, "crear_motor",
-                    side_effect=motores.MotorNoDisponible("no")), \
+                    side_effect=motores.MotorNoDisponible()), \
                     mock.patch.object(
                         prueba_voz.diagnostico, "crear_hilo",
                         side_effect=lambda target, nombre, **kw: _HiloInmediato(target)), \

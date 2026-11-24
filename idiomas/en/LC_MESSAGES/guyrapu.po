@@ -17432,6 +17432,10 @@ msgstr ""
 "Voices."
 
 #: guyrapu/voice/proveedores/phonon.py
+msgid "El procesador de este equipo no admite las voces de Phonon."
+msgstr "The processor on this computer does not support Phonon voices."
+
+#: guyrapu/voice/proveedores/phonon.py
 msgid "Phonon, voces locales"
 msgstr "Phonon, local voices"
 

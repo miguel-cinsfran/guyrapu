@@ -47,9 +47,10 @@ class PruebaVoz:
         prueba = None
         try:
             prueba = motores.crear_motor(motor)
-        except motores.MotorNoDisponible:
+        except motores.MotorNoDisponible as exc:
             self._soltar_prueba_motor(corte)
-            wx.CallAfter(anunciar, _("No se pudo iniciar el motor de voz elegido."))
+            mensaje = str(exc) or _("No se pudo iniciar el motor de voz elegido.")
+            wx.CallAfter(anunciar, mensaje)
             return
         try:
             prueba.elegir_voz(indice_voz)

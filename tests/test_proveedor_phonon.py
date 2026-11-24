@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from guyrapu.core import idioma
 from guyrapu.core import paths
 from guyrapu.voice import motor_local
 from guyrapu.voice.proveedores import phonon
@@ -198,6 +199,26 @@ class TestVoces(BasePhonon):
         _ficha(self.base, "c-piper", "es-AR", ["Daniela"],
                proveedor="piper")
         self.assertEqual(phonon.listar_voces(), ["Ana, español (España)"])
+
+    def test_sin_avx2_no_importa_ptts_y_avisa_el_motivo(self):
+        _ficha(self.base, "a-es", "es-ES", ["Ana"])
+        idioma.instalar("es")
+        self.addCleanup(idioma._reiniciar)
+
+        def prohibido():
+            self.fail("no se debe importar ptts sin AVX2")
+
+        with mock.patch.object(
+                phonon, "_admite_avx2", return_value=False, create=True), \
+                mock.patch.object(phonon, "_ptts", side_effect=prohibido):
+            with self.assertRaises(MotorNoDisponible) as error:
+                phonon.crear()
+        self.assertEqual(
+            str(error.exception),
+            "El procesador de este equipo no admite las voces de Phonon.")
+
+    def test_la_comprobacion_real_dice_que_este_equipo_tiene_avx2(self):
+        self.assertTrue(phonon._admite_avx2())
 
 
 class TestSintetizador(BasePhonon):

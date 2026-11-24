@@ -10,6 +10,7 @@ en `voces/`, sin red.
 
 from __future__ import annotations
 
+import ctypes
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -31,6 +32,7 @@ _LICENCIA = N_("Según cada paquete de voces: Phonon en español y portugués, "
                "CC BY-NC 4.0; en inglés, Apache 2.0")
 _MSG_SIN_VOCES = N_("No hay voces de Phonon instaladas. Descarga un paquete "
                     "de voces en Preferencias, Voces.")
+_MSG_SIN_AVX2 = N_("El procesador de este equipo no admite las voces de Phonon.")
 
 _TASA_PREDETERMINADA = 24000
 _RANGO_VELOCIDAD = (0.86, 1.29)
@@ -40,6 +42,8 @@ _RANGO_VELOCIDAD = (0.86, 1.29)
 _PUNTOS_DURACION = ((0.864, 0.3), (1.0, 0.0), (1.288, -0.45))
 
 _hilos_configurados = False
+_avx2 = None
+_PF_AVX2_INSTRUCTIONS_AVAILABLE = 40
 
 
 @dataclass(frozen=True)
@@ -95,6 +99,23 @@ def delta_duracion(factor) -> float:
         if factor <= x1:
             return y0 + (y1 - y0) * (factor - x0) / (x1 - x0)
     return _PUNTOS_DURACION[-1][1]
+
+
+def _consultar_avx2():
+    """AVX2 en kernel32; si la llamada falla se da por buena."""
+    try:
+        return bool(ctypes.windll.kernel32.IsProcessorFeaturePresent(
+            _PF_AVX2_INSTRUCTIONS_AVAILABLE))
+    except Exception:
+        return True
+
+
+def _admite_avx2():
+    """Guarda la respuesta de kernel32 tras la primera consulta."""
+    global _avx2
+    if _avx2 is None:
+        _avx2 = _consultar_avx2()
+    return _avx2
 
 
 def _ptts():
@@ -184,6 +205,8 @@ def listar_voces(fabrica_contexto=None) -> list[str]:
 
 
 def crear(clave_elevenlabs=None, salida=None, al_avisar=None):
+    if not _admite_avx2():
+        raise MotorNoDisponible(_(_MSG_SIN_AVX2))
     if not listar_voces():
         raise MotorNoDisponible(_(_MSG_SIN_VOCES))
     from guyrapu.voice.motor_local import MotorLocal
