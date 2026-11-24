@@ -13,6 +13,8 @@ from __future__ import annotations
 from collections import Counter
 from itertools import combinations
 
+from qa import valores_de_la_pc
+
 
 def color_hex(color) -> str:
     """El color efectivo en `#RRGGBB`, con mayúsculas y dos cifras por canal."""
@@ -77,14 +79,19 @@ def medida_texto(extension) -> list:
 
 def control_diccionario(*, id, padre, clase, nombre, etiqueta, rect, visible,
                         habilitado, enfocable, fg, bg, fuente,
-                        texto_px) -> dict:
-    """Un control del árbol, con su padre y su geometría."""
+                        texto_px, valores=()) -> dict:
+    """Un control del árbol, con su padre y su geometría.
+
+    La etiqueta lleva el marcador de lo que cambia por PC; `texto_px` llega
+    medido sobre la etiqueta dibujada, que es la que ve quien mira la imagen.
+    """
     return {
         "id": int(id),
         "padre": None if padre is None else int(padre),
         "clase": str(clase),
         "nombre": str(nombre),
-        "etiqueta": sin_ampersand(etiqueta),
+        "etiqueta": valores_de_la_pc.normalizar(sin_ampersand(etiqueta),
+                                                valores),
         "rect": list(rect),
         "visible": bool(visible),
         "habilitado": bool(habilitado),

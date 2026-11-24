@@ -10,6 +10,11 @@ mismas funciones para armar el JSON de cada captura.
 import importlib.util
 import unittest
 from pathlib import Path
+from unittest import mock
+
+from guyrapu.core import tecla_fisica
+from guyrapu.voice import motores
+from qa import valores_de_la_pc
 
 _QA = Path(__file__).resolve().parent.parent / "qa"
 _paquete = importlib.util.spec_from_file_location(
@@ -226,6 +231,48 @@ class TestGeometriaCapturas(unittest.TestCase):
         for pedazo in ("07_preferencias_voces.png", "preferencias",
                        "PreferenciasDialog", "Voces", "800x600"):
             self.assertIn(pedazo, linea)
+
+
+def valores_de_distribucion(c0c, c0d):
+    def texto_tecla(exploracion, api=None):
+        return {0x0c: c0c, 0x0d: c0d}.get(exploracion, "")
+    with mock.patch.object(tecla_fisica, "texto_tecla", texto_tecla), \
+            mock.patch.object(motores, "listar_voces", return_value=[]):
+        return valores_de_la_pc.calcular()
+
+
+def control_con_etiqueta(etiqueta, valores, medir):
+    return geometria.control_diccionario(
+        id=1, padre=None, clase="wxButton",
+        nombre="Atajo_chat_filtro_siguiente", etiqueta=etiqueta,
+        rect=[20, 20, 200, 24], visible=True, habilitado=True,
+        enfocable=True, fg="#1C2629", bg="#F3F6F6", fuente={},
+        texto_px=geometria.medida_de_etiqueta(etiqueta, medir),
+        valores=valores)
+
+
+class TestEtiquetasDeLaPC(unittest.TestCase):
+
+    def test_una_tecla_fisica_da_la_misma_etiqueta_en_cualquier_distribucion(
+            self):
+        medir = lambda linea: (7 * len(linea), 15)
+        espana = control_con_etiqueta(
+            "Filtro siguiente del chat: Ctrl+Mayús+¡ (fija)",
+            valores_de_distribucion("'", "¡"), medir)
+        america = control_con_etiqueta(
+            "Filtro siguiente del chat: Ctrl+Mayús+¿ (fija)",
+            valores_de_distribucion("-", "¿"), medir)
+        self.assertEqual(espana["etiqueta"], america["etiqueta"])
+        self.assertIn("Ctrl+Mayús+<tecla sc0d> (fija)", espana["etiqueta"])
+
+    def test_texto_px_se_mide_sobre_el_texto_dibujado_con_el_caracter(self):
+        medir = lambda linea: (7 * len(linea), 15)
+        etiqueta = "Filtro siguiente del chat: Ctrl+Mayús+¡ (fija)"
+        control = control_con_etiqueta(
+            etiqueta, valores_de_distribucion("'", "¡"), medir)
+        self.assertEqual(control["texto_px"], [7 * len(etiqueta), 15])
+        self.assertNotEqual(control["texto_px"],
+                            [7 * len(control["etiqueta"]), 15])
 
 
 if __name__ == "__main__":

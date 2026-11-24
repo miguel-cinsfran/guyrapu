@@ -32,6 +32,7 @@ for _ruta in (str(_QA), str(_RAIZ)):
 import capturas
 import galeria_geometria as geo
 import galeria_muestras as muestras
+from qa import valores_de_la_pc as pc
 
 logger = logging.getLogger(__name__)
 
@@ -134,8 +135,9 @@ def _hijo(args):
             ventana = armar(datos)
             ventana.ShowWithoutActivating()
             _aplicar_layout(ventana)
+            valores = pc.calcular()
             lineas = _capturar(ventana, nombre, clase, variante,
-                               args._carpeta, args._numero)
+                               args._carpeta, args._numero, valores)
     del app
     print(json.dumps({"lineas": lineas}))
     return 0
@@ -210,7 +212,7 @@ def _libros(ventana):
     return hallados
 
 
-def _capturar(ventana, nombre, clase, variante, salida, numero):
+def _capturar(ventana, nombre, clase, variante, salida, numero, valores=()):
     import wx
     import captura_ventana as cap
 
@@ -235,7 +237,8 @@ def _capturar(ventana, nombre, clase, variante, salida, numero):
         cap.pintar_completo(ventana, (ventana, *_descendientes(ventana)))
         ancho, alto = cap._guardar_png(ventana, ruta)
         contenido = _escribir_json(ventana, ruta.with_suffix(".json"),
-                                   nombre, clase, variante, pagina, archivo)
+                                   nombre, clase, variante, pagina, archivo,
+                                   valores)
         esquina = ventana.GetPosition()
         cliente = ventana.ClientToScreen((0, 0))
         desplazamiento = (cliente.x - esquina.x, cliente.y - esquina.y)
@@ -256,7 +259,7 @@ def _capturar(ventana, nombre, clase, variante, salida, numero):
     return lineas
 
 
-def _escribir_json(ventana, ruta, nombre, clase, variante, pagina, png):
+def _escribir_json(ventana, ruta, nombre, clase, variante, pagina, png, valores=()):
     origen = ventana.ClientToScreen((0, 0))
     pantalla = _area_de_trabajo()
     contenido = geo.captura_diccionario(
@@ -264,7 +267,7 @@ def _escribir_json(ventana, ruta, nombre, clase, variante, pagina, png):
         png=png, tamano=_par(ventana.GetSize()),
         cliente=_par(ventana.GetClientSize()),
         tamano_minimo=_par(ventana.GetMinSize()), pantalla=pantalla,
-        controles=_controles(ventana, origen, _ppi()))
+        controles=_controles(ventana, origen, _ppi(), valores))
     ruta.write_text(json.dumps(contenido, ensure_ascii=False, indent=2),
                     encoding="utf-8")
     return contenido
@@ -307,11 +310,11 @@ def _par(tamano):
     return [int(tamano.GetWidth()), int(tamano.GetHeight())]
 
 
-def _controles(ventana, origen, ppi):
+def _controles(ventana, origen, ppi, valores=()):
     salida = []
 
     def recorrer(control, padre):
-        salida.append(_describir_control(control, padre, ventana, origen, ppi))
+        salida.append(_describir_control(control, padre, ventana, origen, ppi, valores))
         try:
             hijos = list(control.GetChildren())
         except Exception:
@@ -323,7 +326,7 @@ def _controles(ventana, origen, ppi):
     return salida
 
 
-def _describir_control(control, padre, ventana, origen, ppi):
+def _describir_control(control, padre, ventana, origen, ppi, valores=()):
     pos = (origen if control is ventana else
            control.GetParent().ClientToScreen(control.GetPosition()))
     tamano = control.GetSize()
@@ -340,7 +343,8 @@ def _describir_control(control, padre, ventana, origen, ppi):
         fg=geo.color_hex(control.GetForegroundColour()),
         bg=geo.color_hex(control.GetBackgroundColour()),
         fuente=geo.fuente_diccionario(fuente, ppi),
-        texto_px=_medida(control, etiqueta))
+        texto_px=geo.medida_de_etiqueta(etiqueta, control.GetFullTextExtent),
+        valores=valores)
 
 
 def _etiqueta(control):
@@ -348,10 +352,6 @@ def _etiqueta(control):
         return control.GetLabel() or ""
     except Exception:
         return ""
-
-
-def _medida(control, etiqueta):
-    return geo.medida_de_etiqueta(etiqueta, control.GetFullTextExtent)
 
 
 class VerificacionGaleria(unittest.TestCase):
