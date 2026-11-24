@@ -24,6 +24,7 @@ from guyrapu.ui import gui_comentarios
 from guyrapu.ui import gui_menu
 from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_api
+from guyrapu.ui import preferencias_estado
 from guyrapu.ui import preferencias_general
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
@@ -1994,7 +1995,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("musica", "salida"), ("musica", "salida_nombre"),
         ]
         esperadas.extend(("estado", componente)
-                          for componente in gui_preferencias.estado_sesion.COMPONENTES)
+                          for componente in preferencias_estado.estado_sesion.COMPONENTES)
         esperadas.extend([
             ("filtros", "palabras_silenciadas"),
             ("filtros", "usuarios_silenciados"),

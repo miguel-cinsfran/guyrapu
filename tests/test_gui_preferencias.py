@@ -8,6 +8,7 @@ cada página (importados, no copiados) más los propios de este diálogo.
 Cualquier texto nuevo sin envolver la pone en rojo.
 """
 
+import ast
 import tempfile
 import unittest
 from pathlib import Path
@@ -20,7 +21,13 @@ from guyrapu.core import config
 from guyrapu.core import idioma
 from guyrapu.translation import idiomas as idiomas_traduccion
 from guyrapu.ui import gui_preferencias
+from guyrapu.ui import preferencias_cola
+from guyrapu.ui import preferencias_conexion
 from guyrapu.ui import preferencias_descargas
+from guyrapu.ui import preferencias_estado
+from guyrapu.ui import preferencias_filtros
+from guyrapu.ui import preferencias_interfaz
+from guyrapu.ui import preferencias_reproductor
 from guyrapu.ui import preferencias_ia
 from guyrapu.ui import preferencias_ia_clave
 from guyrapu.ui import preferencias_sonidos
@@ -789,6 +796,41 @@ class TestAnchoMinimoDelDialogo(unittest.TestCase):
         dialogo._libro_perezoso.construir(0)
         dialogo._ajustar_minimo()
         self.assertLessEqual(dialogo.GetMinSize().width, ancho_de_fabrica)
+
+
+class TestCuadroSinPaginasPropias(unittest.TestCase):
+    def test_el_cuadro_no_tiene_metodos_de_pagina(self):
+        arbol = ast.parse(
+            Path(gui_preferencias.__file__).read_text(encoding="utf-8"))
+        cuadro = next(n for n in arbol.body
+                      if isinstance(n, ast.ClassDef)
+                      and n.name == "PreferenciasDialog")
+        metodos = [n.name for n in cuadro.body
+                   if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+                   and n.name.startswith("_pag_")]
+        self.assertEqual([], metodos)
+
+    def test_las_seis_paginas_se_registran_con_externa(self):
+        arbol = ast.parse(
+            Path(gui_preferencias.__file__).read_text(encoding="utf-8"))
+        registradas = {
+            nodo.args[0].value: nodo.args[1].id
+            for nodo in ast.walk(arbol)
+            if (isinstance(nodo, ast.Call)
+                and isinstance(nodo.func, ast.Name)
+                and nodo.func.id == "externa" and len(nodo.args) >= 2
+                and isinstance(nodo.args[0], ast.Constant)
+                and isinstance(nodo.args[1], ast.Name))}
+        for atributo, clase in (
+                ("pagina_interfaz", preferencias_interfaz.PaginaInterfaz),
+                ("pagina_cola", preferencias_cola.PaginaCola),
+                ("pagina_conexion", preferencias_conexion.PaginaConexion),
+                ("pagina_reproductor", preferencias_reproductor.PaginaReproductor),
+                ("pagina_estado", preferencias_estado.PaginaEstado),
+                ("pagina_filtros", preferencias_filtros.PaginaFiltros)):
+            with self.subTest(atributo=atributo):
+                self.assertEqual(registradas.get(atributo), clase.__name__)
+                self.assertTrue(callable(clase.construir))
 
 
 if __name__ == "__main__":

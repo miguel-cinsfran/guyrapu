@@ -404,7 +404,8 @@ def _pares_de_cambio(nodo):
 def _pares_con_control():
     """Pares con control en Preferencias: tablas `_OPCIONES_SIMPLES`,
     `OPCIONES_GENERAL`, `OPCIONES_MUSICA`, `OPCIONES_LECTURA`,
-    `OPCIONES_EVENTOS` y `OPCIONES_IA`, más llamadas literales
+    `OPCIONES_EVENTOS`, `OPCIONES_IA`, `OPCIONES_INTERFAZ`, `OPCIONES_COLA`,
+    `OPCIONES_CONEXION` y `OPCIONES_REPRODUCTOR`, más llamadas literales
     `self._set(...)`, `fijar(...)`, `guardar_opcion(...)` y las devoluciones
     de las páginas con `cambios()`."""
     con_control = set()
@@ -418,7 +419,13 @@ def _pares_con_control():
         "guyrapu/ui/preferencias_voz_eleven.py",
         "guyrapu/ui/preferencias_voz_secundaria.py",
         "guyrapu/ui/preferencias_transmision.py",
-        "guyrapu/ui/preferencias_camara.py")}
+        "guyrapu/ui/preferencias_camara.py",
+        "guyrapu/ui/preferencias_interfaz.py",
+        "guyrapu/ui/preferencias_cola.py",
+        "guyrapu/ui/preferencias_conexion.py",
+        "guyrapu/ui/preferencias_reproductor.py",
+        "guyrapu/ui/preferencias_estado.py",
+        "guyrapu/ui/preferencias_filtros.py")}
     for arbol in arboles.values():
         for nodo in ast.walk(arbol):
             if not isinstance(nodo, (ast.Assign, ast.AnnAssign)):
@@ -428,7 +435,9 @@ def _pares_con_control():
                 if isinstance(destino, ast.Name) and destino.id in (
                         "_OPCIONES_SIMPLES", "OPCIONES_GENERAL",
                         "OPCIONES_MUSICA",
-                        "OPCIONES_LECTURA", "OPCIONES_EVENTOS", "OPCIONES_IA"):
+                        "OPCIONES_LECTURA", "OPCIONES_EVENTOS", "OPCIONES_IA",
+                        "OPCIONES_INTERFAZ", "OPCIONES_COLA",
+                        "OPCIONES_CONEXION", "OPCIONES_REPRODUCTOR"):
                     tablas[destino.id] = nodo.value
     for tabla in tablas.values():
         con_control.update(_filas_de_tabla(tabla, tablas))
@@ -489,7 +498,13 @@ class PruebaConfiguracion(unittest.TestCase):
             "guyrapu/ui/preferencias_voz_eleven.py, "
             "guyrapu/ui/preferencias_voz_secundaria.py, "
             "guyrapu/ui/preferencias_transmision.py, "
-            "guyrapu/ui/preferencias_camara.py): "
+            "guyrapu/ui/preferencias_camara.py, "
+            "guyrapu/ui/preferencias_interfaz.py, "
+            "guyrapu/ui/preferencias_cola.py, "
+            "guyrapu/ui/preferencias_conexion.py, "
+            "guyrapu/ui/preferencias_reproductor.py, "
+            "guyrapu/ui/preferencias_estado.py, "
+            "guyrapu/ui/preferencias_filtros.py): "
             f"{faltan}")
 
     def test_excepciones_existen_en_fabrica(self):

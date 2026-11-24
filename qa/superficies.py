@@ -147,6 +147,12 @@ SUPERFICIES = {
     "preferencias_voz.py": "preferencias",
     "preferencias_voz_eleven.py": "preferencias",
     "preferencias_voz_secundaria.py": "preferencias",
+    "preferencias_interfaz.py": "preferencias",
+    "preferencias_cola.py": "preferencias",
+    "preferencias_conexion.py": "preferencias",
+    "preferencias_reproductor.py": "preferencias",
+    "preferencias_estado.py": "preferencias",
+    "preferencias_filtros.py": "preferencias",
     "voces_ventana.py": "preferencias",
     "paleta.py": "actualizaciones",
 }

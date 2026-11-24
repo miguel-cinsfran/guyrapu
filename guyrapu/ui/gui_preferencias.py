@@ -19,13 +19,12 @@ from guyrapu.core import paths
 from guyrapu.core.ini_tipado import separar_por_comas
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import atajos_captura, ayuda_manual, confirmar
-from guyrapu.capture import estado_sesion
 from guyrapu.voice import sound_player as _snd
-from guyrapu.ui.gui import ContadorAccesible, _T, _tc, nombre_accesible
+from guyrapu.ui.gui import _T, _tc, nombre_accesible
 from guyrapu.ui.libro_perezoso import LibroPerezoso
 from guyrapu.ui import paleta
 from guyrapu.ui.preferencias_comun import (
-    ANCHO_NOTA, ajustar_ancho_categorias, crear_panel, fila_label)
+    ajustar_ancho_categorias, crear_panel, fila_label)
 from guyrapu.ui.preferencias_api import PaginaApi
 from guyrapu.ui.preferencias_atajos import PaginaAtajos
 from guyrapu.ui.preferencias_general import OPCIONES_GENERAL, PaginaGeneral, ofrecer_reinicio
@@ -38,6 +37,12 @@ from guyrapu.ui.preferencias_eventos import OPCIONES_EVENTOS, PaginaEventos
 from guyrapu.ui.preferencias_ia import PaginaIA
 from guyrapu.ui.preferencias_sonidos import PaginaSonidos
 from guyrapu.ui.preferencias_voz import PaginaVoz
+from guyrapu.ui.preferencias_interfaz import OPCIONES_INTERFAZ, PaginaInterfaz
+from guyrapu.ui.preferencias_cola import OPCIONES_COLA, PaginaCola
+from guyrapu.ui.preferencias_conexion import OPCIONES_CONEXION, PaginaConexion
+from guyrapu.ui.preferencias_reproductor import OPCIONES_REPRODUCTOR, PaginaReproductor
+from guyrapu.ui.preferencias_estado import PaginaEstado
+from guyrapu.ui.preferencias_filtros import PaginaFiltros
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -53,26 +58,20 @@ CATEGORIA_YOUTUBE = N_("YouTube")
 # `tests/test_preferencias_tabla.py` lo compara con el de fábrica para que no
 # se separen.
 _OPCIONES_SIMPLES = (
-    ("sp_fuente", "ui", "tamanio_fuente_chat", "tamanio_fuente_chat", int, 12),
-    ("chk_total_sc", "ui", "mostrar_total_superchats", "mostrar_total_superchats", bool, True),
-    ("chk_autoplay", "ui", "autoplay_reproductor", "autoplay_reproductor", bool, True),
-    ("chk_solo_audio", "ui", "reproductor_solo_audio", "reproductor_solo_audio", bool, True),
-    ("chk_metadatos", "ui", "mostrar_metadatos", "mostrar_metadatos", bool, True),
-    ("chk_botones_rep", "ui", "mostrar_botones_reproductor", "mostrar_botones_reproductor", bool, True),
-    ("sp_cache_video", "ui", "cache_video_mb", "cache_video_mb", int, 1024),
+    OPCIONES_INTERFAZ
+    + OPCIONES_REPRODUCTOR
 ) + OPCIONES_GENERAL + OPCIONES_LECTURA + OPCIONES_EVENTOS + (
-    ("sp_cola_maxima", "cola", "tamanio_maximo", "tamanio_maximo", int, 15),
-    ("sp_umbral_nombre", "cola", "umbral_solo_nombre", "umbral_solo_nombre", int, 0),
-    ("chk_reconectar", "reconexion", "reconectar", "reconectar", bool, True),
-    ("sp_espera_reconexion", "reconexion", "espera_entre_intentos", "espera_entre_intentos", int, 15),
-    ("sp_max_intentos", "reconexion", "max_intentos", "max_intentos", int, 20),
-    ("chk_buscar_actualizaciones", "actualizaciones", "buscar_al_iniciar", "buscar_actualizaciones_al_iniciar", bool, True),
-    ("chk_confirmar_salida", "ui", "confirmar_salida", "confirmar_salida", bool, True),
-    ("chk_sonido_inicio", "ui", "sonido_inicio", "sonido_inicio", bool, True),
-    ("chk_registro_detallado", "diagnostico", "registro_detallado", "registro_detallado", bool, True),
-    ("sp_puerto_overlay", "overlay", "puerto", "overlay_puerto", int, 8730),
-    ("chk_avisar_sobrecarga", "transmision", "avisar_sobrecarga", "avisar_sobrecarga", bool, True),
-    ("chk_titulo_estado_obs", "transmision", "titulo_estado_obs", "titulo_estado_obs", bool, False),
+    OPCIONES_COLA
+    + OPCIONES_CONEXION
+    + (
+        ("chk_buscar_actualizaciones", "actualizaciones", "buscar_al_iniciar", "buscar_actualizaciones_al_iniciar", bool, True),
+        ("chk_confirmar_salida", "ui", "confirmar_salida", "confirmar_salida", bool, True),
+        ("chk_sonido_inicio", "ui", "sonido_inicio", "sonido_inicio", bool, True),
+        ("chk_registro_detallado", "diagnostico", "registro_detallado", "registro_detallado", bool, True),
+        ("sp_puerto_overlay", "overlay", "puerto", "overlay_puerto", int, 8730),
+        ("chk_avisar_sobrecarga", "transmision", "avisar_sobrecarga", "avisar_sobrecarga", bool, True),
+        ("chk_titulo_estado_obs", "transmision", "titulo_estado_obs", "titulo_estado_obs", bool, False),
+    )
 ) + OPCIONES_MUSICA
 
 
@@ -135,20 +134,21 @@ class PreferenciasDialog(wx.Dialog):
                 partial(self._pagina_de, atributo, clase, argumentos))
         return (
             (_("General"), externa("pagina_general", PaginaGeneral, (self,))),
-            (_("Interfaz"), self._envolver(self._pag_interfaz)),
+            (_("Interfaz"), externa("pagina_interfaz", PaginaInterfaz)),
             (_("Sonidos"), externa("pagina_sonidos", PaginaSonidos)),
             (_("Atajos"), externa("pagina_atajos", PaginaAtajos, (self, self._config))),
             (_("Voces"), externa("pagina_voz", PaginaVoz, (self, self._config))),
             (_("Lectura"), externa("pagina_lectura", PaginaLectura,
                                    (self._config, fila_label, crear_panel))),
-            (_("Cola de lectura"), self._envolver(self._pag_cola)),
+            (_("Cola de lectura"), externa("pagina_cola", PaginaCola,
+                                           (self._config,))),
             (_("Eventos del directo"), externa("pagina_eventos", PaginaEventos,
                                                 (self._config, fila_label, crear_panel))),
-            (_("Filtros"), self._envolver(self._pag_filtros)),
-            (_("Estado (F2)"), self._envolver(self._pag_estado)),
-            (_("Conexión"), self._envolver(self._pag_conexion)),
+            (_("Filtros"), externa("pagina_filtros", PaginaFiltros, (self._config,))),
+            (_("Estado (F2)"), externa("pagina_estado", PaginaEstado, (self._config,))),
+            (_("Conexión"), externa("pagina_conexion", PaginaConexion)),
             (_(CATEGORIA_YOUTUBE), externa("pagina_api", PaginaApi, (self,))),
-            (_("Reproductor"), self._envolver(self._pag_reproductor)),
+            (_("Reproductor"), externa("pagina_reproductor", PaginaReproductor)),
             (_("Música"), externa("pagina_musica", PaginaMusica, (self, self._config))),
             (_("Descargas"), externa("pagina_descargas", PaginaDescargasPreferencias)),
             (_("Inteligencia artificial"), externa("pagina_ia", PaginaIA, (self, self._ruta))),
@@ -206,176 +206,18 @@ class PreferenciasDialog(wx.Dialog):
         except Exception as exc:
             logger.debug("mínimo del diálogo de preferencias: %s", exc)
 
-    def _pag_interfaz(self, parent):
-        p = crear_panel(parent, "PagInterfaz")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        vs.Add(fila_label(p, _("Tamaño de &letra del chat (8 a 24):")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        self.sp_fuente = ContadorAccesible(p, min=8, max=24, name=_("Tamaño de letra del chat"))
-        vs.Add(self.sp_fuente, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        self.chk_total_sc = wx.CheckBox(p, label=_("Mostrar total de &Super Chats en la barra de estado"),
-                                         name="MostrarTotalSuperChats")
-        vs.Add(self.chk_total_sc, 0, wx.ALL, 10)
-
-        self.chk_metadatos = wx.CheckBox(p, label=_("Mostrar pestaña de &información del vídeo"),
-                                          name="MostrarMetadatos")
-        vs.Add(self.chk_metadatos, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        p.SetSizer(vs)
-        return p
-
-    def _pag_cola(self, parent):
-        p = crear_panel(parent, "PagCola")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        self.rb_estrategia = wx.RadioBox(
-            p, label=_("&Estrategia de la cola"), majorDimension=1,
-            choices=[_("Leer todos los mensajes"),
-                     _("Descartar los más antiguos si se acumulan")],
-            style=wx.RA_SPECIFY_COLS, name=_("Estrategia de la cola"))
-        self.rb_estrategia.SetSelection(
-            0 if self._config.get("estrategia", "limite") == "todas" else 1)
-        vs.Add(self.rb_estrategia, 0, wx.ALL, 10)
-
-        vs.Add(fila_label(p, _("Tamaño &máximo de la cola:")),
-               0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_cola_maxima = ContadorAccesible(
-            p, min=1, max=500,
-            name=_("Tamaño máximo de la cola"))
-        vs.Add(self.sp_cola_maxima, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        vs.Add(fila_label(p, _("Leer solo el &nombre desde esta cantidad de mensajes en cola:")),
-               0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_umbral_nombre = ContadorAccesible(p, min=0, max=500,
-            name=_("Leer solo el nombre desde esta cantidad de mensajes en cola"))
-        vs.Add(self.sp_umbral_nombre, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(wx.StaticText(p, label=_("Con 0, esta opción queda desactivada.")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-
-        p.SetSizer(vs)
-        return p
-
-    def _pag_conexion(self, parent):
-        p = crear_panel(parent, "PagConexion")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        self.chk_reconectar = wx.CheckBox(
-            p, label=_("&Reconectar automáticamente"),
-            name=_("Reconectar automáticamente"))
-        vs.Add(self.chk_reconectar, 0, wx.ALL, 10)
-
-        vs.Add(fila_label(p, _("&Espera máxima entre intentos, en segundos:")),
-               0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_espera_reconexion = ContadorAccesible(
-            p, min=1, max=300,
-            name=_("Espera máxima entre intentos, en segundos"))
-        vs.Add(self.sp_espera_reconexion, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        vs.Add(fila_label(p, _("Número máximo de &intentos:")),
-               0, wx.LEFT | wx.RIGHT, 10)
-        self.sp_max_intentos = ContadorAccesible(
-            p, min=0, max=100,
-            name=_("Número máximo de intentos"))
-        vs.Add(self.sp_max_intentos, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        p.SetSizer(vs)
-        return p
-
-    def _pag_reproductor(self, parent):
-        p = crear_panel(parent, "PagReproductor")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        self.chk_autoplay = wx.CheckBox(p, label=_("&Reproducir audio automáticamente al conectar"),
-                                         name="AutoplayReproductor")
-        vs.Add(self.chk_autoplay, 0, wx.ALL, 10)
-
-        self.chk_solo_audio = wx.CheckBox(
-            p, label=_("Reproducir &solo el audio, sin imagen"),
-            name="SoloAudioReproductor")
-        vs.Add(self.chk_solo_audio, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        self.chk_botones_rep = wx.CheckBox(p, label=_("Mostrar &botones del reproductor"),
-                                            name="MostrarBotonesReproductor")
-        vs.Add(self.chk_botones_rep, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        etiqueta_cache = wx.StaticText(
-            p, label=_("&Tamaño máximo de la caché de vídeo, en megabytes:"))
-        self.sp_cache_video = wx.SpinCtrl(
-            p, min=0, max=20000,
-            name=_("Tamaño máximo de la caché de vídeo en megabytes"))
-        vs.Add(etiqueta_cache, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        vs.Add(self.sp_cache_video, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        p.SetSizer(vs)
-        return p
-
     def _pagina_de(self, atributo, clase, argumentos, parent):
         # La página vive en su módulo (composición); el diálogo conserva
         # los atributos públicos de los controles para las pruebas y la tabla.
         pagina = clase(*argumentos)
         setattr(self, atributo, pagina)
         panel = pagina.construir(parent)
-        for nombre in tuple(f[0] for f in _OPCIONES_SIMPLES) + ("cho_tema", "rb_formato"):
+        for nombre in tuple(f[0] for f in _OPCIONES_SIMPLES) + (
+                "cho_tema", "rb_formato", "rb_estrategia",
+                "txt_palabras", "txt_usuarios"):
             if hasattr(pagina, nombre):
                 setattr(self, nombre, getattr(pagina, nombre))
         return panel
-
-    def _pag_estado(self, parent):
-        """Una casilla por componente del anuncio de estado (tecla F2). Sin
-        colores en las casillas: en Windows eso rompe su rol accesible."""
-        p = crear_panel(parent, "PagEstado")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        nota = wx.StaticText(p, name="NotaEstado", label=_(
-            "Elige qué dice la tecla F2 (estado de sesión). Marca lo que quieras "
-            "oír; por defecto, los datos del vídeo y del chat. El orden en que se "
-            "dice es fijo."))
-        nota.SetForegroundColour(_T.dim)
-        nota.Wrap(ANCHO_NOTA)
-        vs.Add(nota, 0, wx.ALL, 10)
-
-        activos = self._config.get("estado_toggles") or estado_sesion.ACTIVOS_DEFECTO
-        self._chk_estado: dict = {}
-        for comp in estado_sesion.COMPONENTES:
-            chk = wx.CheckBox(p, label=estado_sesion.etiqueta(comp),
-                              name=f"EstadoComponente_{comp}")
-            chk.SetValue(comp in activos)
-            self._chk_estado[comp] = chk
-            vs.Add(chk, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-
-        p.SetSizer(vs)
-        return p
-
-    def _pag_filtros(self, parent):
-        p = crear_panel(parent, "PagFiltros")
-        vs = wx.BoxSizer(wx.VERTICAL)
-
-        vs.Add(fila_label(p, _("&Palabras silenciadas (separadas por comas):")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        self.txt_palabras = wx.TextCtrl(
-            p, value=", ".join(self._config.get("palabras_silenciadas", [])),
-            name=_("Palabras silenciadas"))
-        vs.Add(self.txt_palabras, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        vs.Add(fila_label(p, _("&Usuarios silenciados (separados por comas):")),
-               0, wx.LEFT | wx.RIGHT, 10)
-        self.txt_usuarios = wx.TextCtrl(
-            p, value=", ".join(self._config.get("usuarios_silenciados", [])),
-            name=_("Usuarios silenciados"))
-        vs.Add(self.txt_usuarios, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-
-        nota = wx.StaticText(p, label=_(
-            "Estos filtros ocultan y no leen los mensajes que contengan esas "
-            "palabras o de esos usuarios. Se aplican a partir del próximo mensaje."),
-            name="NotaFiltros")
-        nota.SetForegroundColour(_T.dim)
-        nota.Wrap(ANCHO_NOTA)
-        vs.Add(nota, 0, wx.ALL, 10)
-
-        p.SetSizer(vs)
-        return p
 
     def _set(self, seccion, clave, valor):
         self._pendientes.append((seccion, clave, valor))
@@ -410,7 +252,8 @@ class PreferenciasDialog(wx.Dialog):
             estrategia = ("todas", "limite")[self.rb_estrategia.GetSelection()]
             self._set("cola", "estrategia", estrategia)
             c["estrategia"] = estrategia
-        for nombre in ("pagina_transmision", "pagina_camara", "pagina_musica"):
+        for nombre in ("pagina_transmision", "pagina_camara", "pagina_musica",
+                       "pagina_estado"):
             pagina = getattr(self, nombre, None)
             if pagina is not None:
                 pagina.guardar(self._set, c)
@@ -430,15 +273,6 @@ class PreferenciasDialog(wx.Dialog):
         return motor_no_disponible
 
     def _volcar_controles_manuales(self, c):
-        if hasattr(self, "_chk_estado"):
-            activos = set()
-            for comp, chk in self._chk_estado.items():
-                on = chk.GetValue()
-                self._set("estado", comp, "true" if on else "false")
-                if on:
-                    activos.add(comp)
-            c["estado_toggles"] = activos
-
         if hasattr(self, "txt_palabras"):
             palabras = self.txt_palabras.GetValue().strip()
             self._set("filtros", "palabras_silenciadas", palabras)
