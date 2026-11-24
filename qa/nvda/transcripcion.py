@@ -15,6 +15,7 @@ from pathlib import Path
 
 CARPETA = Path(__file__).resolve().parent / "transcripciones"
 CANDIDATAS = Path(__file__).resolve().parents[2] / "qa" / "salida" / "nvda" / "candidatas"
+CARPETA_APP = Path(__file__).resolve().parents[2]
 
 _TEMPORAL = re.compile(r"[A-Za-z]:\\(?:[^\\]+\\)*Temp\\tmp[^\\]*",
                        re.IGNORECASE)
@@ -56,15 +57,30 @@ def _sin_temporal(valor):
     return _TEMPORAL.sub("<temporal>", valor)
 
 
+def _sin_carpeta_app(valor):
+    """Escribe <carpeta de la app> la raíz del árbol que cambia por PC.
+
+    Windows no distingue mayúsculas en las rutas y la transcripción muestra
+    las barras dobladas por `repr`, así que el patrón admite una o dos barras
+    y compara sin mirar el caso. Medido el 24/11/2026.
+    """
+    if not isinstance(valor, str):
+        return valor
+    patron = re.escape(str(CARPETA_APP)).replace(r"\\", r"\\{1,2}")
+    return re.sub(patron, "<carpeta de la app>", valor,
+                  flags=re.IGNORECASE)
+
+
 def _linea(paso, valor_variable=()) -> str:
     foco = paso.get("foco") or {}
     variable = foco.get("nombre") in valor_variable
     estados = sorted(str(estado) for estado in foco.get("estados") or ()
                      if str(estado).casefold() != "focused")
     rol = foco.get("rol_nombre") or foco.get("rol")
-    valor = "" if variable else _sin_temporal(foco.get("valor"))
+    valor = "" if variable else _sin_carpeta_app(
+        _sin_temporal(foco.get("valor")))
     linea = (f"tecla={paso.get('tecla')} fase={paso.get('fase')} "
-             f"dijo={_sin_temporal(_habla(paso, variable))!r} "
+             f"dijo={_sin_carpeta_app(_sin_temporal(_habla(paso, variable)))!r} "
              f"foco={{nombre={foco.get('nombre')!r}, "
              f"rol={rol!r}, estados={estados!r}, "
              f"valor={valor!r}, atajo={foco.get('atajo')!r}}}")

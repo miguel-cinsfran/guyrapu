@@ -234,6 +234,33 @@ class TestValorVariable(unittest.TestCase):
                             transcripcion.texto(otro_rol, controles))
 
 
+class TestCarpetaApp(unittest.TestCase):
+
+    def _caso(self, ruta):
+        caso = datos()
+        caso["pasos"][0]["habla"] = [{"texto": f"Carpeta de descargas {ruta}"}]
+        caso["pasos"][0]["foco"]["valor"] = ruta
+        return caso
+
+    def test_la_carpeta_de_la_app_en_dicho_y_valor_va_con_marcador(self):
+        carpeta = Path(r"C:\Users\Miguelito\Documents\guyrapu")
+        ruta = str(carpeta).upper() + r"\Descargas"
+        with mock.patch.object(transcripcion, "CARPETA_APP", carpeta,
+                               create=True):
+            texto = transcripcion.texto(self._caso(ruta))
+        self.assertIn(r"<carpeta de la app>\\Descargas", texto)
+        self.assertNotIn(r"C:\\USERS\\MIGUELITO", texto)
+
+    def test_una_ruta_que_no_es_la_carpeta_de_la_app_queda_igual(self):
+        carpeta = Path(r"C:\Users\Miguelito\Documents\guyrapu")
+        ruta = r"C:\Users\Otro\Descargas"
+        with mock.patch.object(transcripcion, "CARPETA_APP", carpeta,
+                               create=True):
+            texto = transcripcion.texto(self._caso(ruta))
+        self.assertIn(r"C:\\Users\\Otro\\Descargas", texto)
+        self.assertNotIn("<carpeta de la app>", texto)
+
+
 class TestComparacion(unittest.TestCase):
 
     def test_un_nombre_distinto_da_un_diff_con_su_linea(self):
