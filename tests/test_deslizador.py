@@ -45,12 +45,12 @@ class TestDeslizador(unittest.TestCase):
 
         self.assertGreaterEqual(control.GetMinSize().GetWidth(), 280)
 
-    def test_muestra_el_valor_junto_al_cursor(self):
+    def test_no_lleva_rotulo_de_valor(self):
         control = deslizador_accesible(
             self.ventana, minimo=0, maximo=100, inicial=40, paso=5,
             nombre="Volumen de la música")
 
-        self.assertTrue(control.GetWindowStyle() & wx.SL_VALUE_LABEL)
+        self.assertFalse(control.GetWindowStyle() & wx.SL_VALUE_LABEL)
 
 
 class TestNivelesDePreferencias(unittest.TestCase):
