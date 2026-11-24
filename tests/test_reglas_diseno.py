@@ -53,6 +53,14 @@ class TestBordes(unittest.TestCase):
         self.assertEqual([1],
                          _lineas(_hallazgos(diseno.detectar_bordes, codigo)))
 
+    def test_una_constante_solo_del_temporizador_no_salta(self):
+        codigo = """\
+            INTERVALO = 2000
+            temporizador.Start(INTERVALO)
+            """
+        self.assertEqual([],
+                         _lineas(_hallazgos(diseno.detectar_bordes, codigo)))
+
 
 class TestTamanos(unittest.TestCase):
 
@@ -87,6 +95,14 @@ class TestTamanos(unittest.TestCase):
             control.SetMinSize((ANCHO, -1))
             """
         self.assertEqual([1],
+                         _lineas(_hallazgos(diseno.detectar_tamanos, codigo)))
+
+    def test_una_constante_solo_del_temporizador_no_salta(self):
+        codigo = """\
+            INTERVALO = 2000
+            temporizador.Start(INTERVALO)
+            """
+        self.assertEqual([],
                          _lineas(_hallazgos(diseno.detectar_tamanos, codigo)))
 
 

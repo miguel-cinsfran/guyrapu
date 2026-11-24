@@ -132,9 +132,27 @@ class TestDisenoIA(unittest.TestCase):
         self.assertIsNotNone(fila)
         self.assertIs(actualizar.GetContainingSizer(), fila)
         ventanas = [elemento.GetWindow()
-                     for elemento in fila.GetChildren()]
+                    for elemento in fila.GetChildren()]
         self.assertLess(ventanas.index(modelo),
                         ventanas.index(actualizar))
+
+    def test_el_ancho_minimo_del_cuadro_no_crece(self):
+        # Medido el 24/11/2026 con esta misma página armada, antes de pasar
+        # las filas a las piezas comunes.
+        dialogo = self._dialogo()
+        self.assertLessEqual(dialogo.GetMinSize().width, 661)
+
+    def test_el_proveedor_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        dialogo = self._dialogo()
+        choice = dialogo.pagina_ia.cho_ia_proveedor
+        panel = choice.GetParent()
+        panel.Layout()
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, wx.StaticText)
+                    and h.GetLabel() == "&Proveedor:"][0]
+        self.assertEqual(
+            choice.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().GetHeight()), 4)
 
 
 class TestClaveConFormatoAjeno(unittest.TestCase):

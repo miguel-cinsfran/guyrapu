@@ -24,6 +24,7 @@ from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core import paths
 from guyrapu.core.idioma import _
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.tema import _tc
@@ -75,7 +76,7 @@ class PaginaIA:
         self._ia_largo(p, vs)
         self._ia_mostrar_condicionales()
         self._ia_pintar_campos()
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def _ia_pintar_campos(self):
@@ -95,8 +96,7 @@ class PaginaIA:
         self._ia_modelos_ids = []
 
     def _ia_proveedor(self, p, vs):
-        vs.Add(fila_label(p, _("&Proveedor:")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("&Proveedor:"))
         self.cho_ia_proveedor = wx.Choice(
             p, choices=[_(pr.nombre) for pr in proveedores.PROVEEDORES],
             name="ProveedorIA")
@@ -105,15 +105,14 @@ class PaginaIA:
             actual = proveedores.PROVEEDORES[0]
         self.cho_ia_proveedor.SetSelection(
             proveedores.PROVEEDORES.index(actual))
-        vs.Add(self.cho_ia_proveedor, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_ia_proveedor)
         self.cho_ia_proveedor.Bind(wx.EVT_CHOICE, self._on_ia_proveedor)
         self._ia_lbl_direccion = fila_label(
             p, _("&Dirección del servicio:"))
-        vs.Add(self._ia_lbl_direccion, 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_ia_direccion = wx.TextCtrl(
             p, value=self._ia_ajustes.direccion, name="DireccionIA")
-        vs.Add(self.txt_ia_direccion, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, self._ia_lbl_direccion,
+                                self.txt_ia_direccion)
         self._ia_leer_marcas()
 
     def _ia_leer_marcas(self):
@@ -129,12 +128,12 @@ class PaginaIA:
             p, label=_("Compro&bar clave"), name=_("Comprobar clave"))
         self.btn_ia_probar_clave.Bind(
             wx.EVT_BUTTON, self._on_ia_probar_clave)
-        vs.Add(fila_botones((self.ia_clave.btn_guardar,
-                             self.btn_ia_probar_clave)), 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        botones = fila_botones((self.ia_clave.btn_guardar,
+                                self.btn_ia_probar_clave))
+        formulario.agregar_fila(vs, None, botones, expandir=False)
 
     def _ia_modelo(self, p, vs):
-        vs.Add(fila_label(p, _("&Modelo:")), 0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Modelo:"))
         self.cho_ia_modelo = wx.Choice(p, choices=[], name="ModeloIA")
         self.cho_ia_modelo.Bind(wx.EVT_CHOICE, self._on_ia_modelo)
         self.chk_ia_gratis = wx.CheckBox(p, label=_("Solo gra&tuitos"), name="SoloGratuitosIA")
@@ -143,18 +142,17 @@ class PaginaIA:
         self.btn_ia_actualizar = wx.Button(p, label=_("&Actualizar lista de modelos"),
                                            name="ActualizarModelosIA")
         fila = wx.BoxSizer(wx.HORIZONTAL)
-        fila.Add(self.cho_ia_modelo, 1, wx.EXPAND | wx.LEFT | wx.BOTTOM, 10)
-        fila.Add(self.btn_ia_actualizar, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(fila, 0, wx.EXPAND, 0)
-        vs.Add(self.chk_ia_gratis, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(fila_label(p, _("&Otro modelo:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        fila.Add(self.cho_ia_modelo, 1, wx.EXPAND)
+        fila.Add(self.btn_ia_actualizar, 0,
+                 wx.LEFT, formulario.ETIQUETA_A_CONTROL)
+        formulario.agregar_fila(vs, rotulo, fila)
+        formulario.agregar_casillas(vs, (self.chk_ia_gratis,))
+        rotulo = fila_label(p, _("&Otro modelo:"))
         self.txt_ia_otro = wx.TextCtrl(p, value="", name="OtroModeloIA")
-        vs.Add(self.txt_ia_otro, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.txt_ia_otro)
         self.txt_ia_otro.Bind(wx.EVT_TEXT, self._on_ia_otro)
         self.lbl_ia_aviso = wx.StaticText(p, label="", name="AvisoModeloIA")
-        vs.Add(self.lbl_ia_aviso, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_nota(vs, self.lbl_ia_aviso)
         filas = self._ia_filas()
         id_lista, texto_otro = opciones_ia.separar_modelo_guardado(
             self._ia_ajustes.modelo, filas)
@@ -163,42 +161,40 @@ class PaginaIA:
         self._ia_actualizar_aviso()
 
     def _ia_pregunta(self, p, vs):
-        vs.Add(fila_label(p, _("&Instrucción para las capturas:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Instrucción para las capturas:"))
         self.txt_ia_pregunta = wx.TextCtrl(
             p, value=self._ia_ajustes.pregunta, style=wx.TE_MULTILINE,
             name="PreguntaIA")
-        self.txt_ia_pregunta.SetMinSize((-1, 90))
-        vs.Add(self.txt_ia_pregunta, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self.txt_ia_pregunta.SetMinSize(
+            (-1, 4 * self.txt_ia_pregunta.GetCharHeight() + 12))
+        formulario.agregar_fila(vs, rotulo, self.txt_ia_pregunta)
         self.btn_ia_restaurar = wx.Button(
             p, label=_("R&establecer instrucción"), name="RestablecerPreguntaIA")
-        vs.Add(self.btn_ia_restaurar, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, None, self.btn_ia_restaurar,
+                                expandir=False)
         self.btn_ia_restaurar.Bind(wx.EVT_BUTTON, self._on_ia_restaurar)
 
     def _ia_largo(self, p, vs):
-        vs.Add(fila_label(p, _("E&xtensión de la respuesta:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("E&xtensión de la respuesta:"))
         # Traductores: largo de la respuesta de la IA.
         self.cho_ia_largo = EleccionTexto(
             p, (("corta", _("Corta")), ("media", _("Media")), ("larga", _("Larga"))),
             normalizar=lambda v: v if v in ajustes_ia.LARGOS else "media",
             name="LargoIA")
         self.cho_ia_largo.SetValue(self._ia_ajustes.largo)
-        vs.Add(self.cho_ia_largo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(fila_label(p, _("Tiempo de e&spera en segundos:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_ia_largo)
+        rotulo = fila_label(p, _("Tiempo de e&spera en segundos:"))
         self.sp_ia_tiempo = ContadorAccesible(
             p, min=ajustes_ia.TIEMPO_MINIMO, max=ajustes_ia.TIEMPO_MAXIMO,
             name="TiempoIA")
         self.sp_ia_tiempo.SetValue(self._ia_ajustes.tiempo_espera)
-        vs.Add(self.sp_ia_tiempo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_ia_tiempo, numerico=True)
         self.chk_ia_analizando = wx.CheckBox(
             p, label=_("Anunciar «Anali&zando» mientras espera"),
             name="DecirAnalizandoIA")
         self.chk_ia_analizando.SetValue(
             bool(self._ia_ajustes.decir_analizando))
-        vs.Add(self.chk_ia_analizando, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_ia_analizando,))
 
     def _ia_proveedor_actual(self):
         i = self.cho_ia_proveedor.GetSelection()

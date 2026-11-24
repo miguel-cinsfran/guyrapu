@@ -3096,8 +3096,9 @@ class TestPaginaInteligenciaArtificialSoloLectura(unittest.TestCase):
 
     def test_instruccion_mide_cuatro_renglones(self):
         dialogo = self.dialogo
+        campo = dialogo.pagina_ia.txt_ia_pregunta
         self.assertGreaterEqual(
-            dialogo.pagina_ia.txt_ia_pregunta.GetMinSize().height, 90)
+            campo.GetMinSize().height, 4 * campo.GetCharHeight())
 
 
 class TestPreferenciasElevenLabs(unittest.TestCase):

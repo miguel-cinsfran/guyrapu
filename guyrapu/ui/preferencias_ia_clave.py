@@ -15,7 +15,7 @@ from guyrapu.ai import claves
 from guyrapu.ai import opciones_ia
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
-from guyrapu.ui import confirmar
+from guyrapu.ui import confirmar, formulario
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.tema import _T, _tc
@@ -38,16 +38,15 @@ class SeccionClaveIA:
         # Traductores: rótulo de la clave de IA del proveedor elegido.
         etiqueta = wx.StaticText(panel, label=_("Cla&ve:"))
         etiqueta.SetForegroundColour(_T.text)
-        sizer.Add(etiqueta, 0, wx.LEFT | wx.RIGHT, 10)
         self.txt_estado = wx.TextCtrl(
             panel, style=wx.TE_MULTILINE | wx.TE_READONLY,
             name="EstadoClaveIA")
-        sizer.Add(self.txt_estado, 0,
-                  wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.txt_clave = wx.TextCtrl(
             panel, style=wx.TE_PASSWORD, name="ClaveIA")
-        sizer.Add(self.txt_clave, 0,
-                  wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        campo = wx.BoxSizer(wx.VERTICAL)
+        campo.Add(self.txt_estado, 0, wx.EXPAND)
+        campo.Add(self.txt_clave, 0, wx.EXPAND)
+        formulario.agregar_fila(sizer, etiqueta, campo)
         self._crear_botones(panel, sizer)
         self.actualizar()
         _tc(self.txt_estado)
@@ -61,14 +60,12 @@ class SeccionClaveIA:
         self.btn_guardar.Bind(wx.EVT_BUTTON, self._on_guardar)
         self.btn_nueva = wx.Button(
             panel, label=_("Escribir una clave &nueva"), name="NuevaClaveIA")
-        sizer.Add(self.btn_nueva, 0,
-                  wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.btn_nueva.Bind(wx.EVT_BUTTON, self._on_nueva)
         self.btn_borrar = wx.Button(
             panel, label=_("E&liminar clave guardada"), name="BorrarClaveIA")
-        sizer.Add(self.btn_borrar, 0,
-                  wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.btn_borrar.Bind(wx.EVT_BUTTON, self._on_borrar)
+        formulario.agregar_fila(sizer, None, self.btn_nueva, expandir=False)
+        formulario.agregar_fila(sizer, None, self.btn_borrar, expandir=False)
 
     def actualizar(self):
         """Vuelve al estado que corresponde al proveedor elegido."""

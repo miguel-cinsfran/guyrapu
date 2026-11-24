@@ -64,12 +64,37 @@ def _borde_de(llamada: ast.Call) -> ast.expr | None:
     return None
 
 
-def _numero_local(nodo: ast.stmt) -> bool:
+def _tamanos_de(llamada: ast.Call) -> list[ast.expr]:
+    if (_destino(llamada.func) in _METODOS_TAMANO
+            or _es_wx(llamada.func, "Size")):
+        return [*llamada.args, *(kw.value for kw in llamada.keywords)]
+    return [kw.value for kw in llamada.keywords if kw.arg == "size"]
+
+
+def _nombres_en(expresion: ast.expr) -> set[str]:
+    return {nodo.id for nodo in ast.walk(expresion)
+            if isinstance(nodo, ast.Name)}
+
+
+def _nombres_de_medidas(arbol: ast.Module) -> set[str]:
+    nombres = set()
+    for nodo in ast.walk(arbol):
+        if not isinstance(nodo, ast.Call):
+            continue
+        borde = _borde_de(nodo)
+        if borde is not None:
+            nombres.update(_nombres_en(borde))
+        for medida in _tamanos_de(nodo):
+            nombres.update(_nombres_en(medida))
+    return nombres
+
+
+def _numero_local(nodo: ast.stmt, nombres: set[str]) -> bool:
     if not isinstance(nodo, ast.Assign):
         return False
-    if not any(isinstance(destino, ast.Name) for destino in nodo.targets):
-        return False
-    return bool(_numeros(nodo.value))
+    destinos = [d.id for d in nodo.targets if isinstance(d, ast.Name)]
+    return (bool(destinos) and any(d in nombres for d in destinos)
+            and bool(_numeros(nodo.value)))
 
 
 def _unicos(hallazgos: list[Hallazgo]) -> list[Hallazgo]:
@@ -83,6 +108,7 @@ def _unicos(hallazgos: list[Hallazgo]) -> list[Hallazgo]:
 
 
 def detectar_bordes(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    nombres = _nombres_de_medidas(arbol)
     hallazgos = []
     for nodo in ast.walk(arbol):
         if isinstance(nodo, ast.Call):
@@ -90,26 +116,20 @@ def detectar_bordes(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
             if borde is not None and any(valor != 0
                                          for valor in _numeros(borde)):
                 hallazgos.append(Hallazgo(archivo, nodo.lineno))
-        if _numero_local(nodo):
+        if _numero_local(nodo, nombres):
             hallazgos.append(Hallazgo(archivo, nodo.lineno))
     return _unicos(hallazgos)
 
 
 def detectar_tamanos(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    nombres = _nombres_de_medidas(arbol)
     hallazgos = []
     for nodo in ast.walk(arbol):
         if isinstance(nodo, ast.Call):
-            valores = [*nodo.args, *(kw.value for kw in nodo.keywords)]
-            if (_destino(nodo.func) in _METODOS_TAMANO
-                    or _es_wx(nodo.func, "Size")):
-                if any(valor != -1 for arg in valores
-                       for valor in _numeros(arg)):
-                    hallazgos.append(Hallazgo(archivo, nodo.lineno))
-            elif any(kw.arg == "size" and any(valor != -1
-                                              for valor in _numeros(kw.value))
-                     for kw in nodo.keywords):
+            if any(valor != -1 for medida in _tamanos_de(nodo)
+                   for valor in _numeros(medida)):
                 hallazgos.append(Hallazgo(archivo, nodo.lineno))
-        if _numero_local(nodo):
+        if _numero_local(nodo, nombres):
             hallazgos.append(Hallazgo(archivo, nodo.lineno))
     return _unicos(hallazgos)
 
@@ -162,173 +182,82 @@ def detectar_colores(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
 
 PENDIENTES_BORDES: dict[str, tuple[int, str]] = {
     "guyrapu/ui/gui_preferencias.py": (31, MOTIVO),
-    "guyrapu/ui/preferencias_ia.py": (20, MOTIVO),
-    "guyrapu/ui/preferencias_transmision.py": (15, MOTIVO),
+    "guyrapu/ui/preferencias_transmision.py": (12, MOTIVO),
     "guyrapu/ui/descargas_buscador.py": (13, MOTIVO),
-    "guyrapu/ui/gui_descargas.py": (13, MOTIVO),
+    "guyrapu/ui/gui_descargas.py": (7, MOTIVO),
     "guyrapu/ui/voces_ventana.py": (13, MOTIVO),
     "guyrapu/ui/gui_construccion.py": (12, MOTIVO),
     "guyrapu/ui/musica_ventana.py": (12, MOTIVO),
-    "guyrapu/ui/gui.py": (11, MOTIVO),
+    "guyrapu/ui/gui.py": (2, MOTIVO),
     "guyrapu/ui/preferencias_general.py": (10, MOTIVO),
-    "guyrapu/ui/escena_pagina_audio.py": (9, MOTIVO),
-    "guyrapu/ui/gui_comentarios.py": (9, MOTIVO),
-    "guyrapu/ui/obs_ventana.py": (8, MOTIVO),
+    "guyrapu/ui/escena_pagina_audio.py": (8, MOTIVO),
+    "guyrapu/ui/gui_comentarios.py": (8, MOTIVO),
+    "guyrapu/ui/obs_ventana.py": (2, MOTIVO),
     "guyrapu/ui/chat_participacion.py": (7, MOTIVO),
     "guyrapu/ui/preferencias_api.py": (7, MOTIVO),
     "guyrapu/ui/musica_filtros.py": (6, MOTIVO),
     "guyrapu/ui/restream_pagina_eventos.py": (6, MOTIVO),
     "guyrapu/ui/chat_buscar.py": (5, MOTIVO),
     "guyrapu/ui/descargas_listas.py": (5, MOTIVO),
-    "guyrapu/ui/encuadre_camara.py": (5, MOTIVO),
     "guyrapu/ui/escena_pagina_escena.py": (5, MOTIVO),
     "guyrapu/ui/gui_historial.py": (5, MOTIVO),
-    "guyrapu/ui/preferencias_comun.py": (5, MOTIVO),
-    "guyrapu/ui/preferencias_ia_clave.py": (5, MOTIVO),
+    "guyrapu/ui/preferencias_comun.py": (3, MOTIVO),
     "guyrapu/ui/preferencias_sonidos.py": (5, MOTIVO),
-    "guyrapu/ui/teclado_altgr.py": (5, MOTIVO),
     "guyrapu/ui/escena_pagina_fuentes.py": (4, MOTIVO),
-    "guyrapu/ui/escena_propiedades.py": (4, MOTIVO),
-    "guyrapu/ui/ia_ventana.py": (4, MOTIVO),
+    "guyrapu/ui/escena_propiedades.py": (1, MOTIVO),
+    "guyrapu/ui/ia_ventana.py": (2, MOTIVO),
     "guyrapu/ui/obs_pagina_general.py": (4, MOTIVO),
     "guyrapu/ui/preferencias_atajos.py": (4, MOTIVO),
-    "guyrapu/ui/recientes_inicio.py": (4, MOTIVO),
-    "guyrapu/ui/barra_estado.py": (3, MOTIVO),
-    "guyrapu/ui/barra_progreso.py": (3, MOTIVO),
-    "guyrapu/ui/encuesta_en_vivo.py": (3, MOTIVO),
-    "guyrapu/ui/gui_directo_youtube.py": (3, MOTIVO),
+    "guyrapu/ui/recientes_inicio.py": (3, MOTIVO),
     "guyrapu/ui/gui_transmision.py": (3, MOTIVO),
-    "guyrapu/ui/musica_sonoridad.py": (3, MOTIVO),
-    "guyrapu/ui/musica_ventana_igualando.py": (3, MOTIVO),
+    "guyrapu/ui/musica_ventana_igualando.py": (2, MOTIVO),
     "guyrapu/ui/obs_pagina_grabacion.py": (3, MOTIVO),
-    "guyrapu/ui/restream_pagina_perfiles.py": (3, MOTIVO),
-    "guyrapu/ui/ajuste_tono.py": (2, MOTIVO),
-    "guyrapu/ui/atajos_globales.py": (2, MOTIVO),
+    "guyrapu/ui/restream_pagina_perfiles.py": (2, MOTIVO),
     "guyrapu/ui/buscador_filtros.py": (2, MOTIVO),
-    "guyrapu/ui/escena_agregar_fuente.py": (2, MOTIVO),
     "guyrapu/ui/gui_redactar.py": (2, MOTIVO),
-    "guyrapu/ui/guia_encuadre.py": (2, MOTIVO),
     "guyrapu/ui/ia_agregar_captura.py": (2, MOTIVO),
     "guyrapu/ui/interaccion_ventana.py": (2, MOTIVO),
-    "guyrapu/ui/lista_acciones.py": (2, MOTIVO),
-    "guyrapu/ui/lista_chat.py": (2, MOTIVO),
-    "guyrapu/ui/meta_cuadro.py": (2, MOTIVO),
-    "guyrapu/ui/metas_en_vivo.py": (2, MOTIVO),
     "guyrapu/ui/obs_pagina_perfiles.py": (2, MOTIVO),
-    "guyrapu/ui/preferencias_eventos.py": (2, MOTIVO),
+    "guyrapu/ui/preferencias_eventos.py": (1, MOTIVO),
     "guyrapu/ui/restream_pagina_cuenta.py": (2, MOTIVO),
     "guyrapu/ui/restream_pagina_destinos.py": (2, MOTIVO),
     "guyrapu/ui/restream_perfil.py": (2, MOTIVO),
     "guyrapu/ui/restream_ventana.py": (2, MOTIVO),
-    "guyrapu/ui/aviso_progreso.py": (1, MOTIVO),
-    "guyrapu/ui/botonera_atajos.py": (1, MOTIVO),
-    "guyrapu/ui/busqueda_lista.py": (1, MOTIVO),
-    "guyrapu/ui/busqueda_teclado.py": (1, MOTIVO),
-    "guyrapu/ui/camara_atajos.py": (1, MOTIVO),
-    "guyrapu/ui/capa_video.py": (1, MOTIVO),
-    "guyrapu/ui/chat_recientes.py": (1, MOTIVO),
-    "guyrapu/ui/chat_vivo.py": (1, MOTIVO),
-    "guyrapu/ui/clave_elevenlabs.py": (1, MOTIVO),
-    "guyrapu/ui/comandos_en_vivo.py": (1, MOTIVO),
-    "guyrapu/ui/disparador_cuadro.py": (1, MOTIVO),
-    "guyrapu/ui/encuesta_cuadro.py": (1, MOTIVO),
-    "guyrapu/ui/escena_atajos.py": (1, MOTIVO),
-    "guyrapu/ui/escena_disenos.py": (1, MOTIVO),
-    "guyrapu/ui/espera_sonora.py": (1, MOTIVO),
     "guyrapu/ui/gui_grabaciones.py": (1, MOTIVO),
-    "guyrapu/ui/interaccion_atajos.py": (1, MOTIVO),
-    "guyrapu/ui/medio_descripcion_ia.py": (1, MOTIVO),
-    "guyrapu/ui/medios_ventana.py": (1, MOTIVO),
-    "guyrapu/ui/menu_reproductor.py": (1, MOTIVO),
-    "guyrapu/ui/musica_cola.py": (1, MOTIVO),
-    "guyrapu/ui/musica_editor_lista.py": (1, MOTIVO),
-    "guyrapu/ui/preferencias_ia_lista.py": (1, MOTIVO),
-    "guyrapu/ui/preguntas_en_vivo.py": (1, MOTIVO),
-    "guyrapu/ui/prueba_voz.py": (1, MOTIVO),
-    "guyrapu/ui/teclas_wx.py": (1, MOTIVO),
-    "guyrapu/ui/voces_instalacion.py": (1, MOTIVO),
 }
 
 PENDIENTES_TAMANOS: dict[str, tuple[int, str]] = {
-    "guyrapu/ui/gui.py": (12, MOTIVO),
-    "guyrapu/ui/obs_ventana.py": (8, MOTIVO),
-    "guyrapu/ui/gui_descargas.py": (7, MOTIVO),
-    "guyrapu/ui/encuadre_camara.py": (5, MOTIVO),
-    "guyrapu/ui/teclado_altgr.py": (5, MOTIVO),
-    "guyrapu/ui/gui_directo_youtube.py": (4, MOTIVO),
-    "guyrapu/ui/barra_estado.py": (3, MOTIVO),
-    "guyrapu/ui/barra_progreso.py": (3, MOTIVO),
-    "guyrapu/ui/encuesta_en_vivo.py": (3, MOTIVO),
-    "guyrapu/ui/escena_propiedades.py": (3, MOTIVO),
+    "guyrapu/ui/gui.py": (3, MOTIVO),
+    "guyrapu/ui/obs_ventana.py": (2, MOTIVO),
+    "guyrapu/ui/gui_descargas.py": (1, MOTIVO),
+    "guyrapu/ui/gui_directo_youtube.py": (1, MOTIVO),
     "guyrapu/ui/gui_preferencias.py": (3, MOTIVO),
-    "guyrapu/ui/musica_sonoridad.py": (3, MOTIVO),
-    "guyrapu/ui/preferencias_transmision.py": (3, MOTIVO),
-    "guyrapu/ui/ajuste_tono.py": (2, MOTIVO),
-    "guyrapu/ui/atajos_globales.py": (2, MOTIVO),
     "guyrapu/ui/dialogo_asistente_perfiles.py": (2, MOTIVO),
     "guyrapu/ui/dialogo_prueba_conexion.py": (2, MOTIVO),
     "guyrapu/ui/dialogo_prueba_equipo.py": (2, MOTIVO),
-    "guyrapu/ui/encuesta_cuadro.py": (2, MOTIVO),
-    "guyrapu/ui/escena_agregar_fuente.py": (2, MOTIVO),
-    "guyrapu/ui/escena_pagina_audio.py": (2, MOTIVO),
+    "guyrapu/ui/encuesta_cuadro.py": (1, MOTIVO),
+    "guyrapu/ui/escena_pagina_audio.py": (1, MOTIVO),
     "guyrapu/ui/gui_construccion.py": (2, MOTIVO),
     "guyrapu/ui/gui_microfono.py": (2, MOTIVO),
-    "guyrapu/ui/guia_encuadre.py": (2, MOTIVO),
     "guyrapu/ui/ia_agregar_captura.py": (2, MOTIVO),
-    "guyrapu/ui/ia_ventana.py": (2, MOTIVO),
-    "guyrapu/ui/lista_acciones.py": (2, MOTIVO),
-    "guyrapu/ui/lista_chat.py": (2, MOTIVO),
-    "guyrapu/ui/meta_cuadro.py": (2, MOTIVO),
-    "guyrapu/ui/metas_en_vivo.py": (2, MOTIVO),
-    "guyrapu/ui/musica_editor_lista.py": (2, MOTIVO),
+    "guyrapu/ui/musica_editor_lista.py": (1, MOTIVO),
     "guyrapu/ui/musica_filtros.py": (2, MOTIVO),
     "guyrapu/ui/musica_ventana.py": (2, MOTIVO),
-    "guyrapu/ui/preferencias_comun.py": (2, MOTIVO),
     "guyrapu/ui/voces_ventana.py": (2, MOTIVO),
-    "guyrapu/ui/aviso_progreso.py": (1, MOTIVO),
-    "guyrapu/ui/botonera_atajos.py": (1, MOTIVO),
-    "guyrapu/ui/busqueda_lista.py": (1, MOTIVO),
-    "guyrapu/ui/busqueda_teclado.py": (1, MOTIVO),
-    "guyrapu/ui/camara_atajos.py": (1, MOTIVO),
-    "guyrapu/ui/capa_video.py": (1, MOTIVO),
     "guyrapu/ui/chat_buscar.py": (1, MOTIVO),
     "guyrapu/ui/chat_participacion.py": (1, MOTIVO),
-    "guyrapu/ui/chat_recientes.py": (1, MOTIVO),
-    "guyrapu/ui/chat_vivo.py": (1, MOTIVO),
-    "guyrapu/ui/clave_elevenlabs.py": (1, MOTIVO),
-    "guyrapu/ui/comandos_en_vivo.py": (1, MOTIVO),
     "guyrapu/ui/descargas_buscador.py": (1, MOTIVO),
-    "guyrapu/ui/disparador_cuadro.py": (1, MOTIVO),
     "guyrapu/ui/ensayo_ventana.py": (1, MOTIVO),
-    "guyrapu/ui/escena_atajos.py": (1, MOTIVO),
-    "guyrapu/ui/escena_disenos.py": (1, MOTIVO),
     "guyrapu/ui/escena_pagina_escena.py": (1, MOTIVO),
     "guyrapu/ui/escena_pagina_fuentes.py": (1, MOTIVO),
-    "guyrapu/ui/espera_sonora.py": (1, MOTIVO),
     "guyrapu/ui/gui_actualizacion.py": (1, MOTIVO),
-    "guyrapu/ui/gui_comentarios.py": (1, MOTIVO),
     "guyrapu/ui/gui_historial.py": (1, MOTIVO),
-    "guyrapu/ui/interaccion_atajos.py": (1, MOTIVO),
     "guyrapu/ui/interaccion_ventana.py": (1, MOTIVO),
-    "guyrapu/ui/medio_descripcion_ia.py": (1, MOTIVO),
-    "guyrapu/ui/medios_ventana.py": (1, MOTIVO),
-    "guyrapu/ui/menu_reproductor.py": (1, MOTIVO),
-    "guyrapu/ui/musica_cola.py": (1, MOTIVO),
-    "guyrapu/ui/musica_ventana_igualando.py": (1, MOTIVO),
     "guyrapu/ui/obs_pagina_general.py": (1, MOTIVO),
-    "guyrapu/ui/preferencias_eventos.py": (1, MOTIVO),
-    "guyrapu/ui/preferencias_ia.py": (1, MOTIVO),
-    "guyrapu/ui/preferencias_ia_lista.py": (1, MOTIVO),
     "guyrapu/ui/preferencias_sonidos.py": (1, MOTIVO),
-    "guyrapu/ui/preguntas_en_vivo.py": (1, MOTIVO),
-    "guyrapu/ui/prueba_voz.py": (1, MOTIVO),
-    "guyrapu/ui/recientes_inicio.py": (1, MOTIVO),
-    "guyrapu/ui/restream_pagina_perfiles.py": (1, MOTIVO),
     "guyrapu/ui/restream_perfil.py": (1, MOTIVO),
     "guyrapu/ui/restream_ventana.py": (1, MOTIVO),
-    "guyrapu/ui/teclas_wx.py": (1, MOTIVO),
     "guyrapu/ui/ventana_espera.py": (1, MOTIVO),
-    "guyrapu/ui/voces_instalacion.py": (1, MOTIVO),
 }
 
 PENDIENTES_FUENTES: dict[str, tuple[int, str]] = {}
