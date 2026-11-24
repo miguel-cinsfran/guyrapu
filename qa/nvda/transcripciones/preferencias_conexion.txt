@@ -1,5 +1,5 @@
-tecla=tab fase=ida dijo='Espera máxima entre intentos, en segundos: edición Alt+ e seleccionado 10' foco={nombre='Espera máxima entre intentos, en segundos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='10', atajo='Alt+e'}
-tecla=tab fase=ida dijo='Número máximo de intentos: edición Alt+ i seleccionado 5' foco={nombre='Número máximo de intentos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='5', atajo='Alt+i'}
+tecla=tab fase=ida dijo='Espera máxima entre intentos, en segundos: edición Alt+ e seleccionado 15' foco={nombre='Espera máxima entre intentos, en segundos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='15', atajo='Alt+e'}
+tecla=tab fase=ida dijo='Número máximo de intentos: edición Alt+ i seleccionado 20' foco={nombre='Número máximo de intentos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='20', atajo='Alt+i'}
 tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=tab fase=ida dijo='Categorías lista Conexión 11 de 18' foco={nombre='Conexión', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
@@ -7,6 +7,6 @@ tecla=tab fase=ida dijo='Reconectar automáticamente casilla de verificación ma
 tecla=shift+tab fase=vuelta dijo='Categorías lista Conexión 11 de 18' foco={nombre='Conexión', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=vuelta dijo='Número máximo de intentos: edición Alt+ i seleccionado 5' foco={nombre='Número máximo de intentos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='5', atajo='Alt+i'}
-tecla=shift+tab fase=vuelta dijo='Espera máxima entre intentos, en segundos: edición Alt+ e seleccionado 10' foco={nombre='Espera máxima entre intentos, en segundos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='10', atajo='Alt+e'}
+tecla=shift+tab fase=vuelta dijo='Número máximo de intentos: edición Alt+ i seleccionado 20' foco={nombre='Número máximo de intentos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='20', atajo='Alt+i'}
+tecla=shift+tab fase=vuelta dijo='Espera máxima entre intentos, en segundos: edición Alt+ e seleccionado 15' foco={nombre='Espera máxima entre intentos, en segundos:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='15', atajo='Alt+e'}
 tecla=shift+tab fase=vuelta dijo='Reconectar automáticamente casilla de verificación marcado Alt+ r' foco={nombre='Reconectar automáticamente', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+r'}

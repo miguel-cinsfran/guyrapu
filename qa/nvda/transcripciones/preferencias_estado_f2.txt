@@ -22,7 +22,7 @@ tecla=tab fase=ida dijo='Escena actual en OBS casilla de verificación sin marca
 tecla=tab fase=ida dijo='Música que suena casilla de verificación marcado' foco={nombre='Música que suena', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Igualación del volumen de la música casilla de verificación marcado' foco={nombre='Igualación del volumen de la música', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Encuadre de cámara casilla de verificación marcado' foco={nombre='Encuadre de cámara', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Cuota de YouTube usada hoy casilla de verificación marcado' foco={nombre='Cuota de YouTube usada hoy', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Cuota de YouTube usada hoy casilla de verificación sin marcar' foco={nombre='Cuota de YouTube usada hoy', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=tab fase=ida dijo='Categorías lista Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
@@ -30,7 +30,7 @@ tecla=tab fase=ida dijo='Estado de conexión y tipo casilla de verificación mar
 tecla=shift+tab fase=vuelta dijo='Categorías lista Estado (F2) 10 de 18' foco={nombre='Estado (F2)', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=vuelta dijo='Cuota de YouTube usada hoy casilla de verificación marcado' foco={nombre='Cuota de YouTube usada hoy', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Cuota de YouTube usada hoy casilla de verificación sin marcar' foco={nombre='Cuota de YouTube usada hoy', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Encuadre de cámara casilla de verificación marcado' foco={nombre='Encuadre de cámara', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Igualación del volumen de la música casilla de verificación marcado' foco={nombre='Igualación del volumen de la música', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Música que suena casilla de verificación marcado' foco={nombre='Música que suena', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo=''}

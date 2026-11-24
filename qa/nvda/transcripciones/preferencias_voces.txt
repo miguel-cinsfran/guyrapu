@@ -1,36 +1,32 @@
-tecla=tab fase=ida dijo='Voz principal: cuadro combinado Microsoft Sabina contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Sabina', atajo='Alt+v'}
+tecla=tab fase=ida dijo='Voz principal: cuadro combinado Microsoft Helena Desktop - Spanish (Spain) contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Helena Desktop - Spanish (Spain)', atajo='Alt+v'}
 tecla=tab fase=ida dijo='Administrar voces… botón Alt+ n' foco={nombre='Administrar voces…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
 tecla=tab fase=ida dijo='Salida de audio de la voz (Phonon y Piper): cuadro combinado Salida predeterminada contraído Alt+ h' foco={nombre='Salida de audio de la voz (Phonon y Piper):', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Salida predeterminada', atajo='Alt+h'}
-tecla=tab fase=ida dijo='Velocidad de la voz deslizador 100 Alt+ l' foco={nombre='Velocidad de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+l'}
+tecla=tab fase=ida dijo='Velocidad de la voz deslizador 50 Alt+ l' foco={nombre='Velocidad de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+l'}
 tecla=tab fase=ida dijo='Volumen de la voz deslizador 100 Alt+ u' foco={nombre='Volumen de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+u'}
 tecla=tab fase=ida dijo='Tono de la voz deslizador 50 Alt+ t' foco={nombre='Tono de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+t'}
 tecla=tab fase=ida dijo='Probar voz botón Alt+ p' foco={nombre='Probar voz', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
-tecla=tab fase=ida dijo='Voz de Windows de respaldo: cuadro combinado SAPI2SR contraído Alt+ w' foco={nombre='Voz de Windows de respaldo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='SAPI2SR', atajo='Alt+w'}
 tecla=tab fase=ida dijo='Voz secundaria agrupación Motor de voz: cuadro combinado Igual que la voz principal contraído Alt+ z' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Igual que la voz principal', atajo='Alt+z'}
-tecla=tab fase=ida dijo='Voz: cuadro combinado Microsoft Raul contraído' foco={nombre='Voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Raul', atajo=''}
+tecla=tab fase=ida dijo='Voz: cuadro combinado Igual que la voz principal contraído' foco={nombre='Voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Igual que la voz principal', atajo=''}
 tecla=tab fase=ida dijo='Velocidad de la voz secundaria deslizador 50 Alt+ d' foco={nombre='Velocidad de la voz secundaria', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+d'}
 tecla=tab fase=ida dijo='Volumen de la voz secundaria deslizador 100 Alt+ e' foco={nombre='Volumen de la voz secundaria', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+e'}
 tecla=tab fase=ida dijo='Probar voz secundaria botón Alt+ r' foco={nombre='Probar voz secundaria', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
-tecla=tab fase=ida dijo='Voz de Windows de respaldo: cuadro combinado Igual que el respaldo de la voz principal contraído Alt+ i' foco={nombre='Voz de Windows de respaldo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Igual que el respaldo de la voz principal', atajo='Alt+i'}
 tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=tab fase=ida dijo='Categorías lista Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Motor de voz: cuadro combinado Windows OneCore contraído Alt+ m' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Windows OneCore', atajo='Alt+m'}
+tecla=tab fase=ida dijo='Motor de voz: cuadro combinado Windows SAPI 5 contraído Alt+ m' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Windows SAPI 5', atajo='Alt+m'}
 tecla=shift+tab fase=vuelta dijo='Categorías lista Voces 5 de 18' foco={nombre='Voces', rol='LISTITEM', estados=['FOCUSABLE', 'SELECTABLE', 'SELECTED'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
-tecla=shift+tab fase=vuelta dijo='Voz secundaria agrupación Voz de Windows de respaldo: cuadro combinado Igual que el respaldo de la voz principal contraído Alt+ i' foco={nombre='Voz de Windows de respaldo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Igual que el respaldo de la voz principal', atajo='Alt+i'}
-tecla=shift+tab fase=vuelta dijo='Probar voz secundaria botón Alt+ r' foco={nombre='Probar voz secundaria', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
+tecla=shift+tab fase=vuelta dijo='Voz secundaria agrupación Probar voz secundaria botón Alt+ r' foco={nombre='Probar voz secundaria', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=shift+tab fase=vuelta dijo='Volumen de la voz secundaria deslizador 100 Alt+ e' foco={nombre='Volumen de la voz secundaria', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+e'}
 tecla=shift+tab fase=vuelta dijo='Velocidad de la voz secundaria deslizador 50 Alt+ d' foco={nombre='Velocidad de la voz secundaria', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+d'}
-tecla=shift+tab fase=vuelta dijo='Voz: cuadro combinado Microsoft Raul contraído' foco={nombre='Voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Raul', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Voz: cuadro combinado Igual que la voz principal contraído' foco={nombre='Voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Igual que la voz principal', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Motor de voz: cuadro combinado Igual que la voz principal contraído Alt+ z' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Igual que la voz principal', atajo='Alt+z'}
-tecla=shift+tab fase=vuelta dijo='Voz de Windows de respaldo: cuadro combinado SAPI2SR contraído Alt+ w' foco={nombre='Voz de Windows de respaldo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='SAPI2SR', atajo='Alt+w'}
 tecla=shift+tab fase=vuelta dijo='Probar voz botón Alt+ p' foco={nombre='Probar voz', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
 tecla=shift+tab fase=vuelta dijo='Tono de la voz deslizador 50 Alt+ t' foco={nombre='Tono de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+t'}
 tecla=shift+tab fase=vuelta dijo='Volumen de la voz deslizador 100 Alt+ u' foco={nombre='Volumen de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+u'}
-tecla=shift+tab fase=vuelta dijo='Velocidad de la voz deslizador 100 Alt+ l' foco={nombre='Velocidad de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='100', atajo='Alt+l'}
+tecla=shift+tab fase=vuelta dijo='Velocidad de la voz deslizador 50 Alt+ l' foco={nombre='Velocidad de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+l'}
 tecla=shift+tab fase=vuelta dijo='Salida de audio de la voz (Phonon y Piper): cuadro combinado Salida predeterminada contraído Alt+ h' foco={nombre='Salida de audio de la voz (Phonon y Piper):', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Salida predeterminada', atajo='Alt+h'}
 tecla=shift+tab fase=vuelta dijo='Administrar voces… botón Alt+ n' foco={nombre='Administrar voces…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
-tecla=shift+tab fase=vuelta dijo='Voz principal: cuadro combinado Microsoft Sabina contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Sabina', atajo='Alt+v'}
-tecla=shift+tab fase=vuelta dijo='Motor de voz: cuadro combinado Windows OneCore contraído Alt+ m' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Windows OneCore', atajo='Alt+m'}
+tecla=shift+tab fase=vuelta dijo='Voz principal: cuadro combinado Microsoft Helena Desktop - Spanish (Spain) contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Helena Desktop - Spanish (Spain)', atajo='Alt+v'}
+tecla=shift+tab fase=vuelta dijo='Motor de voz: cuadro combinado Windows SAPI 5 contraído Alt+ m' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Windows SAPI 5', atajo='Alt+m'}

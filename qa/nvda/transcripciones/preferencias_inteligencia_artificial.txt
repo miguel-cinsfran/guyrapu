@@ -1,7 +1,7 @@
 tecla=tab fase=ida dijo='Clave: edición contraseña Alt+ v en blanco' foco={nombre='Clave:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'PROTECTED'], valor='', atajo='Alt+v'}
 tecla=tab fase=ida dijo='Guardar clave botón Alt+ u' foco={nombre='Guardar clave', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+u'}
 tecla=tab fase=ida dijo='Comprobar clave botón Alt+ b' foco={nombre='Comprobar clave', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+b'}
-tecla=tab fase=ida dijo='Modelo: cuadro combinado Gemini 2.5 Flash contraído Alt+ m' foco={nombre='Modelo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Gemini 2.5 Flash', atajo='Alt+m'}
+tecla=tab fase=ida dijo='Modelo: cuadro combinado contraído Alt+ m' foco={nombre='Modelo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='', atajo='Alt+m'}
 tecla=tab fase=ida dijo='Actualizar lista de modelos botón Alt+ a' foco={nombre='Actualizar lista de modelos', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
 tecla=tab fase=ida dijo='Otro modelo: edición Alt+ o en blanco' foco={nombre='Otro modelo:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='', atajo='Alt+o'}
 tecla=tab fase=ida dijo='Instrucción para las capturas: edición multilínea Alt+ i en blanco' foco={nombre='Instrucción para las capturas:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'MULTILINE'], valor='', atajo='Alt+i'}
@@ -23,7 +23,7 @@ tecla=shift+tab fase=vuelta dijo='Restablecer instrucción botón Alt+ e' foco={
 tecla=shift+tab fase=vuelta dijo='Instrucción para las capturas: edición multilínea Alt+ i en blanco' foco={nombre='Instrucción para las capturas:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'MULTILINE'], valor='', atajo='Alt+i'}
 tecla=shift+tab fase=vuelta dijo='Otro modelo: edición Alt+ o en blanco' foco={nombre='Otro modelo:', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='', atajo='Alt+o'}
 tecla=shift+tab fase=vuelta dijo='Actualizar lista de modelos botón Alt+ a' foco={nombre='Actualizar lista de modelos', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
-tecla=shift+tab fase=vuelta dijo='Modelo: cuadro combinado Gemini 2.5 Flash contraído Alt+ m' foco={nombre='Modelo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Gemini 2.5 Flash', atajo='Alt+m'}
+tecla=shift+tab fase=vuelta dijo='Modelo: cuadro combinado contraído Alt+ m' foco={nombre='Modelo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='', atajo='Alt+m'}
 tecla=shift+tab fase=vuelta dijo='Comprobar clave botón Alt+ b' foco={nombre='Comprobar clave', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+b'}
 tecla=shift+tab fase=vuelta dijo='Guardar clave botón Alt+ u' foco={nombre='Guardar clave', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+u'}
 tecla=shift+tab fase=vuelta dijo='Clave: edición contraseña Alt+ v en blanco' foco={nombre='Clave:', rol='EDITABLETEXT', estados=['FOCUSABLE', 'PROTECTED'], valor='', atajo='Alt+v'}

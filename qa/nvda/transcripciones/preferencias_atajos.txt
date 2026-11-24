@@ -81,7 +81,7 @@ tecla=tab fase=ida dijo='Leer el mensaje 8 desde el final del chat: Ctrl+Mayús+
 tecla=tab fase=ida dijo='Leer el mensaje 9 desde el final del chat: Ctrl+Mayús+9 (fija) botón' foco={nombre='Leer el mensaje 9 desde el final del chat: Ctrl+Mayús+9 (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Leer el mensaje 10 desde el final del chat: Ctrl+Mayús+0 (fija) botón' foco={nombre='Leer el mensaje 10 desde el final del chat: Ctrl+Mayús+0 (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo="Filtro anterior del chat: Ctrl+Mayús+' (fija) botón" foco={nombre="Filtro anterior del chat: Ctrl+Mayús+' (fija)", rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
-tecla=tab fase=ida dijo='Filtro siguiente del chat: Ctrl+Mayús+¡ (fija) botón' foco={nombre='Filtro siguiente del chat: Ctrl+Mayús+¡ (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
+tecla=tab fase=ida dijo='Filtro siguiente del chat: Ctrl+Mayús+¿ (fija) botón' foco={nombre='Filtro siguiente del chat: Ctrl+Mayús+¿ (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=tab fase=ida dijo='Restablecer atajos de fábrica botón Alt+ r' foco={nombre='Restablecer atajos de fábrica', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=tab fase=ida dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
@@ -91,7 +91,7 @@ tecla=shift+tab fase=vuelta dijo='Categorías lista Atajos 4 de 18' foco={nombre
 tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=shift+tab fase=vuelta dijo='Guardar botón Alt+ g' foco={nombre='Guardar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+g'}
 tecla=shift+tab fase=vuelta dijo='Restablecer atajos de fábrica botón Alt+ r' foco={nombre='Restablecer atajos de fábrica', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
-tecla=shift+tab fase=vuelta dijo='Recientes y filtro del chat (fijos) agrupación Filtro siguiente del chat: Ctrl+Mayús+¡ (fija) botón' foco={nombre='Filtro siguiente del chat: Ctrl+Mayús+¡ (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
+tecla=shift+tab fase=vuelta dijo='Recientes y filtro del chat (fijos) agrupación Filtro siguiente del chat: Ctrl+Mayús+¿ (fija) botón' foco={nombre='Filtro siguiente del chat: Ctrl+Mayús+¿ (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo="Filtro anterior del chat: Ctrl+Mayús+' (fija) botón" foco={nombre="Filtro anterior del chat: Ctrl+Mayús+' (fija)", rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Leer el mensaje 10 desde el final del chat: Ctrl+Mayús+0 (fija) botón' foco={nombre='Leer el mensaje 10 desde el final del chat: Ctrl+Mayús+0 (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}
 tecla=shift+tab fase=vuelta dijo='Leer el mensaje 9 desde el final del chat: Ctrl+Mayús+9 (fija) botón' foco={nombre='Leer el mensaje 9 desde el final del chat: Ctrl+Mayús+9 (fija)', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo=''}

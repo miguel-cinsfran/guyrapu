@@ -3,6 +3,7 @@ tecla=tab fase=ida dijo='Agregar botón Alt+ g' foco={nombre='Agregar', rol='BUT
 tecla=tab fase=ida dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
 tecla=tab fase=ida dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+d'}
 tecla=tab fase=ida dijo='Escuchar botón Alt+ h' foco={nombre='Escuchar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+h'}
+tecla=tab fase=ida dijo='Crear comando botón Alt+ o' foco={nombre='Crear comando', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+o'}
 tecla=tab fase=ida dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
 tecla=tab fase=ida dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=tab fase=ida dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
@@ -20,6 +21,7 @@ tecla=shift+tab fase=vuelta dijo='Abrir carpeta botón Alt+ a' foco={nombre='Abr
 tecla=shift+tab fase=vuelta dijo='Importar botón Alt+ i' foco={nombre='Importar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+i'}
 tecla=shift+tab fase=vuelta dijo='Exportar botón Alt+ r' foco={nombre='Exportar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=shift+tab fase=vuelta dijo='Eliminar botón Alt+ l' foco={nombre='Eliminar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+l'}
+tecla=shift+tab fase=vuelta dijo='Crear comando botón Alt+ o' foco={nombre='Crear comando', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+o'}
 tecla=shift+tab fase=vuelta dijo='Escuchar botón Alt+ h' foco={nombre='Escuchar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+h'}
 tecla=shift+tab fase=vuelta dijo='Duplicar botón Alt+ d' foco={nombre='Duplicar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+d'}
 tecla=shift+tab fase=vuelta dijo='Editar botón Alt+ e' foco={nombre='Editar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+e'}
