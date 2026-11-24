@@ -62,12 +62,11 @@ class PaginaMusica:
         self._musica_anuncios(p, vs)
         self._musica_audio(p, vs)
         self._musica_atajos(p, vs)
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def _musica_carpeta(self, p, vs):
-        vs.Add(fila_label(p, _("Carpeta de &música:")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("Carpeta de &música:"))
         carpeta = str(self._config.get("musica_carpeta", "") or "")
         self.dir_musica_carpeta = wx.DirPickerCtrl(
             p, path=carpeta, name=_("Carpeta de música"),
@@ -78,68 +77,65 @@ class PaginaMusica:
         if hasattr(self.dir_musica_carpeta, "GetTextCtrl"):
             nombre_accesible(self.dir_musica_carpeta.GetTextCtrl(),
                              _("Carpeta de música"))
-        vs.Add(self.dir_musica_carpeta, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.dir_musica_carpeta)
 
     def _musica_orden(self, p, vs):
         self.chk_musica_aleatorio = wx.CheckBox(
             p, label=_("Orden &aleatorio"),
             name="MusicaAleatorio")
         self.chk_musica_aleatorio.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_aleatorio, 0, wx.ALL, 10)
+        formulario.agregar_casillas(vs, (self.chk_musica_aleatorio,))
 
-        vs.Add(fila_label(p, _("&Repetir:")), 0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Repetir:"))
         # Traductores: opción de no repetir la música.
         self.chk_musica_repetir = EleccionTexto(
             p, (("no", _("No")), ("todo", _("Toda la cola")),
                  ("tema", _("Esta canción"))),
             normalizar=cfg.normalizar_repetir, name=_("Repetir la música"))
         _tc(self.chk_musica_repetir)
-        vs.Add(self.chk_musica_repetir, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.chk_musica_repetir)
 
         self.chk_musica_retomar = wx.CheckBox(
             p, label=_("Recordar ú&ltima lista al abrir"),
             name="MusicaRetomar")
         self.chk_musica_retomar.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_retomar, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_musica_retomar,))
 
-        vs.Add(fila_label(p, _("&Fundido entre canciones, en segundos:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Fundido entre canciones, en segundos:"))
         self.sp_musica_cruce = ContadorAccesible(
             p, min=0, max=12,
             name=_("Fundido entre canciones, en segundos"))
-        vs.Add(self.sp_musica_cruce, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_musica_cruce, numerico=True)
 
     def _musica_anuncios(self, p, vs):
-        vs.Add(fila_label(p, _("Anunciar al cambiar &de canción:")), 0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Anunciar al cambiar &de canción:"))
         # Traductores: no decir nada al cambiar de canción.
         self.cho_musica_decir = EleccionTexto(
             p, (("nada", _("Nada")), ("titulo", _("El título")),
                 ("titulo_artista", _("El título y el artista")), ("artista", _("Solo el artista"))),
             normalizar=musica_decir.normalizar, name=_("Anunciar al cambiar de canción"))
         _tc(self.cho_musica_decir)
-        vs.Add(self.cho_musica_decir, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_musica_decir)
         self.chk_musica_decir_pausa = wx.CheckBox(
             p, label=_("A&nunciar pausa, reanudación y vuelta al comienzo"),
             name="MusicaDecirPausa")
         self.chk_musica_decir_pausa.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_decir_pausa, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_musica_decir_pausa,))
 
     def _musica_audio(self, p, vs):
-        vs.Add(fila_label(p, _("&Volumen de la música:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Volumen de la música:"))
         self.sp_musica_volumen = deslizador_accesible(
             p, minimo=0, maximo=100, inicial=0, paso=1,
             nombre=_("Volumen de la música"))
-        vs.Add(self.sp_musica_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_musica_volumen,
+                                expandir=False)
 
         self._casilla_igualar(p, vs)
         self._atenuacion(p, vs)
 
         # Al abrir no se consulta VLC: la lista se arma solo con la salida
         # guardada (o la predeterminada) y se completa con el botón.
-        vs.Add(fila_label(p, _("Salida de a&udio de la música:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Salida de a&udio de la música:"))
         etiquetas, identificadores, seleccion = opciones_musica.opciones_salida(
             str(self._config.get("musica_salida", "") or ""),
             str(self._config.get("musica_salida_nombre", "") or ""), [])
@@ -147,12 +143,13 @@ class PaginaMusica:
         self.cho_musica_salida = wx.Choice(
             p, choices=etiquetas, name=_("Salida de audio de la música"))
         self.cho_musica_salida.SetSelection(seleccion)
-        vs.Add(self.cho_musica_salida, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_musica_salida)
 
         self.btn_buscar_salidas = wx.Button(
             p, label=_("&Buscar salidas de audio"),
             name=_("Buscar salidas de audio"))
-        vs.Add(self.btn_buscar_salidas, 0, wx.ALL, 10)
+        formulario.agregar_fila(vs, None, self.btn_buscar_salidas,
+                                expandir=False)
         self.btn_buscar_salidas.Bind(wx.EVT_BUTTON, self._buscar_salidas)
 
     def _casilla_igualar(self, p, vs):
@@ -160,14 +157,13 @@ class PaginaMusica:
             p, label=_("&Igualar volumen de las canciones"),
             name=_("Igualar volumen de las canciones"))
         self.chk_musica_normalizar.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_normalizar, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         self.chk_musica_preguntar_igualar = wx.CheckBox(
             p, label=_("Pr&eguntar al abrir Música si igualar el volumen"),
             name=_("Preguntar al abrir Música si igualar el volumen"))
         self.chk_musica_preguntar_igualar.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_preguntar_igualar, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (
+            self.chk_musica_normalizar, self.chk_musica_preguntar_igualar))
 
     def _atenuacion(self, p, vs):
         rotulo = fila_label(p, _("V&olumen de la música al bajarla:"))
@@ -192,15 +188,14 @@ class PaginaMusica:
             p, label=_("Usar atajos de música en cualquier a&plicación"),
             name="MusicaAtajosGlobales")
         self.chk_musica_atajos_globales.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_atajos_globales, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         self.chk_musica_teclas_multimedia = wx.CheckBox(
             p, label=_("Usar &teclas multimedia del teclado"),
             name=_("Usar teclas multimedia del teclado"))
         self.chk_musica_teclas_multimedia.SetForegroundColour(_T.text)
-        vs.Add(self.chk_musica_teclas_multimedia, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (
+            self.chk_musica_atajos_globales,
+            self.chk_musica_teclas_multimedia))
 
     def _buscar_salidas(self, event):
         # Consultar libVLC puede tardar, por eso nunca corre en la interfaz.

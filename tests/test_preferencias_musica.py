@@ -66,6 +66,16 @@ class TestPseudoMusica(unittest.TestCase):
             dialogo._on_guardar(None)
         self.assertEqual(dialogo._config["musica_volumen"], 75)
 
+    def test_el_fundido_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        dialogo = self._dialogo()
+        panel = dialogo.pagina_musica.sp_musica_cruce.GetParent()
+        panel.Layout()
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, wx.StaticText)
+                    and h.GetLabel() == "&Fundido entre canciones, en segundos:"][0]
+        self.assertEqual(
+            dialogo.sp_musica_cruce.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().GetHeight()), 4)
 
     def test_las_casillas_de_atenuacion_salen_del_registro_y_se_guardan(self):
         dialogo = self._dialogo()

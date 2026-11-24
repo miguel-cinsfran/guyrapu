@@ -60,6 +60,18 @@ class TestPaginaCamara(unittest.TestCase):
         self.assertEqual(lista.GetStrings(), ["Normal", "Cálido", "8 bits"])
         self.assertEqual(lista.GetSelection(), 0)
 
+    def test_la_camara_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        dialogo = self._dialogo({})
+        lista = dialogo.pagina_camara.cho_camara_obs
+        panel = lista.GetParent()
+        panel.Layout()
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, preferencias_camara.wx.StaticText)
+                    and h.GetLabel() == "Cá&mara de OBS:"][0]
+        self.assertEqual(
+            lista.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().GetHeight()), 4)
+
     def test_la_lista_conserva_el_timbre_guardado(self):
         dialogo = self._dialogo({"guia_timbre": "calido"})
         self.assertEqual(
@@ -139,6 +151,16 @@ class TestPaginaCamara(unittest.TestCase):
                       dialogo.pagina_camara.chk_escena_atajos_globales)
         self.assertIs(hijos[-2],
                       dialogo.pagina_camara.chk_camara_atajos_globales)
+
+    def test_la_casilla_de_escena_empieza_debajo_de_la_de_camara(self):
+        dialogo = self._dialogo({})
+        camara = dialogo.pagina_camara.chk_camara_atajos_globales
+        escena = dialogo.pagina_camara.chk_escena_atajos_globales
+        panel = camara.GetParent()
+        panel.Layout()
+        self.assertEqual(escena.GetPosition().x, camara.GetPosition().x)
+        self.assertGreater(escena.GetPosition().y,
+                           camara.GetPosition().y + camara.GetSize().height)
 
     def test_la_casilla_muestra_el_valor_guardado(self):
         dialogo = self._dialogo({"camara_atajos_globales": True})

@@ -14,6 +14,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
 from guyrapu.obs import obs_camara
 from guyrapu.obs import obs_cliente
+from guyrapu.ui import formulario
 from guyrapu.ui.agregar_camara import cerrar_cliente
 from guyrapu.ui.preferencias_comun import (
     crear_panel, fila_label, opciones_con_elegida)
@@ -68,7 +69,7 @@ class PaginaCamara:
         self._invertir(p, vs)
         self._sonido(p, vs)
         self._atajos_globales(p, vs)
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         p.Bind(wx.EVT_SHOW, self._al_mostrar)
         return p
 
@@ -78,18 +79,17 @@ class PaginaCamara:
             name="AvisarEncuadre")
         self.chk_avisar_encuadre.SetValue(
             bool(self._config.get("avisar_encuadre", False)))
-        vs.Add(self.chk_avisar_encuadre, 0, wx.ALL, 10)
+        formulario.agregar_casillas(vs, (self.chk_avisar_encuadre,))
 
     def _camara(self, p, vs):
-        vs.Add(fila_label(p, _("Cá&mara de OBS:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Cá&mara de OBS:"))
         guardada = str(self._config.get("camara_fuente", "") or "")
         opciones = opciones_con_elegida(
             _("Elegir automáticamente"), guardada, [])
         self.cho_camara_obs = wx.Choice(
             p, choices=opciones, name=_("Cámara de OBS"))
         self.cho_camara_obs.SetSelection(1 if guardada else 0)
-        vs.Add(self.cho_camara_obs, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_camara_obs)
 
     def _invertir(self, p, vs):
         self.chk_invertir_camara = wx.CheckBox(
@@ -97,18 +97,17 @@ class PaginaCamara:
             name="InvertirCamara")
         self.chk_invertir_camara.SetValue(
             bool(self._config.get("camara_invertir", False)))
-        vs.Add(self.chk_invertir_camara, 0, wx.ALL, 10)
+        formulario.agregar_casillas(vs, (self.chk_invertir_camara,))
 
     def _sonido(self, p, vs):
-        vs.Add(fila_label(p, _("&Sonido de la guía:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Sonido de la guía:"))
         timbre = tono_guia.normalizar_timbre(
             self._config.get("guia_timbre", "normal"))
         self.cho_sonido_guia = wx.Choice(
             p, choices=[_("Normal"), _("Cálido"), _("8 bits")],
             name=_("Sonido de la guía"))
         self.cho_sonido_guia.SetSelection(tono_guia.TIMBRES.index(timbre))
-        vs.Add(self.cho_sonido_guia, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_sonido_guia)
         self.cho_sonido_guia.Bind(wx.EVT_CHOICE, self._elegir_sonido)
 
     def _atajos_globales(self, p, vs):
@@ -116,14 +115,12 @@ class PaginaCamara:
             p, self._config.get("camara_atajos_globales", False),
             _("Usar atajos de cámara en cualquier a&plicación"),
             "CamaraAtajosGlobales")
-        vs.Add(self.chk_camara_atajos_globales, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_camara_atajos_globales,))
         self.chk_escena_atajos_globales = _casilla_atajos_globales(
             p, self._config.get("escena_atajos_globales", False),
             _("&Describir la escena y consultar a la IA en cualquier aplicación"),
             "EscenaAtajosGlobales")
-        vs.Add(self.chk_escena_atajos_globales, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_escena_atajos_globales,))
 
     def _elegir_sonido(self, event):
         timbre = tono_guia.TIMBRES[self.cho_sonido_guia.GetSelection()]
