@@ -69,6 +69,30 @@ class TestAgregar(BaseMedios):
         self.assertFalse(copia.exists())
 
 
+class TestVolumen(BaseMedios):
+
+    def test_un_medio_sin_volumen_vuelve_con_cien(self):
+        self.assertEqual(
+            medios_guardados.normalizar(_datos())["volumen"], 100)
+
+    def test_el_volumen_guardado_viaja_con_el_medio(self):
+        medio = self._agregar(volumen=50)
+        self.assertEqual(medio["volumen"], 50)
+        ruta = self.base / "medios.json"
+        medios_guardados.guardar(ruta, [medio])
+        self.assertEqual(medios_guardados.cargar(ruta)[0]["volumen"], 50)
+        self.assertEqual(medios_guardados.medio_para_video(
+            [medio], self.carpeta, "Risa")["volumen"], 50)
+
+    def test_el_volumen_se_limita_a_cero_y_doscientos(self):
+        for valor, esperado in ((-1, 0), (250, 200), ("60", 60),
+                                (None, 100), (True, 100)):
+            with self.subTest(valor=valor):
+                self.assertEqual(
+                    medios_guardados.normalizar(
+                        _datos(volumen=valor))["volumen"], esperado)
+
+
 class TestGanancia(BaseMedios):
 
     def test_conserva_la_ganancia_medida(self):
@@ -130,7 +154,7 @@ class TestMedioParaVideo(BaseMedios):
             medios_guardados.medio_para_video(
                 [guardado], self.carpeta, "fuego"),
             {"ruta": str(self.carpeta / "fuego.mp4"), "tipo": "video",
-             "duracion": 12, "ganancia_db": -6.0})
+             "duracion": 12, "ganancia_db": -6.0, "volumen": 100})
 
     def test_sin_ese_nombre_no_hay_medio(self):
         guardado = medios_guardados.normalizar(_datos(nombre="fuego"))
@@ -168,7 +192,8 @@ class TestSincronizar(BaseMedios):
         self.assertEqual(
             medios_guardados.sincronizar([], ["risa.wav"]),
             [{"nombre": "risa", "descripcion": "", "tipo": "sonido",
-              "archivo": "risa.wav", "duracion": 0, "ganancia_db": None}])
+              "archivo": "risa.wav", "duracion": 0, "ganancia_db": None,
+              "volumen": 100}])
 
     def test_un_archivo_que_falta_desaparece(self):
         guardado = medios_guardados.normalizar(_datos())
@@ -204,7 +229,8 @@ class TestArchivo(BaseMedios):
         self.assertEqual(
             medios_guardados.cargar(ruta),
             [{"nombre": "Logo", "descripcion": "El logo", "tipo": "imagen",
-              "archivo": "logo.png", "duracion": 0, "ganancia_db": None}])
+              "archivo": "logo.png", "duracion": 0, "ganancia_db": None,
+              "volumen": 100}])
 
     def test_un_archivo_danado_se_lee_como_lista_vacia(self):
         ruta = self.base / "medios.json"

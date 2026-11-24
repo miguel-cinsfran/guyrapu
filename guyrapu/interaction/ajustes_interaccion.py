@@ -47,3 +47,11 @@ def ganancia_total(ganancia_db, volumen):
         return -100.0
     ganancia = 0.0 if ganancia_db is None else float(ganancia_db)
     return ganancia + 20 * math.log10(volumen / 100)
+
+
+def ganancia_aplicada(ganancia_db, volumen, volumen_propio):
+    """La igualación del medio con el volumen general y el propio, en dB."""
+    if volumen <= 0 or volumen_propio <= 0:
+        return -100.0
+    return (ganancia_total(ganancia_db, volumen)
+            + 20 * math.log10(volumen_propio / 100))

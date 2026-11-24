@@ -20,6 +20,8 @@ from guyrapu.music import sonoridad
 
 logger = diagnostico.obtener_logger(__name__)
 
+VOLUMEN_POR_DEFECTO = 100
+
 
 def _texto(valor) -> str:
     return "" if valor is None else str(valor).strip()
@@ -31,6 +33,16 @@ def _duracion(valor) -> int:
     except (TypeError, ValueError):
         return 0
     return max(0, numero)
+
+
+def _volumen(valor) -> int:
+    if isinstance(valor, bool):
+        return VOLUMEN_POR_DEFECTO
+    try:
+        numero = int(float(valor))
+    except (TypeError, ValueError, OverflowError):
+        return VOLUMEN_POR_DEFECTO
+    return max(0, min(sonoridad.VOLUMEN_MAXIMO_VLC, numero))
 
 
 def _ganancia(valor):
@@ -61,6 +73,7 @@ def normalizar(datos: dict) -> dict:
         "archivo": archivo,
         "duracion": _duracion(datos.get("duracion")),
         "ganancia_db": _ganancia(datos.get("ganancia_db")),
+        "volumen": _volumen(datos.get("volumen")),
     }
 
 
@@ -202,6 +215,7 @@ def medio_para_video(guardados, carpeta, nombre):
             "tipo": datos["tipo"],
             "duracion": datos["duracion"],
             "ganancia_db": datos["ganancia_db"],
+            "volumen": datos["volumen"],
         }
     return None
 

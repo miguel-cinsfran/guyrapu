@@ -268,8 +268,9 @@ class CapaVideo:
         medio = pieza.datos.get("medio")
         if medio:
             volumen = ajustes_interaccion.cargar_volumen(paths.interaccion())
-            ganancia = ajustes_interaccion.ganancia_total(
-                medio.get("ganancia_db"), volumen)
+            ganancia = ajustes_interaccion.ganancia_aplicada(
+                medio.get("ganancia_db"), volumen,
+                medio.get("volumen", 100))
             self._medio.armar(medio["ruta"], medio["tipo"], ganancia)
         if medio and not (pieza.texto or "").strip():
             self._escena.mostrar_sin_tarjeta()

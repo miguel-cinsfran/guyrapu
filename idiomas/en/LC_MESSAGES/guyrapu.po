@@ -14058,6 +14058,10 @@ msgid "Editar medio"
 msgstr "Edit media"
 
 #: guyrapu/ui/medio_cuadro.py
+msgid "&Volumen:"
+msgstr "&Volume:"
+
+#: guyrapu/ui/medio_cuadro.py
 msgid "Dura más de 15 segundos: al activarlo se detiene a los 15 segundos."
 msgstr "Longer than 15 seconds: when activated, it stops at 15 seconds."
 

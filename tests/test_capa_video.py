@@ -407,6 +407,13 @@ class TestDisparadorConMedio(Base):
         self._atender()
         self.assertAlmostEqual(self.medio.armados[0][2], -12.0206, places=4)
 
+    def test_p3_un_medio_con_volumen_propio_baja_la_ganancia_en_obs(self):
+        medio = self._medio(ganancia_db=-6.0)
+        medio["volumen"] = 50
+        self.capa.agregar_pieza(self._pieza(medio=medio))
+        self._atender()
+        self.assertAlmostEqual(self.medio.armados[0][2], -12.0206, places=4)
+
     def test_p3_con_el_volumen_en_cero_pasa_menos_cien(self):
         self._con_volumen(0)
         self.capa.agregar_pieza(self._pieza(

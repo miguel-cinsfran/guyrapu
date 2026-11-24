@@ -171,6 +171,7 @@ class TestMedioDelComando(Base):
         self.assertEqual(pieza.datos["medio"], {
             "ruta": str(paths.carpeta_medios() / "fuegos.mp4"),
             "tipo": "video", "duracion": 12, "ganancia_db": -6.0,
+            "volumen": 100,
         })
 
     def test_con_mostrar_en_chat_la_pieza_lleva_el_medio_y_texto_vacio_y_al_chat_la_respuesta(self):

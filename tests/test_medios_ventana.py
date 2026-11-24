@@ -219,7 +219,18 @@ class TestPagina(BaseVentana):
             panel._escuchar()
         decir.assert_called_once_with("Risa. Una risa")
         panel._escucha.reproducir.assert_called_once_with(
-            paths.carpeta_medios() / "risa.wav")
+            paths.carpeta_medios() / "risa.wav", 0.0)
+
+    def test_escuchar_suma_la_igualacion_el_volumen_general_y_el_propio(self):
+        ajustes_interaccion.guardar_volumen(paths.interaccion(), 50)
+        panel = self._panel([_datos(ganancia_db=-6.0, volumen=50)])
+        panel._escucha = mock.Mock()
+        panel._escucha.sonando.return_value = False
+        panel._escucha.reproducir.return_value = True
+        with mock.patch.object(medios_ventana, "anunciar"):
+            panel._escuchar()
+        self.assertAlmostEqual(
+            panel._escucha.reproducir.call_args.args[1], -18.0412, places=4)
 
     def test_escuchar_otra_vez_detiene(self):
         panel = self._panel([_datos()])

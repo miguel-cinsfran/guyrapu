@@ -9,6 +9,7 @@ medios. Se suelta al cerrar la ventana o al pedir Escuchar otra vez.
 from __future__ import annotations
 
 from guyrapu.core import diagnostico
+from guyrapu.music import sonoridad
 from guyrapu.player import motor_vlc
 
 logger = diagnostico.obtener_logger(__name__)
@@ -20,8 +21,8 @@ class EscuchaPrevia:
     def __init__(self):
         self._reproductor = None
 
-    def reproducir(self, ruta) -> bool:
-        """Empieza a sonar el archivo. Devuelve False si no se pudo."""
+    def reproducir(self, ruta, ganancia=0.0) -> bool:
+        """Empieza a sonar el archivo con la ganancia pedida."""
         self.detener()
         instancia = motor_vlc.instancia()
         if instancia is None:
@@ -29,6 +30,11 @@ class EscuchaPrevia:
         reproductor = motor_vlc.nuevo_reproductor(instancia)
         if reproductor is None:
             return False
+        try:
+            reproductor.audio_set_volume(
+                sonoridad.volumen_efectivo(100, ganancia))
+        except Exception as exc:
+            logger.debug("No se pudo aplicar el volumen al escuchar: %s", exc)
         try:
             media = instancia.media_new(str(ruta))
             media.add_option(":no-video")

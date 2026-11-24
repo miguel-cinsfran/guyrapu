@@ -274,8 +274,11 @@ class PanelMedios(wx.Panel):
         anunciar(medios.escuchar(medio))
         if medio["tipo"] not in ("sonido", "video"):
             return
+        volumen = ajustes_interaccion.cargar_volumen(paths.interaccion())
+        ganancia = ajustes_interaccion.ganancia_aplicada(
+            medio.get("ganancia_db"), volumen, medio.get("volumen", 100))
         ruta = medios_guardados.archivo_de(self._carpeta, medio)
-        if self._escucha.reproducir(ruta):
+        if self._escucha.reproducir(ruta, ganancia):
             return
         sound_player.reproducir("error")
         confirmar.avisar(

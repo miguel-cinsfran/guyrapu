@@ -14,10 +14,12 @@ from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import medios, medios_guardados
 from guyrapu.ui import formulario, medio_descripcion_ia, paleta, tecla_escape
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar medio")
 TITULO_EDITAR = N_("Editar medio")
+ETIQUETA_VOLUMEN = N_("&Volumen:")
 AVISO_LARGO = N_("Dura más de 15 segundos: al activarlo se detiene a los 15 segundos.")
 TEXTO_SOLO_IMAGEN = N_("Solo se propone la descripción de una imagen o un GIF")
 # Traductores: anuncio de la descripción que propone la IA; {texto} es la frase.
@@ -35,6 +37,7 @@ class DialogoMedio(wx.Dialog):
         self._datos = medios_guardados.normalizar(datos or {})
         self._ruta = ruta
         self.aviso = None
+        self.sp_volumen = None
         self._crear_controles()
         self.Bind(wx.EVT_CHAR_HOOK, self._al_tecla)
         self.Fit()
@@ -64,6 +67,13 @@ class DialogoMedio(wx.Dialog):
         larga = (self._datos["tipo"] in ("sonido", "video")
                  and self._datos["duracion"] > 15)
         formulario.agregar_fila(vs, rotulo, self.txt_duracion)
+        if self._datos["tipo"] in ("sonido", "video"):
+            rotulo = fila_label(panel, _(ETIQUETA_VOLUMEN))
+            self.sp_volumen = deslizador_accesible(
+                panel, minimo=0, maximo=200, paso=1,
+                inicial=self._datos["volumen"],
+                nombre=nombre_de_etiqueta(_(ETIQUETA_VOLUMEN)))
+            formulario.agregar_fila(vs, rotulo, self.sp_volumen)
         self._cargar()
         if larga:
             self.aviso = wx.StaticText(panel, label=_(AVISO_LARGO))
@@ -120,12 +130,15 @@ class DialogoMedio(wx.Dialog):
         return medios.duracion_en_palabras(self._datos["duracion"])
 
     def datos(self) -> dict:
-        """El medio con el nombre y la descripción escritos."""
-        return {
+        """El medio con el nombre, la descripción y el volumen escritos."""
+        datos = {
             **self._datos,
             "nombre": self.txt_nombre.GetValue(),
             "descripcion": self.txt_descripcion.GetValue(),
         }
+        if self.sp_volumen is not None:
+            datos["volumen"] = self.sp_volumen.GetValue()
+        return datos
 
     def _al_tecla(self, evento):
         tecla_escape.cancelar_si_escape(self, evento)
