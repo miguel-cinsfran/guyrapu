@@ -20,6 +20,18 @@ from tests.reglas_controles import (
     detectar_pestana_sin_anuncio,
     detectar_predeterminado,
 )
+from tests.reglas_diseno import (
+    PENDIENTES_BORDES,
+    PENDIENTES_COLORES,
+    PENDIENTES_FUENTES,
+    PENDIENTES_TAMANOS,
+    PIEZAS,
+    _ui,
+    detectar_bordes,
+    detectar_colores,
+    detectar_fuentes,
+    detectar_tamanos,
+)
 from tests.reglas_detectores import (
     Hallazgo,
     _controles,
@@ -60,6 +72,11 @@ class Regla:
 def _pendientes(motivo: str, casos: dict[str, int]) -> dict[str, Pendiente]:
     return {archivo: Pendiente(cantidad, motivo)
             for archivo, cantidad in casos.items()}
+
+
+def _a_pendientes(casos: dict[str, tuple[int, str]]) -> dict[str, Pendiente]:
+    return {archivo: Pendiente(cantidad, motivo)
+            for archivo, (cantidad, motivo) in casos.items()}
 
 
 def _importa_zipfile(nombre: str) -> bool:
@@ -330,5 +347,37 @@ REGLAS = (
                 "guyrapu/ai/protocolos.py",
                 "guyrapu/core/config_predeterminada.py"),
         ambito=_paquete,
+    ),
+    Regla(
+        id="R22",
+        prohibido="los bordes de un sizer y los nombres numéricos solo viven en las piezas comunes de guyrapu/ui/",
+        detectar=detectar_bordes,
+        pendientes=_a_pendientes(PENDIENTES_BORDES),
+        duenos=PIEZAS,
+        ambito=_ui,
+    ),
+    Regla(
+        id="R23",
+        prohibido="los tamaños de control y wx.Size solo viven en las piezas comunes de guyrapu/ui/",
+        detectar=detectar_tamanos,
+        pendientes=_a_pendientes(PENDIENTES_TAMANOS),
+        duenos=PIEZAS,
+        ambito=_ui,
+    ),
+    Regla(
+        id="R24",
+        prohibido="los tamaños de letra de wx.Font y SetPointSize solo viven en las piezas comunes de guyrapu/ui/",
+        detectar=detectar_fuentes,
+        pendientes=_a_pendientes(PENDIENTES_FUENTES),
+        duenos=PIEZAS,
+        ambito=_ui,
+    ),
+    Regla(
+        id="R25",
+        prohibido="los colores de wx.Colour y de primer plano o fondo solo viven en las piezas comunes de guyrapu/ui/",
+        detectar=detectar_colores,
+        pendientes=_a_pendientes(PENDIENTES_COLORES),
+        duenos=PIEZAS,
+        ambito=_ui,
     ),
 )
