@@ -24,9 +24,6 @@ from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 
 TITULO_AGREGAR = N_("Agregar comando")
 TITULO_EDITAR = N_("Editar comando")
-AYUDA_VARIABLES = N_("Puedes usar {usuario}, {contador} y {texto}.")
-AYUDA_LISTA = N_("Puedes usar {usuario}, {contador}, {texto} y {lista}.")
-
 _VARIABLE_RE = re.compile(r"\{([^{}]*)\}")
 
 
@@ -122,8 +119,7 @@ class DialogoComando(wx.Dialog):
     def _crear_contenido(self, panel, vs):
         self._contenido = seccion_contenido.SeccionContenido(
             panel, vs, ("texto", "mostrar_en", "medio", "segundos", "estilo"),
-            nota=_(AYUDA_LISTA if self._especial == comandos.ESPECIAL_LISTA
-                   else AYUDA_VARIABLES),
+            nota=_(comandos.ayuda_de(self._especial)),
             destinos=_destinos(), medios=self._nombres_de_medios(),
             estilos=estilo_elegido.opciones(
                 self._usuario, self._por_tipo, "comando"))
@@ -218,7 +214,7 @@ class DialogoComando(wx.Dialog):
         self.sp_persona.SetValue(int(comando.espera_persona))
         self.chk_activo.SetValue(comando.activo)
         self.chk_en_lista.SetValue(comando.en_lista)
-        if self._especial == comandos.ESPECIAL_LISTA:
+        if self._especial:
             self.chk_en_lista.Hide()
 
     def _elegir_estilo(self, clave):
@@ -272,9 +268,7 @@ class DialogoComando(wx.Dialog):
         if comando.permiso == "solo_atajo" and not comando.atajo:
             return self.cho_atajo
         respuesta = comando.respuesta or ""
-        permitidas = comandos.VARIABLES + (
-            (comandos.ESPECIAL_LISTA,)
-            if comando.especial == comandos.ESPECIAL_LISTA else ())
+        permitidas = comandos.variables_de(comando.especial)
         desconocida = any(variable not in permitidas
                           for variable in _VARIABLE_RE.findall(respuesta))
         if (not respuesta.strip() or desconocida

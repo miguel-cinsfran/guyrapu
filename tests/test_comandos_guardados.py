@@ -127,8 +127,10 @@ class TestArchivo(unittest.TestCase):
     def test_ida_y_vuelta_por_el_archivo(self):
         comandos_guardados.guardar(self.ruta, [_datos()])
         lista = comandos_guardados.desde_comando(comandos.comando_de_lista("es"))
+        musica = comandos_guardados.desde_comando(
+            comandos.comando_de_musica("es"))
         self.assertEqual(comandos_guardados.cargar(self.ruta),
-                         [lista, _datos()])
+                         [lista, musica, _datos()])
 
     def test_un_archivo_de_antes_carga_con_el_comando_de_lista(self):
         anterior = _datos()
@@ -136,11 +138,11 @@ class TestArchivo(unittest.TestCase):
         anterior.pop("en_lista")
         self.ruta.write_text(json.dumps([anterior]), encoding="utf-8")
         cargado = comandos_guardados.cargar(self.ruta)
-        self.assertEqual(len(cargado), 2)
+        self.assertEqual(len(cargado), 3)
         self.assertEqual(cargado[0]["nombre"], "commands")
         self.assertEqual(cargado[0]["alias"], ["comandos"])
         self.assertEqual(cargado[0]["especial"], comandos.ESPECIAL_LISTA)
-        self.assertTrue(cargado[1]["en_lista"])
+        self.assertTrue(cargado[2]["en_lista"])
 
     def test_un_archivo_con_la_bandera_lista_antigua_carga_el_comando_de_lista(self):
         anterior = _datos(nombre="antiguo", lista=True)
@@ -158,7 +160,16 @@ class TestArchivo(unittest.TestCase):
             comandos.Comando("hola", (), "Hola", en_lista=False)])
         cargado = comandos_guardados.cargar(self.ruta)
         self.assertEqual(cargado[0]["especial"], comandos.ESPECIAL_LISTA)
-        self.assertFalse(cargado[1]["en_lista"])
+        self.assertFalse(cargado[2]["en_lista"])
+
+    def test_el_comando_de_musica_de_fabrica_sobrevive_guardar_y_cargar(self):
+        comandos_guardados.guardar(self.ruta, [_datos()])
+        musica = comandos_guardados.cargar(self.ruta)[1]
+        self.assertEqual(musica["nombre"], "music")
+        self.assertEqual(musica["especial"], comandos.ESPECIAL_MUSICA)
+        self.assertEqual(musica["respuesta"], "{usuario} pidió {titulo}.")
+        self.assertFalse(musica["activo"])
+        self.assertEqual(musica["espera_persona"], 120)
 
     def test_la_ubicacion_y_el_atajo_sobreviven_guardar_y_cargar(self):
         comandos_guardados.guardar(self.ruta, [comandos.Comando(
@@ -180,25 +191,25 @@ class TestArchivo(unittest.TestCase):
         self.assertEqual(cargado["segundos"], 12)
         self.assertFalse(cargado["activo"])
 
-    def test_un_archivo_danado_carga_solo_el_comando_de_lista(self):
+    def test_un_archivo_danado_carga_los_comandos_de_fabrica(self):
         self.ruta.write_text("{esto no es json", encoding="utf-8")
         cargado = comandos_guardados.cargar(self.ruta)
-        self.assertEqual(len(cargado), 1)
-        self.assertEqual(cargado[0]["nombre"], "commands")
+        self.assertEqual([c["nombre"] for c in cargado], ["commands", "music"])
         self.assertEqual(cargado[0]["especial"], comandos.ESPECIAL_LISTA)
+        self.assertEqual(cargado[1]["especial"], comandos.ESPECIAL_MUSICA)
 
-    def test_un_archivo_ausente_carga_solo_el_comando_de_lista(self):
+    def test_un_archivo_ausente_carga_los_comandos_de_fabrica(self):
         cargado = comandos_guardados.cargar(self.ruta)
-        self.assertEqual(len(cargado), 1)
-        self.assertEqual(cargado[0]["nombre"], "commands")
+        self.assertEqual([c["nombre"] for c in cargado], ["commands", "music"])
         self.assertEqual(cargado[0]["especial"], comandos.ESPECIAL_LISTA)
+        self.assertEqual(cargado[1]["especial"], comandos.ESPECIAL_MUSICA)
 
-    def test_un_json_que_no_es_lista_carga_solo_el_comando_de_lista(self):
+    def test_un_json_que_no_es_lista_carga_los_comandos_de_fabrica(self):
         self.ruta.write_text('{"nombre": "hola"}', encoding="utf-8")
         cargado = comandos_guardados.cargar(self.ruta)
-        self.assertEqual(len(cargado), 1)
-        self.assertEqual(cargado[0]["nombre"], "commands")
+        self.assertEqual([c["nombre"] for c in cargado], ["commands", "music"])
         self.assertEqual(cargado[0]["especial"], comandos.ESPECIAL_LISTA)
+        self.assertEqual(cargado[1]["especial"], comandos.ESPECIAL_MUSICA)
 
 
 if __name__ == "__main__":

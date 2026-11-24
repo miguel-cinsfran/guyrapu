@@ -24,6 +24,7 @@ MOTIVOS: dict[str, tuple[str, ...]] = {
         "encuesta_por_terminar",
         "encuesta_ganadora",
         "preguntas_llena",
+        "pedido_musica_rechazado",
         "meta_cumplida",
         "meta_avance",
         "destinos_de_mas",

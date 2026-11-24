@@ -17712,3 +17712,62 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/core/eventos_sonido.py
+msgid "Pedido de música no agregado"
+msgstr "Music request not added"
+
+#. Traductores: ayuda de las variables del comando de música del chat. {titulo}
+#. es el tema que se sumó a la cola.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador}, {texto} y {titulo}."
+msgstr "You can use {usuario}, {contador}, {texto} and {titulo}."
+
+#. Traductores: respuesta del comando de música del chat. {usuario} es quien
+#. pide y {titulo} el tema sumado a la cola.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "{usuario} pidió {titulo}."
+msgstr "{usuario} requested {titulo}."
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "falta el nombre o el enlace del tema"
+msgstr "the song name or link is missing"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "la búsqueda no dio resultados"
+msgstr "the search returned no results"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "el vídeo está en directo"
+msgstr "the video is live"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "el vídeo está programado"
+msgstr "the video is scheduled"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "dura más de 10 minutos"
+msgstr "it lasts more than 10 minutes"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "no se pudo obtener la duración del vídeo"
+msgstr "could not get the video length"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "el enlace es de una lista de reproducción"
+msgstr "the link is for a playlist"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "no se pudo abrir el enlace"
+msgstr "could not open the link"
+
+#: guyrapu/ui/comandos_en_vivo.py
+#, python-brace-format
+msgid "Pedido de música de {usuario} no agregado: {motivo}"
+msgstr "Music request from {usuario} not added: {motivo}"
+
+#: guyrapu/ui/comandos_en_vivo.py
+msgid "el público"
+msgstr "the audience"
+

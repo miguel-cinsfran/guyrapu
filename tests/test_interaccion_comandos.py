@@ -216,28 +216,63 @@ class TestListaDeComandos(unittest.TestCase):
         self.assertEqual(comandos.comando_de_lista("pt_BR").alias,
                          ("comandos",))
 
-    def test_asegurar_agrega_la_lista_al_principio_cuando_falta(self):
+    def test_asegurar_agrega_los_comandos_de_fabrica_cuando_faltan(self):
         hola = comandos.Comando("hola", (), "Hola")
-        resultado = comandos.asegurar_lista([hola], "es")
+        resultado = comandos.asegurar_especiales([hola], "es")
         self.assertEqual([comando.nombre for comando in resultado],
-                         ["commands", "hola"])
+                         ["commands", "music", "hola"])
         self.assertEqual(resultado[0].especial, comandos.ESPECIAL_LISTA)
+        self.assertEqual(resultado[1].especial, comandos.ESPECIAL_MUSICA)
 
     def test_asegurar_deja_el_primero_y_pasa_los_demas_a_comunes(self):
         uno = comandos.Comando("uno", (), "Uno",
                                especial=comandos.ESPECIAL_LISTA)
         dos = comandos.Comando("dos", (), "Dos",
                                especial=comandos.ESPECIAL_LISTA)
-        resultado = comandos.asegurar_lista([uno, dos], "es")
+        resultado = comandos.asegurar_especiales([uno, dos], "es")
         self.assertIs(resultado[0], uno)
         self.assertEqual(resultado[0].especial, comandos.ESPECIAL_LISTA)
-        self.assertEqual(resultado[1].especial, "")
+        self.assertEqual(resultado[1].nombre, "music")
+        self.assertEqual(resultado[2].especial, "")
 
-    def test_asegurar_no_toca_una_coleccion_que_ya_tiene_la_lista(self):
+    def test_asegurar_no_toca_una_coleccion_que_ya_tiene_los_fabricados(self):
         lista = comandos.comando_de_lista("es")
-        resultado = comandos.asegurar_lista([lista], "es")
-        self.assertEqual(len(resultado), 1)
+        musica = comandos.comando_de_musica("es")
+        resultado = comandos.asegurar_especiales([lista, musica], "es")
+        self.assertEqual(len(resultado), 2)
         self.assertIs(resultado[0], lista)
+        self.assertIs(resultado[1], musica)
+
+    def test_el_comando_de_musica_de_fabrica_viene_pausado_y_con_sus_alias(self):
+        comando = comandos.comando_de_musica("es")
+        self.assertEqual(comando.especial, comandos.ESPECIAL_MUSICA)
+        self.assertEqual(comando.nombre, "music")
+        self.assertEqual(comando.alias, ("musica", "cancion"))
+        self.assertEqual(comando.respuesta, "{usuario} pidió {titulo}.")
+        self.assertEqual(comando.destino, "video")
+        self.assertFalse(comando.activo)
+        self.assertEqual(comando.espera_persona, 120)
+        self.assertEqual(comandos.comando_de_musica("pt_BR").alias,
+                         ("musica", "cancion"))
+        self.assertEqual(comandos.comando_de_musica("en").alias, ())
+
+    def test_la_variable_titulo_solo_vale_en_el_comando_de_musica(self):
+        self.assertEqual("", comandos.validar(
+            comandos.comando_de_musica("es"), []))
+        error = comandos.validar(
+            comandos.Comando("music", (), "{titulo}"), [])
+        self.assertIn("{titulo}", error)
+        self.assertEqual("", comandos.validar(
+            comandos.Comando("hola", (), "Hola"), []))
+
+    def test_la_tabla_dice_las_variables_y_la_ayuda_de_cada_especial(self):
+        self.assertEqual(comandos.variables_de(""), comandos.VARIABLES)
+        self.assertEqual(comandos.variables_de(comandos.ESPECIAL_LISTA),
+                         comandos.VARIABLES + ("lista",))
+        self.assertEqual(comandos.variables_de(comandos.ESPECIAL_MUSICA),
+                         comandos.VARIABLES + ("titulo",))
+        self.assertIn("{titulo}", comandos.ayuda_de(
+            comandos.ESPECIAL_MUSICA))
 
     def test_la_variable_lista_solo_vale_en_el_comando_de_lista(self):
         self.assertEqual("", comandos.validar(

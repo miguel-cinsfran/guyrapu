@@ -332,7 +332,7 @@ class TestPagina(BaseVentana):
         self.assertEqual(capturado["datos"], {
             "nombre": "!aplausosfuertes", "medio": "Aplausos Fuertes"})
         self.assertEqual([c["nombre"] for c in capturado["otros"]],
-                         ["commands"])
+                         ["commands", "music"])
         guardados = comandos_guardados.cargar(paths.comandos())
         self.assertEqual(guardados[-1]["nombre"], "aplausosfuertes")
         self.assertEqual(guardados[-1]["medio"], "Aplausos Fuertes")
@@ -357,7 +357,7 @@ class TestPagina(BaseVentana):
             panel._lista.ejecutar("crear_comando")
         self.assertEqual([c["nombre"] for c in
                           comandos_guardados.cargar(paths.comandos())],
-                         ["commands"])
+                         ["commands", "music"])
         decir.assert_not_called()
 
 

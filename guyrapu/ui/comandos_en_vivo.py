@@ -13,15 +13,20 @@ lectura del chat.
 from __future__ import annotations
 
 import time
+from dataclasses import replace
+
+import wx
 
 from guyrapu.capture.estado_espectadores import _fmt_num
 from guyrapu.core import diagnostico, paths, plataformas
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
 from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
+from guyrapu.downloads import busqueda_youtube
 from guyrapu.interaction import (
-    atencion, comandos_guardados, conversion_disparadores, ensayo,
-    filtro_publico, informe_ensayo, medio_en_video)
+    atencion, comandos, comandos_guardados, conversion_disparadores, ensayo,
+    filtro_publico, informe_ensayo, medio_en_video, pedido_musica)
+from guyrapu.music.modelo import Tema
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
 from guyrapu.ui.accesibilidad import anunciar_con_sonido
@@ -113,7 +118,10 @@ class ComandosEnVivo:
         if respuesta is not None:
             if informe is not None:
                 informe.comando(respuesta.nombre)
-            self._mandar(respuesta, registro.autor)
+            if respuesta.especial == comandos.ESPECIAL_MUSICA:
+                self._pedir_musica(respuesta, registro.autor, registro.texto)
+            else:
+                self._mandar(respuesta, registro.autor)
         elif informe is not None:
             informe.motivo(self._atencion.motivo(evento, ahora))
 
@@ -137,6 +145,34 @@ class ComandosEnVivo:
                     numero=numero), "error")
             return
         self._mandar(respuesta, "")
+
+    def _pedir_musica(self, respuesta, autor, texto) -> None:
+        """Resuelve el pedido en otro hilo por si la búsqueda tarda."""
+        invocacion = comandos.leer(texto)
+        pedido = invocacion.argumentos if invocacion else ""
+        diagnostico.crear_hilo(
+            self._resolver_musica, "PedidoMusica",
+            args=(respuesta, autor, pedido)).start()
+
+    def _resolver_musica(self, respuesta, autor, texto) -> None:
+        pedido = pedido_musica.resolver(texto, busqueda_youtube.buscar)
+        wx.CallAfter(self._terminar_musica, respuesta, autor, pedido)
+
+    def _terminar_musica(self, respuesta, autor, pedido) -> None:
+        if pedido.motivo:
+            # Traductores: aviso al streamer cuando el público pide música y no se agrega. {usuario} es quien lo pidió y {motivo} por qué no se sumó.
+            anunciar_con_sonido(
+                _("Pedido de música de {usuario} no agregado: {motivo}").format(
+                    usuario=autor or _("el público"), motivo=_(pedido.motivo)),
+                "pedido_musica_rechazado")
+            return
+        tema = Tema(origen=pedido.tema.url, titulo=pedido.tema.titulo,
+                    duracion_ms=pedido.tema.duracion * 1000)
+        self._frame._musica.agregar_temas([tema])
+        titulo = self._atencion.tapar(pedido.tema.titulo)
+        respuesta = replace(
+            respuesta, texto=respuesta.texto.replace("{titulo}", titulo))
+        self._mandar(respuesta, autor)
 
     def _mandar(self, respuesta, autor) -> None:
         self._respondidos += 1

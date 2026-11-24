@@ -181,6 +181,10 @@ CATALOGO: tuple[EventoSonido, ...] = (
     # La cola de preguntas del público llegó a su máximo.
     EventoSonido("preguntas_llena", nombre=N_("Cola de preguntas llena"),
                  sonido="aviso", familia="advertencia"),
+    # El público pidió música y el tema no se pudo agregar a la cola.
+    EventoSonido("pedido_musica_rechazado",
+                 nombre=N_("Pedido de música no agregado"), sonido="aviso",
+                 familia="advertencia"),
     # Una meta del directo llegó a su objetivo.
     EventoSonido("meta_cumplida", nombre=N_("Meta cumplida del directo"),
                  sonido="aviso", familia="advertencia"),

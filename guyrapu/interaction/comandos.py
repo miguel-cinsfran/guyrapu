@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 
-from guyrapu.core.idioma import _, idioma_actual
+from guyrapu.core.idioma import N_, _, idioma_actual
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR, ROL_PROPIETARIO
 from guyrapu.interaction import contenido
 from guyrapu.interaction.evento import EventoDirecto, persona
@@ -23,8 +24,15 @@ PERMISOS = ("todos", "moderadores", "lista", "solo_atajo")
 UBICACIONES = ("principio", "cualquiera")
 VARIABLES = ("usuario", "contador", "texto")
 ESPECIAL_LISTA = "lista"
-ESPECIALES = (ESPECIAL_LISTA,)
+ESPECIAL_MUSICA = "musica"
 MAXIMO_CHAT = contenido.MAXIMO_CHAT
+
+# Traductores: ayuda de las variables que se pueden usar en la respuesta de un comando.
+AYUDA_VARIABLES = N_("Puedes usar {usuario}, {contador} y {texto}.")
+# Traductores: ayuda de las variables del comando de lista del chat. {lista} son los nombres de los comandos activos.
+AYUDA_LISTA = N_("Puedes usar {usuario}, {contador}, {texto} y {lista}.")
+# Traductores: ayuda de las variables del comando de música del chat. {titulo} es el tema que se sumó a la cola.
+AYUDA_MUSICA = N_("Puedes usar {usuario}, {contador}, {texto} y {titulo}.")
 
 _VARIABLE_RE = re.compile(r"\{([^{}]*)\}")
 
@@ -102,17 +110,57 @@ def comando_de_lista(codigo: str | None = None) -> Comando:
         espera_general=5, espera_persona=30, especial=ESPECIAL_LISTA)
 
 
-def asegurar_lista(disponibles, codigo: str | None = None) -> list[Comando]:
-    """Una colección con un solo comando de lista, el primero si hay varios."""
+def comando_de_musica(codigo: str | None = None) -> Comando:
+    """El comando de música de fábrica para el idioma indicado."""
+    codigo = idioma_actual() if codigo is None else codigo
+    alias = ("musica", "cancion") if codigo.lower().startswith(("es", "pt")) else ()
+    # Traductores: respuesta del comando de música del chat. {usuario} es quien pide y {titulo} el tema sumado a la cola.
+    respuesta = _("{usuario} pidió {titulo}.")
+    return Comando(
+        "music", alias, respuesta,
+        destino="video", estilo="", segundos=8, activo=False,
+        espera_general=5, espera_persona=120, especial=ESPECIAL_MUSICA)
+
+
+@dataclass(frozen=True, slots=True)
+class TipoEspecial:
+    """El comando de fábrica de un tipo y lo que agrega a la respuesta."""
+
+    crear: Callable[[str | None], Comando]
+    variables: tuple[str, ...]
+    ayuda: str
+
+
+ESPECIALES: dict[str, TipoEspecial] = {
+    ESPECIAL_LISTA: TipoEspecial(comando_de_lista, ("lista",), AYUDA_LISTA),
+    ESPECIAL_MUSICA: TipoEspecial(comando_de_musica, ("titulo",), AYUDA_MUSICA),
+}
+
+
+def variables_de(especial: str) -> tuple[str, ...]:
+    """Las variables permitidas en la respuesta de ese comando."""
+    tipo = ESPECIALES.get(especial)
+    return VARIABLES + (tipo.variables if tipo else ())
+
+
+def ayuda_de(especial: str) -> str:
+    """La ayuda que se muestra al editar la respuesta de ese comando."""
+    tipo = ESPECIALES.get(especial)
+    return tipo.ayuda if tipo else AYUDA_VARIABLES
+
+
+def asegurar_especiales(disponibles, codigo: str | None = None) -> list[Comando]:
+    """Una colección con un comando de cada tipo especial, el primero de cada uno."""
     elementos = list(disponibles)
-    primera = next((indice for indice, comando in enumerate(elementos)
-                    if comando.especial == ESPECIAL_LISTA), None)
-    if primera is None:
-        return [comando_de_lista(codigo), *elementos]
-    return [replace(comando, especial="")
-            if comando.especial == ESPECIAL_LISTA and indice != primera
-            else comando
-            for indice, comando in enumerate(elementos)]
+    for posicion, (especial, tipo) in enumerate(ESPECIALES.items()):
+        hallados = [indice for indice, comando in enumerate(elementos)
+                    if comando.especial == especial]
+        if not hallados:
+            elementos.insert(posicion, tipo.crear(codigo))
+            continue
+        for indice in hallados[1:]:
+            elementos[indice] = replace(elementos[indice], especial="")
+    return elementos
 
 
 def separar_alias(texto: str) -> tuple[str, ...]:
@@ -296,8 +344,7 @@ def _error_de_respuesta(comando: Comando) -> str:
 
 def _error_de_variables(comando: Comando) -> str:
     respuesta = comando.respuesta or ""
-    permitidas = VARIABLES + (
-        (ESPECIAL_LISTA,) if comando.especial == ESPECIAL_LISTA else ())
+    permitidas = variables_de(comando.especial)
     desconocidas = [variable for variable in _VARIABLE_RE.findall(respuesta)
                     if variable not in permitidas]
     if desconocidas:

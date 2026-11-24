@@ -175,6 +175,45 @@ class TestExpandir(unittest.TestCase):
         self.assertIn(enlaces.TEXTO_SIN_VIDEOS, str(caso.exception))
 
 
+class TestDuracionSegundos(unittest.TestCase):
+
+    def test_usa_la_info_existente_del_video(self):
+        with mock.patch.object(enlaces, "_info_video",
+                               return_value={"duration": 212}) as info:
+            self.assertEqual(
+                enlaces.duracion_segundos(
+                    f"https://www.youtube.com/watch?v={VIDEO}"),
+                212)
+        info.assert_called_once_with(VIDEO)
+
+    def test_sin_duracion_o_sin_id_da_cero(self):
+        with mock.patch.object(enlaces, "_info_video", return_value={}) as info:
+            self.assertEqual(
+                enlaces.duracion_segundos(f"https://youtu.be/{VIDEO}"), 0)
+        info.assert_called_once_with(VIDEO)
+        with mock.patch.object(enlaces, "_info_video") as info:
+            self.assertEqual(enlaces.duracion_segundos("no es un enlace"), 0)
+        info.assert_not_called()
+
+
+class TestInfoEstadoDuracion(unittest.TestCase):
+
+    def test_una_consulta_da_duracion_y_directo(self):
+        datos = {"duration": 212, "live_status": "is_live"}
+        with mock.patch.object(enlaces, "_info_video",
+                               return_value=datos) as info:
+            obtenido = enlaces.info_estado_duracion(
+                f"https://www.youtube.com/watch?v={VIDEO}")
+        self.assertEqual(obtenido, enlaces.InfoVideo(212, True, False))
+        info.assert_called_once_with(VIDEO)
+
+    def test_programado_y_bandera_is_live(self):
+        datos = {"is_live": True, "live_status": "is_upcoming"}
+        with mock.patch.object(enlaces, "_info_video", return_value=datos):
+            obtenido = enlaces.info_estado_duracion(f"https://youtu.be/{VIDEO}")
+        self.assertEqual(obtenido, enlaces.InfoVideo(0, False, True))
+
+
 class TestTextosEnlace(unittest.TestCase):
 
     def test_constantes_con_el_texto_que_oye_el_usuario(self):

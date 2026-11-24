@@ -37,6 +37,7 @@ class Respuesta:
     nombre: str
     freno_cuota: bool = False
     medio: str = ""
+    especial: str = ""
 
 
 def repartir(destino, evento, ahora, chat_disponible, cuota_baja, ultimo_chat):
@@ -79,6 +80,10 @@ class Atencion:
 
     def fijar_palabras_bloqueadas(self, palabras) -> None:
         self._palabras_bloqueadas = list(palabras)
+
+    def tapar(self, texto: str) -> str:
+        """El texto con las palabras bloqueadas de la sesión tapadas."""
+        return filtro_publico.tapar(texto, self._palabras_bloqueadas)
 
     def atender(self, evento, ahora, *, chat_disponible=False,
                 cuota_baja=False, atajo=0):
@@ -171,7 +176,7 @@ class Atencion:
             self._recordar(texto, ahora)
         return Respuesta(texto, al_video, al_chat, comando.estilo,
                          comando.segundos, comando.nombre, freno,
-                         comando.medio)
+                         comando.medio, comando.especial)
 
     def _destinos(self, destino, evento, ahora, chat_disponible,
                   cuota_baja):

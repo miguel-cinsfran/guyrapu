@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md 7aa88bf1a9c672b854f091e0853fe3627d88d094 -->
+<!-- original: es/MANUAL.md bb9c2abdd5d0340f426bdaebb50dcf004918c74a -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -1149,6 +1149,20 @@ like any other command: its word, <code>!commands</code> by default and
 <code>!comandos</code> in Spanish and Portuguese, its text, where it
 appears and its style, and each command chooses whether it appears in
 the list.</p>
+<p>The music command, <code>!music</code> by default with the aliases
+<code>!musica</code> and <code>!cancion</code> in Spanish and
+Portuguese, lets the audience request a song. It accepts a link to a
+single YouTube video or the text of its name. Guyrapu searches for the
+video, adds it to the end of the music queue without stopping what is
+playing and answers with the title. It only accepts videos of up to 10
+minutes that are not live or scheduled, and does not accept playlist
+links. It is disabled by default because music played on a live stream
+may be copyrighted: enable it in <em>Commands</em> when appropriate.
+Each person can request one song every 120 seconds, with the same
+permission and cooldown as other commands. The streamer can delete the
+song from the music queue like any other, from the <em>Music</em>
+window. If the song cannot be added, Guyrapu tells the streamer why and
+does not answer in the chat or on the video.</p>
 <h3 id="alerts"><a id="alertas"></a>Alerts</h3>
 <p>Alerts respond to what happens in the live stream: a Super Chat, a
 membership, a new follower or a TikTok gift. They used to be called

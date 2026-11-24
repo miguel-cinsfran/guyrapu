@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 7aa88bf1a9c672b854f091e0853fe3627d88d094 -->
+<!-- original: es/MANUAL.md bb9c2abdd5d0340f426bdaebb50dcf004918c74a -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -378,6 +378,8 @@ A command can also come out as sound only. Create `!applause` with *Word* `!appl
 In *Location* you choose *At the beginning of the message* or *Anywhere in the message*. In *Alias* you type other words separated by commas, such as `hello, greeting`, that answer the same way. In *Permission* you choose *All*, *Moderators only*, *A list of names* or *Shortcut only*. The cooldowns *Wait between uses (seconds):* and *Wait per person (seconds):* limit the answers. In *Shortcut* you choose *None* or `Ctrl+Alt+Shift` plus a number from 1 to 9, and the command answers from any application. With *Shortcut only*, the command does not answer the chat and only answers that key. What used to be in "Triggers" as a command, word or shortcut moved only to this page.
 
 *Pause commands*, in the *Interaction* menu, or `Ctrl+Alt+Shift+C` from any application, stops answering all of them at once. The list of commands the audience asks for is edited like any other command: its word, `!commands` by default and `!comandos` in Spanish and Portuguese, its text, where it appears and its style, and each command chooses whether it appears in the list.
+
+The music command, `!music` by default with the aliases `!musica` and `!cancion` in Spanish and Portuguese, lets the audience request a song. It accepts a link to a single YouTube video or the text of its name. Guyrapu searches for the video, adds it to the end of the music queue without stopping what is playing and answers with the title. It only accepts videos of up to 10 minutes that are not live or scheduled, and does not accept playlist links. It is disabled by default because music played on a live stream may be copyrighted: enable it in *Commands* when appropriate. Each person can request one song every 120 seconds, with the same permission and cooldown as other commands. The streamer can delete the song from the music queue like any other, from the *Music* window. If the song cannot be added, Guyrapu tells the streamer why and does not answer in the chat or on the video.
 
 ### <a id="alertas"></a>Alerts
 

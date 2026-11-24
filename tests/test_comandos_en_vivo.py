@@ -11,8 +11,10 @@ from unittest import mock
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR
+from guyrapu.downloads import busqueda_youtube
 from guyrapu.interaction import (
     comandos_guardados, filtro_publico, medios_guardados)
+from guyrapu.music.modelo import Tema
 from guyrapu.ui import chat_vivo, comandos_en_vivo, encuesta_en_vivo
 from guyrapu.ui import gui, gui_envio_chat, preguntas_en_vivo
 from guyrapu.ui.capa_video import CapaVideo
@@ -41,6 +43,28 @@ def _hilo_inmediato(objetivo, _nombre):
     hilo = mock.Mock()
     hilo.start.side_effect = objetivo
     return hilo
+
+
+def _crear_hilo_pedido(target, nombre, *, args=(), daemon=True):
+    hilo = mock.Mock()
+    hilo.start.side_effect = lambda: target(*args)
+    return hilo
+
+
+def _resultado_video(**cambios):
+    datos = dict(
+        id="abc123", url="https://www.youtube.com/watch?v=abc123",
+        titulo="Tema pedido", canal="Canal", duracion=200, vistas=None,
+        marca_tiempo=None, descripcion="", tipo="video", en_directo=False,
+        programado=False)
+    datos.update(cambios)
+    return busqueda_youtube.Resultado(**datos)
+
+
+def _buscar_video(resultados):
+    def buscar(texto, filtros, inicio, cantidad):
+        return busqueda_youtube.RespuestaBusqueda(resultados, "", False)
+    return buscar
 
 
 class _Frame:
@@ -129,6 +153,71 @@ class TestRespuestaEnElVideo(Base):
         respuesta = self.frame._capa_video.agregar_comando.call_args.args[0]
         self.assertEqual(respuesta.texto, "Nuestro Discord: Ana")
         self.assertEqual(len(self.control._pendientes), 1)
+
+
+class TestPedidoDeMusica(Base):
+
+    def _guardar_musica(self, activo=True):
+        self.frame._musica = mock.Mock()
+        self._guardar(_datos(
+            nombre="music", alias=["musica", "cancion"],
+            respuesta="{usuario} pidió {titulo}.",
+            activo=activo, especial="musica"))
+
+    def _pedir(self, texto="!musica algo", resultados=()):
+        with mock.patch.object(comandos_en_vivo.diagnostico, "crear_hilo",
+                               side_effect=_crear_hilo_pedido) as crear, \
+                mock.patch.object(
+                    comandos_en_vivo.wx, "CallAfter",
+                    side_effect=lambda funcion, *args: funcion(*args)), \
+                mock.patch.object(comandos_en_vivo.busqueda_youtube, "buscar",
+                                  side_effect=_buscar_video(resultados)) as buscar, \
+                mock.patch.object(comandos_en_vivo,
+                                  "anunciar_con_sonido") as aviso:
+            self._encolar(texto)
+        return crear, buscar, aviso
+
+    def test_un_pedido_activo_termina_en_la_cola_y_responde_con_el_titulo(self):
+        self._guardar_musica()
+        crear, buscar, aviso = self._pedir(resultados=[_resultado_video()])
+        crear.assert_called_once()
+        self.assertEqual(crear.call_args.args[1], "PedidoMusica")
+        buscar.assert_called_once()
+        temas = self.frame._musica.agregar_temas.call_args.args[0]
+        self.assertEqual(len(temas), 1)
+        self.assertIsInstance(temas[0], Tema)
+        self.assertEqual(temas[0].origen,
+                         "https://www.youtube.com/watch?v=abc123")
+        self.assertEqual(temas[0].titulo, "Tema pedido")
+        self.assertEqual(temas[0].duracion_ms, 200000)
+        respuesta = self.frame._capa_video.agregar_comando.call_args.args[0]
+        self.assertEqual(respuesta.texto, "Ana pidió Tema pedido.")
+        aviso.assert_not_called()
+
+    def test_con_el_comando_inactivo_no_se_busca_ni_se_agrega(self):
+        self._guardar_musica(activo=False)
+        _, buscar, aviso = self._pedir(resultados=[_resultado_video()])
+        buscar.assert_not_called()
+        self.frame._musica.agregar_temas.assert_not_called()
+        aviso.assert_not_called()
+
+    def test_el_titulo_del_tema_pasa_por_las_palabras_bloqueadas(self):
+        filtro_publico.guardar(paths.palabras_bloqueadas(), ["tonto"])
+        self._guardar_musica()
+        self._pedir(resultados=[_resultado_video(titulo="Tema tonto")])
+        respuesta = self.frame._capa_video.agregar_comando.call_args.args[0]
+        self.assertEqual(respuesta.texto, "Ana pidió Tema ***.")
+
+    def test_un_pedido_vacio_solo_se_anuncia_con_su_sonido(self):
+        self._guardar_musica()
+        _, buscar, aviso = self._pedir(texto="!musica")
+        buscar.assert_not_called()
+        self.frame._musica.agregar_temas.assert_not_called()
+        self.frame._capa_video.agregar_comando.assert_not_called()
+        frase, sonido = aviso.call_args.args
+        self.assertIn("Pedido de música de Ana no agregado", frase)
+        self.assertIn("falta el nombre o el enlace del tema", frase)
+        self.assertEqual(sonido, "pedido_musica_rechazado")
 
 
 class TestRespuestaEnElChat(Base):

@@ -14,7 +14,7 @@ from guyrapu.core import archivos
 from guyrapu.core.idioma import idioma_actual
 from guyrapu.interaction.comandos import (
     DESTINOS, ESPECIAL_LISTA, ESPECIALES, PERMISOS, UBICACIONES, Comando,
-    asegurar_lista, separar_alias, separar_nombres)
+    asegurar_especiales, separar_alias, separar_nombres)
 
 DEFECTOS = {
     "nombre": "",
@@ -138,7 +138,7 @@ def cargar(ruta) -> list[dict]:
         datos = []
     convertidos = [a_comando(comando) for comando in datos
                    if isinstance(comando, dict)]
-    return [desde_comando(comando) for comando in asegurar_lista(
+    return [desde_comando(comando) for comando in asegurar_especiales(
         convertidos, idioma_actual())]
 
 

@@ -182,6 +182,41 @@ class TestComandosDeLaApp(unittest.TestCase):
             _evento("!commands", autor="Bea", autor_id="2"), 5))
         self.assertIsNone(atencion_.atender(_evento("!commands"), 5))
 
+    def test_el_comando_de_musica_inactivo_no_aparece_en_la_lista(self):
+        atencion_ = atencion.Atencion([
+            _comando("discord", "D"),
+            _comando("music", "", activo=False,
+                     especial=comandos.ESPECIAL_MUSICA),
+            _lista()])
+        respuesta = atencion_.atender(_evento("!commands"), 0)
+        self.assertEqual(respuesta.texto, "Comandos: !discord.")
+
+    def test_el_comando_de_musica_activo_aparece_en_la_lista(self):
+        atencion_ = atencion.Atencion([
+            _comando("discord", "D"),
+            _comando("music", "", especial=comandos.ESPECIAL_MUSICA),
+            _lista()])
+        respuesta = atencion_.atender(_evento("!commands"), 0)
+        self.assertEqual(respuesta.texto, "Comandos: !discord, !music.")
+
+
+class TestComandoDeMusica(unittest.TestCase):
+
+    def _atencion(self):
+        return atencion.Atencion([_comando(
+            "music", "{usuario} pidió {titulo}.", espera_persona=120,
+            especial=comandos.ESPECIAL_MUSICA)])
+
+    def test_la_respuesta_lleva_el_tipo_y_deja_el_titulo_para_el_cableado(self):
+        respuesta = self._atencion().atender(_evento("!music algo"), 0)
+        self.assertEqual(respuesta.especial, comandos.ESPECIAL_MUSICA)
+        self.assertEqual(respuesta.texto, "Ana pidió {titulo}.")
+
+    def test_la_espera_se_anota_al_invocar_aunque_el_tema_se_rechace(self):
+        atencion_ = self._atencion()
+        self.assertIsNotNone(atencion_.atender(_evento("!music algo"), 0))
+        self.assertIsNone(atencion_.atender(_evento("!music algo"), 1))
+
 
 class TestDestinoDelChat(unittest.TestCase):
 

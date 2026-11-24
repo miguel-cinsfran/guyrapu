@@ -14,6 +14,7 @@ import json
 import re
 import subprocess
 import time
+from dataclasses import dataclass
 
 from guyrapu.core.idioma import N_, _
 from guyrapu.downloads import ytdlp_bin
@@ -188,6 +189,38 @@ def _info_video(video_id: str) -> dict:
             raise ErrorEnlace(_(TEXTO_NO_SE_PUDO_LEER))
         return info
     return _extraer_video_con_modulo(video_id)
+
+
+@dataclass(frozen=True, slots=True)
+class InfoVideo:
+    """Duración en segundos y estado en directo o programado del vídeo."""
+
+    duracion: int = 0
+    en_directo: bool = False
+    programado: bool = False
+
+
+def info_estado_duracion(origen: str) -> InfoVideo:
+    """Estado y duración de un vídeo suelto con una sola consulta."""
+    video_id = id_de_url(origen)
+    if not video_id:
+        return InfoVideo()
+    informacion = _info_video(video_id)
+    estado = informacion.get("live_status")
+    programado = estado == "is_upcoming"
+    en_directo = (estado == "is_live"
+                  or bool(informacion.get("is_live")) and not programado)
+    duracion = informacion.get("duration")
+    segundos = 0
+    if (not isinstance(duracion, bool)
+            and isinstance(duracion, (int, float)) and duracion > 0):
+        segundos = int(duracion)
+    return InfoVideo(segundos, en_directo, programado)
+
+
+def duracion_segundos(origen: str) -> int:
+    """Segundos de un vídeo suelto por su enlace, o 0 si no se saben."""
+    return info_estado_duracion(origen).duracion
 
 
 def url_audio_con_cache(origen: str) -> tuple[str, bool]:

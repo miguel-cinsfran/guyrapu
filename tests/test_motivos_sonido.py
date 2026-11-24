@@ -133,6 +133,21 @@ class TestColaDePreguntasLlena(unittest.TestCase):
             motivos_sonido.MOTIVO_POR_CLAVE["preguntas_llena"], "llega_solo")
 
 
+class TestPedidoDeMusicaRechazado(unittest.TestCase):
+    def test_usa_el_aviso_y_llega_solo(self):
+        self.assertEqual(eventos_sonido.NOMBRES["pedido_musica_rechazado"],
+                         "Pedido de música no agregado")
+        self.assertEqual(eventos_sonido.SONIDOS["pedido_musica_rechazado"],
+                         "aviso")
+        catalogo = {evento.clave: evento
+                    for evento in eventos_sonido.CATALOGO}
+        self.assertEqual(catalogo["pedido_musica_rechazado"].familia,
+                         "advertencia")
+        self.assertEqual(
+            motivos_sonido.MOTIVO_POR_CLAVE["pedido_musica_rechazado"],
+            "llega_solo")
+
+
 class TestAvisosDelDirecto(unittest.TestCase):
     NUEVOS = {
         "encuesta_por_terminar": ("Encuesta por terminar", "aviso",
