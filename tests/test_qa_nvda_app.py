@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -33,7 +34,33 @@ def tearDownModule():
     claves._destino = _DESTINO_ORIGINAL
 
 
+class _TecladoFalso:
+    """Administrador de contexto que anota cuándo envuelve el recorrido."""
+
+    def __init__(self):
+        self.activo = False
+        self.entradas = 0
+        self.salidas = 0
+
+    @contextmanager
+    def abrir(self):
+        self.activo = True
+        self.entradas += 1
+        try:
+            yield
+        finally:
+            self.activo = False
+            self.salidas += 1
+
+
 class TestVentanas(unittest.TestCase):
+
+    def setUp(self):
+        self.teclado = _TecladoFalso()
+        parche = mock.patch.object(
+            app.teclado_estado, "con_bloq_mayus_apagado", self.teclado.abrir)
+        parche.start()
+        self.addCleanup(parche.stop)
 
     def test_la_tabla_tiene_una_entrada_por_ventana_con_sus_campos(self):
         self.assertEqual(
@@ -318,6 +345,13 @@ class BancoFrenteInestable(BancoFalso):
 
 class TestVentana(unittest.TestCase):
 
+    def setUp(self):
+        self.teclado = _TecladoFalso()
+        parche = mock.patch.object(
+            app.teclado_estado, "con_bloq_mayus_apagado", self.teclado.abrir)
+        parche.start()
+        self.addCleanup(parche.stop)
+
     def test_lleva_la_app_al_frente_antes_de_abrir_el_menu(self):
         banco = BancoFalso(True)
         with (
@@ -495,6 +529,28 @@ class TestVentana(unittest.TestCase):
              for entrada in ventanas_app.VENTANAS])
         self.assertTrue(all(llamada.kwargs.get("flush")
                             for llamada in imprimir.call_args_list))
+
+    def test_recorrer_envuelve_la_lectura_con_el_teclado_apagado(self):
+        banco = mock.Mock()
+        banco.pedir.return_value = {"datos": {"pid": 7}}
+        banco.esperar_lista.return_value = True
+        vistos = []
+
+        def ventana(_banco, _cliente, entrada, _pid, _catalogo, _aprobar):
+            vistos.append(self.teclado.activo)
+            return [], False
+
+        with (
+            mock.patch.object(app, "Aplicacion", return_value=banco),
+            mock.patch.object(app.reglas, "leer_catalogo_ingles",
+                              return_value=set()),
+            mock.patch.object(app, "_ventana", side_effect=ventana),
+        ):
+            app.recorrer(mock.Mock(), SimpleNamespace(
+                ventana=["obs", "ensayo"], aprobar=False))
+        self.assertEqual(vistos, [True, True])
+        self.assertEqual(self.teclado.entradas, 1)
+        self.assertEqual(self.teclado.salidas, 1)
 
     def test_pasa_el_tope_de_la_entrada_a_conducir(self):
         from guyrapu.core import config as cfg

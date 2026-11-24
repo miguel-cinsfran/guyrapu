@@ -21,7 +21,8 @@ import time
 from pathlib import Path
 
 from qa import banco_app, foco_ventanas, sonda
-from qa.nvda import recorrido, reglas, transcripcion, ventanas_app
+from qa.nvda import (
+    recorrido, reglas, teclado_estado, transcripcion, ventanas_app)
 from qa.nvda.recorrido import InstrumentoRoto
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
@@ -322,19 +323,20 @@ def recorrer(cliente, args, iniciales=(), revisar=None) -> list:
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as base:
         banco = Aplicacion(Path(base))
         try:
-            banco.arrancar()
-            if not banco.esperar_lista():
-                raise InstrumentoRoto(
-                    "la aplicación no abrió su ventana principal")
-            pid = _pid(banco)
-            for entrada in seleccion:
-                print(f"ventana {entrada['nombre']}", flush=True)
-                if revisar is not None:
-                    revisar()
-                nuevas, distinta = _ventana(
-                    banco, cliente, entrada, pid, catalogo, aprobar)
-                lineas.extend(nuevas)
-                diferentes = diferentes or distinta
+            with teclado_estado.con_bloq_mayus_apagado():
+                banco.arrancar()
+                if not banco.esperar_lista():
+                    raise InstrumentoRoto(
+                        "la aplicación no abrió su ventana principal")
+                pid = _pid(banco)
+                for entrada in seleccion:
+                    print(f"ventana {entrada['nombre']}", flush=True)
+                    if revisar is not None:
+                        revisar()
+                    nuevas, distinta = _ventana(
+                        banco, cliente, entrada, pid, catalogo, aprobar)
+                    lineas.extend(nuevas)
+                    diferentes = diferentes or distinta
         finally:
             banco.cerrar()
     if diferentes:
