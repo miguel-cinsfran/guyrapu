@@ -13,7 +13,7 @@ from unittest import mock
 from guyrapu.core import paths
 from guyrapu.music import sonoridad
 from guyrapu.player import motor_vlc
-from guyrapu.ui import medio_escucha, medios_ventana
+from guyrapu.ui import medio_escucha, medios_medicion
 from guyrapu.ui.medio_escucha import EscuchaPrevia
 
 
@@ -52,7 +52,7 @@ class TestDuracion(unittest.TestCase):
         if wav is None:
             self.skipTest("no hay un WAV de dos segundos en sounds/")
         motor_vlc.instancia()
-        self.assertEqual(medios_ventana.duracion_de(wav), esperado)
+        self.assertEqual(medios_medicion.duracion_de(wav), esperado)
 
 
 class TestVolumenDeEscucha(unittest.TestCase):

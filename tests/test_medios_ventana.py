@@ -119,7 +119,7 @@ class TestPagina(BaseVentana):
 
         with mock.patch.object(panel, "_elegir_archivo",
                                return_value=str(origen)), \
-                mock.patch.object(medios_ventana, "duracion_de",
+                mock.patch.object(medios_ventana.medios_medicion, "duracion_de",
                                   return_value=20), \
                 mock.patch.object(medios_ventana.medio_cuadro, "abrir",
                                   side_effect=abrir_falso), \
@@ -144,7 +144,7 @@ class TestPagina(BaseVentana):
 
         with mock.patch.object(panel, "_elegir_archivo",
                                return_value=str(origen)), \
-                mock.patch.object(medios_ventana, "duracion_de",
+                mock.patch.object(medios_ventana.medios_medicion, "duracion_de",
                                   return_value=3), \
                 mock.patch.object(medios_ventana.medio_cuadro, "abrir",
                                   side_effect=abrir_falso), \
@@ -314,7 +314,7 @@ class TestCarpeta(BaseVentana):
         panel = self._panel([])
         self._mostrada(panel.GetParent())
         archivo = self._archivo("risa.wav")
-        with mock.patch.object(medios_ventana, "duracion_de", return_value=0):
+        with mock.patch.object(medios_ventana.medios_medicion, "duracion_de", return_value=0):
             self._activar(panel)
         self.assertEqual(panel.lista.GetCount(), 1)
         self.assertIn("risa", panel.lista.GetString(0))
@@ -331,7 +331,7 @@ class TestCarpeta(BaseVentana):
                              _datos(nombre="B", archivo="b.wav")])
         panel.lista.SetSelection(1)
         self._archivo("c.wav")
-        with mock.patch.object(medios_ventana, "duracion_de", return_value=0):
+        with mock.patch.object(medios_ventana.medios_medicion, "duracion_de", return_value=0):
             self._activar(panel)
         self.assertEqual(panel.lista.GetSelection(), 1)
         self.assertEqual([panel.lista.GetString(i)
@@ -342,7 +342,7 @@ class TestCarpeta(BaseVentana):
         panel = self._panel([])
         self._archivo("risa.wav")
         inmediato = lambda funcion, *args: funcion(*args)
-        with mock.patch.object(medios_ventana, "duracion_de",
+        with mock.patch.object(medios_ventana.medios_medicion, "duracion_de",
                                return_value=7) as duracion, \
              mock.patch.object(medios_ventana, "anunciar") as decir, \
              mock.patch.object(medios_ventana.wx, "CallAfter",
