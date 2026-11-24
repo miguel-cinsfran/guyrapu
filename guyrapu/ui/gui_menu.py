@@ -37,6 +37,7 @@ FILTROS = [
     (N_("Membresías"),   TIPO_MIEMBRO,               avisos_tiktok.CLAVES_FILTRO[3]),
     # Traductores: filtro del chat que muestra solo los avisos de TikTok.
     (N_("Avisos"),       avisos_tiktok.TIPOS_AVISO,  avisos_tiktok.CLAVES_FILTRO[4]),
+    (N_("Comandos"),     avisos_tiktok.FILTRO_COMANDOS, avisos_tiktok.CLAVES_FILTRO[5]),
 ]
 
 

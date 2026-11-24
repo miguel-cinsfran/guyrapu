@@ -320,6 +320,37 @@ class TestInicioGui(unittest.TestCase):
         evento.Skip.assert_called_once_with()
 
 
+class TestFiltroGuardadoAlIniciar(unittest.TestCase):
+    """El filtro persistido se restaura al abrir, con el de fábrica si es extraño."""
+
+    def _iniciar(self, valor):
+        from guyrapu.core import avisos_tiktok
+
+        aplicacion = mock.Mock()
+        frame = mock.Mock()
+        configuracion = {"filtro_activo": valor}
+        worker = mock.Mock()
+        worker.voces.return_value = []
+        with mock.patch.object(gui, "AplicacionPrincipal", return_value=aplicacion), \
+                mock.patch.object(gui, "VentanaPrincipal", return_value=frame), \
+                redirigir_rutas("."), \
+                mock.patch.object(gui, "_lector_init"), \
+                mock.patch.object(gui._snd, "reproducir"), \
+                mock.patch.object(gui.wx, "CallAfter"):
+            gui.iniciar_gui(configuracion, object(), object(), worker, object())
+        return frame, avisos_tiktok.FILTRO_COMANDOS
+
+    def test_comandos_abre_con_el_filtro_de_comandos(self):
+        frame, comandos = self._iniciar("comandos")
+        self.assertEqual(frame.chat_vivo.filtro, comandos)
+        frame._chat_acciones._marcar_filtro.assert_called_once_with()
+
+    def test_clave_desconocida_abre_con_todos(self):
+        frame, _comandos = self._iniciar("raro")
+        self.assertIsNone(frame.chat_vivo.filtro)
+        frame._chat_acciones._marcar_filtro.assert_called_once_with()
+
+
 class EventoTecladoFalso:
     def __init__(self, codigo, modificadores=0):
         self.codigo = codigo

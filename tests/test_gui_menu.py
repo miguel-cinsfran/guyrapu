@@ -23,6 +23,7 @@ from tests.pseudo_prueba import con_pseudo
 from tests.ventanas_prueba import app_de_prueba, destruir
 from guyrapu.ui import chat_acciones
 from guyrapu.ui import gui
+from guyrapu.ui.gui_menu import FILTROS
 
 
 def _construir_lista(accel=None, con_frame=False):
@@ -146,6 +147,7 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("&Filtro de mensajes", "Super Chats", ANY, "radio"),
             ("&Filtro de mensajes", "Membresías", ANY, "radio"),
             ("&Filtro de mensajes", "Avisos", ANY, "radio"),
+            ("&Filtro de mensajes", "Comandos", ANY, "radio"),
             ("&Chat", "&Buscar en el chat…", ANY, "normal"),
             ("&Chat", "&Participación en el chat…", ANY, "normal"),
             ("&Chat", "&Traducir chat", ANY, "check"),
@@ -246,6 +248,12 @@ class TestEquivalenciaMenu(unittest.TestCase):
             ("A&yuda", "&Buscar actualizaciones…", ANY, "normal"),
             ("A&yuda", "&Acerca de…", gui.wx.ID_ABOUT, "normal"),
         ], lista)
+
+    def test_cada_filtro_del_menu_aplica_su_indice(self):
+        _titulos, _lista, frame = _construir_lista(con_frame=True)
+        enlaces = [llamada.args[2] for llamada in frame._bind_menu.call_args_list
+                   if llamada.args[1] == frame._chat_acciones._aplicar_filtro]
+        self.assertEqual(enlaces, list(range(len(FILTROS))))
 
     def test_la_casilla_de_traduccion_nace_apagada(self):
         _titulos, _lista, frame = _construir_lista(con_frame=True)

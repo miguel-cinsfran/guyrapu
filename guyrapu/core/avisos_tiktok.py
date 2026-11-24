@@ -142,14 +142,18 @@ def opciones_eventos(p) -> dict:
 
 # Las claves persistidas de los filtros del chat. El menú, las acciones y la
 # lectura de config.ini salen de acá para que no se repitan.
-CLAVES_FILTRO = ("todos", "texto", "superchat", "miembro", "avisos")
+FILTRO_COMANDOS = "comandos"
+CLAVES_FILTRO = ("todos", "texto", "superchat", "miembro", "avisos",
+                 FILTRO_COMANDOS)
 
 
-def pasa_filtro(filtro, tipo) -> bool:
+def pasa_filtro(filtro, tipo, texto="") -> bool:
     """Si un registro pasa el filtro del chat: None todo, conjunto sus
-    tipos, texto el que sea igual."""
+    tipos, texto el que sea igual y comandos los que invocan uno."""
     if filtro is None:
         return True
+    if filtro == FILTRO_COMANDOS:
+        return evento_de_mensaje(tipo, texto) == "comando"
     if isinstance(filtro, frozenset):
         return tipo in filtro
     return filtro == tipo

@@ -245,7 +245,7 @@ class ControladorChat:
         # borrar al principio, para que fila y mensaje sigan alineados: si no,
         # pasados 500 mensajes, copiar o banear caerían sobre el mensaje
         # equivocado.
-        visible = pasa_filtro(self.filtro, registro.tipo)
+        visible = pasa_filtro(self.filtro, registro.tipo, registro.texto)
         borrar = self.modelo.agregar(registro, visible)
         for _sin_uso in range(borrar):
             self.lista.Delete(0)
@@ -386,7 +386,7 @@ class ControladorChat:
         self.lista.Clear()
         visibles = self.modelo.reconstruir(
             lambda it: not self._autor_oculto(it.autor)
-            and pasa_filtro(self.filtro, it.tipo))
+            and pasa_filtro(self.filtro, it.tipo, it.texto))
         if visibles:
             sacar_linea_vacia(self.lista)
         for registro in visibles:

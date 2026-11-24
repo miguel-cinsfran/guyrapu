@@ -239,6 +239,9 @@ class TestClavesDeFiltro(unittest.TestCase):
         self.assertEqual([entrada[2] for entrada in gui_menu.FILTROS],
                          list(avisos_tiktok.CLAVES_FILTRO))
 
+    def test_comandos_es_la_ultima_clave(self):
+        self.assertEqual(avisos_tiktok.CLAVES_FILTRO[-1], "comandos")
+
     def test_config_lectura_acepta_todas_las_claves(self):
         from guyrapu.core import config_lectura
 
@@ -261,6 +264,15 @@ class TestPasaFiltro(unittest.TestCase):
         self.assertFalse(avisos_tiktok.pasa_filtro(
             avisos_tiktok.TIPOS_AVISO, cfg.TIPO_TEXTO))
         self.assertFalse(avisos_tiktok.pasa_filtro(frozenset(), cfg.TIPO_SEGUIR))
+
+    def test_el_filtro_de_comandos_mira_el_texto(self):
+        filtro = avisos_tiktok.FILTRO_COMANDOS
+        self.assertTrue(avisos_tiktok.pasa_filtro(
+            filtro, cfg.TIPO_TEXTO, "!risa"))
+        self.assertFalse(avisos_tiktok.pasa_filtro(
+            filtro, cfg.TIPO_TEXTO, "hola"))
+        self.assertFalse(avisos_tiktok.pasa_filtro(
+            filtro, cfg.TIPO_SUPERCHAT, "!risa"))
 
     def test_texto_compara_igual(self):
         self.assertTrue(avisos_tiktok.pasa_filtro(

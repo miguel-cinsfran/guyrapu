@@ -9,7 +9,7 @@ from unittest import mock
 from guyrapu.core.config import (
     TIPO_ENTRADA, TIPO_ME_GUSTA, TIPO_SUPERCHAT, TIPO_TEXTO,
 )
-from guyrapu.core.avisos_tiktok import TIPOS_AVISO
+from guyrapu.core.avisos_tiktok import FILTRO_COMANDOS, TIPOS_AVISO
 from guyrapu.core.idioma import _
 from guyrapu.ui import chat_vivo
 from guyrapu.translation.proveedores.base import Traduccion
@@ -384,6 +384,29 @@ class TestControladorChat(unittest.TestCase):
         control.lista.Append.assert_called_once_with("Ana: nuevo, 12:00")
         self.assertEqual(len(control.modelo.todos), 2)
         self.assertEqual(len(control.modelo.visibles), 1)
+
+
+class TestFiltroDeComandos(unittest.TestCase):
+    """El filtro mira el texto al llegar y al reconstruir la lista."""
+
+    def test_al_llegar_solo_se_ven_los_comandos(self):
+        lista = _ListaFilas()
+        control = _controlador(lista=lista, filtro=FILTRO_COMANDOS)
+        with mock.patch.object(chat_vivo._snd, "reproducir"):
+            control._procesar(_registro(texto="hola"))
+            control._procesar(_registro(texto="!risa"))
+        self.assertEqual(lista.filas, ["Ana: !risa, 12:00"])
+        self.assertEqual(len(control.modelo.visibles), 1)
+
+    def test_al_reconstruir_solo_se_ven_los_comandos(self):
+        lista = _ListaFilas()
+        control = _controlador(lista=lista, filtro=None)
+        with mock.patch.object(chat_vivo._snd, "reproducir"):
+            control._procesar(_registro(texto="hola"))
+            control._procesar(_registro(texto="!risa"))
+        control.filtro = FILTRO_COMANDOS
+        control.reconstruir()
+        self.assertEqual(lista.filas, ["Ana: !risa, 12:00"])
 
 
 class TestComandosDelChat(unittest.TestCase):

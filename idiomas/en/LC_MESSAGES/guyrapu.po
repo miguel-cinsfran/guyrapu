@@ -5544,7 +5544,8 @@ msgstr "Bottom center"
 msgid "Abajo a la derecha"
 msgstr "Bottom right"
 
-#: guyrapu/obs/estilos_aviso.py guyrapu/ui/interaccion_ventana.py
+#: guyrapu/obs/estilos_aviso.py guyrapu/ui/gui_menu.py
+#: guyrapu/ui/interaccion_ventana.py
 msgid "Comandos"
 msgstr "Commands"
 
