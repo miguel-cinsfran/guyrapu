@@ -24,7 +24,7 @@
 ### Voces y sonidos
 
 - Los deslizadores de velocidad, volumen y tono de las voces, de volumen de la
-  música y de volumen de los medios son más anchos y muestran su valor.
+  música y de volumen de los medios son más anchos.
 
 ### Música
 

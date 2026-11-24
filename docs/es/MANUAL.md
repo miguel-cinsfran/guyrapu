@@ -169,7 +169,7 @@ que requiere una cuenta. Las voces de Phonon y de Piper se instalan desde
 *Administrar voces*, en el menú *Voz* o desde el botón del mismo nombre en
 *Preferencias*, categoría *Voces*, y aparecen en esa categoría una vez
 instaladas. El motor y la voz se eligen ahí. La velocidad, el volumen y el
-tono se ajustan con deslizadores anchos que muestran su valor, como el
+tono se ajustan con deslizadores anchos, como el
 deslizador del volumen de la música y el de los medios. *Probar voz* reproduce
 una muestra con cualquier motor. Las voces locales dicen su idioma. La voz secundaria puede
 usar otro motor. Si una voz local falla o ElevenLabs falla por la red o por

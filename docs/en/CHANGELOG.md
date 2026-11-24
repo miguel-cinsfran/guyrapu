@@ -17,7 +17,7 @@ This is a translation of the Spanish original, made with artificial intelligence
 
 ### Voices and sounds
 
-- The sliders for voice speed, volume and pitch, for the music volume and for the media volume are wider and show their value.
+- The sliders for voice speed, volume and pitch, for the music volume and for the media volume are wider.
 
 ### Music
 
