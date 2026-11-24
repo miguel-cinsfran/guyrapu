@@ -8,11 +8,15 @@ import wx
 
 from guyrapu.ui.accesibilidad import nombre_accesible
 
+ANCHO = 280  # El ancho del cuadro combinado de salida de audio de la página Voces.
+
 
 def deslizador_accesible(padre, minimo, maximo, inicial, paso, nombre):
-    """Un deslizador horizontal con su nombre y las flechas de un paso."""
-    control = wx.Slider(padre, value=inicial, minValue=minimo,
-                        maxValue=maximo, style=wx.SL_HORIZONTAL, name=nombre)
+    """Un deslizador horizontal con su nombre, su valor y las flechas de un paso."""
+    control = wx.Slider(
+        padre, value=inicial, minValue=minimo, maxValue=maximo,
+        style=wx.SL_HORIZONTAL | wx.SL_VALUE_LABEL, name=nombre)
+    control.SetMinSize((ANCHO, -1))
     control.SetLineSize(paso)
     nombre_accesible(control, nombre)
     return control

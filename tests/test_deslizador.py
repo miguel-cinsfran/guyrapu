@@ -38,6 +38,20 @@ class TestDeslizador(unittest.TestCase):
         self.assertEqual(control.GetLineSize(), 5)
         poner.assert_called_once_with(control, "Velocidad de la voz")
 
+    def test_mide_al_menos_como_el_cuadro_de_salida_de_audio(self):
+        control = deslizador_accesible(
+            self.ventana, minimo=0, maximo=100, inicial=40, paso=5,
+            nombre="Volumen de la voz")
+
+        self.assertGreaterEqual(control.GetMinSize().GetWidth(), 280)
+
+    def test_muestra_el_valor_junto_al_cursor(self):
+        control = deslizador_accesible(
+            self.ventana, minimo=0, maximo=100, inicial=40, paso=5,
+            nombre="Volumen de la música")
+
+        self.assertTrue(control.GetWindowStyle() & wx.SL_VALUE_LABEL)
+
 
 class TestNivelesDePreferencias(unittest.TestCase):
     def setUp(self):
