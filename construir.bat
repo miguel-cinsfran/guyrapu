@@ -65,6 +65,7 @@ REM --noupx: NO comprimir con UPX. UPX dispara muchos falsos positivos de
 REM antivirus; sin el, el .exe levanta menos sospechas en el PC del amigo.
 REM El modulo da metadatos rapidos y el ejecutable mantiene flujos y descargas.
 REM yt-dlp carga extractores al vuelo, por eso se recopila completo.
+REM Ruta absoluta para la tabla de idiomas: PyInstaller resuelve --add-data relativo a build, igual que el icono.
 REM --exclude-module imageio_ffmpeg: su hook metia un segundo ffmpeg.exe en
 REM _internal; la app empaquetada usa el que se copia a la raiz mas abajo
 REM (ffmpeg_bin.ruta_ffmpeg lo busca primero), asi que el otro sobraba.
@@ -89,7 +90,7 @@ call uv run pyinstaller main.py ^
   --exclude-module imageio_ffmpeg ^
   --hidden-import vlc ^
   --add-data "!YTDOC!;googleapiclient/discovery_cache/documents" ^
-  --add-data "guyrapu/translation/nombres_idiomas.json;guyrapu/translation"
+  --add-data "%~dp0guyrapu\translation\nombres_idiomas.json;guyrapu/translation"
 if errorlevel 1 ( echo ERROR en PyInstaller. & pause & exit /b 1 )
 
 echo == Ensamblando la carpeta distribuible ==

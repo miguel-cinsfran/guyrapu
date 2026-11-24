@@ -289,8 +289,8 @@ class TestConstruirLlevaTablaDeIdiomas(unittest.TestCase):
 
     def test_paquete_copia_la_tabla_junto_al_modulo(self):
         self.assertIn(
-            '--add-data "guyrapu/translation/nombres_idiomas.json;'
-            'guyrapu/translation"',
+            '--add-data "%~dp0guyrapu\\translation\\'
+            'nombres_idiomas.json;guyrapu/translation"',
             self._texto())
 
 
