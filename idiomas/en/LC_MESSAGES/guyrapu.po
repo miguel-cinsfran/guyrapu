@@ -1987,42 +1987,6 @@ msgstr "Voice volume: {valor}%"
 msgid "Tono de la voz: {valor}"
 msgstr "Voice pitch: {valor}"
 
-#: guyrapu/core/atajos.py
-msgid "Reproductor (Ctrl)"
-msgstr "Player (Ctrl)"
-
-#: guyrapu/core/atajos.py
-msgid "Chat (Alt)"
-msgstr "Chat (Alt)"
-
-#: guyrapu/core/atajos.py
-msgid "Ventanas (Ctrl+Mayús)"
-msgstr "Windows (Ctrl+Shift)"
-
-#: guyrapu/core/atajos.py
-msgid "Directo y OBS (Alt+Mayús)"
-msgstr "Live and OBS (Alt+Shift)"
-
-#: guyrapu/core/atajos.py
-msgid "Voz y lectura (teclas F)"
-msgstr "Voice and reading (F keys)"
-
-#: guyrapu/core/atajos.py
-msgid "Música (Ctrl+Alt)"
-msgstr "Music (Ctrl+Alt)"
-
-#: guyrapu/core/atajos.py
-msgid "Interacción en directo (Ctrl+Alt+Mayús)"
-msgstr "Live interaction (Ctrl+Alt+Shift)"
-
-#: guyrapu/core/atajos.py
-msgid "Ventana y navegación (fijos)"
-msgstr "Window and navigation (fixed)"
-
-#: guyrapu/core/atajos.py
-msgid "Recientes y filtro del chat (fijos)"
-msgstr "Recent chat messages and filter (fixed)"
-
 #: guyrapu/core/atributos_voz.py guyrapu/obs/textos_perfil.py
 #: guyrapu/ui/gui_descargas.py
 msgid "Calidad"
@@ -2894,6 +2858,388 @@ msgstr "Could not read that file."
 #: guyrapu/core/preferencias_archivo.py
 msgid "Ese archivo no es de preferencias de la aplicación."
 msgstr "That file is not an application preferences file."
+
+#: guyrapu/core/registro_atajos.py
+msgid "Reproductor (Ctrl)"
+msgstr "Player (Ctrl)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Chat (Alt)"
+msgstr "Chat (Alt)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Ventanas (Ctrl+Mayús)"
+msgstr "Windows (Ctrl+Shift)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Directo y OBS (Alt+Mayús)"
+msgstr "Live and OBS (Alt+Shift)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Voz y lectura (teclas F)"
+msgstr "Voice and reading (F keys)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Música (Ctrl+Alt)"
+msgstr "Music (Ctrl+Alt)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Interacción en directo (Ctrl+Alt+Mayús)"
+msgstr "Live interaction (Ctrl+Alt+Shift)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Ventana y navegación (fijos)"
+msgstr "Window and navigation (fixed)"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Recientes y filtro del chat (fijos)"
+msgstr "Recent chat messages and filter (fixed)"
+
+#: guyrapu/core/registro_atajos.py guyrapu/player/reproductor.py
+msgid "Reproducir o pausar"
+msgstr "Play or pause"
+
+#: guyrapu/core/registro_atajos.py guyrapu/player/reproductor.py
+msgid "Retroceder 1 minuto"
+msgstr "Back 1 minute"
+
+#: guyrapu/core/registro_atajos.py guyrapu/player/reproductor.py
+msgid "Avanzar 1 minuto"
+msgstr "Forward 1 minute"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Ir al directo"
+msgstr "Go to live"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Detener vídeo"
+msgstr "Stop video"
+
+#: guyrapu/core/registro_atajos.py guyrapu/player/reproductor.py
+msgid "Silenciar o activar audio"
+msgstr "Mute or unmute audio"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Bajar volumen del reproductor"
+msgstr "Lower player volume"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Subir volumen del reproductor"
+msgstr "Raise player volume"
+
+#: guyrapu/core/registro_atajos.py guyrapu/obs/disenos_fabrica.py
+#: guyrapu/player/reproductor.py
+msgid "Pantalla completa"
+msgstr "Full screen"
+
+#: guyrapu/core/registro_atajos.py guyrapu/ui/gui_redactar.py
+msgid "Enviar mensaje al chat"
+msgstr "Send message to the chat"
+
+#. Traductores: título del cuadro que busca en los mensajes del chat.
+#: guyrapu/core/registro_atajos.py guyrapu/ui/chat_buscar.py
+msgid "Buscar en el chat"
+msgstr "Search chat"
+
+#. Traductores: título de la ventana con la participación del chat.
+#: guyrapu/core/registro_atajos.py guyrapu/ui/chat_participacion.py
+msgid "Participación en el chat"
+msgstr "Chat participation"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Abrir Preferencias"
+msgstr "Open Preferences"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Abrir el historial de directos"
+msgstr "Open the live stream history"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Abrir Restream"
+msgstr "Open Restream"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Abrir panel de OBS"
+msgstr "Open OBS panel"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Abrir la ventana Interacción"
+msgstr "Open the Interaction window"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Abrir Administrador de descargas"
+msgstr "Open Download manager"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Abrir la ventana de música"
+msgstr "Open the music window"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Preguntar a la IA sobre la imagen"
+msgstr "Ask the AI about the picture"
+
+#. Traductores: acción del atajo que conecta el chat.
+#: guyrapu/core/registro_atajos.py guyrapu/ui/gui_construccion.py
+#: guyrapu/ui/restream_pagina_cuenta.py
+msgid "Conectar"
+msgstr "Connect"
+
+#. Traductores: acción del atajo que desconecta el chat.
+#: guyrapu/core/registro_atajos.py guyrapu/ui/restream_pagina_cuenta.py
+msgid "Desconectar"
+msgstr "Disconnect"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Ir a la lista del panel actual"
+msgstr "Go to the current pane list"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Copiar enlace del directo"
+msgstr "Copy live stream link"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Marcar incidencia"
+msgstr "Mark issue"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Silenciar el micrófono de OBS"
+msgstr "Mute the OBS microphone"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Iniciar o detener la grabación"
+msgstr "Start or stop recording"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Pausar o reanudar la grabación"
+msgstr "Pause or resume recording"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Guardar clip"
+msgstr "Save clip"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Activar o desactivar los avisos de sobrecarga"
+msgstr "Turn overload warnings on or off"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Mostrar OBS"
+msgstr "Show OBS"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Pausar o reanudar lectura"
+msgstr "Pause or resume reading"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Detener voz actual"
+msgstr "Stop current voice"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Bajar velocidad de la voz"
+msgstr "Lower voice speed"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Subir velocidad de la voz"
+msgstr "Raise voice speed"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Bajar volumen de la voz"
+msgstr "Lower voice volume"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Subir volumen de la voz"
+msgstr "Raise voice volume"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Bajar tono de la voz"
+msgstr "Lower voice pitch"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Subir tono de la voz"
+msgstr "Raise voice pitch"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Silenciar lectura"
+msgstr "Mute reading"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Silenciar sonidos"
+msgstr "Mute sounds"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Anunciar estado"
+msgstr "Announce status"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Anunciar autor del último mensaje"
+msgstr "Announce last message author"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Describir escena de OBS"
+msgstr "Describe OBS scene"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Preguntar a la IA sobre la escena"
+msgstr "Ask the AI about the scene"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Anunciar encuadre de cámara"
+msgstr "Announce camera framing"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Avisar si el rostro queda fuera del encuadre"
+msgstr "Notify when the face leaves the frame"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Mostrar u ocultar la cámara"
+msgstr "Show or hide the camera"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Reproducir o pausar la música"
+msgstr "Play or pause the music"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Siguiente canción"
+msgstr "Next song"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Canción anterior"
+msgstr "Previous song"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Subir el volumen de la música"
+msgstr "Raise the music volume"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Bajar el volumen de la música"
+msgstr "Lower the music volume"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Anunciar canción actual"
+msgstr "Announce current song"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Silenciar o activar el audio de la música"
+msgstr "Mute or turn on the music audio"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Orden aleatorio de la música"
+msgstr "Music shuffle"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Cambiar la repetición de la música"
+msgstr "Change music repeat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Detener música"
+msgstr "Stop music"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Avanzar la música 10 segundos"
+msgstr "Move the music forward 10 seconds"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Retroceder la música 10 segundos"
+msgstr "Move the music back 10 seconds"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Pausar la cola del vídeo"
+msgstr "Pause the video queue"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Omitir el mensaje del vídeo"
+msgstr "Skip the video message"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Vaciar la cola del vídeo"
+msgstr "Clear the video queue"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Silenciar los medios"
+msgstr "Mute the media"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Modo pánico"
+msgstr "Panic mode"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Activar o desactivar los mensajes automáticos"
+msgstr "Turn scheduled messages on or off"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Pausar los comandos del chat"
+msgstr "Pause chat commands"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Cerrar la encuesta"
+msgstr "Close the poll"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer la siguiente pregunta"
+msgstr "Read the next question"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Estado de la interacción"
+msgstr "Interaction status"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Salir de la aplicación"
+msgstr "Exit the application"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Región siguiente"
+msgstr "Next region"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Región anterior"
+msgstr "Previous region"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el último mensaje del chat"
+msgstr "Read the last chat message"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 2 desde el final del chat"
+msgstr "Read message 2 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 3 desde el final del chat"
+msgstr "Read message 3 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 4 desde el final del chat"
+msgstr "Read message 4 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 5 desde el final del chat"
+msgstr "Read message 5 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 6 desde el final del chat"
+msgstr "Read message 6 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 7 desde el final del chat"
+msgstr "Read message 7 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 8 desde el final del chat"
+msgstr "Read message 8 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 9 desde el final del chat"
+msgstr "Read message 9 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Leer el mensaje 10 desde el final del chat"
+msgstr "Read message 10 from the end of the chat"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Filtro anterior del chat"
+msgstr "Previous chat filter"
+
+#: guyrapu/core/registro_atajos.py
+msgid "Filtro siguiente del chat"
+msgstr "Next chat filter"
 
 #: guyrapu/core/voces_disponibles.py
 msgid "español"
@@ -4607,6 +4953,14 @@ msgid_plural "{n} canciones agregadas a la lista {nombre}"
 msgstr[0] "{n} song added to the {nombre} playlist"
 msgstr[1] "{n} songs added to the {nombre} playlist"
 
+#: guyrapu/music/atenuacion.py
+msgid "Bajar música mientras &habla la voz"
+msgstr "Lower music while the voice s&peaks"
+
+#: guyrapu/music/atenuacion.py
+msgid "Bajar música mientras &suena un medio"
+msgstr "Lower music while media pla&ys"
+
 #: guyrapu/music/biblioteca.py
 #, python-brace-format
 msgid "La carpeta no existe o no es una carpeta: {ruta}"
@@ -4998,11 +5352,6 @@ msgstr "The top source is missing."
 #: guyrapu/obs/disenos_fabrica.py
 msgid "Falta la fuente inferior."
 msgstr "The bottom source is missing."
-
-#: guyrapu/obs/disenos_fabrica.py guyrapu/player/reproductor.py
-#: guyrapu/ui/atajos_captura.py
-msgid "Pantalla completa"
-msgstr "Full screen"
 
 #: guyrapu/obs/disenos_fabrica.py
 msgid "Imagen en imagen"
@@ -7315,25 +7664,13 @@ msgstr "Video. Ctrl+F opens full screen."
 msgid "Reproducir"
 msgstr "Play"
 
-#: guyrapu/player/reproductor.py guyrapu/ui/atajos_captura.py
-msgid "Reproducir o pausar"
-msgstr "Play or pause"
-
 #: guyrapu/player/reproductor.py
 msgid "Retroceder 1 min"
 msgstr "Back 1 min"
 
-#: guyrapu/player/reproductor.py guyrapu/ui/atajos_captura.py
-msgid "Retroceder 1 minuto"
-msgstr "Back 1 minute"
-
 #: guyrapu/player/reproductor.py
 msgid "Avanzar 1 min"
 msgstr "Forward 1 min"
-
-#: guyrapu/player/reproductor.py guyrapu/ui/atajos_captura.py
-msgid "Avanzar 1 minuto"
-msgstr "Forward 1 minute"
 
 #: guyrapu/player/reproductor.py
 msgid "Detener"
@@ -7342,10 +7679,6 @@ msgstr "Stop"
 #: guyrapu/player/reproductor.py
 msgid "Silenciar audio"
 msgstr "Mute audio"
-
-#: guyrapu/player/reproductor.py guyrapu/ui/atajos_captura.py
-msgid "Silenciar o activar audio"
-msgstr "Mute or unmute audio"
 
 #. Traductores: etiqueta del deslizador de posición.
 #: guyrapu/player/reproductor.py
@@ -8105,331 +8438,6 @@ msgid ""
 msgstr ""
 "It must be a function key, from F1 to F12, alone, with Ctrl, with "
 "Ctrl+Shift or with Alt (for example F2, Ctrl+F2 or Alt+F3)."
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Ir al directo"
-msgstr "Go to live"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Detener vídeo"
-msgstr "Stop video"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Bajar volumen del reproductor"
-msgstr "Lower player volume"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Subir volumen del reproductor"
-msgstr "Raise player volume"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir Administrador de descargas"
-msgstr "Open Download manager"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir Preferencias"
-msgstr "Open Preferences"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir el historial de directos"
-msgstr "Open the live stream history"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Marcar incidencia"
-msgstr "Mark issue"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir Restream"
-msgstr "Open Restream"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir panel de OBS"
-msgstr "Open OBS panel"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir la ventana Interacción"
-msgstr "Open the Interaction window"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Mostrar OBS"
-msgstr "Show OBS"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Copiar enlace del directo"
-msgstr "Copy live stream link"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Silenciar el micrófono de OBS"
-msgstr "Mute the OBS microphone"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Iniciar o detener la grabación"
-msgstr "Start or stop recording"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Pausar o reanudar la grabación"
-msgstr "Pause or resume recording"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Guardar clip"
-msgstr "Save clip"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Activar o desactivar los avisos de sobrecarga"
-msgstr "Turn overload warnings on or off"
-
-#. Traductores: acción del atajo que conecta el chat.
-#: guyrapu/ui/atajos_captura.py guyrapu/ui/gui_construccion.py
-#: guyrapu/ui/restream_pagina_cuenta.py
-msgid "Conectar"
-msgstr "Connect"
-
-#. Traductores: acción del atajo que desconecta el chat.
-#: guyrapu/ui/atajos_captura.py guyrapu/ui/restream_pagina_cuenta.py
-msgid "Desconectar"
-msgstr "Disconnect"
-
-#: guyrapu/ui/atajos_captura.py guyrapu/ui/gui_redactar.py
-msgid "Enviar mensaje al chat"
-msgstr "Send message to the chat"
-
-#. Traductores: título del cuadro que busca en los mensajes del chat.
-#: guyrapu/ui/atajos_captura.py guyrapu/ui/chat_buscar.py
-msgid "Buscar en el chat"
-msgstr "Search chat"
-
-#. Traductores: título de la ventana con la participación del chat.
-#: guyrapu/ui/atajos_captura.py guyrapu/ui/chat_participacion.py
-msgid "Participación en el chat"
-msgstr "Chat participation"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Ir a la lista del panel actual"
-msgstr "Go to the current pane list"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Salir de la aplicación"
-msgstr "Exit the application"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Pausar o reanudar lectura"
-msgstr "Pause or resume reading"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Detener voz actual"
-msgstr "Stop current voice"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Bajar velocidad de la voz"
-msgstr "Lower voice speed"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Subir velocidad de la voz"
-msgstr "Raise voice speed"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Bajar volumen de la voz"
-msgstr "Lower voice volume"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Subir volumen de la voz"
-msgstr "Raise voice volume"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Bajar tono de la voz"
-msgstr "Lower voice pitch"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Subir tono de la voz"
-msgstr "Raise voice pitch"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Silenciar lectura"
-msgstr "Mute reading"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Silenciar sonidos"
-msgstr "Mute sounds"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Anunciar estado"
-msgstr "Announce status"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Anunciar autor del último mensaje"
-msgstr "Announce last message author"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Describir escena de OBS"
-msgstr "Describe OBS scene"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Preguntar a la IA sobre la escena"
-msgstr "Ask the AI about the scene"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Anunciar encuadre de cámara"
-msgstr "Announce camera framing"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Avisar si el rostro queda fuera del encuadre"
-msgstr "Notify when the face leaves the frame"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Mostrar u ocultar la cámara"
-msgstr "Show or hide the camera"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Región siguiente"
-msgstr "Next region"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Región anterior"
-msgstr "Previous region"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Reproducir o pausar la música"
-msgstr "Play or pause the music"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Siguiente canción"
-msgstr "Next song"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Canción anterior"
-msgstr "Previous song"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Subir el volumen de la música"
-msgstr "Raise the music volume"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Bajar el volumen de la música"
-msgstr "Lower the music volume"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Anunciar canción actual"
-msgstr "Announce current song"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Silenciar o activar el audio de la música"
-msgstr "Mute or turn on the music audio"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Orden aleatorio de la música"
-msgstr "Music shuffle"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Cambiar la repetición de la música"
-msgstr "Change music repeat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Detener música"
-msgstr "Stop music"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Avanzar la música 10 segundos"
-msgstr "Move the music forward 10 seconds"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Retroceder la música 10 segundos"
-msgstr "Move the music back 10 seconds"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Abrir la ventana de música"
-msgstr "Open the music window"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Pausar la cola del vídeo"
-msgstr "Pause the video queue"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Omitir el mensaje del vídeo"
-msgstr "Skip the video message"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Vaciar la cola del vídeo"
-msgstr "Clear the video queue"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Silenciar los medios"
-msgstr "Mute the media"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Modo pánico"
-msgstr "Panic mode"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Activar o desactivar los mensajes automáticos"
-msgstr "Turn scheduled messages on or off"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Pausar los comandos del chat"
-msgstr "Pause chat commands"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Cerrar la encuesta"
-msgstr "Close the poll"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer la siguiente pregunta"
-msgstr "Read the next question"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Estado de la interacción"
-msgstr "Interaction status"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Preguntar a la IA sobre la imagen"
-msgstr "Ask the AI about the picture"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el último mensaje del chat"
-msgstr "Read the last chat message"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 2 desde el final del chat"
-msgstr "Read message 2 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 3 desde el final del chat"
-msgstr "Read message 3 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 4 desde el final del chat"
-msgstr "Read message 4 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 5 desde el final del chat"
-msgstr "Read message 5 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 6 desde el final del chat"
-msgstr "Read message 6 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 7 desde el final del chat"
-msgstr "Read message 7 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 8 desde el final del chat"
-msgstr "Read message 8 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 9 desde el final del chat"
-msgstr "Read message 9 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Leer el mensaje 10 desde el final del chat"
-msgstr "Read message 10 from the end of the chat"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Filtro anterior del chat"
-msgstr "Previous chat filter"
-
-#: guyrapu/ui/atajos_captura.py
-msgid "Filtro siguiente del chat"
-msgstr "Next chat filter"
 
 #: guyrapu/ui/atajos_captura.py
 msgid ""
@@ -9501,7 +9509,7 @@ msgstr "&Saved commands:"
 msgid "Comandos del chat guardados"
 msgstr "Saved chat commands"
 
-#: guyrapu/ui/comandos_ventana.py
+#: guyrapu/ui/comandos_ventana.py guyrapu/ui/medios_ventana.py
 msgid "Comando agregado"
 msgstr "Command added"
 
@@ -13400,135 +13408,6 @@ msgid "OBS"
 msgstr "OBS"
 
 #: guyrapu/ui/gui_preferencias.py
-msgid "Tamaño de &letra del chat (8 a 24):"
-msgstr "Chat &font size (8 to 24):"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Tamaño de letra del chat"
-msgstr "Chat font size"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Mostrar total de &Super Chats en la barra de estado"
-msgstr "Show the Super Chat &total in the status bar"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Mostrar pestaña de &información del vídeo"
-msgstr "Show the video &information tab (channel, views, description)"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "&Estrategia de la cola"
-msgstr "&Queue strategy"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Leer todos los mensajes"
-msgstr "Read all messages"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Descartar los más antiguos si se acumulan"
-msgstr "Drop the oldest when they pile up"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Estrategia de la cola"
-msgstr "Queue strategy"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Tamaño &máximo de la cola:"
-msgstr "&Maximum queue size:"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Tamaño máximo de la cola"
-msgstr "Maximum queue size"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Leer solo el &nombre desde esta cantidad de mensajes en cola:"
-msgstr "Read only the &name from this many queued messages:"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Leer solo el nombre desde esta cantidad de mensajes en cola"
-msgstr "Read only the name from this many queued messages"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Con 0, esta opción queda desactivada."
-msgstr "With 0, this option stays off."
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "&Reconectar automáticamente"
-msgstr "&Reconnect automatically"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Reconectar automáticamente"
-msgstr "Reconnect automatically"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "&Espera máxima entre intentos, en segundos:"
-msgstr "&Maximum wait between tries, in seconds:"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Espera máxima entre intentos, en segundos"
-msgstr "Maximum wait between tries, in seconds"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Número máximo de &intentos:"
-msgstr "Maximum number of &tries:"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Número máximo de intentos"
-msgstr "Maximum number of tries"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "&Reproducir audio automáticamente al conectar"
-msgstr "&Play audio automatically on connect"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Reproducir &solo el audio, sin imagen"
-msgstr "Play s&ound only, without the picture"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Mostrar &botones del reproductor"
-msgstr "Show player &buttons"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "&Tamaño máximo de la caché de vídeo, en megabytes:"
-msgstr "&Maximum video cache size, in megabytes:"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Tamaño máximo de la caché de vídeo en megabytes"
-msgstr "Maximum video cache size in megabytes"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid ""
-"Elige qué dice la tecla F2 (estado de sesión). Marca lo que quieras oír; "
-"por defecto, los datos del vídeo y del chat. El orden en que se dice es "
-"fijo."
-msgstr ""
-"Choose what the F2 key says (session status). Check what you want to hear; "
-"by default, the video and chat data. The speaking order is fixed."
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "&Palabras silenciadas (separadas por comas):"
-msgstr "Muted &words (separated by commas):"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Palabras silenciadas"
-msgstr "Muted words"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "&Usuarios silenciados (separados por comas):"
-msgstr "&Muted users (separated by commas):"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid "Usuarios silenciados"
-msgstr "Muted users"
-
-#: guyrapu/ui/gui_preferencias.py
-msgid ""
-"Estos filtros ocultan y no leen los mensajes que contengan esas palabras o "
-"de esos usuarios. Se aplican a partir del próximo mensaje."
-msgstr ""
-"These filters hide and skip messages containing those words or from those "
-"users. They apply from the next message."
-
-#: guyrapu/ui/gui_preferencias.py
 msgid ""
 "Tu sesión de YouTube caducó. ¿Abrir Preferencias para volver a iniciar "
 "sesión?"
@@ -14117,6 +13996,10 @@ msgstr ""
 "There are no media items. Images, GIFs, videos and sounds from the Media "
 "folder, next to the application, appear here. Commands and alerts show them"
 " or play them in the video. Copy files into that folder or use Add."
+
+#: guyrapu/ui/medios_ventana.py
+msgid "Crear c&omando"
+msgstr "C&reate command"
 
 #: guyrapu/ui/medios_ventana.py
 msgid "Lista de &medios:"
@@ -15556,6 +15439,66 @@ msgstr "Use camera shortcuts in any a&pplication"
 msgid "&Describir la escena y consultar a la IA en cualquier aplicación"
 msgstr "&Describe the scene and ask the AI from any application"
 
+#: guyrapu/ui/preferencias_cola.py
+msgid "&Estrategia de la cola"
+msgstr "&Queue strategy"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Leer todos los mensajes"
+msgstr "Read all messages"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Descartar los más antiguos si se acumulan"
+msgstr "Drop the oldest when they pile up"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Estrategia de la cola"
+msgstr "Queue strategy"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Tamaño &máximo de la cola:"
+msgstr "&Maximum queue size:"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Tamaño máximo de la cola"
+msgstr "Maximum queue size"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Leer solo el &nombre desde esta cantidad de mensajes en cola:"
+msgstr "Read only the &name from this many queued messages:"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Leer solo el nombre desde esta cantidad de mensajes en cola"
+msgstr "Read only the name from this many queued messages"
+
+#: guyrapu/ui/preferencias_cola.py
+msgid "Con 0, esta opción queda desactivada."
+msgstr "With 0, this option stays off."
+
+#: guyrapu/ui/preferencias_conexion.py
+msgid "&Reconectar automáticamente"
+msgstr "&Reconnect automatically"
+
+#: guyrapu/ui/preferencias_conexion.py
+msgid "Reconectar automáticamente"
+msgstr "Reconnect automatically"
+
+#: guyrapu/ui/preferencias_conexion.py
+msgid "&Espera máxima entre intentos, en segundos:"
+msgstr "&Maximum wait between tries, in seconds:"
+
+#: guyrapu/ui/preferencias_conexion.py
+msgid "Espera máxima entre intentos, en segundos"
+msgstr "Maximum wait between tries, in seconds"
+
+#: guyrapu/ui/preferencias_conexion.py
+msgid "Número máximo de &intentos:"
+msgstr "Maximum number of &tries:"
+
+#: guyrapu/ui/preferencias_conexion.py
+msgid "Número máximo de intentos"
+msgstr "Maximum number of tries"
+
 #: guyrapu/ui/preferencias_descargas.py
 msgid "Carpeta de &descargas:"
 msgstr "Download &folder:"
@@ -15623,6 +15566,15 @@ msgstr "Nightly"
 #: guyrapu/ui/preferencias_descargas.py
 msgid "Canal de actualización de yt-dlp"
 msgstr "yt-dlp update channel"
+
+#: guyrapu/ui/preferencias_estado.py
+msgid ""
+"Elige qué dice la tecla F2 (estado de sesión). Marca lo que quieras oír; "
+"por defecto, los datos del vídeo y del chat. El orden en que se dice es "
+"fijo."
+msgstr ""
+"Choose what the F2 key says (session status). Check what you want to hear; "
+"by default, the video and chat data. The speaking order is fixed."
 
 #: guyrapu/ui/preferencias_eventos.py
 msgid "&Super Chats y regalos:"
@@ -15707,6 +15659,30 @@ msgstr "Announce &which platform each message has when there are multiple chats"
 #: guyrapu/ui/preferencias_eventos.py
 msgid "Anunciar qué plataforma tiene cada mensaje cuando hay varios chats"
 msgstr "Announce which platform each message has when there are multiple chats"
+
+#: guyrapu/ui/preferencias_filtros.py
+msgid "&Palabras silenciadas (separadas por comas):"
+msgstr "Muted &words (separated by commas):"
+
+#: guyrapu/ui/preferencias_filtros.py
+msgid "Palabras silenciadas"
+msgstr "Muted words"
+
+#: guyrapu/ui/preferencias_filtros.py
+msgid "&Usuarios silenciados (separados por comas):"
+msgstr "&Muted users (separated by commas):"
+
+#: guyrapu/ui/preferencias_filtros.py
+msgid "Usuarios silenciados"
+msgstr "Muted users"
+
+#: guyrapu/ui/preferencias_filtros.py
+msgid ""
+"Estos filtros ocultan y no leen los mensajes que contengan esas palabras o "
+"de esos usuarios. Se aplican a partir del próximo mensaje."
+msgstr ""
+"These filters hide and skip messages containing those words or from those "
+"users. They apply from the next message."
 
 #: guyrapu/ui/preferencias_general.py
 msgid "El idioma nuevo se aplica al reiniciar la aplicación."
@@ -15988,6 +15964,22 @@ msgstr "Delete key"
 msgid "&Eliminar clave"
 msgstr "&Delete key"
 
+#: guyrapu/ui/preferencias_interfaz.py
+msgid "Tamaño de &letra del chat (8 a 24):"
+msgstr "Chat &font size (8 to 24):"
+
+#: guyrapu/ui/preferencias_interfaz.py
+msgid "Tamaño de letra del chat"
+msgstr "Chat font size"
+
+#: guyrapu/ui/preferencias_interfaz.py
+msgid "Mostrar total de &Super Chats en la barra de estado"
+msgstr "Show the Super Chat &total in the status bar"
+
+#: guyrapu/ui/preferencias_interfaz.py
+msgid "Mostrar pestaña de &información del vídeo"
+msgstr "Show the video &information tab (channel, views, description)"
+
 #: guyrapu/ui/preferencias_lectura.py
 msgid "Nombre y mensaje"
 msgstr "Name and message"
@@ -16205,6 +16197,14 @@ msgid "Preguntar al abrir Música si igualar el volumen"
 msgstr "Ask when opening Music whether to match volume"
 
 #: guyrapu/ui/preferencias_musica.py
+msgid "V&olumen de la música al bajarla:"
+msgstr "Music volume &when lowered:"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Volumen de la música al bajarla"
+msgstr "Music volume when lowered"
+
+#: guyrapu/ui/preferencias_musica.py
 msgid "Usar atajos de música en cualquier a&plicación"
 msgstr "Use music shortcuts &in any application"
 
@@ -16228,6 +16228,26 @@ msgstr "Found {cantidad} audio outputs"
 #: guyrapu/ui/preferencias_musica.py
 msgid "No se encontraron salidas de audio"
 msgstr "No audio outputs found"
+
+#: guyrapu/ui/preferencias_reproductor.py
+msgid "&Reproducir audio automáticamente al conectar"
+msgstr "&Play audio automatically on connect"
+
+#: guyrapu/ui/preferencias_reproductor.py
+msgid "Reproducir &solo el audio, sin imagen"
+msgstr "Play s&ound only, without the picture"
+
+#: guyrapu/ui/preferencias_reproductor.py
+msgid "Mostrar &botones del reproductor"
+msgstr "Show player &buttons"
+
+#: guyrapu/ui/preferencias_reproductor.py
+msgid "&Tamaño máximo de la caché de vídeo, en megabytes:"
+msgstr "&Maximum video cache size, in megabytes:"
+
+#: guyrapu/ui/preferencias_reproductor.py
+msgid "Tamaño máximo de la caché de vídeo en megabytes"
+msgstr "Maximum video cache size in megabytes"
 
 #. Traductores: fila de la lista de sonidos sin eventos que mostrar.
 #: guyrapu/ui/preferencias_sonidos.py
@@ -17678,24 +17698,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/music/atenuacion.py
-msgid "Bajar música mientras &habla la voz"
-msgstr "Lower music while the voice s&peaks"
-
-#: guyrapu/music/atenuacion.py
-msgid "Bajar música mientras &suena un medio"
-msgstr "Lower music while media pla&ys"
-
-#: guyrapu/ui/preferencias_musica.py
-msgid "V&olumen de la música al bajarla:"
-msgstr "Music volume &when lowered:"
-
-#: guyrapu/ui/preferencias_musica.py
-msgid "Volumen de la música al bajarla"
-msgstr "Music volume when lowered"
-
-#: guyrapu/ui/medios_ventana.py
-msgid "Crear c&omando"
-msgstr "C&reate command"
 
