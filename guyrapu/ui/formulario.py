@@ -56,6 +56,13 @@ def agregar_fila(sizer, rotulo, control, *, expandir=True, numerico=False):
     sizer.Add(control, 0, banderas, borde)
 
 
+def agregar_lista(sizer, rotulo, lista):
+    """Agrega el rótulo y la lista, que toma el alto libre, con el ritmo común."""
+    alto = CONTROL_A_ETIQUETA if sizer.GetChildren() else 0
+    sizer.Add(rotulo, 0, wx.TOP, alto)
+    sizer.Add(lista, 1, wx.EXPAND | wx.TOP, ETIQUETA_A_CONTROL)
+
+
 def agregar_bloque(sizer, bloque, *, junto=False):
     """Agrega un sizer o una ventana a lo ancho, con el hueco común arriba."""
     hueco = ETIQUETA_A_CONTROL if junto else CONTROL_A_ETIQUETA

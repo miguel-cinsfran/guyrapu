@@ -64,6 +64,21 @@ class TestAtajosSinTextosSinEnvolver(unittest.TestCase):
         self.assertEqual(sorted(map(_normalizar, sin_marcar)),
                          sorted(map(_normalizar, PENDIENTES_ATAJOS)))
 
+    def test_la_nota_deja_el_hueco_comun_de_cuatro_pixeles(self):
+        pagina = self._pagina(self._dialogo())
+        contenido = pagina.GetSizer().GetChildren()[0].GetSizer()
+        item = next(it for it in contenido.GetChildren()
+                    if it.GetWindow() is not None
+                    and it.GetWindow().GetName() == "NotaAtajos")
+        self.assertEqual(item.GetBorder(), 4)
+
+    def test_el_boton_restablecer_va_a_su_ancho_natural(self):
+        pagina = self._pagina(self._dialogo())
+        boton = [h for h in pagina.GetChildren()
+                 if h.GetName() == "RestablecerAtajos"][0]
+        pagina.Layout()
+        self.assertEqual(boton.GetSize().width, boton.GetBestSize().width)
+
 
 if __name__ == "__main__":
     unittest.main()

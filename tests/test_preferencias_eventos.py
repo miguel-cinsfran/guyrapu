@@ -251,13 +251,37 @@ class TestControlesEventos(BaseEventos):
     def test_la_grilla_va_directo_en_el_panel_sin_recuadro(self):
         dialogo = self._dialogo()
         pagina = self._pagina(dialogo, "Eventos del directo")
-        grillas = [it.GetSizer() for it in pagina.GetSizer().GetChildren()
+        contenido = pagina.GetSizer().GetChildren()[0].GetSizer()
+        grillas = [it.GetSizer() for it in contenido.GetChildren()
                    if isinstance(it.GetSizer(), gui.wx.FlexGridSizer)]
         self.assertEqual(len(grillas), 1)
         self.assertEqual(grillas[0].GetCols(), 2)
         for _atributo, _en_memoria, _etiqueta, _nombre in EVENTOS_ESPERADOS:
             with self.subTest(atributo=_atributo):
                 self.assertIs(getattr(dialogo, _atributo).GetParent(), pagina)
+
+    def test_el_ancho_minimo_de_la_pagina_no_crece(self):
+        # Medido el 24/11/2026 sobre esta página antes de pasarla a las piezas.
+        dialogo = self._dialogo()
+        pagina = self._pagina(dialogo, "Eventos del directo")
+        self.assertLessEqual(pagina.GetSizer().GetMinSize().width, 623)
+
+    def test_la_casilla_de_plataformas_no_corta_su_texto(self):
+        dialogo = self._dialogo()
+        pagina = self._pagina(dialogo, "Eventos del directo")
+        pagina.Layout()
+        casilla = dialogo.chk_decir_plataforma
+        self.assertGreaterEqual(casilla.GetSize().width,
+                                casilla.GetBestSize().width)
+
+    def test_el_hueco_entre_rotulo_y_control_es_de_cuatro_pixeles(self):
+        dialogo = self._dialogo()
+        pagina = self._pagina(dialogo, "Eventos del directo")
+        contenido = pagina.GetSizer().GetChildren()[0].GetSizer()
+        grilla = [it.GetSizer() for it in contenido.GetChildren()
+                  if isinstance(it.GetSizer(), gui.wx.FlexGridSizer)][0]
+        self.assertEqual(grilla.GetHGap(), 4)
+        self.assertEqual(grilla.GetVGap(), 12)
 
     def test_los_controles_de_sonido_y_nombre_de_plataforma(self):
         dialogo = self._dialogo()

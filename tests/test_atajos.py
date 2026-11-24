@@ -193,12 +193,15 @@ class TestParsearAtajos(unittest.TestCase):
         panel = mock.Mock()
         boton = mock.Mock()
         sizer = mock.Mock()
+        caja = mock.Mock()
+        caja.GetStaticBox.return_value = panel
         crear_boton = mock.Mock(return_value=boton)
         with mock.patch.object(preferencias_atajos, "crear_panel",
                                return_value=panel), \
                 mock.patch.object(gui_preferencias.wx, "BoxSizer", return_value=sizer), \
-                mock.patch.object(preferencias_atajos, "caja_de_grupo",
-                                  return_value=(sizer, panel)), \
+                mock.patch.object(preferencias_atajos.formulario,
+                                  "agregar_seccion_con_caja",
+                                  return_value=(sizer, caja)), \
                 mock.patch.object(gui_preferencias.wx, "StaticText", return_value=mock.Mock()), \
                 mock.patch.object(gui_preferencias.wx, "Button", crear_boton), \
                 mock.patch.object(preferencias_atajos, "etiqueta_de_accion",
@@ -226,12 +229,15 @@ class TestParsearAtajos(unittest.TestCase):
         pagina._config = {"atajos_raw": {"musica_listas": "ctrl+alt+l"}}
         panel = mock.Mock()
         sizer = mock.Mock()
+        caja = mock.Mock()
+        caja.GetStaticBox.return_value = panel
         crear_boton = mock.Mock(return_value=mock.Mock())
         with mock.patch.object(preferencias_atajos, "crear_panel",
                                return_value=panel), \
                 mock.patch.object(gui_preferencias.wx, "BoxSizer", return_value=sizer), \
-                mock.patch.object(preferencias_atajos, "caja_de_grupo",
-                                  return_value=(sizer, panel)), \
+                mock.patch.object(preferencias_atajos.formulario,
+                                  "agregar_seccion_con_caja",
+                                  return_value=(sizer, caja)), \
                 mock.patch.object(gui_preferencias.wx, "StaticText", return_value=mock.Mock()), \
                 mock.patch.object(gui_preferencias.wx, "Button", crear_boton):
             pagina.construir(object())

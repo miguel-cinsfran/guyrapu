@@ -14,10 +14,9 @@ from guyrapu.core import config as cfg
 from guyrapu.core.config import APP_NAME
 from guyrapu.core.idioma import _
 from guyrapu.ui import atajos_captura
-from guyrapu.ui import confirmar, tecla_escape
+from guyrapu.ui import confirmar, tecla_escape, formulario
 from guyrapu.ui.atajos_captura import etiqueta_de_accion
 from guyrapu.ui.accesibilidad import anunciar
-from guyrapu.ui.gui import caja_de_grupo
 from guyrapu.ui.tema import _T
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, crear_panel
 
@@ -50,7 +49,7 @@ class PaginaAtajos:
             p, label=_(atajos_captura.NOTA_PAGINA), name="NotaAtajos")
         nota.SetForegroundColour(_T.dim)
         nota.Wrap(ANCHO_NOTA)
-        vs.Add(nota, 0, wx.ALL, 10)
+        formulario.agregar_nota(vs, nota)
 
         # Valores normalizados en memoria (lo que se edita y se guarda).
         raw = self._config.get("atajos_raw", {})
@@ -70,15 +69,17 @@ class PaginaAtajos:
         btn_restablecer.SetBackgroundColour(_T.btn)
         btn_restablecer.SetForegroundColour(_T.btn_t)
         btn_restablecer.Bind(wx.EVT_BUTTON, self._restablecer_atajos)
-        vs.Add(btn_restablecer, 0, wx.ALL, 10)
+        formulario.agregar_fila(vs, None, btn_restablecer, expandir=False)
 
         p.Bind(wx.EVT_CHAR_HOOK, self._on_tecla_captura)
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def _crear_grupos(self, p, vs):
         for titulo, acciones in cfg.ATAJOS_GRUPOS:
-            box, padre = caja_de_grupo(p, _(titulo))
+            interior, caja = formulario.agregar_seccion_con_caja(
+                vs, p, _(titulo))
+            padre = caja.GetStaticBox()
             for accion in acciones:
                 etiqueta = etiqueta_de_accion(accion)
                 fija = accion in cfg.ATAJOS_FIJOS
@@ -95,8 +96,7 @@ class PaginaAtajos:
                              lambda e, a=accion, et=etiqueta: self._capturar_atajo(a, et))
                     btn.Bind(wx.EVT_KILL_FOCUS, self._atajo_perdio_foco)
                 self._botones_atajo[accion] = btn
-                box.Add(btn, 0, wx.EXPAND | wx.ALL, 4)
-            vs.Add(box, 0, wx.EXPAND | wx.ALL, 8)
+                formulario.agregar_fila(interior, None, btn)
 
     def _atajo_fijo(self, event):
         # Traductores: aviso al activar un atajo que no se puede cambiar.

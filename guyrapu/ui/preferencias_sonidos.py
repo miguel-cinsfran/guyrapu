@@ -23,6 +23,7 @@ from guyrapu.core import sonidos_tema
 from guyrapu.core.eventos_sonido import CATALOGO, FAMILIAS, NOMBRES
 from guyrapu.core.idioma import N_, _
 from guyrapu.core.sonidos_ini import con_silenciados, silenciados
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.preferencias_comun import fila_label
@@ -104,22 +105,20 @@ class PaginaSonidos:
         self._panel.SetForegroundColour(_T.text)
         vs = wx.BoxSizer(wx.VERTICAL)
         self._crear_tema(vs)
-        vs.Add(wx.StaticText(self._panel, label=_("&Sonidos:")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        self._crear_lista(vs)
+        rotulo = wx.StaticText(self._panel, label=_("&Sonidos:"))
+        self._crear_lista(vs, rotulo)
         self._btn_oir = wx.Button(
             self._panel, label=_("&Reproducir sonido elegido"), name="OirSonido")
         self._btn_oir.SetBackgroundColour(_T.btn)
         self._btn_oir.SetForegroundColour(_T.btn_t)
         self._btn_oir.Bind(wx.EVT_BUTTON, self._on_oir)
-        vs.Add(self._btn_oir, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self._panel.SetSizer(vs)
+        formulario.agregar_fila(vs, None, self._btn_oir, expandir=False)
+        formulario.armar_pagina(self._panel, vs)
         self._cargar_filas()
         return self._panel
 
     def _crear_tema(self, vs):
-        vs.Add(fila_label(self._panel, _("&Tema de sonido:")),
-                0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(self._panel, _("&Tema de sonido:"))
         temas = cfg.listar_temas_sonido()
         self._temas = temas
         visibles = [_nombre_visible_tema(t) for t in temas]
@@ -130,7 +129,7 @@ class PaginaSonidos:
         self._tema_inicial = actual
         self.cho_tema.SetSelection(temas.index(actual) if actual in temas else 0)
         self.cho_tema.Bind(wx.EVT_CHOICE, self._on_muestra_tema)
-        vs.Add(self.cho_tema, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_tema)
 
     def _tema_elegido(self) -> str:
         indice = self.cho_tema.GetSelection()
@@ -152,7 +151,7 @@ class PaginaSonidos:
             logger.warning("Sonidos: no se pudo oír la muestra: %s", exc)
         event.Skip()
 
-    def _crear_lista(self, vs):
+    def _crear_lista(self, vs, rotulo):
         self._lista = wx.ListCtrl(
             self._panel, style=wx.LC_REPORT | wx.LC_SINGLE_SEL,
             name=_("Sonidos"))
@@ -164,14 +163,13 @@ class PaginaSonidos:
         # Traductores: columna con la familia de cada sonido.
         self._lista.InsertColumn(1, _("Familia"), width=180)
         self._lista.EnableCheckBoxes(True)
-        self._lista.SetMinSize((460, 300))
         self._lista.Bind(wx.EVT_SIZE, self._on_tamanio_lista)
         # Traductores: acción del menú contextual de la lista de sonidos.
         etiqueta_oir = _("&Reproducir sonido")
         self._pieza = ListaConAcciones(self._lista, (
             Accion("oir", etiqueta_oir, self._on_oir),
         ), _(VACIO))
-        vs.Add(self._lista, 1, wx.EXPAND | wx.ALL, 10)
+        formulario.agregar_lista(vs, rotulo, self._lista)
 
     def _on_tamanio_lista(self, event):
         # Las dos columnas se reparten el cliente: sin franja vacía a la

@@ -12,12 +12,15 @@ from unittest import mock
 
 import wx
 
+from guyrapu.core import config
 from guyrapu.core import paths
 from guyrapu.core.eventos_sonido import EVENTOS
 from guyrapu.ui import preferencias_sonidos
 from guyrapu.ui.preferencias_sonidos import PaginaSonidos
+from guyrapu.voice import motores
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
-from tests.ventanas_prueba import app_de_prueba
+from tests.rutas_temporales import redirigir_rutas
+from tests.ventanas_prueba import app_de_prueba, armar_preferencias, destruir
 
 
 class TestPaginaSonidos(unittest.TestCase):
@@ -109,6 +112,40 @@ class TestPaginaSonidos(unittest.TestCase):
         rotulos = [c for c in self.panel.GetChildren()
                    if isinstance(c, wx.StaticText)]
         self.assertIn("&Sonidos:", [r.GetLabel() for r in rotulos])
+
+    def test_el_tema_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        control = self.pagina.cho_tema
+        self.panel.Layout()
+        etiqueta = [h for h in self.panel.GetChildren()
+                    if isinstance(h, wx.StaticText)
+                    and h.GetLabel() == "&Tema de sonido:"][0]
+        self.assertEqual(
+            control.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().GetHeight()), 4)
+
+    def test_la_lista_ocupa_el_alto_libre(self):
+        contenido = self.panel.GetSizer().GetChildren()[0].GetSizer()
+        item = next(it for it in contenido.GetChildren()
+                    if it.GetWindow() is self.pagina._lista)
+        self.assertEqual(item.GetProportion(), 1)
+
+    def test_la_lista_esta_alineada_con_el_combinado_del_tema(self):
+        self.panel.Layout()
+        self.assertEqual(self.pagina._lista.GetPosition().x,
+                         self.pagina.cho_tema.GetPosition().x)
+
+    def test_el_boton_oir_va_a_su_ancho_natural(self):
+        (self.ruta.parent / "config.ini").write_text(
+            config._CONFIG_FALLBACK, encoding="utf-8")
+        parche = redirigir_rutas(self.ruta.parent)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        with mock.patch.object(motores, "listar_voces",
+                               return_value=["Voz de prueba"]):
+            dialogo = armar_preferencias({}, "Sonidos")
+        self.addCleanup(destruir, dialogo)
+        boton = dialogo.pagina_sonidos._btn_oir
+        self.assertEqual(boton.GetSize().width, boton.GetBestSize().width)
 
     def test_primera_fila_es_listo_con_su_familia(self):
         from guyrapu.core import eventos_sonido

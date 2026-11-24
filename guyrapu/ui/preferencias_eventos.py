@@ -15,6 +15,7 @@ import wx
 
 from guyrapu.core.avisos_tiktok import EVENTOS, MODOS_EVENTO
 from guyrapu.core.idioma import N_, _
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible
 from guyrapu.ui.tema import _T, _tc
 from guyrapu.ui.preferencias_comun import EleccionTexto
@@ -83,8 +84,10 @@ class PaginaEventos:
 
     def construir(self, parent):
         p = self._make_panel(parent, "PagEventos")
-        vs = wx.BoxSizer(wx.VERTICAL)
-        grilla = wx.FlexGridSizer(0, 2, 6, 10)
+        contenido = wx.BoxSizer(wx.VERTICAL)
+        grilla = wx.FlexGridSizer(
+            0, 2, formulario.CONTROL_A_ETIQUETA,
+            formulario.ETIQUETA_A_CONTROL)
         grilla.AddGrowableCol(1, 1)
         for clave, _fabrica in EVENTOS:
             texto = _(_EVENTOS[clave])
@@ -98,8 +101,9 @@ class PaginaEventos:
             grilla.Add(lista, 0, wx.EXPAND)
             self._agregar_agrupaciones(grilla, p, clave)
         self._agregar_plataformas(grilla, p)
-        vs.Add(grilla, 1, wx.EXPAND | wx.ALL, 10)
-        p.SetSizer(vs)
+        contenido.Add(grilla, 1, wx.EXPAND)
+        formulario.agregar_casillas(contenido, (self.chk_decir_plataforma,))
+        formulario.armar_pagina(p, contenido)
         return p
 
     def _agregar_agrupaciones(self, grilla, p, clave):
@@ -134,8 +138,6 @@ class PaginaEventos:
             p, label=_("Anunciar &qué plataforma tiene cada mensaje cuando hay varios chats"),
             name=_("Anunciar qué plataforma tiene cada mensaje cuando hay varios chats"))
         self.chk_decir_plataforma.SetForegroundColour(_T.text)
-        grilla.Add((0, 0), 0)
-        grilla.Add(self.chk_decir_plataforma, 0, wx.EXPAND)
 
     def _agregar_agrupacion(self, grilla, padre, clave, etiqueta, nombre,
                             etiqueta_contador, nombre_contador, atributo):

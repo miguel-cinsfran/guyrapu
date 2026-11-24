@@ -194,6 +194,22 @@ class TestMedidas(BaseMedidas):
                                 self.panel.GetClientSize().width
                                 - 2 * formulario.MARGEN)
 
+    def test_agregar_lista_deja_el_hueco_y_toma_el_alto_libre(self):
+        rotulo = fila_label(self.panel, "&Lista:")
+        lista = wx.ListBox(self.panel)
+        formulario.agregar_lista(self.contenido, rotulo, lista)
+        _, siguiente = self._fila("&Dos:", wx.TextCtrl(self.panel))
+        self._medir()
+        self.assertEqual(
+            lista.GetPosition().y - (
+                rotulo.GetPosition().y + rotulo.GetSize().height),
+            formulario.ETIQUETA_A_CONTROL)
+        self.assertEqual(lista.GetPosition().x, formulario.MARGEN)
+        item = next(it for it in self.contenido.GetChildren()
+                    if it.GetWindow() is lista)
+        self.assertEqual(item.GetProportion(), 1)
+        self.assertIsNotNone(siguiente)
+
     def test_agregar_bloque_deja_el_hueco_entre_filas(self):
         _, anterior = self._fila("&Uno:", wx.TextCtrl(self.panel))
         bloque = wx.BoxSizer(wx.VERTICAL)
