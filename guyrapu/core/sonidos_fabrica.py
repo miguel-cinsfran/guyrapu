@@ -27,9 +27,10 @@ tema = default
 # musica_tema, musica_fin, musica_fallo, musica_igualando, musica_igualada, ia_respuesta, ia_analizando
 # microfono_bien, microfono_revisar, directo_pausado, directo_reanudado, cola_descargas_terminada, microfono_sin_senal
 # encuadre_dentro, encuadre_fuera, descarga_avance, descarga_quieta, encuesta, encuesta_fin, meta, batalla, batalla_fin
-# musica_tema y musica_fin vienen callados: se activan en Preferencias, Sonidos.
+# musica_tema, musica_fin y alerta_en_video vienen callados: se activan en Preferencias, Sonidos.
 musica_tema =
 musica_fin =
+alerta_en_video =
 """
 
 

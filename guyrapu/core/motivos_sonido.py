@@ -21,8 +21,11 @@ MOTIVOS: dict[str, tuple[str, ...]] = {
         "actualizacion_lista",
         "aviso",
         "encuesta_cerrada",
+        "encuesta_por_terminar",
+        "encuesta_ganadora",
         "preguntas_llena",
         "meta_cumplida",
+        "meta_avance",
         "destinos_de_mas",
         "restream_senal_debil",
         "transmision_problema",
@@ -145,6 +148,7 @@ MOTIVOS: dict[str, tuple[str, ...]] = {
     "opcional": (
         "musica_tema",
         "musica_fin",
+        "alerta_en_video",
     ),
 }
 

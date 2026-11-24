@@ -172,11 +172,23 @@ CATALOGO: tuple[EventoSonido, ...] = (
     # La encuesta se cerró sola al cumplirse su tiempo.
     EventoSonido("encuesta_cerrada", nombre=N_("Encuesta cerrada por tiempo"),
                  sonido="aviso", familia="advertencia"),
+    # A diez segundos del cierre de una encuesta con tiempo.
+    EventoSonido("encuesta_por_terminar", nombre=N_("Encuesta por terminar"),
+                 sonido="aviso", familia="advertencia"),
+    # Cambió la opción que va ganando una encuesta.
+    EventoSonido("encuesta_ganadora", nombre=N_("Cambio de opción ganadora"),
+                 sonido="aviso", familia="advertencia"),
     # La cola de preguntas del público llegó a su máximo.
     EventoSonido("preguntas_llena", nombre=N_("Cola de preguntas llena"),
                  sonido="aviso", familia="advertencia"),
     # Una meta del directo llegó a su objetivo.
     EventoSonido("meta_cumplida", nombre=N_("Meta cumplida del directo"),
+                 sonido="aviso", familia="advertencia"),
+    # Una meta del directo pasó la mitad o está cerca del objetivo.
+    EventoSonido("meta_avance", nombre=N_("Avance de una meta"),
+                 sonido="aviso", familia="advertencia"),
+    # Una alerta puso su tarjeta o su medio en el vídeo.
+    EventoSonido("alerta_en_video", nombre=N_("Alerta en el vídeo"),
                  sonido="aviso", familia="advertencia"),
     EventoSonido("grabacion_problema", nombre=N_("Problema de la grabación"), sonido="aviso",
                  familia="advertencia"),

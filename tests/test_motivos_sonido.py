@@ -133,6 +133,31 @@ class TestColaDePreguntasLlena(unittest.TestCase):
             motivos_sonido.MOTIVO_POR_CLAVE["preguntas_llena"], "llega_solo")
 
 
+class TestAvisosDelDirecto(unittest.TestCase):
+    NUEVOS = {
+        "encuesta_por_terminar": ("Encuesta por terminar", "aviso",
+                                  "advertencia", "llega_solo"),
+        "encuesta_ganadora": ("Cambio de opción ganadora", "aviso",
+                              "advertencia", "llega_solo"),
+        "meta_avance": ("Avance de una meta", "aviso", "advertencia",
+                        "llega_solo"),
+        "alerta_en_video": ("Alerta en el vídeo", "aviso", "advertencia",
+                            "opcional"),
+    }
+
+    def test_cada_uno_tiene_su_nombre_su_sonido_su_familia_y_su_motivo(self):
+        catalogo = {evento.clave: evento
+                    for evento in eventos_sonido.CATALOGO}
+        for clave, (nombre, sonido, familia, motivo) in self.NUEVOS.items():
+            with self.subTest(clave=clave):
+                self.assertIn(clave, catalogo)
+                self.assertEqual(eventos_sonido.NOMBRES[clave], nombre)
+                self.assertEqual(eventos_sonido.SONIDOS[clave], sonido)
+                self.assertEqual(catalogo[clave].familia, familia)
+                self.assertEqual(
+                    motivos_sonido.MOTIVO_POR_CLAVE[clave], motivo)
+
+
 class TestOpcionales(unittest.TestCase):
     def test_musica_tema_y_musica_fin_son_opcionales(self):
         for clave in ("musica_tema", "musica_fin"):
@@ -142,7 +167,7 @@ class TestOpcionales(unittest.TestCase):
         self.assertEqual(
             {clave for clave, motivo in motivos_sonido.MOTIVO_POR_CLAVE.items()
              if motivo == "opcional"},
-            {"musica_tema", "musica_fin"})
+             {"musica_tema", "musica_fin", "alerta_en_video"})
 
 
 class TestOpcionalesCallados(unittest.TestCase):
