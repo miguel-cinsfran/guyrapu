@@ -1,1 +1,0 @@
-Aquí se guardan las vistas aprobadas de la galería; se copian con `python qa/visual_aprobadas.py aprobar CARPETA`.

@@ -1,1 +1,3 @@
-Hay una carpeta por PC porque la geometría de las vistas cambia con el teclado y la resolución de cada una.
+La geometría aprobada es una sola para todas las PC y vive en esta carpeta.
+Al comparar se toleran hasta 4 píxeles en las medidas, porque el 24/11/2026 se midió que casa y oficina difieren hasta 4 al dibujar el texto.
+Aumentar el margen en `qa/visual_aprobadas.py` si una PC da más de 4 en algo que no cambió, en vez de aprobar de nuevo.

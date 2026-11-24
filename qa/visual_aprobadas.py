@@ -16,6 +16,9 @@ from pathlib import Path
 
 APROBADAS = Path(__file__).resolve().parent / "visual" / "aprobadas"
 
+# Medido el 24/11/2026: al dibujar el texto, casa y oficina difieren hasta 4 px.
+MARGEN_PX = 4
+
 # De cada control se compara solo lo que dibuja: posición, tamaño, texto y
 # colores. `id` y `padre` son números de ventana que wx reasigna en cada
 # proceso y cambian sin tocar el código; el orden de `controles` también puede
@@ -30,7 +33,13 @@ _DETALLES = {
     "bg": "cambió de color de fondo de {antes} a {despues}",
     "apareció": "apareció",
     "se fue": "se fue",
+    "tamaño mínimo": "cambió de tamaño mínimo de {antes} a {despues}",
+    "texto_px": "cambió de tamaño del texto de {antes} a {despues}",
 }
+
+
+def _cerca(antes, despues):
+    return all(abs(un - dos) <= MARGEN_PX for un, dos in zip(antes, despues))
 
 
 def _nombres(carpeta):
@@ -52,10 +61,13 @@ def _cambio(control, tipo, antes, despues):
 def _diferencias_control(aprobado, corrido):
     cambios = []
     antes, despues = aprobado["rect"], corrido["rect"]
-    if antes[:2] != despues[:2]:
+    if antes[:2] != despues[:2] and not _cerca(antes[:2], despues[:2]):
         cambios.append(_cambio(aprobado, "movido", antes[:2], despues[:2]))
-    if antes[2:] != despues[2:]:
+    if antes[2:] != despues[2:] and not _cerca(antes[2:], despues[2:]):
         cambios.append(_cambio(aprobado, "tamaño", antes[2:], despues[2:]))
+    antes, despues = aprobado["texto_px"], corrido["texto_px"]
+    if antes != despues and not _cerca(antes, despues):
+        cambios.append(_cambio(aprobado, "texto_px", antes, despues))
     for campo, tipo in (("etiqueta", "texto"), ("fg", "fg"), ("bg", "bg")):
         if aprobado[campo] != corrido[campo]:
             cambios.append(_cambio(aprobado, tipo,
@@ -90,6 +102,12 @@ def comparar_vistas(aprobada, corrida):
     for clave in sorted(set(aprobados) | set(corridos)):
         cambios.extend(_comparar_grupo(aprobados.get(clave, []),
                                        corridos.get(clave, [])))
+    for campo, tipo in (("tamano", "tamaño"),
+                        ("tamano_minimo", "tamaño mínimo")):
+        antes, despues = aprobada[campo], corrida[campo]
+        if antes != despues and not _cerca(antes, despues):
+            cambios.append({"control": "", "clase": "", "tipo": tipo,
+                            "antes": antes, "despues": despues})
     return cambios
 
 
@@ -120,8 +138,11 @@ def formatear(resultados):
         lineas.append(f"{resultado['estado']} {vista}")
         for cambio in resultado["cambios"]:
             detalle = _DETALLES[cambio["tipo"]].format(**cambio)
-            lineas.append(f"{vista} {cambio['control']} "
-                          f"({cambio['clase']}) {detalle}")
+            if cambio["control"]:
+                lineas.append(f"{vista} {cambio['control']} "
+                              f"({cambio['clase']}) {detalle}")
+            else:
+                lineas.append(f"{vista} {detalle}")
     return lineas
 
 
@@ -148,27 +169,24 @@ def main(argv=None, aprobadas=None):
     parser.add_argument("accion", choices=("comparar", "aprobar"),
                         help="comparar una corrida o aprobar sus vistas")
     parser.add_argument("carpeta", help="carpeta con los JSON de la galería")
-    parser.add_argument("--maquina", choices=("casa", "oficina"), required=True,
-                        help="máquina que aprobó las vistas")
     parser.add_argument("--vista", action="append", default=[],
                         metavar="NOMBRE", help="aprobar solo esta vista")
     argumentos = parser.parse_args(argv)
     raiz = Path(aprobadas) if aprobadas else APROBADAS
-    destino = raiz / argumentos.maquina
     corrida = Path(argumentos.carpeta)
     if argumentos.accion == "aprobar":
         try:
-            copiadas = aprobar(corrida, destino, argumentos.vista)
+            copiadas = aprobar(corrida, raiz, argumentos.vista)
         except ValueError as exc:
             print(exc, file=sys.stderr)
             return 2
         for nombre in copiadas:
             print("aprobada " + nombre)
         return 0
-    if not _nombres(destino):
-        print(f"No hay aprobadas de {argumentos.maquina} para comparar.")
+    if not _nombres(raiz):
+        print("No hay aprobadas para comparar.")
         return 3
-    resultados = comparar(corrida, destino)
+    resultados = comparar(corrida, raiz)
     lineas = formatear(resultados)
     if lineas:
         print("\n".join(lineas))

@@ -63,16 +63,14 @@ class Base(unittest.TestCase):
         self.aprobadas = self.raiz / "aprobadas"
         self.corrida.mkdir()
         self.aprobadas.mkdir()
-        (self.aprobadas / "casa").mkdir()
-        (self.aprobadas / "oficina").mkdir()
 
     def escribir(self, carpeta, vistas):
         for nombre, datos in vistas.items():
             (carpeta / (nombre + ".json")).write_text(
                 json.dumps(datos), encoding="utf-8")
 
-    def comparar(self, maquina="oficina"):
-        return visual.comparar(self.corrida, self.aprobadas / maquina)
+    def comparar(self):
+        return visual.comparar(self.corrida, self.aprobadas)
 
     def resultado(self, nombre):
         return next(r for r in self.comparar() if r["vista"] == nombre)
@@ -91,99 +89,123 @@ class Base(unittest.TestCase):
 class TestComparar(Base):
 
     def test_igual(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
+        self.escribir(self.aprobadas, {"01_principal": vista()})
         self.escribir(self.corrida, {"01_principal": vista()})
         resultado = self.resultado("01_principal")
         self.assertEqual(resultado["estado"], "igual")
         self.assertEqual(resultado["cambios"], [])
-        codigo, texto = self.correr("comparar", str(self.corrida),
-                                    "--maquina", "oficina")
+        codigo, texto = self.correr("comparar", str(self.corrida))
         self.assertEqual(codigo, 0)
         self.assertIn("igual 01_principal", texto)
 
-    def test_control_movido_cuatro_pixeles(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
-        self.escribir(self.corrida, {"01_principal": vista([
-            control(rect=[14, 20, 100, 24])])})
+    def test_cuatro_pixeles_da_igual(self):
+        casos = (
+            ("posición", vista([control(rect=[14, 20, 100, 24])])),
+            ("tamaño del control", vista([control(rect=[10, 20, 104, 24])])),
+            ("tamaño de la ventana", vista(tamano=[864, 700])),
+            ("tamaño mínimo", vista(tamano_minimo=[644, 480])),
+            ("tamaño del texto", vista([control(texto_px=[34, 12])])),
+        )
+        for nombre, corrida in casos:
+            with self.subTest(medida=nombre):
+                self.escribir(self.aprobadas, {"01_principal": vista()})
+                self.escribir(self.corrida, {"01_principal": corrida})
+                resultado = self.resultado("01_principal")
+                self.assertEqual(resultado["estado"], "igual")
+                self.assertEqual(resultado["cambios"], [])
+
+    def test_cinco_pixeles_da_distinto(self):
+        casos = (
+            ("posición", vista([control(rect=[15, 20, 100, 24])]),
+             "movido de [10, 20] a [15, 20]"),
+            ("tamaño del control", vista([control(rect=[10, 20, 105, 24])]),
+             "cambió de tamaño de [100, 24] a [105, 24]"),
+            ("tamaño de la ventana", vista(tamano=[865, 700]),
+             "cambió de tamaño de [860, 700] a [865, 700]"),
+            ("tamaño mínimo", vista(tamano_minimo=[645, 480]),
+             "cambió de tamaño mínimo de [640, 480] a [645, 480]"),
+            ("tamaño del texto", vista([control(texto_px=[35, 12])]),
+             "cambió de tamaño del texto de [30, 12] a [35, 12]"),
+        )
+        for nombre, corrida, mensaje in casos:
+            with self.subTest(medida=nombre):
+                self.escribir(self.aprobadas, {"01_principal": vista()})
+                self.escribir(self.corrida, {"01_principal": corrida})
+                resultado = self.resultado("01_principal")
+                self.assertEqual(resultado["estado"], "distinta")
+                codigo, texto = self.correr("comparar", str(self.corrida))
+                self.assertEqual(codigo, 1)
+                self.assertIn(mensaje, texto)
+
+    def test_control_nuevo_con_la_misma_geometria_da_distinto(self):
+        nuevo = control(nombre="Boton", clase="wxButton")
+        self.escribir(self.aprobadas, {"01_principal": vista([control()])})
+        self.escribir(self.corrida, {"01_principal": vista([control(), nuevo])})
         resultado = self.resultado("01_principal")
         self.assertEqual(resultado["estado"], "distinta")
-        movido = self.cambio(resultado, "movido")
-        self.assertEqual(movido["antes"], [10, 20])
-        self.assertEqual(movido["despues"], [14, 20])
-        codigo, texto = self.correr("comparar", str(self.corrida),
-                                    "--maquina", "oficina")
-        self.assertEqual(codigo, 1)
-        self.assertIn("movido de [10, 20] a [14, 20]", texto)
+        self.assertEqual(self.cambio(resultado, "apareció")["control"], "Boton")
 
-    def test_control_cambio_de_tamano(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
+    def test_control_otra_clase_da_distinto(self):
+        self.escribir(self.aprobadas, {"01_principal": vista()})
         self.escribir(self.corrida, {"01_principal": vista([
-            control(rect=[10, 20, 104, 24])])})
-        cambio = self.cambio(self.resultado("01_principal"), "tamaño")
-        self.assertEqual(cambio["antes"], [100, 24])
-        self.assertEqual(cambio["despues"], [104, 24])
+            control(clase="wxButton")])})
+        resultado = self.resultado("01_principal")
+        self.assertEqual(resultado["estado"], "distinta")
+        self.assertIsNotNone(self.cambio(resultado, "apareció"))
+        self.assertIsNotNone(self.cambio(resultado, "se fue"))
 
-    def test_control_otro_texto(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
+    def test_control_otro_texto_sin_margen(self):
+        self.escribir(self.aprobadas, {"01_principal": vista()})
         self.escribir(self.corrida, {"01_principal": vista([
-            control(etiqueta="Otro texto")])})
+            control(etiqueta="Texto!")])})
         cambio = self.cambio(self.resultado("01_principal"), "texto")
         self.assertEqual(cambio["antes"], "Texto")
-        self.assertEqual(cambio["despues"], "Otro texto")
+        self.assertEqual(cambio["despues"], "Texto!")
 
-    def test_control_otro_color(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
+    def test_control_otro_color_sin_margen(self):
+        self.escribir(self.aprobadas, {"01_principal": vista()})
         self.escribir(self.corrida, {"01_principal": vista([
-            control(fg="#FFFFFF")])})
+            control(fg="#1C262A")])})
         cambio = self.cambio(self.resultado("01_principal"), "fg")
         self.assertEqual(cambio["antes"], "#1C2629")
-        self.assertEqual(cambio["despues"], "#FFFFFF")
-
-    def test_control_aparece(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista([control()])})
-        self.escribir(self.corrida, {"01_principal": vista([
-            control(), control(nombre="Boton", clase="wxButton")])})
-        cambio = self.cambio(self.resultado("01_principal"), "apareció")
-        self.assertEqual(cambio["control"], "Boton")
+        self.assertEqual(cambio["despues"], "#1C262A")
 
     def test_control_se_fue(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista([
+        self.escribir(self.aprobadas, {"01_principal": vista([
             control(), control(nombre="Boton", clase="wxButton")])})
         self.escribir(self.corrida, {"01_principal": vista([control()])})
         cambio = self.cambio(self.resultado("01_principal"), "se fue")
         self.assertEqual(cambio["control"], "Boton")
 
     def test_vista_nueva(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
+        self.escribir(self.aprobadas, {"01_principal": vista()})
         self.escribir(self.corrida, {"01_principal": vista(),
                                      "02_nueva": vista()})
         self.assertEqual(self.resultado("02_nueva")["estado"], "nueva")
-        codigo, texto = self.correr("comparar", str(self.corrida),
-                                    "--maquina", "oficina")
+        codigo, texto = self.correr("comparar", str(self.corrida))
         self.assertEqual(codigo, 1)
         self.assertIn("nueva 02_nueva", texto)
 
     def test_vista_falta(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista(),
-                                                   "02_otra": vista()})
+        self.escribir(self.aprobadas, {"01_principal": vista(),
+                                       "02_otra": vista()})
         self.escribir(self.corrida, {"01_principal": vista()})
         self.assertEqual(self.resultado("02_otra")["estado"], "falta")
-        codigo, texto = self.correr("comparar", str(self.corrida),
-                                    "--maquina", "oficina")
+        codigo, texto = self.correr("comparar", str(self.corrida))
         self.assertEqual(codigo, 1)
         self.assertIn("falta 02_otra", texto)
 
     def test_empareja_por_nombre_y_clase_no_por_orden(self):
         primero = control(nombre="Uno", clase="wxStaticText")
         segundo = control(nombre="Dos", clase="wxButton", rect=[50, 60, 80, 24])
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista([primero, segundo])})
+        self.escribir(self.aprobadas, {"01_principal": vista([primero, segundo])})
         self.escribir(self.corrida, {"01_principal": vista([segundo, primero])})
         resultado = self.resultado("01_principal")
         self.assertEqual(resultado["estado"], "igual")
         self.assertEqual(resultado["cambios"], [])
 
     def test_numeros_de_ventana_ignorados(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista([
+        self.escribir(self.aprobadas, {"01_principal": vista([
             control(id=7, padre=3)])})
         self.escribir(self.corrida, {"01_principal": vista([
             control(id=99, padre=42)])})
@@ -191,34 +213,21 @@ class TestComparar(Base):
         self.assertEqual(resultado["estado"], "igual")
         self.assertEqual(resultado["cambios"], [])
 
-    def test_maquina_obligatoria_y_solo_casa_u_oficina(self):
+    def test_maquina_ya_no_se_acepta(self):
         with contextlib.redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):
-                visual.main(["comparar", str(self.corrida)],
-                            aprobadas=self.aprobadas)
-            with self.assertRaises(SystemExit):
                 visual.main(["comparar", str(self.corrida),
-                             "--maquina", "otra"], aprobadas=self.aprobadas)
+                             "--maquina", "oficina"], aprobadas=self.aprobadas)
+        codigo, texto = self.correr("comparar", str(self.corrida))
+        self.assertEqual(codigo, 3)
+        self.assertEqual(texto.strip(), "No hay aprobadas para comparar.")
 
-    def test_comparar_no_mira_la_otra_maquina(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
-        self.escribir(self.aprobadas / "casa", {"01_principal": vista([
-            control(rect=[90, 20, 100, 24])])})
+    def test_comparar_sin_aprobadas(self):
         self.escribir(self.corrida, {"01_principal": vista()})
-        codigo, texto = self.correr("comparar", str(self.corrida),
-                                    "--maquina", "oficina")
-        self.assertEqual(codigo, 0)
-        self.assertIn("igual 01_principal", texto)
-        self.assertNotIn("movido", texto)
-
-    def test_comparar_sin_aprobadas_de_la_maquina(self):
-        self.escribir(self.aprobadas / "oficina", {"01_principal": vista()})
-        self.escribir(self.corrida, {"01_principal": vista()})
-        codigo, texto = self.correr("comparar", str(self.corrida),
-                                    "--maquina", "casa")
-        self.assertNotEqual(codigo, 0)
+        codigo, texto = self.correr("comparar", str(self.corrida))
+        self.assertEqual(codigo, 3)
         self.assertEqual(texto.strip().splitlines(),
-                         ["No hay aprobadas de casa para comparar."])
+                         ["No hay aprobadas para comparar."])
 
 
 class TestAprobar(Base):
@@ -226,35 +235,45 @@ class TestAprobar(Base):
     def test_copia_todas(self):
         self.escribir(self.corrida, {"01_principal": vista(),
                                      "02_comentarios": vista()})
-        codigo, _ = self.correr("aprobar", str(self.corrida),
-                                "--maquina", "oficina")
+        codigo, _ = self.correr("aprobar", str(self.corrida))
         self.assertEqual(codigo, 0)
         self.assertEqual(
-            sorted(ruta.stem for ruta in
-                   (self.aprobadas / "oficina").glob("*.json")),
+            sorted(ruta.stem for ruta in self.aprobadas.glob("*.json")),
             ["01_principal", "02_comentarios"])
 
     def test_copia_solo_la_vista_nombrada(self):
         self.escribir(self.corrida, {"01_principal": vista(),
                                      "02_comentarios": vista()})
         codigo, _ = self.correr("aprobar", str(self.corrida),
-                                "--maquina", "oficina",
                                 "--vista", "02_comentarios")
         self.assertEqual(codigo, 0)
         self.assertEqual(
-            [ruta.stem for ruta in
-             (self.aprobadas / "oficina").glob("*.json")],
+            [ruta.stem for ruta in self.aprobadas.glob("*.json")],
             ["02_comentarios"])
 
-    def test_aprobar_escribe_solo_en_la_maquina_nombrada(self):
-        self.escribir(self.corrida, {"01_principal": vista()})
-        codigo, _ = self.correr("aprobar", str(self.corrida),
-                                "--maquina", "casa")
+    def test_guarda_la_medida_corrida_sin_redondear(self):
+        corrida = vista(tamano=[863, 701],
+                        controles=[control(rect=[11, 21, 101, 25],
+                                           texto_px=[31, 13])])
+        self.escribir(self.corrida, {"01_principal": corrida})
+        codigo, _ = self.correr("aprobar", str(self.corrida))
         self.assertEqual(codigo, 0)
-        self.assertEqual(
-            [ruta.stem for ruta in (self.aprobadas / "casa").glob("*.json")],
-            ["01_principal"])
-        self.assertEqual(list((self.aprobadas / "oficina").glob("*.json")), [])
+        self.assertEqual(json.loads(
+            (self.aprobadas / "01_principal.json").read_text(encoding="utf-8")),
+            corrida)
+
+
+class TestGeometriaUnica(unittest.TestCase):
+
+    def test_una_sola_carpeta_y_leeme(self):
+        self.assertEqual(len(list(visual.APROBADAS.glob("*.json"))), 94)
+        self.assertEqual(list(visual.APROBADAS.glob("*/*.json")), [])
+        texto = (visual.APROBADAS / "LEEME.txt").read_text(encoding="utf-8")
+        self.assertIn("una sola", texto)
+        self.assertIn("todas las PC", texto)
+        self.assertIn("4 píxeles", texto)
+        self.assertIn("24/11/2026", texto)
+        self.assertIn("Aumentar el margen", texto)
 
 
 class TestCorridasReales(unittest.TestCase):
@@ -267,9 +286,10 @@ class TestCorridasReales(unittest.TestCase):
         self.assertTrue(all(r["estado"] == "igual" for r in resultados))
         self.assertEqual(sum(len(r["cambios"]) for r in resultados), 0)
 
-    def test_aprobadas_de_oficina_son_la_corrida_aprobada(self):
-        resultados = visual.comparar(CORRIDA_APROBADA,
-                                     visual.APROBADAS / "oficina")
+    @unittest.skipUnless(CORRIDA_APROBADA.is_dir(),
+                         "falta la corrida aprobada en el worktree")
+    def test_aprobadas_son_la_corrida_aprobada(self):
+        resultados = visual.comparar(CORRIDA_APROBADA, visual.APROBADAS)
         self.assertEqual(len(resultados), 94)
         self.assertTrue(all(r["estado"] == "igual" for r in resultados))
         self.assertEqual(sum(len(r["cambios"]) for r in resultados), 0)
