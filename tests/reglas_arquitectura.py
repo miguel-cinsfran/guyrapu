@@ -50,6 +50,7 @@ from tests.reglas_detectores import (
     detectar_red,
     detectar_rotulos_de_menu,
 )
+from tests.reglas_plataformas import detectar_ids_de_plataforma
 from tests.reglas_sonido import detectar_avisar, detectar_avisar_error
 
 
@@ -411,5 +412,35 @@ REGLAS = (
         detectar=detectar_volumen_sin_atenuar,
         pendientes={},
         ambito=_musica,
+    ),
+    Regla(
+        id="R27",
+        prohibido="el id de una plataforma se escribe solo en su registro",
+        detectar=detectar_ids_de_plataforma,
+        pendientes={
+            **_pendientes(
+                "id de plataforma: usar plataformas.YOUTUBE o TIKTOK", {
+                    "guyrapu/obs/overlay_datos.py": 2,
+                    "guyrapu/player/reproductor.py": 1,
+                    "guyrapu/restream/chat_restream.py": 1,
+                    "guyrapu/restream/ganchos.py": 2,
+                    "guyrapu/restream/perfiles.py": 5,
+                    "guyrapu/restream/transmitir.py": 5,
+                    "guyrapu/ui/gui_historial.py": 3,
+                    "guyrapu/ui/recientes_inicio.py": 1,
+                    "guyrapu/ui/restream_perfil.py": 4,
+                    "main.py": 2,
+                }),
+            **_pendientes("no es un id de plataforma", {
+                "guyrapu/core/autocomprobacion.py": 1,
+                "guyrapu/core/avisos_tiktok.py": 4,
+                "guyrapu/core/config_lectura.py": 5,
+                "guyrapu/core/config_predeterminada.py": 2,
+                "guyrapu/downloads/busqueda_youtube.py": 1,
+                "guyrapu/ui/gui_transmitir.py": 1,
+                "guyrapu/ui/preferencias_eventos.py": 4,
+                "guyrapu/youtube/cuota.py": 1,
+            }),
+        },
     ),
 )

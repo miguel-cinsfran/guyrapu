@@ -120,7 +120,7 @@ def sonido_de_mensaje(tipo: str, rol: str = "", monto: str = "",
     sonido de la plataforma para un texto común sin rol.
     """
     if tipo == TIPO_SUPERCHAT or tipo == TIPO_STICKER:
-        if (plataforma or "").lower() == "tiktok" and tipo == TIPO_SUPERCHAT:
+        if (plataforma or "").lower() == plataformas.TIKTOK and tipo == TIPO_SUPERCHAT:
             return tramo_regalo(_diamantes_de_monto(monto))
         return _TRAMO_POR_NIVEL_YOUTUBE.get(nivel, "superchat")
     sonido = _SONIDO_POR_TIPO.get(tipo)

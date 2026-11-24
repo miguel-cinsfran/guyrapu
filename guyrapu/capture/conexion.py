@@ -5,6 +5,7 @@
 import logging
 
 from guyrapu.core import diagnostico
+from guyrapu.core import plataformas
 from guyrapu.voice import sound_player as _snd
 from guyrapu.capture import tiktok_captura
 from guyrapu.capture.sonido_reconexion import SonidoReconexion
@@ -74,10 +75,10 @@ class Conexiones:
         def _on_msg(autor, mensaje, hora, tipo=TIPO_TEXTO, monto="", canal_id="", rol="", nivel=0):
             if not self._registro.vigente(gen):
                 return  # mensaje de una sesión anterior: descartar
-            self._difundir(autor, mensaje, "youtube", tipo, monto)
+            self._difundir(autor, mensaje, plataformas.YOUTUBE, tipo, monto)
             self._vista.agregar_mensaje(
                 autor, mensaje, hora, tipo, monto, canal_id,
-                plataforma="youtube", rol=rol, nivel=nivel)
+                plataforma=plataformas.YOUTUBE, rol=rol, nivel=nivel)
 
         def _refrescar_directo():
             try:
@@ -127,7 +128,7 @@ class Conexiones:
             # directo=True si es un live: su id cambia cada vez y, terminado,
             # no reconecta (se marca en la lista del historial).
             self._vista.registrar_historial_si_existe(
-                "youtube", vid, f"https://www.youtube.com/watch?v={vid}",
+                plataformas.YOUTUBE, vid, f"https://www.youtube.com/watch?v={vid}",
                 titulo, (metadatos or {}).get("canal", ""),
                 tipo == main.deteccion.LIVE)
 
@@ -197,10 +198,10 @@ class Conexiones:
                     canal_id="", rol="", nivel=0):
             if not self._registro.vigente(gen):
                 return
-            self._difundir(autor, mensaje, "tiktok", tipo, monto)
+            self._difundir(autor, mensaje, plataformas.TIKTOK, tipo, monto)
             self._vista.agregar_mensaje(
                 autor, mensaje, hora, tipo, monto, canal_id,
-                plataforma="tiktok", rol=rol, nivel=nivel)
+                plataforma=plataformas.TIKTOK, rol=rol, nivel=nivel)
 
         def _on_evento(autor, mensaje, tipo, monto, canal_id):
             if not self._registro.vigente(gen):
@@ -210,7 +211,7 @@ class Conexiones:
                 autor, mensaje, tipo, monto, canal_id,
                 self._cola, self._config, self._stats, on_message=_on_msg,
                 sesion_activa=lambda: self._registro.vigente(gen),
-                etiqueta_monto="Regalo", plataforma="tiktok")
+                etiqueta_monto="Regalo", plataforma=plataformas.TIKTOK)
 
         def _on_estado(tipo_estado, texto):
             if not self._registro.vigente(gen):
@@ -260,7 +261,7 @@ class Conexiones:
             self._vista.set_metadatos(meta)
             # Registrar en el historial (TikTok reconecta por @usuario/live).
             self._vista.registrar_historial(
-                "tiktok", usuario, f"https://www.tiktok.com/@{usuario}/live",
+                plataformas.TIKTOK, usuario, f"https://www.tiktok.com/@{usuario}/live",
                 titulo, (meta.get("canal") or ""), True)
 
         def _on_espectadores(n, total=None):
