@@ -463,16 +463,16 @@ class TestDetectores(unittest.TestCase):
 
     def test_rotulos_de_menu(self):
         hallazgos = _hallazgos(detectores.detectar_rotulos_de_menu, """\
-            m.Append(wx.ID_ANY, nombre_voz)
-            m.Append(wx.ID_ANY, _("Abrir"))
-            m.Append(wx.ID_ANY, _("Abrir") + algo)
+            m.Append(__WX__.ID_ANY, nombre_voz)
+            m.Append(__WX__.ID_ANY, _("Abrir"))
+            m.Append(__WX__.ID_ANY, _("Abrir") + algo)
             m.AppendSubMenu(sub, nombre_voz)
-            m.Append(wx.ID_ANY)
+            m.Append(__WX__.ID_ANY)
             for nombre, _sin_uso in enumerate(FILTROS):
-                m.AppendRadioItem(wx.ID_ANY, _(nombre))
+                m.AppendRadioItem(__WX__.ID_ANY, _(nombre))
             for etiqueta, altura in CALIDADES:
-                m.AppendRadioItem(wx.ID_ANY, _(etiqueta))
-            """)
+                m.AppendRadioItem(__WX__.ID_ANY, _(etiqueta))
+            """.replace("__WX__", WX))
         self.assertEqual([1, 4], _lineas(hallazgos))
 
     def test_esperas(self):
