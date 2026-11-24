@@ -139,6 +139,34 @@ class TestPiezaIdiomas(unittest.TestCase):
         self.assertIsNotNone(error)
 
 
+class TestPiezaTraduccionDelChat(unittest.TestCase):
+    """La pieza Traducción del chat lee la tabla junto al módulo de idiomas."""
+
+    def _pieza(self):
+        piezas = dict(autocomprobacion.PIEZAS)
+        self.assertIn("Traducción del chat", piezas)
+        return piezas["Traducción del chat"]
+
+    def test_tabla_real_da_ok(self):
+        resultados = autocomprobacion.comprobar(
+            [("Traducción del chat", self._pieza())])
+        self.assertEqual(resultados, [("Traducción del chat", None)])
+
+    def test_tabla_inexistente_da_falla(self):
+        from guyrapu.translation import idiomas
+        with tempfile.TemporaryDirectory() as tmp:
+            faltante = Path(tmp) / "no-existe.json"
+            with mock.patch.object(idiomas, "_RUTA", faltante), \
+                    mock.patch.object(idiomas, "_TABLA", None):
+                resultados = autocomprobacion.comprobar(
+                    [("Traducción del chat", self._pieza())])
+        self.assertEqual(len(resultados), 1)
+        nombre, error = resultados[0]
+        self.assertEqual(nombre, "Traducción del chat")
+        self.assertIsNotNone(error)
+        self.assertIn("FileNotFoundError", error)
+
+
 class TestPiezaDetectorRostros(unittest.TestCase):
     """La pieza Detector de rostros corre YuNet de verdad, sin ventanas."""
 
@@ -182,11 +210,12 @@ class TestPiezaApiGoogle(unittest.TestCase):
 
 class TestPiezas(unittest.TestCase):
 
-    def test_los_nueve_nombres_en_orden(self):
+    def test_los_diez_nombres_en_orden(self):
         self.assertEqual(
             [nombre for nombre, _ in autocomprobacion.PIEZAS],
             ["wxPython", "Prism", "pytchat", "TikTokLive", "API de Google",
-             "yt-dlp", "VLC", "Idiomas", "Detector de rostros"])
+             "yt-dlp", "VLC", "Idiomas", "Traducción del chat",
+             "Detector de rostros"])
 
 
 class TestPiezasReales(unittest.TestCase):
@@ -205,7 +234,7 @@ class TestPiezasReales(unittest.TestCase):
 class TestCorridaRealDeMain(unittest.TestCase):
     """Lanza `main.py --autocomprobar` de verdad, en un subproceso."""
 
-    def test_escribe_ocho_ok_y_sale_cero(self):
+    def test_escribe_diez_ok_y_sale_cero(self):
         destino_data = RAIZ / "data"
         habia_data = destino_data.exists()
         with tempfile.TemporaryDirectory() as tmp:
@@ -227,6 +256,7 @@ class TestCorridaRealDeMain(unittest.TestCase):
             "OK yt-dlp",
             "OK VLC",
             "OK Idiomas",
+            "OK Traducción del chat",
             "OK Detector de rostros",
         ])
         if not habia_data:
@@ -249,6 +279,19 @@ class TestConstruirLlevaDetector(unittest.TestCase):
         self.assertIn('robocopy "modelos" "%OUT%\\modelos"', texto)
         self.assertIn(
             '"%OUT%\\modelos\\face_detection_yunet_2023mar.onnx"', texto)
+
+
+class TestConstruirLlevaTablaDeIdiomas(unittest.TestCase):
+    """construir.bat manda la tabla de nombres de idiomas al paquete."""
+
+    def _texto(self):
+        return (RAIZ / "construir.bat").read_text(encoding="utf-8")
+
+    def test_paquete_copia_la_tabla_junto_al_modulo(self):
+        self.assertIn(
+            '--add-data "guyrapu/translation/nombres_idiomas.json;'
+            'guyrapu/translation"',
+            self._texto())
 
 
 if __name__ == "__main__":

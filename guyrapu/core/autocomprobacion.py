@@ -64,6 +64,11 @@ def _idiomas():
             idioma.DOMINIO, localedir=str(carpeta), languages=[codigo])
 
 
+def _traduccion_chat():
+    from guyrapu.translation import idiomas
+    idiomas.opciones()
+
+
 def _vlc():
     from guyrapu.player import motor_vlc
     if not motor_vlc.cargar():
@@ -108,6 +113,7 @@ PIEZAS = (
     ("yt-dlp", _yt_dlp),
     ("VLC", _vlc),
     ("Idiomas", _idiomas),
+    ("Traducción del chat", _traduccion_chat),
     ("Detector de rostros", _detector_rostros),
 )
 

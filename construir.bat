@@ -88,7 +88,8 @@ call uv run pyinstaller main.py ^
   --collect-all piper ^
   --exclude-module imageio_ffmpeg ^
   --hidden-import vlc ^
-  --add-data "!YTDOC!;googleapiclient/discovery_cache/documents"
+  --add-data "!YTDOC!;googleapiclient/discovery_cache/documents" ^
+  --add-data "guyrapu/translation/nombres_idiomas.json;guyrapu/translation"
 if errorlevel 1 ( echo ERROR en PyInstaller. & pause & exit /b 1 )
 
 echo == Ensamblando la carpeta distribuible ==
