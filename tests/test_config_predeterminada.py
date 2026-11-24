@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Pruebas de la configuración predeterminada canónica."""
 
+import importlib
 import tempfile
 import unittest
 import configparser
@@ -509,3 +510,18 @@ class TestValoresDeFabricaCompartidos(unittest.TestCase):
     def test_proveedor_de_fabrica_coincide_con_el_registro_de_ia(self):
         from guyrapu.ai import proveedores as ia
         self.assertEqual(pred.obtener("ia", "proveedor"), ia.PREDETERMINADO)
+
+
+class TestEventosDelRegistro(unittest.TestCase):
+    def test_seccion_eventos_viene_de_avisos_tiktok(self):
+        from guyrapu.core import avisos_tiktok
+        self.assertEqual(list(pred.seccion("eventos").items()),
+                         list(avisos_tiktok.EVENTOS))
+        nuevos = avisos_tiktok.EVENTOS + (("evento_prueba", "mostrar"),)
+        with mock.patch.object(avisos_tiktok, "EVENTOS", nuevos):
+            importlib.reload(pred)
+        try:
+            self.assertEqual(list(pred.seccion("eventos").items()),
+                             list(nuevos))
+        finally:
+            importlib.reload(pred)

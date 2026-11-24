@@ -23,6 +23,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 from guyrapu.core import atajos_predeterminados
+from guyrapu.core import avisos_tiktok
 from guyrapu.core import paths
 
 # Orden canónico: sección -> lista ordenada de (clave, valor)
@@ -103,19 +104,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("agrupar_entradas", "true"),
         ("segundos_entradas", "10"),
     ]),
-    ("eventos", [
-        ("superchat", "principal"),
-        ("miembro", "principal"),
-        ("entrada", "mostrar"),
-        ("me_gusta", "mostrar"),
-        ("seguir", "principal"),
-        ("compartir", "principal"),
-        ("cofre", "principal"),
-        ("encuesta", "principal"),
-        ("meta", "principal"),
-        ("batalla", "principal"),
-        ("comando", "lista"),
-    ]),
+    ("eventos", avisos_tiktok.EVENTOS),
     ("programados", [
         ("activo", "false"),
     ]),
