@@ -26,6 +26,12 @@ def _texto(valor) -> str:
     return "" if valor is None else str(valor).strip()
 
 
+def _a_bool(valor) -> bool:
+    if isinstance(valor, str):
+        return valor.strip().lower() in ("true", "1", "yes", "si", "sí", "on")
+    return bool(valor)
+
+
 def _opciones(valor) -> list[str]:
     if isinstance(valor, str):
         partes = valor.splitlines()
@@ -71,6 +77,7 @@ def normalizar(datos: dict) -> dict:
         "segundos": _segundos(datos.get("segundos")),
         "destino": _destino(datos.get("destino")),
         "estilo": _estilo(datos.get("estilo")),
+        "avisar": _a_bool(datos.get("avisar", True)),
     }
 
 

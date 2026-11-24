@@ -28,6 +28,7 @@ def _datos(pregunta="¿Qué pizza?", **cambios):
         "segundos": 120,
         "destino": "video",
         "estilo": "clasico",
+        "avisar": True,
     }
     datos.update(cambios)
     return datos
@@ -246,6 +247,18 @@ class TestCuadro(BaseVentana):
         self.assertTrue(cuadro.txt_respuestas.GetWindowStyle()
                         & wx.TE_MULTILINE)
 
+    def test_p6_la_casilla_de_avisos_nace_marcada(self):
+        cuadro = self._cuadro()
+        self.assertEqual(
+            cuadro.chk_avisar.GetLabel(),
+            "Avisar cuando quedan 10 segundos y cuando cambia &quién gana")
+        self.assertTrue(cuadro.chk_avisar.GetValue())
+
+    def test_p6_la_casilla_de_avisos_llega_a_datos(self):
+        cuadro = self._cuadro()
+        cuadro.chk_avisar.SetValue(False)
+        self.assertFalse(cuadro.datos()["avisar"])
+
     def test_las_letras_de_acceso_no_se_repiten_en_el_cuadro(self):
         self.assertEqual(letras_repetidas(self._cuadro()), {})
 
@@ -276,7 +289,8 @@ class TestCuadro(BaseVentana):
         cuadro._elegir_estilo("banda")
         self.assertEqual(cuadro.datos(), {
             "pregunta": "¿Qué?", "opciones": ["uno", "dos"],
-            "segundos": 300, "destino": "ambos", "estilo": "banda"})
+            "segundos": 300, "destino": "ambos", "estilo": "banda",
+            "avisar": True})
 
     def _aceptar_con_error(self, cuadro):
         with mock.patch.object(encuesta_cuadro, "anunciar") as decir, \

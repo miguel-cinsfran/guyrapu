@@ -77,6 +77,7 @@ def a_disparador(datos: dict) -> Disparador:
         espera_general=_numero(datos.get("espera_general"), 5.0, float),
         espera_persona=_numero(datos.get("espera_persona"), 30.0, float),
         activo=_a_bool(datos.get("activo", True)),
+        avisar=_a_bool(datos.get("avisar", False)),
     )
 
 
@@ -98,6 +99,7 @@ def desde_disparador(disparador: Disparador) -> dict:
         "espera_general": disparador.espera_general,
         "espera_persona": disparador.espera_persona,
         "activo": disparador.activo,
+        "avisar": disparador.avisar,
     }
 
 

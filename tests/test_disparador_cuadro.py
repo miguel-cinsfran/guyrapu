@@ -28,7 +28,8 @@ NOMBRES_ACCESIBLES = (
     "Texto. Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.",
     "Mostrar en", "Medio", "Segundos en pantalla", "Estilo",
     "Permiso", "Nombres permitidos", "Espera general (segundos)",
-    "Espera por persona (segundos)", "Aceptar", "Cancelar")
+    "Espera por persona (segundos)", "Avisar cuando se muestra en el vídeo",
+    "Aceptar", "Cancelar")
 
 ETIQUETAS = (
     "&Nombre:", "E&vento:", "Cantidad mín&ima:", "Nom&bre del regalo:",
@@ -86,8 +87,8 @@ class TestCampos(BaseCuadro):
             cuadro.txt_tarjeta, cuadro.cho_destino, cuadro.cho_medio,
             cuadro.sp_segundos,
             cuadro.cho_estilo, cuadro.cho_permiso, cuadro.txt_nombres,
-            cuadro.sp_espera, cuadro.sp_persona, cuadro.btn_aceptar,
-            cuadro.btn_cancelar)
+            cuadro.sp_espera, cuadro.sp_persona, cuadro.chk_avisar,
+            cuadro.btn_aceptar, cuadro.btn_cancelar)
         self.assertEqual(
             tuple(control.GetName() for control in controles),
             NOMBRES_ACCESIBLES)
@@ -141,6 +142,17 @@ class TestCampos(BaseCuadro):
         cuadro.cho_evento.SetSelection(
             disparadores.EVENTOS_DE_ALERTA.index("cofre"))
         self.assertTrue(cuadro.txt_regalo.IsEnabled())
+
+    def test_p6_la_casilla_de_avisos_nace_desmarcada(self):
+        cuadro = self._cuadro()
+        self.assertEqual(cuadro.chk_avisar.GetLabel(),
+                         "Avisar cuando se m&uestra en el vídeo")
+        self.assertFalse(cuadro.chk_avisar.GetValue())
+
+    def test_p6_la_casilla_de_avisos_llega_a_datos(self):
+        cuadro = self._cuadro()
+        cuadro.chk_avisar.SetValue(True)
+        self.assertTrue(cuadro.datos()["avisar"])
 
     def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
         cuadro = self._cuadro()
@@ -245,7 +257,8 @@ class TestDatos(BaseCuadro):
             "destino": "ambos", "tarjeta": "Gracias", "estilo": "banda",
             "segundos": 15,
             "permiso": "lista", "nombres": ["Ana", "Beto"],
-            "espera_general": 10.0, "espera_persona": 40.0, "activo": True})
+            "espera_general": 10.0, "espera_persona": 40.0, "activo": True,
+            "avisar": False})
 
     def test_abrir_y_devolver_el_modelo_conserva_todo_el_contenido(self):
         datos = {"nombre": "aviso", "cuando": "evento", "evento": "superchat",

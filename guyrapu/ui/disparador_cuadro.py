@@ -78,6 +78,7 @@ class DialogoDisparador(wx.Dialog):
         self._crear_cuando(panel, izquierda)
         self._crear_contenido(panel, derecha)
         self._crear_alcance(panel, derecha)
+        self._crear_aviso(panel, derecha)
         formulario.columnas(contenido, izquierda, derecha)
         self.btn_aceptar = wx.Button(
             panel, wx.ID_OK, _("&Aceptar"), name=_("Aceptar"))
@@ -158,6 +159,13 @@ class DialogoDisparador(wx.Dialog):
             panel, _("Espera por pers&ona (segundos):"), 0, 3600, 30)
         formulario.agregar_fila(vs, rotulo, self.sp_persona, numerico=True)
 
+    def _crear_aviso(self, panel, columna):
+        etiqueta = _("Avisar cuando se m&uestra en el vídeo")
+        self.chk_avisar = wx.CheckBox(
+            panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+        nombre_accesible(self.chk_avisar, self.chk_avisar.GetName())
+        formulario.agregar_casillas(columna, (self.chk_avisar,))
+
     def _nombres_de_medios(self):
         return [str(medio.get("nombre", "")) for medio in self._medios]
 
@@ -201,6 +209,7 @@ class DialogoDisparador(wx.Dialog):
         self.txt_nombres.SetValue(", ".join(disparador.nombres))
         self.sp_espera.SetValue(int(disparador.espera_general))
         self.sp_persona.SetValue(int(disparador.espera_persona))
+        self.chk_avisar.SetValue(disparador.avisar)
 
     def _elegir_evento(self, clave):
         try:
@@ -249,6 +258,7 @@ class DialogoDisparador(wx.Dialog):
             espera_general=float(self.sp_espera.GetValue()),
             espera_persona=float(self.sp_persona.GetValue()),
             activo=self._activo,
+            avisar=self.chk_avisar.GetValue(),
         )
 
     def _aceptar(self, _evento):

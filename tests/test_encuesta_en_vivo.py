@@ -239,6 +239,48 @@ class TestFinDeLaSesion(Base):
         self.assertEqual(self.enviados, [])
 
 
+class TestAvisosDelAvance(Base):
+
+    def test_un_latido_a_diez_segundos_anuncia_por_terminar_una_sola_vez(self):
+        self._iniciar(segundos=120)
+        self.anuncios.clear()
+        self.reloj[0] = 110.0
+        self._sesion()._latido()
+        self.assertEqual(self.anuncios[-1], (
+            "Quedan 10 segundos de la encuesta.", "encuesta_por_terminar"))
+        self.anuncios.clear()
+        self.reloj[0] = 109.0
+        self._sesion()._latido()
+        self.assertEqual(self.anuncios, [])
+
+    def test_un_voto_nuevo_ganador_anuncia_el_cambio_de_opcion(self):
+        self._iniciar(segundos=120)
+        self.anuncios.clear()
+        self._votar("!1", "Ana", "A")
+        self.reloj[0] = 15.0
+        self._votar("!2", "Beto", "B")
+        self._votar("!2", "Cara", "C")
+        self.assertEqual(self.anuncios[-1], (
+            "Va ganando napolitana, con 2 votos.", "encuesta_ganadora"))
+
+    def test_con_avisar_apagado_no_anuncia_ni_el_tiempo_ni_el_ganador(self):
+        self._iniciar(segundos=120, avisar=False)
+        self.anuncios.clear()
+        self._votar("!1", "Ana", "A")
+        self.reloj[0] = 110.0
+        self._sesion()._latido()
+        self.assertEqual(self.anuncios, [])
+
+    def test_en_ensayo_tambien_anuncia_los_diez_segundos(self):
+        self.frame._conectado = False
+        self.frame._ensayo = True
+        self._iniciar(segundos=120)
+        self.anuncios.clear()
+        self.reloj[0] = 110.0
+        self._sesion()._latido()
+        self.assertEqual(self.anuncios[-1][1], "encuesta_por_terminar")
+
+
 class TestEnsayo(Base):
     """La encuesta del ensayo se ve en el vídeo y cuenta los votos."""
 

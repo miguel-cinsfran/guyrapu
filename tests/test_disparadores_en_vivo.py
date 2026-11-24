@@ -17,9 +17,10 @@ from tests.rutas_temporales import redirigir_rutas
 
 
 def _datos(nombre="regalo", medio="", tarjeta="Ríe {usuario}",
-            estilo="clasico", segundos=8, permiso="todos", nombres=(),
-            espera_general=5.0, espera_persona=0.0, activo=True,
-            evento="superchat", minimo=None, regalo="", destino="video"):
+             estilo="clasico", segundos=8, permiso="todos", nombres=(),
+             espera_general=5.0, espera_persona=0.0, activo=True,
+             evento="superchat", minimo=None, regalo="", destino="video",
+             avisar=True):
     return {
         "nombre": nombre, "cuando": "evento", "evento": evento,
         "minimo": minimo, "regalo": regalo, "medio": medio,
@@ -27,7 +28,7 @@ def _datos(nombre="regalo", medio="", tarjeta="Ríe {usuario}",
         "segundos": segundos,
         "permiso": permiso, "nombres": list(nombres),
         "espera_general": espera_general, "espera_persona": espera_persona,
-        "activo": activo,
+        "activo": activo, "avisar": avisar,
     }
 
 
@@ -114,6 +115,43 @@ class TestPiezaDeDisparador(Base):
         self._atender(ahora=5)
         self.assertEqual(
             self.frame._capa_video.agregar_pieza.call_count, 2)
+
+
+class TestAvisoEnElVideo(Base):
+
+    def setUp(self):
+        super().setUp()
+        self.frame._avisar = mock.Mock()
+        parche = mock.patch.object(
+            disparadores_en_vivo, "anunciar_con_sonido", self.frame._avisar)
+        parche.start()
+        self.addCleanup(parche.stop)
+
+    def test_la_alerta_en_el_video_anuncia_su_nombre_y_su_autor(self):
+        self._guardar(_datos(nombre="Regalo grande"))
+        self._atender(_registro(autor="Ana"))
+        self.assertEqual(self.frame._avisar.call_args.args, (
+            "Alerta Regalo grande en el vídeo, de Ana.", "alerta_en_video"))
+
+    def test_la_alerta_que_va_solo_al_chat_no_anuncia(self):
+        with mock.patch.object(gui_envio_chat, "enviar_respuesta_chat"):
+            self._guardar(_datos(nombre="Gracias", destino="chat"))
+            self._atender()
+        self.frame._avisar.assert_not_called()
+
+    def test_con_avisar_apagado_sigue_yendo_al_video_pero_no_anuncia(self):
+        self._guardar(_datos(nombre="Regalo grande", avisar=False))
+        self._atender()
+        self.frame._avisar.assert_not_called()
+        self.frame._capa_video.agregar_pieza.assert_called_once()
+
+    def test_en_ensayo_tambien_anuncia_la_alerta(self):
+        self.frame._conectado = False
+        self.frame._ensayo = True
+        self._guardar(_datos(nombre="Regalo grande"))
+        self._atender()
+        self.assertEqual(self.frame._avisar.call_args.args[1],
+                         "alerta_en_video")
 
 
 class TestContador(Base):

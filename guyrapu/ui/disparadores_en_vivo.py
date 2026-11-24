@@ -13,12 +13,14 @@ lectura del chat.
 from __future__ import annotations
 
 from guyrapu.core import diagnostico, paths
+from guyrapu.core.idioma import _
 from guyrapu.interaction import (
     atencion, comandos, conversion_disparadores, disparadores,
     disparadores_guardados, ensayo, filtro_publico, medio_en_video)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import comandos_en_vivo, gui_envio_chat
+from guyrapu.ui.accesibilidad import anunciar_con_sonido
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -92,6 +94,11 @@ class DisparadoresEnVivo:
             gui_envio_chat.enviar_respuesta_chat(self._frame, texto)
         if not al_video:
             return
+        if disparador.avisar:
+            # Traductores: aviso de una alerta que sale en el vídeo; {nombre} es la alerta y {usuario} su autor.
+            frase = _("Alerta {nombre} en el vídeo, de {usuario}.").format(
+                nombre=disparador.nombre, usuario=evento.autor)
+            anunciar_con_sonido(frase, "alerta_en_video")
         segundos = disparador.segundos
         datos = {"estilo": disparador.estilo, "nombre": disparador.nombre}
         datos, segundos = medio_en_video.con_medio(datos, segundos, medio)

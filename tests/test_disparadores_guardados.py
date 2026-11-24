@@ -16,7 +16,7 @@ def _datos(**cambios):
         "tarjeta": "",
         "estilo": "clasico", "segundos": 8, "permiso": "todos",
         "nombres": [], "espera_general": 5.0, "espera_persona": 30.0,
-        "activo": True,
+        "activo": True, "avisar": False,
     }
     datos.update(cambios)
     return datos
@@ -54,6 +54,7 @@ class TestConversion(unittest.TestCase):
         self.assertTrue(disparador.activo)
         self.assertEqual(disparador.estilo, "clasico")
         self.assertEqual(disparador.segundos, 8)
+        self.assertFalse(disparador.avisar)
 
     def test_una_alerta_guardada_sin_destino_se_abre_en_el_video(self):
         datos = _datos()
@@ -85,6 +86,22 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(disparador.espera_persona, 30)
         self.assertTrue(disparador.activo)
         self.assertEqual(disparador.segundos, 60)
+
+
+class TestAvisar(unittest.TestCase):
+
+    def test_una_alerta_guardada_sin_avisar_se_lee_con_avisar_falso(self):
+        datos = _datos()
+        del datos["avisar"]
+        self.assertFalse(disparadores_guardados.a_disparador(datos).avisar)
+
+    def test_avisar_se_guarda_y_se_lee(self):
+        with tempfile.TemporaryDirectory() as temporal:
+            ruta = Path(temporal) / "disparadores.json"
+            disparadores_guardados.guardar(
+                ruta, [disparadores.Disparador("aviso", avisar=True)])
+            self.assertTrue(disparadores_guardados.a_disparador(
+                disparadores_guardados.cargar(ruta)[0]).avisar)
 
 
 class TestEstilo(unittest.TestCase):

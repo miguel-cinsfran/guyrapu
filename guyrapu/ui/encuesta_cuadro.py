@@ -90,6 +90,11 @@ class DialogoEncuesta(wx.Dialog):
             name=nombre_de_etiqueta(_("&Estilo:")))
         nombre_accesible(self.cho_estilo, self.cho_estilo.GetName())
         formulario.agregar_fila(vs, rotulo, self.cho_estilo)
+        etiqueta = _("Avisar cuando quedan 10 segundos y cuando cambia &quién gana")
+        self.chk_avisar = wx.CheckBox(
+            panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+        nombre_accesible(self.chk_avisar, self.chk_avisar.GetName())
+        formulario.agregar_casillas(vs, (self.chk_avisar,))
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)
@@ -121,6 +126,7 @@ class DialogoEncuesta(wx.Dialog):
             next((indice for indice, (clave, _texto) in enumerate(DESTINOS)
                   if clave == encuesta["destino"]), 0))
         self._elegir_estilo(encuesta["estilo"] if datos else "")
+        self.chk_avisar.SetValue(encuesta["avisar"])
 
     def _elegir_estilo(self, clave):
         self.cho_estilo.SetSelection(
@@ -136,6 +142,7 @@ class DialogoEncuesta(wx.Dialog):
             "destino": DESTINOS[self.cho_destino.GetSelection()][0],
             "estilo": estilo_elegido.clave_de(
                 self.cho_estilo.GetSelection(), self._estilos),
+            "avisar": self.chk_avisar.GetValue(),
         }
 
     def _aceptar(self, _evento):

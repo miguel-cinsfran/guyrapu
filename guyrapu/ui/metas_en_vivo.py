@@ -19,7 +19,7 @@ import wx
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
-    ensayo, medio_en_video, metas, metas_guardadas)
+    avisos_en_vivo, ensayo, medio_en_video, metas, metas_guardadas)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
@@ -74,6 +74,7 @@ class MetasEnVivo:
         self._ultima = 0.0
         self._pendiente = None
         self._llamada = None
+        self._umbrales = {}
 
     def atender(self, registro) -> None:
         if not ensayo.en_vivo_o_ensayo(self._frame):
@@ -82,11 +83,15 @@ class MetasEnVivo:
         evento = _evento(registro)
         informe = ensayo.informe(self._frame)
         for progreso in self._progresos.values():
-            if not progreso.meta.activa or not progreso.sumar(evento):
+            if not progreso.meta.activa:
+                continue
+            anterior = progreso.valor
+            if not progreso.sumar(evento):
                 continue
             if informe is not None:
                 informe.meta(progreso.meta.nombre, progreso.valor,
                              progreso.meta.objetivo)
+            self._avisar_avance(progreso, anterior)
             if progreso.recien_cumplida():
                 self._cumplida(progreso)
         self._refrescar_fija()
@@ -94,8 +99,19 @@ class MetasEnVivo:
     def reiniciar(self) -> None:
         """Olvida el avance y saca la pieza fija de la conexión anterior."""
         self._progresos = {}
+        self._umbrales = {}
         self._cargado = False
         self._quitar_fija()
+
+    def _avisar_avance(self, progreso, anterior) -> None:
+        if not progreso.meta.avisar:
+            return
+        dichos = self._umbrales.setdefault(progreso.meta.nombre, set())
+        frase = avisos_en_vivo.aviso_meta(
+            progreso.meta.nombre, anterior, progreso.valor,
+            progreso.meta.objetivo, dichos)
+        if frase:
+            anunciar_con_sonido(frase, "meta_avance")
 
     def _cumplida(self, progreso) -> None:
         anunciar_con_sonido(

@@ -38,6 +38,7 @@ class Meta:
     festejo: str = ""
     activa: bool = True
     en_video: bool = False
+    avisar: bool = True
 
 
 class Progreso:

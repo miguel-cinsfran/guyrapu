@@ -14,6 +14,7 @@ def _datos(**cambios):
     datos = {
         "nombre": "100 me gusta", "que_cuenta": "me_gusta", "objetivo": 100,
         "estilo": "", "festejo": "", "activa": True, "en_video": False,
+        "avisar": True,
     }
     datos.update(cambios)
     return datos
@@ -42,6 +43,7 @@ class TestConversion(unittest.TestCase):
         self.assertEqual(meta.festejo, "")
         self.assertTrue(meta.activa)
         self.assertFalse(meta.en_video)
+        self.assertTrue(meta.avisar)
 
     def test_p1_un_archivo_sin_en_video_lo_lee_falso(self):
         meta = metas_guardadas.a_meta(
@@ -71,6 +73,22 @@ class TestConversion(unittest.TestCase):
             metas_guardadas.a_meta({"objetivo": "7"}).objetivo, 7)
         self.assertEqual(metas_guardadas.a_meta({"objetivo": 0}).objetivo, 1)
         self.assertEqual(metas_guardadas.a_meta({"objetivo": -5}).objetivo, 1)
+
+
+class TestAvisar(unittest.TestCase):
+
+    def test_una_meta_guardada_sin_avisar_se_lee_con_avisar(self):
+        datos = _datos()
+        del datos["avisar"]
+        self.assertTrue(metas_guardadas.a_meta(datos).avisar)
+
+    def test_avisar_se_guarda_y_se_lee(self):
+        meta = metas.Meta("Risa", "me_gusta", 10, avisar=False)
+        with tempfile.TemporaryDirectory() as temporal:
+            ruta = Path(temporal) / "metas.json"
+            metas_guardadas.guardar(ruta, [meta])
+            self.assertFalse(metas_guardadas.a_meta(
+                metas_guardadas.cargar(ruta)[0]).avisar)
 
 
 class TestArchivo(unittest.TestCase):

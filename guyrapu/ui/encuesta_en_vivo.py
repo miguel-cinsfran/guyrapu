@@ -14,7 +14,7 @@ import time
 
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
-    comandos, encuestas, encuestas_guardadas, ensayo)
+    avisos_en_vivo, comandos, encuestas, encuestas_guardadas, ensayo)
 from guyrapu.interaction.cola_pantalla import Pieza
 
 # Cada cuánto late el temporizador y cada cuánto, como mucho, se pone al día
@@ -113,6 +113,8 @@ class SesionEncuesta:
         self._en_video = False
         self._ultima = 0.0
         self._timer = None
+        self._avisos_activos = True
+        self._estado_avisos = avisos_en_vivo.EstadoEncuesta()
 
     def ahora(self):
         return self._reloj()
@@ -127,6 +129,8 @@ class SesionEncuesta:
         self._estilo = datos["estilo"]
         self._sesion = getattr(self._frame, "sesion", None)
         self._en_video = self._va_al_video()
+        self._avisos_activos = datos["avisar"]
+        self._estado_avisos = avisos_en_vivo.EstadoEncuesta()
         self._ultima = momento
         self._arrancar_timer()
         if self._en_video:
@@ -147,6 +151,7 @@ class SesionEncuesta:
             informe = ensayo.informe(self._frame)
             if informe is not None:
                 informe.voto(self.encuesta.pregunta)
+            self._avisar_avance(momento)
         if momento - self._ultima >= ACTUALIZACION:
             self._poner_al_dia(momento)
         return True
@@ -189,8 +194,18 @@ class SesionEncuesta:
         if not self.encuesta.abierta(momento):
             self.cerrar(por_tiempo=True, ahora=momento)
             return
+        self._avisar_avance(momento)
         if momento - self._ultima >= ACTUALIZACION:
             self._poner_al_dia(momento)
+
+    def _avisar_avance(self, momento) -> None:
+        if not self._avisos_activos:
+            return
+        aviso = self._estado_avisos.aviso(
+            self.encuesta.votos(), self.encuesta.opciones,
+            self.encuesta.segundos_restantes(momento), momento)
+        if aviso is not None:
+            _avisar(aviso.frase, aviso.clave)
 
     def _sigue_la_sesion(self) -> bool:
         if not getattr(self._frame, "_alive", True):

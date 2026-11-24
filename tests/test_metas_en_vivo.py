@@ -17,11 +17,11 @@ from tests.rutas_temporales import redirigir_rutas
 
 
 def _meta(nombre="Risa", que_cuenta="me_gusta", objetivo=3, estilo="",
-          festejo="", activa=True, en_video=False):
+           festejo="", activa=True, en_video=False, avisar=True):
     return {
         "nombre": nombre, "que_cuenta": que_cuenta, "objetivo": objetivo,
         "estilo": estilo, "festejo": festejo, "activa": activa,
-        "en_video": en_video,
+        "en_video": en_video, "avisar": avisar,
     }
 
 
@@ -150,8 +150,44 @@ class TestMetaCumplida(Base):
             self._atender(_registro(monto="1"))
             self._atender(_registro(monto="1"))
             self._atender(_registro(monto="5"))
+        self.assertEqual(self._avisos(), [
+            ("Meta Risa: a la mitad, 1 de 2.", "meta_avance"),
+            ("Meta cumplida: Risa.", "meta_cumplida")])
+
+
+class TestAvisosDelAvance(Base):
+
+    def setUp(self):
+        super().setUp()
+        self.frame._avisar = mock.Mock()
+        parche = mock.patch.object(metas_en_vivo, "anunciar_con_sonido",
+                                   self.frame._avisar)
+        parche.start()
+        self.addCleanup(parche.stop)
+
+    def _avisos(self):
+        return [llamada.args for llamada in self.frame._avisar.call_args_list]
+
+    def test_pasar_de_cuarenta_a_sesenta_anuncia_la_mitad(self):
+        self._guardar(_meta(objetivo=200))
+        self._atender(_registro(monto="80"))
+        self._atender(_registro(monto="40"))
         self.assertEqual(self._avisos(),
-                         [("Meta cumplida: Risa.", "meta_cumplida")])
+                         [("Meta Risa: a la mitad, 120 de 200.",
+                           "meta_avance")])
+
+    def test_con_avisar_apagado_no_anuncia(self):
+        self._guardar(_meta(objetivo=200, avisar=False))
+        self._atender(_registro(monto="120"))
+        self.assertEqual(self._avisos(), [])
+        self.assertEqual(self._progreso().valor, 120)
+
+    def test_en_ensayo_tambien_anuncia_el_avance(self):
+        self.frame._conectado = False
+        self.frame._ensayo = True
+        self._guardar(_meta(objetivo=200))
+        self._atender(_registro(monto="120"))
+        self.assertEqual(self._avisos()[-1][1], "meta_avance")
 
 
 class TestTarjeta(Base):

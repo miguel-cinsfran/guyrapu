@@ -60,6 +60,12 @@ class Encuesta:
         """Cuántas personas votaron."""
         return len(self._votantes)
 
+    def segundos_restantes(self, ahora) -> int | None:
+        """Los segundos que le quedan, o None si no tiene tiempo."""
+        if self.segundos is None or self._inicio is None:
+            return None
+        return int(self._inicio + self.segundos - ahora)
+
     def cerrar(self) -> None:
         """Cierra la encuesta a mano."""
         self._cerrada = True
@@ -104,7 +110,7 @@ class Encuesta:
             # Traductores: una encuesta que ya no acepta votos.
             partes.append(_("Cerrada."))
         elif self.segundos is not None:
-            restante = int(self._inicio + self.segundos - ahora)
+            restante = self.segundos_restantes(ahora)
             partes.append(
                 # Traductores: tiempo que le queda a una encuesta; {n} son los segundos.
                 ngettext("Queda {n} segundo.", "Quedan {n} segundos.",

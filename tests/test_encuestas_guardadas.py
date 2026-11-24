@@ -17,6 +17,7 @@ def _datos(**cambios):
         "segundos": 120,
         "destino": "video",
         "estilo": "clasico",
+        "avisar": True,
     }
     datos.update(cambios)
     return datos
@@ -31,7 +32,7 @@ class TestConversion(unittest.TestCase):
     def test_una_encuesta_sin_datos_nace_con_los_valores_de_fabrica(self):
         self.assertEqual(encuestas_guardadas.normalizar({}), {
             "pregunta": "", "nombre": "", "opciones": [], "segundos": 120,
-            "destino": "video", "estilo": "clasico"})
+            "destino": "video", "estilo": "clasico", "avisar": True})
 
     def test_los_tipos_se_fuerzan_y_lo_raro_cae_a_su_defecto(self):
         normalizada = encuestas_guardadas.normalizar({
@@ -75,6 +76,23 @@ class TestConversion(unittest.TestCase):
         normalizada = encuestas_guardadas.normalizar(
             _datos(opciones=opciones))
         self.assertEqual(normalizada["opciones"], opciones[:9])
+
+
+class TestAvisar(unittest.TestCase):
+
+    def test_una_encuesta_guardada_sin_avisar_se_lee_con_avisar(self):
+        datos = _datos()
+        del datos["avisar"]
+        self.assertTrue(encuestas_guardadas.normalizar(datos)["avisar"])
+
+    def test_avisar_se_guarda_y_se_lee(self):
+        datos = _datos(avisar=False)
+        normalizada = encuestas_guardadas.normalizar(datos)
+        self.assertFalse(normalizada["avisar"])
+        with tempfile.TemporaryDirectory() as temporal:
+            ruta = Path(temporal) / "encuestas.json"
+            encuestas_guardadas.guardar(ruta, [datos])
+            self.assertFalse(encuestas_guardadas.cargar(ruta)[0]["avisar"])
 
 
 class TestArchivo(unittest.TestCase):

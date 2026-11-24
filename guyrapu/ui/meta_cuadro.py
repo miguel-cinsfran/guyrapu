@@ -80,7 +80,11 @@ class DialogoMeta(wx.Dialog):
         self.chk_en_video = wx.CheckBox(
             panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
         nombre_accesible(self.chk_en_video, self.chk_en_video.GetName())
-        formulario.agregar_casillas(vs, (self.chk_en_video,))
+        etiqueta = _("Avisar a la mitad y cerca del o&bjetivo")
+        self.chk_avisar = wx.CheckBox(
+            panel, label=etiqueta, name=nombre_de_etiqueta(etiqueta))
+        nombre_accesible(self.chk_avisar, self.chk_avisar.GetName())
+        formulario.agregar_casillas(vs, (self.chk_en_video, self.chk_avisar))
         formulario.agregar_pie(vs, self._botones(panel))
         formulario.ajustar_tamano(self, panel, vs)
         self._cargar(datos)
@@ -127,6 +131,7 @@ class DialogoMeta(wx.Dialog):
         self._elegir_festejo(meta.festejo)
         self._elegir_estilo(meta.estilo if datos else "")
         self.chk_en_video.SetValue(meta.en_video)
+        self.chk_avisar.SetValue(meta.avisar)
 
     def _elegir_festejo(self, nombre):
         nombres = self._nombres_de_medios()
@@ -156,6 +161,7 @@ class DialogoMeta(wx.Dialog):
             festejo=self._festejo_elegido(),
             activa=self._activa,
             en_video=self.chk_en_video.GetValue(),
+            avisar=self.chk_avisar.GetValue(),
         )
 
     def _aceptar(self, _evento):

@@ -60,6 +60,7 @@ class Disparador:
     espera_general: float = 5
     espera_persona: float = 30
     activo: bool = True
+    avisar: bool = False
 
     def __post_init__(self):
         object.__setattr__(self, "segundos",

@@ -2456,12 +2456,28 @@ msgid "Encuesta cerrada por tiempo"
 msgstr "Poll ended on time"
 
 #: guyrapu/core/eventos_sonido.py
+msgid "Encuesta por terminar"
+msgstr "Poll ending"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Cambio de opción ganadora"
+msgstr "Leading option changed"
+
+#: guyrapu/core/eventos_sonido.py
 msgid "Cola de preguntas llena"
 msgstr "Question queue full"
 
 #: guyrapu/core/eventos_sonido.py
 msgid "Meta cumplida del directo"
 msgstr "Live stream goal reached"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Avance de una meta"
+msgstr "Goal progress"
+
+#: guyrapu/core/eventos_sonido.py
+msgid "Alerta en el vídeo"
+msgstr "Alert on video"
 
 #: guyrapu/core/eventos_sonido.py
 msgid "Problema de la grabación"
@@ -3487,6 +3503,34 @@ msgstr "To the top"
 #: guyrapu/interaction/animacion.py
 msgid "Hacia abajo"
 msgstr "To the bottom"
+
+#. Traductores: encuesta con tiempo que está por terminar.
+#: guyrapu/interaction/avisos_en_vivo.py
+msgid "Quedan 10 segundos de la encuesta."
+msgstr "10 seconds left in the poll."
+
+#. Traductores: opción que va ganando una encuesta; {opcion} es su texto y {n}
+#. sus votos.
+#: guyrapu/interaction/avisos_en_vivo.py
+#, python-brace-format
+msgid "Va ganando {opcion}, con {n} voto."
+msgid_plural "Va ganando {opcion}, con {n} votos."
+msgstr[0] "{opcion} is in the lead with {n} vote."
+msgstr[1] "{opcion} is in the lead with {n} votes."
+
+#. Traductores: meta cerca de su objetivo; {nombre} es la meta, {actual} lo
+#. logrado y {objetivo} lo que hay que lograr.
+#: guyrapu/interaction/avisos_en_vivo.py
+#, python-brace-format
+msgid "Meta {nombre}: cerca del objetivo, {actual} de {objetivo}."
+msgstr "Goal {nombre}: close to the target, {actual} of {objetivo}."
+
+#. Traductores: meta a la mitad; {nombre} es la meta, {actual} lo logrado y
+#. {objetivo} lo que hay que lograr.
+#: guyrapu/interaction/avisos_en_vivo.py
+#, python-brace-format
+msgid "Meta {nombre}: a la mitad, {actual} de {objetivo}."
+msgstr "Goal {nombre}: halfway, {actual} of {objetivo}."
 
 #. Traductores: estado de F2; {texto} es el de las metas.
 #: guyrapu/interaction/cola_pantalla.py
@@ -10450,12 +10494,23 @@ msgstr "Allow&ed names:"
 msgid "Espera &general (segundos):"
 msgstr "&General wait (seconds):"
 
+#: guyrapu/ui/disparador_cuadro.py
+msgid "Avisar cuando se m&uestra en el vídeo"
+msgstr "Notify when &shown on video"
+
 #: guyrapu/ui/disparador_cuadro.py guyrapu/ui/escena_edicion_fuente.py
 #: guyrapu/ui/escena_pagina_escena.py guyrapu/ui/estilo_cuadro.py
 #: guyrapu/ui/mensaje_automatico_cuadro.py guyrapu/ui/meta_cuadro.py
 #: guyrapu/ui/restream_perfil.py
 msgid "Cambiar nombre"
 msgstr "Rename"
+
+#. Traductores: aviso de una alerta que sale en el vídeo; {nombre} es la alerta
+#. y {usuario} su autor.
+#: guyrapu/ui/disparadores_en_vivo.py
+#, python-brace-format
+msgid "Alerta {nombre} en el vídeo, de {usuario}."
+msgstr "Alert {nombre} on video, from {usuario}."
 
 #: guyrapu/ui/disparadores_ventana.py
 msgid ""
@@ -10660,6 +10715,10 @@ msgstr "&Show result in:"
 #: guyrapu/ui/encuesta_cuadro.py guyrapu/ui/seccion_contenido.py
 msgid "&Estilo:"
 msgstr "&Style:"
+
+#: guyrapu/ui/encuesta_cuadro.py
+msgid "Avisar cuando quedan 10 segundos y cuando cambia &quién gana"
+msgstr "Notify when 10 seconds remain and when the leader &changes"
 
 #. Traductores: aviso al iniciar una encuesta; {pregunta} es su pregunta.
 #: guyrapu/ui/encuesta_en_vivo.py
@@ -14538,6 +14597,10 @@ msgstr "&Celebration:"
 #: guyrapu/ui/meta_cuadro.py
 msgid "Mostrar a&vance en el vídeo"
 msgstr "Show &progress on the video"
+
+#: guyrapu/ui/meta_cuadro.py
+msgid "Avisar a la mitad y cerca del o&bjetivo"
+msgstr "Notify at halfway and near the &target"
 
 #: guyrapu/ui/metas_en_vivo.py
 #, python-brace-format
