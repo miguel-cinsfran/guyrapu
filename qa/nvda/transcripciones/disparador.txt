@@ -11,11 +11,13 @@ tecla=tab fase=ida dijo='Permiso y espera agrupación Permiso cuadro combinado T
 tecla=tab fase=ida dijo='Nombres permitidos edición Alt+ p en blanco' foco={nombre='Nombres permitidos', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
 tecla=tab fase=ida dijo='Espera general (segundos): edición Alt+ g seleccionado 5' foco={nombre='Espera general (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='5', atajo='Alt+g'}
 tecla=tab fase=ida dijo='Espera por persona (segundos): edición Alt+ o seleccionado 30' foco={nombre='Espera por persona (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='30', atajo='Alt+o'}
+tecla=tab fase=ida dijo='Avisar cuando se muestra en el vídeo casilla de verificación sin marcar Alt+ u' foco={nombre='Avisar cuando se muestra en el vídeo', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+u'}
 tecla=tab fase=ida dijo='Aceptar botón Alt+ a' foco={nombre='Aceptar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
 tecla=tab fase=ida dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=tab fase=ida dijo='Activación agrupación Nombre edición Alt+ n en blanco' foco={nombre='Nombre', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
 tecla=shift+tab fase=vuelta dijo='Cancelar botón Alt+ c' foco={nombre='Cancelar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+c'}
 tecla=shift+tab fase=vuelta dijo='Aceptar botón Alt+ a' foco={nombre='Aceptar', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+a'}
+tecla=shift+tab fase=vuelta dijo='Avisar cuando se muestra en el vídeo casilla de verificación sin marcar Alt+ u' foco={nombre='Avisar cuando se muestra en el vídeo', rol='CHECKBOX', estados=['FOCUSABLE'], valor='', atajo='Alt+u'}
 tecla=shift+tab fase=vuelta dijo='Permiso y espera agrupación Espera por persona (segundos): edición Alt+ o seleccionado 30' foco={nombre='Espera por persona (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='30', atajo='Alt+o'}
 tecla=shift+tab fase=vuelta dijo='Espera general (segundos): edición Alt+ g seleccionado 5' foco={nombre='Espera general (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='5', atajo='Alt+g'}
 tecla=shift+tab fase=vuelta dijo='Nombres permitidos edición Alt+ p en blanco' foco={nombre='Nombres permitidos', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='', atajo='Alt+p'}
