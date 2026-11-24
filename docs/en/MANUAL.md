@@ -1,11 +1,11 @@
-<!-- original: es/MANUAL.md 04cab7073a65368f15d962ff92d8c797997503e3 -->
+<!-- original: es/MANUAL.md 2c2383a2fa5896144f6d61f403f3046fac7513bf -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
 
 Guyrapu reads the chat of YouTube and TikTok live streams aloud, and controls OBS Studio and Restream from the keyboard. It is designed for people who are blind or have low vision and stream, and it is tested with NVDA.
 
-Version 3.0.0 beta 8 · Windows 10 and 11 · [News](CHANGELOG.md)
+Version 3.0.0 beta 9 · Windows 10 and 11 · [News](CHANGELOG.md)
 
 ## Installation
 

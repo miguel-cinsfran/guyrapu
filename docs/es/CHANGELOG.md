@@ -1,5 +1,15 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 9, noviembre de 2026
+
+### Arreglos
+
+- Abrir *Preferencias* en la página *Lectura* ya no da un error en el
+  programa empaquetado.
+- En un equipo cuyo procesador no admite las voces de Phonon, probar o elegir
+  una avisa el motivo y sigue con la voz de Windows, en vez de cerrar el
+  programa.
+
 ## 3.0.0 beta 8, noviembre de 2026
 
 ### Interacción

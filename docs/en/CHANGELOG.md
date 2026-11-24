@@ -1,7 +1,14 @@
-<!-- original: es/CHANGELOG.md 264843f8d3a24ddf3917b610125e5319430a820a -->
+<!-- original: es/CHANGELOG.md 1479bc3668fbed9ab11f732d37a6c38ea2b8e22b -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 9, November 2026
+
+### Fixes
+
+- Opening *Preferences* on the *Reading* page no longer gives an error in the packaged application.
+- On a computer whose processor does not support Phonon voices, testing or choosing one says why and carries on with the Windows voice, instead of closing the program.
 
 ## 3.0.0 beta 8, November 2026
 

@@ -4,7 +4,7 @@ Guyrapu lee en voz alta el chat de los directos de YouTube y TikTok, y
 maneja OBS Studio y Restream desde el teclado. Está pensado para personas
 ciegas o con baja visión que transmiten, y se prueba con NVDA.
 
-Versión 3.0.0 beta 8 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
+Versión 3.0.0 beta 9 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
 
 ## Instalación
 
