@@ -3,6 +3,7 @@
 """Pruebas del atenuador de la música, con el reloj en manos de la prueba."""
 
 import unittest
+from unittest import mock
 
 from guyrapu.music import atenuacion
 
@@ -111,6 +112,35 @@ class TestAtenuador(unittest.TestCase):
             valor = atenuador.factor(reloj())
             self.assertGreaterEqual(valor, 0.4)
             self.assertLessEqual(valor, 1.0)
+
+
+class TestMientras(unittest.TestCase):
+    """El administrador de contexto sostiene el pedido solo mientras dura el bloque."""
+
+    def _atenuador(self, reloj):
+        atenuador = atenuacion.Atenuador(reloj=reloj)
+        atenuador.configurar(("voz",), 30)
+        return atenuador
+
+    def test_pide_al_entrar_y_suelta_al_salir(self):
+        reloj = RelojFalso()
+        atenuador = self._atenuador(reloj)
+        with mock.patch.object(atenuacion, "_atenuador", atenuador):
+            with atenuacion.mientras("voz", 60):
+                reloj.avanzar(0.3)
+                self.assertAlmostEqual(0.3, atenuador.factor(reloj()))
+            self.assertEqual({}, atenuador._pedidos)
+        reloj.avanzar(0.8 + 1.5)
+        self.assertAlmostEqual(1.0, atenuador.factor(reloj()))
+
+    def test_suelta_aunque_el_bloque_lance(self):
+        reloj = RelojFalso()
+        atenuador = self._atenuador(reloj)
+        with mock.patch.object(atenuacion, "_atenuador", atenuador):
+            with self.assertRaises(ValueError):
+                with atenuacion.mientras("voz", 60):
+                    raise ValueError("falló el motor")
+            self.assertEqual({}, atenuador._pedidos)
 
 
 if __name__ == "__main__":

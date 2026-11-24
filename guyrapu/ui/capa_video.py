@@ -17,6 +17,7 @@ from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction import ajustes_interaccion, medio_en_video
 from guyrapu.interaction.cola_pantalla import ColaPantalla, Pieza
+from guyrapu.music import atenuacion
 from guyrapu.obs import animador as animador_obs
 from guyrapu.obs import escena_guyrapu, estilos_aviso, medio_obs, obs_cliente
 from guyrapu.obs import ordenes_animador, revision_tarjeta
@@ -24,6 +25,8 @@ from guyrapu.ui.accesibilidad import anunciar, anunciar_con_sonido
 
 
 logger = diagnostico.obtener_logger(__name__)
+
+_TIPOS_ATENUADOS = ("sonido", "video")
 
 
 def _datos(respuesta):
@@ -272,6 +275,8 @@ class CapaVideo:
                 medio.get("ganancia_db"), volumen,
                 medio.get("volumen", 100))
             self._medio.armar(medio["ruta"], medio["tipo"], ganancia)
+            if medio["tipo"] in _TIPOS_ATENUADOS:
+                atenuacion.pedir("medio", pieza.segundos + 2)
         if medio and not (pieza.texto or "").strip():
             self._escena.mostrar_sin_tarjeta()
             return
@@ -308,8 +313,11 @@ class CapaVideo:
         self._soltar(pieza)
 
     def _soltar(self, pieza):
-        if pieza.datos.get("medio"):
+        medio = pieza.datos.get("medio")
+        if medio:
             self._medio.soltar()
+            if medio["tipo"] in _TIPOS_ATENUADOS:
+                atenuacion.soltar("medio")
 
     def _asegurar(self):
         if self._preparado:

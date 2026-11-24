@@ -801,5 +801,60 @@ class TestCableadoProgramado(unittest.TestCase):
         marco.programador.fijar_mensajes_chat.assert_called_once_with(7)
 
 
+class TestAtenuacionDeLaMusica(Base):
+    """Solo el sonido y el vídeo sostienen un pedido de `medio` en OBS."""
+
+    def _pieza(self, medio):
+        from guyrapu.interaction.cola_pantalla import Pieza
+        return Pieza(tipo="disparador", texto="Ríe Ana",
+                     segundos=max(1, medio["duracion"]),
+                     datos={"estilo": "clasico", "nombre": "risa",
+                            "medio": medio})
+
+    def _medio(self, tipo):
+        return {"ruta": "C:/medios/tono.wav", "tipo": tipo, "duracion": 4,
+                "ganancia_db": None}
+
+    def test_un_sonido_pide_al_armarse_y_suelta_al_ocultarse(self):
+        with mock.patch.object(capa_video.atenuacion, "pedir") as pedir, \
+                mock.patch.object(capa_video.atenuacion, "soltar") as soltar:
+            self.capa.agregar_pieza(self._pieza(self._medio("sonido")))
+            self._atender()
+            pedir.assert_called_once_with("medio", 6)
+            soltar.assert_not_called()
+            self.ahora += 10.0
+            self._atender()
+            soltar.assert_called_once_with("medio")
+
+    def test_un_video_tambien_pide_y_suelta(self):
+        with mock.patch.object(capa_video.atenuacion, "pedir") as pedir, \
+                mock.patch.object(capa_video.atenuacion, "soltar") as soltar:
+            self.capa.agregar_pieza(self._pieza(self._medio("video")))
+            self._atender()
+            pedir.assert_called_once_with("medio", 6)
+            self.ahora += 10.0
+            self._atender()
+            soltar.assert_called_once_with("medio")
+
+    def test_una_imagen_no_pide_ni_suelta(self):
+        with mock.patch.object(capa_video.atenuacion, "pedir") as pedir, \
+                mock.patch.object(capa_video.atenuacion, "soltar") as soltar:
+            self.capa.agregar_pieza(self._pieza(self._medio("imagen")))
+            self._atender()
+            self.ahora += 10.0
+            self._atender()
+            pedir.assert_not_called()
+            soltar.assert_not_called()
+
+    def test_si_obs_falla_al_armar_no_queda_pedido(self):
+        self.medio.armar = mock.Mock(side_effect=RuntimeError("OBS cayó"))
+        with mock.patch.object(capa_video.atenuacion, "pedir") as pedir, \
+                mock.patch.object(capa_video.atenuacion, "soltar") as soltar:
+            self.capa.agregar_pieza(self._pieza(self._medio("sonido")))
+            self._atender()
+            pedir.assert_not_called()
+            soltar.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

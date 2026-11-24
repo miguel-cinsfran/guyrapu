@@ -843,5 +843,89 @@ class TestTextoTraducido(unittest.TestCase):
                          ["Ana: HELLO, del inglés"])
 
 
+class TestAtenuacionPorVoz(unittest.TestCase):
+    """Cada frase sostiene un pedido de `voz` hasta cualquiera de sus salidas."""
+
+    def _pedir_soltar(self):
+        return (mock.patch.object(tts_worker.atenuacion, "pedir"),
+                mock.patch.object(tts_worker.atenuacion, "soltar"))
+
+    def test_la_frase_pide_mientras_suena_y_suelta_al_terminar(self):
+        motor = MotorFalso()
+        motor.duracion = 0.04
+        worker = _worker_con(motor)
+        worker._abrir_motor()
+        pedir, soltar = self._pedir_soltar()
+        estados = []
+        with pedir as pedir, soltar as soltar:
+            worker._procesar_comandos = mock.Mock(
+                side_effect=lambda: estados.append(
+                    (pedir.call_count, soltar.call_count)))
+            worker._hablar("mensaje")
+        pedir.assert_called_once_with("voz", 60)
+        soltar.assert_called_once_with("voz")
+        self.assertTrue(any(vivos == 1 and sueltos == 0
+                            for vivos, sueltos in estados))
+
+    def test_la_purga_suelta_el_pedido(self):
+        motor = MotorFalso()
+        motor.hablando_ = True
+        worker = _worker_con(motor)
+        worker._abrir_motor()
+        worker._procesar_comandos = mock.Mock(
+            side_effect=lambda: worker._purge_pending.set())
+        pedir, soltar = self._pedir_soltar()
+        with pedir as pedir, soltar as soltar:
+            worker._hablar("mensaje largo")
+        pedir.assert_called_once_with("voz", 60)
+        soltar.assert_called_once_with("voz")
+        self.assertEqual(motor.paradas, 1)
+
+    def test_un_fallo_del_motor_suelta_el_pedido(self):
+        motor = MotorFalso()
+        motor.hablar = mock.Mock(side_effect=RuntimeError("motor roto"))
+        worker = _worker_con(motor)
+        worker._abrir_motor()
+        pedir, soltar = self._pedir_soltar()
+        with pedir as pedir, soltar as soltar:
+            with self.assertRaises(RuntimeError):
+                worker._leer_frase(motor, "mensaje")
+        pedir.assert_called_once_with("voz", 60)
+        soltar.assert_called_once_with("voz")
+
+    def test_cada_frase_renueva_el_pedido(self):
+        motor = MotorFalso()
+        motor.duracion = 0.02
+        worker = _worker_con(motor)
+        worker._abrir_motor()
+        worker._procesar_comandos = mock.Mock()
+        pedir, soltar = self._pedir_soltar()
+        with pedir as pedir, soltar as soltar:
+            worker._hablar("uno")
+            worker._hablar("dos")
+        self.assertEqual(pedir.call_args_list,
+                         [mock.call("voz", 60), mock.call("voz", 60)])
+        self.assertEqual(soltar.call_args_list,
+                         [mock.call("voz"), mock.call("voz")])
+
+    def test_la_voz_secundaria_tambien_pide_y_suelta(self):
+        sapi = MotorFalso(motor="sapi")
+        phonon = MotorFalso(motor="phonon")
+        phonon.duracion = 0.04
+        fabrica = FabricaFalsa({"sapi": sapi, "phonon": phonon})
+        config = {"motor": "sapi", "voz": "Voz A", "voz_secundaria": "Voz B",
+                  "motor_secundaria": "phonon"}
+        worker = tts_worker.TTSWorker(
+            queue.Queue(), config, fabrica_motor=fabrica)
+        worker._abrir_motor()
+        worker._procesar_comandos = mock.Mock()
+        pedir, soltar = self._pedir_soltar()
+        with pedir as pedir, soltar as soltar:
+            worker._hablar("evento", secundaria=True)
+        pedir.assert_called_once_with("voz", 60)
+        soltar.assert_called_once_with("voz")
+        self.assertEqual(sapi.hablados, [])
+
+
 if __name__ == "__main__":
     unittest.main()

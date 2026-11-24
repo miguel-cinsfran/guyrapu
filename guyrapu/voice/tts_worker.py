@@ -23,6 +23,7 @@ from guyrapu.core import diagnostico
 from guyrapu.core.lectura_eventos import (
     construir_tts, quitar_emojis, sanitizar,  # noqa: F401
 )
+from guyrapu.music import atenuacion
 from guyrapu.voice import eleccion_motor
 from guyrapu.voice import escala_voz
 from guyrapu.voice import gestor_motores
@@ -54,8 +55,6 @@ def _volumen_inicial(valor) -> int:
     except (TypeError, ValueError):
         return 100
 
-
-# ── Hilo TTS ─────────────────────────────────────────────────────────────────
 
 class TTSWorker(threading.Thread):
 
@@ -179,6 +178,7 @@ class TTSWorker(threading.Thread):
         self._purge_pending.clear()
         self._eleccion.hablar(texto, voz, importante, secundaria)
 
+    @atenuacion.mientras("voz", 60)
     def _leer_frase(self, motor, texto: str) -> bool:
         """Manda la frase a `motor` y espera a que termine. True si sonó."""
         self._sonando = motor

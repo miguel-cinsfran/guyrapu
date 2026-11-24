@@ -12,6 +12,7 @@ from __future__ import annotations
 import threading
 import time
 import weakref
+from contextlib import contextmanager
 from dataclasses import dataclass
 
 from guyrapu.core import diagnostico
@@ -141,6 +142,16 @@ def pedir(fuente, segundos):
 def soltar(fuente):
     """Da por terminado un pedido del atenuador compartido."""
     _atenuador.soltar(fuente)
+
+
+@contextmanager
+def mientras(fuente, segundos):
+    """Sostiene el pedido mientras dura el bloque, también si este lanza."""
+    pedir(fuente, segundos)
+    try:
+        yield
+    finally:
+        soltar(fuente)
 
 
 def atenuado(valor):
