@@ -1,7 +1,27 @@
-<!-- original: es/CHANGELOG.md eb6972b442545547c6780b663d0493d40acfe79d -->
+<!-- original: es/CHANGELOG.md d5c3f48e59aa2b971227c95b1f6f5938fd371eb4 -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 8, November 2026
+
+### Interaction
+
+- During the live stream, Guyrapu announces when 10 seconds are left in a poll and which option is in the lead, when a goal reaches halfway and when it is close to the target. If you ask, it also says which alert was shown on the video and who it is from. Each poll, goal and alert has a check box to silence these notices.
+- TikTok like goals follow the number TikTok shows, including likes that arrived before you connected the chat.
+
+### Media
+
+- Each sound or video media item has its own volume in its dialog box. *Listen* plays it with the same volume matching and general volume as on the live stream.
+- *Create command*, on the *Media* page, opens the command dialog already set up with the chosen media item and a suggested name. When you accept, the command appears in *Commands*.
+
+### Voices and sounds
+
+- The sliders for voice speed, volume and pitch, for the music volume and for the media volume are wider and show their value.
+
+### Music
+
+- Music lowers on its own while the voice speaks or a media item plays on the video. The check boxes *Lower music while the voice speaks* and *Lower music while media plays* are in *Preferences*, on the *Music* category, next to *Music volume when lowered*. By default it lowers with media and not with the voice.
 
 ## 3.0.0 beta 7, November 2026
 

@@ -4,7 +4,7 @@ Guyrapu lee en voz alta el chat de los directos de YouTube y TikTok, y
 maneja OBS Studio y Restream desde el teclado. Está pensado para personas
 ciegas o con baja visión que transmiten, y se prueba con NVDA.
 
-Versión 3.0.0 beta 7 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
+Versión 3.0.0 beta 8 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
 
 ## Instalación
 
@@ -169,8 +169,9 @@ que requiere una cuenta. Las voces de Phonon y de Piper se instalan desde
 *Administrar voces*, en el menú *Voz* o desde el botón del mismo nombre en
 *Preferencias*, categoría *Voces*, y aparecen en esa categoría una vez
 instaladas. El motor y la voz se eligen ahí. La velocidad, el volumen y el
-tono se ajustan con un deslizador, y *Probar voz* reproduce una muestra con
-cualquier motor. Las voces locales dicen su idioma. La voz secundaria puede
+tono se ajustan con deslizadores anchos que muestran su valor, como el
+deslizador del volumen de la música y el de los medios. *Probar voz* reproduce
+una muestra con cualquier motor. Las voces locales dicen su idioma. La voz secundaria puede
 usar otro motor. Si una voz local falla o ElevenLabs falla por la red o por
 falta de saldo, Guyrapu lee con la *Voz de Windows de respaldo* y lo avisa una
 vez. Con Phonon o Piper se elige
@@ -382,7 +383,11 @@ canciones que muestra la búsqueda, y `Ctrl+A` selecciona todas. En las dos
 listas, `Intro` reproduce la canción.
 
 El volumen de la música se ajusta con un deslizador en *Preferencias*,
-categoría *Música*, igual que el volumen del reproductor.
+categoría *Música*, igual que el volumen del reproductor. En esa misma
+categoría, *Bajar música mientras habla la voz* y *Bajar música mientras
+suena un medio* bajan la música sola mientras pasa una de esas cosas, y
+*Volumen de la música al bajarla* fija el volumen al que baja. De fábrica baja
+con los medios y no con la voz.
 
 *Igualar volumen de las canciones* hace que todas suenen con un volumen
 parecido. Cada archivo se mide una vez, con el botón *Igualar volumen* de
@@ -826,7 +831,9 @@ chat y la voz lee el Super Chat. En *Probar sin directo*, la lista
 *Permiso y espera* eliges quién puede activarla y cada cuánto tiempo, y en
 la tarjeta puedes usar `{usuario}`, `{cantidad}`, `{regalo}`, `{texto}` y
 `{contador}`. La parte de los antiguos disparadores que respondía a
-comandos, palabras o atajos está ahora en *Comandos*.
+comandos, palabras o atajos está ahora en *Comandos*. La casilla *Avisar
+cuando se muestra en el vídeo* hace que la voz diga, por ejemplo, «Alerta
+Gracias por el Super Chat en el vídeo, de Ana.». Viene desmarcada.
 
 ### <a id="mensajes-automaticos"></a>Mensajes automáticos
 
@@ -854,7 +861,10 @@ el resultado. Por ejemplo, escribe `¿Qué juego sigue?`, agrega `Uno` y
 Interacción. El público ve la pregunta en el vídeo con los votos y el
 tiempo, y vota escribiendo `!1` o `!2` desde cualquier chat. Con
 `Ctrl+Alt+Mayús+I` oyes la encuesta con sus votos, y `Ctrl+Alt+Mayús+E` la
-cierra antes de tiempo.
+cierra antes de tiempo. Sin pulsar ninguna tecla, la voz dice «Quedan 10
+segundos de la encuesta» y, por ejemplo, «Va ganando Uno, con 3 votos» cuando
+cambia la opción que va ganando. La casilla *Avisar cuando quedan 10 segundos
+y cuando cambia quién gana* calla estos avisos. Viene marcada.
 
 ### <a id="preguntas"></a>Preguntas
 
@@ -873,7 +883,12 @@ con qué estilo y festejo se muestran. Cuentan me gusta, seguidores,
 miembros, regalos o Super Chats. Por ejemplo, crea una meta de seguidores con
 objetivo `50`. Al cumplirse, suena un aviso y el público ve una tarjeta en el
 vídeo con el festejo. Puedes mostrar el avance fijo, por ejemplo
-«Seguidores: 12 de 50», y se pone al día mientras llegan.
+«Seguidores: 12 de 50», y se pone al día mientras llegan. Durante el directo,
+la voz dice «Meta Seguidores: a la mitad, 25 de 50» y, al llegar al 90 por
+ciento, «Meta Seguidores: cerca del objetivo, 45 de 50». La casilla *Avisar a
+la mitad y cerca del objetivo* calla estos avisos. Viene marcada. Las metas de
+me gusta de TikTok siguen el número que muestra TikTok, con los me gusta que
+llegaron antes de conectar el chat.
 
 ### <a id="medios"></a>Medios
 
@@ -893,8 +908,14 @@ primera vez que abres la aplicación.
 muestra la imagen o el GIF, para que `F2` y la lista digan qué ve el
 público. Los sonidos y vídeos se igualan de volumen al agregarlos. El
 deslizador *Volumen de los medios en el vídeo* los equilibra con la voz y el
-juego. También puedes agregar, editar, duplicar, exportar e importar
-medios; *Eliminar* quita también el archivo de la carpeta.
+juego. Cada medio de sonido o vídeo tiene además su *Volumen* en *Agregar
+medio* o *Editar medio*, de 0 a 200, que se suma a la igualación y al volumen
+general. *Escuchar* lo reproduce con esa misma ganancia, igual que en el
+directo. Al elegir un medio y pulsar *Crear comando*, se abre el cuadro de
+comando con ese medio y un nombre sugerido. Al aceptar, Guyrapu dice «Comando
+agregado» y el comando queda en *Comandos*. También puedes agregar, editar,
+duplicar, exportar e importar medios; *Eliminar* quita también el archivo de
+la carpeta.
 
 ### <a id="estilos"></a>Estilos
 

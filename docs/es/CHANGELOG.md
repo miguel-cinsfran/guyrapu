@@ -1,5 +1,39 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 8, noviembre de 2026
+
+### Interacción
+
+- Durante el directo, Guyrapu anuncia cuándo una encuesta tiene 10 segundos y
+  qué opción va ganando, cuándo una meta llega a la mitad y cuándo está cerca
+  del objetivo. Si lo pides, dice también qué alerta se mostró en el vídeo y
+  de quién es. Cada encuesta, meta y alerta tiene una casilla para callar
+  estos avisos.
+- Las metas de me gusta de TikTok siguen el número que muestra TikTok, con
+  los me gusta que llegaron antes de conectar el chat.
+
+### Medios
+
+- Cada medio de sonido o vídeo tiene su volumen en su cuadro. *Escuchar* lo
+  hace sonar con la misma igualación y el mismo volumen general que en el
+  directo.
+- *Crear comando*, en la página *Medios*, abre el cuadro de comando con el
+  medio elegido y un nombre sugerido. Al aceptar, el comando queda en
+  *Comandos*.
+
+### Voces y sonidos
+
+- Los deslizadores de velocidad, volumen y tono de las voces, de volumen de la
+  música y de volumen de los medios son más anchos y muestran su valor.
+
+### Música
+
+- La música baja sola mientras habla la voz o suena un medio en el vídeo. Las
+  casillas *Bajar música mientras habla la voz* y *Bajar música mientras
+  suena un medio* están en *Preferencias*, categoría *Música*, junto a
+  *Volumen de la música al bajarla*. De fábrica baja con los medios y no con
+  la voz.
+
 ## 3.0.0 beta 7, noviembre de 2026
 
 ### Interacción

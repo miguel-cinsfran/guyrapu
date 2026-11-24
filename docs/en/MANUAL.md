@@ -1,11 +1,11 @@
-<!-- original: es/MANUAL.md dcacb54fbe742fffb7ed46e6ec2333d8a1c59b0e -->
+<!-- original: es/MANUAL.md 55ec0543b293edbebd4407425872977576ad1771 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
 
 Guyrapu reads the chat of YouTube and TikTok live streams aloud, and controls OBS Studio and Restream from the keyboard. It is designed for people who are blind or have low vision and stream, and it is tested with NVDA.
 
-Version 3.0.0 beta 7 · Windows 10 and 11 · [News](CHANGELOG.md)
+Version 3.0.0 beta 8 · Windows 10 and 11 · [News](CHANGELOG.md)
 
 ## Installation
 
@@ -92,7 +92,7 @@ On a published video, the *Comments* tab reads the comments, and with the Google
 
 ## <a id="voces"></a>Voices and sounds
 
-Guyrapu reads with SAPI 5 and OneCore, which come with Windows, and with ElevenLabs, which requires an account. Phonon and Piper voices are installed from *Manage voices*, in the *Voice* menu or from the button of the same name in *Preferences*, on the *Voices* category, and appear in that category once installed. The engine and the voice are chosen there. The speed, the volume and the pitch are adjusted with a slider, and *Test voice* plays a sample with any engine. Local voices say their language. The secondary voice can use another engine. If a local voice fails or ElevenLabs fails because of the network or a lack of balance, Guyrapu reads with the *Backup Windows voice* and warns you once. With Phonon or Piper you also choose the audio output of the chat voice, for example headphones, so it does not go into the live stream. The voice is chosen in *Preferences*, on the *Voices* category: the *Voice* menu has no submenu for choosing a voice.
+Guyrapu reads with SAPI 5 and OneCore, which come with Windows, and with ElevenLabs, which requires an account. Phonon and Piper voices are installed from *Manage voices*, in the *Voice* menu or from the button of the same name in *Preferences*, on the *Voices* category, and appear in that category once installed. The engine and the voice are chosen there. The speed, the volume and the pitch are adjusted with wide sliders that show their value, like the slider for the music volume and the one for the media volume. *Test voice* plays a sample with any engine. Local voices say their language. The secondary voice can use another engine. If a local voice fails or ElevenLabs fails because of the network or a lack of balance, Guyrapu reads with the *Backup Windows voice* and warns you once. With Phonon or Piper you also choose the audio output of the chat voice, for example headphones, so it does not go into the live stream. The voice is chosen in *Preferences*, on the *Voices* category: the *Voice* menu has no submenu for choosing a voice.
 
 Each type of message, event and notice has its sound. In the *Sounds* category you choose the theme, *Default* or *Soft*, and turn off each sound separately. The page shows the sounds grouped by family and says the family of each one. It has a context menu with *Play sound*, plays a sound at the edge with the arrows and searches as you type, like the other lists. In English, the names come translated. Waits sound while they last and play a done or error sound at the end: loading the live stream lists of YouTube, adding a capture to the AI, asking OBS for the microphone, connecting Restream, signing in to YouTube, checking keys in *Preferences*, loading the music folder and checking for updates. The wait sound plays when connecting and in the other waits, and does not sound like the disconnected sound.
 
@@ -158,7 +158,7 @@ In *Songs*, in the queue and in the search results you can select several songs 
 
 When you create or edit a playlist, a dialog with two lists opens. In *Playlist songs*, `Delete` removes the song and `Alt+Up Arrow` and `Alt+Down Arrow` move it. *All songs* shows the folder with a checkbox for each song, checked for the ones already in the playlist: checking or unchecking it adds or removes the song. Its menu has the Applications key and *Add all to the playlist*, which adds all the songs shown by the search at once, and `Ctrl+A` selects all. In both lists, `Enter` plays the song.
 
-The music volume is adjusted with a slider in *Preferences*, on the *Music* category, like the player volume.
+The music volume is adjusted with a slider in *Preferences*, on the *Music* category, like the player volume. On that same category, *Lower music while the voice speaks* and *Lower music while media plays* lower the music on their own while either happens, and *Music volume when lowered* sets the volume it lowers to. By default it lowers with media and not with the voice.
 
 *Match song volume* makes them all sound at a similar volume. Each file is measured once, with the *Match the volume* button in the *Music* window, and it is not modified. When it finishes, a sound plays and it says how many songs were matched. When you open Music, the box that offers to match has the *Do not ask again* button. Between one song and the next there is a crossfade, which is adjusted in *Crossfade between songs, in seconds*.
 
@@ -383,7 +383,7 @@ In *Location* you choose *At the beginning of the message* or *Anywhere in the m
 
 Alerts respond to what happens in the live stream: a Super Chat, a membership, a new follower or a TikTok gift. They used to be called "Triggers". To create a Super Chat alert, go to *Alerts* and press *Add*. In *Name* type `Thanks for the Super Chat`, in *Event* choose *Super Chats and gifts* and in *Minimum amount* type `5`. In *Text* type `Thanks, {usuario}, for {cantidad}.`, in *Media item* choose an image from the Media folder and in *Show in* choose *Chat and video*. Press *OK*.
 
-When a Super Chat of 5 or more arrives, the audience sees the image and the card on the video and the text in the chat. Guyrapu writes the card in the chat and the voice reads the Super Chat. In *Test without a live stream*, the *Results* list says "The alert Thanks for the Super Chat responded". In *Permission and cooldown* you choose who can trigger it and how often, and the card can use `{usuario}`, `{cantidad}`, `{regalo}`, `{texto}` and `{contador}`. The part of the old triggers that answered commands, words or shortcuts is now in *Commands*.
+When a Super Chat of 5 or more arrives, the audience sees the image and the card on the video and the text in the chat. Guyrapu writes the card in the chat and the voice reads the Super Chat. In *Test without a live stream*, the *Results* list says "The alert Thanks for the Super Chat responded". In *Permission and cooldown* you choose who can trigger it and how often, and the card can use `{usuario}`, `{cantidad}`, `{regalo}`, `{texto}` and `{contador}`. The part of the old triggers that answered commands, words or shortcuts is now in *Commands*. The check box *Notify when shown on video* makes the voice say, for example, "Alert Thanks for the Super Chat on video, from Ana." It is unchecked by default.
 
 ### <a id="mensajes-automaticos"></a>Scheduled messages
 
@@ -393,7 +393,7 @@ You can also duplicate, sort, preview, export and import them. The ones that cho
 
 ### <a id="encuestas"></a>Polls
 
-In *Polls* you prepare the question, the options, the duration and where the result appears. For example, type `Which game is next?`, add `One` and `Two`, set `2` as the duration and choose *Video*. Start the poll from Interaction. The audience sees the question on the video with the votes and the time, and votes by typing `!1` or `!2` from any chat. With `Ctrl+Alt+Shift+I` you hear the poll with its votes, and `Ctrl+Alt+Shift+E` closes it early.
+In *Polls* you prepare the question, the options, the duration and where the result appears. For example, type `Which game is next?`, add `One` and `Two`, set `2` as the duration and choose *Video*. Start the poll from Interaction. The audience sees the question on the video with the votes and the time, and votes by typing `!1` or `!2` from any chat. With `Ctrl+Alt+Shift+I` you hear the poll with its votes, and `Ctrl+Alt+Shift+E` closes it early. Without pressing any key, the voice says "10 seconds left in the poll." and, for example, "Uno is in the lead with 3 votes." when the leading option changes. The check box *Notify when 10 seconds remain and when the leader changes* silences these notices. It is checked by default.
 
 ### <a id="preguntas"></a>Questions
 
@@ -401,13 +401,13 @@ The audience leaves questions by typing `!pregunta` or `!q` in the chat. For exa
 
 ### <a id="metas"></a>Goals
 
-In *Goals* you prepare the goals of the live stream: what they count, how much is needed and the style and celebration they use. They count likes, followers, members, gifts or Super Chats. For example, create a follower goal with a target of `50`. When it is reached, a sound plays and the audience sees a card on the video with its celebration. You can show its fixed progress, for example «Followers: 12 of 50», and it is updated as they arrive.
+In *Goals* you prepare the goals of the live stream: what they count, how much is needed and the style and celebration they use. They count likes, followers, members, gifts or Super Chats. For example, create a follower goal with a target of `50`. When it is reached, a sound plays and the audience sees a card on the video with its celebration. You can show its fixed progress, for example «Followers: 12 of 50», and it is updated as they arrive. During the live stream, the voice says "Goal Followers: halfway, 25 of 50." and, at 90 percent, "Goal Followers: close to the target, 45 of 50." The check box *Notify at halfway and near the target* silences these notices. It is checked by default. TikTok like goals follow the number TikTok shows, including likes that arrived before you connected the chat.
 
 ### <a id="medios"></a>Media
 
 The *Media* folder sits next to the application, like the Music folder. The *Open folder* button on this page opens it in File Explorer. Copy in an image file (`.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`), a video file (`.mp4`, `.webm`, `.mov`, `.mkv`) or a sound file (`.wav`, `.mp3`, `.ogg`, `.m4a`) and it appears in the list when you come back to the page. For example, copy `applause.wav` and press *Listen*: you hear the name and the description of the media item, and the sound or video plays. Press *Listen* again or `Esc` to stop it. The audience hears or sees it when a command or an alert shows it on the video. Media from earlier versions moves to this folder on its own the first time you open the application.
 
-*Describe image* asks the artificial intelligence for a sentence about what the image or GIF shows, so that `F2` and the list say what the audience sees. Sounds and videos are matched in volume when added. The *Volume of the media in the video* slider balances them with the voice and the game. You can also add, edit, duplicate, export and import media items; *Delete* also removes the file from the folder.
+*Describe image* asks the artificial intelligence for a sentence about what the image or GIF shows, so that `F2` and the list say what the audience sees. Sounds and videos are matched in volume when added. The *Volume of the media in the video* slider balances them with the voice and the game. Each sound or video media item also has its own *Volume* in *Add media* or *Edit media*, from 0 to 200, which adds to the matching and the general volume. *Listen* plays it with that same gain, as on the live stream. When you choose a media item and press *Create command*, the command dialog opens already set up with that media item and a suggested name. When you accept, Guyrapu announces "Command added" and the command appears in *Commands*. You can also add, edit, duplicate, export and import media items; *Delete* also removes the file from the folder.
 
 ### <a id="estilos"></a>Styles
 

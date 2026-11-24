@@ -221,7 +221,7 @@
 y maneja OBS Studio y Restream desde el teclado. Está pensado para
 personas ciegas o con baja visión que transmiten, y se prueba con
 NVDA.</p>
-<p>Versión 3.0.0 beta 7 · Windows 10 y 11 · <a
+<p>Versión 3.0.0 beta 8 · Windows 10 y 11 · <a
 href="CHANGELOG.html">Novedades</a></p>
 <h2 id="instalación">Instalación</h2>
 <p>Descomprime el ZIP en cualquier carpeta y abre
@@ -417,15 +417,16 @@ instalan desde <em>Administrar voces</em>, en el menú <em>Voz</em> o
 desde el botón del mismo nombre en <em>Preferencias</em>, categoría
 <em>Voces</em>, y aparecen en esa categoría una vez instaladas. El motor
 y la voz se eligen ahí. La velocidad, el volumen y el tono se ajustan
-con un deslizador, y <em>Probar voz</em> reproduce una muestra con
-cualquier motor. Las voces locales dicen su idioma. La voz secundaria
-puede usar otro motor. Si una voz local falla o ElevenLabs falla por la
-red o por falta de saldo, Guyrapu lee con la <em>Voz de Windows de
-respaldo</em> y lo avisa una vez. Con Phonon o Piper se elige también la
-salida de audio de la voz del chat, por ejemplo los auriculares, para
-que no entre al directo. La voz se elige en <em>Preferencias</em>,
-categoría <em>Voces</em>: el menú <em>Voz</em> no tiene submenú para
-elegir voz.</p>
+con deslizadores anchos que muestran su valor, como el deslizador del
+volumen de la música y el de los medios. <em>Probar voz</em> reproduce
+una muestra con cualquier motor. Las voces locales dicen su idioma. La
+voz secundaria puede usar otro motor. Si una voz local falla o
+ElevenLabs falla por la red o por falta de saldo, Guyrapu lee con la
+<em>Voz de Windows de respaldo</em> y lo avisa una vez. Con Phonon o
+Piper se elige también la salida de audio de la voz del chat, por
+ejemplo los auriculares, para que no entre al directo. La voz se elige
+en <em>Preferencias</em>, categoría <em>Voces</em>: el menú <em>Voz</em>
+no tiene submenú para elegir voz.</p>
 <p>Cada tipo de mensaje, evento y aviso tiene su sonido. En la categoría
 <em>Sonidos</em> se elige el tema, <em>Predeterminado</em> o
 <em>Suave</em>, y se desactiva cada sonido por separado. La página
@@ -663,7 +664,11 @@ las canciones que muestra la búsqueda, y <code>Ctrl+A</code> selecciona
 todas. En las dos listas, <code>Intro</code> reproduce la canción.</p>
 <p>El volumen de la música se ajusta con un deslizador en
 <em>Preferencias</em>, categoría <em>Música</em>, igual que el volumen
-del reproductor.</p>
+del reproductor. En esa misma categoría, <em>Bajar música mientras habla
+la voz</em> y <em>Bajar música mientras suena un medio</em> bajan la
+música sola mientras pasa una de esas cosas, y <em>Volumen de la música
+al bajarla</em> fija el volumen al que baja. De fábrica baja con los
+medios y no con la voz.</p>
 <p><em>Igualar volumen de las canciones</em> hace que todas suenen con
 un volumen parecido. Cada archivo se mide una vez, con el botón
 <em>Igualar volumen</em> de la ventana <em>Música</em>, y no se
@@ -1155,8 +1160,10 @@ Chat». En <em>Permiso y espera</em> eliges quién puede activarla y cada
 cuánto tiempo, y en la tarjeta puedes usar <code>{usuario}</code>,
 <code>{cantidad}</code>, <code>{regalo}</code>, <code>{texto}</code> y
 <code>{contador}</code>. La parte de los antiguos disparadores que
-respondía a comandos, palabras o atajos está ahora en
-<em>Comandos</em>.</p>
+respondía a comandos, palabras o atajos está ahora en <em>Comandos</em>.
+La casilla <em>Avisar cuando se muestra en el vídeo</em> hace que la voz
+diga, por ejemplo, «Alerta Gracias por el Super Chat en el vídeo, de
+Ana.». Viene desmarcada.</p>
 <h3 id="mensajes-automáticos"><a id="mensajes-automaticos"></a>Mensajes
 automáticos</h3>
 <p>Los mensajes automáticos salen solos cada cierto tiempo, por ejemplo
@@ -1186,7 +1193,11 @@ y dónde sale el resultado. Por ejemplo, escribe
 pregunta en el vídeo con los votos y el tiempo, y vota escribiendo
 <code>!1</code> o <code>!2</code> desde cualquier chat. Con
 <code>Ctrl+Alt+Mayús+I</code> oyes la encuesta con sus votos, y
-<code>Ctrl+Alt+Mayús+E</code> la cierra antes de tiempo.</p>
+<code>Ctrl+Alt+Mayús+E</code> la cierra antes de tiempo. Sin pulsar
+ninguna tecla, la voz dice «Quedan 10 segundos de la encuesta» y, por
+ejemplo, «Va ganando Uno, con 3 votos» cuando cambia la opción que va
+ganando. La casilla <em>Avisar cuando quedan 10 segundos y cuando cambia
+quién gana</em> calla estos avisos. Viene marcada.</p>
 <h3 id="preguntas"><a id="preguntas"></a>Preguntas</h3>
 <p>El público deja preguntas escribiendo <code>!pregunta</code> o
 <code>!q</code> en el chat. Por ejemplo, escribe
@@ -1204,7 +1215,12 @@ seguidores, miembros, regalos o Super Chats. Por ejemplo, crea una meta
 de seguidores con objetivo <code>50</code>. Al cumplirse, suena un aviso
 y el público ve una tarjeta en el vídeo con el festejo. Puedes mostrar
 el avance fijo, por ejemplo «Seguidores: 12 de 50», y se pone al día
-mientras llegan.</p>
+mientras llegan. Durante el directo, la voz dice «Meta Seguidores: a la
+mitad, 25 de 50» y, al llegar al 90 por ciento, «Meta Seguidores: cerca
+del objetivo, 45 de 50». La casilla <em>Avisar a la mitad y cerca del
+objetivo</em> calla estos avisos. Viene marcada. Las metas de me gusta
+de TikTok siguen el número que muestra TikTok, con los me gusta que
+llegaron antes de conectar el chat.</p>
 <h3 id="medios"><a id="medios"></a>Medios</h3>
 <p>La carpeta <em>Medios</em> está junto a la aplicación, como la
 carpeta Música. El botón <em>Abrir carpeta</em> de esta página la abre
@@ -1224,9 +1240,16 @@ aplicación.</p>
 sobre lo que muestra la imagen o el GIF, para que <code>F2</code> y la
 lista digan qué ve el público. Los sonidos y vídeos se igualan de
 volumen al agregarlos. El deslizador <em>Volumen de los medios en el
-vídeo</em> los equilibra con la voz y el juego. También puedes agregar,
-editar, duplicar, exportar e importar medios; <em>Eliminar</em> quita
-también el archivo de la carpeta.</p>
+vídeo</em> los equilibra con la voz y el juego. Cada medio de sonido o
+vídeo tiene además su <em>Volumen</em> en <em>Agregar medio</em> o
+<em>Editar medio</em>, de 0 a 200, que se suma a la igualación y al
+volumen general. <em>Escuchar</em> lo reproduce con esa misma ganancia,
+igual que en el directo. Al elegir un medio y pulsar <em>Crear
+comando</em>, se abre el cuadro de comando con ese medio y un nombre
+sugerido. Al aceptar, Guyrapu dice «Comando agregado» y el comando queda
+en <em>Comandos</em>. También puedes agregar, editar, duplicar, exportar
+e importar medios; <em>Eliminar</em> quita también el archivo de la
+carpeta.</p>
 <h3 id="estilos"><a id="estilos"></a>Estilos</h3>
 <p>En <em>Estilos</em> creas, duplicas, exportas e importas estilos para
 los mensajes del vídeo, con fuente, colores por nombre, fondo, zona y

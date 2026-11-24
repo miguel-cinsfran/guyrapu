@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md dcacb54fbe742fffb7ed46e6ec2333d8a1c59b0e -->
+<!-- original: es/MANUAL.md 55ec0543b293edbebd4407425872977576ad1771 -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -227,7 +227,7 @@ See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
 controls OBS Studio and Restream from the keyboard. It is designed for
 people who are blind or have low vision and stream, and it is tested
 with NVDA.</p>
-<p>Version 3.0.0 beta 7 · Windows 10 and 11 · <a
+<p>Version 3.0.0 beta 8 · Windows 10 and 11 · <a
 href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
 <p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
@@ -424,15 +424,17 @@ installed from <em>Manage voices</em>, in the <em>Voice</em> menu or
 from the button of the same name in <em>Preferences</em>, on the
 <em>Voices</em> category, and appear in that category once installed.
 The engine and the voice are chosen there. The speed, the volume and the
-pitch are adjusted with a slider, and <em>Test voice</em> plays a sample
-with any engine. Local voices say their language. The secondary voice
-can use another engine. If a local voice fails or ElevenLabs fails
-because of the network or a lack of balance, Guyrapu reads with the
-<em>Backup Windows voice</em> and warns you once. With Phonon or Piper
-you also choose the audio output of the chat voice, for example
-headphones, so it does not go into the live stream. The voice is chosen
-in <em>Preferences</em>, on the <em>Voices</em> category: the
-<em>Voice</em> menu has no submenu for choosing a voice.</p>
+pitch are adjusted with wide sliders that show their value, like the
+slider for the music volume and the one for the media volume. <em>Test
+voice</em> plays a sample with any engine. Local voices say their
+language. The secondary voice can use another engine. If a local voice
+fails or ElevenLabs fails because of the network or a lack of balance,
+Guyrapu reads with the <em>Backup Windows voice</em> and warns you once.
+With Phonon or Piper you also choose the audio output of the chat voice,
+for example headphones, so it does not go into the live stream. The
+voice is chosen in <em>Preferences</em>, on the <em>Voices</em>
+category: the <em>Voice</em> menu has no submenu for choosing a
+voice.</p>
 <p>Each type of message, event and notice has its sound. In the
 <em>Sounds</em> category you choose the theme, <em>Default</em> or
 <em>Soft</em>, and turn off each sound separately. The page shows the
@@ -662,7 +664,11 @@ all to the playlist</em>, which adds all the songs shown by the search
 at once, and <code>Ctrl+A</code> selects all. In both lists,
 <code>Enter</code> plays the song.</p>
 <p>The music volume is adjusted with a slider in <em>Preferences</em>,
-on the <em>Music</em> category, like the player volume.</p>
+on the <em>Music</em> category, like the player volume. On that same
+category, <em>Lower music while the voice speaks</em> and <em>Lower
+music while media plays</em> lower the music on their own while either
+happens, and <em>Music volume when lowered</em> sets the volume it
+lowers to. By default it lowers with media and not with the voice.</p>
 <p><em>Match song volume</em> makes them all sound at a similar volume.
 Each file is measured once, with the <em>Match the volume</em> button in
 the <em>Music</em> window, and it is not modified. When it finishes, a
@@ -1162,7 +1168,9 @@ choose who can trigger it and how often, and the card can use
 <code>{usuario}</code>, <code>{cantidad}</code>, <code>{regalo}</code>,
 <code>{texto}</code> and <code>{contador}</code>. The part of the old
 triggers that answered commands, words or shortcuts is now in
-<em>Commands</em>.</p>
+<em>Commands</em>. The check box <em>Notify when shown on video</em>
+makes the voice say, for example, "Alert Thanks for the Super Chat on
+video, from Ana." It is unchecked by default.</p>
 <h3 id="scheduled-messages"><a id="mensajes-automaticos"></a>Scheduled
 messages</h3>
 <p>Scheduled messages come out on their own every so often, for example
@@ -1192,7 +1200,11 @@ and where the result appears. For example, type
 question on the video with the votes and the time, and votes by typing
 <code>!1</code> or <code>!2</code> from any chat. With
 <code>Ctrl+Alt+Shift+I</code> you hear the poll with its votes, and
-<code>Ctrl+Alt+Shift+E</code> closes it early.</p>
+<code>Ctrl+Alt+Shift+E</code> closes it early. Without pressing any key,
+the voice says "10 seconds left in the poll." and, for example, "Uno is
+in the lead with 3 votes." when the leading option changes. The check
+box <em>Notify when 10 seconds remain and when the leader changes</em>
+silences these notices. It is checked by default.</p>
 <h3 id="questions"><a id="preguntas"></a>Questions</h3>
 <p>The audience leaves questions by typing <code>!pregunta</code> or
 <code>!q</code> in the chat. For example, type
@@ -1210,7 +1222,12 @@ count likes, followers, members, gifts or Super Chats. For example,
 create a follower goal with a target of <code>50</code>. When it is
 reached, a sound plays and the audience sees a card on the video with
 its celebration. You can show its fixed progress, for example
-«Followers: 12 of 50», and it is updated as they arrive.</p>
+«Followers: 12 of 50», and it is updated as they arrive. During the live
+stream, the voice says "Goal Followers: halfway, 25 of 50." and, at 90
+percent, "Goal Followers: close to the target, 45 of 50." The check box
+<em>Notify at halfway and near the target</em> silences these notices.
+It is checked by default. TikTok like goals follow the number TikTok
+shows, including likes that arrived before you connected the chat.</p>
 <h3 id="media"><a id="medios"></a>Media</h3>
 <p>The <em>Media</em> folder sits next to the application, like the
 Music folder. The <em>Open folder</em> button on this page opens it in
@@ -1231,7 +1248,14 @@ application.</p>
 sentence about what the image or GIF shows, so that <code>F2</code> and
 the list say what the audience sees. Sounds and videos are matched in
 volume when added. The <em>Volume of the media in the video</em> slider
-balances them with the voice and the game. You can also add, edit,
+balances them with the voice and the game. Each sound or video media
+item also has its own <em>Volume</em> in <em>Add media</em> or <em>Edit
+media</em>, from 0 to 200, which adds to the matching and the general
+volume. <em>Listen</em> plays it with that same gain, as on the live
+stream. When you choose a media item and press <em>Create command</em>,
+the command dialog opens already set up with that media item and a
+suggested name. When you accept, Guyrapu announces "Command added" and
+the command appears in <em>Commands</em>. You can also add, edit,
 duplicate, export and import media items; <em>Delete</em> also removes
 the file from the folder.</p>
 <h3 id="styles"><a id="estilos"></a>Styles</h3>
