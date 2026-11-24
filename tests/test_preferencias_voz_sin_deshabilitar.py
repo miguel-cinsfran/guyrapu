@@ -11,6 +11,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import wx
+
 from guyrapu.core import config
 from guyrapu.ui import (clave_elevenlabs, espera_sonora, gui_preferencias,
                        preferencias_voz)
@@ -65,6 +67,18 @@ class TestListasDeVozSinDeshabilitar(unittest.TestCase):
         choice = dialogo.pagina_voz.cho_voz
         self.assertTrue(choice.IsEnabled())
         self.assertEqual(self._items(choice), [NO_HAY_VOCES])
+
+    def test_la_clave_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        dialogo = self._dialogo({"motor": "elevenlabs"})
+        campo = dialogo.pagina_voz.txt_clave_eleven
+        panel = campo.GetParent()
+        panel.Layout()
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, wx.StaticText)
+                    and h.GetLabel() == "Cl&ave de ElevenLabs:"][0]
+        self.assertEqual(
+            campo.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().GetHeight()), 4)
 
     def test_el_respaldo_de_elevenlabs_sin_voces_queda_habilitado(self):
         dialogo = self._dialogo({"motor": "elevenlabs"}, {"sapi": []})

@@ -13,8 +13,8 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import N_, _
+from guyrapu.ui import formulario
 from guyrapu.ui.deslizador import deslizador_accesible
-from guyrapu.ui.gui import caja_de_grupo
 from guyrapu.ui.preferencias_comun import fila_label
 from guyrapu.ui.tema import _T, _tc
 from guyrapu.voice import escala_voz
@@ -26,10 +26,10 @@ _IGUAL_RESPALDO = N_("Igual que el respaldo de la voz principal")
 _NO_HAY_VOCES = N_("(no hay voces instaladas: usa Administrar voces)")
 
 
-def _porcentaje_de_volumen(config) -> int:
+def _porcentaje_de_volumen(config, clave) -> int:
     try:
         return max(0, min(100, int(round(
-            float(config.get("volumen_secundaria", 1.0)) * 100))))
+            float(config.get(clave, 1.0)) * 100))))
     except (TypeError, ValueError):
         return 100
 
@@ -47,7 +47,10 @@ class BloqueVozSecundaria:
         self._motor = ""
 
     def construir(self, parent, voces, voces_respaldo, motor_principal):
-        box, padre = caja_de_grupo(parent, _("Voz secundaria"))
+        columna = wx.BoxSizer(wx.VERTICAL)
+        interior, caja = formulario.agregar_seccion_con_caja(
+            columna, parent, _("Voz secundaria"))
+        padre = caja.GetStaticBox()
         self._voces_principales = list(voces or ())
         self._voces_respaldo = list(voces_respaldo or ())
         self._motor_principal = motor_principal
@@ -55,13 +58,13 @@ class BloqueVozSecundaria:
         self._voces = (self._voces_principales if not self._motor
                        else motores.listar_voces(self._motor))
 
-        box.Add(self._crear_motor(padre), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        box.Add(self._crear_voz(padre), 0, wx.LEFT | wx.RIGHT, 10)
-        box.Add(self._crear_ajustes(padre), 0, wx.LEFT | wx.RIGHT, 10)
-        box.Add(self._crear_probar(padre), 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        box.Add(self._crear_respaldo(padre), 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self._crear_motor(padre, interior)
+        self._crear_voz(padre, interior)
+        self._crear_ajustes(padre, interior)
+        self._crear_probar(padre, interior)
+        self._crear_respaldo(padre, interior)
         self._actualizar_respaldo()
-        return box
+        return columna
 
     def _opciones_motor(self) -> list[tuple[str, str]]:
         opciones = [("", _(_IGUAL_PRINCIPAL))]
@@ -75,9 +78,8 @@ class BloqueVozSecundaria:
         validos = [motor for motor, _texto in self._opciones_motor()]
         return guardado if guardado in validos else ""
 
-    def _crear_motor(self, padre):
-        fila = wx.BoxSizer(wx.VERTICAL)
-        fila.Add(fila_label(padre, _("Motor de vo&z:")), 0, wx.BOTTOM, 6)
+    def _crear_motor(self, padre, sizer):
+        rotulo = fila_label(padre, _("Motor de vo&z:"))
         opciones = self._opciones_motor()
         self.cho_motor = wx.Choice(
             padre, choices=[texto for _motor, texto in opciones],
@@ -87,8 +89,7 @@ class BloqueVozSecundaria:
             next((indice for indice, (motor, _texto) in enumerate(opciones)
                   if motor == self._motor), 0))
         self.cho_motor.Bind(wx.EVT_CHOICE, self._on_motor_cambiado)
-        fila.Add(self.cho_motor, 0, wx.EXPAND | wx.BOTTOM, 6)
-        return fila
+        formulario.agregar_fila(sizer, rotulo, self.cho_motor)
 
     def _on_motor_cambiado(self, event) -> None:
         # Cambiar de motor no anuncia nada: el lector ya lee el valor del
@@ -107,54 +108,47 @@ class BloqueVozSecundaria:
             return opciones[indice][0]
         return ""
 
-    def _crear_voz(self, padre):
-        fila = wx.BoxSizer(wx.VERTICAL)
-        fila.Add(fila_label(padre, _("Voz:")), 0, wx.BOTTOM, 6)
+    def _crear_voz(self, padre, sizer):
+        rotulo = fila_label(padre, _("Voz:"))
         self.cho_voz = wx.Choice(padre, name=_("Voz secundaria"))
         _tc(self.cho_voz)
         self._cargar_voces()
-        fila.Add(self.cho_voz, 0, wx.EXPAND | wx.BOTTOM, 6)
-        return fila
+        formulario.agregar_fila(sizer, rotulo, self.cho_voz)
 
-    def _crear_ajustes(self, padre):
-        fila = wx.BoxSizer(wx.VERTICAL)
-        fila.Add(fila_label(padre, _("Veloci&dad:")), 0, wx.BOTTOM, 6)
+    def _crear_ajustes(self, padre, sizer):
+        rotulo = fila_label(padre, _("Veloci&dad:"))
         self.sp_velocidad = deslizador_accesible(
             padre, minimo=0, maximo=100, paso=5,
             nombre=_("Velocidad de la voz secundaria"),
             inicial=escala_voz.ajustar_velocidad(
                 int(self._config.get("velocidad_secundaria",
                                      escala_voz.VELOCIDAD_NORMAL)), 0))
-        fila.Add(self.sp_velocidad, 0, wx.BOTTOM, 6)
+        formulario.agregar_fila(sizer, rotulo, self.sp_velocidad, expandir=False)
 
-        fila.Add(fila_label(padre, _("Volum&en:")), 0, wx.BOTTOM, 6)
+        rotulo = fila_label(padre, _("Volum&en:"))
         self.sp_volumen = deslizador_accesible(
             padre, minimo=0, maximo=100, paso=5,
-            inicial=_porcentaje_de_volumen(self._config),
+            inicial=_porcentaje_de_volumen(self._config, "volumen_secundaria"),
             nombre=_("Volumen de la voz secundaria"))
-        fila.Add(self.sp_volumen, 0, wx.BOTTOM, 6)
-        return fila
+        formulario.agregar_fila(sizer, rotulo, self.sp_volumen, expandir=False)
 
-    def _crear_probar(self, padre):
+    def _crear_probar(self, padre, sizer):
         self.btn_probar = wx.Button(
             padre, label=_("Proba&r voz secundaria"),
             name=_("Probar voz secundaria"))
         self.btn_probar.SetBackgroundColour(_T.btn)
         self.btn_probar.SetForegroundColour(_T.btn_t)
         self.btn_probar.Bind(wx.EVT_BUTTON, lambda _evento: self._al_probar())
-        return self.btn_probar
+        formulario.agregar_fila(sizer, None, self.btn_probar, expandir=False)
 
-    def _crear_respaldo(self, padre):
-        fila = wx.BoxSizer(wx.VERTICAL)
+    def _crear_respaldo(self, padre, sizer):
         self.lbl_respaldo = fila_label(
             padre, _("Voz de W&indows de respaldo:"))
         self.cho_respaldo = wx.Choice(
             padre, name=_("Voz de Windows de respaldo de la voz secundaria"))
         _tc(self.cho_respaldo)
         self._cargar_respaldo()
-        fila.Add(self.lbl_respaldo, 0, wx.BOTTOM, 6)
-        fila.Add(self.cho_respaldo, 0, wx.EXPAND)
-        return fila
+        formulario.agregar_fila(sizer, self.lbl_respaldo, self.cho_respaldo)
 
     def _cargar_respaldo(self):
         guardada = self._config.get("voz_respaldo_secundaria") or ""

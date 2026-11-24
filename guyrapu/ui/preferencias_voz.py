@@ -13,12 +13,13 @@ import wx
 from guyrapu.core import config as cfg
 from guyrapu.core.idioma import N_, _
 from guyrapu.youtube import credenciales
-from guyrapu.ui import opciones_musica, voces_ventana
+from guyrapu.ui import formulario, opciones_musica, voces_ventana
 from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.gui import _T, _tc, anunciar
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
 from guyrapu.ui.preferencias_voz_eleven import BloqueElevenLabs
-from guyrapu.ui.preferencias_voz_secundaria import BloqueVozSecundaria
+from guyrapu.ui.preferencias_voz_secundaria import (
+    BloqueVozSecundaria, _porcentaje_de_volumen)
 from guyrapu.ui.prueba_voz import PruebaVoz
 
 _SIN_CLAVE_ELEVEN = N_("(comprueba la clave)")
@@ -60,15 +61,16 @@ class PaginaVoz:
         self._eleven_ctrls = self._eleven.controles
         self._voz_secundaria = BloqueVozSecundaria(
             self._config, self._probar_voz_secundaria)
-        vs.Add(self._voz_secundaria.construir(
+        bloque = self._voz_secundaria.construir(
             p, self._voces, self._eleven.voces_respaldo,
-            self._motor_elegido()), 0, wx.EXPAND | wx.ALL, 10)
+            self._motor_elegido())
+        formulario.agregar_bloque(vs, bloque)
         self._prueba = PruebaVoz()
         # El motor de prueba se cierra al cerrar el diálogo por cualquier camino.
         # Se escucha en el panel: el diálogo llega al evento como un wx.Window
         # genérico y `is` no lo reconoce (medido el 27/10/2026).
         p.Bind(wx.EVT_WINDOW_DESTROY, self._al_destruir)
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         self._mostrar_controles_eleven(es_eleven)
         if es_eleven:
             # Con clave guardada, las voces se comprueban solas en segundo
@@ -79,21 +81,21 @@ class PaginaVoz:
     def _crear_motor(self, p, vs):
         from guyrapu.voice import motores
 
-        vs.Add(fila_label(p, _("&Motor de voz:")), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("&Motor de voz:"))
         self.cho_motor = wx.Choice(
             p, choices=[_(motores.NOMBRES[m]) for m in motores.MOTORES],
             name=_("Motor de voz"))
         _tc(self.cho_motor)
         self.cho_motor.SetSelection(self._motor_idx)
         self.cho_motor.Bind(wx.EVT_CHOICE, self._on_motor_cambiado)
-        vs.Add(self.cho_motor, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_motor)
 
     def _crear_voz_lectura(self, p, vs, es_eleven):
         from guyrapu.voice import motores
 
         # Voz del motor elegido, junto al resto de ajustes de lectura para
         # encontrarla más fácil.
-        vs.Add(fila_label(p, _("&Voz principal:")), 0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Voz principal:"))
         if es_eleven:
             # Nunca se va a la red en el hilo de la interfaz: la lista queda
             # vacía hasta que se compruebe la clave.
@@ -106,11 +108,11 @@ class PaginaVoz:
                                   name=_("Voz principal"))
         _tc(self.cho_voz)
         self._cargar_voces(self.cho_voz, self._config.get("voz"), vacio=vacio_voz)
-        vs.Add(self.cho_voz, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_voz)
         self.btn_voces = wx.Button(p, label=_("Admi&nistrar voces…"), name=_("Administrar voces…"))
         self.btn_voces.Bind(wx.EVT_BUTTON, lambda _e: voces_ventana.abrir(
             self._ventana, al_cerrar=lambda: self._on_motor_cambiado(None)))
-        vs.Add(self.btn_voces, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, None, self.btn_voces, expandir=False)
         self._crear_salida(p, vs)
 
     def _crear_salida(self, p, vs):
@@ -122,48 +124,43 @@ class PaginaVoz:
         etiquetas, identificadores, seleccion = opciones_musica.opciones_salida(
             guardada, guardada, encontradas)
         self._salidas_voz = identificadores
-        vs.Add(fila_label(
-            p, _("Salida de audio de la voz (P&honon y Piper):")),
-            0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(
+            p, _("Salida de audio de la voz (P&honon y Piper):"))
         self.cho_salida_voz = wx.Choice(
             p, choices=etiquetas,
             name=_("Salida de audio de la voz (Phonon y Piper)"))
         self.cho_salida_voz.SetSelection(seleccion)
         _tc(self.cho_salida_voz)
-        vs.Add(self.cho_salida_voz, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_salida_voz)
 
     def _crear_ajustes(self, p, vs):
         from guyrapu.voice import escala_voz
 
         # Velocidad, volumen y tono como valores absolutos 0..100.
-        vs.Add(fila_label(p, _("Ve&locidad:")), 0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Ve&locidad:"))
         self.sp_velocidad = deslizador_accesible(
             p, minimo=0, maximo=100, paso=5, nombre=_("Velocidad de la voz"),
             inicial=escala_voz.ajustar_velocidad(
                 int(self._config.get("velocidad_voz", escala_voz.VELOCIDAD_NORMAL)), 0))
-        vs.Add(self.sp_velocidad, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_velocidad, expandir=False)
 
-        try:
-            vol_pct = max(0, min(100, int(round(float(self._config.get("volumen", 1.0)) * 100))))
-        except (TypeError, ValueError):
-            vol_pct = 100
-        vs.Add(fila_label(p, _("Vol&umen:")), 0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Vol&umen:"))
         self.sp_volumen = deslizador_accesible(
-            p, minimo=0, maximo=100, inicial=vol_pct, paso=5,
-            nombre=_("Volumen de la voz"))
-        vs.Add(self.sp_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+            p, minimo=0, maximo=100, paso=5, nombre=_("Volumen de la voz"),
+            inicial=_porcentaje_de_volumen(self._config, "volumen"))
+        formulario.agregar_fila(vs, rotulo, self.sp_volumen, expandir=False)
 
-        vs.Add(fila_label(p, _("&Tono:")), 0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Tono:"))
         self.sp_tono = deslizador_accesible(
             p, minimo=0, maximo=100, paso=5, nombre=_("Tono de la voz"),
             inicial=max(0, min(100, int(self._config.get("tono", 50)))))
-        vs.Add(self.sp_tono, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_tono, expandir=False)
 
         self.btn_probar_voz = wx.Button(p, label=_("&Probar voz"), name=_("Probar voz"))
         self.btn_probar_voz.SetBackgroundColour(_T.btn)
         self.btn_probar_voz.SetForegroundColour(_T.btn_t)
         self.btn_probar_voz.Bind(wx.EVT_BUTTON, self._on_probar_voz)
-        vs.Add(self.btn_probar_voz, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, None, self.btn_probar_voz, expandir=False)
 
     def _mostrar_controles_eleven(self, visible: bool) -> None:
         from guyrapu.voice import proveedores

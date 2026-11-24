@@ -14,7 +14,7 @@ import wx
 
 from guyrapu.capture import redaccion
 from guyrapu.core.idioma import N_, _
-from guyrapu.ui import clave_elevenlabs
+from guyrapu.ui import clave_elevenlabs, formulario
 from guyrapu.ui.espera_sonora import EsperaSonora
 from guyrapu.ui.gui import ContadorAccesible, _T, _tc
 from guyrapu.ui.preferencias_comun import fila_label
@@ -43,20 +43,20 @@ class BloqueElevenLabs:
         self._espera = EsperaSonora(ventana)
 
     def crear_clave(self, p, vs):
-        lbl_clave = fila_label(p, _("Cl&ave de ElevenLabs:"))
+        rotulo = fila_label(p, _("Cl&ave de ElevenLabs:"))
         self.txt_clave_eleven = wx.TextCtrl(
             p, value=self._credenciales.cargar().get("elevenlabs_clave", "") or "",
             style=wx.TE_PASSWORD, name=_("Clave de ElevenLabs"))
         _tc(self.txt_clave_eleven)
-        vs.Add(lbl_clave, 0, wx.LEFT | wx.RIGHT, 10)
-        vs.Add(self.txt_clave_eleven, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.txt_clave_eleven)
         self.btn_comprobar_clave = wx.Button(
             p, label=_("Compro&bar clave"), name=_("Comprobar clave"))
         self.btn_comprobar_clave.SetBackgroundColour(_T.btn)
         self.btn_comprobar_clave.SetForegroundColour(_T.btn_t)
         self.btn_comprobar_clave.Bind(wx.EVT_BUTTON, self._on_comprobar_clave)
-        vs.Add(self.btn_comprobar_clave, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        self.controles.extend((lbl_clave, self.txt_clave_eleven,
+        formulario.agregar_fila(vs, None, self.btn_comprobar_clave,
+                                expandir=False)
+        self.controles.extend((rotulo, self.txt_clave_eleven,
                                self.btn_comprobar_clave))
 
     def crear_ajustes(self, p, vs):
@@ -68,8 +68,7 @@ class BloqueElevenLabs:
             initial=max(0, int(self._config.get("elevenlabs_tope", 0) or 0)))
         self.sp_tope_eleven.SetIncrement(1000)
         _tc(self.sp_tope_eleven)
-        vs.Add(lbl_tope, 0, wx.LEFT | wx.RIGHT, 10)
-        vs.Add(self.sp_tope_eleven, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, lbl_tope, self.sp_tope_eleven, numerico=True)
 
         self.chk_solo_importantes = wx.CheckBox(
             p, name=_("Solo lo importante con ElevenLabs"),
@@ -78,7 +77,7 @@ class BloqueElevenLabs:
         self.chk_solo_importantes.SetForegroundColour(_T.text)
         self.chk_solo_importantes.SetValue(
             bool(self._config.get("elevenlabs_solo_importantes", False)))
-        vs.Add(self.chk_solo_importantes, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_solo_importantes,))
 
         # La voz de Windows de respaldo se ve con cualquier motor que no sea
         # SAPI, así que no va en la lista de controles de ElevenLabs.
@@ -95,8 +94,7 @@ class BloqueElevenLabs:
                 0 if idx_respaldo is None else idx_respaldo)
         else:
             self.cho_voz_respaldo.SetSelection(0)
-        vs.Add(self.lbl_respaldo, 0, wx.LEFT | wx.RIGHT, 10)
-        vs.Add(self.cho_voz_respaldo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, self.lbl_respaldo, self.cho_voz_respaldo)
 
         self._respaldo_controles = [self.lbl_respaldo, self.cho_voz_respaldo]
         self.controles.extend((lbl_tope, self.sp_tope_eleven,

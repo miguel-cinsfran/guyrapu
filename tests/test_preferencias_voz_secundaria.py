@@ -230,6 +230,18 @@ class TestBloqueVozSecundaria(unittest.TestCase):
                          ["(no hay voces instaladas: usa Administrar voces)"])
         self.assertTrue(cho.IsEnabled())
 
+    def test_el_motor_secundario_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        bloque = self._bloque(self._dialogo())
+        choice = bloque.cho_motor
+        panel = choice.GetParent()
+        panel.Layout()
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, gui.wx.StaticText)
+                    and h.GetLabel() == "Motor de vo&z:"][0]
+        self.assertEqual(
+            choice.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().GetHeight()), 4)
+
     def test_el_orden_de_tab_del_grupo(self):
         bloque = self._bloque(self._dialogo())
         padre = bloque.cho_motor.GetParent()
