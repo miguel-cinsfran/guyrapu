@@ -13,7 +13,6 @@ from __future__ import annotations
 import configparser
 import logging
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -104,18 +103,16 @@ def falta_prism() -> bool:
 
 
 def _aislar_datos() -> None:
-    """Deja la carpeta aislada con el INI copiado y los ajustes del carril."""
+    """Deja la carpeta aislada con el INI de fábrica y los ajustes del carril."""
     ruta = os.environ.get(VAR_DATOS)
     if not ruta:
         return
-    from guyrapu.core import paths
+    from guyrapu.core import config_predeterminada, paths
 
     carpeta = Path(ruta)
     carpeta.mkdir(parents=True, exist_ok=True)
-    origen = paths.carpeta_datos() / "config.ini"
     destino = carpeta / "config.ini"
-    if origen.exists():
-        shutil.copy2(origen, destino)
+    config_predeterminada.escribir(destino)
     ajustes = [ajuste for entrada in ventanas_app.VENTANAS
                for ajuste in entrada.get("ajustes") or ()]
     # Música lee [musica] carpeta del INI: vacía cae en la Música de Windows y
