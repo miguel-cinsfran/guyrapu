@@ -281,7 +281,7 @@ class TestCuadro(BaseVentana):
 
     def test_el_comando_de_lista_no_tiene_la_casilla_y_acepta_la_variable(self):
         datos = _datos(nombre="commands", respuesta="Comandos: {lista}.",
-                       lista=True)
+                       especial="lista")
         cuadro = self._cuadro(datos)
         self.assertFalse(cuadro.chk_en_lista.IsShown())
         self.assertEqual(cuadro.ayuda.GetLabel(),
@@ -289,7 +289,7 @@ class TestCuadro(BaseVentana):
         with mock.patch.object(cuadro, "EndModal") as cerrar:
             cuadro._aceptar(None)
         cerrar.assert_called_once_with(wx.ID_OK)
-        self.assertTrue(cuadro.datos()["lista"])
+        self.assertEqual(cuadro.datos()["especial"], "lista")
 
     def test_p3_la_eleccion_empieza_por_el_predeterminado(self):
         cuadro = self._cuadro()
@@ -344,7 +344,7 @@ class TestCuadro(BaseVentana):
             "permiso": "lista", "nombres": ["Ana María", "Beto"],
             "espera_general": 10.0, "espera_persona": 40.0,
             "activo": False, "estilo": "banda", "segundos": 15,
-            "lista": False, "en_lista": False,
+            "especial": "", "en_lista": False,
             "ubicacion": "cualquiera", "atajo": 4})
         with mock.patch.object(cuadro, "EndModal") as cerrar:
             cuadro._aceptar(None)
@@ -514,7 +514,7 @@ class TestAcciones(BaseVentana):
                 "La lista de comandos no se puede eliminar ni duplicar.")
 
     def test_un_paquete_no_trae_otro_comando_de_lista(self):
-        ruta = self._paquete([_datos("externo", lista=True)])
+        ruta = self._paquete([_datos("externo", especial="lista")])
         panel = self._panel([_datos("A")])
         with mock.patch.object(panel, "_pedir_ruta", return_value=ruta), \
                 mock.patch.object(panel, "_preguntar_reemplazo",
@@ -523,9 +523,10 @@ class TestAcciones(BaseVentana):
             panel._importar()
         guardados = comandos_guardados.cargar(paths.comandos())
         externo = next(c for c in guardados if c["nombre"] == "externo")
-        self.assertFalse(externo["lista"])
-        self.assertEqual([c["nombre"] for c in guardados if c.get("lista")],
-                         ["commands"])
+        self.assertEqual(externo["especial"], "")
+        self.assertEqual(
+            [c["nombre"] for c in guardados if c.get("especial") == "lista"],
+            ["commands"])
 
     def test_exportar_con_la_lista_vacia_no_abre_nada(self):
         with mock.patch.object(comandos_guardados, "cargar", return_value=[]):

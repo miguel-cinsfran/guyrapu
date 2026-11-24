@@ -29,7 +29,8 @@ def _comando(nombre="saludo", respuesta="Hola", **cambios):
 
 def _lista(**cambios):
     datos = {"nombre": "commands", "alias": ("comandos",),
-             "respuesta": "Comandos: {lista}.", "lista": True}
+             "respuesta": "Comandos: {lista}.",
+             "especial": comandos.ESPECIAL_LISTA}
     datos.update(cambios)
     return comandos.Comando(**datos)
 

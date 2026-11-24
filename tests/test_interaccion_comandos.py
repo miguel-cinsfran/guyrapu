@@ -190,7 +190,7 @@ class TestCampos(unittest.TestCase):
         self.assertEqual((comando.espera_general, comando.espera_persona),
                          (5, 30))
         self.assertEqual(comando.permiso, "todos")
-        self.assertFalse(comando.lista)
+        self.assertEqual(comando.especial, "")
         self.assertTrue(comando.en_lista)
 
 
@@ -198,7 +198,7 @@ class TestListaDeComandos(unittest.TestCase):
 
     def test_la_lista_de_fabrica_en_espanol_tiene_las_dos_palabras(self):
         comando = comandos.comando_de_lista("es")
-        self.assertTrue(comando.lista)
+        self.assertEqual(comando.especial, comandos.ESPECIAL_LISTA)
         self.assertEqual(comando.nombre, "commands")
         self.assertEqual(comando.alias, ("comandos",))
         self.assertEqual(comando.respuesta, "Comandos: {lista}.")
@@ -221,15 +221,17 @@ class TestListaDeComandos(unittest.TestCase):
         resultado = comandos.asegurar_lista([hola], "es")
         self.assertEqual([comando.nombre for comando in resultado],
                          ["commands", "hola"])
-        self.assertTrue(resultado[0].lista)
+        self.assertEqual(resultado[0].especial, comandos.ESPECIAL_LISTA)
 
     def test_asegurar_deja_el_primero_y_pasa_los_demas_a_comunes(self):
-        uno = comandos.Comando("uno", (), "Uno", lista=True)
-        dos = comandos.Comando("dos", (), "Dos", lista=True)
+        uno = comandos.Comando("uno", (), "Uno",
+                               especial=comandos.ESPECIAL_LISTA)
+        dos = comandos.Comando("dos", (), "Dos",
+                               especial=comandos.ESPECIAL_LISTA)
         resultado = comandos.asegurar_lista([uno, dos], "es")
         self.assertIs(resultado[0], uno)
-        self.assertTrue(resultado[0].lista)
-        self.assertFalse(resultado[1].lista)
+        self.assertEqual(resultado[0].especial, comandos.ESPECIAL_LISTA)
+        self.assertEqual(resultado[1].especial, "")
 
     def test_asegurar_no_toca_una_coleccion_que_ya_tiene_la_lista(self):
         lista = comandos.comando_de_lista("es")

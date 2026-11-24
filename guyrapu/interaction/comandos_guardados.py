@@ -13,8 +13,8 @@ import json
 from guyrapu.core import archivos
 from guyrapu.core.idioma import idioma_actual
 from guyrapu.interaction.comandos import (
-    DESTINOS, PERMISOS, UBICACIONES, Comando, asegurar_lista, separar_alias,
-    separar_nombres)
+    DESTINOS, ESPECIAL_LISTA, ESPECIALES, PERMISOS, UBICACIONES, Comando,
+    asegurar_lista, separar_alias, separar_nombres)
 
 DEFECTOS = {
     "nombre": "",
@@ -62,6 +62,14 @@ def _elegido(valor, validos, defecto) -> str:
     return texto if texto in validos else defecto
 
 
+def _especial(datos: dict) -> str:
+    """El tipo especial, con el campo `lista` de los archivos anteriores."""
+    especial = _elegido(datos.get("especial"), ESPECIALES, "")
+    if especial:
+        return especial
+    return ESPECIAL_LISTA if _a_bool(datos.get("lista", False)) else ""
+
+
 def _estilo(datos: dict) -> str:
     """El estilo elegido, que puede ser el vacío, o Clásico si falta el dato."""
     if "estilo" not in datos:
@@ -85,7 +93,7 @@ def a_comando(datos: dict) -> Comando:
         activo=_a_bool(datos.get("activo", True)),
         estilo=_estilo(datos),
         segundos=_numero(datos.get("segundos"), 8, int),
-        lista=_a_bool(datos.get("lista", False)),
+        especial=_especial(datos),
         en_lista=_a_bool(datos.get("en_lista", True)),
         ubicacion=_elegido(datos.get("ubicacion"), UBICACIONES, "principio"),
         atajo=_numero(datos.get("atajo"), 0, int),
@@ -107,7 +115,7 @@ def desde_comando(comando: Comando) -> dict:
         "activo": comando.activo,
         "estilo": comando.estilo,
         "segundos": comando.segundos,
-        "lista": comando.lista,
+        "especial": comando.especial,
         "en_lista": comando.en_lista,
         "ubicacion": comando.ubicacion,
         "atajo": comando.atajo,

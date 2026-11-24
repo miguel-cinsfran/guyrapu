@@ -22,6 +22,8 @@ DESTINOS = ("video", "chat", "ambos")
 PERMISOS = ("todos", "moderadores", "lista", "solo_atajo")
 UBICACIONES = ("principio", "cualquiera")
 VARIABLES = ("usuario", "contador", "texto")
+ESPECIAL_LISTA = "lista"
+ESPECIALES = (ESPECIAL_LISTA,)
 MAXIMO_CHAT = contenido.MAXIMO_CHAT
 
 _VARIABLE_RE = re.compile(r"\{([^{}]*)\}")
@@ -71,7 +73,7 @@ class Comando:
     activo: bool = True
     estilo: str = ""
     segundos: int = 8
-    lista: bool = False
+    especial: str = ""
     en_lista: bool = True
     ubicacion: str = "principio"
     atajo: int = 0
@@ -97,18 +99,19 @@ def comando_de_lista(codigo: str | None = None) -> Comando:
     return Comando(
         "commands", alias, respuesta,
         destino="video", estilo="", segundos=8,
-        espera_general=5, espera_persona=30, lista=True)
+        espera_general=5, espera_persona=30, especial=ESPECIAL_LISTA)
 
 
 def asegurar_lista(disponibles, codigo: str | None = None) -> list[Comando]:
     """Una colección con un solo comando de lista, el primero si hay varios."""
     elementos = list(disponibles)
     primera = next((indice for indice, comando in enumerate(elementos)
-                    if comando.lista), None)
+                    if comando.especial == ESPECIAL_LISTA), None)
     if primera is None:
         return [comando_de_lista(codigo), *elementos]
-    return [replace(comando, lista=False)
-            if comando.lista and indice != primera else comando
+    return [replace(comando, especial="")
+            if comando.especial == ESPECIAL_LISTA and indice != primera
+            else comando
             for indice, comando in enumerate(elementos)]
 
 
@@ -293,7 +296,8 @@ def _error_de_respuesta(comando: Comando) -> str:
 
 def _error_de_variables(comando: Comando) -> str:
     respuesta = comando.respuesta or ""
-    permitidas = VARIABLES + (("lista",) if comando.lista else ())
+    permitidas = VARIABLES + (
+        (ESPECIAL_LISTA,) if comando.especial == ESPECIAL_LISTA else ())
     desconocidas = [variable for variable in _VARIABLE_RE.findall(respuesta)
                     if variable not in permitidas]
     if desconocidas:

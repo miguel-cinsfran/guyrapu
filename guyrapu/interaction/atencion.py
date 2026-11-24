@@ -103,7 +103,8 @@ class Atencion:
                 comando = None
         if comando is None or invocacion is None:
             return None
-        if comando.lista and not self._lista_de():
+        if (comando.especial == comandos.ESPECIAL_LISTA
+                and not self._lista_de()):
             return None
         if not self._esperas.libre(comando, evento, ahora):
             return None
@@ -143,7 +144,8 @@ class Atencion:
         return ", ".join(
             ("" if comando.ubicacion == "cualquiera" else "!")
             + comando.nombre for comando in self._comandos
-            if comando.activo and comando.en_lista and not comando.lista
+            if comando.activo and comando.en_lista
+            and comando.especial != comandos.ESPECIAL_LISTA
             and comando.permiso != "solo_atajo")
 
     def _respuesta(self, comando, invocacion, evento, ahora,
@@ -151,7 +153,7 @@ class Atencion:
         contador = self._contadores.get(comando.nombre, 0) + 1
         self._contadores[comando.nombre] = contador
         texto = (comando.respuesta or "")
-        if comando.lista:
+        if comando.especial == comandos.ESPECIAL_LISTA:
             texto = texto.replace("{lista}", self._lista_de())
         texto = texto.replace(
             "{usuario}",

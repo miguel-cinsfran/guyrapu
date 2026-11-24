@@ -97,7 +97,8 @@ class PanelComandos(wx.Panel):
 
     def _motivo_lista(self, indices):
         if any(0 <= indice < len(self._comandos)
-               and self._comandos[indice].get("lista") for indice in indices):
+               and self._comandos[indice].get("especial") == comandos.ESPECIAL_LISTA
+               for indice in indices):
             return _(MOTIVO_LISTA)
         return ""
 
@@ -233,7 +234,7 @@ class PanelComandos(wx.Panel):
                   for elemento in elementos]
         for comando in nuevos:
             comando["activo"] = False
-            comando["lista"] = False
+            comando["especial"] = ""
         repetidos = paquetes.repetidos(nuevos, self._comandos)
         reemplazar = bool(repetidos) and self._preguntar_reemplazo(repetidos)
         anteriores = {id(comando) for comando in self._comandos}

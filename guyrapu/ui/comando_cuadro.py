@@ -66,7 +66,7 @@ class DialogoComando(wx.Dialog):
             padre,
             title=_(TITULO_EDITAR if datos else TITULO_AGREGAR),
             name="DialogoComando")
-        self._es_lista = bool((datos or {}).get("lista"))
+        self._especial = comandos_guardados.a_comando(datos or {}).especial
         self._otros = [comandos_guardados.a_comando(otro) for otro in otros]
         self._usuario = estilos_aviso.cargar_estilos(paths.estilos_avisos())
         self._por_tipo = estilos_aviso.cargar_por_tipo(paths.estilos_avisos())
@@ -122,7 +122,8 @@ class DialogoComando(wx.Dialog):
     def _crear_contenido(self, panel, vs):
         self._contenido = seccion_contenido.SeccionContenido(
             panel, vs, ("texto", "mostrar_en", "medio", "segundos", "estilo"),
-            nota=_(AYUDA_LISTA if self._es_lista else AYUDA_VARIABLES),
+            nota=_(AYUDA_LISTA if self._especial == comandos.ESPECIAL_LISTA
+                   else AYUDA_VARIABLES),
             destinos=_destinos(), medios=self._nombres_de_medios(),
             estilos=estilo_elegido.opciones(
                 self._usuario, self._por_tipo, "comando"))
@@ -217,7 +218,7 @@ class DialogoComando(wx.Dialog):
         self.sp_persona.SetValue(int(comando.espera_persona))
         self.chk_activo.SetValue(comando.activo)
         self.chk_en_lista.SetValue(comando.en_lista)
-        if self._es_lista:
+        if self._especial == comandos.ESPECIAL_LISTA:
             self.chk_en_lista.Hide()
 
     def _elegir_estilo(self, clave):
@@ -241,7 +242,7 @@ class DialogoComando(wx.Dialog):
             estilo=estilo_elegido.clave_de(
                 self.cho_estilo.GetSelection(), self._estilos),
             segundos=self.sp_segundos.GetValue(),
-            lista=self._es_lista,
+            especial=self._especial,
             en_lista=self.chk_en_lista.GetValue(),
         )
 
@@ -271,8 +272,9 @@ class DialogoComando(wx.Dialog):
         if comando.permiso == "solo_atajo" and not comando.atajo:
             return self.cho_atajo
         respuesta = comando.respuesta or ""
-        permitidas = (comandos.VARIABLES + ("lista",) if comando.lista
-                      else comandos.VARIABLES)
+        permitidas = comandos.VARIABLES + (
+            (comandos.ESPECIAL_LISTA,)
+            if comando.especial == comandos.ESPECIAL_LISTA else ())
         desconocida = any(variable not in permitidas
                           for variable in _VARIABLE_RE.findall(respuesta))
         if (not respuesta.strip() or desconocida
