@@ -1,0 +1,305 @@
+{
+  "muestra": "ia",
+  "clase": "VentanaIA",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "41_ia_base.png",
+  "tamano": [
+    656,
+    519
+  ],
+  "cliente": [
+    640,
+    480
+  ],
+  "tamano_minimo": [
+    -1,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "VentanaIA",
+      "etiqueta": "Preguntar a la IA",
+      "rect": [
+        0,
+        0,
+        656,
+        519
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        87,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Conversación:",
+      "rect": [
+        16,
+        16,
+        76,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        75,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": null,
+      "clase": "wxListBox",
+      "nombre": "Conversación",
+      "etiqueta": "",
+      "rect": [
+        16,
+        36,
+        608,
+        291
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": null,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Mensaje:",
+      "rect": [
+        16,
+        339,
+        48,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        47,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": null,
+      "clase": "wxTextCtrl",
+      "nombre": "Mensaje",
+      "etiqueta": "",
+      "rect": [
+        16,
+        359,
+        608,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": null,
+      "clase": "wxButton",
+      "nombre": "Enviar",
+      "etiqueta": "Enviar",
+      "rect": [
+        16,
+        394,
+        128,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": null,
+      "clase": "wxButton",
+      "nombre": "Agregar captura",
+      "etiqueta": "Agregar captura",
+      "rect": [
+        152,
+        394,
+        128,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        85,
+        15
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": null,
+      "clase": "wxButton",
+      "nombre": "Copiar respuesta",
+      "etiqueta": "Copiar respuesta",
+      "rect": [
+        288,
+        394,
+        128,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        88,
+        15
+      ]
+    },
+    {
+      "id": -31986,
+      "padre": null,
+      "clase": "wxButton",
+      "nombre": "Nueva conversación",
+      "etiqueta": "Nueva conversación",
+      "rect": [
+        424,
+        394,
+        128,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        107,
+        15
+      ]
+    },
+    {
+      "id": 5001,
+      "padre": null,
+      "clase": "wxButton",
+      "nombre": "Cerrar",
+      "etiqueta": "Cerrar",
+      "rect": [
+        528,
+        441,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    }
+  ]
+}

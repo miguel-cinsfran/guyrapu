@@ -1,0 +1,137 @@
+{
+  "muestra": "estado",
+  "clase": "DialogoEstado",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "92_estado_base.png",
+  "tamano": [
+    456,
+    159
+  ],
+  "cliente": [
+    440,
+    120
+  ],
+  "tamano_minimo": [
+    440,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoEstado",
+      "etiqueta": "Estado de la sesión",
+      "rect": [
+        0,
+        0,
+        456,
+        159
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        99,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelEstado",
+      "etiqueta": "PanelEstado",
+      "rect": [
+        0,
+        0,
+        440,
+        120
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        64,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxListBox",
+      "nombre": "Estado de la sesión",
+      "etiqueta": "",
+      "rect": [
+        16,
+        16,
+        408,
+        49
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cerrar",
+      "etiqueta": "Cerrar",
+      "rect": [
+        328,
+        81,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "muestra": "prueba_equipo",
+  "clase": "DialogoPruebaEquipo",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "68_prueba_equipo_base.png",
+  "tamano": [
+    456,
+    257
+  ],
+  "cliente": [
+    440,
+    218
+  ],
+  "tamano_minimo": [
+    440,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoPruebaEquipo",
+      "etiqueta": "Probar equipo",
+      "rect": [
+        0,
+        0,
+        456,
+        257
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        75,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelPruebaEquipo",
+      "etiqueta": "PanelPruebaEquipo",
+      "rect": [
+        0,
+        0,
+        440,
+        218
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        103,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Detalle de la prueba",
+      "etiqueta": "",
+      "rect": [
+        16,
+        16,
+        408,
+        120
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Incluir el lienzo vertical, para transmitir en horizontal y vertical a la vez",
+      "etiqueta": "Incluir el lienzo vertical, para transmitir en horizontal y vertical a la vez",
+      "rect": [
+        16,
+        148,
+        408,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        366,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Iniciar",
+      "etiqueta": "Iniciar",
+      "rect": [
+        224,
+        179,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cancelar",
+      "etiqueta": "Cancelar",
+      "rect": [
+        328,
+        179,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        46,
+        15
+      ]
+    }
+  ]
+}

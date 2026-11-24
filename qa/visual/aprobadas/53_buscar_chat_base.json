@@ -1,0 +1,221 @@
+{
+  "muestra": "buscar_chat",
+  "clase": "CuadroBuscarChat",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "53_buscar_chat_base.png",
+  "tamano": [
+    560,
+    460
+  ],
+  "cliente": [
+    544,
+    421
+  ],
+  "tamano_minimo": [
+    -1,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31992,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "BuscarEnElChat",
+      "etiqueta": "Buscar en el chat",
+      "rect": [
+        0,
+        0,
+        560,
+        460
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        89,
+        15
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelBuscarChat",
+      "etiqueta": "PanelBuscarChat",
+      "rect": [
+        0,
+        0,
+        544,
+        421
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        89,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31991,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Buscar en el chat:",
+      "rect": [
+        8,
+        8,
+        93,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        92,
+        15
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31991,
+      "clase": "wxTextCtrl",
+      "nombre": "Buscar en el chat",
+      "etiqueta": "",
+      "rect": [
+        8,
+        32,
+        528,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": -31991,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Resultados:",
+      "rect": [
+        8,
+        63,
+        61,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        60,
+        15
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": -31991,
+      "clase": "wxListBox",
+      "nombre": "Resultados",
+      "etiqueta": "",
+      "rect": [
+        8,
+        87,
+        528,
+        295
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31991,
+      "clase": "wxButton",
+      "nombre": "Cerrar",
+      "etiqueta": "Cerrar",
+      "rect": [
+        461,
+        390,
+        75,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    }
+  ]
+}

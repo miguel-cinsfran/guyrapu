@@ -1,0 +1,305 @@
+{
+  "muestra": "tipos",
+  "clase": "DialogoTipos",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "58_tipos_base.png",
+  "tamano": [
+    440,
+    171
+  ],
+  "cliente": [
+    424,
+    132
+  ],
+  "tamano_minimo": [
+    440,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoEstiloPredeterminado",
+      "etiqueta": "Establecer como predeterminado",
+      "rect": [
+        0,
+        0,
+        440,
+        171
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        175,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelEstiloPredeterminado",
+      "etiqueta": "PanelEstiloPredeterminado",
+      "rect": [
+        0,
+        0,
+        424,
+        132
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        142,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Comandos",
+      "etiqueta": "Comandos",
+      "rect": [
+        16,
+        16,
+        192,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        58,
+        15
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Alertas",
+      "etiqueta": "Alertas",
+      "rect": [
+        216,
+        16,
+        192,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        36,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Mensajes automáticos",
+      "etiqueta": "Mensajes automáticos",
+      "rect": [
+        16,
+        39,
+        192,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        118,
+        15
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Encuestas",
+      "etiqueta": "Encuestas",
+      "rect": [
+        216,
+        39,
+        192,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        52,
+        15
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Metas",
+      "etiqueta": "Metas",
+      "rect": [
+        16,
+        62,
+        192,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Preguntas",
+      "etiqueta": "Preguntas",
+      "rect": [
+        216,
+        62,
+        192,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        53,
+        15
+      ]
+    },
+    {
+      "id": 5100,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Aceptar",
+      "etiqueta": "Aceptar",
+      "rect": [
+        208,
+        93,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        41,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cancelar",
+      "etiqueta": "Cancelar",
+      "rect": [
+        312,
+        93,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        46,
+        15
+      ]
+    }
+  ]
+}

@@ -1,0 +1,361 @@
+{
+  "muestra": "editor_lista",
+  "clase": "DialogoEditorLista",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "90_editor_lista_base.png",
+  "tamano": [
+    508,
+    572
+  ],
+  "cliente": [
+    492,
+    533
+  ],
+  "tamano_minimo": [
+    492,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "EditorLista",
+      "etiqueta": "Editar lista",
+      "rect": [
+        0,
+        0,
+        508,
+        572
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        54,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelEditorLista",
+      "etiqueta": "PanelEditorLista",
+      "rect": [
+        0,
+        0,
+        492,
+        533
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        84,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Nombre:",
+      "rect": [
+        16,
+        16,
+        48,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        47,
+        15
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Nombre de la lista",
+      "etiqueta": "",
+      "rect": [
+        16,
+        36,
+        460,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Canciones de la lista:",
+      "rect": [
+        16,
+        71,
+        111,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        110,
+        15
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31993,
+      "clase": "wxListCtrl",
+      "nombre": "Canciones de la lista",
+      "etiqueta": "",
+      "rect": [
+        16,
+        91,
+        460,
+        120
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Buscar:",
+      "rect": [
+        16,
+        223,
+        39,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        38,
+        15
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Buscar canciones",
+      "etiqueta": "",
+      "rect": [
+        16,
+        243,
+        460,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31986,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Todas las canciones:",
+      "rect": [
+        16,
+        278,
+        108,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        107,
+        15
+      ]
+    },
+    {
+      "id": -31985,
+      "padre": -31993,
+      "clase": "wxListCtrl",
+      "nombre": "Todas las canciones",
+      "etiqueta": "",
+      "rect": [
+        16,
+        298,
+        460,
+        180
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": 5100,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Guardar",
+      "etiqueta": "Guardar",
+      "rect": [
+        276,
+        494,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        42,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cancelar",
+      "etiqueta": "Cancelar",
+      "rect": [
+        380,
+        494,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        46,
+        15
+      ]
+    }
+  ]
+}

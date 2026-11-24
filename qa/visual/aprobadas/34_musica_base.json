@@ -1,0 +1,697 @@
+{
+  "muestra": "musica",
+  "clase": "VentanaMusica",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "34_musica_base.png",
+  "tamano": [
+    820,
+    620
+  ],
+  "cliente": [
+    804,
+    581
+  ],
+  "tamano_minimo": [
+    820,
+    620
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "VentanaMusica",
+      "etiqueta": "Música",
+      "rect": [
+        0,
+        0,
+        820,
+        620
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        38,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelMusica",
+      "etiqueta": "PanelMusica",
+      "rect": [
+        0,
+        0,
+        804,
+        581
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        67,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxListBox",
+      "nombre": "Colecciones",
+      "etiqueta": "",
+      "rect": [
+        12,
+        36,
+        220,
+        449
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Buscar en la música",
+      "etiqueta": "",
+      "rect": [
+        287,
+        12,
+        505,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Mostrar filtros",
+      "etiqueta": "Mostrar filtros",
+      "rect": [
+        240,
+        43,
+        96,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        74,
+        15
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Mostrar:",
+      "rect": [
+        0,
+        0,
+        45,
+        16
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        44,
+        15
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Mostrar",
+      "etiqueta": "",
+      "rect": [
+        0,
+        0,
+        108,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Ordenar por:",
+      "rect": [
+        0,
+        0,
+        68,
+        16
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        67,
+        15
+      ]
+    },
+    {
+      "id": -31986,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Ordenar por",
+      "etiqueta": "",
+      "rect": [
+        0,
+        0,
+        108,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31985,
+      "padre": -31993,
+      "clase": "wxListCtrl",
+      "nombre": "Canciones",
+      "etiqueta": "",
+      "rect": [
+        240,
+        90,
+        552,
+        395
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31984,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Mostrar cola",
+      "etiqueta": "Mostrar cola",
+      "rect": [
+        12,
+        497,
+        87,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        66,
+        15
+      ]
+    },
+    {
+      "id": -31983,
+      "padre": -31993,
+      "clase": "wxListCtrl",
+      "nombre": "Cola de reproducción",
+      "etiqueta": "",
+      "rect": [
+        0,
+        0,
+        304,
+        154
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31982,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Igualación del volumen",
+      "etiqueta": "",
+      "rect": [
+        0,
+        0,
+        110,
+        38
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31981,
+      "padre": -31993,
+      "clase": "wxGauge",
+      "nombre": "Progreso de la igualación",
+      "etiqueta": "",
+      "rect": [
+        0,
+        0,
+        187,
+        15
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#000000",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31980,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Abrir enlace",
+      "etiqueta": "Abrir enlace…",
+      "rect": [
+        12,
+        546,
+        93,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        72,
+        15
+      ]
+    },
+    {
+      "id": -31979,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Nueva lista",
+      "etiqueta": "Nueva lista…",
+      "rect": [
+        113,
+        546,
+        88,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        67,
+        15
+      ]
+    },
+    {
+      "id": -31978,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cambiar carpeta",
+      "etiqueta": "Cambiar carpeta…",
+      "rect": [
+        209,
+        546,
+        117,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        96,
+        15
+      ]
+    },
+    {
+      "id": -31977,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Igualar volumen",
+      "etiqueta": "Igualar volumen",
+      "rect": [
+        334,
+        546,
+        107,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        86,
+        15
+      ]
+    },
+    {
+      "id": -31976,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Actualizar carpeta",
+      "etiqueta": "Actualizar carpeta",
+      "rect": [
+        449,
+        546,
+        115,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        94,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cerrar",
+      "etiqueta": "Cerrar",
+      "rect": [
+        717,
+        546,
+        75,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    },
+    {
+      "id": -31975,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Colecciones:",
+      "rect": [
+        12,
+        12,
+        68,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        67,
+        15
+      ]
+    },
+    {
+      "id": -31974,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Buscar:",
+      "rect": [
+        240,
+        15,
+        39,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        38,
+        15
+      ]
+    },
+    {
+      "id": -31973,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Canciones:",
+      "rect": [
+        240,
+        66,
+        59,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        58,
+        15
+      ]
+    },
+    {
+      "id": -31972,
+      "padre": -31993,
+      "clase": "wxStaticLine",
+      "nombre": "staticLine",
+      "etiqueta": "",
+      "rect": [
+        12,
+        532,
+        780,
+        2
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#000000",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    }
+  ]
+}

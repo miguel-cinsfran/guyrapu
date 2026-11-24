@@ -1,0 +1,977 @@
+{
+  "muestra": "disparador",
+  "clase": "DialogoDisparador",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "63_disparador_base.png",
+  "tamano": [
+    680,
+    704
+  ],
+  "cliente": [
+    664,
+    665
+  ],
+  "tamano_minimo": [
+    664,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoDisparador",
+      "etiqueta": "Agregar alerta",
+      "rect": [
+        0,
+        0,
+        680,
+        704
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        74,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelDisparador",
+      "etiqueta": "PanelDisparador",
+      "rect": [
+        0,
+        0,
+        664,
+        665
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        86,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxStaticBox",
+      "nombre": "groupBox",
+      "etiqueta": "Activación",
+      "rect": [
+        16,
+        16,
+        300,
+        246
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#0B6E63",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 700
+      },
+      "texto_px": [
+        58,
+        15
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Nombre",
+      "etiqueta": "Nombre:",
+      "rect": [
+        29,
+        41,
+        48,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        47,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Nombre",
+      "etiqueta": "",
+      "rect": [
+        29,
+        61,
+        274,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Evento",
+      "etiqueta": "Evento:",
+      "rect": [
+        29,
+        96,
+        40,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        39,
+        15
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Evento",
+      "etiqueta": "",
+      "rect": [
+        29,
+        116,
+        274,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Cantidad mínima",
+      "etiqueta": "Cantidad mínima:",
+      "rect": [
+        29,
+        151,
+        96,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        95,
+        15
+      ]
+    },
+    {
+      "id": -31986,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Cantidad mínima",
+      "etiqueta": "",
+      "rect": [
+        29,
+        171,
+        274,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31985,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Nombre del regalo. Déjalo vacío para cualquier regalo. Escribe el nombre tal como lo lee Guyrapu.",
+      "etiqueta": "Nombre del regalo:",
+      "rect": [
+        29,
+        206,
+        103,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        102,
+        15
+      ]
+    },
+    {
+      "id": -31984,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Nombre del regalo. Déjalo vacío para cualquier regalo. Escribe el nombre tal como lo lee Guyrapu.",
+      "etiqueta": "",
+      "rect": [
+        29,
+        226,
+        274,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31983,
+      "padre": -31993,
+      "clase": "wxStaticBox",
+      "nombre": "groupBox",
+      "etiqueta": "Contenido",
+      "rect": [
+        332,
+        16,
+        316,
+        301
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#0B6E63",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 700
+      },
+      "texto_px": [
+        57,
+        15
+      ]
+    },
+    {
+      "id": -31982,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Texto. Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.",
+      "etiqueta": "Texto:",
+      "rect": [
+        345,
+        41,
+        33,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    },
+    {
+      "id": -31981,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Texto. Puedes usar {usuario}, {cantidad}, {regalo}, {texto} y {contador}.",
+      "etiqueta": "",
+      "rect": [
+        345,
+        61,
+        290,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31980,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Mostrar en",
+      "etiqueta": "Mostrar en:",
+      "rect": [
+        345,
+        96,
+        61,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        60,
+        15
+      ]
+    },
+    {
+      "id": -31979,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Mostrar en",
+      "etiqueta": "",
+      "rect": [
+        345,
+        116,
+        290,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31978,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Medio",
+      "etiqueta": "Medio:",
+      "rect": [
+        345,
+        151,
+        38,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        37,
+        15
+      ]
+    },
+    {
+      "id": -31977,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Medio",
+      "etiqueta": "",
+      "rect": [
+        345,
+        171,
+        290,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31976,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Segundos en pantalla:",
+      "rect": [
+        345,
+        206,
+        117,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        116,
+        15
+      ]
+    },
+    {
+      "id": -31975,
+      "padre": -31993,
+      "clase": "wxSpinCtrl",
+      "nombre": "Segundos en pantalla",
+      "etiqueta": "",
+      "rect": [
+        345,
+        226,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31974,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Estilo",
+      "etiqueta": "Estilo:",
+      "rect": [
+        345,
+        261,
+        32,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        31,
+        15
+      ]
+    },
+    {
+      "id": -31973,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Estilo",
+      "etiqueta": "",
+      "rect": [
+        345,
+        281,
+        290,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31972,
+      "padre": -31993,
+      "clase": "wxStaticBox",
+      "nombre": "groupBox",
+      "etiqueta": "Permiso y espera",
+      "rect": [
+        332,
+        337,
+        316,
+        246
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#0B6E63",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 700
+      },
+      "texto_px": [
+        94,
+        15
+      ]
+    },
+    {
+      "id": -31971,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Permiso",
+      "etiqueta": "Permiso:",
+      "rect": [
+        345,
+        362,
+        47,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        46,
+        15
+      ]
+    },
+    {
+      "id": -31970,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Permiso",
+      "etiqueta": "",
+      "rect": [
+        345,
+        382,
+        290,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31969,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "Nombres permitidos",
+      "etiqueta": "Nombres permitidos:",
+      "rect": [
+        345,
+        417,
+        113,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        112,
+        15
+      ]
+    },
+    {
+      "id": -31968,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Nombres permitidos",
+      "etiqueta": "",
+      "rect": [
+        345,
+        437,
+        290,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31967,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Espera general (segundos):",
+      "rect": [
+        345,
+        472,
+        142,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        141,
+        15
+      ]
+    },
+    {
+      "id": -31966,
+      "padre": -31993,
+      "clase": "wxSpinCtrl",
+      "nombre": "Espera general (segundos)",
+      "etiqueta": "",
+      "rect": [
+        345,
+        492,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31965,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Espera por persona (segundos):",
+      "rect": [
+        345,
+        527,
+        166,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        165,
+        15
+      ]
+    },
+    {
+      "id": -31964,
+      "padre": -31993,
+      "clase": "wxSpinCtrl",
+      "nombre": "Espera por persona (segundos)",
+      "etiqueta": "",
+      "rect": [
+        345,
+        547,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31963,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "Avisar cuando se muestra en el vídeo",
+      "etiqueta": "Avisar cuando se muestra en el vídeo",
+      "rect": [
+        332,
+        595,
+        316,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        195,
+        15
+      ]
+    },
+    {
+      "id": 5100,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Aceptar",
+      "etiqueta": "Aceptar",
+      "rect": [
+        448,
+        626,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        41,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cancelar",
+      "etiqueta": "Cancelar",
+      "rect": [
+        552,
+        626,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        46,
+        15
+      ]
+    }
+  ]
+}

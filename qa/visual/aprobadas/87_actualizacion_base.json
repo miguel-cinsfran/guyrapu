@@ -1,0 +1,221 @@
+{
+  "muestra": "actualizacion",
+  "clase": "DialogoActualizacion",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "87_actualizacion_base.png",
+  "tamano": [
+    468,
+    398
+  ],
+  "cliente": [
+    452,
+    359
+  ],
+  "tamano_minimo": [
+    440,
+    -1
+  ],
+  "pantalla": [
+    1600,
+    852
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoActualizacion",
+      "etiqueta": "Hay una versión nueva",
+      "rect": [
+        0,
+        0,
+        468,
+        398
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#000000",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        120,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelActualizacion",
+      "etiqueta": "PanelActualizacion",
+      "rect": [
+        0,
+        0,
+        452,
+        359
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#000000",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        100,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Estado",
+      "etiqueta": "",
+      "rect": [
+        16,
+        16,
+        420,
+        57
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#000000",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxGauge",
+      "nombre": "Progreso",
+      "etiqueta": "",
+      "rect": [
+        16,
+        85,
+        420,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#000000",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Novedades",
+      "etiqueta": "",
+      "rect": [
+        16,
+        112,
+        420,
+        192
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#000000",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Descargar",
+      "etiqueta": "Descargar",
+      "rect": [
+        236,
+        320,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        52,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cerrar",
+      "etiqueta": "Cerrar",
+      "rect": [
+        340,
+        320,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#000000",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    }
+  ]
+}
