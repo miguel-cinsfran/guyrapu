@@ -5,20 +5,20 @@
   "pagina": null,
   "png": "86_directo_youtube_base.png",
   "tamano": [
-    607,
+    605,
     700
   ],
   "cliente": [
-    591,
+    589,
     661
   ],
   "tamano_minimo": [
-    607,
+    605,
     300
   ],
   "pantalla": [
-    1360,
-    720
+    1600,
+    852
   ],
   "controles": [
     {
@@ -30,7 +30,7 @@
       "rect": [
         0,
         0,
-        607,
+        605,
         700
       ],
       "visible": true,
@@ -45,7 +45,7 @@
         "peso": 400
       },
       "texto_px": [
-        105,
+        104,
         15
       ]
     },
@@ -58,7 +58,7 @@
       "rect": [
         16,
         16,
-        559,
+        557,
         590
       ],
       "visible": true,
@@ -86,7 +86,7 @@
       "rect": [
         16,
         16,
-        35,
+        34,
         16
       ],
       "visible": true,
@@ -101,7 +101,7 @@
         "peso": 400
       },
       "texto_px": [
-        34,
+        33,
         15
       ]
     },
@@ -114,7 +114,7 @@
       "rect": [
         16,
         36,
-        542,
+        540,
         23
       ],
       "visible": true,
@@ -170,7 +170,7 @@
       "rect": [
         16,
         91,
-        542,
+        540,
         57
       ],
       "visible": true,
@@ -226,7 +226,7 @@
       "rect": [
         16,
         180,
-        542,
+        540,
         23
       ],
       "visible": true,
@@ -282,7 +282,7 @@
       "rect": [
         16,
         235,
-        542,
+        540,
         23
       ],
       "visible": true,
@@ -310,7 +310,7 @@
       "rect": [
         16,
         270,
-        267,
+        266,
         15
       ],
       "visible": true,
@@ -325,7 +325,7 @@
         "peso": 400
       },
       "texto_px": [
-        245,
+        244,
         15
       ]
     },
@@ -336,9 +336,9 @@
       "nombre": "Permitir rebobinar",
       "etiqueta": "Permitir rebobinar el directo",
       "rect": [
-        291,
+        290,
         270,
-        267,
+        266,
         15
       ],
       "visible": true,
@@ -394,7 +394,7 @@
       "rect": [
         16,
         317,
-        542,
+        540,
         23
       ],
       "visible": true,
@@ -450,7 +450,7 @@
       "rect": [
         16,
         372,
-        542,
+        540,
         23
       ],
       "visible": true,
@@ -506,7 +506,7 @@
       "rect": [
         16,
         427,
-        542,
+        540,
         27
       ],
       "visible": true,
@@ -618,7 +618,7 @@
       "rect": [
         16,
         513,
-        542,
+        540,
         23
       ],
       "visible": true,
@@ -646,7 +646,7 @@
       "rect": [
         16,
         540,
-        542,
+        540,
         23
       ],
       "visible": true,
@@ -661,7 +661,7 @@
         "peso": 400
       },
       "texto_px": [
-        193,
+        192,
         15
       ]
     },
@@ -702,7 +702,7 @@
       "rect": [
         16,
         595,
-        542,
+        540,
         57
       ],
       "visible": true,
@@ -728,7 +728,7 @@
       "nombre": "Transmitir",
       "etiqueta": "Transmitir",
       "rect": [
-        375,
+        373,
         622,
         96,
         23
@@ -745,7 +745,7 @@
         "peso": 400
       },
       "texto_px": [
-        54,
+        53,
         15
       ]
     },
@@ -756,7 +756,7 @@
       "nombre": "Cancelar",
       "etiqueta": "Cancelar",
       "rect": [
-        479,
+        477,
         622,
         96,
         23

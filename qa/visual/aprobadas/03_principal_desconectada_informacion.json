@@ -17,8 +17,8 @@
     480
   ],
   "pantalla": [
-    1360,
-    720
+    1600,
+    852
   ],
   "controles": [
     {
@@ -26,7 +26,7 @@
       "padre": null,
       "clase": "wxFrame",
       "nombre": "VentanaPrincipal",
-      "etiqueta": "Guyrapu 3.0.0 beta 7",
+      "etiqueta": "Guyrapu 3.0.0 beta 8",
       "rect": [
         0,
         0,
@@ -213,7 +213,7 @@
         "peso": 400
       },
       "texto_px": [
-        775,
+        771,
         30
       ]
     },
@@ -605,7 +605,7 @@
         "peso": 400
       },
       "texto_px": [
-        586,
+        585,
         15
       ]
     },
@@ -689,7 +689,7 @@
         "peso": 400
       },
       "texto_px": [
-        531,
+        530,
         15
       ]
     },

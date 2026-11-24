@@ -5,20 +5,20 @@
   "pagina": null,
   "png": "66_asistente_perfiles_base.png",
   "tamano": [
-    470,
+    466,
     250
   ],
   "cliente": [
-    454,
+    450,
     211
   ],
   "tamano_minimo": [
-    454,
+    450,
     -1
   ],
   "pantalla": [
-    1360,
-    720
+    1600,
+    852
   ],
   "controles": [
     {
@@ -30,7 +30,7 @@
       "rect": [
         0,
         0,
-        470,
+        466,
         250
       ],
       "visible": true,
@@ -58,7 +58,7 @@
       "rect": [
         0,
         0,
-        454,
+        450,
         211
       ],
       "visible": true,
@@ -86,7 +86,7 @@
       "rect": [
         16,
         16,
-        422,
+        418,
         90
       ],
       "visible": true,
@@ -114,7 +114,7 @@
       "rect": [
         16,
         118,
-        207,
+        205,
         15
       ],
       "visible": true,
@@ -129,7 +129,7 @@
         "peso": 400
       },
       "texto_px": [
-        185,
+        183,
         15
       ]
     },
@@ -140,9 +140,9 @@
       "nombre": "Transmitir en vertical (TikTok)",
       "etiqueta": "Transmitir en vertical (TikTok)",
       "rect": [
-        231,
+        229,
         118,
-        207,
+        205,
         15
       ],
       "visible": true,
@@ -157,7 +157,7 @@
         "peso": 400
       },
       "texto_px": [
-        158,
+        155,
         15
       ]
     },
@@ -170,7 +170,7 @@
       "rect": [
         16,
         141,
-        207,
+        205,
         15
       ],
       "visible": true,
@@ -196,9 +196,9 @@
       "nombre": "Probar cada perfil con el equipo",
       "etiqueta": "Probar cada perfil con el equipo",
       "rect": [
-        231,
+        229,
         141,
-        207,
+        205,
         15
       ],
       "visible": true,
@@ -224,7 +224,7 @@
       "nombre": "Preparar",
       "etiqueta": "Preparar",
       "rect": [
-        238,
+        234,
         172,
         96,
         23
@@ -252,7 +252,7 @@
       "nombre": "Cancelar",
       "etiqueta": "Cancelar",
       "rect": [
-        342,
+        338,
         172,
         96,
         23

@@ -17,8 +17,8 @@
     652
   ],
   "pantalla": [
-    1360,
-    720
+    1600,
+    852
   ],
   "controles": [
     {
@@ -26,7 +26,7 @@
       "padre": null,
       "clase": "wxFrame",
       "nombre": "VentanaPrincipal",
-      "etiqueta": "Guyrapu 3.0.0 beta 7",
+      "etiqueta": "Guyrapu 3.0.0 beta 8",
       "rect": [
         0,
         0,
@@ -213,7 +213,7 @@
         "peso": 400
       },
       "texto_px": [
-        105,
+        104,
         15
       ]
     },
@@ -590,7 +590,7 @@
       "rect": [
         281,
         101,
-        607,
+        606,
         23
       ],
       "visible": false,
@@ -605,7 +605,7 @@
         "peso": 400
       },
       "texto_px": [
-        586,
+        585,
         15
       ]
     },
@@ -674,7 +674,7 @@
       "rect": [
         22,
         357,
-        552,
+        551,
         23
       ],
       "visible": false,
@@ -689,7 +689,7 @@
         "peso": 400
       },
       "texto_px": [
-        531,
+        530,
         15
       ]
     },
@@ -700,7 +700,7 @@
       "nombre": "ComentarVideo",
       "etiqueta": "Comentar en el vídeo (conéctate a un vídeo para poder comentar)",
       "rect": [
-        580,
+        579,
         357,
         369,
         23

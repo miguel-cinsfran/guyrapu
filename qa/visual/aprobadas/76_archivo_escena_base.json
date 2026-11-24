@@ -17,8 +17,8 @@
     -1
   ],
   "pantalla": [
-    1360,
-    720
+    1600,
+    852
   ],
   "controles": [
     {
@@ -114,7 +114,7 @@
       "rect": [
         16,
         36,
-        322,
+        321,
         23
       ],
       "visible": true,
@@ -140,9 +140,9 @@
       "nombre": "Examinar…",
       "etiqueta": "Examinar…",
       "rect": [
-        346,
+        345,
         36,
-        78,
+        79,
         23
       ],
       "visible": true,
@@ -157,7 +157,7 @@
         "peso": 400
       },
       "texto_px": [
-        57,
+        58,
         15
       ]
     },

@@ -5,20 +5,20 @@
   "pagina": null,
   "png": "65_usos_perfil_base.png",
   "tamano": [
-    494,
+    492,
     148
   ],
   "cliente": [
-    478,
+    476,
     109
   ],
   "tamano_minimo": [
-    478,
+    476,
     -1
   ],
   "pantalla": [
-    1360,
-    720
+    1600,
+    852
   ],
   "controles": [
     {
@@ -30,7 +30,7 @@
       "rect": [
         0,
         0,
-        494,
+        492,
         148
       ],
       "visible": true,
@@ -58,7 +58,7 @@
       "rect": [
         0,
         0,
-        478,
+        476,
         109
       ],
       "visible": true,
@@ -86,7 +86,7 @@
       "rect": [
         16,
         16,
-        219,
+        218,
         15
       ],
       "visible": true,
@@ -101,7 +101,7 @@
         "peso": 400
       },
       "texto_px": [
-        126,
+        125,
         15
       ]
     },
@@ -112,9 +112,9 @@
       "nombre": "Transmitir en vertical (ahora: Vertical)",
       "etiqueta": "Transmitir en vertical (ahora: Vertical)",
       "rect": [
-        243,
+        242,
         16,
-        219,
+        218,
         15
       ],
       "visible": true,
@@ -129,7 +129,7 @@
         "peso": 400
       },
       "texto_px": [
-        197,
+        196,
         15
       ]
     },
@@ -142,7 +142,7 @@
       "rect": [
         16,
         39,
-        219,
+        218,
         15
       ],
       "visible": true,
@@ -168,7 +168,7 @@
       "nombre": "Aceptar",
       "etiqueta": "Aceptar",
       "rect": [
-        262,
+        260,
         70,
         96,
         23
@@ -196,7 +196,7 @@
       "nombre": "Cancelar",
       "etiqueta": "Cancelar",
       "rect": [
-        366,
+        364,
         70,
         96,
         23
