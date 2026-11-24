@@ -1,4 +1,4 @@
-tecla=tab fase=ida dijo='Voz principal: cuadro combinado Microsoft Helena Desktop - Spanish (Spain) contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Helena Desktop - Spanish (Spain)', atajo='Alt+v'}
+tecla=tab fase=ida dijo='Voz principal: cuadro combinado <voz de Windows> contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='<voz de Windows>', atajo='Alt+v'}
 tecla=tab fase=ida dijo='Administrar voces… botón Alt+ n' foco={nombre='Administrar voces…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
 tecla=tab fase=ida dijo='Salida de audio de la voz (Phonon y Piper): cuadro combinado Salida predeterminada contraído Alt+ h' foco={nombre='Salida de audio de la voz (Phonon y Piper):', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Salida predeterminada', atajo='Alt+h'}
 tecla=tab fase=ida dijo='Velocidad de la voz deslizador 50 Alt+ l' foco={nombre='Velocidad de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+l'}
@@ -28,5 +28,5 @@ tecla=shift+tab fase=vuelta dijo='Volumen de la voz deslizador 100 Alt+ u' foco=
 tecla=shift+tab fase=vuelta dijo='Velocidad de la voz deslizador 50 Alt+ l' foco={nombre='Velocidad de la voz', rol='SLIDER', estados=['FOCUSABLE'], valor='50', atajo='Alt+l'}
 tecla=shift+tab fase=vuelta dijo='Salida de audio de la voz (Phonon y Piper): cuadro combinado Salida predeterminada contraído Alt+ h' foco={nombre='Salida de audio de la voz (Phonon y Piper):', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Salida predeterminada', atajo='Alt+h'}
 tecla=shift+tab fase=vuelta dijo='Administrar voces… botón Alt+ n' foco={nombre='Administrar voces…', rol='BUTTON', estados=['FOCUSABLE'], valor='', atajo='Alt+n'}
-tecla=shift+tab fase=vuelta dijo='Voz principal: cuadro combinado Microsoft Helena Desktop - Spanish (Spain) contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Microsoft Helena Desktop - Spanish (Spain)', atajo='Alt+v'}
+tecla=shift+tab fase=vuelta dijo='Voz principal: cuadro combinado <voz de Windows> contraído Alt+ v' foco={nombre='Voz principal:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='<voz de Windows>', atajo='Alt+v'}
 tecla=shift+tab fase=vuelta dijo='Motor de voz: cuadro combinado Windows SAPI 5 contraído Alt+ m' foco={nombre='Motor de voz:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Windows SAPI 5', atajo='Alt+m'}
