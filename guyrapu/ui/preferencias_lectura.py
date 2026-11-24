@@ -14,8 +14,10 @@ from __future__ import annotations
 
 import wx
 
+from guyrapu.core import config_predeterminada as pred
 from guyrapu.core.idioma import N_, _
 from guyrapu.translation import idiomas
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar
 from guyrapu.ui.tema import _T, _tc
 from guyrapu.ui.preferencias_comun import EleccionTexto
@@ -34,7 +36,8 @@ _FORMATOS = [
 OPCIONES_LECTURA = (
     ("chk_emojis", "texto", "limpiar_emojis", "limpiar_emojis", bool, True),
     ("chk_urls", "texto", "eliminar_urls", "eliminar_urls", bool, True),
-    ("sp_long", "texto", "max_longitud_mensaje", "max_longitud_mensaje", int, 200),
+    ("sp_long", "texto", "max_longitud_mensaje", "max_longitud_mensaje", int,
+     int(pred.obtener("texto", "max_longitud_mensaje"))),
     ("cho_lectura_recientes", "lectura", "recientes", "lectura_recientes", str, "lector"),
     ("chk_lectura_atajos_globales", "lectura", "atajos_globales", "lectura_atajos_globales", bool, False),
     ("chk_traducir", "lectura", "traducir_chat", "traducir_chat", bool, False),
@@ -68,45 +71,41 @@ class PaginaLectura:
             if v == fa:
                 self.rb_formato.SetSelection(i)
                 break
-        vs.Add(self.rb_formato, 0, wx.ALL, 10)
+        formulario.agregar_bloque(vs, self.rb_formato)
 
         self.chk_emojis = wx.CheckBox(p, label=_("Omitir emo&jis en la lista y al leer"),
                                       name="LimpiarEmojis")
         self.chk_urls   = wx.CheckBox(p, label=_("Omitir e&nlaces al leer"), name="EliminarURLs")
         for c in (self.chk_emojis, self.chk_urls):
             c.SetForegroundColour(_T.text)
-        vs.Add(self.chk_emojis, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        vs.Add(self.chk_urls, 0, wx.ALL, 10)
+        formulario.agregar_casillas(vs, (self.chk_emojis, self.chk_urls))
 
-        vs.Add(self._fila_label(p, _("&Longitud máxima del mensaje (caracteres):")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = self._fila_label(
+            p, _("&Longitud máxima del mensaje (caracteres):"))
         self.sp_long = ContadorAccesible(p, min=20, max=1000,
                                    name=_("Longitud máxima del mensaje"))
         _tc(self.sp_long)
-        vs.Add(self.sp_long, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_long, numerico=True)
 
         self._construir_lecturas(p, vs)
 
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def _construir_lecturas(self, p, vs):
-        vs.Add(self._fila_label(p, _("Leer los mensajes &recientes con:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = self._fila_label(p, _("Leer los mensajes &recientes con:"))
         self.cho_lectura_recientes = EleccionTexto(
             p, (("lector", _("El lector de pantalla")),
                 ("voz", _("La voz de la app"))),
             name=_("Leer los mensajes recientes con"))
         _tc(self.cho_lectura_recientes)
-        vs.Add(self.cho_lectura_recientes, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_lectura_recientes)
 
         self.chk_lectura_atajos_globales = wx.CheckBox(
             p, label=_("Usar atajos del chat en cual&quier aplicación"),
             name="LecturaAtajosGlobales")
         self.chk_lectura_atajos_globales.SetForegroundColour(_T.text)
-        vs.Add(self.chk_lectura_atajos_globales, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_lectura_atajos_globales,))
         self._construir_traduccion(p, vs)
 
     def _construir_traduccion(self, p, vs):
@@ -114,36 +113,30 @@ class PaginaLectura:
             p, label=_("&Traducir chat"), name=_("Traducir chat"))
         self.chk_traducir.SetForegroundColour(_T.text)
         self.chk_traducir.Bind(wx.EVT_CHECKBOX, self._al_cambiar_traduccion)
-        vs.Add(self.chk_traducir, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        vs.Add((0, 12), 0)
+        formulario.agregar_casillas(vs, (self.chk_traducir,))
 
-        vs.Add(self._fila_label(p, _("Tra&ducir:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = self._fila_label(p, _("Tra&ducir:"))
         self.cho_traducir_que = EleccionTexto(
             p, (("voz_lista", _("La voz y la lista")),
                 ("solo_voz", _("Solo la voz"))),
             name=_("Traducir"))
         _tc(self.cho_traducir_que)
-        vs.Add(self.cho_traducir_que, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_traducir_que)
 
-        vs.Add(self._fila_label(p, _("&Idioma original:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = self._fila_label(p, _("&Idioma original:"))
         self.cho_traducir_idioma = EleccionTexto(
             p, (("completo", _("Completo")),
                 ("abreviado", _("Abreviado")),
                 ("no", _("No decirlo"))),
             name=_("Idioma original"))
         _tc(self.cho_traducir_idioma)
-        vs.Add(self.cho_traducir_idioma, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_traducir_idioma)
 
-        vs.Add(self._fila_label(p, _("Traducir &al:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = self._fila_label(p, _("Traducir &al:"))
         self.cho_traducir_destino = EleccionTexto(
             p, idiomas.opciones(), name=_("Traducir al"))
         _tc(self.cho_traducir_destino)
-        vs.Add(self.cho_traducir_destino, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_traducir_destino)
 
     def _al_cambiar_traduccion(self, evento):
         evento.Skip()

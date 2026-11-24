@@ -76,6 +76,17 @@ class TestCambiosDeLectura(unittest.TestCase):
             casilla.GetPosition().y + casilla.GetSize().GetHeight())
         self.assertEqual(separacion, 12)
 
+    def test_la_longitud_maxima_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        dialogo = self._dialogo()
+        panel = dialogo.pagina_lectura.rb_formato.GetParent()
+        panel.Layout()
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, gui.wx.StaticText)
+                    and h.GetLabel() == "&Longitud máxima del mensaje (caracteres):"][0]
+        self.assertEqual(
+            dialogo.sp_long.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().GetHeight()), 4)
+
     def test_la_casilla_de_atajos_nombra_los_atajos_del_chat(self):
         dialogo = self._dialogo()
         self.assertEqual(

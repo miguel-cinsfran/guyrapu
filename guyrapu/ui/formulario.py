@@ -33,6 +33,13 @@ ANCHO_MINIMO_BOTON = 96
 ALTO_MAXIMO = 728
 
 
+def armar_pagina(panel, contenido):
+    """Pone el contenido con el margen común y se lo da a la página."""
+    exterior = wx.BoxSizer(wx.VERTICAL)
+    exterior.Add(contenido, 1, wx.EXPAND | wx.ALL, MARGEN)
+    panel.SetSizer(exterior)
+
+
 def agregar_fila(sizer, rotulo, control, *, expandir=True, numerico=False):
     """Agrega el rótulo y su control, ya creados en ese orden, con el ritmo común."""
     alto = CONTROL_A_ETIQUETA if sizer.GetChildren() else 0

@@ -14,6 +14,7 @@ from guyrapu.core import config as cfg
 from guyrapu.core.idioma import _
 from guyrapu.downloads.opciones_formato import (
     LIMITE_MAX, PLANTILLAS, SIMULTANEAS_MAX, SIMULTANEAS_MIN)
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible, nombre_accesible
 from guyrapu.ui.gui_descargas import nombrar_selector_carpeta
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
@@ -46,12 +47,11 @@ class PaginaDescargasPreferencias:
         self._descargas_topes(p, vs)
         self._descargas_canal(p, vs)
         self._cargar()
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def _descargas_carpeta(self, p, vs):
-        vs.Add(fila_label(p, _("Carpeta de &descargas:")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("Carpeta de &descargas:"))
         self.dir_descargas = wx.DirPickerCtrl(
             p, path=cfg.obtener_opciones_descarga().get("carpeta") or "",
             name=_("Carpeta de descargas"),
@@ -60,71 +60,62 @@ class PaginaDescargasPreferencias:
         if hasattr(self.dir_descargas, "GetTextCtrl"):
             nombre_accesible(self.dir_descargas.GetTextCtrl(),
                               _("Carpeta de descargas"))
-        vs.Add(self.dir_descargas, 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.dir_descargas)
 
     def _descargas_nombre(self, p, vs):
-        vs.Add(fila_label(p, _("Nombre de los &archivos:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Nombre de los &archivos:"))
         etiquetas = [_(etiqueta) for etiqueta, _clave, _plantilla in PLANTILLAS]
         self.cho_descargas_plantilla = wx.Choice(
             p, choices=etiquetas, name=_("Nombre de los archivos"))
         _tc(self.cho_descargas_plantilla)
-        vs.Add(self.cho_descargas_plantilla, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_descargas_plantilla)
 
     def _descargas_casillas(self, p, vs):
         self.chk_descargas_numerar = wx.CheckBox(
             p, label=_("&Numerar archivos de listas"),
             name="DescargasNumerar")
         self.chk_descargas_numerar.SetForegroundColour(_T.text)
-        vs.Add(self.chk_descargas_numerar, 0, wx.ALL, 10)
         self.chk_descargas_carpeta_lista = wx.CheckBox(
             p, label=_("Carpeta propia para cada &lista"),
             name="DescargasCarpetaLista")
         self.chk_descargas_carpeta_lista.SetForegroundColour(_T.text)
-        vs.Add(self.chk_descargas_carpeta_lista, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
         self.chk_descargas_preguntar = wx.CheckBox(
             p, label=_("Pr&eguntar si se abre la carpeta al terminar la cola"),
             name="DescargasPreguntarAlTerminar")
         self.chk_descargas_preguntar.SetForegroundColour(_T.text)
-        vs.Add(self.chk_descargas_preguntar, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (
+            self.chk_descargas_numerar, self.chk_descargas_carpeta_lista,
+            self.chk_descargas_preguntar))
 
     def _descargas_progreso(self, p, vs):
         self.chk_descargas_anunciar_progreso = wx.CheckBox(
             p, label=_("Anunciar &progreso de las descargas"),
             name="DescargasAnunciarProgreso")
         self.chk_descargas_anunciar_progreso.SetForegroundColour(_T.text)
-        vs.Add(self.chk_descargas_anunciar_progreso, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_descargas_anunciar_progreso,))
 
     def _descargas_topes(self, p, vs):
-        vs.Add(fila_label(p, _("Descargas &simultáneas:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Descargas &simultáneas:"))
         self.sp_descargas_simultaneas = ContadorAccesible(
             p, min=SIMULTANEAS_MIN, max=SIMULTANEAS_MAX,
             name=_("Descargas simultáneas"))
-        vs.Add(self.sp_descargas_simultaneas, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(fila_label(p, _("Límite de &velocidad en MB/s, 0 sin límite:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_descargas_simultaneas,
+                                numerico=True)
+        rotulo = fila_label(
+            p, _("Límite de &velocidad en MB/s, 0 sin límite:"))
         self.sp_descargas_limite = ContadorAccesible(
             p, min=0, max=LIMITE_MAX,
             name=_("Límite de velocidad en MB/s"))
-        vs.Add(self.sp_descargas_limite, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_descargas_limite,
+                                numerico=True)
 
     def _descargas_canal(self, p, vs):
-        vs.Add(fila_label(p, _("Canal de actualización de &yt-dlp:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Canal de actualización de &yt-dlp:"))
         self.cho_descargas_canal = wx.Choice(
             p, choices=[_("Estable"), _("Diario")],
             name=_("Canal de actualización de yt-dlp"))
         _tc(self.cho_descargas_canal)
-        vs.Add(self.cho_descargas_canal, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_descargas_canal)
 
     def _cargar(self):
         """Vuelca las opciones guardadas en los controles."""
@@ -136,21 +127,20 @@ class PaginaDescargasPreferencias:
             bool(opciones.get("preguntar_al_terminar", False)))
         self.chk_descargas_anunciar_progreso.SetValue(
             bool(opciones.get("anunciar_progreso", False)))
-        try:
-            indice = self._plantillas_claves.index(opciones.get("plantilla"))
-        except ValueError:
-            indice = 0
-        self.cho_descargas_plantilla.SetSelection(indice)
+        self.cho_descargas_plantilla.SetSelection(self._indice_guardado(
+            self._plantillas_claves, opciones.get("plantilla")))
         self.sp_descargas_simultaneas.SetValue(int(opciones.get("simultaneas", 2)))
         self.sp_descargas_limite.SetValue(int(opciones.get("limite", 0)))
         self._elegir_canal_guardado(opciones)
 
+    @staticmethod
+    def _indice_guardado(claves, clave):
+        """Índice de la clave guardada, o el de la primera opción."""
+        return claves.index(clave) if clave in claves else claves.index(claves[0])
+
     def _elegir_canal_guardado(self, opciones):
-        try:
-            canal = self._canales_claves.index(opciones.get("canal_ytdlp"))
-        except ValueError:
-            canal = 0
-        self.cho_descargas_canal.SetSelection(canal)
+        self.cho_descargas_canal.SetSelection(self._indice_guardado(
+            self._canales_claves, opciones.get("canal_ytdlp")))
 
     def guardar(self):
         """Guarda la página sin tocar formato, bitrate ni resolución."""

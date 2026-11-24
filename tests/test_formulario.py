@@ -81,6 +81,22 @@ class TestMedidas(BaseMedidas):
         self.assertEqual(aceptar.GetPosition().y - (
             segundo.GetPosition().y + segundo.GetSize().height), 16)
 
+    def test_armar_pagina_deja_el_margen_en_los_cuatro_lados(self):
+        rotulo, campo = self._fila("&Uno:", wx.TextCtrl(self.panel))
+        formulario.armar_pagina(self.panel, self.contenido)
+        self.cuadro.Layout()
+        self.cuadro.Show()
+        self.addCleanup(self.cuadro.Hide)
+        self.cuadro.SendSizeEvent()
+        self.panel.Layout()
+        exterior = self.panel.GetSizer()
+        item = exterior.GetChildren()[0]
+        self.assertIs(item.GetSizer(), self.contenido)
+        self.assertEqual(item.GetFlag() & wx.ALL, wx.ALL)
+        self.assertEqual(item.GetBorder(), formulario.MARGEN)
+        self.assertEqual(campo.GetPosition().x, formulario.MARGEN)
+        self.assertEqual(rotulo.GetPosition().y, formulario.MARGEN)
+
     def test_el_titulo_de_seccion_separa_veinte_pixeles(self):
         columna = wx.BoxSizer(wx.VERTICAL)
         _, anterior = self._fila("&Uno:", wx.TextCtrl(self.panel),
