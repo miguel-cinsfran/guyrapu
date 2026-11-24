@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
-from guyrapu.core import archivos, diagnostico, paths, sonidos_ini
-from guyrapu.core.eventos_sonido import EVENTOS
+from guyrapu.core import (archivos, diagnostico, motivos_sonido, paths,
+                          sonidos_ini)
+from guyrapu.core.eventos_sonido import EVENTOS, SONIDOS
 from guyrapu.core.ini_tipado import leer_booleano
 
 
@@ -14,24 +15,52 @@ logger = diagnostico.obtener_logger(__name__)
 # La nueva vale 1. Se graba en `[sesion] version_sonidos`.
 VERSION_SONIDOS = 1
 
-TEXTO_FABRICA = """[sonidos]
-volumen = 0.7
-# Tema: carpeta en sounds/themes/ con un WAV por sonido y, si hace falta, uno
-# con el nombre de un evento. Copia default a mi_tema y pon: tema = mi_tema
-tema = default
-# Archivos de fábrica:
-# app_inicio, mensaje_nuevo, mensaje_tiktok, mensaje_propietario, mensaje_moderador, mensaje_verificado
-# mensaje_miembro, superchat, nuevo_miembro, error, pausa, reanudar, copiar, espera, seguir, compartir, cofre, me_gusta
-# regalo_chico, regalo_mediano, regalo_grande, entrada, orilla, fin_directo, descarga_completada, descarga_fallida
-# al_aire, transmision_detenida, transmision_problema, aviso, transmision_recuperada, actualizacion_disponible
-# musica_tema, musica_fin, musica_fallo, musica_igualando, musica_igualada, ia_respuesta, ia_analizando
-# microfono_bien, microfono_revisar, directo_pausado, directo_reanudado, cola_descargas_terminada, microfono_sin_senal
-# encuadre_dentro, encuadre_fuera, descarga_avance, descarga_quieta, encuesta, encuesta_fin, meta, batalla, batalla_fin
-# musica_tema, musica_fin y alerta_en_video vienen callados: se activan en Preferencias, Sonidos.
-musica_tema =
-musica_fin =
-alerta_en_video =
-"""
+
+def _lineas_archivos(nombres):
+    """Nombres en comentarios de hasta 100 caracteres, en orden."""
+    lineas = []
+    actual = []
+    for nombre in nombres:
+        if actual and len("# " + ", ".join(actual + [nombre])) > 100:
+            lineas.append("# " + ", ".join(actual))
+            actual = [nombre]
+        else:
+            actual.append(nombre)
+    if actual:
+        lineas.append("# " + ", ".join(actual))
+    return lineas
+
+
+def _enumerar(nombres):
+    """Nombres en prosa, con «y» antes del último."""
+    if len(nombres) < 2:
+        return "".join(nombres)
+    if len(nombres) == 2:
+        return " y ".join(nombres)
+    return ", ".join(nombres[:-1]) + " y " + nombres[-1]
+
+
+def _texto_fabrica():
+    opcionales = motivos_sonido.MOTIVOS["opcional"]
+    # `config` importa este módulo: la lista se calcula aquí, desde el
+    # catálogo, para no cerrar el ciclo de imports.
+    propios = [evento for evento in EVENTOS if evento not in SONIDOS]
+    return "\n".join([
+        "[sonidos]",
+        "volumen = 0.7",
+        "# Tema: carpeta en sounds/themes/ con un WAV por sonido y, si hace falta, uno",
+        "# con el nombre de un evento. Copia default a mi_tema y pon: tema = mi_tema",
+        "tema = default",
+        "# Archivos de fábrica:",
+        *_lineas_archivos(propios),
+        f"# {_enumerar(opcionales)} vienen callados: "
+        "se activan en Preferencias, Sonidos.",
+        *(f"{clave} =" for clave in opcionales),
+        "",
+    ])
+
+
+TEXTO_FABRICA = _texto_fabrica()
 
 
 def _callar_musica_tema() -> None:

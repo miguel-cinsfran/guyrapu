@@ -7,11 +7,13 @@ Corre sobre archivos reales en una carpeta temporal: `config.ini` y
 """
 
 import configparser
+import importlib
 import tempfile
 import unittest
 from pathlib import Path
 
-from guyrapu.core import config, sonidos_ini
+from guyrapu.core import (config, eventos_sonido, motivos_sonido,
+                          sonidos_fabrica, sonidos_ini)
 from tests.rutas_temporales import redirigir_rutas
 
 SONIDOS_BASE = "[sonidos]\nactivar = true\n"
@@ -87,6 +89,73 @@ class TestMigracion(unittest.TestCase):
         self.assertNotIn("musica_fallo", callados)
         texto = self._sounds().read_text(encoding="utf-8")
         self.assertEqual(texto.count("musica_fin ="), 1)
+
+
+class TestTextoDeFabrica(unittest.TestCase):
+    """El texto de respaldo se arma desde el catálogo, no a mano."""
+
+    def _lineas_de_archivos(self):
+        lineas = sonidos_fabrica.TEXTO_FABRICA.splitlines()
+        inicio = lineas.index("# Archivos de fábrica:") + 1
+        return [linea for linea in lineas[inicio:]
+                if linea.startswith("# ") and "vienen callados" not in linea]
+
+    def test_la_lista_sigue_el_orden_del_catalogo(self):
+        nombres = [nombre for linea in self._lineas_de_archivos()
+                   for nombre in linea[2:].split(", ")]
+        propios = [evento for evento in eventos_sonido.EVENTOS
+                   if evento not in eventos_sonido.SONIDOS]
+        self.assertEqual(nombres, propios)
+
+    def test_ninguna_linea_de_archivos_pasa_de_cien_caracteres(self):
+        for linea in self._lineas_de_archivos():
+            with self.subTest(linea=linea):
+                self.assertLessEqual(len(linea), 100)
+
+    def test_el_texto_sigue_al_catalogo_si_agrega_un_evento(self):
+        original = eventos_sonido.EVENTOS
+        try:
+            eventos_sonido.EVENTOS = original + ["archivo_nuevo"]
+            importlib.reload(sonidos_fabrica)
+            nombres = [nombre for linea in self._lineas_de_archivos()
+                       for nombre in linea[2:].split(", ")]
+            self.assertIn("archivo_nuevo", nombres)
+        finally:
+            eventos_sonido.EVENTOS = original
+            importlib.reload(sonidos_fabrica)
+
+    def test_los_callados_salen_de_los_opcionales(self):
+        self.assertEqual(
+            sonidos_ini.silenciados(sonidos_fabrica.TEXTO_FABRICA),
+            set(motivos_sonido.MOTIVOS["opcional"]))
+        original = motivos_sonido.MOTIVOS["opcional"]
+        try:
+            motivos_sonido.MOTIVOS["opcional"] = original + ("opcional_nuevo",)
+            importlib.reload(sonidos_fabrica)
+            self.assertEqual(
+                sonidos_ini.silenciados(sonidos_fabrica.TEXTO_FABRICA),
+                set(motivos_sonido.MOTIVOS["opcional"]))
+            linea = next(linea for linea in sonidos_fabrica.TEXTO_FABRICA.splitlines()
+                         if "vienen callados" in linea)
+            self.assertIn("alerta_en_video y opcional_nuevo vienen callados",
+                          linea)
+        finally:
+            motivos_sonido.MOTIVOS["opcional"] = original
+            importlib.reload(sonidos_fabrica)
+
+    def test_el_resto_del_texto_no_cambia(self):
+        texto = sonidos_fabrica.TEXTO_FABRICA
+        self.assertEqual(texto.splitlines()[:6], [
+            "[sonidos]",
+            "volumen = 0.7",
+            "# Tema: carpeta en sounds/themes/ con un WAV por sonido y, si hace falta, uno",
+            "# con el nombre de un evento. Copia default a mi_tema y pon: tema = mi_tema",
+            "tema = default",
+            "# Archivos de fábrica:",
+        ])
+        self.assertIn("vienen callados: se activan en Preferencias, Sonidos.",
+                      texto)
+        self.assertTrue(texto.endswith("\n"))
 
 
 if __name__ == "__main__":
