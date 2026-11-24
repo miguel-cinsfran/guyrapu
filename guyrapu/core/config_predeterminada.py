@@ -103,6 +103,7 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("segundos_me_gusta", "10"),
         ("agrupar_entradas", "true"),
         ("segundos_entradas", "10"),
+        ("primera_entrada_al_momento", "true"),
     ]),
     ("eventos", avisos_tiktok.EVENTOS),
     ("programados", [

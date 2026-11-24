@@ -288,7 +288,9 @@ def _al_entrar(on_evento, descartar, agrupador, config):
         if not entra_en_grupo(autor, config):
             return
         ahora = time.monotonic()
-        agrupador.sumar(autor, canal_id, ahora)
+        if agrupador.sumar(autor, canal_id, ahora,
+                           config.get("tiktok_primera_entrada_al_momento", False)):
+            on_evento(autor, "", TIPO_ENTRADA, "", canal_id)
         _emitir_entradas_vencidas(agrupador, on_evento, ahora)
 
     return _on_join

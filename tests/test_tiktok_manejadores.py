@@ -372,6 +372,46 @@ class TestEntradasAgrupadas(unittest.TestCase):
         _vaciar_con_conteo(cliente, mod, 1010.0)
         self.assertEqual(recibidos, [("Ana", "", TIPO_ENTRADA, "", "1")])
 
+    def test_primera_entrada_al_momento_sale_en_el_mismo_evento(self):
+        cliente, mod, recibidos, _vistos, _est = _registrar(
+            _TODAS_NUEVAS,
+            config={"tiktok_primera_entrada_al_momento": True})
+        self._entrar(cliente, mod, "Ana", "1", 1000.0)
+        self.assertEqual(recibidos, [("Ana", "", TIPO_ENTRADA, "", "1")])
+
+    def test_las_siguientes_de_la_espera_salen_juntas_al_vencer(self):
+        cliente, mod, recibidos, _vistos, _est = _registrar(
+            _TODAS_NUEVAS,
+            config={"tiktok_primera_entrada_al_momento": True})
+        for indice, nombre in enumerate(("Ana", "Beto", "Caro")):
+            self._entrar(cliente, mod, nombre, str(indice + 1), 1000.0)
+        self.assertEqual(len(recibidos), 1)
+        _vaciar_con_conteo(cliente, mod, 1010.0)
+        self.assertEqual(len(recibidos), 2)
+        self.assertEqual(recibidos[1][0], "Beto y Caro")
+        self.assertEqual(recibidos[1][2], TIPO_ENTRADA)
+        self.assertEqual(recibidos[1][3], "2")
+
+    def test_sin_otra_entrada_no_sale_nada_al_vencer(self):
+        cliente, mod, recibidos, _vistos, _est = _registrar(
+            _TODAS_NUEVAS,
+            config={"tiktok_primera_entrada_al_momento": True})
+        self._entrar(cliente, mod, "Ana", "1", 1000.0)
+        _vaciar_con_conteo(cliente, mod, 1010.0)
+        self.assertEqual(recibidos, [("Ana", "", TIPO_ENTRADA, "", "1")])
+
+    def test_opcion_desmarcada_deja_el_comportamiento_de_hoy(self):
+        cliente, mod, recibidos, _vistos, _est = _registrar(
+            _TODAS_NUEVAS,
+            config={"tiktok_primera_entrada_al_momento": False})
+        for indice, nombre in enumerate(("Ana", "Beto", "Caro")):
+            self._entrar(cliente, mod, nombre, str(indice + 1), 1000.0)
+        self.assertEqual(recibidos, [])
+        _vaciar_con_conteo(cliente, mod, 1010.0)
+        self.assertEqual(len(recibidos), 1)
+        self.assertEqual(recibidos[0][0], "Ana, Beto y Caro")
+
+
 
 class TestMeGustaSinAgrupar(unittest.TestCase):
     def test_agrupar_me_gusta_desmarcado_emite_cada_uno_al_llegar(self):

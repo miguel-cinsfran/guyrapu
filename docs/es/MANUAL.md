@@ -118,7 +118,9 @@ metas y las batallas de TikTok se configuran en *Preferencias*, categoría
 - *Desactivado*: no aparece.
 
 *Agrupar entradas* y *Agrupar me gusta* juntan en una fila lo que llega en
-pocos segundos, como «Ana, Beto y Caro entraron».
+pocos segundos, como «Ana, Beto y Caro entraron». Con *Avisar al momento la
+primera entrada*, marcada de fábrica, la primera persona que entra se anuncia
+enseguida y solo se agrupan las que llegan durante la espera.
 
 ### Formato de lectura
 

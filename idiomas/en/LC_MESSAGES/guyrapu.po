@@ -15618,6 +15618,14 @@ msgid "Agrupar entradas durante, en segundos"
 msgstr "Group joins for, in seconds"
 
 #: guyrapu/ui/preferencias_eventos.py
+msgid "Av&isar al momento la primera entrada"
+msgstr "Notify the first &join immediately"
+
+#: guyrapu/ui/preferencias_eventos.py
+msgid "Avisar al momento la primera entrada"
+msgstr "Notify the first join immediately"
+
+#: guyrapu/ui/preferencias_eventos.py
 msgid "Agru&par me gusta"
 msgstr "Gro&up likes"
 

@@ -761,6 +761,13 @@ class TestCargarConfiguracion(unittest.TestCase):
         self.assertFalse(cfg["tiktok_agrupar_entradas"])
         self.assertEqual(cfg["tiktok_segundos_entradas"], 42)
 
+    def test_primera_entrada_al_momento_de_fabrica_y_se_lea(self):
+        cfg = self._cargar_en("[tiktok]\nusuario = pepe\n")
+        self.assertTrue(cfg["tiktok_primera_entrada_al_momento"])
+        cfg = self._cargar_en(
+            "[tiktok]\nprimera_entrada_al_momento = false\n")
+        self.assertFalse(cfg["tiktok_primera_entrada_al_momento"])
+
     def test_segundos_de_entradas_fuera_de_rango_se_lleva_al_borde(self):
         for escrito, esperado in (("3", 3), ("0", 1), ("-5", 1),
                                   ("121", 120), ("999", 120)):

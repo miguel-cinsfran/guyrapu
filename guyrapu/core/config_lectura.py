@@ -11,7 +11,7 @@ opciones visibles de [ui].
 
 from __future__ import annotations
 
-from guyrapu.core import avisos_tiktok
+from guyrapu.core import avisos_tiktok, plataformas
 from guyrapu.core.ini_tipado import leer_entero, leer_texto, leer_booleano
 
 
@@ -72,6 +72,8 @@ def opciones_tiktok(p) -> dict:
             p, "tiktok", "agrupar_entradas"),
         "tiktok_segundos_entradas": leer_entero(
             p, "tiktok", "segundos_entradas", lo=1, hi=120),
+        "tiktok_primera_entrada_al_momento": leer_booleano(
+            p, plataformas.TIKTOK, "primera_entrada_al_momento"),
     }
 
 

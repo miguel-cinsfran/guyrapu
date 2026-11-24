@@ -1984,6 +1984,7 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("eventos", "comando"),
             ("tiktok", "agrupar_entradas"),
             ("tiktok", "segundos_entradas"),
+            ("tiktok", "primera_entrada_al_momento"),
             ("tiktok", "agrupar_me_gusta"),
             ("tiktok", "segundos_me_gusta"),
             ("texto", "max_longitud_mensaje"),

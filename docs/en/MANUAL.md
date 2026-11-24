@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 2c2383a2fa5896144f6d61f403f3046fac7513bf -->
+<!-- original: es/MANUAL.md 7aa88bf1a9c672b854f091e0853fe3627d88d094 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -60,7 +60,7 @@ Joins, likes, followers, gifts, polls, goals and TikTok battles are configured i
 - *List only*: it appears without sound and without being read.
 - *Off*: it does not appear.
 
-*Group joins* and *Group likes* bring together in one row what arrives in a few seconds, such as “Ana, Beto and Caro joined”.
+*Group joins* and *Group likes* bring together in one row what arrives in a few seconds, such as “Ana, Beto and Caro joined”. With *Notify the first join immediately*, on by default, the first person to join is announced immediately and only those arriving during the wait are grouped.
 
 ### Reading format
 

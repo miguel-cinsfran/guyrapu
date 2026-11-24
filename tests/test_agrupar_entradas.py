@@ -62,6 +62,68 @@ class TestAgrupadorEntradas(unittest.TestCase):
         self.assertEqual(agrupador.vencido(104.0), [("Ana", "1")])
 
 
+class TestPrimeraEntradaAlMomento(unittest.TestCase):
+
+    def test_la_primera_sale_ya_y_las_demas_se_juntan_al_vencer(self):
+        agrupador = AgrupadorEntradas(ventana=10.0, primera_al_momento=True)
+        self.assertTrue(agrupador.sumar("Ana", "1", 100.0))
+        self.assertFalse(agrupador.sumar("Beto", "2", 101.0))
+        self.assertFalse(agrupador.sumar("Caro", "3", 102.0))
+        self.assertEqual(agrupador.vencido(110.0),
+                         [("Beto", "2"), ("Caro", "3")])
+
+    def test_quien_salio_al_momento_no_sale_dos_veces_en_la_misma_espera(self):
+        agrupador = AgrupadorEntradas(ventana=10.0, primera_al_momento=True)
+        self.assertTrue(agrupador.sumar("Ana", "1", 100.0))
+        self.assertFalse(agrupador.sumar("Ana", "1", 101.0))
+        self.assertFalse(agrupador.sumar("Beto", "2", 102.0))
+        self.assertEqual(agrupador.vencido(110.0), [("Beto", "2")])
+        self.assertTrue(agrupador.sumar("Ana", "1", 111.0))
+
+    def test_si_no_entra_nadie_mas_no_sale_nada_al_vencer(self):
+        agrupador = AgrupadorEntradas(ventana=10.0, primera_al_momento=True)
+        self.assertTrue(agrupador.sumar("Ana", "1", 100.0))
+        self.assertEqual(agrupador.vencido(110.0), [])
+        self.assertTrue(agrupador.sumar("Beto", "2", 111.0))
+        self.assertEqual(agrupador.vencido(121.0), [])
+
+    def test_sin_la_bandera_el_grupo_sale_como_hoy(self):
+        agrupador = AgrupadorEntradas(ventana=10.0, primera_al_momento=False)
+        self.assertFalse(agrupador.sumar("Ana", "1", 100.0))
+        self.assertFalse(agrupador.sumar("Beto", "2", 101.0))
+        self.assertEqual(agrupador.vencido(110.0),
+                         [("Ana", "1"), ("Beto", "2")])
+
+    def test_la_bandera_puede_cambiar_sin_reconectar(self):
+        bandera = [True]
+        agrupador = AgrupadorEntradas(
+            ventana=10.0, primera_al_momento=lambda: bandera[0])
+        self.assertTrue(agrupador.sumar("Ana", "1", 100.0))
+        self.assertFalse(agrupador.sumar("Beto", "2", 101.0))
+        bandera[0] = False
+        self.assertEqual(agrupador.vencido(110.0), [("Beto", "2")])
+        self.assertFalse(agrupador.sumar("Caro", "3", 111.0))
+        self.assertEqual(agrupador.vencido(121.0), [("Caro", "3")])
+
+    def test_con_la_bandera_nadie_se_repite_ni_se_pierde(self):
+        for total in range(1, 12):
+            with self.subTest(total=total):
+                agrupador = AgrupadorEntradas(
+                    ventana=10.0, primera_al_momento=True)
+                salieron = []
+                ahora = 100.0
+                for indice in range(total):
+                    persona = f"P{indice}"
+                    if agrupador.sumar(persona, str(indice), ahora):
+                        salieron.append(persona)
+                    ahora += 0.5
+                salieron.extend(nombre for nombre, _canal
+                                in agrupador.vencido(110.0))
+                self.assertEqual(sorted(salieron),
+                                 sorted(f"P{indice}" for indice in range(total)))
+                self.assertEqual(len(salieron), len(set(salieron)))
+
+
 class TestNombresDelGrupo(unittest.TestCase):
 
     def test_un_nombre(self):

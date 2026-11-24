@@ -35,6 +35,21 @@ def _es_texto(nodo):
     return isinstance(nodo, ast.Constant) and isinstance(nodo.value, str)
 
 
+_IDS_PLATAFORMA = {
+    "plataformas.TIKTOK": "tiktok",
+    "plataformas.YOUTUBE": "youtube",
+}
+
+
+def _texto_de_nodo(nodo):
+    """Texto literal o id de plataforma escrito con su constante."""
+    if _es_texto(nodo):
+        return nodo.value
+    if isinstance(nodo, ast.Attribute) and isinstance(nodo.value, ast.Name):
+        return _IDS_PLATAFORMA.get(f"{nodo.value.id}.{nodo.attr}")
+    return None
+
+
 # ── Regla 1: F2 ─────────────────────────────────────────────────────────────
 
 def _datos_f2():
@@ -363,9 +378,12 @@ def _pares_leidos_en_config():
                 invocados = nodo.args[0:2]
             else:
                 continue
-            if (len(invocados) >= 2 and _es_texto(invocados[0])
-                    and _es_texto(invocados[1])):
-                leidos.add((invocados[0].value, invocados[1].value))
+            if len(invocados) < 2:
+                continue
+            seccion = _texto_de_nodo(invocados[0])
+            clave = _texto_de_nodo(invocados[1])
+            if seccion and clave:
+                leidos.add((seccion, clave))
     return leidos | _pares_de_atenuacion()
 
 
@@ -374,7 +392,9 @@ def _filas_de_tabla(nodo, tablas):
     nombre de otra tabla (como `OPCIONES_MUSICA` dentro de `_OPCIONES_SIMPLES`)."""
     if (isinstance(nodo, ast.Tuple) and nodo.elts
             and _es_texto(nodo.elts[0])):
-        return [(nodo.elts[1].value, nodo.elts[2].value)]
+        seccion = _texto_de_nodo(nodo.elts[1])
+        clave = _texto_de_nodo(nodo.elts[2])
+        return [(seccion, clave)] if seccion and clave else []
     if isinstance(nodo, ast.Tuple):
         filas = []
         for elemento in nodo.elts:

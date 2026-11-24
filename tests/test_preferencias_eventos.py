@@ -49,6 +49,7 @@ CONTROLES_EN_ORDEN = (
     "cho_evento_entrada",
     "chk_agrupar_entradas",
     "sp_segundos_entradas",
+    "chk_primera_entrada_al_momento",
     "cho_evento_me_gusta",
     "chk_agrupar_me_gusta",
     "sp_segundos_me_gusta",
@@ -214,7 +215,37 @@ class TestControlesEventos(BaseEventos):
                       dialogo.chk_agrupar_entradas)
         self.assertIs(controles[indice + 2],
                       dialogo.sp_segundos_entradas)
-        self.assertIs(controles[indice + 3], dialogo.cho_evento_me_gusta)
+        self.assertIs(controles[indice + 3],
+                      dialogo.chk_primera_entrada_al_momento)
+        self.assertIs(controles[indice + 4], dialogo.cho_evento_me_gusta)
+
+    def test_la_casilla_de_primera_entrada_viene_marcada_y_con_su_nombre(self):
+        dialogo = self._dialogo()
+        casilla = dialogo.chk_primera_entrada_al_momento
+        self.assertEqual(casilla.GetName(), "Avisar al momento la primera entrada")
+        self.assertEqual(casilla.GetLabel(),
+                         "Av&isar al momento la primera entrada")
+        self.assertTrue(casilla.GetValue())
+
+    def test_primera_entrada_sigue_habilitada_igual_que_los_segundos(self):
+        dialogo = self._dialogo()
+        for control in (dialogo.sp_segundos_entradas,
+                        dialogo.chk_primera_entrada_al_momento):
+            with self.subTest(control=control.GetName()):
+                self.assertTrue(control.IsEnabled())
+
+    def test_guardar_escribe_la_primera_entrada_en_tiktok(self):
+        dialogo = self._dialogo()
+        dialogo.chk_primera_entrada_al_momento.SetValue(False)
+        with mock.patch.object(gui_preferencias._snd, "reproducir"), \
+                mock.patch.object(preferencias_transmision, "anunciar"), \
+                mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        self.assertFalse(dialogo._config["tiktok_primera_entrada_al_momento"])
+        parser = config._mk_parser()
+        parser.read(self.ruta / "config.ini", encoding="utf-8")
+        self.assertEqual(
+            parser.get("tiktok", "primera_entrada_al_momento"), "false")
 
     def test_los_controles_de_agrupacion_de_me_gusta(self):
         dialogo = self._dialogo()
@@ -234,7 +265,8 @@ class TestControlesEventos(BaseEventos):
     def test_las_casillas_de_agrupacion_tienen_el_fondo_de_la_pagina(self):
         dialogo = self._dialogo()
         fondo_modelo = dialogo.chk_decir_plataforma.GetBackgroundColour()
-        for nombre in ("chk_agrupar_entradas", "chk_agrupar_me_gusta"):
+        for nombre in ("chk_agrupar_entradas", "chk_agrupar_me_gusta",
+                       "chk_primera_entrada_al_momento"):
             with self.subTest(casilla=nombre):
                 casilla = getattr(dialogo, nombre)
                 self.assertFalse(casilla.UseBackgroundColour())

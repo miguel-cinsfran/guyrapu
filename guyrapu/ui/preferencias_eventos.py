@@ -14,6 +14,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.avisos_tiktok import EVENTOS, MODOS_EVENTO
+from guyrapu.core import plataformas
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible
@@ -47,6 +48,9 @@ OPCIONES_EVENTOS = (
      "tiktok_agrupar_entradas", bool, True),
     ("sp_segundos_entradas", "tiktok", "segundos_entradas",
      "tiktok_segundos_entradas", int, 10),
+    ("chk_primera_entrada_al_momento", plataformas.TIKTOK,
+     "primera_entrada_al_momento",
+     "tiktok_primera_entrada_al_momento", bool, True),
     ("cho_evento_me_gusta", "eventos", "me_gusta", "evento_me_gusta",
      str, "mostrar"),
     ("chk_agrupar_me_gusta", "tiktok", "agrupar_me_gusta",
@@ -114,6 +118,13 @@ class PaginaEventos:
                 _("Agrupar entradas durante (segund&os):"),
                 _("Agrupar entradas durante, en segundos"),
                 "sp_segundos_entradas")
+            grilla.Add((0, 0), 0)
+            casilla = wx.CheckBox(
+                p, label=_("Av&isar al momento la primera entrada"),
+                name=_("Avisar al momento la primera entrada"))
+            casilla.SetForegroundColour(_T.text)
+            self.chk_primera_entrada_al_momento = casilla
+            grilla.Add(casilla, 0, wx.EXPAND)
         if clave == "me_gusta":
             self._agregar_agrupacion(
                 grilla, p, "agrupar_me_gusta",

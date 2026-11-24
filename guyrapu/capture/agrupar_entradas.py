@@ -15,10 +15,14 @@ from guyrapu.core.idioma import _
 class AgrupadorEntradas:
     """Junta personas distintas desde la primera entrada de la ventana."""
 
-    def __init__(self, ventana: float = 10.0):
+    def __init__(self, ventana: float = 10.0, primera_al_momento=False):
         self.ventana = ventana
+        self.primera_al_momento = primera_al_momento
         # Clave -> [autor, canal_id]. El dict conserva el orden de llegada.
         self._personas: dict[str, list] = {}
+        # Quien sale al momento no entra al grupo, pero su clave se guarda
+        # para que no vuelva a salir si repite durante la misma espera.
+        self._salieron_ya: set[str] = set()
         self._primero: float | None = None
 
     def _segundos(self) -> float:
@@ -27,29 +31,45 @@ class AgrupadorEntradas:
         configuración valga sin reconectar."""
         return float(self.ventana() if callable(self.ventana) else self.ventana)
 
-    def sumar(self, autor: str, canal_id: str, ahora: float) -> None:
-        """Anota a la persona si todavía no estaba en el grupo."""
+    def sumar(self, autor: str, canal_id: str, ahora: float,
+              primera_al_momento=None) -> bool:
+        """Anota a la persona y dice si sale ya, sin entrar al grupo.
+
+        Con la bandera encendida, la primera de cada ventana sale al momento
+        y abre la espera para las que llegan después. La bandera se puede
+        dar al crear el agrupador o en cada llamada, como valor o función
+        sin argumentos, para que un cambio de Preferencias valga al instante.
+        """
         clave = canal_id if canal_id else autor
-        if not self._personas:
+        bandera = (self.primera_al_momento if primera_al_momento is None
+                   else primera_al_momento)
+        if self._primero is None:
             self._primero = ahora
+            if bool(bandera() if callable(bandera) else bandera):
+                self._salieron_ya.add(clave)
+                return True
+        if clave in self._salieron_ya:
+            return False
         persona = self._personas.get(clave)
         if persona is None:
             self._personas[clave] = [autor, canal_id]
         else:
             persona[0] = autor
+        return False
 
     def vencido(self, ahora: float) -> list[tuple[str, str]]:
         """Saca y devuelve las personas del grupo si pasó la ventana.
 
         Vuelve vacío mientras no se cumpla, y deja el agrupador listo para
-        empezar otro grupo.
+        empezar otro grupo aunque la primera haya salido al momento.
         """
-        if not self._personas:
+        if self._primero is None:
             return []
         if ahora - self._primero < self._segundos():
             return []
         personas = [tuple(persona) for persona in self._personas.values()]
         self._personas.clear()
+        self._salieron_ya.clear()
         self._primero = None
         return personas
 

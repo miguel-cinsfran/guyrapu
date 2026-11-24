@@ -39,6 +39,7 @@ OPCIONES_ESPERADAS = [
     ("cho_evento_entrada", "eventos", "entrada", "evento_entrada", str),
     ("chk_agrupar_entradas", "tiktok", "agrupar_entradas", "tiktok_agrupar_entradas", bool),
     ("sp_segundos_entradas", "tiktok", "segundos_entradas", "tiktok_segundos_entradas", int),
+    ("chk_primera_entrada_al_momento", "tiktok", "primera_entrada_al_momento", "tiktok_primera_entrada_al_momento", bool),
     ("cho_evento_me_gusta", "eventos", "me_gusta", "evento_me_gusta", str),
     ("chk_agrupar_me_gusta", "tiktok", "agrupar_me_gusta", "tiktok_agrupar_me_gusta", bool),
     ("sp_segundos_me_gusta", "tiktok", "segundos_me_gusta", "tiktok_segundos_me_gusta", int),
@@ -143,11 +144,11 @@ class TestTablaOpcionesSimples(unittest.TestCase):
                 config[en_memoria] = por_defecto + 1
         return config
 
-    def test_tabla_tiene_61_filas_sin_repetir_y_cada_atributo_existe(self):
+    def test_tabla_tiene_62_filas_sin_repetir_y_cada_atributo_existe(self):
         tabla = gui_preferencias._OPCIONES_SIMPLES
-        self.assertEqual(len(tabla), 61)
+        self.assertEqual(len(tabla), 62)
         atributos = [fila[0] for fila in tabla]
-        self.assertEqual(len(set(atributos)), 61)
+        self.assertEqual(len(set(atributos)), 62)
         dialogo = self._dialogo()
         for atributo in atributos:
             with self.subTest(atributo=atributo):
