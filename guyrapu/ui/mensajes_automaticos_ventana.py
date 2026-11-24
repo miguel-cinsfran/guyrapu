@@ -21,6 +21,7 @@ from guyrapu.ui import mensaje_automatico_cuadro, probar_aviso
 from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
+from guyrapu.ui.pagina_de_lista import agregar_botones, agregar_lista
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, fila_label
 from guyrapu.ui.tema import _T
 
@@ -85,17 +86,15 @@ class PanelMensajesAutomaticos(wx.Panel):
         self.chk_programados.Bind(wx.EVT_CHECKBOX, self._al_alternar)
         vs.Add(self.chk_programados, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
-        vs.Add(fila_label(self, _("Lista de &mensajes:")), 0,
-               wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(self, _("Lista de &mensajes:"))
         self.lista = wx.ListBox(
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name="ListaProgramados")
         nombre_accesible(self.lista, _("Mensajes automáticos guardados"))
         self._acciones = _acciones(self)
         self._lista = ListaConAcciones(self.lista, self._acciones, _(VACIO))
         self._lista.fijar(self._textos())
-        vs.Add(self.lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(self._fila_de_botones(), 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        agregar_lista(vs, rotulo, self.lista, borde_superior=False)
+        agregar_botones(vs, self._fila_de_botones())
         self.SetSizer(vs)
 
     def _fila_de_botones(self):

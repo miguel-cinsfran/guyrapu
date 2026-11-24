@@ -25,6 +25,7 @@ from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
 from guyrapu.ui.medio_escucha import EscuchaPrevia
+from guyrapu.ui.pagina_de_lista import agregar_botones, agregar_lista
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 from guyrapu.voice import sound_player
 
@@ -89,15 +90,14 @@ class PanelMedios(wx.Panel):
 
     def _crear_controles(self):
         vs = wx.BoxSizer(wx.VERTICAL)
-        vs.Add(fila_label(self, _("Lista de &medios:")), 0,
-               wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(self, _("Lista de &medios:"))
         self.lista = wx.ListBox(
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name="ListaMedios")
         nombre_accesible(self.lista, _("Medios guardados"))
         self._acciones = _acciones(self)
         self._lista = ListaConAcciones(self.lista, self._acciones, _(VACIO))
         self._lista.fijar(self._textos())
-        vs.Add(self.lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        agregar_lista(vs, rotulo, self.lista)
         etiqueta_volumen = _("&Volumen de los medios en el vídeo:")
         vs.Add(fila_label(self, etiqueta_volumen), 0,
                wx.LEFT | wx.RIGHT | wx.TOP, 10)
@@ -107,8 +107,7 @@ class PanelMedios(wx.Panel):
             nombre=nombre_de_etiqueta(etiqueta_volumen))
         self.sp_volumen.Bind(wx.EVT_SLIDER, self._al_cambiar_volumen)
         vs.Add(self.sp_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(self._fila_de_botones(), 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        agregar_botones(vs, self._fila_de_botones())
         self.SetSizer(vs)
         self.lista.SetFocus()
 

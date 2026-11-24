@@ -16,6 +16,7 @@ from guyrapu.ui import botonera
 from guyrapu.ui import confirmar, preguntas_en_vivo
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
+from guyrapu.ui.pagina_de_lista import agregar_botones, agregar_lista
 from guyrapu.ui.preferencias_comun import fila_label
 
 VACIO = N_(
@@ -57,17 +58,15 @@ class PanelPreguntas(wx.Panel):
 
     def _crear_controles(self):
         vs = wx.BoxSizer(wx.VERTICAL)
-        vs.Add(fila_label(self, _("&Preguntas:")), 0,
-               wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(self, _("&Preguntas:"))
         self.lista = wx.ListBox(
             self, style=wx.LB_SINGLE | wx.LB_HSCROLL, name="ListaPreguntas")
         nombre_accesible(self.lista, _("Preguntas del público"))
         self._acciones = _acciones(self)
         self._lista = ListaConAcciones(self.lista, self._acciones, _(VACIO))
         self._lista.fijar(self._textos())
-        vs.Add(self.lista, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(self._fila_de_botones(), 0,
-               wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        agregar_lista(vs, rotulo, self.lista)
+        agregar_botones(vs, self._fila_de_botones())
         self.SetSizer(vs)
         self.lista.SetFocus()
 

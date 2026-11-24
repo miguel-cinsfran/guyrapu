@@ -160,6 +160,9 @@ SIN_ESCENARIO: dict[str, str] = {
     "formulario.py": (
         "pieza de armado de los cuadros; no abre ventana y la recorren los "
         "escenarios de los cuadros que la usan."),
+    "pagina_de_lista.py": (
+        "pieza de armado del rótulo, la lista y los botones; no abre ventana "
+        "y la recorren los escenarios de las páginas que la usan."),
     "deslizador.py": (
         "pieza de armado de los deslizadores; no abre ventana y la recorren "
         "los escenarios de las ventanas que la usan."),
