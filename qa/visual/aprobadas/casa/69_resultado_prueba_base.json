@@ -1,0 +1,165 @@
+{
+  "muestra": "resultado_prueba",
+  "clase": "DialogoResultadoPrueba",
+  "variante": "con_cambios",
+  "pagina": null,
+  "png": "69_resultado_prueba_base.png",
+  "tamano": [
+    456,
+    230
+  ],
+  "cliente": [
+    440,
+    191
+  ],
+  "tamano_minimo": [
+    440,
+    -1
+  ],
+  "pantalla": [
+    1360,
+    720
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoResultadoPrueba",
+      "etiqueta": "Resultado de la prueba",
+      "rect": [
+        0,
+        0,
+        456,
+        230
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        120,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelResultadoPrueba",
+      "etiqueta": "PanelResultadoPrueba",
+      "rect": [
+        0,
+        0,
+        440,
+        191
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        118,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Resultado de la prueba",
+      "etiqueta": "",
+      "rect": [
+        16,
+        16,
+        408,
+        120
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Guardar en el perfil",
+      "etiqueta": "Guardar en el perfil",
+      "rect": [
+        174,
+        152,
+        121,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        100,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Dejar como estaba",
+      "etiqueta": "Dejar como estaba",
+      "rect": [
+        303,
+        152,
+        121,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        98,
+        15
+      ]
+    }
+  ]
+}

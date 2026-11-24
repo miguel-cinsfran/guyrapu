@@ -1,0 +1,417 @@
+{
+  "muestra": "perfil_restream",
+  "clase": "DialogoPerfilRestream",
+  "variante": "con_datos",
+  "pagina": null,
+  "png": "85_perfil_restream_base.png",
+  "tamano": [
+    456,
+    363
+  ],
+  "cliente": [
+    440,
+    324
+  ],
+  "tamano_minimo": [
+    440,
+    -1
+  ],
+  "pantalla": [
+    1360,
+    720
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoPerfilRestream",
+      "etiqueta": "Editar perfil de Restream",
+      "rect": [
+        0,
+        0,
+        456,
+        363
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        128,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelPerfilRestream",
+      "etiqueta": "PanelPerfilRestream",
+      "rect": [
+        0,
+        0,
+        440,
+        324
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        105,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Nombre:",
+      "rect": [
+        16,
+        16,
+        48,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        47,
+        15
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31993,
+      "clase": "wxTextCtrl",
+      "nombre": "Nombre",
+      "etiqueta": "Canal",
+      "rect": [
+        16,
+        36,
+        408,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        30,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Orientación:",
+      "rect": [
+        16,
+        71,
+        66,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        65,
+        15
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Orientación",
+      "etiqueta": "",
+      "rect": [
+        16,
+        91,
+        408,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": -31993,
+      "clase": "wxStaticBox",
+      "nombre": "groupBox",
+      "etiqueta": "Destinos",
+      "rect": [
+        16,
+        134,
+        408,
+        53
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#0B6E63",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 700
+      },
+      "texto_px": [
+        48,
+        15
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": -31988,
+      "clase": "wxCheckBox",
+      "nombre": "TikTok: uno",
+      "etiqueta": "TikTok: uno",
+      "rect": [
+        29,
+        159,
+        187,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        63,
+        15
+      ]
+    },
+    {
+      "id": -31986,
+      "padre": -31988,
+      "clase": "wxCheckBox",
+      "nombre": "YouTube: dos",
+      "etiqueta": "YouTube: dos",
+      "rect": [
+        224,
+        159,
+        187,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        73,
+        15
+      ]
+    },
+    {
+      "id": -31985,
+      "padre": -31993,
+      "clase": "wxCheckBox",
+      "nombre": "YouTube, el canal de tu sesión de Google",
+      "etiqueta": "YouTube, el canal de tu sesión de Google",
+      "rect": [
+        16,
+        199,
+        408,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        217,
+        15
+      ]
+    },
+    {
+      "id": -31984,
+      "padre": -31993,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Chat que lee Guyrapu:",
+      "rect": [
+        16,
+        226,
+        118,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        117,
+        15
+      ]
+    },
+    {
+      "id": -31983,
+      "padre": -31993,
+      "clase": "wxChoice",
+      "nombre": "Chat que lee Guyrapu",
+      "etiqueta": "",
+      "rect": [
+        16,
+        246,
+        408,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": 5100,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Guardar",
+      "etiqueta": "Guardar",
+      "rect": [
+        224,
+        285,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        42,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cancelar",
+      "etiqueta": "Cancelar",
+      "rect": [
+        328,
+        285,
+        96,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        46,
+        15
+      ]
+    }
+  ]
+}

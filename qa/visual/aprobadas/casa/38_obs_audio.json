@@ -1,0 +1,1425 @@
+{
+  "muestra": "obs",
+  "clase": "VentanaObs",
+  "variante": "sin_obs",
+  "pagina": "Audio",
+  "png": "38_obs_audio.png",
+  "tamano": [
+    680,
+    600
+  ],
+  "cliente": [
+    664,
+    561
+  ],
+  "tamano_minimo": [
+    620,
+    -1
+  ],
+  "pantalla": [
+    1360,
+    720
+  ],
+  "controles": [
+    {
+      "id": -31994,
+      "padre": null,
+      "clase": "wxDialog",
+      "nombre": "DialogoObs",
+      "etiqueta": "Panel de OBS",
+      "rect": [
+        0,
+        0,
+        680,
+        600
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        70,
+        15
+      ]
+    },
+    {
+      "id": -31993,
+      "padre": null,
+      "clase": "wxPanel",
+      "nombre": "PanelObs",
+      "etiqueta": "PanelObs",
+      "rect": [
+        0,
+        0,
+        664,
+        561
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        50,
+        15
+      ]
+    },
+    {
+      "id": -31992,
+      "padre": -31993,
+      "clase": "wxNotebook",
+      "nombre": "PestanasObs",
+      "etiqueta": "",
+      "rect": [
+        10,
+        10,
+        644,
+        498
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#000000",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31991,
+      "padre": -31992,
+      "clase": "wxPanel",
+      "nombre": "PaginaTransmision",
+      "etiqueta": "PaginaTransmision",
+      "rect": [
+        14,
+        34,
+        636,
+        470
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        101,
+        15
+      ]
+    },
+    {
+      "id": -31990,
+      "padre": -31991,
+      "clase": "wxStaticBox",
+      "nombre": "groupBox",
+      "etiqueta": "Directo",
+      "rect": [
+        24,
+        44,
+        616,
+        57
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#0B6E63",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 700
+      },
+      "texto_px": [
+        42,
+        15
+      ]
+    },
+    {
+      "id": -31989,
+      "padre": -31990,
+      "clase": "wxButton",
+      "nombre": "Transmitir en directo",
+      "etiqueta": "Transmitir en directo",
+      "rect": [
+        35,
+        67,
+        131,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#FFFFFF",
+      "bg": "#0B6E63",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        110,
+        15
+      ]
+    },
+    {
+      "id": -31988,
+      "padre": -31991,
+      "clase": "wxButton",
+      "nombre": "Restream…",
+      "etiqueta": "Restream…",
+      "rect": [
+        24,
+        121,
+        79,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        58,
+        15
+      ]
+    },
+    {
+      "id": -31987,
+      "padre": -31992,
+      "clase": "wxPanel",
+      "nombre": "PaginaEscena",
+      "etiqueta": "PaginaEscena",
+      "rect": [
+        14,
+        34,
+        636,
+        470
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        72,
+        15
+      ]
+    },
+    {
+      "id": -31986,
+      "padre": -31987,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Escenas:",
+      "rect": [
+        22,
+        42,
+        45,
+        16
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        44,
+        15
+      ]
+    },
+    {
+      "id": -31985,
+      "padre": -31987,
+      "clase": "wxListBox",
+      "nombre": "Escenas",
+      "etiqueta": "",
+      "rect": [
+        22,
+        62,
+        620,
+        120
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31984,
+      "padre": -31987,
+      "clase": "wxButton",
+      "nombre": "Cambiar escena",
+      "etiqueta": "Cambiar escena",
+      "rect": [
+        22,
+        190,
+        105,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        84,
+        15
+      ]
+    },
+    {
+      "id": -31983,
+      "padre": -31987,
+      "clase": "wxButton",
+      "nombre": "Agregar escena…",
+      "etiqueta": "Agregar escena…",
+      "rect": [
+        135,
+        190,
+        111,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        90,
+        15
+      ]
+    },
+    {
+      "id": -31982,
+      "padre": -31987,
+      "clase": "wxPanel",
+      "nombre": "PaginaFuentes",
+      "etiqueta": "PaginaFuentes",
+      "rect": [
+        14,
+        213,
+        636,
+        179
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        77,
+        15
+      ]
+    },
+    {
+      "id": -31981,
+      "padre": -31982,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Fuentes:",
+      "rect": [
+        22,
+        221,
+        45,
+        16
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        44,
+        15
+      ]
+    },
+    {
+      "id": -31980,
+      "padre": -31982,
+      "clase": "wxListBox",
+      "nombre": "Fuentes",
+      "etiqueta": "",
+      "rect": [
+        22,
+        241,
+        620,
+        120
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31979,
+      "padre": -31982,
+      "clase": "wxButton",
+      "nombre": "Aplicar diseño…",
+      "etiqueta": "Aplicar diseño…",
+      "rect": [
+        22,
+        369,
+        105,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        84,
+        15
+      ]
+    },
+    {
+      "id": -31978,
+      "padre": -31982,
+      "clase": "wxButton",
+      "nombre": "Agregar fuente…",
+      "etiqueta": "Agregar fuente…",
+      "rect": [
+        135,
+        369,
+        109,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        88,
+        15
+      ]
+    },
+    {
+      "id": -31977,
+      "padre": -31982,
+      "clase": "wxButton",
+      "nombre": "Deshacer todos los cambios",
+      "etiqueta": "Deshacer todos los cambios",
+      "rect": [
+        252,
+        369,
+        168,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        147,
+        15
+      ]
+    },
+    {
+      "id": -31976,
+      "padre": -31992,
+      "clase": "wxPanel",
+      "nombre": "PaginaAudio",
+      "etiqueta": "PaginaAudio",
+      "rect": [
+        14,
+        34,
+        636,
+        470
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        68,
+        15
+      ]
+    },
+    {
+      "id": -31975,
+      "padre": -31976,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Fuentes de audio:",
+      "rect": [
+        22,
+        42,
+        94,
+        16
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        93,
+        15
+      ]
+    },
+    {
+      "id": -31974,
+      "padre": -31976,
+      "clase": "wxListBox",
+      "nombre": "Fuentes de audio",
+      "etiqueta": "",
+      "rect": [
+        22,
+        62,
+        620,
+        120
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31973,
+      "padre": -31976,
+      "clase": "wxCheckBox",
+      "nombre": "Silenciar",
+      "etiqueta": "Silenciar",
+      "rect": [
+        22,
+        194,
+        66,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        44,
+        15
+      ]
+    },
+    {
+      "id": -31972,
+      "padre": -31976,
+      "clase": "wxButton",
+      "nombre": "Elegir micrófono…",
+      "etiqueta": "Elegir micrófono…",
+      "rect": [
+        96,
+        190,
+        118,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        97,
+        15
+      ]
+    },
+    {
+      "id": -31971,
+      "padre": -31976,
+      "clase": "wxButton",
+      "nombre": "Probar nivel",
+      "etiqueta": "Probar nivel",
+      "rect": [
+        222,
+        190,
+        84,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        63,
+        15
+      ]
+    },
+    {
+      "id": -31970,
+      "padre": -31976,
+      "clase": "wxButton",
+      "nombre": "Filtros…",
+      "etiqueta": "Filtros…",
+      "rect": [
+        314,
+        190,
+        75,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        41,
+        15
+      ]
+    },
+    {
+      "id": -31969,
+      "padre": -31976,
+      "clase": "wxCheckBox",
+      "nombre": "Escuchar",
+      "etiqueta": "Escuchar",
+      "rect": [
+        397,
+        194,
+        69,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        47,
+        15
+      ]
+    },
+    {
+      "id": -31968,
+      "padre": -31992,
+      "clase": "wxPanel",
+      "nombre": "PaginaGrabacion",
+      "etiqueta": "PaginaGrabacion",
+      "rect": [
+        14,
+        34,
+        636,
+        470
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        90,
+        15
+      ]
+    },
+    {
+      "id": -31967,
+      "padre": -31968,
+      "clase": "wxButton",
+      "nombre": "Iniciar grabación",
+      "etiqueta": "Iniciar grabación",
+      "rect": [
+        24,
+        44,
+        109,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        88,
+        15
+      ]
+    },
+    {
+      "id": -31966,
+      "padre": -31968,
+      "clase": "wxButton",
+      "nombre": "Pausar grabación",
+      "etiqueta": "Pausar grabación",
+      "rect": [
+        141,
+        44,
+        112,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        91,
+        15
+      ]
+    },
+    {
+      "id": -31965,
+      "padre": -31968,
+      "clase": "wxCheckBox",
+      "nombre": "Grabar también al transmitir",
+      "etiqueta": "Grabar también al transmitir",
+      "rect": [
+        24,
+        87,
+        170,
+        15
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        148,
+        15
+      ]
+    },
+    {
+      "id": -31964,
+      "padre": -31968,
+      "clase": "wxPanel",
+      "nombre": "PanelGrabaciones",
+      "etiqueta": "PanelGrabaciones",
+      "rect": [
+        20,
+        118,
+        624,
+        380
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        94,
+        15
+      ]
+    },
+    {
+      "id": -31963,
+      "padre": -31964,
+      "clase": "wxListBox",
+      "nombre": "Grabaciones y clips",
+      "etiqueta": "",
+      "rect": [
+        26,
+        124,
+        612,
+        368
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31962,
+      "padre": -31992,
+      "clase": "wxPanel",
+      "nombre": "PaginaPerfilesObs",
+      "etiqueta": "PaginaPerfilesObs",
+      "rect": [
+        14,
+        34,
+        636,
+        470
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        95,
+        15
+      ]
+    },
+    {
+      "id": -31961,
+      "padre": -31962,
+      "clase": "wxListBox",
+      "nombre": "Perfiles de OBS",
+      "etiqueta": "",
+      "rect": [
+        22,
+        42,
+        620,
+        386
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31960,
+      "padre": -31962,
+      "clase": "wxButton",
+      "nombre": "Usar este perfil",
+      "etiqueta": "Usar este perfil",
+      "rect": [
+        20,
+        436,
+        115,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        77,
+        15
+      ]
+    },
+    {
+      "id": -31959,
+      "padre": -31962,
+      "clase": "wxButton",
+      "nombre": "Usar para…",
+      "etiqueta": "Usar para…",
+      "rect": [
+        143,
+        436,
+        115,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        58,
+        15
+      ]
+    },
+    {
+      "id": -31958,
+      "padre": -31962,
+      "clase": "wxButton",
+      "nombre": "Nuevo…",
+      "etiqueta": "Nuevo…",
+      "rect": [
+        266,
+        436,
+        115,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        44,
+        15
+      ]
+    },
+    {
+      "id": -31957,
+      "padre": -31962,
+      "clase": "wxButton",
+      "nombre": "Duplicar…",
+      "etiqueta": "Duplicar…",
+      "rect": [
+        389,
+        436,
+        115,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        53,
+        15
+      ]
+    },
+    {
+      "id": -31956,
+      "padre": -31962,
+      "clase": "wxButton",
+      "nombre": "Eliminar perfil",
+      "etiqueta": "Eliminar perfil",
+      "rect": [
+        512,
+        436,
+        115,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        73,
+        15
+      ]
+    },
+    {
+      "id": -31955,
+      "padre": -31962,
+      "clase": "wxButton",
+      "nombre": "Editar ajustes…",
+      "etiqueta": "Editar ajustes…",
+      "rect": [
+        20,
+        467,
+        115,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        78,
+        15
+      ]
+    },
+    {
+      "id": -31954,
+      "padre": -31962,
+      "clase": "wxButton",
+      "nombre": "Preparar perfiles…",
+      "etiqueta": "Preparar perfiles…",
+      "rect": [
+        143,
+        467,
+        115,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        94,
+        15
+      ]
+    },
+    {
+      "id": -31953,
+      "padre": -31992,
+      "clase": "wxPanel",
+      "nombre": "PaginaGeneral",
+      "etiqueta": "PaginaGeneral",
+      "rect": [
+        14,
+        34,
+        636,
+        470
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F3F6F6",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        76,
+        15
+      ]
+    },
+    {
+      "id": -31952,
+      "padre": -31953,
+      "clase": "wxStaticText",
+      "nombre": "staticText",
+      "etiqueta": "Estado:",
+      "rect": [
+        20,
+        40,
+        39,
+        16
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": false,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        38,
+        15
+      ]
+    },
+    {
+      "id": -31951,
+      "padre": -31953,
+      "clase": "wxTextCtrl",
+      "nombre": "Estado",
+      "etiqueta": "",
+      "rect": [
+        20,
+        62,
+        624,
+        393
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#FFFFFF",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": -31950,
+      "padre": -31953,
+      "clase": "wxButton",
+      "nombre": "Actualizar estado",
+      "etiqueta": "Actualizar estado",
+      "rect": [
+        24,
+        471,
+        111,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        90,
+        15
+      ]
+    },
+    {
+      "id": -31949,
+      "padre": -31953,
+      "clase": "wxButton",
+      "nombre": "Mostrar OBS",
+      "etiqueta": "Mostrar OBS",
+      "rect": [
+        143,
+        471,
+        87,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        66,
+        15
+      ]
+    },
+    {
+      "id": -31948,
+      "padre": -31953,
+      "clase": "wxButton",
+      "nombre": "Cerrar OBS",
+      "etiqueta": "Cerrar OBS",
+      "rect": [
+        238,
+        471,
+        78,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        57,
+        15
+      ]
+    },
+    {
+      "id": -31947,
+      "padre": -31953,
+      "clase": "wxButton",
+      "nombre": "Probar equipo…",
+      "etiqueta": "Probar equipo…",
+      "rect": [
+        324,
+        471,
+        105,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        84,
+        15
+      ]
+    },
+    {
+      "id": -31946,
+      "padre": -31953,
+      "clase": "wxButton",
+      "nombre": "Probar conexión…",
+      "etiqueta": "Probar conexión…",
+      "rect": [
+        437,
+        471,
+        116,
+        23
+      ],
+      "visible": false,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        95,
+        15
+      ]
+    },
+    {
+      "id": 5101,
+      "padre": -31993,
+      "clase": "wxButton",
+      "nombre": "Cerrar",
+      "etiqueta": "Cerrar",
+      "rect": [
+        579,
+        528,
+        75,
+        23
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#E2E8E8",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        32,
+        15
+      ]
+    }
+  ]
+}
