@@ -28,7 +28,8 @@ class TestEtiquetasDeTablas(unittest.TestCase):
     def test_etiquetas_de_los_filtros_salen_marcadas(self):
         from guyrapu.ui import gui_menu
 
-        visibles = [idioma._(nombre) for nombre, _valor in gui_menu.FILTROS]
+        visibles = [idioma._(nombre)
+                    for nombre, _valor, _clave in gui_menu.FILTROS]
         self.assertTrue(all(texto.startswith("[¡") for texto in visibles),
                         visibles)
 

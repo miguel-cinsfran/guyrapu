@@ -11,6 +11,7 @@ opciones visibles de [ui].
 
 from __future__ import annotations
 
+from guyrapu.core import avisos_tiktok
 from guyrapu.core.ini_tipado import leer_entero, leer_texto, leer_booleano
 
 
@@ -77,7 +78,7 @@ def opciones_tiktok(p) -> dict:
 def _filtro_activo(p) -> str:
     """El filtro guardado, con el de fábrica si no es válido."""
     filtro = leer_texto(p, "ui", "filtro_activo").lower()
-    if filtro not in ("todos", "texto", "superchat", "miembro", "avisos"):
+    if filtro not in avisos_tiktok.CLAVES_FILTRO:
         filtro = "todos"
     return filtro
 

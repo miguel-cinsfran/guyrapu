@@ -26,9 +26,9 @@ from guyrapu.ui.gui_menu import FILTROS
 from guyrapu.ui.lista_chat import texto_fila
 from guyrapu.voice import sound_player as _snd
 
-# Mapeo entre índice de FILTROS y clave persistida en config.ini.
-_NOMBRES_FILTRO = ("todos", "texto", "superchat", "miembro", "avisos")
-IDX_FILTRO     = {"todos": 0, "texto": 1, "superchat": 2, "miembro": 3, "avisos": 4}
+# La clave de cada filtro y su índice salen de la tabla del menú.
+_NOMBRES_FILTRO = tuple(clave for _nombre, _valor, clave in FILTROS)
+IDX_FILTRO     = {clave: indice for indice, clave in enumerate(_NOMBRES_FILTRO)}
 
 _URL_RE = re.compile(r'https?://[^\s<>"\']+', re.IGNORECASE)
 
@@ -67,7 +67,7 @@ class AccionesChat:
             n=len(filas_de_chat(self.lb_chat))))
 
     def _indice_filtro(self) -> int:
-        for indice, (_nombre, valor) in enumerate(FILTROS):
+        for indice, (_nombre, valor, _clave) in enumerate(FILTROS):
             if valor == self.chat_vivo.filtro:
                 return indice
         return 0
@@ -351,7 +351,7 @@ class AccionesChat:
     def _marcar_filtro(self):
         idx = IDX_FILTRO.get(_NOMBRES_FILTRO[0] if self.chat_vivo.filtro is None else "", 0)
         # Buscar el índice cuyo valor coincide con el filtro del chat.
-        for i, (_sin_uso, val) in enumerate(FILTROS):
+        for i, (_sin_uso, val, _clave) in enumerate(FILTROS):
             if val == self.chat_vivo.filtro:
                 idx = i
                 break

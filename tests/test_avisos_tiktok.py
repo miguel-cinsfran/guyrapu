@@ -230,6 +230,26 @@ class TestFuncionesDeModo(unittest.TestCase):
             "secundaria_sin_sonido")
 
 
+class TestClavesDeFiltro(unittest.TestCase):
+    """Las claves de los filtros se declaran una sola vez en el núcleo."""
+
+    def test_la_tabla_del_menu_lleva_las_claves_del_nucleo(self):
+        from guyrapu.ui import gui_menu
+
+        self.assertEqual([entrada[2] for entrada in gui_menu.FILTROS],
+                         list(avisos_tiktok.CLAVES_FILTRO))
+
+    def test_config_lectura_acepta_todas_las_claves(self):
+        from guyrapu.core import config_lectura
+
+        for clave in avisos_tiktok.CLAVES_FILTRO:
+            with self.subTest(clave=clave):
+                p = configparser.ConfigParser(interpolation=None)
+                p.read_string(f"[ui]\nfiltro_activo = {clave}\n")
+                self.assertEqual(
+                    config_lectura.opciones_ui(p)["filtro_activo"], clave)
+
+
 class TestPasaFiltro(unittest.TestCase):
     def test_none_deja_pasar_todo(self):
         self.assertTrue(avisos_tiktok.pasa_filtro(None, cfg.TIPO_TEXTO))

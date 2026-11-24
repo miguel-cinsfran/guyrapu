@@ -29,13 +29,14 @@ from guyrapu.ui.atajos_captura import ETIQUETAS
 
 logger = diagnostico.obtener_logger(__name__)
 
+# La clave de cada filtro sale de CLAVES_FILTRO, que también valida config.ini.
 FILTROS = [
-    (N_("Todos"),        None),
-    (N_("Solo texto"),   TIPO_TEXTO),
-    (N_("Super Chats"),  TIPO_SUPERCHAT),
-    (N_("Membresías"),   TIPO_MIEMBRO),
+    (N_("Todos"),        None,                      avisos_tiktok.CLAVES_FILTRO[0]),
+    (N_("Solo texto"),   TIPO_TEXTO,                 avisos_tiktok.CLAVES_FILTRO[1]),
+    (N_("Super Chats"),  TIPO_SUPERCHAT,             avisos_tiktok.CLAVES_FILTRO[2]),
+    (N_("Membresías"),   TIPO_MIEMBRO,               avisos_tiktok.CLAVES_FILTRO[3]),
     # Traductores: filtro del chat que muestra solo los avisos de TikTok.
-    (N_("Avisos"),       avisos_tiktok.TIPOS_AVISO),
+    (N_("Avisos"),       avisos_tiktok.TIPOS_AVISO,  avisos_tiktok.CLAVES_FILTRO[4]),
 ]
 
 
@@ -175,7 +176,7 @@ def _construir_menu_herramientas(frame, mb):
 def _construir_submenu_filtro_chat(frame, menu):
     sub_f = wx.Menu()
     frame._chat_acciones.fi_items = []
-    for i, (nombre, _sin_uso) in enumerate(FILTROS):
+    for i, (nombre, _valor, _clave) in enumerate(FILTROS):
         it = sub_f.AppendRadioItem(wx.ID_ANY, _(nombre))
         frame._chat_acciones.fi_items.append(it)
         frame._bind_menu(it, frame._chat_acciones._aplicar_filtro, i)

@@ -24,6 +24,18 @@ class _Lista:
         return self.seleccion
 
 
+class TestClavesDeFiltro(unittest.TestCase):
+    """Los nombres y los índices salen de la tabla de filtros del menú."""
+
+    def test_nombres_e_indices_se_derivan_de_la_tabla(self):
+        from guyrapu.ui import gui_menu
+
+        claves = [entrada[2] for entrada in gui_menu.FILTROS]
+        self.assertEqual(list(chat_acciones._NOMBRES_FILTRO), claves)
+        self.assertEqual(chat_acciones.IDX_FILTRO,
+                         {clave: indice for indice, clave in enumerate(claves)})
+
+
 class TestLineaDeVacioEnLasAcciones(unittest.TestCase):
 
     def _acciones(self, lista):
