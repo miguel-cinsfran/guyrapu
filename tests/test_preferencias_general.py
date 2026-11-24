@@ -306,5 +306,51 @@ class TestDisenoDeLosBotones(unittest.TestCase):
         self.assertEqual(len({boton.GetSize().width for boton in botones}), 1)
 
 
+class TestRitmoDeLaPagina(unittest.TestCase):
+    """Rótulos a cuatro píxeles de su control y botones sin estirarse.
+
+    Abre ventanas.
+    """
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ruta = Path(self.tmp.name)
+        (self.ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                              encoding="utf-8")
+        parche = redirigir_rutas(self.ruta)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+
+    def _dialogo(self):
+        with mock.patch.object(motores, "listar_voces",
+                               return_value=["Voz de prueba"]):
+            dialogo = armar_preferencias({}, "General")
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def test_el_idioma_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        dialogo = self._dialogo()
+        panel = pagina_por_titulo(dialogo, "General")
+        panel.SetSize((760, 900))
+        panel.Layout()
+        control = dialogo.pagina_general.cho_idioma
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, gui.wx.StaticText)
+                    and h.GetLabel() == "Idi&oma:"][0]
+        self.assertEqual(
+            control.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().height), 4)
+
+    def test_restablecer_preferencias_va_a_su_ancho_natural(self):
+        dialogo = self._dialogo()
+        panel = pagina_por_titulo(dialogo, "General")
+        panel.SetSize((760, 900))
+        panel.Layout()
+        boton = dialogo.pagina_general.btn_restablecer_prefs
+        self.assertEqual(boton.GetSize().width, boton.GetBestSize().width)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -136,12 +136,6 @@ class TestDisenoIA(unittest.TestCase):
         self.assertLess(ventanas.index(modelo),
                         ventanas.index(actualizar))
 
-    def test_el_ancho_minimo_del_cuadro_no_crece(self):
-        # Medido el 24/11/2026 con esta misma página armada, antes de pasar
-        # las filas a las piezas comunes.
-        dialogo = self._dialogo()
-        self.assertLessEqual(dialogo.GetMinSize().width, 661)
-
     def test_el_proveedor_esta_a_cuatro_pixeles_de_su_rotulo(self):
         dialogo = self._dialogo()
         choice = dialogo.pagina_ia.cho_ia_proveedor

@@ -16,7 +16,7 @@ from guyrapu.capture import redaccion
 from guyrapu.core import diagnostico
 from guyrapu.core.config import URL_REPOSITORIO
 from guyrapu.core.idioma import _
-from guyrapu.ui import confirmar
+from guyrapu.ui import confirmar, formulario
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.espera_sonora import EsperaSonora
@@ -66,7 +66,7 @@ class PaginaApi:
             "iniciada también se puede moderar el chat, enviar mensajes y comentar."))
         intro.SetForegroundColour(_T.dim)
         intro.Wrap(ANCHO_NOTA)
-        vs.Add(intro, 0, wx.ALL, 10)
+        formulario.agregar_bloque(vs, intro)
 
         if not youtube_api.google_disponible():
             # Traductores: no traduzcas el comando «pip install ...», solo el resto.
@@ -74,7 +74,7 @@ class PaginaApi:
                 "AVISO: faltan las bibliotecas de la API. Instálalas con:\n"
                 "pip install google-api-python-client google-auth-oauthlib"))
             aviso.SetForegroundColour(_T.red)
-            vs.Add(aviso, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+            formulario.agregar_bloque(vs, aviso)
 
         datos = credenciales.cargar()
         self.txt_api = self._fila_api(p, vs, _("Cla&ve de API:"), _("Clave de API de YouTube"),
@@ -87,10 +87,10 @@ class PaginaApi:
 
         self.lbl_estado_api = wx.StaticText(p, name="EstadoSesion", label="")
         self.lbl_estado_api.SetForegroundColour(_T.accent)
-        vs.Add(self.lbl_estado_api, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_nota(vs, self.lbl_estado_api)
 
         self._botones(p, vs)
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         self._api_refrescar_estado()
         return p
 
@@ -100,11 +100,15 @@ class PaginaApi:
         self.btn_api_login   = wx.Button(p, label=_("&Iniciar sesión"), name="IniciarSesion")
         self.btn_api_logout  = wx.Button(p, label=_("Cerrar s&esión"), name="CerrarSesion")
         self.btn_api_guia    = wx.Button(p, label=_("Abrir g&uía"), name="AbrirGuia")
-        for b in (self.btn_api_guardar, self.btn_api_login, self.btn_api_logout, self.btn_api_guia):
+        botones = (self.btn_api_guardar, self.btn_api_login,
+                   self.btn_api_logout, self.btn_api_guia)
+        for indice, b in enumerate(botones):
             b.SetBackgroundColour(_T.btn)
             b.SetForegroundColour(_T.btn_t)
-            row.Add(b, 0, wx.RIGHT, 6)
-        vs.Add(row, 0, wx.ALL, 10)
+            separacion = (formulario.ENTRE_BOTONES
+                          if indice < len(botones) - 1 else 0)
+            row.Add(b, 0, wx.RIGHT, separacion)
+        formulario.agregar_fila(vs, None, row, expandir=False)
 
         self.btn_api_guardar.Bind(wx.EVT_BUTTON, self._api_guardar)
         self.btn_api_login.Bind(wx.EVT_BUTTON, self._api_login)
@@ -112,11 +116,11 @@ class PaginaApi:
         self.btn_api_guia.Bind(wx.EVT_BUTTON, lambda e: webbrowser.open(URL_GUIA))
 
     def _fila_api(self, p, vs, etiqueta, nombre, valor, password=False):
-        vs.Add(fila_label(p, etiqueta), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, etiqueta)
         estilo = wx.TE_PASSWORD if password else 0
         txt = wx.TextCtrl(p, value=valor or "", style=estilo, name=nombre)
         _tc(txt)
-        vs.Add(txt, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, txt)
         return txt
 
     def _api_refrescar_estado(self):

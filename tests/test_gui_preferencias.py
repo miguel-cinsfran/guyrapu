@@ -360,6 +360,23 @@ class TestPaginaObsClips(unittest.TestCase):
         pagina.guardar(lambda *_args: None, memoria)
         self.assertEqual(memoria["perfil_horizontal"], "")
 
+    def test_los_clips_estan_a_cuatro_pixeles_de_su_rotulo(self):
+        pagina = self._dialogo().pagina_transmision
+        control = pagina.cho_clips
+        panel = control.GetParent()
+        panel.Layout()
+        etiqueta = [h for h in panel.GetChildren()
+                    if isinstance(h, wx.StaticText)
+                    and h.GetLabel() == "C&lips:"][0]
+        self.assertEqual(
+            control.GetPosition().y - (
+                etiqueta.GetPosition().y + etiqueta.GetSize().height), 4)
+
+    def test_activar_websocket_va_a_su_ancho_natural(self):
+        pagina = self._dialogo().pagina_transmision
+        boton = pagina.btn_activar_servidor_websocket_obs
+        boton.GetParent().Layout()
+        self.assertEqual(boton.GetSize().width, boton.GetBestSize().width)
 
 
 class TestPaginaVocesMotor(unittest.TestCase):
@@ -732,6 +749,46 @@ class TestCasillaTeclasMultimedia(unittest.TestCase):
         self.assertIn(("musica", "teclas_multimedia", "false"),
                       dialogo._pendientes)
         self.assertFalse(en_memoria["musica_teclas_multimedia"])
+
+
+class TestAnchoMinimoDelDialogo(unittest.TestCase):
+    """El mínimo del cuadro no pasa del ancho con que abre.
+
+    Abre ventanas.
+    """
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ruta = Path(self.tmp.name)
+        (self.ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                              encoding="utf-8")
+        parche = redirigir_rutas(self.ruta)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        sin_clave = mock.patch.object(
+            preferencias_ia_clave.claves, "leer", return_value="")
+        sin_clave.start()
+        self.addCleanup(sin_clave.stop)
+        catalogo_vacio = mock.patch.object(
+            preferencias_ia.catalogo, "cargar",
+            return_value={"version": catalogo.VERSION, "fecha": None,
+                          "proveedores": {}})
+        catalogo_vacio.start()
+        self.addCleanup(catalogo_vacio.stop)
+
+    def test_el_ancho_minimo_no_pasa_del_ancho_con_que_abre(self):
+        with mock.patch.object(motores, "listar_voces", return_value=[]), \
+                mock.patch.object(reproductor_pcm, "listar_salidas",
+                                  return_value=[]):
+            dialogo = gui_preferencias.PreferenciasDialog(
+                None, {}, perezosa=True)
+        self.addCleanup(destruir, dialogo)
+        ancho_de_fabrica = dialogo.GetSize().width
+        dialogo._libro_perezoso.construir(0)
+        dialogo._ajustar_minimo()
+        self.assertLessEqual(dialogo.GetMinSize().width, ancho_de_fabrica)
 
 
 if __name__ == "__main__":

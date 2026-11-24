@@ -21,7 +21,7 @@ from guyrapu.core import instancia
 from guyrapu.core import paths
 from guyrapu.core import preferencias_archivo
 from guyrapu.core.idioma import _
-from guyrapu.ui import botonera, confirmar
+from guyrapu.ui import botonera, confirmar, formulario
 from guyrapu.ui.accesibilidad import anunciar
 from guyrapu.ui.preferencias_comun import EleccionTexto, crear_panel, fila_label
 from guyrapu.ui.tema import _tc
@@ -71,14 +71,14 @@ class PaginaGeneral:
     def construir(self, parent):
         p = crear_panel(parent, "PagGeneral")
         vs = wx.BoxSizer(wx.VERTICAL)
-        vs.Add(fila_label(p, _("Idi&oma:")), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("Idi&oma:"))
         self.cho_idioma = EleccionTexto(p, idioma.idiomas_disponibles(),
                                         name=_("Idioma"))
-        vs.Add(self.cho_idioma, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_idioma)
         self._avisos_cuadro(p, vs)
         self._casillas(p, vs)
         self._botones(p, vs)
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def _avisos_cuadro(self, p, vs):
@@ -87,7 +87,7 @@ class PaginaGeneral:
                        "mensaje"),
             name=_("Mostrar avisos importantes también en un cuadro de "
                    "mensaje"))
-        vs.Add(self.chk_avisos_cuadro, 0, wx.ALL, 10)
+        formulario.agregar_casillas(vs, (self.chk_avisos_cuadro,))
         # La tabla de opciones simples del diálogo lee el control por este
         # nombre; la página lo deja puesto al construirse.
         self._ventana.chk_avisos_cuadro = self.chk_avisos_cuadro
@@ -96,7 +96,7 @@ class PaginaGeneral:
         self.chk_buscar_actualizaciones = wx.CheckBox(
             p, label=_("Buscar &actualizaciones al iniciar"),
             name=_("Buscar actualizaciones al iniciar"))
-        vs.Add(self.chk_buscar_actualizaciones, 0, wx.ALL, 10)
+        formulario.agregar_casillas(vs, (self.chk_buscar_actualizaciones,))
         self._canal_actualizaciones(p, vs)
 
         self.chk_confirmar_salida = wx.CheckBox(
@@ -104,29 +104,27 @@ class PaginaGeneral:
                        "o una transmisión en curso"),
             name=_("Preguntar antes de salir si hay un chat conectado "
                    "o una transmisión en curso"))
-        vs.Add(self.chk_confirmar_salida, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_confirmar_salida,))
 
         self.chk_sonido_inicio = wx.CheckBox(
             p, label=_("Reproducir sonido de &inicio"),
             name=_("Reproducir sonido de inicio"))
-        vs.Add(self.chk_sonido_inicio, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_sonido_inicio,))
 
         self.chk_registro_detallado = wx.CheckBox(
             p, label=_("Guardar un registro &detallado para diagnosticar errores"),
             name=_("Guardar un registro detallado para diagnosticar errores"))
-        vs.Add(self.chk_registro_detallado, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_registro_detallado,))
 
     def _canal_actualizaciones(self, p, vs):
-        vs.Add(fila_label(p, _("Canal de actuali&zación:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Canal de actuali&zación:"))
         self.cho_canal_actualizaciones = wx.Choice(
             p, choices=[_("Estable"), _("Beta")],
             name=_("Canal de actualización"))
         _tc(self.cho_canal_actualizaciones)
         self.cho_canal_actualizaciones.SetSelection(
             1 if canal_app.canal_guardado() == "beta" else 0)
-        vs.Add(self.cho_canal_actualizaciones, 0,
-               wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_canal_actualizaciones)
 
     def cambios_canal(self):
         """Lo que esta página guarda fuera de la tabla: (sección, clave, valor)."""
@@ -153,7 +151,7 @@ class PaginaGeneral:
         fila = botonera.armar(
             p, botones=(self.btn_abrir_datos, self.btn_exportar_prefs,
                         self.btn_importar_prefs, self.btn_restablecer_prefs))
-        vs.Add(fila, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, None, fila, expandir=False)
         self.btn_abrir_datos.Bind(wx.EVT_BUTTON, self._abrir_datos)
         self.btn_exportar_prefs.Bind(wx.EVT_BUTTON, self._exportar_prefs)
         self.btn_importar_prefs.Bind(wx.EVT_BUTTON, self._importar_prefs)

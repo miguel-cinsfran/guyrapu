@@ -17,6 +17,7 @@ from guyrapu.core.diagnostico import crear_hilo as _crear_hilo
 from guyrapu.core.idioma import N_, _
 from guyrapu.obs import obs_activacion
 from guyrapu.obs import obs_cliente
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
 
@@ -43,23 +44,23 @@ class PaginaTransmision:
         avisar = wx.CheckBox(
             p, label=_("A&visar si OBS se sobrecarga"),
             name="AvisarSobrecargaObs")
-        vs.Add(avisar, 0, wx.ALL, 10)
+        formulario.agregar_casillas(vs, (avisar,))
         titulo = wx.CheckBox(
             p, label=_("Mostrar en el &título de la ventana si se transmite o se graba"),
             name="TituloEstadoObs")
-        vs.Add(titulo, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (titulo,))
         return avisar, titulo
 
     def _agregar_lista_perfil(self, p, vs, rotulo, nombre, clave):
         """Agrega una lista de perfiles de OBS con su valor guardado."""
-        vs.Add(fila_label(p, rotulo), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, rotulo)
         guardado = str(self._config.get(clave, "") or "")
         opciones = [_(PERFIL_ACTUAL)]
         if guardado:
             opciones.append(guardado)
         lista = wx.Choice(p, choices=opciones, name=nombre)
         lista.SetSelection(1 if guardado else 0)
-        vs.Add(lista, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, lista)
         return lista
 
     def _agregar_perfiles(self, p, vs):
@@ -120,7 +121,7 @@ class PaginaTransmision:
 
     def _agregar_clips(self, p, vs):
         """Lista la duración del búfer que OBS prepara al iniciar el directo."""
-        vs.Add(fila_label(p, _("C&lips:")), 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("C&lips:"))
         self.cho_clips = wx.Choice(
             p, choices=[_(texto) for _segundos, texto in OPCIONES_CLIPS],
             name=_("Clips"))
@@ -131,7 +132,7 @@ class PaginaTransmision:
             guardado = 30
         self.cho_clips.SetSelection(
             valores.index(guardado) if guardado in valores else 1)
-        vs.Add(self.cho_clips, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.cho_clips)
 
         self.chk_clips_chat = wx.CheckBox(
             p,
@@ -140,10 +141,9 @@ class PaginaTransmision:
             name=_("Permitir {comando} en el chat").format(
                 comando=COMANDO_CLIP))
         self.chk_clips_chat.SetValue(bool(self._config.get("clips_chat", True)))
-        vs.Add(self.chk_clips_chat, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_casillas(vs, (self.chk_clips_chat,))
 
-        vs.Add(fila_label(p, _("Espe&ra entre clips del chat (minutos):")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Espe&ra entre clips del chat (minutos):"))
         self.sp_clips_chat_espera = ContadorAccesible(
             p, min=1, max=60,
             name=_("Espera entre clips del chat"))
@@ -152,15 +152,16 @@ class PaginaTransmision:
         except (TypeError, ValueError):
             minutos = 1
         self.sp_clips_chat_espera.SetValue(min(60, max(1, minutos)))
-        vs.Add(self.sp_clips_chat_espera, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_clips_chat_espera,
+                                numerico=True)
 
     def _agregar_puerto(self, p, vs):
-        vs.Add(fila_label(p, _("&Puerto del chat en el vídeo:")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("&Puerto del chat en el vídeo:"))
         self.sp_puerto_overlay = ContadorAccesible(
             p, min=1024, max=65535,
             name=_("Puerto del chat en el vídeo"))
-        vs.Add(self.sp_puerto_overlay, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_puerto_overlay,
+                                numerico=True)
 
     def construir(self, parent):
         p = crear_panel(parent, "PagTransmision")
@@ -177,11 +178,13 @@ class PaginaTransmision:
         self.btn_activar_servidor_websocket_obs = wx.Button(
             p, label=_("&Activar servidor WebSocket de OBS"),
             name=_("Activar servidor WebSocket de OBS"))
-        vs.Add(self.btn_activar_servidor_websocket_obs, 0, wx.ALL, 10)
+        formulario.agregar_fila(vs, None,
+                                self.btn_activar_servidor_websocket_obs,
+                                expandir=False)
         self.btn_activar_servidor_websocket_obs.Bind(
             wx.EVT_BUTTON, self._activar_servidor_websocket_obs)
 
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def _activar_servidor_websocket_obs(self, event):

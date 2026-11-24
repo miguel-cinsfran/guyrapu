@@ -15,6 +15,7 @@ from unittest import mock
 import wx
 
 from guyrapu.core import config
+from guyrapu.ui import formulario
 from guyrapu.voice import motores
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
 from tests.rutas_temporales import redirigir_rutas
@@ -112,9 +113,26 @@ class TestDisenoDeLosCampos(unittest.TestCase):
         self.assertGreater(ancho, 100)
         for campo in (pagina.txt_api, pagina.txt_cid, pagina.txt_secret):
             with self.subTest(campo=campo.GetName()):
-                self.assertEqual(campo.GetPosition().x, 10)
+                self.assertEqual(campo.GetPosition().x, formulario.MARGEN)
                 self.assertEqual(ancho - (campo.GetPosition().x
-                                           + campo.GetSize().width), 10)
+                                           + campo.GetSize().width),
+                                 formulario.MARGEN)
+
+    def test_la_clave_esta_a_cuatro_pixeles_de_su_rotulo(self):
+        dialogo = self._dialogo()
+        panel = pagina_por_titulo(dialogo, "YouTube")
+        campo = dialogo.pagina_api.txt_api
+        self._medir(panel)
+        rotulo = self._rotulo(panel, "Clave de API")
+        self.assertEqual(
+            campo.GetPosition().y - (
+                rotulo.GetPosition().y + rotulo.GetSize().height), 4)
+
+    def test_guardar_claves_va_a_su_ancho_natural(self):
+        dialogo = self._dialogo()
+        self._medir(pagina_por_titulo(dialogo, "YouTube"))
+        boton = dialogo.pagina_api.btn_api_guardar
+        self.assertEqual(boton.GetSize().width, boton.GetBestSize().width)
 
 
 if __name__ == "__main__":

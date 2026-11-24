@@ -117,12 +117,6 @@ class TestSalidaDeVoz(unittest.TestCase):
         self.assertEqual(dialogo._config["volumen"], 0.7)
         self.assertEqual(dialogo._config["tono"], 35)
 
-    def test_el_ancho_minimo_del_cuadro_no_crece(self):
-        # Medido el 24/11/2026 con esta misma página armada, antes de pasar
-        # las filas a las piezas comunes.
-        dialogo = self._dialogo({}, ["Altavoces"])
-        self.assertLessEqual(dialogo.GetMinSize().width, 661)
-
     def test_el_motor_esta_a_cuatro_pixeles_de_su_rotulo(self):
         dialogo = self._dialogo({}, ["Altavoces"])
         panel = dialogo.pagina_voz.cho_motor.GetParent()
