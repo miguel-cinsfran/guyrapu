@@ -65,12 +65,14 @@ class Progreso:
         self._anunciada = True
         return True
 
-    def sumar(self, evento) -> bool:
+    def sumar(self, evento, total_me_gusta=None) -> bool:
         """Suma el evento si cuenta para la meta; dice si hizo avanzar."""
         cantidad = self._cantidad(evento)
         if cantidad <= 0:
             return False
         self._valor += cantidad
+        if self.meta.que_cuenta == "me_gusta" and total_me_gusta is not None:
+            self._valor = max(self._valor, total_me_gusta)
         return True
 
     def _cantidad(self, evento) -> float:

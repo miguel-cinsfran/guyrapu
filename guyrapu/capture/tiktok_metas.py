@@ -9,6 +9,7 @@ meta se considera cumplida por el avance de sus submetas.
 
 from __future__ import annotations
 
+from guyrapu.capture import contador_me_gusta
 from guyrapu.capture import metas
 from guyrapu.core.tipos_mensaje import TIPO_META
 
@@ -51,5 +52,6 @@ def procesar(evento, on_evento) -> None:
 
 
 def reiniciar() -> None:
-    """Olvida las metas de la conexión anterior."""
+    """Olvida las metas y el total de me gusta de la conexión anterior."""
     metas.registro.reiniciar()
+    contador_me_gusta.reiniciar()

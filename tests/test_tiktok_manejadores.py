@@ -9,6 +9,7 @@ from unittest import mock
 
 from guyrapu.capture import encuestas
 from guyrapu.capture import batallas
+from guyrapu.capture import contador_me_gusta
 from guyrapu.capture import metas
 from guyrapu.capture import tiktok_manejadores
 from guyrapu.capture.tiktok_manejadores import registrar_manejadores
@@ -280,6 +281,28 @@ class TestMeGustaAgrupado(unittest.TestCase):
         cliente, mod, _recibidos, vistos, _est = _registrar(_TODAS_NUEVAS)
         _vaciar_con_conteo(cliente, mod, 1010.0)
         self.assertEqual(vistos, [(3, 50)])
+
+
+class TestTotalDeMeGustaEnElCableado(unittest.TestCase):
+    def setUp(self):
+        contador_me_gusta.reiniciar()
+
+    @staticmethod
+    def _evento_real(total):
+        from TikTokLive.events import LikeEvent
+        return LikeEvent(count=15, total=total)
+
+    def test_un_evento_real_de_like_anota_su_total(self):
+        cliente, mod, _recibidos, _vistos, _est = _registrar(_TODAS_NUEVAS)
+        asyncio.run(cliente.manejadores[mod.LikeEvent](self._evento_real(1001)))
+        self.assertEqual(contador_me_gusta.total(), 1001)
+
+    def test_registrar_otra_vez_olvida_el_total_anterior(self):
+        cliente, mod, _recibidos, _vistos, _est = _registrar(_TODAS_NUEVAS)
+        asyncio.run(cliente.manejadores[mod.LikeEvent](self._evento_real(1001)))
+        self.assertEqual(contador_me_gusta.total(), 1001)
+        _registrar(_TODAS_NUEVAS)
+        self.assertIsNone(contador_me_gusta.total())
 
 
 class TestEntradasAgrupadas(unittest.TestCase):

@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from unittest import mock
 
+from guyrapu.capture import contador_me_gusta
 from guyrapu.core import paths
 from guyrapu.core.config import TIPO_ME_GUSTA, TIPO_TEXTO
 from guyrapu.interaction import (
@@ -131,6 +132,67 @@ class TestAvance(Base):
         self._guardar(_meta(objetivo=1))
         self._atender(_registro(tipo=TIPO_TEXTO, texto="hola", monto=""))
         self.assertEqual(self._progreso().valor, 0)
+
+
+class TestMetaConTotalDeTikTok(Base):
+    """El total del directo manda sobre la suma local de los me gusta."""
+
+    def setUp(self):
+        super().setUp()
+        contador_me_gusta.reiniciar()
+        self.addCleanup(contador_me_gusta.reiniciar)
+        self.frame._avisar = mock.Mock()
+        parche = mock.patch.object(metas_en_vivo, "anunciar_con_sonido",
+                                   self.frame._avisar)
+        parche.start()
+        self.addCleanup(parche.stop)
+
+    def _avisos(self):
+        return [llamada.args for llamada in self.frame._avisar.call_args_list]
+
+    def test_p1_con_950_sumados_y_total_1001_cumple_una_sola_vez(self):
+        self._guardar(_meta(objetivo=1000))
+        self._atender(_registro(monto="950"))
+        contador_me_gusta.anotar(1001)
+        self._atender(_registro(monto="1"))
+        self.assertEqual(self._progreso().valor, 1001)
+        self._atender(_registro(monto="1"))
+        self.assertEqual(self._avisos(), [
+            ("Meta Risa: cerca del objetivo, 950 de 1000.", "meta_avance"),
+            ("Meta cumplida: Risa.", "meta_cumplida")])
+
+    def test_p2_sin_total_sigue_sumando_como_hoy(self):
+        self._guardar(_meta(objetivo=10))
+        self._atender(_registro(monto="3"))
+        self._atender(_registro(monto="4"))
+        self.assertEqual(self._progreso().valor, 7)
+
+    def test_p2_en_ensayo_un_total_viejo_no_cuenta(self):
+        self.frame._conectado = False
+        self.frame._ensayo = True
+        self._guardar(_meta(objetivo=1000))
+        contador_me_gusta.anotar(900)
+        self._atender(_registro(monto="3"))
+        self._atender(_registro(monto="4"))
+        self.assertEqual(self._progreso().valor, 7)
+
+    def test_p4_reiniciar_la_sesion_olvida_el_total_viejo(self):
+        contador_me_gusta.anotar(900)
+        gui_sesion.reiniciar_datos_sesion(self.frame)
+        self.assertIsNone(contador_me_gusta.total())
+
+    def test_p3_el_total_cruza_umbrales_y_cumple_una_sola_vez(self):
+        self._guardar(_meta(objetivo=200))
+        contador_me_gusta.anotar(120)
+        self._atender(_registro(monto="1"))
+        contador_me_gusta.anotar(190)
+        self._atender(_registro(monto="1"))
+        contador_me_gusta.anotar(500)
+        self._atender(_registro(monto="1"))
+        self.assertEqual(self._avisos(), [
+            ("Meta Risa: a la mitad, 120 de 200.", "meta_avance"),
+            ("Meta Risa: cerca del objetivo, 190 de 200.", "meta_avance"),
+            ("Meta cumplida: Risa.", "meta_cumplida")])
 
 
 class TestMetaCumplida(Base):

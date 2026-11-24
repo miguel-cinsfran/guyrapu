@@ -16,6 +16,7 @@ import time
 
 import wx
 
+from guyrapu.capture import contador_me_gusta
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
@@ -47,7 +48,8 @@ def atender(frame, registro) -> None:
 
 
 def reiniciar(frame) -> None:
-    """Vuelve a cero el avance de las metas de esa ventana."""
+    """Vuelve a cero el avance de las metas y el total de esa ventana."""
+    contador_me_gusta.reiniciar()
     en_vivo = getattr(frame, "_metas_en_vivo", None)
     if en_vivo is not None:
         en_vivo.reiniciar()
@@ -81,12 +83,14 @@ class MetasEnVivo:
             return
         self._recargar()
         evento = _evento(registro)
+        total_me_gusta = (None if ensayo.en_ensayo(self._frame)
+                          else contador_me_gusta.total())
         informe = ensayo.informe(self._frame)
         for progreso in self._progresos.values():
             if not progreso.meta.activa:
                 continue
             anterior = progreso.valor
-            if not progreso.sumar(evento):
+            if not progreso.sumar(evento, total_me_gusta):
                 continue
             if informe is not None:
                 informe.meta(progreso.meta.nombre, progreso.valor,

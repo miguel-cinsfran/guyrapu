@@ -17,6 +17,7 @@ from guyrapu.capture.agrupar_entradas import (
 )
 from guyrapu.capture.agrupar_me_gusta import AgrupadorMeGusta
 from guyrapu.capture.filtro_autores import entra_en_grupo
+from guyrapu.capture import contador_me_gusta
 from guyrapu.capture import tiktok_encuestas
 from guyrapu.capture import tiktok_metas
 from guyrapu.capture import tiktok_batallas
@@ -178,6 +179,7 @@ def _al_me_gusta(on_evento, descartar, agrupador):
     async def _on_like(evento):
         if descartar(evento):
             return
+        contador_me_gusta.anotar(getattr(evento, "total", None))
         autor, canal_id = autor_de_evento(evento)
         ahora = time.monotonic()
         agrupador.sumar(autor, canal_id, getattr(evento, "count", None),
@@ -208,8 +210,6 @@ def _al_pregunta(on_evento, descartar):
         if descartar(evento):
             return
         datos = getattr(evento, "data", None)
-        if datos is None:
-            return
         contenido = (getattr(datos, "content", "") or "").strip()
         if not contenido:
             return
