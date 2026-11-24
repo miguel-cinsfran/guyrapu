@@ -11,6 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import _
+from guyrapu.ui import formulario
 from guyrapu.ui.preferencias_comun import crear_panel
 
 
@@ -34,24 +35,24 @@ class PaginaReproductor:
 
         self.chk_autoplay = wx.CheckBox(p, label=_("&Reproducir audio automáticamente al conectar"),
                                          name="AutoplayReproductor")
-        vs.Add(self.chk_autoplay, 0, wx.ALL, 10)
+        formulario.agregar_fila(vs, None, self.chk_autoplay, expandir=False)
 
         self.chk_solo_audio = wx.CheckBox(
             p, label=_("Reproducir &solo el audio, sin imagen"),
             name="SoloAudioReproductor")
-        vs.Add(self.chk_solo_audio, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, None, self.chk_solo_audio, expandir=False)
 
         self.chk_botones_rep = wx.CheckBox(p, label=_("Mostrar &botones del reproductor"),
                                             name="MostrarBotonesReproductor")
-        vs.Add(self.chk_botones_rep, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, None, self.chk_botones_rep, expandir=False)
 
         etiqueta_cache = wx.StaticText(
             p, label=_("&Tamaño máximo de la caché de vídeo, en megabytes:"))
         self.sp_cache_video = wx.SpinCtrl(
             p, min=0, max=20000,
             name=_("Tamaño máximo de la caché de vídeo en megabytes"))
-        vs.Add(etiqueta_cache, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        vs.Add(self.sp_cache_video, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, etiqueta_cache, self.sp_cache_video,
+                                numerico=True)
 
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p

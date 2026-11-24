@@ -11,6 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import _
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
 
@@ -40,22 +41,20 @@ class PaginaCola:
             style=wx.RA_SPECIFY_COLS, name=_("Estrategia de la cola"))
         self.rb_estrategia.SetSelection(
             0 if self._config.get("estrategia", "limite") == "todas" else 1)
-        vs.Add(self.rb_estrategia, 0, wx.ALL, 10)
+        formulario.agregar_fila(vs, None, self.rb_estrategia, expandir=False)
 
-        vs.Add(fila_label(p, _("Tamaño &máximo de la cola:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Tamaño &máximo de la cola:"))
         self.sp_cola_maxima = ContadorAccesible(
             p, min=1, max=500,
             name=_("Tamaño máximo de la cola"))
-        vs.Add(self.sp_cola_maxima, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_cola_maxima, numerico=True)
 
-        vs.Add(fila_label(p, _("Leer solo el &nombre desde esta cantidad de mensajes en cola:")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("Leer solo el &nombre desde esta cantidad de mensajes en cola:"))
         self.sp_umbral_nombre = ContadorAccesible(p, min=0, max=500,
             name=_("Leer solo el nombre desde esta cantidad de mensajes en cola"))
-        vs.Add(self.sp_umbral_nombre, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
-        vs.Add(wx.StaticText(p, label=_("Con 0, esta opción queda desactivada.")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_umbral_nombre, numerico=True)
+        nota = wx.StaticText(p, label=_("Con 0, esta opción queda desactivada."))
+        formulario.agregar_nota(vs, nota)
 
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p

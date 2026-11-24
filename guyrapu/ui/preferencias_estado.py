@@ -12,6 +12,7 @@ import wx
 
 from guyrapu.capture import estado_sesion
 from guyrapu.core.idioma import _
+from guyrapu.ui import formulario
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, crear_panel
 from guyrapu.ui.tema import _T
 
@@ -33,7 +34,7 @@ class PaginaEstado:
             "dice es fijo."))
         nota.SetForegroundColour(_T.dim)
         nota.Wrap(ANCHO_NOTA)
-        vs.Add(nota, 0, wx.ALL, 10)
+        formulario.agregar_fila(vs, None, nota, expandir=False)
 
         activos = self._config.get("estado_toggles") or estado_sesion.ACTIVOS_DEFECTO
         self._chk_estado: dict = {}
@@ -42,9 +43,9 @@ class PaginaEstado:
                               name=f"EstadoComponente_{comp}")
             chk.SetValue(comp in activos)
             self._chk_estado[comp] = chk
-            vs.Add(chk, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+            formulario.agregar_fila(vs, None, chk, expandir=False)
 
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p
 
     def guardar(self, fijar, en_memoria):

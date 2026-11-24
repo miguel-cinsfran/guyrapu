@@ -11,6 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import _
+from guyrapu.ui import formulario
 from guyrapu.ui.accesibilidad import ContadorAccesible
 from guyrapu.ui.preferencias_comun import crear_panel, fila_label
 
@@ -31,19 +32,18 @@ class PaginaInterfaz:
         p = crear_panel(parent, "PagInterfaz")
         vs = wx.BoxSizer(wx.VERTICAL)
 
-        vs.Add(fila_label(p, _("Tamaño de &letra del chat (8 a 24):")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("Tamaño de &letra del chat (8 a 24):"))
         self.sp_fuente = ContadorAccesible(p, min=8, max=24, name=_("Tamaño de letra del chat"))
-        vs.Add(self.sp_fuente, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.sp_fuente, numerico=True)
 
         self.chk_total_sc = wx.CheckBox(
             p, label=_("Mostrar total de &Super Chats en la barra de estado"),
             name="MostrarTotalSuperChats")
-        vs.Add(self.chk_total_sc, 0, wx.ALL, 10)
+        formulario.agregar_fila(vs, None, self.chk_total_sc, expandir=False)
 
         self.chk_metadatos = wx.CheckBox(p, label=_("Mostrar pestaña de &información del vídeo"),
                                           name="MostrarMetadatos")
-        vs.Add(self.chk_metadatos, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, None, self.chk_metadatos, expandir=False)
 
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p

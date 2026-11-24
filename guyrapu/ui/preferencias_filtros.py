@@ -11,6 +11,7 @@ from __future__ import annotations
 import wx
 
 from guyrapu.core.idioma import _
+from guyrapu.ui import formulario
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, crear_panel, fila_label
 from guyrapu.ui.tema import _T
 
@@ -25,19 +26,17 @@ class PaginaFiltros:
         p = crear_panel(parent, "PagFiltros")
         vs = wx.BoxSizer(wx.VERTICAL)
 
-        vs.Add(fila_label(p, _("&Palabras silenciadas (separadas por comas):")),
-               0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+        rotulo = fila_label(p, _("&Palabras silenciadas (separadas por comas):"))
         self.txt_palabras = wx.TextCtrl(
             p, value=", ".join(self._config.get("palabras_silenciadas", [])),
             name=_("Palabras silenciadas"))
-        vs.Add(self.txt_palabras, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.txt_palabras)
 
-        vs.Add(fila_label(p, _("&Usuarios silenciados (separados por comas):")),
-               0, wx.LEFT | wx.RIGHT, 10)
+        rotulo = fila_label(p, _("&Usuarios silenciados (separados por comas):"))
         self.txt_usuarios = wx.TextCtrl(
             p, value=", ".join(self._config.get("usuarios_silenciados", [])),
             name=_("Usuarios silenciados"))
-        vs.Add(self.txt_usuarios, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        formulario.agregar_fila(vs, rotulo, self.txt_usuarios)
 
         nota = wx.StaticText(p, label=_(
             "Estos filtros ocultan y no leen los mensajes que contengan esas "
@@ -45,7 +44,7 @@ class PaginaFiltros:
             name="NotaFiltros")
         nota.SetForegroundColour(_T.dim)
         nota.Wrap(ANCHO_NOTA)
-        vs.Add(nota, 0, wx.ALL, 10)
+        formulario.agregar_nota(vs, nota)
 
-        p.SetSizer(vs)
+        formulario.armar_pagina(p, vs)
         return p

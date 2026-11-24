@@ -20,6 +20,7 @@ from guyrapu.ai import catalogo
 from guyrapu.core import config
 from guyrapu.core import idioma
 from guyrapu.translation import idiomas as idiomas_traduccion
+from guyrapu.ui import formulario
 from guyrapu.ui import gui_preferencias
 from guyrapu.ui import preferencias_cola
 from guyrapu.ui import preferencias_conexion
@@ -41,7 +42,8 @@ from tests.test_preferencias_musica import (
     PENDIENTES_OTROS_MODULOS as PENDIENTES_MUSICA)
 from tests.test_preferencias_voz import (
     PENDIENTES_OTROS_MODULOS as PENDIENTES_VOZ)
-from tests.ventanas_prueba import app_de_prueba, armar_preferencias, destruir
+from tests.ventanas_prueba import (app_de_prueba, armar_preferencias, destruir,
+                                   pagina_por_titulo)
 
 
 # Textos que arma otro módulo y aparecen en el recorrido del diálogo
@@ -796,6 +798,103 @@ class TestAnchoMinimoDelDialogo(unittest.TestCase):
         dialogo._libro_perezoso.construir(0)
         dialogo._ajustar_minimo()
         self.assertLessEqual(dialogo.GetMinSize().width, ancho_de_fabrica)
+
+
+class TestRitmoDeLasSeisPaginas(unittest.TestCase):
+    """El margen y los huecos comunes se cumplen y nadie se achica.
+
+    Abre ventanas.
+    """
+
+    PAGINAS = (
+        ("Interfaz", "sp_fuente", "Tamaño de &letra del chat (8 a 24):"),
+        ("Cola de lectura", "sp_cola_maxima", "Tamaño &máximo de la cola:"),
+        ("Conexión", "sp_espera_reconexion",
+         "&Espera máxima entre intentos, en segundos:"),
+        ("Reproductor", "sp_cache_video",
+         "&Tamaño máximo de la caché de vídeo, en megabytes:"),
+        ("Filtros", "txt_palabras",
+         "&Palabras silenciadas (separadas por comas):"),
+    )
+    TITULOS = tuple(pagina[0] for pagina in PAGINAS) + ("Estado (F2)",)
+
+    def setUp(self):
+        self.app = app_de_prueba()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.ruta = Path(self.tmp.name)
+        (self.ruta / "config.ini").write_text(config._CONFIG_FALLBACK,
+                                              encoding="utf-8")
+        parche = redirigir_rutas(self.ruta)
+        parche.__enter__()
+        self.addCleanup(parche.__exit__, None, None, None)
+        sin_clave = mock.patch.object(
+            preferencias_ia_clave.claves, "leer", return_value="")
+        sin_clave.start()
+        self.addCleanup(sin_clave.stop)
+        catalogo_vacio = mock.patch.object(
+            preferencias_ia.catalogo, "cargar",
+            return_value={"version": catalogo.VERSION, "fecha": None,
+                          "proveedores": {}})
+        catalogo_vacio.start()
+        self.addCleanup(catalogo_vacio.stop)
+
+    def _dialogo(self, *titulos):
+        with mock.patch.object(motores, "listar_voces", return_value=[]), \
+                mock.patch.object(reproductor_pcm, "listar_salidas",
+                                  return_value=[]):
+            dialogo = armar_preferencias({}, *titulos)
+        self.addCleanup(destruir, dialogo)
+        return dialogo
+
+    def test_el_rotulo_y_su_control_estan_a_cuatro_pixeles(self):
+        for titulo, atributo, texto in self.PAGINAS:
+            with self.subTest(pagina=titulo):
+                dialogo = self._dialogo(titulo)
+                pagina = pagina_por_titulo(dialogo, titulo)
+                control = getattr(dialogo, atributo)
+                pagina.Layout()
+                etiqueta = [h for h in pagina.GetChildren()
+                            if isinstance(h, wx.StaticText)
+                            and h.GetLabel() == texto][0]
+                self.assertEqual(
+                    control.GetPosition().y - (
+                        etiqueta.GetPosition().y + etiqueta.GetSize().height), 4)
+
+    def test_las_casillas_de_estado_separan_doce_pixeles_de_la_nota(self):
+        titulo = "Estado (F2)"
+        dialogo = self._dialogo(titulo)
+        pagina = pagina_por_titulo(dialogo, titulo)
+        pagina.Layout()
+        nota = [h for h in pagina.GetChildren()
+                if isinstance(h, wx.StaticText) and h.GetName() == "NotaEstado"][0]
+        casilla = [h for h in pagina.GetChildren()
+                   if isinstance(h, wx.CheckBox)][0]
+        self.assertEqual(casilla.GetPosition().y - (
+            nota.GetPosition().y + nota.GetSize().height), 12)
+
+    def test_el_primer_control_esta_al_margen_de_su_panel(self):
+        dialogo = self._dialogo(*self.TITULOS)
+        for titulo in self.TITULOS:
+            with self.subTest(pagina=titulo):
+                pagina = pagina_por_titulo(dialogo, titulo)
+                pagina.Layout()
+                primero = pagina.GetChildren()[0]
+                posicion = primero.GetPosition()
+                self.assertEqual((posicion.x, posicion.y),
+                                 (formulario.MARGEN, formulario.MARGEN), titulo)
+
+    def test_ningun_control_baja_de_su_ancho_natural(self):
+        dialogo = self._dialogo(*self.TITULOS)
+        for titulo in self.TITULOS:
+            pagina = pagina_por_titulo(dialogo, titulo)
+            pagina.Layout()
+            for control in pagina.GetChildren():
+                if not isinstance(control, wx.Control):
+                    continue
+                with self.subTest(pagina=titulo, control=control.GetName()):
+                    self.assertGreaterEqual(control.GetSize().width,
+                                            control.GetBestSize().width)
 
 
 class TestCuadroSinPaginasPropias(unittest.TestCase):

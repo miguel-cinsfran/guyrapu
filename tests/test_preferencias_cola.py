@@ -46,21 +46,25 @@ class TestUmbralEnSizer(unittest.TestCase):
     def _pagina_cola(self, dialogo):
         return pagina_por_titulo(dialogo, "Cola de lectura")
 
+    def _contenido(self, pagina):
+        return pagina.GetSizer().GetChildren()[0].GetSizer()
+
     def test_contador_esta_en_el_sizer_de_la_pagina(self):
         dialogo = self._dialogo()
         pagina = self._pagina_cola(dialogo)
         self.assertIs(dialogo.sp_umbral_nombre.GetContainingSizer(),
-                      pagina.GetSizer())
+                      self._contenido(pagina))
 
     def test_contador_con_los_mismos_margenes_que_tamanio_maximo(self):
         dialogo = self._dialogo()
         pagina = self._pagina_cola(dialogo)
-        items = {it.GetWindow(): it for it in pagina.GetSizer().GetChildren()}
+        items = {it.GetWindow(): it
+                 for it in self._contenido(pagina).GetChildren()}
         for control in (dialogo.sp_cola_maxima, dialogo.sp_umbral_nombre):
             with self.subTest(control=control.GetName()):
                 item = items[control]
-                self.assertEqual(item.GetBorder(), 10)
-                self.assertTrue(item.GetFlag() & gui.wx.BOTTOM)
+                self.assertEqual(item.GetBorder(), 4)
+                self.assertTrue(item.GetFlag() & gui.wx.TOP)
 
 
 if __name__ == "__main__":
