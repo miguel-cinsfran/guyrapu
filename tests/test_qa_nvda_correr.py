@@ -620,6 +620,12 @@ class AplicacionFalsa:
 
 class TestApp(unittest.TestCase):
 
+    def setUp(self):
+        parche = mock.patch("guyrapu.voice.motores.listar_voces",
+                            return_value=["Voz de prueba"])
+        parche.start()
+        self.addCleanup(parche.stop)
+
     def _correr(self, aprobar=False, ventana=None, previo=None):
         base = tempfile.TemporaryDirectory()
         self.addCleanup(base.cleanup)
