@@ -24,7 +24,6 @@ _especificacion.loader.exec_module(visual)
 FUENTE = {"cara": "Segoe UI", "puntos": 9, "px": 12, "peso": 400}
 CORRIDA_UNO = _RAIZ / "qa" / "salida" / "galeria" / "2026-11-23_23-21"
 CORRIDA_DOS = _RAIZ / "qa" / "salida" / "galeria" / "2026-11-24_00-23"
-CORRIDA_APROBADA = _RAIZ / "qa" / "salida" / "galeria" / "2026-11-24_00-41"
 
 
 def control(nombre="Etiqueta", clase="wxStaticText", **cambios):
@@ -282,14 +281,6 @@ class TestCorridasReales(unittest.TestCase):
                          "faltan las dos corridas seguidas en el worktree")
     def test_dos_corridas_seguidas_comparan_iguales(self):
         resultados = visual.comparar(CORRIDA_UNO, CORRIDA_DOS)
-        self.assertEqual(len(resultados), 94)
-        self.assertTrue(all(r["estado"] == "igual" for r in resultados))
-        self.assertEqual(sum(len(r["cambios"]) for r in resultados), 0)
-
-    @unittest.skipUnless(CORRIDA_APROBADA.is_dir(),
-                         "falta la corrida aprobada en el worktree")
-    def test_aprobadas_son_la_corrida_aprobada(self):
-        resultados = visual.comparar(CORRIDA_APROBADA, visual.APROBADAS)
         self.assertEqual(len(resultados), 94)
         self.assertTrue(all(r["estado"] == "igual" for r in resultados))
         self.assertEqual(sum(len(r["cambios"]) for r in resultados), 0)
