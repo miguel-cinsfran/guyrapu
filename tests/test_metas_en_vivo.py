@@ -266,7 +266,8 @@ class TestTarjeta(Base):
         self.assertEqual(pieza.datos["nombre"], "Risa")
         self.assertEqual(pieza.datos["medio"], {
             "ruta": str(paths.carpeta_medios() / "fuegos.mp4"),
-            "tipo": "video", "duracion": 12, "ganancia_db": -6.0})
+            "tipo": "video", "duracion": 12, "ganancia_db": -6.0,
+            "volumen": 100})
 
     def test_p3_sin_festejo_la_pieza_dura_diez_segundos_y_no_lleva_medio(self):
         self._guardar(_meta(objetivo=1))

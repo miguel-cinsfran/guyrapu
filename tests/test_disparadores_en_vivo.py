@@ -210,7 +210,8 @@ class TestPiezaConMedio(Base):
         self.assertEqual((pieza.tipo, pieza.texto), ("disparador", ""))
         self.assertEqual(pieza.datos["medio"], {
             "ruta": str(paths.carpeta_medios() / "fuegos.mp4"),
-            "tipo": "video", "duracion": 12, "ganancia_db": None})
+            "tipo": "video", "duracion": 12, "ganancia_db": None,
+            "volumen": 100})
 
     def test_p1_el_medio_lleva_su_ganancia_guardada(self):
         self._guardar_medios(_medio(ganancia_db=-6.0))

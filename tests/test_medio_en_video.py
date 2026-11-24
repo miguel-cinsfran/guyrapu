@@ -33,6 +33,7 @@ class TestMedioEnVideo(unittest.TestCase):
         self.assertEqual(medio_en_video.resolver("fuegos"), {
             "ruta": str(paths.carpeta_medios() / "fuegos.mp4"),
             "tipo": "video", "duracion": 12, "ganancia_db": -6.0,
+            "volumen": 100,
         })
 
     def test_resolver_sin_nombre_o_con_un_medio_que_ya_no_esta_da_none(self):
