@@ -148,10 +148,13 @@ def main(argv=None, aprobadas=None):
     parser.add_argument("accion", choices=("comparar", "aprobar"),
                         help="comparar una corrida o aprobar sus vistas")
     parser.add_argument("carpeta", help="carpeta con los JSON de la galería")
+    parser.add_argument("--maquina", choices=("casa", "oficina"), required=True,
+                        help="máquina que aprobó las vistas")
     parser.add_argument("--vista", action="append", default=[],
                         metavar="NOMBRE", help="aprobar solo esta vista")
     argumentos = parser.parse_args(argv)
-    destino = Path(aprobadas) if aprobadas else APROBADAS
+    raiz = Path(aprobadas) if aprobadas else APROBADAS
+    destino = raiz / argumentos.maquina
     corrida = Path(argumentos.carpeta)
     if argumentos.accion == "aprobar":
         try:
@@ -162,6 +165,9 @@ def main(argv=None, aprobadas=None):
         for nombre in copiadas:
             print("aprobada " + nombre)
         return 0
+    if not _nombres(destino):
+        print(f"No hay aprobadas de {argumentos.maquina} para comparar.")
+        return 3
     resultados = comparar(corrida, destino)
     lineas = formatear(resultados)
     if lineas:

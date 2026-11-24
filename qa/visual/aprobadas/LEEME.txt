@@ -1,1 +1,1 @@
-Aquí se guardan las vistas aprobadas de la galería; se copian con `python qa/visual_aprobadas.py aprobar CARPETA`.
+Hay una carpeta por PC porque la geometría de las vistas cambia con el teclado y la resolución de cada una.
