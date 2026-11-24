@@ -37,8 +37,9 @@ class PaginaVoz:
         self._pag_voz_panel = p
         vs = wx.BoxSizer(wx.VERTICAL)
         from guyrapu.voice import motores
+        from guyrapu.voice import proveedores
 
-        motor_guardado = self._config.get("motor", "sapi")
+        motor_guardado = self._config.get("motor", proveedores.PREDETERMINADO)
         self._motor_idx = (motores.MOTORES.index(motor_guardado)
                            if motor_guardado in motores.MOTORES else 0)
         es_eleven = motores.MOTORES[self._motor_idx] == "elevenlabs"
@@ -165,8 +166,10 @@ class PaginaVoz:
         vs.Add(self.btn_probar_voz, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
     def _mostrar_controles_eleven(self, visible: bool) -> None:
+        from guyrapu.voice import proveedores
+
         self._eleven.mostrar(visible)
-        self._eleven.mostrar_respaldo(self._motor_elegido() != "sapi")
+        self._eleven.mostrar_respaldo(self._motor_elegido() != proveedores.RESPALDO)
         panel = getattr(self, "_pag_voz_panel", None)
         if panel is not None:
             panel.Layout()
@@ -199,9 +202,11 @@ class PaginaVoz:
 
     def _motor_elegido(self) -> str:
         from guyrapu.voice import motores
+        from guyrapu.voice import proveedores
 
         i = self.cho_motor.GetSelection()
-        return motores.MOTORES[i] if 0 <= i < len(motores.MOTORES) else "sapi"
+        return (motores.MOTORES[i] if 0 <= i < len(motores.MOTORES)
+                else proveedores.PREDETERMINADO)
 
     def _on_motor_cambiado(self, event) -> None:
         # Repuebla las voces del motor nuevo sin anunciar: el lector ya lee el

@@ -52,7 +52,7 @@ def _aplicar_voz(frame, voces_actuales):
     # Preferencias puede haber cambiado el motor o la voz: aplicarlo en
     # caliente. Con el motor nuevo hay que repoblar la lista de voces.
     try:
-        motor_cfg = frame._config.get("motor") or "sapi"
+        motor_cfg = frame._config.get("motor") or proveedores.PREDETERMINADO
         motor_actual = frame._worker.motor_activo() or ""
         cambia_salida = (proveedores.es_local(motor_cfg)
                          and (frame._config.get("salida_voz") or "")

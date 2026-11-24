@@ -33,7 +33,7 @@ TIEMPO_MAXIMO = 300
 
 @dataclass
 class AjustesIA:
-    proveedor: str = "gemini"
+    proveedor: str = proveedores.PREDETERMINADO
     modelo: str = ""
     direccion: str = ""
     pregunta: str = ""
@@ -69,7 +69,7 @@ def _proveedor_valido(valor: str) -> str:
     limpio = (valor or "").strip()
     if limpio in _ids_proveedores():
         return limpio
-    return "gemini"
+    return proveedores.PREDETERMINADO
 
 
 def _largo_valido(valor: str) -> str:
@@ -93,7 +93,7 @@ def leer(ruta) -> AjustesIA:
     texto_pregunta = parser.get(SECCION, "pregunta", fallback="")
     return AjustesIA(
         proveedor=_proveedor_valido(
-            parser.get(SECCION, "proveedor", fallback="gemini")),
+            parser.get(SECCION, "proveedor", fallback=proveedores.PREDETERMINADO)),
         modelo=parser.get(SECCION, "modelo", fallback="").strip(),
         direccion=parser.get(SECCION, "direccion", fallback="").strip(),
         pregunta=config.decodificar_texto_ini(texto_pregunta),

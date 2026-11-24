@@ -158,7 +158,7 @@ class TTSWorker(threading.Thread):
 
     def _abrir_motor(self) -> None:
         self._gestor.abrir(
-            self.config.get("motor") or "sapi", self.config.get("voz"),
+            self.config.get("motor") or proveedores.PREDETERMINADO, self.config.get("voz"),
             self._rate, self._volume, self._tono)
 
     def _cerrar_motor(self) -> None:

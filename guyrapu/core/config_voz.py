@@ -43,9 +43,10 @@ def opciones_voz(p, ruta) -> dict:
     # [voz]: el motor se valida contra los válidos de Prism (importarlos aquí
     # no arrastra Prism: motores lo importa de forma perezosa).
     from guyrapu.voice import motores as _motores
+    from guyrapu.voice import proveedores as _proveedores
     motor = leer_texto(p, "voz", "motor").lower()
     if motor not in _motores.MOTORES:
-        motor = "sapi"
+        motor = _proveedores.PREDETERMINADO
     velocidad_voz = _velocidad_voz(p, ruta)
 
     return {**opciones_secundarias(p),

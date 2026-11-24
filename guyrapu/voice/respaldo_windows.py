@@ -12,6 +12,7 @@ from __future__ import annotations
 from guyrapu.core import diagnostico
 from guyrapu.voice import escala_voz
 from guyrapu.voice import motores
+from guyrapu.voice import proveedores
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -73,7 +74,7 @@ class Respaldo:
 
     def _crear(self):
         try:
-            motor = self._fabrica_motor("sapi")
+            motor = self._fabrica_motor(proveedores.RESPALDO)
         except motores.MotorNoDisponible as exc:
             logger.warning("No se pudo crear la voz de respaldo (%s).", exc)
             return None

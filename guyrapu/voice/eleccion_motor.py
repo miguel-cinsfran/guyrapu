@@ -16,6 +16,7 @@ from guyrapu.voice import caida_elevenlabs
 from guyrapu.voice import caida_motor
 from guyrapu.voice import elevenlabs
 from guyrapu.voice import motores
+from guyrapu.voice import proveedores
 from guyrapu.voice import respaldo_windows
 from guyrapu.voice import voz_secundaria
 
@@ -80,11 +81,11 @@ class EleccionMotor:
         try:
             sono = self._leer_frase(motor, texto)
         except Exception:
-            if motor.motor == "sapi":
+            if motor.motor == proveedores.RESPALDO:
                 raise
             self._caer_a_windows(texto, motor.motor, secundaria)
             return
-        if not sono and motor.motor != "sapi":
+        if not sono and motor.motor != proveedores.RESPALDO:
             self._caer_a_windows(texto, motor.motor, secundaria)
         elif sono:
             caida = (self._caida_secundaria if secundaria

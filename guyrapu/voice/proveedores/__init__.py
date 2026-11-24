@@ -19,6 +19,11 @@ from guyrapu.voice.proveedores.prism import PROVEEDOR_ONECORE, PROVEEDOR_SAPI
 PROVEEDORES = (PROVEEDOR_SAPI, PROVEEDOR_ONECORE, PROVEEDOR_ELEVENLABS,
                PROVEEDOR_PHONON, PROVEEDOR_PIPER)
 
+# El motor de fábrica y el de respaldo valen lo mismo hoy, pero son decisiones
+# distintas: cambiar uno no debe arrastrar al otro.
+PREDETERMINADO = PROVEEDOR_SAPI.id
+RESPALDO = PROVEEDOR_SAPI.id
+
 
 def obtener(id):
     """Devuelve el proveedor con ese id, o None si no está registrado."""

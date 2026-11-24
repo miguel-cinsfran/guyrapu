@@ -58,6 +58,10 @@ def por_id(ident):
     return None
 
 
+# El proveedor de fábrica se busca por id, no por su lugar en el registro.
+PREDETERMINADO = por_id("gemini").id
+
+
 def _limpiar_direccion(direccion):
     return (direccion or "").strip().rstrip("/")
 

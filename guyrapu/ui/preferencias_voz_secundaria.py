@@ -19,6 +19,7 @@ from guyrapu.ui.preferencias_comun import fila_label
 from guyrapu.ui.tema import _T, _tc
 from guyrapu.voice import escala_voz
 from guyrapu.voice import motores
+from guyrapu.voice import proveedores
 
 _IGUAL_PRINCIPAL = N_("Igual que la voz principal")
 _IGUAL_RESPALDO = N_("Igual que el respaldo de la voz principal")
@@ -42,7 +43,7 @@ class BloqueVozSecundaria:
         self._voces = []
         self._voces_principales = []
         self._voces_respaldo = []
-        self._motor_principal = "sapi"
+        self._motor_principal = proveedores.PREDETERMINADO
         self._motor = ""
 
     def construir(self, parent, voces, voces_respaldo, motor_principal):
@@ -194,7 +195,7 @@ class BloqueVozSecundaria:
         self._actualizar_respaldo()
 
     def _actualizar_respaldo(self) -> None:
-        self.mostrar_respaldo(self.motor_efectivo() != "sapi")
+        self.mostrar_respaldo(self.motor_efectivo() != proveedores.RESPALDO)
 
     def mostrar_respaldo(self, visible: bool) -> None:
         self.lbl_respaldo.Show(visible)

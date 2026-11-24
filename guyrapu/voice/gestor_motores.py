@@ -12,6 +12,7 @@ from __future__ import annotations
 from guyrapu.core import diagnostico
 from guyrapu.voice import escala_voz
 from guyrapu.voice import motores
+from guyrapu.voice import proveedores
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -48,11 +49,11 @@ class GestorMotores:
         try:
             self._motor = self._fabrica(pedido)
         except motores.MotorNoDisponible as exc:
-            if pedido == "sapi":
+            if pedido == proveedores.RESPALDO:
                 raise
             logger.warning("El motor de voz %r no está disponible (%s); "
                            "se usa Windows SAPI 5.", pedido, exc)
-            self._motor = self._fabrica("sapi")
+            self._motor = self._fabrica(proveedores.RESPALDO)
 
         self._voces = list(self._motor.voces())
         if not self._voces:

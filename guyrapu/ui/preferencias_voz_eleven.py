@@ -20,6 +20,7 @@ from guyrapu.ui.gui import ContadorAccesible, _T, _tc
 from guyrapu.ui.preferencias_comun import fila_label
 from guyrapu.voice import escala_voz
 from guyrapu.voice import motores
+from guyrapu.voice import proveedores
 
 _NO_HAY_VOCES = N_("(no hay voces disponibles)")
 _MOTIVO_COMPROBANDO = N_("Comprobando la clave")
@@ -82,7 +83,7 @@ class BloqueElevenLabs:
         # La voz de Windows de respaldo se ve con cualquier motor que no sea
         # SAPI, así que no va en la lista de controles de ElevenLabs.
         self.lbl_respaldo = fila_label(p, _("Voz de &Windows de respaldo:"))
-        self.voces_respaldo = motores.listar_voces("sapi")
+        self.voces_respaldo = motores.listar_voces(proveedores.RESPALDO)
         self.cho_voz_respaldo = wx.Choice(
             p, choices=self.voces_respaldo or [_(_NO_HAY_VOCES)],
             name=_("Voz de Windows de respaldo"))

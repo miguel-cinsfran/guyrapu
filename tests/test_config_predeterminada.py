@@ -499,3 +499,13 @@ class TestMusicaFabrica(unittest.TestCase):
             "salida_nombre", "atajos_globales", "teclas_multimedia",
             "mostrar_cola", "mostrar_filtros", "orden", "artista",
         ])
+
+
+class TestValoresDeFabricaCompartidos(unittest.TestCase):
+    def test_motor_de_fabrica_coincide_con_el_registro_de_voz(self):
+        from guyrapu.voice import proveedores as voz
+        self.assertEqual(pred.obtener("voz", "motor"), voz.PREDETERMINADO)
+
+    def test_proveedor_de_fabrica_coincide_con_el_registro_de_ia(self):
+        from guyrapu.ai import proveedores as ia
+        self.assertEqual(pred.obtener("ia", "proveedor"), ia.PREDETERMINADO)

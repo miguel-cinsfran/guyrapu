@@ -100,6 +100,20 @@ def detectar_nombres_de_motores_locales(archivo: str,
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+_LITERALES_DE_FABRICA = ("sapi", "gemini")
+
+
+def detectar_literales_de_fabrica(archivo: str,
+                                  arbol: ast.Module) -> list[Hallazgo]:
+    """El motor y el proveedor de fábrica solo son literales en sus dueños."""
+    hallazgos = [
+        Hallazgo(archivo, nodo.lineno)
+        for nodo in ast.walk(arbol)
+        if isinstance(nodo, ast.Constant) and nodo.value in _LITERALES_DE_FABRICA
+    ]
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
 def _traduccion(archivo: str) -> bool:
     return archivo.startswith("guyrapu/translation/")
 
@@ -302,6 +316,19 @@ REGLAS = (
         pendientes={},
         duenos=("guyrapu/voice/proveedores/phonon.py",
                 "guyrapu/voice/proveedores/piper.py"),
+        ambito=_paquete,
+    ),
+    Regla(
+        id="R21",
+        prohibido="sapi y gemini solo son literales en su registro y sus dueños",
+        detectar=detectar_literales_de_fabrica,
+        pendientes={},
+        duenos=("guyrapu/voice/proveedores/",
+                "guyrapu/voice/escala_voz.py",
+                "guyrapu/core/autocomprobacion.py",
+                "guyrapu/ai/proveedores.py",
+                "guyrapu/ai/protocolos.py",
+                "guyrapu/core/config_predeterminada.py"),
         ambito=_paquete,
     ),
 )
