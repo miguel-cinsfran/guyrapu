@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 from guyrapu.core import config_predeterminada
 from guyrapu.core import diagnostico
-from guyrapu.core.idioma import N_
+from guyrapu.core import registro_atajos
 
 
 # ── Atajos de teclado ─────────────────────────────────────────────────────────
@@ -32,78 +32,19 @@ ATAJOS_DEFAULTS = config_predeterminada.seccion("atajos")
 
 # Estas combinaciones se reservan aunque la gramática editable no admita
 # Alt+F4 ni Shift+F6.
-ATAJOS_FIJOS_DEFAULTS = {
-    "salir": "alt+f4",
-    "region_siguiente": "f6",
-    "region_anterior": "shift+f6",
-    "chat_reciente_1": "ctrl+shift+1",
-    "chat_reciente_2": "ctrl+shift+2",
-    "chat_reciente_3": "ctrl+shift+3",
-    "chat_reciente_4": "ctrl+shift+4",
-    "chat_reciente_5": "ctrl+shift+5",
-    "chat_reciente_6": "ctrl+shift+6",
-    "chat_reciente_7": "ctrl+shift+7",
-    "chat_reciente_8": "ctrl+shift+8",
-    "chat_reciente_9": "ctrl+shift+9",
-    "chat_reciente_10": "ctrl+shift+0",
-    "chat_filtro_anterior": "ctrl+shift+sc0c",
-    "chat_filtro_siguiente": "ctrl+shift+sc0d",
-}
+ATAJOS_FIJOS_DEFAULTS = registro_atajos.fijos_defaults()
 
 # Acciones cuya tecla NO debe poder cambiarse en el editor de atajos.
-ATAJOS_FIJOS = {
-    "velocidad_menos", "velocidad_mas", "volumen_menos", "volumen_mas",
-    *ATAJOS_FIJOS_DEFAULTS,
-}
+ATAJOS_FIJOS = registro_atajos.fijos()
 
 # Agrupación para el editor de Preferencias (título de grupo, acciones).
-ATAJOS_GRUPOS = [
-    (N_("Reproductor (Ctrl)"),
-     ["rep_play", "rep_retro", "rep_avanz", "rep_directo", "rep_detener", "rep_mute",
-      "rep_vol_menos", "rep_vol_mas", "pantalla_completa"]),
-    (N_("Chat (Alt)"),
-     ["enviar_chat", "buscar_chat", "participacion_chat"]),
-    (N_("Ventanas (Ctrl+Mayús)"),
-      ["abrir_preferencias", "abrir_historial",
-       "abrir_restream", "abrir_obs", "mensajes_automaticos",
-       "descargas_abrir", "musica_ventana", "preguntar_ia"]),
-    (N_("Directo y OBS (Alt+Mayús)"),
-     ["conectar", "desconectar", "ir_lista", "copiar_enlace",
-      "marcar_incidencia", "obs_micro", "obs_grabar",
-      "obs_pausar_grabacion", "guardar_clip", "avisos_sobrecarga",
-      "mostrar_obs"]),
-     (N_("Voz y lectura (teclas F)"),
-      ["pausa", "detener_tts", "velocidad_menos", "velocidad_mas",
-       "volumen_menos", "volumen_mas", "tono_menos", "tono_mas",
-       "silenciar_lectura",
-       "silenciar_sonidos", "anunciar_estado", "anunciar_autor",
-        "describir_escena", "consulta_rapida_ia",
-        "anunciar_encuadre", "avisos_encuadre", "camara_visible"]),
-    (N_("Música (Ctrl+Alt)"),
-     ["musica_play", "musica_siguiente", "musica_anterior",
-      "musica_vol_mas", "musica_vol_menos", "musica_que_suena",
-      "musica_silenciar", "musica_aleatorio", "musica_repetir",
-      "musica_detener", "musica_adelantar", "musica_retroceder"]),
-    (N_("Interacción en directo (Ctrl+Alt+Mayús)"),
-     ["video_pausar", "video_saltar", "video_vaciar", "video_silenciar",
-      "video_panico", "mensajes_automaticos_alternar", "comandos_pausar",
-      "encuesta_cerrar", "pregunta_siguiente", "interaccion_estado"]),
-    (N_("Ventana y navegación (fijos)"),
-     ["salir", "region_siguiente", "region_anterior"]),
-    (N_("Recientes y filtro del chat (fijos)"),
-     ["chat_reciente_1", "chat_reciente_2", "chat_reciente_3",
-      "chat_reciente_4", "chat_reciente_5", "chat_reciente_6",
-      "chat_reciente_7", "chat_reciente_8", "chat_reciente_9",
-      "chat_reciente_10", "chat_filtro_anterior", "chat_filtro_siguiente"]),
-]
+ATAJOS_GRUPOS = registro_atajos.grupos()
 
 # Modificador obligatorio por acción: reproductor → Ctrl, chat → Alt,
 # ventanas → Ctrl+Shift, directo → Alt+Shift, voz → F.
 # El grupo de atajos fijos no impone modificador.
-_AREA_POR_GRUPO = ("ctrl", "alt", "ctrl+shift", "alt+shift", "f", "ctrl+alt",
-                   "ctrl+alt+shift", None, None)
-ATAJOS_AREA = {ac: _AREA_POR_GRUPO[i]
-               for i, (_titulo, acs) in enumerate(ATAJOS_GRUPOS) for ac in acs}
+_AREA_POR_GRUPO = tuple(g.modificador for g in registro_atajos.GRUPOS)
+ATAJOS_AREA = registro_atajos.areas()
 
 # Migración al mapa por familias: viejo valor de fábrica y nuevo, por acción.
 # Solo migra la acción cuyo valor sigue siendo el viejo de fábrica.

@@ -5,6 +5,7 @@
 import wx
 
 from guyrapu.core import config as cfg
+from guyrapu.core import registro_atajos
 from guyrapu.core import tecla_fisica
 from guyrapu.core.idioma import N_, _
 from guyrapu.ui import teclado_altgr
@@ -56,94 +57,7 @@ _AREA_AYUDA = {
     "ctrl+alt+shift": N_("Debe ser Ctrl+Alt+Mayús y una letra (por ejemplo Ctrl+Alt+Mayús+P)."),
     "f": N_("Debe ser una tecla de función, de F1 a F12 (por ejemplo F2). Puede ir sola, con Ctrl, con Ctrl+Mayús o con Alt (por ejemplo Ctrl+F2 o Alt+F3)."),
 }
-ETIQUETAS = {
-    # Reproductor
-    "rep_play": N_("Reproducir o pausar"), "rep_retro": N_("Retroceder 1 minuto"),
-    "rep_avanz": N_("Avanzar 1 minuto"), "rep_directo": N_("Ir al directo"),
-    "rep_detener": N_("Detener vídeo"),
-    "rep_mute": N_("Silenciar o activar audio"),
-    "rep_vol_menos": N_("Bajar volumen del reproductor"),
-    "rep_vol_mas": N_("Subir volumen del reproductor"),
-    "descargas_abrir": N_("Abrir Administrador de descargas"),
-    "pantalla_completa": N_("Pantalla completa"),
-    "abrir_preferencias": N_("Abrir Preferencias"),
-    "abrir_historial": N_("Abrir el historial de directos"),
-    "marcar_incidencia": N_("Marcar incidencia"),
-    "abrir_restream": N_("Abrir Restream"),
-    "abrir_obs": N_("Abrir panel de OBS"),
-    "mensajes_automaticos": N_("Abrir la ventana Interacción"),
-    "mostrar_obs": N_("Mostrar OBS"),
-    "copiar_enlace": N_("Copiar enlace del directo"),
-    "obs_micro": N_("Silenciar el micrófono de OBS"),
-    "obs_grabar": N_("Iniciar o detener la grabación"),
-    "obs_pausar_grabacion": N_("Pausar o reanudar la grabación"),
-    "guardar_clip": N_("Guardar clip"),
-    "avisos_sobrecarga": N_("Activar o desactivar los avisos de sobrecarga"),
-    # Conexión y chat
-    # Traductores: acción del atajo que conecta el chat.
-    "conectar": N_("Conectar"),
-    # Traductores: acción del atajo que desconecta el chat.
-    "desconectar": N_("Desconectar"), "enviar_chat": N_("Enviar mensaje al chat"),
-    "buscar_chat": N_("Buscar en el chat"),
-    "participacion_chat": N_("Participación en el chat"),
-    "ir_lista": N_("Ir a la lista del panel actual"), "salir": N_("Salir de la aplicación"),
-    # Voz / lectura
-    "pausa": N_("Pausar o reanudar lectura"), "detener_tts": N_("Detener voz actual"),
-    "velocidad_menos": N_("Bajar velocidad de la voz"),
-    "velocidad_mas": N_("Subir velocidad de la voz"),
-    "volumen_menos": N_("Bajar volumen de la voz"),
-    "volumen_mas": N_("Subir volumen de la voz"),
-    "tono_menos": N_("Bajar tono de la voz"),
-    "tono_mas": N_("Subir tono de la voz"),
-    "silenciar_lectura": N_("Silenciar lectura"),
-    "silenciar_sonidos": N_("Silenciar sonidos"), "anunciar_estado": N_("Anunciar estado"),
-    "anunciar_autor": N_("Anunciar autor del último mensaje"),
-    "describir_escena": N_("Describir escena de OBS"),
-    "consulta_rapida_ia": N_("Preguntar a la IA sobre la escena"),
-    "anunciar_encuadre": N_("Anunciar encuadre de cámara"),
-    "avisos_encuadre": N_("Avisar si el rostro queda fuera del encuadre"),
-    "camara_visible": N_("Mostrar u ocultar la cámara"),
-    "region_siguiente": N_("Región siguiente"), "region_anterior": N_("Región anterior"),
-    # Música (Ctrl+Alt)
-    "musica_play": N_("Reproducir o pausar la música"),
-    "musica_siguiente": N_("Siguiente canción"),
-    "musica_anterior": N_("Canción anterior"),
-    "musica_vol_mas": N_("Subir el volumen de la música"),
-    "musica_vol_menos": N_("Bajar el volumen de la música"),
-    "musica_que_suena": N_("Anunciar canción actual"),
-    "musica_silenciar": N_("Silenciar o activar el audio de la música"),
-    "musica_aleatorio": N_("Orden aleatorio de la música"),
-    "musica_repetir": N_("Cambiar la repetición de la música"),
-    "musica_detener": N_("Detener música"),
-    "musica_adelantar": N_("Avanzar la música 10 segundos"),
-    "musica_retroceder": N_("Retroceder la música 10 segundos"),
-    "musica_ventana": N_("Abrir la ventana de música"),
-    # Interacción en directo (Ctrl+Alt+Mayús)
-    "video_pausar": N_("Pausar la cola del vídeo"),
-    "video_saltar": N_("Omitir el mensaje del vídeo"),
-    "video_vaciar": N_("Vaciar la cola del vídeo"),
-    "video_silenciar": N_("Silenciar los medios"),
-    "video_panico": N_("Modo pánico"),
-    "mensajes_automaticos_alternar": N_(
-        "Activar o desactivar los mensajes automáticos"),
-    "comandos_pausar": N_("Pausar los comandos del chat"),
-    "encuesta_cerrar": N_("Cerrar la encuesta"),
-    "pregunta_siguiente": N_("Leer la siguiente pregunta"),
-    "interaccion_estado": N_("Estado de la interacción"),
-    "preguntar_ia": N_("Preguntar a la IA sobre la imagen"),
-    "chat_reciente_1": N_("Leer el último mensaje del chat"),
-    "chat_reciente_2": N_("Leer el mensaje 2 desde el final del chat"),
-    "chat_reciente_3": N_("Leer el mensaje 3 desde el final del chat"),
-    "chat_reciente_4": N_("Leer el mensaje 4 desde el final del chat"),
-    "chat_reciente_5": N_("Leer el mensaje 5 desde el final del chat"),
-    "chat_reciente_6": N_("Leer el mensaje 6 desde el final del chat"),
-    "chat_reciente_7": N_("Leer el mensaje 7 desde el final del chat"),
-    "chat_reciente_8": N_("Leer el mensaje 8 desde el final del chat"),
-    "chat_reciente_9": N_("Leer el mensaje 9 desde el final del chat"),
-    "chat_reciente_10": N_("Leer el mensaje 10 desde el final del chat"),
-    "chat_filtro_anterior": N_("Filtro anterior del chat"),
-    "chat_filtro_siguiente": N_("Filtro siguiente del chat"),
-}
+ETIQUETAS = registro_atajos.etiquetas()
 
 
 NOTA_PAGINA = N_(
