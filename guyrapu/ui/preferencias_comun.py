@@ -19,23 +19,6 @@ def nombre_de_etiqueta(etiqueta) -> str:
     return etiqueta.replace("&", "").rstrip(":")
 
 
-def grilla_campos():
-    """Grilla de rótulo, campo y botón con la columna central creciente."""
-    grilla = wx.FlexGridSizer(0, 3, 8, 8)
-    grilla.AddGrowableCol(1, 1)
-    return grilla
-
-
-def fila_grilla(grilla, rotulo, control, boton=None):
-    """Agrega a la grilla una fila de rótulo ya creado, campo y botón opcional."""
-    grilla.Add(rotulo, 0, wx.ALIGN_CENTER_VERTICAL)
-    grilla.Add(control, 0, wx.EXPAND)
-    if boton is None:
-        grilla.AddSpacer(0)
-    else:
-        grilla.Add(boton, 0, wx.EXPAND)
-
-
 def lista_con_nombre(padre, etiqueta, opciones=None):
     """Un wx.Choice con su nombre accesible igual al rótulo."""
     control = wx.Choice(padre, choices=opciones or [],
@@ -181,16 +164,6 @@ class CampoEstado(wx.TextCtrl):
         if color is not None and not tema.ALTO_CONTRASTE:
             atributo.SetTextColour(color)
         return atributo
-
-
-def fila_campo(sizer, rotulo, control, proporcion=0, boton=None):
-    fila = wx.BoxSizer(wx.HORIZONTAL)
-    fila.Add(rotulo, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
-    fila.Add(control, 1, wx.EXPAND | wx.ALL, 6)
-    if boton is not None:
-        fila.Add(boton, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 6)
-    sizer.Add(fila, proporcion, wx.EXPAND, 0)
-    return fila
 
 
 def boton(panel, etiqueta, nombre, identificador=wx.ID_ANY):

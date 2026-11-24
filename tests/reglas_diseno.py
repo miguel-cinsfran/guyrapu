@@ -204,7 +204,6 @@ PENDIENTES_BORDES: dict[str, tuple[int, str]] = {
     "guyrapu/ui/descargas_listas.py": (5, MOTIVO),
     "guyrapu/ui/escena_pagina_escena.py": (5, MOTIVO),
     "guyrapu/ui/gui_historial.py": (5, MOTIVO),
-    "guyrapu/ui/preferencias_comun.py": (3, MOTIVO),
     "guyrapu/ui/escena_pagina_fuentes.py": (4, MOTIVO),
     "guyrapu/ui/escena_propiedades.py": (1, MOTIVO),
     "guyrapu/ui/ia_ventana.py": (2, MOTIVO),
