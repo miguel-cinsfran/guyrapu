@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md 55ec0543b293edbebd4407425872977576ad1771 -->
+<!-- original: es/MANUAL.md 04cab7073a65368f15d962ff92d8c797997503e3 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
