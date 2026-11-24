@@ -21,7 +21,9 @@ from guyrapu.ui import mensaje_automatico_cuadro, probar_aviso
 from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.lista_acciones import Accion, ListaConAcciones
-from guyrapu.ui.pagina_de_lista import agregar_botones, agregar_lista
+from guyrapu.ui.pagina_de_lista import (
+    BORDE_LISTA, BORDE_ROTULO, ESPACIO_LISTA_BOTONES,
+    agregar_botones, agregar_lista)
 from guyrapu.ui.preferencias_comun import ANCHO_NOTA, fila_label
 from guyrapu.ui.tema import _T
 
@@ -76,7 +78,8 @@ class PanelMensajesAutomaticos(wx.Panel):
         nota = wx.StaticText(self, name="ExplicacionMensajes", label=_(EXPLICACION))
         nota.SetForegroundColour(_T.dim)
         nota.Wrap(ANCHO_NOTA)
-        vs.Add(nota, 0, wx.ALL, 10)
+        vs.Add(nota, 0, wx.LEFT | wx.RIGHT | wx.TOP, BORDE_ROTULO)
+        vs.AddSpacer(ESPACIO_LISTA_BOTONES)
 
         self.chk_programados = wx.CheckBox(
             self, label=_("Acti&var mensajes automáticos"),
@@ -84,7 +87,8 @@ class PanelMensajesAutomaticos(wx.Panel):
         self.chk_programados.SetValue(
             bool(self._padre._config.get("programados_activo", False)))
         self.chk_programados.Bind(wx.EVT_CHECKBOX, self._al_alternar)
-        vs.Add(self.chk_programados, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        vs.Add(self.chk_programados, 0, wx.LEFT | wx.RIGHT, BORDE_LISTA)
+        vs.AddSpacer(ESPACIO_LISTA_BOTONES)
 
         rotulo = fila_label(self, _("Lista de &mensajes:"))
         self.lista = wx.ListBox(

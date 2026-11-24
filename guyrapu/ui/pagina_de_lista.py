@@ -9,26 +9,31 @@ from __future__ import annotations
 
 import wx
 
-BORDE_ROTULO = 10
-BORDE_LISTA = 10
-BORDE_BOTONES = 10
-PROPORCION_ROTULO = 0
+from guyrapu.ui import botonera, formulario
+
+BORDE_ROTULO = formulario.MARGEN
+BORDE_LISTA = formulario.MARGEN
+BORDE_BOTONES = formulario.MARGEN - botonera.HUECO
+ESPACIO_ROTULO_LISTA = formulario.ETIQUETA_A_CONTROL
+ESPACIO_LISTA_BOTONES = formulario.CONTROL_A_ETIQUETA
 PROPORCION_LISTA = 1
-PROPORCION_BOTONES = 0
 BANDERAS_ROTULO = wx.LEFT | wx.RIGHT | wx.TOP
 BANDERAS_ROTULO_SIN_SUPERIOR = wx.LEFT | wx.RIGHT
-BANDERAS_LISTA = wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM
-BANDERAS_BOTONES = wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM
+BANDERAS_LISTA = wx.EXPAND | wx.LEFT | wx.RIGHT
+BANDERAS_BOTONES = wx.EXPAND | wx.LEFT | wx.RIGHT
 
 
 def agregar_lista(sizer, rotulo, lista, *, borde_superior=True):
     """Pone el rótulo y la lista, en ese orden, en el sizer vertical."""
     banderas = (BANDERAS_ROTULO if borde_superior
                 else BANDERAS_ROTULO_SIN_SUPERIOR)
-    sizer.Add(rotulo, PROPORCION_ROTULO, banderas, BORDE_ROTULO)
+    sizer.Add(rotulo, 0, banderas, BORDE_ROTULO)
+    sizer.AddSpacer(ESPACIO_ROTULO_LISTA)
     sizer.Add(lista, PROPORCION_LISTA, BANDERAS_LISTA, BORDE_LISTA)
 
 
 def agregar_botones(sizer, fila):
     """Pone la fila de botones al final del sizer vertical."""
-    sizer.Add(fila, PROPORCION_BOTONES, BANDERAS_BOTONES, BORDE_BOTONES)
+    sizer.AddSpacer(ESPACIO_LISTA_BOTONES)
+    sizer.Add(fila, 0, BANDERAS_BOTONES, BORDE_LISTA)
+    sizer.AddSpacer(BORDE_BOTONES)
