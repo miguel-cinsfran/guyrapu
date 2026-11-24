@@ -15,7 +15,7 @@ import queue
 import threading
 
 from guyrapu.core import diagnostico
-from guyrapu.music import cruce, enlace_vlc
+from guyrapu.music import atenuacion, cruce, enlace_vlc
 from guyrapu.music.transicion import Transiciones
 from guyrapu.player import motor_vlc
 
@@ -66,6 +66,7 @@ class AdaptadorVlc:
         self._cola = queue.Queue()
         self._cerrado = False
         self._enlace = enlace_vlc.EnlaceVlc(self)
+        atenuacion.al_cambiar(self._reaplicar_atenuacion)
         self._hilo = diagnostico.crear_hilo(self._consumir, "musica-vlc")
         self._hilo.start()
 
@@ -136,7 +137,7 @@ class AdaptadorVlc:
         except Exception as exc:
             self._cola.put((_CERRAR, None, reproductor))
             raise RuntimeError("VLC no pudo preparar el tema") from exc
-        reproductor.audio_set_volume(0 if fundir else volumen)
+        reproductor.audio_set_volume(atenuacion.atenuado(0 if fundir else volumen))
         self._enganchar(reproductor, ficha)
         if reproductor.play() == -1:
             # El nuevo no arranca: se cierra y el anterior sigue sonando igual.
@@ -248,7 +249,16 @@ class AdaptadorVlc:
         with self._lock:
             self._volumen = valor
             if self._actual is not None:
-                self._actual.audio_set_volume(valor)
+                self._actual.audio_set_volume(atenuacion.atenuado(valor))
+
+    def _reaplicar_atenuacion(self):
+        with self._lock:
+            actual, valor = self._actual, self._volumen
+        if actual is not None and not self._en_fundido(actual):
+            try:
+                actual.audio_set_volume(atenuacion.atenuado(valor))
+            except Exception as error:
+                logger.debug("No se pudo fijar el volumen del tema: %s", error)
 
     def tiempo_ms(self):
         """Posición del tema actual en milisegundos, o None si no se sabe."""
@@ -333,12 +343,7 @@ class AdaptadorVlc:
                 self._cerrar_reproductor(reproductor)
             elif tipo == _SONANDO:
                 self._enlace.sonar(reproductor)
-                if (reproductor is self._actual
-                        and not self._en_fundido(reproductor)):
-                    try:
-                        reproductor.audio_set_volume(self._volumen)
-                    except Exception as error:
-                        logger.debug("no se pudo fijar el volumen del tema: %s", error)
+                self._reaplicar_atenuacion()
             elif tipo == _POR_TERMINAR:
                 self._terminar_anticipado(ficha)
             elif tipo == _ERROR:

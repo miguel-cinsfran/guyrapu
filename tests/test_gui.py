@@ -1986,6 +1986,8 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("musica", "retomar"),
             ("musica", "decir"), ("musica", "decir_pausa"), ("musica", "normalizar"),
             ("musica", "preguntar_igualar"),
+            ("musica", "atenuar_voz"), ("musica", "atenuar_medio"),
+            ("musica", "volumen_atenuado"),
             ("musica", "volumen"), ("musica", "cruce"),
             ("musica", "atajos_globales"),
             ("musica", "teclas_multimedia"), ("musica", "carpeta"),
@@ -2176,6 +2178,9 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
             "&Volumen de la música:",
             "&Igualar volumen de las canciones",
             "Pr&eguntar al abrir Música si igualar el volumen",
+            "V&olumen de la música al bajarla:",
+            "Bajar música mientras &habla la voz",
+            "Bajar música mientras &suena un medio",
             "Salida de a&udio de la música:",
             "&Buscar salidas de audio",
             "Usar atajos de música en cualquier a&plicación",
@@ -2193,7 +2198,7 @@ class TestCategoriasDePreferenciasSoloLectura(unittest.TestCase):
             etiqueta = control.GetLabel()
             if "&" in etiqueta:
                 letras.append(etiqueta.split("&", 1)[1][:1].lower())
-        self.assertEqual(len(letras), 14)
+        self.assertEqual(len(letras), 17)
         self.assertEqual(len(letras), len(set(letras)), letras)
         self.assertNotIn("g", letras)
         self.assertNotIn("c", letras)

@@ -162,7 +162,7 @@ def detectar_colores(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
 
 PENDIENTES_BORDES: dict[str, tuple[int, str]] = {
     "guyrapu/ui/gui_preferencias.py": (31, MOTIVO),
-    "guyrapu/ui/preferencias_musica.py": (21, MOTIVO),
+    "guyrapu/ui/preferencias_musica.py": (20, MOTIVO),
     "guyrapu/ui/preferencias_ia.py": (20, MOTIVO),
     "guyrapu/ui/preferencias_voz.py": (16, MOTIVO),
     "guyrapu/ui/preferencias_transmision.py": (15, MOTIVO),
@@ -324,7 +324,6 @@ PENDIENTES_TAMANOS: dict[str, tuple[int, str]] = {
     "guyrapu/ui/preferencias_eventos.py": (1, MOTIVO),
     "guyrapu/ui/preferencias_ia.py": (1, MOTIVO),
     "guyrapu/ui/preferencias_ia_lista.py": (1, MOTIVO),
-    "guyrapu/ui/preferencias_musica.py": (1, MOTIVO),
     "guyrapu/ui/preferencias_sonidos.py": (1, MOTIVO),
     "guyrapu/ui/preferencias_voz.py": (1, MOTIVO),
     "guyrapu/ui/preguntas_en_vivo.py": (1, MOTIVO),

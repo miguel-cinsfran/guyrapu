@@ -17679,3 +17679,19 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/music/atenuacion.py
+msgid "Bajar música mientras &habla la voz"
+msgstr "Lower music while the voice s&peaks"
+
+#: guyrapu/music/atenuacion.py
+msgid "Bajar música mientras &suena un medio"
+msgstr "Lower music while media pla&ys"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "V&olumen de la música al bajarla:"
+msgstr "Music volume &when lowered:"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Volumen de la música al bajarla"
+msgstr "Music volume when lowered"
+

@@ -160,6 +160,31 @@ def detectar_deslizador(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
     return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
 
 
+def _musica(archivo: str) -> bool:
+    return archivo.startswith("guyrapu/music/")
+
+
+def detectar_volumen_sin_atenuar(archivo: str, arbol: ast.Module) -> list[Hallazgo]:
+    """Todo volumen que llega a VLC pasa por `atenuado`, salvo el 0 del fundido."""
+    hallazgos = []
+    for nodo in ast.walk(arbol):
+        if not (isinstance(nodo, ast.Call)
+                and isinstance(nodo.func, ast.Attribute)
+                and nodo.func.attr == "audio_set_volume" and nodo.args):
+            continue
+        valor = nodo.args[0]
+        pasa_por_atenuado = (
+            isinstance(valor, ast.Call)
+            and ((isinstance(valor.func, ast.Name) and valor.func.id == "atenuado")
+                 or (isinstance(valor.func, ast.Attribute)
+                     and valor.func.attr == "atenuado")))
+        if pasa_por_atenuado or (isinstance(valor, ast.Constant)
+                                 and valor.value == 0):
+            continue
+        hallazgos.append(Hallazgo(archivo, nodo.lineno))
+    return sorted(hallazgos, key=lambda hallazgo: hallazgo.linea)
+
+
 REGLAS = (
     Regla(
         id="R1",
@@ -379,5 +404,12 @@ REGLAS = (
         pendientes=_a_pendientes(PENDIENTES_COLORES),
         duenos=PIEZAS,
         ambito=_ui,
+    ),
+    Regla(
+        id="R26",
+        prohibido="en guyrapu/music/, audio_set_volume recibe un valor sin atenuar",
+        detectar=detectar_volumen_sin_atenuar,
+        pendientes={},
+        ambito=_musica,
     ),
 )

@@ -166,6 +166,8 @@ def _aplicar_reproductor(frame):
 
 def _aplicar_musica(frame):
     try:
+        from guyrapu.music import atenuacion
+        atenuacion.aplicar(frame._config)
         frame._musica.aplicar_preferencias()
     except Exception as exc:
         logger.debug("aplicar música desde preferencias: %s", exc, exc_info=True)

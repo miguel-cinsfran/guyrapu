@@ -10,7 +10,7 @@ bloquea mientras yt-dlp responde. Sin ``wx``.
 from __future__ import annotations
 
 from guyrapu.core import diagnostico
-from guyrapu.music import enlaces
+from guyrapu.music import atenuacion, enlaces
 from guyrapu.player import motor_vlc
 
 
@@ -100,7 +100,7 @@ class EnlaceVlc:
             logger.debug("No se pudo preparar el enlace: %s", exc)
             adaptador._fallar(ficha, reproductor)
             return
-        reproductor.audio_set_volume(adaptador._volumen)
+        reproductor.audio_set_volume(atenuacion.atenuado(adaptador._volumen))
         adaptador._enganchar(reproductor, ficha)
         preparado_en_pausa = adaptador._pausa_pendiente
         adaptador._pausa_pendiente = False

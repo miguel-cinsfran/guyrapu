@@ -16,7 +16,7 @@ from guyrapu.core import anuncio_ajuste, musica_decir
 from guyrapu.core import config as cfg
 from guyrapu.core import diagnostico
 from guyrapu.core.idioma import _
-from guyrapu.music import anuncios, cruce, enlaces
+from guyrapu.music import anuncios, atenuacion, cruce, enlaces
 from guyrapu.music.adaptador_vlc import AdaptadorVlc, MotorNoDisponible
 from guyrapu.music.coordinador import Coordinador
 from guyrapu.music.guardado_diferido import GuardadoDiferido
@@ -276,6 +276,7 @@ class ControlMusica(ColaMusica, EnlacesMusica, IndiceMusica, SonoridadMusica,
 
     def _preparar_motor(self, continuar) -> None:
         try:
+            atenuacion.aplicar(self._config)
             adaptador = Normalizado(AdaptadorVlc(
                 dispositivo=self._config.get("musica_salida") or None,
                 volumen=self._volumen_config(), cruce_de=lambda: self._config.get("musica_cruce", cruce.CRUCE_FABRICA_S)),

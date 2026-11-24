@@ -14,7 +14,8 @@ import wx
 from guyrapu.core import diagnostico, musica_decir
 from guyrapu.core import config as cfg
 from guyrapu.core.idioma import _
-from guyrapu.ui import opciones_musica
+from guyrapu.music import atenuacion
+from guyrapu.ui import formulario, opciones_musica
 from guyrapu.ui.accesibilidad import ContadorAccesible, anunciar, nombre_accesible
 from guyrapu.ui.deslizador import deslizador_accesible
 from guyrapu.ui.tema import _T, _tc
@@ -33,6 +34,13 @@ OPCIONES_MUSICA = (
     ("sp_musica_volumen", "musica", "volumen", "musica_volumen", int, 50),
     ("chk_musica_normalizar", "musica", "normalizar", "musica_normalizar", bool, True),
     ("chk_musica_preguntar_igualar", "musica", "preguntar_igualar", "musica_preguntar_igualar", bool, True),
+) + tuple(
+    (f"chk_musica_atenuar_{fuente.id}", "musica", f"atenuar_{fuente.id}",
+     f"musica_atenuar_{fuente.id}", bool, fuente.fabrica)
+    for fuente in atenuacion.FUENTES
+) + (
+    ("sp_musica_volumen_atenuado", "musica", "volumen_atenuado",
+     "musica_volumen_atenuado", int, atenuacion.VOLUMEN_FABRICA),
     ("chk_musica_atajos_globales", "musica", "atajos_globales", "musica_atajos_globales", bool, False),
     ("chk_musica_teclas_multimedia", "musica", "teclas_multimedia",
      "musica_teclas_multimedia", bool, True),
@@ -126,6 +134,7 @@ class PaginaMusica:
         vs.Add(self.sp_musica_volumen, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
 
         self._casilla_igualar(p, vs)
+        self._atenuacion(p, vs)
 
         # Al abrir no se consulta VLC: la lista se arma solo con la salida
         # guardada (o la predeterminada) y se completa con el botón.
@@ -159,6 +168,24 @@ class PaginaMusica:
         self.chk_musica_preguntar_igualar.SetForegroundColour(_T.text)
         vs.Add(self.chk_musica_preguntar_igualar, 0,
                wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+
+    def _atenuacion(self, p, vs):
+        rotulo = fila_label(p, _("V&olumen de la música al bajarla:"))
+        self.sp_musica_volumen_atenuado = deslizador_accesible(
+            p, minimo=0, maximo=100, inicial=atenuacion.VOLUMEN_FABRICA,
+            paso=1, nombre=_("Volumen de la música al bajarla"))
+        formulario.agregar_fila(
+            vs, rotulo, self.sp_musica_volumen_atenuado, expandir=False)
+
+        casillas = []
+        for fuente in atenuacion.FUENTES:
+            nombre = _(fuente.rotulo)
+            casilla = wx.CheckBox(
+                p, label=nombre, name=nombre.replace("&", ""))
+            casilla.SetForegroundColour(_T.text)
+            setattr(self, f"chk_musica_atenuar_{fuente.id}", casilla)
+            casillas.append(casilla)
+        formulario.agregar_casillas(vs, casillas)
 
     def _musica_atajos(self, p, vs):
         self.chk_musica_atajos_globales = wx.CheckBox(

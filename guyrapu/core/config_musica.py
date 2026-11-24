@@ -36,7 +36,26 @@ def opciones_musica(p) -> dict:
         "musica_volumen": leer_entero(p, "musica", "volumen", lo=0, hi=100), "musica_cruce": leer_entero(p, "musica", "cruce", lo=0, hi=12),
         "musica_salida": leer_texto(p, "musica", "salida"),
         "musica_salida_nombre": decodificar_texto_ini(leer_texto(p, "musica", "salida_nombre")),
-    } | _atajos_musica(p) | _filtros_musica(p)
+    } | _atajos_musica(p) | _filtros_musica(p) | _atenuacion_musica(p)
+
+
+def _atenuacion_musica(p) -> dict:
+    """Las fuentes y el volumen al bajar, con los valores de fábrica."""
+    from guyrapu.music import atenuacion
+
+    opciones = {}
+    for fuente in atenuacion.FUENTES:
+        clave = f"musica_atenuar_{fuente.id}"
+        try:
+            opciones[clave] = p.getboolean("musica", f"atenuar_{fuente.id}")
+        except Exception:
+            opciones[clave] = fuente.fabrica
+    try:
+        opciones["musica_volumen_atenuado"] = max(0, min(100, int(
+            p.get("musica", "volumen_atenuado"))))
+    except Exception:
+        opciones["musica_volumen_atenuado"] = atenuacion.VOLUMEN_FABRICA
+    return opciones
 
 
 def _atajos_musica(p) -> dict:

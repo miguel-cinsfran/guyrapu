@@ -14,6 +14,7 @@ from unittest import mock
 
 import wx
 
+from guyrapu.music import atenuacion
 from guyrapu.ui import gui_preferencias, preferencias_transmision
 from guyrapu.voice import motores
 from tests.pseudo_prueba import con_pseudo, textos_sin_marcar
@@ -64,6 +65,28 @@ class TestPseudoMusica(unittest.TestCase):
                 mock.patch.object(dialogo, "EndModal"):
             dialogo._on_guardar(None)
         self.assertEqual(dialogo._config["musica_volumen"], 75)
+
+
+    def test_las_casillas_de_atenuacion_salen_del_registro_y_se_guardan(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_musica
+        self.assertEqual(pagina.sp_musica_volumen_atenuado.GetValue(),
+                         atenuacion.VOLUMEN_FABRICA)
+        for fuente in atenuacion.FUENTES:
+            casilla = getattr(pagina, f"chk_musica_atenuar_{fuente.id}")
+            self.assertIsInstance(casilla, wx.CheckBox)
+            self.assertEqual(casilla.GetValue(), fuente.fabrica)
+            casilla.SetValue(not fuente.fabrica)
+        pagina.sp_musica_volumen_atenuado.SetValue(45)
+        with mock.patch.object(gui_preferencias._snd, "reproducir"), \
+                mock.patch.object(preferencias_transmision, "anunciar"), \
+                mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        for fuente in atenuacion.FUENTES:
+            self.assertEqual(
+                dialogo._config[f"musica_atenuar_{fuente.id}"],
+                not fuente.fabrica)
+        self.assertEqual(dialogo._config["musica_volumen_atenuado"], 45)
 
 
 if __name__ == "__main__":

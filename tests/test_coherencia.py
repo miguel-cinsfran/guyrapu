@@ -15,6 +15,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.core import tecla_fisica
+from guyrapu.music import atenuacion
 
 from guyrapu.core import config as cfg
 from guyrapu.core import config_predeterminada as fabrica
@@ -330,6 +331,12 @@ _LECTORAS_CONFIG = {"leer_texto", "leer_booleano", "leer_entero", "leer_decimal"
 _LECTORAS_PARSER = {"get", "getboolean", "getint", "has_option"}
 
 
+def _pares_de_atenuacion():
+    """Las claves de las fuentes salen del registro, invisibles al AST."""
+    return {("musica", f"atenuar_{fuente.id}")
+            for fuente in atenuacion.FUENTES}
+
+
 def _pares_leidos_en_config():
     """Pares (sección, clave) leídos en `config.py`, `config_descargas.py`,
     `config_musica.py`, `config_lectura.py`, `config_transmision.py` y
@@ -359,7 +366,7 @@ def _pares_leidos_en_config():
             if (len(invocados) >= 2 and _es_texto(invocados[0])
                     and _es_texto(invocados[1])):
                 leidos.add((invocados[0].value, invocados[1].value))
-    return leidos
+    return leidos | _pares_de_atenuacion()
 
 
 def _filas_de_tabla(nodo, tablas):
@@ -450,7 +457,7 @@ def _pares_con_control():
                 for hijo in ast.walk(nodo):
                     if isinstance(hijo, ast.Return) and hijo.value is not None:
                         con_control.update(_pares_de_cambio(hijo.value))
-    return con_control
+    return con_control | _pares_de_atenuacion()
 
 
 class PruebaConfiguracion(unittest.TestCase):

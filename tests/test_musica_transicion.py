@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest import mock
 
 from guyrapu.downloads import ffmpeg_bin
-from guyrapu.music import transicion
+from guyrapu.music import atenuacion, transicion
 from guyrapu.music.bordes import Bordes
 from guyrapu.music.transicion import Transiciones
 from guyrapu.player import motor_vlc
@@ -76,6 +76,21 @@ class TestTransiciones(unittest.TestCase):
         self.assertEqual(soltados, [sale])
         self.assertEqual(entra.volumen, 80)
         self.assertFalse(objeto.en_fundido(entra))
+
+    def test_el_cruce_respeta_la_atenuacion(self):
+        atenuacion.configurar(("voz",), 30)
+        atenuacion.pedir("voz", 5)
+        self.addCleanup(
+            lambda: setattr(atenuacion, "_atenuador", atenuacion.Atenuador()))
+        time.sleep(0.35)
+        objeto = self._crear()
+        sale, entra = ReproductorFalso(), ReproductorFalso()
+        soltados = []
+
+        objeto.cruzar(sale, 100, entra, 80, 150, soltados.append)
+
+        self.assertTrue(esperar(lambda: bool(soltados)))
+        self.assertEqual(entra.volumen, 24)
 
     def test_olvidar_la_que_sale_no_le_mueve_mas_el_volumen(self):
         objeto = self._crear()

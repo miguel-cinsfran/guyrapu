@@ -16,7 +16,7 @@ from guyrapu.music.consultas_vlc import (
     leer_etiquetas_vlc,
     salidas_audio,
 )
-from guyrapu.music import cruce, enlace_vlc, enlaces
+from guyrapu.music import atenuacion, cruce, enlace_vlc, enlaces
 from guyrapu.music.bordes import Bordes
 from guyrapu.music.enlaces import ErrorEnlace
 from guyrapu.music.coordinador import Coordinador
@@ -362,6 +362,41 @@ class TestAdaptadorDobles(_BaseDobles):
         actual.gestor.disparar(FakeVlc.EventType.MediaPlayerPlaying)
         self.assertTrue(esperar(lambda: actual.volumen == 70))
         self.assertIsNone(viejo.volumen)
+
+    def _atenuar_uno(self):
+        atenuacion.configurar(("voz",), 30)
+        atenuacion.pedir("voz", 5)
+        self.addCleanup(
+            lambda: setattr(atenuacion, "_atenuador", atenuacion.Atenuador()))
+        time.sleep(0.35)
+
+    def test_con_un_pedido_activo_vlc_recibe_el_volumen_atenuado(self):
+        self._atenuar_uno()
+        adaptador = self.crear()
+        self.existentes.add("C:/musica/a.mp3")
+        adaptador.cargar(Tema("C:/musica/a.mp3", "a"), 1)
+        adaptador.volumen(80)
+
+        self.assertEqual(self.instancia.reproductores[0].volumen, 24)
+        self.assertEqual(adaptador._volumen, 80)
+
+    def test_un_paso_del_cruce_tambien_sale_atenuado(self):
+        self._atenuar_uno()
+        adaptador = self.crear(cruce_de=lambda: 1)
+        self.existentes.update({"C:/musica/a.mp3", "C:/musica/b.mp3"})
+        adaptador.cargar(Tema("C:/musica/a.mp3", "a"), 1, volumen=80)
+        adaptador.cargar(Tema("C:/musica/b.mp3", "b"), 2, volumen=80)
+        self.assertTrue(esperar(
+            lambda: 24 in self.instancia.reproductores[1].volumenes))
+
+    def test_el_reaplicado_no_toca_un_cruce_en_curso(self):
+        adaptador = self.crear()
+        adaptador.volumen(80)
+        reproductor = mock.Mock()
+        with mock.patch.object(adaptador, "_actual", reproductor), \
+                mock.patch.object(adaptador, "_en_fundido", return_value=True):
+            adaptador._reaplicar_atenuacion()
+        reproductor.audio_set_volume.assert_not_called()
 
     def test_aviso_que_lanza_no_mata_el_hilo(self):
         adaptador = self.crear()

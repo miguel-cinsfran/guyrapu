@@ -15,7 +15,7 @@ import threading
 import time
 
 from guyrapu.core import diagnostico
-from guyrapu.music import bordes, cruce, sonoridad
+from guyrapu.music import atenuacion, bordes, cruce, sonoridad
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -272,7 +272,7 @@ class Transiciones:
 
     def _poner_volumen(self, reproductor, valor):
         try:
-            reproductor.audio_set_volume(valor)
+            reproductor.audio_set_volume(atenuacion.atenuado(valor))
         except Exception as exc:
             logger.debug("No se pudo mover el volumen del cruce: %s", exc)
 

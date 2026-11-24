@@ -29,12 +29,12 @@ def _lineas(hallazgos):
 
 class TestTabla(unittest.TestCase):
 
-    def test_las_veinticinco_reglas_estan_en_la_tabla(self):
+    def test_las_veintiseis_reglas_estan_en_la_tabla(self):
         self.assertEqual([regla.id for regla in reglas.REGLAS],
                          ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
                           "R9", "R10", "R11", "R12", "R13", "R14", "R15",
                           "R16", "R17", "R18", "R19", "R20", "R21",
-                          "R22", "R23", "R24", "R25"])
+                          "R22", "R23", "R24", "R25", "R26"])
         for regla in reglas.REGLAS:
             with self.subTest(regla=regla.id):
                 self.assertTrue(regla.prohibido)
@@ -474,6 +474,17 @@ class TestDetectores(unittest.TestCase):
                 m.AppendRadioItem(__WX__.ID_ANY, _(etiqueta))
             """.replace("__WX__", WX))
         self.assertEqual([1, 4], _lineas(hallazgos))
+
+    def test_volumen_sin_atenuar(self):
+        hallazgos = _hallazgos(reglas.detectar_volumen_sin_atenuar, """\
+            reproductor.audio_set_volume(valor)
+            reproductor.audio_set_volume(0)
+            reproductor.audio_set_volume(atenuado(valor))
+            reproductor.audio_set_volume(atenuacion.atenuado(valor))
+            # reproductor.audio_set_volume(valor)
+            texto = "reproductor.audio_set_volume(valor)"
+            """)
+        self.assertEqual([1], _lineas(hallazgos))
 
     def test_esperas(self):
         hallazgos = _hallazgos(detectores.detectar_esperas, """\
