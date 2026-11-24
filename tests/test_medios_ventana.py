@@ -7,6 +7,7 @@ Abre ventanas.
 
 import tempfile
 import time
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -15,8 +16,8 @@ import wx
 
 from guyrapu.core import paths
 from guyrapu.interaction import (
-    ajustes_interaccion, medios, medios_guardados, paquetes)
-from guyrapu.ui import medio_cuadro, medios_ventana
+    ajustes_interaccion, comandos_guardados, medios, medios_guardados, paquetes)
+from guyrapu.ui import comandos_ventana, interaccion_ventana, medio_cuadro, medios_ventana
 from tests.letras_acceso import letras_repetidas
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
@@ -101,8 +102,8 @@ class TestPagina(BaseVentana):
         self.assertEqual([(accion.clave, accion.tecla)
                           for accion in panel._acciones], [
             ("agregar", None), ("editar", "intro"), ("duplicar", "ctrl+d"),
-            ("escuchar", None), ("eliminar", "suprimir"), ("exportar", None),
-            ("importar", None)])
+            ("escuchar", None), ("crear_comando", None),
+            ("eliminar", "suprimir"), ("exportar", None), ("importar", None)])
         sin_elemento = {accion.clave for accion in panel._acciones
                         if not accion.necesita_elemento}
         self.assertEqual(sin_elemento, {"agregar", "exportar", "importar"})
@@ -288,6 +289,76 @@ class TestPagina(BaseVentana):
         ruta = paths.carpeta_medios() / guardados[0]["archivo"]
         self.assertEqual(ruta.read_bytes(), b"BBB")
         self.assertEqual(panel.lista.GetSelection(), 0)
+
+    def test_crear_comando_esta_en_la_fila_y_en_el_menu(self):
+        panel = self._panel([_datos()])
+        botones = [hijo for hijo in panel.GetChildren()
+                   if isinstance(hijo, wx.Button)]
+        crear = next(boton for boton in botones
+                     if boton.GetLabel() == "Crear c&omando")
+        self.assertEqual(crear.GetName(), "Crear comando")
+        self.assertGreater(botones.index(crear),
+                           botones.index(next(boton for boton in botones
+                                              if boton.GetLabel() == "Escuc&har")))
+        with mock.patch.object(medios_ventana.comando_cuadro, "abrir",
+                               return_value=None) as abrir:
+            panel._lista.ejecutar("crear_comando")
+        abrir.assert_called_once()
+
+    def test_crear_comando_guarda_y_lo_lista_comandos(self):
+        panel = self._panel([_datos(nombre="Aplausos Fuertes",
+                                    archivo="aplausos.wav")])
+        marco = panel.GetTopLevelParent()
+        pagina = comandos_ventana.PanelComandos(marco)
+        self.addCleanup(destruir, pagina)
+        marco._paginas = {"comandos": pagina}
+        marco.recargar_comandos = types.MethodType(
+            interaccion_ventana.VentanaInteraccion.recargar_comandos, marco)
+        self._mostrada(marco)
+        panel.lista.SetFocus()
+        capturado = {}
+
+        def abrir_falso(padre, datos, otros):
+            capturado["padre"] = padre
+            capturado["datos"] = datos
+            capturado["otros"] = list(otros)
+            return datos
+
+        with mock.patch.object(medios_ventana.comando_cuadro, "abrir",
+                               side_effect=abrir_falso), \
+             mock.patch.object(medios_ventana, "anunciar") as decir:
+            panel._lista.ejecutar("crear_comando")
+        self.assertIs(capturado["padre"], panel)
+        self.assertEqual(capturado["datos"], {
+            "nombre": "!aplausosfuertes", "medio": "Aplausos Fuertes"})
+        self.assertEqual([c["nombre"] for c in capturado["otros"]],
+                         ["commands"])
+        guardados = comandos_guardados.cargar(paths.comandos())
+        self.assertEqual(guardados[-1]["nombre"], "aplausosfuertes")
+        self.assertEqual(guardados[-1]["medio"], "Aplausos Fuertes")
+        self.assertTrue(any("aplausosfuertes" in pagina.lista.GetString(i)
+                            for i in range(pagina.lista.GetCount())))
+        self.assertEqual(panel.lista.GetSelection(), 0)
+        self.assertIs(wx.Window.FindFocus(), panel.lista)
+        decir.assert_called_once_with("Comando agregado")
+
+    def test_crear_comando_cancelado_no_guarda_ni_anuncia(self):
+        panel = self._panel([_datos(nombre="Aplausos Fuertes",
+                                    archivo="aplausos.wav")])
+        marco = panel.GetTopLevelParent()
+        pagina = comandos_ventana.PanelComandos(marco)
+        self.addCleanup(destruir, pagina)
+        marco._paginas = {"comandos": pagina}
+        self._mostrada(marco)
+        panel.lista.SetFocus()
+        with mock.patch.object(medios_ventana.comando_cuadro, "abrir",
+                               return_value=None), \
+             mock.patch.object(medios_ventana, "anunciar") as decir:
+            panel._lista.ejecutar("crear_comando")
+        self.assertEqual([c["nombre"] for c in
+                          comandos_guardados.cargar(paths.comandos())],
+                         ["commands"])
+        decir.assert_not_called()
 
 
 class TestCarpeta(BaseVentana):

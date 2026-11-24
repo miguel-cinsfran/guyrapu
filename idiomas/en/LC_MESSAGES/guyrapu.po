@@ -17695,3 +17695,7 @@ msgstr "Music volume &when lowered:"
 msgid "Volumen de la música al bajarla"
 msgstr "Music volume when lowered"
 
+#: guyrapu/ui/medios_ventana.py
+msgid "Crear c&omando"
+msgstr "C&reate command"
+

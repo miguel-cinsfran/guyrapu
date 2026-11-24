@@ -126,6 +126,22 @@ class TestContratos(BaseVentana):
             cuadro._al_tecla(evento)
         cerrar.assert_called_once_with(wx.ID_CANCEL)
 
+    def test_recargar_muestra_lo_agregado_por_fuera_y_conserva_el_elegido(self):
+        panel = self._panel([_datos("A")])
+        indice = self._indice(panel, "A")
+        panel.lista.SetSelection(indice)
+        guardados = comandos_guardados.cargar(paths.comandos())
+        guardados.append(_datos("B"))
+        comandos_guardados.guardar(paths.comandos(), guardados)
+        with mock.patch.object(comandos_ventana, "anunciar") as decir:
+            panel.recargar()
+        self.assertEqual([c["nombre"] for c in panel._comandos],
+                         ["commands", "A", "B"])
+        self.assertEqual(panel.lista.GetString(indice + 1),
+                         "!B, en el vídeo, todos")
+        self.assertEqual(panel.lista.GetSelection(), indice)
+        decir.assert_not_called()
+
 
 class TestCuadro(BaseVentana):
 

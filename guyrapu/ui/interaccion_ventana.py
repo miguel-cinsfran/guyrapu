@@ -107,6 +107,10 @@ class VentanaInteraccion(wx.Dialog):
         """El identificador de la página a la vista."""
         return PAGINAS[self.libro.GetSelection()][0]
 
+    def recargar_comandos(self):
+        """Vuelve a leer los comandos sin cerrar la ventana."""
+        self._paginas["comandos"].recargar()
+
     def _al_tecla(self, evento):
         if ayuda_manual.atender_f1(self, evento, self.pagina_actual()):
             return

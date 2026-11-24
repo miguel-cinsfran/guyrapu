@@ -16,9 +16,10 @@ import wx
 from guyrapu.core import paths
 from guyrapu.core.idioma import N_, _, ngettext
 from guyrapu.interaction import (
-    ajustes_interaccion, coleccion, medios, medios_guardados, paquetes)
+    ajustes_interaccion, coleccion, comandos_guardados, medios,
+    medios_guardados, paquetes)
 from guyrapu.ui import botonera
-from guyrapu.ui import confirmar, medio_cuadro, medios_medicion
+from guyrapu.ui import comando_cuadro, confirmar, medio_cuadro, medios_medicion
 from guyrapu.ui import paquetes_ventana
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
 from guyrapu.ui.deslizador import deslizador_accesible
@@ -43,6 +44,7 @@ def _acciones(panel):
         Accion("editar", _("&Editar"), panel._editar, tecla="intro"),
         Accion("duplicar", _("&Duplicar"), panel._duplicar, tecla="ctrl+d"),
         Accion("escuchar", _("Escuc&har"), panel._escuchar),
+        Accion("crear_comando", _("Crear c&omando"), panel._crear_comando),
         Accion("eliminar", _("E&liminar"), panel._eliminar,
                tecla="suprimir"),
         Accion("exportar", _("Expo&rtar"), panel._exportar,
@@ -260,6 +262,23 @@ class PanelMedios(wx.Panel):
             self, _("No se pudo reproducir el medio."),
             _("Escuchar medio"), _("Aceptar"),
             icono=confirmar.ICON_ERROR)
+
+    def _crear_comando(self):
+        indice = self._elegido()
+        if indice is None:
+            return
+        medio = self._medios[indice]["nombre"]
+        otros = comandos_guardados.cargar(paths.comandos())
+        datos = comando_cuadro.abrir(
+            self, {"nombre": f"!{medio.lower().replace(' ', '')}",
+                   "medio": medio}, otros)
+        if datos is None:
+            return
+        otros.append(datos)
+        comandos_guardados.guardar(paths.comandos(), otros)
+        self.GetTopLevelParent().recargar_comandos()
+        self._fijar(indice)
+        anunciar(_("Comando agregado"))
 
     def detener_escucha(self) -> bool:
         """Detiene la escucha previa y dice si había algo sonando."""

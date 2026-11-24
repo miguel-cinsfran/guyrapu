@@ -113,6 +113,12 @@ class TestPaginas(BaseVentana):
             ventana.libro.GetPage(8),
             palabras_bloqueadas_ventana.PanelPalabrasBloqueadas)
 
+    def test_recargar_comandos_usa_la_pagina_de_comandos(self):
+        ventana = self._ventana()
+        with mock.patch.object(ventana._paginas["comandos"], "recargar") as recargar:
+            ventana.recargar_comandos()
+        recargar.assert_called_once_with()
+
     def test_p2_el_boton_ayuda_va_despues_de_cerrar_y_abre_la_pagina(self):
         ventana = self._ventana("estilos")
         botones = [hijo for hijo in ventana.GetChildren()

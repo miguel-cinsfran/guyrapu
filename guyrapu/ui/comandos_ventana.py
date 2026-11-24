@@ -84,6 +84,11 @@ class PanelComandos(wx.Panel):
         self._lista.fijar(self._textos(), indice)
         self.lista.SetFocus()
 
+    def recargar(self):
+        elegido = self._elegido()
+        self._comandos = comandos_guardados.cargar(self._ruta)
+        self._fijar(elegido)
+
     def _guardar(self):
         comandos_guardados.guardar(self._ruta, self._comandos)
 
