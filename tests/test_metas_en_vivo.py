@@ -415,5 +415,34 @@ class TestEnsayo(Base):
                          "La meta Risa avanzó a 2 de 3.")
 
 
+class TestRastroEnElRegistro(Base):
+    """Cada avance de una meta queda en el registro detallado."""
+
+    _REGISTRO = "guyrapu.rastro_en_vivo"
+
+    def test_un_avance_anota_la_meta_y_al_cumplirse_otra_linea(self):
+        self._guardar(_meta(objetivo=2))
+        with mock.patch.object(contador_me_gusta, "total",
+                               return_value=None), \
+                self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self._atender(_registro(monto="1"))
+            self._atender(_registro(monto="1"))
+        self.assertIn('META nombre="Risa" anterior=0 nuevo=1.0 objetivo=2',
+                      registro.output[0])
+        self.assertIn('META nombre="Risa" anterior=1.0 nuevo=2.0 objetivo=2',
+                      registro.output[1])
+        self.assertIn('META_CUMPLIDA nombre="Risa"', registro.output[2])
+
+    def test_el_registro_no_lleva_el_autor_ni_el_texto(self):
+        self._guardar(_meta(objetivo=3))
+        with mock.patch.object(contador_me_gusta, "total",
+                               return_value=None), \
+                self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self._atender(_registro(texto="mensaje privado de Ana",
+                                    monto="1"))
+        self.assertNotIn("Ana", "".join(registro.output))
+        self.assertNotIn("privado", "".join(registro.output))
+
+
 if __name__ == "__main__":
     unittest.main()

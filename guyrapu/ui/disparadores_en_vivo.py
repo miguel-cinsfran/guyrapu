@@ -13,10 +13,12 @@ lectura del chat.
 from __future__ import annotations
 
 from guyrapu.core import diagnostico, paths
+from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
     atencion, comandos, conversion_disparadores, disparadores,
-    disparadores_guardados, ensayo, filtro_publico, medio_en_video)
+    disparadores_guardados, ensayo, filtro_publico, medio_en_video,
+    rastro_en_vivo)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import comandos_en_vivo, gui_envio_chat
@@ -67,6 +69,11 @@ class DisparadoresEnVivo:
         evento = _evento(registro)
         logrados = disparadores.cumplidos(
             self._disparadores, evento, self._esperas, ahora)
+        motivo = ("" if logrados else disparadores.motivo(
+            self._disparadores, evento, self._esperas, ahora))
+        rastro_en_vivo.escribir(rastro_en_vivo.evento(
+            evento.tipo, len(logrados), motivo,
+            mensaje=evento.tipo == TIPO_TEXTO))
         for disparador in logrados:
             self._poner(disparador, evento, ahora)
         informe = ensayo.informe(self._frame)
@@ -74,13 +81,14 @@ class DisparadoresEnVivo:
             for disparador in logrados:
                 informe.alerta(disparador.nombre)
             if not logrados:
-                informe.motivo(disparadores.motivo(
-                    self._disparadores, evento, self._esperas, ahora))
+                informe.motivo(motivo)
 
     def _poner(self, disparador, evento, ahora) -> None:
         tarjeta = (disparador.tarjeta or "").strip()
         medio = medio_en_video.resolver(disparador.medio)
         if not tarjeta and medio is None:
+            rastro_en_vivo.escribir(rastro_en_vivo.alerta(
+                disparador.nombre, evento.tipo, False, False, True))
             return
         contador = self._contadores.get(disparador.nombre, 0) + 1
         self._contadores[disparador.nombre] = contador
@@ -90,6 +98,8 @@ class DisparadoresEnVivo:
         else:
             texto = ""
         al_video, al_chat = self._destinos(disparador, evento, ahora)
+        rastro_en_vivo.escribir(rastro_en_vivo.alerta(
+            disparador.nombre, evento.tipo, al_video, al_chat))
         if al_chat and texto.strip():
             gui_envio_chat.enviar_respuesta_chat(self._frame, texto)
         if not al_video:

@@ -16,6 +16,7 @@ import wx
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction import ajustes_interaccion, medio_en_video
+from guyrapu.interaction import rastro_en_vivo
 from guyrapu.interaction.cola_pantalla import ColaPantalla, Pieza
 from guyrapu.music import atenuacion
 from guyrapu.obs import animador as animador_obs
@@ -98,6 +99,8 @@ class CapaVideo:
         agregada = self.cola.agregar(pieza)
         if agregada:
             self._en_cola += 1
+        rastro_en_vivo.escribir(rastro_en_vivo.video_cola(
+            pieza.tipo, pieza.datos.get("nombre"), agregada, self._en_cola))
         return agregada
 
     def agregar_pieza(self, pieza) -> bool:
@@ -150,10 +153,12 @@ class CapaVideo:
     def pausar(self):
         self.cola.pausar()
         self._pausado = True
+        rastro_en_vivo.escribir(rastro_en_vivo.video_estado(**self.estado()))
 
     def reanudar(self):
         self.cola.reanudar()
         self._pausado = False
+        rastro_en_vivo.escribir(rastro_en_vivo.video_estado(**self.estado()))
 
     def saltar(self) -> bool:
         """Omite lo que se ve; dice si había algo en el vídeo."""
@@ -171,12 +176,14 @@ class CapaVideo:
     def silenciar(self, activo):
         self.cola.silenciar(activo)
         self._silenciado = bool(activo)
+        rastro_en_vivo.escribir(rastro_en_vivo.video_estado(**self.estado()))
 
     def panico(self, activo):
         self.cola.panico(activo)
         self._panico = bool(activo)
         if activo:
             self._en_cola = 0
+        rastro_en_vivo.escribir(rastro_en_vivo.video_estado(**self.estado()))
 
     def probar(self, texto, estilo, al_terminar):
         """Arma la tarjeta en la escena propia y devuelve la revisión.
@@ -253,7 +260,7 @@ class CapaVideo:
                     self._ocultar(orden.pieza)
                 except Exception as segundo:
                     logger.debug("no se pudo quitar la escena: %s", segundo)
-            wx.CallAfter(self._fallo, orden.pieza)
+            wx.CallAfter(self._fallo, orden.pieza, error)
         else:
             if orden.accion == "mostrar":
                 wx.CallAfter(self._mostrada, orden)
@@ -343,6 +350,8 @@ class CapaVideo:
 
     def _mostrada(self, orden):
         pieza = orden.pieza
+        rastro_en_vivo.escribir(rastro_en_vivo.video_mostrada(
+            pieza.tipo, pieza.datos.get("nombre")))
         self.cola.mostrada(pieza, self._reloj())
         self._visible = pieza
         self._mostrando = False
@@ -374,7 +383,9 @@ class CapaVideo:
         self._visible = None
         self._ocupado = False
 
-    def _fallo(self, pieza):
+    def _fallo(self, pieza, error=None):
+        rastro_en_vivo.escribir(rastro_en_vivo.video_fallo(
+            pieza.tipo, pieza.datos.get("nombre"), error))
         self.cola.fallo(pieza, self._reloj())
         self._mostrando = False
         self._ocupado = False

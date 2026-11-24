@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 from guyrapu.core import paths
-from guyrapu.core.config import TIPO_MIEMBRO, TIPO_SUPERCHAT
+from guyrapu.core.config import TIPO_MIEMBRO, TIPO_SUPERCHAT, TIPO_TEXTO
 from guyrapu.interaction import (
     disparadores_guardados, filtro_publico, informe_ensayo, medios_guardados)
 from guyrapu.ui import comandos_en_vivo, disparadores_en_vivo, gui_envio_chat
@@ -430,6 +430,52 @@ class TestAlertaAlChat(Base):
         self._atender(ahora=0)
         self.enviar.assert_not_called()
         self.assertEqual(self._textos(), ["Gracias Ana"])
+
+
+class TestRastroEnElRegistro(Base):
+    """Cada decisión de las alertas queda en el registro detallado."""
+
+    _REGISTRO = "guyrapu.rastro_en_vivo"
+
+    def test_un_evento_con_una_alerta_anota_el_evento_y_la_alerta(self):
+        self._guardar(_datos(nombre="Risa"))
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self._atender()
+        self.assertIn('ALERTA_EVENTO tipo=superchat alertas=1 motivo=""',
+                      registro.output[0])
+        self.assertIn('ALERTA nombre="Risa" evento=superchat destino=video',
+                      registro.output[1])
+
+    def test_una_alerta_lograda_no_anota_el_motivo_de_su_espera(self):
+        self._guardar(_datos(nombre="Risa", espera_general=5,
+                             espera_persona=0))
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self._atender(ahora=0)
+        self.assertEqual(
+            registro.output[0],
+            'DEBUG:guyrapu.rastro_en_vivo:ALERTA_EVENTO tipo=superchat '
+            'alertas=1 motivo=""')
+
+    def test_un_evento_sin_alerta_anota_cero_alertas(self):
+        self._guardar(_datos(nombre="Risa", activo=False))
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self._atender()
+        self.assertEqual(len(registro.output), 1)
+        self.assertIn('ALERTA_EVENTO tipo=superchat alertas=0 motivo=""',
+                      registro.output[0])
+
+    def test_un_mensaje_de_chat_sin_alerta_ni_motivo_no_anota(self):
+        with mock.patch("guyrapu.interaction.rastro_en_vivo.logger.debug") \
+                as debug:
+            self._atender(_registro(tipo=TIPO_TEXTO, texto="hola"))
+        debug.assert_not_called()
+
+    def test_el_registro_no_lleva_el_autor_ni_el_texto(self):
+        self._guardar(_datos(nombre="Risa"))
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self._atender(_registro(texto="mensaje privado de Ana"))
+        self.assertNotIn("Ana", "".join(registro.output))
+        self.assertNotIn("privado", "".join(registro.output))
 
 
 if __name__ == "__main__":

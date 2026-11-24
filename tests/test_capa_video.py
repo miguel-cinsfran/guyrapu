@@ -856,5 +856,43 @@ class TestAtenuacionDeLaMusica(Base):
             soltar.assert_not_called()
 
 
+class TestRastroEnElRegistro(Base):
+    """Cada pieza y cada estado de la capa quedan en el registro."""
+
+    _REGISTRO = "guyrapu.rastro_en_vivo"
+
+    def test_una_pieza_sumada_y_mostrada_deja_sus_lineas(self):
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self.capa.agregar(self._mensaje(nombre="Saludo"))
+            self._atender()
+        self.assertIn('VIDEO_COLA tipo=mensaje nombre="Saludo" '
+                      'aceptada=si pendientes=1', registro.output[0])
+        self.assertIn('VIDEO_MOSTRADA tipo=mensaje nombre="Saludo"',
+                      registro.output[1])
+
+    def test_un_fallo_deja_el_tipo_el_nombre_y_el_error(self):
+        self.animador.fallas = 1
+        self.capa.agregar(self._mensaje(nombre="Saludo"))
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self._atender()
+        fallos = [linea for linea in registro.output
+                  if "VIDEO_FALLO" in linea]
+        self.assertTrue(fallos)
+        self.assertIn('VIDEO_FALLO tipo=mensaje nombre="Saludo"', fallos[0])
+        self.assertIn("error=", fallos[0])
+
+    def test_pausar_deja_el_estado_nuevo(self):
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self.capa.pausar()
+        self.assertIn("VIDEO_ESTADO pausado=True silenciado=False panico=False",
+                      registro.output[0])
+
+    def test_el_registro_no_lleva_el_texto_del_mensaje(self):
+        with self.assertLogs(self._REGISTRO, level="DEBUG") as registro:
+            self.capa.agregar(self._mensaje(texto="mensaje privado de Ana"))
+        self.assertNotIn("Ana", "".join(registro.output))
+        self.assertNotIn("privado", "".join(registro.output))
+
+
 if __name__ == "__main__":
     unittest.main()

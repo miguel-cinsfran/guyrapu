@@ -20,7 +20,8 @@ from guyrapu.capture import contador_me_gusta
 from guyrapu.core import diagnostico, paths
 from guyrapu.core.idioma import _
 from guyrapu.interaction import (
-    avisos_en_vivo, ensayo, medio_en_video, metas, metas_guardadas)
+    avisos_en_vivo, ensayo, medio_en_video, metas, metas_guardadas,
+    rastro_en_vivo)
 from guyrapu.interaction.cola_pantalla import Pieza
 from guyrapu.interaction.evento import desde_entrante
 from guyrapu.ui import gui_envio_chat
@@ -92,11 +93,16 @@ class MetasEnVivo:
             anterior = progreso.valor
             if not progreso.sumar(evento, total_me_gusta):
                 continue
+            rastro_en_vivo.escribir(rastro_en_vivo.meta(
+                progreso.meta.nombre, anterior, progreso.valor,
+                progreso.meta.objetivo))
             if informe is not None:
                 informe.meta(progreso.meta.nombre, progreso.valor,
                              progreso.meta.objetivo)
             self._avisar_avance(progreso, anterior)
             if progreso.recien_cumplida():
+                rastro_en_vivo.escribir(rastro_en_vivo.meta_cumplida(
+                    progreso.meta.nombre))
                 self._cumplida(progreso)
         self._refrescar_fija()
 
