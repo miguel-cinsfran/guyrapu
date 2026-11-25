@@ -126,6 +126,7 @@ VENTANAS = (
         "menu": "Interacción > Probar sin directo…",
         "titulo": "Prueba sin directo",
         "primero": "Mensaje",
+        "contestar_cuadro": "Continuar sin OBS",
     },
     {
         "nombre": "palabras",

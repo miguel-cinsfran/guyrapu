@@ -106,6 +106,8 @@ class TestVentanas(unittest.TestCase):
                 campos.add("titulo_menu")
             if "pulsar" in entrada:
                 campos.add("pulsar")
+            if "contestar_cuadro" in entrada:
+                campos.add("contestar_cuadro")
             self.assertEqual(set(entrada), campos)
             self.assertTrue(all(entrada[clave]
                                 for clave in ("nombre", "menu", "titulo")))
@@ -182,6 +184,7 @@ class TestVentanas(unittest.TestCase):
         self.assertEqual(ensayo["menu"], "Interacción > Probar sin directo…")
         self.assertEqual(ensayo["titulo"], "Prueba sin directo")
         self.assertEqual(ensayo["primero"], "Mensaje")
+        self.assertEqual(ensayo["contestar_cuadro"], "Continuar sin OBS")
         disparador = por_nombre["disparador"]
         self.assertEqual(disparador["menu"],
                          "Interacción > Abrir Interacción…")
@@ -415,6 +418,71 @@ class TestVentana(unittest.TestCase):
             app._ventana(BancoFalso(True), mock.Mock(), entrada,
                          7, set(), False)
         self.assertEqual(visto["acciones"], entrada["acciones"])
+
+    def test_contesta_el_cuadro_previo_si_aparece(self):
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "ensayo")
+        cuadro = object()
+        with (
+            mock.patch.object(app.banco_app, "dialogo_nativo",
+                              return_value=cuadro) as nativo,
+            mock.patch.object(app.banco_app, "pulsar_boton_nativo",
+                              return_value=True) as pulsar,
+            mock.patch.object(app.recorrido, "conducir",
+                              return_value={"pasos": []}),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(BancoFalso(True), mock.Mock(), entrada,
+                         7, set(), False)
+        nativo.assert_called_once_with("Prueba sin directo", segundos=8)
+        pulsar.assert_called_once_with(cuadro, "Continuar sin OBS")
+
+    def test_sin_cuadro_previo_sigue_como_hoy(self):
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "ensayo")
+        banco = BancoFalso(True)
+        with (
+            mock.patch.object(app.banco_app, "dialogo_nativo",
+                              return_value=None),
+            mock.patch.object(app.banco_app, "pulsar_boton_nativo") as pulsar,
+            mock.patch.object(app.recorrido, "conducir",
+                              return_value={"pasos": []}),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(banco, mock.Mock(), entrada, 7, set(), False)
+        pulsar.assert_not_called()
+        self.assertIn("esperar_ventana", banco.llamadas)
+
+    def test_una_entrada_sin_cuadro_no_busca_nativo(self):
+        with (
+            mock.patch.object(app.banco_app, "dialogo_nativo") as nativo,
+            mock.patch.object(app.recorrido, "conducir",
+                              return_value={"pasos": []}),
+            mock.patch.object(app.reglas, "analizar", return_value=[]),
+            mock.patch.object(app.transcripcion, "comparar",
+                              return_value=""),
+        ):
+            app._ventana(BancoFalso(True), mock.Mock(),
+                         ventanas_app.VENTANAS[0], 7, set(), False)
+        nativo.assert_not_called()
+
+    def test_si_no_se_encuentra_el_boton_del_cuadro_falla_con_instrumento_roto(self):
+        entrada = next(item for item in ventanas_app.VENTANAS
+                       if item["nombre"] == "ensayo")
+        with (
+            mock.patch.object(app.banco_app, "dialogo_nativo",
+                              return_value=object()),
+            mock.patch.object(app.banco_app, "pulsar_boton_nativo",
+                              return_value=False),
+        ):
+            with self.assertRaises(app.InstrumentoRoto) as salida:
+                app._ventana(BancoFalso(True), mock.Mock(), entrada,
+                             7, set(), False)
+        self.assertIn("Continuar sin OBS", str(salida.exception))
 
     def test_espera_la_ventana_del_menu_que_declara_la_entrada(self):
         banco = mock.Mock()

@@ -10,13 +10,15 @@ from __future__ import annotations
 
 import wx
 
-from guyrapu.core import plataformas
+from guyrapu.core import diagnostico, plataformas
 from guyrapu.core.idioma import N_, _
 from guyrapu.interaction import ensayo, informe_ensayo
+from guyrapu.obs import obs_activacion, obs_cliente, obs_lanzador
 from guyrapu.ui import (
-    ayuda_manual, encuesta_en_vivo, formulario, gui_envio_chat,
+    ayuda_manual, confirmar, encuesta_en_vivo, formulario, gui_envio_chat,
     lista_acciones, preguntas_en_vivo, tecla_escape)
 from guyrapu.ui.accesibilidad import anunciar, nombre_accesible
+from guyrapu.ui.aviso_importante import avisar
 from guyrapu.ui.paleta import pintar_ventana
 from guyrapu.ui.preferencias_comun import fila_label, nombre_de_etiqueta
 from guyrapu.voice import sound_player as _snd
@@ -25,6 +27,16 @@ from guyrapu.voice import sound_player as _snd
 VACIO_RESULTADOS = N_(
     "No hay resultados. Aquí aparece lo que respondió a cada mensaje de prueba. "
     "Escribe un mensaje y usa Enviar.")
+
+# Traductores: título y texto del aviso previo a la prueba cuando OBS está cerrado.
+TITULO_SIN_OBS = N_("Prueba sin directo")
+TEXTO_SIN_OBS = N_(
+    "OBS está cerrado. Las alertas, los comandos y las metas responden igual, "
+    "pero no se ven en el vídeo hasta abrir OBS.")
+# Traductores: los tres botones del aviso, con letras de acceso distintas.
+ABRIR_OBS = N_("&Abrir OBS")
+CONTINUAR_SIN_OBS = N_("&Continuar sin OBS")
+CANCELAR = N_("Cance&lar")
 
 
 def terminar(frame):
@@ -48,10 +60,44 @@ def abrir(frame):
         abierta.Raise()
         abierta.txt_mensaje.SetFocus()
         return
+    if not obs_activacion.obs_esta_en_ejecucion():
+        respuesta = confirmar.preguntar_tres(
+            frame, _(TEXTO_SIN_OBS), _(TITULO_SIN_OBS),
+            _(ABRIR_OBS), _(CONTINUAR_SIN_OBS), _(CANCELAR))
+        if respuesta == confirmar.ID_CANCEL:
+            return
+        if respuesta == confirmar.ID_YES:
+            diagnostico.crear_hilo(
+                _asegurar_y_mostrar, "AbrirObsEnsayo", args=(frame,)).start()
+            return
+    _mostrar_ventana(frame)
+
+
+def _mostrar_ventana(frame):
     frame._ensayo = True
     ventana = VentanaEnsayo(frame)
     frame._ventana_ensayo = ventana
     ventana.Show()
+
+
+def _responde_obs():
+    cliente = obs_cliente.ClienteObs(obs_cliente.leer_ajustes())
+    try:
+        cliente.conectar()
+    finally:
+        cliente.cerrar()
+
+
+def _asegurar_y_mostrar(frame):
+    try:
+        obs_lanzador.asegurar_obs(
+            _responde_obs,
+            al_anunciar=lambda frase: wx.CallAfter(anunciar, frase))
+    except Exception as error:
+        wx.CallAfter(avisar, obs_cliente.mensaje_de_fallo_obs(error),
+                     "error", error=True)
+    finally:
+        wx.CallAfter(_mostrar_ventana, frame)
 
 
 class VentanaEnsayo(wx.Dialog):

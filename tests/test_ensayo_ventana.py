@@ -17,7 +17,8 @@ from guyrapu.core.idioma import _
 from guyrapu.interaction import disparadores_guardados, ensayo
 from guyrapu.core.config import TIPO_SUPERCHAT, TIPO_TEXTO
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR
-from guyrapu.ui import chat_vivo, ensayo_ventana, gui_menu, gui_sesion
+from guyrapu.obs import obs_cliente
+from guyrapu.ui import chat_vivo, confirmar, ensayo_ventana, gui_menu, gui_sesion
 from tests.rutas_temporales import redirigir_rutas
 from tests.ventanas_prueba import app_de_prueba, destruir
 
@@ -83,8 +84,10 @@ class TestCampos(Base):
     def test_abrir_marca_el_ensayo_y_crea_la_ventana(self):
         frame = self._frame()
         abierta = []
-        with mock.patch.object(ensayo_ventana, "VentanaEnsayo",
-                               side_effect=lambda f: abierta.append(f) or mock.Mock()):
+        with mock.patch.object(ensayo_ventana.obs_activacion,
+                               "obs_esta_en_ejecucion", return_value=True), \
+                mock.patch.object(ensayo_ventana, "VentanaEnsayo",
+                                  side_effect=lambda f: abierta.append(f) or mock.Mock()):
             ensayo_ventana.abrir(frame)
         self.assertTrue(frame._ensayo)
         self.assertEqual(abierta, [frame])
@@ -363,6 +366,87 @@ class TestResultadoDesdeLaVentana(TestMensajeEnLaListaDelChat):
             "Respondió la alerta Agradecimiento.", "listo")
         self.assertIn("gracias: Respondió la alerta Agradecimiento.",
                       ventana.lista_resultados.GetString(0))
+
+
+class TestAperturaSinOBS(unittest.TestCase):
+    """La pregunta previa a la ventana, sin crear controles de wx."""
+
+    def setUp(self):
+        self.frame = SimpleNamespace(_conectado=False, _ensayo=False)
+        self.obs = self._parchear(
+            ensayo_ventana.obs_activacion, "obs_esta_en_ejecucion",
+            return_value=False)
+        self.preguntar = self._parchear(
+            ensayo_ventana.confirmar, "preguntar_tres",
+            return_value=confirmar.ID_CANCEL)
+        self.ventana = self._parchear(ensayo_ventana, "VentanaEnsayo")
+        self.hilo = self._parchear(
+            ensayo_ventana.diagnostico, "crear_hilo",
+            side_effect=self._hilo_sincrono)
+        self.asegurar = self._parchear(
+            ensayo_ventana.obs_lanzador, "asegurar_obs")
+        self.avisar = self._parchear(ensayo_ventana, "avisar")
+        self._parchear(ensayo_ventana.wx, "CallAfter",
+                       side_effect=lambda funcion, *args, **kwargs:
+                       funcion(*args, **kwargs))
+
+    def _parchear(self, objeto, nombre, **kwargs):
+        parche = mock.patch.object(objeto, nombre, **kwargs)
+        simulacro = parche.start()
+        self.addCleanup(parche.stop)
+        return simulacro
+
+    def _hilo_sincrono(self, objetivo, nombre, *, args=()):
+        hilo = mock.Mock()
+        hilo.start.side_effect = lambda: objetivo(*args)
+        return hilo
+
+    def test_p1_sale_el_cuadro_con_el_titulo_el_texto_y_los_tres_botones(self):
+        ensayo_ventana.abrir(self.frame)
+        self.obs.assert_called_once_with()
+        self.preguntar.assert_called_once_with(
+            self.frame,
+            "OBS está cerrado. Las alertas, los comandos y las metas "
+            "responden igual, pero no se ven en el vídeo hasta abrir OBS.",
+            "Prueba sin directo", "&Abrir OBS", "&Continuar sin OBS",
+            "Cance&lar")
+
+    def test_p2_abrir_obs_asegura_y_abre_la_ventana_al_terminar(self):
+        self.preguntar.return_value = confirmar.ID_YES
+        ensayo_ventana.abrir(self.frame)
+        self.hilo.assert_called_once()
+        self.asegurar.assert_called_once()
+        self.assertIn("al_anunciar", self.asegurar.call_args.kwargs)
+        self.ventana.assert_called_once_with(self.frame)
+        self.avisar.assert_not_called()
+
+    def test_p2_si_falla_asegurar_obs_anuncia_el_error_e_igual_abre(self):
+        self.preguntar.return_value = confirmar.ID_YES
+        self.asegurar.side_effect = obs_cliente.ObsError("no responde")
+        ensayo_ventana.abrir(self.frame)
+        self.avisar.assert_called_once()
+        self.assertEqual(self.avisar.call_args.args[1], "error")
+        self.assertTrue(self.avisar.call_args.kwargs["error"])
+        self.ventana.assert_called_once_with(self.frame)
+
+    def test_p3_continuar_sin_obs_abre_la_ventana(self):
+        self.preguntar.return_value = confirmar.ID_NO
+        ensayo_ventana.abrir(self.frame)
+        self.ventana.assert_called_once_with(self.frame)
+        self.asegurar.assert_not_called()
+
+    def test_p4_cancelar_no_abre_la_ventana(self):
+        """Escape devuelve el mismo botón de cancelar desde preguntar_tres."""
+        ensayo_ventana.abrir(self.frame)
+        self.ventana.assert_not_called()
+        self.asegurar.assert_not_called()
+        self.assertFalse(self.frame._ensayo)
+
+    def test_p5_con_obs_en_ejecucion_abre_sin_preguntar(self):
+        self.obs.return_value = True
+        ensayo_ventana.abrir(self.frame)
+        self.preguntar.assert_not_called()
+        self.ventana.assert_called_once_with(self.frame)
 
 
 if __name__ == "__main__":

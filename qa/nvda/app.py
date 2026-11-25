@@ -235,6 +235,19 @@ def _paginas_de_interaccion() -> list:
             for _clave, etiqueta in interaccion_ventana.PAGINAS]
 
 
+def _contestar_cuadro_previo(entrada):
+    """Contesta el cuadro que algunas ventanas abren antes que la ventana."""
+    if "contestar_cuadro" not in entrada:
+        return
+    cuadro = banco_app.dialogo_nativo(entrada["titulo"], segundos=8)
+    if cuadro is None:
+        return
+    if not banco_app.pulsar_boton_nativo(cuadro, entrada["contestar_cuadro"]):
+        raise InstrumentoRoto(
+            f"no se encontró el botón «{entrada['contestar_cuadro']}» "
+            f"en el cuadro «{entrada['titulo']}»")
+
+
 def _intentar_ventana(banco, cliente, entrada, pid, catalogo, aprobar):
     from qa.nvda.correr import _lineas_de_ventana
 
@@ -247,6 +260,7 @@ def _intentar_ventana(banco, cliente, entrada, pid, catalogo, aprobar):
             f"no se pudo traer al frente la app para «{entrada['titulo']}»",
             False)
     banco.pedir("menu_click", etiqueta=entrada["menu"], tiempo=10.0)
+    _contestar_cuadro_previo(entrada)
     titulo_menu = entrada.get("titulo_menu") or entrada["titulo"]
     if banco.esperar_ventana(titulo_menu, segundos=15.0) is None:
         raise InstrumentoRoto(f"no se abrió la ventana «{titulo_menu}»")

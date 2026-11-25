@@ -17857,3 +17857,20 @@ msgstr "Signed in. You can go back to the application."
 msgid "Sin título"
 msgstr "Untitled"
 
+#: guyrapu/ui/ensayo_ventana.py
+msgid ""
+"OBS está cerrado. Las alertas, los comandos y las metas responden igual, "
+"pero no se ven en el vídeo hasta abrir OBS."
+msgstr ""
+"OBS is closed. Alerts, commands and goals respond the same, but they do not"
+" appear on the video until you open OBS."
+
+#. Traductores: los tres botones del aviso, con letras de acceso distintas.
+#: guyrapu/ui/ensayo_ventana.py
+msgid "&Abrir OBS"
+msgstr "&Open OBS"
+
+#: guyrapu/ui/ensayo_ventana.py
+msgid "&Continuar sin OBS"
+msgstr "Continue &without OBS"
+

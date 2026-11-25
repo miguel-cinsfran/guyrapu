@@ -1,4 +1,4 @@
-<!-- original: es/MANUAL.md bd986a831f2a3a263e1b8cfc2c468a4dcc118be3 -->
+<!-- original: es/MANUAL.md d534f3aa50333cfc8dd8585dcfb0ec885daedef9 -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
@@ -423,7 +423,7 @@ In *Blocked words* you type the words that are hidden in the name and text of th
 
 ### <a id="probar-sin-directo"></a>Test without a live stream
 
-*Test without a live stream…*, in the *Interaction* menu, and the *Test without a live stream* button in the window rehearse the interaction without going on air. You cannot open it with a live stream connected. In *Platform* you choose YouTube or TikTok. The *Type* changes with the platform: in YouTube you have *Message*, *Super Chat* and *Membership*; in TikTok, *Message*, *Gift*, *New follower*, *Likes* and *Shared live streams*. In YouTube *Role* also appears, with *Public*, *Moderator* and *Channel owner*. Type the author and what the type asks for, for example amount and message for a Super Chat, and press *Send*.
+*Test without a live stream…*, in the *Interaction* menu, and the *Test without a live stream* button in the window rehearse the interaction without going on air. You cannot open it with a live stream connected. With OBS closed, a dialog warns that what goes to the video will not be visible and offers *Open OBS*, *Continue without OBS* or *Cancel*. In *Platform* you choose YouTube or TikTok. The *Type* changes with the platform: in YouTube you have *Message*, *Super Chat* and *Membership*; in TikTok, *Message*, *Gift*, *New follower*, *Likes* and *Shared live streams*. In YouTube *Role* also appears, with *Public*, *Moderator* and *Channel owner*. Type the author and what the type asks for, for example amount and message for a Super Chat, and press *Send*.
 
 The *Results* list keeps a line for each send with the time, what you sent and what responded. For example: "The command !hola responded.", "The alert Thanks for the Super Chat responded.", "Vote counted in the poll", "Question added to the Questions page." or "Goal advanced to 12 of 50.". If nothing responded, the reason says why:
 

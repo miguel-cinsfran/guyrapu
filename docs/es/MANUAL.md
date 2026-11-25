@@ -974,7 +974,9 @@ símbolos no se muestra.
 
 *Probar sin directo…*, en el menú *Interacción*, y el botón *Probar sin
 directo* de la ventana ensayan la interacción sin salir al aire. No se puede
-abrir con un directo conectado. En *Plataforma* eliges YouTube o TikTok. El
+abrir con un directo conectado. Con OBS cerrado, un cuadro avisa de que lo que
+va al vídeo no se verá y ofrece *Abrir OBS*, *Continuar sin OBS* o *Cancelar*.
+En *Plataforma* eliges YouTube o TikTok. El
 *Tipo* cambia con la plataforma: en YouTube tienes *Mensaje*, *Super Chat* y
 *Membresía*; en TikTok, *Mensaje*, *Regalo*, *Seguidor nuevo*, *Me gusta* y
 *Directo compartido*. En YouTube aparece además *Rol*, con *Público*,
