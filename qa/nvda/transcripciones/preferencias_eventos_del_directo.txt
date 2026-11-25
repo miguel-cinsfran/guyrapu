@@ -2,6 +2,7 @@ tecla=tab fase=ida dijo='Membresías: cuadro combinado Voz principal y sonido co
 tecla=tab fase=ida dijo='Entradas al directo: cuadro combinado Solo sonido contraído Alt+ e' foco={nombre='Entradas al directo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Solo sonido', atajo='Alt+e'}
 tecla=tab fase=ida dijo='Agrupar entradas casilla de verificación marcado Alt+ r' foco={nombre='Agrupar entradas', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=tab fase=ida dijo='Agrupar entradas durante (segundos): edición Alt+ o seleccionado 10' foco={nombre='Agrupar entradas durante (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='10', atajo='Alt+o'}
+tecla=tab fase=ida dijo='Avisar al momento la primera entrada casilla de verificación marcado Alt+ i' foco={nombre='Avisar al momento la primera entrada', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+i'}
 tecla=tab fase=ida dijo='Me gusta: cuadro combinado Solo sonido contraído Alt+ u' foco={nombre='Me gusta:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Solo sonido', atajo='Alt+u'}
 tecla=tab fase=ida dijo='Agrupar me gusta casilla de verificación marcado Alt+ p' foco={nombre='Agrupar me gusta', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+p'}
 tecla=tab fase=ida dijo='Agrupar me gusta durante (segundos): edición Alt+ a seleccionado 10' foco={nombre='Agrupar me gusta durante (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='10', atajo='Alt+a'}
@@ -33,6 +34,7 @@ tecla=shift+tab fase=vuelta dijo='Seguidores nuevos: cuadro combinado Voz princi
 tecla=shift+tab fase=vuelta dijo='Agrupar me gusta durante (segundos): edición Alt+ a seleccionado 10' foco={nombre='Agrupar me gusta durante (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='10', atajo='Alt+a'}
 tecla=shift+tab fase=vuelta dijo='Agrupar me gusta casilla de verificación marcado Alt+ p' foco={nombre='Agrupar me gusta', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+p'}
 tecla=shift+tab fase=vuelta dijo='Me gusta: cuadro combinado Solo sonido contraído Alt+ u' foco={nombre='Me gusta:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Solo sonido', atajo='Alt+u'}
+tecla=shift+tab fase=vuelta dijo='Avisar al momento la primera entrada casilla de verificación marcado Alt+ i' foco={nombre='Avisar al momento la primera entrada', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+i'}
 tecla=shift+tab fase=vuelta dijo='Agrupar entradas durante (segundos): edición Alt+ o seleccionado 10' foco={nombre='Agrupar entradas durante (segundos):', rol='EDITABLETEXT', estados=['FOCUSABLE'], valor='10', atajo='Alt+o'}
 tecla=shift+tab fase=vuelta dijo='Agrupar entradas casilla de verificación marcado Alt+ r' foco={nombre='Agrupar entradas', rol='CHECKBOX', estados=['CHECKED', 'FOCUSABLE'], valor='', atajo='Alt+r'}
 tecla=shift+tab fase=vuelta dijo='Entradas al directo: cuadro combinado Solo sonido contraído Alt+ e' foco={nombre='Entradas al directo:', rol='COMBOBOX', estados=['COLLAPSED', 'FOCUSABLE'], valor='Solo sonido', atajo='Alt+e'}
