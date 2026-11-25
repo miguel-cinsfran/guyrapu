@@ -5624,12 +5624,40 @@
     {
       "id": -31794,
       "padre": -31804,
+      "clase": "wxCheckBox",
+      "nombre": "Avisar al momento la primera entrada",
+      "etiqueta": "Avisar al momento la primera entrada",
+      "rect": [
+        397,
+        193,
+        351,
+        15
+      ],
+      "visible": true,
+      "habilitado": true,
+      "enfocable": true,
+      "fg": "#1C2629",
+      "bg": "#F0F0F0",
+      "fuente": {
+        "cara": "Segoe UI",
+        "puntos": 9,
+        "px": 12,
+        "peso": 400
+      },
+      "texto_px": [
+        199,
+        15
+      ]
+    },
+    {
+      "id": -31793,
+      "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Me gusta:",
       "rect": [
         188,
-        196,
+        223,
         53,
         16
       ],
@@ -5650,14 +5678,14 @@
       ]
     },
     {
-      "id": -31793,
+      "id": -31792,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Me gusta",
       "etiqueta": "",
       "rect": [
         397,
-        193,
+        220,
         351,
         23
       ],
@@ -5678,14 +5706,14 @@
       ]
     },
     {
-      "id": -31792,
+      "id": -31791,
       "padre": -31804,
       "clase": "wxCheckBox",
       "nombre": "Agrupar me gusta",
       "etiqueta": "Agrupar me gusta",
       "rect": [
         397,
-        228,
+        255,
         351,
         15
       ],
@@ -5706,14 +5734,14 @@
       ]
     },
     {
-      "id": -31791,
+      "id": -31790,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Agrupar me gusta durante (segundos):",
       "rect": [
         188,
-        258,
+        285,
         205,
         16
       ],
@@ -5734,14 +5762,14 @@
       ]
     },
     {
-      "id": -31790,
+      "id": -31789,
       "padre": -31804,
       "clase": "wxSpinCtrl",
       "nombre": "Agrupar me gusta durante, en segundos",
       "etiqueta": "",
       "rect": [
         397,
-        255,
+        282,
         46,
         23
       ],
@@ -5762,14 +5790,14 @@
       ]
     },
     {
-      "id": -31789,
+      "id": -31788,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Seguidores nuevos:",
       "rect": [
         188,
-        293,
+        320,
         103,
         16
       ],
@@ -5790,14 +5818,14 @@
       ]
     },
     {
-      "id": -31788,
+      "id": -31787,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Seguidores nuevos",
       "etiqueta": "",
       "rect": [
         397,
-        290,
+        317,
         351,
         23
       ],
@@ -5818,14 +5846,14 @@
       ]
     },
     {
-      "id": -31787,
+      "id": -31786,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Directo compartido:",
       "rect": [
         188,
-        328,
+        355,
         107,
         16
       ],
@@ -5846,14 +5874,14 @@
       ]
     },
     {
-      "id": -31786,
+      "id": -31785,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Directo compartido",
       "etiqueta": "",
       "rect": [
         397,
-        325,
+        352,
         351,
         23
       ],
@@ -5874,14 +5902,14 @@
       ]
     },
     {
-      "id": -31785,
+      "id": -31784,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Cofres:",
       "rect": [
         188,
-        363,
+        390,
         38,
         16
       ],
@@ -5902,14 +5930,14 @@
       ]
     },
     {
-      "id": -31784,
+      "id": -31783,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Cofres",
       "etiqueta": "",
       "rect": [
         397,
-        360,
+        387,
         351,
         23
       ],
@@ -5930,14 +5958,14 @@
       ]
     },
     {
-      "id": -31783,
+      "id": -31782,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Encuestas:",
       "rect": [
         188,
-        398,
+        425,
         56,
         16
       ],
@@ -5958,14 +5986,14 @@
       ]
     },
     {
-      "id": -31782,
+      "id": -31781,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Encuestas",
       "etiqueta": "",
       "rect": [
         397,
-        395,
+        422,
         351,
         23
       ],
@@ -5986,14 +6014,14 @@
       ]
     },
     {
-      "id": -31781,
+      "id": -31780,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Metas:",
       "rect": [
         188,
-        433,
+        460,
         36,
         16
       ],
@@ -6014,14 +6042,14 @@
       ]
     },
     {
-      "id": -31780,
+      "id": -31779,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Metas",
       "etiqueta": "",
       "rect": [
         397,
-        430,
+        457,
         351,
         23
       ],
@@ -6042,14 +6070,14 @@
       ]
     },
     {
-      "id": -31779,
+      "id": -31778,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Batallas:",
       "rect": [
         188,
-        468,
+        495,
         44,
         16
       ],
@@ -6070,14 +6098,14 @@
       ]
     },
     {
-      "id": -31778,
+      "id": -31777,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Batallas",
       "etiqueta": "",
       "rect": [
         397,
-        465,
+        492,
         351,
         23
       ],
@@ -6098,14 +6126,14 @@
       ]
     },
     {
-      "id": -31777,
+      "id": -31776,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Comandos del chat:",
       "rect": [
         188,
-        503,
+        530,
         107,
         16
       ],
@@ -6126,14 +6154,14 @@
       ]
     },
     {
-      "id": -31776,
+      "id": -31775,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Comandos del chat",
       "etiqueta": "",
       "rect": [
         397,
-        500,
+        527,
         351,
         23
       ],
@@ -6154,14 +6182,14 @@
       ]
     },
     {
-      "id": -31775,
+      "id": -31774,
       "padre": -31804,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Sonido propio de cada plataforma:",
       "rect": [
         188,
-        538,
+        565,
         184,
         16
       ],
@@ -6182,14 +6210,14 @@
       ]
     },
     {
-      "id": -31774,
+      "id": -31773,
       "padre": -31804,
       "clase": "wxChoice",
       "nombre": "Sonido propio de cada plataforma",
       "etiqueta": "",
       "rect": [
         397,
-        535,
+        562,
         351,
         23
       ],
@@ -6210,14 +6238,14 @@
       ]
     },
     {
-      "id": -31773,
+      "id": -31772,
       "padre": -31804,
       "clase": "wxCheckBox",
       "nombre": "Anunciar qué plataforma tiene cada mensaje cuando hay varios chats",
       "etiqueta": "Anunciar qué plataforma tiene cada mensaje cuando hay varios chats",
       "rect": [
         188,
-        570,
+        597,
         560,
         15
       ],
@@ -6238,7 +6266,7 @@
       ]
     },
     {
-      "id": -31772,
+      "id": -31771,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagFiltros",
@@ -6266,8 +6294,8 @@
       ]
     },
     {
-      "id": -31771,
-      "padre": -31772,
+      "id": -31770,
+      "padre": -31771,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Palabras silenciadas (separadas por comas):",
@@ -6294,8 +6322,8 @@
       ]
     },
     {
-      "id": -31770,
-      "padre": -31772,
+      "id": -31769,
+      "padre": -31771,
       "clase": "wxTextCtrl",
       "nombre": "Palabras silenciadas",
       "etiqueta": "",
@@ -6322,8 +6350,8 @@
       ]
     },
     {
-      "id": -31769,
-      "padre": -31772,
+      "id": -31768,
+      "padre": -31771,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Usuarios silenciados (separados por comas):",
@@ -6350,8 +6378,8 @@
       ]
     },
     {
-      "id": -31768,
-      "padre": -31772,
+      "id": -31767,
+      "padre": -31771,
       "clase": "wxTextCtrl",
       "nombre": "Usuarios silenciados",
       "etiqueta": "",
@@ -6378,8 +6406,8 @@
       ]
     },
     {
-      "id": -31767,
-      "padre": -31772,
+      "id": -31766,
+      "padre": -31771,
       "clase": "wxStaticText",
       "nombre": "NotaFiltros",
       "etiqueta": "Estos filtros ocultan y no leen los mensajes que contengan esas palabras o de esos\nusuarios. Se aplican a partir del próximo mensaje.",
@@ -6406,7 +6434,7 @@
       ]
     },
     {
-      "id": -31766,
+      "id": -31765,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagEstado",
@@ -6434,8 +6462,8 @@
       ]
     },
     {
-      "id": -31765,
-      "padre": -31766,
+      "id": -31764,
+      "padre": -31765,
       "clase": "wxStaticText",
       "nombre": "NotaEstado",
       "etiqueta": "Elige qué dice la tecla F2 (estado de sesión). Marca lo que quieras oír; por defecto, los\ndatos del vídeo y del chat. El orden en que se dice es fijo.",
@@ -6462,8 +6490,8 @@
       ]
     },
     {
-      "id": -31764,
-      "padre": -31766,
+      "id": -31763,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_estado",
       "etiqueta": "Estado de conexión y tipo",
@@ -6490,8 +6518,8 @@
       ]
     },
     {
-      "id": -31763,
-      "padre": -31766,
+      "id": -31762,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_titulo",
       "etiqueta": "Título del vídeo o directo",
@@ -6518,8 +6546,8 @@
       ]
     },
     {
-      "id": -31762,
-      "padre": -31766,
+      "id": -31761,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_canal",
       "etiqueta": "Canal o autor",
@@ -6546,8 +6574,8 @@
       ]
     },
     {
-      "id": -31761,
-      "padre": -31766,
+      "id": -31760,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_espectadores",
       "etiqueta": "Espectadores ahora y en total",
@@ -6574,8 +6602,8 @@
       ]
     },
     {
-      "id": -31760,
-      "padre": -31766,
+      "id": -31759,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_tiempo_directo",
       "etiqueta": "Tiempo que lleva el directo",
@@ -6602,8 +6630,8 @@
       ]
     },
     {
-      "id": -31759,
-      "padre": -31766,
+      "id": -31758,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_desfase_directo",
       "etiqueta": "Retraso del reproductor respecto al directo",
@@ -6630,8 +6658,8 @@
       ]
     },
     {
-      "id": -31758,
-      "padre": -31766,
+      "id": -31757,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_mensajes_leidos",
       "etiqueta": "Mensajes leídos",
@@ -6658,8 +6686,8 @@
       ]
     },
     {
-      "id": -31757,
-      "padre": -31766,
+      "id": -31756,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_aportes",
       "etiqueta": "Super Chats / regalos",
@@ -6686,8 +6714,8 @@
       ]
     },
     {
-      "id": -31756,
-      "padre": -31766,
+      "id": -31755,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_encuesta",
       "etiqueta": "Encuesta en curso",
@@ -6714,8 +6742,8 @@
       ]
     },
     {
-      "id": -31755,
-      "padre": -31766,
+      "id": -31754,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_batalla",
       "etiqueta": "Batalla en curso",
@@ -6742,8 +6770,8 @@
       ]
     },
     {
-      "id": -31754,
-      "padre": -31766,
+      "id": -31753,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_meta",
       "etiqueta": "Meta",
@@ -6770,8 +6798,8 @@
       ]
     },
     {
-      "id": -31753,
-      "padre": -31766,
+      "id": -31752,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_en_cola",
       "etiqueta": "Mensajes en cola de lectura",
@@ -6798,8 +6826,8 @@
       ]
     },
     {
-      "id": -31752,
-      "padre": -31766,
+      "id": -31751,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_voz",
       "etiqueta": "Velocidad y volumen de la voz",
@@ -6826,8 +6854,8 @@
       ]
     },
     {
-      "id": -31751,
-      "padre": -31766,
+      "id": -31750,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_lectura_silenciada",
       "etiqueta": "Aviso de lectura silenciada",
@@ -6854,8 +6882,8 @@
       ]
     },
     {
-      "id": -31750,
-      "padre": -31766,
+      "id": -31749,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_overlay",
       "etiqueta": "Chat en el vídeo para transmitir",
@@ -6882,8 +6910,8 @@
       ]
     },
     {
-      "id": -31749,
-      "padre": -31766,
+      "id": -31748,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_video",
       "etiqueta": "Lo que se ve en el vídeo",
@@ -6910,8 +6938,8 @@
       ]
     },
     {
-      "id": -31748,
-      "padre": -31766,
+      "id": -31747,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_programados",
       "etiqueta": "Mensajes automáticos",
@@ -6938,8 +6966,8 @@
       ]
     },
     {
-      "id": -31747,
-      "padre": -31766,
+      "id": -31746,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_comandos",
       "etiqueta": "Comandos respondidos",
@@ -6966,8 +6994,8 @@
       ]
     },
     {
-      "id": -31746,
-      "padre": -31766,
+      "id": -31745,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_descartados",
       "etiqueta": "Mensajes descartados",
@@ -6994,8 +7022,8 @@
       ]
     },
     {
-      "id": -31745,
-      "padre": -31766,
+      "id": -31744,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_obs_transmision",
       "etiqueta": "Estado de la transmisión de OBS",
@@ -7022,8 +7050,8 @@
       ]
     },
     {
-      "id": -31744,
-      "padre": -31766,
+      "id": -31743,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_obs_grabacion",
       "etiqueta": "Estado de la grabación de OBS",
@@ -7050,8 +7078,8 @@
       ]
     },
     {
-      "id": -31743,
-      "padre": -31766,
+      "id": -31742,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_obs_escena",
       "etiqueta": "Escena actual en OBS",
@@ -7078,8 +7106,8 @@
       ]
     },
     {
-      "id": -31742,
-      "padre": -31766,
+      "id": -31741,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_musica",
       "etiqueta": "Música que suena",
@@ -7106,8 +7134,8 @@
       ]
     },
     {
-      "id": -31741,
-      "padre": -31766,
+      "id": -31740,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_igualando",
       "etiqueta": "Igualación del volumen de la música",
@@ -7134,8 +7162,8 @@
       ]
     },
     {
-      "id": -31740,
-      "padre": -31766,
+      "id": -31739,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_camara",
       "etiqueta": "Encuadre de cámara",
@@ -7162,8 +7190,8 @@
       ]
     },
     {
-      "id": -31739,
-      "padre": -31766,
+      "id": -31738,
+      "padre": -31765,
       "clase": "wxCheckBox",
       "nombre": "EstadoComponente_cuota_youtube",
       "etiqueta": "Cuota de YouTube usada hoy",
@@ -7190,7 +7218,7 @@
       ]
     },
     {
-      "id": -31738,
+      "id": -31737,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagConexion",
@@ -7218,8 +7246,8 @@
       ]
     },
     {
-      "id": -31737,
-      "padre": -31738,
+      "id": -31736,
+      "padre": -31737,
       "clase": "wxCheckBox",
       "nombre": "Reconectar automáticamente",
       "etiqueta": "Reconectar automáticamente",
@@ -7246,8 +7274,8 @@
       ]
     },
     {
-      "id": -31736,
-      "padre": -31738,
+      "id": -31735,
+      "padre": -31737,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Espera máxima entre intentos, en segundos:",
@@ -7274,8 +7302,8 @@
       ]
     },
     {
-      "id": -31735,
-      "padre": -31738,
+      "id": -31734,
+      "padre": -31737,
       "clase": "wxSpinCtrl",
       "nombre": "Espera máxima entre intentos, en segundos",
       "etiqueta": "",
@@ -7302,8 +7330,8 @@
       ]
     },
     {
-      "id": -31734,
-      "padre": -31738,
+      "id": -31733,
+      "padre": -31737,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Número máximo de intentos:",
@@ -7330,8 +7358,8 @@
       ]
     },
     {
-      "id": -31733,
-      "padre": -31738,
+      "id": -31732,
+      "padre": -31737,
       "clase": "wxSpinCtrl",
       "nombre": "Número máximo de intentos",
       "etiqueta": "",
@@ -7358,7 +7386,7 @@
       ]
     },
     {
-      "id": -31732,
+      "id": -31731,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagApi",
@@ -7386,8 +7414,8 @@
       ]
     },
     {
-      "id": -31731,
-      "padre": -31732,
+      "id": -31730,
+      "padre": -31731,
       "clase": "wxStaticText",
       "nombre": "IntroApi",
       "etiqueta": "La clave de API permite leer comentarios sin iniciar sesión. Con la sesión iniciada\ntambién se puede moderar el chat, enviar mensajes y comentar.",
@@ -7414,8 +7442,8 @@
       ]
     },
     {
-      "id": -31730,
-      "padre": -31732,
+      "id": -31729,
+      "padre": -31731,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Clave de API:",
@@ -7442,8 +7470,8 @@
       ]
     },
     {
-      "id": -31729,
-      "padre": -31732,
+      "id": -31728,
+      "padre": -31731,
       "clase": "wxTextCtrl",
       "nombre": "Clave de API de YouTube",
       "etiqueta": "",
@@ -7470,8 +7498,8 @@
       ]
     },
     {
-      "id": -31728,
-      "padre": -31732,
+      "id": -31727,
+      "padre": -31731,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "ID de cliente OAuth:",
@@ -7498,8 +7526,8 @@
       ]
     },
     {
-      "id": -31727,
-      "padre": -31732,
+      "id": -31726,
+      "padre": -31731,
       "clase": "wxTextCtrl",
       "nombre": "ID de cliente OAuth",
       "etiqueta": "",
@@ -7526,8 +7554,8 @@
       ]
     },
     {
-      "id": -31726,
-      "padre": -31732,
+      "id": -31725,
+      "padre": -31731,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Secreto de cliente OAuth:",
@@ -7554,8 +7582,8 @@
       ]
     },
     {
-      "id": -31725,
-      "padre": -31732,
+      "id": -31724,
+      "padre": -31731,
       "clase": "wxTextCtrl",
       "nombre": "Secreto de cliente OAuth",
       "etiqueta": "",
@@ -7582,8 +7610,8 @@
       ]
     },
     {
-      "id": -31724,
-      "padre": -31732,
+      "id": -31723,
+      "padre": -31731,
       "clase": "wxStaticText",
       "nombre": "EstadoSesion",
       "etiqueta": "Estado: sin sesión. Solo lectura de comentarios (si hay clave de API).",
@@ -7610,8 +7638,8 @@
       ]
     },
     {
-      "id": -31723,
-      "padre": -31732,
+      "id": -31722,
+      "padre": -31731,
       "clase": "wxButton",
       "nombre": "GuardarClaves",
       "etiqueta": "Guardar claves",
@@ -7638,8 +7666,8 @@
       ]
     },
     {
-      "id": -31722,
-      "padre": -31732,
+      "id": -31721,
+      "padre": -31731,
       "clase": "wxButton",
       "nombre": "IniciarSesion",
       "etiqueta": "Iniciar sesión",
@@ -7666,8 +7694,8 @@
       ]
     },
     {
-      "id": -31721,
-      "padre": -31732,
+      "id": -31720,
+      "padre": -31731,
       "clase": "wxButton",
       "nombre": "CerrarSesion",
       "etiqueta": "Cerrar sesión (no hay sesión iniciada)",
@@ -7694,8 +7722,8 @@
       ]
     },
     {
-      "id": -31720,
-      "padre": -31732,
+      "id": -31719,
+      "padre": -31731,
       "clase": "wxButton",
       "nombre": "AbrirGuia",
       "etiqueta": "Abrir guía",
@@ -7722,7 +7750,7 @@
       ]
     },
     {
-      "id": -31719,
+      "id": -31718,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagReproductor",
@@ -7750,8 +7778,8 @@
       ]
     },
     {
-      "id": -31718,
-      "padre": -31719,
+      "id": -31717,
+      "padre": -31718,
       "clase": "wxCheckBox",
       "nombre": "AutoplayReproductor",
       "etiqueta": "Reproducir audio automáticamente al conectar",
@@ -7778,8 +7806,8 @@
       ]
     },
     {
-      "id": -31717,
-      "padre": -31719,
+      "id": -31716,
+      "padre": -31718,
       "clase": "wxCheckBox",
       "nombre": "SoloAudioReproductor",
       "etiqueta": "Reproducir solo el audio, sin imagen",
@@ -7806,8 +7834,8 @@
       ]
     },
     {
-      "id": -31716,
-      "padre": -31719,
+      "id": -31715,
+      "padre": -31718,
       "clase": "wxCheckBox",
       "nombre": "MostrarBotonesReproductor",
       "etiqueta": "Mostrar botones del reproductor",
@@ -7834,8 +7862,8 @@
       ]
     },
     {
-      "id": -31715,
-      "padre": -31719,
+      "id": -31714,
+      "padre": -31718,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Tamaño máximo de la caché de vídeo, en megabytes:",
@@ -7862,8 +7890,8 @@
       ]
     },
     {
-      "id": -31714,
-      "padre": -31719,
+      "id": -31713,
+      "padre": -31718,
       "clase": "wxSpinCtrl",
       "nombre": "Tamaño máximo de la caché de vídeo en megabytes",
       "etiqueta": "",
@@ -7890,7 +7918,7 @@
       ]
     },
     {
-      "id": -31713,
+      "id": -31712,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagMusica",
@@ -7918,8 +7946,8 @@
       ]
     },
     {
-      "id": -31712,
-      "padre": -31713,
+      "id": -31711,
+      "padre": -31712,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Carpeta de música:",
@@ -7946,8 +7974,8 @@
       ]
     },
     {
-      "id": -31711,
-      "padre": -31713,
+      "id": -31710,
+      "padre": -31712,
       "clase": "wxDirPickerCtrl",
       "nombre": "Carpeta de música",
       "etiqueta": "",
@@ -7974,8 +8002,8 @@
       ]
     },
     {
-      "id": -31710,
-      "padre": -31711,
+      "id": -31709,
+      "padre": -31710,
       "clase": "wxTextCtrl",
       "nombre": "Carpeta de música",
       "etiqueta": "",
@@ -8002,8 +8030,8 @@
       ]
     },
     {
-      "id": -31709,
-      "padre": -31711,
+      "id": -31708,
+      "padre": -31710,
       "clase": "wxGenericDirButton",
       "nombre": "Examinar…",
       "etiqueta": "Examinar…",
@@ -8030,8 +8058,8 @@
       ]
     },
     {
-      "id": -31708,
-      "padre": -31713,
+      "id": -31707,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "MusicaAleatorio",
       "etiqueta": "Orden aleatorio",
@@ -8058,8 +8086,8 @@
       ]
     },
     {
-      "id": -31707,
-      "padre": -31713,
+      "id": -31706,
+      "padre": -31712,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Repetir:",
@@ -8086,8 +8114,8 @@
       ]
     },
     {
-      "id": -31706,
-      "padre": -31713,
+      "id": -31705,
+      "padre": -31712,
       "clase": "wxChoice",
       "nombre": "Repetir la música",
       "etiqueta": "",
@@ -8114,8 +8142,8 @@
       ]
     },
     {
-      "id": -31705,
-      "padre": -31713,
+      "id": -31704,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "MusicaRetomar",
       "etiqueta": "Recordar última lista al abrir",
@@ -8142,8 +8170,8 @@
       ]
     },
     {
-      "id": -31704,
-      "padre": -31713,
+      "id": -31703,
+      "padre": -31712,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Fundido entre canciones, en segundos:",
@@ -8170,8 +8198,8 @@
       ]
     },
     {
-      "id": -31703,
-      "padre": -31713,
+      "id": -31702,
+      "padre": -31712,
       "clase": "wxSpinCtrl",
       "nombre": "Fundido entre canciones, en segundos",
       "etiqueta": "",
@@ -8198,8 +8226,8 @@
       ]
     },
     {
-      "id": -31702,
-      "padre": -31713,
+      "id": -31701,
+      "padre": -31712,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Anunciar al cambiar de canción:",
@@ -8226,8 +8254,8 @@
       ]
     },
     {
-      "id": -31701,
-      "padre": -31713,
+      "id": -31700,
+      "padre": -31712,
       "clase": "wxChoice",
       "nombre": "Anunciar al cambiar de canción",
       "etiqueta": "",
@@ -8254,8 +8282,8 @@
       ]
     },
     {
-      "id": -31700,
-      "padre": -31713,
+      "id": -31699,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "MusicaDecirPausa",
       "etiqueta": "Anunciar pausa, reanudación y vuelta al comienzo",
@@ -8282,8 +8310,8 @@
       ]
     },
     {
-      "id": -31699,
-      "padre": -31713,
+      "id": -31698,
+      "padre": -31712,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Volumen de la música:",
@@ -8310,8 +8338,8 @@
       ]
     },
     {
-      "id": -31698,
-      "padre": -31713,
+      "id": -31697,
+      "padre": -31712,
       "clase": "wxSlider",
       "nombre": "Volumen de la música",
       "etiqueta": "",
@@ -8338,8 +8366,8 @@
       ]
     },
     {
-      "id": -31697,
-      "padre": -31713,
+      "id": -31696,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "Igualar volumen de las canciones",
       "etiqueta": "Igualar volumen de las canciones",
@@ -8366,8 +8394,8 @@
       ]
     },
     {
-      "id": -31696,
-      "padre": -31713,
+      "id": -31695,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "Preguntar al abrir Música si igualar el volumen",
       "etiqueta": "Preguntar al abrir Música si igualar el volumen",
@@ -8394,8 +8422,8 @@
       ]
     },
     {
-      "id": -31695,
-      "padre": -31713,
+      "id": -31694,
+      "padre": -31712,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Volumen de la música al bajarla:",
@@ -8422,8 +8450,8 @@
       ]
     },
     {
-      "id": -31694,
-      "padre": -31713,
+      "id": -31693,
+      "padre": -31712,
       "clase": "wxSlider",
       "nombre": "Volumen de la música al bajarla",
       "etiqueta": "",
@@ -8450,8 +8478,8 @@
       ]
     },
     {
-      "id": -31693,
-      "padre": -31713,
+      "id": -31692,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "Bajar música mientras habla la voz",
       "etiqueta": "Bajar música mientras habla la voz",
@@ -8478,8 +8506,8 @@
       ]
     },
     {
-      "id": -31692,
-      "padre": -31713,
+      "id": -31691,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "Bajar música mientras suena un medio",
       "etiqueta": "Bajar música mientras suena un medio",
@@ -8506,8 +8534,8 @@
       ]
     },
     {
-      "id": -31691,
-      "padre": -31713,
+      "id": -31690,
+      "padre": -31712,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Salida de audio de la música:",
@@ -8534,8 +8562,8 @@
       ]
     },
     {
-      "id": -31690,
-      "padre": -31713,
+      "id": -31689,
+      "padre": -31712,
       "clase": "wxChoice",
       "nombre": "Salida de audio de la música",
       "etiqueta": "",
@@ -8562,8 +8590,8 @@
       ]
     },
     {
-      "id": -31689,
-      "padre": -31713,
+      "id": -31688,
+      "padre": -31712,
       "clase": "wxButton",
       "nombre": "Buscar salidas de audio",
       "etiqueta": "Buscar salidas de audio",
@@ -8590,8 +8618,8 @@
       ]
     },
     {
-      "id": -31688,
-      "padre": -31713,
+      "id": -31687,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "MusicaAtajosGlobales",
       "etiqueta": "Usar atajos de música en cualquier aplicación",
@@ -8618,8 +8646,8 @@
       ]
     },
     {
-      "id": -31687,
-      "padre": -31713,
+      "id": -31686,
+      "padre": -31712,
       "clase": "wxCheckBox",
       "nombre": "Usar teclas multimedia del teclado",
       "etiqueta": "Usar teclas multimedia del teclado",
@@ -8646,7 +8674,7 @@
       ]
     },
     {
-      "id": -31686,
+      "id": -31685,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagDescargas",
@@ -8674,8 +8702,8 @@
       ]
     },
     {
-      "id": -31685,
-      "padre": -31686,
+      "id": -31684,
+      "padre": -31685,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Carpeta de descargas:",
@@ -8702,8 +8730,8 @@
       ]
     },
     {
-      "id": -31684,
-      "padre": -31686,
+      "id": -31683,
+      "padre": -31685,
       "clase": "wxDirPickerCtrl",
       "nombre": "Carpeta de descargas",
       "etiqueta": "",
@@ -8730,8 +8758,8 @@
       ]
     },
     {
-      "id": -31683,
-      "padre": -31684,
+      "id": -31682,
+      "padre": -31683,
       "clase": "wxTextCtrl",
       "nombre": "Carpeta de descargas",
       "etiqueta": "",
@@ -8758,8 +8786,8 @@
       ]
     },
     {
-      "id": -31682,
-      "padre": -31684,
+      "id": -31681,
+      "padre": -31683,
       "clase": "wxGenericDirButton",
       "nombre": "Examinar…",
       "etiqueta": "Examinar…",
@@ -8786,8 +8814,8 @@
       ]
     },
     {
-      "id": -31681,
-      "padre": -31686,
+      "id": -31680,
+      "padre": -31685,
       "clase": "wxCheckBox",
       "nombre": "DescargasNumerar",
       "etiqueta": "Numerar archivos de listas",
@@ -8814,8 +8842,8 @@
       ]
     },
     {
-      "id": -31680,
-      "padre": -31686,
+      "id": -31679,
+      "padre": -31685,
       "clase": "wxCheckBox",
       "nombre": "DescargasCarpetaLista",
       "etiqueta": "Carpeta propia para cada lista",
@@ -8842,8 +8870,8 @@
       ]
     },
     {
-      "id": -31679,
-      "padre": -31686,
+      "id": -31678,
+      "padre": -31685,
       "clase": "wxCheckBox",
       "nombre": "DescargasPreguntarAlTerminar",
       "etiqueta": "Preguntar si se abre la carpeta al terminar la cola",
@@ -8870,8 +8898,8 @@
       ]
     },
     {
-      "id": -31678,
-      "padre": -31686,
+      "id": -31677,
+      "padre": -31685,
       "clase": "wxCheckBox",
       "nombre": "DescargasAnunciarProgreso",
       "etiqueta": "Anunciar progreso de las descargas",
@@ -8898,8 +8926,8 @@
       ]
     },
     {
-      "id": -31677,
-      "padre": -31686,
+      "id": -31676,
+      "padre": -31685,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Nombre de los archivos:",
@@ -8926,8 +8954,8 @@
       ]
     },
     {
-      "id": -31676,
-      "padre": -31686,
+      "id": -31675,
+      "padre": -31685,
       "clase": "wxChoice",
       "nombre": "Nombre de los archivos",
       "etiqueta": "",
@@ -8954,8 +8982,8 @@
       ]
     },
     {
-      "id": -31675,
-      "padre": -31686,
+      "id": -31674,
+      "padre": -31685,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Descargas simultáneas:",
@@ -8982,8 +9010,8 @@
       ]
     },
     {
-      "id": -31674,
-      "padre": -31686,
+      "id": -31673,
+      "padre": -31685,
       "clase": "wxSpinCtrl",
       "nombre": "Descargas simultáneas",
       "etiqueta": "",
@@ -9010,8 +9038,8 @@
       ]
     },
     {
-      "id": -31673,
-      "padre": -31686,
+      "id": -31672,
+      "padre": -31685,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Límite de velocidad en MB/s, 0 sin límite:",
@@ -9038,8 +9066,8 @@
       ]
     },
     {
-      "id": -31672,
-      "padre": -31686,
+      "id": -31671,
+      "padre": -31685,
       "clase": "wxSpinCtrl",
       "nombre": "Límite de velocidad en MB/s",
       "etiqueta": "",
@@ -9066,8 +9094,8 @@
       ]
     },
     {
-      "id": -31671,
-      "padre": -31686,
+      "id": -31670,
+      "padre": -31685,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Canal de actualización de yt-dlp:",
@@ -9094,8 +9122,8 @@
       ]
     },
     {
-      "id": -31670,
-      "padre": -31686,
+      "id": -31669,
+      "padre": -31685,
       "clase": "wxChoice",
       "nombre": "Canal de actualización de yt-dlp",
       "etiqueta": "",
@@ -9122,7 +9150,7 @@
       ]
     },
     {
-      "id": -31669,
+      "id": -31668,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagIA",
@@ -9150,8 +9178,8 @@
       ]
     },
     {
-      "id": -31668,
-      "padre": -31669,
+      "id": -31667,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Proveedor:",
@@ -9178,8 +9206,8 @@
       ]
     },
     {
-      "id": -31667,
-      "padre": -31669,
+      "id": -31666,
+      "padre": -31668,
       "clase": "wxChoice",
       "nombre": "ProveedorIA",
       "etiqueta": "",
@@ -9206,8 +9234,8 @@
       ]
     },
     {
-      "id": -31666,
-      "padre": -31669,
+      "id": -31665,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Dirección del servicio:",
@@ -9234,8 +9262,8 @@
       ]
     },
     {
-      "id": -31665,
-      "padre": -31669,
+      "id": -31664,
+      "padre": -31668,
       "clase": "wxTextCtrl",
       "nombre": "DireccionIA",
       "etiqueta": "",
@@ -9262,8 +9290,8 @@
       ]
     },
     {
-      "id": -31664,
-      "padre": -31669,
+      "id": -31663,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Clave:",
@@ -9290,8 +9318,8 @@
       ]
     },
     {
-      "id": -31663,
-      "padre": -31669,
+      "id": -31662,
+      "padre": -31668,
       "clase": "wxTextCtrl",
       "nombre": "EstadoClaveIA",
       "etiqueta": "",
@@ -9318,8 +9346,8 @@
       ]
     },
     {
-      "id": -31662,
-      "padre": -31669,
+      "id": -31661,
+      "padre": -31668,
       "clase": "wxTextCtrl",
       "nombre": "ClaveIA",
       "etiqueta": "",
@@ -9346,8 +9374,8 @@
       ]
     },
     {
-      "id": -31661,
-      "padre": -31669,
+      "id": -31660,
+      "padre": -31668,
       "clase": "wxButton",
       "nombre": "GuardarClaveIA",
       "etiqueta": "Guardar clave",
@@ -9374,8 +9402,8 @@
       ]
     },
     {
-      "id": -31660,
-      "padre": -31669,
+      "id": -31659,
+      "padre": -31668,
       "clase": "wxButton",
       "nombre": "NuevaClaveIA",
       "etiqueta": "Escribir una clave nueva",
@@ -9402,8 +9430,8 @@
       ]
     },
     {
-      "id": -31659,
-      "padre": -31669,
+      "id": -31658,
+      "padre": -31668,
       "clase": "wxButton",
       "nombre": "BorrarClaveIA",
       "etiqueta": "Eliminar clave guardada",
@@ -9430,8 +9458,8 @@
       ]
     },
     {
-      "id": -31658,
-      "padre": -31669,
+      "id": -31657,
+      "padre": -31668,
       "clase": "wxButton",
       "nombre": "Comprobar clave",
       "etiqueta": "Comprobar clave",
@@ -9458,8 +9486,8 @@
       ]
     },
     {
-      "id": -31657,
-      "padre": -31669,
+      "id": -31656,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Modelo:",
@@ -9486,8 +9514,8 @@
       ]
     },
     {
-      "id": -31656,
-      "padre": -31669,
+      "id": -31655,
+      "padre": -31668,
       "clase": "wxChoice",
       "nombre": "ModeloIA",
       "etiqueta": "",
@@ -9514,8 +9542,8 @@
       ]
     },
     {
-      "id": -31655,
-      "padre": -31669,
+      "id": -31654,
+      "padre": -31668,
       "clase": "wxCheckBox",
       "nombre": "SoloGratuitosIA",
       "etiqueta": "Solo gratuitos",
@@ -9542,8 +9570,8 @@
       ]
     },
     {
-      "id": -31654,
-      "padre": -31669,
+      "id": -31653,
+      "padre": -31668,
       "clase": "wxButton",
       "nombre": "ActualizarModelosIA",
       "etiqueta": "Actualizar lista de modelos",
@@ -9570,8 +9598,8 @@
       ]
     },
     {
-      "id": -31653,
-      "padre": -31669,
+      "id": -31652,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Otro modelo:",
@@ -9598,8 +9626,8 @@
       ]
     },
     {
-      "id": -31652,
-      "padre": -31669,
+      "id": -31651,
+      "padre": -31668,
       "clase": "wxTextCtrl",
       "nombre": "OtroModeloIA",
       "etiqueta": "",
@@ -9626,8 +9654,8 @@
       ]
     },
     {
-      "id": -31651,
-      "padre": -31669,
+      "id": -31650,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "AvisoModeloIA",
       "etiqueta": "",
@@ -9654,8 +9682,8 @@
       ]
     },
     {
-      "id": -31650,
-      "padre": -31669,
+      "id": -31649,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Instrucción para las capturas:",
@@ -9682,8 +9710,8 @@
       ]
     },
     {
-      "id": -31649,
-      "padre": -31669,
+      "id": -31648,
+      "padre": -31668,
       "clase": "wxTextCtrl",
       "nombre": "PreguntaIA",
       "etiqueta": "",
@@ -9710,8 +9738,8 @@
       ]
     },
     {
-      "id": -31648,
-      "padre": -31669,
+      "id": -31647,
+      "padre": -31668,
       "clase": "wxButton",
       "nombre": "RestablecerPreguntaIA",
       "etiqueta": "Restablecer instrucción",
@@ -9738,8 +9766,8 @@
       ]
     },
     {
-      "id": -31647,
-      "padre": -31669,
+      "id": -31646,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Extensión de la respuesta:",
@@ -9766,8 +9794,8 @@
       ]
     },
     {
-      "id": -31646,
-      "padre": -31669,
+      "id": -31645,
+      "padre": -31668,
       "clase": "wxChoice",
       "nombre": "LargoIA",
       "etiqueta": "",
@@ -9794,8 +9822,8 @@
       ]
     },
     {
-      "id": -31645,
-      "padre": -31669,
+      "id": -31644,
+      "padre": -31668,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Tiempo de espera en segundos:",
@@ -9822,8 +9850,8 @@
       ]
     },
     {
-      "id": -31644,
-      "padre": -31669,
+      "id": -31643,
+      "padre": -31668,
       "clase": "wxSpinCtrl",
       "nombre": "TiempoIA",
       "etiqueta": "",
@@ -9850,8 +9878,8 @@
       ]
     },
     {
-      "id": -31643,
-      "padre": -31669,
+      "id": -31642,
+      "padre": -31668,
       "clase": "wxCheckBox",
       "nombre": "DecirAnalizandoIA",
       "etiqueta": "Anunciar «Analizando» mientras espera",
@@ -9878,7 +9906,7 @@
       ]
     },
     {
-      "id": -31642,
+      "id": -31641,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagTransmision",
@@ -9906,8 +9934,8 @@
       ]
     },
     {
-      "id": -31641,
-      "padre": -31642,
+      "id": -31640,
+      "padre": -31641,
       "clase": "wxCheckBox",
       "nombre": "AvisarSobrecargaObs",
       "etiqueta": "Avisar si OBS se sobrecarga",
@@ -9934,8 +9962,8 @@
       ]
     },
     {
-      "id": -31640,
-      "padre": -31642,
+      "id": -31639,
+      "padre": -31641,
       "clase": "wxCheckBox",
       "nombre": "TituloEstadoObs",
       "etiqueta": "Mostrar en el título de la ventana si se transmite o se graba",
@@ -9962,8 +9990,8 @@
       ]
     },
     {
-      "id": -31639,
-      "padre": -31642,
+      "id": -31638,
+      "padre": -31641,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Perfil para transmitir en horizontal:",
@@ -9990,8 +10018,8 @@
       ]
     },
     {
-      "id": -31638,
-      "padre": -31642,
+      "id": -31637,
+      "padre": -31641,
       "clase": "wxChoice",
       "nombre": "Perfil para transmitir en horizontal",
       "etiqueta": "",
@@ -10018,8 +10046,8 @@
       ]
     },
     {
-      "id": -31637,
-      "padre": -31642,
+      "id": -31636,
+      "padre": -31641,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Perfil para transmitir en vertical:",
@@ -10046,8 +10074,8 @@
       ]
     },
     {
-      "id": -31636,
-      "padre": -31642,
+      "id": -31635,
+      "padre": -31641,
       "clase": "wxChoice",
       "nombre": "Perfil para transmitir en vertical",
       "etiqueta": "",
@@ -10074,8 +10102,8 @@
       ]
     },
     {
-      "id": -31635,
-      "padre": -31642,
+      "id": -31634,
+      "padre": -31641,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Perfil para grabar:",
@@ -10102,8 +10130,8 @@
       ]
     },
     {
-      "id": -31634,
-      "padre": -31642,
+      "id": -31633,
+      "padre": -31641,
       "clase": "wxChoice",
       "nombre": "Perfil para grabar",
       "etiqueta": "",
@@ -10130,8 +10158,8 @@
       ]
     },
     {
-      "id": -31633,
-      "padre": -31642,
+      "id": -31632,
+      "padre": -31641,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Clips:",
@@ -10158,8 +10186,8 @@
       ]
     },
     {
-      "id": -31632,
-      "padre": -31642,
+      "id": -31631,
+      "padre": -31641,
       "clase": "wxChoice",
       "nombre": "Clips",
       "etiqueta": "",
@@ -10186,8 +10214,8 @@
       ]
     },
     {
-      "id": -31631,
-      "padre": -31642,
+      "id": -31630,
+      "padre": -31641,
       "clase": "wxCheckBox",
       "nombre": "Permitir !clip en el chat",
       "etiqueta": "Permitir !clip en el chat",
@@ -10214,8 +10242,8 @@
       ]
     },
     {
-      "id": -31630,
-      "padre": -31642,
+      "id": -31629,
+      "padre": -31641,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Espera entre clips del chat (minutos):",
@@ -10242,8 +10270,8 @@
       ]
     },
     {
-      "id": -31629,
-      "padre": -31642,
+      "id": -31628,
+      "padre": -31641,
       "clase": "wxSpinCtrl",
       "nombre": "Espera entre clips del chat",
       "etiqueta": "",
@@ -10270,8 +10298,8 @@
       ]
     },
     {
-      "id": -31628,
-      "padre": -31642,
+      "id": -31627,
+      "padre": -31641,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Puerto del chat en el vídeo:",
@@ -10298,8 +10326,8 @@
       ]
     },
     {
-      "id": -31627,
-      "padre": -31642,
+      "id": -31626,
+      "padre": -31641,
       "clase": "wxSpinCtrl",
       "nombre": "Puerto del chat en el vídeo",
       "etiqueta": "",
@@ -10326,8 +10354,8 @@
       ]
     },
     {
-      "id": -31626,
-      "padre": -31642,
+      "id": -31625,
+      "padre": -31641,
       "clase": "wxButton",
       "nombre": "Activar servidor WebSocket de OBS",
       "etiqueta": "Activar servidor WebSocket de OBS",
@@ -10354,7 +10382,7 @@
       ]
     },
     {
-      "id": -31625,
+      "id": -31624,
       "padre": -31992,
       "clase": "wxScrolledWindow",
       "nombre": "PagCamara",
@@ -10382,8 +10410,8 @@
       ]
     },
     {
-      "id": -31624,
-      "padre": -31625,
+      "id": -31623,
+      "padre": -31624,
       "clase": "wxCheckBox",
       "nombre": "AvisarEncuadre",
       "etiqueta": "Avisar si el rostro queda fuera del encuadre",
@@ -10410,8 +10438,8 @@
       ]
     },
     {
-      "id": -31623,
-      "padre": -31625,
+      "id": -31622,
+      "padre": -31624,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Cámara de OBS:",
@@ -10438,8 +10466,8 @@
       ]
     },
     {
-      "id": -31622,
-      "padre": -31625,
+      "id": -31621,
+      "padre": -31624,
       "clase": "wxChoice",
       "nombre": "Cámara de OBS",
       "etiqueta": "",
@@ -10466,8 +10494,8 @@
       ]
     },
     {
-      "id": -31621,
-      "padre": -31625,
+      "id": -31620,
+      "padre": -31624,
       "clase": "wxCheckBox",
       "nombre": "InvertirCamara",
       "etiqueta": "Invertir izquierda y derecha",
@@ -10494,8 +10522,8 @@
       ]
     },
     {
-      "id": -31620,
-      "padre": -31625,
+      "id": -31619,
+      "padre": -31624,
       "clase": "wxStaticText",
       "nombre": "staticText",
       "etiqueta": "Sonido de la guía:",
@@ -10522,8 +10550,8 @@
       ]
     },
     {
-      "id": -31619,
-      "padre": -31625,
+      "id": -31618,
+      "padre": -31624,
       "clase": "wxChoice",
       "nombre": "Sonido de la guía",
       "etiqueta": "",
@@ -10550,8 +10578,8 @@
       ]
     },
     {
-      "id": -31618,
-      "padre": -31625,
+      "id": -31617,
+      "padre": -31624,
       "clase": "wxCheckBox",
       "nombre": "CamaraAtajosGlobales",
       "etiqueta": "Usar atajos de cámara en cualquier aplicación",
@@ -10578,8 +10606,8 @@
       ]
     },
     {
-      "id": -31617,
-      "padre": -31625,
+      "id": -31616,
+      "padre": -31624,
       "clase": "wxCheckBox",
       "nombre": "EscenaAtajosGlobales",
       "etiqueta": "Describir la escena y consultar a la IA en cualquier aplicación",
