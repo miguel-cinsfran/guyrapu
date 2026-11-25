@@ -216,15 +216,51 @@
   </style>
 </head>
 <body>
-<!-- original: es/CHANGELOG.md 1479bc3668fbed9ab11f732d37a6c38ea2b8e22b -->
+<!-- original: es/CHANGELOG.md 630acafe3f4f6f1cb2f82ddac98455e0b34e67c4 -->
 
 <h1 id="whats-new-in-guyrapu">What's new in Guyrapu</h1>
 <p>This is a translation of the Spanish original, made with artificial
 intelligence. If you find an error, report it at <a
 href="https://github.com/miguel-cinsfran/guyrapu/issues">https://github.com/miguel-cinsfran/guyrapu/issues</a>.
 See the <a href="../es/CHANGELOG.html">original in Spanish</a>.</p>
-<h2 id="300-beta-9-november-2026">3.0.0 beta 9, November 2026</h2>
+<h2 id="300-beta-10-november-2026">3.0.0 beta 10, November 2026</h2>
+<h3 id="interaction">Interaction</h3>
+<ul>
+<li>With <em>Notify the first join immediately</em>, in
+<em>Preferences</em>, on the <em>Live events</em> category, the first
+person to join a TikTok live stream is announced immediately, with its
+alert, even when joins are grouped. It is on by default.</li>
+<li>When you open <em>Test without a live stream…</em> with OBS closed,
+Guyrapu warns that what goes to the video will not be visible and offers
+<em>Open OBS</em> before starting, or <em>Continue without
+OBS</em>.</li>
+</ul>
+<h3 id="music">Music</h3>
+<ul>
+<li>The built-in <code>!music</code> command, with the alias
+<code>!musica</code> in Spanish, lets the audience request a song with a
+YouTube link or its name and adds it to the music queue. It is off by
+default: enable it in <em>Commands</em>.</li>
+<li>In <em>Preferences</em>, on the <em>Music</em> category, in the
+<em>Audience requests</em> group, you choose <em>At the end of the
+queue</em>, <em>Before the rest of the queue</em> or <em>Now, stopping
+the current song</em> for when requests play. They have a limit per
+person and in total, are not repeated, and get a reply in the chat when
+they are not added.</li>
+</ul>
+<h3 id="chat">Chat</h3>
+<ul>
+<li>The chat list has the <em>Commands</em> filter, under <em>Message
+filter</em> in the <em>Chat</em> menu, which shows only messages that
+request a command, such as <code>!risa</code>.</li>
+</ul>
 <h3 id="fixes">Fixes</h3>
+<ul>
+<li>If OBS stops responding during the live stream, alerts older than a
+minute no longer all appear at once when it comes back.</li>
+</ul>
+<h2 id="300-beta-9-november-2026">3.0.0 beta 9, November 2026</h2>
+<h3 id="fixes-1">Fixes</h3>
 <ul>
 <li>Opening <em>Preferences</em> on the <em>Reading</em> page no longer
 gives an error in the packaged application.</li>
@@ -233,7 +269,7 @@ testing or choosing one says why and carries on with the Windows voice,
 instead of closing the program.</li>
 </ul>
 <h2 id="300-beta-8-november-2026">3.0.0 beta 8, November 2026</h2>
-<h3 id="interaction">Interaction</h3>
+<h3 id="interaction-1">Interaction</h3>
 <ul>
 <li>During the live stream, Guyrapu announces when 10 seconds are left
 in a poll and which option is in the lead, when a goal reaches halfway
@@ -257,7 +293,7 @@ name. When you accept, the command appears in <em>Commands</em>.</li>
 <li>The sliders for voice speed, volume and pitch, for the music volume
 and for the media volume are wider.</li>
 </ul>
-<h3 id="music">Music</h3>
+<h3 id="music-1">Music</h3>
 <ul>
 <li>Music lowers on its own while the voice speaks or a media item plays
 on the video. The check boxes <em>Lower music while the voice
@@ -267,7 +303,7 @@ volume when lowered</em>. By default it lowers with media and not with
 the voice.</li>
 </ul>
 <h2 id="300-beta-7-november-2026">3.0.0 beta 7, November 2026</h2>
-<h3 id="interaction-1">Interaction</h3>
+<h3 id="interaction-2">Interaction</h3>
 <ul>
 <li>The pages are split by when something comes out: <em>Commands</em>
 for what the audience types, <em>Alerts</em> for what happens in the
@@ -309,7 +345,7 @@ section of each Interaction page.</li>
 item.</li>
 </ul>
 <h2 id="300-beta-6-november-2026">3.0.0 beta 6, November 2026</h2>
-<h3 id="interaction-2">Interaction</h3>
+<h3 id="interaction-3">Interaction</h3>
 <ul>
 <li>The <em>Interaction</em> window brings scheduled messages, chat
 commands, polls, questions, triggers, goals, media, video styles and
@@ -370,7 +406,7 @@ even when another program has the focus.</li>
 <em>Type:</em> and <em>Show in:</em> in place of the earlier
 labels.</li>
 </ul>
-<h3 id="chat">Chat</h3>
+<h3 id="chat-1">Chat</h3>
 <ul>
 <li><em>Search chat</em> finds text in the messages and jumps to the
 message. <em>Chat participation</em> shows how many messages each person
@@ -450,7 +486,7 @@ computer</em>, <em>Test connection</em>, <em>Open live stream</em>,
 you type, opens on double-click and shows the key of each menu action.
 Scenes also have an edge sound and double-click.</li>
 </ul>
-<h3 id="music-1">Music</h3>
+<h3 id="music-2">Music</h3>
 <ul>
 <li>You can select several songs at once with Shift and the arrow keys,
 Ctrl+Space or Ctrl+A, and add or remove them together. <em>All
@@ -600,7 +636,7 @@ come translated.</li>
 plays the one of its family in that theme or, if that is missing, the
 one of the default theme, instead of staying silent.</li>
 </ul>
-<h3 id="music-2">Music</h3>
+<h3 id="music-3">Music</h3>
 <ul>
 <li>When volume matching finishes, a sound plays and it says how many
 songs were matched.</li>
@@ -687,7 +723,7 @@ two</em> stacks the sources at the top and bottom, and the chat in a
 strip goes at the bottom. There is a new layout, sized to the first
 source, and in <em>Automatic</em> the camera fills its place.</li>
 </ul>
-<h3 id="chat-1">Chat</h3>
+<h3 id="chat-2">Chat</h3>
 <ul>
 <li>With a Restream profile that has YouTube and TikTok, <em>Chat that
 Guyrapu reads</em> offers <em>YouTube and TikTok</em>, chosen by default
@@ -741,7 +777,7 @@ without forcing it, so it does not ask about safe mode when you open it
 again. If OBS is broadcasting or recording, it does not close it and
 warns.</li>
 </ul>
-<h3 id="fixes-1">Fixes</h3>
+<h3 id="fixes-2">Fixes</h3>
 <ul>
 <li><code>Enter</code> works again in <em>Recent items</em>,
 <em>Recordings and clips</em>, the history, the conversation with the
@@ -880,7 +916,7 @@ result of what you do in a box. <code>F2</code> says the daily YouTube
 quota used and, twice in a row, opens the <em>Session status</em>
 window.</li>
 </ul>
-<h3 id="fixes-2">Fixes</h3>
+<h3 id="fixes-3">Fixes</h3>
 <ul>
 <li>Some YouTube videos did not open on the first try or said “End of
 the video”. The app waits until YouTube makes the video available and,
@@ -903,7 +939,7 @@ up to three times in ten minutes.</li>
 code in another program must publish theirs under the same license.
 Versions up to 2.5.0 remain under the MIT license.</li>
 </ul>
-<h3 id="music-3">Music</h3>
+<h3 id="music-4">Music</h3>
 <ul>
 <li>Music and the player no longer share the volume. Before, muting the
 video or the live stream with Ctrl+M also muted the music, and pausing
@@ -972,7 +1008,7 @@ capture.</li>
 <li>The first send asks for confirmation, because the screenshot and
 what you type leave your computer toward the provider.</li>
 </ul>
-<h3 id="music-4">Music</h3>
+<h3 id="music-5">Music</h3>
 <ul>
 <li>Crossfade between songs. The end of a song blends with the beginning
 of the next, and the silence that many files have at the start and end
@@ -1087,7 +1123,7 @@ immediately. From 2.3.4 or 2.4.0 it updates the usual way.</li>
 </ul>
 <h2 id="240-october-2026">2.4.0, October 2026</h2>
 <p>Music while you stream, without opening another program.</p>
-<h3 id="music-5">Music</h3>
+<h3 id="music-6">Music</h3>
 <ul>
 <li>A Music menu with its shortcuts. Ctrl+Alt+Spacebar plays or pauses,
 Ctrl+Alt+Right arrow and Ctrl+Alt+Left arrow go to the next or previous
@@ -1165,7 +1201,7 @@ something, such as the at sign on the Latin American keyboard, it tells
 you and asks for another one, so you can keep typing that character in
 the chat.</li>
 </ul>
-<h3 id="chat-2">Chat</h3>
+<h3 id="chat-3">Chat</h3>
 <ul>
 <li>A connection drop no longer closes the live stream. Before, if the
 connection to the chat dropped, when it came back on its own the
@@ -1204,7 +1240,7 @@ the link of the private or made-for-kids live stream that the
 application creates. Before it said that no live stream was
 connected.</li>
 </ul>
-<h3 id="chat-3">Chat</h3>
+<h3 id="chat-4">Chat</h3>
 <ul>
 <li>The chat stops retrying a live stream that already ended. If the
 chat stayed connected to a live stream that had ended, it repeated

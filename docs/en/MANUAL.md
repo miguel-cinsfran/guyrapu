@@ -1,11 +1,11 @@
-<!-- original: es/MANUAL.md d534f3aa50333cfc8dd8585dcfb0ec885daedef9 -->
+<!-- original: es/MANUAL.md 6fbbe8e5f28ac258e95b9145b69647cb3682643e -->
 # Guyrapu, user manual
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/MANUAL.md).
 
 Guyrapu reads the chat of YouTube and TikTok live streams aloud, and controls OBS Studio and Restream from the keyboard. It is designed for people who are blind or have low vision and stream, and it is tested with NVDA.
 
-Version 3.0.0 beta 9 · Windows 10 and 11 · [News](CHANGELOG.md)
+Version 3.0.0 beta 10 · Windows 10 and 11 · [News](CHANGELOG.md)
 
 ## Installation
 
@@ -41,6 +41,8 @@ If the chat drops on its own in the middle of a live stream, it sounds like a di
 In the chat list, the arrows move from one message to another, and when you type a few letters the focus jumps to the first author that starts that way. The context menu copies the message, mutes the author for the session and assigns an alias. With the Google session started, it also puts the author in timeout or hides them from the channel. A sound plays at the beginning or the end of the list. The menu shows the key of each action, and `Shift+F10` opens it too.
 
 Messages that are commands, such as `!discord`, or votes, such as `!1`, have their own reading mode in *Preferences*, on the *Live events* category. By default they appear in the list without being read.
+
+In the *Chat* menu, *Message filter* chooses what appears in the list: *All*, *Text only*, *Super Chats*, *Memberships*, *Alerts* and *Commands*. With *Commands*, only messages that request a command, such as `!risa`, are shown, both as they arrive and when you change the filter.
 
 When the chat is full, the discarded messages notice says they are in the chat list and that `F10` raises the voice speed to keep up. It does not recommend reading only the name.
 
@@ -226,7 +228,7 @@ The *OBS panel* brings together in tabs what is done with OBS, and it is opened 
 
 ### General
 
-*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area. If OBS takes a while to connect or stops responding for a moment, it warns and keeps looking after the live stream instead of giving up, with the disconnection sound and the reconnection sound when it comes back. The panel keeps responding while it waits for OBS and can be closed at any time. With a live stream on air, problem notices do not open a box over the game. *Close OBS*, also in the *OBS* menu, closes OBS without forcing it, so it does not ask about safe mode when you open it again. If OBS is broadcasting or recording, it does not close it and warns.
+*Status* summarizes the broadcast, the recording, the current scene, the microphone and the computer usage. *Show OBS* brings the OBS window to the front, also from the notification area. If OBS takes a while to connect or stops responding for a moment, it warns and keeps looking after the live stream instead of giving up, with the disconnection sound and the reconnection sound when it comes back. When it returns, cards for commands, alerts and goals that waited more than a minute are discarded instead of all appearing at once. Scheduled messages and the poll do not expire. The panel keeps responding while it waits for OBS and can be closed at any time. With a live stream on air, problem notices do not open a box over the game. *Close OBS*, also in the *OBS* menu, closes OBS without forcing it, so it does not ask about safe mode when you open it again. If OBS is broadcasting or recording, it does not close it and warns.
 
 *Test computer…* records for a few seconds with the profile in use to see whether the PC drops frames. If it does, it tries lighter settings until it finds some that work and offers to save them in the profile. With the Aitum Vertical Canvas plugin in OBS, the dialog offers to include the vertical canvas, to know whether the PC can broadcast in both orientations at the same time. Test recordings are deleted at the end.
 

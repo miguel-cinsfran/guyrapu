@@ -1,7 +1,27 @@
-<!-- original: es/CHANGELOG.md 1479bc3668fbed9ab11f732d37a6c38ea2b8e22b -->
+<!-- original: es/CHANGELOG.md 630acafe3f4f6f1cb2f82ddac98455e0b34e67c4 -->
 # What's new in Guyrapu
 
 This is a translation of the Spanish original, made with artificial intelligence. If you find an error, report it at https://github.com/miguel-cinsfran/guyrapu/issues. See the [original in Spanish](../es/CHANGELOG.md).
+
+## 3.0.0 beta 10, November 2026
+
+### Interaction
+
+- With *Notify the first join immediately*, in *Preferences*, on the *Live events* category, the first person to join a TikTok live stream is announced immediately, with its alert, even when joins are grouped. It is on by default.
+- When you open *Test without a live stream…* with OBS closed, Guyrapu warns that what goes to the video will not be visible and offers *Open OBS* before starting, or *Continue without OBS*.
+
+### Music
+
+- The built-in `!music` command, with the alias `!musica` in Spanish, lets the audience request a song with a YouTube link or its name and adds it to the music queue. It is off by default: enable it in *Commands*.
+- In *Preferences*, on the *Music* category, in the *Audience requests* group, you choose *At the end of the queue*, *Before the rest of the queue* or *Now, stopping the current song* for when requests play. They have a limit per person and in total, are not repeated, and get a reply in the chat when they are not added.
+
+### Chat
+
+- The chat list has the *Commands* filter, under *Message filter* in the *Chat* menu, which shows only messages that request a command, such as `!risa`.
+
+### Fixes
+
+- If OBS stops responding during the live stream, alerts older than a minute no longer all appear at once when it comes back.
 
 ## 3.0.0 beta 9, November 2026
 

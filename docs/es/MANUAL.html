@@ -221,7 +221,7 @@
 y maneja OBS Studio y Restream desde el teclado. Está pensado para
 personas ciegas o con baja visión que transmiten, y se prueba con
 NVDA.</p>
-<p>Versión 3.0.0 beta 9 · Windows 10 y 11 · <a
+<p>Versión 3.0.0 beta 10 · Windows 10 y 11 · <a
 href="CHANGELOG.html">Novedades</a></p>
 <h2 id="instalación">Instalación</h2>
 <p>Descomprime el ZIP en cualquier carpeta y abre
@@ -303,6 +303,11 @@ un aviso. El menú muestra la tecla de cada acción y
 voto, como <code>!1</code>, tienen su propio modo de lectura en
 <em>Preferencias</em>, categoría <em>Eventos del directo</em>. De
 fábrica se ven en la lista sin leerse.</p>
+<p>En el menú <em>Chat</em>, <em>Filtro de mensajes</em> elige qué
+aparece en la lista: <em>Todos</em>, <em>Solo texto</em>, <em>Super
+Chats</em>, <em>Membresías</em>, <em>Avisos</em> y <em>Comandos</em>.
+Con <em>Comandos</em> solo se ven los mensajes que piden un comando,
+como <code>!risa</code>, tanto al llegar como al cambiar de filtro.</p>
 <p>Cuando el chat va lleno, el aviso de mensajes descartados dice que
 los mensajes están en la lista del chat y que <code>F10</code> sube la
 velocidad de la voz para seguir el ritmo. No recomienda leer solo el
@@ -797,12 +802,15 @@ actual, el micrófono y el uso del equipo. <em>Mostrar OBS</em> trae al
 frente la ventana de OBS, también desde el área de notificación. Si OBS
 tarda en conectar o deja de responder un momento, avisa y sigue cuidando
 el directo en vez de abandonarlo, con el sonido de desconexión y el de
-reconexión cuando vuelve. El panel sigue respondiendo mientras espera a
-OBS y se puede cerrar en cualquier momento. Con el directo en el aire,
-los avisos de problemas no abren un cuadro encima del juego. <em>Cerrar
-OBS</em>, también en el menú <em>OBS</em>, cierra OBS sin forzarlo, así
-no pregunta por el modo seguro al volver a abrirlo. Si OBS está
-transmitiendo o grabando, no lo cierra y avisa.</p>
+reconexión cuando vuelve. Al volver, las tarjetas de comandos, alertas y
+metas que esperaron más de un minuto se descartan en vez de aparecer
+todas juntas. Los mensajes automáticos y la encuesta no vencen. El panel
+sigue respondiendo mientras espera a OBS y se puede cerrar en cualquier
+momento. Con el directo en el aire, los avisos de problemas no abren un
+cuadro encima del juego. <em>Cerrar OBS</em>, también en el menú
+<em>OBS</em>, cierra OBS sin forzarlo, así no pregunta por el modo
+seguro al volver a abrirlo. Si OBS está transmitiendo o grabando, no lo
+cierra y avisa.</p>
 <p><em>Probar equipo…</em> graba unos segundos con el perfil en uso para
 ver si la PC pierde fotogramas. Si los pierde, prueba ajustes más
 livianos hasta dar con unos que funcionan y ofrece guardarlos en el

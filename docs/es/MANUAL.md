@@ -4,7 +4,7 @@ Guyrapu lee en voz alta el chat de los directos de YouTube y TikTok, y
 maneja OBS Studio y Restream desde el teclado. Está pensado para personas
 ciegas o con baja visión que transmiten, y se prueba con NVDA.
 
-Versión 3.0.0 beta 9 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
+Versión 3.0.0 beta 10 · Windows 10 y 11 · [Novedades](CHANGELOG.md)
 
 ## Instalación
 
@@ -78,6 +78,11 @@ muestra la tecla de cada acción y `Mayús+F10` también lo abre.
 Los mensajes que son un comando, como `!discord`, o un voto, como `!1`, tienen
 su propio modo de lectura en *Preferencias*, categoría *Eventos del directo*.
 De fábrica se ven en la lista sin leerse.
+
+En el menú *Chat*, *Filtro de mensajes* elige qué aparece en la lista: *Todos*,
+*Solo texto*, *Super Chats*, *Membresías*, *Avisos* y *Comandos*. Con *Comandos*
+solo se ven los mensajes que piden un comando, como `!risa`, tanto al llegar
+como al cambiar de filtro.
 
 Cuando el chat va lleno, el aviso de mensajes descartados dice que los
 mensajes están en la lista del chat y que `F10` sube la velocidad de la voz
@@ -522,6 +527,9 @@ micrófono y el uso del equipo. *Mostrar OBS* trae al frente la ventana de
 OBS, también desde el área de notificación. Si OBS tarda en conectar o deja
 de responder un momento, avisa y sigue cuidando el directo en vez de
 abandonarlo, con el sonido de desconexión y el de reconexión cuando vuelve.
+Al volver, las tarjetas de comandos, alertas y metas que esperaron más de un
+minuto se descartan en vez de aparecer todas juntas. Los mensajes automáticos
+y la encuesta no vencen.
 El panel sigue respondiendo mientras espera a OBS y se puede cerrar en
 cualquier momento. Con el directo en el aire, los avisos de problemas no
 abren un cuadro encima del juego. *Cerrar OBS*, también en el menú *OBS*, cierra OBS sin

@@ -1,5 +1,39 @@
 # Novedades de Guyrapu
 
+## 3.0.0 beta 10, noviembre de 2026
+
+### Interacción
+
+- Con *Avisar al momento la primera entrada*, en *Preferencias*, categoría
+  *Eventos del directo*, la primera persona que entra al directo de TikTok se
+  anuncia enseguida, con su alerta, aunque las entradas estén agrupadas. Viene
+  marcada.
+- Al abrir *Probar sin directo…* con OBS cerrado, Guyrapu avisa de que lo que
+  va al vídeo no se verá y ofrece *Abrir OBS* antes de empezar, o *Continuar
+  sin OBS*.
+
+### Música
+
+- El comando de fábrica `!music`, con el alias `!musica` en español, deja pedir
+  un tema con un enlace de YouTube o con su nombre y lo suma a la cola de
+  música. Viene desactivado: se activa en *Comandos*.
+- En *Preferencias*, categoría *Música*, grupo *Pedidos del público*, eliges
+  *Al final de la cola*, *Antes que el resto de la cola* o *Al momento,
+  cortando el tema actual* para decidir cuándo suenan los pedidos. Tienen
+  límite por persona y en total, no se repiten y contestan en el chat cuando
+  no se agregan.
+
+### Chat
+
+- La lista del chat tiene el filtro *Comandos*, en *Filtro de mensajes* del
+  menú *Chat*, que muestra solo los mensajes que piden un comando, como
+  `!risa`.
+
+### Arreglos
+
+- Si OBS deja de responder en el directo, al volver ya no aparecen de golpe
+  las alertas de hace más de un minuto.
+
 ## 3.0.0 beta 9, noviembre de 2026
 
 ### Arreglos

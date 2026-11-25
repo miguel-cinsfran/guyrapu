@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md d534f3aa50333cfc8dd8585dcfb0ec885daedef9 -->
+<!-- original: es/MANUAL.md 6fbbe8e5f28ac258e95b9145b69647cb3682643e -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -227,7 +227,7 @@ See the <a href="../es/MANUAL.html">original in Spanish</a>.</p>
 controls OBS Studio and Restream from the keyboard. It is designed for
 people who are blind or have low vision and stream, and it is tested
 with NVDA.</p>
-<p>Version 3.0.0 beta 9 · Windows 10 and 11 · <a
+<p>Version 3.0.0 beta 10 · Windows 10 and 11 · <a
 href="CHANGELOG.html">News</a></p>
 <h2 id="installation">Installation</h2>
 <p>Extract the ZIP to any folder and open <code>Guyrapu.exe</code>. You
@@ -308,6 +308,12 @@ key of each action, and <code>Shift+F10</code> opens it too.</p>
 such as <code>!1</code>, have their own reading mode in
 <em>Preferences</em>, on the <em>Live events</em> category. By default
 they appear in the list without being read.</p>
+<p>In the <em>Chat</em> menu, <em>Message filter</em> chooses what
+appears in the list: <em>All</em>, <em>Text only</em>, <em>Super
+Chats</em>, <em>Memberships</em>, <em>Alerts</em> and <em>Commands</em>.
+With <em>Commands</em>, only messages that request a command, such as
+<code>!risa</code>, are shown, both as they arrive and when you change
+the filter.</p>
 <p>When the chat is full, the discarded messages notice says they are in
 the chat list and that <code>F10</code> raises the voice speed to keep
 up. It does not recommend reading only the name.</p>
@@ -794,13 +800,15 @@ scene, the microphone and the computer usage. <em>Show OBS</em> brings
 the OBS window to the front, also from the notification area. If OBS
 takes a while to connect or stops responding for a moment, it warns and
 keeps looking after the live stream instead of giving up, with the
-disconnection sound and the reconnection sound when it comes back. The
-panel keeps responding while it waits for OBS and can be closed at any
-time. With a live stream on air, problem notices do not open a box over
-the game. <em>Close OBS</em>, also in the <em>OBS</em> menu, closes OBS
-without forcing it, so it does not ask about safe mode when you open it
-again. If OBS is broadcasting or recording, it does not close it and
-warns.</p>
+disconnection sound and the reconnection sound when it comes back. When
+it returns, cards for commands, alerts and goals that waited more than a
+minute are discarded instead of all appearing at once. Scheduled
+messages and the poll do not expire. The panel keeps responding while it
+waits for OBS and can be closed at any time. With a live stream on air,
+problem notices do not open a box over the game. <em>Close OBS</em>,
+also in the <em>OBS</em> menu, closes OBS without forcing it, so it does
+not ask about safe mode when you open it again. If OBS is broadcasting
+or recording, it does not close it and warns.</p>
 <p><em>Test computer…</em> records for a few seconds with the profile in
 use to see whether the PC drops frames. If it does, it tries lighter
 settings until it finds some that work and offers to save them in the
