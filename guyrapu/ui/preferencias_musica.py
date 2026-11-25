@@ -13,6 +13,7 @@ import wx
 
 from guyrapu.core import diagnostico, musica_decir
 from guyrapu.core import config as cfg
+from guyrapu.core import config_musica
 from guyrapu.core.idioma import _
 from guyrapu.music import atenuacion
 from guyrapu.ui import formulario, opciones_musica
@@ -62,8 +63,73 @@ class PaginaMusica:
         self._musica_anuncios(p, vs)
         self._musica_audio(p, vs)
         self._musica_atajos(p, vs)
+        self._musica_pedidos(p, vs)
         formulario.armar_pagina(p, vs)
         return p
+
+    def _musica_pedidos(self, p, vs):
+        interior, caja = formulario.agregar_seccion_con_caja(
+            vs, p, _("Pedidos del público"))
+        padre = caja.GetStaticBox()
+        self._pedidos_donde(padre, interior)
+        self._pedidos_contadores(padre, interior)
+        self._pedidos_casillas(padre, interior)
+
+    def _pedidos_donde(self, padre, interior):
+        rotulo = fila_label(padre, _("Reproducir pedidos:"))
+        self.cho_musica_pedidos_donde = EleccionTexto(
+            padre,
+            ((config_musica.DONDE_FINAL, _("Al final de la cola")),
+             (config_musica.DONDE_CONTINUACION,
+              _("Antes que el resto de la cola")),
+             (config_musica.DONDE_AHORA, _("Al momento, cortando el tema actual"))),
+            normalizar=config_musica.normalizar_donde,
+            name=_("Reproducir pedidos"))
+        _tc(self.cho_musica_pedidos_donde)
+        self.cho_musica_pedidos_donde.SetValue(config_musica.normalizar_donde(
+            self._config.get("musica_pedidos_donde")))
+        formulario.agregar_fila(interior, rotulo, self.cho_musica_pedidos_donde)
+
+    def _pedidos_contadores(self, padre, interior):
+        for atributo, etiqueta, nombre, minimo, maximo, defecto, clave in (
+                ("sp_musica_pedidos_duracion",
+                 _("Duración má&xima de un pedido (minutos):"),
+                 _("Duración máxima de un pedido, en minutos"), 1, 60, 10,
+                 "musica_pedidos_duracion"),
+                ("sp_musica_pedidos_persona",
+                 _("Pedidos pendientes por persona:"),
+                 _("Pedidos pendientes por persona"), 1, 10, 2,
+                 "musica_pedidos_persona"),
+                ("sp_musica_pedidos_total",
+                 _("Pedidos pendientes en total:"),
+                 _("Pedidos pendientes en total"), 1, 50, 10,
+                 "musica_pedidos_total")):
+            control = ContadorAccesible(
+                padre, min=minimo, max=maximo, name=nombre)
+            control.SetValue(int(self._config.get(clave, defecto)))
+            setattr(self, atributo, control)
+            formulario.agregar_fila(
+                interior, fila_label(padre, etiqueta), control, numerico=True)
+
+    def _pedidos_casillas(self, padre, interior):
+        # Sin letra libre en la página: el texto se traduce al construir y se
+        # usa igual para el rótulo y el nombre accesible.
+        responder = _("Responder en el chat cuando un pedido no se agrega")
+        self.chk_musica_pedidos_responder = wx.CheckBox(
+            padre, label=responder, name=responder)
+        self.chk_musica_pedidos_bloquear = wx.CheckBox(
+            padre, label=_("Rechazar temas con palabras blo&queadas"),
+            name=_("Rechazar temas con palabras bloqueadas"))
+        for casilla, clave in (
+                (self.chk_musica_pedidos_responder,
+                 "musica_pedidos_responder"),
+                (self.chk_musica_pedidos_bloquear, "musica_pedidos_bloquear")):
+            casilla.SetForegroundColour(_T.text)
+            casilla.SetValue(bool(self._config.get(clave, True)))
+        formulario.agregar_casillas(
+            interior, (self.chk_musica_pedidos_responder,))
+        formulario.agregar_casillas(
+            interior, (self.chk_musica_pedidos_bloquear,))
 
     def _musica_carpeta(self, p, vs):
         rotulo = fila_label(p, _("Carpeta de &música:"))
@@ -250,3 +316,24 @@ class PaginaMusica:
         en_memoria["musica_salida"] = salida_musica
         fijar("musica", "salida_nombre", cfg.codificar_texto_ini(nombre_salida))
         en_memoria["musica_salida_nombre"] = nombre_salida
+        self._guardar_pedidos(fijar, en_memoria)
+
+    def _guardar_pedidos(self, fijar, en_memoria):
+        donde = self.cho_musica_pedidos_donde.GetValue()
+        fijar("musica", "pedidos_donde", donde)
+        en_memoria["musica_pedidos_donde"] = donde
+        minutos = int(self.sp_musica_pedidos_duracion.GetValue())
+        fijar("musica", "pedidos_duracion", str(minutos))
+        en_memoria["musica_pedidos_duracion"] = minutos
+        por_persona = int(self.sp_musica_pedidos_persona.GetValue())
+        fijar("musica", "pedidos_persona", str(por_persona))
+        en_memoria["musica_pedidos_persona"] = por_persona
+        total = int(self.sp_musica_pedidos_total.GetValue())
+        fijar("musica", "pedidos_total", str(total))
+        en_memoria["musica_pedidos_total"] = total
+        responder = self.chk_musica_pedidos_responder.GetValue()
+        fijar("musica", "pedidos_responder", "true" if responder else "false")
+        en_memoria["musica_pedidos_responder"] = responder
+        bloquear = self.chk_musica_pedidos_bloquear.GetValue()
+        fijar("musica", "pedidos_bloquear", "true" if bloquear else "false")
+        en_memoria["musica_pedidos_bloquear"] = bloquear

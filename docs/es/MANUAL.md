@@ -399,6 +399,21 @@ igualar tiene el botón *No volver a preguntar*. Entre una canción y la
 siguiente hay un fundido, que se ajusta en *Fundido entre canciones, en
 segundos*.
 
+El grupo *Pedidos del público* decide dónde suenan los temas que pide el
+público. De fábrica están *Antes que el resto de la cola*: suenan después del
+tema actual y de los pedidos anteriores, en orden de llegada, también con
+aleatorio. *Al final de la cola* los suma al final, y *Al momento, cortando
+el tema actual* los reproduce apenas se resuelven. Si no suena nada, el
+pedido empieza a sonar en los tres casos. El grupo también fija la duración
+máxima de un pedido, de 1 a 60 minutos (10 de fábrica), y los cupos de
+pedidos pendientes por persona, de 1 a 10 (2), y en total, de 1 a 50 (10).
+Un pedido está pendiente desde que se acepta hasta que empieza a sonar o
+sale de la cola. No se agregan temas repetidos ni títulos con palabras
+bloqueadas. Con *Responder en el chat cuando un pedido no se agrega*, marcada
+de fábrica, el rechazo se contesta en el chat de YouTube con el nombre de
+quien pidió y el motivo; en TikTok no se contesta. El aviso al streamer se
+mantiene siempre.
+
 Con *Usar atajos de música en cualquier aplicación*, los atajos de música
 funcionan también en OBS o en un juego, y esas teclas dejan de llegar a las
 demás aplicaciones.
@@ -818,16 +833,18 @@ su estilo, y cada comando elige si aparece en ella.
 El comando de música, de fábrica `!music` con los alias `!musica` y
 `!cancion` en español y portugués, deja pedir un tema al público. Acepta un
 enlace de un vídeo de YouTube o el texto de su nombre. Guyrapu busca el
-vídeo, lo agrega al final de la cola de música sin cortar lo que suena y
-responde con el título. Solo acepta vídeos de hasta 10 minutos que no estén
-en directo ni programados, y no acepta enlaces de listas de reproducción.
-Viene desactivado porque la música que suena en el directo puede tener
-derechos de autor: actívalo en *Comandos* cuando corresponda. Cada persona
-puede pedir un tema cada 120 segundos, y el mismo espera y permiso que los
-demás comandos. El streamer puede eliminar el tema de la cola de música como
-cualquier otro, desde la ventana *Música*. Si el tema no se puede agregar,
-Guyrapu avisa al streamer con su motivo y no responde en el chat ni en el
-vídeo.
+vídeo, lo agrega a la cola y responde con el título. Dónde suena y qué
+pedidos se aceptan se ajusta en *Preferencias*, categoría *Música*, grupo
+*Pedidos del público*. Solo acepta vídeos dentro del límite de duración de
+ese grupo, de 10 minutos de fábrica, que no estén en directo ni programados,
+y no acepta enlaces de listas de reproducción. Viene desactivado porque la
+música que suena en el directo puede tener derechos de autor: actívalo en
+*Comandos* cuando corresponda. Cada persona puede pedir un tema cada 120
+segundos, y el mismo espera y permiso que los demás comandos. El streamer
+puede eliminar el tema de la cola de música como cualquier otro, desde la
+ventana *Música*. Si el tema no se puede agregar, Guyrapu avisa al streamer
+con su motivo y, si la casilla de responder está marcada, también lo contesta
+en el chat de YouTube.
 
 ### <a id="alertas"></a>Alertas
 

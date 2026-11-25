@@ -18,6 +18,17 @@ from guyrapu.core.ini_tipado import leer_texto, leer_booleano, leer_entero
 
 logger = diagnostico.obtener_logger(__name__)
 
+DONDE_FINAL = "final"
+DONDE_CONTINUACION = "continuacion"
+DONDE_AHORA = "ahora"
+PEDIDOS_DONDES = (DONDE_FINAL, DONDE_CONTINUACION, DONDE_AHORA)
+
+
+def normalizar_donde(valor) -> str:
+    """El modo de reproducción de los pedidos, con el de fábrica por defecto."""
+    texto = str(valor or "").strip().lower()
+    return texto if texto in PEDIDOS_DONDES else DONDE_CONTINUACION
+
 
 def opciones_musica(p) -> dict:
     """La sección [musica] como claves en memoria, en el mismo orden."""
@@ -36,6 +47,12 @@ def opciones_musica(p) -> dict:
         "musica_volumen": leer_entero(p, "musica", "volumen", lo=0, hi=100), "musica_cruce": leer_entero(p, "musica", "cruce", lo=0, hi=12),
         "musica_salida": leer_texto(p, "musica", "salida"),
         "musica_salida_nombre": decodificar_texto_ini(leer_texto(p, "musica", "salida_nombre")),
+        "musica_pedidos_donde": normalizar_donde(leer_texto(p, "musica", "pedidos_donde")),
+        "musica_pedidos_duracion": leer_entero(p, "musica", "pedidos_duracion", lo=1, hi=60),
+        "musica_pedidos_persona": leer_entero(p, "musica", "pedidos_persona", lo=1, hi=10),
+        "musica_pedidos_total": leer_entero(p, "musica", "pedidos_total", lo=1, hi=50),
+        "musica_pedidos_responder": leer_booleano(p, "musica", "pedidos_responder"),
+        "musica_pedidos_bloquear": leer_booleano(p, "musica", "pedidos_bloquear"),
     } | _atajos_musica(p) | _filtros_musica(p) | _atenuacion_musica(p)
 
 

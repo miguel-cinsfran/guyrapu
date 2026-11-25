@@ -216,7 +216,7 @@
   </style>
 </head>
 <body>
-<!-- original: es/MANUAL.md bb9c2abdd5d0340f426bdaebb50dcf004918c74a -->
+<!-- original: es/MANUAL.md bd986a831f2a3a263e1b8cfc2c468a4dcc118be3 -->
 
 <h1 id="guyrapu-user-manual">Guyrapu, user manual</h1>
 <p>This is a translation of the Spanish original, made with artificial
@@ -677,6 +677,21 @@ sound plays and it says how many songs were matched. When you open
 Music, the box that offers to match has the <em>Do not ask again</em>
 button. Between one song and the next there is a crossfade, which is
 adjusted in <em>Crossfade between songs, in seconds</em>.</p>
+<p>The <em>Audience requests</em> group decides where the songs
+requested by the audience play. By default they go <em>Before the rest
+of the queue</em>: they play after the current song and earlier
+requests, in order of arrival, also with random order. <em>At the end of
+the queue</em> adds them at the end, and <em>Now, stopping the current
+song</em> plays them as soon as they resolve. If nothing is playing, the
+request starts playing in all three cases. The group also sets the
+maximum request length, from 1 to 60 minutes (10 by default), and the
+limits of pending requests per person, from 1 to 10 (2), and in total,
+from 1 to 50 (10). A request stays pending from acceptance until it
+starts playing or leaves the queue. Repeated songs and titles with
+blocked words are rejected. With <em>Reply in chat when a request is not
+added</em>, on by default, the rejection is also posted in the YouTube
+chat with the name of the requester and the reason; on TikTok nothing is
+posted. The streamer is always told.</p>
 <p>With <em>Use music shortcuts in any application</em>, the music
 shortcuts also work in OBS or in a game, and those keys stop reaching
 the other applications.</p>
@@ -1153,16 +1168,18 @@ the list.</p>
 <code>!musica</code> and <code>!cancion</code> in Spanish and
 Portuguese, lets the audience request a song. It accepts a link to a
 single YouTube video or the text of its name. Guyrapu searches for the
-video, adds it to the end of the music queue without stopping what is
-playing and answers with the title. It only accepts videos of up to 10
-minutes that are not live or scheduled, and does not accept playlist
+video, adds it to the queue and answers with the title. Where it plays
+and which requests are accepted are set in <em>Preferences</em>, on the
+<em>Music</em> category, in the <em>Audience requests</em> group. It
+only accepts videos within the length limit of that group, 10 minutes by
+default, that are not live or scheduled, and does not accept playlist
 links. It is disabled by default because music played on a live stream
 may be copyrighted: enable it in <em>Commands</em> when appropriate.
 Each person can request one song every 120 seconds, with the same
 permission and cooldown as other commands. The streamer can delete the
 song from the music queue like any other, from the <em>Music</em>
-window. If the song cannot be added, Guyrapu tells the streamer why and
-does not answer in the chat or on the video.</p>
+window. If the song cannot be added, Guyrapu tells the streamer why and,
+if the reply box is checked, also posts it in the YouTube chat.</p>
 <h3 id="alerts"><a id="alertas"></a>Alerts</h3>
 <p>Alerts respond to what happens in the live stream: a Super Chat, a
 membership, a new follower or a TikTok gift. They used to be called

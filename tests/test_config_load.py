@@ -1554,5 +1554,45 @@ class TestSalidaVozCargador(unittest.TestCase):
         self.assertEqual(cfg["salida_voz"], nombre)
 
 
+class TestPedidosDelPublico(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def _cargar_en(self, contenido: str) -> dict:
+        tmp = Path(self._tmp.name)
+        (tmp / "config.ini").write_text(contenido, encoding="utf-8")
+        with redirigir_rutas(tmp):
+            return config.cargar_configuracion()
+
+    def test_valores_de_fabrica(self):
+        cfg = self._cargar_en("[voz]\nvoz = 0\n")
+        self.assertEqual(cfg["musica_pedidos_donde"], "continuacion")
+        self.assertEqual(cfg["musica_pedidos_duracion"], 10)
+        self.assertEqual(cfg["musica_pedidos_persona"], 2)
+        self.assertEqual(cfg["musica_pedidos_total"], 10)
+        self.assertTrue(cfg["musica_pedidos_responder"])
+        self.assertTrue(cfg["musica_pedidos_bloquear"])
+
+    def test_valores_guardados_y_fuera_de_rango(self):
+        cfg = self._cargar_en(
+            "[musica]\npedidos_donde = ahora\npedidos_duracion = 3\n"
+            "pedidos_persona = 4\npedidos_total = 12\n"
+            "pedidos_responder = false\npedidos_bloquear = false\n")
+        self.assertEqual(cfg["musica_pedidos_donde"], "ahora")
+        self.assertEqual(cfg["musica_pedidos_duracion"], 3)
+        self.assertEqual(cfg["musica_pedidos_persona"], 4)
+        self.assertEqual(cfg["musica_pedidos_total"], 12)
+        self.assertFalse(cfg["musica_pedidos_responder"])
+        self.assertFalse(cfg["musica_pedidos_bloquear"])
+        cfg = self._cargar_en(
+            "[musica]\npedidos_donde = raro\npedidos_duracion = 999\n"
+            "pedidos_persona = 0\npedidos_total = 999\n")
+        self.assertEqual(cfg["musica_pedidos_donde"], "continuacion")
+        self.assertEqual(cfg["musica_pedidos_duracion"], 60)
+        self.assertEqual(cfg["musica_pedidos_persona"], 1)
+        self.assertEqual(cfg["musica_pedidos_total"], 50)
+
+
 if __name__ == "__main__":
     unittest.main()

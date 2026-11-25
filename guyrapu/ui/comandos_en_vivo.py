@@ -20,20 +20,25 @@ import wx
 from guyrapu.capture.estado_espectadores import _fmt_num
 from guyrapu.core import diagnostico, paths, plataformas
 from guyrapu.core.config import TIPO_TEXTO
-from guyrapu.core.idioma import _
+from guyrapu.core.config_musica import DONDE_AHORA, DONDE_CONTINUACION
+from guyrapu.core.idioma import N_, _
 from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
 from guyrapu.downloads import busqueda_youtube
 from guyrapu.interaction import (
     atencion, comandos, comandos_guardados, conversion_disparadores, ensayo,
     filtro_publico, informe_ensayo, medio_en_video, pedido_musica)
 from guyrapu.music.modelo import Tema
-from guyrapu.interaction.evento import desde_entrante
+from guyrapu.interaction.evento import desde_entrante, persona as persona_de_evento
 from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
 from guyrapu.ui.accesibilidad import anunciar_con_sonido
 from guyrapu.youtube import cuota
 
 # Con más de 8000 unidades usadas quedan menos de 2000 de las 10 000.
 CUOTA_BAJA = 8000
+
+# Traductores: respuesta al chat y aviso al streamer cuando un pedido de música
+# no se agrega. {usuario} es quien lo pidió y {motivo} por qué no se sumó.
+TEXTO_RECHAZO = N_("Pedido de música de {usuario} no agregado: {motivo}")
 
 logger = diagnostico.obtener_logger(__name__)
 
@@ -91,6 +96,8 @@ class ComandosEnVivo:
         self._respondidos = 0
         self._ultimo = ("", "")
         self._pausados = False
+        self._pendientes_musica = []
+        self._en_curso = []
 
     def alternar_pausa(self) -> bool:
         """Invierte el freno de todos los comandos y devuelve el estado nuevo."""
@@ -119,7 +126,7 @@ class ComandosEnVivo:
             if informe is not None:
                 informe.comando(respuesta.nombre)
             if respuesta.especial == comandos.ESPECIAL_MUSICA:
-                self._pedir_musica(respuesta, registro.autor, registro.texto)
+                self._pedir_musica(respuesta, evento, registro.texto)
             else:
                 self._mandar(respuesta, registro.autor)
         elif informe is not None:
@@ -146,33 +153,81 @@ class ComandosEnVivo:
             return
         self._mandar(respuesta, "")
 
-    def _pedir_musica(self, respuesta, autor, texto) -> None:
-        """Resuelve el pedido en otro hilo por si la búsqueda tarda."""
+    def _pedir_musica(self, respuesta, evento, texto) -> None:
+        """Anota el pedido en curso y lo resuelve en otro hilo."""
         invocacion = comandos.leer(texto)
         pedido = invocacion.argumentos if invocacion else ""
+        ajustes = pedido_musica.ajustes_de(
+            getattr(self._frame, "_config", None))
+        self._podar_pendientes()
+        en_curso = pedido_musica.Pendiente(persona_de_evento(evento), "")
+        self._en_curso.append(en_curso)
+        # El pedido propio no se cuenta a sí mismo: con tope 1 debe poder entrar.
+        pendientes = tuple(self._pendientes_musica) + tuple(
+            actual for actual in self._en_curso if actual is not en_curso)
         diagnostico.crear_hilo(
             self._resolver_musica, "PedidoMusica",
-            args=(respuesta, autor, pedido)).start()
+            args=(respuesta, evento, pedido, ajustes, pendientes,
+                  en_curso)).start()
 
-    def _resolver_musica(self, respuesta, autor, texto) -> None:
-        pedido = pedido_musica.resolver(texto, busqueda_youtube.buscar)
-        wx.CallAfter(self._terminar_musica, respuesta, autor, pedido)
+    def _resolver_musica(self, respuesta, evento, texto, ajustes,
+                         pendientes, en_curso) -> None:
+        pedido = pedido_musica.resolver(
+            texto, busqueda_youtube.buscar, ajustes=ajustes,
+            pendientes=pendientes, persona=persona_de_evento(evento),
+            palabras=filtro_publico.cargar(paths.palabras_bloqueadas()))
+        wx.CallAfter(self._terminar_musica, respuesta, evento, pedido, ajustes,
+                     en_curso)
 
-    def _terminar_musica(self, respuesta, autor, pedido) -> None:
+    def _podar_pendientes(self) -> None:
+        """Sacar los pedidos que ya suenan o que salieron de la cola."""
+        if not self._pendientes_musica:
+            return
+        musica = getattr(self._frame, "_musica", None)
+        estado = musica.estado() if musica is not None else None
+        cola = getattr(estado, "cola", ())
+        if not isinstance(cola, (tuple, list)):
+            return
+        vigentes = {pedido_musica.clave_de(tema.origen) for tema in cola}
+        actual = estado.actual
+        if actual is not None:
+            vigentes.discard(pedido_musica.clave_de(actual.origen))
+        self._pendientes_musica = [
+            pendiente for pendiente in self._pendientes_musica
+            if pedido_musica.clave_de(pendiente.url) in vigentes]
+
+    def _terminar_musica(self, respuesta, evento, pedido, ajustes,
+                         en_curso) -> None:
+        self._en_curso = [actual for actual in self._en_curso
+                          if actual is not en_curso]
         if pedido.motivo:
-            # Traductores: aviso al streamer cuando el público pide música y no se agrega. {usuario} es quien lo pidió y {motivo} por qué no se sumó.
-            anunciar_con_sonido(
-                _("Pedido de música de {usuario} no agregado: {motivo}").format(
-                    usuario=autor or _("el público"), motivo=_(pedido.motivo)),
-                "pedido_musica_rechazado")
+            self._rechazar(evento, pedido, ajustes)
             return
         tema = Tema(origen=pedido.tema.url, titulo=pedido.tema.titulo,
                     duracion_ms=pedido.tema.duracion * 1000)
-        self._frame._musica.agregar_temas([tema])
+        self._poner_tema(tema, ajustes.donde)
+        self._pendientes_musica.append(
+            pedido_musica.Pendiente(persona_de_evento(evento), pedido.tema.url))
         titulo = self._atencion.tapar(pedido.tema.titulo)
         respuesta = replace(
             respuesta, texto=respuesta.texto.replace("{titulo}", titulo))
-        self._mandar(respuesta, autor)
+        self._mandar(respuesta, evento.autor)
+
+    def _poner_tema(self, tema, donde) -> None:
+        musica = self._frame._musica
+        if donde == DONDE_AHORA:
+            musica.reproducir_ahora([tema])
+        elif donde == DONDE_CONTINUACION:
+            musica.poner_a_continuacion([tema])
+        else:
+            musica.agregar_temas([tema])
+
+    def _rechazar(self, evento, pedido, ajustes) -> None:
+        texto = _(TEXTO_RECHAZO).format(
+            usuario=evento.autor or _("el público"), motivo=pedido.motivo)
+        anunciar_con_sonido(texto, "pedido_musica_rechazado")
+        if ajustes.responder and evento.plataforma == plataformas.YOUTUBE:
+            self.enviar_respuesta(texto)
 
     def _mandar(self, respuesta, autor) -> None:
         self._respondidos += 1

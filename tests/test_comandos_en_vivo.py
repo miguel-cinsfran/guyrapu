@@ -14,7 +14,7 @@ from guyrapu.core.sonidos_eventos import ROL_MODERADOR
 from guyrapu.downloads import busqueda_youtube
 from guyrapu.interaction import (
     comandos_guardados, filtro_publico, medios_guardados)
-from guyrapu.music.modelo import Tema
+from guyrapu.music.modelo import EstadoMusica, Tema
 from guyrapu.ui import chat_vivo, comandos_en_vivo, encuesta_en_vivo
 from guyrapu.ui import gui, gui_envio_chat, preguntas_en_vivo
 from guyrapu.ui.capa_video import CapaVideo
@@ -70,6 +70,7 @@ def _buscar_video(resultados):
 class _Frame:
     def __init__(self):
         self._conectado = True
+        self._config = {}
         self.sesion = types.SimpleNamespace(
             es_tiktok=False, live_chat_id="LCID", chat_propio=True,
             conexion_propia=False)
@@ -157,24 +158,29 @@ class TestRespuestaEnElVideo(Base):
 
 class TestPedidoDeMusica(Base):
 
-    def _guardar_musica(self, activo=True):
+    def _guardar_musica(self, activo=True, config=None):
         self.frame._musica = mock.Mock()
+        self.frame._musica.estado.return_value = EstadoMusica(
+            (), None, False, True, 100, False)
+        self.frame._config = config or {}
         self._guardar(_datos(
             nombre="music", alias=["musica", "cancion"],
             respuesta="{usuario} pidió {titulo}.",
             activo=activo, especial="musica"))
 
-    def _pedir(self, texto="!musica algo", resultados=()):
+    def _pedir(self, texto="!musica algo", resultados=(), plataforma="youtube",
+               autor="Ana"):
         with mock.patch.object(comandos_en_vivo.diagnostico, "crear_hilo",
                                side_effect=_crear_hilo_pedido) as crear, \
-                mock.patch.object(
-                    comandos_en_vivo.wx, "CallAfter",
-                    side_effect=lambda funcion, *args: funcion(*args)), \
-                mock.patch.object(comandos_en_vivo.busqueda_youtube, "buscar",
-                                  side_effect=_buscar_video(resultados)) as buscar, \
-                mock.patch.object(comandos_en_vivo,
-                                  "anunciar_con_sonido") as aviso:
-            self._encolar(texto)
+                 mock.patch.object(
+                     comandos_en_vivo.wx, "CallAfter",
+                     side_effect=lambda funcion, *args: funcion(*args)), \
+                 mock.patch.object(comandos_en_vivo.busqueda_youtube, "buscar",
+                                   side_effect=_buscar_video(resultados)) as buscar, \
+                 mock.patch.object(comandos_en_vivo,
+                                   "anunciar_con_sonido") as aviso, \
+                 mock.patch.object(gui_envio_chat, "enviar_respuesta_chat"):
+            self._encolar(texto, plataforma=plataforma, autor=autor)
         return crear, buscar, aviso
 
     def test_un_pedido_activo_termina_en_la_cola_y_responde_con_el_titulo(self):
@@ -183,7 +189,7 @@ class TestPedidoDeMusica(Base):
         crear.assert_called_once()
         self.assertEqual(crear.call_args.args[1], "PedidoMusica")
         buscar.assert_called_once()
-        temas = self.frame._musica.agregar_temas.call_args.args[0]
+        temas = self.frame._musica.poner_a_continuacion.call_args.args[0]
         self.assertEqual(len(temas), 1)
         self.assertIsInstance(temas[0], Tema)
         self.assertEqual(temas[0].origen,
@@ -203,7 +209,7 @@ class TestPedidoDeMusica(Base):
 
     def test_el_titulo_del_tema_pasa_por_las_palabras_bloqueadas(self):
         filtro_publico.guardar(paths.palabras_bloqueadas(), ["tonto"])
-        self._guardar_musica()
+        self._guardar_musica(config={"musica_pedidos_bloquear": False})
         self._pedir(resultados=[_resultado_video(titulo="Tema tonto")])
         respuesta = self.frame._capa_video.agregar_comando.call_args.args[0]
         self.assertEqual(respuesta.texto, "Ana pidió Tema ***.")
@@ -218,6 +224,140 @@ class TestPedidoDeMusica(Base):
         self.assertIn("Pedido de música de Ana no agregado", frase)
         self.assertIn("falta el nombre o el enlace del tema", frase)
         self.assertEqual(sonido, "pedido_musica_rechazado")
+
+
+    def test_al_final_suma_al_final_y_no_toca_las_otras_formas(self):
+        self._guardar_musica(config={"musica_pedidos_donde": "final"})
+        self._pedir(resultados=[_resultado_video()])
+        self.frame._musica.agregar_temas.assert_called_once()
+        self.frame._musica.poner_a_continuacion.assert_not_called()
+        self.frame._musica.reproducir_ahora.assert_not_called()
+
+    def test_por_defecto_va_a_continuacion_y_no_toca_las_otras_formas(self):
+        self._guardar_musica()
+        self._pedir(resultados=[_resultado_video()])
+        self.frame._musica.poner_a_continuacion.assert_called_once()
+        self.frame._musica.agregar_temas.assert_not_called()
+        self.frame._musica.reproducir_ahora.assert_not_called()
+
+    def test_al_momento_corta_el_tema_actual_y_conserva_la_cola(self):
+        self._guardar_musica(config={"musica_pedidos_donde": "ahora"})
+        self._pedir(resultados=[_resultado_video()])
+        self.frame._musica.reproducir_ahora.assert_called_once()
+        self.frame._musica.agregar_temas.assert_not_called()
+        self.frame._musica.poner_a_continuacion.assert_not_called()
+
+    def test_un_rechazo_se_contesta_en_el_chat_de_youtube(self):
+        self._guardar_musica(config={"musica_pedidos_responder": True})
+        with mock.patch.object(comandos_en_vivo.ComandosEnVivo,
+                               "enviar_respuesta", return_value=True) as responder:
+            _, _, aviso = self._pedir(texto="!musica", autor="Ana")
+        responder.assert_called_once()
+        texto = responder.call_args.args[0]
+        self.assertIn("Ana", texto)
+        self.assertIn("falta el nombre o el enlace del tema", texto)
+        aviso.assert_called_once()
+
+    def test_un_rechazo_en_tiktok_no_se_contesta_pero_si_se_anuncia(self):
+        self._guardar_musica(config={"musica_pedidos_responder": True})
+        with mock.patch.object(comandos_en_vivo.ComandosEnVivo,
+                               "enviar_respuesta") as responder:
+            _, _, aviso = self._pedir(
+                texto="!musica", plataforma="tiktok", autor="Ana")
+        responder.assert_not_called()
+        aviso.assert_called_once()
+
+    def test_sin_responder_en_el_chat_solo_se_anuncia_el_rechazo(self):
+        self._guardar_musica(config={"musica_pedidos_responder": False})
+        with mock.patch.object(comandos_en_vivo.ComandosEnVivo,
+                               "enviar_respuesta") as responder:
+            _, _, aviso = self._pedir(texto="!musica")
+        responder.assert_not_called()
+        aviso.assert_called_once()
+
+    def test_un_pedido_que_ya_suena_deja_de_contar_como_pendiente(self):
+        self._guardar_musica(config={"musica_pedidos_persona": 1})
+        self._pedir(resultados=[_resultado_video()])
+        tema = self.frame._musica.poner_a_continuacion.call_args.args[0][0]
+        self.frame._musica.estado.return_value = EstadoMusica(
+            (tema,), 0, False, False, 100, False)
+        self.ahora = 200.0
+        otro = _resultado_video(id="def456",
+                                url="https://www.youtube.com/watch?v=def456")
+        self._pedir(resultados=[otro])
+        self.assertEqual(self.frame._musica.poner_a_continuacion.call_count, 2)
+
+
+class TestPedidosSimultaneos(Base):
+    def _preparar(self, total=1, por_persona=2):
+        self.frame._musica = mock.Mock()
+        self.frame._musica.estado.return_value = EstadoMusica(
+            (), None, False, True, 100, False)
+        self.frame._config = {
+            "musica_pedidos_total": total,
+            "musica_pedidos_persona": por_persona,
+        }
+        self._guardar(_datos(
+            nombre="music", alias=["musica", "cancion"],
+            respuesta="{usuario} pidió {titulo}.", activo=True,
+            especial="musica", espera_general=0, espera_persona=0))
+
+    def _hilos_diferidos(self):
+        tareas = []
+
+        def crear(target, nombre, *, args=(), daemon=True):
+            hilo = mock.Mock()
+            hilo.start.side_effect = lambda: tareas.append((target, args))
+            return hilo
+        return tareas, crear
+
+    def test_dos_pedidos_juntos_no_pasan_el_limite_total(self):
+        self._preparar(total=1)
+        tareas, crear = self._hilos_diferidos()
+        with mock.patch.object(comandos_en_vivo.diagnostico, "crear_hilo",
+                               side_effect=crear), \
+                mock.patch.object(
+                    comandos_en_vivo.busqueda_youtube, "buscar",
+                    side_effect=_buscar_video([_resultado_video()])) as buscar, \
+                mock.patch.object(
+                    comandos_en_vivo.wx, "CallAfter",
+                    side_effect=lambda funcion, *args: funcion(*args)), \
+                mock.patch.object(comandos_en_vivo,
+                                  "anunciar_con_sonido") as aviso, \
+                mock.patch.object(gui_envio_chat, "enviar_respuesta_chat"):
+            self._encolar("!musica algo", autor="Ana")
+            self._encolar("!musica otra", autor="Beto")
+            self.assertEqual(len(tareas), 2)
+            for target, args in tareas:
+                target(*args)
+            buscar.assert_called_once()
+            self.frame._musica.poner_a_continuacion.assert_called_once()
+            self.assertIn("pedidos pendientes", aviso.call_args.args[0])
+
+    def test_un_pedido_rechazado_deja_de_contar_como_en_curso(self):
+        self._preparar(total=1)
+        tareas, crear = self._hilos_diferidos()
+        with mock.patch.object(comandos_en_vivo.diagnostico, "crear_hilo",
+                               side_effect=crear), \
+                mock.patch.object(
+                    comandos_en_vivo.busqueda_youtube, "buscar",
+                    side_effect=_buscar_video([_resultado_video()])) as buscar, \
+                mock.patch.object(
+                    comandos_en_vivo.wx, "CallAfter",
+                    side_effect=lambda funcion, *args: funcion(*args)), \
+                mock.patch.object(comandos_en_vivo,
+                                  "anunciar_con_sonido"), \
+                mock.patch.object(gui_envio_chat, "enviar_respuesta_chat"):
+            self._encolar("!musica", autor="Ana")
+            for target, args in tareas:
+                target(*args)
+            buscar.assert_not_called()
+            self.frame._musica.poner_a_continuacion.assert_not_called()
+            self._encolar("!musica algo", autor="Beto")
+            for target, args in tareas[1:]:
+                target(*args)
+            buscar.assert_called_once()
+            self.frame._musica.poner_a_continuacion.assert_called_once()
 
 
 class TestRespuestaEnElChat(Base):

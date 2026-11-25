@@ -99,5 +99,60 @@ class TestPseudoMusica(unittest.TestCase):
         self.assertEqual(dialogo._config["musica_volumen_atenuado"], 45)
 
 
+    def test_el_grupo_de_pedidos_tiene_los_controles_y_valores_de_fabrica(self):
+        pagina = self._dialogo().pagina_musica
+        where = pagina.cho_musica_pedidos_donde
+        self.assertIsInstance(where, wx.Choice)
+        self.assertEqual(
+            [where.GetString(i) for i in range(where.GetCount())],
+            ["Al final de la cola", "Antes que el resto de la cola",
+             "Al momento, cortando el tema actual"])
+        self.assertEqual(where.GetValue(), "continuacion")
+        self.assertEqual(where.GetName(), "Reproducir pedidos")
+        for atributo, minimo, maximo, defecto, nombre in (
+                ("sp_musica_pedidos_duracion", 1, 60, 10,
+                 "Duración máxima de un pedido, en minutos"),
+                ("sp_musica_pedidos_persona", 1, 10, 2,
+                 "Pedidos pendientes por persona"),
+                ("sp_musica_pedidos_total", 1, 50, 10,
+                 "Pedidos pendientes en total")):
+            with self.subTest(atributo=atributo):
+                control = getattr(pagina, atributo)
+                self.assertIsInstance(control, wx.SpinCtrl)
+                self.assertEqual(
+                    (control.GetMin(), control.GetMax(), control.GetValue()),
+                    (minimo, maximo, defecto))
+                self.assertEqual(control.GetName(), nombre)
+        for atributo in ("chk_musica_pedidos_responder",
+                         "chk_musica_pedidos_bloquear"):
+            casilla = getattr(pagina, atributo)
+            self.assertIsInstance(casilla, wx.CheckBox)
+            self.assertTrue(casilla.GetValue())
+
+    def test_el_grupo_de_pedidos_se_guarda_en_la_seccion_musica(self):
+        dialogo = self._dialogo()
+        pagina = dialogo.pagina_musica
+        pagina.cho_musica_pedidos_donde.SetValue("ahora")
+        pagina.sp_musica_pedidos_duracion.SetValue(3)
+        pagina.sp_musica_pedidos_persona.SetValue(4)
+        pagina.sp_musica_pedidos_total.SetValue(12)
+        pagina.chk_musica_pedidos_responder.SetValue(False)
+        pagina.chk_musica_pedidos_bloquear.SetValue(False)
+        with mock.patch.object(gui_preferencias._snd, "reproducir"), \
+                mock.patch.object(preferencias_transmision, "anunciar"), \
+                mock.patch.object(dialogo, "EndModal"):
+            dialogo._on_guardar(None)
+        escritos = {clave: valor for _seccion, clave, valor
+                    in dialogo._pendientes if _seccion == "musica"}
+        self.assertEqual(escritos["pedidos_donde"], "ahora")
+        self.assertEqual(escritos["pedidos_duracion"], "3")
+        self.assertEqual(escritos["pedidos_persona"], "4")
+        self.assertEqual(escritos["pedidos_total"], "12")
+        self.assertEqual(escritos["pedidos_responder"], "false")
+        self.assertEqual(escritos["pedidos_bloquear"], "false")
+        self.assertEqual(dialogo._config["musica_pedidos_donde"], "ahora")
+        self.assertEqual(dialogo._config["musica_pedidos_duracion"], 3)
+
+
 if __name__ == "__main__":
     unittest.main()

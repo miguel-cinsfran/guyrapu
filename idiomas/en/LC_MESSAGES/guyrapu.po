@@ -2432,6 +2432,10 @@ msgid "Cola de preguntas llena"
 msgstr "Question queue full"
 
 #: guyrapu/core/eventos_sonido.py
+msgid "Pedido de música no agregado"
+msgstr "Music request not added"
+
+#: guyrapu/core/eventos_sonido.py
 msgid "Meta cumplida del directo"
 msgstr "Live stream goal reached"
 
@@ -3924,12 +3928,40 @@ msgstr "The queue is paused."
 msgid "Sonido de los medios silenciado."
 msgstr "Media sound is muted."
 
+#. Traductores: ayuda de las variables que se pueden usar en la respuesta de un
+#. comando.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador} y {texto}."
+msgstr "You can use {usuario}, {contador} and {texto}."
+
+#. Traductores: ayuda de las variables del comando de lista del chat. {lista}
+#. son los nombres de los comandos activos.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador}, {texto} y {lista}."
+msgstr "You can use {usuario}, {contador}, {texto} and {lista}."
+
+#. Traductores: ayuda de las variables del comando de música del chat. {titulo}
+#. es el tema que se sumó a la cola.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "Puedes usar {usuario}, {contador}, {texto} y {titulo}."
+msgstr "You can use {usuario}, {contador}, {texto} and {titulo}."
+
 #. Traductores: respuesta del comando de lista del chat. {lista} son los
 #. nombres de los comandos activos.
 #: guyrapu/interaction/comandos.py
 #, python-brace-format
 msgid "Comandos: {lista}."
 msgstr "Commands: {lista}."
+
+#. Traductores: respuesta del comando de música del chat. {usuario} es quien
+#. pide y {titulo} el tema sumado a la cola.
+#: guyrapu/interaction/comandos.py
+#, python-brace-format
+msgid "{usuario} pidió {titulo}."
+msgstr "{usuario} requested {titulo}."
 
 #. Traductores: validación de comandos del chat (error).
 #: guyrapu/interaction/comandos.py
@@ -4625,6 +4657,57 @@ msgstr "The package is from a later version of Guyrapu. Update Guyrapu to import
 #, python-brace-format
 msgid "El paquete contiene {contiene}, no {esperado}."
 msgstr "The package contains {contiene}, not {esperado}."
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "falta el nombre o el enlace del tema"
+msgstr "the song name or link is missing"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "la búsqueda no dio resultados"
+msgstr "the search returned no results"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "el vídeo está en directo"
+msgstr "the video is live"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "el vídeo está programado"
+msgstr "the video is scheduled"
+
+#: guyrapu/interaction/pedido_musica.py
+#, python-brace-format
+msgid "dura más de {minutos} minutos"
+msgstr "it lasts more than {minutos} minutes"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "no se pudo obtener la duración del vídeo"
+msgstr "could not get the video length"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "el enlace es de una lista de reproducción"
+msgstr "the link is for a playlist"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "no se pudo abrir el enlace"
+msgstr "could not open the link"
+
+#: guyrapu/interaction/pedido_musica.py
+#, python-brace-format
+msgid "ya tiene {limite} pedidos pendientes"
+msgstr "already has {limite} pending requests"
+
+#: guyrapu/interaction/pedido_musica.py
+#, python-brace-format
+msgid "ya hay {limite} pedidos pendientes"
+msgstr "there are already {limite} pending requests"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "ya está en la cola"
+msgstr "it is already in the queue"
+
+#: guyrapu/interaction/pedido_musica.py
+msgid "el título contiene una palabra bloqueada"
+msgstr "the title contains a blocked word"
 
 #: guyrapu/music/anuncios.py
 #, python-brace-format
@@ -9220,16 +9303,6 @@ msgstr "Add command"
 msgid "Editar comando"
 msgstr "Edit command"
 
-#: guyrapu/ui/comando_cuadro.py
-#, python-brace-format
-msgid "Puedes usar {usuario}, {contador} y {texto}."
-msgstr "You can use {usuario}, {contador} and {texto}."
-
-#: guyrapu/ui/comando_cuadro.py
-#, python-brace-format
-msgid "Puedes usar {usuario}, {contador}, {texto} y {lista}."
-msgstr "You can use {usuario}, {contador}, {texto} and {lista}."
-
 #: guyrapu/ui/comando_cuadro.py guyrapu/ui/disparador_cuadro.py
 #: guyrapu/ui/mensaje_automatico_cuadro.py
 msgid "Chat y vídeo"
@@ -9397,6 +9470,14 @@ msgstr "There are no questions."
 msgid "{autor} pregunta: {texto}. Quedan {n}."
 msgstr "{autor} asks: {texto}. {n} left."
 
+#. Traductores: respuesta al chat y aviso al streamer cuando un pedido de
+#. música
+#. no se agrega. {usuario} es quien lo pidió y {motivo} por qué no se sumó.
+#: guyrapu/ui/comandos_en_vivo.py
+#, python-brace-format
+msgid "Pedido de música de {usuario} no agregado: {motivo}"
+msgstr "Music request from {usuario} not added: {motivo}"
+
 #: guyrapu/ui/comandos_en_vivo.py
 msgid "Conecta un directo para usar los atajos de los comandos"
 msgstr "Connect a live stream to use command shortcuts"
@@ -9405,6 +9486,10 @@ msgstr "Connect a live stream to use command shortcuts"
 #, python-brace-format
 msgid "Ningún comando usa Ctrl+Alt+Mayús+{numero}"
 msgstr "No command uses Ctrl+Alt+Shift+{numero}"
+
+#: guyrapu/ui/comandos_en_vivo.py
+msgid "el público"
+msgstr "the audience"
 
 #. Traductores: parte del estado F2 (comandos). {n} es el nº de comandos
 #. respondidos, {palabra} el último comando y {autor} quien lo pidió.
@@ -16094,6 +16179,66 @@ msgid "Traducir al"
 msgstr "Translate to"
 
 #: guyrapu/ui/preferencias_musica.py
+msgid "Responder en el chat cuando un pedido no se agrega"
+msgstr "Reply in chat when a request is not added"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Pedidos del público"
+msgstr "Audience requests"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Reproducir pedidos:"
+msgstr "Play requests:"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Al final de la cola"
+msgstr "At the end of the queue"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Antes que el resto de la cola"
+msgstr "Before the rest of the queue"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Al momento, cortando el tema actual"
+msgstr "Now, stopping the current song"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Reproducir pedidos"
+msgstr "Play requests"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Duración má&xima de un pedido (minutos):"
+msgstr "Ma&ximum request length (minutes):"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Duración máxima de un pedido, en minutos"
+msgstr "Maximum request length, in minutes"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Pedidos pendientes por persona:"
+msgstr "Pending requests per person:"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Pedidos pendientes por persona"
+msgstr "Pending requests per person"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Pedidos pendientes en total:"
+msgstr "Pending requests in total:"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Pedidos pendientes en total"
+msgstr "Pending requests in total"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Rechazar temas con palabras blo&queadas"
+msgstr "Re&ject songs with blocked words"
+
+#: guyrapu/ui/preferencias_musica.py
+msgid "Rechazar temas con palabras bloqueadas"
+msgstr "Reject songs with blocked words"
+
+#: guyrapu/ui/preferencias_musica.py
 msgid "Carpeta de &música:"
 msgstr "&Music folder:"
 
@@ -17711,63 +17856,4 @@ msgstr "Signed in. You can go back to the application."
 #: guyrapu/youtube/youtube_api.py
 msgid "Sin título"
 msgstr "Untitled"
-
-#: guyrapu/core/eventos_sonido.py
-msgid "Pedido de música no agregado"
-msgstr "Music request not added"
-
-#. Traductores: ayuda de las variables del comando de música del chat. {titulo}
-#. es el tema que se sumó a la cola.
-#: guyrapu/interaction/comandos.py
-#, python-brace-format
-msgid "Puedes usar {usuario}, {contador}, {texto} y {titulo}."
-msgstr "You can use {usuario}, {contador}, {texto} and {titulo}."
-
-#. Traductores: respuesta del comando de música del chat. {usuario} es quien
-#. pide y {titulo} el tema sumado a la cola.
-#: guyrapu/interaction/comandos.py
-#, python-brace-format
-msgid "{usuario} pidió {titulo}."
-msgstr "{usuario} requested {titulo}."
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "falta el nombre o el enlace del tema"
-msgstr "the song name or link is missing"
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "la búsqueda no dio resultados"
-msgstr "the search returned no results"
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "el vídeo está en directo"
-msgstr "the video is live"
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "el vídeo está programado"
-msgstr "the video is scheduled"
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "dura más de 10 minutos"
-msgstr "it lasts more than 10 minutes"
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "no se pudo obtener la duración del vídeo"
-msgstr "could not get the video length"
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "el enlace es de una lista de reproducción"
-msgstr "the link is for a playlist"
-
-#: guyrapu/interaction/pedido_musica.py
-msgid "no se pudo abrir el enlace"
-msgstr "could not open the link"
-
-#: guyrapu/ui/comandos_en_vivo.py
-#, python-brace-format
-msgid "Pedido de música de {usuario} no agregado: {motivo}"
-msgstr "Music request from {usuario} not added: {motivo}"
-
-#: guyrapu/ui/comandos_en_vivo.py
-msgid "el público"
-msgstr "the audience"
 

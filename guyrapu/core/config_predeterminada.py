@@ -210,6 +210,12 @@ _ORDEN: list[tuple[str, list[tuple[str, str]]]] = [
         ("mostrar_filtros", "false"),
         ("orden", "coleccion"),
         ("artista", ""),
+        ("pedidos_donde", "continuacion"),
+        ("pedidos_duracion", "10"),
+        ("pedidos_persona", "2"),
+        ("pedidos_total", "10"),
+        ("pedidos_responder", "true"),
+        ("pedidos_bloquear", "true"),
     ]),
     ("ia", [
         ("proveedor", "gemini"),
@@ -298,6 +304,8 @@ _COMENTARIOS: dict[str, str] = {
         "# Música local: carpeta de la biblioteca, orden y opciones de\n"
         "# reproducción. La salida es el identificador de un dispositivo\n"
         "# de audio de libVLC; vacía usa el predeterminado del sistema.\n"
+        "# pedidos_donde: final, continuacion o ahora, para el comando de música.\n"
+        "# pedidos_duracion en minutos; pedidos_persona y pedidos_total son cupos.\n"
     ),
     "ia": (
         "# Preguntar a la IA sobre la imagen. La clave de cada proveedor no\n"

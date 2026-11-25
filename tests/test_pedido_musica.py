@@ -90,12 +90,15 @@ class TestPedidoMusica(unittest.TestCase):
     def _resolver(self, texto, resultados=(), temas=(), buscar_falla=False,
                   expandir_falla=False, info_duracion=200,
                   info_en_directo=False, info_programado=False,
-                  info_falla=True):
+                  info_falla=True, ajustes=None, pendientes=(), persona=(),
+                  palabras=()):
         busqueda = BusquedaDoble(resultados, buscar_falla)
         expansion = ExpansionDoble(temas, expandir_falla)
         info = InfoDoble(info_duracion, info_en_directo, info_programado,
                          info_falla)
-        pedido = pedido_musica.resolver(texto, busqueda, expansion, info=info)
+        pedido = pedido_musica.resolver(
+            texto, busqueda, expansion, info=info, ajustes=ajustes,
+            pendientes=pendientes, persona=persona, palabras=palabras)
         return pedido, busqueda, expansion, info
 
     def test_texto_vacio_no_busca_y_se_rechaza(self):
@@ -251,6 +254,82 @@ class TestPedidoMusica(unittest.TestCase):
             expandir_falla=True)
         self.assertEqual(pedido.tema.titulo, "El tema")
         self.assertEqual(pedido.tema.url, OTRO_ENLACE)
+
+
+class TestReglasDelPublico(unittest.TestCase):
+    def setUp(self):
+        idioma.instalar("es")
+        self.addCleanup(idioma._reiniciar)
+
+    def _pendiente(self, persona="C1", url=ENLACE):
+        return pedido_musica.Pendiente(("youtube", persona), url)
+
+    def test_limite_por_persona_se_rechaza_sin_buscar(self):
+        ajustes = pedido_musica.AjustesPedidos(por_persona=2)
+        pendientes = (self._pendiente(), self._pendiente(url=OTRO_ENLACE))
+        busqueda = BusquedaDoble([_video()], fallar=True)
+        expansion = ExpansionDoble(fallar=True)
+        pedido = pedido_musica.resolver(
+            "algo", busqueda, expansion, ajustes=ajustes,
+            pendientes=pendientes, persona=("youtube", "C1"))
+        self.assertIsNone(pedido.tema)
+        self.assertEqual(pedido.motivo, "ya tiene 2 pedidos pendientes")
+        self.assertEqual(busqueda.llamadas, [])
+        self.assertEqual(expansion.llamadas, [])
+
+    def test_limite_total_se_rechaza_sin_buscar(self):
+        ajustes = pedido_musica.AjustesPedidos(total=2)
+        pendientes = (self._pendiente(), self._pendiente("C2", OTRO_ENLACE))
+        busqueda = BusquedaDoble([_video()], fallar=True)
+        expansion = ExpansionDoble(fallar=True)
+        pedido = pedido_musica.resolver(
+            "algo", busqueda, expansion, ajustes=ajustes,
+            pendientes=pendientes, persona=("youtube", "C3"))
+        self.assertIsNone(pedido.tema)
+        self.assertEqual(pedido.motivo, "ya hay 2 pedidos pendientes")
+        self.assertEqual(busqueda.llamadas, [])
+        self.assertEqual(expansion.llamadas, [])
+
+    def test_tema_repetido_entre_pendientes_se_rechaza(self):
+        pendientes = (self._pendiente("C2", "https://youtu.be/abc123"),)
+        busqueda = BusquedaDoble([_video()])
+        pedido = pedido_musica.resolver(
+            "algo", busqueda, ExpansionDoble(fallar=True),
+            pendientes=pendientes, persona=("youtube", "C1"))
+        self.assertIsNone(pedido.tema)
+        self.assertEqual(pedido.motivo, "ya está en la cola")
+        self.assertEqual(len(busqueda.llamadas), 1)
+
+    def test_palabra_bloqueada_con_casilla_se_rechaza_sin_nombrarla(self):
+        ajustes = pedido_musica.AjustesPedidos(bloquear=True)
+        pedido = pedido_musica.resolver(
+            "algo", BusquedaDoble([_video(titulo="Tema tonto")]),
+            ExpansionDoble(fallar=True), ajustes=ajustes, palabras=["tonto"])
+        self.assertIsNone(pedido.tema)
+        self.assertEqual(pedido.motivo,
+                         "el título contiene una palabra bloqueada")
+        self.assertNotIn("tonto", pedido.motivo)
+
+    def test_palabra_bloqueada_sin_casilla_se_acepta(self):
+        ajustes = pedido_musica.AjustesPedidos(bloquear=False)
+        pedido = pedido_musica.resolver(
+            "algo", BusquedaDoble([_video(titulo="Tema tonto")]),
+            ExpansionDoble(fallar=True), ajustes=ajustes, palabras=["tonto"])
+        self.assertEqual(pedido.motivo, "")
+        self.assertEqual(pedido.tema.titulo, "Tema tonto")
+
+    def test_duracion_configurada_a_tres_minutos(self):
+        ajustes = pedido_musica.AjustesPedidos(duracion=3)
+        largo = pedido_musica.resolver(
+            "algo", BusquedaDoble([_video(duracion=181)]),
+            ExpansionDoble(fallar=True), ajustes=ajustes)
+        self.assertIsNone(largo.tema)
+        self.assertEqual(largo.motivo, "dura más de 3 minutos")
+        justo = pedido_musica.resolver(
+            "otro", BusquedaDoble([_video(duracion=180, url=OTRO_ENLACE)]),
+            ExpansionDoble(fallar=True), ajustes=ajustes)
+        self.assertEqual(justo.motivo, "")
+        self.assertEqual(justo.tema.duracion, 180)
 
 
 @unittest.skipUnless(

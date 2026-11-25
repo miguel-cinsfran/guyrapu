@@ -2025,6 +2025,9 @@ class TestCategoriasDePreferencias(unittest.TestCase):
             ("musica", "atajos_globales"),
             ("musica", "teclas_multimedia"), ("musica", "carpeta"),
             ("musica", "salida"), ("musica", "salida_nombre"),
+            ("musica", "pedidos_donde"), ("musica", "pedidos_duracion"),
+            ("musica", "pedidos_persona"), ("musica", "pedidos_total"),
+            ("musica", "pedidos_responder"), ("musica", "pedidos_bloquear"),
         ]
         esperadas.extend(("estado", componente)
                           for componente in preferencias_estado.estado_sesion.COMPONENTES)
