@@ -104,6 +104,11 @@ class TestLineasDelVideo(unittest.TestCase):
             'VIDEO_FALLO tipo=meta nombre="Risa" '
             'error="OBS no respondió"')
 
+    def test_la_pieza_descartada_dice_tipo_nombre_y_segundos(self):
+        self.assertEqual(
+            rastro_en_vivo.video_descartada("disparador", "Risa", 61),
+            'VIDEO_DESCARTADA tipo=disparador nombre="Risa" segundos=61')
+
     def test_el_estado_dice_pausa_silencio_y_panico(self):
         self.assertEqual(
             rastro_en_vivo.video_estado(True, False, True),

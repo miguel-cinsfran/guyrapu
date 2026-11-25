@@ -82,6 +82,12 @@ def video_fallo(tipo, nombre, error):
             f"error={_comillas(error)}")
 
 
+def video_descartada(tipo, nombre, segundos):
+    """La línea de una pieza que se descartó por esperar demasiado."""
+    return (f"VIDEO_DESCARTADA tipo={tipo} nombre={_comillas(nombre or '-')} "
+            f"segundos={segundos:g}")
+
+
 def video_estado(pausado, silenciado, panico):
     """La línea con el estado nuevo de pausa, silencio y pánico."""
     return (f"VIDEO_ESTADO pausado={pausado} "

@@ -13,6 +13,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from guyrapu.core.idioma import _, ngettext
+from guyrapu.interaction import rastro_en_vivo
+
+
+CADUCABLES = ("comando", "disparador", "meta")
 
 
 @dataclass(frozen=True)
@@ -38,6 +42,7 @@ class ColaPantalla:
     """Una sola pieza en el vídeo, de a una y en el orden en que llegó."""
 
     TOPE = 20
+    CADUCIDAD = 60.0
     PAUSA_ENTRE = 1.0
     REINTENTO = 5.0
 
@@ -53,6 +58,7 @@ class ColaPantalla:
         self._esperando = None
         self._esperando_encuesta = False
         self._reintentos = {}
+        self._llegadas = {}
         self._pausado = False
         self._saltar = False
         self._silenciado = False
@@ -67,7 +73,7 @@ class ColaPantalla:
         """
         if self._panico or len(self._pendientes) >= self.TOPE:
             return False
-        if pieza.tipo in ("comando", "disparador", "meta"):
+        if pieza.tipo in CADUCABLES:
             indice = next(
                 (posicion for posicion, actual
                  in enumerate(self._pendientes) if actual.tipo == "mensaje"),
@@ -79,6 +85,13 @@ class ColaPantalla:
 
     def ordenes(self, ahora):
         """La orden que toca dar ahora, o nada si espera una confirmación."""
+        en_juego = list(self._pendientes)
+        if self._esperando is not None:
+            en_juego.append(self._esperando.pieza)
+        self._llegadas = {
+            id(pieza): self._llegadas.get(id(pieza), ahora)
+            for pieza in en_juego
+        }
         if self._esperando is not None:
             return []
         resultado = self._orden_de_actualizar(ahora)
@@ -122,14 +135,29 @@ class ColaPantalla:
         if (self._pausado or self._visible is not None
                 or not self._pendientes):
             return None
-        pieza = self._pendientes[0]
-        if ahora < self._reintento_de(pieza):
-            return None
-        if (self._ultima_oculta is not None
-                and ahora - self._ultima_oculta < self.PAUSA_ENTRE):
-            return None
-        self._pendientes.pop(0)
-        return Orden("mostrar", pieza, not self._silenciado), False
+        while self._pendientes:
+            pieza = self._pendientes[0]
+            if ahora < self._reintento_de(pieza):
+                return None
+            if self._caducada(pieza, ahora):
+                espera = ahora - self._llegadas.pop(id(pieza))
+                self._pendientes.pop(0)
+                self._reintentos.pop(id(pieza), None)
+                rastro_en_vivo.escribir(rastro_en_vivo.video_descartada(
+                    pieza.tipo, pieza.datos.get("nombre"), espera))
+                continue
+            if (self._ultima_oculta is not None
+                    and ahora - self._ultima_oculta < self.PAUSA_ENTRE):
+                return None
+            self._pendientes.pop(0)
+            return Orden("mostrar", pieza, not self._silenciado), False
+        return None
+
+    def _caducada(self, pieza, ahora):
+        """Si la pieza esperó demasiado desde que se la vio por primera vez."""
+        return (pieza.tipo in CADUCABLES
+                and ahora - self._llegadas.get(id(pieza), ahora)
+                > self.CADUCIDAD)
 
     def _reintento_de(self, pieza):
         return self._reintentos.get(id(pieza), 0.0)
@@ -148,6 +176,7 @@ class ColaPantalla:
         if self._esperando_encuesta:
             self._encuesta_visible = pieza
         else:
+            self._llegadas.pop(id(pieza), None)
             self._visible = pieza
             self._inicio = ahora
 

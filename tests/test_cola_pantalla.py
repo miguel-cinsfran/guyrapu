@@ -359,6 +359,125 @@ class TestColaPantalla(unittest.TestCase):
                          "No hay nada en el vídeo. Sonido de los medios silenciado.")
 
 
+class TestCaducidad(unittest.TestCase):
+
+    def test_una_alerta_que_espera_mas_de_un_minuto_se_descarta_y_sigue_la_siguiente(self):
+        cola = ColaPantalla()
+        vencida = _pieza("Risa", tipo="disparador")
+        cola.agregar(vencida)
+        cola.ordenes(0)
+        cola.fallo(vencida, 0)
+        siguiente = _pieza("Siguiente", tipo="comando")
+        cola.agregar(siguiente)
+        cola.ordenes(10)
+        cola.fallo(vencida, 10)
+        mostrar = cola.ordenes(61)
+        self.assertEqual(len(mostrar), 1)
+        self.assertIs(mostrar[0].pieza, siguiente)
+
+    def test_una_alerta_que_espera_menos_de_un_minuto_si_se_muestra(self):
+        cola = ColaPantalla()
+        pieza = _pieza("Risa", tipo="disparador")
+        cola.agregar(pieza)
+        cola.ordenes(0)
+        cola.fallo(pieza, 0)
+        mostrar = cola.ordenes(59)
+        self.assertEqual(len(mostrar), 1)
+        self.assertIs(mostrar[0].pieza, pieza)
+
+    def test_un_mensaje_automatico_no_se_descarta_por_tiempo(self):
+        cola = ColaPantalla()
+        pieza = _pieza("Saludo", tipo="mensaje")
+        cola.agregar(pieza)
+        cola.ordenes(0)
+        cola.fallo(pieza, 0)
+        mostrar = cola.ordenes(300)
+        self.assertEqual(len(mostrar), 1)
+        self.assertIs(mostrar[0].pieza, pieza)
+
+    def test_la_encuesta_fija_no_se_descarta_por_tiempo(self):
+        cola = ColaPantalla()
+        encuesta = _pieza("¿Sí o no?", 0, "encuesta")
+        cola.fijar_encuesta(encuesta)
+        self.assertIs(cola.ordenes(0)[0].pieza, encuesta)
+        cola.mostrada(encuesta, 0)
+        self.assertEqual(cola.ordenes(300), [])
+        self.assertIn("Encuesta en el vídeo: ¿Sí o no?.", cola.describir())
+
+    def test_las_metas_fijas_no_se_descartan_por_tiempo(self):
+        cola = ColaPantalla()
+        metas = _pieza("Risa: 2 de 3", 0, "metas")
+        cola.fijar_encuesta(metas)
+        cola.ordenes(0)
+        cola.mostrada(metas, 0)
+        self.assertEqual(cola.ordenes(300), [])
+        self.assertEqual(cola.describir(), "Metas en el vídeo: Risa: 2 de 3.")
+
+    def test_un_fallo_no_reinicia_la_espera_para_descartar(self):
+        cola = ColaPantalla()
+        vencida = _pieza("Risa", tipo="disparador")
+        siguiente = _pieza("Saludo", tipo="mensaje")
+        cola.agregar(vencida)
+        cola.agregar(siguiente)
+        cola.ordenes(0)
+        cola.fallo(vencida, 10)
+        mostrar = cola.ordenes(65)
+        self.assertEqual(len(mostrar), 1)
+        self.assertIs(mostrar[0].pieza, siguiente)
+
+    def test_ninguna_pieza_caducable_se_muestra_con_mas_de_un_minuto(self):
+        cola = ColaPantalla()
+        tipos = ["comando", "disparador", "meta", "mensaje"]
+        for numero, tipo in enumerate(tipos):
+            cola.agregar(_pieza(f"Pieza {numero}", tipo=tipo))
+        for instante in range(200):
+            for orden in cola.ordenes(instante):
+                if (orden.accion == "mostrar"
+                        and orden.pieza.tipo in ("comando", "disparador", "meta")):
+                    self.assertLessEqual(instante, 60)
+                cola.fallo(orden.pieza, instante)
+
+    def test_una_pieza_vaciada_y_vuelta_a_agregar_empieza_a_esperar_de_cero(self):
+        cola = ColaPantalla()
+        pieza = _pieza("Risa", tipo="disparador")
+        cola.agregar(pieza)
+        cola.ordenes(0)
+        cola.fallo(pieza, 0)
+        cola.vaciar()
+        self.assertEqual(cola.ordenes(10), [])
+        cola.agregar(pieza)
+        mostrar = cola.ordenes(101)
+        self.assertEqual(len(mostrar), 1)
+        self.assertIs(mostrar[0].pieza, pieza)
+
+    def test_una_pieza_tras_el_panico_vuelve_a_esperar_desde_cero(self):
+        cola = ColaPantalla()
+        pieza = _pieza("Risa", tipo="disparador")
+        cola.agregar(pieza)
+        cola.ordenes(0)
+        cola.fallo(pieza, 0)
+        cola.panico(True)
+        self.assertEqual(cola.ordenes(10), [])
+        cola.panico(False)
+        cola.agregar(pieza)
+        mostrar = cola.ordenes(101)
+        self.assertEqual(len(mostrar), 1)
+        self.assertIs(mostrar[0].pieza, pieza)
+
+    def test_la_pieza_descartada_se_anota_en_el_registro_detallado(self):
+        cola = ColaPantalla()
+        pieza = Pieza(tipo="disparador", texto="Risa", segundos=10,
+                      datos={"nombre": "Risa"})
+        cola.agregar(pieza)
+        cola.ordenes(0)
+        cola.fallo(pieza, 0)
+        with self.assertLogs("guyrapu.rastro_en_vivo", level="DEBUG") as registro:
+            cola.ordenes(61)
+        self.assertIn(
+            'VIDEO_DESCARTADA tipo=disparador nombre="Risa" segundos=61',
+            registro.output[0])
+
+
 class TestVideoLibre(unittest.TestCase):
 
     def test_p3_sin_nada_visible_el_video_esta_libre(self):
