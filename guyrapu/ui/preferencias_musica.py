@@ -104,12 +104,12 @@ class PaginaMusica:
                  _("Pedidos pendientes en total:"),
                  _("Pedidos pendientes en total"), 1, 50, 10,
                  "musica_pedidos_total")):
+            rotulo = fila_label(padre, etiqueta)
             control = ContadorAccesible(
                 padre, min=minimo, max=maximo, name=nombre)
             control.SetValue(int(self._config.get(clave, defecto)))
             setattr(self, atributo, control)
-            formulario.agregar_fila(
-                interior, fila_label(padre, etiqueta), control, numerico=True)
+            formulario.agregar_fila(interior, rotulo, control, numerico=True)
 
     def _pedidos_casillas(self, padre, interior):
         # Sin letra libre en la página: el texto se traduce al construir y se

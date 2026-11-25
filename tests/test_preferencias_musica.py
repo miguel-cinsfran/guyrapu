@@ -129,6 +129,22 @@ class TestPseudoMusica(unittest.TestCase):
             self.assertIsInstance(casilla, wx.CheckBox)
             self.assertTrue(casilla.GetValue())
 
+    def test_cada_contador_de_pedidos_sigue_a_su_propio_rotulo(self):
+        pagina = self._dialogo().pagina_musica
+        for atributo, rotulo in (
+                ("sp_musica_pedidos_duracion",
+                 "Duración máxima de un pedido (minutos):"),
+                ("sp_musica_pedidos_persona",
+                 "Pedidos pendientes por persona:"),
+                ("sp_musica_pedidos_total",
+                 "Pedidos pendientes en total:")):
+            with self.subTest(atributo=atributo):
+                control = getattr(pagina, atributo)
+                hijos = list(control.GetParent().GetChildren())
+                anterior = hijos[hijos.index(control) - 1]
+                self.assertIsInstance(anterior, wx.StaticText)
+                self.assertEqual(anterior.GetLabel().replace("&", ""), rotulo)
+
     def test_el_grupo_de_pedidos_se_guarda_en_la_seccion_musica(self):
         dialogo = self._dialogo()
         pagina = dialogo.pagina_musica
