@@ -26,7 +26,7 @@
       "padre": null,
       "clase": "wxFrame",
       "nombre": "VentanaPrincipal",
-      "etiqueta": "Guyrapu 3.0.0 beta 9",
+      "etiqueta": "Guyrapu 3.0.0 beta 10",
       "rect": [
         0,
         0,
@@ -45,7 +45,7 @@
         "peso": 400
       },
       "texto_px": [
-        107,
+        113,
         15
       ]
     },
