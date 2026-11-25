@@ -83,6 +83,56 @@ class TestLineasDeAlertasYMetas(unittest.TestCase):
         self.assertNotIn("mensaje privado de Ana", linea)
 
 
+class TestLineasDeComandos(unittest.TestCase):
+
+    def test_el_comando_que_respondio_dice_nombre_y_destino(self):
+        self.assertEqual(
+            rastro_en_vivo.comando("discord", al_video=True),
+            'COMANDO nombre="discord" respondio=si destino=video')
+        self.assertIn("destino=ambos", rastro_en_vivo.comando(
+            "discord", al_video=True, al_chat=True))
+        self.assertIn("destino=chat", rastro_en_vivo.comando(
+            "discord", al_chat=True))
+        self.assertIn("destino=ninguno", rastro_en_vivo.comando("discord"))
+
+    def test_el_comando_que_no_respondio_dice_el_motivo(self):
+        self.assertEqual(
+            rastro_en_vivo.comando(
+                "hola", "el comando hola está en espera, faltan 4 segundos."),
+            'COMANDO nombre="hola" respondio=no '
+            'motivo="el comando hola está en espera, faltan 4 segundos."')
+
+    def test_un_nombre_y_un_motivo_con_comillas_se_escriben_escapados(self):
+        linea = rastro_en_vivo.comando('risa "grande"', 'dice "espera"')
+        self.assertIn('nombre="risa \\"grande\\""', linea)
+        self.assertIn('motivo="dice \\"espera\\""', linea)
+
+    def test_el_pedido_aceptado_dice_donde_entra_en_la_cola(self):
+        for donde in ("final", "continuacion", "ahora"):
+            with self.subTest(donde=donde):
+                self.assertEqual(
+                    rastro_en_vivo.pedido_musica(True, destino=donde),
+                    f'PEDIDO_MUSICA aceptado=si destino={donde}')
+
+    def test_el_pedido_rechazado_dice_el_motivo(self):
+        self.assertEqual(
+            rastro_en_vivo.pedido_musica(
+                False, motivo="la búsqueda no dio resultados"),
+            'PEDIDO_MUSICA aceptado=no '
+            'motivo="la búsqueda no dio resultados"')
+
+    def test_ninguna_linea_lleva_el_autor_el_texto_la_busqueda_ni_el_titulo(self):
+        lineas = [
+            rastro_en_vivo.comando("discord", al_video=True),
+            rastro_en_vivo.comando("hola", "está en espera"),
+            rastro_en_vivo.pedido_musica(True, destino="final"),
+            rastro_en_vivo.pedido_musica(False, motivo="sin resultados"),
+        ]
+        texto = " ".join(lineas)
+        for dato in ("Ana", "!musica algo", "Tema pedido"):
+            self.assertNotIn(dato, texto)
+
+
 class TestLineasDelVideo(unittest.TestCase):
 
     def test_la_cola_dice_tipo_nombre_aceptacion_y_pendientes(self):

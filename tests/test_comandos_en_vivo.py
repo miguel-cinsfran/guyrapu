@@ -13,7 +13,7 @@ from guyrapu.core.config import TIPO_TEXTO
 from guyrapu.core.sonidos_eventos import ROL_MODERADOR
 from guyrapu.downloads import busqueda_youtube
 from guyrapu.interaction import (
-    comandos_guardados, filtro_publico, medios_guardados)
+    comandos_guardados, filtro_publico, medios_guardados, rastro_en_vivo)
 from guyrapu.music.modelo import EstadoMusica, Tema
 from guyrapu.ui import chat_vivo, comandos_en_vivo, encuesta_en_vivo
 from guyrapu.ui import gui, gui_envio_chat, preguntas_en_vivo
@@ -144,20 +144,6 @@ class Base(unittest.TestCase):
             self.control.encolar(_registro(texto, autor=autor,
                                            plataforma=plataforma, rol=rol))
 
-
-class TestRespuestaEnElVideo(Base):
-
-    def test_un_comando_que_entra_por_el_chat_llega_a_la_capa(self):
-        self._guardar(_datos(respuesta="Nuestro Discord: {usuario}"))
-        self._encolar("!discord")
-        self.frame._capa_video.agregar_comando.assert_called_once()
-        respuesta = self.frame._capa_video.agregar_comando.call_args.args[0]
-        self.assertEqual(respuesta.texto, "Nuestro Discord: Ana")
-        self.assertEqual(len(self.control._pendientes), 1)
-
-
-class TestPedidoDeMusica(Base):
-
     def _guardar_musica(self, activo=True, config=None):
         self.frame._musica = mock.Mock()
         self.frame._musica.estado.return_value = EstadoMusica(
@@ -182,6 +168,20 @@ class TestPedidoDeMusica(Base):
                  mock.patch.object(gui_envio_chat, "enviar_respuesta_chat"):
             self._encolar(texto, plataforma=plataforma, autor=autor)
         return crear, buscar, aviso
+
+
+class TestRespuestaEnElVideo(Base):
+
+    def test_un_comando_que_entra_por_el_chat_llega_a_la_capa(self):
+        self._guardar(_datos(respuesta="Nuestro Discord: {usuario}"))
+        self._encolar("!discord")
+        self.frame._capa_video.agregar_comando.assert_called_once()
+        respuesta = self.frame._capa_video.agregar_comando.call_args.args[0]
+        self.assertEqual(respuesta.texto, "Nuestro Discord: Ana")
+        self.assertEqual(len(self.control._pendientes), 1)
+
+
+class TestPedidoDeMusica(Base):
 
     def test_un_pedido_activo_termina_en_la_cola_y_responde_con_el_titulo(self):
         self._guardar_musica()
@@ -702,6 +702,18 @@ class TestEnsayo(Base):
         avisar.assert_called_once_with(
             "Nada respondió: los comandos están en pausa.", "aviso")
 
+    def test_en_pausa_un_mensaje_sin_comando_sigue_dando_el_motivo_al_informe(self):
+        self._guardar(_datos(nombre="hola"))
+        comandos_en_vivo._en_vivo(self.frame).alternar_pausa()
+        ventana = self._ventana_falsa()
+        with mock.patch.object(chat_vivo, "anunciar_con_sonido") as avisar, \
+                self.assertNoLogs(rastro_en_vivo.logger, level="DEBUG"):
+            self._encolar("Hola Ana, ¿qué tal?")
+        frase = "Nada respondió: los comandos están en pausa."
+        avisar.assert_called_once_with(frase, "aviso")
+        ventana.agregar_resultado.assert_called_once()
+        self.assertEqual(ventana.agregar_resultado.call_args.args[1], frase)
+
     def test_con_un_directo_conectado_no_anota_ni_anuncia(self):
         self._guardar(_datos(nombre="hola"))
         self.frame._ensayo = False
@@ -772,6 +784,103 @@ class TestAtajoDelComando(Base):
             comandos_en_vivo.disparar(self.frame, 3, ahora=0)
         self.frame._capa_video.agregar_comando.assert_called_once()
         avisar.assert_not_called()
+
+
+class TestRastroDeComandos(Base):
+    """Lo que el registro detallado cuenta de los comandos y la música."""
+
+    def test_un_comando_que_respondio_deja_su_nombre_y_destino(self):
+        self._guardar(_datos(respuesta="Hola"))
+        with self.assertLogs(rastro_en_vivo.logger, level="DEBUG") as registro:
+            self._encolar("!discord")
+        lineas = [linea for linea in registro.output if "COMANDO" in linea]
+        self.assertEqual(len(lineas), 1)
+        self.assertIn('COMANDO nombre="discord" respondio=si destino=video',
+                      lineas[0])
+        texto = "\n".join(lineas)
+        self.assertNotIn("Ana", texto)
+        self.assertNotIn("!discord", texto)
+        self.assertNotIn("Hola", texto)
+
+    def test_un_comando_en_espera_deja_el_motivo(self):
+        self.frame._conectado = False
+        self.frame._ensayo = True
+        self._guardar(_datos(nombre="hola", espera_persona=0))
+        self._ventana_falsa()
+        with mock.patch.object(chat_vivo, "anunciar_con_sonido"):
+            with self.assertLogs(rastro_en_vivo.logger,
+                                 level="DEBUG") as registro:
+                self._encolar("!hola")
+                self.ahora = 1.0
+                self._encolar("!hola")
+        lineas = [linea for linea in registro.output if "COMANDO" in linea]
+        self.assertEqual(len(lineas), 2)
+        self.assertIn(
+            'COMANDO nombre="hola" respondio=no '
+            'motivo="el comando hola está en espera, faltan 4 segundos."',
+            lineas[1])
+        self.assertNotIn("Ana", lineas[1])
+        self.assertNotIn("!hola", lineas[1])
+
+    def test_con_los_comandos_en_pausa_deja_el_motivo_de_pausa(self):
+        self._guardar(_datos(nombre="hola", respuesta="Hola"))
+        en_vivo = comandos_en_vivo.ComandosEnVivo(self.frame)
+        self.frame._comandos_en_vivo = en_vivo
+        en_vivo.alternar_pausa()
+        with self.assertLogs(rastro_en_vivo.logger, level="DEBUG") as registro:
+            self._encolar("!hola")
+        lineas = [linea for linea in registro.output if "COMANDO" in linea]
+        self.assertEqual(len(lineas), 1)
+        self.assertIn(
+            'COMANDO nombre="hola" respondio=no '
+            'motivo="los comandos están en pausa."', lineas[0])
+        self.assertNotIn("Ana", lineas[0])
+        self.assertNotIn("!hola", lineas[0])
+
+    def test_un_mensaje_sin_comando_no_deja_linea(self):
+        self._guardar(_datos(respuesta="Hola"))
+        with self.assertNoLogs(rastro_en_vivo.logger, level="DEBUG"):
+            self._encolar("Hola Ana, ¿qué tal?")
+
+    def test_un_voto_o_una_pregunta_no_deja_linea_de_comando(self):
+        self._guardar(
+            _datos(nombre="2", respuesta="Respuesta del comando"),
+            _datos(nombre="pregunta", respuesta="Respuesta del comando"))
+        with mock.patch.object(encuesta_en_vivo, "votar",
+                               return_value=True), \
+                self.assertNoLogs(rastro_en_vivo.logger, level="DEBUG"):
+            self._encolar("!2")
+        with mock.patch.object(preguntas_en_vivo, "recibir",
+                               return_value=True), \
+                self.assertNoLogs(rastro_en_vivo.logger, level="DEBUG"):
+            self._encolar("!pregunta Hola")
+
+    def test_un_pedido_aceptado_deja_el_destino_en_la_cola(self):
+        for numero, donde in enumerate(("final", "continuacion", "ahora")):
+            with self.subTest(donde=donde):
+                self.ahora = numero * 40.0
+                self._guardar_musica(
+                    config={"musica_pedidos_donde": donde})
+                with self.assertLogs(rastro_en_vivo.logger,
+                                     level="DEBUG") as registro:
+                    self._pedir(resultados=[_resultado_video()])
+                texto = "\n".join(registro.output)
+                self.assertIn(
+                    f'PEDIDO_MUSICA aceptado=si destino={donde}', texto)
+                self.assertNotIn("Ana", texto)
+                self.assertNotIn("algo", texto)
+                self.assertNotIn("Tema pedido", texto)
+
+    def test_un_pedido_rechazado_deja_el_motivo(self):
+        self._guardar_musica()
+        with self.assertLogs(rastro_en_vivo.logger, level="DEBUG") as registro:
+            self._pedir(texto="!musica")
+        texto = "\n".join(registro.output)
+        self.assertIn(
+            'PEDIDO_MUSICA aceptado=no '
+            'motivo="falta el nombre o el enlace del tema"', texto)
+        self.assertNotIn("Ana", texto)
+        self.assertNotIn("!musica", texto)
 
 
 if __name__ == "__main__":

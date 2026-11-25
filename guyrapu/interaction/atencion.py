@@ -137,6 +137,11 @@ class Atencion:
                 nombre=comando.nombre, segundos=segundos)
         return ""
 
+    def nombre_del_comando(self, evento):
+        """El nombre del comando que invoca el mensaje, o "" si ninguno."""
+        comando = self._comando_de(evento)
+        return comando.nombre if comando is not None else ""
+
     def _comando_de(self, evento):
         invocacion = comandos.leer(evento.texto)
         if invocacion is not None:

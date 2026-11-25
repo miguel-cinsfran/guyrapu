@@ -26,7 +26,8 @@ from guyrapu.core.sonidos_eventos import ROL_PROPIETARIO
 from guyrapu.downloads import busqueda_youtube
 from guyrapu.interaction import (
     atencion, comandos, comandos_guardados, conversion_disparadores, ensayo,
-    filtro_publico, informe_ensayo, medio_en_video, pedido_musica)
+    filtro_publico, informe_ensayo, medio_en_video, pedido_musica,
+    rastro_en_vivo)
 from guyrapu.music.modelo import Tema
 from guyrapu.interaction.evento import desde_entrante, persona as persona_de_evento
 from guyrapu.ui import encuesta_en_vivo, gui_envio_chat, preguntas_en_vivo
@@ -111,26 +112,39 @@ class ComandosEnVivo:
         if encuesta_en_vivo.votar(self._frame, evento, ahora):
             return
         informe = ensayo.informe(self._frame)
+        self._recargar()
         if self._pausados:
+            motivo = _(informe_ensayo.MOTIVO_PAUSA_GENERAL)
+            nombre = self._atencion.nombre_del_comando(evento)
+            if nombre:
+                rastro_en_vivo.escribir(rastro_en_vivo.comando(
+                    nombre, motivo))
             if informe is not None:
-                informe.motivo(_(informe_ensayo.MOTIVO_PAUSA_GENERAL))
+                informe.motivo(motivo)
             return
         if preguntas_en_vivo.recibir(self._frame, evento, ahora):
             return
-        self._recargar()
         respuesta = self._atencion.atender(
             evento, ahora,
             chat_disponible=self._chat_disponible(),
             cuota_baja=_cuota_baja())
         if respuesta is not None:
+            rastro_en_vivo.escribir(rastro_en_vivo.comando(
+                respuesta.nombre, al_video=respuesta.al_video,
+                al_chat=respuesta.al_chat))
             if informe is not None:
                 informe.comando(respuesta.nombre)
             if respuesta.especial == comandos.ESPECIAL_MUSICA:
                 self._pedir_musica(respuesta, evento, registro.texto)
             else:
                 self._mandar(respuesta, registro.autor)
-        elif informe is not None:
-            informe.motivo(self._atencion.motivo(evento, ahora))
+        else:
+            motivo = self._atencion.motivo(evento, ahora)
+            if motivo:
+                nombre = self._atencion.nombre_del_comando(evento)
+                rastro_en_vivo.escribir(rastro_en_vivo.comando(nombre, motivo))
+            if informe is not None:
+                informe.motivo(motivo)
 
     def disparar(self, numero, ahora=None) -> None:
         """Usa el comando de ese número como si lo pidiera el dueño."""
@@ -201,11 +215,15 @@ class ComandosEnVivo:
         self._en_curso = [actual for actual in self._en_curso
                           if actual is not en_curso]
         if pedido.motivo:
+            rastro_en_vivo.escribir(rastro_en_vivo.pedido_musica(
+                False, motivo=pedido.motivo))
             self._rechazar(evento, pedido, ajustes)
             return
         tema = Tema(origen=pedido.tema.url, titulo=pedido.tema.titulo,
                     duracion_ms=pedido.tema.duracion * 1000)
         self._poner_tema(tema, ajustes.donde)
+        rastro_en_vivo.escribir(rastro_en_vivo.pedido_musica(
+            True, destino=ajustes.donde))
         self._pendientes_musica.append(
             pedido_musica.Pendiente(persona_de_evento(evento), pedido.tema.url))
         titulo = self._atencion.tapar(pedido.tema.titulo)

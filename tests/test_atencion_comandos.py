@@ -111,6 +111,23 @@ class TestMotivo(unittest.TestCase):
         self.assertEqual(atencion.Atencion([]).motivo(objeto, 0), "")
 
 
+class TestNombreDelComando(unittest.TestCase):
+
+    def test_devuelve_el_nombre_que_invoca_el_mensaje_o_cadena_vacia(self):
+        atencion_ = atencion.Atencion([
+            _comando(alias=("hola",)), _comando("pausado", activo=False)])
+        casos = (
+            ("!saludo hola", "saludo"),
+            ("!hola", "saludo"),
+            ("!pausado", "pausado"),
+            ("!otro", ""),
+        )
+        for texto, esperado in casos:
+            with self.subTest(texto=texto):
+                self.assertEqual(
+                    atencion_.nombre_del_comando(_evento(texto)), esperado)
+
+
 class TestVariablesYContador(unittest.TestCase):
 
     def test_reemplaza_usuario_texto_y_contador(self):
